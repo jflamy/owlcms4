@@ -1,0 +1,71 @@
+<link rel="import"
+	href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="todo-template">
+<template>
+<style>
+.main-panel {
+	background-color: #eee;
+	overflow-y: hidden;
+	padding: 20px 10px;
+}
+
+.side-panel {
+	padding: 20px 10px;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.gridwrapper {
+	display: grid;
+	width: 100vw;
+  	height: 100vh;
+	grid-template-columns: repeat(9, 1fr);
+  	grid-template-rows: auto 1fr 100px;
+	grid-template-areas: 
+		"hd hd hd hd   hd   hd   hd   hd   hd"
+		"sd sd sd main main main main main main"
+		"ft ft ft ft   ft   ft   ft   ft   ft";
+}
+
+.gridwrapper .top-panel {
+	grid-area: hd;
+}
+.gridwrapper .side-panel {
+	grid-area: sd;
+}
+
+.gridwrapper .main-panel {
+	grid-area: main;
+}
+</style>
+
+
+<div class="gridwrapper">
+	<div class="top-panel">
+		<todo-creator id="creator"></todo-creator>
+	</div>
+	<div class="side-panel">
+		<h2>Completed tasks</h2>
+		<slot name="done"></slot>
+	</div>
+
+	<div class="main-panel">
+		<h2>Open tasks</h2>
+		<slot>
+		<h3>No tasks are waiting</h3>
+		</slot>
+	</div>
+</div>
+
+</template>
+<script>
+        class TodoTemplate extends Polymer.Element {
+            static get is() {
+                return 'todo-template'
+            }
+        }
+        customElements.define(TodoTemplate.is, TodoTemplate);
+    </script> </dom-module>

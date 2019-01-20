@@ -1,0 +1,114 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import"
+      href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+
+<dom-module id="todo-element" attributes="task user rid">
+    <template>
+        <style>
+            .todo {
+                padding: 10px;
+                background-color: #fff;
+                max-width: 640px;
+                width: 90%;
+                margin: 25px auto;
+                position: relative;
+            }
+
+            paper-checkbox {
+                float: right;
+                margin: 2vh 2vw;
+                z-index: 2;
+                position: relative;
+            }
+
+            paper-button {
+                background: #ccc;
+            }
+
+            paper-fab {
+                position: absolute;
+                bottom: 3vh;
+                right: 3vw;
+                background: #4DD0E1;
+                z-index: 2;
+            }
+
+            .done {
+                background: green;
+            }
+
+            .info {
+                font-style: italic;
+                font-size: 14px;
+                color: #696969;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+
+            .info span {
+                margin-left: 5px;
+            }
+
+            paper-input {
+                margin: 0 2vw;
+                z-index: 1;
+            }
+
+            paper-item {
+                z-index: 1;
+            }
+
+        </style>
+
+        <div class="todo" elevation="1">
+            <paper-checkbox hidden={{completed}}
+                            checked={{completed}} id="checkbox"></paper-checkbox>
+
+            <template is="dom-if" if="{{!completed}}">
+                <paper-fab hidden={{editing}} icon="icons:create"
+                           on-tap="_doEdit" class="edit" mini></paper-fab>
+                <paper-fab hidden={{!editing}} icon="icons:done"
+                           on-tap="_doEdit"
+                           class="done" mini></paper-fab>
+            </template>
+            <template is="dom-if" if="{{completed}}">
+                <paper-fab icon="icons:delete" on-tap="remove"></paper-fab>
+            </template>
+
+            <paper-item hidden={{editing}} id="task">{{task}}</paper-item>
+            <paper-input id="edit" hidden={{!editing}}
+                         value={{task}}></paper-input>
+
+            <paper-item class="info">Created by: <span>{{user}}</span>
+            </paper-item>
+            <paper-item class="info">{{time}}</paper-item>
+
+        </div>
+    </template>
+    <script>
+        class TodoElement extends Polymer.Element {
+            static get is() {
+                return 'todo-element'
+            }
+
+            static get properties() {
+                return {
+                    editing: {
+                        type: Boolean,
+                        value: false
+                    }
+                }
+            }
+
+            _doEdit() {
+                this.editing = !this.editing;
+            }
+        }
+        customElements.define(TodoElement.is, TodoElement);
+    </script>
+</dom-module>
