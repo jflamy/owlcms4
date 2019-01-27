@@ -1,0 +1,6 @@
+com\vaadin\flow\demo\helloworld\template\Todo.class
+com\vaadin\flow\demo\helloworld\template\TodoElement$TodoModel.class
+com\vaadin\flow\demo\helloworld\template\TodoElement.class
+com\vaadin\flow\demo\helloworld\template\TodoList.class
+com\vaadin\flow\demo\helloworld\template\TodoCreator$CreateCallback.class
+com\vaadin\flow\demo\helloworld\template\TodoCreator.class

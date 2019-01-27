@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.flow.demo.helloworld.template;
+package org.ledocte.owlcms.ui.attemptboard;
 
 import org.junit.Assert;
 import org.junit.Test;
