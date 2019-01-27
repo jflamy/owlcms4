@@ -1,0 +1,223 @@
+<link rel="import"
+	href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="attempt-board-template"> <template>
+<style>
+.main-panel {
+	background-color: #eee;
+	overflow-y: hidden;
+	padding: 20px 10px;
+}
+
+.side-panel {
+	padding: 20px 10px;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.attemptBoard {
+	display: grid;
+	width: 100vw;
+	height: 100vh;
+	grid-template-columns: 0.05fr[firstName-start lastName-start
+		teamName-start startNumber-start weight-start] 1fr[startNumber-end
+		attempt-start] 2fr[attempt-end weight-end barbell-start down-start
+		decision-start] 3fr[barbell-end timer-start] 3fr[timer-end name-end
+		down-end decision-end] 
+		0.05fr;
+	grid-template-rows: 0.05fr[lastName-start]1fr[lastName-end
+		firstName-start]1fr[firstName-end teamName-start]1fr[teamName-end down-start decision-start]0.2fr[startNumber-start
+		attempt-start barbell-start timer-start ]1fr[startNumber-end
+		attempt-end weight-start]5fr[weight-end barbell-end timer-end down-end
+		decision-end] 
+		0.05fr;
+	justify-content: center;
+	align-content: center;
+	align-items: stretch;
+	justify-items: stretch;
+}
+
+.attemptBoard .lastName {
+	justify-self: left;
+	font-size: 12vh;
+	font-weight: bold;
+	grid-area: lastName-start/lastName-start/lastName-end/lastName-end;
+}
+@media screen and (max-width: 1300px) {
+  .attemptBoard .lastName {
+    font-size: 7vw;
+    font-weight: bold;
+  }
+}
+
+.attemptBoard .firstName {
+	justify-self: left;
+	font-size: 10vh;
+	grid-area: firstName-start/firstName-start/firstName-end/firstName-end;
+}
+@media screen and (max-width: 1300px) {.attemptBoard .firstName {font-size: 7vw;}}
+
+.attemptBoard .teamName {
+	justify-self: left;
+	font-size: 8vh;
+	grid-area: teamName-start/teamName-start/teamName-end/teamName-end;
+}
+@media screen and (max-width: 1300px) {.attemptBoard .teamName {font-size: 8vh;}}
+
+.attemptBoard .startNumber {
+	font-size: 10vh;
+	grid-area: startNumber-start/startNumber-start/startNumber-end/startNumber-end;
+}
+@media screen and (max-width: 1300px) {.attemptBoard .startNumber {font-size: 8vh;}}
+
+.attemptBoard .startNumber span {
+	border-width: 0.2ex;
+	border-style: solid;
+	border-color: red;
+	width: 1.5em;
+	display: flex;
+	justify-content: center;
+}
+
+.attemptBoard .attempt {
+	font-size: 10vh;
+	grid-area: attempt-start/attempt-start/attempt-end/attempt-end;
+}
+@media screen and (max-width: 1300px) {.attemptBoard .attempt {font-size: 8vh;}}
+
+.attemptBoard .weight {
+	font-size: 20vh;
+	font-weight: bold;
+	grid-area: weight-start/weight-start/weight-end/weight-end;
+	align-self: center;
+	justify-self: stretch;
+}
+@media screen and (max-width: 1300px) {.attemptBoard .weight {font-size: 12vw;}}
+
+.attemptBoard .barbell {
+	grid-area: barbell-start/barbell-start/barbell-end/barbell-end;
+}
+
+.attemptBoard .timer {
+	font-size: 20vh;
+	font-weight: bold;
+	grid-area: timer-start/timer-start/timer-end/timer-end;
+	align-self: center;
+	justify-self: stretch;
+}
+@media screen and (max-width: 1300px) {.attemptBoard .timer {font-size: 12vw;}}
+
+.attemptBoard .down {
+	grid-area: down-start/down-start/down-end/down-end;
+	align-self: stretch;
+	justify-self: stretch;
+    --iron-icon-height: 100%;
+    --iron-icon-width: 100%;
+	font-weight: normal;
+	color: lime;
+	display:none;
+	overflow: hidden;
+}
+
+.attemptBoard .decision {
+	grid-area: decision-start/decision-start/decision-end/decision-end;
+}
+
+.attemptBoard .buttons {
+	font-size: 20pt;
+	color: purple;
+}
+
+.blink_me {
+	animation: blinker 1s linear infinite;
+}
+
+@
+keyframes blinker { 50% {
+	opacity: 0;
+}
+}
+</style>
+
+<div class="attemptBoard">
+	<div class="lastName" on-click="reset">Beauchemin-De la Durantaye</div>
+	<div class="firstName">Geneviève-Dominique</div>
+	<div class="teamName">Club d'haltérophilie Gravité</div>
+	<div class="startNumber">
+		<span>12</span>
+	</div>
+	<div class="attempt">2nd att.</div>
+	<div class="weight">249<span style="font-size: 75%">kg</span></div>
+	<div class="barbell" id="barbellDiv">
+		<slot name="barbell"></slot>
+	</div>
+	<div class="timer" id="timerDiv">
+		<timer-element id="timer"></timer-element>
+		<div class="buttons">
+			<iron-icon hidden=[[!interactive]] icon$="[[_playOrPauseIcon]]"
+				on-click="start" id="play-pause-button"></iron-icon>
+			<iron-icon hidden=[[!interactive]] icon="av:replay" on-click="reset"
+				id="reset-button"></iron-icon>
+			<iron-icon hidden=[[!interactive]] icon="icons:file-download" on-click="down"
+				id="down-button"></iron-icon>
+		</div>
+	</div>
+	<div class="decision" id="decisionDiv" on-down="down" on-hide="reset">
+		<decision-element id="decisions"></decision-element>
+	</div>
+</div>
+
+</template> <script>
+        class CurrentAttempt extends Polymer.Element {
+            static get is() {
+                return 'attempt-board-template'
+            }
+
+            static get properties() {
+          	  return {
+                 /**
+                  * Set to true to have timer count show controls
+                  * @default false
+                  */
+                  interactive: {
+                    type: Boolean,
+                    value: false,
+                    reflectToAttribute: true
+                  },
+                 _playOrPauseIcon: {
+                     type: String,
+                     value: 'av:play-arrow'
+                   }
+          	  }
+            }
+            
+            ready() {
+          	  super.ready();
+      		  this.reset();
+      		  
+            }
+            
+            start() {
+                this.set('_playOrPauseIcon','av:pause');
+            	this.$.timer.start();
+            }
+            
+            reset() {
+            	this.set('_playOrPauseIcon','av:play-arrow');
+            	this.$.timer.reset();
+            	this.$.timerDiv.style.display="block";
+            	this.$.barbellDiv.style.display="block";
+            	this.$.decisionDiv.style.display="none";
+            }
+            
+            down() {
+            	this.$.timerDiv.style.display="none";
+            	this.$.barbellDiv.style.display="none";
+            	this.$.decisionDiv.style.display="block";
+            	this.$server.down();
+            }
+        }
+        customElements.define(CurrentAttempt.is, CurrentAttempt);
+    </script> </dom-module>
