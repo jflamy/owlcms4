@@ -12,10 +12,18 @@
 	<artifactId>pocCurrentAttempt</artifactId>
 	<packaging>war</packaging>
 
+	<properties>
+		<vaadin.version>12.0.4</vaadin.version>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-material-theme</artifactId>
+			<artifactId>vaadin-lumo-theme</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-lumo-theme</artifactId>
 		</dependency>
 
 		<dependency>
@@ -45,76 +53,36 @@
 			<artifactId>paper-icon-button</artifactId>
 			<version>2.2.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.github.appreciated</groupId>
+			<artifactId>app-layout-addon</artifactId>
+			<version>2.0.5-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
-
-	<profiles>
-		<profile>
-			<id>productionMode</id>
-			<activation>
-				<property>
-					<name>vaadin.productionMode</name>
-				</property>
-			</activation>
-
-			<properties>
-				<transpilation.output>${project.build.directory}/build</transpilation.output>
-			</properties>
-
-			<dependencies>
-				<dependency>
-					<groupId>com.vaadin</groupId>
-					<artifactId>flow-server-production-mode</artifactId>
-					<version>${flow.version}</version>
-				</dependency>
-			</dependencies>
-
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.vaadin</groupId>
-						<artifactId>flow-maven-plugin</artifactId>
-						<version>${flow.plugin.version}</version>
-						<executions>
-							<execution>
-								<goals>
-									<goal>copy-production-files</goal>
-									<goal>package-for-production</goal>
-								</goals>
-								<configuration>
-									<transpileOutputDirectory>${transpilation.output}</transpileOutputDirectory>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-war-plugin</artifactId>
-						<version>${maven.war.plugin.version}</version>
-						<configuration>
-							<webResources>
-								<resource>
-									<directory>${transpilation.output}</directory>
-								</resource>
-							</webResources>
-						</configuration>
-					</plugin>
-
-					<plugin>
-						<groupId>org.eclipse.jetty</groupId>
-						<artifactId>jetty-maven-plugin</artifactId>
-						<version>${jetty.version}</version>
-						<configuration>
-							<webAppConfig>
-								<containerIncludeJarPattern>^$</containerIncludeJarPattern>
-								<resourceBases>
-									<resourceBase>${transpilation.output}</resourceBase>
-								</resourceBases>
-							</webAppConfig>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>${jetty.version}</version>
+				<configuration>
+					<webApp>
+						<resourceBases>
+							<resourceBase>${project.basedir}/src/main/resources/META-INF/resources</resourceBase>
+						</resourceBases>
+					</webApp>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-core</artifactId>
+				<version>12.0.4</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
