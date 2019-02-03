@@ -5,10 +5,10 @@
 	<parent>
 		<groupId>org.ledocte</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>4.0.1-SNAPSHOT</version>
 	</parent>
 
-	<name>owlcms4</name>
+	<name>Olympic Weightlifting Competition Management System</name>
 	<artifactId>owlcms</artifactId>
 	<packaging>war</packaging>
 
