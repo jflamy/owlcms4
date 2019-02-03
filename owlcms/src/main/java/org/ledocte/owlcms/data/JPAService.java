@@ -9,7 +9,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import org.ledocte.owlcms.category.CategoryRepository;
+import org.ledocte.owlcms.data.category.CategoryRepository;
 
 public class JPAService {
 	

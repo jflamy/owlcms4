@@ -86,7 +86,6 @@
 				<groupId>javax.servlet</groupId>
 				<artifactId>javax.servlet-api</artifactId>
 				<version>3.1.0</version>
-				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>
@@ -248,22 +247,21 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.6.1</version>
-				<configuration>
-					<compilerId>eclipse</compilerId>
-				</configuration>
-				<dependencies>
-					<!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-compiler-eclipse -->
-					<dependency>
-						<groupId>org.codehaus.plexus</groupId>
-						<artifactId>plexus-compiler-eclipse</artifactId>
-						<version>2.8.5</version>
-					</dependency>
-				</dependencies>
-			</plugin>
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
+<!-- 				<artifactId>maven-compiler-plugin</artifactId> -->
+<!-- 				<version>3.6.1</version> -->
+<!-- 				<configuration> -->
+<!-- 					<compilerId>eclipse</compilerId> -->
+<!-- 				</configuration> -->
+<!-- 				<dependencies> -->
+<!-- 					<dependency> -->
+<!-- 						<groupId>org.codehaus.plexus</groupId> -->
+<!-- 						<artifactId>plexus-compiler-eclipse</artifactId> -->
+<!-- 						<version>2.8.5</version> -->
+<!-- 					</dependency> -->
+<!-- 				</dependencies> -->
+<!-- 			</plugin> -->
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -280,7 +278,7 @@
 				</executions>
 			</plugin>
 
-			<plugin>
+			<!-- plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>${maven.failsafe.plugin.version}</version>
 				<executions>
@@ -297,9 +295,9 @@
 						<webdriver.chrome.driver>${webdriver.chrome.driver}</webdriver.chrome.driver>
 					</systemPropertyVariables>
 				</configuration>
-			</plugin>
+			</plugin -->
 
-			<plugin>
+			<!--plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>${maven.war.plugin.version}</version>
@@ -312,9 +310,9 @@
 					</archive>
 					<warSourceExcludes>${war.source.excludes}</warSourceExcludes>
 				</configuration>
-			</plugin>
+			</plugin -->
 
-			<plugin>
+			<!--plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
 				<version>${jetty.version}</version>
@@ -343,9 +341,9 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin -->
 
-			<plugin>
+			<!--plugin>
 				<groupId>org.commonjava.maven.plugins</groupId>
 				<artifactId>directory-maven-plugin</artifactId>
 				<version>0.1</version>
@@ -371,13 +369,13 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin -->
 		</plugins>
 		<pluginManagement>
 			<plugins>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
-				<plugin>
+				<!-- plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
 					<version>1.0.0</version>
@@ -425,12 +423,12 @@
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
-				</plugin>
+				</plugin -->
 			</plugins>
 		</pluginManagement>
 	</build>
 	<profiles>
-		<profile>
+		<!-- profile>
 			<id>eclipse</id>
 			<build>
 				<plugins>
@@ -441,11 +439,11 @@
 						<configuration>
 							<webAppConfig>
 								<webInfIncludeJarPattern>^$</webInfIncludeJarPattern>
-								<!-- Configure all project META-INF/resources directories for Jetty 
+								<!- - Configure all project META-INF/resources directories for Jetty 
 									as resource folders as Jetty inside Eclipse is run with "Resolve workspace 
 									artifacts" and this does not create any JARs. Jetty only scans JARs for META-INF/resources 
-									folders -->
-								<!-- Assumes flow and flow-demo have been clone in the same folder -->
+									folders - ->
+								<!- - Assumes flow and flow-demo have been clone in the same folder - ->
 								<resourceBases>
 									<resourceBase>
 										${project.basedir}/../../flow/flow-server/src/main/resources/META-INF/resources
@@ -463,9 +461,9 @@
 					</plugin>
 				</plugins>
 			</build>
-		</profile>
+		</profile -->
 
-		<profile>
+		<!--  profile>
 			<id>local-run</id>
 			<activation>
 				<property>
@@ -497,8 +495,6 @@
 						<artifactId>driver-binary-downloader-maven-plugin</artifactId>
 						<version>${driver.binary.downloader.maven.plugin.version}</version>
 						<configuration>
-							<!-- root directory that downloaded driver binaries will be stored 
-								in -->
 							<onlyGetDriversForHostOperatingSystem>true</onlyGetDriversForHostOperatingSystem>
 							<rootStandaloneServerDirectory>${rootOutputDir}/driver</rootStandaloneServerDirectory>
 							<downloadedZipFileDirectory>${rootOutputDir}/driver_zips</downloadedZipFileDirectory>
@@ -514,7 +510,7 @@
 					</plugin>
 				</plugins>
 			</build>
-		</profile>
+		</profile -->
 	</profiles>
 
 </project>
