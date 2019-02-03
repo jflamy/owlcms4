@@ -8,8 +8,8 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<name>Polymer Current Attempt Board Proof-of-Concept</name>
-	<artifactId>pocCurrentAttempt</artifactId>
+	<name>owlcms4</name>
+	<artifactId>owlcms</artifactId>
 	<packaging>war</packaging>
 
 	<properties>
@@ -21,9 +21,40 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-lumo-theme</artifactId>
 		</dependency>
+
 		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-lumo-theme</artifactId>
+			<groupId>org.vaadin.crudui</groupId>
+			<artifactId>crudui</artifactId>
+			<version>3.7.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>2.0.1.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.196</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>5.4.1.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>6.0.14.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.el</artifactId>
+			<version>3.0.1-b08</version>
 		</dependency>
 
 		<dependency>
@@ -67,6 +98,7 @@
 				<artifactId>jetty-maven-plugin</artifactId>
 				<version>${jetty.version}</version>
 				<configuration>
+					<scanIntervalSeconds>0</scanIntervalSeconds>
 					<webApp>
 						<resourceBases>
 							<resourceBase>${project.basedir}/src/main/resources/META-INF/resources</resourceBase>
