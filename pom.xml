@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.ledocte</groupId>
 	<artifactId>owlcms4top</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>4.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>doc</module>
@@ -24,6 +24,7 @@
 
 		<!-- Libraries -->
 		<flow.version>1.3-SNAPSHOT</flow.version>
+		<vaadin.version>12.0.4</vaadin.version>
 		<commons.beanutils.version>1.9.3</commons.beanutils.version>
 
 		<!-- Plugins -->
@@ -44,6 +45,13 @@
 		<repository>
 			<id>vaadin-snapshots</id>
 			<url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>vaadin-addons</id>
+			<url>http://vaadin.com/nexus/content/repositories/vaadin-addons/</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
@@ -82,6 +90,17 @@
 			</dependency>
 			<dependency>
 				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-bom</artifactId>
+				<type>pom</type>
+				<scope>import</scope>
+				<version>${vaadin.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-core</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin</groupId>
 				<artifactId>flow-server</artifactId>
 				<version>${flow.version}</version>
 			</dependency>
@@ -103,6 +122,11 @@
 			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-material-theme</artifactId>
+				<version>${flow.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-lumo-theme</artifactId>
 				<version>${flow.version}</version>
 			</dependency>
 
@@ -228,6 +252,17 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.6.1</version>
+				<configuration>
+					<compilerId>eclipse</compilerId>
+				</configuration>
+				<dependencies>
+					<!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-compiler-eclipse -->
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-compiler-eclipse</artifactId>
+						<version>2.8.5</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 
 			<plugin>

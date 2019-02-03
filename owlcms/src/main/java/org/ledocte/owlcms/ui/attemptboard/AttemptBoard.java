@@ -33,7 +33,7 @@ import com.vaadin.flow.theme.material.Material;
  */
 @Tag("attempt-board-template")
 @HtmlImport("frontend://components/AttemptBoard.html")
-@Route("")
+@Route("attemptBoard")
 @Theme(value = Material.class, variant = Material.DARK)
 
 public class AttemptBoard extends PolymerTemplate<TemplateModel> {

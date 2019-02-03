@@ -5,17 +5,56 @@
 	<parent>
 		<groupId>org.ledocte</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>4.0.1-SNAPSHOT</version>
 	</parent>
 
-	<name>Polymer Current Attempt Board Proof-of-Concept</name>
-	<artifactId>pocCurrentAttempt</artifactId>
+	<name>Olympic Weightlifting Competition Management System</name>
+	<artifactId>owlcms</artifactId>
 	<packaging>war</packaging>
+
+	<properties>
+		<vaadin.version>12.0.4</vaadin.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-material-theme</artifactId>
+			<artifactId>vaadin-lumo-theme</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.vaadin.crudui</groupId>
+			<artifactId>crudui</artifactId>
+			<version>3.7.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>2.0.1.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.196</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>5.4.1.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>6.0.14.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.el</artifactId>
+			<version>3.0.1-b08</version>
 		</dependency>
 
 		<dependency>
@@ -45,76 +84,37 @@
 			<artifactId>paper-icon-button</artifactId>
 			<version>2.2.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.github.appreciated</groupId>
+			<artifactId>app-layout-addon</artifactId>
+			<version>2.0.5-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
-
-	<profiles>
-		<profile>
-			<id>productionMode</id>
-			<activation>
-				<property>
-					<name>vaadin.productionMode</name>
-				</property>
-			</activation>
-
-			<properties>
-				<transpilation.output>${project.build.directory}/build</transpilation.output>
-			</properties>
-
-			<dependencies>
-				<dependency>
-					<groupId>com.vaadin</groupId>
-					<artifactId>flow-server-production-mode</artifactId>
-					<version>${flow.version}</version>
-				</dependency>
-			</dependencies>
-
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.vaadin</groupId>
-						<artifactId>flow-maven-plugin</artifactId>
-						<version>${flow.plugin.version}</version>
-						<executions>
-							<execution>
-								<goals>
-									<goal>copy-production-files</goal>
-									<goal>package-for-production</goal>
-								</goals>
-								<configuration>
-									<transpileOutputDirectory>${transpilation.output}</transpileOutputDirectory>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-war-plugin</artifactId>
-						<version>${maven.war.plugin.version}</version>
-						<configuration>
-							<webResources>
-								<resource>
-									<directory>${transpilation.output}</directory>
-								</resource>
-							</webResources>
-						</configuration>
-					</plugin>
-
-					<plugin>
-						<groupId>org.eclipse.jetty</groupId>
-						<artifactId>jetty-maven-plugin</artifactId>
-						<version>${jetty.version}</version>
-						<configuration>
-							<webAppConfig>
-								<containerIncludeJarPattern>^$</containerIncludeJarPattern>
-								<resourceBases>
-									<resourceBase>${transpilation.output}</resourceBase>
-								</resourceBases>
-							</webAppConfig>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>${jetty.version}</version>
+				<configuration>
+					<scanIntervalSeconds>0</scanIntervalSeconds>
+					<webApp>
+						<resourceBases>
+							<resourceBase>${project.basedir}/src/main/resources/META-INF/resources</resourceBase>
+						</resourceBases>
+					</webApp>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-core</artifactId>
+				<version>12.0.4</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
