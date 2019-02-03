@@ -44,7 +44,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 			ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
-		System.err.println("owlcms buildNewForm");
+//		System.err.println("owlcms buildNewForm");
 		FormLayout formLayout = new FormLayout();
 		formLayout.setSizeFull();
 		if (this.responsiveSteps != null) {
@@ -87,7 +87,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 		    footerLayout.add(cancelButton);
 		}
 		
-		if (updateButton != null) {
+		if (updateButton != null && operation == CrudOperation.UPDATE) {
 		    footerLayout.add(updateButton);
 		}
 		

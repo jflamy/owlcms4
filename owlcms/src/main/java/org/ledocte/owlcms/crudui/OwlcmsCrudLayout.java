@@ -63,21 +63,12 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
 	@Override
 	public void showForm(CrudOperation operation, Component form) {
 		if (disableNextShowForm) {
-			System.err.println("ignoring open");
+//			System.err.println("ignoring open");
 		} else {
-			System.err.println("showing form");
+//			System.err.println("showing form");
 			super.showForm(operation, form);
 		}
 		disableNextShowForm(false);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.layout.impl.WindowBasedCrudLayout#hideForm()
-	 */
-	@Override
-	public void hideForm() {
-		super.hideForm();
-		disableNextShowForm(true);
 	}
 	
 	public void disableNextShowForm(boolean isDisabled) {

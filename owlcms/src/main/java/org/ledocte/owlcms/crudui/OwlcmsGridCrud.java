@@ -33,40 +33,62 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 	@Override
 	protected void showForm(CrudOperation operation, T domainObject, boolean readOnly, String successMessage,
 			ComponentEventListener<ClickEvent<Button>> buttonClickListener) {
-		System.err.println("owlcms showForm");
+		showFormWithDeleteButton(operation, domainObject, readOnly, successMessage, buttonClickListener);
+	}
+
+	private void showFormWithDeleteButton(CrudOperation operation, T domainObject, boolean readOnly,
+			String successMessage, ComponentEventListener<ClickEvent<Button>> buttonClickListener) {
 		Component form = this.owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
 				cancelClickEvent -> {
-					// make sure we can select again -- click to select causes issues due to automatic triggering of forms
 					grid.asSingleSelect().clear();
+					// make sure we can select again
 					owlcmsCrudLayout.disableNextShowForm(false);
 				}, operationPerformedClickEvent -> {
-					// we use click to select, we don't want select to bring us back
-					System.err.println("hiding after operation");
+					// update re-selects the item, which (because of click-to-select) displays the form again...
+					owlcmsCrudLayout.disableNextShowForm(true);
 					owlcmsCrudLayout.hideForm();
 					buttonClickListener.onComponentEvent(operationPerformedClickEvent);
+					grid.asSingleSelect().clear();
 					Notification.show(successMessage);
 				}, deletePerformedClickEvent -> {
 					owlcmsCrudLayout.hideForm();
-					// display the confirmation form immediately
+					// we want a confirmation dialog, the same as clicking on the trash can
 					owlcmsCrudLayout.disableNextShowForm(false);
 					this.deleteButtonClicked();
 				});
 
-		crudLayout.showForm(operation, form);
+		owlcmsCrudLayout.showForm(operation, form);
 	}
 	
 	@Override
     protected void updateButtonClicked() {
-		System.err.println("owlcms pencil");
         T domainObject = grid.asSingleSelect().getValue();
-        this.showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
+        // show both an update and a delete button.
+        this.showFormWithDeleteButton(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
             try {
                 T updatedObject = updateOperation.perform(domainObject);
                 grid.asSingleSelect().clear();
                 refreshGrid();
                 grid.asSingleSelect().setValue(updatedObject);
-                // TODO: grid.scrollTo(updatedObject);
             } catch (IllegalArgumentException ignore) {
+            } catch (CrudOperationException e1) {
+                refreshGrid();
+            } catch (Exception e2) {
+                refreshGrid();
+                throw e2;
+            }
+        });
+    }
+	
+	@Override
+	protected void deleteButtonClicked() {
+        T domainObject = grid.asSingleSelect().getValue();
+        // make sure we use the original delete code, else we get into a loop.
+        super.showForm(CrudOperation.DELETE, domainObject, true, deletedMessage, event -> {
+            try {
+                deleteOperation.perform(domainObject);
+                refreshGrid();
+                grid.asSingleSelect().clear();
             } catch (CrudOperationException e1) {
                 refreshGrid();
             } catch (Exception e2) {
