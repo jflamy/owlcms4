@@ -1,6 +1,19 @@
 package org.ledocte.owlcms.data;
 
-import static org.hibernate.cfg.AvailableSettings.*;
+import static org.hibernate.cfg.AvailableSettings.DIALECT;
+import static org.hibernate.cfg.AvailableSettings.GENERATE_STATISTICS;
+import static org.hibernate.cfg.AvailableSettings.HBM2DDL_AUTO;
+import static org.hibernate.cfg.AvailableSettings.JPA_JDBC_DRIVER;
+import static org.hibernate.cfg.AvailableSettings.JPA_JDBC_PASSWORD;
+import static org.hibernate.cfg.AvailableSettings.JPA_JDBC_URL;
+import static org.hibernate.cfg.AvailableSettings.JPA_JDBC_USER;
+import static org.hibernate.cfg.AvailableSettings.QUERY_STARTUP_CHECKING;
+import static org.hibernate.cfg.AvailableSettings.SHOW_SQL;
+import static org.hibernate.cfg.AvailableSettings.STATEMENT_BATCH_SIZE;
+import static org.hibernate.cfg.AvailableSettings.USE_QUERY_CACHE;
+import static org.hibernate.cfg.AvailableSettings.USE_REFLECTION_OPTIMIZER;
+import static org.hibernate.cfg.AvailableSettings.USE_SECOND_LEVEL_CACHE;
+import static org.hibernate.cfg.AvailableSettings.USE_STRUCTURED_CACHE;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +23,6 @@ import java.util.function.Function;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
