@@ -14,6 +14,7 @@ import java.net.URL;
 public class Main {
 
     public static void main(String... args) throws Exception {
+    	// read server.port parameter from -D"server.port"=9999 on java command line
     	Integer serverPort = Integer.getInteger("server.port",8080);
         new Main().run(serverPort, "/");
     }

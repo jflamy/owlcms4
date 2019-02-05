@@ -13,7 +13,7 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
 
 	private boolean disableNextShowForm = false;
 
-	public OwlcmsCrudLayout(Class aClass) {
+	public OwlcmsCrudLayout(Class<?> aClass) {
         getContent().setPadding(false);
         getContent().setMargin(false);
         getContent().add(mainLayout);

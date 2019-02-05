@@ -22,7 +22,6 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 
 	private ResponsiveStep[] responsiveSteps;
 
-	@SuppressWarnings("unchecked")
 	public OwlcmsCrudFormFactory(Class<T> domainType) {
 		super(domainType);
 		init();
