@@ -1,52 +1,36 @@
-package org.ledocte.owlcms.ui.appLayout;
+package org.ledocte.owlcms.ui.lifting;
 
 import java.util.Collection;
 
-import org.ledocte.owlcms.data.AgeDivision;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.category.CategoryRepository;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudLayout;
 import org.ledocte.owlcms.ui.crudui.OwlcmsGridCrud;
-import org.ledocte.owlcms.ui.home.MainLayout;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.CrudFormFactory;
 import org.vaadin.crudui.layout.impl.VerticalSplitCrudLayout;
 
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 
 /**
  * @author Alejandro Duarte
  */
 @SuppressWarnings("serial")
-@Route(value = "categories", layout = MainLayout.class)
-public class CategoryLayout extends VerticalLayout implements CrudListener<Category> { // or implements LazyCrudListener<Category>
-	
-    private TextField nameFilter = new TextField();
-    private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
+@Route(value = "group/announcer", layout = AnnouncerLayout.class)
+public class AnnouncerSubLayout extends VerticalLayout implements CrudListener<Category> { // or implements LazyCrudListener<Category>
 
-    public CategoryLayout() {
-//        tabSheet.setWidth("100%");
-//
-//        container.setSizeFull();
-//        container.setMargin(false);
-//        container.setPadding(false);
-//
-//        add(tabSheet, container);
+    
+    public AnnouncerSubLayout() {
+
         setSizeFull();
-//        setPadding(false);
-//        setSpacing(false);
-        GridCrud<Category> crud = getMinimal();
+
+        GridCrud<Category> crud = getDefaultCrud();
 		add(crud);
-//
-//        addCrud(getDefaultCrud(), "Default");
-//        addCrud(getMinimal(), "Minimal");
-//        addCrud(getConfiguredCrud(), "Configured");
+
     }
 
 	public GridCrud<Category> getDefaultCrud() {

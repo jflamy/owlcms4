@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.ledocte.owlcms.ui.attemptboard;
+package org.ledocte.owlcms.displays.attemptboard;
 
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;

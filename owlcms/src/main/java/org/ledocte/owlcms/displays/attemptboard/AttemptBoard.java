@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.ledocte.owlcms.ui.attemptboard;
+package org.ledocte.owlcms.displays.attemptboard;
 
 import java.util.stream.Collectors;
 
@@ -33,7 +33,7 @@ import com.vaadin.flow.theme.material.Material;
  */
 @Tag("attempt-board-template")
 @HtmlImport("frontend://components/AttemptBoard.html")
-@Route("attemptBoard")
+@Route("displays/attemptBoard")
 @Theme(value = Material.class, variant = Material.DARK)
 
 public class AttemptBoard extends PolymerTemplate<TemplateModel> {

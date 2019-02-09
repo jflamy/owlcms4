@@ -33,9 +33,12 @@ import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.category.CategoryRepository;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import ch.qos.logback.classic.Logger;
 
 public class JPAService {
 
@@ -54,6 +57,7 @@ public class JPAService {
 	}
 
 	private static EntityManagerFactory factory;
+	private final static Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
 
 	public static void init() {
 		if (factory == null) {
@@ -64,7 +68,7 @@ public class JPAService {
 	}
 
 	private static void createTestData() {
-		System.out.println("Creating test org.ledocte.owlcms.data...");
+		logger.info("Creating test org.ledocte.owlcms.data...");
 		CategoryRepository.insertStandardCategories();
 	}
 
@@ -98,6 +102,7 @@ public class JPAService {
 	}
 
 	public static EntityManagerFactory getFactoryFromCode() {
+		
 		PersistenceUnitInfo persistenceUnitInfo = persistenceUnitInfo(
 			JPAService.class.getSimpleName());
 		Map<String, Object> configuration = new HashMap<>();
@@ -135,6 +140,7 @@ public class JPAService {
 		props.put(JPA_JDBC_USER, "sa");
 		props.put(JPA_JDBC_PASSWORD, "");
 		props.put("javax.persistence.schema-generation.database.action", "update");
+		props.put("javax.persistence.sharedCache.mode", "ALL");
 		return props;
 	}
 
