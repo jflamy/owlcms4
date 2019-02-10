@@ -88,6 +88,7 @@ public class CategoryRepository {
 			insertNewCategories(AgeDivision.SENIOR, false);
 			insertNewCategories(AgeDivision.JUNIOR, false);
 			insertYouthCategories(AgeDivision.YOUTH, false);
+			insertYouthCategories(AgeDivision.KIDS, false);
 			insertTraditionalCategories(AgeDivision.TRADITIONAL, false);
 		}
 	}

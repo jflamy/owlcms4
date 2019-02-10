@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>com.github.appreciated</groupId>
 			<artifactId>app-layout-addon</artifactId>
-			<version>2.0.5-SNAPSHOT</version>
+			<version>2.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.appreciated</groupId>
@@ -41,10 +41,6 @@
 		<dependency>
 			<groupId>org.webjars.bowergithub.polymer</groupId>
 			<artifactId>polymer</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bowergithub.polymerelements</groupId>
-			<artifactId>paper-input</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars.bowergithub.polymerelements</groupId>
@@ -212,6 +208,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.6.0</version>
 				<configuration>
 					<mainClass>org.ledocte.owlcms.Main</mainClass>
 				</configuration>
@@ -310,8 +307,7 @@
 						<include>target/owlcms-${project.version}.jar</include>
 					</includes>
 					<processTypes>
-						<web>java -D"server.port"=$PORT -jar
-							target/owlcms-${project.version}.jar</web>
+						<web>java -D"server.port"=$PORT -jar target/owlcms-${project.version}.jar</web>
 					</processTypes>
 					<appName>${project.artifactId}4</appName>
 				</configuration>
