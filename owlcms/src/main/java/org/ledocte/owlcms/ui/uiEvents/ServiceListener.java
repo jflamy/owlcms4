@@ -36,8 +36,7 @@ public class ServiceListener implements VaadinServiceInitListener {
 				// override noisy Jetty error handler.
 				VaadinSession session = sessionInitEvent.getSession();
 				session.setErrorHandler(new JettyErrorHandler());
-				// ignore browser-specific settings
-				//TODO: read a configuration
+				// ignore browser-specific settings based on configuration
 				session.setLocale(Locale.ENGLISH);
 			});
 	}

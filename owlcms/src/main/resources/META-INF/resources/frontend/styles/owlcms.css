@@ -2,3 +2,13 @@
 .v-system-error {
 	display: none;
 }
+
+.v-reconnect-dialog {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    border: 1px solid black;
+    padding: 1em;
+    z-index: 10000;
+    background: white;
+}

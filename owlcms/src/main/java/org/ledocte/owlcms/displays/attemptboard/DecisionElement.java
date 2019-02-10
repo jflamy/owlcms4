@@ -15,63 +15,68 @@
  */
 package org.ledocte.owlcms.displays.attemptboard;
 
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
+
+import ch.qos.logback.classic.Logger;
 
 /**
  * Countdown timer element.
  */
+@SuppressWarnings("serial")
 @Tag("decision-element")
 @HtmlImport("frontend://components/DecisionElement.html")
 public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionModel> {
 
-	private static final long serialVersionUID = 1L;
-    
-    public interface DecisionModel extends TemplateModel {
-        Boolean isRef1();
-        void setRef1(Boolean running);
-        
-        Boolean isRef2();
-        void setRef2(Boolean running);
-        
-        Boolean isRef3();
-        void setRef3(Boolean running);
-    }
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
 
-	@SuppressWarnings("deprecation")
+	public interface DecisionModel extends TemplateModel {
+		Boolean isRef1();
+
+		void setRef1(Boolean running);
+
+		Boolean isRef2();
+
+		void setRef2(Boolean running);
+
+		Boolean isRef3();
+
+		void setRef3(Boolean running);
+	}
+
 	public DecisionElement() {
 		DecisionModel model = getModel();
-    	model.setRef1(null);
-    	model.setRef2(null);
-    	model.setRef3(null);
-    	
-    	this.getElement().synchronizeProperty("ref1","ref1-changed");
-    	this.getElement().addPropertyChangeListener("ref1", (e) -> {
-    		System.err.println(e.getPropertyName()+" changed to "+e.getValue());
-    	});
-    	this.getElement().synchronizeProperty("ref2","ref2-changed");
-    	this.getElement().addPropertyChangeListener("ref2", (e) -> {
-    		System.err.println(e.getPropertyName()+" changed to "+e.getValue());
-    	});
-    	this.getElement().synchronizeProperty("ref3","ref3-changed");
-    	this.getElement().addPropertyChangeListener("ref3", (e) -> {
-    		System.err.println(e.getPropertyName()+" changed to "+e.getValue());
-    	});
-    	this.getElement().synchronizeProperty("decision","decision-changed");
-    	this.getElement().addPropertyChangeListener("decision", (e) -> {
-    		System.err.println(e.getPropertyName()+" changed to "+e.getValue());
-    	});
-    }
-    
-    public void reset() {
-    	getElement().callFunction("reset");
-    }
-    
-    @ClientCallable
-    public void decisionMade(boolean decision) {
-    	System.err.println("decision made "+decision);
-    }
+		model.setRef1(null);
+		model.setRef2(null);
+		model.setRef3(null);
+
+		Element elem = this.getElement();
+		elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
+			logger.info(e.getPropertyName() + " changed to " + e.getValue());
+		});
+		elem.addPropertyChangeListener("ref2", "ref2-changed", (e) -> {
+			logger.info(e.getPropertyName() + " changed to " + e.getValue());
+		});
+		elem.addPropertyChangeListener("ref3", "ref3-changed", (e) -> {
+			logger.info(e.getPropertyName() + " changed to " + e.getValue());
+		});
+		elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
+			logger.info(e.getPropertyName() + " changed to " + e.getValue());
+		});
+	}
+
+	public void reset() {
+		getElement().callFunction("reset");
+	}
+
+	@ClientCallable
+	public void decisionMade(boolean decision) {
+		logger.info("decision made " + decision);
+	}
 }

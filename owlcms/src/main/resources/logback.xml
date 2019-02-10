@@ -18,6 +18,7 @@
 
 	<!-- silence spurious warning messages -->
 	<logger name="org.eclipse.jetty.annotations.AnnotationParser" level="ERROR" />
+	<logger name="org.eclipse.jetty.server.HttpChannel" level="ERROR" />
 	<logger name="com.vaadin.flow.server.communication.JSR356WebsocketInitializer" level="ERROR" />
 	<logger name="com.vaadin.flow.server.DefaultDeploymentConfiguration" level="ERROR" />
 

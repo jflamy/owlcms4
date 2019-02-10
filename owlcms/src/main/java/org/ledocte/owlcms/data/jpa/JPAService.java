@@ -41,7 +41,8 @@ import com.google.common.collect.ImmutableMap;
 
 import ch.qos.logback.classic.Logger;
 
-public class JPAService extends AbstractJPAService {
+public class JPAService {
+	
 	@WebListener
 	public static class ContextListener implements ServletContextListener {
 
