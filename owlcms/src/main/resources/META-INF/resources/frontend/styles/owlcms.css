@@ -1,0 +1,4 @@
+/* spurious system error coming from crudui or app-layout */
+.v-system-error {
+	display: none;
+}
