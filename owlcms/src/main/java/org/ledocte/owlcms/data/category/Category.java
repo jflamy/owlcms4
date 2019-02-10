@@ -9,13 +9,14 @@ package org.ledocte.owlcms.data.category;
 
 import java.io.Serializable;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.ledocte.owlcms.data.AgeDivision;
 import org.ledocte.owlcms.data.Gender;
 
@@ -28,31 +29,28 @@ import org.ledocte.owlcms.data.Gender;
  * @author owlcms
  *
  */
+@SuppressWarnings("serial")
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Cacheable
 public class Category implements Serializable, Comparable<Category> {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = -6364919176226698835L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
     String name;
-    
-    // @Enumerated(EnumType.STRING)
-    private String gender;
 
     Double minimumWeight; // inclusive
 
     Double maximumWeight; // exclusive
+    
+    @Enumerated(EnumType.STRING)
+    private AgeDivision ageDivision;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     Boolean active;
-
-    String ageDivision;
 
     private Integer wr;
 
@@ -60,9 +58,6 @@ public class Category implements Serializable, Comparable<Category> {
 
     private final static Double ROBI_B = 3.321928095;
 
-    private AgeDivision enumAgeDivision;
-
-    private Gender enumGender;
 
     public Category() {
     }
@@ -70,32 +65,32 @@ public class Category implements Serializable, Comparable<Category> {
     public Category(Double minimumWeight, Double maximumWeight, Gender enumGender, Boolean active, AgeDivision enumAgeDivision, Integer wr) {
         this.setMinimumWeight(minimumWeight);
         this.setMaximumWeight(maximumWeight);
-        this.setEnumGender(enumGender);
-        this.setEnumAgeDivision(enumAgeDivision);
+        this.setGender(enumGender);
+        this.setAgeDivision(enumAgeDivision);
         this.setActive(active);
         this.setWr(wr);
         if (wr >= 0) {
             this.setRobiA(1000.0D/Math.pow((double)wr,ROBI_B));
         }
 
-        this.setGender(enumGender.toString());
-        this.setAgeDivision(enumAgeDivision.getCode());
+//        this.setGender(gender.toString());
+//        this.setAgeDivision(ageDivision.getCode());
         setCategoryName(minimumWeight, maximumWeight, enumGender, enumAgeDivision);
     }
 
-    public Category(Double minimumWeight, Double maximumWeight, String genderCode, Boolean active, String ageDivisionCode, Integer wr) {
-        this.setMinimumWeight(minimumWeight);
-        this.setMaximumWeight(maximumWeight);
-        this.setGender(genderCode);
-        this.setActive(active);
-        this.setAgeDivision(ageDivisionCode);
-        this.setWr(wr);
-        if (wr >= 0) {
-            this.setRobiA(1000.0D/Math.pow(wr,ROBI_B));
-        }
-
-        setCategoryName(minimumWeight, maximumWeight, this.getEnumGender(), this.getEnumAgeDivision());
-    }
+//    public Category(Double minimumWeight, Double maximumWeight, String genderCode, Boolean active, String ageDivisionCode, Integer wr) {
+//        this.setMinimumWeight(minimumWeight);
+//        this.setMaximumWeight(maximumWeight);
+//        this.setGender(genderCode);
+//        this.setActive(active);
+//        this.setAgeDivision(ageDivisionCode);
+//        this.setWr(wr);
+//        if (wr >= 0) {
+//            this.setRobiA(1000.0D/Math.pow(wr,ROBI_B));
+//        }
+//
+//        setCategoryName(minimumWeight, maximumWeight, this.getEnumGender(), this.getEnumAgeDivision());
+//    }
 
 
     /*
@@ -108,11 +103,11 @@ public class Category implements Serializable, Comparable<Category> {
         if (o == null)
             return 1; // we are greater than null;
 
-        int compare = this.enumAgeDivision.compareTo(o.getEnumAgeDivision());
+        int compare = this.ageDivision.compareTo(o.getAgeDivision());
         if (compare != 0)
             return compare;
 
-        compare = this.enumGender.compareTo(o.getEnumGender());
+        compare = this.gender.compareTo(o.getGender());
         if (compare != 0)
             return compare;
 
@@ -147,9 +142,9 @@ public class Category implements Serializable, Comparable<Category> {
                 return false;
         } else if (!ageDivision.equals(other.ageDivision))
             return false;
-        if (enumAgeDivision != other.enumAgeDivision)
+        if (ageDivision != other.ageDivision)
             return false;
-        if (enumGender != other.enumGender)
+        if (gender != other.gender)
             return false;
         if (gender == null) {
             if (other.gender != null)
@@ -183,28 +178,17 @@ public class Category implements Serializable, Comparable<Category> {
         return active;
     }
 
-    public String GetAgeGroup() {
+    public AgeDivision getAgeDivision() {
         return ageDivision;
     }
 
-    public AgeDivision getEnumAgeDivision() {
-        return enumAgeDivision;
-    }
-
-    public Gender getEnumGender() {
-        if (enumGender == null) {
-            this.enumGender = Gender.UNKOWN;
-            this.gender = "?";
+    public Gender getGender() {
+        if (gender == null) {
+            this.gender = Gender.UNKOWN;
         }
-        return enumGender;
-    }
-
-    /**
-     * @return the gender
-     */
-    public String getGender() {
         return gender;
     }
+
 
     /**
      * @return the id
@@ -257,8 +241,8 @@ public class Category implements Serializable, Comparable<Category> {
         int result = 1;
         result = prime * result + ((active == null) ? 0 : active.hashCode());
         result = prime * result + ((ageDivision == null) ? 0 : ageDivision.hashCode());
-        result = prime * result + ((enumAgeDivision == null) ? 0 : enumAgeDivision.hashCode());
-        result = prime * result + ((enumGender == null) ? 0 : enumGender.hashCode());
+        result = prime * result + ((ageDivision == null) ? 0 : ageDivision.hashCode());
+        result = prime * result + ((gender == null) ? 0 : gender.hashCode());
         result = prime * result + ((gender == null) ? 0 : gender.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((maximumWeight == null) ? 0 : maximumWeight.hashCode());
@@ -271,43 +255,8 @@ public class Category implements Serializable, Comparable<Category> {
         return active;
     }
 
-    // private static Locale setLocale() {
-    // Locale locale = WebApplicationConfiguration.getLocale();
-    // String testString = Messages.getString("Category.f48", locale);
-    // if (testString.startsWith("Category.")) {
-    // locale = Locale.getDefault();
-    // testString = Messages.getString("Category.f48", locale);
-    // if (testString.startsWith("Category.")) {
-    // locale = Locale.ENGLISH;
-    // }
-    // }
-    // return locale;
-    // }
-
     public void setActive(Boolean active) {
         this.active = active;
-    }
-
-    /**
-     * @return the ageDivision
-     */
-    public String getAgeDivision() {
-        if (ageDivision == null) {
-            setAgeDivision(null); // will set enum correctly;
-        }
-        return ageDivision;
-    }
-
-    public void setAgeDivision(String ageDivision) {
-        this.ageDivision = ageDivision;
-        if (ageDivision == null || ageDivision.equals("")) {
-            this.ageDivision = "";
-            setEnumAgeDivision(AgeDivision.DEFAULT);
-        } else if (enumAgeDivision == null || !ageDivision.equals(enumAgeDivision.getCode())) {
-            setEnumAgeDivision(AgeDivision.getAgeDivisionFromCode(ageDivision));
-        } else {
-            setEnumAgeDivision(AgeDivision.DEFAULT);
-        }
     }
 
     private void setCategoryName(Double minimumWeight, Double maximumWeight, Gender enumGender, AgeDivision enumAgeGroup) {
@@ -320,32 +269,16 @@ public class Category implements Serializable, Comparable<Category> {
         this.setName(catName);
     }
 
-    public void setEnumAgeDivision(AgeDivision enumAgeGroup2) {
+    public void setAgeDivision(AgeDivision enumAgeGroup2) {
         if (enumAgeGroup2 == null){
-            this.enumAgeDivision = AgeDivision.DEFAULT;
+            this.ageDivision = AgeDivision.DEFAULT;
         } else {
-            this.enumAgeDivision = enumAgeGroup2;
+            this.ageDivision = enumAgeGroup2;
         }
-
     }
 
-    public void setEnumGender(Gender enumGender) {
-        this.enumGender = enumGender;
-    }
-
-    /**
-     * @param string
-     *            the gender to set
-     */
-    public void setGender(String string) {
-        this.gender = string;
-        if (enumGender == null || !string.equals(enumGender.toString())) {
-            try {
-                enumGender = Gender.valueOf(string.toUpperCase());
-            } catch (Exception e) {
-                throw new RuntimeException("Must be m or f");
-            }
-        }
+    public void setGender(Gender enumGender) {
+        this.gender = enumGender;
     }
 
     /**
@@ -386,7 +319,7 @@ public class Category implements Serializable, Comparable<Category> {
 
     @Override
     public String toString() {
-        return name + "_" + active;
+        return name + "_" + active + "_" + gender + "_" + ageDivision;
     }
 
     public Double getRobiB() {

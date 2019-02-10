@@ -1,5 +1,6 @@
 package org.ledocte.owlcms.data.category;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -16,31 +17,8 @@ public class CategoryRepository {
 
 	@SuppressWarnings("unchecked")
 	public static List<Category> findAll() {
-		return JPAService.runInTransaction(em -> em.createQuery("select c from Category c").getResultList());
-	}
-
-	@SuppressWarnings("unchecked")
-	public static List<Category> findByNameLike(String name, AgeDivision AgeDivision, int offset, int limit) {
-		return JPAService.runInTransaction(em -> {
-			Query query = em.createQuery(
-					"select u from Category u where lower(name) like lower(:name) and (:AgeDivision is null or :AgeDivision = u.mainAgeDivision)");
-			query.setParameter("name", "%" + name + "%");
-			query.setParameter("AgeDivision", AgeDivision);
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-			return query.getResultList();
-		});
-	}
-
-	public static int countByNameLike(String name, AgeDivision ageDivision) {
-		return JPAService.runInTransaction(em -> {
-			Query query = em.createQuery(
-					"select count(u.id) from Category u where lower(name) like lower(:name) and (:AgeDivision is null or :AgeDivision = u.mainAgeDivision)");
-			query.setParameter("name", "%" + name + "%");
-			query.setParameter("AgeDivision", ageDivision);
-			int i = ((Long) query.getSingleResult()).intValue();
-			return i;
-		});
+		return JPAService.runInTransaction(em -> em.createQuery("select c from Category c")
+			.getResultList());
 	}
 
 	public static Category save(Category Category) {
@@ -54,13 +32,7 @@ public class CategoryRepository {
 		});
 	}
 
-	@SuppressWarnings("unchecked")
-	private static Category getById(Long id, EntityManager em) {
-		Query query = em.createQuery("select u from Category u where u.id=:id");
-		query.setParameter("id", id);
 
-		return (Category) query.getResultList().stream().findFirst().orElse(null);
-	}
 
 	static void insertKidsCategories(AgeDivision curAG, boolean active) {
 		save(new Category(0.0, 35.0, Gender.F, active, curAG, 0));
@@ -172,6 +144,57 @@ public class CategoryRepository {
 		save(new Category(89.0, 96.0, Gender.M, active, curAG, 0));
 		save(new Category(96.0, 102.0, Gender.M, active, curAG, 0));
 		save(new Category(102.0, 999.0, Gender.M, active, curAG, 0));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Category getById(Long id, EntityManager em) {
+		Query query = em.createQuery("select u from Category u where u.id=:id");
+		query.setParameter("id", id);
+
+		return (Category) query.getResultList()
+			.stream()
+			.findFirst()
+			.orElse(null);
+	}
+	
+	private static String byAgeDivision = "from Category c where c.ageDivision = :division";
+
+	@SuppressWarnings("unchecked")
+	public static Collection<Category> findByAgeDivision(AgeDivision ageDivision, int offset, int limit) {
+		if (ageDivision == null) {
+			return JPAService.runInTransaction(em -> {
+				Query query = em.createQuery("select c from Category c");
+				query.setFirstResult(offset);
+				query.setMaxResults(limit);
+				return query.getResultList();
+			});
+		} else {
+			return JPAService.runInTransaction(em -> {
+				Query query = em.createQuery("select c " + byAgeDivision);
+				query.setParameter("division", ageDivision);
+				query.setFirstResult(offset);
+				query.setMaxResults(limit);
+				List<Category> resultList = query.getResultList();
+				return resultList;
+			});
+		}
+	}
+
+	public static int countByAgeDivision(AgeDivision ageDivision) {
+		if (ageDivision == null) {
+			return JPAService.runInTransaction(em -> {
+				Query query = em.createQuery("select count(c.id) from Category c");
+				int i = ((Long) query.getSingleResult()).intValue();
+				return i;
+			});
+		} else {
+			return JPAService.runInTransaction(em -> {
+				Query query = em.createQuery("select count(c.id) " + byAgeDivision);
+				query.setParameter("division", ageDivision);
+				int i = ((Long) query.getSingleResult()).intValue();
+				return i;
+			});
+		}
 	}
 
 }
