@@ -1,5 +1,6 @@
 package org.ledocte.owlcms.ui.crudui;
 
+import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.layout.impl.WindowBasedCrudLayout;
 
@@ -8,8 +9,12 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 
+import ch.qos.logback.classic.Logger;
+
 @SuppressWarnings("serial")
 public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
+	
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsCrudLayout.class);
 
 	private boolean disableNextShowForm = false;
 
@@ -29,7 +34,6 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
         headerLayout.setMargin(true);
 
         toolbarLayout.setVisible(false);
-        // FIXME find out Lumo style equivalent
         // toolbarLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
         headerLayout.add(toolbarLayout);
 
@@ -63,9 +67,9 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
 	@Override
 	public void showForm(CrudOperation operation, Component form) {
 		if (disableNextShowForm) {
-//			System.err.println("ignoring open");
+			logger.debug("ignoring open");
 		} else {
-//			System.err.println("showing form");
+			logger.debug("showing form");
 			super.showForm(operation, form);
 		}
 		disableNextShowForm(false);

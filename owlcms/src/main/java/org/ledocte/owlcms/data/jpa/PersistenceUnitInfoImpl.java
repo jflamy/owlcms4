@@ -1,4 +1,4 @@
-package org.ledocte.owlcms.data;
+package org.ledocte.owlcms.data.jpa;
 
 import org.hibernate.jpa.HibernatePersistenceProvider;
 

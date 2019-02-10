@@ -13,6 +13,7 @@ import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -43,7 +44,6 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 			ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
-//		System.err.println("owlcms buildNewForm");
 		FormLayout formLayout = new FormLayout();
 		formLayout.setSizeFull();
 		if (this.responsiveSteps != null) {
@@ -72,15 +72,22 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 			ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
-		// TODO Auto-generated method stub
+		
 		Button updateButton = buildOperationButton(CrudOperation.UPDATE, domainObject, updateButtonClickListener);
 		Button deleteButton = buildOperationButton(CrudOperation.DELETE, domainObject, deleteButtonClickListener);
 		Button cancelButton = buildCancelButton(cancelButtonClickListener);
 		
 		HorizontalLayout footerLayout = new HorizontalLayout();
-		footerLayout.setSizeUndefined();
+		footerLayout.setWidth("100%");
 		footerLayout.setSpacing(true);
 		footerLayout.setPadding(false);
+		
+		if (deleteButton != null) {
+		    footerLayout.add(deleteButton);
+		}
+		
+		Label spacer = new Label();
+		footerLayout.add(spacer);
 		
 		if (cancelButton != null) {
 		    footerLayout.add(cancelButton);
@@ -89,15 +96,8 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 		if (updateButton != null && operation == CrudOperation.UPDATE) {
 		    footerLayout.add(updateButton);
 		}
-		
-		if (deleteButton != null) {
-		    footerLayout.add(deleteButton);
-		}
-		
+		footerLayout.setFlexGrow(1.0, spacer);
 		return footerLayout;
 	}
 
-	
-	
-	
 }

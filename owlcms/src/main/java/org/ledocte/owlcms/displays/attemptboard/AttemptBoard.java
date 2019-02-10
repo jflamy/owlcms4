@@ -13,9 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.ledocte.owlcms.ui.attemptboard;
+package org.ledocte.owlcms.displays.attemptboard;
 
 import java.util.stream.Collectors;
+
+import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
@@ -28,39 +30,37 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
-/**
- * The main application view of the todo application.
- */
+import ch.qos.logback.classic.Logger;
+
+@SuppressWarnings("serial")
 @Tag("attempt-board-template")
 @HtmlImport("frontend://components/AttemptBoard.html")
-@Route("attemptBoard")
+@Route("displays/attemptBoard")
 @Theme(value = Material.class, variant = Material.DARK)
 
 public class AttemptBoard extends PolymerTemplate<TemplateModel> {
-
-	private static final long serialVersionUID = 1L;
+	
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(AttemptBoard.class);
 	
 	@Id("timer")
 	private TimerElement timer; // instanciated by Flow during template instanciation
 	@Id("decisions")
 	private DecisionElement decisions; // instanciated by Flow during template instanciation
 
-	/**
-	 * Creates the todo list applicaton base.
-	 */
+
 	public AttemptBoard() {
 		setId("attempt-board-template");
 		this.getElement().setProperty("interactive",true);
 	}
 
 	void dumpElement(Element element) {
-		System.err.println(" attributes: " + element.getAttributeNames().collect(Collectors.joining(", ")));
-		System.err.print(" properties: " + element.getPropertyNames().collect(Collectors.joining(", ")));
+		logger.debug(" attributes: " + element.getAttributeNames().collect(Collectors.joining(", ")));
+		logger.debug(" properties: " + element.getPropertyNames().collect(Collectors.joining(", ")));
 	}
 	
 	@ClientCallable
 	public void down() {
-		System.err.println("down signal shown");
+		logger.info("down signal shown");
 	}
 
 	public void reset() {
