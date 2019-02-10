@@ -16,15 +16,12 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-/**
- * @author Alejandro Duarte
- */
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AnnouncerLayout.class)
-public class AnnouncerSubLayout extends VerticalLayout implements CrudListener<Category> { // or implements LazyCrudListener<Category>
+public class AnnouncerContent extends VerticalLayout implements CrudListener<Category> { // or implements LazyCrudListener<Category>
 
     
-    public AnnouncerSubLayout() {
+    public AnnouncerContent() {
 
         setSizeFull();
 

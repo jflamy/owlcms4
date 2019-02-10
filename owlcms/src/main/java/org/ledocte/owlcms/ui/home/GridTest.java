@@ -1,17 +1,20 @@
 package org.ledocte.owlcms.ui.home;
 
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.Route;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-@Route(value = "GridTest", layout = MainLayout.class)
-public class GridTest extends VerticalLayout {
+import org.vaadin.crudui.crud.CrudListener;
+import org.vaadin.crudui.crud.impl.GridCrud;
+
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.Route;
+
+@Route(value = "main/test", layout = MainLayout.class)
+public class GridTest extends VerticalLayout implements CrudListener<GridTest.Person> {
     /**
 	 * 
 	 */
@@ -24,8 +27,7 @@ public class GridTest extends VerticalLayout {
             people.add(new Person(UUID.randomUUID().toString(), random.nextInt(), i));
         }
 
-        Grid<Person> grid = getGrid();
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        GridCrud<Person> grid = getGrid();
         grid.setSizeFull();
 
         HorizontalLayout gridWrapper = new HorizontalLayout(grid);
@@ -46,21 +48,13 @@ public class GridTest extends VerticalLayout {
 
     }
 
-    private Grid<Person> getGrid() {
-        return getGrid(people.size());
-    }
-
-    private Grid<Person> getGrid(int size) {
-        Grid<Person> grid = new Grid<>();
-        grid.setItems(people.subList(0, size));
-        grid.addColumn(Person::getName).setHeader("Name 1");
-        grid.addColumn(Person::getName).setHeader("Name 2");
-        grid.addColumn(Person::getName).setHeader("Name 3");
+    private GridCrud<Person> getGrid() {
+        GridCrud<Person> grid = new GridCrud<Person>(Person.class);
+        grid.setCrudListener(this);
         return grid;
     }
 
-
-    class Person {
+    public class Person {
         private final String name;
         private final int id;
         private final int year;
@@ -83,5 +77,28 @@ public class GridTest extends VerticalLayout {
             return id;
         }
     }
+
+	@Override
+	public Collection<Person> findAll() {
+		return people;
+	}
+
+	@Override
+	public Person add(Person domainObjectToAdd) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Person update(Person domainObjectToUpdate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void delete(Person domainObjectToDelete) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

@@ -10,19 +10,19 @@ import com.vaadin.flow.router.Route;
 
 @SuppressWarnings("serial")
 @Route(value = "preparation", layout = PreparationLayout.class)
-public class PreparationSubLayout extends VerticalLayout {
+public class PreparationContent extends VerticalLayout {
 
-	public PreparationSubLayout() {
+	public PreparationContent() {
         FluentGridLayout layout = new FluentGridLayout();
         layout.withTemplateRows(new Flex(1), new Flex(1), new Flex(1), new Flex(1))
                 .withTemplateColumns(new Flex(1), new Flex(1), new Flex(1), new Flex(1), new Flex(1))
                 .withGap(new Length("1em"))
                 .withMargin(false)
-                .withRowAndColumn(new Button("Competition Information", buttonClickEvent -> UI.getCurrent().navigate(CategorySubLayout.class)), 2, 2)
-                .withRowAndColumn(new Button("Define Categories", buttonClickEvent -> UI.getCurrent().navigate(CategorySubLayout.class)), 2, 3)
-                .withRowAndColumn(new Button("Define Groups", buttonClickEvent -> UI.getCurrent().navigate(CategorySubLayout.class)), 2, 4)
-                .withRowAndColumn(new Button("Upload Registration File", buttonClickEvent -> UI.getCurrent().navigate(CategorySubLayout.class)), 3, 2)
-                .withRowAndColumn(new Button("Edit Athlete Entries", buttonClickEvent -> UI.getCurrent().navigate(CategorySubLayout.class)), 3, 3)
+                .withRowAndColumn(new Button("Competition Information", buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class)), 2, 2)
+                .withRowAndColumn(new Button("Define Categories", buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class)), 2, 3)
+                .withRowAndColumn(new Button("Define Groups", buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class)), 2, 4)
+                .withRowAndColumn(new Button("Upload Registration File", buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class)), 3, 2)
+                .withRowAndColumn(new Button("Edit Athlete Entries", buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class)), 3, 3)
                 ;
         layout.setWidth("100%");
         layout.setHeight("100%");

@@ -24,12 +24,12 @@ import com.vaadin.flow.router.Route;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/categories", layout = CategoryLayout.class)
-public class CategorySubLayout extends VerticalLayout implements CrudListener<Category> { // or implements LazyCrudListener<Category>
+public class CategoryContent extends VerticalLayout implements CrudListener<Category> { // or implements LazyCrudListener<Category>
 	
     private TextField nameFilter = new TextField();
     private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 
-    public CategorySubLayout() {
+    public CategoryContent() {
         setSizeFull();
         GridCrud<Category> crud = getMinimal();
 		add(crud);

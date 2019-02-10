@@ -6,11 +6,10 @@ import static com.github.appreciated.app.layout.notification.entitiy.Priority.ME
 
 import java.util.function.Consumer;
 
-import org.ledocte.owlcms.displays.attemptboard.AttemptBoard;
-import org.ledocte.owlcms.ui.displaySetup.DisplaySubLayout;
-import org.ledocte.owlcms.ui.lifting.LiftingSubLayout;
-import org.ledocte.owlcms.ui.preparation.PreparationSubLayout;
-import org.ledocte.owlcms.ui.wrapup.WrapupSubLayout;
+import org.ledocte.owlcms.ui.displaySetup.DisplayContent;
+import org.ledocte.owlcms.ui.lifting.LiftingContent;
+import org.ledocte.owlcms.ui.preparation.PreparationContent;
+import org.ledocte.owlcms.ui.wrapup.WrapupContent;
 
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
@@ -70,11 +69,9 @@ public class MainLayout extends AppLayoutRouterLayout {
         reloadNotifications();
 
         if (!variant.isTop()) {
-            LeftNavigationComponent home = new LeftNavigationComponent("Home", VaadinIcon.HOME.create(), View1.class);
-            LeftNavigationComponent menu = new LeftNavigationComponent("Menu", VaadinIcon.MENU.create(), View9.class);
+            LeftNavigationComponent home = new LeftNavigationComponent("Home", VaadinIcon.HOME.create(), MainContent.class);
 
             notificationHolder.bind(home.getBadge());
-            badgeHolder.bind(menu.getBadge());
 
 			AppLayout appLayout = AppLayoutBuilder
                     .get(variant)
@@ -88,10 +85,10 @@ public class MainLayout extends AppLayoutRouterLayout {
                             .get()
                             .addToSection(new MenuHeaderComponent("OWLCMS", null, null), HEADER)
                             .add(home)
-                            .add(new LeftNavigationComponent("Prepare Competition", new Icon("social","group-add"), PreparationSubLayout.class))
-                            .add(new LeftNavigationComponent("Setup Displays", new Icon("hardware", "desktop-windows"), DisplaySubLayout.class))
-                            .add(new LeftNavigationComponent("Lifting Group",  new FullIronIcon("places", "fitness-center"), LiftingSubLayout.class))
-                            .add(new LeftNavigationComponent("Competition Documents", new Icon("maps", "local-printshop"), WrapupSubLayout.class))
+                            .add(new LeftNavigationComponent("Prepare Competition", new Icon("social","group-add"), PreparationContent.class))
+                            .add(new LeftNavigationComponent("Setup Displays", new Icon("hardware", "desktop-windows"), DisplayContent.class))
+                            .add(new LeftNavigationComponent("Lifting Group",  new FullIronIcon("places", "fitness-center"), LiftingContent.class))
+                            .add(new LeftNavigationComponent("Competition Documents", new Icon("maps", "local-printshop"), WrapupContent.class))
                             .addToSection(new LeftClickableComponent("Preferences",
                                     VaadinIcon.COG.create(),
                                     clickEvent -> openModeSelector(variant)
@@ -109,10 +106,10 @@ public class MainLayout extends AppLayoutRouterLayout {
                             .build())
                     .withAppMenu(TopAppMenuBuilder
                             .get()
-                            .add(new TopNavigationComponent("Prepare Competition", new Icon("social","group-add"), PreparationSubLayout.class))
-                            .add(new TopNavigationComponent("Setup Displays", new Icon("hardware", "desktop-windows"), DisplaySubLayout.class))
-                            .add(new TopNavigationComponent("Lifting Group",  new FullIronIcon("places", "fitness-center"), LiftingSubLayout.class))
-                            .add(new TopNavigationComponent("Competition Documents", new Icon("maps", "local-printshop"), WrapupSubLayout.class))
+                            .add(new TopNavigationComponent("Prepare Competition", new Icon("social","group-add"), PreparationContent.class))
+                            .add(new TopNavigationComponent("Setup Displays", new Icon("hardware", "desktop-windows"), DisplayContent.class))
+                            .add(new TopNavigationComponent("Lifting Group",  new FullIronIcon("places", "fitness-center"), LiftingContent.class))
+                            .add(new TopNavigationComponent("Competition Documents", new Icon("maps", "local-printshop"), WrapupContent.class))
                             .addToSection(new LeftClickableComponent("Preferences",
                                     VaadinIcon.COG.create(),
                                     clickEvent -> openModeSelector(variant)
