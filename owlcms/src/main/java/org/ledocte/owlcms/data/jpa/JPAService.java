@@ -41,65 +41,43 @@ import com.google.common.collect.ImmutableMap;
 
 import ch.qos.logback.classic.Logger;
 
-public class JPAService {
-
+public class JPAService extends AbstractJPAService {
 	@WebListener
 	public static class ContextListener implements ServletContextListener {
-
-		@Override
-		public void contextInitialized(ServletContextEvent sce) {
-			init();
-		}
 
 		@Override
 		public void contextDestroyed(ServletContextEvent sce) {
 			close();
 		}
-	}
 
-	private static EntityManagerFactory factory;
-	private final static Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
-
-	public static void init() {
-		if (factory == null) {
-			// factory = Persistence.createEntityManagerFactory("test-pu");
-			factory = getFactoryFromCode();
-			createTestData();
+		@Override
+		public void contextInitialized(ServletContextEvent sce) {
+			init();
 		}
 	}
 
-	private static void createTestData() {
-		logger.info("Creating test org.ledocte.owlcms.data...");
-		CategoryRepository.insertStandardCategories();
-	}
+	protected static final Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
+
+	protected static EntityManagerFactory factory;
 
 	public static void close() {
 		factory.close();
 	}
 
-	public static EntityManagerFactory getFactory() {
-		return factory;
+	protected static void createInitialData() {
+		logger.info("Creating initial data...");
+		CategoryRepository.insertStandardCategories();
 	}
 
-	public static <T> T runInTransaction(Function<EntityManager, T> function) {
-		EntityManager entityManager = null;
+	protected static List<String> entityClassNames() {
+		ImmutableList<String> vals = new ImmutableList.Builder<String>()
+			.add(Category.class.getName())
+			.build();
+		return vals;
+	}
 
-		try {
-			entityManager = factory.createEntityManager();
-			entityManager.getTransaction()
-				.begin();
-
-			T result = function.apply(entityManager);
-
-			entityManager.getTransaction()
-				.commit();
-			return result;
-
-		} finally {
-			if (entityManager != null) {
-				entityManager.close();
-			}
-		}
+	public static EntityManagerFactory getFactory() {
+		return factory;
 	}
 
 	public static EntityManagerFactory getFactoryFromCode() {
@@ -108,13 +86,19 @@ public class JPAService {
 			JPAService.class.getSimpleName());
 		Map<String, Object> configuration = new HashMap<>();
 
-		// configuration.put(AvailableSettings.INTERCEPTOR, interceptor());
-
 		factory = new EntityManagerFactoryBuilderImpl(
 				new PersistenceUnitInfoDescriptor(persistenceUnitInfo),
 				configuration).build();
 		return factory;
 	}
+
+	public static void init() {
+		if (factory == null) {
+			factory = getFactoryFromCode();
+			createInitialData();
+		}
+	}
+
 
 	protected static PersistenceUnitInfoImpl persistenceUnitInfo(String name) {
 		return new PersistenceUnitInfoImpl(name, entityClassNames(), properties());
@@ -148,11 +132,24 @@ public class JPAService {
 		return props;
 	}
 
-	protected static List<String> entityClassNames() {
-		ImmutableList<String> vals = new ImmutableList.Builder<String>()
-			.add(Category.class.getName())
-			.build();
-		return vals;
-	}
+	public static <T> T runInTransaction(Function<EntityManager, T> function) {
+		EntityManager entityManager = null;
 
+		try {
+			entityManager = factory.createEntityManager();
+			entityManager.getTransaction()
+				.begin();
+
+			T result = function.apply(entityManager);
+
+			entityManager.getTransaction()
+				.commit();
+			return result;
+
+		} finally {
+			if (entityManager != null) {
+				entityManager.close();
+			}
+		}
+	}
 }

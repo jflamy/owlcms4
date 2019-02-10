@@ -1,5 +1,8 @@
 package org.ledocte.owlcms.data;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 public enum AgeDivision {
     DEFAULT, SENIOR, JUNIOR, YOUTH, KIDS, MASTERS, TRADITIONAL, A, B, C, D;
 
@@ -24,4 +27,8 @@ public enum AgeDivision {
         }
         return AgeDivision.DEFAULT;
     }
+
+	public static Collection<AgeDivision> findAll() {
+		return Arrays.asList(AgeDivision.values());
+	}
 }

@@ -2,8 +2,8 @@ package org.ledocte.owlcms.ui.home;
 
 import org.ledocte.owlcms.ui.displaySetup.DisplayContent;
 import org.ledocte.owlcms.ui.lifting.LiftingContent;
-import org.ledocte.owlcms.ui.preparation.CategoryContent;
 import org.ledocte.owlcms.ui.preparation.PreparationContent;
+import org.ledocte.owlcms.ui.uiEvents.JettyErrorHandler;
 import org.ledocte.owlcms.ui.wrapup.WrapupContent;
 
 import com.github.appreciated.css.grid.sizes.Flex;
@@ -13,6 +13,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 
 @Route(value = "", layout = MainLayout.class)
 public class MainContent extends VerticalLayout {
@@ -23,6 +24,9 @@ public class MainContent extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 
 	public MainContent() {
+		
+		VaadinSession.getCurrent().setErrorHandler(new JettyErrorHandler());
+		
         FluentGridLayout layout = new FluentGridLayout();
         layout.withTemplateRows(new Flex(1), new Flex(1), new Flex(1), new Flex(1))
                 .withTemplateColumns(new Flex(1), new Flex(1), new Flex(1), new Flex(1), new Flex(1))

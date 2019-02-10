@@ -10,13 +10,10 @@ import org.ledocte.owlcms.ui.crudui.OwlcmsGridCrud;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.CrudFormFactory;
-import org.vaadin.crudui.layout.impl.VerticalSplitCrudLayout;
 
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 
 /**
@@ -26,7 +23,6 @@ import com.vaadin.flow.router.Route;
 @Route(value = "preparation/categories", layout = CategoryLayout.class)
 public class CategoryContent extends VerticalLayout implements CrudListener<Category> { // or implements LazyCrudListener<Category>
 	
-    private TextField nameFilter = new TextField();
     private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 
     public CategoryContent() {
@@ -35,14 +31,7 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 		add(crud);
     }
 
-	public GridCrud<Category> getDefaultCrud() {
-        VerticalSplitCrudLayout verticalCrudLayout = new VerticalSplitCrudLayout();
-		GridCrud<Category> gridCrud = new GridCrud<Category>(Category.class, verticalCrudLayout);
-        gridCrud.setCrudListener(this);
-        return gridCrud;
-    }
-
-    public GridCrud<Category> getMinimal() {
+    private GridCrud<Category> getMinimal() {
         GridCrud<Category> crud = new OwlcmsGridCrud<Category>(Category.class, new OwlcmsCrudLayout(Category.class));
         crud.setCrudListener(this);
         
@@ -56,7 +45,13 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 		grid.getColumnByKey("enumAgeDivision").setHeader("Division");
 		grid.getColumnByKey("enumGender").setHeader("Gender");
         crud.setClickRowToUpdate(true);
-        crud.getCrudLayout().addToolbarComponent(new Label("toolbar stuff goes here"));
+        
+        ageDivisionFilter.setPlaceholder("Age Division");
+        ageDivisionFilter.setItems(AgeDivision.findAll());
+        ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
+        ageDivisionFilter.addValueChangeListener(e -> crud.refreshGrid());
+        crud.getCrudLayout().addFilterComponent(ageDivisionFilter);
+        //crud.getCrudLayout().addToolbarComponent(new Label("toolbar stuff goes here"));
         return crud;
     }
 
