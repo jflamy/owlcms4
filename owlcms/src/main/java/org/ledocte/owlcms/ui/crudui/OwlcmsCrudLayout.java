@@ -34,7 +34,6 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
         headerLayout.setMargin(true);
 
         toolbarLayout.setVisible(false);
-        // FIXME find out Lumo style equivalent
         // toolbarLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
         headerLayout.add(toolbarLayout);
 
