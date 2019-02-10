@@ -7,7 +7,7 @@ import javax.persistence.Query;
 
 import org.ledocte.owlcms.data.AgeDivision;
 import org.ledocte.owlcms.data.Gender;
-import org.ledocte.owlcms.data.JPAService;
+import org.ledocte.owlcms.data.jpa.JPAService;
 
 /**
  * @author Alejandro Duarte

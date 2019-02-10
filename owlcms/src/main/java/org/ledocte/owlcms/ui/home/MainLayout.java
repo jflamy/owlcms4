@@ -38,10 +38,6 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 
-/**
- * The main view contains a button and a template element.
- */
-
 @Push
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 @StyleSheet("frontend://styles/owlcms.css")
@@ -52,9 +48,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 @HtmlImport("frontend://bower_components/iron-icons/social-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/places-icons.html")
 public class MainLayout extends AppLayoutRouterLayout {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	DefaultNotificationHolder notificationHolder;
 	DefaultBadgeHolder badgeHolder;
@@ -77,7 +71,7 @@ public class MainLayout extends AppLayoutRouterLayout {
 
 			AppLayout appLayout = AppLayoutBuilder
                     .get(variant)
-                    .withTitle("App Layout")
+                    .withTitle("OWLCMS - Olympic Weightlifting Competition Management System")
                     .withIcon("/frontend/images/logo.png")
                     .withAppBar(AppBarBuilder
                             .get()

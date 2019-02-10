@@ -1,4 +1,4 @@
-package org.ledocte.owlcms.data;
+package org.ledocte.owlcms.data.jpa;
 
 import static org.hibernate.cfg.AvailableSettings.DIALECT;
 import static org.hibernate.cfg.AvailableSettings.GENERATE_STATISTICS;
@@ -14,6 +14,7 @@ import static org.hibernate.cfg.AvailableSettings.USE_QUERY_CACHE;
 import static org.hibernate.cfg.AvailableSettings.USE_REFLECTION_OPTIMIZER;
 import static org.hibernate.cfg.AvailableSettings.USE_SECOND_LEVEL_CACHE;
 import static org.hibernate.cfg.AvailableSettings.USE_STRUCTURED_CACHE;
+import static org.hibernate.cfg.AvailableSettings.CACHE_REGION_FACTORY;
 
 import java.util.HashMap;
 import java.util.List;
@@ -102,7 +103,7 @@ public class JPAService {
 	}
 
 	public static EntityManagerFactory getFactoryFromCode() {
-		
+
 		PersistenceUnitInfo persistenceUnitInfo = persistenceUnitInfo(
 			JPAService.class.getSimpleName());
 		Map<String, Object> configuration = new HashMap<>();
@@ -127,10 +128,13 @@ public class JPAService {
 			.put(QUERY_STARTUP_CHECKING, false)
 			.put(GENERATE_STATISTICS, false)
 			.put(USE_REFLECTION_OPTIMIZER, false)
-			.put(USE_SECOND_LEVEL_CACHE, false)
+			.put(USE_SECOND_LEVEL_CACHE, true)
 			.put(USE_QUERY_CACHE, false)
 			.put(USE_STRUCTURED_CACHE, false)
 			.put(STATEMENT_BATCH_SIZE, 20)
+			.put(CACHE_REGION_FACTORY, "org.hibernate.cache.jcache.JCacheRegionFactory")
+			.put("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider")
+			.put("hibernate.javax.cache.missing_cache_strategy", "create")
 			.build();
 		Properties props = new Properties();
 

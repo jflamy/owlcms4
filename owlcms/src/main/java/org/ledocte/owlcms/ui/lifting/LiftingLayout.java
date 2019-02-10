@@ -14,9 +14,7 @@ public class LiftingLayout extends MainLayout {
 	@Override
 	public AppLayout createAppLayoutInstance() {
 		AppLayout appLayout = super.createAppLayoutInstance();
-		appLayout.setTitleComponent(new Label("Prepare Competition"));
+		appLayout.setTitleComponent(new Label("Run a Lifting Group"));
 		return appLayout;
-		
 	}
-
 }
