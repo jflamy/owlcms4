@@ -29,6 +29,7 @@ import com.github.appreciated.app.layout.notification.entitiy.DefaultNotificatio
 import com.github.appreciated.app.layout.notification.entitiy.Priority;
 import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
 import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -43,6 +44,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 
 @Push
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
+@StyleSheet("frontend://styles/owlcms.css")
 @HtmlImport("frontend://bower_components/iron-icons/maps-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/av-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/hardware-icons.html")

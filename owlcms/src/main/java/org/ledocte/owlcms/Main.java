@@ -47,7 +47,6 @@ public class Main {
 		SimpleDateFormat homeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String homeTimestamp = homeFormat.format(date);
 		logger.info("owlcms {} (built {})",version,homeTimestamp);
-		logger.info("starting on port {}",serverPort);
 	}
 
 	public static void main(String... args) throws Exception {
@@ -87,6 +86,7 @@ public class Main {
         server.setHandler(context);
 
         server.start();
+        logger.info("started on port {}", port);
         server.join();
     }
     
