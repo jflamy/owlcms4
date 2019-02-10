@@ -33,15 +33,15 @@ public class Main {
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 
     private static void logStart(Integer serverPort) throws IOException, ParseException {
-		InputStream in = Main.class.getResourceAsStream("/build.properties");
+		InputStream in = Main.class.getResourceAsStream("/build.properties"); //$NON-NLS-1$
 		Properties buildProps = new Properties();
 		buildProps.load(in);
 		Properties props = buildProps;
-    	String version = props.getProperty("version");
-		String buildTimestamp = props.getProperty("buildTimestamp");
+    	String version = props.getProperty("version"); //$NON-NLS-1$
+		String buildTimestamp = props.getProperty("buildTimestamp"); //$NON-NLS-1$
 		//String buildZone = props.getProperty("buildZone");
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-		format.setTimeZone(TimeZone.getTimeZone("UTC"));
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm"); //$NON-NLS-1$
+		format.setTimeZone(TimeZone.getTimeZone("UTC")); //$NON-NLS-1$
 		Date date = format.parse(buildTimestamp);
 		//format.setTimeZone(TimeZone.getTimeZone(buildZone));
 		SimpleDateFormat homeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -57,17 +57,17 @@ public class Main {
     	// read server.port parameter from -D"server.port"=9999 on java command line
     	Integer serverPort = Integer.getInteger("server.port",8080);
     	logStart(serverPort);
-        new Main().run(serverPort, "/");
+        new Main().run(serverPort, "/"); //$NON-NLS-1$
     }
 
 	public void run(int port, String contextPath) throws Exception {
-        URL webRootLocation = this.getClass().getResource("/META-INF/resources/");
+        URL webRootLocation = this.getClass().getResource("/META-INF/resources/"); //$NON-NLS-1$
         URI webRootUri = webRootLocation.toURI();
 
         WebAppContext context = new WebAppContext();
         context.setBaseResource(Resource.newResource(webRootUri));
         context.setContextPath(contextPath);
-        context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*");
+        context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*"); //$NON-NLS-1$ //$NON-NLS-2$
         context.setConfigurationDiscovered(true);
         context.setConfigurations(new Configuration[]{
                 new AnnotationConfiguration(),
@@ -86,7 +86,7 @@ public class Main {
         server.setHandler(context);
 
         server.start();
-        logger.info("started on port {}", port);
+        logger.info("started on port {}", port); //$NON-NLS-1$
         server.join();
     }
     

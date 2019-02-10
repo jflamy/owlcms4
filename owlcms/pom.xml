@@ -18,17 +18,37 @@
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 	</properties>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-core</artifactId>
+				<version>${vaadin.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-lumo-theme</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.vaadin.crudui</groupId>
 			<artifactId>crudui</artifactId>
 			<version>3.7.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.appreciated</groupId>
+			<artifactId>app-layout-addon</artifactId>
+			<version>2.0.5-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.appreciated</groupId>
+			<artifactId>vaadin-css-grid</artifactId>
+			<version>0.8.1</version>
+		</dependency>
+
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
@@ -117,17 +137,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.github.appreciated</groupId>
-			<artifactId>app-layout-addon</artifactId>
-			<version>2.0.5-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.appreciated</groupId>
-			<artifactId>vaadin-css-grid</artifactId>
-			<version>0.8.1</version>
-		</dependency>
-
-		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 		</dependency>
@@ -164,11 +173,38 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources-filtered</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+
 		<plugins>
-			<!-- plugin> <groupId>org.eclipse.jetty</groupId> <artifactId>jetty-maven-plugin</artifactId> 
-				<version>${jetty.version}</version> <configuration> <scanIntervalSeconds>0</scanIntervalSeconds> 
-				<webApp> <resourceBases> <resourceBase>${project.basedir}/src/main/resources/META-INF/resources</resourceBase> 
-				</resourceBases> </webApp> </configuration> </plugin -->
+			<!-- <plugin> -->
+			<!-- <groupId>org.eclipse.jetty</groupId> -->
+			<!-- <artifactId>jetty-maven-plugin</artifactId> -->
+			<!-- <version>${jetty.version}</version> -->
+			<!-- <configuration> -->
+			<!-- <scanIntervalSeconds>0</scanIntervalSeconds> -->
+			<!-- <webApp> -->
+			<!-- <resourceBases> -->
+			<!-- <resourceBase>${project.basedir}/src/main/resources/META-INF/resources</resourceBase> -->
+			<!-- </resourceBases> -->
+			<!-- </webApp> -->
+			<!-- </configuration> -->
+			<!-- </plugin> -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>org.ledocte.owlcms.Main</mainClass>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -263,7 +299,8 @@
 						<include>target/owlcms-${project.version}.jar</include>
 					</includes>
 					<processTypes>
-						<web>java -D"server.port"=$PORT -jar target/owlcms-${project.version}.jar</web>
+						<web>java -D"server.port"=$PORT -jar
+							target/owlcms-${project.version}.jar</web>
 					</processTypes>
 					<appName>${project.artifactId}4</appName>
 				</configuration>
@@ -277,24 +314,5 @@
 <!-- 				</configuration> -->
 <!-- 			</plugin> -->
 		</plugins>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>false</filtering>
-			</resource>
-			<resource>
-				<directory>src/main/resources-filtered</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
 	</build>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-core</artifactId>
-				<version>12.0.5</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 </project>
