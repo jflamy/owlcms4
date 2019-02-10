@@ -10,3 +10,5 @@ Three main incentives:
 
 Why owlcms4?  There was an owlcms3 rewrite done using Vaadin version 8, but the off-line features were too difficult to implement
 and I lost interest.
+
+Current status: overall navigation and layout done, figured out how to do the multiple administrative screens easily, key learning on web elements and newfangled web development done (working interative mockup of the attempt board with timer and decisions).
