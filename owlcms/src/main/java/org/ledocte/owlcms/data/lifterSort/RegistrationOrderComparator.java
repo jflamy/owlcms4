@@ -35,7 +35,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
         if (compare != 0)
             return compare;
 
-        if (Competition.isMasters()) {
+        if (Competition.getCurrent().isMasters()) {
             compare = compareAgeGroup(lifter1, lifter2);
             if (compare != 0)
                 return -compare;

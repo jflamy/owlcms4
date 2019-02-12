@@ -8,6 +8,7 @@
 package org.ledocte.owlcms.data.lifterSort;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -158,8 +159,8 @@ public class AbstractLifterComparator {
         if (lifter2Group == null)
             return 1;
 
-        Date lifter1Date = lifter1Group.getWeighInTime();
-        Date lifter2Date = lifter2Group.getWeighInTime();
+        LocalDateTime lifter1Date = lifter1Group.getWeighInTime();
+        LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
         if (lifter1Date == null && lifter2Date == null)
             return 0;
         if (lifter1Date == null)
@@ -197,7 +198,7 @@ public class AbstractLifterComparator {
         if (compare != 0)
             return compare;
 
-        // at this point both lifters are done, or both are not done.
+        // at this point both athletes are done, or both are not done.
         if (lifter1Done == 0) {
             // both are not done
             return 0;
@@ -264,7 +265,7 @@ public class AbstractLifterComparator {
     }
 
     /**
-     * Return who lifted last, ignoring lifters who are done lifting for this part of the meet.
+     * Return who lifted last, ignoring athletes who are done lifting for this part of the meet.
      *
      * @param lifter1
      * @param lifter2
@@ -533,7 +534,7 @@ public class AbstractLifterComparator {
     }
 
     /**
-     * Determine who lifted first if both lifters are at same attempt and requesting same weight. Smaller previous attempt means lifted
+     * Determine who lifted first if both athletes are at same attempt and requesting same weight. Smaller previous attempt means lifted
      * first.
      *
      * @param lifter1

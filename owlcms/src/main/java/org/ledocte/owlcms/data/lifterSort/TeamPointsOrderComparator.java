@@ -14,7 +14,7 @@ import org.ledocte.owlcms.data.lifterSort.LifterSorter.Ranking;
 
 
 /**
- * This comparator sorts lifters within their team
+ * This comparator sorts athletes within their team
  * 
  * @author jflamy
  * 

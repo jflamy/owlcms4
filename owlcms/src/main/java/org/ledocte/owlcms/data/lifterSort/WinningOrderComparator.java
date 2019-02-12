@@ -7,8 +7,8 @@
  */
 package org.ledocte.owlcms.data.lifterSort;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.Date;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.competition.Competition;
@@ -50,10 +50,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         case ROBI:
             return compareRobiResultOrder(lifter1, lifter2);
         case SINCLAIR:
-            if (Competition.isMasters()) {
+            if (Competition.getCurrent().isMasters()) {
                 return compareSmmResultOrder(lifter1, lifter2);
             } else {
-                if (Competition.isUseCategorySinclair()) {
+                if (Competition.getCurrent().isUseCategorySinclair()) {
                     return compareCategorySinclairResultOrder(lifter1, lifter2);
                 } else {
                     return compareSinclairResultOrder(lifter1, lifter2);
@@ -77,7 +77,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     public int compareTotalResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
-        if (Competition.isMasters()) {
+        if (Competition.getCurrent().isMasters()) {
             compare = compareGender(lifter1, lifter2);
             if (compare != 0)
                 return compare;
@@ -87,7 +87,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
                 return -compare;
         }
 
-        if (Competition.isUseRegistrationCategory()) {
+        if (Competition.getCurrent().isUseRegistrationCategory()) {
             compare = compareRegistrationCategory(lifter1, lifter2);
         } else {
             compare = compareCategory(lifter1, lifter2);
@@ -101,7 +101,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
             return -compare; // we want reverse order - smaller comes after
         }
 
-        return tieBreak(lifter1, lifter2, Competition.isUseOldBodyWeightTieBreak());
+        return tieBreak(lifter1, lifter2, Competition.getCurrent().isUseOldBodyWeightTieBreak());
     }
 
     public int compareSnatchResultOrder(Athlete lifter1, Athlete lifter2) {
@@ -111,7 +111,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         if (trace)
             logger.trace("lifter1 {};  lifter2 {}", lifter1.getFirstName(), lifter2.getFirstName());
 
-        if (Competition.isUseRegistrationCategory()) {
+        if (Competition.getCurrent().isUseRegistrationCategory()) {
             compare = compareRegistrationCategory(lifter1, lifter2);
         } else {
             compare = compareCategory(lifter1, lifter2);
@@ -133,7 +133,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
             return compare; // earlier group time wins
         }
 
-        if (Competition.isUseOldBodyWeightTieBreak()) {
+        if (Competition.getCurrent().isUseOldBodyWeightTieBreak()) {
             compare = compareBodyWeight(lifter1, lifter2);
             if (trace)
                 logger.trace("compareBodyWeight {}", compare);
@@ -141,7 +141,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
                 return compare; // smaller Athlete wins
         }
 
-//        if (Competition.isMasters()) {
+//        if (Competition.getCurrent().isMasters()) {
 //            compare = compareBirthDate(lifter1, lifter2);
 //            if (compare != 0) return -compare; // oldest wins
 //        }
@@ -172,7 +172,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     public int compareCleanJerkResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
-        if (Competition.isUseRegistrationCategory()) {
+        if (Competition.getCurrent().isUseRegistrationCategory()) {
             compare = compareRegistrationCategory(lifter1, lifter2);
         } else {
             compare = compareCategory(lifter1, lifter2);
@@ -184,7 +184,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         if (compare != 0)
             return -compare; // smaller is less good
 
-        return tieBreak(lifter1, lifter2, Competition.isUseOldBodyWeightTieBreak());
+        return tieBreak(lifter1, lifter2, Competition.getCurrent().isUseOldBodyWeightTieBreak());
     }
 
     /**
@@ -337,8 +337,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
             return -1;
         if (group2 == null)
             return 1;
-        Date competitionTime1 = group1.getCompetitionTime();
-        Date competitionTime2 = group2.getCompetitionTime();
+        LocalDateTime competitionTime1 = group1.getCompetitionTime();
+        LocalDateTime competitionTime2 = group2.getCompetitionTime();
         if (competitionTime1 == null && competitionTime2 == null)
             return 0;
         if (competitionTime1 == null)
@@ -361,7 +361,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     public int compareCustomResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
-        if (Competition.isMasters()) {
+        if (Competition.getCurrent().isMasters()) {
             compare = compareGender(lifter1, lifter2);
             if (compare != 0)
                 return compare;
@@ -383,7 +383,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         if (compare != 0)
             return -compare; // we want reverse order - smaller comes after
 
-        return tieBreak(lifter1, lifter2, Competition.isUseOldBodyWeightTieBreak());
+        return tieBreak(lifter1, lifter2, Competition.getCurrent().isUseOldBodyWeightTieBreak());
     }
 
 }

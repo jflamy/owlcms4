@@ -66,7 +66,7 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
     public int compareTotalResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
-        if (Competition.isUseRegistrationCategory()) {
+        if (Competition.getCurrent().isUseRegistrationCategory()) {
             compare = compareRegistrationCategory(lifter1, lifter2);
         } else {
             compare = compareCategory(lifter1, lifter2);
@@ -93,7 +93,7 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
             return compare; // earlier best attempt wins
 
         // note that when comparing total, we do NOT consider snatch. At this
-        // stage, both lifters have
+        // stage, both athletes have
         // done the same weight at the same attempt. We are trying to determine
         // who did the attempt first.
         // So if the best attempt was the first one, we must NOT consider snatch
@@ -134,7 +134,7 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
         if (trace)
             logger.trace("lifter1 {};  lifter2 {}", lifter1.getFirstName(), lifter2.getFirstName());
 
-        if (Competition.isUseRegistrationCategory()) {
+        if (Competition.getCurrent().isUseRegistrationCategory()) {
             compare = compareRegistrationCategory(lifter1, lifter2);
         } else {
             compare = compareCategory(lifter1, lifter2);
@@ -190,7 +190,7 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
     public int compareCleanJerkResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
-        if (Competition.isUseRegistrationCategory()) {
+        if (Competition.getCurrent().isUseRegistrationCategory()) {
             compare = compareRegistrationCategory(lifter1, lifter2);
         } else {
             compare = compareCategory(lifter1, lifter2);
@@ -258,7 +258,7 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
             return compare; // earlier best attempt wins
 
         // note that when comparing total, we do NOT consider snatch. At this
-        // stage, both lifters have
+        // stage, both athletes have
         // done the same weight at the same attempt. We are trying to determine
         // who did the attempt first.
         // So if the best attempt was the first one, we must NOT consider snatch
@@ -312,7 +312,7 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
             return compare; // earlier best attempt wins
 
         // note that when comparing total, we do NOT consider snatch. At this
-        // stage, both lifters have
+        // stage, both athletes have
         // done the same weight at the same attempt. We are trying to determine
         // who did the attempt first.
         // So if the best attempt was the first one, we must NOT consider snatch

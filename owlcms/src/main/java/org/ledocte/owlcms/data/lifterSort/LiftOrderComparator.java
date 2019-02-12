@@ -23,7 +23,7 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
         if (compare != 0)
             return compare;
 
-        // lifters who are done lifting are shown at bottom, in reverse total
+        // athletes who are done lifting are shown at bottom, in reverse total
         // number
         compare = compareFinalResults(lifter1, lifter2);
         if (compare != 0)

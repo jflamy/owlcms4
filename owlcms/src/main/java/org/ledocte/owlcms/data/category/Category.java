@@ -17,8 +17,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import org.ledocte.owlcms.data.AgeDivision;
-import org.ledocte.owlcms.data.Gender;
+import org.ledocte.owlcms.data.athlete.Gender;
 
 /**
  * Contains information regarding each competition category.

@@ -11,6 +11,7 @@ import java.text.MessageFormat;
 import java.util.Locale;
 
 import org.ledocte.owlcms.data.competition.Competition;
+import org.ledocte.owlcms.i18n.Messages;
 
 public class RuleViolationException extends RuntimeException {
     private static final long serialVersionUID = 8965943679108964933L;
@@ -42,7 +43,7 @@ public class RuleViolationException extends RuntimeException {
 
     @Override
     public String getLocalizedMessage() {
-        final Locale locale1 = (this.locale == null ? Competition.getDefaultLocale() : this.locale);
+        final Locale locale1 = (this.locale == null ? Competition.getCurrent().getDefaultLocale() : this.locale);
         final String messageTemplate = Messages.getString(this.messageKey, locale1);
         return MessageFormat.format(messageTemplate, messageFormatData);
     }

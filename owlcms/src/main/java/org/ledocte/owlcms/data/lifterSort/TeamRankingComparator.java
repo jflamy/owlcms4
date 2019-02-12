@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
 /**
- * This comparator sorts lifters within their team
+ * This comparator sorts athletes within their team
  * 
  * @author jflamy
  * 

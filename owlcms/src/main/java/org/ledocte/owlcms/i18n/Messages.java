@@ -1,12 +1,11 @@
-package org.ledocte.owlcms.data.athlete;
+package org.ledocte.owlcms.i18n;
 
 import java.util.Locale;
 
 public class Messages {
 
 	public static String getString(String string, Locale locale) {
-		// TODO Auto-generated method stub
-		return null;
+		return string;
 	}
 
 

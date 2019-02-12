@@ -17,9 +17,7 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.Locale;
 
-import javax.persistence.AttributeConverter;
 import javax.persistence.Cacheable;
-import javax.persistence.Converter;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -32,6 +30,7 @@ import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.ledocte.owlcms.data.group.Group;
 import org.ledocte.owlcms.data.lifterSort.LifterSorter.Ranking;
+import org.ledocte.owlcms.i18n.Messages;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -133,25 +132,6 @@ public class Athlete {
 
 	String gender = ""; //$NON-NLS-1$
 	Integer ageGroup = 0;
-
-	/**
-	 * see https://thoughts-on-java.org/persist-localdate-localdatetime-jpa/
-	 * 
-	 * @author owlcms
-	 */
-	@Converter(autoApply = true)
-	public class LocalDateAttributeConverter implements AttributeConverter<LocalDate, Date> {
-
-		@Override
-		public Date convertToDatabaseColumn(LocalDate locDate) {
-			return (locDate == null ? null : Date.valueOf(locDate));
-		}
-
-		@Override
-		public LocalDate convertToEntityAttribute(Date sqlDate) {
-			return (sqlDate == null ? null : sqlDate.toLocalDate());
-		}
-	}
 
 	private LocalDate fullBirthDate = null;
 
@@ -1015,7 +995,7 @@ public class Athlete {
 
 	public Double getRobi() {
 		Category c;
-		if (Competition.isUseRegistrationCategory()) {
+		if (Competition.getCurrent().isUseRegistrationCategory()) {
 			c = getRegistrationCategory();
 		} else {
 			c = getCategory();
@@ -2092,7 +2072,7 @@ public class Athlete {
 
 	/**
 	 * @param Athlete
-	 * @param lifters
+	 * @param athletes
 	 * @param weight
 	 */
 	private void doLift(final String weight) {
@@ -2293,12 +2273,12 @@ public class Athlete {
 
 	public void checkStartingTotalsRule(boolean unlessCurrent) {
 		int qualTotal = getQualifyingTotal();
-		boolean enforce15_20rule = Competition.isEnforce20kgRule();
+		boolean enforce15_20rule = Competition.getCurrent().isEnforce20kgRule();
 		if (qualTotal == 0 || !enforce15_20rule) {
 			return;
 		}
 
-//        if (!Competition.isMasters())
+//        if (!Competition.getCurrent().isMasters())
 		{
 			int curStartingTotal = 0;
 			int snatchRequest = 0;
@@ -2484,7 +2464,7 @@ public class Athlete {
 		if (category == null)
 			return "";
 
-		if (Competition.isUseRegistrationCategory()) {
+		if (Competition.getCurrent().isUseRegistrationCategory()) {
 			return getShortRegistrationCategory(gender1);
 		}
 
@@ -2516,7 +2496,7 @@ public class Athlete {
 	}
 
 	public String getDisplayCategory() {
-		if (Competition.isMasters()) {
+		if (Competition.getCurrent().isMasters()) {
 			return getShortCategory();
 		} else {
 			return getLongCategory();
@@ -2527,12 +2507,12 @@ public class Athlete {
 	 * @return
 	 */
 	public String getLongCategory() {
-		if (Competition.isUseRegistrationCategory()) {
+		if (Competition.getCurrent().isUseRegistrationCategory()) {
 			Category registrationCategory2 = getRegistrationCategory();
 			if (registrationCategory2 == null)
 				return "?";
 			return registrationCategory2.getName();
-		} else if (Competition.isMasters()) {
+		} else if (Competition.getCurrent().isMasters()) {
 			return getMastersLongCategory();
 		} else {
 			Category category = getCategory();
@@ -2601,13 +2581,13 @@ public class Athlete {
 	}
 
 	public int get20kgRuleValue() {
-		if (Competition.isMasters()) {
+		if (Competition.getCurrent().isMasters()) {
 			if ("M".equals(this.getGender())) {
 				return 15;
 			} else {
 				return 10;
 			}
-		} else if (Competition.isUseOld20_15rule()) {
+		} else if (Competition.getCurrent().isUseOld20_15rule()) {
 			if ("M".equals(this.getGender())) {
 				return 20;
 			} else {

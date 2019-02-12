@@ -1,4 +1,4 @@
-package org.ledocte.owlcms.data;
+package org.ledocte.owlcms.data.category;
 
 import java.util.Arrays;
 import java.util.Collection;

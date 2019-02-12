@@ -25,13 +25,13 @@ public class DisplayOrderComparator extends AbstractLifterComparator implements 
     public int compare(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
-        if (Competition.isMasters()) {
+        if (Competition.getCurrent().isMasters()) {
             compare = compareAgeGroup(lifter1, lifter2);
             if (compare != 0)
                 return -compare;
         }
 
-        if (Competition.isUseRegistrationCategory()) {
+        if (Competition.getCurrent().isUseRegistrationCategory()) {
             compare = compareRegistrationCategory(lifter1, lifter2);
         } else {
             compare = compareCategory(lifter1, lifter2);
