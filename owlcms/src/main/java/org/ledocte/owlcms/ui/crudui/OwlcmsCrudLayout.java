@@ -42,9 +42,9 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
         filterLayout.setSpacing(true);
         headerLayout.add(filterLayout);
 
-        Icon icon = VaadinIcon.SEARCH.create();
-        icon.setSize(".9em");
-        filterLayout.add(icon);
+//        Icon icon = VaadinIcon.SEARCH.create();
+//        icon.setSize(".9em");
+//        filterLayout.add(icon);
 
         mainComponentLayout.setWidth("100%");
         mainComponentLayout.setHeight(null);

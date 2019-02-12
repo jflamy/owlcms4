@@ -6,10 +6,10 @@ import static com.github.appreciated.app.layout.notification.entitiy.Priority.ME
 
 import java.util.function.Consumer;
 
-import org.ledocte.owlcms.ui.displaySetup.DisplayContent;
-import org.ledocte.owlcms.ui.lifting.LiftingContent;
-import org.ledocte.owlcms.ui.preparation.PreparationContent;
-import org.ledocte.owlcms.ui.wrapup.WrapupContent;
+import org.ledocte.owlcms.ui.displaySetup.DisplayNavigationContent;
+import org.ledocte.owlcms.ui.lifting.LiftingNavigationContent;
+import org.ledocte.owlcms.ui.preparation.PreparationNavigationContent;
+import org.ledocte.owlcms.ui.wrapup.WrapupNavigationContent;
 
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
@@ -19,7 +19,6 @@ import com.github.appreciated.app.layout.component.appmenu.MenuHeaderComponent;
 import com.github.appreciated.app.layout.component.appmenu.left.LeftClickableComponent;
 import com.github.appreciated.app.layout.component.appmenu.left.LeftNavigationComponent;
 import com.github.appreciated.app.layout.component.appmenu.left.builder.LeftAppMenuBuilder;
-import com.github.appreciated.app.layout.component.appmenu.top.TopClickableComponent;
 import com.github.appreciated.app.layout.component.appmenu.top.TopNavigationComponent;
 import com.github.appreciated.app.layout.component.appmenu.top.builder.TopAppMenuBuilder;
 import com.github.appreciated.app.layout.entity.DefaultBadgeHolder;
@@ -47,7 +46,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 @HtmlImport("frontend://bower_components/iron-icons/maps-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/social-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/places-icons.html")
-public class MainLayout extends AppLayoutRouterLayout {
+public class MainNavigationLayout extends AppLayoutRouterLayout {
 
 	private static final long serialVersionUID = 1L;
 	DefaultNotificationHolder notificationHolder;
@@ -56,74 +55,88 @@ public class MainLayout extends AppLayoutRouterLayout {
 	private Thread currentThread;
 
 	@Override
-    public AppLayout createAppLayoutInstance() {
-        if (variant == null) {
-            variant = Behaviour.LEFT_OVERLAY;
-            notificationHolder = new DefaultNotificationHolder(newStatus -> {/*Do something with it*/});
-            badgeHolder = new DefaultBadgeHolder();
-        }
-        reloadNotifications();
+	public AppLayout createAppLayoutInstance() {
+		if (variant == null) {
+			variant = Behaviour.LEFT_OVERLAY;
+			notificationHolder = new DefaultNotificationHolder(newStatus -> {
+				/* Do something with it */});
+			badgeHolder = new DefaultBadgeHolder();
+		}
+		reloadNotifications();
 
-        if (!variant.isTop()) {
-            LeftNavigationComponent home = new LeftNavigationComponent("Home", VaadinIcon.HOME.create(), MainContent.class);
+		if (!variant.isTop()) {
+			LeftNavigationComponent home = new LeftNavigationComponent("Home",
+					VaadinIcon.HOME.create(),
+					MainNavigationContent.class);
 
-            notificationHolder.bind(home.getBadge());
+			notificationHolder.bind(home.getBadge());
 
 			AppLayout appLayout = AppLayoutBuilder
-                    .get(variant)
-                    .withTitle("OWLCMS - Olympic Weightlifting Competition Management System")
-                    .withIcon("/frontend/images/logo.png")
-                    .withAppBar(AppBarBuilder
-                            .get()
-                            .add(new AppBarNotificationButton(VaadinIcon.BELL, notificationHolder))
-                            .build())
-                    .withAppMenu(LeftAppMenuBuilder
-                            .get()
-                            .addToSection(new MenuHeaderComponent("OWLCMS", null, null), HEADER)
-                            .add(home)
-                            .add(new LeftNavigationComponent("Prepare Competition", new Icon("social","group-add"), PreparationContent.class))
-                            .add(new LeftNavigationComponent("Setup Displays", new Icon("hardware", "desktop-windows"), DisplayContent.class))
-                            .add(new LeftNavigationComponent("Lifting Group",  new FullIronIcon("places", "fitness-center"), LiftingContent.class))
-                            .add(new LeftNavigationComponent("Competition Documents", new Icon("maps", "local-printshop"), WrapupContent.class))
-                            .addToSection(new LeftClickableComponent("Preferences",
-                                    VaadinIcon.COG.create(),
-                                    clickEvent -> openModeSelector(variant)
-                            ), FOOTER)
-                            .build())
-                    .build();
+				.get(variant)
+				.withTitle("OWLCMS - Olympic Weightlifting Competition Management System")
+				.withIcon("/frontend/images/logo.png")
+				.withAppBar(AppBarBuilder
+					.get()
+					.add(new AppBarNotificationButton(VaadinIcon.BELL, notificationHolder))
+					.build())
+				.withAppMenu(LeftAppMenuBuilder
+					.get()
+					.addToSection(new MenuHeaderComponent("OWLCMS", null, null), HEADER)
+					.add(home)
+					.add(new LeftNavigationComponent("Prepare Competition",
+							new Icon("social", "group-add"),
+							PreparationNavigationContent.class))
+					.add(new LeftNavigationComponent("Setup Displays",
+							new Icon("hardware", "desktop-windows"),
+							DisplayNavigationContent.class))
+					.add(new LeftNavigationComponent("Lifting Group",
+							new FullIronIcon("places", "fitness-center"),
+							LiftingNavigationContent.class))
+					.add(new LeftNavigationComponent("Competition Documents",
+							new Icon("maps", "local-printshop"),
+							WrapupNavigationContent.class))
+					.addToSection(new LeftClickableComponent("Preferences",
+							VaadinIcon.COG.create(),
+							clickEvent -> openModeSelector(variant)),
+						FOOTER)
+					.build())
+				.build();
 			return appLayout;
-        } else {
-            return AppLayoutBuilder
-                    .get(variant)
-                    .withTitle("App Layout")
-                    .withAppBar(AppBarBuilder
-                            .get()
-                            .add(new AppBarNotificationButton(VaadinIcon.BELL, notificationHolder))
-                            .build())
-                    .withAppMenu(TopAppMenuBuilder
-                            .get()
-                            .add(new TopNavigationComponent("Prepare Competition", new Icon("social","group-add"), PreparationContent.class))
-                            .add(new TopNavigationComponent("Setup Displays", new Icon("hardware", "desktop-windows"), DisplayContent.class))
-                            .add(new TopNavigationComponent("Lifting Group",  new FullIronIcon("places", "fitness-center"), LiftingContent.class))
-                            .add(new TopNavigationComponent("Competition Documents", new Icon("maps", "local-printshop"), WrapupContent.class))
-                            .addToSection(new LeftClickableComponent("Preferences",
-                                    VaadinIcon.COG.create(),
-                                    clickEvent -> openModeSelector(variant)
-                            ), FOOTER)
-                            .addToSection(new TopClickableComponent("Preferences",
-                                    VaadinIcon.COG.create(),
-                                    clickEvent -> openModeSelector(variant)
-                            ), FOOTER)
-                            .build())
-                    .build();
-        }
-    }
+		} else {
+			return AppLayoutBuilder
+				.get(variant)
+				.withTitle("OWLCMS")
+				.withAppBar(AppBarBuilder
+					.get()
+					.add(new AppBarNotificationButton(VaadinIcon.BELL, notificationHolder))
+					.build())
+				.withAppMenu(TopAppMenuBuilder
+					.get()
+					.add(new TopNavigationComponent("Prepare Competition",
+							new Icon("social", "group-add"),
+							PreparationNavigationContent.class))
+					.add(new TopNavigationComponent("Setup Displays",
+							new Icon("hardware", "desktop-windows"),
+							DisplayNavigationContent.class))
+					.add(new TopNavigationComponent("Lifting Group",
+							new FullIronIcon("places", "fitness-center"),
+							LiftingNavigationContent.class))
+					.add(new TopNavigationComponent("Competition Documents",
+							new Icon("maps", "local-printshop"),
+							WrapupNavigationContent.class))
+					.build())
+				.build();
+		}
+	}
 
-	/*
-	 * @Override protected void onAttach(AttachEvent attachEvent) {
-	 * super.onAttach(attachEvent); getUI().get().getPage().executeJavaScript(
-	 * "document.documentElement.setAttribute(\"theme\",\"dark\")"); }
-	 */
+//	@Override
+//	protected void onAttach(AttachEvent attachEvent) {
+//		super.onAttach(attachEvent);
+//		getUI().get()
+//			.getPage()
+//			.executeJavaScript(
+//				"document.documentElement.setAttribute(\"theme\",\"dark\")");
+//	}
 
 	private void reloadNotifications() {
 		if (currentThread != null && !currentThread.isInterrupted()) {
@@ -166,11 +179,8 @@ public class MainLayout extends AppLayoutRouterLayout {
 		new BehaviourSelector(variant, this::setDrawerVariant).open();
 	}
 
+	@SuppressWarnings("serial")
 	class BehaviourSelector extends Dialog {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
 
 		public BehaviourSelector(Behaviour current, Consumer<Behaviour> consumer) {
 			VerticalLayout layout = new VerticalLayout();
