@@ -1,6 +1,5 @@
 package org.ledocte.owlcms.data.athlete;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 

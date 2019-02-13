@@ -18,9 +18,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.athlete.AthleteRepository;
-import org.ledocte.owlcms.data.athleteSort.LifterSorter;
+import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
 import org.ledocte.owlcms.data.jpa.JPAService;
-import org.ledocte.owlcms.state.GroupData;
+import org.ledocte.owlcms.state.GroupState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,125 +46,19 @@ public class TwoMinutesRuleTest {
     @Test
     public void initialCheck() {
         final String resName = "/initialCheck.txt"; //$NON-NLS-1$
-        LifterSorter.assignLotNumbers(athletes);
-        LifterSorter.assignStartNumbers(athletes);
+        AthleteSorter.assignLotNumbers(athletes);
+        AthleteSorter.assignStartNumbers(athletes);
 
         Collections.shuffle(athletes);
 
-        List<Athlete> sorted = LifterSorter.liftingOrderCopy(athletes);
+        List<Athlete> sorted = AthleteSorter.liftingOrderCopy(athletes);
         final String actual = AllTests.shortDump(sorted);
         assertEqualsToReferenceFile(resName, actual);
     }
 
     @Test
-    public void liftTimeOrder() {
-        LifterSorter.assignLotNumbers(athletes);
-        GroupData groupData = new GroupData(athletes);
-
-        final Athlete schneiderF = athletes.get(0);
-        final Athlete simpsonR = athletes.get(1);
-        final Athlete allisonR = athletes.get(2);
-        final Athlete verneU = athletes.get(3);
-
-        // hide non-athletes
-        LifterSorter.liftingOrder(athletes);
-        final int size = athletes.size();
-        for (int i = 4; i < size; i++)
-            athletes.remove(4);
-
-        // simulate initial declaration at weigh-in
-        schneiderF.setSnatch1Declaration(Integer.toString(60));
-        simpsonR.setSnatch1Declaration(Integer.toString(65));
-        allisonR.setSnatch1Declaration(Integer.toString(65));
-        verneU.setSnatch1Declaration(Integer.toString(70));
-        schneiderF.setCleanJerk1Declaration(Integer.toString(70));
-        simpsonR.setCleanJerk1Declaration(Integer.toString(81));
-        allisonR.setCleanJerk1Declaration(Integer.toString(90));
-        verneU.setCleanJerk1Declaration(Integer.toString(92));
-
-        Athlete curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-
-        curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-
-        curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-
-        curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-
-        curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-
-        curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-
-        curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        System.out.println(AllTests.shortDump(groupData.getAttemptOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-
-        curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-
-        curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-
-        curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-
-        curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-
-        curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-
-        curLifter = groupData.getLifters().get(0);
-        groupData.callLifter(curLifter);
-        successfulLift(groupData, athletes);
-        System.err.println(AllTests.longDump(groupData.getLiftTimeOrder()));
-        assertEquals(curLifter, groupData.getPreviousLifter());
-    }
-
-    @Test
     public void liftSequence3() throws InterruptedException {
-        LifterSorter.assignLotNumbers(athletes);
+        AthleteSorter.assignLotNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
@@ -176,11 +70,11 @@ public class TwoMinutesRuleTest {
         simpsonR.setCleanJerk1Declaration(Integer.toString(82));
 
         // hide non-athletes
-        LifterSorter.liftingOrder(athletes);
+        AthleteSorter.liftingOrder(athletes);
         final int size = athletes.size();
         for (int i = 2; i < size; i++)
             athletes.remove(2);
-        GroupData groupData = new GroupData(athletes);
+        GroupState groupData = new GroupState(athletes);
 
         // competition start
         assertEquals(60000, groupData.timeAllowed(schneiderF));
@@ -261,7 +155,7 @@ public class TwoMinutesRuleTest {
 
     @Test
     public void liftSequence4() throws InterruptedException {
-        LifterSorter.assignLotNumbers(athletes);
+        AthleteSorter.assignLotNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
@@ -273,11 +167,11 @@ public class TwoMinutesRuleTest {
         simpsonR.setCleanJerk1Declaration(Integer.toString(85));
 
         // hide non-athletes
-        LifterSorter.liftingOrder(athletes);
+        AthleteSorter.liftingOrder(athletes);
         final int size = athletes.size();
         for (int i = 2; i < size; i++)
             athletes.remove(2);
-        GroupData groupData = new GroupData(athletes);
+        GroupState groupData = new GroupState(athletes);
 
         // competition start
         assertEquals(60000, groupData.timeAllowed(schneiderF));
@@ -398,7 +292,7 @@ public class TwoMinutesRuleTest {
      *
      * @param lifter
      */
-    private void successfulLift(GroupData groupData, List<Athlete> lifters1) {
+    private void successfulLift(GroupState groupData, List<Athlete> lifters1) {
         final Athlete lifter = lifters1.get(0);
         final String weight = Integer.toString(lifter.getNextAttemptRequestedWeight());
         doTestLift(groupData, lifter, lifters1, weight);
@@ -410,7 +304,7 @@ public class TwoMinutesRuleTest {
      * @param lifter
      * @param lifters1
      */
-    private void failedLift(GroupData groupData, List<Athlete> lifters1) {
+    private void failedLift(GroupState groupData, List<Athlete> lifters1) {
         final Athlete lifter = lifters1.get(0);
         final Integer nextAttemptRequestedWeight = lifter.getNextAttemptRequestedWeight();
         final String weight = Integer.toString(-nextAttemptRequestedWeight);
@@ -426,7 +320,7 @@ public class TwoMinutesRuleTest {
      * @param weight
      * @throws InterruptedException
      */
-    private void declaration(GroupData groupData, final Athlete lifter, List<Athlete> lifters1, final String weight)
+    private void declaration(GroupState groupData, final Athlete lifter, List<Athlete> lifters1, final String weight)
             throws InterruptedException {
         // sleep for a while to ensure that we get different time stamps on the
         // lifts.
@@ -466,7 +360,7 @@ public class TwoMinutesRuleTest {
      * @param weight
      */
     @SuppressWarnings("unused")
-    private void change1(GroupData groupData, final Athlete lifter, List<Athlete> lifters1, final String weight) {
+    private void change1(GroupState groupData, final Athlete lifter, List<Athlete> lifters1, final String weight) {
         // sleep for a while to ensure that we get different time stamps on the
         // lifts.
         try {
@@ -504,7 +398,7 @@ public class TwoMinutesRuleTest {
      * @param weight
      */
     @SuppressWarnings("unused")
-    private void change2(GroupData groupData, final Athlete lifter, List<Athlete> lifters1, final String weight) {
+    private void change2(GroupState groupData, final Athlete lifter, List<Athlete> lifters1, final String weight) {
         // sleep for a while to ensure that we get different time stamps on the
         // lifts.
         try {
@@ -542,7 +436,7 @@ public class TwoMinutesRuleTest {
      * @param lifters1
      * @param weight
      */
-    private void doTestLift(GroupData groupData, final Athlete lifter, List<Athlete> lifters1, final String weight) {
+    private void doTestLift(GroupState groupData, final Athlete lifter, List<Athlete> lifters1, final String weight) {
         // sleep for a while to ensure that we get different time stamps on the
         // lifts.
         try {
@@ -570,7 +464,7 @@ public class TwoMinutesRuleTest {
             lifter.setCleanJerk3ActualLift(weight);
             break;
         }
-        LifterSorter.liftingOrder(lifters1);
+        AthleteSorter.liftingOrder(lifters1);
         groupData.liftDone(lifter, !weight.startsWith("-")); //$NON-NLS-1$
         groupData.updateListsForLiftingOrderChange(lifter,true, false);
     }

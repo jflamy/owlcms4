@@ -21,8 +21,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.athlete.AthleteRepository;
-import org.ledocte.owlcms.data.athleteSort.LifterSorter;
-import org.ledocte.owlcms.data.athleteSort.LifterSorter.Ranking;
+import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
+import org.ledocte.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import org.ledocte.owlcms.data.athleteSort.WinningOrderComparator;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.category.CategoryRepository;
@@ -54,20 +54,20 @@ public class AthleteSorterTest {
     @Test
     public void initialCheck() {
         final String resName = "/initialCheck.txt"; //$NON-NLS-1$
-        LifterSorter.assignLotNumbers(athletes);
-        LifterSorter.assignStartNumbers(athletes);
+        AthleteSorter.assignLotNumbers(athletes);
+        AthleteSorter.assignStartNumbers(athletes);
 
         Collections.shuffle(athletes);
 
-        List<Athlete> sorted = LifterSorter.liftingOrderCopy(athletes);
+        List<Athlete> sorted = AthleteSorter.liftingOrderCopy(athletes);
         final String actual = AllTests.shortDump(sorted);
         assertEqualsToReferenceFile(resName, actual);
     }
 
     @Test
     public void liftSequence1() {
-        LifterSorter.assignLotNumbers(athletes);
-        LifterSorter.assignStartNumbers(athletes);
+        AthleteSorter.assignLotNumbers(athletes);
+        AthleteSorter.assignStartNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
@@ -91,7 +91,7 @@ public class AthleteSorterTest {
         verneU.setCleanJerk1Declaration(Integer.toString(68));
 
         // check initial lift order -- this checks the "lot number" rule
-        LifterSorter.liftingOrder(athletes);
+        AthleteSorter.liftingOrder(athletes);
         assertEqualsToReferenceFile("/seq1_lift0.txt", AllTests.shortDump(athletes)); //$NON-NLS-1$
         // hide non-athletes
         final int size = athletes.size();
@@ -190,7 +190,7 @@ public class AthleteSorterTest {
         // in this test sequence, the winner has bigger lot number, but still
         // wins because of earlier lift.
         Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
-        LifterSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
         assertEqualsToReferenceFile("/seq1_medals_timeStamp.txt", AllTests.shortDump(athletes)); //$NON-NLS-1$
 
         // now we give the first two athletes different body weights (second is
@@ -203,7 +203,7 @@ public class AthleteSorterTest {
         athletes.get(1).setLotNumber(99);
         // and we sort again for medals.
         Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
-        LifterSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
         assertEqualsToReferenceFile("/seq1_medals_bodyWeight.txt", AllTests.shortDump(athletes)); //$NON-NLS-1$
         //assertEqualsToReferenceFile("/seq1_medals_weighInCategories.txt", AllTests.longDump(athletes,false)); //$NON-NLS-1$
 
@@ -221,7 +221,7 @@ public class AthleteSorterTest {
             verneU.setRegistrationCategory(registrationCategory1);
             // and we sort again for medals.  order should now be schneider allison simpson verne
             Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
-            LifterSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+            AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_registrationCategories.txt", AllTests.shortDump(athletes)); //$NON-NLS-1$
             Competition.getCurrent().setUseRegistrationCategory(true);
         } finally {
@@ -251,7 +251,7 @@ public class AthleteSorterTest {
             simpsonR.setCleanJerk3ActualLift(Integer.toString(0));
 
             Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
-            LifterSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+            AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_earlierTotal.txt", AllTests.longDump(athletes)); //$NON-NLS-1$
             Competition.getCurrent().setUseRegistrationCategory(true);
         } finally {
@@ -282,7 +282,7 @@ public class AthleteSorterTest {
             schneiderF.setCleanJerk3ActualLift(Integer.toString(-86));
 
             Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
-            LifterSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+            AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_earlierTotal2.txt", AllTests.longDump(athletes)); //$NON-NLS-1$
             Competition.getCurrent().setUseRegistrationCategory(true);
         } finally {
@@ -335,7 +335,7 @@ public class AthleteSorterTest {
             schneiderF.setCleanJerk3ActualLift(Integer.toString(64));
 
             Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
-            LifterSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+            AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
             assertEqualsToReferenceFile("/seq1_medals_earlierTotal3.txt", AllTests.longDump(athletes)); //$NON-NLS-1$
             Competition.getCurrent().setUseRegistrationCategory(true);
         } finally {
@@ -345,8 +345,8 @@ public class AthleteSorterTest {
 
     @Test
     public void liftSequence2() {
-        LifterSorter.assignLotNumbers(athletes);
-        LifterSorter.assignStartNumbers(athletes);
+        AthleteSorter.assignLotNumbers(athletes);
+        AthleteSorter.assignStartNumbers(athletes);
 
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
@@ -363,7 +363,7 @@ public class AthleteSorterTest {
         simpsonR.setSnatch1Declaration(Integer.toString(60));
         schneiderF.setCleanJerk1Declaration(Integer.toString(80));
         simpsonR.setCleanJerk1Declaration(Integer.toString(80));
-        LifterSorter.liftingOrder(athletes);
+        AthleteSorter.liftingOrder(athletes);
 
         // simpson will do all his lifts first and finish first
         successfulLift(athletes);
@@ -441,7 +441,7 @@ public class AthleteSorterTest {
             lifter.setCleanJerk3Declaration(weight);
             break;
         }
-        LifterSorter.liftingOrder(lifters1);
+        AthleteSorter.liftingOrder(lifters1);
     }
 
     /**
@@ -477,7 +477,7 @@ public class AthleteSorterTest {
             lifter.setCleanJerk3Change1(weight);
             break;
         }
-        LifterSorter.liftingOrder(lifters1);
+        AthleteSorter.liftingOrder(lifters1);
     }
 
     /**
@@ -513,7 +513,7 @@ public class AthleteSorterTest {
             lifter.setCleanJerk3Change2(weight);
             break;
         }
-        LifterSorter.liftingOrder(lifters1);
+        AthleteSorter.liftingOrder(lifters1);
     }
 
     /**
@@ -549,7 +549,7 @@ public class AthleteSorterTest {
             lifter.setCleanJerk3ActualLift(weight);
             break;
         }
-        LifterSorter.liftingOrder(lifters1);
+        AthleteSorter.liftingOrder(lifters1);
     }
 
 }

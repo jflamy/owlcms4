@@ -2,8 +2,10 @@ package org.ledocte.owlcms.ui.uiEvents;
 
 import java.util.Locale;
 
+import org.ledocte.owlcms.OwlcmsSession;
 import org.slf4j.LoggerFactory;
 import com.vaadin.flow.server.ServiceInitEvent;
+import com.vaadin.flow.server.SessionInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.server.VaadinSession;
 
@@ -25,20 +27,28 @@ public class ServiceListener implements VaadinServiceInitListener {
 	public ServiceListener() {}
 
 	@Override
-	public void serviceInit(ServiceInitEvent event) {
-		
+	public void serviceInit(ServiceInitEvent event) {	
 		logger.info("Vaadin Service Startup Configuration.");
-		// session init listener will be called whenever a VaadinSession is created
-		// (which holds the http session and all the browser pages (UIs) under
-		// the same session.
 		event.getSource()
 			.addSessionInitListener(sessionInitEvent -> {
-				// override noisy Jetty error handler.
-				VaadinSession session = sessionInitEvent.getSession();
-				session.setErrorHandler(new JettyErrorHandler());
-				// ignore browser-specific settings based on configuration
-				session.setLocale(Locale.ENGLISH);
+				sessionInit(sessionInitEvent);
 			});
+	}
+
+	// session init listener will be called whenever a VaadinSession is created
+	// (which holds the http session and all the browser pages (UIs) under
+	// the same session.
+	private void sessionInit(SessionInitEvent sessionInitEvent) {
+		VaadinSession session = sessionInitEvent.getSession();
+		
+		// override noisy Jetty error handler.
+		session.setErrorHandler(new JettyErrorHandler());
+		
+		// ignore browser-specific settings based on configuration
+		session.setLocale(Locale.ENGLISH);
+		
+		// store the session settings -- this is so we can use OwlcmsSession for testing as well
+		session.setAttribute("owlcmsSession", new OwlcmsSession());
 	}
 
 }

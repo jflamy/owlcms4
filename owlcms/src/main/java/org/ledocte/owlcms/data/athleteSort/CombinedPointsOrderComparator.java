@@ -10,7 +10,7 @@ package org.ledocte.owlcms.data.athleteSort;
 import java.util.Comparator;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
-import org.ledocte.owlcms.data.athleteSort.LifterSorter.Ranking;
+import org.ledocte.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.slf4j.LoggerFactory;
 

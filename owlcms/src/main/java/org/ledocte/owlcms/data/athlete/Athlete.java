@@ -29,7 +29,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
-import org.ledocte.owlcms.data.athleteSort.LifterSorter.Ranking;
+import org.ledocte.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.ledocte.owlcms.data.group.Group;
@@ -2027,7 +2027,6 @@ public class Athlete {
     public String longDump() {
         final Category category = this.getCategory();
         final Group group = this.getGroup();
-        Category registrationCategory2 = this.getRegistrationCategory();
 		return (new StringBuilder())
                 .append(" lastName=" + this.getLastName()) //$NON-NLS-1$
                 .append(" firstName=" + this.getFirstName()) //$NON-NLS-1$

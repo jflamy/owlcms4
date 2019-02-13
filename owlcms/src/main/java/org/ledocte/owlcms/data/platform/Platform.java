@@ -17,6 +17,8 @@ import javax.persistence.Id;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.server.VaadinSession;
+
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -40,6 +42,11 @@ public class Platform implements Serializable {
 	
     @SuppressWarnings("unused")
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(Platform.class);
+
+	/**
+	 * Only used for unit testing when there is no session
+	 */
+	private static Platform testingPlatform;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -360,6 +367,26 @@ public class Platform implements Serializable {
     public String toString() {
         return name + "_" + System.identityHashCode(this); //$NON-NLS-1$
     }
+
+	public static Platform getCurrent() {
+		//FIXME: need to inject something that hides the implementation and can be mocked
+		//should not have anything Vaadin in the data layer.
+		VaadinSession current = VaadinSession.getCurrent();
+		if (current != null) {
+			return (Platform) current.getAttribute("platform");
+		} else {
+			return testingPlatform;
+		}
+	}
+	
+	public static void setCurrent(Platform p) {
+		VaadinSession current = VaadinSession.getCurrent();
+		if (current != null) {
+			current.setAttribute("platform", p);
+		} else {
+			testingPlatform = p;
+		}
+	}
 
 
 }

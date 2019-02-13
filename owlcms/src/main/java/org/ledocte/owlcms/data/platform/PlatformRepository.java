@@ -40,4 +40,14 @@ public class PlatformRepository {
 			.getResultList());
 	}
 
+	
+	@SuppressWarnings("unchecked")
+	public static Platform findByName(String string) {
+		return JPAService.runInTransaction(em -> {
+			Query query = em.createQuery("select c from Platform c where lower(name) = lower(:string)");
+			query.setParameter("string", string);
+			List<Platform> resultList = query.getResultList();
+			return resultList.get(0);
+		});
+	}
 }
