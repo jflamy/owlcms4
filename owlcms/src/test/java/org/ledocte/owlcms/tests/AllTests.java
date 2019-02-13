@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses( { LifterSorterTest.class, LifterTest.class, TwoMinutesRuleTest.class })
+@Suite.SuiteClasses( { AthleteSorterTest.class, AthleteTest.class, TwoMinutesRuleTest.class })
 public class AllTests {
 
     final static String lineSeparator = System.getProperty("line.separator"); //$NON-NLS-1$

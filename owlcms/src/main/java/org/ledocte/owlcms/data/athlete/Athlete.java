@@ -134,7 +134,6 @@ public class Athlete {
 	private String club = ""; //$NON-NLS-1$
 
 	private String gender = ""; //$NON-NLS-1$
-	private Integer ageGroup = 0;
 
 	private LocalDate fullBirthDate = null;
 
@@ -158,7 +157,7 @@ public class Athlete {
 
 	@ManyToOne(cascade = { CascadeType.MERGE }, optional = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "fk_categ")
-	private Category registrationCategory = null;
+	private Category category = null;
 	private String snatch1Declaration;
 	private String snatch1Change1;
 	private String snatch1Change2;
@@ -219,50 +218,51 @@ public class Athlete {
 	private Boolean teamMember = true; // false if substitute; note that we consider null to be true.;
 	private Integer qualifyingTotal = 0;
 
-	/*
-	 * Computed properties. We create them here because we want the corresponding
-	 * accessors to be discovered by introspection. Setters are not defined (the
-	 * fields are final). Getters perform the required computation.
-	 *
-	 * BEWARE: the variables defined here must NOT be used -- you must be able to
-	 * comment them out and get no compilation errors. All the code should use the
-	 * getters only.
-	 */
-	@Transient
-	final transient String snatch1AutomaticProgression = ""; //$NON-NLS-1$
-
-	@Transient
-	final transient String snatch2AutomaticProgression = ""; //$NON-NLS-1$
-	@Transient
-	final transient String snatch3AutomaticProgression = ""; //$NON-NLS-1$
-
-	@Transient
-	final transient String cleanJerk1AutomaticProgression = ""; //$NON-NLS-1$
-	@Transient
-	final transient String cleanJerk2AutomaticProgression = ""; //$NON-NLS-1$
-
-	@Transient
-	final transient String cleanJerk3AutomaticProgression = ""; //$NON-NLS-1$
-	@Transient
-	final transient Integer bestSnatch = 0;
-	@Transient
-	final transient Integer bestCleanJerk = 0;
-	@Transient
-	final transient Integer medalRank = 0;
-
-	@Transient
-	final transient Integer total = 0;
-	@Transient
-	final transient Integer attemptsDone = 0;
-
-	@Transient
-	final transient Integer snatchAttemptsDone = 0;
-	@Transient
-	final transient Integer cleanJerkAttemptsDone = 0;
-	@Transient
-	Date lastLiftTime = null;
-	@Transient
-	final transient Integer nextAttemptRequestedWeight = 0;
+//	/*
+//	 * Computed properties. We create them here because we want the corresponding
+//	 * accessors to be discovered by introspection. Setters are not defined (the
+//	 * fields are final). Getters perform the required computation.
+//	 *
+//	 * BEWARE: the variables defined here must NOT be used -- you must be able to
+//	 * comment them out and get no compilation errors. All the code should use the
+//	 * getters only.
+//	 */
+//	@Transient
+//	final transient String snatch1AutomaticProgression = ""; //$NON-NLS-1$
+//
+//	@Transient
+//	final transient String snatch2AutomaticProgression = ""; //$NON-NLS-1$
+//	@Transient
+//	final transient String snatch3AutomaticProgression = ""; //$NON-NLS-1$
+//
+//	@Transient
+//	final transient String cleanJerk1AutomaticProgression = ""; //$NON-NLS-1$
+//	@Transient
+//	final transient String cleanJerk2AutomaticProgression = ""; //$NON-NLS-1$
+//
+//	@Transient
+//	final transient String cleanJerk3AutomaticProgression = ""; //$NON-NLS-1$
+//	@Transient
+//	final transient Integer bestSnatch = 0;
+//	@Transient
+//	final transient Integer bestCleanJerk = 0;
+//	@Transient
+//	final transient Integer medalRank = 0;
+//
+//	@Transient
+//	final transient Integer total = 0;
+//	@Transient
+//	final transient Integer attemptsDone = 0;
+//
+//	@Transient
+//	final transient Integer snatchAttemptsDone = 0;
+//	@Transient
+//	final transient Integer cleanJerkAttemptsDone = 0;
+//	@Transient
+//	Date lastLiftTime = null;
+//	@Transient
+//	final transient Integer nextAttemptRequestedWeight = 0;
+	
 	/*
 	 * Non-persistent properties. These properties are used during computations, but
 	 * need not be stored in the database
@@ -275,6 +275,7 @@ public class Athlete {
 	boolean currentLifter = false;
 	@Transient
 	boolean forcedAsCurrent = false;
+	
 	/*
 	 * Transient fields that have no relevance to the persistent state of a Athlete
 	 * All framework-related and pattern-related constructs go here.
@@ -485,11 +486,7 @@ public class Athlete {
 	@Deprecated
 	@Transient
 	public Integer getBirthDate() {
-		if (fullBirthDate == null) {
-			return 1900;
-		} else {
-			return this.getYearOfBirth();
-		}
+		return this.getYearOfBirth();
 	};
 
 	/**
@@ -498,11 +495,7 @@ public class Athlete {
 	@Deprecated
 	@Transient
 	public void setBirthDate(Integer birthYear) {
-		if (birthYear == null) {
-			setFullBirthDate(1900);
-		} else {
-			setFullBirthDate(birthYear);
-		}
+		setYearOfBirth(birthYear);
 	}
 
 	/**
@@ -512,7 +505,7 @@ public class Athlete {
 		if (this.fullBirthDate != null) {
 			return fullBirthDate.getYear();
 		} else {
-			return null;
+			return 1900;
 		}
 	};
 
@@ -520,11 +513,7 @@ public class Athlete {
 	 * @param birthDate the birthDate to set
 	 */
 	public void setYearOfBirth(Integer birthYear) {
-		if (fullBirthDate == null) {
-			setBirthDate(birthYear);
-		} else {
-			setFullBirthDate(birthYear);
-		}
+		setFullBirthDate(birthYear);
 	}
 
 	/**
@@ -538,7 +527,7 @@ public class Athlete {
 	 * @return the category
 	 */
 	public Category getCategory() {
-		return registrationCategory;
+		return category;
 	};
 
 	/**
@@ -961,7 +950,7 @@ public class Athlete {
 	}
 
 	public Category getRegistrationCategory() {
-		return registrationCategory;
+		return category;
 	}
 
 	public Integer getResultOrderRank() {
@@ -1282,10 +1271,6 @@ public class Athlete {
 		this.forcedAsCurrent = false;
 	}
 
-	public void setAgeGroup(Integer ageGroup) {
-		this.ageGroup = ageGroup;
-	}
-
 	public void setAsCurrentLifter(Boolean currentLifter) {
 		// if (currentLifter)
 		// System.err.println("Athlete.setAsCurrentLifter(): current Athlete is now
@@ -1316,9 +1301,9 @@ public class Athlete {
 	/**
 	 * @param category the category to set
 	 */
-	// public void setCategory(Category category) {
-	// this.category = category;
-	// }
+	 public void setCategory(Category category) {
+		 this.category = category;
+	 }
 
 	public void setCleanJerk1ActualLift(String cleanJerk1ActualLift) {
 		validateActualLift(1,
@@ -1669,7 +1654,7 @@ public class Athlete {
 	}
 
 	public void setRegistrationCategory(Category registrationCategory) {
-		this.registrationCategory = registrationCategory;
+		this.category = registrationCategory;
 		// category may need to be flagged as different from registration if
 		// this
 		// value is changed.
@@ -2039,13 +2024,35 @@ public class Athlete {
 		return getLastName() + "_" + getFirstName() + "_" + System.identityHashCode(this); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	public String longDump() {
-		return "Athlete [firstName=" + firstName + ", lastName=" + lastName + ", gender=" + gender + ", group=" + group
-				+ ", registrationCategory=" + registrationCategory + ", bestSnatch="
-				+ getBestSnatch() + ", bestCleanJerk=" + getBestCleanJerk() + ", snatchAttemptsDone=" + snatchAttemptsDone
-				+ ", cleanJerkAttemptsDone=" + cleanJerkAttemptsDone + ", lastLiftTime=" + getLastLiftTime()
-				+ ", nextAttemptRequestedWeight=" + nextAttemptRequestedWeight + "]";
-	}
+    public String longDump() {
+        final Category category = this.getCategory();
+        final Group group = this.getGroup();
+        Category registrationCategory2 = this.getRegistrationCategory();
+		return (new StringBuilder())
+                .append(" lastName=" + this.getLastName()) //$NON-NLS-1$
+                .append(" firstName=" + this.getFirstName()) //$NON-NLS-1$
+                .append(" membership=" + this.getMembership()) //$NON-NLS-1$
+                .append(" lotNumber=" + this.getLotNumber()) //$NON-NLS-1$
+                .append(" group=" + (group != null ? group.getName() : null)) //$NON-NLS-1$
+                .append(" club=" + this.getClub()) //$NON-NLS-1$
+                .append(" gender=" + this.getGender()) //$NON-NLS-1$
+                .append(" bodyWeight=" + this.getBodyWeight()) //$NON-NLS-1$
+                .append(" birthDate=" + this.getYearOfBirth()) //$NON-NLS-1$
+                .append(" category=" + (category != null ? category.getName().toLowerCase() : null)) //$NON-NLS-1$
+                .append(" actualCategory=" + this.getLongCategory().toString().toLowerCase()) //$NON-NLS-1$
+                .append(" snatch1ActualLift=" + this.getSnatch1ActualLift()) //$NON-NLS-1$
+                .append(" snatch2=" + this.getSnatch2ActualLift()) //$NON-NLS-1$
+                .append(" snatch3=" + this.getSnatch3ActualLift()) //$NON-NLS-1$
+                .append(" bestSnatch=" + this.getBestSnatch()) //$NON-NLS-1$
+                .append(" cleanJerk1ActualLift=" + this.getCleanJerk1ActualLift()) //$NON-NLS-1$
+                .append(" cleanJerk2=" + this.getCleanJerk2ActualLift()) //$NON-NLS-1$
+                .append(" cleanJerk3=" + this.getCleanJerk3ActualLift()) //$NON-NLS-1$
+                .append(" total=" + this.getTotal()) //$NON-NLS-1$
+                .append(" totalRank=" + this.getRank()) //$NON-NLS-1$
+                .append(" teamMember=" + this.getTeamMember())
+                .toString();
+    }
+
 
 	/**
 	 * @return the logger
@@ -2094,13 +2101,6 @@ public class Athlete {
 	 */
 	public Integer getTeamCombinedRank() {
 		return teamCombinedRank;
-	}
-
-	/**
-	 * @return the lastLiftTime
-	 */
-	public Date getLastLiftTime() {
-		return lastLiftTime;
 	}
 
 	/**

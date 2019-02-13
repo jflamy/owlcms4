@@ -320,6 +320,10 @@ public class Category implements Serializable, Comparable<Category> {
     public String toString() {
         return name + "_" + active + "_" + gender + "_" + ageDivision;
     }
+    
+    public String shortDump() {
+        return name + "_" + active;
+    }
 
     public Double getRobiB() {
         return ROBI_B;

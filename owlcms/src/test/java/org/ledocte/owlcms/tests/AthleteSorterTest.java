@@ -29,7 +29,7 @@ import org.ledocte.owlcms.data.category.CategoryRepository;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.ledocte.owlcms.data.jpa.JPAService;
 
-public class LifterSorterTest {
+public class AthleteSorterTest {
 
     List<Athlete> athletes = null;
 
@@ -178,7 +178,7 @@ public class LifterSorterTest {
         successfulLift(athletes);
         failedLift(athletes);
         // two athletes are now done
-        assertEqualsToReferenceFile("/seq1_lift10.txt", AllTests.longDump(athletes)); //$NON-NLS-1$
+        assertEqualsToReferenceFile("/seq1_lift10.txt", AllTests.shortDump(athletes)); //$NON-NLS-1$
         successfulLift(athletes);
         successfulLift(athletes);
 

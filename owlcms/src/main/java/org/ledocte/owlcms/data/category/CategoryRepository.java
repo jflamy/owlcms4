@@ -41,6 +41,17 @@ public class CategoryRepository {
 		return JPAService.runInTransaction(em -> em.createQuery("select c from Category c")
 			.getResultList());
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static Category findByName(String string) {
+		return JPAService.runInTransaction(em -> {
+			Query query = em.createQuery("select c from Category c where lower(name) = lower(:string)");
+			query.setParameter("string", string);
+			List<Category> resultList = query.getResultList();
+			return resultList.get(0);
+		});
+	}
+	
 
 	private static String byAgeDivision = "from Category c where c.ageDivision = :division";
 
@@ -195,7 +206,8 @@ public class CategoryRepository {
 		save(new Category(96.0, 102.0, Gender.M, active, curAG, 0));
 		save(new Category(102.0, 999.0, Gender.M, active, curAG, 0));
 	}
-	
+
+
 
 
 }

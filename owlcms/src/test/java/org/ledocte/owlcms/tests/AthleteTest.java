@@ -18,7 +18,7 @@ import org.ledocte.owlcms.data.athlete.Gender;
 import org.ledocte.owlcms.data.category.AgeDivision;
 import org.ledocte.owlcms.data.category.Category;
 
-public class LifterTest {
+public class AthleteTest {
 
     private static Athlete athlete;
 
