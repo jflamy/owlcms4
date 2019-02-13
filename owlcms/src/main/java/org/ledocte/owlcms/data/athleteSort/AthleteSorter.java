@@ -27,10 +27,10 @@ import ch.qos.logback.classic.Logger;
  * @author jflamy
  */
 @Entity
-public class LifterSorter implements Serializable {
+public class AthleteSorter implements Serializable {
 
     private static final long serialVersionUID = -3507146241019771820L;
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(LifterSorter.class);
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(AthleteSorter.class);
 
     public enum Ranking {
         SNATCH, CLEANJERK, TOTAL, COMBINED, SINCLAIR, ROBI, CUSTOM

@@ -4,15 +4,21 @@ import java.util.List;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
 
-public class GroupData {
+import com.google.common.eventbus.EventBus;
 
-	public GroupData(List<Athlete> athletes) {
+public class GroupState {
+
+	public GroupState(List<Athlete> athletes) {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Object timeAllowed(Athlete schneiderF) {
+	public GroupState(EventBus eventBus, FieldOfPlayState fieldOfPlayState) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public int timeAllowed(Athlete a) {
 		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
 
 	public List<Athlete> getLifters() {
@@ -36,11 +42,6 @@ public class GroupData {
 	}
 
 	public List<Athlete> getAttemptOrder() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public List<Athlete> getLiftTimeOrder() {
 		// TODO Auto-generated method stub
 		return null;
 	}
