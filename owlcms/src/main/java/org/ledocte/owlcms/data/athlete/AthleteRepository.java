@@ -41,13 +41,45 @@ public class AthleteRepository {
 			.getResultList());
 	}
 
-	private static String byAgeDivision = "where c.ageDivision = :division";
-	private static String byGroup = "where c.group = :group";
-	private static String byName = "where c.lastName like %:lastName%";
-
 	@SuppressWarnings("unchecked")
-	public static Collection<Athlete> findFiltered(String lastName, Group group, AgeDivision ageDivision,
+	public static List<Athlete> findFiltered(String lastName, Group group, AgeDivision ageDivision, Boolean weighedIn,
 			int offset, int limit) {
+		String where = filteredWhere(lastName, group, ageDivision, weighedIn);
+		return JPAService.runInTransaction(em -> {
+			Query query = em.createQuery(
+				"select c from Athlete c " +
+						(where != null ? " where " + where : ""));
+			setFilteredParameters(lastName, group, ageDivision, query);
+			if (offset >= 0) query.setFirstResult(offset);
+			if (limit > 0) query.setMaxResults(limit);
+			List<Athlete> resultList = query.getResultList();
+			return resultList;
+		});
+	}
+	
+	public static int countFiltered(String lastName, Group group, AgeDivision ageDivision, Boolean weighedIn) {
+		String where = filteredWhere(lastName, group, ageDivision, weighedIn);
+		return JPAService.runInTransaction(em -> {
+			Query query = em.createQuery(
+				"select count(c.id) from Athlete c " +
+						(where != null ? " where " + where : ""));
+			setFilteredParameters(lastName, group, ageDivision, query);
+			int i = ((Long) query.getSingleResult()).intValue();
+			return i;
+		});
+	}
+
+	private static void setFilteredParameters(String lastName, Group group, AgeDivision ageDivision, Query query) {
+		query.setParameter("lastName", lastName);
+		query.setParameter("group", group);
+		query.setParameter("division", ageDivision);
+	}
+
+	private static String filteredWhere(String lastName, Group group, AgeDivision ageDivision, Boolean weighedIn) {
+		String byAgeDivision = "where c.ageDivision = :division";
+		String byGroup = "where c.group = :group";
+		String byName = "where c.lastName like %:lastName%";
+		String byWeighIn = "where c.bodyWeight > 0";
 		List<String> whereList = new LinkedList<String>();
 		if (ageDivision != null)
 			whereList.add(byAgeDivision);
@@ -55,37 +87,18 @@ public class AthleteRepository {
 			whereList.add(byGroup);
 		if (lastName != null)
 			whereList.add(byName);
-		String where = String.join(" and ", whereList);
-
-		return JPAService.runInTransaction(em -> {
-			Query query = em.createQuery(
-				"select c from Athlete c " +
-						(whereList.size() > 0 ? " where " + where : ""));
-			query.setParameter("lastName", lastName);
-			query.setParameter("group", group);
-			query.setParameter("division", ageDivision);
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-			List<Athlete> resultList = query.getResultList();
-			return resultList;
-		});
+		if (lastName != null)
+			whereList.add(byWeighIn);
+		if (whereList.size() == 0) {
+			return null;
+		} else {
+			return String.join(" and ", whereList);
+		}
 	}
 
-	public static int countByAgeDivision(AgeDivision ageDivision) {
-		if (ageDivision == null) {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select count(c.id) from Athlete c");
-				int i = ((Long) query.getSingleResult()).intValue();
-				return i;
-			});
-		} else {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select count(c.id) " + byAgeDivision);
-				query.setParameter("division", ageDivision);
-				int i = ((Long) query.getSingleResult()).intValue();
-				return i;
-			});
-		}
+
+	public static List<Athlete> findAllByGroupAndWeighIn(Group group, Boolean weighedIn) {
+		return findFiltered(null, group, null, weighedIn, -1, -1);
 	}
 
 }
