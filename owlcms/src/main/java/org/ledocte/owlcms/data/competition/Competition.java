@@ -40,20 +40,22 @@ public class Competition {
 	private String competitionOrganizer;
 	private String competitionSite;
 	private Locale defaultLocale = Locale.ENGLISH;
-	private Boolean enforce15_20KgRule;
-	private boolean enforce20kgRule;
+	private boolean enforce20kgRule = true;
 	private String federation;
 	private String federationAddress;
 	private String federationEMail;
 	private String federationWebSite;
 	private Integer invitedIfBornBefore;
-	private Boolean masters;
+	private boolean masters = false;
 	private String protocolFileName;
 	private String resultTemplateFileName;
-	private boolean useCategorySinclair;
-	private boolean useOld20_15Rule;
-	private boolean useOldBodyWeightTieBreak;
-	private boolean useRegistrationCategory;
+	private boolean useCategorySinclair = false;
+	private boolean useOld20_15Rule = false;
+	private boolean useOldBodyWeightTieBreak = false;
+	private boolean useRegistrationCategory = true;
+
+	private boolean useBirthYear;
+
 
 	public String getCompetitionCity() {
 		return competitionCity;
@@ -77,10 +79,6 @@ public class Competition {
 
 	public Locale getDefaultLocale() {
 		return defaultLocale ;
-	}
-
-	public Boolean getEnforce15_20KgRule() {
-		return enforce15_20KgRule;
 	}
 
 	public String getFederation() {
@@ -152,6 +150,13 @@ public class Competition {
 		return masters;
 	}
 
+	/**
+	 * @return the useBirthYear
+	 */
+	public boolean isUseBirthYear() {
+		return useBirthYear;
+	}
+
 	public boolean isUseCategorySinclair() {
 		return useCategorySinclair;
 	}
@@ -188,10 +193,6 @@ public class Competition {
 		this.competitionSite = competitionSite;
 	}
 
-	public void setEnforce15_20KgRule(Boolean enforce15_20KgRule) {
-		this.enforce15_20KgRule = enforce15_20KgRule;
-	}
-
 	public void setFederation(String federation) {
 		this.federation = federation;
 	}
@@ -222,6 +223,21 @@ public class Competition {
 
 	public void setResultTemplateFileName(String resultTemplateFileName) {
 		this.resultTemplateFileName = resultTemplateFileName;
+	}
+
+	public void setUseBirthYear(boolean b) {
+		this.useBirthYear = true;
+	}
+
+	/**
+	 * @param useRegistrationCategory the useRegistrationCategory to set
+	 */
+	public void setUseRegistrationCategory(boolean useRegistrationCategory) {
+		this.useRegistrationCategory = useRegistrationCategory;
+	}
+
+	public Locale getLocale() {
+		return getDefaultLocale();
 	}
 
 }

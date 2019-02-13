@@ -5,15 +5,15 @@
  * v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at
  * http://mozilla.org/MPL/2.0/.
  */
-package org.ledocte.owlcms.data.lifterSort;
+package org.ledocte.owlcms.data.athleteSort;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
+import org.ledocte.owlcms.data.athleteSort.LifterSorter.Ranking;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.ledocte.owlcms.data.group.Group;
-import org.ledocte.owlcms.data.lifterSort.LifterSorter.Ranking;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;

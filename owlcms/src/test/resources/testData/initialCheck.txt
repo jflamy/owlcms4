@@ -1,0 +1,10 @@
+Schneider Fred 0 1 1
+Simpson Rene 0 1 2
+Allison Rene 0 1 3
+Verne Umberto 0 1 4
+Tate Donald 0 1 5
+Simpson Albert 0 1 6
+Scott Richard 0 1 7
+Tate Rene 0 1 8
+Smith Henrik 0 1 9
+Simons Donald 0 1 10

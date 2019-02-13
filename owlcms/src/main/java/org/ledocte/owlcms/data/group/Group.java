@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,27 +20,33 @@ import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.platform.Platform;
 
+@Entity(name="CompetitionGroup")
+@Cacheable
 public class Group {
 	
     private static final SimpleDateFormat sFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     private String announcer;
     // group is the property in Athlete that is the opposite of Group.athletes
-    @OneToMany(mappedBy = "group")
+    @OneToMany(cascade={CascadeType.MERGE}, mappedBy = "group", fetch = FetchType.LAZY)
     // ,fetch=FetchType.EAGER)
     Set<Athlete> athletes;
-    @ManyToMany(fetch = FetchType.EAGER)
+    
+    @ManyToMany(cascade={CascadeType.MERGE}, fetch = FetchType.LAZY)
     Set<Category> categories;
 
     @Transient
     final transient String competitionShortDateTime = "";
     private LocalDateTime competitionTime;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    
     private String jury;
     private String marshall;
     private String name;
-    @ManyToOne(optional = true)
+    
+    @ManyToOne(cascade={CascadeType.MERGE}, optional = true, fetch = FetchType.LAZY)
     Platform platform;
     private String referee1;
 

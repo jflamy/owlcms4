@@ -18,18 +18,21 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import org.ledocte.owlcms.data.athleteSort.LifterSorter.Ranking;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.ledocte.owlcms.data.group.Group;
-import org.ledocte.owlcms.data.lifterSort.LifterSorter.Ranking;
 import org.ledocte.owlcms.i18n.Messages;
 import org.slf4j.LoggerFactory;
 
@@ -124,22 +127,24 @@ public class Athlete {
 
 	private Long version;
 
-	Integer lotNumber = null;
-	Integer startNumber = null;
-	String firstName = ""; //$NON-NLS-1$
-	String lastName = ""; //$NON-NLS-1$
-	String club = ""; //$NON-NLS-1$
+	private Integer lotNumber = null;
+	private Integer startNumber = null;
+	private String firstName = ""; //$NON-NLS-1$
+	private String lastName = ""; //$NON-NLS-1$
+	private String club = ""; //$NON-NLS-1$
 
-	String gender = ""; //$NON-NLS-1$
-	Integer ageGroup = 0;
+	private String gender = ""; //$NON-NLS-1$
+	private Integer ageGroup = 0;
 
 	private LocalDate fullBirthDate = null;
 
-	Double bodyWeight = null;
+	private Double bodyWeight = null;
 
-	String membership = ""; //$NON-NLS-1$
-	@ManyToOne
-	Group group;
+	private String membership = ""; //$NON-NLS-1$
+
+	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
+	@JoinColumn(name = "fk_group")
+	private Group group;
 
 	// This is brute force, but having embedded classes does not bring much
 	// and we don't want joins or other such logic for the Athlete card.
@@ -151,67 +156,68 @@ public class Athlete {
 	// people want to type
 	// "-" or other things in the cells, so Strings are actually easier.
 
-	@ManyToOne
-	Category registrationCategory = null;
-	String snatch1Declaration;
-	String snatch1Change1;
-	String snatch1Change2;
-	String snatch1ActualLift;
-	Date snatch1LiftTime;
+	@ManyToOne(cascade = { CascadeType.MERGE }, optional = true, fetch = FetchType.EAGER)
+	@JoinColumn(name = "fk_categ")
+	private Category registrationCategory = null;
+	private String snatch1Declaration;
+	private String snatch1Change1;
+	private String snatch1Change2;
+	private String snatch1ActualLift;
+	private Date snatch1LiftTime;
 
-	String snatch2Declaration;
-	String snatch2Change1;
-	String snatch2Change2;
-	String snatch2ActualLift;
-	Date snatch2LiftTime;
+	private String snatch2Declaration;
+	private String snatch2Change1;
+	private String snatch2Change2;
+	private String snatch2ActualLift;
+	private Date snatch2LiftTime;
 
-	String snatch3Declaration;
-	String snatch3Change1;
-	String snatch3Change2;
-	String snatch3ActualLift;
-	Date snatch3LiftTime;
+	private String snatch3Declaration;
+	private String snatch3Change1;
+	private String snatch3Change2;
+	private String snatch3ActualLift;
+	private Date snatch3LiftTime;
 
-	String cleanJerk1Declaration;
-	String cleanJerk1Change1;
-	String cleanJerk1Change2;
-	String cleanJerk1ActualLift;
-	Date cleanJerk1LiftTime;
+	private String cleanJerk1Declaration;
+	private String cleanJerk1Change1;
+	private String cleanJerk1Change2;
+	private String cleanJerk1ActualLift;
+	private Date cleanJerk1LiftTime;
 
-	String cleanJerk2Declaration;
-	String cleanJerk2Change1;
-	String cleanJerk2Change2;
-	String cleanJerk2ActualLift;
-	Date cleanJerk2LiftTime;
+	private String cleanJerk2Declaration;
+	private String cleanJerk2Change1;
+	private String cleanJerk2Change2;
+	private String cleanJerk2ActualLift;
+	private Date cleanJerk2LiftTime;
 
-	String cleanJerk3Declaration;
-	String cleanJerk3Change1;
-	String cleanJerk3Change2;
-	String cleanJerk3ActualLift;
-	Date cleanJerk3LiftTime;
+	private String cleanJerk3Declaration;
+	private String cleanJerk3Change1;
+	private String cleanJerk3Change2;
+	private String cleanJerk3ActualLift;
+	private Date cleanJerk3LiftTime;
 
-	Integer snatchRank;
-	Integer cleanJerkRank;
-	Integer totalRank;
-	Integer sinclairRank;
-	Integer robiRank;
-	Integer customRank;
+	private Integer snatchRank;
+	private Integer cleanJerkRank;
+	private Integer totalRank;
+	private Integer sinclairRank;
+	private Integer robiRank;
+	private Integer customRank;
 
-	Float snatchPoints;
-	Float cleanJerkPoints;
-	Float totalPoints; // points based on totalRank
-	Float sinclairPoints;
-	Float customPoints;
+	private Float snatchPoints;
+	private Float cleanJerkPoints;
+	private Float totalPoints; // points based on totalRank
+	private Float sinclairPoints;
+	private Float customPoints;
 
-	Integer teamSinclairRank;
-	Integer teamRobiRank;
-	Integer teamSnatchRank;
-	Integer teamCleanJerkRank;
+	private Integer teamSinclairRank;
+	private Integer teamRobiRank;
+	private Integer teamSnatchRank;
+	private Integer teamCleanJerkRank;
 
-	Integer teamTotalRank;
-	Integer teamCombinedRank;
+	private Integer teamTotalRank;
+	private Integer teamCombinedRank;
 
-	Boolean teamMember = true; // false if substitute; note that we consider null to be true.;
-	Integer qualifyingTotal = 0;
+	private Boolean teamMember = true; // false if substitute; note that we consider null to be true.;
+	private Integer qualifyingTotal = 0;
 
 	/*
 	 * Computed properties. We create them here because we want the corresponding
@@ -995,7 +1001,8 @@ public class Athlete {
 
 	public Double getRobi() {
 		Category c;
-		if (Competition.getCurrent().isUseRegistrationCategory()) {
+		if (Competition.getCurrent()
+			.isUseRegistrationCategory()) {
 			c = getRegistrationCategory();
 		} else {
 			c = getCategory();
@@ -1251,7 +1258,8 @@ public class Athlete {
 	}
 
 	public boolean isInvited() {
-		final Locale locale = UI.getCurrent().getLocale();
+		final Locale locale = Competition.getCurrent()
+			.getLocale();
 //        int threshold = Competition.invitedIfBornBefore();
 //
 //        Integer birthDate2 = getYearOfBirth();
@@ -1323,8 +1331,7 @@ public class Athlete {
 		if (zeroIfInvalid(cleanJerk1ActualLift) == 0)
 			this.cleanJerk1LiftTime = (null);
 		else
-			this.cleanJerk1LiftTime = (Date) (Calendar.getInstance()
-				.getTime());
+			this.cleanJerk1LiftTime = sqlNow();
 		logger.info("{} cleanJerk1ActualLift={}", this, cleanJerk1ActualLift);
 		fireEvent(new UpdateEvent(this, "cleanJerk1ActualLift", "cleanJerk1LiftTime", "total", "automatic")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
@@ -1411,8 +1418,7 @@ public class Athlete {
 		if (zeroIfInvalid(cleanJerk2ActualLift) == 0)
 			this.cleanJerk2LiftTime = (null);
 		else
-			this.cleanJerk2LiftTime = (Date) (Calendar.getInstance()
-				.getTime());
+			this.cleanJerk2LiftTime = sqlNow();
 		logger.info("{} cleanJerk2ActualLift={}", this, cleanJerk2ActualLift);
 		fireEvent(new UpdateEvent(this, "cleanJerk2ActualLift", "cleanJerk2LiftTime", "total", "automatic")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
@@ -1491,8 +1497,7 @@ public class Athlete {
 		if (zeroIfInvalid(cleanJerk3ActualLift) == 0)
 			this.cleanJerk3LiftTime = (null);
 		else
-			this.cleanJerk3LiftTime = (Date) (Calendar.getInstance()
-				.getTime());
+			this.cleanJerk3LiftTime = sqlNow();
 		logger.info("{} cleanJerk3ActualLift={}", this, cleanJerk3ActualLift);
 		fireEvent(new UpdateEvent(this, "cleanJerk3ActualLift", "cleanJerk3LiftTime", "total", "automatic")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
@@ -1694,10 +1699,15 @@ public class Athlete {
 		if (zeroIfInvalid(snatch1ActualLift) == 0)
 			this.snatch1LiftTime = null;
 		else
-			this.snatch1LiftTime = (Date) (Calendar.getInstance()
-				.getTime());
+			this.snatch1LiftTime = sqlNow();
 		logger.info("{} snatch1ActualLift={}", this, snatch1ActualLift);
 		fireEvent(new UpdateEvent(this, "snatch1ActualLift", "snatch1LiftTime", "total", "automatic")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	private Date sqlNow() {
+		return new Date(Calendar.getInstance()
+			.getTime()
+			.getTime());
 	}
 
 	public void setSnatch1AutomaticProgression(String s) {
@@ -1782,8 +1792,7 @@ public class Athlete {
 		if (zeroIfInvalid(snatch2ActualLift) == 0)
 			this.snatch2LiftTime = (null);
 		else
-			this.snatch2LiftTime = (Date) (Calendar.getInstance()
-				.getTime());
+			this.snatch2LiftTime = sqlNow();
 		logger.info("{} snatch2ActualLift={}", this, snatch2ActualLift);
 		fireEvent(new UpdateEvent(this, "snatch2ActualLift", "snatch2LiftTime", "total", "automatic")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
@@ -1867,8 +1876,7 @@ public class Athlete {
 		if (zeroIfInvalid(snatch3ActualLift) == 0)
 			this.snatch3LiftTime = (null);
 		else
-			this.snatch3LiftTime = (Date) (Calendar.getInstance()
-				.getTime());
+			this.snatch3LiftTime = sqlNow();
 		logger.info("{} snatch3ActualLift={}", this, snatch3ActualLift);
 		fireEvent(new UpdateEvent(this, "snatch2ActualLift", "snatch2LiftTime", "automatic")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
@@ -2029,6 +2037,77 @@ public class Athlete {
 	@Override
 	public String toString() {
 		return getLastName() + "_" + getFirstName() + "_" + System.identityHashCode(this); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public String longDump() {
+		return "Athlete [firstName=" + firstName + ", lastName=" + lastName + ", gender=" + gender + ", group=" + group
+				+ ", registrationCategory=" + registrationCategory + ", bestSnatch="
+				+ getBestSnatch() + ", bestCleanJerk=" + getBestCleanJerk() + ", snatchAttemptsDone=" + snatchAttemptsDone
+				+ ", cleanJerkAttemptsDone=" + cleanJerkAttemptsDone + ", lastLiftTime=" + getLastLiftTime()
+				+ ", nextAttemptRequestedWeight=" + nextAttemptRequestedWeight + "]";
+	}
+
+	/**
+	 * @return the logger
+	 */
+	public static Logger getLogger() {
+		return logger;
+	}
+
+	/**
+	 * @return the group
+	 */
+	public Group getGroup() {
+		return group;
+	}
+
+	/**
+	 * @return the sinclairPoints
+	 */
+	public Float getSinclairPoints() {
+		return sinclairPoints;
+	}
+
+	/**
+	 * @return the customPoints
+	 */
+	public Float getCustomPoints() {
+		return customPoints;
+	}
+
+	/**
+	 * @return the teamSinclairRank
+	 */
+	public Integer getTeamSinclairRank() {
+		return teamSinclairRank;
+	}
+
+	/**
+	 * @return the teamRobiRank
+	 */
+	public Integer getTeamRobiRank() {
+		return teamRobiRank;
+	}
+
+	/**
+	 * @return the teamCombinedRank
+	 */
+	public Integer getTeamCombinedRank() {
+		return teamCombinedRank;
+	}
+
+	/**
+	 * @return the lastLiftTime
+	 */
+	public Date getLastLiftTime() {
+		return lastLiftTime;
+	}
+
+	/**
+	 * @return the year
+	 */
+	public static int getYear() {
+		return year;
 	}
 
 	public void withdraw() {
@@ -2273,7 +2352,8 @@ public class Athlete {
 
 	public void checkStartingTotalsRule(boolean unlessCurrent) {
 		int qualTotal = getQualifyingTotal();
-		boolean enforce15_20rule = Competition.getCurrent().isEnforce20kgRule();
+		boolean enforce15_20rule = Competition.getCurrent()
+			.isEnforce20kgRule();
 		if (qualTotal == 0 || !enforce15_20rule) {
 			return;
 		}
@@ -2296,8 +2376,9 @@ public class Athlete {
 			curStartingTotal = snatchRequest + cleanJerkRequest;
 			int delta = qualTotal - curStartingTotal;
 			String message = null;
-			//FIXME: will fail during tests
-			Locale locale = UI.getCurrent().getLocale();
+			// FIXME: will fail during tests
+			Locale locale = UI.getCurrent()
+				.getLocale();
 			int _20kgRuleValue = this.get20kgRuleValue();
 			if (delta > _20kgRuleValue) {
 				Integer startNumber2 = this.getStartNumber();
@@ -2367,8 +2448,8 @@ public class Athlete {
 	}
 
 	public void showMustClickNotification(String message, boolean unlessCurrent) {
-		//FIXME: should be a message caught by UI and displayed if relevant.
-		Notification.show(message,-1,Position.MIDDLE);
+		// FIXME: should be a message caught by UI and displayed if relevant.
+		Notification.show(message, -1, Position.MIDDLE);
 	}
 
 	/**
@@ -2464,7 +2545,8 @@ public class Athlete {
 		if (category == null)
 			return "";
 
-		if (Competition.getCurrent().isUseRegistrationCategory()) {
+		if (Competition.getCurrent()
+			.isUseRegistrationCategory()) {
 			return getShortRegistrationCategory(gender1);
 		}
 
@@ -2496,7 +2578,8 @@ public class Athlete {
 	}
 
 	public String getDisplayCategory() {
-		if (Competition.getCurrent().isMasters()) {
+		if (Competition.getCurrent()
+			.isMasters()) {
 			return getShortCategory();
 		} else {
 			return getLongCategory();
@@ -2507,12 +2590,14 @@ public class Athlete {
 	 * @return
 	 */
 	public String getLongCategory() {
-		if (Competition.getCurrent().isUseRegistrationCategory()) {
+		if (Competition.getCurrent()
+			.isUseRegistrationCategory()) {
 			Category registrationCategory2 = getRegistrationCategory();
 			if (registrationCategory2 == null)
 				return "?";
 			return registrationCategory2.getName();
-		} else if (Competition.getCurrent().isMasters()) {
+		} else if (Competition.getCurrent()
+			.isMasters()) {
 			return getMastersLongCategory();
 		} else {
 			Category category = getCategory();
@@ -2581,13 +2666,15 @@ public class Athlete {
 	}
 
 	public int get20kgRuleValue() {
-		if (Competition.getCurrent().isMasters()) {
+		if (Competition.getCurrent()
+			.isMasters()) {
 			if ("M".equals(this.getGender())) {
 				return 15;
 			} else {
 				return 10;
 			}
-		} else if (Competition.getCurrent().isUseOld20_15rule()) {
+		} else if (Competition.getCurrent()
+			.isUseOld20_15rule()) {
 			if ("M".equals(this.getGender())) {
 				return 20;
 			} else {
