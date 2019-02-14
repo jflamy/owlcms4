@@ -1,0 +1,198 @@
+<link href="../bower_components/polymer/polymer-element.html"
+	rel="import">
+
+<dom-module id="decision-element">
+<template>
+<style>
+.decisions {
+	display: none;
+	height: 100%;
+	align-items: stretch;
+	justify-content: space-evenly;
+}
+.decision {
+	border-radius: 1rem;
+	border: 0.3rem solid white;
+	margin: 2vw;
+	background-color: gray;
+	width: 30%;
+}
+.down {
+	display: flex;
+	height: 100%;
+    align-items: stretch;
+	justify-content: space-evenly;
+	--iron-icon-height: 100%;
+    --iron-icon-width: 100%;
+	font-weight: normal;
+	color: lime;
+	display:block;
+}
+</style>
+<div class="down" id="downDiv">
+	<iron-icon id="down-arrow" icon="icons:file-download" on-click="showDecisions"></iron-icon>
+</div>
+<div class="decisions" id="decisionsDiv" on-click="hide">
+	<span class="decision" id="ref1span" />&nbsp;</span>
+	<span class="decision" id="ref2span" />&nbsp;</span>
+	<span class="decision" id="ref3span" />&nbsp;</span>
+</div>
+</template>
+
+<script>
+  class DecisionElement extends Polymer.Element {
+
+      static get is() {
+          return 'decision-element'
+      }
+
+      static get properties() {
+    	  return {
+	           ref1: {
+					type: Boolean,
+					reflectToAttribute: true,
+					notify: true,
+					value: null
+	           },
+	           ref2: {
+	               type: Boolean,
+	               reflectToAttribute: true,
+	               notify: true,
+	               value: null
+	           }, 
+	           ref3: {
+	               type: Boolean,
+	               reflectToAttribute: true,
+	               notify: true,
+	               value: null
+	           },
+	           decision: {
+					type: Boolean,
+					notify: true
+	           }
+    	  }
+      }
+      
+      ready() {
+		super.ready();
+		document.body.addEventListener('keydown', e => this._initRefs(e));
+		this._init();
+      }
+      
+      reset() {
+    	  this._init();
+      }
+      
+      _init() {
+			this.$.decisionsDiv.style.display = "none";
+			this.$.downDiv.style.display = "flex";
+			this.$.ref1span.style = "background-color: gray";
+			this.$.ref2span.style = "background-color: gray";
+			this.$.ref3span.style = "background-color: gray";
+			this.set('ref1',null);
+			this.set('ref2',null);
+			this.set('ref3',null);
+			this._setupAudio();
+      }
+      
+      _setupAudio() {
+			// setup audio -- an oscillator cannot be reused.
+			this.context = new AudioContext;
+			this.oscillator = this.context.createOscillator();
+			this.gain = this.context.createGain();
+			this.gain.gain.value = 1;
+			this.oscillator.frequency.value = 1000;  // maximum perceived loudness
+			this.oscillator.connect(this.gain);
+			this.gain.connect(this.context.destination);
+      }
+      
+      _initRefs(e) {
+			var key = e.key;
+			console.log(key);
+			switch (e.key) {
+			case '1':
+				this.set('ref1',true);
+				this._majority(this.ref1,this.ref2,this.ref3)
+				break;
+			case '2':
+				this.set('ref1',false);
+				this._majority(this.ref1,this.ref2,this.ref3)
+				break;
+			case '3':
+				this.set('ref2',true);
+				this._majority(this.ref1,this.ref2,this.ref3)
+				break;
+			case '4':
+				this.set('ref2',false);
+				this._majority(this.ref1,this.ref2,this.ref3)
+				break;
+			case '5':
+				this.set('ref3',true);
+				this._majority(this.ref1,this.ref2,this.ref3)
+				break;
+			case '6':
+				this.set('ref3',false);
+				this._majority(this.ref1,this.ref2,this.ref3)
+				break;
+			default:
+				break;
+			}
+		}
+      
+      _registerVote(code) {
+    	  console.log(key);
+      }
+      
+      _majority(ref1,ref2,ref3) {
+    	  var countWhite = 0;
+    	  var countRed = 0;
+    	  if (ref1 === true) {countWhite++;} else if (ref1 === false){countRed++;}
+    	  if (ref2 === true) {countWhite++;} else if (ref2 === false){countRed++;}
+    	  if (ref3 === true) {countWhite++;} else if (ref3 === false){countRed++;}
+  
+    	  if (countWhite == 2 || countRed == 2) {
+    		  this.down();
+    	  }
+    	  if ((countWhite + countRed) >= 3) {
+    		  setTimeout(this.showDecisions.bind(this), 3000);
+        	  if (ref1 === true) {
+        		  this.$.ref1span.style = "background-color: white";
+        	  } else if (ref1 === false){
+        		  this.$.ref1span.style = "background-color: red";
+        	  }
+        	  if (ref2 === true) {
+        		  this.$.ref2span.style = "background-color: white";
+        	  } else if (ref2 === false){
+        		  this.$.ref2span.style = "background-color: red";
+        	  }
+        	  if (ref3 === true) {
+        		  this.$.ref3span.style = "background-color: white";
+        	  } else if (ref3 === false){
+        		  this.$.ref3span.style = "background-color: red";
+        	  }
+    		  return (countWhite >= 2);
+    	  } else {
+    		  return undefined;
+    	  }
+      }
+      
+      down() {
+    	  this.oscillator.start(0);
+    	  this.oscillator.stop(this.context.currentTime + 2);
+    	  this._setupAudio();
+    	  //this.$.downAudio.play();
+		  this.dispatchEvent(new CustomEvent('down', {bubbles: true, composed: true}))
+      }
+      
+      showDecisions() {
+    	  this.$.downDiv.style.display = "none";
+    	  this.$.decisionsDiv.style.display = "flex";
+      }
+      
+      hide() {
+    	  this.dispatchEvent(new CustomEvent('hide', {bubbles: true, composed: true}))
+      }
+  }
+  
+  customElements.define(DecisionElement.is, DecisionElement);
+  </script> </dom-module>

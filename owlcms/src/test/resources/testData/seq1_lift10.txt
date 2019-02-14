@@ -1,0 +1,4 @@
+Simpson Rene 85 6 2
+Schneider Fred 85 6 1
+Verne Umberto 0 7 4
+Allison Rene 0 7 3
