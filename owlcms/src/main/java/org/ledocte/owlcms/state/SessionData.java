@@ -438,34 +438,7 @@ public class SessionData implements Athlete.UpdateEventListener, Serializable {
     }
 
 
-    /**
-     * Change the underlying session. Change the underlying session. When sessionData object has many browsers listening to it, it is
-     * simpler to change the session than to recreate a new SessionData object. This method should only be used by AnnouncerView, when the
-     * announcer.
-     *
-     * @param newCurrentSession
-     *            the currentSession to set
-     */
     void setCurrentSession(Group newCurrentSession) {
-        Group oldCompetitionSession = getGroup();
-
-        // do this first, in case we get called us recursively
-        this.group = newCurrentSession;
-        if (oldCompetitionSession != newCurrentSession) { // ok
-            // synchronize with the application (if we were not called from there)
-            logger.info("{} setting application group to {} (was {})", this,
-                    (newCurrentSession != null ? newCurrentSession.getName() : "nil"),
-                    (oldCompetitionSession != null ? oldCompetitionSession.getName() : "nil")
-                    ); //$NON-NLS-1$
-        }
-
-
-        loadData();
-        sortLists(false);
-
-        getTimer().forceTimeRemaining(getDisplayTime());
-        // tell listeners to refresh.
-        //fireEvent(SessionDataUpdateEvent.refreshEvent(this));
     }
 
     /**

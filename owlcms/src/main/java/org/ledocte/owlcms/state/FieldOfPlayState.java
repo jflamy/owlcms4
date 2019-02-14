@@ -22,14 +22,14 @@ public class FieldOfPlayState {
 
 	private String name;
 
-	private GroupState groupState;
+	private LiftingOrderState groupState;
 
 	public FieldOfPlayState(Group group, Platform platform) {
 		super();
 		this.group = group;
 		this.platform = platform;
 		this.name = platform.getName();
-		this.setGroupState(new GroupState(eventBus, this));
+		this.setGroupState(new LiftingOrderState(this));
 	}
 
 	/**
@@ -88,11 +88,11 @@ public class FieldOfPlayState {
 		this.platform = platform;
 	}
 
-	public GroupState getGroupState() {
+	public LiftingOrderState getGroupState() {
 		return groupState;
 	}
 
-	public void setGroupState(GroupState groupState) {
+	public void setGroupState(LiftingOrderState groupState) {
 		this.groupState = groupState;
 	}
 
