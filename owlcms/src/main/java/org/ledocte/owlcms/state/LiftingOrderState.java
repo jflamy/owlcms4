@@ -238,4 +238,9 @@ public class LiftingOrderState {
 
 	}
 
+	public void callCurLifter() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
