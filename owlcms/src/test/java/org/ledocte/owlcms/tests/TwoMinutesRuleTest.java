@@ -84,7 +84,7 @@ public class TwoMinutesRuleTest {
         Athlete curLifter = groupData.getCurLifter();
         assertEquals(schneiderF, curLifter);
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
 
@@ -103,7 +103,7 @@ public class TwoMinutesRuleTest {
         assertEquals(schneiderF, curLifter);
         assertEquals(120000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
 
@@ -113,7 +113,7 @@ public class TwoMinutesRuleTest {
         assertEquals(simpsonR, curLifter);
         assertEquals(60000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         failedLift(groupData);
         logger.info("failed lift for {}", curLifter); //$NON-NLS-1$
 
@@ -123,7 +123,7 @@ public class TwoMinutesRuleTest {
         assertEquals(120000, groupData.timeAllowed(curLifter));
         // simpson is called again with two minutes
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         // but asks for more
         Thread.sleep(500); // wait for a while
         declaration(groupData, curLifter, groupData.getLifters(), "67"); //$NON-NLS-1$
@@ -135,7 +135,7 @@ public class TwoMinutesRuleTest {
         assertEquals(60000, groupData.timeAllowed(curLifter));
         // schneider is called
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         // but asks for more
         Thread.sleep(400); // wait for a while
         // the following stops time.
@@ -181,7 +181,7 @@ public class TwoMinutesRuleTest {
         Athlete curLifter = groupData.getCurLifter();
         assertEquals(schneiderF, curLifter);
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
 
@@ -190,7 +190,7 @@ public class TwoMinutesRuleTest {
         assertEquals(schneiderF, curLifter);
         assertEquals(120000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
 
@@ -199,7 +199,7 @@ public class TwoMinutesRuleTest {
         assertEquals(schneiderF, curLifter);
         assertEquals(120000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
 
@@ -208,7 +208,7 @@ public class TwoMinutesRuleTest {
         assertEquals(simpsonR, curLifter);
         assertEquals(60000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
         // simpsonR snatch2
@@ -216,7 +216,7 @@ public class TwoMinutesRuleTest {
         assertEquals(simpsonR, curLifter);
         assertEquals(120000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
         // simpsonR snatch3
@@ -224,7 +224,7 @@ public class TwoMinutesRuleTest {
         assertEquals(simpsonR, curLifter);
         assertEquals(120000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
 
@@ -233,7 +233,7 @@ public class TwoMinutesRuleTest {
         assertEquals(schneiderF, curLifter);
         assertEquals(60000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
 
@@ -244,7 +244,7 @@ public class TwoMinutesRuleTest {
         assertEquals(schneiderF, groupData.getPreviousLifter());
         assertEquals(120000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
 
@@ -253,7 +253,7 @@ public class TwoMinutesRuleTest {
         assertEquals(schneiderF, curLifter);
         assertEquals(120000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
 
@@ -262,7 +262,7 @@ public class TwoMinutesRuleTest {
         assertEquals(simpsonR, curLifter);
         assertEquals(60000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
         // simpsonR cj2
@@ -270,7 +270,7 @@ public class TwoMinutesRuleTest {
         assertEquals(simpsonR, curLifter);
         assertEquals(120000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
         // simpsonR cj3
@@ -278,7 +278,7 @@ public class TwoMinutesRuleTest {
         assertEquals(simpsonR, curLifter);
         assertEquals(120000, groupData.timeAllowed(curLifter));
         logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-        groupData.callCurLifter();
+        groupData.callCurLifter(true);
         successfulLift(groupData);
         logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
     }
@@ -435,10 +435,10 @@ public class TwoMinutesRuleTest {
 
     /**
      * @param lifter
-     * @param lifters1
+     * @param lifters
      * @param weight
      */
-    private void doTestLift(LiftingOrderState groupData, final Athlete lifter, List<Athlete> lifters1, final String weight) {
+    private void doTestLift(LiftingOrderState loState, final Athlete lifter, List<Athlete> lifters, final String weight) {
         // sleep for a while to ensure that we get different time stamps on the
         // lifts.
         try {
@@ -468,9 +468,8 @@ public class TwoMinutesRuleTest {
         }
         
         //FIXME: replace with the correct event to the state machine
-        AthleteSorter.liftingOrder(lifters1);
-        groupData.liftDone(lifter, !weight.startsWith("-")); //$NON-NLS-1$
-        groupData.updateListsForLiftingOrderChange(lifter,true, false);
+        AthleteSorter.liftingOrder(lifters);
+        loState.liftDone(!weight.startsWith("-")); //$NON-NLS-1$
     }
 
 }

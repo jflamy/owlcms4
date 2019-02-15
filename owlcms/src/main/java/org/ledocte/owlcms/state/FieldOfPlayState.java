@@ -29,7 +29,11 @@ public class FieldOfPlayState {
 		this.group = group;
 		this.platform = platform;
 		this.name = platform.getName();
-		this.setGroupState(new LiftingOrderState(this));
+		this.setLiftingOrderState(new LiftingOrderState(this));
+	}
+
+	public FieldOfPlayState() {
+		this.setLiftingOrderState(new LiftingOrderState(this));
 	}
 
 	/**
@@ -92,7 +96,7 @@ public class FieldOfPlayState {
 		return groupState;
 	}
 
-	public void setGroupState(LiftingOrderState groupState) {
+	public void setLiftingOrderState(LiftingOrderState groupState) {
 		this.groupState = groupState;
 	}
 
