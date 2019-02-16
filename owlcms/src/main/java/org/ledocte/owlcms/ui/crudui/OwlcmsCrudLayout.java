@@ -5,8 +5,6 @@ import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.layout.impl.WindowBasedCrudLayout;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 
 import ch.qos.logback.classic.Logger;
@@ -42,9 +40,9 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
         filterLayout.setSpacing(true);
         headerLayout.add(filterLayout);
 
-        Icon icon = VaadinIcon.SEARCH.create();
-        icon.setSize(".9em");
-        filterLayout.add(icon);
+//        Icon icon = VaadinIcon.SEARCH.create();
+//        icon.setSize(".9em");
+//        filterLayout.add(icon);
 
         mainComponentLayout.setWidth("100%");
         mainComponentLayout.setHeight(null);

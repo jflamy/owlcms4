@@ -17,8 +17,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import org.ledocte.owlcms.data.AgeDivision;
-import org.ledocte.owlcms.data.Gender;
+import org.ledocte.owlcms.data.athlete.Gender;
 
 /**
  * Contains information regarding each competition category.
@@ -320,6 +319,10 @@ public class Category implements Serializable, Comparable<Category> {
     @Override
     public String toString() {
         return name + "_" + active + "_" + gender + "_" + ageDivision;
+    }
+    
+    public String shortDump() {
+        return name + "_" + active;
     }
 
     public Double getRobiB() {

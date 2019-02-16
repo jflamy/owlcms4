@@ -6,19 +6,23 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.ledocte.owlcms.data.AgeDivision;
-import org.ledocte.owlcms.data.Gender;
+import org.ledocte.owlcms.data.athlete.Gender;
 import org.ledocte.owlcms.data.jpa.JPAService;
 
 /**
  * @author Alejandro Duarte
  */
 public class CategoryRepository {
-
+	
 	@SuppressWarnings("unchecked")
-	public static List<Category> findAll() {
-		return JPAService.runInTransaction(em -> em.createQuery("select c from Category c")
-			.getResultList());
+	public static Category getById(Long id, EntityManager em) {
+		Query query = em.createQuery("select u from Category u where u.id=:id");
+		query.setParameter("id", id);
+
+		return (Category) query.getResultList()
+			.stream()
+			.findFirst()
+			.orElse(null);
 	}
 
 	public static Category save(Category Category) {
@@ -31,7 +35,63 @@ public class CategoryRepository {
 			return null;
 		});
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<Category> findAll() {
+		return JPAService.runInTransaction(em -> em.createQuery("select c from Category c")
+			.getResultList());
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static Category findByName(String string) {
+		return JPAService.runInTransaction(em -> {
+			Query query = em.createQuery("select c from Category c where lower(name) = lower(:string)");
+			query.setParameter("string", string);
+			List<Category> resultList = query.getResultList();
+			return resultList.get(0);
+		});
+	}
+	
 
+	private static String byAgeDivision = "from Category c where c.ageDivision = :division";
+
+	@SuppressWarnings("unchecked")
+	public static Collection<Category> findByAgeDivision(AgeDivision ageDivision, int offset, int limit) {
+		if (ageDivision == null) {
+			return JPAService.runInTransaction(em -> {
+				Query query = em.createQuery("select c from Category c");
+				query.setFirstResult(offset);
+				query.setMaxResults(limit);
+				return query.getResultList();
+			});
+		} else {
+			return JPAService.runInTransaction(em -> {
+				Query query = em.createQuery("select c " + byAgeDivision);
+				query.setParameter("division", ageDivision);
+				query.setFirstResult(offset);
+				query.setMaxResults(limit);
+				List<Category> resultList = query.getResultList();
+				return resultList;
+			});
+		}
+	}
+
+	public static int countByAgeDivision(AgeDivision ageDivision) {
+		if (ageDivision == null) {
+			return JPAService.runInTransaction(em -> {
+				Query query = em.createQuery("select count(c.id) from Category c");
+				int i = ((Long) query.getSingleResult()).intValue();
+				return i;
+			});
+		} else {
+			return JPAService.runInTransaction(em -> {
+				Query query = em.createQuery("select count(c.id) " + byAgeDivision);
+				query.setParameter("division", ageDivision);
+				int i = ((Long) query.getSingleResult()).intValue();
+				return i;
+			});
+		}
+	}
 
 
 	static void insertKidsCategories(AgeDivision curAG, boolean active) {
@@ -147,55 +207,7 @@ public class CategoryRepository {
 		save(new Category(102.0, 999.0, Gender.M, active, curAG, 0));
 	}
 
-	@SuppressWarnings("unchecked")
-	public static Category getById(Long id, EntityManager em) {
-		Query query = em.createQuery("select u from Category u where u.id=:id");
-		query.setParameter("id", id);
 
-		return (Category) query.getResultList()
-			.stream()
-			.findFirst()
-			.orElse(null);
-	}
-	
-	private static String byAgeDivision = "from Category c where c.ageDivision = :division";
 
-	@SuppressWarnings("unchecked")
-	public static Collection<Category> findByAgeDivision(AgeDivision ageDivision, int offset, int limit) {
-		if (ageDivision == null) {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select c from Category c");
-				query.setFirstResult(offset);
-				query.setMaxResults(limit);
-				return query.getResultList();
-			});
-		} else {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select c " + byAgeDivision);
-				query.setParameter("division", ageDivision);
-				query.setFirstResult(offset);
-				query.setMaxResults(limit);
-				List<Category> resultList = query.getResultList();
-				return resultList;
-			});
-		}
-	}
-
-	public static int countByAgeDivision(AgeDivision ageDivision) {
-		if (ageDivision == null) {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select count(c.id) from Category c");
-				int i = ((Long) query.getSingleResult()).intValue();
-				return i;
-			});
-		} else {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select count(c.id) " + byAgeDivision);
-				query.setParameter("division", ageDivision);
-				int i = ((Long) query.getSingleResult()).intValue();
-				return i;
-			});
-		}
-	}
 
 }

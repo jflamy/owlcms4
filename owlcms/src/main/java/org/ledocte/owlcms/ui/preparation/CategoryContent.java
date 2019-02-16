@@ -2,7 +2,7 @@ package org.ledocte.owlcms.ui.preparation;
 
 import java.util.Collection;
 
-import org.ledocte.owlcms.data.AgeDivision;
+import org.ledocte.owlcms.data.category.AgeDivision;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.category.CategoryRepository;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudLayout;

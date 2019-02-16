@@ -1,0 +1,10 @@
+Allison Rene 55 1 3
+Verne Umberto 55 1 4
+Schneider Fred 60 1 1
+Simpson Rene 60 1 2
+Tate Donald 0 1 5
+Simpson Albert 0 1 6
+Scott Richard 0 1 7
+Tate Rene 0 1 8
+Smith Henrik 0 1 9
+Simons Donald 0 1 10
