@@ -1,4 +1,4 @@
-package org.ledocte.owlcms.state;
+package org.ledocte.owlcms.tests;
 
 import org.ledocte.owlcms.state.ICountdownTimer;
 import org.ledocte.owlcms.utils.LoggerUtils;
@@ -7,14 +7,14 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
-public class CountdownTimer implements ICountdownTimer {
+public class MockCountdownTimer implements ICountdownTimer {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(CountdownTimer.class);
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(MockCountdownTimer.class);
 
 	private int timeRemaining;
 	
-	public CountdownTimer() {
-		logger.setLevel(Level.DEBUG);
+	public MockCountdownTimer() {
+		logger.setLevel(Level.INFO);
 	}
 
 	/*
@@ -22,11 +22,10 @@ public class CountdownTimer implements ICountdownTimer {
 	 * 
 	 * @see org.ledocte.owlcms.tests.ICountDownTimer#start()
 	 */
-	//FIXME: this should interface with the real timer
 	@Override
 	public void start() {
-		logger.debug("starting Time -- timeRemaining = {}" + timeRemaining);
-		setTimeRemaining(getTimeRemaining() - 1000);
+		logger.debug("starting Time -- timeRemaining = {} \t[{}]",timeRemaining, LoggerUtils.whereFrom());
+		timeRemaining = (getTimeRemaining() - 1000);
 	}
 
 	/*
@@ -36,8 +35,8 @@ public class CountdownTimer implements ICountdownTimer {
 	 */
 	@Override
 	public void stop() {
-		logger.debug("stopping Time -- timeRemaining = {}" + timeRemaining);
-		setTimeRemaining(getTimeRemaining());
+		logger.debug("stopping Time -- timeRemaining = {} \t[{}]",timeRemaining, LoggerUtils.whereFrom());
+		timeRemaining = (getTimeRemaining());
 	}
 
 	/*
@@ -57,7 +56,7 @@ public class CountdownTimer implements ICountdownTimer {
 	 */
 	@Override
 	public void setTimeRemaining(int timeRemaining) {
-		logger.debug("setting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+		logger.debug("setting Time -- timeRemaining = {}\t[{}]", timeRemaining, LoggerUtils.whereFrom());
 		this.timeRemaining = timeRemaining;
 	}
 
