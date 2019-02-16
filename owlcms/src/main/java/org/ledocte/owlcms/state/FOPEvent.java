@@ -1,24 +1,50 @@
 package org.ledocte.owlcms.state;
 
-public interface FOPEvent {
-	
-	public class DownSignal {
+/**
+ * The subclasses of FOPEvent are all the events that can take place on the field of play.
+ * 
+ * @author owlcms
+ */
+public class FOPEvent {
+
+	static public class AthleteAnnounced extends FOPEvent {
 
 	}
 
-	public class RefereeDecision {
+	static public class DecisionReset extends FOPEvent {
 
 	}
 
-	public class LiftingOrderUpdated {
+	static public class DownSignal extends FOPEvent {
 
 	}
 
-	public class TimeStartedByTimeKeeper {
+	static public class IntermissionDone extends FOPEvent {
 
 	}
 
-	public class AthleteAnnounced {
+	static public class IntermissionStarted extends FOPEvent {
+
+	}
+
+	static public class LiftingOrderUpdated extends FOPEvent {
+
+	}
+
+	static public class RefereeDecision extends FOPEvent {
+		public Boolean success = null;
+
+		public RefereeDecision(boolean success) {
+			this.success = success;
+		}
+
+	}
+
+	static public class TimeStartedByTimeKeeper extends FOPEvent {
+
+	}
+
+	static public class TimeStoppedByTimeKeeper extends FOPEvent {
 
 	}
 
