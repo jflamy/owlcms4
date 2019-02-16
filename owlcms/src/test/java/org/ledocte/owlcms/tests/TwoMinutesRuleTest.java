@@ -31,7 +31,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class TwoMinutesRuleTest {
-	private static Level LoggerLevel = Level.INFO;
 	final static Logger logger = (Logger) LoggerFactory.getLogger(TwoMinutesRuleTest.class);
 	private List<Athlete> athletes;
 
@@ -51,7 +50,7 @@ public class TwoMinutesRuleTest {
 		// false
 		// on the constructor to disable exclusion of incomplete data.
 		athletes = AthleteRepository.findAll();
-		logger.setLevel(LoggerLevel);
+		logger.setLevel(Level.DEBUG);
 	}
 
 	@Test
@@ -87,8 +86,8 @@ public class TwoMinutesRuleTest {
 			athletes.remove(2);
 
 		FieldOfPlayState.getLogger()
-			.setLevel(LoggerLevel);
-		FieldOfPlayState fopState = new FieldOfPlayState(athletes, new MockCountdownTimer());
+			.setLevel(Level.DEBUG);
+		FieldOfPlayState fopState = new FieldOfPlayState(athletes);
 		fopState.setStartTimeAutomatically(true);
 		EventBus fopBus = fopState.getEventBus();
 
@@ -97,68 +96,68 @@ public class TwoMinutesRuleTest {
 		logger.debug("\n{}", AllTests.shortDump(fopState.getLifters()));
 
 		// schneiderF is called with initial weight
-		Athlete curLifter = fopState.getCurAthlete();
-		Athlete previousLifter = fopState.getPreviousAthlete();
+		Athlete curLifter = fopState.getCurLifter();
+		Athlete previousLifter = fopState.getPreviousLifter();
 		assertEquals(schneiderF, curLifter);
 		assertEquals(null, previousLifter);
 		successfulLift(fopBus, curLifter);
-		
+
 		logger.debug("\n{}", AllTests.shortDump(fopState.getLifters()));
 		// first is now simpsonR ; he has declared 60kg
-		curLifter = fopState.getCurAthlete();
-		previousLifter = fopState.getPreviousAthlete();
+		curLifter = fopState.getCurLifter();
+		previousLifter = fopState.getPreviousLifter();
 		assertEquals(simpsonR, curLifter);
 		assertEquals(schneiderF, previousLifter);
 		assertEquals(60000, fopState.timeAllowed());
 
-		// ... but simpsonR changes to 62 before being called by announcer (time not restarted)
+		// ... but changes to 62 before being called by announcer (time not restarted)
 		declaration(curLifter, "62", fopBus); //$NON-NLS-1$
 		logger.info("declaration by {}: {}", curLifter, "62"); //$NON-NLS-1$ //$NON-NLS-2$
 		logger.debug("\n{}", AllTests.shortDump(fopState.getLifters()));
 
-		// so now schneider should be back on top at 61, with two minutes because
+		// now schneider should be back on top at 61, with two minutes because
 		// there was no time started.
-		curLifter = fopState.getCurAthlete();
-		previousLifter = fopState.getPreviousAthlete();
+		curLifter = fopState.getCurLifter();
+		previousLifter = fopState.getPreviousLifter();
 		assertEquals(schneiderF, curLifter);
 		assertEquals(schneiderF, previousLifter);
 		assertEquals(120000, fopState.timeAllowed());
 		successfulLift(fopBus, curLifter);
 
-		// schneider has lifted 62, is now simpson's turn, he should NOT have 2
+		// schneider has lifted 62, is now simpson's turn, should NOT have 2
 		// minutes
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(simpsonR, curLifter);
 		assertEquals(60000, fopState.timeAllowed());
 		failedLift(fopBus, curLifter);
 
 		// still simpson because 2nd try and schneider is at 3rd.
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(simpsonR, curLifter);
 		assertEquals(120000, fopState.timeAllowed());
 		// simpson is called again with two minutes
 		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.AthleteAnnounced()); // this starts logical time
-		assertEquals(FieldOfPlayState.State.TIME_RUNNING ,fopState.getState()) ;
-		// but simpson now asks for more; weight change should stop clock.
+		assertEquals(fopState.getState(), FieldOfPlayState.State.TIME_RUNNING);
+		// but asks for more; weight change should stop clock.
 		declaration(curLifter, "67", fopBus); //$NON-NLS-1$
 		logger.info("declaration by {}: {}", curLifter, "67"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// schneider does not get 2 minutes.
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(schneiderF, curLifter);
 		assertEquals(60000, fopState.timeAllowed());
 		// schneider is called
 		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.AthleteAnnounced()); // this starts logical time
-		assertEquals(FieldOfPlayState.State.TIME_RUNNING, fopState.getState());
-		// but asks for more weight -- the following stops time.
+		assertEquals(fopState.getState(), FieldOfPlayState.State.TIME_RUNNING);
+		// but asks for more
+		// the following stops time.
 		declaration(curLifter, "65", fopBus); //$NON-NLS-1$
-		assertEquals(FieldOfPlayState.State.CURRENT_ATHLETE_DISPLAYED, fopState.getState());
-		int remainingTime = fopState.getTimer().getTimeRemaining();
+		int remainingTime = fopState.getTimeRemaining();
 
-		// at this point, if schneider is called again, he should get the remaining time.
-		curLifter = fopState.getCurAthlete();
+		// at this point, if schneider is called, he should get the remaining time.
+		curLifter = fopState.getCurLifter();
 		assertEquals(schneiderF, curLifter);
 		assertEquals(remainingTime, fopState.timeAllowed());
 	}
@@ -181,7 +180,7 @@ public class TwoMinutesRuleTest {
 		final int size = athletes.size();
 		for (int i = 2; i < size; i++)
 			athletes.remove(2);
-		FieldOfPlayState fopState = new FieldOfPlayState(athletes, new MockCountdownTimer());
+		FieldOfPlayState fopState = new FieldOfPlayState(athletes);
 		fopState.setStartTimeAutomatically(true);
 		EventBus fopBus = fopState.getEventBus();
 
@@ -190,73 +189,73 @@ public class TwoMinutesRuleTest {
 		assertEquals(60000, fopState.timeAllowed());
 
 		// schneiderF snatch1
-		Athlete curLifter = fopState.getCurAthlete();
+		Athlete curLifter = fopState.getCurLifter();
 		assertEquals(schneiderF, curLifter);
 		successfulLift(fopBus, curLifter);
 
 		// schneiderF snatch2
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(schneiderF, curLifter);
 		assertEquals(120000, fopState.timeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// schneiderF snatch3
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(schneiderF, curLifter);
 		assertEquals(120000, fopState.timeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// simpsonR snatch1
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(simpsonR, curLifter);
 		assertEquals(60000, fopState.timeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// simpsonR snatch2
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(simpsonR, curLifter);
 		assertEquals(120000, fopState.timeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// simpsonR snatch3
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(simpsonR, curLifter);
 		assertEquals(120000, fopState.timeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// schneiderF cj1
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(schneiderF, curLifter);
 		assertEquals(60000, fopState.timeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// schneiderF cj2
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(schneiderF, curLifter);
-		assertEquals(schneiderF, fopState.getPreviousAthlete());
+		assertEquals(schneiderF, fopState.getPreviousLifter());
 		assertEquals(120000, fopState.timeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// schneiderF cj3
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(schneiderF, curLifter);
 		assertEquals(120000, fopState.timeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// simpsonR cj1
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(simpsonR, curLifter);
 		assertEquals(60000, fopState.timeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// simpsonR cj2
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(simpsonR, curLifter);
 		assertEquals(120000, fopState.timeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// simpsonR cj3
-		curLifter = fopState.getCurAthlete();
+		curLifter = fopState.getCurLifter();
 		assertEquals(simpsonR, curLifter);
 		assertEquals(120000, fopState.timeAllowed());
 		successfulLift(fopBus, curLifter);
@@ -291,49 +290,53 @@ public class TwoMinutesRuleTest {
 		eventBus.post(new FOPEvent.LiftingOrderUpdated());
 	}
 
-//	/**
-//	 * @param lifter
-//	 * @param lifters1
-//	 * @param weight
-//	 */
-//	private void actualLift(final Athlete lifter, final String weight) {
-//		switch (lifter.getAttemptsDone() + 1) {
-//		case 1:
-//			lifter.setSnatch1ActualLift(weight);
-//			break;
-//		case 2:
-//			lifter.setSnatch2ActualLift(weight);
-//			break;
-//		case 3:
-//			lifter.setSnatch3ActualLift(weight);
-//			break;
-//		case 4:
-//			lifter.setCleanJerk1ActualLift(weight);
-//			break;
-//		case 5:
-//			lifter.setCleanJerk2ActualLift(weight);
-//			break;
-//		case 6:
-//			lifter.setCleanJerk3ActualLift(weight);
-//			break;
-//		}
-//	}
+	/**
+	 * @param lifter
+	 * @param lifters1
+	 * @param weight
+	 */
+	private void actualLift(final Athlete lifter, final String weight) {
+		switch (lifter.getAttemptsDone() + 1) {
+		case 1:
+			lifter.setSnatch1ActualLift(weight);
+			break;
+		case 2:
+			lifter.setSnatch2ActualLift(weight);
+			break;
+		case 3:
+			lifter.setSnatch3ActualLift(weight);
+			break;
+		case 4:
+			lifter.setCleanJerk1ActualLift(weight);
+			break;
+		case 5:
+			lifter.setCleanJerk2ActualLift(weight);
+			break;
+		case 6:
+			lifter.setCleanJerk3ActualLift(weight);
+			break;
+		}
+	}
 
 	private void failedLift(EventBus fopBus, Athlete curLifter) {
-		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
+		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.AthleteAnnounced());
+		logger.info("failed lift for {}", curLifter); //$NON-NLS-1$
+		actualLift(curLifter, "-" + curLifter.getCurrentDeclaration());
+		fopBus.post(new FOPEvent.LiftingOrderUpdated());
 		fopBus.post(new FOPEvent.DownSignal());
 		fopBus.post(new FOPEvent.RefereeDecision(false));
-		logger.debug("failed lift for {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.DecisionReset());
 	}
 
 	private void successfulLift(EventBus fopBus, Athlete curLifter) {
-		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
+		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.AthleteAnnounced());
+		logger.info("successful lift for {}", curLifter); //$NON-NLS-1$
+		actualLift(curLifter, curLifter.getCurrentDeclaration());
+		fopBus.post(new FOPEvent.LiftingOrderUpdated());
 		fopBus.post(new FOPEvent.DownSignal());
 		fopBus.post(new FOPEvent.RefereeDecision(true));
-		logger.debug("successful lift for {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.DecisionReset());
 	}
 

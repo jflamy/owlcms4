@@ -7,7 +7,6 @@ import org.ledocte.owlcms.data.athlete.AthleteRepository;
 import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
 import org.ledocte.owlcms.data.group.Group;
 import org.ledocte.owlcms.data.platform.Platform;
-import org.ledocte.owlcms.utils.LoggerUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -44,28 +43,25 @@ public class FieldOfPlayState {
 	}
 
 	private Athlete clockOwner;
-	private Athlete curAthlete;
-	private Integer curWeight;
+	private Athlete curLifter;
 	private EventBus eventBus = null;
 	private Group group = null;
 	private List<Athlete> liftingOrder;
 	private String name;
 	private Platform platform = null;
-	private Athlete previousAthlete;
+	private Athlete previousLifter;
 	private boolean startTimeAutomatically;
 	private State state;
-	private ICountdownTimer timer;
+	private int timeRemaining;
 
-	public FieldOfPlayState(Group group, Platform platform, ICountdownTimer timer) {
+	public FieldOfPlayState(Group group, Platform platform) {
 		this.group = group;
 		this.platform = platform;
 		this.name = platform.getName();
-		this.setTimer(timer);
 		init(AthleteRepository.findAllByGroupAndWeighIn(group, true));
 	}
 
-	public FieldOfPlayState(List<Athlete> athletes, ICountdownTimer timer) {
-		this.setTimer(timer);
+	public FieldOfPlayState(List<Athlete> athletes) {
 		init(athletes);
 	}
 
@@ -73,8 +69,8 @@ public class FieldOfPlayState {
 		this.startTimeAutomatically = startTime;
 	}
 
-	public Athlete getCurAthlete() {
-		return curAthlete;
+	public Athlete getCurLifter() {
+		return curLifter;
 	}
 
 	/**
@@ -83,6 +79,7 @@ public class FieldOfPlayState {
 	public EventBus getEventBus() {
 		if (eventBus == null) {
 			eventBus = new EventBus();
+			logger.debug("{}", eventBus.identifier());
 		}
 		return eventBus;
 	}
@@ -112,14 +109,18 @@ public class FieldOfPlayState {
 		return platform;
 	}
 
-	public Athlete getPreviousAthlete() {
-		return previousAthlete;
+	public Athlete getPreviousLifter() {
+		return previousLifter;
 	}
 
-	public ICountdownTimer getTimer() {
-		return this.timer;
+	public CountdownTimer getTimer() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
+	public int getTimeRemaining() {
+		return timeRemaining;
+	}
 
 	@Subscribe
 	public void handleFOPEvent(FOPEvent e) {
@@ -129,7 +130,6 @@ public class FieldOfPlayState {
 		if (e instanceof FOPEvent.IntermissionStarted) {
 			transitionToIntermission();
 		}
-
 		switch (this.getState()) {
 
 		case INTERMISSION:
@@ -158,7 +158,7 @@ public class FieldOfPlayState {
 				remindAnnouncerToAnnounce();
 				setState(State.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
 			} else if (e instanceof FOPEvent.LiftingOrderUpdated) {
-				weightChange(curAthlete, State.CURRENT_ATHLETE_DISPLAYED);
+				weightChange(curLifter, State.CURRENT_ATHLETE_DISPLAYED);
 			} else {
 				unexpectedEventInState(e, State.CURRENT_ATHLETE_DISPLAYED);
 			}
@@ -167,9 +167,9 @@ public class FieldOfPlayState {
 		case ANNOUNCER_WAITING_FOR_TIMEKEEPER:
 			if (e instanceof FOPEvent.TimeStartedByTimeKeeper) {
 				// time was started manually
-				transitionToTimeRunning();
+				setTimeRunning();
 			} else if (e instanceof FOPEvent.LiftingOrderUpdated) {
-				weightChange(curAthlete, State.ANNOUNCER_WAITING_FOR_TIMEKEEPER);
+				weightChange(curLifter, State.ANNOUNCER_WAITING_FOR_TIMEKEEPER);
 			} else {
 				unexpectedEventInState(e, State.ANNOUNCER_WAITING_FOR_TIMEKEEPER);
 			}
@@ -185,7 +185,7 @@ public class FieldOfPlayState {
 				// we are already in this state, do nothing (we could escalate)
 				setState(State.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
 			} else if (e instanceof FOPEvent.LiftingOrderUpdated) {
-				weightChange(curAthlete, State.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
+				weightChange(curLifter, State.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
 			} else {
 				unexpectedEventInState(e, State.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
 			}
@@ -194,18 +194,15 @@ public class FieldOfPlayState {
 		case TIME_RUNNING:
 			if (e instanceof FOPEvent.DownSignal) {
 				// 2 referees have given same decision
-				getTimer().stop();
 				showDownSignalOnSlaveDisplays();
-				stopTimeOnSlaveDisplays();
 				setState(State.DOWN_SIGNAL_VISIBLE);
 			} else if (e instanceof FOPEvent.TimeStoppedByTimeKeeper) {
 				// athlete lifted the bar
-				getTimer().stop();
 				stopTimeOnSlaveDisplays();
 				setState(State.TIME_STOPPED);
 			} else if (e instanceof FOPEvent.LiftingOrderUpdated) {
 				// coach is requesting change
-				weightChange(curAthlete, State.TIME_RUNNING);
+				weightChange(curLifter, State.TIME_RUNNING);
 			} else {
 				unexpectedEventInState(e, State.TIME_RUNNING);
 			}
@@ -214,22 +211,21 @@ public class FieldOfPlayState {
 		case TIME_STOPPED:
 			if (e instanceof FOPEvent.TimeStartedByTimeKeeper) {
 				// timekeeper mistake
-				transitionToTimeRunning();
+				startTimeOnSlaveDisplays();
+				setState(State.TIME_RUNNING);
 			} else if (e instanceof FOPEvent.LiftingOrderUpdated) {
-				weightChangeLiftInProgress(curAthlete, State.TIME_STOPPED);
+				weightChangeLiftInProgress(curLifter, State.TIME_STOPPED);
 			} else {
 				unexpectedEventInState(e, State.TIME_STOPPED);
 			}
 			break;
 
 		case DOWN_SIGNAL_VISIBLE:
-			this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
-			this.setClockOwner(null);
 			if (e instanceof FOPEvent.RefereeDecision) {
-				getTimer().stop();
-				decision(e);
+				showRefereeDecisionOnSlaveDisplays((FOPEvent.RefereeDecision) e);
+				setState(State.DECISION_VISIBLE);
 			} else if (e instanceof FOPEvent.LiftingOrderUpdated) {
-				weightChangeLiftInProgress(curAthlete, State.DOWN_SIGNAL_VISIBLE);
+				weightChangeLiftInProgress(curLifter, State.DOWN_SIGNAL_VISIBLE);
 			} else {
 				unexpectedEventInState(e, State.DOWN_SIGNAL_VISIBLE);
 			}
@@ -237,10 +233,10 @@ public class FieldOfPlayState {
 
 		case DECISION_VISIBLE:
 			if (e instanceof FOPEvent.RefereeDecision) {
-				// decision reversal
-				decision(e);
+				showRefereeDecisionOnSlaveDisplays((FOPEvent.RefereeDecision) e);
+				setState(State.DECISION_VISIBLE);
 			} else if (e instanceof FOPEvent.LiftingOrderUpdated) {
-				weightChangeLiftInProgress(curAthlete, State.DECISION_VISIBLE);
+				weightChangeLiftInProgress(curLifter, State.DECISION_VISIBLE);
 			} else if (e instanceof FOPEvent.DecisionReset) {
 				recomputeLiftingOrder();
 				displayCurrentAthlete();
@@ -248,23 +244,8 @@ public class FieldOfPlayState {
 			} else {
 				unexpectedEventInState(e, State.DECISION_VISIBLE);
 			}
-			break;
+			break;		
 		}
-	}
-
-	private void decision(FOPEvent e) {
-		FOPEvent.RefereeDecision decision = (FOPEvent.RefereeDecision) e;
-		if (decision.success)
-			curAthlete.successfulLift();
-		else
-			curAthlete.failedLift();
-		showRefereeDecisionOnSlaveDisplays(decision);
-		setState(State.DECISION_VISIBLE);
-	}
-
-	private void setPreviousAthlete(Athlete athlete) {
-		logger.debug("setting previousAthlete to {}", curAthlete);
-		this.previousAthlete = athlete;
 	}
 
 	public void pause() {
@@ -300,21 +281,24 @@ public class FieldOfPlayState {
 	}
 
 	public int timeAllowed() {
-		Athlete a = getCurAthlete();
+		Athlete a = getCurLifter();
 		int timeAllowed;
-		if (getClockOwner() == a) {
-			// the clock was started for us. we own the clock, clock keeps running
-			timeAllowed = getTimer().getTimeRemaining();
-			logger.debug("timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
-		} else if (previousAthlete == a) {
-			if (getClockOwner() != null) {
+		if (previousLifter == a) {
+			if (clockOwner == a) {
+				// we own the clock, clock keeps running
+				timeAllowed = timeRemaining;
+			} else if (timeRemaining != 60000 && timeRemaining != 120000) {
 				// clock has started for someone else
 				timeAllowed = 60000;
 			} else {
 				timeAllowed = 120000;
 			}
 		} else {
-			timeAllowed = 60000;
+			if (clockOwner == a) {
+				timeAllowed = timeRemaining;
+			} else {
+				timeAllowed = 60000;
+			}
 		}
 		return timeAllowed;
 	}
@@ -333,29 +317,18 @@ public class FieldOfPlayState {
 		AthleteSorter.liftingOrder(this.liftingOrder);
 		// TODO change is checked as legit at marshall/announcer wrt to time left
 		Athlete recomputedCurLifter = getLifters().get(0);
-		Integer nextAttemptRequestedWeight = recomputedCurLifter.getNextAttemptRequestedWeight();
-		logger.debug("weight change current={} {}, new={} {}",
-			curLifter,
-			curWeight,
-			recomputedCurLifter,
-			nextAttemptRequestedWeight);
-		if (nextAttemptRequestedWeight > curWeight || recomputedCurLifter != curLifter) {
-			// stop time while loaders adjust
-			getTimer().stop();
-			stopTimeOnAllDisplays();
-			this.setCurAthlete(recomputedCurLifter);
-			displayCurrentAthlete();
-			// we need to re-announce
-			setState(State.CURRENT_ATHLETE_DISPLAYED);
-		}
+		// stop time while loaders adjust
+		stopTimeOnAllDisplays();
+		this.setCurLifter(recomputedCurLifter);
+		displayCurrentAthlete();
+		// we need to re-announce
+		state = State.CURRENT_ATHLETE_DISPLAYED;
 	}
 
 	/**
 	 * weight change while a lift is being performed (bar lifted above knees)
-	 * Lifting order is recomputed, so the displays can get it, but not the attempt
-	 * board state.
 	 * 
-	 * @param curAthlete
+	 * @param curLifter
 	 * @param state
 	 */
 	private void weightChangeLiftInProgress(Athlete curLifter, State state) {
@@ -373,44 +346,36 @@ public class FieldOfPlayState {
 	}
 
 	private void displayCurrentAthlete() {
-		Integer nextAttemptRequestedWeight = curAthlete.getNextAttemptRequestedWeight();
-		logger.info("current athlete = {} attempt {}, requested = {}, timer={}",
-			getCurAthlete(),
-			curAthlete.getAttemptedLifts() + 1,
-			nextAttemptRequestedWeight,
-			timeAllowed());
-		curWeight = nextAttemptRequestedWeight;
+		// FIXME: set the clocks to timeAllowed
+		// FIXME: BUT do no lose remaining -- only change remaining when the clock
+		// starts to run
 	}
 
 	private void displayCurrentWeight() {
-		Integer nextAttemptRequestedWeight = curAthlete.getNextAttemptRequestedWeight();
-		logger.info("requested weight: {} (from curAthlete {})",
-			nextAttemptRequestedWeight,
-			getCurAthlete());
-		curWeight = nextAttemptRequestedWeight;
+		// TODO Auto-generated method stub
+
 	}
 
 	private void init(List<Athlete> athletes) {
 		this.eventBus = getEventBus();
 		this.eventBus.register(this);
-		this.curAthlete = null;
-		this.setClockOwner(null);
-		this.previousAthlete = null;
-		this.liftingOrder = athletes;
-		recomputeLiftingOrder();
+		this.curLifter = null;
+		this.clockOwner = null;
+		this.previousLifter = null;
+		this.liftingOrder = AthleteSorter.liftingOrderCopy(athletes);
 		this.setState(State.INTERMISSION);
 	}
 
 	private void recomputeLiftingOrder() {
+		previousLifter = this.getCurLifter();
 		AthleteSorter.liftingOrder(this.liftingOrder);
-		this.setCurAthlete(this.liftingOrder.get(0));
-		getTimer().setTimeRemaining(timeAllowed());
-		logger.debug("recomputed lifting order curAthlete={} prevlifter={}", curAthlete, previousAthlete);
+		this.setCurLifter(this.liftingOrder.get(0));
+		logger.debug("recomputed lifting order curLifter={} prevlifter={}", curLifter, previousLifter);
 	}
 
-	private void setCurAthlete(Athlete athlete) {
-		logger.debug("changing curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
-		this.curAthlete = athlete;
+	private void setCurLifter(Athlete athlete) {
+		logger.debug("changing curLifter to {}", athlete);
+		this.curLifter = athlete;
 	}
 
 	private void remindAnnouncerToAnnounce() {
@@ -423,13 +388,19 @@ public class FieldOfPlayState {
 
 	}
 
-	private void setClockOwner(Athlete athlete) {
-		logger.debug("setting clock owner to {} [{}]", athlete, LoggerUtils.whereFrom());
-		this.clockOwner = athlete;
+	private void setClockOwner(Athlete curLifter) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void setTimeRunning() {
+		clockOwner = curLifter;
+		setState(State.TIME_RUNNING);
 	}
 
 	private void showDownSignalOnSlaveDisplays() {
 		// TODO Auto-generated method stub
+
 	}
 
 	private void showRefereeDecisionOnSlaveDisplays(FOPEvent.RefereeDecision e) {
@@ -459,13 +430,14 @@ public class FieldOfPlayState {
 	}
 
 	private void transitionToTimeRunning() {
-		// start time on the various displays
-		getTimer().start();
+		// time has started; current lifter will go on with remaining time
+		// if there are weight changes, and the two minutes privilege will be lost
+		setClockOwner(getCurLifter());
+		// start time on the various displays (other than the master)
 		startTimeOnSlaveDisplays();
-		setClockOwner(getCurAthlete());
 		// enable master to listening for decision
 		unlockReferees();
-		setState(State.TIME_RUNNING);
+		setTimeRunning();
 	}
 
 	private void unexpectedEventInState(FOPEvent e, State announced) {
@@ -490,14 +462,6 @@ public class FieldOfPlayState {
 	void setState(State state) {
 		logger.debug("entering {}", state);
 		this.state = state;
-	}
-
-	private Athlete getClockOwner() {
-		return clockOwner;
-	}
-
-	public void setTimer(ICountdownTimer timer) {
-		this.timer = timer;
 	}
 
 }
