@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.ledocte.owlcms.data.platform.Platform;
 import org.ledocte.owlcms.data.platform.PlatformRepository;
+import org.ledocte.owlcms.state.CountdownTimer;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 
 /**
@@ -28,7 +29,7 @@ public class OwlcmsFactory {
 
 	private static void initFOPByName() {
 		for (Platform platform : PlatformRepository.findAll()) {
-			fopByName.put(platform.getName(), new FieldOfPlayState(null, platform));
+			fopByName.put(platform.getName(), new FieldOfPlayState(null, platform, new CountdownTimer()));
 		}
 	}
 	
