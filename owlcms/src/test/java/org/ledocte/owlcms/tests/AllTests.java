@@ -15,12 +15,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.List;
 
 //import org.concordiainternational.competition.spreadsheet.ExtenXLSReader;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.ledocte.owlcms.data.athlete.Athlete;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
@@ -29,50 +27,7 @@ import ch.qos.logback.classic.Logger;
 @Suite.SuiteClasses( { AthleteSorterTest.class, AthleteTest.class, TwoMinutesRuleTest.class })
 public class AllTests {
 
-    final static String lineSeparator = System.getProperty("line.separator"); //$NON-NLS-1$
     final private static Logger logger = (Logger)LoggerFactory.getLogger(AllTests.class);
-
-    /**
-     * @param lifterList
-     * @return ordered printout of lifters, one per line.
-     */
-    public static String shortDump(List<Athlete> lifterList) {
-        StringBuffer sb = new StringBuffer();
-        for (Athlete lifter : lifterList) {
-            sb.append(lifter.getLastName() + " " + lifter.getFirstName() //$NON-NLS-1$
-                + " " + lifter.getNextAttemptRequestedWeight() //$NON-NLS-1$
-                + " " + (lifter.getAttemptsDone() + 1) //$NON-NLS-1$
-                + " " + lifter.getLotNumber()); //$NON-NLS-1$
-            sb.append(AllTests.lineSeparator);
-        }
-        return sb.toString();
-    }
-
-    /**
-     * @param lifterList
-     * @return ordered printout of lifters, one per line.
-     */
-    public static String longDump(List<Athlete> lifterList) {
-        StringBuffer sb = new StringBuffer();
-        for (Athlete lifter : lifterList) {
-            sb.append(lifter.longDump());
-            sb.append(AllTests.lineSeparator);
-        }
-        return sb.toString();
-    }
-
-    /**
-     * @param lifterList
-     * @return ordered printout of lifters, one per line.
-     */
-    static String longDump(List<Athlete> lifterList, boolean includeTimeStamp) {
-        StringBuffer sb = new StringBuffer();
-        for (Athlete lifter : lifterList) {
-        	sb.append(lifter.longDump());
-            sb.append(AllTests.lineSeparator);
-        }
-        return sb.toString();
-    }
 
     /**
      * Compare actual with expected that is read from a file (a resource found

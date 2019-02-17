@@ -24,6 +24,7 @@ import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
 import org.ledocte.owlcms.data.jpa.JPAService;
 import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.FieldOfPlayState;
+import org.ledocte.owlcms.utils.DebugUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -64,7 +65,7 @@ public class TwoMinutesRuleTest {
 		Collections.shuffle(athletes);
 
 		List<Athlete> sorted = AthleteSorter.liftingOrderCopy(athletes);
-		final String actual = AllTests.shortDump(sorted);
+		final String actual = DebugUtils.shortDump(sorted);
 		assertEqualsToReferenceFile(resName, actual);
 	}
 
@@ -95,7 +96,7 @@ public class TwoMinutesRuleTest {
 
 		// competition start
 		assertEquals(60000, fopState.timeAllowed());
-		logger.debug("\n{}", AllTests.shortDump(fopState.getLifters()));
+		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLifters()));
 
 		// schneiderF is called with initial weight
 		Athlete curLifter = fopState.getCurAthlete();
@@ -104,7 +105,7 @@ public class TwoMinutesRuleTest {
 		assertEquals(null, previousLifter);
 		successfulLift(fopBus, curLifter);
 		
-		logger.debug("\n{}", AllTests.shortDump(fopState.getLifters()));
+		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLifters()));
 		// first is now simpsonR ; he has declared 60kg
 		curLifter = fopState.getCurAthlete();
 		previousLifter = fopState.getPreviousAthlete();
@@ -115,7 +116,7 @@ public class TwoMinutesRuleTest {
 		// ... but simpsonR changes to 62 before being called by announcer (time not restarted)
 		declaration(curLifter, "62", fopBus); //$NON-NLS-1$
 		logger.info("declaration by {}: {}", curLifter, "62"); //$NON-NLS-1$ //$NON-NLS-2$
-		logger.debug("\n{}", AllTests.shortDump(fopState.getLifters()));
+		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLifters()));
 
 		// so now schneider should be back on top at 61, with two minutes because
 		// there was no time started.
