@@ -1,3 +1,10 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Affero GNU License amended with the
+ * Commons Clause.
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
 package org.ledocte.owlcms.ui.home;
 
 import org.ledocte.owlcms.ui.displaySetup.DisplayNavigationContent;
@@ -16,10 +23,16 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
+/**
+ * The Class MainNavigationContent.
+ */
 @SuppressWarnings("serial")
 @Route(value = "", layout = MainNavigationLayout.class)
 public class MainNavigationContent extends VerticalLayout {
 
+	/**
+	 * Instantiates a new main navigation content.
+	 */
 	public MainNavigationContent() {
 		add(MainNavigationContent.navigationGrid(new Button("Prepare Competition",
 				buttonClickEvent -> UI.getCurrent()
@@ -35,6 +48,12 @@ public class MainNavigationContent extends VerticalLayout {
 						.navigate(WrapupNavigationContent.class))));
 	}
 
+	/**
+	 * Navigation grid.
+	 *
+	 * @param items the items
+	 * @return the flexible grid layout
+	 */
 	public static FlexibleGridLayout navigationGrid(Component... items) {
 		FlexibleGridLayout layout = new FlexibleGridLayout();
 		layout.withColumns(Repeat.RepeatMode.AUTO_FIT, new MinMax(new Length("350px"), new Flex(1)))

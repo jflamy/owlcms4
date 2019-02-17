@@ -1,9 +1,9 @@
-/*
- * Copyright 2009-2012, Jean-François Lamy
- *
- * This Source Code Form is subject to the terms of the Mozilla Public License,
- * v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at
- * http://mozilla.org/MPL/2.0/.
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Affero GNU License amended with the
+ * Commons Clause.
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package org.ledocte.owlcms.data.athleteSort;
 
@@ -26,14 +26,23 @@ import ch.qos.logback.classic.Logger;
  */
 public class WinningOrderComparator extends AbstractLifterComparator implements Comparator<Athlete> {
 
+    /** The Constant logger. */
     final static Logger logger = (Logger) LoggerFactory.getLogger(WinningOrderComparator.class);
 
     private Ranking rankingType;
 
+    /**
+     * Instantiates a new winning order comparator.
+     *
+     * @param rankingType the ranking type
+     */
     public WinningOrderComparator(Ranking rankingType) {
         this.rankingType = rankingType;
     }
 
+    /* (non-Javadoc)
+     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+     */
     @Override
     public int compare(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
@@ -70,9 +79,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     /**
      * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     public int compareTotalResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
@@ -104,6 +113,13 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         return tieBreak(lifter1, lifter2, Competition.getCurrent().isUseOldBodyWeightTieBreak());
     }
 
+    /**
+     * Compare snatch result order.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     public int compareSnatchResultOrder(Athlete lifter1, Athlete lifter2) {
         boolean trace = false;
         int compare = 0;
@@ -169,6 +185,13 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         return compare;
     }
 
+    /**
+     * Compare clean jerk result order.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     public int compareCleanJerkResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
@@ -190,9 +213,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     /**
      * Determine who ranks first on Sinclair points.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     public int compareSinclairResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
@@ -208,9 +231,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     /**
      * Determine who ranks first on Robi points.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     public int compareRobiResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
@@ -226,9 +249,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     /**
      * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     public int compareCategorySinclairResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
@@ -243,9 +266,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     /**
      * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     public int compareSmmResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
@@ -350,13 +373,13 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
     /**
      * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
-     *
+     * 
      * This variant allows judges to award a score based on a formula, with bonuses or penalties, manually. Used for the under-12
      * championship in Quebec.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     public int compareCustomResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;

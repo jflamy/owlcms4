@@ -1,3 +1,10 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Affero GNU License amended with the
+ * Commons Clause.
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
 package org.ledocte.owlcms;
 
 import java.io.IOException;
@@ -29,6 +36,9 @@ import com.vaadin.flow.server.startup.ServletContextListeners;
 
 import ch.qos.logback.classic.Logger;
 
+/**
+ * The Class Main.
+ */
 public class Main {
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 
@@ -49,6 +59,12 @@ public class Main {
 		logger.info("owlcms {} (built {})",version,homeTimestamp);
 	}
 
+	/**
+	 * The main method.
+	 *
+	 * @param args the arguments
+	 * @throws Exception the exception
+	 */
 	public static void main(String... args) throws Exception {
 		// Redirect java.util.logging logs to SLF4J
 		SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -60,6 +76,13 @@ public class Main {
         new Main().run(serverPort, "/"); //$NON-NLS-1$
     }
 
+	/**
+	 * Run.
+	 *
+	 * @param port the port
+	 * @param contextPath the context path
+	 * @throws Exception the exception
+	 */
 	public void run(int port, String contextPath) throws Exception {
         URL webRootLocation = this.getClass().getResource("/META-INF/resources/"); //$NON-NLS-1$
         URI webRootUri = webRootLocation.toURI();

@@ -1,164 +1,120 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Affero GNU License amended with the
+ * Commons Clause.
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
+
 package org.ledocte.owlcms.ui.lifting;
 
 import java.util.Collection;
 
-import org.ledocte.owlcms.data.category.Category;
-import org.ledocte.owlcms.data.category.CategoryRepository;
+import org.ledocte.owlcms.data.athlete.Athlete;
+import org.ledocte.owlcms.data.athlete.AthleteRepository;
+import org.ledocte.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudLayout;
 import org.ledocte.owlcms.ui.crudui.OwlcmsGridCrud;
+import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
-import org.vaadin.crudui.form.CrudFormFactory;
-import org.vaadin.crudui.layout.impl.VerticalSplitCrudLayout;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
+import ch.qos.logback.classic.Logger;
+
+/**
+ * The Class AnnouncerContent.
+ */
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AnnouncerLayout.class)
-public class AnnouncerContent extends VerticalLayout implements CrudListener<Category> { // or implements LazyCrudListener<Category>
+public class AnnouncerContent extends VerticalLayout implements CrudListener<Athlete> { // or implements LazyCrudListener<Athlete>
 
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(AnnouncerContent.class);
     
+    /**
+     * Instantiates a new announcer content.
+     */
     public AnnouncerContent() {
-
         setSizeFull();
-
-        GridCrud<Category> crud = getDefaultCrud();
+        GridCrud<Athlete> crud = getGridCrud();
 		add(crud);
 
     }
 
-	public GridCrud<Category> getDefaultCrud() {
-        VerticalSplitCrudLayout verticalCrudLayout = new VerticalSplitCrudLayout();
-		GridCrud<Category> gridCrud = new GridCrud<Category>(Category.class, verticalCrudLayout);
-        gridCrud.setCrudListener(this);
-        return gridCrud;
-    }
-
-    public GridCrud<Category> getMinimal() {
-        GridCrud<Category> crud = new OwlcmsGridCrud<Category>(Category.class, new OwlcmsCrudLayout(Category.class));
-        crud.setCrudListener(this);
+    /**
+     * Gets the grid crud.
+     *
+     * @return the grid crud
+     */
+    public GridCrud<Athlete> getGridCrud() {
+        OwlcmsCrudFormFactory<Athlete> crudFormFactory = new OwlcmsCrudFormFactory<Athlete>(Athlete.class);
+        crudFormFactory.setVisibleProperties("lastName", "firstName", "team", "category", "nextAttemptRequestedWeight", "attemptsDone");
+        crudFormFactory.setFieldCaptions("Last Name", "First Name", "Team", "Category", "Requested Weight", "Attempts Done");
+        crudFormFactory.setDisabledProperties("nextAttemptRequestedWeight");
         
-        CrudFormFactory<Category> crudFormFactory = crud.getCrudFormFactory();
-        crudFormFactory.setVisibleProperties("name", "enumAgeDivision", "enumGender", "minimumWeight", "maximumWeight", "wr", "active");
-        crudFormFactory.setFieldCaptions("Name", "Age Division", "Gender", "Minimum Weight", "Maximum Weight", "World Record", "Active");
-
-        Grid<Category> grid = crud.getGrid();
-		grid.setColumns("name", "enumAgeDivision", "enumGender", "minimumWeight", "maximumWeight", "active");
-		grid.getColumnByKey("name").setHeader("nom");
-		grid.getColumnByKey("enumAgeDivision").setHeader("Division");
+        Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
+        logger.debug("columns: {}",grid.getColumns());
+		grid.setColumns("lastName", "firstName", "team", "category", "nextAttemptRequestedWeight", "attemptsDone");
+		grid.getColumnByKey("lastName").setHeader("Last Name");
+		grid.getColumnByKey("firstName").setHeader("First Name");
+		grid.getColumnByKey("team").setHeader("Team");
+		grid.getColumnByKey("category").setHeader("Category");
+		grid.getColumnByKey("nextAttemptRequestedWeight").setHeader("Requested Weight");
+		grid.getColumnByKey("attemptsDone").setHeader("Attempts Done");
+        
+        GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class, new OwlcmsCrudLayout(Athlete.class), crudFormFactory, grid) {
+			@Override
+			protected void initToolbar() {}
+			@Override
+			protected void updateButtons() {}
+        };
+        crud.setCrudListener(this);
         crud.setClickRowToUpdate(true);
         crud.getCrudLayout().addToolbarComponent(new Label("toolbar stuff goes here"));
+        
         return crud;
     }
 
-//    public Component getConfiguredCrud() {
-//        GridCrud<Category> crud = new GridCrud<>(Category.class, new HorizontalSplitCrudLayout());
-//        crud.setCrudListener(this);
-//
-//        DefaultCrudFormFactory<Category> formFactory = new DefaultCrudFormFactory<>(Category.class);
-//        crud.setCrudFormFactory(formFactory);
-//
-//        formFactory.setUseBeanValidation(true);
-//
-//        formFactory.setErrorListener(e -> {
-//            Notification.show("Custom error message");
-//            e.printStackTrace();
-//        });
-//
-//        formFactory.setVisibleProperties("name", "birthDate", "email", "phoneNumber",
-//                "maritalStatus", "groups", "active", "mainGroup");
-//        formFactory.setVisibleProperties(CrudOperation.DELETE, "name", "email", "mainGroup");
-//
-//        formFactory.setDisabledProperties("id");
-//
-//        crud.getGrid().setColumns("name", "email", "phoneNumber", "active");
-//        crud.getGrid().addColumn(new LocalDateRenderer<>(
-//                Category -> Category.getBirthDate(),
-//                DateTimeFormatter.ISO_LOCAL_DATE))
-//                .setHeader("Birthdate");
-//
-//        crud.getGrid().addColumn(new TextRenderer<>(Category -> Category == null ? "" : Category.getMainGroup().getName()))
-//                .setHeader("Main group");
-//
-//        crud.getGrid().setColumnReorderingAllowed(true);
-//
-//        formFactory.setFieldType("password", PasswordField.class);
-//        formFactory.setFieldProvider("birthDate", () -> {
-//            DatePicker datePicker = new DatePicker();
-//            datePicker.setMax(LocalDate.now());
-//            return datePicker;
-//        });
-//
-//        formFactory.setFieldProvider("maritalStatus", new RadioButtonGroupProvider<>(Arrays.asList(MaritalStatus.values())));
-//        formFactory.setFieldProvider("groups", new CheckBoxGroupProvider<>("Groups", CategoryRepository.findAll(), new TextRenderer<>(Group::getName)));
-//        formFactory.setFieldProvider("mainGroup",
-//                new ComboBoxProvider<>("Main Group", CategoryRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
-//
-//        formFactory.setButtonCaption(CrudOperation.ADD, "Add new Category");
-//        crud.setRowCountCaption("%d Category(s) found");
-//
-//        crud.setClickRowToUpdate(true);
-//        crud.setUpdateOperationVisible(false);
-//
-//
-//        nameFilter.setPlaceholder("filter by name...");
-//        nameFilter.addValueChangeListener(e -> crud.refreshGrid());
-//        crud.getCrudLayout().addFilterComponent(nameFilter);
-//
-//        groupFilter.setPlaceholder("Group");
-//        groupFilter.setItems(CategoryRepository.findAll());
-//        groupFilter.setItemLabelGenerator(Group::getName);
-//        groupFilter.addValueChangeListener(e -> crud.refreshGrid());
-//        crud.getCrudLayout().addFilterComponent(groupFilter);
-//
-//        Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
-//        clearFilters.addClickListener(event -> {
-//            nameFilter.clear();
-//            groupFilter.clear();
-//        });
-//        crud.getCrudLayout().addFilterComponent(clearFilters);
-//
-//        crud.setFindAllOperation(
-//                DataProvider.fromCallbacks(
-//                        query -> CategoryRepository.findByNameLike(nameFilter.getValue(), groupFilter.getValue(), query.getOffset(), query.getLimit()).stream(),
-//                        query -> CategoryRepository.countByNameLike(nameFilter.getValue(), groupFilter.getValue()))
-//        );
-//        return crud;
-//    }
 
-    @Override
-    public Category add(Category Category) {
-        CategoryRepository.save(Category);
-        return Category;
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
+	 */
+	@Override
+    public Athlete add(Athlete Athlete) {
+        AthleteRepository.save(Athlete);
+        return Athlete;
     }
 
+    /* (non-Javadoc)
+     * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+     */
     @Override
-    public Category update(Category Category) {
-        if (Category.getId().equals(5l)) {
+    public Athlete update(Athlete Athlete) {
+        if (Athlete.getId().equals(5l)) {
             throw new RuntimeException("A simulated error has occurred");
         }
-        return CategoryRepository.save(Category);
+        return AthleteRepository.save(Athlete);
     }
 
+    /* (non-Javadoc)
+     * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
+     */
     @Override
-    public void delete(Category Category) {
-        CategoryRepository.delete(Category);
+    public void delete(Athlete Athlete) {
+        AthleteRepository.delete(Athlete);
     }
 
+    /* (non-Javadoc)
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     */
     @Override
-    public Collection<Category> findAll() {
-        return CategoryRepository.findAll();
+    public Collection<Athlete> findAll() {
+        return AthleteRepository.findAll();
     }
 
-    /* if this implements LazyCrudListener<Category>:
-    @Override
-    public DataProvider<Category, Void> getDataProvider() {
-        return DataProvider.fromCallbacks(
-                query -> CategoryRepository.findByNameLike(nameFilter.getValue(), groupFilter.getValue(), query.getOffset(), query.getLimit()).stream(),
-                query -> CategoryRepository.countByNameLike(nameFilter.getValue(), groupFilter.getValue()));
-    }*/
 
 }

@@ -1,9 +1,9 @@
-/*
- * Copyright 2009-2012, Jean-François Lamy
- *
- * This Source Code Form is subject to the terms of the Mozilla Public License,
- * v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at
- * http://mozilla.org/MPL/2.0/.
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Affero GNU License amended with the
+ * Commons Clause.
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package org.ledocte.owlcms.data.athleteSort;
 
@@ -19,9 +19,19 @@ import org.ledocte.owlcms.data.group.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The Class AbstractLifterComparator.
+ */
 public class AbstractLifterComparator {
     final private static Logger logger = LoggerFactory.getLogger(AbstractLifterComparator.class);
 
+    /**
+     * Compare category.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareCategory(Athlete lifter1, Athlete lifter2) {
         Category lifter1Value = lifter1.getCategory();
         Category lifter2Value = lifter2.getCategory();
@@ -36,6 +46,13 @@ public class AbstractLifterComparator {
         return compare;
     }
 
+    /**
+     * Compare registration category.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareRegistrationCategory(Athlete lifter1, Athlete lifter2) {
         Category lifter1Value = lifter1.getRegistrationCategory();
         Category lifter2Value = lifter2.getRegistrationCategory();
@@ -50,11 +67,14 @@ public class AbstractLifterComparator {
         return compare;
     }
 
+    /** The pattern. */
     // grab the first part of a category code, prior to the weight
     static Pattern pattern = Pattern.compile("^([A-Za-z0-9-_ ]*?)[+>]{0,1}[0-9]+[^0-9]*$");
 
     /**
-     * @param categoryName
+     * Gets the category prefix.
+     *
+     * @param categoryName the category name
      * @return the first part of a category code, prior to the weight
      * @see AbstractLifterComparatorTest for details
      */
@@ -67,6 +87,13 @@ public class AbstractLifterComparator {
         return prefix;
     }
 
+    /**
+     * Compare first name.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareFirstName(Athlete lifter1, Athlete lifter2) {
         String lifter1Value = lifter1.getFirstName();
         String lifter2Value = lifter2.getFirstName();
@@ -79,6 +106,13 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare last name.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareLastName(Athlete lifter1, Athlete lifter2) {
         String lifter1Value = lifter1.getLastName();
         String lifter2Value = lifter2.getLastName();
@@ -91,6 +125,13 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare lot number.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareLotNumber(Athlete lifter1, Athlete lifter2) {
         Integer lifter1Value = lifter1.getLotNumber();
         Integer lifter2Value = lifter2.getLotNumber();
@@ -103,6 +144,13 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare start number.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareStartNumber(Athlete lifter1, Athlete lifter2) {
         Integer lifter1Value = lifter1.getStartNumber();
         Integer lifter2Value = lifter2.getStartNumber();
@@ -115,6 +163,13 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare age group.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareAgeGroup(Athlete lifter1, Athlete lifter2) {
         Integer lifter1Value = lifter1.getAgeGroup();
         Integer lifter2Value = lifter2.getAgeGroup();
@@ -127,6 +182,13 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare group.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareGroup(Athlete lifter1, Athlete lifter2) {
         Group lifter1Group = lifter1.getCompetitionSession();
         Group lifter2Group = lifter2.getCompetitionSession();
@@ -148,6 +210,13 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare group weigh in time.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareGroupWeighInTime(Athlete lifter1, Athlete lifter2) {
 
         Group lifter1Group = lifter1.getCompetitionSession();
@@ -186,8 +255,8 @@ public class AbstractLifterComparator {
      * Comparer les totaux des leveurs, si ils ont termin� tous leurs essais. Le leveur ayant terminé va après, de manière à ce le premier à
      * lever soit toujours toujours le premier dans la liste.
      *
-     * @param lifter1
-     * @param lifter2
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
      * @return -1,0,1 selon comparaison
      */
     int compareFinalResults(Athlete lifter1, Athlete lifter2) {
@@ -209,6 +278,13 @@ public class AbstractLifterComparator {
 
     }
 
+    /**
+     * Compare lift type.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareLiftType(Athlete lifter1, Athlete lifter2) {
         // snatch comes before clean and jerk
         Integer lifter1Value = lifter1.getAttemptsDone();
@@ -226,6 +302,13 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare requested weight.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareRequestedWeight(Athlete lifter1, Athlete lifter2) {
         Integer lifter1Value = lifter1.getNextAttemptRequestedWeight();
         Integer lifter2Value = lifter2.getNextAttemptRequestedWeight();
@@ -238,6 +321,13 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare attempts done.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareAttemptsDone(Athlete lifter1, Athlete lifter2) {
         Integer lifter1Value = lifter1.getAttemptsDone();
         Integer lifter2Value = lifter2.getAttemptsDone();
@@ -247,9 +337,9 @@ public class AbstractLifterComparator {
     /**
      * Return who lifted last, for real.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     int comparePreviousLiftOrder(Athlete lifter1, Athlete lifter2) {
         Date lifter1Value = lifter1.getPreviousLiftTime();
@@ -267,9 +357,9 @@ public class AbstractLifterComparator {
     /**
      * Return who lifted last, ignoring athletes who are done lifting for this part of the meet.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     int comparePreviousLiftOrderExceptAtEnd(Athlete lifter1, Athlete lifter2) {
         Date lifter1Value = lifter1.getPreviousLiftTime();
@@ -291,12 +381,26 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare total.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareTotal(Athlete lifter1, Athlete lifter2) {
         Integer lifter1Value = lifter1.getTotal();
         Integer lifter2Value = lifter2.getTotal();
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare custom score.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareCustomScore(Athlete lifter1, Athlete lifter2) {
         Double lifter1Value = lifter1.getCustomScore();
         Double lifter2Value = lifter2.getCustomScore();
@@ -308,6 +412,13 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare body weight.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareBodyWeight(Athlete lifter1, Athlete lifter2) {
         Double lifter1Value = lifter1.getBodyWeight();
         Double lifter2Value = lifter2.getBodyWeight();
@@ -322,8 +433,9 @@ public class AbstractLifterComparator {
     /**
      * Compare birth dates.
      * No birth date implies newborn.
-     * @param lifter1
-     * @param lifter2
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
      * @return 1 if lifter1 is younger; 0 if equal, -1 if older.
      */
     int compareBirthDate(Athlete lifter1, Athlete lifter2) {
@@ -337,6 +449,13 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare sinclair.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareSinclair(Athlete lifter1, Athlete lifter2) {
         String gender = lifter1.getGender();
         if (gender == null)
@@ -356,6 +475,13 @@ public class AbstractLifterComparator {
         return -lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare robi.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareRobi(Athlete lifter1, Athlete lifter2) {
         String gender = lifter1.getGender();
         if (gender == null)
@@ -375,6 +501,13 @@ public class AbstractLifterComparator {
         return -lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare category sinclair.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareCategorySinclair(Athlete lifter1, Athlete lifter2) {
         String gender = lifter1.getGender();
         if (gender == null)
@@ -394,6 +527,13 @@ public class AbstractLifterComparator {
         return -lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare smm.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareSmm(Athlete lifter1, Athlete lifter2) {
         String gender = lifter1.getGender();
         if (gender == null)
@@ -413,6 +553,13 @@ public class AbstractLifterComparator {
         return -lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare last successful lift time.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareLastSuccessfulLiftTime(Athlete lifter1, Athlete lifter2) {
         Date lifter1Value = lifter1.getLastSuccessfulLiftTime();
         Date lifter2Value = lifter2.getLastSuccessfulLiftTime();
@@ -420,6 +567,13 @@ public class AbstractLifterComparator {
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare forced as first.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareForcedAsFirst(Athlete lifter1, Athlete lifter2) {
         // can't be nulls, method returns primitive boolean
         Boolean lifter1Value = lifter1.getForcedAsCurrent();
@@ -431,30 +585,65 @@ public class AbstractLifterComparator {
         return compare;
     }
 
+    /**
+     * Compare best clean jerk.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareBestCleanJerk(Athlete lifter1, Athlete lifter2) {
         Integer lifter1Value = lifter1.getBestCleanJerk();
         Integer lifter2Value = lifter2.getBestCleanJerk();
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare best snatch.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareBestSnatch(Athlete lifter1, Athlete lifter2) {
         Integer lifter1Value = lifter1.getBestSnatch();
         Integer lifter2Value = lifter2.getBestSnatch();
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare best lift attempt number.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareBestLiftAttemptNumber(Athlete lifter1, Athlete lifter2) {
         Integer lifter1Value = lifter1.getBestResultAttemptNumber();
         Integer lifter2Value = lifter2.getBestResultAttemptNumber();
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare best snatch attempt number.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareBestSnatchAttemptNumber(Athlete lifter1, Athlete lifter2) {
         Integer lifter1Value = lifter1.getBestSnatchAttemptNumber();
         Integer lifter2Value = lifter2.getBestSnatchAttemptNumber();
         return lifter1Value.compareTo(lifter2Value);
     }
 
+    /**
+     * Compare best clean jerk attempt number.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     int compareBestCleanJerkAttemptNumber(Athlete lifter1, Athlete lifter2) {
         Integer lifter1Value = lifter1.getBestCleanJerkAttemptNumber();
         Integer lifter2Value = lifter2.getBestCleanJerkAttemptNumber();
@@ -464,15 +653,14 @@ public class AbstractLifterComparator {
     /**
      * Compare absolute value of attempts prior to attempt "startingFrom" Start comparing attempted weights at "startingFrom". If attempted
      * weight differ, smallest attempted weight comes first. If attempted weights are same, go back one attempt and keep comparing.
-     *
+     * 
      * startingFrom is exclusive endingWith is inclusive, and is used to the previous attempts.
      *
-     * @param startingFrom
-     * @param excludeSnatch
-     *            to consider only cleanAndJerk
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param startingFrom the starting from
+     * @param excludeSnatch            to consider only cleanAndJerk
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     int comparePreviousAttempts(int startingFrom, boolean excludeSnatch, Athlete lifter1, Athlete lifter2) {
         int compare = 0;
@@ -537,9 +725,9 @@ public class AbstractLifterComparator {
      * Determine who lifted first if both athletes are at same attempt and requesting same weight. Smaller previous attempt means lifted
      * first.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     int compareProgression(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
@@ -599,9 +787,11 @@ public class AbstractLifterComparator {
     }
 
     /**
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * Compare gender.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     protected int compareGender(Athlete lifter1, Athlete lifter2) {
         String gender1 = lifter1.getGender();
@@ -617,20 +807,22 @@ public class AbstractLifterComparator {
     }
 
     /**
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * Compare club.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     protected int compareClub(Athlete lifter1, Athlete lifter2) {
-        String club1 = lifter1.getClub();
-        String club2 = lifter2.getClub();
+        String club1 = lifter1.getTeam();
+        String club2 = lifter2.getTeam();
         if (club1 == null && club2 == null)
             return 0;
         if (club1 == null)
             return -1;
         if (club2 == null)
             return 1;
-        return lifter1.getClub().compareTo(lifter2.getClub());
+        return lifter1.getTeam().compareTo(lifter2.getTeam());
     }
 
 }

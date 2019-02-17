@@ -1,9 +1,9 @@
-/*
- * Copyright 2009-2012, Jean-François Lamy
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
  * 
- * This Source Code Form is subject to the terms of the Mozilla Public License,
- * v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at
- * http://mozilla.org/MPL/2.0/.
+ * This software is licensed under the the Affero GNU License amended with the
+ * Commons Clause.
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package org.ledocte.owlcms.data.athleteSort;
 
@@ -16,20 +16,27 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
 /**
- * This comparator sorts athletes within their team
- * 
+ * This comparator sorts athletes within their team.
+ *
  * @author jflamy
- * 
  */
 public class TeamRankingComparator extends AbstractLifterComparator implements Comparator<Athlete> {
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TeamRankingComparator.class);
 
     private Ranking rankingType;
 
+    /**
+     * Instantiates a new team ranking comparator.
+     *
+     * @param rankingType the ranking type
+     */
     TeamRankingComparator(Ranking rankingType) {
         this.rankingType = rankingType;
     }
 
+    /* (non-Javadoc)
+     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+     */
     @Override
     public int compare(Athlete lifter1, Athlete lifter2) {
         int compare = 0;

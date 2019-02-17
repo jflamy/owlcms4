@@ -1,3 +1,10 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Affero GNU License amended with the
+ * Commons Clause.
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
 package org.ledocte.owlcms.data.jpa;
 
 import java.io.File;
@@ -22,6 +29,9 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
 
+/**
+ * The Class TestData.
+ */
 public class TestData {
 
 	private static Locale getLocale() {
@@ -34,9 +44,8 @@ public class TestData {
 	/**
 	 * Insert initial data if the database is empty.
 	 *
-	 * @param liftersToLoad
-	 * @param sess
-	 * @param testMode
+	 * @param liftersToLoad the lifters to load
+	 * @param testMode the test mode
 	 */
 	public static void insertInitialData(int liftersToLoad, boolean testMode) {
 			Competition competition = new Competition();
@@ -95,7 +104,7 @@ public class TestData {
 	 * Create an empty competition. Set-up the defaults for using the timekeeping
 	 * and refereeing features.
 	 *
-	 * @param competition
+	 * @param competition the new up empty competition
 	 */
 	protected static void setupEmptyCompetition(Competition competition) {
 		Platform platform1 = new Platform("Platform"); //$NON-NLS-1$
@@ -174,10 +183,12 @@ public class TestData {
 	}
 
 	/**
-	 * @param competition
-	 * @param liftersToLoad
-	 * @param w
-	 * @param c
+	 * Setup test data.
+	 *
+	 * @param competition the competition
+	 * @param liftersToLoad the lifters to load
+	 * @param w the w
+	 * @param c the c
 	 */
 	protected static void setupTestData(Competition competition, int liftersToLoad,
 			LocalDateTime w, LocalDateTime c) {

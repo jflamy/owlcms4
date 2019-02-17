@@ -1,3 +1,10 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Affero GNU License amended with the
+ * Commons Clause.
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
 package org.ledocte.owlcms.ui.crudui;
 
 import org.vaadin.crudui.crud.CrudOperation;
@@ -8,19 +15,36 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 
+/**
+ * The Class OwlcmsGridCrud.
+ *
+ * @param <T> the generic type
+ */
 @SuppressWarnings("serial")
 public class OwlcmsGridCrud<T> extends GridCrud<T> {
 
 	private OwlcmsCrudLayout owlcmsCrudLayout;
 	private OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
 
-	public OwlcmsGridCrud(Class<T> domainType, OwlcmsCrudLayout crudLayout) {
+	/**
+	 * Instantiates a new owlcms grid crud.
+	 *
+	 * @param domainType the domain type
+	 * @param crudLayout the crud layout
+	 * @param owlcmsCrudFormFactory the owlcms crud form factory
+	 * @param grid the grid
+	 */
+	public OwlcmsGridCrud(Class<T> domainType, OwlcmsCrudLayout crudLayout, OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory, Grid<T>grid) {
 		super(domainType, crudLayout);
-		this.owlcmsCrudFormFactory = new OwlcmsCrudFormFactory<T>(domainType);
+		this.grid = grid;
+		this.owlcmsCrudFormFactory = owlcmsCrudFormFactory;
 		this.setCrudFormFactory(owlcmsCrudFormFactory);
 		this.owlcmsCrudLayout = crudLayout;
+		initLayoutGrid();
 	}
 
 	/*
@@ -60,6 +84,9 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 		owlcmsCrudLayout.showForm(operation, form);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.crud.impl.GridCrud#updateButtonClicked()
+	 */
 	@Override
     protected void updateButtonClicked() {
         T domainObject = grid.asSingleSelect().getValue();
@@ -80,6 +107,9 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
         });
     }
 	
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.crud.impl.GridCrud#deleteButtonClicked()
+	 */
 	@Override
 	protected void deleteButtonClicked() {
         T domainObject = grid.asSingleSelect().getValue();
@@ -97,5 +127,51 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
             }
         });
     }
+	
+    /**
+     * Do nothing.
+     * Initialization must wait for grid to be constructed, constuctor calls
+     * {@link #initLayoutGrid()} instead.
+     * 
+     * @see org.vaadin.crudui.crud.impl.GridCrud#initLayout()
+     */
+    @Override
+	protected void initLayout() {
+    }
+
+	/**
+	 * Replacement initialization
+	 * We do not create the grid automatically, but instead receive the grid pre-populated.
+	 */
+	protected void initLayoutGrid() {
+        initToolbar();
+        
+		grid.setSizeFull();
+        grid.addSelectionListener(e -> gridSelectionChanged());
+        crudLayout.setMainComponent(grid);
+	}
+
+	/**
+	 * Inits the toolbar.
+	 */
+	protected void initToolbar() {
+		findAllButton = new Button(VaadinIcon.REFRESH.create(), e -> findAllButtonClicked());
+        findAllButton.getElement().setAttribute("title", "Refresh list");
+        crudLayout.addToolbarComponent(findAllButton);
+
+        addButton = new Button(VaadinIcon.PLUS.create(), e -> addButtonClicked());
+        addButton.getElement().setAttribute("title", "Add");
+        crudLayout.addToolbarComponent(addButton);
+
+        updateButton = new Button(VaadinIcon.PENCIL.create(), e -> updateButtonClicked());
+        updateButton.getElement().setAttribute("title", "Update");
+        crudLayout.addToolbarComponent(updateButton);
+
+        deleteButton = new Button(VaadinIcon.TRASH.create(), e -> deleteButtonClicked());
+        deleteButton.getElement().setAttribute("title", "Delete");
+        crudLayout.addToolbarComponent(deleteButton);
+        
+        updateButtons();
+	}
 
 }

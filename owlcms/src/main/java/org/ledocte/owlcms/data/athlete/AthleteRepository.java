@@ -1,3 +1,10 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Affero GNU License amended with the
+ * Commons Clause.
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
 package org.ledocte.owlcms.data.athlete;
 
 import java.util.LinkedList;
@@ -10,8 +17,18 @@ import org.ledocte.owlcms.data.category.AgeDivision;
 import org.ledocte.owlcms.data.group.Group;
 import org.ledocte.owlcms.data.jpa.JPAService;
 
+/**
+ * The Class AthleteRepository.
+ */
 public class AthleteRepository {
 
+	/**
+	 * Gets the by id.
+	 *
+	 * @param id the id
+	 * @param em the em
+	 * @return the by id
+	 */
 	@SuppressWarnings("unchecked")
 	public static Athlete getById(Long id, EntityManager em) {
 		Query query = em.createQuery("select u from Athlete u where u.id=:id");
@@ -23,10 +40,21 @@ public class AthleteRepository {
 			.orElse(null);
 	}
 
+	/**
+	 * Save.
+	 *
+	 * @param Athlete the athlete
+	 * @return the athlete
+	 */
 	public static Athlete save(Athlete Athlete) {
 		return JPAService.runInTransaction(em -> em.merge(Athlete));
 	}
 
+	/**
+	 * Delete.
+	 *
+	 * @param Athlete the athlete
+	 */
 	public static void delete(Athlete Athlete) {
 		JPAService.runInTransaction(em -> {
 			em.remove(getById(Athlete.getId(), em));
@@ -34,12 +62,28 @@ public class AthleteRepository {
 		});
 	}
 
+	/**
+	 * Find all.
+	 *
+	 * @return the list
+	 */
 	@SuppressWarnings("unchecked")
 	public static List<Athlete> findAll() {
 		return JPAService.runInTransaction(em -> em.createQuery("select c from Athlete c")
 			.getResultList());
 	}
 
+	/**
+	 * Find filtered.
+	 *
+	 * @param lastName the last name
+	 * @param group the group
+	 * @param ageDivision the age division
+	 * @param weighedIn the weighed in
+	 * @param offset the offset
+	 * @param limit the limit
+	 * @return the list
+	 */
 	@SuppressWarnings("unchecked")
 	public static List<Athlete> findFiltered(String lastName, Group group, AgeDivision ageDivision, Boolean weighedIn,
 			int offset, int limit) {
@@ -56,6 +100,15 @@ public class AthleteRepository {
 		});
 	}
 	
+	/**
+	 * Count filtered.
+	 *
+	 * @param lastName the last name
+	 * @param group the group
+	 * @param ageDivision the age division
+	 * @param weighedIn the weighed in
+	 * @return the int
+	 */
 	public static int countFiltered(String lastName, Group group, AgeDivision ageDivision, Boolean weighedIn) {
 		String where = filteredWhere(lastName, group, ageDivision, weighedIn);
 		return JPAService.runInTransaction(em -> {
@@ -96,6 +149,13 @@ public class AthleteRepository {
 	}
 
 
+	/**
+	 * Find all by group and weigh in.
+	 *
+	 * @param group the group
+	 * @param weighedIn the weighed in
+	 * @return the list
+	 */
 	public static List<Athlete> findAllByGroupAndWeighIn(Group group, Boolean weighedIn) {
 		return findFiltered(null, group, null, weighedIn, -1, -1);
 	}
