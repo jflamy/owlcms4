@@ -25,12 +25,12 @@ public class LiftingNavigationLayout extends MainNavigationLayout {
 	 */
 	@Override
 	public AppLayout createAppLayoutInstance() {
-		VaadinSession.getCurrent().setAttribute("fopName", "A");
+
 		AppLayout appLayout = super.createAppLayoutInstance();
 		appLayout.setTitleComponent(new Label("Run a Lifting Group"));
 		
 		String fopName = (String) VaadinSession.getCurrent().getAttribute("fopName");
-		appLayout.setAppBar(new Label(fopName));
+		appLayout.setAppBar(new Label(fopName != null ? fopName : ""));
 		return appLayout;
 	}
 }

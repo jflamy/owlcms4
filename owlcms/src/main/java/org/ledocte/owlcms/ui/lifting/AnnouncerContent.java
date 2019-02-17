@@ -23,6 +23,7 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
 
 import ch.qos.logback.classic.Logger;
@@ -34,6 +35,7 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "group/announcer", layout = AnnouncerLayout.class)
 public class AnnouncerContent extends VerticalLayout implements CrudListener<Athlete> { // or implements LazyCrudListener<Athlete>
 
+	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(AnnouncerContent.class);
     
     /**
@@ -58,7 +60,9 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
         crudFormFactory.setDisabledProperties("nextAttemptRequestedWeight");
         
         Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
-        logger.debug("columns: {}",grid.getColumns());
+        ThemeList themes = grid.getThemeNames();
+        themes.add("compact");
+        themes.add("row-stripes");
 		grid.setColumns("lastName", "firstName", "team", "category", "nextAttemptRequestedWeight", "attemptsDone");
 		grid.getColumnByKey("lastName").setHeader("Last Name");
 		grid.getColumnByKey("firstName").setHeader("First Name");

@@ -44,6 +44,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.server.VaadinSession;
 
 /**
  * The Class MainNavigationLayout.
@@ -75,6 +76,8 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 	 */
 	@Override
 	public AppLayout createAppLayoutInstance() {
+		VaadinSession.getCurrent().setAttribute("fopName", "A");
+		
 		if (variant == null) {
 			variant = Behaviour.LEFT_OVERLAY;
 			notificationHolder = new DefaultNotificationHolder(newStatus -> {
