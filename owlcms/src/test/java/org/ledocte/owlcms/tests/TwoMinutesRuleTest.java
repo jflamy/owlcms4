@@ -104,7 +104,7 @@ public class TwoMinutesRuleTest {
 		assertEquals(schneiderF, curLifter);
 		assertEquals(null, previousLifter);
 		successfulLift(fopBus, curLifter);
-		
+
 		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLifters()));
 		// first is now simpsonR ; he has declared 60kg
 		curLifter = fopState.getCurAthlete();
@@ -113,7 +113,8 @@ public class TwoMinutesRuleTest {
 		assertEquals(schneiderF, previousLifter);
 		assertEquals(60000, fopState.timeAllowed());
 
-		// ... but simpsonR changes to 62 before being called by announcer (time not restarted)
+		// ... but simpsonR changes to 62 before being called by announcer (time not
+		// restarted)
 		declaration(curLifter, "62", fopBus); //$NON-NLS-1$
 		logger.info("declaration by {}: {}", curLifter, "62"); //$NON-NLS-1$ //$NON-NLS-2$
 		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLifters()));
@@ -141,7 +142,7 @@ public class TwoMinutesRuleTest {
 		// simpson is called again with two minutes
 		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.AthleteAnnounced()); // this starts logical time
-		assertEquals(FieldOfPlayState.State.TIME_RUNNING ,fopState.getState()) ;
+		assertEquals(FieldOfPlayState.State.TIME_RUNNING, fopState.getState());
 		// but simpson now asks for more; weight change should stop clock.
 		declaration(curLifter, "67", fopBus); //$NON-NLS-1$
 		logger.info("declaration by {}: {}", curLifter, "67"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -157,9 +158,11 @@ public class TwoMinutesRuleTest {
 		// but asks for more weight -- the following stops time.
 		declaration(curLifter, "65", fopBus); //$NON-NLS-1$
 		assertEquals(FieldOfPlayState.State.CURRENT_ATHLETE_DISPLAYED, fopState.getState());
-		int remainingTime = fopState.getTimer().getTimeRemaining();
+		int remainingTime = fopState.getTimer()
+			.getTimeRemaining();
 
-		// at this point, if schneider is called again, he should get the remaining time.
+		// at this point, if schneider is called again, he should get the remaining
+		// time.
 		curLifter = fopState.getCurAthlete();
 		assertEquals(schneiderF, curLifter);
 		assertEquals(remainingTime, fopState.timeAllowed());

@@ -147,7 +147,7 @@ public class Athlete {
 
 	private String membership = ""; //$NON-NLS-1$
 
-	@ManyToOne(cascade = { CascadeType.MERGE, CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "fk_group")
 	private Group group;
 
@@ -161,7 +161,7 @@ public class Athlete {
 	// people want to type
 	// "-" or other things in the cells, so Strings are actually easier.
 
-	@ManyToOne(cascade = { CascadeType.MERGE }, optional = true, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "fk_categ")
 	private Category category = null;
 	private String snatch1Declaration;

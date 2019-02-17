@@ -399,7 +399,7 @@ public class Category implements Serializable, Comparable<Category> {
      */
     @Override
     public String toString() {
-        return name + "_" + active + "_" + gender + "_" + ageDivision;
+        return name;
     }
     
     /**
@@ -408,7 +408,7 @@ public class Category implements Serializable, Comparable<Category> {
      * @return the string
      */
     public String shortDump() {
-        return name + "_" + active;
+    	return name + "_" + active + "_" + gender + "_" + ageDivision;
     }
 
     /**

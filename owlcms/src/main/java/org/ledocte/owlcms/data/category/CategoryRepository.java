@@ -23,7 +23,7 @@ import org.ledocte.owlcms.data.jpa.JPAService;
  * @author Alejandro Duarte
  */
 public class CategoryRepository {
-	
+
 	/**
 	 * Gets the by id.
 	 *
@@ -63,7 +63,7 @@ public class CategoryRepository {
 			return null;
 		});
 	}
-	
+
 	/**
 	 * Find all.
 	 *
@@ -74,53 +74,45 @@ public class CategoryRepository {
 		return JPAService.runInTransaction(em -> em.createQuery("select c from Category c")
 			.getResultList());
 	}
-	
+
 	/**
 	 * Find by name.
 	 *
 	 * @param string the string
 	 * @return the category
 	 */
-	@SuppressWarnings("unchecked")
 	public static Category findByName(String string) {
 		return JPAService.runInTransaction(em -> {
-			Query query = em.createQuery("select c from Category c where lower(name) = lower(:string)");
-			query.setParameter("string", string);
-			List<Category> resultList = query.getResultList();
-			return resultList.get(0);
+			return doFindByName(string, em);
 		});
 	}
-	
 
-	private static String byAgeDivision = "from Category c where c.ageDivision = :division";
+	@SuppressWarnings("unchecked")
+	public static Category doFindByName(String string, EntityManager em) {
+		Query query = em.createQuery("select c from Category c where lower(name) = lower(:string)");
+		query.setParameter("string", string);
+		List<Category> resultList = query.getResultList();
+		return resultList.get(0);
+	}
+
+	private static String byAgeDivision = " where c.ageDivision = :division";
 
 	/**
 	 * Find by age division.
 	 *
 	 * @param ageDivision the age division
-	 * @param offset the offset
-	 * @param limit the limit
+	 * @param offset      the offset
+	 * @param limit       the limit
 	 * @return the collection
 	 */
 	@SuppressWarnings("unchecked")
 	public static Collection<Category> findByAgeDivision(AgeDivision ageDivision, int offset, int limit) {
-		if (ageDivision == null) {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select c from Category c");
-				query.setFirstResult(offset);
-				query.setMaxResults(limit);
-				return query.getResultList();
-			});
-		} else {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select c " + byAgeDivision);
-				query.setParameter("division", ageDivision);
-				query.setFirstResult(offset);
-				query.setMaxResults(limit);
-				List<Category> resultList = query.getResultList();
-				return resultList;
-			});
-		}
+		return JPAService.runInTransaction(em -> {
+			Query query = em.createQuery("select c from Category c" + (ageDivision != null ? byAgeDivision : ""));
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+			return query.getResultList();
+		});
 	}
 
 	/**
@@ -130,27 +122,17 @@ public class CategoryRepository {
 	 * @return the int
 	 */
 	public static int countByAgeDivision(AgeDivision ageDivision) {
-		if (ageDivision == null) {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select count(c.id) from Category c");
-				int i = ((Long) query.getSingleResult()).intValue();
-				return i;
-			});
-		} else {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select count(c.id) " + byAgeDivision);
-				query.setParameter("division", ageDivision);
-				int i = ((Long) query.getSingleResult()).intValue();
-				return i;
-			});
-		}
+		return JPAService.runInTransaction(em -> {
+			Query query = em.createQuery("select count(c.id from Category c" + (ageDivision != null ? byAgeDivision : ""));
+			int i = ((Long) query.getSingleResult()).intValue();
+			return i;
+		});
 	}
-
 
 	/**
 	 * Insert kids categories.
 	 *
-	 * @param curAG the cur AG
+	 * @param curAG  the cur AG
 	 * @param active the active
 	 */
 	static void insertKidsCategories(AgeDivision curAG, boolean active) {
@@ -248,7 +230,7 @@ public class CategoryRepository {
 	/**
 	 * Insert youth categories.
 	 *
-	 * @param curAG the cur AG
+	 * @param curAG  the cur AG
 	 * @param active the active
 	 */
 	static void insertYouthCategories(AgeDivision curAG, boolean active) {
@@ -274,8 +256,5 @@ public class CategoryRepository {
 		save(new Category(96.0, 102.0, Gender.M, active, curAG, 0));
 		save(new Category(102.0, 999.0, Gender.M, active, curAG, 0));
 	}
-
-
-
 
 }
