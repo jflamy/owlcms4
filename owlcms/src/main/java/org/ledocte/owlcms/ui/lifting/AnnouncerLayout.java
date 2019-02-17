@@ -14,7 +14,7 @@ import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.HtmlImport;
-import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -40,7 +40,7 @@ public class AnnouncerLayout extends MainNavigationLayout {
 	public AppLayout createAppLayoutInstance() {
 		AppLayout appLayout = super.createAppLayoutInstance();
 		HorizontalLayout appBarElementWrapper = ((AbstractLeftAppLayoutBase)appLayout).getAppBarElementWrapper();
-		H4 label = new H4("Beauchemin-De la Durantaye, Marie-Dominique");
+		H3 label = new H3("Beauchemin-De la Durantaye, Marie-Dominique");
 		
 		HorizontalLayout lifter = new HorizontalLayout(
 				label,
