@@ -1,3 +1,11 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
 package org.ledocte.owlcms.ui.preparation;
 
 import java.util.Collection;
@@ -5,11 +13,11 @@ import java.util.Collection;
 import org.ledocte.owlcms.data.category.AgeDivision;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.category.CategoryRepository;
+import org.ledocte.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudLayout;
 import org.ledocte.owlcms.ui.crudui.OwlcmsGridCrud;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
-import org.vaadin.crudui.form.CrudFormFactory;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -20,27 +28,27 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.Route;
 
+
 /**
- * @author Alejandro Duarte
+ * The Class CategoryContent.
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/categories", layout = CategoryLayout.class)
-public class CategoryContent extends VerticalLayout implements CrudListener<Category> { // or implements
-																						// LazyCrudListener<Category>
+public class CategoryContent extends VerticalLayout implements CrudListener<Category> {
 
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 
+	/**
+	 * Instantiates a new category content.
+	 */
 	public CategoryContent() {
 		setSizeFull();
-		GridCrud<Category> crud = getFilteringGrid();
+		GridCrud<Category> crud = getFilteringGridCrud();
 		add(crud);
 	}
 
-	private GridCrud<Category> getFilteringGrid() {
-		GridCrud<Category> crud = new OwlcmsGridCrud<Category>(Category.class, new OwlcmsCrudLayout(Category.class));
-		crud.setCrudListener(this);
-
-		CrudFormFactory<Category> crudFormFactory = crud.getCrudFormFactory();
+	private GridCrud<Category> getFilteringGridCrud() {
+		OwlcmsCrudFormFactory<Category> crudFormFactory = new OwlcmsCrudFormFactory<Category>(Category.class);
 		crudFormFactory.setVisibleProperties("name",
 			"ageDivision",
 			"gender",
@@ -55,8 +63,8 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 			"Maximum Weight",
 			"World Record",
 			"Active");
-
-		Grid<Category> grid = crud.getGrid();
+		
+		Grid<Category> grid = new Grid<Category>(Category.class, false);
 		grid.setColumns("name", "ageDivision", "gender", "minimumWeight", "maximumWeight", "active");
 		grid.getColumnByKey("name")
 			.setHeader("Name");
@@ -64,6 +72,9 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 			.setHeader("Age Division");
 		grid.getColumnByKey("gender")
 			.setHeader("Gender");
+		
+		GridCrud<Category> crud = new OwlcmsGridCrud<Category>(Category.class, new OwlcmsCrudLayout(Category.class), crudFormFactory, grid);
+		crud.setCrudListener(this);
 		crud.setClickRowToUpdate(true);
 
 		ageDivisionFilter.setPlaceholder("Age Division");
@@ -93,12 +104,18 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 		return crud;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
+	 */
 	@Override
 	public Category add(Category Category) {
 		CategoryRepository.save(Category);
 		return Category;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+	 */
 	@Override
 	public Category update(Category Category) {
 		if (Category.getId()
@@ -108,25 +125,21 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 		return CategoryRepository.save(Category);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
+	 */
 	@Override
 	public void delete(Category Category) {
 		CategoryRepository.delete(Category);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
+	 */
 	@Override
 	public Collection<Category> findAll() {
 		return CategoryRepository.findAll();
 	}
 
-	/*
-	 * if this implements LazyCrudListener<Category>:
-	 * 
-	 * @Override public DataProvider<Category, Void> getDataProvider() { return
-	 * DataProvider.fromCallbacks( query ->
-	 * CategoryRepository.findByNameLike(nameFilter.getValue(),
-	 * groupFilter.getValue(), query.getOffset(), query.getLimit()).stream(), query
-	 * -> CategoryRepository.countByNameLike(nameFilter.getValue(),
-	 * groupFilter.getValue())); }
-	 */
 
 }

@@ -1,17 +1,10 @@
-/*
- * Copyright 2000-2017 Vaadin Ltd.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package org.ledocte.owlcms.ui.home;
 
@@ -36,12 +29,24 @@ import com.vaadin.flow.component.icon.Icon;
 @HtmlImport("frontend://bower_components/iron-icons/places-icons.html")
 public class FullIronIcon extends Icon {
 
+    /**
+     * Instantiates a new full iron icon.
+     *
+     * @param collection the collection
+     * @param icon the icon
+     */
     public FullIronIcon(String collection, String icon) {
         // iron-icon's icon-attribute uses the format "collection:name",
         // e.g. icon="icons:expand-more"
         super(collection,icon);
     }
     
+    /**
+     * Sets the rotation.
+     *
+     * @param angle the angle
+     * @return the icon
+     */
     public Icon setRotation(Integer angle) {
         if (angle == null) {
             getStyle().remove("transformation");
@@ -51,6 +56,11 @@ public class FullIronIcon extends Icon {
         return this;
     }
     
+    /**
+     * Gets the rotation.
+     *
+     * @return the rotation
+     */
     public String getRotation() {
     	return getStyle().get("transformation");
     }

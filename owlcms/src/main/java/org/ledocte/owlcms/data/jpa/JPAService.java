@@ -1,3 +1,11 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
 package org.ledocte.owlcms.data.jpa;
 
 import static org.hibernate.cfg.AvailableSettings.CACHE_REGION_FACTORY;
@@ -45,45 +53,80 @@ import com.google.common.collect.ImmutableMap;
 
 import ch.qos.logback.classic.Logger;
 
+/**
+ * The Class JPAService.
+ */
 public class JPAService {
 
+	/**
+	 * The listener interface for receiving context events.
+	 * The class that is interested in processing a context
+	 * event implements this interface, and the object created
+	 * with that class is registered with a component using the
+	 * component's <code>addContextListener<code> method. When
+	 * the context event occurs, that object's appropriate
+	 * method is invoked.
+	 *
+	 * @see ContextEvent
+	 */
 	@WebListener
 	public static class ContextListener implements ServletContextListener {
 
+		/* (non-Javadoc)
+		 * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
+		 */
 		@Override
 		public void contextDestroyed(ServletContextEvent sce) {
 			close();
 		}
 
+		/* (non-Javadoc)
+		 * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
+		 */
 		@Override
 		public void contextInitialized(ServletContextEvent sce) {
 			init(Boolean.getBoolean("testMode"));
 		}
 	}
 
+	/** The Constant logger. */
 	protected static final Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
 
+	/** The factory. */
 	protected static EntityManagerFactory factory;
 
 	private static boolean testMode;
 
 	/**
+	 * Checks if is test mode.
+	 *
 	 * @return the testMode
 	 */
 	public static boolean isTestMode() {
 		return testMode;
 	}
 
+	/**
+	 * Close.
+	 */
 	public static void close() {
 		factory.close();
 	}
 
+	/**
+	 * Creates the initial data.
+	 */
 	protected static void createInitialData() {
 		logger.info("Creating initial data. {}", (isTestMode() ? "(test mode)" : ""));
 		CategoryRepository.insertStandardCategories();
 		TestData.insertInitialData(5, true);
 	}
 
+	/**
+	 * Entity class names.
+	 *
+	 * @return the list
+	 */
 	protected static List<String> entityClassNames() {
 		ImmutableList<String> vals = new ImmutableList.Builder<String>()
 			.add(Group.class.getName())
@@ -95,6 +138,11 @@ public class JPAService {
 		return vals;
 	}
 
+	/**
+	 * Gets the factory.
+	 *
+	 * @return the factory
+	 */
 	public static EntityManagerFactory getFactory() {
 		if (factory == null) {
 			init(isTestMode());
@@ -102,6 +150,11 @@ public class JPAService {
 		return factory;
 	}
 
+	/**
+	 * Inits the.
+	 *
+	 * @param testMode2 the test mode 2
+	 */
 	public static void init(boolean testMode2) {
 		if (factory == null) {
 			factory = getFactoryFromCode(testMode2);
@@ -109,6 +162,12 @@ public class JPAService {
 		}
 	}
 
+	/**
+	 * Gets the factory from code.
+	 *
+	 * @param testMode2 the test mode 2
+	 * @return the factory from code
+	 */
 	public static EntityManagerFactory getFactoryFromCode(boolean testMode2) {
 		PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(
 				JPAService.class.getSimpleName(),
@@ -133,6 +192,11 @@ public class JPAService {
 		return props;
 	}
 
+	/**
+	 * Test properties.
+	 *
+	 * @return the properties
+	 */
 	protected static Properties testProperties() {
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
@@ -165,6 +229,13 @@ public class JPAService {
 		return vals;
 	}
 
+	/**
+	 * Run in transaction.
+	 *
+	 * @param <T> the generic type
+	 * @param function the function
+	 * @return the t
+	 */
 	public static <T> T runInTransaction(Function<EntityManager, T> function) {
 		EntityManager entityManager = null;
 
@@ -186,6 +257,11 @@ public class JPAService {
 		}
 	}
 
+	/**
+	 * Sets the test mode.
+	 *
+	 * @param b the new test mode
+	 */
 	public static void setTestMode(boolean b) {
 		// TODO Auto-generated method stub
 

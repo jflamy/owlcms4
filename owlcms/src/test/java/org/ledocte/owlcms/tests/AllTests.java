@@ -1,9 +1,10 @@
-/*
- * Copyright 2009-2012, Jean-François Lamy
- *
- * This Source Code Form is subject to the terms of the Mozilla Public License,
- * v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/.
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package org.ledocte.owlcms.tests;
 
@@ -84,7 +85,7 @@ public class AllTests {
      */
     static public void assertEqualsToReferenceFile(final String referenceFilePath, String actual) {
         String name = "/testData" + referenceFilePath;
-		InputStream is = AllTests.class.getResourceAsStream(name); //$NON-NLS-1$
+		InputStream is = AllTests.class.getResourceAsStream(name); 
 		logger.info("comparing results to reference file {}", name);
         if (is != null) {
             String expected = getContents(is);

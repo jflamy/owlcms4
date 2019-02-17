@@ -1,9 +1,10 @@
-/*
- * Copyright 2009-2012, Jean-François Lamy
- *
- * This Source Code Form is subject to the terms of the Mozilla Public License,
- * v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at
- * http://mozilla.org/MPL/2.0/.
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package org.ledocte.owlcms.data.athleteSort;
 
@@ -24,14 +25,23 @@ import ch.qos.logback.classic.Logger;
  */
 public class CombinedPointsOrderComparator extends AbstractLifterComparator implements Comparator<Athlete> {
 
+    /** The Constant logger. */
     final static Logger logger = (Logger) LoggerFactory.getLogger(CombinedPointsOrderComparator.class);
 
     private Ranking rankingType;
 
+    /**
+     * Instantiates a new combined points order comparator.
+     *
+     * @param rankingType the ranking type
+     */
     public CombinedPointsOrderComparator(Ranking rankingType) {
         this.rankingType = rankingType;
     }
 
+    /* (non-Javadoc)
+     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+     */
     @Override
     public int compare(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
@@ -59,9 +69,9 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
     /**
      * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     public int compareTotalResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
@@ -119,6 +129,13 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
         return compare;
     }
 
+    /**
+     * Compare snatch result order.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     public int compareSnatchResultOrder(Athlete lifter1, Athlete lifter2) {
         boolean trace =
                 // (
@@ -187,6 +204,13 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
         return compare;
     }
 
+    /**
+     * Compare clean jerk result order.
+     *
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
+     */
     public int compareCleanJerkResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
@@ -233,9 +257,9 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
     /**
      * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     public int compareSinclairResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
@@ -287,9 +311,9 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
     /**
      * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return
+     * @param lifter1 the lifter 1
+     * @param lifter2 the lifter 2
+     * @return the int
      */
     public int compareRobiResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;

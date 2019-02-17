@@ -1,3 +1,11 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
 package org.ledocte.owlcms.ui.crudui;
 
 import org.slf4j.LoggerFactory;
@@ -9,6 +17,9 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 
 import ch.qos.logback.classic.Logger;
 
+/**
+ * The Class OwlcmsCrudLayout.
+ */
 @SuppressWarnings("serial")
 public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
 	
@@ -16,6 +27,11 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
 
 	private boolean disableNextShowForm = false;
 
+	/**
+	 * Instantiates a new owlcms crud layout.
+	 *
+	 * @param aClass the a class
+	 */
 	public OwlcmsCrudLayout(Class<?> aClass) {
         getContent().setPadding(false);
         getContent().setMargin(false);
@@ -73,6 +89,11 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
 		disableNextShowForm(false);
 	}
 	
+	/**
+	 * Disable next show form.
+	 *
+	 * @param isDisabled the is disabled
+	 */
 	public void disableNextShowForm(boolean isDisabled) {
 		disableNextShowForm = isDisabled;
 	}

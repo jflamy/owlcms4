@@ -1,9 +1,10 @@
-/*
- * Copyright 2009-2012, Jean-François Lamy
- *
- * This Source Code Form is subject to the terms of the Mozilla Public License,
- * v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at
- * http://mozilla.org/MPL/2.0/.
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package org.ledocte.owlcms.data.category;
 
@@ -33,14 +34,18 @@ import org.ledocte.owlcms.data.athlete.Gender;
 @Cacheable
 public class Category implements Serializable, Comparable<Category> {
 
+    /** The id. */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
+    /** The name. */
     String name;
 
+    /** The minimum weight. */
     Double minimumWeight; // inclusive
 
+    /** The maximum weight. */
     Double maximumWeight; // exclusive
     
     @Enumerated(EnumType.STRING)
@@ -49,6 +54,7 @@ public class Category implements Serializable, Comparable<Category> {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    /** The active. */
     Boolean active;
 
     private Integer wr;
@@ -58,9 +64,22 @@ public class Category implements Serializable, Comparable<Category> {
     private final static Double ROBI_B = 3.321928095;
 
 
+    /**
+     * Instantiates a new category.
+     */
     public Category() {
     }
 
+    /**
+     * Instantiates a new category.
+     *
+     * @param minimumWeight the minimum weight
+     * @param maximumWeight the maximum weight
+     * @param enumGender the enum gender
+     * @param active the active
+     * @param enumAgeDivision the enum age division
+     * @param wr the wr
+     */
     public Category(Double minimumWeight, Double maximumWeight, Gender enumGender, Boolean active, AgeDivision enumAgeDivision, Integer wr) {
         this.setMinimumWeight(minimumWeight);
         this.setMaximumWeight(maximumWeight);
@@ -69,7 +88,7 @@ public class Category implements Serializable, Comparable<Category> {
         this.setActive(active);
         this.setWr(wr);
         if (wr >= 0) {
-            this.setRobiA(1000.0D/Math.pow((double)wr,ROBI_B));
+            this.setRobiA(1000.0D/Math.pow(wr,ROBI_B));
         }
 
 //        this.setGender(gender.toString());
@@ -173,14 +192,29 @@ public class Category implements Serializable, Comparable<Category> {
         return true;
     }
 
+    /**
+     * Gets the active.
+     *
+     * @return the active
+     */
     public Boolean getActive() {
         return active;
     }
 
+    /**
+     * Gets the age division.
+     *
+     * @return the age division
+     */
     public AgeDivision getAgeDivision() {
         return ageDivision;
     }
 
+    /**
+     * Gets the gender.
+     *
+     * @return the gender
+     */
     public Gender getGender() {
         if (gender == null) {
             this.gender = Gender.UNKOWN;
@@ -190,6 +224,8 @@ public class Category implements Serializable, Comparable<Category> {
 
 
     /**
+     * Gets the id.
+     *
      * @return the id
      */
     public Long getId() {
@@ -197,6 +233,8 @@ public class Category implements Serializable, Comparable<Category> {
     }
 
     /**
+     * Gets the maximum weight.
+     *
      * @return the maximumWeight
      */
     public Double getMaximumWeight() {
@@ -204,6 +242,8 @@ public class Category implements Serializable, Comparable<Category> {
     }
 
     /**
+     * Gets the minimum weight.
+     *
      * @return the minimumWeight
      */
     public Double getMinimumWeight() {
@@ -211,17 +251,26 @@ public class Category implements Serializable, Comparable<Category> {
     }
 
     /**
+     * Gets the name.
+     *
      * @return the name
      */
     public String getName() {
         return name;
     }
 
+    /**
+     * Gets the robi A.
+     *
+     * @return the robi A
+     */
     public Double getRobiA() {
         return robiA;
     }
 
     /**
+     * Gets the wr.
+     *
      * @return the wr
      */
     public Integer getWr() {
@@ -250,10 +299,20 @@ public class Category implements Serializable, Comparable<Category> {
         return result;
     }
 
+    /**
+     * Checks if is active.
+     *
+     * @return the boolean
+     */
     public Boolean isActive() {
         return active;
     }
 
+    /**
+     * Sets the active.
+     *
+     * @param active the new active
+     */
     public void setActive(Boolean active) {
         this.active = active;
     }
@@ -268,6 +327,11 @@ public class Category implements Serializable, Comparable<Category> {
         this.setName(catName);
     }
 
+    /**
+     * Sets the age division.
+     *
+     * @param enumAgeGroup2 the new age division
+     */
     public void setAgeDivision(AgeDivision enumAgeGroup2) {
         if (enumAgeGroup2 == null){
             this.ageDivision = AgeDivision.DEFAULT;
@@ -276,55 +340,82 @@ public class Category implements Serializable, Comparable<Category> {
         }
     }
 
+    /**
+     * Sets the gender.
+     *
+     * @param enumGender the new gender
+     */
     public void setGender(Gender enumGender) {
         this.gender = enumGender;
     }
 
     /**
-     * @param maximumWeight
-     *            the maximumWeight to set
+     * Sets the maximum weight.
+     *
+     * @param maximumWeight            the maximumWeight to set
      */
     public void setMaximumWeight(Double maximumWeight) {
         this.maximumWeight = maximumWeight;
     }
 
     /**
-     * @param minimumWeight
-     *            the minimumWeight to set
+     * Sets the minimum weight.
+     *
+     * @param minimumWeight            the minimumWeight to set
      */
     public void setMinimumWeight(Double minimumWeight) {
         this.minimumWeight = minimumWeight;
     }
 
     /**
-     * @param name
-     *            the name to set
+     * Sets the name.
+     *
+     * @param name            the name to set
      */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Sets the robi A.
+     *
+     * @param robiA the new robi A
+     */
     public void setRobiA(Double robiA) {
         this.robiA = robiA;
     }
 
     /**
-     * @param wr
-     *            the wr to set
+     * Sets the wr.
+     *
+     * @param wr            the wr to set
      */
     public void setWr(Integer wr) {
         this.wr = wr;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         return name + "_" + active + "_" + gender + "_" + ageDivision;
     }
     
+    /**
+     * Short dump.
+     *
+     * @return the string
+     */
     public String shortDump() {
         return name + "_" + active;
     }
 
+    /**
+     * Gets the robi B.
+     *
+     * @return the robi B
+     */
     public Double getRobiB() {
         return ROBI_B;
     }

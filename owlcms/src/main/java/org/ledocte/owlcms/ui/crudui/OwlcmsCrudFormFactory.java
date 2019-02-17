@@ -1,3 +1,11 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
 package org.ledocte.owlcms.ui.crudui;
 
 import java.util.List;
@@ -18,16 +26,32 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+/**
+ * A factory for creating OwlcmsCrudForm objects.
+ *
+ * @param <T> the generic type
+ */
 @SuppressWarnings("serial")
 public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implements CrudFormFactory<T> {
 
 	private ResponsiveStep[] responsiveSteps;
 
+	/**
+	 * Instantiates a new owlcms crud form factory.
+	 *
+	 * @param domainType the domain type
+	 */
 	public OwlcmsCrudFormFactory(Class<T> domainType) {
 		super(domainType);
 		init();
 	}
 
+	/**
+	 * Instantiates a new owlcms crud form factory.
+	 *
+	 * @param domainType the domain type
+	 * @param responsiveSteps the responsive steps
+	 */
 	public OwlcmsCrudFormFactory(Class<T> domainType, ResponsiveStep... responsiveSteps) {
 		super(domainType, responsiveSteps);
 		this.responsiveSteps = responsiveSteps;
@@ -39,6 +63,17 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	}
 
 
+	/**
+	 * Builds the new form.
+	 *
+	 * @param operation the operation
+	 * @param domainObject the domain object
+	 * @param readOnly the read only
+	 * @param cancelButtonClickListener the cancel button click listener
+	 * @param updateButtonClickListener the update button click listener
+	 * @param deleteButtonClickListener the delete button click listener
+	 * @return the component
+	 */
 	@SuppressWarnings("rawtypes")
 	public Component buildNewForm(CrudOperation operation, T domainObject, boolean readOnly,
 			ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
@@ -68,6 +103,16 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	}
 
 
+	/**
+	 * Builds the footer.
+	 *
+	 * @param operation the operation
+	 * @param domainObject the domain object
+	 * @param cancelButtonClickListener the cancel button click listener
+	 * @param updateButtonClickListener the update button click listener
+	 * @param deleteButtonClickListener the delete button click listener
+	 * @return the component
+	 */
 	protected Component buildFooter(CrudOperation operation, T domainObject,
 			ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,

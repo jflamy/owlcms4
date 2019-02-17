@@ -1,3 +1,11 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
 package org.ledocte.owlcms.data.category;
 
 import java.util.Collection;
@@ -10,10 +18,19 @@ import org.ledocte.owlcms.data.athlete.Gender;
 import org.ledocte.owlcms.data.jpa.JPAService;
 
 /**
+ * The Class CategoryRepository.
+ *
  * @author Alejandro Duarte
  */
 public class CategoryRepository {
 	
+	/**
+	 * Gets the by id.
+	 *
+	 * @param id the id
+	 * @param em the em
+	 * @return the by id
+	 */
 	@SuppressWarnings("unchecked")
 	public static Category getById(Long id, EntityManager em) {
 		Query query = em.createQuery("select u from Category u where u.id=:id");
@@ -25,10 +42,21 @@ public class CategoryRepository {
 			.orElse(null);
 	}
 
+	/**
+	 * Save.
+	 *
+	 * @param Category the category
+	 * @return the category
+	 */
 	public static Category save(Category Category) {
 		return JPAService.runInTransaction(em -> em.merge(Category));
 	}
 
+	/**
+	 * Delete.
+	 *
+	 * @param Category the category
+	 */
 	public static void delete(Category Category) {
 		JPAService.runInTransaction(em -> {
 			em.remove(getById(Category.getId(), em));
@@ -36,12 +64,23 @@ public class CategoryRepository {
 		});
 	}
 	
+	/**
+	 * Find all.
+	 *
+	 * @return the list
+	 */
 	@SuppressWarnings("unchecked")
 	public static List<Category> findAll() {
 		return JPAService.runInTransaction(em -> em.createQuery("select c from Category c")
 			.getResultList());
 	}
 	
+	/**
+	 * Find by name.
+	 *
+	 * @param string the string
+	 * @return the category
+	 */
 	@SuppressWarnings("unchecked")
 	public static Category findByName(String string) {
 		return JPAService.runInTransaction(em -> {
@@ -55,6 +94,14 @@ public class CategoryRepository {
 
 	private static String byAgeDivision = "from Category c where c.ageDivision = :division";
 
+	/**
+	 * Find by age division.
+	 *
+	 * @param ageDivision the age division
+	 * @param offset the offset
+	 * @param limit the limit
+	 * @return the collection
+	 */
 	@SuppressWarnings("unchecked")
 	public static Collection<Category> findByAgeDivision(AgeDivision ageDivision, int offset, int limit) {
 		if (ageDivision == null) {
@@ -76,6 +123,12 @@ public class CategoryRepository {
 		}
 	}
 
+	/**
+	 * Count by age division.
+	 *
+	 * @param ageDivision the age division
+	 * @return the int
+	 */
 	public static int countByAgeDivision(AgeDivision ageDivision) {
 		if (ageDivision == null) {
 			return JPAService.runInTransaction(em -> {
@@ -94,6 +147,12 @@ public class CategoryRepository {
 	}
 
 
+	/**
+	 * Insert kids categories.
+	 *
+	 * @param curAG the cur AG
+	 * @param active the active
+	 */
 	static void insertKidsCategories(AgeDivision curAG, boolean active) {
 		save(new Category(0.0, 35.0, Gender.F, active, curAG, 0));
 		save(new Category(35.0, 40.0, Gender.F, active, curAG, 0));
@@ -142,6 +201,9 @@ public class CategoryRepository {
 		save(new Category(109.0, 999.0, Gender.M, active, curAG, 453));
 	}
 
+	/**
+	 * Insert standard categories.
+	 */
 	public static void insertStandardCategories() {
 		if (findAll().size() == 0) {
 			insertNewCategories(AgeDivision.DEFAULT, true);
@@ -183,6 +245,12 @@ public class CategoryRepository {
 		save(new Category(94.0, 999.0, Gender.M, false, curAG, 0));
 	}
 
+	/**
+	 * Insert youth categories.
+	 *
+	 * @param curAG the cur AG
+	 * @param active the active
+	 */
 	static void insertYouthCategories(AgeDivision curAG, boolean active) {
 		save(new Category(0.0, 40.0, Gender.F, active, curAG, 0));
 		save(new Category(40.0, 45.0, Gender.F, active, curAG, 0));

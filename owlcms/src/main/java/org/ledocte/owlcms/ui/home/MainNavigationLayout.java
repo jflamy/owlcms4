@@ -1,3 +1,11 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
 package org.ledocte.owlcms.ui.home;
 
 import static com.github.appreciated.app.layout.entity.Section.FOOTER;
@@ -37,7 +45,11 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 
+/**
+ * The Class MainNavigationLayout.
+ */
 @Push
+@HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 @StyleSheet("frontend://styles/owlcms.css")
 @HtmlImport("frontend://bower_components/iron-icons/maps-icons.html")
@@ -49,11 +61,18 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 public class MainNavigationLayout extends AppLayoutRouterLayout {
 
 	private static final long serialVersionUID = 1L;
+	
+	/** The notification holder. */
 	DefaultNotificationHolder notificationHolder;
+	
+	/** The badge holder. */
 	DefaultBadgeHolder badgeHolder;
 	private Behaviour variant;
 	private Thread currentThread;
 
+	/* (non-Javadoc)
+	 * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayout#createAppLayoutInstance()
+	 */
 	@Override
 	public AppLayout createAppLayoutInstance() {
 		if (variant == null) {
@@ -179,9 +198,18 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 		new BehaviourSelector(variant, this::setDrawerVariant).open();
 	}
 
+	/**
+	 * The Class BehaviourSelector.
+	 */
 	@SuppressWarnings("serial")
 	class BehaviourSelector extends Dialog {
 
+		/**
+		 * Instantiates a new behaviour selector.
+		 *
+		 * @param current the current
+		 * @param consumer the consumer
+		 */
 		public BehaviourSelector(Behaviour current, Consumer<Behaviour> consumer) {
 			VerticalLayout layout = new VerticalLayout();
 			add(layout);

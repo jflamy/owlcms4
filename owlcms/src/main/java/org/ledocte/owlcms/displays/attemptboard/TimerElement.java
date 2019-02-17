@@ -1,17 +1,10 @@
-/*
- * Copyright 2000-2017 Vaadin Ltd.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package org.ledocte.owlcms.displays.attemptboard;
 
@@ -35,24 +28,85 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> {
 
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(TimerElement.class);
     
+    /**
+     * The Interface TimerModel.
+     */
     public interface TimerModel extends TemplateModel {
 
+        /**
+         * Gets the current time.
+         *
+         * @return the current time
+         */
         double getCurrentTime();
+        
+        /**
+         * Sets the current time.
+         *
+         * @param seconds the new current time
+         */
         void setCurrentTime(double seconds);
         
+        /**
+         * Gets the start time.
+         *
+         * @return the start time
+         */
         double getStartTime();
+        
+        /**
+         * Sets the start time.
+         *
+         * @param seconds the new start time
+         */
         void setStartTime(double seconds);
         
+        /**
+         * Checks if is running.
+         *
+         * @return true, if is running
+         */
         boolean isRunning();
+        
+        /**
+         * Sets the running.
+         *
+         * @param running the new running
+         */
         void setRunning(boolean running);
         
+        /**
+         * Checks if is count up.
+         *
+         * @return true, if is count up
+         */
         boolean isCountUp();
+        
+        /**
+         * Sets the count up.
+         *
+         * @param countUp the new count up
+         */
         void setCountUp(boolean countUp);
         
+        /**
+         * Checks if is interactive.
+         *
+         * @return true, if is interactive
+         */
         boolean isInteractive();
+        
+        /**
+         * Sets the interactive.
+         *
+         * @param interactive the new interactive
+         */
         void setInteractive(boolean interactive);
     }
 
+	/**
+	 * Instantiates a new timer element.
+	 */
 	public TimerElement() {
     	//new Exception().printStackTrace();
     	double seconds = 45.00D;
@@ -68,14 +122,25 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> {
     	});
     }
     
+    /**
+     * Start.
+     */
     public void start() {
     	getElement().callFunction("start");
     }
     
+    /**
+     * Pause.
+     */
     public void pause() {
     	getElement().callFunction("pause");
     }
     
+    /**
+     * Timer stopped.
+     *
+     * @param remainingTime the remaining time
+     */
     @ClientCallable
     public void timerStopped(double remainingTime) {
     	logger.info("timer stopped "+remainingTime);

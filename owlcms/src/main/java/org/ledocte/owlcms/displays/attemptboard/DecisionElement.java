@@ -1,17 +1,10 @@
-/*
- * Copyright 2000-2017 Vaadin Ltd.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package org.ledocte.owlcms.displays.attemptboard;
 
@@ -36,20 +29,57 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
 
+	/**
+	 * The Interface DecisionModel.
+	 */
 	public interface DecisionModel extends TemplateModel {
+		
+		/**
+		 * Checks if is ref 1.
+		 *
+		 * @return the boolean
+		 */
 		Boolean isRef1();
 
+		/**
+		 * Sets the ref 1.
+		 *
+		 * @param running the new ref 1
+		 */
 		void setRef1(Boolean running);
 
+		/**
+		 * Checks if is ref 2.
+		 *
+		 * @return the boolean
+		 */
 		Boolean isRef2();
 
+		/**
+		 * Sets the ref 2.
+		 *
+		 * @param running the new ref 2
+		 */
 		void setRef2(Boolean running);
 
+		/**
+		 * Checks if is ref 3.
+		 *
+		 * @return the boolean
+		 */
 		Boolean isRef3();
 
+		/**
+		 * Sets the ref 3.
+		 *
+		 * @param running the new ref 3
+		 */
 		void setRef3(Boolean running);
 	}
 
+	/**
+	 * Instantiates a new decision element.
+	 */
 	public DecisionElement() {
 		DecisionModel model = getModel();
 		model.setRef1(null);
@@ -71,10 +101,18 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		});
 	}
 
+	/**
+	 * Reset.
+	 */
 	public void reset() {
 		getElement().callFunction("reset");
 	}
 
+	/**
+	 * Decision made.
+	 *
+	 * @param decision the decision
+	 */
 	@ClientCallable
 	public void decisionMade(boolean decision) {
 		logger.info("decision made " + decision);

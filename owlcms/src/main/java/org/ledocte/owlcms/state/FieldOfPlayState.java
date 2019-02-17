@@ -1,3 +1,11 @@
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ */
 package org.ledocte.owlcms.state;
 
 import java.util.List;
@@ -26,20 +34,41 @@ public class FieldOfPlayState {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlayState.class);
 
 	/**
+	 * Gets the logger.
+	 *
 	 * @return the logger
 	 */
 	public static Logger getLogger() {
 		return logger;
 	}
 
+	/**
+	 * The Enum State.
+	 */
 	public enum State {
+		
+		/** The announcer waiting for timekeeper. */
 		ANNOUNCER_WAITING_FOR_TIMEKEEPER,
+		
+		/** The current athlete displayed. */
 		CURRENT_ATHLETE_DISPLAYED,
+		
+		/** The decision visible. */
 		DECISION_VISIBLE,
+		
+		/** The down signal visible. */
 		DOWN_SIGNAL_VISIBLE,
+		
+		/** The intermission. */
 		INTERMISSION,
+		
+		/** The time running. */
 		TIME_RUNNING,
+		
+		/** The time stopped. */
 		TIME_STOPPED,
+		
+		/** The timekeeper waiting for announcer. */
 		TIMEKEEPER_WAITING_FOR_ANNOUNCER,
 	}
 
@@ -56,6 +85,13 @@ public class FieldOfPlayState {
 	private State state;
 	private ICountdownTimer timer;
 
+	/**
+	 * Instantiates a new field of play state.
+	 *
+	 * @param group the group
+	 * @param platform the platform
+	 * @param timer the timer
+	 */
 	public FieldOfPlayState(Group group, Platform platform, ICountdownTimer timer) {
 		this.group = group;
 		this.platform = platform;
@@ -64,20 +100,38 @@ public class FieldOfPlayState {
 		init(AthleteRepository.findAllByGroupAndWeighIn(group, true));
 	}
 
+	/**
+	 * Instantiates a new field of play state.
+	 *
+	 * @param athletes the athletes
+	 * @param timer the timer
+	 */
 	public FieldOfPlayState(List<Athlete> athletes, ICountdownTimer timer) {
 		this.setTimer(timer);
 		init(athletes);
 	}
 
+	/**
+	 * Sets the start time automatically.
+	 *
+	 * @param startTime the new start time automatically
+	 */
 	public void setStartTimeAutomatically(boolean startTime) {
 		this.startTimeAutomatically = startTime;
 	}
 
+	/**
+	 * Gets the cur athlete.
+	 *
+	 * @return the cur athlete
+	 */
 	public Athlete getCurAthlete() {
 		return curAthlete;
 	}
 
 	/**
+	 * Gets the event bus.
+	 *
 	 * @return the eventBus
 	 */
 	public EventBus getEventBus() {
@@ -88,17 +142,26 @@ public class FieldOfPlayState {
 	}
 
 	/**
+	 * Gets the group.
+	 *
 	 * @return the group
 	 */
 	public Group getGroup() {
 		return group;
 	}
 
+	/**
+	 * Gets the lifters.
+	 *
+	 * @return the lifters
+	 */
 	public List<Athlete> getLifters() {
 		return liftingOrder;
 	}
 
 	/**
+	 * Gets the name.
+	 *
 	 * @return the name
 	 */
 	public String getName() {
@@ -106,21 +169,38 @@ public class FieldOfPlayState {
 	}
 
 	/**
+	 * Gets the platform.
+	 *
 	 * @return the platform
 	 */
 	public Platform getPlatform() {
 		return platform;
 	}
 
+	/**
+	 * Gets the previous athlete.
+	 *
+	 * @return the previous athlete
+	 */
 	public Athlete getPreviousAthlete() {
 		return previousAthlete;
 	}
 
+	/**
+	 * Gets the timer.
+	 *
+	 * @return the timer
+	 */
 	public ICountdownTimer getTimer() {
 		return this.timer;
 	}
 
 
+	/**
+	 * Handle FOP event.
+	 *
+	 * @param e the e
+	 */
 	@Subscribe
 	public void handleFOPEvent(FOPEvent e) {
 		logger.debug("event received {}", e);
@@ -267,11 +347,16 @@ public class FieldOfPlayState {
 		this.previousAthlete = athlete;
 	}
 
+	/**
+	 * Pause.
+	 */
 	public void pause() {
 		this.eventBus.post(new FOPEvent.TimeStoppedByTimeKeeper());
 	}
 
 	/**
+	 * Sets the event bus.
+	 *
 	 * @param eventBus the eventBus to set
 	 */
 	public void setEventBus(EventBus eventBus) {
@@ -279,6 +364,8 @@ public class FieldOfPlayState {
 	}
 
 	/**
+	 * Sets the group.
+	 *
 	 * @param group the group to set
 	 */
 	public void setGroup(Group group) {
@@ -286,6 +373,8 @@ public class FieldOfPlayState {
 	}
 
 	/**
+	 * Sets the name.
+	 *
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
@@ -293,12 +382,19 @@ public class FieldOfPlayState {
 	}
 
 	/**
+	 * Sets the platform.
+	 *
 	 * @param platform the platform to set
 	 */
 	public void setPlatform(Platform platform) {
 		this.platform = platform;
 	}
 
+	/**
+	 * Time allowed.
+	 *
+	 * @return the int
+	 */
 	public int timeAllowed() {
 		Athlete a = getCurAthlete();
 		int timeAllowed;
@@ -483,10 +579,20 @@ public class FieldOfPlayState {
 
 	}
 
+	/**
+	 * Gets the state.
+	 *
+	 * @return the state
+	 */
 	public State getState() {
 		return state;
 	}
 
+	/**
+	 * Sets the state.
+	 *
+	 * @param state the new state
+	 */
 	void setState(State state) {
 		logger.debug("entering {}", state);
 		this.state = state;
@@ -496,6 +602,11 @@ public class FieldOfPlayState {
 		return clockOwner;
 	}
 
+	/**
+	 * Sets the timer.
+	 *
+	 * @param timer the new timer
+	 */
 	public void setTimer(ICountdownTimer timer) {
 		this.timer = timer;
 	}
