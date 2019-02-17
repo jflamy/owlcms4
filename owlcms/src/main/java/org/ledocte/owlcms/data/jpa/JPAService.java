@@ -85,14 +85,12 @@ public class JPAService {
 		 */
 		@Override
 		public void contextInitialized(ServletContextEvent sce) {
-			init(Boolean.getBoolean("testMode"));
+			init(Boolean.getBoolean("testMode")); // reads system property (-D on command line)
 		}
 	}
 
-	/** The Constant logger. */
 	protected static final Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
 
-	/** The factory. */
 	protected static EntityManagerFactory factory;
 
 	private static boolean testMode;
@@ -114,12 +112,12 @@ public class JPAService {
 	}
 
 	/**
-	 * Creates the initial data.
+	 * Create initial data for interactive testing.
 	 */
 	protected static void createInitialData() {
 		logger.info("Creating initial data. {}", (isTestMode() ? "(test mode)" : ""));
 		CategoryRepository.insertStandardCategories();
-		TestData.insertInitialData(5, true);
+		TestData.insertInitialData(12, true);
 	}
 
 	/**
@@ -139,8 +137,6 @@ public class JPAService {
 	}
 
 	/**
-	 * Gets the factory.
-	 *
 	 * @return the factory
 	 */
 	public static EntityManagerFactory getFactory() {
@@ -151,9 +147,9 @@ public class JPAService {
 	}
 
 	/**
-	 * Inits the.
+	 * Inits the database
 	 *
-	 * @param testMode2 the test mode 2
+	 * @param testMode2 if true, start with in-memory database and fake data
 	 */
 	public static void init(boolean testMode2) {
 		if (factory == null) {
@@ -163,10 +159,10 @@ public class JPAService {
 	}
 
 	/**
-	 * Gets the factory from code.
+	 * Gets the factory from code (without a persistance.xml file)
 	 *
-	 * @param testMode2 the test mode 2
-	 * @return the factory from code
+	 * @param testMode run from memory if true
+	 * @return an entity manager factory
 	 */
 	public static EntityManagerFactory getFactoryFromCode(boolean testMode2) {
 		PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(
@@ -263,7 +259,6 @@ public class JPAService {
 	 * @param b the new test mode
 	 */
 	public static void setTestMode(boolean b) {
-		// TODO Auto-generated method stub
-
+		testMode = b;
 	}
 }

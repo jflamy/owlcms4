@@ -26,11 +26,8 @@ import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.category.CategoryRepository;
 import org.ledocte.owlcms.data.competition.Competition;
-import org.ledocte.owlcms.data.competition.CompetitionRepository;
 import org.ledocte.owlcms.data.group.Group;
-import org.ledocte.owlcms.data.group.GroupRepository;
 import org.ledocte.owlcms.data.platform.Platform;
-import org.ledocte.owlcms.data.platform.PlatformRepository;
 import org.ledocte.owlcms.i18n.Messages;
 import org.slf4j.LoggerFactory;
 
@@ -50,10 +47,24 @@ public class TestData {
 	/**
 	 * Insert initial data if the database is empty.
 	 *
-	 * @param liftersToLoad the lifters to load
-	 * @param testMode      the test mode
+	 * @param nbAthletes 	how many athletes
+	 * @param testMode      true if creating dummy data
 	 */
-	public static void insertInitialData(int liftersToLoad, boolean testMode) {
+	public static void insertInitialData(int nbAthletes, boolean testMode) {
+		JPAService.runInTransaction(em -> {
+			Competition competition = createDefaultCompetition();
+
+			if (testMode) {
+				setupTestData(em, competition, nbAthletes);
+			} else {
+				setupEmptyCompetition(em, competition);
+			}
+			em.persist(competition);
+			return null;
+		});
+	}
+
+	protected static Competition createDefaultCompetition() {
 		Competition competition = new Competition();
 
 		competition.setCompetitionName(Messages.getString("Competition.competitionName", getLocale()) + " ?");
@@ -93,47 +104,34 @@ public class TestData {
 		competition.setFederationWebSite(
 			defaultFederationWebSite.equals(defaultFederationWebSiteKey) ? federationWebSiteLabel
 					: defaultFederationWebSite);
-
-		LocalDateTime w = LocalDateTime.now();
-		LocalDateTime c = w.plusHours((long) 2.0);
-		if (testMode) {
-			setupTestData(competition, liftersToLoad, w, c);
-		} else {
-			setupEmptyCompetition(competition);
-		}
-
-		CompetitionRepository.save(competition);
-
+		return competition;
 	}
 
 	/**
 	 * Create an empty competition. Set-up the defaults for using the timekeeping
 	 * and refereeing features.
+	 * 
+	 * @param em
 	 *
 	 * @param competition the new up empty competition
 	 */
-	protected static void setupEmptyCompetition(Competition competition) {
+	protected static void setupEmptyCompetition(EntityManager em, Competition competition) {
 		Platform platform1 = new Platform("Platform"); //$NON-NLS-1$
-		// setDefaultMixerName(platform1);
-		platform1.setShowDecisionLights(true);
-		platform1.setShowTimer(true);
-		// collar
-		platform1.setNbC_2_5(1);
-		// small plates
-		platform1.setNbS_0_5(1);
-		platform1.setNbS_1(1);
-		platform1.setNbS_1_5(1);
-		platform1.setNbS_2(1);
-		platform1.setNbS_2_5(1);
-		platform1.setNbS_5(1);
-		// large plates, regulation set-up
-		platform1.setNbL_2_5(0);
-		platform1.setNbL_5(0);
-		platform1.setNbL_10(1);
-		platform1.setNbL_15(1);
-		platform1.setNbL_20(1);
-		platform1.setNbL_25(3);
+		defaultPlates(platform1);
 
+//		setupCompetitionDocuments(competition, platform1);
+
+		em.persist(new Group("M1", null, null)); //$NON-NLS-1$
+		em.persist(new Group("M2", null, null)); //$NON-NLS-1$
+		em.persist(new Group("M3", null, null)); //$NON-NLS-1$
+		em.persist(new Group("M4", null, null)); //$NON-NLS-1$
+		em.persist(new Group("F1", null, null)); //$NON-NLS-1$
+		em.persist(new Group("F2", null, null)); //$NON-NLS-1$
+		em.persist(new Group("F3", null, null)); //$NON-NLS-1$
+
+	}
+
+	protected static void setupCompetitionDocuments(Competition competition, Platform platform1) {
 		// competition template
 		File templateFile;
 		String defaultLanguage = getDefaultLanguage();
@@ -169,17 +167,28 @@ public class TestData {
 		} catch (Exception e) {
 			logger.debug("templateUrl = {}", templateUrl);
 		}
+	}
 
-		PlatformRepository.save(platform1);
-
-		GroupRepository.save(new Group("M1", null, null)); //$NON-NLS-1$
-		GroupRepository.save(new Group("M2", null, null)); //$NON-NLS-1$
-		GroupRepository.save(new Group("M3", null, null)); //$NON-NLS-1$
-		GroupRepository.save(new Group("M4", null, null)); //$NON-NLS-1$
-		GroupRepository.save(new Group("F1", null, null)); //$NON-NLS-1$
-		GroupRepository.save(new Group("F2", null, null)); //$NON-NLS-1$
-		GroupRepository.save(new Group("F3", null, null)); //$NON-NLS-1$
-
+	protected static void defaultPlates(Platform platform1) {
+		// setDefaultMixerName(platform1);
+		platform1.setShowDecisionLights(true);
+		platform1.setShowTimer(true);
+		// collar
+		platform1.setNbC_2_5(1);
+		// small plates
+		platform1.setNbS_0_5(1);
+		platform1.setNbS_1(1);
+		platform1.setNbS_1_5(1);
+		platform1.setNbS_2(1);
+		platform1.setNbS_2_5(1);
+		platform1.setNbS_5(1);
+		// large plates, regulation set-up
+		platform1.setNbL_2_5(0);
+		platform1.setNbL_5(0);
+		platform1.setNbL_10(1);
+		platform1.setNbL_15(1);
+		platform1.setNbL_20(1);
+		platform1.setNbL_25(3);
 	}
 
 	private static String getDefaultLanguage() {
@@ -190,32 +199,38 @@ public class TestData {
 
 	/**
 	 * Setup test data.
+	 * 
+	 * @param em
 	 *
 	 * @param competition   the competition
 	 * @param liftersToLoad the lifters to load
 	 * @param w             the w
 	 * @param c             the c
 	 */
-	protected static void setupTestData(Competition competition, int liftersToLoad,
-			LocalDateTime w, LocalDateTime c) {
+	protected static void setupTestData(EntityManager em, Competition competition, int liftersToLoad) {
+		
+		LocalDateTime w = LocalDateTime.now();
+		LocalDateTime c = w.plusHours((long) 2.0);
+		
 		Platform platform1 = new Platform("Gym 1"); //$NON-NLS-1$
-		PlatformRepository.save(platform1);
+		defaultPlates(platform1);
 		Platform platform2 = new Platform("Gym 2"); //$NON-NLS-1$
-		PlatformRepository.save(platform2);
+		defaultPlates(platform2);
 
 		Group groupA = new Group("A", w, c); //$NON-NLS-1$
 		groupA.setPlatform(platform1);
-		GroupRepository.save(groupA);
 
 		Group groupB = new Group("B", w, c); //$NON-NLS-1$
 		groupB.setPlatform(platform2);
-		GroupRepository.save(groupB);
 
 		Group groupC = new Group("C", w, c); //$NON-NLS-1$
 		groupC.setPlatform(platform1);
-		GroupRepository.save(groupC);
 
-		insertSampleLifters(liftersToLoad, groupA, groupB, groupC);
+		insertSampleLifters(em, liftersToLoad, groupA, groupB, groupC);
+		
+		em.persist(groupA);
+		em.persist(groupB);
+		em.persist(groupC);
 	}
 
 //	/**
@@ -232,8 +247,7 @@ public class TestData {
 //		}
 //	}
 
-
-	private static void insertSampleLifters(int liftersToLoad, Group groupA,
+	private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
 			Group groupB,
 			Group groupC) {
 		final String[] fnames = { "Peter", "Albert", "Joshua", "Mike", "Oliver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
@@ -245,24 +259,17 @@ public class TestData {
 
 		Random r = new Random(0);
 
-		JPAService.runInTransaction(em -> {
-			createGroup(em, groupA, fnames, lnames, r, 81, 73, liftersToLoad);
-			createGroup(em, groupB, fnames, lnames, r, 73, 67, liftersToLoad);
-			return null;
-		});
-		JPAService.runInTransaction(em -> {
-			drawLots(em);
-			return null;
-		});
-		JPAService.runInTransaction(em -> {
-			assignStartNumbers(em, groupA);
-			assignStartNumbers(em, groupB);
-			return null;
-		});
+		createGroup(em, groupA, fnames, lnames, r, 81, 73, liftersToLoad);
+		createGroup(em, groupB, fnames, lnames, r, 73, 67, liftersToLoad);
+
+		drawLots(em);
+
+		assignStartNumbers(em, groupA);
+		assignStartNumbers(em, groupB);
 	}
 
-
-	protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames, Random r,
+	protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
+			Random r,
 			int cat1, int cat2, int liftersToLoad) {
 		for (int i = 0; i < liftersToLoad; i++) {
 			Athlete p = new Athlete();

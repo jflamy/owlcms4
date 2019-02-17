@@ -14,6 +14,8 @@ import static com.github.appreciated.app.layout.notification.entitiy.Priority.ME
 
 import java.util.function.Consumer;
 
+import org.ledocte.owlcms.OwlcmsFactory;
+import org.ledocte.owlcms.OwlcmsSession;
 import org.ledocte.owlcms.ui.displaySetup.DisplayNavigationContent;
 import org.ledocte.owlcms.ui.lifting.LiftingNavigationContent;
 import org.ledocte.owlcms.ui.preparation.PreparationNavigationContent;
@@ -44,7 +46,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
-import com.vaadin.flow.server.VaadinSession;
 
 /**
  * The Class MainNavigationLayout.
@@ -76,13 +77,13 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 	 */
 	@Override
 	public AppLayout createAppLayoutInstance() {
-		VaadinSession.getCurrent().setAttribute("fopName", "A");
+		OwlcmsSession.setAttribute("fop", OwlcmsFactory.getDefaultFOP());
 		
 		if (variant == null) {
 			variant = Behaviour.LEFT_OVERLAY;
-			notificationHolder = new DefaultNotificationHolder(newStatus -> {
-				/* Do something with it */});
-			badgeHolder = new DefaultBadgeHolder();
+//			notificationHolder = new DefaultNotificationHolder(newStatus -> {
+//				/* Do something with it */});
+//			badgeHolder = new DefaultBadgeHolder();
 		}
 		reloadNotifications();
 
@@ -91,7 +92,7 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 					VaadinIcon.HOME.create(),
 					MainNavigationContent.class);
 
-			notificationHolder.bind(home.getBadge());
+//			notificationHolder.bind(home.getBadge());
 
 			AppLayout appLayout = AppLayoutBuilder
 				.get(variant)
@@ -99,7 +100,7 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 				.withIcon("/frontend/images/logo.png")
 				.withAppBar(AppBarBuilder
 					.get()
-					.add(new AppBarNotificationButton(VaadinIcon.BELL, notificationHolder))
+//					.add(new AppBarNotificationButton(VaadinIcon.BELL, notificationHolder))
 					.build())
 				.withAppMenu(LeftAppMenuBuilder
 					.get()
@@ -160,7 +161,9 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 //				"document.documentElement.setAttribute(\"theme\",\"dark\")");
 //	}
 
+	@SuppressWarnings("unused")
 	private void reloadNotifications() {
+		if (!(0 == 1)) return;
 		if (currentThread != null && !currentThread.isInterrupted()) {
 			currentThread.interrupt();
 		}

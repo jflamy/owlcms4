@@ -10,15 +10,39 @@ package org.ledocte.owlcms;
 
 import java.util.Properties;
 
+import com.vaadin.flow.server.VaadinSession;
+
 /**
  * Store the current user's settings and choices, across the multiple pages that may be opened.
  * 
- * This class is either stored in a http session, or used directly for testing.
- * A Vaadin page would get it from the VaadinSession object.
+ * This class is either stored in a the Vaadin session shared between pages, or used as a singleton for testing.
  * 
- * @author owlcms
+ * @author Jean-François Lamy
  */
 public class OwlcmsSession {
+	
+	private OwlcmsSession() {}
+	
+	private static OwlcmsSession owlcmsSessionSingleton = null;
+
+	public static OwlcmsSession getCurrent() {
+		VaadinSession currentVaadinSession = VaadinSession.getCurrent();
+		if (currentVaadinSession != null) {
+			OwlcmsSession owlcmsSession = (OwlcmsSession) currentVaadinSession.getAttribute("owlcmsSession");
+			if (owlcmsSession == null) {
+				owlcmsSession = new OwlcmsSession();
+				currentVaadinSession.setAttribute("owlcmsSession", owlcmsSession);
+			}
+			return owlcmsSession;
+		} else {
+			// Used for testing, return a singleton
+			if (owlcmsSessionSingleton == null) {
+				owlcmsSessionSingleton =  new OwlcmsSession();
+			}
+			return owlcmsSessionSingleton;
+		}
+	}
+	
 	private Properties attributes = new Properties();
 	
 	/**
@@ -27,8 +51,8 @@ public class OwlcmsSession {
 	 * @param s the s
 	 * @return the attribute
 	 */
-	public Object getAttribute(String s) {
-		return attributes.get(s);
+	public static Object getAttribute(String s) {
+		return getCurrent().attributes.get(s);
 	}
 	
 	/**
@@ -37,8 +61,8 @@ public class OwlcmsSession {
 	 * @param s the s
 	 * @param o the o
 	 */
-	public void setAttribute(String s, Object o) {
-		attributes.put(s,o);
+	public static void setAttribute(String s, Object o) {
+		getCurrent().attributes.put(s,o);
 	}
 
 }

@@ -8,7 +8,12 @@
  */
 package org.ledocte.owlcms.ui.lifting;
 
+import org.ledocte.owlcms.OwlcmsSession;
+import org.ledocte.owlcms.data.group.Group;
+import org.ledocte.owlcms.data.group.GroupRepository;
+import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.ledocte.owlcms.ui.home.MainNavigationLayout;
+import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.app.layout.behaviour.AppLayout;
@@ -22,6 +27,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+
 /**
  * Class AnnouncerLayout.
  */
@@ -29,6 +37,9 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
 @Theme(Lumo.class)
 public class AnnouncerLayout extends MainNavigationLayout {
+	
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(AnnouncerLayout.class);
+	static { logger.setLevel(Level.DEBUG); }
 
 	/*
 	 * (non-Javadoc)
@@ -38,6 +49,15 @@ public class AnnouncerLayout extends MainNavigationLayout {
 	 */
 	@Override
 	public AppLayout createAppLayoutInstance() {
+		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
+		if (fop != null) {		
+			Group group = GroupRepository.findByName("A");
+			logger.debug("fop = {}, group={}",fop, group);
+			fop.switchGroup(group);
+		} else {
+			logger.error("fop is null!");
+		}
+		
 		AppLayout appLayout = super.createAppLayoutInstance();
 		HorizontalLayout appBarElementWrapper = ((AbstractLeftAppLayoutBase)appLayout).getAppBarElementWrapper();
 		H3 label = new H3("Beauchemin-De la Durantaye, Marie-Dominique");

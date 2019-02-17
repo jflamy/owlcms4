@@ -10,8 +10,8 @@ package org.ledocte.owlcms.ui.uiEvents;
 
 import java.util.Locale;
 
-import org.ledocte.owlcms.OwlcmsSession;
 import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.SessionInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
@@ -61,8 +61,6 @@ public class ServiceListener implements VaadinServiceInitListener {
 		// ignore browser-specific settings based on configuration
 		session.setLocale(Locale.ENGLISH);
 		
-		// store the session settings -- this is so we can use OwlcmsSession for testing as well
-		session.setAttribute("owlcmsSession", new OwlcmsSession());
 	}
 
 }
