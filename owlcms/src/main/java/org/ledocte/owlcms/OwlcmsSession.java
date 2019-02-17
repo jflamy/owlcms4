@@ -1,8 +1,9 @@
 /***
  * Copyright (c) 2018-2019 Jean-François Lamy
  * 
- * This software is licensed under the the Affero GNU License amended with the
+ * This software is licensed under the the Apache 2.0 License amended with the
  * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package org.ledocte.owlcms;
@@ -13,7 +14,7 @@ import java.util.Properties;
  * Store the current user's settings and choices, across the multiple pages that may be opened.
  * 
  * This class is either stored in a http session, or used directly for testing.
- * * A Vaadin page would get it from 
+ * A Vaadin page would get it from the VaadinSession object.
  * 
  * @author owlcms
  */
