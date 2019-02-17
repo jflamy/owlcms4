@@ -43,24 +43,7 @@ import ch.qos.logback.classic.Logger;
 public class Main {
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 
-    private static void logStart(Integer serverPort) throws IOException, ParseException {
-		InputStream in = Main.class.getResourceAsStream("/build.properties"); //$NON-NLS-1$
-		Properties buildProps = new Properties();
-		buildProps.load(in);
-		Properties props = buildProps;
-    	String version = props.getProperty("version"); //$NON-NLS-1$
-		String buildTimestamp = props.getProperty("buildTimestamp"); //$NON-NLS-1$
-		//String buildZone = props.getProperty("buildZone");
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm"); //$NON-NLS-1$
-		format.setTimeZone(TimeZone.getTimeZone("UTC")); //$NON-NLS-1$
-		Date date = format.parse(buildTimestamp);
-		//format.setTimeZone(TimeZone.getTimeZone(buildZone));
-		SimpleDateFormat homeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-		String homeTimestamp = homeFormat.format(date);
-		logger.info("owlcms {} (built {})",version,homeTimestamp);
-	}
-
-	/**
+    /**
 	 * The main method.
 	 *
 	 * @param args the arguments
@@ -76,7 +59,7 @@ public class Main {
     	logStart(serverPort);
         new Main().run(serverPort, "/"); //$NON-NLS-1$
     }
-
+	
 	/**
 	 * Run.
 	 *
@@ -113,7 +96,21 @@ public class Main {
         logger.info("started on port {}", port); //$NON-NLS-1$
         server.join();
     }
-    
 
-    
+	private static void logStart(Integer serverPort) throws IOException, ParseException {
+		InputStream in = Main.class.getResourceAsStream("/build.properties"); //$NON-NLS-1$
+		Properties buildProps = new Properties();
+		buildProps.load(in);
+		Properties props = buildProps;
+    	String version = props.getProperty("version"); //$NON-NLS-1$
+		String buildTimestamp = props.getProperty("buildTimestamp"); //$NON-NLS-1$
+		//String buildZone = props.getProperty("buildZone");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm"); //$NON-NLS-1$
+		format.setTimeZone(TimeZone.getTimeZone("UTC")); //$NON-NLS-1$
+		Date date = format.parse(buildTimestamp);
+		//format.setTimeZone(TimeZone.getTimeZone(buildZone));
+		SimpleDateFormat homeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String homeTimestamp = homeFormat.format(date);
+		logger.info("owlcms {} (built {})",version,homeTimestamp);
+	}
 }
