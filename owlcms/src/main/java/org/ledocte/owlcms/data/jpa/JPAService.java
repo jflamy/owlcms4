@@ -42,7 +42,6 @@ import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.category.Category;
-import org.ledocte.owlcms.data.category.CategoryRepository;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.ledocte.owlcms.data.group.Group;
 import org.ledocte.owlcms.data.platform.Platform;
@@ -93,15 +92,15 @@ public class JPAService {
 
 	protected static EntityManagerFactory factory;
 
-	private static boolean testMode;
+	private static boolean memoryMode;
 
 	/**
 	 * Checks if is test mode.
 	 *
 	 * @return the testMode
 	 */
-	public static boolean isTestMode() {
-		return testMode;
+	public static boolean isMemoryMode() {
+		return memoryMode;
 	}
 
 	/**
@@ -109,15 +108,6 @@ public class JPAService {
 	 */
 	public static void close() {
 		factory.close();
-	}
-
-	/**
-	 * Create initial data for interactive testing.
-	 */
-	protected static void createInitialData() {
-		logger.info("Creating initial data. {}", (isTestMode() ? "(test mode)" : ""));
-		CategoryRepository.insertStandardCategories();
-		TestData.insertInitialData(12, true);
 	}
 
 	/**
@@ -141,7 +131,7 @@ public class JPAService {
 	 */
 	public static EntityManagerFactory getFactory() {
 		if (factory == null) {
-			init(isTestMode());
+			init(isMemoryMode());
 		}
 		return factory;
 	}
@@ -149,26 +139,25 @@ public class JPAService {
 	/**
 	 * Inits the database
 	 *
-	 * @param testMode2 if true, start with in-memory database and fake data
+	 * @param inMemory if true, start with in-memory database
 	 */
-	public static void init(boolean testMode2) {
+	public static void init(boolean inMemory) {
 		if (factory == null) {
-			factory = getFactoryFromCode(testMode2);
-			createInitialData();
+			factory = getFactoryFromCode(inMemory);
 		}
 	}
 
 	/**
 	 * Gets the factory from code (without a persistance.xml file)
 	 *
-	 * @param testMode run from memory if true
+	 * @param memoryMode run from memory if true
 	 * @return an entity manager factory
 	 */
 	public static EntityManagerFactory getFactoryFromCode(boolean testMode2) {
 		PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(
 				JPAService.class.getSimpleName(),
 				entityClassNames(),
-				(testMode ? testProperties() : prodProperties()));
+				(memoryMode ? testProperties() : prodProperties()));
 		Map<String, Object> configuration = new HashMap<>();
 
 		factory = new EntityManagerFactoryBuilderImpl(
@@ -259,6 +248,15 @@ public class JPAService {
 	 * @param b the new test mode
 	 */
 	public static void setTestMode(boolean b) {
-		testMode = b;
+		setMemoryMode(b);
+	}
+
+	/**
+	 * Sets the test mode.
+	 *
+	 * @param b the new test mode
+	 */
+	public static void setMemoryMode(boolean b) {
+		memoryMode = b;
 	}
 }

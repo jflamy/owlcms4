@@ -22,6 +22,7 @@ import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.athlete.AthleteRepository;
 import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
 import org.ledocte.owlcms.data.jpa.JPAService;
+import org.ledocte.owlcms.data.jpa.TestData;
 import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.ledocte.owlcms.utils.DebugUtils;
@@ -33,13 +34,14 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class TwoMinutesRuleTest {
-	private static Level LoggerLevel = Level.INFO;
+	private static Level LoggerLevel = Level.DEBUG;
 	final static Logger logger = (Logger) LoggerFactory.getLogger(TwoMinutesRuleTest.class);
 	private List<Athlete> athletes;
 
 	@BeforeClass
 	public static void setupTests() {
 		JPAService.init(true);
+		TestData.insertInitialData(5, true);
 	}
 
 	@AfterClass

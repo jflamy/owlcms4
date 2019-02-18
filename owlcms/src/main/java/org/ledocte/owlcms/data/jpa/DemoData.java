@@ -8,6 +8,10 @@
  */
 package org.ledocte.owlcms.data.jpa;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,13 +36,13 @@ import ch.qos.logback.classic.Logger;
 /**
  * The Class TestData.
  */
-public class TestData {
+public class DemoData {
 
 	private static Locale getLocale() {
 		return Locale.ENGLISH;
 	}
 
-	private static Logger logger = (Logger) LoggerFactory.getLogger(TestData.class);
+	private static Logger logger = (Logger) LoggerFactory.getLogger(DemoData.class);
 
 	/**
 	 * Insert initial data if the database is empty.
@@ -48,15 +52,14 @@ public class TestData {
 	 */
 	public static void insertInitialData(int nbAthletes, boolean testMode) {
 		JPAService.runInTransaction(em -> {
+			Competition competition = createDefaultCompetition();
 
 			if (testMode) {
-				setupTestData(em, nbAthletes);
+				setupTestData(em, competition, nbAthletes);
 			} else {
-				Competition competition = createDefaultCompetition();
 				setupEmptyCompetition(em, competition);
-				em.persist(competition);
 			}
-			
+			em.persist(competition);
 			return null;
 		});
 	}
@@ -114,8 +117,7 @@ public class TestData {
 	 */
 	protected static void setupEmptyCompetition(EntityManager em, Competition competition) {
 		Platform platform1 = new Platform("Platform"); //$NON-NLS-1$
-		CategoryRepository.insertStandardCategories(em);
-//		setupPlates(platform1);
+		defaultPlates(platform1);
 
 //		setupCompetitionDocuments(competition, platform1);
 
@@ -129,6 +131,72 @@ public class TestData {
 
 	}
 
+	protected static void setupCompetitionDocuments(Competition competition, Platform platform1) {
+		// competition template
+		File templateFile;
+		String defaultLanguage = getDefaultLanguage();
+		String templateName;
+		if (!defaultLanguage.equals("fr")) {
+			templateName = "/templates/protocolSheet/ProtocolSheetTemplate_" + defaultLanguage + ".xls";
+		} else {
+			// historical kludge for Québec
+			templateName = "/templates/protocolSheet/Quebec_" + defaultLanguage + ".xls";
+		}
+		URL templateUrl = platform1.getClass()
+			.getResource(templateName);
+		try {
+			templateFile = new File(templateUrl.toURI());
+			competition.setProtocolFileName(templateFile.getCanonicalPath());
+		} catch (URISyntaxException e) {
+			templateFile = new File(templateUrl.getPath());
+		} catch (IOException e) {
+		} catch (Exception e) {
+			logger.debug("templateName = {}", templateName);
+		}
+
+		// competition book template
+		templateUrl = platform1.getClass()
+			.getResource(
+				"/templates/competitionBook/CompetitionBook_Total_" + defaultLanguage + ".xls");
+		try {
+			templateFile = new File(templateUrl.toURI());
+			competition.setResultTemplateFileName(templateFile.getCanonicalPath());
+		} catch (URISyntaxException e) {
+			templateFile = new File(templateUrl.getPath());
+		} catch (IOException e) {
+		} catch (Exception e) {
+			logger.debug("templateUrl = {}", templateUrl);
+		}
+	}
+
+	protected static void defaultPlates(Platform platform1) {
+		// setDefaultMixerName(platform1);
+		platform1.setShowDecisionLights(true);
+		platform1.setShowTimer(true);
+		// collar
+		platform1.setNbC_2_5(1);
+		// small plates
+		platform1.setNbS_0_5(1);
+		platform1.setNbS_1(1);
+		platform1.setNbS_1_5(1);
+		platform1.setNbS_2(1);
+		platform1.setNbS_2_5(1);
+		platform1.setNbS_5(1);
+		// large plates, regulation set-up
+		platform1.setNbL_2_5(0);
+		platform1.setNbL_5(0);
+		platform1.setNbL_10(1);
+		platform1.setNbL_15(1);
+		platform1.setNbL_20(1);
+		platform1.setNbL_25(3);
+	}
+
+	private static String getDefaultLanguage() {
+		// default language as defined in properties file (not the JVM).
+		// this will typically be en.
+		return getLocale().getLanguage();
+	}
+
 	/**
 	 * Setup test data.
 	 * 
@@ -139,14 +207,15 @@ public class TestData {
 	 * @param w             the w
 	 * @param c             the c
 	 */
-	protected static void setupTestData(EntityManager em, int liftersToLoad) {
-		CategoryRepository.insertStandardCategories(em);
+	protected static void setupTestData(EntityManager em, Competition competition, int liftersToLoad) {
 		
 		LocalDateTime w = LocalDateTime.now();
 		LocalDateTime c = w.plusHours((long) 2.0);
 		
 		Platform platform1 = new Platform("Gym 1"); //$NON-NLS-1$
+		defaultPlates(platform1);
 		Platform platform2 = new Platform("Gym 2"); //$NON-NLS-1$
+		defaultPlates(platform2);
 
 		Group groupA = new Group("A", w, c); //$NON-NLS-1$
 		groupA.setPlatform(platform1);
@@ -164,6 +233,20 @@ public class TestData {
 		em.persist(groupC);
 	}
 
+//	/**
+//	 * @param platform1
+//	 */
+//	protected static void setDefaultMixerName(Platform platform1) {
+//		String mixerName = null;
+//		try {
+//			mixerName = Speakers.getOutputNames()
+//				.get(0);
+//			platform1.setMixerName(mixerName);
+//		} catch (Exception e) {
+//			// leave mixerName null
+//		}
+//	}
+
 	private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
 			Group groupB,
 			Group groupC) {
@@ -179,10 +262,10 @@ public class TestData {
 		createGroup(em, groupA, fnames, lnames, r, 81, 73, liftersToLoad);
 		createGroup(em, groupB, fnames, lnames, r, 73, 67, liftersToLoad);
 
-//		drawLots(em);
-//
-//		assignStartNumbers(em, groupA);
-//		assignStartNumbers(em, groupB);
+		drawLots(em);
+
+		assignStartNumbers(em, groupA);
+		assignStartNumbers(em, groupB);
 	}
 
 	protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
@@ -193,12 +276,12 @@ public class TestData {
 			p.setCompetitionSession(group);
 			p.setFirstName(fnames[r.nextInt(fnames.length)]);
 			p.setLastName(lnames[r.nextInt(lnames.length)]);
-//			double nextDouble = r.nextDouble();
-//			if (nextDouble > 0.5F) {
-				createAthlete(em, r, p, 0.0D, cat1);
-//			} else {
-//				createAthlete(em, r, p, nextDouble, cat2);
-//			}
+			double nextDouble = r.nextDouble();
+			if (nextDouble > 0.5F) {
+				createAthlete(em, r, p, nextDouble, cat1);
+			} else {
+				createAthlete(em, r, p, nextDouble, cat2);
+			}
 			em.persist(p);
 		}
 	}
@@ -219,18 +302,18 @@ public class TestData {
 		Category categ = CategoryRepository.doFindByName("m" + catLimit, em);
 		p.setCategory(categ);
 
-//		double sd = catLimit * (1 + (r.nextGaussian() / 10));
-//		p.setSnatch1Declaration(Long.toString(Math.round(sd)));
-//		p.setCleanJerk1Declaration(Long.toString(Math.round(sd * 1.20D)));
-//		nextDouble = r.nextDouble();
-//		String team;
-//		if (nextDouble < 0.333)
-//			team = "EAST";
-//		else if (nextDouble < 0.666)
-//			team = "WEST";
-//		else
-//			team = "NORTH";
-//		p.setTeam(team);
+		double sd = catLimit * (1 + (r.nextGaussian() / 10));
+		p.setSnatch1Declaration(Long.toString(Math.round(sd)));
+		p.setCleanJerk1Declaration(Long.toString(Math.round(sd * 1.20D)));
+		nextDouble = r.nextDouble();
+		String team;
+		if (nextDouble < 0.333)
+			team = "EAST";
+		else if (nextDouble < 0.666)
+			team = "WEST";
+		else
+			team = "NORTH";
+		p.setTeam(team);
 	}
 
 }
