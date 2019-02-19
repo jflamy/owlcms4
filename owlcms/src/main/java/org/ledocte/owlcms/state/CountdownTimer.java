@@ -8,7 +8,6 @@
  */
 package org.ledocte.owlcms.state;
 
-import org.ledocte.owlcms.state.ICountdownTimer;
 import org.ledocte.owlcms.utils.LoggerUtils;
 import org.slf4j.LoggerFactory;
 

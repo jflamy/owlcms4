@@ -33,16 +33,12 @@ import java.util.function.Function;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 
 import org.hibernate.dialect.H2Dialect;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.category.Category;
-import org.ledocte.owlcms.data.category.CategoryRepository;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.ledocte.owlcms.data.group.Group;
 import org.ledocte.owlcms.data.platform.Platform;
@@ -54,56 +50,21 @@ import com.google.common.collect.ImmutableMap;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Class JPAService.
+ * Class JPAService.
  */
 public class JPAService {
 
-	/**
-	 * The listener interface for receiving context events.
-	 * The class that is interested in processing a context
-	 * event implements this interface, and the object created
-	 * with that class is registered with a component using the
-	 * component's <code>addContextListener<code> method. When
-	 * the context event occurs, that object's appropriate
-	 * method is invoked.
-	 *
-	 * @see ContextEvent
-	 */
-	@WebListener
-	public static class ContextListener implements ServletContextListener {
-
-		/* (non-Javadoc)
-		 * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
-		 */
-		@Override
-		public void contextDestroyed(ServletContextEvent sce) {
-			close();
-		}
-
-		/* (non-Javadoc)
-		 * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
-		 */
-		@Override
-		public void contextInitialized(ServletContextEvent sce) {
-			init(Boolean.getBoolean("testMode"));
-		}
-	}
-
-	/** The Constant logger. */
 	protected static final Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
 
-	/** The factory. */
 	protected static EntityManagerFactory factory;
 
-	private static boolean testMode;
+	private static boolean memoryMode;
 
 	/**
-	 * Checks if is test mode.
-	 *
-	 * @return the testMode
+	 * @return true if running in memory
 	 */
-	public static boolean isTestMode() {
-		return testMode;
+	public static boolean isMemoryMode() {
+		return memoryMode;
 	}
 
 	/**
@@ -111,15 +72,7 @@ public class JPAService {
 	 */
 	public static void close() {
 		factory.close();
-	}
-
-	/**
-	 * Creates the initial data.
-	 */
-	protected static void createInitialData() {
-		logger.info("Creating initial data. {}", (isTestMode() ? "(test mode)" : ""));
-		CategoryRepository.insertStandardCategories();
-		TestData.insertInitialData(5, true);
+		factory = null;
 	}
 
 	/**
@@ -139,40 +92,37 @@ public class JPAService {
 	}
 
 	/**
-	 * Gets the factory.
-	 *
-	 * @return the factory
+	 * @return the entity manager factory
 	 */
 	public static EntityManagerFactory getFactory() {
 		if (factory == null) {
-			init(isTestMode());
+			init(isMemoryMode());
 		}
 		return factory;
 	}
 
 	/**
-	 * Inits the.
+	 * Inits the database
 	 *
-	 * @param testMode2 the test mode 2
+	 * @param inMemory if true, start with in-memory database
 	 */
-	public static void init(boolean testMode2) {
+	public static void init(boolean inMemory) {
 		if (factory == null) {
-			factory = getFactoryFromCode(testMode2);
-			createInitialData();
+			factory = getFactoryFromCode(inMemory);
 		}
 	}
 
 	/**
-	 * Gets the factory from code.
+	 * Gets the factory from code (without a persistance.xml file)
 	 *
-	 * @param testMode2 the test mode 2
-	 * @return the factory from code
+	 * @param memoryMode run from memory if true
+	 * @return an entity manager factory
 	 */
-	public static EntityManagerFactory getFactoryFromCode(boolean testMode2) {
+	private static EntityManagerFactory getFactoryFromCode(boolean testMode2) {
 		PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(
 				JPAService.class.getSimpleName(),
 				entityClassNames(),
-				(testMode ? testProperties() : prodProperties()));
+				(memoryMode ? memoryProperties() : prodProperties()));
 		Map<String, Object> configuration = new HashMap<>();
 
 		factory = new EntityManagerFactoryBuilderImpl(
@@ -189,6 +139,7 @@ public class JPAService {
 		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
 		props.put(JPA_JDBC_USER, "sa");
 		props.put(JPA_JDBC_PASSWORD, "");
+		props.put("javax.persistence.schema-generation.database.action", "update");
 		return props;
 	}
 
@@ -197,7 +148,7 @@ public class JPAService {
 	 *
 	 * @return the properties
 	 */
-	protected static Properties testProperties() {
+	protected static Properties memoryProperties() {
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
@@ -205,6 +156,7 @@ public class JPAService {
 		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
 		props.put(JPA_JDBC_USER, "sa");
 		props.put(JPA_JDBC_PASSWORD, "");
+		props.put("javax.persistence.schema-generation.database.action", "drop-and-create");
 		return props;
 	}
 
@@ -223,7 +175,6 @@ public class JPAService {
 			.put(CACHE_REGION_FACTORY, "org.hibernate.cache.jcache.JCacheRegionFactory")
 			.put("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider")
 			.put("hibernate.javax.cache.missing_cache_strategy", "create")
-			.put("javax.persistence.schema-generation.database.action", "update")
 			.put("javax.persistence.sharedCache.mode", "ALL")
 			.build();
 		return vals;
@@ -257,13 +208,13 @@ public class JPAService {
 		}
 	}
 
+
 	/**
 	 * Sets the test mode.
 	 *
 	 * @param b the new test mode
 	 */
-	public static void setTestMode(boolean b) {
-		// TODO Auto-generated method stub
-
+	public static void setMemoryMode(boolean b) {
+		memoryMode = b;
 	}
 }

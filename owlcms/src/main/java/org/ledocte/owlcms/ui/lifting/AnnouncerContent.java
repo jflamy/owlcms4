@@ -11,8 +11,10 @@ package org.ledocte.owlcms.ui.lifting;
 
 import java.util.Collection;
 
+import org.ledocte.owlcms.OwlcmsSession;
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.athlete.AthleteRepository;
+import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudLayout;
 import org.ledocte.owlcms.ui.crudui.OwlcmsGridCrud;
@@ -45,7 +47,6 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
         setSizeFull();
         GridCrud<Athlete> crud = getGridCrud();
 		add(crud);
-
     }
 
     /**
@@ -118,7 +119,15 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
      */
     @Override
     public Collection<Athlete> findAll() {
-        return AthleteRepository.findAll();
+    	FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
+		if (fop != null) {
+			for (Athlete a: fop.getLifters()) {
+				System.err.println(a.getLastName()+", "+a.getFirstName()+" -- "+fop.getGroup());
+			}
+			return fop.getLifters();
+		} else {
+			return AthleteRepository.findAll();
+		}
     }
 
 

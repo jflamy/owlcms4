@@ -144,10 +144,10 @@
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/junit/junit -->
 		<dependency>
-		    <groupId>junit</groupId>
-		    <artifactId>junit</artifactId>
-		    <version>4.12</version>
-		    <scope>test</scope>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
 		</dependency>
 
 
@@ -219,6 +219,9 @@
 				<version>1.6.0</version>
 				<configuration>
 					<mainClass>org.ledocte.owlcms.Main</mainClass>
+					<arguments>
+						<argument>-DdemoMode=true</argument>
+					</arguments>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -315,7 +318,7 @@
 						<include>target/owlcms-${project.version}.jar</include>
 					</includes>
 					<processTypes>
-						<web>java -D"server.port"=$PORT -jar target/owlcms-${project.version}.jar</web>
+						<web>java -D"server.port"=$PORT -DdemoMode=true -jar target/owlcms-${project.version}.jar</web>
 					</processTypes>
 					<appName>${project.artifactId}4</appName>
 				</configuration>

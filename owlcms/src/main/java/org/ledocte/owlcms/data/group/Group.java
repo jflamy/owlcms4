@@ -62,10 +62,10 @@ public class Group {
     private String name;
     
     /** The platform. */
-    @ManyToOne(cascade={CascadeType.MERGE}, optional = true, fetch = FetchType.LAZY)
+    @ManyToOne(cascade={CascadeType.PERSIST, CascadeType.MERGE}, optional = true, fetch = FetchType.LAZY)
     Platform platform;
+    
     private String referee1;
-
     private String referee2;
     private String referee3;
 

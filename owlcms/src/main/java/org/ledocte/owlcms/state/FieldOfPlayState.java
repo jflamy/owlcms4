@@ -8,6 +8,7 @@
  */
 package org.ledocte.owlcms.state;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
@@ -93,11 +94,21 @@ public class FieldOfPlayState {
 	 * @param timer the timer
 	 */
 	public FieldOfPlayState(Group group, Platform platform, ICountdownTimer timer) {
-		this.group = group;
 		this.platform = platform;
 		this.name = platform.getName();
 		this.setTimer(timer);
-		init(AthleteRepository.findAllByGroupAndWeighIn(group, true));
+		if (group != null) {
+			switchGroup(group);
+		} else {
+			// empty list, announcer will need to pick a group.
+			init(new LinkedList<Athlete>());
+		}
+	}
+
+	public void switchGroup(Group group) {
+		this.group = group;
+		List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
+		init(findAllByGroupAndWeighIn);
 	}
 
 	/**
@@ -493,7 +504,9 @@ public class FieldOfPlayState {
 		this.setClockOwner(null);
 		this.previousAthlete = null;
 		this.liftingOrder = athletes;
-		recomputeLiftingOrder();
+		if (athletes != null &&  athletes.size() > 0) {
+			recomputeLiftingOrder();
+		}
 		this.setState(State.INTERMISSION);
 	}
 

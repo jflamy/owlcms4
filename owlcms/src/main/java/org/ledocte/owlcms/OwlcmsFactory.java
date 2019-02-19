@@ -8,7 +8,10 @@
  */
 package org.ledocte.owlcms;
 
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.ledocte.owlcms.data.platform.Platform;
 import org.ledocte.owlcms.data.platform.PlatformRepository;
@@ -16,19 +19,21 @@ import org.ledocte.owlcms.state.CountdownTimer;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 
 /**
- * Singleton, one per running JVM (i.e. one instance of owlcms, or one unit test)
+ * Singleton, one per running JVM (i.e. one instance of owlcms, or one unit
+ * test)
  * 
- * This class allows a web session to locate the event bus on which information will be broacast.
- * All web pages talk to one another via the event bus.  The {@link OwlcmsSession} class is used
- * to remember the current field of play for the user.
+ * This class allows a web session to locate the event bus on which information
+ * will be broacast. All web pages talk to one another via the event bus. The
+ * {@link OwlcmsSession} class is used to remember the current field of play for
+ * the user.
  * 
  * @author owlcms
  */
 public class OwlcmsFactory {
-	
+
 	/** The fop by name. */
-	static Map<String, FieldOfPlayState>fopByName = null;
-	
+	static Map<String, FieldOfPlayState> fopByName = null;
+
 	/**
 	 * Gets the FOP by name.
 	 *
@@ -43,10 +48,26 @@ public class OwlcmsFactory {
 	}
 
 	private static void initFOPByName() {
+		fopByName = new HashMap<>();
 		for (Platform platform : PlatformRepository.findAll()) {
-			fopByName.put(platform.getName(), new FieldOfPlayState(null, platform, new CountdownTimer()));
+			String name = platform.getName();
+			fopByName.put(name, new FieldOfPlayState(null, platform, new CountdownTimer()));
 		}
 	}
-	
-	
+
+	/**
+	 * @return first field of play, sorted alphabetically
+	 */
+	public static FieldOfPlayState getDefaultFOP() {
+		if (fopByName == null) {
+			initFOPByName();
+		}
+		Optional<FieldOfPlayState> fop = fopByName.entrySet()
+			.stream()
+			.sorted(Comparator.comparing(x -> x.getKey()))
+			.map(x -> x.getValue())
+			.findFirst();
+		return fop.orElseThrow(() -> new RuntimeException("no default platform"));
+	}
+
 }

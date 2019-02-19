@@ -31,9 +31,8 @@ public class GroupRepository {
 	 */
 	@SuppressWarnings("unchecked")
 	public static Group getById(Long id, EntityManager em) {
-		Query query = em.createQuery("select u from Group u where u.id=:id");
+		Query query = em.createQuery("select u from CompetitionGroup u where u.id=:id");
 		query.setParameter("id", id);
-
 		return (Group) query.getResultList()
 			.stream()
 			.findFirst()
@@ -69,8 +68,20 @@ public class GroupRepository {
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Group> findAll() {
-		return JPAService.runInTransaction(em -> em.createQuery("select c from Group c")
+		return JPAService.runInTransaction(em -> em.createQuery("select c from CompetitionGroup c")
 			.getResultList());
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Group findByName(String name) {
+		return JPAService.runInTransaction(em -> {
+			Query query = em.createQuery("select u from CompetitionGroup u where u.name=:name");
+			query.setParameter("name", name);
+			return (Group) query.getResultList()
+				.stream()
+				.findFirst()
+				.orElse(null);
+		});
 	}
 
 }
