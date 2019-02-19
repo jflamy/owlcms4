@@ -33,9 +33,6 @@ import java.util.function.Function;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 
 import org.hibernate.dialect.H2Dialect;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
@@ -53,40 +50,9 @@ import com.google.common.collect.ImmutableMap;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Class JPAService.
+ * Class JPAService.
  */
 public class JPAService {
-
-	/**
-	 * The listener interface for receiving context events.
-	 * The class that is interested in processing a context
-	 * event implements this interface, and the object created
-	 * with that class is registered with a component using the
-	 * component's <code>addContextListener<code> method. When
-	 * the context event occurs, that object's appropriate
-	 * method is invoked.
-	 *
-	 * @see ContextEvent
-	 */
-	@WebListener
-	public static class ContextListener implements ServletContextListener {
-
-		/* (non-Javadoc)
-		 * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
-		 */
-		@Override
-		public void contextDestroyed(ServletContextEvent sce) {
-			close();
-		}
-
-		/* (non-Javadoc)
-		 * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
-		 */
-		@Override
-		public void contextInitialized(ServletContextEvent sce) {
-			init(Boolean.getBoolean("testMode")); // reads system property (-D on command line)
-		}
-	}
 
 	protected static final Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
 
@@ -95,9 +61,7 @@ public class JPAService {
 	private static boolean memoryMode;
 
 	/**
-	 * Checks if is test mode.
-	 *
-	 * @return the testMode
+	 * @return true if running in memory
 	 */
 	public static boolean isMemoryMode() {
 		return memoryMode;
@@ -108,6 +72,7 @@ public class JPAService {
 	 */
 	public static void close() {
 		factory.close();
+		factory = null;
 	}
 
 	/**
@@ -127,7 +92,7 @@ public class JPAService {
 	}
 
 	/**
-	 * @return the factory
+	 * @return the entity manager factory
 	 */
 	public static EntityManagerFactory getFactory() {
 		if (factory == null) {
@@ -153,11 +118,11 @@ public class JPAService {
 	 * @param memoryMode run from memory if true
 	 * @return an entity manager factory
 	 */
-	public static EntityManagerFactory getFactoryFromCode(boolean testMode2) {
+	private static EntityManagerFactory getFactoryFromCode(boolean testMode2) {
 		PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(
 				JPAService.class.getSimpleName(),
 				entityClassNames(),
-				(memoryMode ? testProperties() : prodProperties()));
+				(memoryMode ? memoryProperties() : prodProperties()));
 		Map<String, Object> configuration = new HashMap<>();
 
 		factory = new EntityManagerFactoryBuilderImpl(
@@ -174,6 +139,7 @@ public class JPAService {
 		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
 		props.put(JPA_JDBC_USER, "sa");
 		props.put(JPA_JDBC_PASSWORD, "");
+		props.put("javax.persistence.schema-generation.database.action", "update");
 		return props;
 	}
 
@@ -182,7 +148,7 @@ public class JPAService {
 	 *
 	 * @return the properties
 	 */
-	protected static Properties testProperties() {
+	protected static Properties memoryProperties() {
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
@@ -190,6 +156,7 @@ public class JPAService {
 		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
 		props.put(JPA_JDBC_USER, "sa");
 		props.put(JPA_JDBC_PASSWORD, "");
+		props.put("javax.persistence.schema-generation.database.action", "drop-and-create");
 		return props;
 	}
 
@@ -208,7 +175,6 @@ public class JPAService {
 			.put(CACHE_REGION_FACTORY, "org.hibernate.cache.jcache.JCacheRegionFactory")
 			.put("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider")
 			.put("hibernate.javax.cache.missing_cache_strategy", "create")
-			.put("javax.persistence.schema-generation.database.action", "update")
 			.put("javax.persistence.sharedCache.mode", "ALL")
 			.build();
 		return vals;
@@ -242,14 +208,6 @@ public class JPAService {
 		}
 	}
 
-	/**
-	 * Sets the test mode.
-	 *
-	 * @param b the new test mode
-	 */
-	public static void setTestMode(boolean b) {
-		setMemoryMode(b);
-	}
 
 	/**
 	 * Sets the test mode.

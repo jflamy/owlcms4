@@ -8,7 +8,10 @@
  */
 package org.ledocte.owlcms.data.jpa;
 
-import org.hibernate.jpa.HibernatePersistenceProvider;
+import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 import javax.persistence.SharedCacheMode;
 import javax.persistence.ValidationMode;
@@ -16,10 +19,8 @@ import javax.persistence.spi.ClassTransformer;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+
+import org.hibernate.jpa.HibernatePersistenceProvider;
 
 /**
  * <code>AbstractPersistenceUnitInfo</code> - Base PersistenceUnitInfo.

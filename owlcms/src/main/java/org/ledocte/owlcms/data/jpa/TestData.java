@@ -8,10 +8,8 @@
  */
 package org.ledocte.owlcms.data.jpa;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 
 import javax.persistence.EntityManager;
@@ -21,12 +19,11 @@ import org.ledocte.owlcms.data.athlete.AthleteRepository;
 import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.category.CategoryRepository;
-import org.ledocte.owlcms.data.competition.Competition;
 import org.ledocte.owlcms.data.group.Group;
 import org.ledocte.owlcms.data.platform.Platform;
-import org.ledocte.owlcms.i18n.Messages;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -34,99 +31,20 @@ import ch.qos.logback.classic.Logger;
  */
 public class TestData {
 
-	private static Locale getLocale() {
-		return Locale.ENGLISH;
-	}
-
 	private static Logger logger = (Logger) LoggerFactory.getLogger(TestData.class);
+	static { logger.setLevel(Level.INFO); }
 
 	/**
 	 * Insert initial data if the database is empty.
 	 *
-	 * @param nbAthletes 	how many athletes
-	 * @param testMode      true if creating dummy data
+	 * @param nbAthletes how many athletes
+	 * @param testMode   true if creating dummy data
 	 */
 	public static void insertInitialData(int nbAthletes, boolean testMode) {
 		JPAService.runInTransaction(em -> {
-
-			if (testMode) {
-				setupTestData(em, nbAthletes);
-			} else {
-				Competition competition = createDefaultCompetition();
-				setupEmptyCompetition(em, competition);
-				em.persist(competition);
-			}
-			
+			setupTestData(em, nbAthletes);
 			return null;
 		});
-	}
-
-	protected static Competition createDefaultCompetition() {
-		Competition competition = new Competition();
-
-		competition.setCompetitionName(Messages.getString("Competition.competitionName", getLocale()) + " ?");
-		competition.setCompetitionCity(Messages.getString("Competition.competitionCity", getLocale()) + " ?");
-		competition.setCompetitionDate(LocalDate.now());
-		competition
-			.setCompetitionOrganizer(Messages.getString("Competition.competitionOrganizer", getLocale()) + " ?");
-		competition.setCompetitionSite(Messages.getString("Competition.competitionSite", getLocale()) + " ?");
-
-		String federationLabel = Messages.getString("Competition.federation", getLocale()) + " ?";
-		String defaultFederationKey = "Competition.defaultFederation";
-		String defaultFederation = Messages.getString(defaultFederationKey, getLocale());
-		// if string is not translated, we get its key back.
-		competition
-			.setFederation(defaultFederation.equals(defaultFederationKey) ? federationLabel : defaultFederation);
-
-		String federationAddressLabel = Messages.getString("Competition.federationAddress", getLocale()) + " ?";
-		String defaultFederationAddressKey = "Competition.defaultFederationAddress";
-		String defaultFederationAddress = Messages.getString(defaultFederationAddressKey, getLocale());
-		// if string is not translated, we get its key back.
-		competition.setFederationAddress(
-			defaultFederationAddress.equals(defaultFederationAddressKey) ? federationAddressLabel
-					: defaultFederationAddress);
-
-		String federationEMailLabel = Messages.getString("Competition.federationEMail", getLocale()) + " ?";
-		String defaultFederationEMailKey = "Competition.defaultFederationEMail";
-		String defaultFederationEMail = Messages.getString(defaultFederationEMailKey, getLocale());
-		// if string is not translated, we get its key back.
-		competition
-			.setFederationEMail(defaultFederationEMail.equals(defaultFederationEMailKey) ? federationEMailLabel
-					: defaultFederationEMail);
-
-		String federationWebSiteLabel = Messages.getString("Competition.federationWebSite", getLocale()) + " ?";
-		String defaultFederationWebSiteKey = "Competition.defaultFederationWebSite";
-		String defaultFederationWebSite = Messages.getString(defaultFederationWebSiteKey, getLocale());
-		// if string is not translated, we get its key back.
-		competition.setFederationWebSite(
-			defaultFederationWebSite.equals(defaultFederationWebSiteKey) ? federationWebSiteLabel
-					: defaultFederationWebSite);
-		return competition;
-	}
-
-	/**
-	 * Create an empty competition. Set-up the defaults for using the timekeeping
-	 * and refereeing features.
-	 * 
-	 * @param em
-	 *
-	 * @param competition the new up empty competition
-	 */
-	protected static void setupEmptyCompetition(EntityManager em, Competition competition) {
-		Platform platform1 = new Platform("Platform"); //$NON-NLS-1$
-		CategoryRepository.insertStandardCategories(em);
-//		setupPlates(platform1);
-
-//		setupCompetitionDocuments(competition, platform1);
-
-		em.persist(new Group("M1", null, null)); //$NON-NLS-1$
-		em.persist(new Group("M2", null, null)); //$NON-NLS-1$
-		em.persist(new Group("M3", null, null)); //$NON-NLS-1$
-		em.persist(new Group("M4", null, null)); //$NON-NLS-1$
-		em.persist(new Group("F1", null, null)); //$NON-NLS-1$
-		em.persist(new Group("F2", null, null)); //$NON-NLS-1$
-		em.persist(new Group("F3", null, null)); //$NON-NLS-1$
-
 	}
 
 	/**
@@ -140,11 +58,12 @@ public class TestData {
 	 * @param c             the c
 	 */
 	protected static void setupTestData(EntityManager em, int liftersToLoad) {
+		logger.info("inserting test data.");
 		CategoryRepository.insertStandardCategories(em);
-		
+
 		LocalDateTime w = LocalDateTime.now();
 		LocalDateTime c = w.plusHours((long) 2.0);
-		
+
 		Platform platform1 = new Platform("Gym 1"); //$NON-NLS-1$
 		Platform platform2 = new Platform("Gym 2"); //$NON-NLS-1$
 
@@ -158,7 +77,7 @@ public class TestData {
 		groupC.setPlatform(platform1);
 
 		insertSampleLifters(em, liftersToLoad, groupA, groupB, groupC);
-		
+
 		em.persist(groupA);
 		em.persist(groupB);
 		em.persist(groupC);
@@ -179,10 +98,6 @@ public class TestData {
 		createGroup(em, groupA, fnames, lnames, r, 81, 73, liftersToLoad);
 		createGroup(em, groupB, fnames, lnames, r, 73, 67, liftersToLoad);
 
-//		drawLots(em);
-//
-//		assignStartNumbers(em, groupA);
-//		assignStartNumbers(em, groupB);
 	}
 
 	protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
@@ -193,12 +108,7 @@ public class TestData {
 			p.setCompetitionSession(group);
 			p.setFirstName(fnames[r.nextInt(fnames.length)]);
 			p.setLastName(lnames[r.nextInt(lnames.length)]);
-//			double nextDouble = r.nextDouble();
-//			if (nextDouble > 0.5F) {
-				createAthlete(em, r, p, 0.0D, cat1);
-//			} else {
-//				createAthlete(em, r, p, nextDouble, cat2);
-//			}
+			createAthlete(em, r, p, 0.0D, cat1);
 			em.persist(p);
 		}
 	}
@@ -219,18 +129,6 @@ public class TestData {
 		Category categ = CategoryRepository.doFindByName("m" + catLimit, em);
 		p.setCategory(categ);
 
-//		double sd = catLimit * (1 + (r.nextGaussian() / 10));
-//		p.setSnatch1Declaration(Long.toString(Math.round(sd)));
-//		p.setCleanJerk1Declaration(Long.toString(Math.round(sd * 1.20D)));
-//		nextDouble = r.nextDouble();
-//		String team;
-//		if (nextDouble < 0.333)
-//			team = "EAST";
-//		else if (nextDouble < 0.666)
-//			team = "WEST";
-//		else
-//			team = "NORTH";
-//		p.setTeam(team);
 	}
 
 }

@@ -13,17 +13,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 import javax.persistence.EntityManager;
 
-import org.ledocte.owlcms.data.athlete.Athlete;
-import org.ledocte.owlcms.data.athlete.AthleteRepository;
-import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
-import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.category.CategoryRepository;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.ledocte.owlcms.data.group.Group;
@@ -31,41 +24,28 @@ import org.ledocte.owlcms.data.platform.Platform;
 import org.ledocte.owlcms.i18n.Messages;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * TestData.
+ * Production data.
  */
-public class DemoData {
+public class ProdData {
 
 	private static Locale getLocale() {
 		return Locale.ENGLISH;
 	}
 
-	private static Logger logger = (Logger) LoggerFactory.getLogger(DemoData.class);
-	static {
-		logger.setLevel(Level.INFO);
-	}
+	private static Logger logger = (Logger) LoggerFactory.getLogger(ProdData.class);
 
 	/**
 	 * Insert initial data if the database is empty.
 	 *
-	 * @param nbAthletes how many athletes
-	 * @param testMode   true if creating dummy data
+	 * @param nbAthletes 	how many athletes
+	 * @param testMode      true if creating dummy data
 	 */
 	public static void insertInitialData(int nbAthletes, boolean testMode) {
-		logger.info("inserting demo data.");
 		JPAService.runInTransaction(em -> {
-			Level loggerLevel = Athlete.getLogger().getLevel();
-			try {
-				Athlete.getLogger().setLevel(Level.WARN);
-				Competition competition = createDefaultCompetition();
-				setupTestData(em, nbAthletes);
-				em.persist(competition);
-			} catch (Exception e) {
-				Athlete.getLogger().setLevel(loggerLevel);
-			}
+			setupEmptyCompetition(em);
 			return null;
 		});
 	}
@@ -118,15 +98,14 @@ public class DemoData {
 	 * and refereeing features.
 	 * 
 	 * @param em
-	 *
-	 * @param competition the new up empty competition
 	 */
-	protected static void setupEmptyCompetition(EntityManager em, Competition competition) {
+	protected static void setupEmptyCompetition(EntityManager em) {
+		Competition competition = createDefaultCompetition(); 
+		em.persist(competition);
 		Platform platform1 = new Platform("Platform"); //$NON-NLS-1$
 		CategoryRepository.insertStandardCategories(em);
 		defaultPlates(platform1);
-
-//		setupCompetitionDocuments(competition, platform1);
+		setupCompetitionDocuments(competition, platform1);
 
 		em.persist(new Group("M1", null, null)); //$NON-NLS-1$
 		em.persist(new Group("M2", null, null)); //$NON-NLS-1$
@@ -202,116 +181,6 @@ public class DemoData {
 		// default language as defined in properties file (not the JVM).
 		// this will typically be en.
 		return getLocale().getLanguage();
-	}
-
-	/**
-	 * Setup test data.
-	 * 
-	 * @param em
-	 *
-	 * @param competition   the competition
-	 * @param liftersToLoad the lifters to load
-	 * @param w             the w
-	 * @param c             the c
-	 */
-	protected static void setupTestData(EntityManager em, int liftersToLoad) {
-		Competition competition = createDefaultCompetition();
-		setupEmptyCompetition(em, competition);
-		em.persist(competition);
-
-		CategoryRepository.insertStandardCategories(em);
-
-		LocalDateTime w = LocalDateTime.now();
-		LocalDateTime c = w.plusHours((long) 2.0);
-
-		Platform platform1 = new Platform("Gym 1"); //$NON-NLS-1$
-		defaultPlates(platform1);
-		Platform platform2 = new Platform("Gym 2"); //$NON-NLS-1$
-		defaultPlates(platform2);
-
-		Group groupA = new Group("A", w, c); //$NON-NLS-1$
-		groupA.setPlatform(platform1);
-
-		Group groupB = new Group("B", w, c); //$NON-NLS-1$
-		groupB.setPlatform(platform2);
-
-		Group groupC = new Group("C", w, c); //$NON-NLS-1$
-		groupC.setPlatform(platform1);
-
-		insertSampleLifters(em, liftersToLoad, groupA, groupB, groupC);
-
-		em.persist(groupA);
-		em.persist(groupB);
-		em.persist(groupC);
-	}
-
-	private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
-			Group groupB,
-			Group groupC) {
-		final String[] fnames = { "Peter", "Albert", "Joshua", "Mike", "Oliver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-				"Paul", "Alex", "Richard", "Dan", "Umberto", "Henrik", "Rene", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
-				"Fred", "Donald" }; //$NON-NLS-1$ //$NON-NLS-2$
-		final String[] lnames = { "Smith", "Gordon", "Simpson", "Brown", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				"Clavel", "Simons", "Verne", "Scott", "Allison", "Gates", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-				"Rowling", "Barks", "Ross", "Schneider", "Tate" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-
-		Random r = new Random(0);
-
-		createGroup(em, groupA, fnames, lnames, r, 81, 73, liftersToLoad);
-		createGroup(em, groupB, fnames, lnames, r, 73, 67, liftersToLoad);
-
-		drawLots(em);
-
-		assignStartNumbers(em, groupA);
-		assignStartNumbers(em, groupB);
-	}
-
-	protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
-			Random r,
-			int cat1, int cat2, int liftersToLoad) {
-		for (int i = 0; i < liftersToLoad; i++) {
-			Athlete p = new Athlete();
-			p.setCompetitionSession(group);
-			p.setFirstName(fnames[r.nextInt(fnames.length)]);
-			p.setLastName(lnames[r.nextInt(lnames.length)]);
-			double nextDouble = r.nextDouble();
-			if (nextDouble > 0.5F) {
-				createAthlete(em, r, p, nextDouble, cat1);
-			} else {
-				createAthlete(em, r, p, nextDouble, cat2);
-			}
-			em.persist(p);
-		}
-	}
-
-	protected static void drawLots(EntityManager em) {
-		List<Athlete> athletes = AthleteRepository.doFindAll(em);
-		AthleteSorter.drawLots(athletes);
-	}
-
-	protected static void assignStartNumbers(EntityManager em, Group groupA) {
-		List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, groupA, true);
-		AthleteSorter.registrationOrder(athletes);
-		AthleteSorter.assignStartNumbers(athletes);
-	}
-
-	protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit) {
-		p.setBodyWeight(81 - nextDouble);
-		Category categ = CategoryRepository.doFindByName("m" + catLimit, em);
-		p.setCategory(categ);
-
-		double sd = catLimit * (1 + (r.nextGaussian() / 10));
-		p.setSnatch1Declaration(Long.toString(Math.round(sd)));
-		p.setCleanJerk1Declaration(Long.toString(Math.round(sd * 1.20D)));
-		nextDouble = r.nextDouble();
-		String team;
-		if (nextDouble < 0.333)
-			team = "EAST";
-		else if (nextDouble < 0.666)
-			team = "WEST";
-		else
-			team = "NORTH";
-		p.setTeam(team);
 	}
 
 }
