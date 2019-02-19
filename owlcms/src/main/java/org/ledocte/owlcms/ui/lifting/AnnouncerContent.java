@@ -9,11 +9,17 @@
 
 package org.ledocte.owlcms.ui.lifting;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.ledocte.owlcms.OwlcmsFactory;
 import org.ledocte.owlcms.OwlcmsSession;
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.athlete.AthleteRepository;
+import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudLayout;
@@ -25,7 +31,13 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.History;
 import com.vaadin.flow.dom.ThemeList;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import ch.qos.logback.classic.Logger;
@@ -35,7 +47,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AnnouncerLayout.class)
-public class AnnouncerContent extends VerticalLayout implements CrudListener<Athlete> { // or implements LazyCrudListener<Athlete>
+public class AnnouncerContent extends VerticalLayout implements CrudListener<Athlete>, HasUrlParameter<String> { // or implements LazyCrudListener<Athlete>
 
 	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(AnnouncerContent.class);
@@ -100,9 +112,11 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
      */
     @Override
     public Athlete update(Athlete Athlete) {
-        if (Athlete.getId().equals(5l)) {
+        if (Athlete.getLastName().equals("Ross")) {
             throw new RuntimeException("A simulated error has occurred");
         }
+        FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
+        fop.getEventBus().post(new FOPEvent.LiftingOrderUpdated());
         return AthleteRepository.save(Athlete);
     }
 
@@ -120,15 +134,43 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
     @Override
     public Collection<Athlete> findAll() {
     	FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
-		if (fop != null) {
+		if (logger.isTraceEnabled() && fop != null) {
 			for (Athlete a: fop.getLifters()) {
-				System.err.println(a.getLastName()+", "+a.getFirstName()+" -- "+fop.getGroup());
+				logger.trace("{}, {} -- {}", a.getLastName(), a.getFirstName(), fop.getGroup());
 			}
 			return fop.getLifters();
 		} else {
 			return AthleteRepository.findAll();
 		}
     }
+	/*
+	 * Process query parameters
+	 * 
+	 * @see
+	 * com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router.
+	 * BeforeEvent, java.lang.Object)
+	 */
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		logger.warn("entering set parameter");
+		Location location = event.getLocation();
+		QueryParameters queryParameters = location.getQueryParameters();
 
+		Map<String, List<String>> parametersMap = queryParameters.getParameters();
+		List<String> fopNames = parametersMap.get("fop");
+		FieldOfPlayState fop;
+		HashMap<String, List<String>> params = new HashMap<String, List<String>>(parametersMap);
+		if (fopNames != null && fopNames.get(0) == null) {
+			fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
+		} else {
+			fop = OwlcmsFactory.getDefaultFOP();
+			params.put("fop",Arrays.asList(fop.getName()));
+		}
+		OwlcmsSession.setAttribute("fop", fop);
+		
+		History history = event.getUI().getPage().getHistory();
+		history.replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
+
+	}
 
 }
