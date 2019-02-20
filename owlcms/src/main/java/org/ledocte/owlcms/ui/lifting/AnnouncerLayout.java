@@ -8,10 +8,6 @@
  */
 package org.ledocte.owlcms.ui.lifting;
 
-import org.ledocte.owlcms.OwlcmsSession;
-import org.ledocte.owlcms.data.group.Group;
-import org.ledocte.owlcms.data.group.GroupRepository;
-import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.ledocte.owlcms.ui.home.MainNavigationLayout;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +33,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
 @Theme(Lumo.class)
-public class AnnouncerLayout extends MainNavigationLayout {
+public class AnnouncerLayout extends MainNavigationLayout  {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
 	static {
@@ -52,22 +48,16 @@ public class AnnouncerLayout extends MainNavigationLayout {
 	 */
 	@Override
 	public AppLayout createAppLayoutInstance() {
-		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
-		if (fop != null) {
-			Group group = GroupRepository.findByName("A");
-			logger.debug("fop = {}, group={}", fop, group);
-			fop.switchGroup(group);
-		} else {
-			logger.error("fop is null!");
-		}
 
 		AppLayout appLayout = super.createAppLayoutInstance();
 		HorizontalLayout appBarElementWrapper = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
 
 		H2 h2 = new H2("Beauchemin-De la Durantaye,");
-		h2.getStyle().set("margin", "0px 0px 0px 0px");
+		h2.getStyle()
+			.set("margin", "0px 0px 0px 0px");
 		H3 h3 = new H3("Marie-Dominique");
-		h3.getStyle().set("margin", "0px 0px 0px 0px");
+		h3.getStyle()
+			.set("margin", "0px 0px 0px 0px");
 		Div div = new Div(
 				h2,
 				h3);
@@ -101,11 +91,12 @@ public class AnnouncerLayout extends MainNavigationLayout {
 			.getStyle()
 			.set("flex", "100 1");
 		appBarElementWrapper.removeAll();
-		appBarElementWrapper.add(div,lifter, buttons, decisions);
+		appBarElementWrapper.add(div, lifter, buttons, decisions);
 		appBarElementWrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
 		appBarElementWrapper.setAlignItems(FlexComponent.Alignment.CENTER);
 		return appLayout;
-
 	}
+
+
 
 }

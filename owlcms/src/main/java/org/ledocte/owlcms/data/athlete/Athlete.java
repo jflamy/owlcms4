@@ -969,14 +969,6 @@ public class Athlete {
 		return gender;
 	}
 
-	/**
-	 * Gets the competition session.
-	 *
-	 * @return the group
-	 */
-	public Group getCompetitionSession() {
-		return group;
-	}
 
 	/**
 	 * Gets the id.
@@ -1311,7 +1303,7 @@ public class Athlete {
 		if (c.getRobiA() == null || c.getWr() <= 0.000001)
 			return 0.0;
 		double robi = c.getRobiA() * Math.pow(getTotal(), c.getRobiB());
-		System.err.println(robi);
+		//System.err.println(robi);
 		return robi;
 	}
 
@@ -2257,7 +2249,7 @@ public class Athlete {
 	 *
 	 * @param group the group to set
 	 */
-	public void setCompetitionSession(Group group) {
+	public void setGroup(Group group) {
 		this.group = group;
 	}
 

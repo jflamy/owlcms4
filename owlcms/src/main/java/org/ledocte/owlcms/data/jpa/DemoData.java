@@ -57,14 +57,15 @@ public class DemoData {
 	public static void insertInitialData(int nbAthletes, boolean testMode) {
 		logger.info("inserting demo data.");
 		JPAService.runInTransaction(em -> {
-			Level loggerLevel = Athlete.getLogger().getLevel();
+			Level loggerLevel = Athlete.getLogger()
+				.getLevel();
 			try {
-				Athlete.getLogger().setLevel(Level.WARN);
-				Competition competition = createDefaultCompetition();
+				Athlete.getLogger()
+					.setLevel(Level.WARN);
 				setupTestData(em, nbAthletes);
-				em.persist(competition);
 			} catch (Exception e) {
-				Athlete.getLogger().setLevel(loggerLevel);
+				Athlete.getLogger()
+					.setLevel(loggerLevel);
 			}
 			return null;
 		});
@@ -111,31 +112,6 @@ public class DemoData {
 			defaultFederationWebSite.equals(defaultFederationWebSiteKey) ? federationWebSiteLabel
 					: defaultFederationWebSite);
 		return competition;
-	}
-
-	/**
-	 * Create an empty competition. Set-up the defaults for using the timekeeping
-	 * and refereeing features.
-	 * 
-	 * @param em
-	 *
-	 * @param competition the new up empty competition
-	 */
-	protected static void setupEmptyCompetition(EntityManager em, Competition competition) {
-		Platform platform1 = new Platform("Platform"); //$NON-NLS-1$
-		CategoryRepository.insertStandardCategories(em);
-		defaultPlates(platform1);
-
-//		setupCompetitionDocuments(competition, platform1);
-
-		em.persist(new Group("M1", null, null)); //$NON-NLS-1$
-		em.persist(new Group("M2", null, null)); //$NON-NLS-1$
-		em.persist(new Group("M3", null, null)); //$NON-NLS-1$
-		em.persist(new Group("M4", null, null)); //$NON-NLS-1$
-		em.persist(new Group("F1", null, null)); //$NON-NLS-1$
-		em.persist(new Group("F2", null, null)); //$NON-NLS-1$
-		em.persist(new Group("F3", null, null)); //$NON-NLS-1$
-
 	}
 
 	protected static void setupCompetitionDocuments(Competition competition, Platform platform1) {
@@ -216,38 +192,40 @@ public class DemoData {
 	 */
 	protected static void setupTestData(EntityManager em, int liftersToLoad) {
 		Competition competition = createDefaultCompetition();
-		setupEmptyCompetition(em, competition);
-		em.persist(competition);
 
 		CategoryRepository.insertStandardCategories(em);
 
 		LocalDateTime w = LocalDateTime.now();
 		LocalDateTime c = w.plusHours((long) 2.0);
 
-		Platform platform1 = new Platform("Gym 1"); //$NON-NLS-1$
+		Platform platform1 = new Platform("A"); //$NON-NLS-1$
 		defaultPlates(platform1);
-		Platform platform2 = new Platform("Gym 2"); //$NON-NLS-1$
+		Platform platform2 = new Platform("B"); //$NON-NLS-1$
 		defaultPlates(platform2);
 
-		Group groupA = new Group("A", w, c); //$NON-NLS-1$
-		groupA.setPlatform(platform1);
+		Group groupM1 = new Group("M1", w, c); //$NON-NLS-1$
+		groupM1.setPlatform(platform1);
 
-		Group groupB = new Group("B", w, c); //$NON-NLS-1$
-		groupB.setPlatform(platform2);
+		Group groupM2 = new Group("M2", w, c); //$NON-NLS-1$
+		groupM2.setPlatform(platform2);
 
-		Group groupC = new Group("C", w, c); //$NON-NLS-1$
-		groupC.setPlatform(platform1);
+		insertSampleLifters(em, liftersToLoad, groupM1, groupM2);
 
-		insertSampleLifters(em, liftersToLoad, groupA, groupB, groupC);
-
-		em.persist(groupA);
-		em.persist(groupB);
-		em.persist(groupC);
+		em.persist(groupM1);
+		em.persist(groupM2);
+		em.persist(new Group("M3", null, null)); //$NON-NLS-1$
+		em.persist(new Group("M4", null, null)); //$NON-NLS-1$
+		em.persist(new Group("F1", null, null)); //$NON-NLS-1$
+		em.persist(new Group("F2", null, null)); //$NON-NLS-1$
+		em.persist(new Group("F3", null, null)); //$NON-NLS-1$
+		
+		em.persist(competition);
 	}
 
-	private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
-			Group groupB,
-			Group groupC) {
+	private static void insertSampleLifters(EntityManager em,
+			int liftersToLoad,
+			Group groupM1,
+			Group groupM2) {
 		final String[] fnames = { "Peter", "Albert", "Joshua", "Mike", "Oliver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 				"Paul", "Alex", "Richard", "Dan", "Umberto", "Henrik", "Rene", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
 				"Fred", "Donald" }; //$NON-NLS-1$ //$NON-NLS-2$
@@ -257,13 +235,13 @@ public class DemoData {
 
 		Random r = new Random(0);
 
-		createGroup(em, groupA, fnames, lnames, r, 81, 73, liftersToLoad);
-		createGroup(em, groupB, fnames, lnames, r, 73, 67, liftersToLoad);
+		createGroup(em, groupM1, fnames, lnames, r, 81, 73, liftersToLoad);
+		createGroup(em, groupM2, fnames, lnames, r, 73, 67, liftersToLoad);
 
 		drawLots(em);
 
-		assignStartNumbers(em, groupA);
-		assignStartNumbers(em, groupB);
+		assignStartNumbers(em, groupM1);
+		assignStartNumbers(em, groupM2);
 	}
 
 	protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
@@ -271,7 +249,7 @@ public class DemoData {
 			int cat1, int cat2, int liftersToLoad) {
 		for (int i = 0; i < liftersToLoad; i++) {
 			Athlete p = new Athlete();
-			p.setCompetitionSession(group);
+			p.setGroup(group);
 			p.setFirstName(fnames[r.nextInt(fnames.length)]);
 			p.setLastName(lnames[r.nextInt(lnames.length)]);
 			double nextDouble = r.nextDouble();

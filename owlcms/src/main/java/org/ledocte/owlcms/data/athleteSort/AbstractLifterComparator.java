@@ -191,8 +191,8 @@ public class AbstractLifterComparator {
      * @return the int
      */
     int compareGroup(Athlete lifter1, Athlete lifter2) {
-        Group lifter1Group = lifter1.getCompetitionSession();
-        Group lifter2Group = lifter2.getCompetitionSession();
+        Group lifter1Group = lifter1.getGroup();
+        Group lifter2Group = lifter2.getGroup();
         if (lifter1Group == null && lifter2Group == null)
             return 0;
         if (lifter1Group == null)
@@ -220,8 +220,8 @@ public class AbstractLifterComparator {
      */
     int compareGroupWeighInTime(Athlete lifter1, Athlete lifter2) {
 
-        Group lifter1Group = lifter1.getCompetitionSession();
-        Group lifter2Group = lifter2.getCompetitionSession();
+        Group lifter1Group = lifter1.getGroup();
+        Group lifter2Group = lifter2.getGroup();
         if (lifter1Group == null && lifter2Group == null)
             return 0;
         if (lifter1Group == null)

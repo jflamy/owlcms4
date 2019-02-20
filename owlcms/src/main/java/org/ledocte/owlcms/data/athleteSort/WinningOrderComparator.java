@@ -353,8 +353,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      * @return -1 if lifter1 was part of earlier group, 0 if same group, 1 if lifter1 lifted in later group
      */
     private int compareCompetitionSessionTime(Athlete lifter1, Athlete lifter2) {
-        Group group1 = lifter1.getCompetitionSession();
-        Group group2 = lifter2.getCompetitionSession();
+        Group group1 = lifter1.getGroup();
+        Group group2 = lifter2.getGroup();
         if (group1 == null && group2 == null)
             return 0;
         if (group1 == null)
