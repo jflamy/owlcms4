@@ -10,11 +10,13 @@
 package org.ledocte.owlcms.ui.lifting;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.ledocte.owlcms.OwlcmsSession;
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.athlete.AthleteRepository;
 import org.ledocte.owlcms.data.group.Group;
+import org.ledocte.owlcms.data.group.GroupRepository;
 import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudFormFactory;
@@ -164,10 +166,9 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		if (fop != null) {
 			Group group = fop.getGroup();
-//			if (group == null)
-//				group = GroupRepository.findAll()
-//					.get(0);
-//			logger.debug("reloading fop = {}, group={}", fop.getName(), group.getName());
+			if (group == null) {
+				group = getFirstGroupForFOP();
+			}
 			fop.switchGroup(group);
 		}
 		if (fop != null) {
@@ -176,6 +177,13 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
 		} else {
 			return AthleteRepository.findAll();
 		}
+	}
+
+	protected Group getFirstGroupForFOP() {
+		Group group;
+		List<Group> findAll = GroupRepository.findAll();
+		group = (findAll.size() > 0 ? findAll.get(0) : null);
+		return group;
 	}
 
 	protected void traceCurrentAthletes(FieldOfPlayState fop) {

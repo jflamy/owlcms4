@@ -35,7 +35,6 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 	 */
 	@Override
 	public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		logger.warn("entering setParameter");
 		Location location = event.getLocation();
 		QueryParameters queryParameters = location.getQueryParameters();
 
@@ -50,6 +49,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 			params.put("fop",Arrays.asList(fop.getName()));
 		}
 		OwlcmsSession.setAttribute("fop", fop);
+		logger.info("setting fop in session: {}",(fop != null ? fop.getName() : null));
 		
 		History history = event.getUI().getPage().getHistory();
 		history.replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
