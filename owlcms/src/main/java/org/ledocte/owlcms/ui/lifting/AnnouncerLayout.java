@@ -18,7 +18,7 @@ import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.html.Div;
@@ -28,6 +28,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
@@ -50,9 +51,12 @@ public class AnnouncerLayout extends MainNavigationLayout {
 
 	private H2 lastName;
 	private H3 firstName;
-	private H3 attempt;
+	private Html attempt;
 	private H3 weight;
 	private TextField timeField;
+	private HorizontalLayout announcerBar;
+	private HorizontalLayout lifter;
+
 
 	/*
 	 * (non-Javadoc)
@@ -64,9 +68,9 @@ public class AnnouncerLayout extends MainNavigationLayout {
 	public AppLayout createAppLayoutInstance() {
 
 		AppLayout appLayout = super.createAppLayoutInstance();
-		HorizontalLayout appBarElementWrapper = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
+		this.announcerBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
 
-		createAnnouncerBar(appBarElementWrapper);
+		createAnnouncerBar(announcerBar);
 
 		appLayout.getTitleWrapper()
 			.getElement()
@@ -86,21 +90,20 @@ public class AnnouncerLayout extends MainNavigationLayout {
 
 	protected void createAnnouncerBar(HorizontalLayout announcerBar) {
 		lastName = new H2();
-		lastName.setText("&ndash;");
+		lastName.setText("\u2013");
 		lastName.getStyle()
 			.set("margin", "0px 0px 0px 0px");
-		firstName = new H3("&ndash;");
+		firstName = new H3("\u2013");
 		firstName.getStyle()
 			.set("margin", "0px 0px 0px 0px");
 		Div div = new Div(
 				lastName,
 				firstName);
 
-		attempt = new H3();
-		attempt.setText("? att.");
+		attempt = new Html("<h3>? att.</h3>");
 		weight = new H3();
 		weight.setText("?kg");
-		HorizontalLayout lifter = new HorizontalLayout(
+		lifter = new HorizontalLayout(
 				attempt,
 				weight);
 		lifter.setAlignItems(FlexComponent.Alignment.STRETCH);
@@ -135,11 +138,14 @@ public class AnnouncerLayout extends MainNavigationLayout {
 	@Subscribe
 	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
 		logger.debug("received {}",e);
-		UI.getCurrent()
+		this.getUI().get()
 			.access(() -> {
 				lastName.setText(e.getAthlete().getLastName());
 				firstName.setText(e.getAthlete().getFirstName());
-				attempt.setText((e.getAthlete().getAttemptsDone() % 3 + 1) + "att.");
+				Style oldStyle = attempt.getElement().getStyle();
+				Html newAttempt = new Html("<h3>"+(e.getAthlete().getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h3>");
+				newAttempt.getElement().getStyle().set("color", "red");
+				lifter.replace(attempt, newAttempt);
 				weight.setText(e.getAthlete().getNextAttemptRequestedWeight()+"kg");
 			});
 	}
