@@ -12,11 +12,11 @@ package org.ledocte.owlcms.ui.lifting;
 import java.util.Collection;
 import java.util.List;
 
-import org.ledocte.owlcms.OwlcmsSession;
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.athlete.AthleteRepository;
 import org.ledocte.owlcms.data.group.Group;
 import org.ledocte.owlcms.data.group.GroupRepository;
+import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudFormFactory;
@@ -68,16 +68,16 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
 	 * @return the grid crud
 	 */
 	public GridCrud<Athlete> getGridCrud() {
-		OwlcmsCrudFormFactory<Athlete> crudFormFactory = new OwlcmsCrudFormFactory<Athlete>(Athlete.class);
-		crudFormFactory.setVisibleProperties("lastName",
-			"firstName",
-			"team",
-			"category",
-			"nextAttemptRequestedWeight",
-			"attemptsDone");
-		crudFormFactory
-			.setFieldCaptions("Last Name", "First Name", "Team", "Category", "Requested Weight", "Attempts Done");
-		crudFormFactory.setDisabledProperties("nextAttemptRequestedWeight");
+		OwlcmsCrudFormFactory<Athlete> crudFormFactory = new AthleteCardFormFactory(Athlete.class);
+//		crudFormFactory.setVisibleProperties("lastName",
+//			"firstName",
+//			"team",
+//			"category",
+//			"nextAttemptRequestedWeight",
+//			"attemptsDone");
+//		crudFormFactory
+//			.setFieldCaptions("Last Name", "First Name", "Team", "Category", "Requested Weight", "Attempts Done");
+//		crudFormFactory.setDisabledProperties("nextAttemptRequestedWeight");
 
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
 		ThemeList themes = grid.getThemeNames();

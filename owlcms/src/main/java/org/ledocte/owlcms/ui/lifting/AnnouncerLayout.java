@@ -8,7 +8,7 @@
  */
 package org.ledocte.owlcms.ui.lifting;
 
-import org.ledocte.owlcms.OwlcmsSession;
+import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.ledocte.owlcms.state.UIEvent;
 import org.ledocte.owlcms.ui.home.MainNavigationLayout;
@@ -28,7 +28,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
@@ -42,7 +41,7 @@ import ch.qos.logback.classic.Logger;
 @HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
 @Theme(Lumo.class)
 @Push
-public class AnnouncerLayout extends MainNavigationLayout {
+public class AnnouncerLayout extends MainNavigationLayout implements UIEventListener {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
 	static {
@@ -56,7 +55,6 @@ public class AnnouncerLayout extends MainNavigationLayout {
 	private TextField timeField;
 	private HorizontalLayout announcerBar;
 	private HorizontalLayout lifter;
-
 
 	/*
 	 * (non-Javadoc)
@@ -79,14 +77,14 @@ public class AnnouncerLayout extends MainNavigationLayout {
 
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		if (fop != null) {
-			EventBus uiEventBus = fop.getUiEventBus();
-			uiEventBus
-				.register(this);
-			logger.debug("registered {} on {}",appLayout,uiEventBus);
+			EventBus uiEventBus = listenToUIEvents(fop);
+			logger.debug("registered {} on {}", appLayout, uiEventBus);
 		}
 
 		return appLayout;
 	}
+
+
 
 	protected void createAnnouncerBar(HorizontalLayout announcerBar) {
 		lastName = new H2();
@@ -137,22 +135,26 @@ public class AnnouncerLayout extends MainNavigationLayout {
 
 	@Subscribe
 	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
-		logger.debug("received {}",e);
-		this.getUI().get()
-			.access(() -> {
-				lastName.setText(e.getAthlete().getLastName());
-				firstName.setText(e.getAthlete().getFirstName());
-				Style oldStyle = attempt.getElement().getStyle();
-				Html newAttempt = new Html("<h3>"+(e.getAthlete().getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h3>");
-				newAttempt.getElement().getStyle().set("color", "red");
-				lifter.replace(attempt, newAttempt);
-				weight.setText(e.getAthlete().getNextAttemptRequestedWeight()+"kg");
-			});
+		if (this.getUI().isPresent()) {
+			logger.trace("received {}", e);
+			lastName.setText(e.getAthlete()
+				.getLastName());
+			firstName.setText(e.getAthlete()
+				.getFirstName());
+			Html newAttempt = new Html("<h3>" + (e.getAthlete()
+				.getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h3>");
+			lifter.replace(attempt, newAttempt);
+			attempt = newAttempt;
+			weight.setText(e.getAthlete()
+				.getNextAttemptRequestedWeight() + "kg");
+		} else {
+			logger.warn("received {}, no UI, but listener still registered", e);
+		}
 	}
-	
+
 	@Subscribe
 	public void decisionReset(UIEvent.DecisionReset e) {
-		logger.warn("received {}",e);
+		logger.warn("received {}", e);
 	}
 
 }

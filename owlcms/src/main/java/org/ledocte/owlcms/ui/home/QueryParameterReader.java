@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ledocte.owlcms.OwlcmsFactory;
-import org.ledocte.owlcms.OwlcmsSession;
 import org.ledocte.owlcms.data.group.Group;
 import org.ledocte.owlcms.data.group.GroupRepository;
+import org.ledocte.owlcms.init.OwlcmsFactory;
+import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.slf4j.LoggerFactory;
 
