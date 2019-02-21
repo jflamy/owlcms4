@@ -7,10 +7,11 @@ import java.util.Map;
 
 import org.ledocte.owlcms.OwlcmsFactory;
 import org.ledocte.owlcms.OwlcmsSession;
+import org.ledocte.owlcms.data.group.Group;
+import org.ledocte.owlcms.data.group.GroupRepository;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.page.History;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Location;
@@ -38,6 +39,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 		Location location = event.getLocation();
 		QueryParameters queryParameters = location.getQueryParameters();
 
+		// get the fop from the query parameters, set as default if not provided
 		Map<String, List<String>> parametersMap = queryParameters.getParameters();
 		List<String> fopNames = parametersMap.get("fop");
 		FieldOfPlayState fop;
@@ -48,11 +50,21 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 			fop = OwlcmsFactory.getDefaultFOP();
 			params.put("fop",Arrays.asList(fop.getName()));
 		}
-		OwlcmsSession.setAttribute("fop", fop);
-		logger.info("setting fop in session: {}",(fop != null ? fop.getName() : null));
 		
-		History history = event.getUI().getPage().getHistory();
-		history.replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
+		// get the group from query parameters, leave as fop group is absent
+		List<String> groupNames = parametersMap.get("group");
+		Group group = fop.getGroup();
+		if (groupNames != null  && groupNames.get(0) != null) {
+			group = GroupRepository.findByName(groupNames.get(0));
+			fop.setGroup(group);
+		}
+
+		
+		OwlcmsSession.setAttribute("fop", fop);
+		logger.debug("setting fop in session: {} group={}",(fop != null ? fop.getName() : null),(group != null ? group.getName() : null));
+		
+		// change the URL to reflect fop and group
+		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
 
 }

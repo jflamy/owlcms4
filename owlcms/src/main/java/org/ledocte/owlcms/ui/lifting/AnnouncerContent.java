@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -166,16 +167,17 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		if (fop != null) {
 			Group group = fop.getGroup();
-			if (group == null) {
-				group = getFirstGroupForFOP();
-			}
+//			if (group == null) {
+//				group = getFirstGroupForFOP();
+//			}
 			fop.switchGroup(group);
 		}
 		if (fop != null) {
 			traceCurrentAthletes(fop);
 			return fop.getLifters();
 		} else {
-			return AthleteRepository.findAll();
+			// no field of play, no group, empty list
+			return ImmutableList.of();
 		}
 	}
 

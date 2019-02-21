@@ -8,11 +8,17 @@
  */
 package org.ledocte.owlcms.ui.lifting;
 
+import org.ledocte.owlcms.OwlcmsSession;
+import org.ledocte.owlcms.state.FieldOfPlayState;
+import org.ledocte.owlcms.state.UIEvent;
 import org.ledocte.owlcms.ui.home.MainNavigationLayout;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.app.layout.behaviour.AppLayout;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.html.Div;
@@ -20,6 +26,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -33,12 +40,19 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
 @Theme(Lumo.class)
-public class AnnouncerLayout extends MainNavigationLayout  {
+@Push
+public class AnnouncerLayout extends MainNavigationLayout {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
 	static {
 		logger.setLevel(Level.DEBUG);
 	}
+
+	private H2 lastName;
+	private H3 firstName;
+	private H3 attempt;
+	private H3 weight;
+	private TextField timeField;
 
 	/*
 	 * (non-Javadoc)
@@ -52,22 +66,47 @@ public class AnnouncerLayout extends MainNavigationLayout  {
 		AppLayout appLayout = super.createAppLayoutInstance();
 		HorizontalLayout appBarElementWrapper = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
 
-		H2 h2 = new H2("Beauchemin-De la Durantaye,");
-		h2.getStyle()
+		createAnnouncerBar(appBarElementWrapper);
+
+		appLayout.getTitleWrapper()
+			.getElement()
+			.getStyle()
+			.set("flex", "0 1 0px");
+
+		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
+		if (fop != null) {
+			EventBus uiEventBus = fop.getUiEventBus();
+			uiEventBus
+				.register(this);
+			logger.debug("registered {} on {}",appLayout,uiEventBus);
+		}
+
+		return appLayout;
+	}
+
+	protected void createAnnouncerBar(HorizontalLayout announcerBar) {
+		lastName = new H2();
+		lastName.setText("&ndash;");
+		lastName.getStyle()
 			.set("margin", "0px 0px 0px 0px");
-		H3 h3 = new H3("Marie-Dominique");
-		h3.getStyle()
+		firstName = new H3("&ndash;");
+		firstName.getStyle()
 			.set("margin", "0px 0px 0px 0px");
 		Div div = new Div(
-				h2,
-				h3);
+				lastName,
+				firstName);
 
+		attempt = new H3();
+		attempt.setText("? att.");
+		weight = new H3();
+		weight.setText("?kg");
 		HorizontalLayout lifter = new HorizontalLayout(
-				new H3("2nd att."),
-				new H3("110kg"));
+				attempt,
+				weight);
 		lifter.setAlignItems(FlexComponent.Alignment.STRETCH);
 
-		TextField timeField = new TextField("", "2:00");
+		timeField = new TextField();
+		timeField.setValue("0:00");
 		timeField.setWidth("4em");
 		HorizontalLayout buttons = new HorizontalLayout(
 				timeField,
@@ -81,22 +120,33 @@ public class AnnouncerLayout extends MainNavigationLayout  {
 		HorizontalLayout decisions = new HorizontalLayout(
 				new Button("good"),
 				new Button("bad"));
-		appLayout.getTitleWrapper()
-			.getElement()
-			.getStyle()
-			.set("flex", "0 1 0px");
+
 		decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
 
-		appBarElementWrapper.getElement()
+		announcerBar.getElement()
 			.getStyle()
 			.set("flex", "100 1");
-		appBarElementWrapper.removeAll();
-		appBarElementWrapper.add(div, lifter, buttons, decisions);
-		appBarElementWrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
-		appBarElementWrapper.setAlignItems(FlexComponent.Alignment.CENTER);
-		return appLayout;
+		announcerBar.removeAll();
+		announcerBar.add(div, lifter, buttons, decisions);
+		announcerBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
+		announcerBar.setAlignItems(FlexComponent.Alignment.CENTER);
 	}
 
-
+	@Subscribe
+	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
+		logger.debug("received {}",e);
+		UI.getCurrent()
+			.access(() -> {
+				lastName.setText(e.getAthlete().getLastName());
+				firstName.setText(e.getAthlete().getFirstName());
+				attempt.setText((e.getAthlete().getAttemptsDone() % 3 + 1) + "att.");
+				weight.setText(e.getAthlete().getNextAttemptRequestedWeight()+"kg");
+			});
+	}
+	
+	@Subscribe
+	public void decisionReset(UIEvent.DecisionReset e) {
+		logger.warn("received {}",e);
+	}
 
 }

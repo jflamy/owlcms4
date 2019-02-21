@@ -10,6 +10,7 @@ package org.ledocte.owlcms.ui.init;
 
 import java.util.Locale;
 
+import org.ledocte.owlcms.utils.LoggerUtils;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.ServiceInitEvent;
@@ -42,11 +43,12 @@ public class ServiceListener implements VaadinServiceInitListener {
 	 */
 	@Override
 	public void serviceInit(ServiceInitEvent event) {	
-		logger.info("Vaadin Service Startup Configuration.");
+		logger.debug("Vaadin Service Startup Configuration. {} {}", event.toString(), LoggerUtils.whereFrom());
 		event.getSource()
 			.addSessionInitListener(sessionInitEvent -> {
 				sessionInit(sessionInitEvent);
 			});
+		
 	}
 
 	// session init listener will be called whenever a VaadinSession is created

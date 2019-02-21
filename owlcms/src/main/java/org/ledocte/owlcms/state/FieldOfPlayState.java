@@ -19,8 +19,10 @@ import org.ledocte.owlcms.data.platform.Platform;
 import org.ledocte.owlcms.utils.LoggerUtils;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.UI;
 
 import ch.qos.logback.classic.Logger;
 
@@ -90,6 +92,7 @@ public class FieldOfPlayState {
 	private Athlete curAthlete;
 	private Integer curWeight;
 	private EventBus eventBus = null;
+	private EventBus uiEventBus = null;
 	private Group group = null;
 	private List<Athlete> liftingOrder;
 	private String name;
@@ -112,6 +115,8 @@ public class FieldOfPlayState {
 		this.platform = platform;
 		this.name = platform.getName();
 		this.setTimer(timer);
+		this.eventBus = new EventBus("FOP-"+name);
+		this.uiEventBus = new EventBus("UI-"+name);
 		if (group != null) {
 			switchGroup(group);
 		} else {
@@ -123,8 +128,14 @@ public class FieldOfPlayState {
 	public void switchGroup(Group group) {
 		this.group = group;
 		logger.info("switching to group {}", (group != null ? group.getName() : group));
-		List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
-		init(findAllByGroupAndWeighIn);
+		if (group != null) {
+			List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
+			init(findAllByGroupAndWeighIn);
+			getEventBus().post(new FOPEvent.IntermissionDone());
+		} else {
+			init(ImmutableList.of());
+		}
+
 	}
 
 	/**
@@ -162,9 +173,6 @@ public class FieldOfPlayState {
 	 * @return the eventBus
 	 */
 	public EventBus getEventBus() {
-		if (eventBus == null) {
-			eventBus = new EventBus();
-		}
 		return eventBus;
 	}
 
@@ -381,15 +389,6 @@ public class FieldOfPlayState {
 	}
 
 	/**
-	 * Sets the event bus.
-	 *
-	 * @param eventBus the eventBus to set
-	 */
-	public void setEventBus(EventBus eventBus) {
-		this.eventBus = eventBus;
-	}
-
-	/**
 	 * Sets the group.
 	 *
 	 * @param group the group to set
@@ -496,11 +495,14 @@ public class FieldOfPlayState {
 
 	private void displayCurrentAthlete() {
 		Integer nextAttemptRequestedWeight = curAthlete.getNextAttemptRequestedWeight();
+		int timeAllowed = timeAllowed();
+		Athlete nextAthlete = liftingOrder.size() > 0 ? liftingOrder.get(1) : null;
+		uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, timeAllowed, UI.getCurrent()));
 		logger.info("current athlete = {} attempt {}, requested = {}, timer={}",
-			getCurAthlete(),
+			curAthlete,
 			curAthlete.getAttemptedLifts() + 1,
 			nextAttemptRequestedWeight,
-			timeAllowed());
+			timeAllowed);
 		curWeight = nextAttemptRequestedWeight;
 	}
 
@@ -637,6 +639,10 @@ public class FieldOfPlayState {
 	 */
 	public void setTimer(ICountdownTimer timer) {
 		this.timer = timer;
+	}
+
+	public EventBus getUiEventBus() {
+		return uiEventBus;
 	}
 
 }
