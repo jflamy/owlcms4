@@ -11,6 +11,7 @@ package org.ledocte.owlcms.ui.lifting;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudFormFactory;
+import org.ledocte.owlcms.utils.ValidationUtils;
 import org.vaadin.crudui.crud.CrudOperation;
 
 import com.github.appreciated.css.grid.sizes.Flex;
@@ -34,7 +35,8 @@ import com.vaadin.flow.dom.ClassList;
 public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
 	private static final int HEADER = 1;
-	private static final int DECLARATION = HEADER + 1;
+	private static final int AUTOMATIC = HEADER + 1;
+	private static final int DECLARATION = AUTOMATIC + 1;
 	private static final int CHANGE1 = DECLARATION + 1;
 	private static final int CHANGE2 = CHANGE1 + 1;
 	private static final int ACTUAL = CHANGE2 + 1;
@@ -93,6 +95,17 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	protected void bindGridFields(CrudOperation operation, Athlete a, GridLayout gridLayout) {
 		binder = buildBinder(operation, a);
 
+		TextField snatch2AutomaticProgression = new TextField();
+		snatch2AutomaticProgression.setReadOnly(true);
+		binder.forField(snatch2AutomaticProgression)
+			.bind(Athlete::getSnatch2AutomaticProgression, Athlete::setSnatch2AutomaticProgression);
+		atRowAndColumn(gridLayout, snatch2AutomaticProgression, AUTOMATIC, SNATCH2);
+		TextField snatch3AutomaticProgression = new TextField();
+		snatch3AutomaticProgression.setReadOnly(true);
+		binder.forField(snatch3AutomaticProgression)
+			.bind(Athlete::getSnatch3AutomaticProgression, Athlete::setSnatch3AutomaticProgression);
+		atRowAndColumn(gridLayout, snatch3AutomaticProgression, AUTOMATIC, SNATCH3);
+
 		TextField snatch1Declaration = new TextField();
 		binder.bind(snatch1Declaration, Athlete::getSnatch1Declaration, Athlete::setSnatch1Declaration);
 		atRowAndColumn(gridLayout, snatch1Declaration, DECLARATION, SNATCH1);
@@ -100,38 +113,69 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		binder.bind(snatch2Declaration, Athlete::getSnatch2Declaration, Athlete::setSnatch2Declaration);
 		atRowAndColumn(gridLayout, snatch2Declaration, DECLARATION, SNATCH2);
 		TextField snatch3Declaration = new TextField();
-		binder.bind(snatch3Declaration, Athlete::getSnatch3Declaration, Athlete::setSnatch3Declaration);
+		binder.forField(snatch3Declaration)
+			.bind(Athlete::getSnatch3Declaration, Athlete::setSnatch3Declaration);
 		atRowAndColumn(gridLayout, snatch3Declaration, DECLARATION, SNATCH3);
 
 		TextField snatch1Change1 = new TextField();
-		binder.bind(snatch1Change1, Athlete::getSnatch1Change1, Athlete::setSnatch1Change1);
+		binder.forField(snatch1Change1)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch1Change1(v)))
+			.bind(Athlete::getSnatch1Change1, Athlete::setSnatch1Change1);
 		atRowAndColumn(gridLayout, snatch1Change1, CHANGE1, SNATCH1);
 		TextField snatch2Change1 = new TextField();
-		binder.bind(snatch2Change1, Athlete::getSnatch2Change1, Athlete::setSnatch2Change1);
+		binder.forField(snatch2Change1)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch2Change1(v)))
+			.bind(Athlete::getSnatch2Change1, Athlete::setSnatch2Change1);
 		atRowAndColumn(gridLayout, snatch2Change1, CHANGE1, SNATCH2);
 		TextField snatch3Change1 = new TextField();
-		binder.bind(snatch3Change1, Athlete::getSnatch3Change1, Athlete::setSnatch3Change1);
+		binder.forField(snatch3Change1)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch3Change1(v)))
+			.bind(Athlete::getSnatch3Change1, Athlete::setSnatch3Change1);
 		atRowAndColumn(gridLayout, snatch3Change1, CHANGE1, SNATCH3);
 
 		TextField snatch1Change2 = new TextField();
-		binder.bind(snatch1Change2, Athlete::getSnatch1Change2, Athlete::setSnatch1Change2);
+		binder.forField(snatch1Change2)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch1Change2(v)))
+			.bind(Athlete::getSnatch1Change2, Athlete::setSnatch1Change2);
 		atRowAndColumn(gridLayout, snatch1Change2, CHANGE2, SNATCH1);
 		TextField snatch2Change2 = new TextField();
-		binder.bind(snatch2Change2, Athlete::getSnatch2Change2, Athlete::setSnatch2Change2);
+		binder.forField(snatch2Change2)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch2Change2(v)))
+			.bind(Athlete::getSnatch2Change2, Athlete::setSnatch2Change2);
 		atRowAndColumn(gridLayout, snatch2Change2, CHANGE2, SNATCH2);
 		TextField snatch3Change2 = new TextField();
-		binder.bind(snatch3Change2, Athlete::getSnatch3Change2, Athlete::setSnatch3Change2);
+		binder.forField(snatch3Change2)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch3Change2(v)))
+			.bind(Athlete::getSnatch3Change2, Athlete::setSnatch3Change2);
 		atRowAndColumn(gridLayout, snatch3Change2, CHANGE2, SNATCH3);
 
 		TextField snatch1ActualLift = new TextField();
-		binder.bind(snatch1ActualLift, Athlete::getSnatch1ActualLift, Athlete::setSnatch1ActualLift);
+		binder.forField(snatch1ActualLift)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualSnatch1(v)))
+			.bind(Athlete::getSnatch1ActualLift, Athlete::setSnatch1ActualLift);
 		atRowAndColumn(gridLayout, snatch1ActualLift, ACTUAL, SNATCH1);
 		TextField snatch2ActualLift = new TextField();
-		binder.bind(snatch2ActualLift, Athlete::getSnatch2ActualLift, Athlete::setSnatch2ActualLift);
+		binder.forField(snatch2ActualLift)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualSnatch2(v)))
+			.bind(Athlete::getSnatch2ActualLift, Athlete::setSnatch2ActualLift);
 		atRowAndColumn(gridLayout, snatch2ActualLift, ACTUAL, SNATCH2);
 		TextField snatch3ActualLift = new TextField();
-		binder.bind(snatch3ActualLift, Athlete::getSnatch3ActualLift, Athlete::setSnatch3ActualLift);
+		binder.forField(snatch3ActualLift)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualSnatch3(v)))
+			.bind(Athlete::getSnatch3ActualLift, Athlete::setSnatch3ActualLift);
 		atRowAndColumn(gridLayout, snatch3ActualLift, ACTUAL, SNATCH3);
+		
+
+		TextField cj2AutomaticProgression = new TextField();
+		cj2AutomaticProgression.setReadOnly(true);
+		binder.forField(cj2AutomaticProgression)
+			.bind(Athlete::getCleanJerk2AutomaticProgression, Athlete::setCleanJerk2AutomaticProgression);
+		atRowAndColumn(gridLayout, cj2AutomaticProgression, AUTOMATIC, CJ2);
+		TextField cj3AutomaticProgression = new TextField();
+		cj3AutomaticProgression.setReadOnly(true);
+		binder.forField(cj3AutomaticProgression)
+			.bind(Athlete::getCleanJerk3AutomaticProgression, Athlete::setCleanJerk3AutomaticProgression);
+		atRowAndColumn(gridLayout, cj3AutomaticProgression, AUTOMATIC, CJ3);
 
 		TextField cj1Declaration = new TextField();
 		binder.bind(cj1Declaration, Athlete::getCleanJerk1Declaration, Athlete::setCleanJerk1Declaration);
@@ -140,37 +184,56 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		binder.bind(cj2Declaration, Athlete::getCleanJerk2Declaration, Athlete::setCleanJerk2Declaration);
 		atRowAndColumn(gridLayout, cj2Declaration, DECLARATION, CJ2);
 		TextField cj3Declaration = new TextField();
-		binder.bind(cj3Declaration, Athlete::getCleanJerk3Declaration, Athlete::setCleanJerk3Declaration);
+		binder.forField(cj3Declaration)
+			.bind(Athlete::getCleanJerk3Declaration, Athlete::setCleanJerk3Declaration);
 		atRowAndColumn(gridLayout, cj3Declaration, DECLARATION, CJ3);
 
 		TextField cj1Change1 = new TextField();
-		binder.bind(cj1Change1, Athlete::getCleanJerk1Change1, Athlete::setCleanJerk1Change1);
+		binder.forField(cj1Change1)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk1Change1(v)))
+			.bind(Athlete::getCleanJerk1Change1, Athlete::setCleanJerk1Change1);
 		atRowAndColumn(gridLayout, cj1Change1, CHANGE1, CJ1);
 		TextField cj2Change1 = new TextField();
-		binder.bind(cj2Change1, Athlete::getCleanJerk2Change1, Athlete::setCleanJerk2Change1);
+		binder.forField(cj2Change1)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk2Change1(v)))
+			.bind(Athlete::getCleanJerk2Change1, Athlete::setCleanJerk2Change1);
 		atRowAndColumn(gridLayout, cj2Change1, CHANGE1, CJ2);
 		TextField cj3Change1 = new TextField();
-		binder.bind(cj3Change1, Athlete::getCleanJerk3Change1, Athlete::setCleanJerk3Change1);
+		binder.forField(cj3Change1)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk3Change1(v)))
+			.bind(Athlete::getCleanJerk3Change1, Athlete::setCleanJerk3Change1);
 		atRowAndColumn(gridLayout, cj3Change1, CHANGE1, CJ3);
 
 		TextField cj1Change2 = new TextField();
-		binder.bind(cj1Change2, Athlete::getCleanJerk1Change2, Athlete::setCleanJerk1Change2);
+		binder.forField(cj1Change2)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk1Change2(v)))
+			.bind(Athlete::getCleanJerk1Change2, Athlete::setCleanJerk1Change2);
 		atRowAndColumn(gridLayout, cj1Change2, CHANGE2, CJ1);
 		TextField cj2Change2 = new TextField();
-		binder.bind(cj2Change2, Athlete::getCleanJerk2Change2, Athlete::setCleanJerk2Change2);
+		binder.forField(cj2Change2)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk2Change2(v)))
+			.bind(Athlete::getCleanJerk2Change2, Athlete::setCleanJerk2Change2);
 		atRowAndColumn(gridLayout, cj2Change2, CHANGE2, CJ2);
 		TextField cj3Change2 = new TextField();
-		binder.bind(cj3Change2, Athlete::getCleanJerk3Change2, Athlete::setCleanJerk3Change2);
+		binder.forField(cj3Change2)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk3Change2(v)))
+			.bind(Athlete::getCleanJerk3Change2, Athlete::setCleanJerk3Change2);
 		atRowAndColumn(gridLayout, cj3Change2, CHANGE2, CJ3);
 
 		TextField cj1ActualLift = new TextField();
-		binder.bind(cj1ActualLift, Athlete::getCleanJerk1ActualLift, Athlete::setCleanJerk1ActualLift);
+		binder.forField(cj1ActualLift)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualCleanJerk1(v)))
+			.bind(Athlete::getCleanJerk1ActualLift, Athlete::setCleanJerk1ActualLift);
 		atRowAndColumn(gridLayout, cj1ActualLift, ACTUAL, CJ1);
 		TextField cj2ActualLift = new TextField();
-		binder.bind(cj2ActualLift, Athlete::getCleanJerk2ActualLift, Athlete::setCleanJerk2ActualLift);
+		binder.forField(cj2ActualLift)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualCleanJerk2(v)))
+			.bind(Athlete::getCleanJerk2ActualLift, Athlete::setCleanJerk2ActualLift);
 		atRowAndColumn(gridLayout, cj2ActualLift, ACTUAL, CJ2);
 		TextField cj3ActualLift = new TextField();
-		binder.bind(cj3ActualLift, Athlete::getCleanJerk3ActualLift, Athlete::setCleanJerk3ActualLift);
+		binder.forField(cj3ActualLift)
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualCleanJerk3(v)))
+			.bind(Athlete::getCleanJerk3ActualLift, Athlete::setCleanJerk3ActualLift);
 		atRowAndColumn(gridLayout, cj3ActualLift, ACTUAL, CJ3);
 
 		binder.readBean(a);
@@ -191,11 +254,12 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		atRowAndColumn(gridLayout, new Label("C&J 3"), HEADER, CJ3);
 
 		// row headings
+		atRowAndColumn(gridLayout, new Label("Automatic Progression"), AUTOMATIC, LEFT);
 		atRowAndColumn(gridLayout, new Label("Declaration"), DECLARATION, LEFT);
 		atRowAndColumn(gridLayout, new Label("Change 1"), CHANGE1, LEFT);
 		atRowAndColumn(gridLayout, new Label("Change 2"), CHANGE2, LEFT);
 		atRowAndColumn(gridLayout, new Label("Weight Lifted"), ACTUAL, LEFT);
-		
+
 		return gridLayout;
 	}
 
@@ -218,11 +282,12 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			.getClassNames();
 		classNames.remove("bad");
 		classNames.remove("good");
-		if (value != null && value.trim().length() > 0) {
+		if (value != null && value.trim()
+			.length() > 0) {
 			if (value.startsWith("-")) {
-				classNames.add("good");
-			} else {
 				classNames.add("bad");
+			} else {
+				classNames.add("good");
 			}
 		}
 	}

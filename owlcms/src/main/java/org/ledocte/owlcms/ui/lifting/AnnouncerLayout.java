@@ -39,6 +39,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
+@HtmlImport("frontend://styles/shared-styles.html")
 @Theme(Lumo.class)
 @Push
 public class AnnouncerLayout extends MainNavigationLayout implements UIEventListener {

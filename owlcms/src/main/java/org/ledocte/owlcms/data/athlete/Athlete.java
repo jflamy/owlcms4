@@ -37,7 +37,6 @@ import org.ledocte.owlcms.data.group.Group;
 import org.ledocte.owlcms.i18n.Messages;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
@@ -65,17 +64,16 @@ import ch.qos.logback.classic.Logger;
  * <p>
  * Computed fields are defined as final transient properties and marked as
  *
- * @author jflamy
- * @Transient; the only reason for this is so the JavaBeans introspection
- * mechanisms find them.
- * </p>
- * <p>
- * This class uses events to notify interested user interface components that
- * fields or computed values have changed. In this way the user interface does
- * not have to know that the category field on the screen is dependent on the
- * bodyweight and the gender -- all the dependency logic is kept at the business
- * object level.
- * </p>
+ * @author jflamy @Transient; the only reason for this is so the JavaBeans
+ *         introspection mechanisms find them.
+ *         </p>
+ *         <p>
+ *         This class uses events to notify interested user interface components
+ *         that fields or computed values have changed. In this way the user
+ *         interface does not have to know that the category field on the screen
+ *         is dependent on the bodyweight and the gender -- all the dependency
+ *         logic is kept at the business object level.
+ *         </p>
  */
 @Entity
 @Cacheable
@@ -147,7 +145,8 @@ public class Athlete {
 
 	private String membership = ""; //$NON-NLS-1$
 
-	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+			CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "fk_group")
 	private Group group;
 
@@ -161,7 +160,8 @@ public class Athlete {
 	// people want to type
 	// "-" or other things in the cells, so Strings are actually easier.
 
-	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+			CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "fk_categ")
 	private Category category = null;
 	private String snatch1Declaration;
@@ -268,33 +268,26 @@ public class Athlete {
 //	Date lastLiftTime = null;
 //	@Transient
 //	final transient Integer nextAttemptRequestedWeight = 0;
-	
+
 	/** The lift order rank. */
-/*
+	/*
 	 * Non-persistent properties. These properties are used during computations, but
 	 * need not be stored in the database
 	 */
 	@Transient
 	Integer liftOrderRank = 0;
-	
+
 	/** The result order rank. */
 	@Transient
 	Integer resultOrderRank = 0;
-	
+
 	/** The current lifter. */
 	@Transient
 	boolean currentLifter = false;
-	
+
 	/** The forced as current. */
 	@Transient
 	boolean forcedAsCurrent = false;
-	
-	/*
-	 * Transient fields that have no relevance to the persistent state of a Athlete
-	 * All framework-related and pattern-related constructs go here.
-	 */
-	@Transient
-	private EventBus eventBus;
 
 	private Double customScore;
 
@@ -351,12 +344,10 @@ public class Athlete {
 			yob = 1900;
 		}
 		String gender2 = this.getGender();
-		if (gender2 == null || gender2.trim()
-			.isEmpty()) {
+		if (gender2 == null || gender2.trim().isEmpty()) {
 			gender2 = "F";
 		}
-		int year1 = Calendar.getInstance()
-			.get(Calendar.YEAR);
+		int year1 = Calendar.getInstance().get(Calendar.YEAR);
 		final int age = year1 - yob;
 		if (age <= 17) {
 			return 17;
@@ -969,7 +960,6 @@ public class Athlete {
 		return gender;
 	}
 
-
 	/**
 	 * Gets the id.
 	 *
@@ -1303,7 +1293,7 @@ public class Athlete {
 		if (c.getRobiA() == null || c.getWr() <= 0.000001)
 			return 0.0;
 		double robi = c.getRobiA() * Math.pow(getTotal(), c.getRobiB());
-		//System.err.println(robi);
+		// System.err.println(robi);
 		return robi;
 	}
 
@@ -1809,7 +1799,6 @@ public class Athlete {
 	 */
 	public void setBodyWeight(Double bodyWeight) {
 		this.bodyWeight = bodyWeight;
-		fireEvent(new UpdateEvent(this, "category", "bodyWeight")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -1817,9 +1806,9 @@ public class Athlete {
 	 *
 	 * @param category the category to set
 	 */
-	 public void setCategory(Category category) {
-		 this.category = category;
-	 }
+	public void setCategory(Category category) {
+		this.category = category;
+	}
 
 	/**
 	 * Sets the clean jerk 1 actual lift.
@@ -1827,19 +1816,27 @@ public class Athlete {
 	 * @param cleanJerk1ActualLift the new clean jerk 1 actual lift
 	 */
 	public void setCleanJerk1ActualLift(String cleanJerk1ActualLift) {
-		validateActualLift(1,
-			getCleanJerk1AutomaticProgression(),
-			cleanJerk1Declaration,
-			cleanJerk1Change1,
-			cleanJerk1Change2,
-			cleanJerk1ActualLift);
+		validateActualCleanJerk1(cleanJerk1ActualLift);
 		this.cleanJerk1ActualLift = cleanJerk1ActualLift;
 		if (zeroIfInvalid(cleanJerk1ActualLift) == 0)
 			this.cleanJerk1LiftTime = (null);
 		else
 			this.cleanJerk1LiftTime = sqlNow();
 		logger.info("{} cleanJerk1ActualLift={}", this, cleanJerk1ActualLift);
-		fireEvent(new UpdateEvent(this, "cleanJerk1ActualLift", "cleanJerk1LiftTime", "total", "automatic")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	public boolean validateActualCleanJerk1(String cleanJerk1ActualLift) {
+		try {
+			validateActualLift(1,
+				getCleanJerk1AutomaticProgression(),
+				cleanJerk1Declaration,
+				cleanJerk1Change1,
+				cleanJerk1Change2,
+				cleanJerk1ActualLift);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	/**
@@ -1862,6 +1859,14 @@ public class Athlete {
 			setCleanJerk1ActualLift("0");
 			return;
 		}
+		validateCleanJerk1Change1(cleanJerk1Change1);
+		this.cleanJerk1Change1 = cleanJerk1Change1;
+		checkStartingTotalsRule(true);
+
+		logger.info("{} cleanJerk1Change1={}", this, cleanJerk1Change1);
+	}
+
+	public boolean validateCleanJerk1Change1(String cleanJerk1Change1) throws RuleViolationException {
 		validateChange1(1,
 			getCleanJerk1AutomaticProgression(),
 			cleanJerk1Declaration,
@@ -1869,11 +1874,7 @@ public class Athlete {
 			cleanJerk1Change2,
 			cleanJerk1ActualLift,
 			false);
-		this.cleanJerk1Change1 = cleanJerk1Change1;
-		checkStartingTotalsRule(true);
-
-		logger.info("{} cleanJerk1Change1={}", this, cleanJerk1Change1);
-		fireEvent(new UpdateEvent(this, "cleanJerk1Change1", "missingKg")); //$NON-NLS-1$
+		return true;
 	}
 
 	/**
@@ -1888,6 +1889,14 @@ public class Athlete {
 			setCleanJerk1ActualLift("0");
 			return;
 		}
+		validateCleanJerk1Change2(cleanJerk1Change2);
+		this.cleanJerk1Change2 = cleanJerk1Change2;
+		checkStartingTotalsRule(true);
+
+		logger.info("{} cleanJerk1Change2={}", this, cleanJerk1Change2);
+	}
+
+	public boolean validateCleanJerk1Change2(String cleanJerk1Change2) throws RuleViolationException {
 		validateChange2(1,
 			getCleanJerk1AutomaticProgression(),
 			cleanJerk1Declaration,
@@ -1895,11 +1904,7 @@ public class Athlete {
 			cleanJerk1Change2,
 			cleanJerk1ActualLift,
 			false);
-		this.cleanJerk1Change2 = cleanJerk1Change2;
-		checkStartingTotalsRule(true);
-
-		logger.info("{} cleanJerk1Change2={}", this, cleanJerk1Change2);
-		fireEvent(new UpdateEvent(this, "cleanJerk1Change2", "missingKg")); //$NON-NLS-1$
+		return true;
 	}
 
 	/**
@@ -1927,7 +1932,6 @@ public class Athlete {
 			checkStartingTotalsRule(true);
 
 		logger.info("{} cleanJerk1Declaration={}", this, cleanJerk1Declaration);
-		fireEvent(new UpdateEvent(this, "cleanJerk1Declaration", "missingKg")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -1944,19 +1948,27 @@ public class Athlete {
 	 * @param cleanJerk2ActualLift the new clean jerk 2 actual lift
 	 */
 	public void setCleanJerk2ActualLift(String cleanJerk2ActualLift) {
-		validateActualLift(2,
-			getCleanJerk2AutomaticProgression(),
-			cleanJerk2Declaration,
-			cleanJerk2Change1,
-			cleanJerk2Change2,
-			cleanJerk2ActualLift);
+		validateActualCleanJerk2(cleanJerk2ActualLift);
 		this.cleanJerk2ActualLift = cleanJerk2ActualLift;
 		if (zeroIfInvalid(cleanJerk2ActualLift) == 0)
 			this.cleanJerk2LiftTime = (null);
 		else
 			this.cleanJerk2LiftTime = sqlNow();
 		logger.info("{} cleanJerk2ActualLift={}", this, cleanJerk2ActualLift);
-		fireEvent(new UpdateEvent(this, "cleanJerk2ActualLift", "cleanJerk2LiftTime", "total", "automatic")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	public boolean validateActualCleanJerk2(String cleanJerk2ActualLift) {
+		try {
+			validateActualLift(2,
+				getCleanJerk2AutomaticProgression(),
+				cleanJerk2Declaration,
+				cleanJerk2Change2,
+				cleanJerk2Change2,
+				cleanJerk2ActualLift);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	/**
@@ -1979,6 +1991,12 @@ public class Athlete {
 			setCleanJerk2ActualLift("0");
 			return;
 		}
+		validateCleanJerk2Change1(cleanJerk2Change1);
+		this.cleanJerk2Change1 = cleanJerk2Change1;
+		logger.info("{} cleanJerk2Change1={}", this, cleanJerk2Change1);
+	}
+
+	public boolean validateCleanJerk2Change1(String cleanJerk2Change1) throws RuleViolationException {
 		validateChange1(2,
 			getCleanJerk2AutomaticProgression(),
 			cleanJerk2Declaration,
@@ -1986,9 +2004,7 @@ public class Athlete {
 			cleanJerk2Change2,
 			cleanJerk2ActualLift,
 			false);
-		this.cleanJerk2Change1 = cleanJerk2Change1;
-		logger.info("{} cleanJerk2Change1={}", this, cleanJerk2Change1);
-		fireEvent(new UpdateEvent(this, "cleanJerk2Change1")); //$NON-NLS-1$
+		return true;
 	}
 
 	/**
@@ -2003,6 +2019,12 @@ public class Athlete {
 			setCleanJerk2ActualLift("0");
 			return;
 		}
+		validateCleanJerk2Change2(cleanJerk2Change2);
+		this.cleanJerk2Change2 = cleanJerk2Change2;
+		logger.info("{} cleanJerk2Change2={}", this, cleanJerk2Change2);
+	}
+
+	public boolean validateCleanJerk2Change2(String cleanJerk2Change2) throws RuleViolationException {
 		validateChange2(2,
 			getCleanJerk2AutomaticProgression(),
 			cleanJerk2Declaration,
@@ -2010,9 +2032,7 @@ public class Athlete {
 			cleanJerk2Change2,
 			cleanJerk2ActualLift,
 			false);
-		this.cleanJerk2Change2 = cleanJerk2Change2;
-		logger.info("{} cleanJerk2Change2={}", this, cleanJerk2Change2);
-		fireEvent(new UpdateEvent(this, "cleanJerk2Change2")); //$NON-NLS-1$
+		return true;
 	}
 
 	/**
@@ -2036,7 +2056,6 @@ public class Athlete {
 			false);
 		this.cleanJerk2Declaration = cleanJerk2Declaration;
 		logger.info("{} cleanJerk2Declaration={}", this, cleanJerk2Declaration);
-		fireEvent(new UpdateEvent(this, "cleanJerk2Declaration")); //$NON-NLS-1$ 
 	}
 
 	/**
@@ -2053,19 +2072,24 @@ public class Athlete {
 	 * @param cleanJerk3ActualLift the new clean jerk 3 actual lift
 	 */
 	public void setCleanJerk3ActualLift(String cleanJerk3ActualLift) {
-		validateActualLift(3,
-			getCleanJerk3AutomaticProgression(),
-			cleanJerk3Declaration,
-			cleanJerk3Change1,
-			cleanJerk3Change2,
-			cleanJerk3ActualLift);
+		validateActualCleanJerk3(cleanJerk3ActualLift);
 		this.cleanJerk3ActualLift = cleanJerk3ActualLift;
 		if (zeroIfInvalid(cleanJerk3ActualLift) == 0)
 			this.cleanJerk3LiftTime = (null);
 		else
 			this.cleanJerk3LiftTime = sqlNow();
 		logger.info("{} cleanJerk3ActualLift={}", this, cleanJerk3ActualLift);
-		fireEvent(new UpdateEvent(this, "cleanJerk3ActualLift", "cleanJerk3LiftTime", "total", "automatic")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	public boolean validateActualCleanJerk3(String cleanJerk3ActualLift) throws RuleViolationException {
+		validateActualLift(3,
+			getCleanJerk3AutomaticProgression(),
+			cleanJerk3Declaration,
+			cleanJerk3Change1,
+			cleanJerk3Change2,
+			cleanJerk3ActualLift);
+		// throws exception if invalid
+		return true;
 	}
 
 	/**
@@ -2088,6 +2112,12 @@ public class Athlete {
 			setCleanJerk3ActualLift("0");
 			return;
 		}
+		validateCleanJerk3Change1(cleanJerk3Change1);
+		this.cleanJerk3Change1 = cleanJerk3Change1;
+		logger.info("{} cleanJerk3Change1={}", this, cleanJerk3Change1);
+	}
+
+	public boolean validateCleanJerk3Change1(String cleanJerk3Change1) throws RuleViolationException {
 		validateChange1(3,
 			getCleanJerk3AutomaticProgression(),
 			cleanJerk3Declaration,
@@ -2095,9 +2125,7 @@ public class Athlete {
 			cleanJerk3Change2,
 			cleanJerk3ActualLift,
 			false);
-		this.cleanJerk3Change1 = cleanJerk3Change1;
-		logger.info("{} cleanJerk3Change1={}", this, cleanJerk3Change1);
-		fireEvent(new UpdateEvent(this, "cleanJerk3Change1")); //$NON-NLS-1$
+		return true;
 	}
 
 	/**
@@ -2113,6 +2141,12 @@ public class Athlete {
 			return;
 		}
 
+		validateCleanJerk3Change2(cleanJerk3Change2);
+		this.cleanJerk3Change2 = cleanJerk3Change2;
+		logger.info("{} cleanJerk3Change2={}", this, cleanJerk3Change2);
+	}
+
+	public boolean validateCleanJerk3Change2(String cleanJerk3Change2) throws RuleViolationException {
 		validateChange2(3,
 			getCleanJerk3AutomaticProgression(),
 			cleanJerk3Declaration,
@@ -2120,9 +2154,7 @@ public class Athlete {
 			cleanJerk3Change2,
 			cleanJerk3ActualLift,
 			false);
-		this.cleanJerk3Change2 = cleanJerk3Change2;
-		logger.info("{} cleanJerk3Change2={}", this, cleanJerk3Change2);
-		fireEvent(new UpdateEvent(this, "cleanJerk3Change2")); //$NON-NLS-1$
+		return true;
 	}
 
 	/**
@@ -2146,7 +2178,6 @@ public class Athlete {
 			false);
 		this.cleanJerk3Declaration = cleanJerk3Declaration;
 		logger.info("{} cleanJerk3Declaration={}", this, cleanJerk3Declaration);
-		fireEvent(new UpdateEvent(this, "cleanJerk3Declaration")); //$NON-NLS-1$ 
 	}
 
 	/**
@@ -2227,7 +2258,6 @@ public class Athlete {
 	public void setForcedAsCurrent(boolean forcedAsCurrent) {
 		logger.debug("setForcedAsCurrent({})", forcedAsCurrent); //$NON-NLS-1$
 		this.forcedAsCurrent = forcedAsCurrent;
-		fireEvent(new UpdateEvent(this, "_forceAsCurrent")); // no visible property update //$NON-NLS-1$
 	}
 
 	/**
@@ -2241,7 +2271,6 @@ public class Athlete {
 		} else {
 			this.gender = string;
 		}
-		fireEvent(new UpdateEvent(this, "category", "gender")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -2330,7 +2359,6 @@ public class Athlete {
 	 */
 	public void setQualifyingTotal(Integer qualifyingTotal) {
 		this.qualifyingTotal = qualifyingTotal;
-		fireEvent(new UpdateEvent(this, "qualifyingTotal", "missingKg")); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	/**
@@ -2349,17 +2377,13 @@ public class Athlete {
 	 */
 	public void setRegistrationCategory(Category registrationCategory) {
 		this.category = registrationCategory;
-		// category may need to be flagged as different from registration if
-		// this
-		// value is changed.
-		fireEvent(new UpdateEvent(this, "registrationCategory", "category")); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	/**
 	 * Sets the result order rank.
 	 *
 	 * @param resultOrderRank the result order rank
-	 * @param rankingType the ranking type
+	 * @param rankingType     the ranking type
 	 */
 	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
 		this.resultOrderRank = resultOrderRank;
@@ -2389,19 +2413,23 @@ public class Athlete {
 	 * @param snatch1ActualLift the new snatch 1 actual lift
 	 */
 	public void setSnatch1ActualLift(String snatch1ActualLift) {
-		validateActualLift(1,
-			getSnatch1AutomaticProgression(),
-			snatch1Declaration,
-			snatch1Change1,
-			snatch1Change2,
-			snatch1ActualLift);
+		validateActualSnatch1(snatch1ActualLift);
 		this.snatch1ActualLift = snatch1ActualLift;
 		if (zeroIfInvalid(snatch1ActualLift) == 0)
 			this.snatch1LiftTime = null;
 		else
 			this.snatch1LiftTime = sqlNow();
 		logger.info("{} snatch1ActualLift={}", this, snatch1ActualLift);
-		fireEvent(new UpdateEvent(this, "snatch1ActualLift", "snatch1LiftTime", "total", "automatic")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	public boolean validateActualSnatch1(String snatch1ActualLift) throws RuleViolationException {
+		validateActualLift(1,
+			getSnatch1AutomaticProgression(),
+			snatch1Declaration,
+			snatch1Change1,
+			snatch1Change2,
+			snatch1ActualLift);
+		return true;
 	}
 
 	private Date sqlNow() {
@@ -2430,6 +2458,14 @@ public class Athlete {
 			setSnatch1ActualLift("0");
 			return;
 		}
+		validateSnatch1Change1(snatch1Change1);
+		this.snatch1Change1 = snatch1Change1;
+		checkStartingTotalsRule(true);
+
+		logger.info("{} snatch1Change1={}", this, snatch1Change1);
+	}
+
+	public boolean validateSnatch1Change1(String snatch1Change1) throws RuleViolationException {
 		validateChange1(1,
 			getSnatch1AutomaticProgression(),
 			snatch1Declaration,
@@ -2437,11 +2473,7 @@ public class Athlete {
 			snatch1Change2,
 			snatch1ActualLift,
 			true);
-		this.snatch1Change1 = snatch1Change1;
-		checkStartingTotalsRule(true);
-
-		logger.info("{} snatch1Change1={}", this, snatch1Change1);
-		fireEvent(new UpdateEvent(this, "snatch1Change1", "missingKg")); //$NON-NLS-1$
+		return true;
 	}
 
 	/**
@@ -2456,6 +2488,14 @@ public class Athlete {
 			setSnatch1ActualLift("0");
 			return;
 		}
+		validateSnatch1Change2(snatch1Change2);
+		this.snatch1Change2 = snatch1Change2;
+		checkStartingTotalsRule(true);
+
+		logger.info("{} snatch1Change2={}", this, snatch1Change2);
+	}
+
+	public boolean validateSnatch1Change2(String snatch1Change2) throws RuleViolationException {
 		validateChange2(1,
 			getSnatch1AutomaticProgression(),
 			snatch1Declaration,
@@ -2463,11 +2503,7 @@ public class Athlete {
 			snatch1Change2,
 			snatch1ActualLift,
 			true);
-		this.snatch1Change2 = snatch1Change2;
-		checkStartingTotalsRule(true);
-
-		logger.info("{} snatch1Change2={}", this, snatch1Change2);
-		fireEvent(new UpdateEvent(this, "snatch1Change2", "missingKg")); //$NON-NLS-1$
+		return true;
 	}
 
 	/**
@@ -2494,8 +2530,6 @@ public class Athlete {
 			checkStartingTotalsRule(true);
 
 		logger.info("{} snatch1Declaration={}", this, snatch1Declaration);
-		fireEvent(new UpdateEvent(this, "snatch1Declaration", "missingKg")); //$NON-NLS-1$ //$NON-NLS-2$
-
 	}
 
 	/**
@@ -2512,19 +2546,27 @@ public class Athlete {
 	 * @param snatch2ActualLift the new snatch 2 actual lift
 	 */
 	public void setSnatch2ActualLift(String snatch2ActualLift) {
-		validateActualLift(2,
-			getSnatch2AutomaticProgression(),
-			snatch2Declaration,
-			snatch2Change1,
-			snatch2Change2,
-			snatch2ActualLift);
+		validateActualSnatch2(snatch2ActualLift);
 		this.snatch2ActualLift = snatch2ActualLift;
 		if (zeroIfInvalid(snatch2ActualLift) == 0)
 			this.snatch2LiftTime = (null);
 		else
 			this.snatch2LiftTime = sqlNow();
 		logger.info("{} snatch2ActualLift={}", this, snatch2ActualLift);
-		fireEvent(new UpdateEvent(this, "snatch2ActualLift", "snatch2LiftTime", "total", "automatic")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	public boolean validateActualSnatch2(String snatch2ActualLift) {
+		try {
+			validateActualLift(3,
+				getSnatch2AutomaticProgression(),
+				snatch2Declaration,
+				snatch2Change2,
+				snatch2Change2,
+				snatch2ActualLift);
+			return true;
+		} catch (RuleViolationException e) {
+			return false;
+		}
 	}
 
 	/**
@@ -2547,6 +2589,12 @@ public class Athlete {
 			setSnatch2ActualLift("0");
 			return;
 		}
+		validateSnatch2Change1(snatch2Change1);
+		this.snatch2Change1 = snatch2Change1;
+		logger.info("{} snatch2Change1={}", this, snatch2Change1);
+	}
+
+	public boolean validateSnatch2Change1(String snatch2Change1) throws RuleViolationException {
 		validateChange1(2,
 			getSnatch2AutomaticProgression(),
 			snatch2Declaration,
@@ -2554,15 +2602,8 @@ public class Athlete {
 			snatch2Change2,
 			snatch2ActualLift,
 			true);
-		this.snatch2Change1 = snatch2Change1;
-		logger.info("{} snatch2Change1={}", this, snatch2Change1);
-		fireEvent(new UpdateEvent(this, "snatch2Change1")); //$NON-NLS-1$
+		return true;
 	}
-
-	/*
-	 * *****************************************************************************
-	 * **** UpdateEvent framework.
-	 */
 
 	/**
 	 * Sets the snatch 2 change 2.
@@ -2576,6 +2617,12 @@ public class Athlete {
 			setSnatch2ActualLift("0");
 			return;
 		}
+		validateSnatch2Change2(snatch2Change2);
+		this.snatch2Change2 = snatch2Change2;
+		logger.info("{} snatch2Change2={}", this, snatch2Change2);
+	}
+
+	public boolean validateSnatch2Change2(String snatch2Change2) throws RuleViolationException {
 		validateChange2(2,
 			getSnatch2AutomaticProgression(),
 			snatch2Declaration,
@@ -2583,9 +2630,7 @@ public class Athlete {
 			snatch2Change2,
 			snatch2ActualLift,
 			true);
-		this.snatch2Change2 = snatch2Change2;
-		logger.info("{} snatch2Change2={}", this, snatch2Change2);
-		fireEvent(new UpdateEvent(this, "snatch2Change2")); //$NON-NLS-1$
+		return true;
 	}
 
 	/**
@@ -2609,7 +2654,6 @@ public class Athlete {
 			true);
 		this.snatch2Declaration = snatch2Declaration;
 		logger.info("{} snatch2Declaration={}", this, snatch2Declaration);
-		fireEvent(new UpdateEvent(this, "snatch2Declaration")); //$NON-NLS-1$
 	}
 
 	/**
@@ -2626,19 +2670,23 @@ public class Athlete {
 	 * @param snatch3ActualLift the new snatch 3 actual lift
 	 */
 	public void setSnatch3ActualLift(String snatch3ActualLift) {
-		validateActualLift(3,
-			getSnatch3AutomaticProgression(),
-			snatch3Declaration,
-			snatch3Change1,
-			snatch3Change2,
-			snatch3ActualLift);
+		validateActualSnatch3(snatch3ActualLift);
 		this.snatch3ActualLift = snatch3ActualLift;
 		if (zeroIfInvalid(snatch3ActualLift) == 0)
 			this.snatch3LiftTime = (null);
 		else
 			this.snatch3LiftTime = sqlNow();
 		logger.info("{} snatch3ActualLift={}", this, snatch3ActualLift);
-		fireEvent(new UpdateEvent(this, "snatch2ActualLift", "snatch2LiftTime", "automatic")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	public boolean validateActualSnatch3(String snatch2ActualLift) throws RuleViolationException {
+		validateActualLift(3,
+			getSnatch3AutomaticProgression(),
+			snatch3Declaration,
+			snatch3Change1,
+			snatch3Change2,
+			snatch3ActualLift);
+		return true;
 	}
 
 	/**
@@ -2661,6 +2709,12 @@ public class Athlete {
 			setSnatch3ActualLift("0");
 			return;
 		}
+		validateSnatch3Change1(snatch3Change1);
+		this.snatch3Change1 = snatch3Change1;
+		logger.info("{} snatch3Change1={}", this, snatch3Change1);
+	}
+
+	public boolean validateSnatch3Change1(String snatch3Change1) throws RuleViolationException {
 		validateChange1(3,
 			getSnatch3AutomaticProgression(),
 			snatch3Declaration,
@@ -2668,9 +2722,7 @@ public class Athlete {
 			snatch3Change2,
 			snatch3ActualLift,
 			true);
-		this.snatch3Change1 = snatch3Change1;
-		logger.info("{} snatch3Change1={}", this, snatch3Change1);
-		fireEvent(new UpdateEvent(this, "snatch3Change1")); //$NON-NLS-1$
+		return true;
 	}
 
 	/*
@@ -2692,6 +2744,12 @@ public class Athlete {
 			setSnatch3ActualLift("0");
 			return;
 		}
+		validateSnatch3Change2(snatch3Change2);
+		this.snatch3Change2 = snatch3Change2;
+		logger.info("{} snatch3Change2={}", this, snatch3Change2);
+	}
+
+	public boolean validateSnatch3Change2(String snatch3Change2) throws RuleViolationException {
 		validateChange2(3,
 			getSnatch3AutomaticProgression(),
 			snatch3Declaration,
@@ -2699,9 +2757,7 @@ public class Athlete {
 			snatch3Change2,
 			snatch3ActualLift,
 			true);
-		this.snatch3Change2 = snatch3Change2;
-		logger.info("{} snatch3Change2={}", this, snatch3Change2);
-		fireEvent(new UpdateEvent(this, "snatch3Change2")); //$NON-NLS-1$
+		return true;
 	}
 
 	/**
@@ -2725,7 +2781,6 @@ public class Athlete {
 			true);
 		this.snatch3Declaration = snatch3Declaration;
 		logger.info("{} snatch3Declaration={}", this, snatch3Declaration);
-		fireEvent(new UpdateEvent(this, "snatch3Declaration")); //$NON-NLS-1$
 	}
 
 	/**
@@ -2905,7 +2960,8 @@ public class Athlete {
 	 */
 	public Integer getMedalRank() {
 		Integer i = getRank();
-		if (i == null) return 0;
+		if (i == null)
+			return 0;
 		return (i <= 3 ? i : 0);
 	}
 
@@ -2918,7 +2974,9 @@ public class Athlete {
 		doLift(weight);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -2926,39 +2984,41 @@ public class Athlete {
 		return getLastName() + "_" + getFirstName() + "_" + System.identityHashCode(this); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-    /**
-     * Long dump.
-     *
-     * @return the string
-     */
-    public String longDump() {
-        final Category category = this.getCategory();
-        final Group group = this.getGroup();
+	/**
+	 * Long dump.
+	 *
+	 * @return the string
+	 */
+	public String longDump() {
+		final Category category = this.getCategory();
+		final Group group = this.getGroup();
 		return (new StringBuilder())
-                .append(" lastName=" + this.getLastName()) //$NON-NLS-1$
-                .append(" firstName=" + this.getFirstName()) //$NON-NLS-1$
-                .append(" membership=" + this.getMembership()) //$NON-NLS-1$
-                .append(" lotNumber=" + this.getLotNumber()) //$NON-NLS-1$
-                .append(" group=" + (group != null ? group.getName() : null)) //$NON-NLS-1$
-                .append(" team=" + this.getTeam()) //$NON-NLS-1$
-                .append(" gender=" + this.getGender()) //$NON-NLS-1$
-                .append(" bodyWeight=" + this.getBodyWeight()) //$NON-NLS-1$
-                .append(" birthDate=" + this.getYearOfBirth()) //$NON-NLS-1$
-                .append(" category=" + (category != null ? category.getName().toLowerCase() : null)) //$NON-NLS-1$
-                .append(" actualCategory=" + this.getLongCategory().toString().toLowerCase()) //$NON-NLS-1$
-                .append(" snatch1ActualLift=" + this.getSnatch1ActualLift()) //$NON-NLS-1$
-                .append(" snatch2=" + this.getSnatch2ActualLift()) //$NON-NLS-1$
-                .append(" snatch3=" + this.getSnatch3ActualLift()) //$NON-NLS-1$
-                .append(" bestSnatch=" + this.getBestSnatch()) //$NON-NLS-1$
-                .append(" cleanJerk1ActualLift=" + this.getCleanJerk1ActualLift()) //$NON-NLS-1$
-                .append(" cleanJerk2=" + this.getCleanJerk2ActualLift()) //$NON-NLS-1$
-                .append(" cleanJerk3=" + this.getCleanJerk3ActualLift()) //$NON-NLS-1$
-                .append(" total=" + this.getTotal()) //$NON-NLS-1$
-                .append(" totalRank=" + this.getRank()) //$NON-NLS-1$
-                .append(" teamMember=" + this.getTeamMember())
-                .toString();
-    }
-
+			.append(" lastName=" + this.getLastName()) //$NON-NLS-1$
+			.append(" firstName=" + this.getFirstName()) //$NON-NLS-1$
+			.append(" membership=" + this.getMembership()) //$NON-NLS-1$
+			.append(" lotNumber=" + this.getLotNumber()) //$NON-NLS-1$
+			.append(" group=" + (group != null ? group.getName() : null)) //$NON-NLS-1$
+			.append(" team=" + this.getTeam()) //$NON-NLS-1$
+			.append(" gender=" + this.getGender()) //$NON-NLS-1$
+			.append(" bodyWeight=" + this.getBodyWeight()) //$NON-NLS-1$
+			.append(" birthDate=" + this.getYearOfBirth()) //$NON-NLS-1$
+			.append(" category=" + (category != null ? category.getName() //$NON-NLS-1$
+				.toLowerCase() : null))
+			.append(" actualCategory=" + this.getLongCategory() //$NON-NLS-1$
+				.toString()
+				.toLowerCase())
+			.append(" snatch1ActualLift=" + this.getSnatch1ActualLift()) //$NON-NLS-1$
+			.append(" snatch2=" + this.getSnatch2ActualLift()) //$NON-NLS-1$
+			.append(" snatch3=" + this.getSnatch3ActualLift()) //$NON-NLS-1$
+			.append(" bestSnatch=" + this.getBestSnatch()) //$NON-NLS-1$
+			.append(" cleanJerk1ActualLift=" + this.getCleanJerk1ActualLift()) //$NON-NLS-1$
+			.append(" cleanJerk2=" + this.getCleanJerk2ActualLift()) //$NON-NLS-1$
+			.append(" cleanJerk3=" + this.getCleanJerk3ActualLift()) //$NON-NLS-1$
+			.append(" total=" + this.getTotal()) //$NON-NLS-1$
+			.append(" totalRank=" + this.getRank()) //$NON-NLS-1$
+			.append(" teamMember=" + this.getTeamMember())
+			.toString();
+	}
 
 	/**
 	 * Gets the logger.
@@ -3107,18 +3167,6 @@ public class Athlete {
 	}
 
 	/**
-	 * @return the object's event router.
-	 */
-	private EventBus getEventBus() {
-		if (eventBus == null) {
-			// eventRouter = new EventRouter(this);
-			eventBus = new EventBus();
-			logger.trace("new event router for Athlete {}", this); //$NON-NLS-1$
-		}
-		return eventBus;
-	}
-
-	/**
 	 * Last.
 	 *
 	 * @param items the items
@@ -3188,7 +3236,7 @@ public class Athlete {
 	 * @param curLift
 	 * @param actualLift
 	 */
-	private void validateActualLift(int curLift, String automaticProgression, String declaration, String change1,
+	public void validateActualLift(int curLift, String automaticProgression, String declaration, String change1,
 			String change2, String actualLift) {
 		if (actualLift == null || actualLift.trim()
 			.length() == 0)
@@ -3237,7 +3285,7 @@ public class Athlete {
 	 * @param actualLift
 	 */
 	private void validateChange1(int curLift, String automaticProgression, String declaration, String change1,
-			String change2, String actualLift, boolean isSnatch) {
+			String change2, String actualLift, boolean isSnatch) throws RuleViolationException {
 		if (change1 == null || change1.trim()
 			.length() == 0)
 			return; // allow reset of field.
@@ -3253,7 +3301,7 @@ public class Athlete {
 	 * @param actualLift
 	 */
 	private void validateChange2(int curLift, String automaticProgression, String declaration, String change1,
-			String change2, String actualLift, boolean isSnatch) {
+			String change2, String actualLift, boolean isSnatch) throws RuleViolationException {
 		if (change2 == null || change2.trim()
 			.length() == 0)
 			return; // allow reset of field.
@@ -3261,7 +3309,6 @@ public class Athlete {
 		int prevVal = zeroIfInvalid(automaticProgression);
 		if (newVal < prevVal)
 			throw RuleViolation.declaredChangesNotOk(curLift, newVal, prevVal);
-
 	}
 
 	/**
@@ -3269,7 +3316,7 @@ public class Athlete {
 	 * @param actualLift
 	 */
 	private void validateDeclaration(int curLift, String automaticProgression, String declaration, String change1,
-			String change2, String actualLift, boolean isSnatch) {
+			String change2, String actualLift, boolean isSnatch) throws RuleViolationException {
 		if (declaration == null || declaration.trim()
 			.length() == 0)
 			return; // allow reset of field.
@@ -3386,28 +3433,12 @@ public class Athlete {
 	/**
 	 * Show must click notification.
 	 *
-	 * @param message the message
+	 * @param message       the message
 	 * @param unlessCurrent the unless current
 	 */
 	public void showMustClickNotification(String message, boolean unlessCurrent) {
 		// FIXME: should be a message caught by UI and displayed if relevant.
 		Notification.show(message, -1, Position.MIDDLE);
-	}
-
-	/**
-	 * Broadcast a Athlete.UpdateEvent to all registered listeners
-	 *
-	 * @param updateEvent contains the source (ourself) and the list of properties
-	 *                    to be refreshed.
-	 */
-	protected void fireEvent(UpdateEvent updateEvent) {
-		logger.debug("Athlete: firing event from " + System.identityHashCode(this) + " " + lastName + " " + firstName //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				+ " " + updateEvent.getPropertyIds()); //$NON-NLS-1$
-		EventBus eventBus = getEventBus();
-		if (eventBus != null) {
-			eventBus.post(updateEvent);
-		}
-
 	}
 
 	/**
