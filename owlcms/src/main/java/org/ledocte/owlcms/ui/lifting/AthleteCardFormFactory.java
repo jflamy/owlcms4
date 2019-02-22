@@ -14,6 +14,8 @@ import org.ledocte.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import org.ledocte.owlcms.utils.ValidationUtils;
 import org.vaadin.crudui.crud.CrudOperation;
 
+import com.github.appreciated.css.grid.GridLayoutComponent.ColumnAlign;
+import com.github.appreciated.css.grid.GridLayoutComponent.RowAlign;
 import com.github.appreciated.css.grid.sizes.Flex;
 import com.github.appreciated.css.grid.sizes.Int;
 import com.github.appreciated.css.grid.sizes.Length;
@@ -48,6 +50,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	private static final int CJ1 = SNATCH3 + 1;
 	private static final int CJ2 = CJ1 + 1;
 	private static final int CJ3 = CJ2 + 1;
+	private Label errorLabel;
 
 	public AthleteCardFormFactory(Class<Athlete> domainType) {
 		super(domainType);
@@ -75,7 +78,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		}
 
 		GridLayout gridLayout = setupGrid();
-
+		errorLabel = new Label();
 		bindGridFields(operation, a, gridLayout);
 
 		Component footerLayout = this
@@ -83,6 +86,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
 		com.vaadin.flow.component.orderedlayout.VerticalLayout mainLayout = new VerticalLayout(formLayout,
 				gridLayout,
+				errorLabel,
 				footerLayout);
 		gridLayout.setSizeFull();
 		mainLayout.setFlexGrow(1, gridLayout);
@@ -152,6 +156,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		TextField snatch1ActualLift = new TextField();
 		binder.forField(snatch1ActualLift)
 			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualSnatch1(v)))
+			.withStatusLabel(errorLabel)
 			.bind(Athlete::getSnatch1ActualLift, Athlete::setSnatch1ActualLift);
 		atRowAndColumn(gridLayout, snatch1ActualLift, ACTUAL, SNATCH1);
 		TextField snatch2ActualLift = new TextField();
@@ -239,6 +244,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		binder.readBean(a);
 	}
 
+	private void atRowAndColumn(GridLayout gridLayout, Component component, int row,
+			int column) {
+		atRowAndColumn(gridLayout, component, row, column, RowAlign.CENTER, ColumnAlign.CENTER);
+	}
+
 	protected GridLayout setupGrid() {
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.setTemplateRows(new Repeat(ACTUAL, new Flex(1)));
@@ -246,26 +256,28 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		gridLayout.setGap(new Length("0.8ex"), new Length("1.2ex"));
 
 		// column headers
-		atRowAndColumn(gridLayout, new Label("snatch 1"), HEADER, SNATCH1);
-		atRowAndColumn(gridLayout, new Label("snatch 2"), HEADER, SNATCH2);
-		atRowAndColumn(gridLayout, new Label("snatch 3"), HEADER, SNATCH3);
-		atRowAndColumn(gridLayout, new Label("C&J 1"), HEADER, CJ1);
-		atRowAndColumn(gridLayout, new Label("C&J 2"), HEADER, CJ2);
-		atRowAndColumn(gridLayout, new Label("C&J 3"), HEADER, CJ3);
+		atRowAndColumn(gridLayout, new Label("snatch 1"), HEADER, SNATCH1, RowAlign.CENTER, ColumnAlign.CENTER);
+		atRowAndColumn(gridLayout, new Label("snatch 2"), HEADER, SNATCH2, RowAlign.CENTER, ColumnAlign.CENTER);
+		atRowAndColumn(gridLayout, new Label("snatch 3"), HEADER, SNATCH3, RowAlign.CENTER, ColumnAlign.CENTER);
+		atRowAndColumn(gridLayout, new Label("C&J 1"), HEADER, CJ1, RowAlign.CENTER, ColumnAlign.CENTER);
+		atRowAndColumn(gridLayout, new Label("C&J 2"), HEADER, CJ2, RowAlign.CENTER, ColumnAlign.CENTER);
+		atRowAndColumn(gridLayout, new Label("C&J 3"), HEADER, CJ3, RowAlign.CENTER, ColumnAlign.CENTER);
 
 		// row headings
-		atRowAndColumn(gridLayout, new Label("Automatic Progression"), AUTOMATIC, LEFT);
-		atRowAndColumn(gridLayout, new Label("Declaration"), DECLARATION, LEFT);
-		atRowAndColumn(gridLayout, new Label("Change 1"), CHANGE1, LEFT);
-		atRowAndColumn(gridLayout, new Label("Change 2"), CHANGE2, LEFT);
-		atRowAndColumn(gridLayout, new Label("Weight Lifted"), ACTUAL, LEFT);
+		atRowAndColumn(gridLayout, new Label("Automatic Progression"), AUTOMATIC, LEFT, RowAlign.CENTER, ColumnAlign.END);
+		atRowAndColumn(gridLayout, new Label("Declaration"), DECLARATION, LEFT, RowAlign.CENTER, ColumnAlign.END);
+		atRowAndColumn(gridLayout, new Label("Change 1"), CHANGE1, LEFT, RowAlign.CENTER, ColumnAlign.END);
+		atRowAndColumn(gridLayout, new Label("Change 2"), CHANGE2, LEFT, RowAlign.CENTER, ColumnAlign.END);
+		atRowAndColumn(gridLayout, new Label("Weight Lifted"), ACTUAL, LEFT, RowAlign.CENTER, ColumnAlign.END);
 
 		return gridLayout;
 	}
 
-	private void atRowAndColumn(GridLayout gridLayout, Component component, int row, int column) {
+	private void atRowAndColumn(GridLayout gridLayout, Component component, int row, int column, RowAlign ra, ColumnAlign ca) {
 		gridLayout.add(component);
 		gridLayout.setRowAndColumn(component, new Int(row), new Int(column), new Int(row), new Int(column));
+		gridLayout.setRowAlign(component, ra);
+		gridLayout.setColumnAlign(component, ca);
 		component.getElement()
 			.getStyle()
 			.set("width", "6em");
