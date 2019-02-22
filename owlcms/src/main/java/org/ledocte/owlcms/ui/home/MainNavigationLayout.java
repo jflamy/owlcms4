@@ -14,8 +14,8 @@ import static com.github.appreciated.app.layout.notification.entitiy.Priority.ME
 
 import java.util.function.Consumer;
 
-import org.ledocte.owlcms.OwlcmsFactory;
-import org.ledocte.owlcms.OwlcmsSession;
+import org.ledocte.owlcms.init.OwlcmsFactory;
+import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.ui.displaySetup.DisplayNavigationContent;
 import org.ledocte.owlcms.ui.lifting.LiftingNavigationContent;
 import org.ledocte.owlcms.ui.preparation.PreparationNavigationContent;

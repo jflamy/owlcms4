@@ -328,7 +328,7 @@
 			<!-- <artifactId>excelsior-jet-maven-plugin</artifactId> -->
 			<!-- <version>1.3.2</version> -->
 			<!-- <configuration> -->
-			<!-- <mainClass>org.ledocte.owlcms.Main</mainClass> -->
+			<!-- <mainClass>org.ledocte.owlcms.init.Main</mainClass> -->
 			<!-- </configuration> -->
 			<!-- </plugin> -->
 		</plugins>

@@ -1,0 +1,25 @@
+<link rel="import" href="../bower_components/polymer/lib/elements/custom-style.html">
+
+<custom-style>
+  <style>
+	/** global css definitions go here */
+	/* note that vaadin components are styled using dom-modules below */
+  </style>
+</custom-style>
+
+<!-- Define the theme module (in index.html or in a separate HTML import) -->
+<dom-module id="my-text-field-theme" theme-for="vaadin-text-field">
+<template>
+<style>
+		:host(.bad) [part="input-field"] {
+			background-color: red;
+			color: white;
+		}
+		
+		:host(.good) [part="input-field"] {
+			background-color: green;
+			color: white;
+		}
+</style>
+</template>
+</dom-module>

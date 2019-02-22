@@ -34,7 +34,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 @SuppressWarnings("serial")
 public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implements CrudFormFactory<T> {
 
-	private ResponsiveStep[] responsiveSteps;
+	protected ResponsiveStep[] responsiveSteps;
 
 	/**
 	 * Instantiates a new owlcms crud form factory.

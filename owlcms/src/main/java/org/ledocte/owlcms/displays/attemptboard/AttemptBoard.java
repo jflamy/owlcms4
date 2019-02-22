@@ -10,7 +10,7 @@ package org.ledocte.owlcms.displays.attemptboard;
 
 import java.util.stream.Collectors;
 
-import org.ledocte.owlcms.OwlcmsSession;
+import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.slf4j.LoggerFactory;
 

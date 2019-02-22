@@ -105,7 +105,7 @@ public class TestData {
 			int cat1, int cat2, int liftersToLoad) {
 		for (int i = 0; i < liftersToLoad; i++) {
 			Athlete p = new Athlete();
-			p.setCompetitionSession(group);
+			p.setGroup(group);
 			p.setFirstName(fnames[r.nextInt(fnames.length)]);
 			p.setLastName(lnames[r.nextInt(lnames.length)]);
 			createAthlete(em, r, p, 0.0D, cat1);

@@ -95,7 +95,7 @@ public class CategoryRepository {
 		return resultList.get(0);
 	}
 
-	private static String byAgeDivision = " where c.ageDivision = :division";
+	private static String byAgeDivision = "c.ageDivision = :division";
 
 	/**
 	 * Find by age division.
@@ -108,7 +108,8 @@ public class CategoryRepository {
 	@SuppressWarnings("unchecked")
 	public static Collection<Category> findByAgeDivision(AgeDivision ageDivision, int offset, int limit) {
 		return JPAService.runInTransaction(em -> {
-			Query query = em.createQuery("select c from Category c" + (ageDivision != null ? byAgeDivision : ""));
+			Query query = em.createQuery("select c from Category c" + (ageDivision != null ? " where "+ byAgeDivision : ""));
+			if (ageDivision != null) query.setParameter("division", ageDivision);
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 			return query.getResultList();
@@ -123,7 +124,8 @@ public class CategoryRepository {
 	 */
 	public static int countByAgeDivision(AgeDivision ageDivision) {
 		return JPAService.runInTransaction(em -> {
-			Query query = em.createQuery("select count(c.id from Category c" + (ageDivision != null ? byAgeDivision : ""));
+			Query query = em.createQuery("select count(c.id) from Category c" + (ageDivision != null ? " where " + byAgeDivision : ""));
+			if (ageDivision != null) query.setParameter("division", ageDivision);
 			int i = ((Long) query.getSingleResult()).intValue();
 			return i;
 		});
