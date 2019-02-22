@@ -155,18 +155,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
 		TextField snatch1ActualLift = new TextField();
 		binder.forField(snatch1ActualLift)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualSnatch1(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch1ActualLift(v)))
 			.withStatusLabel(errorLabel)
 			.bind(Athlete::getSnatch1ActualLift, Athlete::setSnatch1ActualLift);
 		atRowAndColumn(gridLayout, snatch1ActualLift, ACTUAL, SNATCH1);
 		TextField snatch2ActualLift = new TextField();
 		binder.forField(snatch2ActualLift)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualSnatch2(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch2ActualLift(v)))
 			.bind(Athlete::getSnatch2ActualLift, Athlete::setSnatch2ActualLift);
 		atRowAndColumn(gridLayout, snatch2ActualLift, ACTUAL, SNATCH2);
 		TextField snatch3ActualLift = new TextField();
 		binder.forField(snatch3ActualLift)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualSnatch3(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch3ActualLift(v)))
 			.bind(Athlete::getSnatch3ActualLift, Athlete::setSnatch3ActualLift);
 		atRowAndColumn(gridLayout, snatch3ActualLift, ACTUAL, SNATCH3);
 		
@@ -227,17 +227,17 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
 		TextField cj1ActualLift = new TextField();
 		binder.forField(cj1ActualLift)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualCleanJerk1(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk1ActualLift(v)))
 			.bind(Athlete::getCleanJerk1ActualLift, Athlete::setCleanJerk1ActualLift);
 		atRowAndColumn(gridLayout, cj1ActualLift, ACTUAL, CJ1);
 		TextField cj2ActualLift = new TextField();
 		binder.forField(cj2ActualLift)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualCleanJerk2(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk2ActualLift(v)))
 			.bind(Athlete::getCleanJerk2ActualLift, Athlete::setCleanJerk2ActualLift);
 		atRowAndColumn(gridLayout, cj2ActualLift, ACTUAL, CJ2);
 		TextField cj3ActualLift = new TextField();
 		binder.forField(cj3ActualLift)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateActualCleanJerk3(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk3ActualLift(v)))
 			.bind(Athlete::getCleanJerk3ActualLift, Athlete::setCleanJerk3ActualLift);
 		atRowAndColumn(gridLayout, cj3ActualLift, ACTUAL, CJ3);
 
