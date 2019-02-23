@@ -70,6 +70,9 @@ public class OwlcmsSession {
 
 	public static void withFop(Consumer<FieldOfPlayState> command) {
 		FieldOfPlayState fop = getFop();
+		if (fop == null) {
+			fop = OwlcmsFactory.getDefaultFOP();
+		}
 		if (fop != null) {
 			command.accept(fop);	
 		}
@@ -78,5 +81,4 @@ public class OwlcmsSession {
 	public static FieldOfPlayState getFop() {
 		return (FieldOfPlayState) getAttribute("fop");
 	}
-
 }

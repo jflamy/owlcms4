@@ -9,7 +9,9 @@
 
 package org.ledocte.owlcms.ui.lifting;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
@@ -29,10 +31,15 @@ import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.google.common.collect.ImmutableList;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.dom.ThemeList;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import ch.qos.logback.classic.Level;
@@ -52,10 +59,25 @@ public class AnnouncerContent extends VerticalLayout
 		logger.setLevel(Level.DEBUG);
 	}
 
+	private Location location;
+	private UI locationUI;
+
 	/**
 	 * Instantiates a new announcer content.
+	 * Does nothing. Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public AnnouncerContent() {
+	}
+
+	/**
+	 * Process URL parameters, including query parameters
+	 * @see org.ledocte.owlcms.ui.home.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+	 */
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		QueryParameterReader.super.setParameter(event, parameter);
+		location = event.getLocation();
+		locationUI = event.getUI();
 		GridCrud<Athlete> crud = getGridCrud();
 		fillHW(crud, this);
 	}
@@ -105,8 +127,17 @@ public class AnnouncerContent extends VerticalLayout
 		select.setPlaceholder("Select a Group");
 		select.setEmptySelectionAllowed(true);
 		select.addValueChangeListener(e -> {
-				OwlcmsSession.withFop((fop) -> fop.switchGroup(e.getValue()));
+				Group newGroup = e.getValue();
+				logger.debug("manually switching group to {}",newGroup != null ? newGroup.getName() : null);
+				OwlcmsSession.withFop((fop) -> {
+					fop.switchGroup(newGroup);
+				});
 				crud.refreshGrid();
+				updateURLLocation(locationUI, location, newGroup);
+				
+		});
+		OwlcmsSession.withFop((fop) -> {
+			select.setValue(fop.getGroup());
 		});
 		
 		crud.setCrudListener(this);
@@ -115,6 +146,18 @@ public class AnnouncerContent extends VerticalLayout
 			.addToolbarComponent(select);
 
 		return crud;
+	}
+
+	public void updateURLLocation(UI ui, Location location, Group newGroup) {
+		// change the URL to reflect fop group
+		HashMap<String, List<String>> params = new HashMap<String, List<String>>(location.getQueryParameters().getParameters());
+		params.put("fop",Arrays.asList(OwlcmsSession.getFop().getName()));
+		if (newGroup != null) {
+			params.put("group",Arrays.asList(newGroup.getName()));
+		} else {
+			params.remove("group");
+		}
+		ui.getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
 
 	/*

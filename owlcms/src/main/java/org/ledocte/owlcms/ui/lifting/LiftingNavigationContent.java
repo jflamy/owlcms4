@@ -22,7 +22,7 @@ import com.vaadin.flow.router.Route;
  * The Class LiftingNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "groupLifting", layout = LiftingNavigationLayout.class)
+@Route(value = "group", layout = LiftingNavigationLayout.class)
 public class LiftingNavigationContent extends VerticalLayout
 		implements ContentWrapping {
 

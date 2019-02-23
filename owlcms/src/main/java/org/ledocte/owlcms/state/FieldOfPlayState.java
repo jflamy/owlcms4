@@ -116,6 +116,7 @@ public class FieldOfPlayState {
 		this.platform = platform;
 		this.name = platform.getName();
 		if (group != null) {
+			logger.debug("constructor switching group to {}",group.getName());
 			switchGroup(group);
 		} else {
 			// empty list, announcer will need to pick a group.
