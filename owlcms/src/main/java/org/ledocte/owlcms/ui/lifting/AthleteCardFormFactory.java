@@ -79,6 +79,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
 		GridLayout gridLayout = setupGrid();
 		errorLabel = new Label();
+		errorLabel.addClassName("errorMessage");
 		bindGridFields(operation, a, gridLayout);
 
 		Component footerLayout = this

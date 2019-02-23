@@ -30,8 +30,8 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
 
@@ -98,10 +98,21 @@ public class AnnouncerContent extends VerticalLayout
 			protected void updateButtons() {
 			}
 		};
+		
+		Select<Group> select = new Select<Group>();
+		select.setItems(GroupRepository.findAll());
+		select.setTextRenderer(Group::getName);
+		select.setPlaceholder("Select a Group");
+		select.setEmptySelectionAllowed(true);
+		select.addValueChangeListener(e -> {
+				OwlcmsSession.withFop((fop) -> fop.switchGroup(e.getValue()));
+				crud.refreshGrid();
+		});
+		
 		crud.setCrudListener(this);
 		crud.setClickRowToUpdate(true);
 		crud.getCrudLayout()
-			.addToolbarComponent(new Label("toolbar stuff goes here"));
+			.addToolbarComponent(select);
 
 		return crud;
 	}
@@ -124,11 +135,6 @@ public class AnnouncerContent extends VerticalLayout
 	 */
 	@Override
 	public Athlete update(Athlete Athlete) {
-		if (Athlete.getLastName()
-			.equals("Ross")) {
-			throw new RuntimeException("A simulated error has occurred");
-		}
-
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		fop.getEventBus()
@@ -153,16 +159,8 @@ public class AnnouncerContent extends VerticalLayout
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
+		FieldOfPlayState fop = OwlcmsSession.getFop();
 		if (fop != null) {
-			Group group = fop.getGroup();
-//			if (group == null) {
-//				group = getFirstGroupForFOP();
-//			}
-			fop.switchGroup(group);
-		}
-		if (fop != null) {
-			traceCurrentAthletes(fop);
 			return fop.getLifters();
 		} else {
 			// no field of play, no group, empty list

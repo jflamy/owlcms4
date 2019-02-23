@@ -158,7 +158,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 					} else {
 						lastName.setText("\u2013");
 						firstName.setText("");
-						Html newAttempt = new Html("");
+						Html newAttempt = new Html("<span></span>");
 						lifter.replace(attempt, newAttempt);
 						attempt = newAttempt;
 						weight.setText("");
