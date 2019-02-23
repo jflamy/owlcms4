@@ -8,9 +8,11 @@
  */
 package org.ledocte.owlcms.ui.lifting;
 
+import org.ledocte.owlcms.ui.home.ContentWrapping;
 import org.ledocte.owlcms.ui.home.MainNavigationContent;
 import org.ledocte.owlcms.ui.preparation.CategoryContent;
 
+import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -21,13 +23,14 @@ import com.vaadin.flow.router.Route;
  */
 @SuppressWarnings("serial")
 @Route(value = "groupLifting", layout = LiftingNavigationLayout.class)
-public class LiftingNavigationContent extends VerticalLayout {
+public class LiftingNavigationContent extends VerticalLayout
+		implements ContentWrapping {
 
 	/**
 	 * Instantiates a new lifting navigation content.
 	 */
 	public LiftingNavigationContent() {
-		add(MainNavigationContent.navigationGrid(
+		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
 			new Button("Weigh-In and Start Numbers",
 					buttonClickEvent -> UI.getCurrent()
 						.navigate(CategoryContent.class)),
@@ -45,7 +48,8 @@ public class LiftingNavigationContent extends VerticalLayout {
 						.navigate(CategoryContent.class)),
 			new Button("Print Results",
 					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class))));
+						.navigate(CategoryContent.class)));
+		fillH(grid, this);
 	}
 
 }

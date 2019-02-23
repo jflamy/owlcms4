@@ -8,6 +8,9 @@
  */
 package org.ledocte.owlcms.ui.lifting;
 
+import java.util.Optional;
+
+import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.ledocte.owlcms.state.UIEvent;
@@ -16,9 +19,11 @@ import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.app.layout.behaviour.AppLayout;
+import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.html.Div;
@@ -61,12 +66,13 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.ledocte.owlcms.ui.home.MainNavigationLayout#createAppLayoutInstance()
+	 * org.ledocte.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.
+	 * github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
-	public AppLayout createAppLayoutInstance() {
+	protected AppLayout getLayoutConfiguration(Behaviour variant) {
 
-		AppLayout appLayout = super.createAppLayoutInstance();
+		AppLayout appLayout = super.getLayoutConfiguration(variant);
 		this.announcerBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
 
 		createAnnouncerBar(announcerBar);
@@ -85,23 +91,21 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 		return appLayout;
 	}
 
-
-
 	protected void createAnnouncerBar(HorizontalLayout announcerBar) {
 		lastName = new H2();
 		lastName.setText("\u2013");
 		lastName.getStyle()
 			.set("margin", "0px 0px 0px 0px");
-		firstName = new H3("\u2013");
+		firstName = new H3("");
 		firstName.getStyle()
 			.set("margin", "0px 0px 0px 0px");
 		Div div = new Div(
 				lastName,
 				firstName);
 
-		attempt = new Html("<h3>? att.</h3>");
+		attempt = new Html("<span></span>");
 		weight = new H3();
-		weight.setText("?kg");
+		weight.setText("");
 		lifter = new HorizontalLayout(
 				attempt,
 				weight);
@@ -125,7 +129,8 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 
 		decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
 
-		announcerBar.getElement()
+		announcerBar
+			.getElement()
 			.getStyle()
 			.set("flex", "100 1");
 		announcerBar.removeAll();
@@ -136,20 +141,31 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 
 	@Subscribe
 	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
-		if (this.getUI().isPresent()) {
-			logger.trace("received {}", e);
-			lastName.setText(e.getAthlete()
-				.getLastName());
-			firstName.setText(e.getAthlete()
-				.getFirstName());
-			Html newAttempt = new Html("<h3>" + (e.getAthlete()
-				.getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h3>");
-			lifter.replace(attempt, newAttempt);
-			attempt = newAttempt;
-			weight.setText(e.getAthlete()
-				.getNextAttemptRequestedWeight() + "kg");
+		Optional<UI> ui2 = announcerBar.getUI();
+		if (ui2.isPresent()) {
+			logger.trace("received {}, locking UI to update announcer bar", e);
+			ui2.get()
+				.access(() -> {
+					Athlete athlete = e.getAthlete();
+					if (athlete != null) {
+						lastName.setText(athlete.getLastName());
+						firstName.setText(athlete.getFirstName());
+						Html newAttempt = new Html(
+								"<h3>" + (athlete.getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h3>");
+						lifter.replace(attempt, newAttempt);
+						attempt = newAttempt;
+						weight.setText(athlete.getNextAttemptRequestedWeight() + "kg");
+					} else {
+						lastName.setText("\u2013");
+						firstName.setText("");
+						Html newAttempt = new Html("");
+						lifter.replace(attempt, newAttempt);
+						attempt = newAttempt;
+						weight.setText("");
+					}
+				});
 		} else {
-			logger.warn("received {}, no UI, but listener still registered", e);
+			logger.warn("received {}, but announcer bar detached from UI", e);
 		}
 	}
 

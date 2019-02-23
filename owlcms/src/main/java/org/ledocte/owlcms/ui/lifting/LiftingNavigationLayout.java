@@ -11,6 +11,7 @@ package org.ledocte.owlcms.ui.lifting;
 import org.ledocte.owlcms.ui.home.MainNavigationLayout;
 
 import com.github.appreciated.app.layout.behaviour.AppLayout;
+import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.server.VaadinSession;
 
@@ -21,12 +22,12 @@ import com.vaadin.flow.server.VaadinSession;
 public class LiftingNavigationLayout extends MainNavigationLayout {
 
 	/* (non-Javadoc)
-	 * @see org.ledocte.owlcms.ui.home.MainNavigationLayout#createAppLayoutInstance()
+	 * @see org.ledocte.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
-	public AppLayout createAppLayoutInstance() {
+	protected AppLayout getLayoutConfiguration(Behaviour variant) {
 
-		AppLayout appLayout = super.createAppLayoutInstance();
+		AppLayout appLayout = super.getLayoutConfiguration(variant);
 		appLayout.setTitleComponent(new Label("Run a Lifting Group"));
 		
 		String fopName = (String) VaadinSession.getCurrent().getAttribute("fopName");

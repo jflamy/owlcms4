@@ -8,8 +8,10 @@
  */
 package org.ledocte.owlcms.ui.preparation;
 
+import org.ledocte.owlcms.ui.home.ContentWrapping;
 import org.ledocte.owlcms.ui.home.MainNavigationContent;
 
+import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -20,13 +22,14 @@ import com.vaadin.flow.router.Route;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation", layout = PreparationNavigationLayout.class)
-public class PreparationNavigationContent extends VerticalLayout {
+public class PreparationNavigationContent extends VerticalLayout
+		implements ContentWrapping {
 
 	/**
 	 * Instantiates a new preparation navigation content.
 	 */
 	public PreparationNavigationContent() {
-		add(MainNavigationContent.navigationGrid(
+		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
 			new Button("Competition Information",
 					buttonClickEvent -> UI.getCurrent()
 						.navigate(CategoryContent.class)),
@@ -41,7 +44,8 @@ public class PreparationNavigationContent extends VerticalLayout {
 						.navigate(CategoryContent.class)),
 			new Button("Edit Athlete Entries",
 					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class))));
+						.navigate(CategoryContent.class)));
+		fillH(grid, this);
 	}
 
 }

@@ -22,6 +22,7 @@ import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudLayout;
 import org.ledocte.owlcms.ui.crudui.OwlcmsGridCrud;
+import org.ledocte.owlcms.ui.home.ContentWrapping;
 import org.ledocte.owlcms.ui.home.QueryParameterReader;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -42,9 +43,8 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AnnouncerLayout.class)
-public class AnnouncerContent extends VerticalLayout implements CrudListener<Athlete>, QueryParameterReader { // or
-																												// implements
-																												// LazyCrudListener<Athlete>
+public class AnnouncerContent extends VerticalLayout
+		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping {
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
@@ -56,10 +56,8 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
 	 * Instantiates a new announcer content.
 	 */
 	public AnnouncerContent() {
-		logger.warn("AnnouncerContent constructor");
-		setSizeFull();
 		GridCrud<Athlete> crud = getGridCrud();
-		add(crud);
+		fillHW(crud, this);
 	}
 
 	/**
@@ -69,15 +67,6 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
 	 */
 	public GridCrud<Athlete> getGridCrud() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = new AthleteCardFormFactory(Athlete.class);
-//		crudFormFactory.setVisibleProperties("lastName",
-//			"firstName",
-//			"team",
-//			"category",
-//			"nextAttemptRequestedWeight",
-//			"attemptsDone");
-//		crudFormFactory
-//			.setFieldCaptions("Last Name", "First Name", "Team", "Category", "Requested Weight", "Attempts Done");
-//		crudFormFactory.setDisabledProperties("nextAttemptRequestedWeight");
 
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
 		ThemeList themes = grid.getThemeNames();

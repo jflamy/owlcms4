@@ -11,6 +11,7 @@ package org.ledocte.owlcms.ui.preparation;
 import org.ledocte.owlcms.ui.home.MainNavigationLayout;
 
 import com.github.appreciated.app.layout.behaviour.AppLayout;
+import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.vaadin.flow.component.html.Label;
 
 /**
@@ -20,16 +21,12 @@ import com.vaadin.flow.component.html.Label;
 public class CategoryLayout extends MainNavigationLayout {
 
 	/* (non-Javadoc)
-	 * @see org.ledocte.owlcms.ui.home.MainNavigationLayout#createAppLayoutInstance()
+	 * @see org.ledocte.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
-	public AppLayout createAppLayoutInstance() {
-		AppLayout appLayout = super.createAppLayoutInstance();
+	protected AppLayout getLayoutConfiguration(Behaviour variant) {
+		AppLayout appLayout = super.getLayoutConfiguration(variant);
 		appLayout.setTitleComponent(new Label("Edit Categories"));
 		return appLayout;
-		
 	}
-	
-	
-
 }

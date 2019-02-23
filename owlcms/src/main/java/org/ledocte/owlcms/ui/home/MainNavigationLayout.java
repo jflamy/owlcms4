@@ -72,15 +72,16 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 	private Behaviour variant;
 	private Thread currentThread;
 
-	/* (non-Javadoc)
-	 * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayout#createAppLayoutInstance()
-	 */
-	@Override
-	public AppLayout createAppLayoutInstance() {
+    public MainNavigationLayout() {
+        init(getLayoutConfiguration(variant));
+        reloadNotifications();
+    }
+	
+	protected AppLayout getLayoutConfiguration(Behaviour variant) {
 		OwlcmsSession.setAttribute("fop", OwlcmsFactory.getDefaultFOP());
 		
 		if (variant == null) {
-			variant = Behaviour.LEFT_OVERLAY;
+			variant = Behaviour.LEFT;
 //			notificationHolder = new DefaultNotificationHolder(newStatus -> {
 //				/* Do something with it */});
 //			badgeHolder = new DefaultBadgeHolder();
@@ -120,7 +121,7 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 							WrapupNavigationContent.class))
 					.addToSection(new LeftClickableComponent("Preferences",
 							VaadinIcon.COG.create(),
-							clickEvent -> openModeSelector(variant)),
+							clickEvent -> openModeSelector(this.variant)),
 						FOOTER)
 					.build())
 				.build();
@@ -197,7 +198,7 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 
 	private void setDrawerVariant(Behaviour variant) {
 		this.variant = variant;
-		reloadConfiguration();
+        init(getLayoutConfiguration(variant));
 	}
 
 	private void openModeSelector(Behaviour variant) {

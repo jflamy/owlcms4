@@ -102,7 +102,7 @@ public class ProdData {
 	protected static void setupEmptyCompetition(EntityManager em) {
 		Competition competition = createDefaultCompetition(); 
 		em.persist(competition);
-		Platform platform1 = new Platform("Platform"); //$NON-NLS-1$
+		Platform platform1 = new Platform("A"); //$NON-NLS-1$
 		CategoryRepository.insertStandardCategories(em);
 		defaultPlates(platform1);
 		setupCompetitionDocuments(competition, platform1);
@@ -114,6 +114,9 @@ public class ProdData {
 		em.persist(new Group("F1", null, null)); //$NON-NLS-1$
 		em.persist(new Group("F2", null, null)); //$NON-NLS-1$
 		em.persist(new Group("F3", null, null)); //$NON-NLS-1$
+		em.persist(new Group("F4", null, null)); //$NON-NLS-1$
+		
+		em.persist(platform1);
 
 	}
 

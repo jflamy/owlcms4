@@ -131,13 +131,11 @@ public class FieldOfPlayState {
 	 */
 	public FieldOfPlayState(List<Athlete> athletes, ICountdownTimer timer1) {
 		this(timer1);
-		logger.warn("timer1={}",timer1);
 		init(athletes);
 	}
 
 	private FieldOfPlayState(ICountdownTimer timer2) {
 		this.setTimer(timer2);
-		logger.warn("timer2={} {}",timer2, this.getTimer());
 		this.eventBus = new EventBus("FOP-"+name);
 		this.uiEventBus = new EventBus("UI-"+name);
 	}
@@ -484,9 +482,14 @@ public class FieldOfPlayState {
 	}
 
 	private void displayCurrentAthlete() {
-		Integer nextAttemptRequestedWeight = curAthlete.getNextAttemptRequestedWeight();
-		int timeAllowed = timeAllowed();
+		Integer timeAllowed = 0;
+		Integer nextAttemptRequestedWeight = 0;
+		if (curAthlete != null) {
+			nextAttemptRequestedWeight = curAthlete.getNextAttemptRequestedWeight();
+			timeAllowed = timeAllowed();
+		}
 		Athlete nextAthlete = liftingOrder.size() > 0 ? liftingOrder.get(1) : null;
+
 		uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, timeAllowed, UI.getCurrent()));
 		logger.info("current athlete = {} attempt {}, requested = {}, timer={}",
 			curAthlete,
@@ -523,7 +526,7 @@ public class FieldOfPlayState {
 
 	private void recomputeLiftingOrder() {
 		AthleteSorter.liftingOrder(this.liftingOrder);
-		this.setCurAthlete(this.liftingOrder.get(0));
+		this.setCurAthlete(this.liftingOrder.isEmpty() ? null : this.liftingOrder.get(0));
 		getTimer().setTimeRemaining(timeAllowed());
 		logger.info("recomputed lifting order curAthlete={} prevlifter={}", curAthlete, previousAthlete);
 	}
