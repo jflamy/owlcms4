@@ -12,6 +12,7 @@ package org.ledocte.owlcms.ui.lifting;
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import org.ledocte.owlcms.utils.ValidationUtils;
+import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 
 import com.github.appreciated.css.grid.GridLayoutComponent.ColumnAlign;
@@ -33,8 +34,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.ClassList;
 
+import ch.qos.logback.classic.Logger;
+
 @SuppressWarnings("serial")
 public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
+	
+	@SuppressWarnings("unused")
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteCardFormFactory.class);
 
 	private static final int HEADER = 1;
 	private static final int AUTOMATIC = HEADER + 1;
@@ -242,11 +248,47 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		atRowAndColumn(gridLayout, cj3ActualLift, ACTUAL, CJ3);
 
 		binder.readBean(a);
+		setFocus(a);
 	}
+	
+	
+	/**
+	 * text fields to facilitate moving focus.
+	 */
+	TextField[][] textfields = new TextField[ACTUAL][CJ3];
+	
+	private void setFocus(Athlete a) {
+		int targetRow = ACTUAL+1;
+		int targetCol = CJ3+1;
+		
+		int rightCol;
+		int leftCol;
+		if (a.getAttemptsDone() >= 3) {
+			rightCol = CJ3;
+			leftCol = CJ1;
+		} else {
+			rightCol = SNATCH3;
+			leftCol = SNATCH1;
+		}
+		// find left-most, lowest empty cell for appropriate lift
+		search: for (int col = rightCol; col >= leftCol; col--) {
+			for (int row = CHANGE2; row > AUTOMATIC; row--) {
+				boolean empty = textfields[row-1][col-1].isEmpty();
+				if (empty) {
+					targetRow = row-1;
+					targetCol = col-1;
+				} else {
+					// don't go back past first non-empty (leave holes)
+					break search;
+				}
+			}
+		}
 
-	private void atRowAndColumn(GridLayout gridLayout, Component component, int row,
-			int column) {
-		atRowAndColumn(gridLayout, component, row, column, RowAlign.CENTER, ColumnAlign.CENTER);
+		if (targetCol <= CJ3 && targetRow <= ACTUAL) {
+			// empty cell was found, set focus
+			textfields[targetRow][targetCol].setAutofocus(true);
+			textfields[targetRow][targetCol].setAutoselect(true);
+		}
 	}
 
 	protected GridLayout setupGrid() {
@@ -273,6 +315,13 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		return gridLayout;
 	}
 
+	private void atRowAndColumn(GridLayout gridLayout, Component component, int row,
+			int column) {
+		atRowAndColumn(gridLayout, component, row, column, RowAlign.CENTER, ColumnAlign.CENTER);
+	}
+	
+
+	
 	private void atRowAndColumn(GridLayout gridLayout, Component component, int row, int column, RowAlign ra, ColumnAlign ca) {
 		gridLayout.add(component);
 		gridLayout.setRowAndColumn(component, new Int(row), new Int(column), new Int(row), new Int(column));
@@ -281,9 +330,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		component.getElement()
 			.getStyle()
 			.set("width", "6em");
+		;
 		if (row == ACTUAL && column > LEFT) {
-			TextField field = (TextField) component;
-			field.addValueChangeListener(e -> setGoodBadStyle(e));
+			TextField textField = (TextField) component;
+			textField.addValueChangeListener(e -> setGoodBadStyle(e));
+		}
+		if (component instanceof TextField) {
+			TextField textField = (TextField) component;
+			//logger.warn("row {} column {} {} {} {} {}",row-1, column-1, ACTUAL, textfields.length, CJ3, textfields[0].length);
+			textfields[row-1][column-1] = textField;
+//			if (!textField.isEmpty()) {
+//				logger.warn("{} {}  value = {}", row-1, column-1, textField.getValue());
+//			}
 		}
 
 	}

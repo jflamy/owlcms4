@@ -53,8 +53,10 @@ import ch.qos.logback.classic.Logger;
 public class AnnouncerLayout extends MainNavigationLayout implements UIEventListener {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("uiEventLogger");
 	static {
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.DEBUG);
 	}
 
 	private H2 lastName;
@@ -150,7 +152,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
 		Optional<UI> ui2 = announcerBar.getUI();
 		if (ui2.isPresent()) {
-			logger.debug("received {} on {}", e, OwlcmsSession.getFop().getUiEventBus().identifier());
+			uiEventLogger.debug("received {}", e);
 			ui2.get()
 				.access(() -> {
 					Athlete athlete = e.getAthlete();
@@ -158,7 +160,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 					doUpdateAnnouncerBar(athlete, timeAllowed);
 				});
 		} else {
-			logger.debug("received {}, but announcer bar detached from UI", e);
+			uiEventLogger.debug("received {}, but announcer bar detached from UI", e);
 			unregister();
 		}
 	}
@@ -202,7 +204,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 
 	@Subscribe
 	public void decisionReset(UIEvent.DecisionReset e) {
-		logger.info("received {}", e);
+		uiEventLogger.info("received {}", e);
 	}
 
 	/*
@@ -214,7 +216,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		logger.debug("attaching {} to {}", attachEvent.getSource(), attachEvent.getUI());
+		logger.trace("attaching {} to {}", attachEvent.getSource(), attachEvent.getUI());
 		super.onAttach(attachEvent);
 		OwlcmsSession.withFop(fop -> {
 			// sync with current status of FOP
@@ -235,7 +237,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 	 */
 	@Override
 	protected void onDetach(DetachEvent detachEvent) {
-		logger.debug("detaching {} from {}", detachEvent.getSource(), detachEvent.getUI());
+		logger.trace("detaching {} from {}", detachEvent.getSource(), detachEvent.getUI());
 		super.onDetach(detachEvent);
 		unregister();
 	}

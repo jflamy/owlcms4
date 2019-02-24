@@ -18,7 +18,6 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public interface QueryParameterReader extends HasUrlParameter<String>{
@@ -31,7 +30,6 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 	 */
 	@Override
 	public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		logger.setLevel(Level.DEBUG);
 		
 		Location location = event.getLocation();
 		QueryParameters queryParameters = location.getQueryParameters();
