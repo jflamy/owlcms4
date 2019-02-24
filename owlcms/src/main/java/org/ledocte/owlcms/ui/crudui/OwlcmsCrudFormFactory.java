@@ -18,6 +18,7 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValueAndElement;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
@@ -140,6 +141,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 		
 		if (updateButton != null && operation == CrudOperation.UPDATE) {
 		    footerLayout.add(updateButton);
+		    updateButton.addClickShortcut(Key.ENTER);
 		}
 		footerLayout.setFlexGrow(1.0, spacer);
 		return footerLayout;

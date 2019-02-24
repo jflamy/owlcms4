@@ -18,6 +18,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public interface QueryParameterReader extends HasUrlParameter<String>{
@@ -26,16 +27,12 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 	
 	/*
 	 * Process query parameters
-	 * 
-	 * @see
-	 * com.vaadin.flow.router.HasUrlParameter#setParameter(com.vaadin.flow.router.
-	 * BeforeEvent, java.lang.Object)
-	 */
-	/* (non-Javadoc)
 	 * @see org.ledocte.owlcms.ui.lifting.URLParameter#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
 	 */
 	@Override
 	public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		logger.setLevel(Level.DEBUG);
+		
 		Location location = event.getLocation();
 		QueryParameters queryParameters = location.getQueryParameters();
 
@@ -51,15 +48,17 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 			params.put("fop",Arrays.asList(fop.getName()));
 		}
 		
-		// get the group from query parameters, leave as fop group is absent
+		// get the group from query parameters, leave as fop if group is absent
 		List<String> groupNames = parametersMap.get("group");
-		Group group = fop.getGroup();
+		Group group;
 		if (groupNames != null  && groupNames.get(0) != null) {
 			group = GroupRepository.findByName(groupNames.get(0));
 			fop.setGroup(group);
+		} else {
+			group = fop.getGroup();
 		}
+		if (group != null) params.put("group",Arrays.asList(group.getName()));
 
-		
 		OwlcmsSession.setAttribute("fop", fop);
 		logger.debug("setting fop in session: {} group={}",(fop != null ? fop.getName() : null),(group != null ? group.getName() : null));
 		

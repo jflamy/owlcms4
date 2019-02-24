@@ -13,6 +13,8 @@ import org.ledocte.owlcms.ui.lifting.LiftingNavigationContent;
 import org.ledocte.owlcms.ui.preparation.PreparationNavigationContent;
 import org.ledocte.owlcms.ui.wrapup.WrapupNavigationContent;
 
+import com.github.appreciated.css.grid.GridLayoutComponent.AutoFlow;
+import com.github.appreciated.css.grid.GridLayoutComponent.Overflow;
 import com.github.appreciated.css.grid.sizes.Flex;
 import com.github.appreciated.css.grid.sizes.Length;
 import com.github.appreciated.css.grid.sizes.MinMax;
@@ -21,6 +23,7 @@ import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
@@ -29,15 +32,16 @@ import com.vaadin.flow.router.Route;
  */
 @SuppressWarnings("serial")
 @Route(value = "", layout = MainNavigationLayout.class)
-public class MainNavigationContent extends VerticalLayout {
+public class MainNavigationContent extends VerticalLayout implements ContentWrapping {
 
 	/**
 	 * Instantiates a new main navigation content.
 	 */
 	public MainNavigationContent() {
-		add(MainNavigationContent.navigationGrid(new Button("Prepare Competition",
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(PreparationNavigationContent.class)),
+		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
+			new Button("Prepare Competition",
+					buttonClickEvent -> UI.getCurrent()
+						.navigate(PreparationNavigationContent.class)),
 			new Button("Setup Displays",
 					buttonClickEvent -> UI.getCurrent()
 						.navigate(DisplayNavigationContent.class)),
@@ -46,7 +50,9 @@ public class MainNavigationContent extends VerticalLayout {
 						.navigate(LiftingNavigationContent.class)),
 			new Button("Competition Documents",
 					buttonClickEvent -> UI.getCurrent()
-						.navigate(WrapupNavigationContent.class))));
+						.navigate(WrapupNavigationContent.class)));
+
+		fillH(grid, this);
 	}
 
 	/**
@@ -57,20 +63,20 @@ public class MainNavigationContent extends VerticalLayout {
 	 */
 	public static FlexibleGridLayout navigationGrid(Component... items) {
 		FlexibleGridLayout layout = new FlexibleGridLayout();
-		layout.withColumns(Repeat.RepeatMode.AUTO_FIT, new MinMax(new Length("350px"), new Flex(1)))
+		layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1)))
 			.withAutoRows(new Length("1fr"))
+			.withItems(items)
+			.withGap(new Length("2vmin"))
+			.withOverflow(Overflow.AUTO)
+			.withAutoFlow(AutoFlow.ROW)
 			.withMargin(false)
-			.withItems(items);
-		layout.getStyle()
-			.set("column-gap", "4vmin");
-		layout.getStyle()
-			.set("row-gap", "2vmin");
-		layout.getStyle()
-			.set("padding", "5vmin");
-		layout.setWidth("100%");
-		layout.setHeight("100%");
+			.withPadding(true)
+			.withSpacing(false);
+		layout.setSizeUndefined();
+		layout.setWidth("80%");
+		layout.setBoxSizing(BoxSizing.BORDER_BOX);
 		return layout;
-	
+
 	}
 
 }

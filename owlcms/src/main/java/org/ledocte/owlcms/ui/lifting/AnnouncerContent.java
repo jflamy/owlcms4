@@ -9,8 +9,11 @@
 
 package org.ledocte.owlcms.ui.lifting;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.athlete.AthleteRepository;
@@ -19,19 +22,30 @@ import org.ledocte.owlcms.data.group.GroupRepository;
 import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.FieldOfPlayState;
+import org.ledocte.owlcms.state.UIEvent;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudLayout;
 import org.ledocte.owlcms.ui.crudui.OwlcmsGridCrud;
+import org.ledocte.owlcms.ui.home.ContentWrapping;
 import org.ledocte.owlcms.ui.home.QueryParameterReader;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.dom.ThemeList;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import ch.qos.logback.classic.Level;
@@ -42,9 +56,8 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AnnouncerLayout.class)
-public class AnnouncerContent extends VerticalLayout implements CrudListener<Athlete>, QueryParameterReader { // or
-																												// implements
-																												// LazyCrudListener<Athlete>
+public class AnnouncerContent extends VerticalLayout
+		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping {
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
@@ -52,16 +65,76 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
 		logger.setLevel(Level.DEBUG);
 	}
 
+	private Location location;
+	private UI locationUI;
+	private GridCrud<Athlete> crud;
+
 	/**
 	 * Instantiates a new announcer content.
+	 * Does nothing. Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public AnnouncerContent() {
-		logger.warn("AnnouncerContent constructor");
-		setSizeFull();
-		GridCrud<Athlete> crud = getGridCrud();
-		add(crud);
 	}
 
+	/**
+	 * Process URL parameters, including query parameters
+	 * @see org.ledocte.owlcms.ui.home.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+	 */
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		QueryParameterReader.super.setParameter(event, parameter);
+		location = event.getLocation();
+		locationUI = event.getUI();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		logger.debug("attaching AnnouncerContent");
+		crud = getGridCrud();
+		fillHW(crud, this);
+		OwlcmsSession.withFop(fop -> {
+			// sync with current status of FOP
+			fop.switchGroup(fop.getGroup());
+			crud.refreshGrid();
+			
+			// connect to bus for new updating events
+			EventBus uiEventBus = fop.getUiEventBus();
+			logger.debug(">>>>> registering {} to {}", this, uiEventBus.identifier());
+			uiEventBus.register(this);
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.DetachEvent)
+	 */
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+		super.onDetach(detachEvent);
+		logger.debug("detaching AnnouncerContent");
+		OwlcmsSession.withFop(fop -> {
+			EventBus uiEventBus = fop.getUiEventBus();
+			logger.debug("<<<<< unregistering {} from {}", this, uiEventBus.identifier());
+			uiEventBus.unregister(this);
+		});
+	}
+
+	@Subscribe
+	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
+		Optional<UI> ui2 = crud.getUI();
+		if (ui2.isPresent()) {
+			logger.debug("*** received {} on {}", e, OwlcmsSession.getFop().getUiEventBus().identifier());
+			ui2.get().access(() -> {
+					crud.refreshGrid();
+				});
+		} else {
+			logger.debug("*** received {}, but crud detached from UI", e);
+		}
+	}
+	
 	/**
 	 * Gets the grid crud.
 	 *
@@ -69,15 +142,6 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
 	 */
 	public GridCrud<Athlete> getGridCrud() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = new AthleteCardFormFactory(Athlete.class);
-//		crudFormFactory.setVisibleProperties("lastName",
-//			"firstName",
-//			"team",
-//			"category",
-//			"nextAttemptRequestedWeight",
-//			"attemptsDone");
-//		crudFormFactory
-//			.setFieldCaptions("Last Name", "First Name", "Team", "Category", "Requested Weight", "Attempts Done");
-//		crudFormFactory.setDisabledProperties("nextAttemptRequestedWeight");
 
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
 		ThemeList themes = grid.getThemeNames();
@@ -109,17 +173,47 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
 			protected void updateButtons() {
 			}
 		};
+		
+		Select<Group> select = new Select<Group>();
+		select.setItems(GroupRepository.findAll());
+		select.setTextRenderer(Group::getName);
+		select.setPlaceholder("Select a Group");
+		select.setEmptySelectionAllowed(true);
+		OwlcmsSession.withFop((fop) -> {
+			select.setValue(fop.getGroup());
+		});
+		select.addValueChangeListener(e -> {
+				Group newGroup = e.getValue();
+				logger.debug("manually switching group to {}",newGroup != null ? newGroup.getName() : null);
+				OwlcmsSession.withFop((fop) -> {
+					fop.switchGroup(newGroup);
+				});
+				crud.refreshGrid();
+				updateURLLocation(locationUI, location, newGroup);
+				
+		});
+		
 		crud.setCrudListener(this);
 		crud.setClickRowToUpdate(true);
 		crud.getCrudLayout()
-			.addToolbarComponent(new Label("toolbar stuff goes here"));
+			.addToolbarComponent(select);
 
 		return crud;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	public void updateURLLocation(UI ui, Location location, Group newGroup) {
+		// change the URL to reflect fop group
+		HashMap<String, List<String>> params = new HashMap<String, List<String>>(location.getQueryParameters().getParameters());
+		params.put("fop",Arrays.asList(OwlcmsSession.getFop().getName()));
+		if (newGroup != null) {
+			params.put("group",Arrays.asList(newGroup.getName()));
+		} else {
+			params.remove("group");
+		}
+		ui.getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
+	}
+
+	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
 	 */
 	@Override
@@ -128,18 +222,11 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
 		return Athlete;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
 	 */
 	@Override
 	public Athlete update(Athlete Athlete) {
-		if (Athlete.getLastName()
-			.equals("Ross")) {
-			throw new RuntimeException("A simulated error has occurred");
-		}
-
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		fop.getEventBus()
@@ -147,9 +234,7 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
 		return savedAthlete;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
 	 */
 	@Override
@@ -157,43 +242,19 @@ public class AnnouncerContent extends VerticalLayout implements CrudListener<Ath
 		AthleteRepository.delete(Athlete);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * Get the content of the grid.
+	 * Invoked by refreshGrid.
 	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
+		FieldOfPlayState fop = OwlcmsSession.getFop();
 		if (fop != null) {
-			Group group = fop.getGroup();
-//			if (group == null) {
-//				group = getFirstGroupForFOP();
-//			}
-			fop.switchGroup(group);
-		}
-		if (fop != null) {
-			traceCurrentAthletes(fop);
 			return fop.getLifters();
 		} else {
 			// no field of play, no group, empty list
 			return ImmutableList.of();
 		}
 	}
-
-	protected Group getFirstGroupForFOP() {
-		Group group;
-		List<Group> findAll = GroupRepository.findAll();
-		group = (findAll.size() > 0 ? findAll.get(0) : null);
-		return group;
-	}
-
-	protected void traceCurrentAthletes(FieldOfPlayState fop) {
-		if (logger.isTraceEnabled()) {
-			for (Athlete a : fop.getLifters()) {
-				logger.trace("{}, {} -- {}", a.getLastName(), a.getFirstName(), fop.getGroup());
-			}
-		}
-	}
-
 }

@@ -19,10 +19,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-lumo-theme</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.vaadin.crudui</groupId>
 			<artifactId>crudui</artifactId>
 			<version>3.7.2</version>
@@ -39,50 +35,18 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.webjars.bowergithub.polymer</groupId>
-			<artifactId>polymer</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.webjars.bowergithub.polymerelements</groupId>
 			<artifactId>iron-icons</artifactId>
 			<version>2.1.1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.webjars.bowergithub.polymerelements</groupId>
-			<artifactId>paper-checkbox</artifactId>
-			<version>2.0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bowergithub.polymerelements</groupId>
-			<artifactId>paper-item</artifactId>
-			<version>2.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bowergithub.polymerelements</groupId>
-			<artifactId>paper-icon-button</artifactId>
-			<version>2.2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bowergithub.polymerelements</groupId>
-			<artifactId>paper-input</artifactId>
-			<version>2.2.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bowergithub.polymerelements</groupId>
-			<artifactId>paper-fab</artifactId>
-			<version>2.0.0</version>
-		</dependency>
 
-		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>2.0.1.Final</version>
-		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>1.4.196</version>
 		</dependency>
+		
+		<!-- jpa using hibernate, jcache and ehcache -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
@@ -98,11 +62,17 @@
 			<artifactId>ehcache</artifactId>
 			<version>3.6.3</version>
 		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>6.0.14.Final</version>
-		</dependency>
+		
+<!-- 		<dependency> -->
+<!-- 			<groupId>javax.validation</groupId> -->
+<!-- 			<artifactId>validation-api</artifactId> -->
+<!-- 			<version>2.0.1.Final</version> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.hibernate</groupId> -->
+<!-- 			<artifactId>hibernate-validator</artifactId> -->
+<!-- 			<version>6.0.14.Final</version> -->
+<!-- 		</dependency> -->
 
 		<dependency>
 			<groupId>org.glassfish</groupId>

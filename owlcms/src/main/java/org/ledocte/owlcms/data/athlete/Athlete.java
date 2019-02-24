@@ -41,6 +41,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -78,6 +79,9 @@ import ch.qos.logback.classic.Logger;
 @Entity
 @Cacheable
 public class Athlete {
+	
+	private static final Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
+	static { logger.setLevel(Level.DEBUG);}
 
 	/**
 	 * Athlete events all derive from this.
@@ -123,7 +127,6 @@ public class Athlete {
 		public void updateEvent(Athlete.UpdateEvent updateEvent);
 	}
 
-	private static final Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
 
 	/** The year. */
 	static int year = Calendar.getInstance()
@@ -2815,7 +2818,7 @@ public class Athlete {
 			this.snatch1LiftTime = null;
 		else
 			this.snatch1LiftTime = sqlNow();
-		logger.info("{} snatch1ActualLift={}", this, snatch1ActualLift);
+		logger.warn("{} snatch1ActualLift={}", this, snatch1ActualLift);
 	}
 
 	/**
@@ -3238,7 +3241,7 @@ public class Athlete {
 	 * Successful lift.
 	 */
 	public void successfulLift() {
-		logger.debug("good lift for {}, listeners={}", this); // , getEventRouter().dumpListeners(this)); //$NON-NLS-1$
+		logger.debug("good lift for {}", this); //$NON-NLS-1$
 		final String weight = Integer.toString(getNextAttemptRequestedWeight());
 		doLift(weight);
 	}

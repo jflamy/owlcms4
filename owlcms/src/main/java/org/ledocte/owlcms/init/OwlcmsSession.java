@@ -9,6 +9,9 @@
 package org.ledocte.owlcms.init;
 
 import java.util.Properties;
+import java.util.function.Consumer;
+
+import org.ledocte.owlcms.state.FieldOfPlayState;
 
 import com.vaadin.flow.server.VaadinSession;
 
@@ -65,4 +68,17 @@ public class OwlcmsSession {
 		getCurrent().attributes.put(s,o);
 	}
 
+	public static void withFop(Consumer<FieldOfPlayState> command) {
+		FieldOfPlayState fop = getFop();
+		if (fop == null) {
+			fop = OwlcmsFactory.getDefaultFOP();
+		}
+		if (fop != null) {
+			command.accept(fop);	
+		}
+	}
+
+	public static FieldOfPlayState getFop() {
+		return (FieldOfPlayState) getAttribute("fop");
+	}
 }

@@ -16,6 +16,7 @@ import org.ledocte.owlcms.data.category.CategoryRepository;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import org.ledocte.owlcms.ui.crudui.OwlcmsCrudLayout;
 import org.ledocte.owlcms.ui.crudui.OwlcmsGridCrud;
+import org.ledocte.owlcms.ui.home.ContentWrapping;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
@@ -28,13 +29,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.Route;
 
-
 /**
  * The Class CategoryContent.
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/categories", layout = CategoryLayout.class)
-public class CategoryContent extends VerticalLayout implements CrudListener<Category> {
+public class CategoryContent extends VerticalLayout
+		implements CrudListener<Category>, ContentWrapping {
 
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 
@@ -42,9 +43,8 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 	 * Instantiates a new category content.
 	 */
 	public CategoryContent() {
-		setSizeFull();
 		GridCrud<Category> crud = getFilteringGridCrud();
-		add(crud);
+		fillHW(crud, this);
 	}
 
 	private GridCrud<Category> getFilteringGridCrud() {
@@ -63,7 +63,7 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 			"Maximum Weight",
 			"World Record",
 			"Active");
-		
+
 		Grid<Category> grid = new Grid<Category>(Category.class, false);
 		grid.setColumns("name", "ageDivision", "gender", "minimumWeight", "maximumWeight", "active");
 		grid.getColumnByKey("name")
@@ -72,8 +72,11 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 			.setHeader("Age Division");
 		grid.getColumnByKey("gender")
 			.setHeader("Gender");
-		
-		GridCrud<Category> crud = new OwlcmsGridCrud<Category>(Category.class, new OwlcmsCrudLayout(Category.class), crudFormFactory, grid);
+
+		GridCrud<Category> crud = new OwlcmsGridCrud<Category>(Category.class,
+				new OwlcmsCrudLayout(Category.class),
+				crudFormFactory,
+				grid);
 		crud.setCrudListener(this);
 		crud.setClickRowToUpdate(true);
 
@@ -104,7 +107,9 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 		return crud;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
 	 */
 	@Override
@@ -113,7 +118,9 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 		return Category;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
 	 */
 	@Override
@@ -125,7 +132,9 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 		return CategoryRepository.save(Category);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
 	 */
 	@Override
@@ -133,13 +142,14 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 		CategoryRepository.delete(Category);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
 	 */
 	@Override
 	public Collection<Category> findAll() {
 		return CategoryRepository.findAll();
 	}
-
 
 }

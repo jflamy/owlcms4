@@ -35,10 +35,9 @@ public class CountdownTimer implements ICountdownTimer {
 	 * 
 	 * @see org.ledocte.owlcms.tests.ICountDownTimer#start()
 	 */
-	//FIXME: this should interface with the real timer
 	@Override
 	public void start() {
-		logger.debug("starting Time -- timeRemaining = {}" + timeRemaining);
+		logger.debug("starting Time -- timeRemaining = {}", timeRemaining);
 		setTimeRemaining(getTimeRemaining() - 1000);
 	}
 
@@ -49,7 +48,7 @@ public class CountdownTimer implements ICountdownTimer {
 	 */
 	@Override
 	public void stop() {
-		logger.debug("stopping Time -- timeRemaining = {}" + timeRemaining);
+		logger.debug("stopping Time -- timeRemaining = {}", timeRemaining);
 		setTimeRemaining(getTimeRemaining());
 	}
 
