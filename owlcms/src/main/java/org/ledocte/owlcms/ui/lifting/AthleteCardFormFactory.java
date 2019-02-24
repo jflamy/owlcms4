@@ -288,6 +288,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
 	}
 
+	
 	private void setGoodBadStyle(ComponentValueChangeEvent<TextField, String> e) {
 		String value = e.getValue();
 		ClassList classNames = e.getSource()
@@ -324,6 +325,12 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			cancelButtonClickListener,
 			updateButtonClickListener,
 			null);
+	}
+	
+	@Override
+	public String buildCaption(CrudOperation operation, Athlete a) {
+		// If null, CrudLayout.showForm will build its own, for backward compatibility
+		return a.getFullId();
 	}
 
 }

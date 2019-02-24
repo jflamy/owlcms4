@@ -81,8 +81,9 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 					owlcmsCrudLayout.disableNextShowForm(false);
 					this.deleteButtonClicked();
 				});
-
-		owlcmsCrudLayout.showForm(operation, form);
+       
+        String caption = crudFormFactory.buildCaption(operation, domainObject);
+        owlcmsCrudLayout.showForm(operation, form, caption);
 	}
 	
 	/* (non-Javadoc)

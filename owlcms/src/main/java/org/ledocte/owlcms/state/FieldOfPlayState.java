@@ -477,12 +477,12 @@ public class FieldOfPlayState {
 	}
 
 	private void clearAnnouncerWarnings() {
-		// TODO Auto-generated method stub
+		// TODO clearAnnouncerWarnings
 	}
 
 
 	private void clearTimekeeperWarnings() {
-		// TODO Auto-generated method stub
+		// TODO clearTimekeeperWarnings
 	}
 
 	private void decision(FOPEvent e) {
@@ -556,12 +556,12 @@ public class FieldOfPlayState {
 	}
 
 	private void remindAnnouncerToAnnounce() {
-		// TODO Auto-generated method stub
+		// TODO remindAnnouncerToAnnounce
 
 	}
 
 	private void remindTimekeeperToStartTime() {
-		// TODO Auto-generated method stub
+		// TODO remindTimekeeperToStartTime
 	}
 
 	private void setClockOwner(Athlete athlete) {
@@ -580,26 +580,26 @@ public class FieldOfPlayState {
 	}
 
 	private void showDownSignalOnSlaveDisplays() {
-		// TODO Auto-generated method stub
+		// TODO showDownSignalOnSlaveDisplays
 	}
 
 	private void showRefereeDecisionOnSlaveDisplays(FOPEvent.RefereeDecision e) {
-		// TODO Auto-generated method stub
+		// TODO showRefereeDecisionOnSlaveDisplays
 
 	}
 
 	private void startTimeOnSlaveDisplays() {
-		// TODO Auto-generated method stub
+		// TODO startTimeOnSlaveDisplays
 
 	}
 
 	private void stopTimeOnAllDisplays() {
-		// TODO Auto-generated method stub
+		// TODO stopTimeOnAllDisplays
 
 	}
 
 	private void stopTimeOnSlaveDisplays() {
-		// TODO Auto-generated method stub
+		// TODO stopTimeOnSlaveDisplays
 
 	}
 
@@ -624,18 +624,17 @@ public class FieldOfPlayState {
 	}
 
 	private void unlockReferees() {
-		// TODO Auto-generated method stub
-
+		// TODO unlockReferees
 	}
 
 	private void warnTimekeeperPrematureStart() {
-		// TODO Auto-generated method stub
+		// TODO warnTimekeeperPrematureStart
 
 	}
 
 	private void weightChange(Athlete curLifter, State state) {
 		AthleteSorter.liftingOrder(this.liftingOrder);
-		// TODO change is checked as legit at marshall/announcer wrt to time left
+		// TODO check that change is ok with respect to timer/final call
 		Athlete recomputedCurLifter = getLifters().get(0);
 		Integer nextAttemptRequestedWeight = recomputedCurLifter.getNextAttemptRequestedWeight();
 		logger.debug("weight change current={} {}, new={} {}",

@@ -161,17 +161,30 @@ public class AnnouncerContent extends VerticalLayout
 		grid.getColumnByKey("attemptsDone")
 			.setHeader("Attempts Done");
 
+		OwlcmsCrudLayout owlcmsCrudLayout = new OwlcmsCrudLayout(Athlete.class) {
+//			@Override
+//			public void showForm(CrudOperation operation, Component form, Object domainObject) {
+//				Athlete a = (Athlete) domainObject;
+//				String caption = a.getFullId();
+//				if (!isDisableNextShowForm() && !operation.equals(CrudOperation.READ)) {
+//					showDialog(caption, form);
+//				}
+//				disableNextShowForm(false);
+//			}
+
+		};
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
-				new OwlcmsCrudLayout(Athlete.class),
+				owlcmsCrudLayout,
 				crudFormFactory,
 				grid) {
 			@Override
-			protected void initToolbar() {
-			}
-
+			protected void initToolbar() {}
 			@Override
-			protected void updateButtons() {
-			}
+			protected void updateButtons() {}
+//			@Override
+//			protected String generateFormCaption(CrudOperation o, Athlete a) {
+//				return a.getFullId();
+//			}
 		};
 		
 		Select<Group> select = new Select<Group>();
