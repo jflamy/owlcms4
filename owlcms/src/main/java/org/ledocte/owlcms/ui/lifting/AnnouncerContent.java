@@ -52,7 +52,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Class AnnouncerContent.
+ * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AnnouncerLayout.class)
@@ -61,8 +61,10 @@ public class AnnouncerContent extends VerticalLayout
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("uiEventLogger");
 	static {
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.DEBUG);
 	}
 
 	private Location location;
@@ -93,7 +95,7 @@ public class AnnouncerContent extends VerticalLayout
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		logger.debug("attaching AnnouncerContent");
+		logger.trace("attaching AnnouncerContent");
 		crud = getGridCrud();
 		fillHW(crud, this);
 		OwlcmsSession.withFop(fop -> {
@@ -114,7 +116,7 @@ public class AnnouncerContent extends VerticalLayout
 	@Override
 	protected void onDetach(DetachEvent detachEvent) {
 		super.onDetach(detachEvent);
-		logger.debug("detaching AnnouncerContent");
+		logger.trace("detaching AnnouncerContent");
 		OwlcmsSession.withFop(fop -> {
 			EventBus uiEventBus = fop.getUiEventBus();
 			logger.debug("<<<<< unregistering {} from {}", this, uiEventBus.identifier());
@@ -126,12 +128,12 @@ public class AnnouncerContent extends VerticalLayout
 	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
 		Optional<UI> ui2 = crud.getUI();
 		if (ui2.isPresent()) {
-			logger.debug("*** received {} on {}", e, OwlcmsSession.getFop().getUiEventBus().identifier());
+			uiEventLogger.debug("*** received {}", e);
 			ui2.get().access(() -> {
 					crud.refreshGrid();
 				});
 		} else {
-			logger.debug("*** received {}, but crud detached from UI", e);
+			uiEventLogger.debug("*** received {}, but crud detached from UI", e);
 		}
 	}
 	
@@ -161,18 +163,7 @@ public class AnnouncerContent extends VerticalLayout
 		grid.getColumnByKey("attemptsDone")
 			.setHeader("Attempts Done");
 
-		OwlcmsCrudLayout owlcmsCrudLayout = new OwlcmsCrudLayout(Athlete.class) {
-//			@Override
-//			public void showForm(CrudOperation operation, Component form, Object domainObject) {
-//				Athlete a = (Athlete) domainObject;
-//				String caption = a.getFullId();
-//				if (!isDisableNextShowForm() && !operation.equals(CrudOperation.READ)) {
-//					showDialog(caption, form);
-//				}
-//				disableNextShowForm(false);
-//			}
-
-		};
+		OwlcmsCrudLayout owlcmsCrudLayout = new OwlcmsCrudLayout(Athlete.class);
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
 				owlcmsCrudLayout,
 				crudFormFactory,
@@ -181,10 +172,6 @@ public class AnnouncerContent extends VerticalLayout
 			protected void initToolbar() {}
 			@Override
 			protected void updateButtons() {}
-//			@Override
-//			protected String generateFormCaption(CrudOperation o, Athlete a) {
-//				return a.getFullId();
-//			}
 		};
 		
 		Select<Group> select = new Select<Group>();

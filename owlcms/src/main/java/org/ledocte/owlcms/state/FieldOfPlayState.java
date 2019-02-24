@@ -494,15 +494,20 @@ public class FieldOfPlayState {
 			curAthlete.failedLift();
 		}
 		showRefereeDecisionOnSlaveDisplays(decision);
-		new Thread(() -> {
-			try {
-				TimeUnit.SECONDS.sleep(3);
-				eventBus.post(new FOPEvent.DecisionReset());
-			} catch (InterruptedException e1) {
-			}
-		}).run();
+		FOPEvent.DecisionReset event = new FOPEvent.DecisionReset();
+		postAfterDelay(event, 3);
 
 		setState(State.DECISION_VISIBLE);
+	}
+
+	protected void postAfterDelay(FOPEvent event, int seconds) {
+		new Thread(() -> {
+			try {
+				TimeUnit.SECONDS.sleep(seconds);
+				eventBus.post(event);
+			} catch (InterruptedException e1) {
+			}
+		}).start();
 	}
 
 	private void displayCurrentAthlete() {
