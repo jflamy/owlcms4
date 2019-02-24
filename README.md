@@ -11,9 +11,11 @@ Three main incentives:
 Why owlcms4?  There was an owlcms3 rewrite done using Vaadin version 8, but the off-line features were too difficult to implement
 and I lost interest.
 
-Current status: 
+Current status:
 - overall navigation and layout designed and prototyped using [vaadin-app-layout](https://github.com/appreciated/vaadin-app-layout)
-- figured out how to do the multiple administrative screens easily using [crudui](https://github.com/alejandro-du/crudui)
-- first cut at a locally-running, web-component-based attempt board
-- understanding of how to do the public displays with web-component-based templates
-- design patterns determined for clean separation between the ui, the field-of-play state, and the back-end data
+- created sample administrative screens using [crudui](https://github.com/alejandro-du/crudui)
+- event-based design to keep clean programming modularity between screens, the field-of-play state, and the back-end data
+- created first cut of announcer screen exchanging events with the module managing the field-of-play
+    - I can basically run through being the announcer for a group
+- first cut at a browser-running, Polymer web-component-based attempt board
+- design to enable Polymer web components to be used to create the results screens
