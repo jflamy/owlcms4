@@ -151,8 +151,16 @@ public class UIEvent {
 	 */
 	static public class TimeStartedByTimeKeeper extends UIEvent {
 
-		public TimeStartedByTimeKeeper(Athlete athlete, UI ui) {
+		private Integer timeRemaining;
+
+		public TimeStartedByTimeKeeper(Athlete athlete, Integer timeRemaining, UI ui) {
 			super(athlete, ui);
+			this.timeRemaining = timeRemaining;
+		}
+
+		public Integer getTimeRemaining() {
+			// TODO Auto-generated method stub
+			return timeRemaining;
 		}
 
 	}

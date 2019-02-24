@@ -53,7 +53,7 @@ import ch.qos.logback.classic.Logger;
 public class AnnouncerLayout extends MainNavigationLayout implements UIEventListener {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("uiEventLogger");
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.DEBUG);
@@ -152,7 +152,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
 		Optional<UI> ui2 = announcerBar.getUI();
 		if (ui2.isPresent()) {
-			uiEventLogger.debug("received {}", e);
+			uiEventLogger.debug("+++ received {}", e);
 			ui2.get()
 				.access(() -> {
 					Athlete athlete = e.getAthlete();
@@ -160,7 +160,24 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 					doUpdateAnnouncerBar(athlete, timeAllowed);
 				});
 		} else {
-			uiEventLogger.debug("received {}, but announcer bar detached from UI", e);
+			uiEventLogger.debug("+++ received {}, but announcer bar detached from UI", e);
+			unregister();
+		}
+	}
+	
+	@Subscribe
+	public void updateAnnouncerBar(UIEvent.TimeStartedByTimeKeeper e) {
+		Optional<UI> ui2 = announcerBar.getUI();
+		if (ui2.isPresent()) {
+			uiEventLogger.debug("+++ received {}", e);
+			ui2.get()
+				.access(() -> {
+					Athlete athlete = e.getAthlete();
+					Integer timeRemaining = e.getTimeRemaining();
+					doUpdateAnnouncerBar(athlete, timeRemaining);
+				});
+		} else {
+			uiEventLogger.debug("+++ received {}, but announcer bar detached from UI", e);
 			unregister();
 		}
 	}

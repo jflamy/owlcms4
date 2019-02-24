@@ -61,7 +61,7 @@ public class AnnouncerContent extends VerticalLayout
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("uiEventLogger");
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.DEBUG);
