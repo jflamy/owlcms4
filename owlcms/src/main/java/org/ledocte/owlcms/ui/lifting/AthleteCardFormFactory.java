@@ -171,7 +171,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			.bind(Athlete::getSnatch3ActualLift, Athlete::setSnatch3ActualLift);
 		atRowAndColumn(gridLayout, snatch3ActualLift, ACTUAL, SNATCH3);
 		
-
 		TextField cj2AutomaticProgression = new TextField();
 		cj2AutomaticProgression.setReadOnly(true);
 		binder.forField(cj2AutomaticProgression)

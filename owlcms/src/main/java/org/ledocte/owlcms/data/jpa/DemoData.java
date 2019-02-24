@@ -218,7 +218,9 @@ public class DemoData {
 		em.persist(new Group("F1", null, null)); //$NON-NLS-1$
 		em.persist(new Group("F2", null, null)); //$NON-NLS-1$
 		em.persist(new Group("F3", null, null)); //$NON-NLS-1$
-		
+
+		em.persist(platform1);
+		em.persist(platform2);
 		em.persist(competition);
 	}
 

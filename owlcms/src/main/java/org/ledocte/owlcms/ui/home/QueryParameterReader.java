@@ -50,11 +50,14 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 		
 		// get the group from query parameters, leave as fop if group is absent
 		List<String> groupNames = parametersMap.get("group");
-		Group group = fop.getGroup();
+		Group group;
 		if (groupNames != null  && groupNames.get(0) != null) {
 			group = GroupRepository.findByName(groupNames.get(0));
 			fop.setGroup(group);
+		} else {
+			group = fop.getGroup();
 		}
+		if (group != null) params.put("group",Arrays.asList(group.getName()));
 
 		OwlcmsSession.setAttribute("fop", fop);
 		logger.debug("setting fop in session: {} group={}",(fop != null ? fop.getName() : null),(group != null ? group.getName() : null));

@@ -9,10 +9,11 @@
 package org.ledocte.owlcms.ui.lifting;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.init.OwlcmsSession;
-import org.ledocte.owlcms.state.FieldOfPlayState;
+import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.UIEvent;
 import org.ledocte.owlcms.ui.home.MainNavigationLayout;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,8 @@ import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -71,23 +74,13 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
-
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
 		this.announcerBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
-
 		createAnnouncerBar(announcerBar);
-
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()
 			.set("flex", "0 1 0px");
-
-		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
-		if (fop != null) {
-			EventBus uiEventBus = listenToUIEvents(fop);
-			logger.debug("registered {} on {}", appLayout, uiEventBus);
-		}
-
 		return appLayout;
 	}
 
@@ -116,16 +109,26 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 		timeField.setWidth("4em");
 		HorizontalLayout buttons = new HorizontalLayout(
 				timeField,
-				new Button("announce"),
-				new Button("start"),
-				new Button("stop"),
+				new Button("announce", (e) -> {
+					getFopEventBus().post(new FOPEvent.AthleteAnnounced());
+				}),
+				new Button("start", (e) -> {
+					getFopEventBus().post(new FOPEvent.TimeStartedByTimeKeeper());
+				}),
+				new Button("stop", (e) -> {
+					getFopEventBus().post(new FOPEvent.TimeStoppedByTimeKeeper());
+				}),
 				new Button("1 min"),
 				new Button("2 min"));
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		HorizontalLayout decisions = new HorizontalLayout(
-				new Button("good"),
-				new Button("bad"));
+				new Button("good", (e) -> {
+					getFopEventBus().post(new FOPEvent.RefereeDecision(true));
+				}),
+				new Button("bad", (e) -> {
+					getFopEventBus().post(new FOPEvent.RefereeDecision(false));
+				}));
 
 		decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
 
@@ -139,39 +142,113 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 		announcerBar.setAlignItems(FlexComponent.Alignment.CENTER);
 	}
 
+	private EventBus getFopEventBus() {
+		return OwlcmsSession.getFop().getEventBus();
+	}
+
 	@Subscribe
 	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
 		Optional<UI> ui2 = announcerBar.getUI();
 		if (ui2.isPresent()) {
-			logger.trace("received {}, locking UI to update announcer bar", e);
+			logger.debug("received {} on {}", e, OwlcmsSession.getFop().getUiEventBus().identifier());
 			ui2.get()
 				.access(() -> {
 					Athlete athlete = e.getAthlete();
-					if (athlete != null) {
-						lastName.setText(athlete.getLastName());
-						firstName.setText(athlete.getFirstName());
-						Html newAttempt = new Html(
-								"<h3>" + (athlete.getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h3>");
-						lifter.replace(attempt, newAttempt);
-						attempt = newAttempt;
-						weight.setText(athlete.getNextAttemptRequestedWeight() + "kg");
-					} else {
-						lastName.setText("\u2013");
-						firstName.setText("");
-						Html newAttempt = new Html("<span></span>");
-						lifter.replace(attempt, newAttempt);
-						attempt = newAttempt;
-						weight.setText("");
-					}
+					Integer timeAllowed = e.getTimeAllowed();
+					doUpdateAnnouncerBar(athlete, timeAllowed);
 				});
 		} else {
-			logger.warn("received {}, but announcer bar detached from UI", e);
+			logger.debug("received {}, but announcer bar detached from UI", e);
+			unregister();
+		}
+	}
+
+	public void doUpdateAnnouncerBar(Athlete athlete, Integer timeAllowed) {
+		if (athlete != null) {
+			lastName.setText(athlete.getLastName());
+			firstName.setText(athlete.getFirstName());
+			timeField.setValue(msToString(timeAllowed));
+			Html newAttempt = new Html(
+					"<h3>" + (athlete.getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h3>");
+			lifter.replace(attempt, newAttempt);
+			attempt = newAttempt;
+			weight.setText(athlete.getNextAttemptRequestedWeight() + "kg");
+		} else {
+			lastName.setText("\u2013");
+			firstName.setText("");
+			Html newAttempt = new Html("<span></span>");
+			lifter.replace(attempt, newAttempt);
+			attempt = newAttempt;
+			weight.setText("");
+		}
+	}
+
+	private String msToString(Integer millis) {
+		long hours = TimeUnit.MILLISECONDS.toHours(millis);
+		long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+		long fullHoursInMinutes = TimeUnit.HOURS.toMinutes(hours);
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+		long fullMinutesInSeconds = TimeUnit.MINUTES.toSeconds(minutes);
+		if (hours > 0) {
+			return String.format("%02d:%02d:%02d", hours,
+		      minutes - fullHoursInMinutes,
+		      seconds - fullMinutesInSeconds);
+		} else {
+			return String.format("%02d:%02d",
+			      minutes,
+			      seconds - fullMinutesInSeconds);
 		}
 	}
 
 	@Subscribe
 	public void decisionReset(UIEvent.DecisionReset e) {
-		logger.warn("received {}", e);
+		logger.info("received {}", e);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.github.appreciated.app.layout.router.AppLayoutRouterLayout#onAttach(com.
+	 * vaadin.flow.component.AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		logger.debug("attaching {} to {}", attachEvent.getSource(), attachEvent.getUI());
+		super.onAttach(attachEvent);
+		OwlcmsSession.withFop(fop -> {
+			// sync with current status of FOP
+			doUpdateAnnouncerBar(fop.getCurAthlete(), fop.timeAllowed());
+			
+			// connect to bus for new updating events
+			EventBus uiEventBus = fop.getUiEventBus();
+			logger.debug("registering {} to {}", this, uiEventBus.identifier());
+			uiEventBus = listenToUIEvents(attachEvent.getUI(), fop);
+		});
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.
+	 * DetachEvent)
+	 */
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+		logger.debug("detaching {} from {}", detachEvent.getSource(), detachEvent.getUI());
+		super.onDetach(detachEvent);
+		unregister();
+	}
+
+	public void unregister() {
+		OwlcmsSession.withFop(fop -> {
+			EventBus uiEventBus = fop.getUiEventBus();
+			logger.debug("unregistering {} from {}", this, uiEventBus.identifier());
+			try {
+				uiEventBus.unregister(this);
+			} catch (Exception ex) {
+			}
+		});
 	}
 
 }
