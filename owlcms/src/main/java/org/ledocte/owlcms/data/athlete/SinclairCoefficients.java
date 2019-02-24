@@ -19,7 +19,7 @@ public class SinclairCoefficients {
 	 * @return the double
 	 */
 	public static Double menMaxWeight() {
-		// TODO Auto-generated method stub
+		// TODO menMaxWeight
 		return 0.0D;
 	}
 
@@ -29,7 +29,7 @@ public class SinclairCoefficients {
 	 * @return the double
 	 */
 	public static Double womenMaxWeight() {
-		// TODO Auto-generated method stub
+		// TODO womenMaxWeight
 		return 0.0D;
 	}
 
@@ -39,7 +39,7 @@ public class SinclairCoefficients {
 	 * @return the double
 	 */
 	public static Double menCoefficient() {
-		// TODO Auto-generated method stub
+		// TODO menCoefficient
 		return 0.0D;
 	}
 
@@ -49,7 +49,7 @@ public class SinclairCoefficients {
 	 * @return the double
 	 */
 	public static Double womenCoefficient() {
-		// TODO Auto-generated method stub
+		// TODO womenCoefficient
 		return 0.0D;
 	}
 
@@ -60,7 +60,7 @@ public class SinclairCoefficients {
 	 * @return the SMM coefficient
 	 */
 	public static Double getSMMCoefficient(int i) {
-		// TODO Auto-generated method stub
+		// TODO getSMMCoefficient
 		return 0.0D;
 	}
 

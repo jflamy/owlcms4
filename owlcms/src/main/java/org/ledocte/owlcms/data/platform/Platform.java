@@ -16,6 +16,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import org.ledocte.owlcms.init.OwlcmsSession;
+import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.VaadinSession;
@@ -559,23 +561,22 @@ public void setShowTimer(Boolean showTime) {
     }
 
 	/**
-	 * Gets the current.
+	 * Gets the current platform
 	 *
 	 * @return the current
 	 */
 	public static Platform getCurrent() {
-		//FIXME: need to inject something that hides the implementation and can be mocked
-		//should not have anything Vaadin in the data layer.
-		VaadinSession current = VaadinSession.getCurrent();
-		if (current != null) {
-			return (Platform) current.getAttribute("platform");
+		FieldOfPlayState fop = OwlcmsSession.getFop();
+		if (fop != null) {
+			Platform platform = fop.getPlatform();
+			return (platform != null ? platform : testingPlatform);
 		} else {
 			return testingPlatform;
 		}
 	}
 	
 	/**
-	 * Sets the current.
+	 * Sets the current platform
 	 *
 	 * @param p the new current
 	 */

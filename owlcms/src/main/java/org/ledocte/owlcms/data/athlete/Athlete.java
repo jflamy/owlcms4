@@ -37,7 +37,6 @@ import org.ledocte.owlcms.data.group.Group;
 import org.ledocte.owlcms.i18n.Messages;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 
@@ -378,98 +377,102 @@ public class Athlete {
 			return;
 		}
 
-//        if (!Competition.getCurrent().isMasters())
-		{
-			int curStartingTotal = 0;
-			int snatchRequest = 0;
-			int cleanJerkRequest = 0;
-
-			snatchRequest = last(
-				zeroIfInvalid(snatch1Declaration),
-				zeroIfInvalid(snatch1Change1),
-				zeroIfInvalid(snatch1Change2));
-			cleanJerkRequest = last(
-				zeroIfInvalid(cleanJerk1Declaration),
-				zeroIfInvalid(cleanJerk1Change1),
-				zeroIfInvalid(cleanJerk1Change2));
-
-			curStartingTotal = snatchRequest + cleanJerkRequest;
-			int delta = qualTotal - curStartingTotal;
-			String message = null;
-			// FIXME: will fail during tests
-			Locale locale = UI.getCurrent()
-				.getLocale();
-			int _20kgRuleValue = this.get20kgRuleValue();
-			if (delta > _20kgRuleValue) {
-				Integer startNumber2 = this.getStartNumber();
-				message = RuleViolation
-					.rule15_20Violated(this.getLastName(),
-						this.getFirstName(),
-						(startNumber2 != null ? startNumber2 : "-"),
-						snatchRequest,
-						cleanJerkRequest,
-						delta - _20kgRuleValue,
-						qualTotal)
-					.getLocalizedMessage(locale);
-			}
-			if (message != null) {
-				// LoggerUtils.logException(logger, new Exception("check15_20kiloRule traceback
-				// "+ message));
-				logger.info(message);
-				Notification.show(message, -1, Position.MIDDLE);
-			}
-		}
-//        else {
-//            int curStartingTotal = 0;
-//            int snatch1request = 0;
-//            int cleanJerkRequest = 0;
-//
-//            snatch1request = last(
-//                    zeroIfInvalid(snatch1Declaration),
-//                    zeroIfInvalid(snatch1Change1),
-//                    zeroIfInvalid(snatch1Change2));
-//            cleanJerkRequest = last(
-//                    zeroIfInvalid(cleanJerk1Declaration),
-//                    zeroIfInvalid(cleanJerk1Change1),
-//                    zeroIfInvalid(cleanJerk1Change2));
-//
-//            int _20kgRuleValue = this.get20kgRuleValue();
-//            int bestSnatch1 = getBestSnatch();
-//            // example: male 55/65 declarations given 135 qual total (120 within 15kg of 135, ok)
-//            // athlete does 70 snatch, which is bigger than 15kg gap.
-//            // can now declare 50 opening CJ according to 2.4.3
-//            curStartingTotal = snatch1request + cleanJerkRequest; // 120
-//            int delta = qualTotal - curStartingTotal; // 15 -- no margin of error
-//
-//            int curForecast = bestSnatch1 + zeroIfInvalid(cleanJerk1Declaration); // 70 + 65 = 135
-//            if (curForecast >= qualTotal) {
-//                // already predicted to clear the QT, may change the CJ request down.
-//                logger.warn("forecast = {}",curForecast);
-//                delta = qualTotal - (bestSnatch1 + cleanJerkRequest); // delta = 135 - 135 = 0
-//                snatch1request = bestSnatch1;
-//                // possible CJ initial request reduction = _20kgRuleValue - delta
-//                // can bring CJ down to 50 (15 - 0)
-//            }
-//
-//            String message = null;
-//            Locale locale = CompetitionApplication.getCurrentLocale();
-//
-//            if (delta > _20kgRuleValue) {
-//                Integer startNumber2 = this.getStartNumber();
-//                message = RuleViolation.rule15_20Violated(this.getLastName(), this.getFirstName(), (startNumber2 != null ? startNumber2 : "-") , snatch1request,
-//                        cleanJerkRequest, delta - _20kgRuleValue, qualTotal).getLocalizedMessage(locale);
-//            }
-//            if (message != null) {
-//                // LoggerUtils.logException(logger, new Exception("check15_20kiloRule traceback "+ message));
-//                logger.info(message);
-//                showMustClickNotification(parentView, message, unlessCurrent);
-//            }
-//        }
+		if (!Competition.getCurrent().isMasters()) {
+			regular20kgRule(qualTotal);
+		} else
+			masters15_20Rule(qualTotal);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
+	public void regular20kgRule(int qualTotal) {
+		int curStartingTotal = 0;
+		int snatchRequest = 0;
+		int cleanJerkRequest = 0;
+
+		snatchRequest = last(
+			zeroIfInvalid(snatch1Declaration),
+			zeroIfInvalid(snatch1Change1),
+			zeroIfInvalid(snatch1Change2));
+		cleanJerkRequest = last(
+			zeroIfInvalid(cleanJerk1Declaration),
+			zeroIfInvalid(cleanJerk1Change1),
+			zeroIfInvalid(cleanJerk1Change2));
+
+		curStartingTotal = snatchRequest + cleanJerkRequest;
+		int delta = qualTotal - curStartingTotal;
+		String message = null;
+
+		Locale locale = Competition.getCurrent().getLocale();
+		int _20kgRuleValue = this.get20kgRuleValue();
+		if (delta > _20kgRuleValue) {
+			Integer startNumber2 = this.getStartNumber();
+			message = RuleViolation
+				.rule15_20Violated(this.getLastName(),
+					this.getFirstName(),
+					(startNumber2 != null ? startNumber2 : "-"),
+					snatchRequest,
+					cleanJerkRequest,
+					delta - _20kgRuleValue,
+					qualTotal)
+				.getLocalizedMessage(locale);
+		}
+		if (message != null) {
+			// LoggerUtils.logException(logger, new Exception("check15_20kiloRule traceback
+			// "+ message));
+			logger.info(message);
+			showMustClickNotification(message, false);
+		}
+	}
+
+	public void masters15_20Rule(int qualTotal) {
+		int curStartingTotal = 0;
+		int snatch1request = 0;
+		int cleanJerkRequest = 0;
+
+		snatch1request = last(
+			zeroIfInvalid(snatch1Declaration),
+			zeroIfInvalid(snatch1Change1),
+			zeroIfInvalid(snatch1Change2));
+		cleanJerkRequest = last(
+			zeroIfInvalid(cleanJerk1Declaration),
+			zeroIfInvalid(cleanJerk1Change1),
+			zeroIfInvalid(cleanJerk1Change2));
+
+		int _20kgRuleValue = this.get20kgRuleValue();
+		int bestSnatch1 = getBestSnatch();
+		// example: male 55/65 declarations given 135 qual total (120 within 15kg of 135, ok)
+		// athlete does 70 snatch, which is bigger than 15kg gap.
+		// can now declare 50 opening CJ according to 2.4.3
+		curStartingTotal = snatch1request + cleanJerkRequest; // 120
+		int delta = qualTotal - curStartingTotal; // 15 -- no margin of error
+
+		int curForecast = bestSnatch1 + zeroIfInvalid(cleanJerk1Declaration); // 70 + 65 = 135
+		if (curForecast >= qualTotal) {
+			// already predicted to clear the QT, may change the CJ request down.
+			logger.warn("forecast = {}", curForecast);
+			delta = qualTotal - (bestSnatch1 + cleanJerkRequest); // delta = 135 - 135 = 0
+			snatch1request = bestSnatch1;
+			// possible CJ initial request reduction = _20kgRuleValue - delta
+			// can bring CJ down to 50 (15 - 0)
+		}
+
+		String message = null;
+		Locale locale = Competition.getCurrent().getLocale();
+
+		if (delta > _20kgRuleValue) {
+			Integer startNumber2 = this.getStartNumber();
+			message = RuleViolation.rule15_20Violated(this.getLastName(), this.getFirstName(),
+				(startNumber2 != null ? startNumber2 : "-"), snatch1request,
+				cleanJerkRequest, delta - _20kgRuleValue, qualTotal).getLocalizedMessage(locale);
+		}
+		if (message != null) {
+			// LoggerUtils.logException(logger, new Exception("check15_20kiloRule traceback "+ message));
+			logger.info(message);
+			showMustClickNotification(message, false);
+		}
+	}
+
+
+	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -481,26 +484,43 @@ public class Athlete {
 		if (getClass() != obj.getClass())
 			return false;
 		Athlete other = (Athlete) obj;
-		if (team == null) {
-			if (other.team != null)
+
+		if (fullBirthDate == null) {
+			if (other.fullBirthDate != null)
 				return false;
-		} else if (!team.equals(other.team))
-			return false;
+		} else if (!fullBirthDate.equals(other.fullBirthDate))
+			return false; 
+		
 		if (firstName == null) {
 			if (other.firstName != null)
 				return false;
 		} else if (!firstName.equals(other.firstName))
 			return false;
+		
+		if (lastName == null) {
+			if (other.lastName != null)
+				return false;
+		} else if (!lastName.equals(other.lastName))
+			return false; 
+		
+		if (team == null) {
+			if (other.team != null)
+				return false;
+		} else if (!team.equals(other.team))
+			return false;
+		
 		if (gender == null) {
 			if (other.gender != null)
 				return false;
 		} else if (!gender.equals(other.gender))
 			return false;
-		if (lastName == null) {
-			if (other.lastName != null)
+		
+		if (membership == null) {
+			if (other.membership != null)
 				return false;
-		} else if (!lastName.equals(other.lastName))
+		} else if (!membership.equals(other.membership))
 			return false;
+		
 		return true;
 	}
 
@@ -2176,13 +2196,6 @@ public class Athlete {
 	public boolean isInvited() {
 		final Locale locale = Competition.getCurrent()
 			.getLocale();
-//        int threshold = Competition.invitedIfBornBefore();
-//
-//        Integer birthDate2 = getYearOfBirth();
-
-//        return birthDate2 == null
-//                || (birthDate2 < threshold)
-//                ||
 		return membership.equalsIgnoreCase(Messages.getString("Athlete.InvitedAbbreviated", locale)) //$NON-NLS-1$
 		// || !getTeamMember()
 		;
@@ -3233,7 +3246,7 @@ public class Athlete {
 	 * @param unlessCurrent the unless current
 	 */
 	public void showMustClickNotification(String message, boolean unlessCurrent) {
-		// FIXME: should be a message caught by UI and displayed if relevant.
+		// FIXME Data layer should only post events on bus, no UI calls.
 		Notification.show(message, -1, Position.MIDDLE);
 	}
 
@@ -3755,6 +3768,13 @@ public class Athlete {
 		} catch (NumberFormatException nfe) {
 			return null;
 		}
+	}
+
+	public String getFullId() {
+//		Integer startNumber2 = this.getStartNumber();
+		Category category2 = this.getCategory();
+		return this.getLastName()+", "+this.getFirstName()+" "+(category2 != null ? category2 : "");
+//				+(startNumber2 != null && startNumber2 >0 ? " ["+startNumber2+"]" : "");
 	}
 
 }

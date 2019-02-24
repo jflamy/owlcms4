@@ -13,7 +13,9 @@ import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.layout.impl.WindowBasedCrudLayout;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.ThemableLayout;
 
 import ch.qos.logback.classic.Logger;
 
@@ -34,8 +36,8 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
 	 */
 	public OwlcmsCrudLayout(Class<?> aClass) {
         getContent().setPadding(false);
-        getContent().setMargin(false);
-        getContent().add(mainLayout);
+        ((ThemableLayout) getContent()).setMargin(false);
+        ((HasComponents) getContent()).add(mainLayout);
 
         mainLayout.setSizeFull();
         mainLayout.setMargin(false);
@@ -79,15 +81,15 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
 	 * @see org.vaadin.crudui.layout.impl.WindowBasedCrudLayout#showForm(org.vaadin.crudui.crud.CrudOperation, com.vaadin.flow.component.Component)
 	 */
 	@Override
-	public void showForm(CrudOperation operation, Component form) {
-		if (disableNextShowForm) {
+	public void showForm(CrudOperation operation, Component form, String caption) {
+		if (isDisableNextShowForm()) {
 			logger.debug("ignoring open");
-		} else {
-			logger.debug("showing form");
-			super.showForm(operation, form);
-		}
+		} else if (!operation.equals(CrudOperation.READ)) {
+        	showDialog(caption, form);
+        }
 		disableNextShowForm(false);
 	}
+	
 	
 	/**
 	 * Disable next show form.
@@ -95,7 +97,15 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
 	 * @param isDisabled the is disabled
 	 */
 	public void disableNextShowForm(boolean isDisabled) {
-		disableNextShowForm = isDisabled;
+		setDisableNextShowForm(isDisabled);
+	}
+
+	public boolean isDisableNextShowForm() {
+		return disableNextShowForm;
+	}
+
+	public void setDisableNextShowForm(boolean disableNextShowForm) {
+		this.disableNextShowForm = disableNextShowForm;
 	}
 	
 }

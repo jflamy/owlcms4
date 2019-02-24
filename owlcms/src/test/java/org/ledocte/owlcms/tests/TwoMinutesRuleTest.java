@@ -272,7 +272,7 @@ public class TwoMinutesRuleTest {
 	/**
 	 * @param lifter
 	 * @param weight
-	 * @param eventBus TODO
+	 * @param eventBus
 	 */
 	private void declaration(final Athlete lifter, final String weight, EventBus eventBus) {
 		switch (lifter.getAttemptsDone() + 1) {
