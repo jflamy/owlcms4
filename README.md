@@ -1,14 +1,14 @@
 # owlcms4
 Olympic Weightlifting Competition Management System 
 
-Ongoing rewrite of [owlcms2](https://owlcms2.sf.net) using Web Components and [Vaadin Flow](https://vaadin.com/flow))
+Ongoing rewrite of [owlcms2](https://owlcms2.sourceforge.io/#!index.md) using Web Components and [Vaadin Flow](https://vaadin.com/flow)
 
-Two main incentives:
-- the old release shows its age (was initially written in 2009) and some of the underlying components cannot be upgraded, and some bugs cannot, as a consequence, be fixed
-- the ability of [web components](https://www.webcomponents.org/introduction) to enable hybrid applications with portions running locally. This will make it possible to run the application in the cloud, with timers and referee decisions running locally in the browser.
+Two main incentives for this rewrite:
+- owlcms2 shows its age (it was initially written in 2009). Some of the underlying components cannot be upgraded, and as a consequence some bugs cannot be fixed
+- The ability of [web components](https://www.webcomponents.org/introduction) to enable hybrid applications with portions running locally. This will make it possible to run the application in the cloud, with timers and referee decisions running locally in the browser.
 
-Why owlcms4?  There was an owlcms3 rewrite done using Vaadin version 8, but the off-line features were too difficult to implement
-and I lost interest.
+Why is it called owlcms4?  There was an owlcms3 rewrite started, but it was too tedious to implement the off-line features I wanted, and I gave up until Vaadin Flow
+came out to rekindle my interest.
 
 Current status:
 - The announcer portion (updating athlete cards and recomputing lifting order) works

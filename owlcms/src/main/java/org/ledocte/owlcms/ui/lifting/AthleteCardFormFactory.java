@@ -261,6 +261,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		int targetRow = ACTUAL+1;
 		int targetCol = CJ3+1;
 		
+		// figure out whether we are searching for snatch or CJ
 		int rightCol;
 		int leftCol;
 		if (a.getAttemptsDone() >= 3) {
@@ -270,9 +271,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			rightCol = SNATCH3;
 			leftCol = SNATCH1;
 		}
-		// find left-most, lowest empty cell for appropriate lift
+		
+		// remember location of last empty cell, going backwards
 		search: for (int col = rightCol; col >= leftCol; col--) {
-			for (int row = CHANGE2; row > AUTOMATIC; row--) {
+			for (int row = ACTUAL; row > AUTOMATIC; row--) {
 				boolean empty = textfields[row-1][col-1].isEmpty();
 				if (empty) {
 					targetRow = row-1;
@@ -285,7 +287,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		}
 
 		if (targetCol <= CJ3 && targetRow <= ACTUAL) {
-			// empty cell was found, set focus
+			// a suitable empty cell was found, set focus
 			textfields[targetRow][targetCol].setAutofocus(true);
 			textfields[targetRow][targetCol].setAutoselect(true);
 		}
