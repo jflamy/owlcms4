@@ -77,14 +77,14 @@ public class FOPEvent {
 	}
 
 	/**
-	 * The Class TimeStartedByTimeKeeper.
+	 * The Class StartTime.
 	 */
 	static public class TimeStartedByTimeKeeper extends FOPEvent {
 
 	}
 
 	/**
-	 * The Class TimeStoppedByTimeKeeper.
+	 * The Class StopTime.
 	 */
 	static public class TimeStoppedByTimeKeeper extends FOPEvent {
 

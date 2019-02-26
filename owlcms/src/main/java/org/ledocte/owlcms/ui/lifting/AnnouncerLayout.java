@@ -166,15 +166,14 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 	}
 	
 	@Subscribe
-	public void updateAnnouncerBar(UIEvent.TimeStartedByTimeKeeper e) {
+	public void setTime(UIEvent.StartTime e) {
 		Optional<UI> ui2 = announcerBar.getUI();
 		if (ui2.isPresent()) {
 			uiEventLogger.debug("+++ received {}", e);
 			ui2.get()
 				.access(() -> {
-					Athlete athlete = e.getAthlete();
 					Integer timeRemaining = e.getTimeRemaining();
-					doUpdateAnnouncerBar(athlete, timeRemaining);
+					timeField.setValue(msToString(timeRemaining));
 				});
 		} else {
 			uiEventLogger.debug("+++ received {}, but announcer bar detached from UI", e);

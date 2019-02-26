@@ -20,39 +20,18 @@ import com.vaadin.flow.component.UI;
  */
 public class UIEvent {
 
-	private Athlete athlete;
-	/**
-	 * @return the athlete
-	 */
-	public Athlete getAthlete() {
-		return athlete;
-	}
+
 
 	/**
-	 * @return the ui
-	 */
-	public UI getUi() {
-		return ui;
-	}
-
-	private UI ui;
-
-	public UIEvent(Athlete athlete, UI ui) {
-		this.athlete = athlete;
-		this.ui = ui;
-	}
-
-	/**
-	 * The Class AthleteAnnounced.
+	 * Class AthleteAnnounced.
 	 */
 	static public class AthleteAnnounced extends UIEvent {
 		public AthleteAnnounced(Athlete athlete, UI ui) {
 			super(athlete, ui);
 		}
 	}
-
 	/**
-	 * The Class DecisionReset.
+	 * Class DecisionReset.
 	 */
 	static public class DecisionReset extends UIEvent {
 		public DecisionReset(Athlete athlete, UI ui) {
@@ -61,7 +40,7 @@ public class UIEvent {
 	}
 
 	/**
-	 * The Class DownSignal.
+	 * Class DownSignal.
 	 */
 	static public class DownSignal extends UIEvent {
 
@@ -72,7 +51,7 @@ public class UIEvent {
 	}
 
 	/**
-	 * The Class IntermissionDone.
+	 * Class IntermissionDone.
 	 */
 	static public class IntermissionDone extends UIEvent {
 
@@ -83,7 +62,7 @@ public class UIEvent {
 	}
 
 	/**
-	 * The Class IntermissionStarted.
+	 * Class IntermissionStarted.
 	 */
 	static public class IntermissionStarted extends UIEvent {
 
@@ -93,21 +72,15 @@ public class UIEvent {
 
 	}
 
+	
 	/**
-	 * The Class LiftingOrderUpdated.
+	 * Class LiftingOrderUpdated.
 	 */
 	static public class LiftingOrderUpdated extends UIEvent {
 
 		private Athlete nextAthlete;
 		private Athlete previousAthlete;
 		private Integer timeAllowed;
-
-		/**
-		 * @return the timeAllowed
-		 */
-		public Integer getTimeAllowed() {
-			return timeAllowed;
-		}
 
 		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete, Integer timeAllowed, UI ui) {
 			super(athlete, ui);
@@ -124,14 +97,20 @@ public class UIEvent {
 			return previousAthlete;
 		}
 
-	}
+		/**
+		 * @return the timeAllowed
+		 */
+		public Integer getTimeAllowed() {
+			return timeAllowed;
+		}
 
+	}
+	
 	/**
-	 * The Class RefereeDecision.
+	 * Class RefereeDecision.
 	 */
 	static public class RefereeDecision extends UIEvent {
 
-		/** The success. */
 		public Boolean success = null;
 
 		/**
@@ -146,34 +125,71 @@ public class UIEvent {
 
 	}
 
-	/**
-	 * The Class TimeStartedByTimeKeeper.
-	 */
-	static public class TimeStartedByTimeKeeper extends UIEvent {
+	static public class SetTime extends UIEvent {
 
 		private Integer timeRemaining;
 
-		public TimeStartedByTimeKeeper(Athlete athlete, Integer timeRemaining, UI ui) {
-			super(athlete, ui);
+		public SetTime(Integer timeRemaining) {
 			this.timeRemaining = timeRemaining;
 		}
 
 		public Integer getTimeRemaining() {
-			// TODO Auto-generated method stub
 			return timeRemaining;
 		}
 
 	}
 
 	/**
-	 * The Class TimeStoppedByTimeKeeper.
+	 * Class StartTime.
 	 */
-	static public class TimeStoppedByTimeKeeper extends UIEvent {
+	static public class StartTime extends UIEvent {
 
-		public TimeStoppedByTimeKeeper(Athlete athlete, UI ui) {
+		private Integer timeRemaining;
+
+		public StartTime(Integer timeRemaining) {
+			this.timeRemaining = timeRemaining;
+		}
+
+		public Integer getTimeRemaining() {
+			return timeRemaining;
+		}
+
+	}
+
+	/**
+	 * Class StopTime.
+	 */
+	static public class StopTime extends UIEvent {
+
+		public StopTime(Athlete athlete, UI ui) {
 			super(athlete, ui);
 		}
 
+	}
+
+	private Athlete athlete;
+
+	private UI ui;
+	
+	private UIEvent() {}
+
+	private UIEvent(Athlete athlete, UI ui) {
+		this.athlete = athlete;
+		this.ui = ui;
+	}
+
+	/**
+	 * @return the athlete
+	 */
+	public Athlete getAthlete() {
+		return athlete;
+	}
+
+	/**
+	 * @return the ui
+	 */
+	public UI getUi() {
+		return ui;
 	}
 
 }

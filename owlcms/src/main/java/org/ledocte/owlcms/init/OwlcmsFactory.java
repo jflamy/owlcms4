@@ -15,8 +15,8 @@ import java.util.Optional;
 
 import org.ledocte.owlcms.data.platform.Platform;
 import org.ledocte.owlcms.data.platform.PlatformRepository;
-import org.ledocte.owlcms.state.CountdownTimer;
 import org.ledocte.owlcms.state.FieldOfPlayState;
+import org.ledocte.owlcms.state.RelayTimer;
 
 /**
  * Singleton, one per running JVM (i.e. one instance of owlcms, or one unit
@@ -51,7 +51,12 @@ public class OwlcmsFactory {
 		fopByName = new HashMap<>();
 		for (Platform platform : PlatformRepository.findAll()) {
 			String name = platform.getName();
-			fopByName.put(name, new FieldOfPlayState(null, platform, new CountdownTimer()));
+			System.err.println("platform="+platform);
+			System.err.println("platform="+platform.getName());
+			FieldOfPlayState fop = new FieldOfPlayState(null, platform);
+			fop.setTimer(new RelayTimer(fop));
+			fopByName.put(name, fop);
+			System.err.println("fopByName init done fopByName.size()="+fopByName.size());
 		}
 	}
 
@@ -59,9 +64,11 @@ public class OwlcmsFactory {
 	 * @return first field of play, sorted alphabetically
 	 */
 	public static FieldOfPlayState getDefaultFOP() {
+		System.err.println("before initFOP");
 		if (fopByName == null) {
 			initFOPByName();
 		}
+		System.err.println("after initFOP");
 		Optional<FieldOfPlayState> fop = fopByName.entrySet()
 			.stream()
 			.sorted(Comparator.comparing(x -> x.getKey()))
