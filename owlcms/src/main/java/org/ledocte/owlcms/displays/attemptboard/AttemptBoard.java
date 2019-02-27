@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.init.OwlcmsSession;
+import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.UIEvent;
 import org.ledocte.owlcms.ui.home.QueryParameterReader;
 import org.slf4j.LoggerFactory;
@@ -80,37 +81,43 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	@Id("decisions")
 	private DecisionElement decisions; // created by Flow during template instanciation
 	private EventBus uiEventBus;
+	private EventBus fopEventBus;
 
 	/**
 	 * Instantiates a new attempt board.
 	 */
 	public AttemptBoard() {
-		OwlcmsSession.withFop(fop -> {
-			logger.info("Starting attempt board on FOP {}", fop.getName());
-			setId("attempt-board-template");
-			this.getElement().setProperty("interactive", true);
-		});
 	}
 
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		// fop obtained via QueryParameterReader interface default methods.
-		OwlcmsSession.withFop(fop -> {	
+		OwlcmsSession.withFop(fop -> {
+			init();
 			// sync with current status of FOP
 			doUpdate(fop.getCurAthlete());
 			
-			//fopEventBus = fop.getEventBus();
+			fopEventBus = fop.getEventBus();
 			uiEventBus = fop.getUiEventBus();
-			// we listen on uiEventBus.
+			// we send on fopEventBus, listen on uiEventBus.
 			uiEventBus.register(this);
+		});
+	}
+
+	private void init() {
+		OwlcmsSession.withFop(fop -> {
+			logger.debug("Starting attempt board on FOP {}", fop.getName());
+			setId("attempt-board-template");
+			this.getElement().setProperty("interactive", true);
 		});
 	}
 
 	/* @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.DetachEvent) */
 	@Override
 	protected void onDetach(DetachEvent detachEvent) {
-		uiEventBus.unregister(this);
+		try {uiEventBus.unregister(this);} catch (Exception e) {}
+		try {fopEventBus.unregister(this);} catch (Exception e) {}
 	}
 	
 	
@@ -150,6 +157,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	@ClientCallable
 	public void down() {
 		logger.info("down signal shown");
+		fopEventBus.post(new FOPEvent.DownSignal(this.getUI().get()));
 	}
 
 	/**

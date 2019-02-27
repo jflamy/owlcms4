@@ -8,19 +8,30 @@
  */
 package org.ledocte.owlcms.displays.attemptboard;
 
+import java.util.Optional;
+
+import org.ledocte.owlcms.init.OwlcmsSession;
+import org.ledocte.owlcms.state.FOPEvent;
+import org.ledocte.owlcms.state.UIEvent;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Countdown timer element.
+ * Decision display element.
  */
 @SuppressWarnings("serial")
 @Tag("decision-element")
@@ -28,59 +39,91 @@ import ch.qos.logback.classic.Logger;
 public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionModel> {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
-
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	static {
+		logger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.DEBUG);
+	}
+	
 	/**
 	 * The Interface DecisionModel.
 	 */
 	public interface DecisionModel extends TemplateModel {
 		
 		/**
-		 * Checks if is ref 1.
+		 *  Ref1 decision
 		 *
-		 * @return the boolean
+		 * @return true if accepted, false if rejected, null if no decision
 		 */
 		Boolean isRef1();
 
 		/**
-		 * Sets the ref 1.
-		 *
-		 * @param running the new ref 1
+		 * @param ref1 decision
 		 */
-		void setRef1(Boolean running);
+		void setRef1(Boolean decision);
 
 		/**
-		 * Checks if is ref 2.
+		 *  Ref2 decision
 		 *
-		 * @return the boolean
+		 * @return true if accepted, false if rejected, null if no decision
 		 */
 		Boolean isRef2();
 
 		/**
-		 * Sets the ref 2.
-		 *
-		 * @param running the new ref 2
+		 * @param ref2 decision
 		 */
-		void setRef2(Boolean running);
+		void setRef2(Boolean decision);
 
 		/**
-		 * Checks if is ref 3.
+		 *  Ref3 decision
 		 *
-		 * @return the boolean
+		 * @return true if accepted, false if rejected, null if no decision
 		 */
 		Boolean isRef3();
 
 		/**
-		 * Sets the ref 3.
-		 *
-		 * @param running the new ref 3
+		 * @param ref1 decision
 		 */
-		void setRef3(Boolean running);
+		void setRef3(Boolean decision);
+	}
+
+	private EventBus uiEventBus;
+	private EventBus fopEventBus;
+	
+	public DecisionElement() {
 	}
 
 	/**
-	 * Instantiates a new decision element.
+	 * Reset.
 	 */
-	public DecisionElement() {
+	public void reset() {
+		getElement().callFunction("reset");
+	}
+
+	/**
+	 * Decision made.
+	 *
+	 * @param decision majority decision
+	 */
+	@ClientCallable
+	public void decisionMade(boolean decision) {
+		logger.info("decision made " + decision);
+	}
+	
+	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		init();
+		OwlcmsSession.withFop(fop -> {
+			fopEventBus = fop.getEventBus();
+			uiEventBus = fop.getUiEventBus();
+			// we listen on uiEventBus.
+			uiEventBus.register(this);
+		});
+	}
+
+	private void init() {
 		DecisionModel model = getModel();
 		model.setRef1(null);
 		model.setRef2(null);
@@ -101,20 +144,28 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		});
 	}
 
-	/**
-	 * Reset.
-	 */
-	public void reset() {
-		getElement().callFunction("reset");
+	/* @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.DetachEvent) */
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+		try {uiEventBus.unregister(this);} catch (Exception e) {}
+		try {fopEventBus.unregister(this);} catch (Exception e) {}
 	}
-
-	/**
-	 * Decision made.
-	 *
-	 * @param decision the decision
-	 */
+	
+	@Subscribe
+	public void resetDecision(UIEvent.DecisionReset e) {
+		Optional<UI> ui2 = this.getUI();
+		if (ui2.isPresent()) {
+			ui2.get().access(() -> {
+				reset();
+			});
+		} else {
+			uiEventLogger.debug(">>> start detached, unregistering", e);
+			uiEventBus.unregister(this);
+		}
+	}
+	
 	@ClientCallable
-	public void decisionMade(boolean decision) {
-		logger.info("decision made " + decision);
+	public void decisionsVisible(Boolean decision) {
+		fopEventBus.post(new FOPEvent.RefereeDecision(this.getUI().get(),decision));
 	}
 }

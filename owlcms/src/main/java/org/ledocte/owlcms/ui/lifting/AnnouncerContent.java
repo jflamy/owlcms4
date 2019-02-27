@@ -94,7 +94,6 @@ public class AnnouncerContent extends VerticalLayout
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
 		logger.trace("attaching AnnouncerContent");
 		crud = getGridCrud();
 		fillHW(crud, this);
@@ -115,7 +114,6 @@ public class AnnouncerContent extends VerticalLayout
 	 */
 	@Override
 	protected void onDetach(DetachEvent detachEvent) {
-		super.onDetach(detachEvent);
 		logger.trace("detaching AnnouncerContent");
 		OwlcmsSession.withFop(fop -> {
 			EventBus uiEventBus = fop.getUiEventBus();
@@ -230,7 +228,7 @@ public class AnnouncerContent extends VerticalLayout
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		fop.getEventBus()
-			.post(new FOPEvent.LiftingOrderUpdated());
+			.post(new FOPEvent.LiftingOrderUpdated(crud.getUI().get()));
 		return savedAthlete;
 	}
 

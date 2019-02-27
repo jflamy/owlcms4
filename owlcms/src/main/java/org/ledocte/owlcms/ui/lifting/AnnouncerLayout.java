@@ -113,13 +113,13 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 		HorizontalLayout buttons = new HorizontalLayout(
 				timeField,
 				new Button("announce", (e) -> {
-					getFopEventBus().post(new FOPEvent.AthleteAnnounced());
+					getFopEventBus().post(new FOPEvent.AthleteAnnounced(announcerBar.getUI().get()));
 				}),
 				new Button("start", (e) -> {
-					getFopEventBus().post(new FOPEvent.TimeStartedByTimeKeeper());
+					getFopEventBus().post(new FOPEvent.TimeStartedManually(announcerBar.getUI().get()));
 				}),
 				new Button("stop", (e) -> {
-					getFopEventBus().post(new FOPEvent.TimeStoppedByTimeKeeper());
+					getFopEventBus().post(new FOPEvent.TimeStoppedManually(announcerBar.getUI().get()));
 				}),
 				new Button("1 min"),
 				new Button("2 min"));
@@ -127,10 +127,10 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 
 		HorizontalLayout decisions = new HorizontalLayout(
 				new Button("good", (e) -> {
-					getFopEventBus().post(new FOPEvent.RefereeDecision(true));
+					getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get(), true));
 				}),
 				new Button("bad", (e) -> {
-					getFopEventBus().post(new FOPEvent.RefereeDecision(false));
+					getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get(), false));
 				}));
 
 		decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
