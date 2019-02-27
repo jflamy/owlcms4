@@ -85,7 +85,7 @@ public class RelayTimer implements ICountdownTimer {
 		long elapsed = stopMillis-startMillis;
 		timeRemaining = (int) (timeRemaining - elapsed);
 		logger.debug("stopping Time -- timeRemaining = {}", timeRemaining);
-		fop.getUiEventBus().post(new UIEvent.StartTime(timeRemaining));
+		fop.getUiEventBus().post(new UIEvent.StopTime());
 	}
 
 	/*

@@ -11,7 +11,6 @@ package org.ledocte.owlcms.displays.attemptboard;
 import java.util.stream.Collectors;
 
 import org.ledocte.owlcms.init.OwlcmsSession;
-import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.ClientCallable;
@@ -45,15 +44,15 @@ public class AttemptBoard extends PolymerTemplate<TemplateModel> {
 	@Id("decisions")
 	private DecisionElement decisions; // instanciated by Flow during template instanciation
 
-
 	/**
 	 * Instantiates a new attempt board.
 	 */
 	public AttemptBoard() {
-		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
-		logger.info("Starting attempt board on FOP {}",fop.getName());
-		setId("attempt-board-template");
-		this.getElement().setProperty("interactive",true);
+		OwlcmsSession.withFop(fop -> {
+			logger.info("Starting attempt board on FOP {}", fop.getName());
+			setId("attempt-board-template");
+			this.getElement().setProperty("interactive", true);
+		});
 	}
 
 	/**

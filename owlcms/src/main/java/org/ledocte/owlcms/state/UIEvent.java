@@ -161,9 +161,7 @@ public class UIEvent {
 	 */
 	static public class StopTime extends UIEvent {
 
-		public StopTime(Athlete athlete, UI ui) {
-			super(athlete, ui);
-		}
+		public StopTime() {}
 
 	}
 

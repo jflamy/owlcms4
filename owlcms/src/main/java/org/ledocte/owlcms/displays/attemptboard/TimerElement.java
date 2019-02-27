@@ -8,9 +8,12 @@
  */
 package org.ledocte.owlcms.displays.attemptboard;
 
+import java.util.Optional;
+
 import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.ICountdownTimer;
 import org.ledocte.owlcms.state.UIEvent;
+import org.ledocte.owlcms.ui.lifting.UIEventListener;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -34,7 +37,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Tag("timer-element")
 @HtmlImport("frontend://components/TimerElement.html")
-public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> implements ICountdownTimer {
+public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> implements ICountdownTimer, UIEventListener {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
@@ -121,7 +124,6 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 
 	private EventBus uiEventBus;
 	private Element timerElement;
-	private UI ui;
 
 	/**
 	 * Instantiates a new timer element.
@@ -130,7 +132,6 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	}
 
 	protected void init() {
-		ui = UI.getCurrent();
 		// new Exception().printStackTrace();
 		double seconds = 0.00D;
 		TimerModel model = getModel();
@@ -171,31 +172,50 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	@Override
 	@Subscribe
 	public void startTimer(UIEvent.StartTime e) {
-		ui.access(() -> {
-			Integer milliseconds = e.getTimeRemaining();
-			uiEventLogger.debug(">>> received {} {}", e, milliseconds);
-			if (milliseconds != null) setTimeRemaining(milliseconds);
-			start();
-		});
+		Optional<UI> ui2 = this.getUI();
+		if (ui2.isPresent()) {
+			ui2.get().access(() -> {
+				Integer milliseconds = e.getTimeRemaining();
+				uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
+				if (milliseconds != null)
+					setTimeRemaining(milliseconds);
+				start();
+			});
+		} else {
+			uiEventLogger.debug(">>> start detached, unregistering", e);
+			uiEventBus.unregister(this);
+		}
 	}
-
+	
 	@Override
 	@Subscribe
 	public void stopTimer(UIEvent.StopTime e) {
-		ui.access(() -> {
-			uiEventLogger.debug("<<< received {}", e);
-			stop();
-		});
+		Optional<UI> ui2 = this.getUI();
+		if (ui2.isPresent()) {
+			ui2.get().access(() -> {
+				uiEventLogger.debug("<<< stop received {}", e);
+				stop();
+			});
+		} else {
+			uiEventLogger.debug("<<< stop detached, unregistering", e);
+			uiEventBus.unregister(this);
+		}
 	}
 	
 	@Override
 	@Subscribe
 	public void setTimer(UIEvent.SetTime e) {
-		ui.access(() -> {
-			uiEventLogger.debug("=== received {}", e);
-			Integer milliseconds = e.getTimeRemaining();
-			setTimeRemaining(milliseconds);
-		});
+		Optional<UI> ui2 = this.getUI();
+		if (ui2.isPresent()) {
+			ui2.get().access(() -> {
+				uiEventLogger.debug("=== set received {}", e);
+				Integer milliseconds = e.getTimeRemaining();
+				setTimeRemaining(milliseconds);
+			});
+		} else {
+			uiEventLogger.debug("=== set detached, unregistering", e);
+			uiEventBus.unregister(this);
+		}
 	}
 	
 

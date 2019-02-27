@@ -10,9 +10,11 @@ package org.ledocte.owlcms.init;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 
+import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.platform.Platform;
 import org.ledocte.owlcms.data.platform.PlatformRepository;
 import org.ledocte.owlcms.state.FieldOfPlayState;
@@ -51,12 +53,10 @@ public class OwlcmsFactory {
 		fopByName = new HashMap<>();
 		for (Platform platform : PlatformRepository.findAll()) {
 			String name = platform.getName();
-			System.err.println("platform="+platform);
-			System.err.println("platform="+platform.getName());
 			FieldOfPlayState fop = new FieldOfPlayState(null, platform);
-			fop.setTimer(new RelayTimer(fop));
+			// no group selected, no athletes, announcer will need to pick a group.
+			fop.init(new LinkedList<Athlete>(), new RelayTimer(fop));
 			fopByName.put(name, fop);
-			System.err.println("fopByName init done fopByName.size()="+fopByName.size());
 		}
 	}
 
@@ -64,11 +64,9 @@ public class OwlcmsFactory {
 	 * @return first field of play, sorted alphabetically
 	 */
 	public static FieldOfPlayState getDefaultFOP() {
-		System.err.println("before initFOP");
 		if (fopByName == null) {
 			initFOPByName();
 		}
-		System.err.println("after initFOP");
 		Optional<FieldOfPlayState> fop = fopByName.entrySet()
 			.stream()
 			.sorted(Comparator.comparing(x -> x.getKey()))
