@@ -13,7 +13,6 @@ import java.util.Optional;
 import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.ICountdownTimer;
 import org.ledocte.owlcms.state.UIEvent;
-import org.ledocte.owlcms.ui.lifting.UIEventListener;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -37,7 +36,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Tag("timer-element")
 @HtmlImport("frontend://components/TimerElement.html")
-public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> implements ICountdownTimer, UIEventListener {
+public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> implements ICountdownTimer {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
@@ -47,7 +46,12 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	}
 
 	/**
-	 * The Interface TimerModel.
+	 * TimerModel
+	 * 
+	 * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties.
+	 * When the JS properties are changed, a "propname-changed" event is triggered.
+	 * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
+	 * 
 	 */
 	public interface TimerModel extends TemplateModel {
 

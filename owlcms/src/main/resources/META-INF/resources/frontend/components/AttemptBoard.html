@@ -175,15 +175,15 @@ keyframes blinker { 50% {
 </style>
 
 <div class="attemptBoard">
-	<div class="lastName" on-click="reset">Beauchemin&hyphen;De&nbsp;la&nbsp;Durantaye</div>
-	<div class="firstName">Geneviève-Dominique</div>
-	<div class="teamName">Club d'haltérophilie Gravité</div>
+	<div class="lastName" on-click="reset">[[lastName]]</div>
+	<div class="firstName">[[firstName]]</div>
+	<div class="teamName">[[teamName]]</div>
 	<div class="startNumber">
-		<span>12</span>
+		<span>[[startNumber]]</span>
 	</div>
-	<div class="attempt">2nd att.</div>
+	<div class="attempt">[[attempt]]</div>
 	<div class="weight">
-		249<span style="font-size: 75%">kg</span>
+		[[weight]]<span style="font-size: 75%">kg</span>
 	</div>
 	<div class="barbell" id="barbellDiv">
 		<slot name="barbell"></slot>
@@ -211,7 +211,31 @@ keyframes blinker { 50% {
             }
 
             static get properties() {
-          	  return {
+	          	 return {
+					lastName: {
+					    type: String,
+					    value: ''
+					},
+					firstName: {
+					      type: String,
+					      value: ''
+					},
+					teamName: {
+					    type: String,
+					    value: ''
+					},
+					startNumber: {
+					    type: Number,
+					    value: 0
+					},
+					attempt: {
+					    type: String,
+					    value: ''
+					}, 
+					weight: {
+					    type: Number,
+					    value: 0
+					}, 
                  /**
                   * Set to true to have timer count show controls
                   * @default false

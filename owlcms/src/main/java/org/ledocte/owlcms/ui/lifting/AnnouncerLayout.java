@@ -16,6 +16,7 @@ import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.UIEvent;
 import org.ledocte.owlcms.ui.home.MainNavigationLayout;
+import org.ledocte.owlcms.ui.home.UIEventListener;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
@@ -161,7 +162,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 				});
 		} else {
 			uiEventLogger.debug("+++ received {}, but announcer bar detached from UI", e);
-			unregister();
+			uiEventUnregister();
 		}
 	}
 	
@@ -177,7 +178,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 				});
 		} else {
 			uiEventLogger.debug("+++ received {}, but announcer bar detached from UI", e);
-			unregister();
+			uiEventUnregister();
 		}
 	}
 
@@ -241,7 +242,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 			// connect to bus for new updating events
 			EventBus uiEventBus = fop.getUiEventBus();
 			logger.debug("registering {} to {}", this, uiEventBus.identifier());
-			uiEventBus = listenToUIEvents(attachEvent.getUI(), fop);
+			uiEventBus = uiEventRegister(attachEvent.getUI(), fop);
 		});
 	}
 
@@ -255,10 +256,10 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 	protected void onDetach(DetachEvent detachEvent) {
 		logger.trace("detaching {} from {}", detachEvent.getSource(), detachEvent.getUI());
 		super.onDetach(detachEvent);
-		unregister();
+		uiEventUnregister();
 	}
 
-	public void unregister() {
+	public void uiEventUnregister() {
 		OwlcmsSession.withFop(fop -> {
 			EventBus uiEventBus = fop.getUiEventBus();
 			logger.debug("unregistering {} from {}", this, uiEventBus.identifier());

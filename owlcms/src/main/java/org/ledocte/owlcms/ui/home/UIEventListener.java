@@ -1,4 +1,4 @@
-package org.ledocte.owlcms.ui.lifting;
+package org.ledocte.owlcms.ui.home;
 
 import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,7 @@ public interface UIEventListener {
 	Logger logger = (Logger) LoggerFactory.getLogger(UIEventListener.class);
 
 
-	public default EventBus listenToUIEvents(UI current, FieldOfPlayState fop) {
+	public default EventBus uiEventRegister(UI current, FieldOfPlayState fop) {
 		
 		{logger.setLevel(Level.DEBUG);}
 		
