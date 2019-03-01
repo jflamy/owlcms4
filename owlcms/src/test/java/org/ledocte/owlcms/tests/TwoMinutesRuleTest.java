@@ -143,7 +143,7 @@ public class TwoMinutesRuleTest {
 		assertEquals(120000, fopState.timeAllowed());
 		// simpson is called again with two minutes
 		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-		fopBus.post(new FOPEvent.AthleteAnnounced()); // this starts logical time
+		fopBus.post(new FOPEvent.AthleteAnnounced(null)); // this starts logical time
 		assertEquals(FieldOfPlayState.State.TIME_RUNNING, fopState.getState());
 		// but simpson now asks for more; weight change should stop clock.
 		declaration(curLifter, "67", fopBus); //$NON-NLS-1$
@@ -155,7 +155,7 @@ public class TwoMinutesRuleTest {
 		assertEquals(60000, fopState.timeAllowed());
 		// schneider is called
 		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-		fopBus.post(new FOPEvent.AthleteAnnounced()); // this starts logical time
+		fopBus.post(new FOPEvent.AthleteAnnounced(null)); // this starts logical time
 		assertEquals(FieldOfPlayState.State.TIME_RUNNING, fopState.getState());
 		// but asks for more weight -- the following stops time.
 		declaration(curLifter, "65", fopBus); //$NON-NLS-1$
@@ -295,53 +295,26 @@ public class TwoMinutesRuleTest {
 			lifter.setCleanJerk3Declaration(weight);
 			break;
 		}
-		eventBus.post(new FOPEvent.LiftingOrderUpdated());
+		eventBus.post(new FOPEvent.LiftingOrderUpdated(null));
 	}
 
-//	/**
-//	 * @param lifter
-//	 * @param lifters1
-//	 * @param weight
-//	 */
-//	private void actualLift(final Athlete lifter, final String weight) {
-//		switch (lifter.getAttemptsDone() + 1) {
-//		case 1:
-//			lifter.setSnatch1ActualLift(weight);
-//			break;
-//		case 2:
-//			lifter.setSnatch2ActualLift(weight);
-//			break;
-//		case 3:
-//			lifter.setSnatch3ActualLift(weight);
-//			break;
-//		case 4:
-//			lifter.setCleanJerk1ActualLift(weight);
-//			break;
-//		case 5:
-//			lifter.setCleanJerk2ActualLift(weight);
-//			break;
-//		case 6:
-//			lifter.setCleanJerk3ActualLift(weight);
-//			break;
-//		}
-//	}
 
 	private void failedLift(EventBus fopBus, Athlete curLifter) {
 		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
-		fopBus.post(new FOPEvent.AthleteAnnounced());
-		fopBus.post(new FOPEvent.DownSignal());
-		fopBus.post(new FOPEvent.RefereeDecision(false));
+		fopBus.post(new FOPEvent.AthleteAnnounced(null));
+		fopBus.post(new FOPEvent.DownSignal(null));
+		fopBus.post(new FOPEvent.RefereeDecision(null, false, false, false, false));
 		logger.debug("failed lift for {}", curLifter); //$NON-NLS-1$
-		fopBus.post(new FOPEvent.DecisionReset());
+		fopBus.post(new FOPEvent.DecisionReset(null));
 	}
 
 	private void successfulLift(EventBus fopBus, Athlete curLifter) {
 		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
-		fopBus.post(new FOPEvent.AthleteAnnounced());
-		fopBus.post(new FOPEvent.DownSignal());
-		fopBus.post(new FOPEvent.RefereeDecision(true));
+		fopBus.post(new FOPEvent.AthleteAnnounced(null));
+		fopBus.post(new FOPEvent.DownSignal(null));
+		fopBus.post(new FOPEvent.RefereeDecision(null, true, true, true, true));
 		logger.debug("successful lift for {}", curLifter); //$NON-NLS-1$
-		fopBus.post(new FOPEvent.DecisionReset());
+		fopBus.post(new FOPEvent.DecisionReset(null));
 	}
 
 }

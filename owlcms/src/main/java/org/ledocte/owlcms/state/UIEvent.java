@@ -21,80 +21,66 @@ import com.vaadin.flow.component.UI;
 public class UIEvent {
 
 	private Athlete athlete;
-	/**
-	 * @return the athlete
-	 */
-	public Athlete getAthlete() {
-		return athlete;
+
+	private UI originatingUI;
+	
+	private UIEvent(UI originatingUI) {
+		this.originatingUI = originatingUI;
 	}
 
-	/**
-	 * @return the ui
-	 */
-	public UI getUi() {
-		return ui;
-	}
-
-	private UI ui;
-
-	public UIEvent(Athlete athlete, UI ui) {
+	private UIEvent(Athlete athlete, UI originatingUI) {
+		this(originatingUI);
 		this.athlete = athlete;
-		this.ui = ui;
 	}
 
+
 	/**
-	 * The Class AthleteAnnounced.
+	 * Class AthleteAnnounced.
 	 */
 	static public class AthleteAnnounced extends UIEvent {
 		public AthleteAnnounced(Athlete athlete, UI ui) {
 			super(athlete, ui);
 		}
 	}
-
 	/**
-	 * The Class DecisionReset.
+	 * Class DecisionReset.
 	 */
 	static public class DecisionReset extends UIEvent {
-		public DecisionReset(Athlete athlete, UI ui) {
-			super(athlete, ui);
-		}
+		public DecisionReset(UI originatingUI) {super(originatingUI);}
 	}
 
 	/**
-	 * The Class DownSignal.
+	 * Class DownSignal.
 	 */
 	static public class DownSignal extends UIEvent {
-
-		public DownSignal(Athlete athlete, UI ui) {
-			super(athlete, ui);
-		}
-
+		public DownSignal(UI originatingUI) {super(originatingUI);}
 	}
 
 	/**
-	 * The Class IntermissionDone.
+	 * Class IntermissionDone.
 	 */
 	static public class IntermissionDone extends UIEvent {
 
-		public IntermissionDone(Athlete athlete, UI ui) {
-			super(athlete, ui);
+		public IntermissionDone(Athlete athlete, UI originatingUI) {
+			super(athlete, originatingUI);
 		}
 
 	}
 
 	/**
-	 * The Class IntermissionStarted.
+	 * Class IntermissionStarted.
 	 */
 	static public class IntermissionStarted extends UIEvent {
 
-		public IntermissionStarted(Athlete athlete, UI ui) {
-			super(athlete, ui);
+		public IntermissionStarted(Athlete athlete, UI originatingUI) {
+			super(athlete, originatingUI);
 		}
 
 	}
 
+	
 	/**
-	 * The Class LiftingOrderUpdated.
+	 * Class LiftingOrderUpdated.
 	 */
 	static public class LiftingOrderUpdated extends UIEvent {
 
@@ -102,15 +88,8 @@ public class UIEvent {
 		private Athlete previousAthlete;
 		private Integer timeAllowed;
 
-		/**
-		 * @return the timeAllowed
-		 */
-		public Integer getTimeAllowed() {
-			return timeAllowed;
-		}
-
-		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete, Integer timeAllowed, UI ui) {
-			super(athlete, ui);
+		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete, Integer timeAllowed, UI originatingUI) {
+			super(athlete, originatingUI);
 			this.nextAthlete = nextAthlete;
 			this.previousAthlete = previousAthlete;
 			this.timeAllowed = timeAllowed;
@@ -124,56 +103,103 @@ public class UIEvent {
 			return previousAthlete;
 		}
 
-	}
+		/**
+		 * @return the timeAllowed
+		 */
+		public Integer getTimeAllowed() {
+			return timeAllowed;
+		}
 
+	}
+	
 	/**
-	 * The Class RefereeDecision.
+	 * Class RefereeDecision.
 	 */
 	static public class RefereeDecision extends UIEvent {
 
-		/** The success. */
-		public Boolean success = null;
+		public Boolean decision = null;
+		public Boolean ref1;
+		public Boolean ref2;
+		public Boolean ref3;
 
 		/**
 		 * Instantiates a new referee decision.
 		 *
-		 * @param success the success
+		 * @param decision the decision
 		 */
-		public RefereeDecision(Athlete athlete, boolean success, UI ui) {
-			super(athlete, ui);
-			this.success = success;
+		public RefereeDecision(Athlete athlete, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, UI originatingUI) {
+			super(athlete, originatingUI);
+			this.decision = decision;
+			this.ref1 = ref1;
+			this.ref2 = ref2;
+			this.ref3 = ref3;
 		}
 
 	}
 
-	/**
-	 * The Class TimeStartedByTimeKeeper.
-	 */
-	static public class TimeStartedByTimeKeeper extends UIEvent {
+	static public class SetTime extends UIEvent {
 
 		private Integer timeRemaining;
 
-		public TimeStartedByTimeKeeper(Athlete athlete, Integer timeRemaining, UI ui) {
-			super(athlete, ui);
+		public SetTime(Integer timeRemaining, UI originatingUI) {
+			super(originatingUI);
 			this.timeRemaining = timeRemaining;
 		}
 
 		public Integer getTimeRemaining() {
-			// TODO Auto-generated method stub
 			return timeRemaining;
 		}
 
 	}
 
 	/**
-	 * The Class TimeStoppedByTimeKeeper.
+	 * Class StartTime.
 	 */
-	static public class TimeStoppedByTimeKeeper extends UIEvent {
+	static public class StartTime extends UIEvent {
 
-		public TimeStoppedByTimeKeeper(Athlete athlete, UI ui) {
-			super(athlete, ui);
+		private Integer timeRemaining;
+
+		public StartTime(Integer timeRemaining, UI originatingUI) {
+			super(originatingUI);
+			this.timeRemaining = timeRemaining;
 		}
 
+		public Integer getTimeRemaining() {
+			return timeRemaining;
+		}
+
+	}
+
+	/**
+	 * Class StopTime.
+	 */
+	static public class StopTime extends UIEvent {
+
+		private int timeRemaining;
+
+		public StopTime(int timeRemaining, UI originatingUI) {
+			super(originatingUI);
+			this.timeRemaining = timeRemaining;
+		}
+		
+		public Integer getTimeRemaining() {
+			return timeRemaining;
+		}
+	}
+
+
+	/**
+	 * @return the athlete
+	 */
+	public Athlete getAthlete() {
+		return athlete;
+	}
+
+	/**
+	 * @return the originatingUI
+	 */
+	public UI getOriginatingUI() {
+		return originatingUI;
 	}
 
 }

@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.athlete.AthleteRepository;
@@ -28,6 +27,7 @@ import org.ledocte.owlcms.ui.crudui.OwlcmsCrudLayout;
 import org.ledocte.owlcms.ui.crudui.OwlcmsGridCrud;
 import org.ledocte.owlcms.ui.home.ContentWrapping;
 import org.ledocte.owlcms.ui.home.QueryParameterReader;
+import org.ledocte.owlcms.ui.home.SafeEventBusRegistration;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -36,7 +36,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -57,7 +56,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AnnouncerLayout.class)
 public class AnnouncerContent extends VerticalLayout
-		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping {
+		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor {
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
@@ -70,6 +69,7 @@ public class AnnouncerContent extends VerticalLayout
 	private Location location;
 	private UI locationUI;
 	private GridCrud<Athlete> crud;
+	private EventBus uiEventBus;
 
 	/**
 	 * Instantiates a new announcer content.
@@ -94,7 +94,6 @@ public class AnnouncerContent extends VerticalLayout
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
 		logger.trace("attaching AnnouncerContent");
 		crud = getGridCrud();
 		fillHW(crud, this);
@@ -102,39 +101,19 @@ public class AnnouncerContent extends VerticalLayout
 			// sync with current status of FOP
 			fop.switchGroup(fop.getGroup());
 			crud.refreshGrid();
-			
-			// connect to bus for new updating events
-			EventBus uiEventBus = fop.getUiEventBus();
-			logger.debug(">>>>> registering {} to {}", this, uiEventBus.identifier());
-			uiEventBus.register(this);
+			// we listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
 
 	/* (non-Javadoc)
-	 * @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.DetachEvent)
+	 * @see org.ledocte.owlcms.ui.lifting.UIEventProcessor#updateGrid(org.ledocte.owlcms.state.UIEvent.LiftingOrderUpdated)
 	 */
-	@Override
-	protected void onDetach(DetachEvent detachEvent) {
-		super.onDetach(detachEvent);
-		logger.trace("detaching AnnouncerContent");
-		OwlcmsSession.withFop(fop -> {
-			EventBus uiEventBus = fop.getUiEventBus();
-			logger.debug("<<<<< unregistering {} from {}", this, uiEventBus.identifier());
-			uiEventBus.unregister(this);
-		});
-	}
-
 	@Subscribe
 	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
-		Optional<UI> ui2 = crud.getUI();
-		if (ui2.isPresent()) {
-			uiEventLogger.debug("*** received {}", e);
-			ui2.get().access(() -> {
-					crud.refreshGrid();
-				});
-		} else {
-			uiEventLogger.debug("*** received {}, but crud detached from UI", e);
-		}
+		UIEventProcessor.uiAccess(crud, uiEventBus, e, () -> {
+			crud.refreshGrid();
+		});
 	}
 	
 	/**
@@ -230,7 +209,7 @@ public class AnnouncerContent extends VerticalLayout
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		fop.getEventBus()
-			.post(new FOPEvent.LiftingOrderUpdated());
+			.post(new FOPEvent.LiftingOrderUpdated(crud.getUI().get()));
 		return savedAthlete;
 	}
 

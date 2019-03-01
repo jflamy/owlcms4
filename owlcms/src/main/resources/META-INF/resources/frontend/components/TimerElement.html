@@ -62,7 +62,7 @@
            },
            _formattedTime: {
              type: String,
-             value: '0'
+             value: '0:00'
            }
     	  }
       }
@@ -106,10 +106,10 @@
           this.running = false;
           if (this.countUp) {
               this.set('currentTime', 0);
-              this.set('_formattedTime', '0');
+              this.set('_formattedTime', '0:00');
             } else {
               this.set('currentTime', this.startTime);
-              this.set('_formattedTime', this.startTime.toString());
+              this.set('_formattedTime', this._formatTime(this.startTime));
             }
       }
       
@@ -135,9 +135,13 @@
           window.requestAnimationFrame(this._decreaseTimer.bind(this));
     }
 
-    _formatTime(time) {
-          var timeString = time.toString().split('.');
-          return timeString[0].indexOf('-') === 0 ? 0 : timeString[0] + '.' + timeString[1].substring(0,2);
+    _formatTime(ntime) {
+    	if (ntime < 0) return "-";
+    	var ntime = Math.round(ntime);
+    	var hours = Math.trunc(ntime / 3600);
+    	var minutes = Math.trunc((ntime - (hours*3600)) / 60);
+    	var seconds = ntime - ((hours*3600)+(minutes*60));
+    	return (hours > 0 ? hours + ":" : "")+(minutes+":"+ (seconds < 10 ? "0"+seconds : seconds));
     }
   }
   

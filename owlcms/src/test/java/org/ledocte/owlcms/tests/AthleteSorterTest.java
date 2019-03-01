@@ -155,7 +155,7 @@ public class AthleteSorterTest {
                                        // sequence of events generated
             switch (rnd.nextInt(3)) {
             case 0:
-                // System.err.println("success "+athletes.get(0).getLastName()+" at "+athletes.get(0).getNextAttemptRequestedWeight());
+                // System.err.println("decision "+athletes.get(0).getLastName()+" at "+athletes.get(0).getNextAttemptRequestedWeight());
                 successfulLift(athletes);
                 break;
             case 1:

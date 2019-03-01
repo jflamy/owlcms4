@@ -9,8 +9,11 @@
 package org.ledocte.owlcms.tests;
 
 import org.ledocte.owlcms.state.ICountdownTimer;
+import org.ledocte.owlcms.state.UIEvent;
 import org.ledocte.owlcms.utils.LoggerUtils;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.eventbus.Subscribe;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -25,6 +28,32 @@ public class MockCountdownTimer implements ICountdownTimer {
 		logger.setLevel(Level.INFO);
 	}
 
+	/***
+	 * Remote control commands, via events
+	 */
+	
+	@Override
+	@Subscribe
+	public void startTimer(UIEvent.StartTime e) {
+		Integer milliseconds = e.getTimeRemaining();
+		setTimeRemaining(milliseconds);
+		start();
+	}
+	
+	@Override
+	@Subscribe
+	public void stopTimer(UIEvent.StopTime e) {
+		stop();
+	}
+	
+	@Override
+	@Subscribe
+	public void setTimer(UIEvent.SetTime e) {
+		Integer milliseconds = e.getTimeRemaining();
+		setTimeRemaining(milliseconds);
+	}
+	
+	
 	/*
 	 * (non-Javadoc)
 	 * 
