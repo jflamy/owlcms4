@@ -298,39 +298,12 @@ public class TwoMinutesRuleTest {
 		eventBus.post(new FOPEvent.LiftingOrderUpdated(null));
 	}
 
-//	/**
-//	 * @param lifter
-//	 * @param lifters1
-//	 * @param weight
-//	 */
-//	private void actualLift(final Athlete lifter, final String weight) {
-//		switch (lifter.getAttemptsDone() + 1) {
-//		case 1:
-//			lifter.setSnatch1ActualLift(weight);
-//			break;
-//		case 2:
-//			lifter.setSnatch2ActualLift(weight);
-//			break;
-//		case 3:
-//			lifter.setSnatch3ActualLift(weight);
-//			break;
-//		case 4:
-//			lifter.setCleanJerk1ActualLift(weight);
-//			break;
-//		case 5:
-//			lifter.setCleanJerk2ActualLift(weight);
-//			break;
-//		case 6:
-//			lifter.setCleanJerk3ActualLift(weight);
-//			break;
-//		}
-//	}
 
 	private void failedLift(EventBus fopBus, Athlete curLifter) {
 		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.AthleteAnnounced(null));
 		fopBus.post(new FOPEvent.DownSignal(null));
-		fopBus.post(new FOPEvent.RefereeDecision(null, false));
+		fopBus.post(new FOPEvent.RefereeDecision(null, false, false, false, false));
 		logger.debug("failed lift for {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.DecisionReset(null));
 	}
@@ -339,7 +312,7 @@ public class TwoMinutesRuleTest {
 		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.AthleteAnnounced(null));
 		fopBus.post(new FOPEvent.DownSignal(null));
-		fopBus.post(new FOPEvent.RefereeDecision(null, true));
+		fopBus.post(new FOPEvent.RefereeDecision(null, true, true, true, true));
 		logger.debug("successful lift for {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.DecisionReset(null));
 	}

@@ -15,8 +15,8 @@ import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.UIEvent;
+import org.ledocte.owlcms.ui.home.SafeEventBusRegistration;
 import org.ledocte.owlcms.ui.home.MainNavigationLayout;
-import org.ledocte.owlcms.ui.home.UIEventListener;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
@@ -51,7 +51,7 @@ import ch.qos.logback.classic.Logger;
 @HtmlImport("frontend://styles/shared-styles.html")
 @Theme(Lumo.class)
 @Push
-public class AnnouncerLayout extends MainNavigationLayout implements UIEventListener {
+public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBusRegistration {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
@@ -127,10 +127,12 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 
 		HorizontalLayout decisions = new HorizontalLayout(
 				new Button("good", (e) -> {
-					getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get(), true));
+					getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get(), true, true, true, true));
+					getFopEventBus().post(new FOPEvent.DecisionReset(announcerBar.getUI().get()));
 				}),
 				new Button("bad", (e) -> {
-					getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get(), false));
+					getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get(), false, false, false, false));
+					getFopEventBus().post(new FOPEvent.DecisionReset(announcerBar.getUI().get()));
 				}));
 
 		decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -167,7 +169,39 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 	}
 	
 	@Subscribe
-	public void setTime(UIEvent.StartTime e) {
+	public void setTime(UIEvent.SetTime e) {
+		Optional<UI> ui2 = announcerBar.getUI();
+		if (ui2.isPresent()) {
+			uiEventLogger.debug("+++ received {}", e);
+			ui2.get()
+				.access(() -> {
+					Integer timeRemaining = e.getTimeRemaining();
+					timeField.setValue(msToString(timeRemaining));
+				});
+		} else {
+			uiEventLogger.debug("+++ received {}, but announcer bar detached from UI", e);
+			uiEventUnregister();
+		}
+	}
+	
+	@Subscribe
+	public void startTime(UIEvent.StartTime e) {
+		Optional<UI> ui2 = announcerBar.getUI();
+		if (ui2.isPresent()) {
+			uiEventLogger.debug("+++ received {}", e);
+			ui2.get()
+				.access(() -> {
+					Integer timeRemaining = e.getTimeRemaining();
+					timeField.setValue(msToString(timeRemaining));
+				});
+		} else {
+			uiEventLogger.debug("+++ received {}, but announcer bar detached from UI", e);
+			uiEventUnregister();
+		}
+	}
+	
+	@Subscribe
+	public void stopTime(UIEvent.StopTime e) {
 		Optional<UI> ui2 = announcerBar.getUI();
 		if (ui2.isPresent()) {
 			uiEventLogger.debug("+++ received {}", e);
@@ -242,7 +276,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements UIEventList
 			// connect to bus for new updating events
 			EventBus uiEventBus = fop.getUiEventBus();
 			logger.debug("registering {} to {}", this, uiEventBus.identifier());
-			uiEventBus = uiEventRegister(attachEvent.getUI(), fop);
+			uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
 

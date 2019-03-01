@@ -117,16 +117,22 @@ public class UIEvent {
 	 */
 	static public class RefereeDecision extends UIEvent {
 
-		public Boolean success = null;
+		public Boolean decision = null;
+		public Boolean ref1;
+		public Boolean ref2;
+		public Boolean ref3;
 
 		/**
 		 * Instantiates a new referee decision.
 		 *
-		 * @param success the success
+		 * @param decision the decision
 		 */
-		public RefereeDecision(Athlete athlete, boolean success, UI originatingUI) {
+		public RefereeDecision(Athlete athlete, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, UI originatingUI) {
 			super(athlete, originatingUI);
-			this.success = success;
+			this.decision = decision;
+			this.ref1 = ref1;
+			this.ref2 = ref2;
+			this.ref3 = ref3;
 		}
 
 	}
@@ -169,10 +175,16 @@ public class UIEvent {
 	 */
 	static public class StopTime extends UIEvent {
 
-		public StopTime(UI originatingUI) {
-			super(originatingUI);
-		}
+		private int timeRemaining;
 
+		public StopTime(int timeRemaining, UI originatingUI) {
+			super(originatingUI);
+			this.timeRemaining = timeRemaining;
+		}
+		
+		public Integer getTimeRemaining() {
+			return timeRemaining;
+		}
 	}
 
 

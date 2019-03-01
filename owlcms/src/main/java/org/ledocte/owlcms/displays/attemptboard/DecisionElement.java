@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.UIEvent;
+import org.ledocte.owlcms.ui.home.SafeEventBusRegistration;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -36,7 +37,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Tag("decision-element")
 @HtmlImport("frontend://components/DecisionElement.html")
-public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionModel> {
+public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionModel> implements SafeEventBusRegistration {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
@@ -92,23 +93,6 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	
 	public DecisionElement() {
 	}
-
-	/**
-	 * Reset.
-	 */
-	public void reset() {
-		getElement().callFunction("reset");
-	}
-
-	/**
-	 * Decision made.
-	 *
-	 * @param decision majority decision
-	 */
-	@ClientCallable
-	public void decisionMade(boolean decision) {
-		logger.info("decision made " + decision);
-	}
 	
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
 	@Override
@@ -117,9 +101,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		init();
 		OwlcmsSession.withFop(fop -> {
 			fopEventBus = fop.getEventBus();
-			uiEventBus = fop.getUiEventBus();
-			// we listen on uiEventBus.
-			uiEventBus.register(this);
+			// we send on fopEventBus, listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
 
@@ -152,11 +135,13 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	}
 	
 	@Subscribe
-	public void resetDecision(UIEvent.DecisionReset e) {
+	public void slaveShowDown(UIEvent.DownSignal e) {
 		Optional<UI> ui2 = this.getUI();
 		if (ui2.isPresent()) {
-			ui2.get().access(() -> {
-				reset();
+			UI ui = ui2.get();
+			if (e.getOriginatingUI() == ui) return; // we are the refereeing apparatus that sent the down signal.
+			ui.access(() -> {
+				this.getElement().callFunction("showDown", false);
 			});
 		} else {
 			uiEventLogger.debug(">>> start detached, unregistering", e);
@@ -164,8 +149,60 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		}
 	}
 	
-	@ClientCallable
-	public void decisionsVisible(Boolean decision) {
-		fopEventBus.post(new FOPEvent.RefereeDecision(this.getUI().get(),decision));
+	@Subscribe
+	public void slaveShowDecisions(UIEvent.RefereeDecision e) {
+		Optional<UI> ui2 = this.getUI();
+		if (ui2.isPresent()) {
+			UI ui = ui2.get();
+			if (e.getOriginatingUI() == ui) return; // we are the refereeing apparatus that sent the down signal.
+			ui.access(() -> {
+				getModel().setRef1(e.ref1);
+				getModel().setRef2(e.ref2);
+				getModel().setRef3(e.ref3);
+				this.getElement().callFunction("showDecisions", false);
+			});
+		} else {
+			uiEventLogger.debug(">>> start detached, unregistering", e);
+			uiEventBus.unregister(this);
+		}
 	}
+	
+	@Subscribe
+	public void slaveReset(UIEvent.DecisionReset e) {
+		Optional<UI> ui2 = this.getUI();
+		if (ui2.isPresent()) {
+			UI ui = ui2.get();
+			if (e.getOriginatingUI() == ui) return; // we are the refereeing apparatus that sent the down signal.
+			ui.access(() -> {
+				getElement().callFunction("reset",false);
+			});
+		} else {
+			uiEventLogger.debug(">>> start detached, unregistering", e);
+			uiEventBus.unregister(this);
+		}
+	}
+	
+	/**
+	 * Down.
+	 */
+	@ClientCallable
+	public void masterShowDown(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
+		logger.info("master down signal shown {} ({} {} {})", decision, ref1, ref2, ref3);
+		fopEventBus.post(new FOPEvent.DownSignal(this.getUI().get()));
+	}
+	
+	
+	@ClientCallable
+	public void masterShowDecisions(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
+		logger.info("master decision: {} ({} {} {})", decision, ref1, ref2, ref3);
+		fopEventBus.post(new FOPEvent.RefereeDecision(this.getUI().get(), decision, ref1, ref2, ref3));
+	}
+	
+	@ClientCallable
+	public void masterReset() {
+		logger.info("master reset");
+		fopEventBus.post(new FOPEvent.DecisionReset(this.getUI().get()));
+	}
+	
+
 }

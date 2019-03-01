@@ -13,15 +13,16 @@ import java.util.Optional;
 import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.ICountdownTimer;
 import org.ledocte.owlcms.state.UIEvent;
+import org.ledocte.owlcms.ui.home.SafeEventBusRegistration;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
@@ -36,7 +37,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Tag("timer-element")
 @HtmlImport("frontend://components/TimerElement.html")
-public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> implements ICountdownTimer {
+public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> implements ICountdownTimer, SafeEventBusRegistration {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
@@ -139,13 +140,14 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		// new Exception().printStackTrace();
 		double seconds = 0.00D;
 		TimerModel model = getModel();
-		model.setStartTime(60.0D);
+		model.setStartTime(0.0D);
 		model.setCurrentTime(seconds);
 		model.setCountUp(false);
 		model.setRunning(false);
 		model.setInteractive(true);
 		
 		timerElement = this.getElement();
+		timerElement.callFunction("startup");
 
 		timerElement.addPropertyChangeListener("running", "running-changed", (e) -> {
 			logger.info(
@@ -159,65 +161,77 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		super.onAttach(attachEvent);
 		init();
 		OwlcmsSession.withFop(fop -> {
-			//fopEventBus = fop.getEventBus();
-			uiEventBus = fop.getUiEventBus();
+			// sync with current status of FOP
+			setTimer(fop.getTimer().getTimeRemaining());
 			// we listen on uiEventBus.
-			uiEventBus.register(this);
+			uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
 
-	/* @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.DetachEvent) */
-	@Override
-	protected void onDetach(DetachEvent detachEvent) {
-		super.onDetach(detachEvent);
-		uiEventBus.unregister(this);
-	}
-	
+//	/* @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.DetachEvent) */
+//	@Override
+//	protected void onDetach(DetachEvent detachEvent) {
+//		super.onDetach(detachEvent);
+//		uiEventBus.unregister(this);
+//	}
+//	
 	@Override
 	@Subscribe
 	public void startTimer(UIEvent.StartTime e) {
 		Optional<UI> ui2 = this.getUI();
 		if (ui2.isPresent()) {
-			ui2.get().access(() -> {
-				Integer milliseconds = e.getTimeRemaining();
-				uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
-				if (milliseconds != null)
-					setTimeRemaining(milliseconds);
-				start();
-			});
+			try {
+				ui2.get().access(() -> {
+					Integer milliseconds = e.getTimeRemaining();
+					uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
+					if (milliseconds != null)
+						setTimeRemaining(milliseconds);
+					start();
+				});
+			} catch (UIDetachedException e1) {
+				uiEventBus.unregister(this);
+			}
 		} else {
-			uiEventLogger.debug(">>> start detached, unregistering", e);
 			uiEventBus.unregister(this);
 		}
 	}
-	
+
 	@Override
 	@Subscribe
 	public void stopTimer(UIEvent.StopTime e) {
 		Optional<UI> ui2 = this.getUI();
 		if (ui2.isPresent()) {
-			ui2.get().access(() -> {
-				uiEventLogger.debug("<<< stop received {}", e);
-				stop();
-			});
+			try {
+				ui2.get().access(() -> {
+					uiEventLogger.debug("<<< stop received {}", e);
+					stop();
+				});
+			} catch (UIDetachedException e1) {
+				uiEventBus.unregister(this);
+			}
 		} else {
-			uiEventLogger.debug("<<< stop detached, unregistering", e);
 			uiEventBus.unregister(this);
 		}
 	}
-	
+
 	@Override
 	@Subscribe
 	public void setTimer(UIEvent.SetTime e) {
+		Integer milliseconds = e.getTimeRemaining();
+		setTimer(milliseconds);
+	}
+
+	protected void setTimer(Integer milliseconds) {
 		Optional<UI> ui2 = this.getUI();
 		if (ui2.isPresent()) {
-			ui2.get().access(() -> {
-				uiEventLogger.debug("=== set received {}", e);
-				Integer milliseconds = e.getTimeRemaining();
-				setTimeRemaining(milliseconds);
-			});
+			try {
+				ui2.get().access(() -> {
+					setTimeRemaining(milliseconds);
+				});
+			} catch (UIDetachedException e1) {
+				uiEventBus.unregister(this);
+			}
 		} else {
-			uiEventLogger.debug("=== set detached, unregistering", e);
 			uiEventBus.unregister(this);
 		}
 	}

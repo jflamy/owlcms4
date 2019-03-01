@@ -97,17 +97,26 @@ public class FOPEvent {
 	 */
 	static public class RefereeDecision extends FOPEvent {
 		
-		/** The success. */
+		/** The decision. */
 		public Boolean success = null;
+		public Boolean ref1;
+		public Boolean ref2;
+		public Boolean ref3;
 
 		/**
 		 * Instantiates a new referee decision.
+		 * @param ref3 
+		 * @param ref2 
+		 * @param ref1 
 		 *
-		 * @param success the success
+		 * @param decision the decision
 		 */
-		public RefereeDecision(UI originatingUI, boolean success) {
+		public RefereeDecision(UI originatingUI, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 			super(originatingUI);
-			this.success = success;
+			this.success = decision;
+			this.ref1 = ref1;
+			this.ref2 = ref2;
+			this.ref3 = ref3;
 		}
 
 	}

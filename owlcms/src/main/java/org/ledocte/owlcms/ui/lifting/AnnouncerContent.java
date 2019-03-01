@@ -28,6 +28,7 @@ import org.ledocte.owlcms.ui.crudui.OwlcmsCrudLayout;
 import org.ledocte.owlcms.ui.crudui.OwlcmsGridCrud;
 import org.ledocte.owlcms.ui.home.ContentWrapping;
 import org.ledocte.owlcms.ui.home.QueryParameterReader;
+import org.ledocte.owlcms.ui.home.SafeEventBusRegistration;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -38,6 +39,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -57,7 +59,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AnnouncerLayout.class)
 public class AnnouncerContent extends VerticalLayout
-		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping {
+		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration {
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
@@ -70,6 +72,7 @@ public class AnnouncerContent extends VerticalLayout
 	private Location location;
 	private UI locationUI;
 	private GridCrud<Athlete> crud;
+	private EventBus uiEventBus;
 
 	/**
 	 * Instantiates a new announcer content.
@@ -101,11 +104,8 @@ public class AnnouncerContent extends VerticalLayout
 			// sync with current status of FOP
 			fop.switchGroup(fop.getGroup());
 			crud.refreshGrid();
-			
-			// connect to bus for new updating events
-			EventBus uiEventBus = fop.getUiEventBus();
-			logger.debug(">>>>> registering {} to {}", this, uiEventBus.identifier());
-			uiEventBus.register(this);
+			// we listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
 
@@ -124,14 +124,17 @@ public class AnnouncerContent extends VerticalLayout
 
 	@Subscribe
 	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
-		Optional<UI> ui2 = crud.getUI();
+		Optional<UI> ui2 = this.getUI();
 		if (ui2.isPresent()) {
-			uiEventLogger.debug("*** received {}", e);
-			ui2.get().access(() -> {
+			try {
+				ui2.get().access(() -> {
 					crud.refreshGrid();
 				});
+			} catch (UIDetachedException e1) {
+				if (uiEventBus != null) uiEventBus.unregister(this);
+			}
 		} else {
-			uiEventLogger.debug("*** received {}, but crud detached from UI", e);
+			if (uiEventBus != null) uiEventBus.unregister(this);
 		}
 	}
 	

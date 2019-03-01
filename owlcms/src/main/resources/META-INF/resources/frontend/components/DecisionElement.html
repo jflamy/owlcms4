@@ -75,17 +75,13 @@
       
       ready() {
 		super.ready();
-		document.body.addEventListener('keydown', e => this._initRefs(e));
+		document.body.addEventListener('keydown', e => this._readRef(e));
 		this._init();
-      }
-      
-      reset() {
-    	  this._init();
       }
       
       _init() {
 			this.$.decisionsDiv.style.display = "none";
-			this.$.downDiv.style.display = "flex";
+			this.$.downDiv.style.display = "none";
 			this.$.ref1span.style = "background-color: gray";
 			this.$.ref2span.style = "background-color: gray";
 			this.$.ref3span.style = "background-color: gray";
@@ -106,9 +102,9 @@
 			this.gain.connect(this.context.destination);
       }
       
-      _initRefs(e) {
+      _readRef(e) {
 			var key = e.key;
-			console.log(key);
+			console.warn(key);
 			switch (e.key) {
 			case '1':
 				this.set('ref1',true);
@@ -140,7 +136,7 @@
 		}
       
       _registerVote(code) {
-    	  console.log(key);
+    	  console.warn(key);
       }
       
       _majority(ref1,ref2,ref3) {
@@ -149,48 +145,84 @@
     	  if (ref1 === true) {countWhite++;} else if (ref1 === false){countRed++;}
     	  if (ref2 === true) {countWhite++;} else if (ref2 === false){countRed++;}
     	  if (ref3 === true) {countWhite++;} else if (ref3 === false){countRed++;}
-  
-    	  if (countWhite == 2 || countRed == 2) {
-    		  this.down();
+          var count = countWhite + countRed;
+    	  if (count == 2 && (countWhite == 2 || countRed == 2)) {
+    		  this.decision = (countWhite >= 2);
+    		  this.showDown(true);
+    		  setTimeout(this.hideDown.bind(this), 3000);
     	  }
     	  if ((countWhite + countRed) >= 3) {
-    		  setTimeout(this.showDecisions.bind(this), 3000);
-        	  if (ref1 === true) {
-        		  this.$.ref1span.style = "background-color: white";
-        	  } else if (ref1 === false){
-        		  this.$.ref1span.style = "background-color: red";
-        	  }
-        	  if (ref2 === true) {
-        		  this.$.ref2span.style = "background-color: white";
-        	  } else if (ref2 === false){
-        		  this.$.ref2span.style = "background-color: red";
-        	  }
-        	  if (ref3 === true) {
-        		  this.$.ref3span.style = "background-color: white";
-        	  } else if (ref3 === false){
-        		  this.$.ref3span.style = "background-color: red";
-        	  }
+    		  this.decision = (countWhite >= 2);
+    		  // true means we are master -- we are telling the server that the decision has
+    		  // been reached
+    		  console.warn("full decision reached, setting timer");
+    		  setTimeout(this.showDecisions.bind(this, true, ref1, ref2, ref3), 5000);
     		  return (countWhite >= 2);
     	  } else {
     		  return undefined;
     	  }
       }
       
-      down() {
+      setColors(parent, ref1, ref2, ref3) {
+    	  if (ref1 === true) {
+    		  parent.$.ref1span.style = "background-color: white";
+    	  } else if (ref1 === false){
+    		  parent.$.ref1span.style = "background-color: red";
+    	  }
+    	  if (ref2 === true) {
+    		  parent.$.ref2span.style = "background-color: white";
+    	  } else if (ref2 === false){
+    		  parent.$.ref2span.style = "background-color: red";
+    	  }
+    	  if (ref3 === true) {
+    		  parent.$.ref3span.style = "background-color: white";
+    	  } else if (ref3 === false){
+    		  parent.$.ref3span.style = "background-color: red";
+    	  }
+      }
+      
+      showDown(isMaster) {
+    	  console.warn("showDown");
+    	  this.$.downDiv.style.display = "flex";
     	  this.oscillator.start(0);
     	  this.oscillator.stop(this.context.currentTime + 2);
     	  this._setupAudio();
     	  //this.$.downAudio.play();
 		  this.dispatchEvent(new CustomEvent('down', {bubbles: true, composed: true}))
+		  // if we are the master, tell the server
+		  if (isMaster) {
+			  this.$server.masterShowDown(this.decision, this.ref1, this.ref2, this.ref3);
+		  }
       }
       
-      showDecisions() {
+      hideDown() {
     	  this.$.downDiv.style.display = "none";
     	  this.$.decisionsDiv.style.display = "flex";
-    	  this.$server.decisionsVisible(this.decision);
       }
       
-      hide() {
+      showDecisions(isMaster, ref1, ref2, ref3) {
+    	  console.warn("showDecision");
+		  this.setColors(this, ref1, ref2, ref3);
+		  console.warn("colorsShown");
+    	  // schedule display reset in 3 seconds
+		  setTimeout(this.reset.bind(this, isMaster), 3000);
+    	  // if we are the master, tell the server
+    	  if (isMaster) {
+    	  	this.$server.masterShowDecisions(this.decision, this.ref1, this.ref2, this.ref3);
+    	  }
+      }
+      
+      reset(isMaster) {
+    	  this.hideDecisions();
+    	  this._init();
+
+    	  // if we are the master, tell the server
+    	  if (isMaster) {
+    	  	this.$server.masterReset();
+    	  }
+      }
+      
+      hideDecisions() {
     	  this.dispatchEvent(new CustomEvent('hide', {bubbles: true, composed: true}))
       }
   }
