@@ -100,7 +100,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		OwlcmsSession.withFop(fop -> {
 			logger.debug("Starting attempt board on FOP {}", fop.getName());
 			setId("attempt-board-template");
-			this.getElement().setProperty("interactive", true);
+			//this.getElement().setProperty("interactive", true);
 		});
 	}
 
