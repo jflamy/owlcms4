@@ -127,8 +127,8 @@ public class UIEvent {
 		 *
 		 * @param decision the decision
 		 */
-		public RefereeDecision(Athlete athlete, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, UI originatingUI) {
-			super(athlete, originatingUI);
+		public RefereeDecision(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, UI originatingUI) {
+			super(originatingUI);
 			this.decision = decision;
 			this.ref1 = ref1;
 			this.ref2 = ref2;

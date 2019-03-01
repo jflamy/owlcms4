@@ -362,7 +362,7 @@ public class FieldOfPlayState {
 			} else if (e instanceof FOPEvent.LiftingOrderUpdated) {
 				weightChangeLiftInProgress(curAthlete, State.DECISION_VISIBLE);
 			} else if (e instanceof FOPEvent.DecisionReset) {
-				uiEventBus.post(new UIEvent.DecisionReset(e.getOriginatingUI()));
+				uiEventBus.post(new UIEvent.DecisionReset(e.originatingUI));
 				clockOwner = null;
 				recomputeLiftingOrder();
 				uiDisplayCurrentAthleteAndTime();
@@ -591,12 +591,12 @@ public class FieldOfPlayState {
 
 	private void uiShowDownSignalOnSlaveDisplays(FOPEvent.DownSignal e) {
 		uiEventLogger.debug("showDownSignalOnSlaveDisplays");
-		uiEventBus.post(new UIEvent.DownSignal(e.getOriginatingUI()));
+		uiEventBus.post(new UIEvent.DownSignal(e.originatingUI));
 	}
 
 	private void uiShowRefereeDecisionOnSlaveDisplays(FOPEvent.RefereeDecision e) {
-		// TODO showRefereeDecisionOnSlaveDisplays
 		uiEventLogger.debug("showRefereeDecisionOnSlaveDisplays");
+		uiEventBus.post(new UIEvent.RefereeDecision(e.success,e.ref1,e.ref2,e.ref3,e.originatingUI));
 	}
 
 	private void transitionToIntermission() {

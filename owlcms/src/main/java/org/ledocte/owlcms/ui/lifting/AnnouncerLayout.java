@@ -181,7 +181,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 
 		HorizontalLayout decisions = new HorizontalLayout(
 				new Button("good", (e) -> {
-					getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get(), true, true, true, true));
+					getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get() ,true, true, true, true));
 					getFopEventBus().post(new FOPEvent.DecisionReset(announcerBar.getUI().get()));
 				}),
 				new Button("bad", (e) -> {

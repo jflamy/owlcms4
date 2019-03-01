@@ -105,11 +105,10 @@ public class FOPEvent {
 
 		/**
 		 * Instantiates a new referee decision.
-		 * @param ref3 
-		 * @param ref2 
-		 * @param ref1 
-		 *
 		 * @param decision the decision
+		 * @param ref1 
+		 * @param ref2 
+		 * @param ref3 
 		 */
 		public RefereeDecision(UI originatingUI, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 			super(originatingUI);
