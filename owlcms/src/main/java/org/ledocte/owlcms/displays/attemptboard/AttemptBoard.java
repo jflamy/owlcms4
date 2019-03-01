@@ -45,10 +45,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(AttemptBoard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
-	static {
-		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.INFO);
-	}
 	
 	/**
 	 * AttemptBoardModel
@@ -83,6 +79,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	 * Instantiates a new attempt board.
 	 */
 	public AttemptBoard() {
+		logger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */

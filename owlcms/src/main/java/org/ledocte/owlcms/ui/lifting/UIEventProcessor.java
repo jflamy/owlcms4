@@ -11,22 +11,39 @@ import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.server.Command;
 
 public interface UIEventProcessor {
-
-	/* (non-Javadoc)
-	 * @see org.ledocte.owlcms.ui.lifting.UIEventProcessor#updateGrid(org.ledocte.owlcms.state.UIEvent.LiftingOrderUpdated)
+	
+	/**
+	 * Access the ui safely
+	 * 
+	 * Do nothing if the event originates from ourselves
+	 * 
+	 * @param attachedComponent
+	 * @param uiEventBus
+	 * @param e
+	 * @param originatingUI
+	 * @param command
 	 */
-	// @Subscribe		implementing class must add this annotation
-	public static void uiAccess(Component c, EventBus b, UIEvent e, Command r) {
-		Optional<UI> ui2 = c.getUI();
+	public static void uiAccess(Component attachedComponent, EventBus uiEventBus, UIEvent e, UI originatingUI, Command command) {
+		Optional<UI> ui2 = attachedComponent.getUI();
 		if (ui2.isPresent()) {
 			try {
-				ui2.get().access(r);
+				UI ui = ui2.get();
+				if (ui == originatingUI) return;
+				ui.access(command);
 			} catch (UIDetachedException e1) {
-				if (b != null) b.unregister(c);
+				if (uiEventBus != null) uiEventBus.unregister(attachedComponent);
 			}
 		} else {
-			if (b != null) b.unregister(c);
+			if (uiEventBus != null) uiEventBus.unregister(attachedComponent);
 		}
+	}
+
+	static void uiAccess(Component attachedComponent, EventBus uiEventBus, UIEvent e, Command command) {
+		UIEventProcessor.uiAccess(attachedComponent, uiEventBus, e, null, command);
+	}
+	
+	static void uiAccess(Component attachedComponent, EventBus uiEventBus, Command command) {
+		UIEventProcessor.uiAccess(attachedComponent, uiEventBus, null, null, command);
 	}
 
 }

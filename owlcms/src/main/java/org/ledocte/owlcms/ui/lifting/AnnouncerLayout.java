@@ -8,7 +8,6 @@
  */
 package org.ledocte.owlcms.ui.lifting;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
@@ -25,9 +24,7 @@ import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.html.Div;
@@ -51,7 +48,7 @@ import ch.qos.logback.classic.Logger;
 @HtmlImport("frontend://styles/shared-styles.html")
 @Theme(Lumo.class)
 @Push
-public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBusRegistration {
+public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBusRegistration, UIEventProcessor {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
@@ -63,29 +60,85 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 	private TextField timeField;
 	private HorizontalLayout announcerBar;
 	private HorizontalLayout lifter;
+	private EventBus uiEventBus;
 	
 	public AnnouncerLayout() {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.ledocte.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.
-	 * github.appreciated.app.layout.behaviour.Behaviour)
-	 */
-	@Override
-	protected AppLayout getLayoutConfiguration(Behaviour variant) {
-		AppLayout appLayout = super.getLayoutConfiguration(variant);
-		this.announcerBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
-		createAnnouncerBar(announcerBar);
-		appLayout.getTitleWrapper()
-			.getElement()
-			.getStyle()
-			.set("flex", "0 1 0px");
-		return appLayout;
+	@Subscribe
+	public void setTime(UIEvent.SetTime e) {
+		UIEventProcessor.uiAccess(announcerBar, uiEventBus, e, () -> {
+			Integer timeRemaining = e.getTimeRemaining();
+			timeField.setValue(msToString(timeRemaining));
+		});
+	}
+
+	@Subscribe
+	public void startTime(UIEvent.StartTime e) {
+		UIEventProcessor.uiAccess(announcerBar, uiEventBus, e, () -> {
+			Integer timeRemaining = e.getTimeRemaining();
+			timeField.setValue(msToString(timeRemaining));
+		});
+	}
+
+	@Subscribe
+	public void stopTime(UIEvent.StopTime e) {
+		UIEventProcessor.uiAccess(announcerBar, uiEventBus, e, () -> {
+			Integer timeRemaining = e.getTimeRemaining();
+			timeField.setValue(msToString(timeRemaining));
+		});
+	}
+
+	@Subscribe
+	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
+		UIEventProcessor.uiAccess(announcerBar, uiEventBus, e, () -> {
+			Athlete athlete = e.getAthlete();
+			Integer timeAllowed = e.getTimeAllowed();
+			doUpdateAnnouncerBar(athlete, timeAllowed);
+		});
+	}
+	
+	private void doUpdateAnnouncerBar(Athlete athlete, Integer timeAllowed) {
+		if (athlete != null) {
+			lastName.setText(athlete.getLastName());
+			firstName.setText(athlete.getFirstName());
+			timeField.setValue(msToString(timeAllowed));
+			Html newAttempt = new Html(
+					"<h3>" + (athlete.getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h3>");
+			lifter.replace(attempt, newAttempt);
+			attempt = newAttempt;
+			weight.setText(athlete.getNextAttemptRequestedWeight() + "kg");
+		} else {
+			lastName.setText("\u2013");
+			firstName.setText("");
+			Html newAttempt = new Html("<span></span>");
+			lifter.replace(attempt, newAttempt);
+			attempt = newAttempt;
+			weight.setText("");
+		}
+	}
+	
+	private EventBus getFopEventBus() {
+		return OwlcmsSession.getFop().getEventBus();
+	}
+	
+	private String msToString(Integer millis) {
+		long hours = TimeUnit.MILLISECONDS.toHours(millis);
+		long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+		long fullHoursInMinutes = TimeUnit.HOURS.toMinutes(hours);
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+		long fullMinutesInSeconds = TimeUnit.MINUTES.toSeconds(minutes);
+		if (hours > 0) {
+			return String.format("%02d:%02d:%02d", hours,
+		      minutes - fullHoursInMinutes,
+		      seconds - fullMinutesInSeconds);
+		} else {
+			return String.format("%02d:%02d",
+			      minutes,
+			      seconds - fullMinutesInSeconds);
+		}
 	}
 
 	protected void createAnnouncerBar(HorizontalLayout announcerBar) {
@@ -148,160 +201,32 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 		announcerBar.setAlignItems(FlexComponent.Alignment.CENTER);
 	}
 
-	private EventBus getFopEventBus() {
-		return OwlcmsSession.getFop().getEventBus();
+
+	/* (non-Javadoc)
+	 * @see org.ledocte.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
+	 */
+	@Override
+	protected AppLayout getLayoutConfiguration(Behaviour variant) {
+		AppLayout appLayout = super.getLayoutConfiguration(variant);
+		this.announcerBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
+		createAnnouncerBar(announcerBar);
+		appLayout.getTitleWrapper()
+			.getElement()
+			.getStyle()
+			.set("flex", "0 1 0px");
+		return appLayout;
 	}
 
-	@Subscribe
-	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
-		Optional<UI> ui2 = announcerBar.getUI();
-		if (ui2.isPresent()) {
-			uiEventLogger.debug("+++ received {}", e);
-			ui2.get()
-				.access(() -> {
-					Athlete athlete = e.getAthlete();
-					Integer timeAllowed = e.getTimeAllowed();
-					doUpdateAnnouncerBar(athlete, timeAllowed);
-				});
-		} else {
-			uiEventLogger.debug("+++ received {}, but announcer bar detached from UI", e);
-			uiEventUnregister();
-		}
-	}
-	
-	@Subscribe
-	public void setTime(UIEvent.SetTime e) {
-		Optional<UI> ui2 = announcerBar.getUI();
-		if (ui2.isPresent()) {
-			uiEventLogger.debug("+++ received {}", e);
-			ui2.get()
-				.access(() -> {
-					Integer timeRemaining = e.getTimeRemaining();
-					timeField.setValue(msToString(timeRemaining));
-				});
-		} else {
-			uiEventLogger.debug("+++ received {}, but announcer bar detached from UI", e);
-			uiEventUnregister();
-		}
-	}
-	
-	@Subscribe
-	public void startTime(UIEvent.StartTime e) {
-		Optional<UI> ui2 = announcerBar.getUI();
-		if (ui2.isPresent()) {
-			uiEventLogger.debug("+++ received {}", e);
-			ui2.get()
-				.access(() -> {
-					Integer timeRemaining = e.getTimeRemaining();
-					timeField.setValue(msToString(timeRemaining));
-				});
-		} else {
-			uiEventLogger.debug("+++ received {}, but announcer bar detached from UI", e);
-			uiEventUnregister();
-		}
-	}
-	
-	@Subscribe
-	public void stopTime(UIEvent.StopTime e) {
-		Optional<UI> ui2 = announcerBar.getUI();
-		if (ui2.isPresent()) {
-			uiEventLogger.debug("+++ received {}", e);
-			ui2.get()
-				.access(() -> {
-					Integer timeRemaining = e.getTimeRemaining();
-					timeField.setValue(msToString(timeRemaining));
-				});
-		} else {
-			uiEventLogger.debug("+++ received {}, but announcer bar detached from UI", e);
-			uiEventUnregister();
-		}
-	}
-
-	public void doUpdateAnnouncerBar(Athlete athlete, Integer timeAllowed) {
-		if (athlete != null) {
-			lastName.setText(athlete.getLastName());
-			firstName.setText(athlete.getFirstName());
-			timeField.setValue(msToString(timeAllowed));
-			Html newAttempt = new Html(
-					"<h3>" + (athlete.getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h3>");
-			lifter.replace(attempt, newAttempt);
-			attempt = newAttempt;
-			weight.setText(athlete.getNextAttemptRequestedWeight() + "kg");
-		} else {
-			lastName.setText("\u2013");
-			firstName.setText("");
-			Html newAttempt = new Html("<span></span>");
-			lifter.replace(attempt, newAttempt);
-			attempt = newAttempt;
-			weight.setText("");
-		}
-	}
-
-	private String msToString(Integer millis) {
-		long hours = TimeUnit.MILLISECONDS.toHours(millis);
-		long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
-		long fullHoursInMinutes = TimeUnit.HOURS.toMinutes(hours);
-		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
-		long fullMinutesInSeconds = TimeUnit.MINUTES.toSeconds(minutes);
-		if (hours > 0) {
-			return String.format("%02d:%02d:%02d", hours,
-		      minutes - fullHoursInMinutes,
-		      seconds - fullMinutesInSeconds);
-		} else {
-			return String.format("%02d:%02d",
-			      minutes,
-			      seconds - fullMinutesInSeconds);
-		}
-	}
-
-	@Subscribe
-	public void decisionReset(UIEvent.DecisionReset e) {
-		uiEventLogger.info("received {}", e);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.github.appreciated.app.layout.router.AppLayoutRouterLayout#onAttach(com.
-	 * vaadin.flow.component.AttachEvent)
+	/* (non-Javadoc)
+	 * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayout#onAttach(com.vaadin.flow.component.AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		logger.trace("attaching {} to {}", attachEvent.getSource(), attachEvent.getUI());
-		super.onAttach(attachEvent);
 		OwlcmsSession.withFop(fop -> {
 			// sync with current status of FOP
 			doUpdateAnnouncerBar(fop.getCurAthlete(), fop.timeAllowed());
-			
 			// connect to bus for new updating events
-			EventBus uiEventBus = fop.getUiEventBus();
-			logger.debug("registering {} to {}", this, uiEventBus.identifier());
 			uiEventBus = uiEventBusRegister(this, fop);
-		});
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.
-	 * DetachEvent)
-	 */
-	@Override
-	protected void onDetach(DetachEvent detachEvent) {
-		logger.trace("detaching {} from {}", detachEvent.getSource(), detachEvent.getUI());
-		super.onDetach(detachEvent);
-		uiEventUnregister();
-	}
-
-	public void uiEventUnregister() {
-		OwlcmsSession.withFop(fop -> {
-			EventBus uiEventBus = fop.getUiEventBus();
-			logger.debug("unregistering {} from {}", this, uiEventBus.identifier());
-			try {
-				uiEventBus.unregister(this);
-			} catch (Exception ex) {
-			}
 		});
 	}
 

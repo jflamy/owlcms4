@@ -151,7 +151,6 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
 		init();
 		OwlcmsSession.withFop(fop -> {
 			// sync with current status of FOP
@@ -246,7 +245,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	 */
 	@ClientCallable
 	public void timerStopped(double remainingTime) {
-		logger.info("timer stopped " + remainingTime);
+		logger.trace("timer stopped " + remainingTime);
 	}
 	
 	//FIXME: add functions for 90 seconds, 30 seconds, 0 seconds
