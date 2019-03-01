@@ -8,20 +8,18 @@
  */
 package org.ledocte.owlcms.displays.attemptboard;
 
-import java.util.Optional;
-
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.UIEvent;
 import org.ledocte.owlcms.ui.home.QueryParameterReader;
 import org.ledocte.owlcms.ui.home.SafeEventBusRegistration;
+import org.ledocte.owlcms.ui.lifting.UIEventProcessor;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
@@ -43,7 +41,7 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/attemptBoard")
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
-public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements QueryParameterReader, SafeEventBusRegistration {
+public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(AttemptBoard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
@@ -94,7 +92,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		OwlcmsSession.withFop(fop -> {
 			init();
 			// sync with current status of FOP
-			doUpdate(fop.getCurAthlete());
+			doUpdate(fop.getCurAthlete(), null);
 			// we send on fopEventBus, listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
@@ -108,36 +106,27 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		});
 	}
 
-//	/* @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.DetachEvent) */
-//	@Override
-//	protected void onDetach(DetachEvent detachEvent) {
-//		try {fopEventBus.unregister(this);} catch (Exception e) {}
-//	}
-	
-	
 	@Subscribe
 	public void orderUpdated(UIEvent.LiftingOrderUpdated e) {
 		Athlete a = e.getAthlete();
-		doUpdate(a);
+		doUpdate(a, e);
 	}
 
 	@Subscribe
 	public void athleteAnnounced(UIEvent.AthleteAnnounced e) {
 		Athlete a = e.getAthlete();
-		doUpdate(a);
+		doUpdate(a, e);
 	}
 	
 	@Subscribe
 	public void intermissionDone(UIEvent.IntermissionDone e) {
 		Athlete a = e.getAthlete();
-		doUpdate(a);
+		doUpdate(a, e);
 	}
 
-	protected void doUpdate(Athlete a) {
-		Optional<UI> ui2 = this.getUI();
-		if (ui2.isPresent()) {
-			uiEventLogger.debug("$$$ attemptBoard update");
-			ui2.get().access(() -> {
+	protected void doUpdate(Athlete a, UIEvent e) {
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+				uiEventLogger.debug("$$$ attemptBoard update");
 				AttemptBoardModel model = getModel();	
 				model.setLastName(a.getLastName());
 				model.setFirstName(a.getFirstName());
@@ -146,11 +135,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 				String formattedAttempt = formatAttempt(a.getAttemptsDone());
 				model.setAttempt(formattedAttempt);
 				model.setWeight(a.getNextAttemptRequestedWeight());
-			});
-		} else {
-			uiEventLogger.debug("$$$ attemptBoard detached, unregistering");
-			uiEventBus.unregister(this);
-		}
+		});
 	}
 	
 	private String formatAttempt(Integer attemptsDone) {

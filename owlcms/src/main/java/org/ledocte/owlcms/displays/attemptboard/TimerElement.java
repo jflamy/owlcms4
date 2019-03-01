@@ -8,12 +8,11 @@
  */
 package org.ledocte.owlcms.displays.attemptboard;
 
-import java.util.Optional;
-
 import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.ICountdownTimer;
 import org.ledocte.owlcms.state.UIEvent;
 import org.ledocte.owlcms.ui.home.SafeEventBusRegistration;
+import org.ledocte.owlcms.ui.lifting.UIEventProcessor;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -21,8 +20,6 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
@@ -137,7 +134,6 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	}
 
 	protected void init() {
-		// new Exception().printStackTrace();
 		double seconds = 0.00D;
 		TimerModel model = getModel();
 		model.setStartTime(0.0D);
@@ -147,12 +143,11 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		model.setInteractive(true);
 		
 		timerElement = this.getElement();
-		timerElement.callFunction("startup");
 
-		timerElement.addPropertyChangeListener("running", "running-changed", (e) -> {
-			logger.info(
-				e.getPropertyName() + " changed to " + e.getValue() + " isRunning()=" + this.getModel().isRunning());
-		});
+//		timerElement.addPropertyChangeListener("running", "running-changed", (e) -> {
+//			logger.info(
+//				e.getPropertyName() + " changed to " + e.getValue() + " isRunning()=" + this.getModel().isRunning());
+//		});
 	}
 
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
@@ -168,74 +163,52 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		});
 	}
 
-//	/* @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.DetachEvent) */
-//	@Override
-//	protected void onDetach(DetachEvent detachEvent) {
-//		super.onDetach(detachEvent);
-//		uiEventBus.unregister(this);
-//	}
-//	
+	/* (non-Javadoc)
+	 * @see org.ledocte.owlcms.state.ICountdownTimer#startTimer(org.ledocte.owlcms.state.UIEvent.StartTime)
+	 */
 	@Override
 	@Subscribe
 	public void startTimer(UIEvent.StartTime e) {
-		Optional<UI> ui2 = this.getUI();
-		if (ui2.isPresent()) {
-			try {
-				ui2.get().access(() -> {
-					Integer milliseconds = e.getTimeRemaining();
-					uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
-					if (milliseconds != null)
-						setTimeRemaining(milliseconds);
-					start();
-				});
-			} catch (UIDetachedException e1) {
-				uiEventBus.unregister(this);
-			}
-		} else {
-			uiEventBus.unregister(this);
-		}
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			Integer milliseconds = e.getTimeRemaining();
+			uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
+			if (milliseconds != null)
+				setTimeRemaining(milliseconds);
+			start();
+		});
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see org.ledocte.owlcms.state.ICountdownTimer#startTimer(org.ledocte.owlcms.state.UIEvent.StartTime)
+	 */
 	@Override
 	@Subscribe
 	public void stopTimer(UIEvent.StopTime e) {
-		Optional<UI> ui2 = this.getUI();
-		if (ui2.isPresent()) {
-			try {
-				ui2.get().access(() -> {
-					uiEventLogger.debug("<<< stop received {}", e);
-					stop();
-				});
-			} catch (UIDetachedException e1) {
-				uiEventBus.unregister(this);
-			}
-		} else {
-			uiEventBus.unregister(this);
-		}
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			uiEventLogger.debug("<<< stop received {}", e);
+			stop();
+		});
 	}
 
+	/* (non-Javadoc)
+	 * @see org.ledocte.owlcms.state.ICountdownTimer#setTimer(org.ledocte.owlcms.state.UIEvent.SetTime)
+	 */
 	@Override
 	@Subscribe
 	public void setTimer(UIEvent.SetTime e) {
-		Integer milliseconds = e.getTimeRemaining();
-		setTimer(milliseconds);
-	}
-
-	protected void setTimer(Integer milliseconds) {
-		Optional<UI> ui2 = this.getUI();
-		if (ui2.isPresent()) {
-			try {
-				ui2.get().access(() -> {
-					setTimeRemaining(milliseconds);
-				});
-			} catch (UIDetachedException e1) {
-				uiEventBus.unregister(this);
-			}
-		} else {
-			uiEventBus.unregister(this);
-		}
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			Integer milliseconds = e.getTimeRemaining();
+			uiEventLogger.debug("=== set received {}", milliseconds);
+			setTimeRemaining(milliseconds);
+		});
 	}
 	
+
+	protected void setTimer(Integer milliseconds) {
+		UIEventProcessor.uiAccess(this, uiEventBus, null, () -> {
+			setTimeRemaining(milliseconds);
+		});
+	}
 
 	/* @see org.ledocte.owlcms.state.ICountdownTimer#start() */
 	@Override
@@ -277,4 +250,6 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	public void timerStopped(double remainingTime) {
 		logger.info("timer stopped " + remainingTime);
 	}
+	
+	//FIXME: add functions for 90 seconds, 30 seconds, 0 seconds
 }

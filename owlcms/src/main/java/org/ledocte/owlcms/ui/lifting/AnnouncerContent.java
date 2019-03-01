@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.athlete.AthleteRepository;
@@ -37,9 +36,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -59,7 +56,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AnnouncerLayout.class)
 public class AnnouncerContent extends VerticalLayout
-		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration {
+		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor {
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
@@ -110,32 +107,13 @@ public class AnnouncerContent extends VerticalLayout
 	}
 
 	/* (non-Javadoc)
-	 * @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.DetachEvent)
+	 * @see org.ledocte.owlcms.ui.lifting.UIEventProcessor#updateGrid(org.ledocte.owlcms.state.UIEvent.LiftingOrderUpdated)
 	 */
-	@Override
-	protected void onDetach(DetachEvent detachEvent) {
-		logger.trace("detaching AnnouncerContent");
-		OwlcmsSession.withFop(fop -> {
-			EventBus uiEventBus = fop.getUiEventBus();
-			logger.debug("<<<<< unregistering {} from {}", this, uiEventBus.identifier());
-			uiEventBus.unregister(this);
-		});
-	}
-
 	@Subscribe
 	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
-		Optional<UI> ui2 = this.getUI();
-		if (ui2.isPresent()) {
-			try {
-				ui2.get().access(() -> {
-					crud.refreshGrid();
-				});
-			} catch (UIDetachedException e1) {
-				if (uiEventBus != null) uiEventBus.unregister(this);
-			}
-		} else {
-			if (uiEventBus != null) uiEventBus.unregister(this);
-		}
+		UIEventProcessor.uiAccess(crud, uiEventBus, e, () -> {
+			crud.refreshGrid();
+		});
 	}
 	
 	/**
