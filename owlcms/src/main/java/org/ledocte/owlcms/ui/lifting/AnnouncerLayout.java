@@ -15,8 +15,8 @@ import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.UIEvent;
-import org.ledocte.owlcms.ui.home.SafeEventBusRegistration;
 import org.ledocte.owlcms.ui.home.MainNavigationLayout;
+import org.ledocte.owlcms.ui.home.SafeEventBusRegistration;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
@@ -55,11 +55,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
-	static {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.DEBUG);
-	}
-
+	
 	private H2 lastName;
 	private H3 firstName;
 	private Html attempt;
@@ -67,6 +63,11 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 	private TextField timeField;
 	private HorizontalLayout announcerBar;
 	private HorizontalLayout lifter;
+	
+	public AnnouncerLayout() {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -105,7 +106,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 		lifter = new HorizontalLayout(
 				attempt,
 				weight);
-		lifter.setAlignItems(FlexComponent.Alignment.STRETCH);
+		lifter.setAlignItems(FlexComponent.Alignment.CENTER);
 
 		timeField = new TextField();
 		timeField.setValue("0:00");

@@ -47,7 +47,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
 	static {
 		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 	
 	/**
@@ -125,6 +125,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	}
 
 	protected void doUpdate(Athlete a, UIEvent e) {
+		if (a == null) return;
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 				uiEventLogger.debug("$$$ attemptBoard update");
 				AttemptBoardModel model = getModel();	
