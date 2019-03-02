@@ -521,7 +521,7 @@ public class FieldOfPlayState {
 		}
 		Athlete nextAthlete = liftingOrder.size() > 0 ? liftingOrder.get(1) : null;
 
-		uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, timeAllowed, UI.getCurrent()));
+		uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, liftingOrder, timeAllowed, UI.getCurrent()));
 		getTimer().setTimeRemaining(timeAllowed);
 		
 		logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={}",

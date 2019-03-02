@@ -8,6 +8,8 @@
  */
 package org.ledocte.owlcms.state;
 
+import java.util.List;
+
 import org.ledocte.owlcms.data.athlete.Athlete;
 
 import com.vaadin.flow.component.UI;
@@ -87,12 +89,14 @@ public class UIEvent {
 		private Athlete nextAthlete;
 		private Athlete previousAthlete;
 		private Integer timeAllowed;
+		private List<Athlete> athletes;
 
-		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete, Integer timeAllowed, UI originatingUI) {
+		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete, List<Athlete> athletes, Integer timeAllowed, UI originatingUI) {
 			super(athlete, originatingUI);
 			this.nextAthlete = nextAthlete;
 			this.previousAthlete = previousAthlete;
 			this.timeAllowed = timeAllowed;
+			this.athletes = athletes;
 		}
 
 		public Athlete getNextAthlete() {
@@ -108,6 +112,10 @@ public class UIEvent {
 		 */
 		public Integer getTimeAllowed() {
 			return timeAllowed;
+		}
+
+		public List<Athlete> getAthletes() {
+			return athletes;
 		}
 
 	}
