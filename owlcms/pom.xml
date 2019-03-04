@@ -19,6 +19,10 @@
 
 	<dependencies>
 		<dependency>
+	        <groupId>com.vaadin</groupId>
+	        <artifactId>vaadin-core</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.github.appreciated</groupId>
 			<artifactId>app-layout-addon</artifactId>
 			<version>2.0.8-SNAPSHOT</version>
@@ -27,36 +31,18 @@
 			<groupId>com.github.appreciated</groupId>
 			<artifactId>vaadin-css-grid</artifactId>
 			<version>0.8.4</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.vaadin</groupId>
+					<artifactId>vaadin-accordion-flow</artifactId>
+				</exclusion>
+			</exclusions>			
 		</dependency>
 		<dependency>
 			<groupId>org.vaadin.crudui</groupId>
 			<artifactId>crudui</artifactId>
-			<version>3.7.3</version>
-			<exclusions>
-				<!-- exclude commercially licensed items -->
-				<exclusion>
-					<groupId>com.vaadin</groupId>
-					<artifactId>vaadin-board-flow</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.vaadin</groupId>
-					<artifactId>vaadin-charts-flow</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.vaadin</groupId>
-					<artifactId>vaadin-crud-flow</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.vaadin</groupId>
-					<artifactId>vaadin-grid-pro-flow</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.vaadin</groupId>
-					<artifactId>vaadin-rich-text-editor-flow</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
+			<version>3.7.3</version>		
+		</dependency>			
 
 		<dependency>
 			<groupId>org.webjars.bowergithub.polymerelements</groupId>
