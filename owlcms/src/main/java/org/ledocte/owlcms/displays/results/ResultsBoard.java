@@ -83,8 +83,6 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 		Integer getWeight();
 
-//		List<AthleteDisplayData> getAthletes();
-
 		void setLastName(String lastName);
 
 		void setFirstName(String firstName);
@@ -96,10 +94,6 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		void setAttempt(String formattedAttempt);
 
 		void setWeight(Integer weight);
-
-		void setLiftingOrder();
-
-//		void setAthletes(List<AthleteDisplayData> athletes);
 	}
 
 	@Id("timer")
@@ -117,16 +111,17 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		uiEventLogger.setLevel(Level.DEBUG);
 	}
 
-	protected void setMaps() {
-		JsonObject groupProperties = Json.createObject();
-		groupProperties.put("isMasters", true);
-		
-		this.getElement().setPropertyJson("g", groupProperties);
+	protected void setTranslationMap() {
 		JsonObject translations = Json.createObject();
 		translations.put("key1","value1");
 		translations.put("key2","value2");
 		this.getElement().setPropertyJson("t", translations);
-		
+	}
+
+	protected void setGroupProperties() {
+		JsonObject groupProperties = Json.createObject();
+		groupProperties.put("isMasters", true);
+		this.getElement().setPropertyJson("g", groupProperties);
 	}
 
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
@@ -147,9 +142,9 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		OwlcmsSession.withFop(fop -> {
 			logger.debug("Starting result board on FOP {}", fop.getName());
 			setId("result-board-template");
-			// this.getElement().setProperty("interactive", true);
 		});
-		setMaps();
+		setGroupProperties();
+		setTranslationMap();
 		list = ImmutableList.of();
 	}
 
