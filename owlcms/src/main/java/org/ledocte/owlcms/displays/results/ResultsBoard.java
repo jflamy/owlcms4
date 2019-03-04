@@ -8,12 +8,13 @@
  */
 package org.ledocte.owlcms.displays.results;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
-import org.ledocte.owlcms.data.athlete.AthleteDisplayData;
+import org.ledocte.owlcms.data.athlete.LiftInfo;
+import org.ledocte.owlcms.data.athlete.XAthlete;
+import org.ledocte.owlcms.displays.attemptboard.DecisionElement;
+import org.ledocte.owlcms.displays.attemptboard.TimerElement;
 import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.UIEvent;
 import org.ledocte.owlcms.ui.home.QueryParameterReader;
@@ -28,6 +29,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
@@ -37,7 +39,9 @@ import com.vaadin.flow.theme.material.Material;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
+import elemental.json.JsonArray;
 import elemental.json.JsonObject;
+import elemental.json.JsonValue;
 
 /**
  * Class ResultsBoard
@@ -79,7 +83,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 		Integer getWeight();
 
-		List<AthleteDisplayData> getAthletes();
+//		List<AthleteDisplayData> getAthletes();
 
 		void setLastName(String lastName);
 
@@ -95,13 +99,13 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 		void setLiftingOrder();
 
-		void setAthletes(List<AthleteDisplayData> athletes);
+//		void setAthletes(List<AthleteDisplayData> athletes);
 	}
 
-//	@Id("timer")
-//	private TimerElement timer; // created by Flow during template instanciation
-//	@Id("decisions")
-//	private DecisionElement decisions; // created by Flow during template instanciation
+	@Id("timer")
+	private TimerElement timer; // created by Flow during template instanciation
+	@Id("decisions")
+	private DecisionElement decisions; // created by Flow during template instanciation
 	private EventBus uiEventBus;
 	private List<Athlete> list;
 
@@ -120,8 +124,9 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		this.getElement().setPropertyJson("g", groupProperties);
 		JsonObject translations = Json.createObject();
 		translations.put("key1","value1");
-		translations.put("key2", "value2");
+		translations.put("key2","value2");
 		this.getElement().setPropertyJson("t", translations);
+		
 	}
 
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
@@ -170,6 +175,9 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	protected void doUpdate(Athlete a, UIEvent e) {
 		if (a == null)
 			return;
+		XAthlete x = new XAthlete(a);
+		LiftInfo l = x.getCurrentRequestInfo();
+		logger.warn("lift = {}, style={}",l.getLiftNo(),l.getChange());
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			uiEventLogger.debug("&&& resultBoard update {}", a);
 			ResultBoardModel model = getModel();
@@ -181,14 +189,46 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			model.setAttempt(formattedAttempt);
 			model.setWeight(a.getNextAttemptRequestedWeight());
 			
-			List<AthleteDisplayData> nList = new ArrayList<>(20);
-			if (list != null && !list.isEmpty()) {
-				nList = list.stream()
-					.map(ath -> new AthleteDisplayData(ath))
-					.collect(Collectors.toList());
-			}
-			model.setAthletes(nList);
+			this.getElement().setPropertyJson("athletes", getAthletesJson(list));
+//			
+//			List<AthleteDisplayData> nList = new ArrayList<>(20);
+//			if (list != null && !list.isEmpty()) {
+//				nList = list.stream()
+//					.map(ath -> new AthleteDisplayData(ath))
+//					.collect(Collectors.toList());
+//			}
+//			model.setAthletes(nList);
 		});
+	}
+
+	private JsonValue getAthletesJson(List<Athlete> list2) {
+		JsonArray jath = Json.createArray();
+		int athx = 0;
+		for (Athlete a: list2) {
+			JsonObject ja = Json.createObject();
+			ja.put("lastName", a.getLastName().toUpperCase());
+			ja.put("firstName", a.getFirstName());
+			ja.put("teamName", a.getTeam());
+			ja.put("startNumber", a.getStartNumber());
+			
+			XAthlete x = new XAthlete(a);
+			JsonArray jattempts = Json.createArray();
+			int ix = 0;
+			for (LiftInfo i : x.getRequestInfoArray()) {
+				JsonObject jri = Json.createObject();
+				String stringValue = i.getStringValue();
+				jri.put("className",i.getChangeNo() >= 0 ? i.getChange() : "EMPTY");
+				if (stringValue != null) jri.put("stringValue",stringValue);
+				jattempts.set(ix, jri);
+				ix++;
+			}
+			ja.put("attempts", jattempts);
+			jath.set(athx, ja);
+			athx++;
+		}
+
+		System.err.println(jath);
+		return jath;
 	}
 
 	private String formatAttempt(Integer attemptsDone) {
