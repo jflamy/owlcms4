@@ -11,6 +11,7 @@ package org.ledocte.owlcms.displays.results;
 import java.util.List;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
+import org.ledocte.owlcms.data.athlete.LiftDefinition.Changes;
 import org.ledocte.owlcms.data.athlete.LiftInfo;
 import org.ledocte.owlcms.data.athlete.XAthlete;
 import org.ledocte.owlcms.displays.attemptboard.DecisionElement;
@@ -171,28 +172,16 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		if (a == null)
 			return;
 		XAthlete x = new XAthlete(a);
-		LiftInfo l = x.getCurrentRequestInfo();
-		logger.warn("lift = {}, style={}",l.getLiftNo(),l.getChange());
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			uiEventLogger.debug("&&& resultBoard update {}", a);
 			ResultBoardModel model = getModel();
-			model.setLastName(a.getLastName());
+			model.setLastName(a.getLastName().toUpperCase());
 			model.setFirstName(a.getFirstName());
 			model.setTeamName(a.getTeam());
 			model.setStartNumber(a.getStartNumber());
 			String formattedAttempt = formatAttempt(a.getAttemptsDone());
 			model.setAttempt(formattedAttempt);
-			model.setWeight(a.getNextAttemptRequestedWeight());
-			
+			model.setWeight(a.getNextAttemptRequestedWeight());		
 			this.getElement().setPropertyJson("athletes", getAthletesJson(list));
-//			
-//			List<AthleteDisplayData> nList = new ArrayList<>(20);
-//			if (list != null && !list.isEmpty()) {
-//				nList = list.stream()
-//					.map(ath -> new AthleteDisplayData(ath))
-//					.collect(Collectors.toList());
-//			}
-//			model.setAthletes(nList);
 		});
 	}
 
@@ -205,25 +194,67 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			ja.put("firstName", a.getFirstName());
 			ja.put("teamName", a.getTeam());
 			ja.put("startNumber", a.getStartNumber());
-			
-			XAthlete x = new XAthlete(a);
-			JsonArray jattempts = Json.createArray();
-			int ix = 0;
-			for (LiftInfo i : x.getRequestInfoArray()) {
-				JsonObject jri = Json.createObject();
-				String stringValue = i.getStringValue();
-				jri.put("className",i.getChangeNo() >= 0 ? i.getChange() : "EMPTY");
-				if (stringValue != null) jri.put("stringValue",stringValue);
-				jattempts.set(ix, jri);
-				ix++;
-			}
+			JsonArray jattempts = getAttemptsJson(a);
 			ja.put("attempts", jattempts);
+			ja.put("total", formatInt(a.getTotal()));
+			ja.put("totalRank", formatInt(a.getTotalRank()));
+//			ja.put("snatchRank", a.getSnatchRank());
+//			ja.put("cleanJerkRank", a.getCleanJerkRank());
+			
 			jath.set(athx, ja);
 			athx++;
 		}
-
-		System.err.println(jath);
 		return jath;
+	}
+	
+	private String formatKg(String total) {
+		return (total == null || total.trim().isEmpty()) ? "-" : (total.startsWith("-") ? "("+total.substring(1)+")" : total);
+	}
+	
+	private String formatInt(Integer total) {
+		return (total == null || total == 0) ? "-" : (total < 0 ? "("+Math.abs(total)+")" : total.toString());
+	}
+
+	/**
+	 * Compute Json string ready to be used by web component template
+	 * 
+	 * CSS classes are pre-computed and passed along with the values; weights are formatted.
+	 * 
+	 * @param a
+	 * @return json string with nested attempts values
+	 */
+	protected JsonArray getAttemptsJson(Athlete a) {
+		XAthlete x = new XAthlete(a);
+		JsonArray jattempts = Json.createArray();
+		int ix = 0;
+		for (LiftInfo i : x.getRequestInfoArray()) {
+			JsonObject jri = Json.createObject();
+			String stringValue = i.getStringValue();
+			
+			jri.put("className", "narrow empty");
+			jri.put("stringValue", "");
+			if (i.getChangeNo() >= 0) {
+				switch (Changes.values()[i.getChangeNo()]) {
+				case ACTUAL:
+					if (stringValue != null && !stringValue.trim().isEmpty()) {
+						boolean failed = stringValue.startsWith("-");
+						jri.put("className", failed ? "narrow fail" : "narrow good");
+						jri.put("stringValue", formatKg(stringValue));
+					}
+					break;
+				default:
+					if (stringValue != null && !stringValue.trim().isEmpty()) {
+						jri.put("className", "narrow request");
+						jri.put("stringValue",stringValue);
+					}
+					break;
+				}
+			}
+			
+			jattempts.set(ix, jri);
+			ix++;
+		}
+		return jattempts;
 	}
 
 	private String formatAttempt(Integer attemptsDone) {

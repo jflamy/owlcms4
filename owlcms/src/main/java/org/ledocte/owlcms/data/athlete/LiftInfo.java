@@ -27,6 +27,7 @@ public class LiftInfo {
 	}
 	
 	public String getChange() {
+		if (changeNo < 0) return "";
 		Changes changes = LiftDefinition.Changes.values()[changeNo];
 		return changes.name();
 	}

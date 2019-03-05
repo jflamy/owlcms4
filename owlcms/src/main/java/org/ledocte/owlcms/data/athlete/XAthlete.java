@@ -174,10 +174,12 @@ public class XAthlete extends Athlete {
 			int changeNo = LiftDefinition.NBCHANGES -1 ;
 			String stringValue = null;
 			boolean found = false;
-			while (!found && changeNo > 0 ) {
+			while (!found && changeNo >= 0 ) {
 				Method method = LiftDefinition.lifts[liftNo].getters[changeNo];
 				stringValue = (String) method.invoke(a);
-				if (stringValue != null && !stringValue.isEmpty()) {
+				boolean zeroKgAutomaticChange = (changeNo == 0 && "0".equals(stringValue));
+				if (stringValue != null && !stringValue.isEmpty()
+						&& ! zeroKgAutomaticChange) {
 					found = true;
 				} else {
 					changeNo--;
