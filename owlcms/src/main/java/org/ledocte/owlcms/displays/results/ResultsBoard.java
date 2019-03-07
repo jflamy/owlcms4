@@ -160,6 +160,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 	@Subscribe
 	public void athleteAnnounced(UIEvent.AthleteAnnounced e) {
+		logger.debug("resultBoard athleteAnnounced");
 		Athlete a = e.getAthlete();
 		doUpdate(a, e);
 	}
@@ -169,6 +170,19 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		Athlete a = e.getAthlete();
 		doUpdate(a, e);
 	}
+	
+	@Subscribe
+	public void refereeDecision(UIEvent.RefereeDecision e) {
+		logger.debug("resultBoard refereeDecision");
+		this.getElement().callFunction("refereeDecision");
+	}
+	
+	@Subscribe
+	public void decisionReset(UIEvent.DecisionReset e) {
+		logger.debug("resultBoard decisionReset");
+		this.getElement().callFunction("reset");
+	}
+
 
 	protected void doUpdate(Athlete a, UIEvent e) {
 		if (a == null)

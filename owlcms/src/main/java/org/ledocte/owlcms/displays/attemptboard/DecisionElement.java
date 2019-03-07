@@ -140,13 +140,13 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
 		Element elem = this.getElement();
 		elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
-			logger.info(e.getPropertyName() + " changed to " + e.getValue());
+			logger.trace(e.getPropertyName() + " changed to " + e.getValue());
 		});
 		elem.addPropertyChangeListener("ref2", "ref2-changed", (e) -> {
-			logger.info(e.getPropertyName() + " changed to " + e.getValue());
+			logger.trace(e.getPropertyName() + " changed to " + e.getValue());
 		});
 		elem.addPropertyChangeListener("ref3", "ref3-changed", (e) -> {
-			logger.info(e.getPropertyName() + " changed to " + e.getValue());
+			logger.trace(e.getPropertyName() + " changed to " + e.getValue());
 		});
 		elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
 			logger.info(e.getPropertyName() + " changed to " + e.getValue());
@@ -159,8 +159,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		super.onAttach(attachEvent);
 		init();
 		OwlcmsSession.withFop(fop -> {
-			fopEventBus = fop.getEventBus();
 			// we send on fopEventBus, listen on uiEventBus.
+			fopEventBus = fop.getEventBus();
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}

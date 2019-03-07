@@ -108,11 +108,6 @@ table,tr,th,td {
 	font-style: italic;
 }
 
-.blink_me {
-	animation: blinker 1s linear infinite;
-}
-
-
 </style>
 
 <div class="wrapper">
@@ -129,7 +124,7 @@ table,tr,th,td {
 	<div class="timer" id="timerDiv">
 		<timer-element id="timer"></timer-element>
 	</div>
-	<div class="decision" id="decisionDiv" on-down="down" on-hide="reset">
+	<div class="decision" id="decisionDiv" on-hide="reset">
 		<decision-element id="decisions"></decision-element>
 	</div>
 </div>
@@ -186,13 +181,9 @@ class Results extends Polymer.Element {
 		this.$.timerDiv.style.display="flex";
 		this.$.decisionDiv.style.display="none";
 	}
-	         
-	down() {
-		this.$.timerDiv.style.display="none";
-		this.$.decisionDiv.style.display="flex";
-	}
 	
-	decision() {
+	refereeDecision() {
+		console.warn("refereeDecision");
 		this.$.timerDiv.style.display="none";
 		this.$.decisionDiv.style.display="flex";
 	}
