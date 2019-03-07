@@ -8,6 +8,9 @@
  */
 package org.ledocte.owlcms.utils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /**
  * The Class LoggerUtils.
  */
@@ -20,5 +23,16 @@ public class LoggerUtils {
 	 */
 	public static String whereFrom() {
 		return Thread.currentThread().getStackTrace()[3].toString();
+	}
+	
+	/**
+	 * Where from.
+	 *
+	 * @return the string
+	 */
+	public static String stackTrace() {
+		StringWriter sw = new StringWriter();
+		new Exception("").printStackTrace(new PrintWriter(sw));
+		return sw.toString();
 	}
 }

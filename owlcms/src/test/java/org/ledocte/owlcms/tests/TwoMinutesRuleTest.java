@@ -21,8 +21,9 @@ import org.junit.Test;
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.data.athlete.AthleteRepository;
 import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
+import org.ledocte.owlcms.data.group.Group;
+import org.ledocte.owlcms.data.group.GroupRepository;
 import org.ledocte.owlcms.data.jpa.JPAService;
-import org.ledocte.owlcms.data.jpa.TestData;
 import org.ledocte.owlcms.state.FOPEvent;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.ledocte.owlcms.utils.DebugUtils;
@@ -35,13 +36,15 @@ import ch.qos.logback.classic.Logger;
 
 public class TwoMinutesRuleTest {
 	private static Level LoggerLevel = Level.DEBUG;
+	private static Group gA;
+	private static Group gB;
+	private static Group gC;
 	final static Logger logger = (Logger) LoggerFactory.getLogger(TwoMinutesRuleTest.class);
 	private List<Athlete> athletes;
 
 	@BeforeClass
 	public static void setupTests() {
 		JPAService.init(true);
-		TestData.insertInitialData(5, true);
 	}
 
 	@AfterClass
@@ -54,8 +57,19 @@ public class TwoMinutesRuleTest {
 		// for this test, the initial data does not include body weights, so we use
 		// false
 		// on the constructor to disable exclusion of incomplete data.
-		athletes = AthleteRepository.findAll();
+
 		logger.setLevel(LoggerLevel);
+		
+		TestData.insertInitialData(5, true);
+		JPAService.runInTransaction((em) -> {
+			gA = GroupRepository.doFindByName("A",em);
+			gB = GroupRepository.doFindByName("B", em);
+			gC = GroupRepository.doFindByName("C", em);
+			TestData.deleteAllLifters(em);
+			TestData.insertSampleLifters(em, 5, gA, gB, gC);
+			return null;
+		});
+		athletes = AthleteRepository.findAll();
 	}
 
 	@Test
@@ -97,7 +111,7 @@ public class TwoMinutesRuleTest {
 		EventBus fopBus = fopState.getEventBus();
 
 		// competition start
-		assertEquals(60000, fopState.timeAllowed());
+		assertEquals(60000, fopState.getTimeAllowed());
 		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLifters()));
 
 		// schneiderF is called with initial weight
@@ -113,7 +127,7 @@ public class TwoMinutesRuleTest {
 		previousLifter = fopState.getPreviousAthlete();
 		assertEquals(simpsonR, curLifter);
 		assertEquals(schneiderF, previousLifter);
-		assertEquals(60000, fopState.timeAllowed());
+		assertEquals(60000, fopState.getTimeAllowed());
 
 		// ... but simpsonR changes to 62 before being called by announcer (time not
 		// restarted)
@@ -127,20 +141,20 @@ public class TwoMinutesRuleTest {
 		previousLifter = fopState.getPreviousAthlete();
 		assertEquals(schneiderF, curLifter);
 		assertEquals(schneiderF, previousLifter);
-		assertEquals(120000, fopState.timeAllowed());
+		assertEquals(120000, fopState.getTimeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// schneider has lifted 62, is now simpson's turn, he should NOT have 2
 		// minutes
 		curLifter = fopState.getCurAthlete();
 		assertEquals(simpsonR, curLifter);
-		assertEquals(60000, fopState.timeAllowed());
+		assertEquals(60000, fopState.getTimeAllowed());
 		failedLift(fopBus, curLifter);
 
 		// still simpson because 2nd try and schneider is at 3rd.
 		curLifter = fopState.getCurAthlete();
 		assertEquals(simpsonR, curLifter);
-		assertEquals(120000, fopState.timeAllowed());
+		assertEquals(120000, fopState.getTimeAllowed());
 		// simpson is called again with two minutes
 		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.AthleteAnnounced(null)); // this starts logical time
@@ -152,7 +166,7 @@ public class TwoMinutesRuleTest {
 		// schneider does not get 2 minutes.
 		curLifter = fopState.getCurAthlete();
 		assertEquals(schneiderF, curLifter);
-		assertEquals(60000, fopState.timeAllowed());
+		assertEquals(60000, fopState.getTimeAllowed());
 		// schneider is called
 		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.AthleteAnnounced(null)); // this starts logical time
@@ -167,7 +181,7 @@ public class TwoMinutesRuleTest {
 		// time.
 		curLifter = fopState.getCurAthlete();
 		assertEquals(schneiderF, curLifter);
-		assertEquals(remainingTime, fopState.timeAllowed());
+		assertEquals(remainingTime, fopState.getTimeAllowed());
 	}
 
 	@Test
@@ -193,8 +207,8 @@ public class TwoMinutesRuleTest {
 		EventBus fopBus = fopState.getEventBus();
 
 		// competition start
-		assertEquals(60000, fopState.timeAllowed());
-		assertEquals(60000, fopState.timeAllowed());
+		assertEquals(60000, fopState.getTimeAllowed());
+		assertEquals(60000, fopState.getTimeAllowed());
 
 		// schneiderF snatch1
 		Athlete curLifter = fopState.getCurAthlete();
@@ -204,68 +218,68 @@ public class TwoMinutesRuleTest {
 		// schneiderF snatch2
 		curLifter = fopState.getCurAthlete();
 		assertEquals(schneiderF, curLifter);
-		assertEquals(120000, fopState.timeAllowed());
+		assertEquals(120000, fopState.getTimeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// schneiderF snatch3
 		curLifter = fopState.getCurAthlete();
 		assertEquals(schneiderF, curLifter);
-		assertEquals(120000, fopState.timeAllowed());
+		assertEquals(120000, fopState.getTimeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// simpsonR snatch1
 		curLifter = fopState.getCurAthlete();
 		assertEquals(simpsonR, curLifter);
-		assertEquals(60000, fopState.timeAllowed());
+		assertEquals(60000, fopState.getTimeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// simpsonR snatch2
 		curLifter = fopState.getCurAthlete();
 		assertEquals(simpsonR, curLifter);
-		assertEquals(120000, fopState.timeAllowed());
+		assertEquals(120000, fopState.getTimeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// simpsonR snatch3
 		curLifter = fopState.getCurAthlete();
 		assertEquals(simpsonR, curLifter);
-		assertEquals(120000, fopState.timeAllowed());
+		assertEquals(120000, fopState.getTimeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// schneiderF cj1
 		curLifter = fopState.getCurAthlete();
 		assertEquals(schneiderF, curLifter);
-		assertEquals(60000, fopState.timeAllowed());
+		assertEquals(60000, fopState.getTimeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// schneiderF cj2
 		curLifter = fopState.getCurAthlete();
 		assertEquals(schneiderF, curLifter);
 		assertEquals(schneiderF, fopState.getPreviousAthlete());
-		assertEquals(120000, fopState.timeAllowed());
+		assertEquals(120000, fopState.getTimeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// schneiderF cj3
 		curLifter = fopState.getCurAthlete();
 		assertEquals(schneiderF, curLifter);
-		assertEquals(120000, fopState.timeAllowed());
+		assertEquals(120000, fopState.getTimeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// simpsonR cj1
 		curLifter = fopState.getCurAthlete();
 		assertEquals(simpsonR, curLifter);
-		assertEquals(60000, fopState.timeAllowed());
+		assertEquals(60000, fopState.getTimeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// simpsonR cj2
 		curLifter = fopState.getCurAthlete();
 		assertEquals(simpsonR, curLifter);
-		assertEquals(120000, fopState.timeAllowed());
+		assertEquals(120000, fopState.getTimeAllowed());
 		successfulLift(fopBus, curLifter);
 
 		// simpsonR cj3
 		curLifter = fopState.getCurAthlete();
 		assertEquals(simpsonR, curLifter);
-		assertEquals(120000, fopState.timeAllowed());
+		assertEquals(120000, fopState.getTimeAllowed());
 		successfulLift(fopBus, curLifter);
 	}
 
@@ -295,7 +309,7 @@ public class TwoMinutesRuleTest {
 			lifter.setCleanJerk3Declaration(weight);
 			break;
 		}
-		eventBus.post(new FOPEvent.LiftingOrderUpdated(null));
+		eventBus.post(new FOPEvent.WeightChange(null, lifter));
 	}
 
 

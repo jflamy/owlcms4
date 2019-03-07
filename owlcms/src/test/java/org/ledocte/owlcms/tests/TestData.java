@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package org.ledocte.owlcms.data.jpa;
+package org.ledocte.owlcms.tests;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +20,7 @@ import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.category.CategoryRepository;
 import org.ledocte.owlcms.data.group.Group;
+import org.ledocte.owlcms.data.jpa.JPAService;
 import org.ledocte.owlcms.data.platform.Platform;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +84,7 @@ public class TestData {
 		em.persist(groupC);
 	}
 
-	private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
+	static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
 			Group groupB,
 			Group groupC) {
 		final String[] fnames = { "Peter", "Albert", "Joshua", "Mike", "Oliver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
@@ -128,7 +129,13 @@ public class TestData {
 		p.setBodyWeight(81 - nextDouble);
 		Category categ = CategoryRepository.doFindByName("m" + catLimit, em);
 		p.setCategory(categ);
-
+	}
+	
+	protected static void deleteAllLifters(EntityManager em) {
+		List<Athlete> athletes = AthleteRepository.doFindAll(em);
+		for (Athlete a: athletes) {
+			em.remove(a);
+		}
 	}
 
 }

@@ -15,7 +15,6 @@ import javax.servlet.annotation.WebListener;
 import org.ledocte.owlcms.data.jpa.DemoData;
 import org.ledocte.owlcms.data.jpa.JPAService;
 import org.ledocte.owlcms.data.jpa.ProdData;
-import org.ledocte.owlcms.data.jpa.TestData;
 
 /**
  * The listener interface for receiving context events. The methods will be
@@ -44,13 +43,10 @@ public class ContextListener implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		// reads system property (-D on command line)
-		boolean testMode = Boolean.getBoolean("testMode");
 		boolean demoMode = Boolean.getBoolean("demoMode");
-		boolean inMemory = testMode || demoMode;
+		boolean inMemory = demoMode;
 		JPAService.init(inMemory);
-		if (testMode) {
-			TestData.insertInitialData(5, true);
-		} else if (demoMode) {
+		if (demoMode) {
 			DemoData.insertInitialData(12, true);
 		} else {
 			ProdData.insertInitialData(0, false);

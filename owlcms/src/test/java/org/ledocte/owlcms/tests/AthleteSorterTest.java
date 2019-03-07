@@ -29,7 +29,6 @@ import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.category.CategoryRepository;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.ledocte.owlcms.data.jpa.JPAService;
-import org.ledocte.owlcms.data.jpa.TestData;
 import org.ledocte.owlcms.utils.DebugUtils;
 
 public class AthleteSorterTest {
