@@ -72,16 +72,20 @@ public class GroupRepository {
 			.getResultList());
 	}
 
-	@SuppressWarnings("unchecked")
 	public static Group findByName(String name) {
 		return JPAService.runInTransaction(em -> {
-			Query query = em.createQuery("select u from CompetitionGroup u where u.name=:name");
-			query.setParameter("name", name);
-			return (Group) query.getResultList()
-				.stream()
-				.findFirst()
-				.orElse(null);
+			return doFindByName(name, em);
 		});
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Group doFindByName(String name, EntityManager em) {
+		Query query = em.createQuery("select u from CompetitionGroup u where u.name=:name");
+		query.setParameter("name", name);
+		return (Group) query.getResultList()
+			.stream()
+			.findFirst()
+			.orElse(null);
 	}
 
 }
