@@ -47,15 +47,12 @@ public class AthleteDisplayData {
 		this.robiRank = a.getRobiRank();
 		XAthlete x = new XAthlete(a);
 		this.attempts = Arrays.asList(x.getRequestInfoArray());
-		System.err.println("this.attempts "+this.getAttempts().get(0).getStringValue());
-		System.err.println("==============");
 	}
 
 	/**
 	 * @return the attempts
 	 */
 	public List<LiftInfo> getAttempts() {
-		System.err.println("getAttempts called");
 		return attempts;
 	}
 

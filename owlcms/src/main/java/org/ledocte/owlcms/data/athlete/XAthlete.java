@@ -117,7 +117,6 @@ public class XAthlete extends Athlete {
 			while (i < LiftDefinition.NBLIFTS) {
 				Method method = LiftDefinition.lifts[i].getters[changeNo];
 				Object value = method.invoke(a);
-				System.err.println(method.getName()+" "+value);
 				if (value == null || ((String)value).isEmpty()) {
 					return i;
 				}

@@ -112,7 +112,7 @@ public class TwoMinutesRuleTest {
 
 		// competition start
 		assertEquals(60000, fopState.getTimeAllowed());
-		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLifters()));
+		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLiftingOrder()));
 
 		// schneiderF is called with initial weight
 		Athlete curLifter = fopState.getCurAthlete();
@@ -121,7 +121,7 @@ public class TwoMinutesRuleTest {
 		assertEquals(null, previousLifter);
 		successfulLift(fopBus, curLifter);
 
-		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLifters()));
+		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLiftingOrder()));
 		// first is now simpsonR ; he has declared 60kg
 		curLifter = fopState.getCurAthlete();
 		previousLifter = fopState.getPreviousAthlete();
@@ -133,7 +133,7 @@ public class TwoMinutesRuleTest {
 		// restarted)
 		declaration(curLifter, "62", fopBus); //$NON-NLS-1$
 		logger.info("declaration by {}: {}", curLifter, "62"); //$NON-NLS-1$ //$NON-NLS-2$
-		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLifters()));
+		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLiftingOrder()));
 
 		// so now schneider should be back on top at 61, with two minutes because
 		// there was no time started.

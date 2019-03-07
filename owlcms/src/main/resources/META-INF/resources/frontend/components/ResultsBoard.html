@@ -13,14 +13,15 @@
 	background-color: black;
 	height: 100vh;
 	width: 100vw;
-	padding: 3vmin;
+	padding: 2vmin 2vmin 2vmin 2vmin;
 }
 
 .attemptBar {
 	display: flex;
-	font-size: 5vh;
+	font-size: 3.6vmin;
 	justify-content: space-between;
 	width: 100%;
+	font-weight: bold
 }
 
 .startNumber span {
@@ -48,7 +49,7 @@
 }
 
 table.results {
-	margin-top: 1em;
+	margin-top: 5ex;
 	width: 100%;
 }
 
@@ -56,7 +57,7 @@ table,tr,th,td {
 	border-collapse: collapse;
 	border: solid 1px DarkGray;
 	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-	font-size: 2.4vmin;
+	font-size: 2.2vmin;
 }
 
 .veryNarrow {
@@ -84,6 +85,24 @@ table,tr,th,td {
 	font-style: italic;
 }
 
+.current {
+	color: teal;
+	font-weight: bold;
+  	animation: blink 1.5s step-start 0s infinite;
+  	-webkit-animation: blink 1.5s step-start 0s infinite;
+}
+@keyframes blink {
+  50% { opacity: 0.0; }
+}
+@-webkit-keyframes blink {
+  50% { opacity: 0.0; }
+}
+
+.next {
+	color: teal;
+	font-weight: bold;
+}
+
 .empty {
 	background-color: black;
 	font-style: italic;
@@ -93,11 +112,7 @@ table,tr,th,td {
 	animation: blinker 1s linear infinite;
 }
 
-@
-keyframes blinker { 50% {
-	opacity: 0;
-}
-}
+
 </style>
 
 <div class="wrapper">
@@ -137,7 +152,7 @@ keyframes blinker { 50% {
 	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
 		<tr>
 			<td class="veryNarrow">[[l.startNumber]]</td>
-			<td>[[l.lastName]], [[l.firstName]]</td>
+			<td class$="[[l.classname]]">[[l.lastName]], [[l.firstName]]</td>
 			<template is="dom-if" if="[[g.isMasters]]"><td class="narrow">[[l.mastersAgeGroup]]</td></template>
 			<td class="veryNarrow">[[l.category]]</td>
 			<td class="veryNarrow">[[l.teamName]]</td>

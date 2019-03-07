@@ -231,7 +231,7 @@ public class AnnouncerContent extends VerticalLayout
 	public Collection<Athlete> findAll() {
 		FieldOfPlayState fop = OwlcmsSession.getFop();
 		if (fop != null) {
-			return fop.getLifters();
+			return fop.getLiftingOrder();
 		} else {
 			// no field of play, no group, empty list
 			return ImmutableList.of();

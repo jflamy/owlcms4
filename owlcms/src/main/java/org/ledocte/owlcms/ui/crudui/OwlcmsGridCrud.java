@@ -31,6 +31,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class OwlcmsGridCrud<T> extends GridCrud<T> {
 	
+	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsGridCrud.class);
 
 	private OwlcmsCrudLayout owlcmsCrudLayout;

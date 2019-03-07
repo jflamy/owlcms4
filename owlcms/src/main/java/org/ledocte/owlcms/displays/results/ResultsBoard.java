@@ -104,7 +104,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	private DecisionElement decisions; // Flow creates it
 	
 	private EventBus uiEventBus;
-	private List<Athlete> list;
+	private List<Athlete> displayOrder;
 
 	/**
 	 * Instantiates a new attempt board.
@@ -135,9 +135,9 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		OwlcmsSession.withFop(fop -> {
 			init();
 			// sync with current status of FOP
-			list = fop.getLifters();
+			displayOrder = fop.getDisplayOrder();
 			doUpdate(fop.getCurAthlete(), null);
-			// we send on fopEventBus, listen on uiEventBus.
+			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
@@ -149,13 +149,12 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		});
 		setGroupProperties();
 		setTranslationMap();
-		list = ImmutableList.of();
+		displayOrder = ImmutableList.of();
 	}
 
 	@Subscribe
 	public void orderUpdated(UIEvent.LiftingOrderUpdated e) {
 		Athlete a = e.getAthlete();
-		list = e.getAthletes();
 		doUpdate(a, e);
 	}
 
@@ -174,7 +173,6 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	protected void doUpdate(Athlete a, UIEvent e) {
 		if (a == null)
 			return;
-		XAthlete x = new XAthlete(a);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			ResultBoardModel model = getModel();
 			model.setLastName(a.getLastName().toUpperCase());
@@ -184,7 +182,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			String formattedAttempt = formatAttempt(a.getAttemptsDone());
 			model.setAttempt(formattedAttempt);
 			model.setWeight(a.getNextAttemptRequestedWeight());		
-			this.getElement().setPropertyJson("athletes", getAthletesJson(list));
+			this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
 		});
 	}
 
@@ -201,6 +199,8 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			ja.put("attempts", jattempts);
 			ja.put("total", formatInt(a.getTotal()));
 			ja.put("totalRank", formatInt(a.getTotalRank()));
+			Integer liftOrderRank = a.getLiftOrderRank();
+			ja.put("classname", (liftOrderRank == 1 ? "current" : (liftOrderRank == 2) ? "next" : ""));
 //			ja.put("snatchRank", a.getSnatchRank());
 //			ja.put("cleanJerkRank", a.getCleanJerkRank());
 			
@@ -228,6 +228,8 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	 */
 	protected JsonArray getAttemptsJson(Athlete a) {
 		XAthlete x = new XAthlete(a);
+		Integer liftOrderRank = x.getLiftOrderRank();
+		Integer curLift = x.getAttemptsDone();
 		JsonArray jattempts = Json.createArray();
 		int ix = 0;
 		for (LiftInfo i : x.getRequestInfoArray()) {
@@ -247,8 +249,11 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 					break;
 				default:
 					if (stringValue != null && !stringValue.trim().isEmpty()) {
-						jri.put("className", "narrow request");
-						jri.put("stringValue",stringValue);
+						String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? " current"
+								: (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
+						jri.put("className",
+							"narrow request" + highlight);
+						jri.put("stringValue", stringValue);
 					}
 					break;
 				}
@@ -269,6 +274,6 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	 */
 	public void reset() {
 //		this.getElement().callFunction("reset");
-		list = ImmutableList.of();
+		displayOrder = ImmutableList.of();
 	}
 }

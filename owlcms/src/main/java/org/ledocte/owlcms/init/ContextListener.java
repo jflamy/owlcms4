@@ -47,7 +47,7 @@ public class ContextListener implements ServletContextListener {
 		boolean inMemory = demoMode;
 		JPAService.init(inMemory);
 		if (demoMode) {
-			DemoData.insertInitialData(12, true);
+			DemoData.insertInitialData(20, true);
 		} else {
 			ProdData.insertInitialData(0, false);
 		}
