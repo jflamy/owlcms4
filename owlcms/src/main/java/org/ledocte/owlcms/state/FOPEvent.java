@@ -8,6 +8,8 @@
  */
 package org.ledocte.owlcms.state;
 
+import org.ledocte.owlcms.data.athlete.Athlete;
+
 import com.vaadin.flow.component.UI;
 
 /**
@@ -84,10 +86,17 @@ public class FOPEvent {
 	/**
 	 * The Class LiftingOrderUpdated.
 	 */
-	static public class LiftingOrderUpdated extends FOPEvent {
+	static public class WeightChange extends FOPEvent {
 
-		public LiftingOrderUpdated(UI originatingUI) {
+		private Athlete athlete;
+
+		public WeightChange(UI originatingUI, Athlete a) {
 			super(originatingUI);
+			this.athlete = a;
+		}
+
+		public Athlete getAthlete() {
+			return athlete;
 		}
 
 	}

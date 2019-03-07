@@ -98,9 +98,11 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	}
 
 	@Id("timer")
-	private TimerElement timer; // created by Flow during template instanciation
+	private TimerElement timer; // Flow creates it
+	
 	@Id("decisions")
-	private DecisionElement decisions; // created by Flow during template instanciation
+	private DecisionElement decisions; // Flow creates it
+	
 	private EventBus uiEventBus;
 	private List<Athlete> list;
 
@@ -114,6 +116,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 	protected void setTranslationMap() {
 		JsonObject translations = Json.createObject();
+		//TODO read from a PropertyResourceBundle
 		translations.put("key1","value1");
 		translations.put("key2","value2");
 		this.getElement().setPropertyJson("t", translations);
