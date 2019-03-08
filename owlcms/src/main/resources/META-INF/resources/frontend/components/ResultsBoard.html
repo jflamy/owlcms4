@@ -129,7 +129,7 @@ table, tr, th, td {
 
 .next {
 	color: aqua;
-	font-weight: normal;
+	font-weight: bold;
 }
 
 .empty {
@@ -174,7 +174,7 @@ table, tr, th, td {
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
 		<tr>
-			<td class="veryNarrow">[[l.startNumber]]</td>
+			<td class$="[[l.classname]] veryNarrow">[[l.startNumber]]</td>
 			<td class$="[[l.classname]]">[[l.lastName]], [[l.firstName]]</td>
 			<template is="dom-if" if="[[g.isMasters]]"><td class="narrow">[[l.mastersAgeGroup]]</td></template>
 			<td class="veryNarrow">[[l.category]]</td>
