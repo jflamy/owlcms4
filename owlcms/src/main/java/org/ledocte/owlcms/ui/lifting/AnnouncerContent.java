@@ -197,6 +197,7 @@ public class AnnouncerContent extends VerticalLayout
 	 */
 	@Override
 	public Athlete add(Athlete Athlete) {
+		//FIXME: should do a persist, not a merge
 		AthleteRepository.save(Athlete);
 		return Athlete;
 	}
@@ -209,7 +210,7 @@ public class AnnouncerContent extends VerticalLayout
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		fop.getEventBus()
-			.post(new FOPEvent.LiftingOrderUpdated(crud.getUI().get()));
+			.post(new FOPEvent.WeightChange(crud.getUI().get(), savedAthlete));
 		return savedAthlete;
 	}
 
@@ -230,7 +231,7 @@ public class AnnouncerContent extends VerticalLayout
 	public Collection<Athlete> findAll() {
 		FieldOfPlayState fop = OwlcmsSession.getFop();
 		if (fop != null) {
-			return fop.getLifters();
+			return fop.getLiftingOrder();
 		} else {
 			// no field of play, no group, empty list
 			return ImmutableList.of();

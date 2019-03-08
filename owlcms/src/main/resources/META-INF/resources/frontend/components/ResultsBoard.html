@@ -1,0 +1,226 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-if.html">
+
+<dom-module id="results-board-template">
+<template>
+<style>
+* {
+	box-sizing: border-box;
+}
+
+.wrapper {
+	background-color: black;
+	height: 100vh;
+	width: 100vw;
+	padding: 2vmin 2vmin 2vmin 2vmin;
+}
+
+.attemptBar {
+	display: flex;
+	font-size: 3.6vmin;
+	justify-content: justify-start;
+	width: 100%;
+	height: 4vmin;
+}
+
+.attemptBar .startNumber span {
+	font-size: 70%;
+	border-width: 0.2ex;
+	border-style: solid;
+	border-color: red;
+	width: 1.5em;
+	display: flex;
+	justify-content: center;
+	align-self: center;
+}
+
+.attemptBar .athleteInfo {
+	display: flex;
+	font-size: 3.6vmin;
+	justify-content: space-between;
+	width: 100%;
+} 
+
+.athleteInfo .fullName {
+	font-weight: bold;
+	flex: 0 0 30%;
+	text-align: left;
+	margin-left: 1em;
+}
+
+.athleteInfo .timer {
+	color: yellow;
+	flex: 0 0 15%;
+	text-align: right;
+	font-weight: bold;
+}
+
+.athleteInfo .decision {
+	display: none;
+	-iron-icon-height: 100%;
+	-iron-icon-width: 100%;
+	font-weight: normal;
+	color: lime;
+	display: none;
+	overflow: hidden;
+	flex: 0 0 15%;
+}
+
+.athleteInfo .weight {
+	color: aqua;
+}
+
+table.results {
+	margin-top: 5ex;
+	width: 100%;
+}
+
+table, tr, th, td {
+	border-collapse: collapse;
+	border: solid 1px DarkGray;
+	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
+	font-size: 2.2vmin;
+}
+
+.veryNarrow {
+	width: 4vw;
+	text-align: center;
+}
+
+.narrow {
+	width: 6vw;
+	text-align: center;
+}
+
+.good {
+	background-color: green;
+	font-weight: bold;
+}
+
+.fail {
+	background-color: red;
+	font-weight: bold;
+}
+
+.request {
+	background-color: black;
+	font-style: italic;
+}
+
+.current {
+	color: aqua;
+	font-weight: bold;
+	animation: blink 1.5s step-start 0s infinite;
+	-webkit-animation: blink 1.5s step-start 0s infinite;
+}
+
+@keyframes blink { 
+50% {
+	opacity: 0.0;
+	}
+}
+
+@-webkit-keyframes blink { 
+50% {
+	opacity: 0.0;
+	}
+}
+
+.next {
+	color: aqua;
+	font-weight: bold;
+}
+
+.empty {
+	background-color: black;
+	font-style: italic;
+}
+</style>
+
+<div class="wrapper">
+<div class="attemptBar">
+	<div class="startNumber"><span>[[startNumber]]</span></div>
+	<div class="athleteInfo">
+		<div class="fullName">[[lastName]], [[firstName]]</div>
+		<div class="teamName">[[teamName]]</div>
+		<div class="attempt" inner-h-t-m-l="[[attempt]]"></div>
+		<div class="weight">
+			[[weight]]<span style="font-size: 75%">kg</span>
+		</div>
+		<div class="timer" id="timerDiv">
+			<timer-element id="timer"></timer-element>
+		</div>
+		<div class="decision" id="decisionDiv" on-hide="reset">
+			<decision-element id="decisions"></decision-element>
+		</div>
+	</div>
+</div>
+<table class="results">
+	<thead>
+		<tr>
+			<th class="veryNarrow">Départ<div class='english'>Start</div></th>
+			<th>Nom<div class='english'>Name</div></th>
+			<template is="dom-if" if="[[g.isMasters]]">
+				<th><nobr>Gr. Age.</nobr><div class='english'><nobr>Age Gr.</nobr></div></th>
+			</template>
+			<th class="cat">Cat.</th>
+			<th class='club'>Équipe<div class='english'>Team</div></th>
+			<th colspan="3">Arraché<div class='english'>Snatch</div></th>
+			<th colspan="3">Épaulé-jeté<div class='english'>Clean&amp;Jerk</div></th>
+			<th class="veryNarrow">Total</th>
+			<th class="veryNarrow">Rang<div class='english'>Rank</div></th>
+		</tr>
+	</thead>
+	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
+		<tr>
+			<td class$="[[l.classname]] veryNarrow">[[l.startNumber]]</td>
+			<td class$="[[l.classname]]">[[l.lastName]], [[l.firstName]]</td>
+			<template is="dom-if" if="[[g.isMasters]]"><td class="narrow">[[l.mastersAgeGroup]]</td></template>
+			<td class="veryNarrow">[[l.category]]</td>
+			<td class="veryNarrow">[[l.teamName]]</td>
+			<template is="dom-repeat" id="result-table-attempts" items="[[l.attempts]]" as="attempt">
+				<td class$="[[attempt.className]]">[[attempt.stringValue]]</td>
+			</template>
+			<td class="veryNarrow">[[l.total]]</td>
+			<td class="veryNarrow">[[l.totalRank]]</td>
+		</tr>
+	</template>
+</table>
+</div>
+</template>
+<script>
+class Results extends Polymer.Element {
+	static get is() {
+		return 'results-board-template'
+	}
+       
+	ready() {
+		super.ready();
+		//this.reset();
+	}
+         
+	start() {
+		this.$.timer.start();
+	}
+	         
+	reset() {
+		this.$.timer.reset();
+		this.$.timerDiv.style.display="flex";
+		this.$.decisionDiv.style.display="none";
+	}
+	
+	refereeDecision() {
+		console.warn("refereeDecision");
+		this.$.timerDiv.style.display="none";
+		this.$.decisionDiv.style.display="flex";
+	}
+	         
+	_isEqualTo(title, string) {
+		return title == string;
+	}
+}
+
+customElements.define(Results.is, Results);
+ </script>
+ </dom-module>

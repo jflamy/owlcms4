@@ -9,6 +9,7 @@
 package org.ledocte.owlcms.ui.displaySetup;
 
 import org.ledocte.owlcms.displays.attemptboard.AttemptBoard;
+import org.ledocte.owlcms.displays.results.ResultsBoard;
 import org.ledocte.owlcms.ui.home.ContentWrapping;
 import org.ledocte.owlcms.ui.home.MainNavigationContent;
 import org.ledocte.owlcms.ui.preparation.CategoryContent;
@@ -35,6 +36,9 @@ public class DisplayNavigationContent extends VerticalLayout
 			new Button("Attempt Board",
 					buttonClickEvent -> UI.getCurrent()
 						.navigate(AttemptBoard.class)),
+			new Button("Results Board",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(ResultsBoard.class)),
 			new Button("Referee Decision Display",
 					buttonClickEvent -> UI.getCurrent()
 						.navigate(CategoryContent.class)),

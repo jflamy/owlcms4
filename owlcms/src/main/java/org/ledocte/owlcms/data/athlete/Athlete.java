@@ -528,7 +528,7 @@ public class Athlete {
 	 * Failed lift.
 	 */
 	public void failedLift() {
-		logger.debug("{}", this); //$NON-NLS-1$
+		logger.info("no lift for {}", this); //$NON-NLS-1$
 		final String weight = Integer.toString(-getNextAttemptRequestedWeight());
 		doLift(weight);
 	}
@@ -2831,7 +2831,8 @@ public class Athlete {
 			this.snatch1LiftTime = null;
 		else
 			this.snatch1LiftTime = sqlNow();
-		logger.warn("{} snatch1ActualLift={}", this, snatch1ActualLift);
+		
+		//logger.warn("{} snatch1ActualLift={} {}", this, snatch1ActualLift, LoggerUtils.stackTrace());
 	}
 
 	/**
@@ -3254,7 +3255,7 @@ public class Athlete {
 	 * Successful lift.
 	 */
 	public void successfulLift() {
-		logger.debug("good lift for {}", this); //$NON-NLS-1$
+		logger.info("good lift for {}", this); //$NON-NLS-1$
 		final String weight = Integer.toString(getNextAttemptRequestedWeight());
 		doLift(weight);
 	}

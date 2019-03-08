@@ -8,6 +8,8 @@
  */
 package org.ledocte.owlcms.state;
 
+import java.util.List;
+
 import org.ledocte.owlcms.data.athlete.Athlete;
 
 import com.vaadin.flow.component.UI;
@@ -87,12 +89,16 @@ public class UIEvent {
 		private Athlete nextAthlete;
 		private Athlete previousAthlete;
 		private Integer timeAllowed;
+		private List<Athlete> liftingOrder;
+		private List<Athlete> displayOrder;
 
-		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete, Integer timeAllowed, UI originatingUI) {
+		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete, List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed, UI originatingUI) {
 			super(athlete, originatingUI);
 			this.nextAthlete = nextAthlete;
 			this.previousAthlete = previousAthlete;
 			this.timeAllowed = timeAllowed;
+			this.liftingOrder = liftingOrder;
+			this.displayOrder = displayOrder;
 		}
 
 		public Athlete getNextAthlete() {
@@ -108,6 +114,14 @@ public class UIEvent {
 		 */
 		public Integer getTimeAllowed() {
 			return timeAllowed;
+		}
+
+		public List<Athlete> getLiftingOrder() {
+			return liftingOrder;
+		}
+
+		public List<Athlete> getDisplayOrder() {
+			return displayOrder;
 		}
 
 	}
@@ -127,8 +141,8 @@ public class UIEvent {
 		 *
 		 * @param decision the decision
 		 */
-		public RefereeDecision(Athlete athlete, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, UI originatingUI) {
-			super(athlete, originatingUI);
+		public RefereeDecision(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, UI originatingUI) {
+			super(originatingUI);
 			this.decision = decision;
 			this.ref1 = ref1;
 			this.ref2 = ref2;

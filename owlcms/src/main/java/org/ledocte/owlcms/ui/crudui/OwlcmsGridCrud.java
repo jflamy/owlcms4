@@ -8,6 +8,7 @@
  */
 package org.ledocte.owlcms.ui.crudui;
 
+import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -20,6 +21,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 
+import ch.qos.logback.classic.Logger;
+
 /**
  * The Class OwlcmsGridCrud.
  *
@@ -27,6 +30,9 @@ import com.vaadin.flow.component.notification.Notification;
  */
 @SuppressWarnings("serial")
 public class OwlcmsGridCrud<T> extends GridCrud<T> {
+	
+	@SuppressWarnings("unused")
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsGridCrud.class);
 
 	private OwlcmsCrudLayout owlcmsCrudLayout;
 	private OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;

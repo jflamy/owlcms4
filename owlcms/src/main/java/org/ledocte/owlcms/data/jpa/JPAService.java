@@ -210,7 +210,7 @@ public class JPAService {
 
 
 	/**
-	 * Sets the test mode.
+	 * Sets the in-memory mode.
 	 *
 	 * @param b the new test mode
 	 */

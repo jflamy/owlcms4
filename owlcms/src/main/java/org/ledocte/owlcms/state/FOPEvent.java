@@ -8,6 +8,8 @@
  */
 package org.ledocte.owlcms.state;
 
+import org.ledocte.owlcms.data.athlete.Athlete;
+
 import com.vaadin.flow.component.UI;
 
 /**
@@ -84,10 +86,17 @@ public class FOPEvent {
 	/**
 	 * The Class LiftingOrderUpdated.
 	 */
-	static public class LiftingOrderUpdated extends FOPEvent {
+	static public class WeightChange extends FOPEvent {
 
-		public LiftingOrderUpdated(UI originatingUI) {
+		private Athlete athlete;
+
+		public WeightChange(UI originatingUI, Athlete a) {
 			super(originatingUI);
+			this.athlete = a;
+		}
+
+		public Athlete getAthlete() {
+			return athlete;
 		}
 
 	}
@@ -105,11 +114,10 @@ public class FOPEvent {
 
 		/**
 		 * Instantiates a new referee decision.
-		 * @param ref3 
-		 * @param ref2 
-		 * @param ref1 
-		 *
 		 * @param decision the decision
+		 * @param ref1 
+		 * @param ref2 
+		 * @param ref3 
 		 */
 		public RefereeDecision(UI originatingUI, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 			super(originatingUI);

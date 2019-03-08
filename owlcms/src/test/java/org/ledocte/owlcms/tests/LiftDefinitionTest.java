@@ -16,45 +16,57 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.ledocte.owlcms.data.athlete.Athlete;
-import org.ledocte.owlcms.data.athlete.AthleteRepository;
+import org.ledocte.owlcms.data.athlete.LiftDefinition;
 import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
 import org.ledocte.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import org.ledocte.owlcms.data.athleteSort.WinningOrderComparator;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.category.CategoryRepository;
 import org.ledocte.owlcms.data.competition.Competition;
-import org.ledocte.owlcms.data.jpa.JPAService;
 import org.ledocte.owlcms.utils.DebugUtils;
 
-public class AthleteSorterTest {
+public class LiftDefinitionTest {
 
     List<Athlete> athletes = null;
 
-    @BeforeClass
-    public static void setupTests() {
-    	JPAService.init(true);
-		TestData.insertInitialData(5, true);
-    }
-
-    @AfterClass
-    public static void tearDownTests() {
-    	JPAService.close();
-    }
-    
-    @Before
-    public void setupTest() {
-        // for this test, the initial data does not include body weights, so we use false
-        // on the constructor to disable exclusion of incomplete data.
-        athletes = AthleteRepository.findAll();
-        DebugUtils.longDump(athletes);
-    }
+//    @BeforeClass
+//    public static void setupTests() {
+//    	JPAService.init(true);
+//		TestData.insertInitialData(5, true);
+//    }
+//
+//    @AfterClass
+//    public static void tearDownTests() {
+//    	JPAService.close();
+//    }
+//    
+//    @Before
+//    public void setupTest() {
+//        athletes = AthleteRepository.findAll();
+//        DebugUtils.longDump(athletes);
+//    }
 
     @Test
+    public void checkDefinitions() {
+    	StringBuilder sb = new StringBuilder();
+    	LiftDefinition[] lifts = LiftDefinition.lifts;
+    	for (int lift = 0; lift < LiftDefinition.NBLIFTS; lift++) {
+    		LiftDefinition curDef = lifts[lift];
+    		for (int change = 0; change < LiftDefinition.NBCHANGES; change++) {
+    			sb.append(curDef.getters[change].getName());
+    			sb.append(" ");
+    			sb.append(curDef.setters[change].getName());
+    			sb.append(System.lineSeparator());
+    		}
+    	}
+    	assertEqualsToReferenceFile("/methodDefinitions.txt", sb.toString());
+    }
+    
+    
+    @Ignore
     public void initialCheck() {
         final String resName = "/initialCheck.txt"; //$NON-NLS-1$
         AthleteSorter.assignLotNumbers(athletes);
@@ -67,7 +79,7 @@ public class AthleteSorterTest {
         assertEqualsToReferenceFile(resName, actual);
     }
 
-    @Test
+    @Ignore
     public void liftSequence1() {
         AthleteSorter.assignLotNumbers(athletes);
         AthleteSorter.assignStartNumbers(athletes);
@@ -346,7 +358,7 @@ public class AthleteSorterTest {
         }
     }
 
-    @Test
+    @Ignore
     public void liftSequence2() {
         AthleteSorter.assignLotNumbers(athletes);
         AthleteSorter.assignStartNumbers(athletes);

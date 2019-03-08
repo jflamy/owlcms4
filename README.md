@@ -12,11 +12,10 @@ came out to rekindle my interest.
 
 Current status:
 - The announcer portion (updating athlete cards and recomputing lifting order) works
+- Working attempt board and results board, timing and decisions handled in the browser
 - The overall navigation and layout works, using [vaadin-app-layout](https://github.com/appreciated/vaadin-app-layout)
-- Announcer and administrative screens (e.g. categories) being built using [crudui](https://github.com/alejandro-du/crudui)
-- Attempt board done with browser-based timer and refere decisions, using Poymer web component templates
+- Sample administrative screen (e.g. categories) built using [crudui](https://github.com/alejandro-du/crudui)
 - Event-based design to keep clean programming modularity between screens, the field-of-play state, and the back-end data
 
 Next steps
-- Finishing integration of local timers and decisions with the back-end
-- Using web component templates to implement the result displays
+- Registration and weigh-in screens

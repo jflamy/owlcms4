@@ -155,22 +155,6 @@
 
 	<build>
 		<plugins>
-			<!-- <plugin> -->
-			<!-- <groupId>org.apache.maven.plugins</groupId> -->
-			<!-- <artifactId>maven-compiler-plugin</artifactId> -->
-			<!-- <version>3.6.1</version> -->
-			<!-- <configuration> -->
-			<!-- <compilerId>eclipse</compilerId> -->
-			<!-- </configuration> -->
-			<!-- <dependencies> -->
-			<!-- <dependency> -->
-			<!-- <groupId>org.codehaus.plexus</groupId> -->
-			<!-- <artifactId>plexus-compiler-eclipse</artifactId> -->
-			<!-- <version>2.8.5</version> -->
-			<!-- </dependency> -->
-			<!-- </dependencies> -->
-			<!-- </plugin> -->
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -185,19 +169,9 @@
 					</execution>
 				</executions>
 			</plugin>
-
-
-			<!--plugin> <groupId>org.eclipse.jetty</groupId> <artifactId>jetty-maven-plugin</artifactId> 
-				<version>${jetty.version}</version> <configuration> <scanIntervalSeconds>2</scanIntervalSeconds> 
-				<stopPort>8081</stopPort> <stopWait>5</stopWait> <stopKey>foo</stopKey> <webAppConfig> 
-				<containerIncludeJarPattern>^$</containerIncludeJarPattern> </webAppConfig> 
-				</configuration> <executions> <execution> <id>start-jetty</id> <phase>pre-integration-test</phase> 
-				<goals> <goal>start</goal> </goals> </execution> <execution> <id>stop-jetty</id> 
-				<phase>post-integration-test</phase> <goals> <goal>stop</goal> </goals> </execution> 
-				</executions> </plugin -->
-
 		</plugins>
 	</build>
+	
 	<profiles>
 	</profiles>
 

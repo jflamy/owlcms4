@@ -11,9 +11,9 @@
 	justify-content: space-evenly;
 }
 .decision {
-	border-radius: 1rem;
+	border-radius: 5%;
 	border: 0.3rem solid white;
-	margin: 2vw;
+	margin: 3%;
 	background-color: gray;
 	width: 30%;
 }
@@ -201,7 +201,8 @@
       }
       
       showDecisions(isMaster, ref1, ref2, ref3) {
-    	  console.warn("showDecision");
+    	  this.$.decisionsDiv.style.display = "flex";
+    	  console.warn("showDecision: "+ref1+" "+ref2+" "+ref3);
 		  this.setColors(this, ref1, ref2, ref3);
 		  console.warn("colorsShown");
     	  // schedule display reset in 3 seconds

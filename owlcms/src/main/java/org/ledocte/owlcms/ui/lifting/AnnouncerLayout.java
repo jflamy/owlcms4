@@ -181,7 +181,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 
 		HorizontalLayout decisions = new HorizontalLayout(
 				new Button("good", (e) -> {
-					getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get(), true, true, true, true));
+					getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get() ,true, true, true, true));
 					getFopEventBus().post(new FOPEvent.DecisionReset(announcerBar.getUI().get()));
 				}),
 				new Button("bad", (e) -> {
@@ -224,7 +224,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 	protected void onAttach(AttachEvent attachEvent) {
 		OwlcmsSession.withFop(fop -> {
 			// sync with current status of FOP
-			doUpdateAnnouncerBar(fop.getCurAthlete(), fop.timeAllowed());
+			doUpdateAnnouncerBar(fop.getCurAthlete(), fop.getTimeAllowed());
 			// connect to bus for new updating events
 			uiEventBus = uiEventBusRegister(this, fop);
 		});

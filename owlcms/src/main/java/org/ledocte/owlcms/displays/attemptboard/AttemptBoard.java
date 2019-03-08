@@ -8,6 +8,8 @@
  */
 package org.ledocte.owlcms.displays.attemptboard;
 
+import java.text.MessageFormat;
+
 import org.ledocte.owlcms.data.athlete.Athlete;
 import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.state.UIEvent;
@@ -47,7 +49,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
 	
 	/**
-	 * AttemptBoardModel
+	 * ResultBoardModel
 	 * 
 	 * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties.
 	 * When the JS properties are changed, a "propname-changed" event is triggered.
@@ -137,8 +139,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		});
 	}
 	
-	private String formatAttempt(Integer attemptsDone) {
-		return ((attemptsDone%3 + 1) + " att.");
+	private String formatAttempt(Integer attemptNo) {
+		return MessageFormat.format("{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.",(attemptNo%3)+1);
 	}
 
 	/**

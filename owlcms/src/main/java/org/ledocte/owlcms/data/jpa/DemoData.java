@@ -62,7 +62,7 @@ public class DemoData {
 			try {
 				Athlete.getLogger()
 					.setLevel(Level.WARN);
-				setupTestData(em, nbAthletes);
+				setupDemoData(em, nbAthletes);
 			} catch (Exception e) {
 				Athlete.getLogger()
 					.setLevel(loggerLevel);
@@ -190,7 +190,7 @@ public class DemoData {
 	 * @param w             the w
 	 * @param c             the c
 	 */
-	protected static void setupTestData(EntityManager em, int liftersToLoad) {
+	protected static void setupDemoData(EntityManager em, int liftersToLoad) {
 		Competition competition = createDefaultCompetition();
 
 		CategoryRepository.insertStandardCategories(em);
