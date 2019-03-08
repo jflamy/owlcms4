@@ -19,12 +19,12 @@
 .attemptBar {
 	display: flex;
 	font-size: 3.6vmin;
-	justify-content: space-between;
+	justify-content: justify-start;
 	width: 100%;
-	font-weight: bold
+	height: 4vmin;
 }
 
-.startNumber span {
+.attemptBar .startNumber span {
 	font-size: 70%;
 	border-width: 0.2ex;
 	border-style: solid;
@@ -32,20 +32,43 @@
 	width: 1.5em;
 	display: flex;
 	justify-content: center;
+	align-self: center;
 }
 
-.decision {
-	display: none;
+.attemptBar .athleteInfo {
+	display: flex;
+	font-size: 3.6vmin;
+	justify-content: space-between;
+	width: 100%;
+} 
+
+.athleteInfo .fullName {
+	font-weight: bold;
+	flex: 0 0 30%;
+	text-align: left;
+	margin-left: 1em;
 }
-.down {
-	align-self: stretch;
-	justify-self: stretch; -
-	-iron-icon-height: 100%; -
+
+.athleteInfo .timer {
+	color: yellow;
+	flex: 0 0 15%;
+	text-align: right;
+	font-weight: bold;
+}
+
+.athleteInfo .decision {
+	display: none;
+	-iron-icon-height: 100%;
 	-iron-icon-width: 100%;
 	font-weight: normal;
 	color: lime;
 	display: none;
 	overflow: hidden;
+	flex: 0 0 15%;
+}
+
+.athleteInfo .weight {
+	color: aqua;
 }
 
 table.results {
@@ -53,7 +76,7 @@ table.results {
 	width: 100%;
 }
 
-table,tr,th,td {
+table, tr, th, td {
 	border-collapse: collapse;
 	border: solid 1px DarkGray;
 	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
@@ -86,46 +109,51 @@ table,tr,th,td {
 }
 
 .current {
-	color: teal;
+	color: aqua;
 	font-weight: bold;
-  	animation: blink 1.5s step-start 0s infinite;
-  	-webkit-animation: blink 1.5s step-start 0s infinite;
+	animation: blink 1.5s step-start 0s infinite;
+	-webkit-animation: blink 1.5s step-start 0s infinite;
 }
-@keyframes blink {
-  50% { opacity: 0.0; }
+
+@keyframes blink { 
+50% {
+	opacity: 0.0;
+	}
 }
-@-webkit-keyframes blink {
-  50% { opacity: 0.0; }
+
+@-webkit-keyframes blink { 
+50% {
+	opacity: 0.0;
+	}
 }
 
 .next {
-	color: teal;
-	font-weight: bold;
+	color: aqua;
+	font-weight: normal;
 }
 
 .empty {
 	background-color: black;
 	font-style: italic;
 }
-
 </style>
 
 <div class="wrapper">
 <div class="attemptBar">
-	<div class="startNumber">
-		<span>[[startNumber]]</span>
-	</div>
-	<div class="lastName">[[lastName]], [[firstName]]</div>
-	<div class="teamName">[[teamName]]</div>
-	<div class="attempt" inner-h-t-m-l="[[attempt]]"></div>
-	<div class="weight">
-		[[weight]]<span style="font-size: 75%">kg</span>
-	</div>
-	<div class="timer" id="timerDiv">
-		<timer-element id="timer"></timer-element>
-	</div>
-	<div class="decision" id="decisionDiv" on-hide="reset">
-		<decision-element id="decisions"></decision-element>
+	<div class="startNumber"><span>[[startNumber]]</span></div>
+	<div class="athleteInfo">
+		<div class="fullName">[[lastName]], [[firstName]]</div>
+		<div class="teamName">[[teamName]]</div>
+		<div class="attempt" inner-h-t-m-l="[[attempt]]"></div>
+		<div class="weight">
+			[[weight]]<span style="font-size: 75%">kg</span>
+		</div>
+		<div class="timer" id="timerDiv">
+			<timer-element id="timer"></timer-element>
+		</div>
+		<div class="decision" id="decisionDiv" on-hide="reset">
+			<decision-element id="decisions"></decision-element>
+		</div>
 	</div>
 </div>
 <table class="results">
