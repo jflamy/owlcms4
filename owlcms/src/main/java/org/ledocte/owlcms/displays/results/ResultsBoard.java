@@ -8,6 +8,7 @@
  */
 package org.ledocte.owlcms.displays.results;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
@@ -154,33 +155,44 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 	@Subscribe
 	public void orderUpdated(UIEvent.LiftingOrderUpdated e) {
-		Athlete a = e.getAthlete();
-		doUpdate(a, e);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			Athlete a = e.getAthlete();
+			displayOrder = e.getDisplayOrder();
+			doUpdate(a, e);
+		});
 	}
 
 	@Subscribe
 	public void athleteAnnounced(UIEvent.AthleteAnnounced e) {
-		logger.debug("resultBoard athleteAnnounced");
-		Athlete a = e.getAthlete();
-		doUpdate(a, e);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			logger.debug("resultBoard athleteAnnounced");
+			Athlete a = e.getAthlete();
+			doUpdate(a, e);
+		});
 	}
 
 	@Subscribe
 	public void intermissionDone(UIEvent.IntermissionDone e) {
-		Athlete a = e.getAthlete();
-		doUpdate(a, e);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			Athlete a = e.getAthlete();
+			doUpdate(a, e);
+		});
 	}
-	
+
 	@Subscribe
 	public void refereeDecision(UIEvent.RefereeDecision e) {
-		logger.debug("resultBoard refereeDecision");
-		this.getElement().callFunction("refereeDecision");
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			logger.debug("resultBoard refereeDecision");
+			this.getElement().callFunction("refereeDecision");
+		});
 	}
-	
+
 	@Subscribe
 	public void decisionReset(UIEvent.DecisionReset e) {
-		logger.debug("resultBoard decisionReset");
-		this.getElement().callFunction("reset");
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			logger.debug("resultBoard decisionReset");
+			this.getElement().callFunction("reset");
+		});
 	}
 
 
@@ -278,9 +290,9 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		}
 		return jattempts;
 	}
-
-	private String formatAttempt(Integer attemptsDone) {
-		return ((attemptsDone % 3 + 1) + " att.");
+	
+	private String formatAttempt(Integer attemptNo) {
+		return MessageFormat.format("{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.",(attemptNo%3)+1);
 	}
 
 	/**
