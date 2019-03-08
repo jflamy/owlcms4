@@ -117,10 +117,11 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	@Subscribe
 	public void slaveShowDecisions(UIEvent.RefereeDecision e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, e.getOriginatingUI(), () -> {
-			getModel().setRef1(e.ref1);
-			getModel().setRef2(e.ref2);
-			getModel().setRef3(e.ref3);
-			this.getElement().callFunction("showDecisions", false);
+			logger.warn("{} referee decision ({})",this,this.getParent().get().getClass().getSimpleName());
+//			getModel().setRef1(e.ref1);
+//			getModel().setRef2(e.ref2);
+//			getModel().setRef3(e.ref3);
+			this.getElement().callFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 		});
 	}
 	
