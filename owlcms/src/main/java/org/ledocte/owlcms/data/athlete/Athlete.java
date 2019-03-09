@@ -31,6 +31,7 @@ import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import org.ledocte.owlcms.data.athleteSort.AthleteSorter.Ranking;
+import org.ledocte.owlcms.data.category.AgeDivision;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.ledocte.owlcms.data.group.Group;
@@ -46,34 +47,30 @@ import ch.qos.logback.classic.Logger;
 /**
  * This class stores all the information related to a particular participant.
  * <p>
- * This class is an example of what not to do. This was designed prior reaching
- * a proper understanding of Hibernate/JPA and of proper separation between
- * Vaadin Containers and persistence frameworks. Live and Learn.
+ * This class is an example of what not to do. This was designed prior reaching a proper
+ * understanding of Hibernate/JPA and of proper separation between Vaadin Containers and persistence
+ * frameworks. Live and Learn.
  * <p>
- * All persistent properties are managed by Java Persistance annotations.
- * "Field" access mode is used, meaning that it is the values of the fields that
- * are stored, and not the values returned by the getters. Note that it is often
- * necessary to know when a value has been captured or not -- this is why values
- * are stored as Integers or Doubles, so that we can use null to indicate that a
+ * All persistent properties are managed by Java Persistance annotations. "Field" access mode is
+ * used, meaning that it is the values of the fields that are stored, and not the values returned by
+ * the getters. Note that it is often necessary to know when a value has been captured or not --
+ * this is why values are stored as Integers or Doubles, so that we can use null to indicate that a
  * value has not been captured.
  * </p>
  * <p>
- * This allows us to use the getters to return the values as they will be
- * displayed by the application
+ * This allows us to use the getters to return the values as they will be displayed by the
+ * application
  * </p>
  * <p>
- * Computed fields are defined as final transient properties and marked as
- *
- * @author jflamy @Transient; the only reason for this is so the JavaBeans
- *         introspection mechanisms find them.
- *         </p>
- *         <p>
- *         This class uses events to notify interested user interface components
- *         that fields or computed values have changed. In this way the user
- *         interface does not have to know that the category field on the screen
- *         is dependent on the bodyweight and the gender -- all the dependency
- *         logic is kept at the business object level.
- *         </p>
+ * Computed fields are defined as final transient properties and marked as @Transient; the only
+ * reason for this is so the JavaBeans introspection mechanisms find them.
+ * </p>
+ * <p>
+ * This class uses events to notify interested user interface components that fields or computed
+ * values have changed. In this way the user interface does not have to know that the category field
+ * on the screen is dependent on the bodyweight and the gender -- all the dependency logic is kept
+ * at the business object level.
+ * </p>
  */
 @Entity
 @Cacheable
@@ -212,8 +209,10 @@ public class Athlete {
 	// "-" or other things in the cells, so Strings are actually easier.
 
 	private String team = ""; //$NON-NLS-1$
-	private String gender = ""; //$NON-NLS-1$
+	private Gender gender = null; //$NON-NLS-1$
 	private LocalDate fullBirthDate = null;
+	private AgeDivision ageDivision = null;
+	
 	private Double bodyWeight = null;
 	private String membership = ""; //$NON-NLS-1$
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
@@ -541,14 +540,14 @@ public class Athlete {
 	public int get20kgRuleValue() {
 		if (Competition.getCurrent()
 			.isMasters()) {
-			if ("M".equals(this.getGender())) {
+			if (Gender.M.equals(this.getGender())) {
 				return 15;
 			} else {
 				return 10;
 			}
 		} else if (Competition.getCurrent()
 			.isUseOld20_15rule()) {
-			if ("M".equals(this.getGender())) {
+			if (Gender.M.equals(this.getGender())) {
 				return 20;
 			} else {
 				return 15;
@@ -570,9 +569,9 @@ public class Athlete {
 		if (yob == null) {
 			yob = 1900;
 		}
-		String gender2 = this.getGender();
-		if (gender2 == null || gender2.trim().isEmpty()) {
-			gender2 = "F";
+		Gender gender2 = this.getGender();
+		if (gender2 == null) {
+			gender2 = Gender.F;
 		}
 		int year1 = Calendar.getInstance().get(Calendar.YEAR);
 		final int age = year1 - yob;
@@ -585,10 +584,10 @@ public class Athlete {
 		}
 		int ageGroup1 = (int) (Math.ceil(age / 5) * 5);
 
-		if (gender2.equals("F") && ageGroup1 >= 70) { //$NON-NLS-1$
+		if (Gender.F == gender2 && ageGroup1 >= 70) { //$NON-NLS-1$
 			return 70;
 		}
-		if (gender2.equals("M") && ageGroup1 >= 80) { //$NON-NLS-1$
+		if (Gender.M == gender2 && ageGroup1 >= 80) { //$NON-NLS-1$
 			return 80;
 		}
 		// normal case
@@ -761,15 +760,15 @@ public class Athlete {
 		final Integer total1 = getTotal();
 		if (total1 == null || total1 < 0.1)
 			return 0.0;
-		if (getGender().equalsIgnoreCase("M")) { //$NON-NLS-1$
-			if (categoryWeight < 56.0) {
-				categoryWeight = 56.0;
+		if (getGender() == Gender.M) { //$NON-NLS-1$
+			if (categoryWeight < 55.0) {
+				categoryWeight = 55.0;
 			} else if (categoryWeight > SinclairCoefficients.menMaxWeight()) {
 				categoryWeight = SinclairCoefficients.menMaxWeight();
 			}
 		} else {
-			if (categoryWeight < 48.0) {
-				categoryWeight = 48.0;
+			if (categoryWeight < 45.0) {
+				categoryWeight = 45.0;
 			} else if (categoryWeight > SinclairCoefficients.womenMaxWeight()) {
 				categoryWeight = SinclairCoefficients.womenMaxWeight();
 			}
@@ -1220,7 +1219,7 @@ public class Athlete {
 	 *
 	 * @return the gender
 	 */
-	public String getGender() {
+	public Gender getGender() {
 		return gender;
 	}
 
@@ -1338,7 +1337,7 @@ public class Athlete {
 	 * @return the masters age group
 	 */
 	public String getMastersAgeGroup() {
-		String gender1 = getGender().toUpperCase();
+		String gender1 = getGender().name();
 		return getMastersAgeGroup(gender1);
 	}
 
@@ -1349,12 +1348,10 @@ public class Athlete {
 	 */
 	public String getMastersAgeGroupInterval() {
 		Integer ageGroup1 = getAgeGroup();
-		if (this.getGender()
-			.equals("F") && ageGroup1 >= 70) { //$NON-NLS-1$
+		if (this.getGender() == Gender.F && ageGroup1 >= 70) { //$NON-NLS-1$
 			return "70+";
 		}
-		if (this.getGender()
-			.equals("M") && ageGroup1 >= 80) { //$NON-NLS-1$
+		if (this.getGender() == Gender.M && ageGroup1 >= 80) { //$NON-NLS-1$
 			return "80+";
 		}
 		if (ageGroup1 == 17) {
@@ -1373,7 +1370,7 @@ public class Athlete {
 	 * @return the masters gender age group interval
 	 */
 	public String getMastersGenderAgeGroupInterval() {
-		String gender2 = getGender();
+		String gender2 = getGender().name();
 		if (gender2 == "F")
 			gender2 = "W";
 		return gender2.toUpperCase() + getMastersAgeGroupInterval();
@@ -1386,7 +1383,7 @@ public class Athlete {
 	 */
 	public String getMastersLongCategory() {
 		String catString;
-		String gender1 = getGender().toUpperCase();
+		String gender1 = getGender().name();
 		final String mastersAgeCategory = getMastersAgeGroup(gender1);
 		final String shortCategory = getShortCategory(gender1);
 		catString = mastersAgeCategory + " " + shortCategory;
@@ -1400,7 +1397,7 @@ public class Athlete {
 	 */
 	public String getMastersLongRegistrationCategoryName() {
 		String catString;
-		String gender1 = getGender().toUpperCase();
+		String gender1 = getGender().name();
 		final String mastersAgeCategory = getMastersAgeGroup(gender1);
 		final String shortCategory = getShortRegistrationCategory(gender1);
 		catString = mastersAgeCategory + " " + shortCategory;
@@ -1592,7 +1589,6 @@ public class Athlete {
 		if (c.getRobiA() == null || c.getWr() <= 0.000001)
 			return 0.0;
 		double robi = c.getRobiA() * Math.pow(getTotal(), c.getRobiB());
-		// System.err.println(robi);
 		return robi;
 	}
 
@@ -1611,7 +1607,7 @@ public class Athlete {
 	 * @return the short category
 	 */
 	public String getShortCategory() {
-		String gender1 = getGender();
+		String gender1 = getGender().name();
 		return getShortCategory(gender1);
 	}
 
@@ -1692,7 +1688,7 @@ public class Athlete {
 	 * @return the sinclair factor
 	 */
 	public Double getSinclairFactor() {
-		if (gender.equalsIgnoreCase("M")) { //$NON-NLS-1$
+		if (gender == Gender.M) { //$NON-NLS-1$
 			return sinclairFactor(this.bodyWeight,
 				SinclairCoefficients.menCoefficient(),
 				SinclairCoefficients.menMaxWeight());
@@ -2250,20 +2246,6 @@ public class Athlete {
 		this.forcedAsCurrent = false;
 	}
 
-	/**
-	 * Sets the as current lifter.
-	 *
-	 * @param currentLifter the new as current lifter
-	 */
-	public void setAsCurrentLifter(Boolean currentLifter) {
-		// if (currentLifter)
-		// System.err.println("Athlete.setAsCurrentLifter(): current Athlete is now
-		// "+getLastName()+" "+getFirstName());
-		this.currentLifter = currentLifter;
-		if (currentLifter) {
-			logger.info("{} is current Athlete", this);
-		}
-	}
 
 	/**
 	 * Sets the attempts done.
@@ -2695,12 +2677,8 @@ public class Athlete {
 	 *
 	 * @param string the gender to set
 	 */
-	public void setGender(String string) {
-		if (string != null) {
-			this.gender = string.toUpperCase();
-		} else {
-			this.gender = string;
-		}
+	public void setGender(Gender gender) {
+		this.gender = gender;
 	}
 
 	/**
@@ -3643,7 +3621,7 @@ public class Athlete {
 			return 0.0;
 		if (gender == null)
 			return 0.0;
-		if (gender.equalsIgnoreCase("M")) { //$NON-NLS-1$
+		if (gender == Gender.M) { //$NON-NLS-1$
 			return total1 * sinclairFactor(bodyWeight1,
 				SinclairCoefficients.menCoefficient(),
 				SinclairCoefficients.menMaxWeight());
@@ -3776,6 +3754,14 @@ public class Athlete {
 		Category category2 = this.getCategory();
 		return this.getLastName()+", "+this.getFirstName()+" "+(category2 != null ? category2 : "");
 //				+(startNumber2 != null && startNumber2 >0 ? " ["+startNumber2+"]" : "");
+	}
+
+	public AgeDivision getAgeDivision() {
+		return ageDivision;
+	}
+
+	public void setAgeDivision(AgeDivision ageDivision) {
+		this.ageDivision = ageDivision;
 	}
 
 }

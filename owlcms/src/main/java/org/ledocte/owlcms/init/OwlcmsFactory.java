@@ -19,6 +19,10 @@ import org.ledocte.owlcms.data.platform.Platform;
 import org.ledocte.owlcms.data.platform.PlatformRepository;
 import org.ledocte.owlcms.state.FieldOfPlayState;
 import org.ledocte.owlcms.state.RelayTimer;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * Singleton, one per running JVM (i.e. one instance of owlcms, or one unit
@@ -32,9 +36,15 @@ import org.ledocte.owlcms.state.RelayTimer;
  * @author owlcms
  */
 public class OwlcmsFactory {
+	
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsFactory.class);
+	static {
+		logger.setLevel(Level.DEBUG);
+	}
 
 	/** The fop by name. */
 	static Map<String, FieldOfPlayState> fopByName = null;
+	
 
 	/**
 	 * Gets the FOP by name.
@@ -54,6 +64,7 @@ public class OwlcmsFactory {
 		for (Platform platform : PlatformRepository.findAll()) {
 			String name = platform.getName();
 			FieldOfPlayState fop = new FieldOfPlayState(null, platform);
+			logger.debug("fop {}",fop.getName());
 			// no group selected, no athletes, announcer will need to pick a group.
 			fop.init(new LinkedList<Athlete>(), new RelayTimer(fop));
 			fopByName.put(name, fop);

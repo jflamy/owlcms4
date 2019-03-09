@@ -10,6 +10,7 @@ package org.ledocte.owlcms.ui.lifting;
 
 import org.ledocte.owlcms.ui.home.ContentWrapping;
 import org.ledocte.owlcms.ui.home.MainNavigationContent;
+import org.ledocte.owlcms.ui.preparation.AthletesContent;
 import org.ledocte.owlcms.ui.preparation.CategoryContent;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
@@ -33,7 +34,7 @@ public class LiftingNavigationContent extends VerticalLayout
 		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
 			new Button("Weigh-In and Start Numbers",
 					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)),
+						.navigate(AthletesContent.class)),
 			new Button("Announcer",
 					buttonClickEvent -> UI.getCurrent()
 						.navigate(AnnouncerContent.class)),

@@ -640,7 +640,7 @@ public class XAthlete extends Athlete {
 	 * @see org.ledocte.owlcms.data.athlete.Athlete#getGender()
 	 */
 	@Override
-	public String getGender() {
+	public Gender getGender() {
 		return a.getGender();
 	}
 
@@ -1368,14 +1368,6 @@ public class XAthlete extends Athlete {
 		a.resetForcedAsCurrent();
 	}
 
-	/**
-	 * @param currentLifter
-	 * @see org.ledocte.owlcms.data.athlete.Athlete#setAsCurrentLifter(java.lang.Boolean)
-	 */
-	@Override
-	public void setAsCurrentLifter(Boolean currentLifter) {
-		a.setAsCurrentLifter(currentLifter);
-	}
 
 	/**
 	 * @param i
@@ -1699,8 +1691,8 @@ public class XAthlete extends Athlete {
 	 * @see org.ledocte.owlcms.data.athlete.Athlete#setGender(java.lang.String)
 	 */
 	@Override
-	public void setGender(String string) {
-		a.setGender(string);
+	public void setGender(Gender gender) {
+		a.setGender(gender);
 	}
 
 	/**

@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
+import org.ledocte.owlcms.data.athlete.Gender;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.group.Group;
 import org.slf4j.Logger;
@@ -68,7 +69,6 @@ public class AbstractLifterComparator {
         return compare;
     }
 
-    /** The pattern. */
     // grab the first part of a category code, prior to the weight
     static Pattern pattern = Pattern.compile("^([A-Za-z0-9-_ ]*?)[+>]{0,1}[0-9]+[^0-9]*$");
 
@@ -458,7 +458,7 @@ public class AbstractLifterComparator {
      * @return the int
      */
     int compareSinclair(Athlete lifter1, Athlete lifter2) {
-        String gender = lifter1.getGender();
+        Gender gender = lifter1.getGender();
         if (gender == null)
             return -1;
         int compare = gender.compareTo(lifter2.getGender());
@@ -484,7 +484,7 @@ public class AbstractLifterComparator {
      * @return the int
      */
     int compareRobi(Athlete lifter1, Athlete lifter2) {
-        String gender = lifter1.getGender();
+        Gender gender = lifter1.getGender();
         if (gender == null)
             return -1;
         int compare = gender.compareTo(lifter2.getGender());
@@ -510,7 +510,7 @@ public class AbstractLifterComparator {
      * @return the int
      */
     int compareCategorySinclair(Athlete lifter1, Athlete lifter2) {
-        String gender = lifter1.getGender();
+        Gender gender = lifter1.getGender();
         if (gender == null)
             return -1;
         int compare = gender.compareTo(lifter2.getGender());
@@ -536,7 +536,7 @@ public class AbstractLifterComparator {
      * @return the int
      */
     int compareSmm(Athlete lifter1, Athlete lifter2) {
-        String gender = lifter1.getGender();
+        Gender gender = lifter1.getGender();
         if (gender == null)
             return -1;
         int compare = gender.compareTo(lifter2.getGender());
@@ -795,8 +795,8 @@ public class AbstractLifterComparator {
      * @return the int
      */
     protected int compareGender(Athlete lifter1, Athlete lifter2) {
-        String gender1 = lifter1.getGender();
-        String gender2 = lifter2.getGender();
+        Gender gender1 = lifter1.getGender();
+        Gender gender2 = lifter2.getGender();
         if (gender1 == null && gender2 == null)
             return 0;
         if (gender1 == null)

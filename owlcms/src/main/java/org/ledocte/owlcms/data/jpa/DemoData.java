@@ -181,7 +181,7 @@ public class DemoData {
 	}
 
 	/**
-	 * Setup test data.
+	 * Setup demo data.
 	 * 
 	 * @param em
 	 *

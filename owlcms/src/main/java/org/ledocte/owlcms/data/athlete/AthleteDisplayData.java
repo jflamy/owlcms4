@@ -14,7 +14,7 @@ public class AthleteDisplayData {
 
 	public String teamName;
 
-	public String gender;
+	public Gender gender;
 
 	public String category;
 
@@ -87,7 +87,7 @@ public class AthleteDisplayData {
 	/**
 	 * @return the gender
 	 */
-	public String getGender() {
+	public Gender getGender() {
 		return gender;
 	}
 
@@ -178,7 +178,7 @@ public class AthleteDisplayData {
 	/**
 	 * @param gender the gender to set
 	 */
-	public void setGender(String gender) {
+	public void setGender(Gender gender) {
 		this.gender = gender;
 	}
 	/**

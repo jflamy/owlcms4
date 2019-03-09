@@ -76,7 +76,6 @@ public class MainNavigationContent extends VerticalLayout implements ContentWrap
 		layout.setWidth("80%");
 		layout.setBoxSizing(BoxSizing.BORDER_BOX);
 		return layout;
-
 	}
 
 }

@@ -17,6 +17,7 @@ import java.util.Random;
 import javax.persistence.Entity;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
+import org.ledocte.owlcms.data.athlete.Gender;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.slf4j.LoggerFactory;
@@ -252,28 +253,6 @@ public class AthleteSorter implements Serializable {
     }
 
     /**
-     * Sets the current Athlete as such (setCurrentLifter(true)), the others to false.
-     *
-     * @param lifters the lifters
-     * @return the athlete
-     */
-    static public Athlete markCurrentLifter(List<Athlete> lifters) {
-        if (!lifters.isEmpty()) {
-            final Athlete firstLifter = lifters.get(0);
-            firstLifter.setAsCurrentLifter(firstLifter.getAttemptsDone() < 6);
-            for (Athlete Athlete : lifters) {
-                if (Athlete != firstLifter) {
-                    Athlete.setAsCurrentLifter(false);
-                }
-                Athlete.resetForcedAsCurrent();
-            }
-            return firstLifter;
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Compute the number of lifts already done. During snatch, exclude
      *
      * @param lifters the lifters
@@ -505,11 +484,11 @@ public class AthleteSorter implements Serializable {
      * @param rankingType the ranking type
      */
     public static void assignSinclairRanksAndPoints(List<Athlete> sortedList, Ranking rankingType) {
-        String prevGender = null;
+        Gender prevGender = null;
         // String prevAgeGroup = null;
         int rank = 1;
         for (Athlete curLifter : sortedList) {
-            final String curGender = curLifter.getGender();
+            final Gender curGender = curLifter.getGender();
             // final Integer curAgeGroup = curLifter.getAgeGroup();
             if (!equals(curGender, prevGender)
             // || !equals(curAgeGroup,prevAgeGroup)

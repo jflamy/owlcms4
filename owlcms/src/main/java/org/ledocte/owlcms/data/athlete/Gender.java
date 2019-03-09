@@ -12,22 +12,6 @@ package org.ledocte.owlcms.data.athlete;
  * The Enum Gender.
  */
 public enum Gender {
-    
-    /** The f. */
-    F, 
- /** The m. */
- M, 
- /** The unkown. */
- UNKOWN;
-
-    /* (non-Javadoc)
-     * @see java.lang.Enum#toString()
-     */
-    @Override
-    public String toString() {
-    	if (this == UNKOWN) {
-    		return ("?");
-    	}
-        return name().toUpperCase();
-    }
+	F,
+	M;
 }

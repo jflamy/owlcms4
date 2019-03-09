@@ -44,7 +44,7 @@ public class PreparationNavigationContent extends VerticalLayout
 						.navigate(CategoryContent.class)),
 			new Button("Edit Athlete Entries",
 					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)));
+						.navigate(AthletesContent.class)));
 		fillH(grid, this);
 	}
 

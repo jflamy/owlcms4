@@ -96,19 +96,6 @@ public class Category implements Serializable, Comparable<Category> {
         setCategoryName(minimumWeight, maximumWeight, enumGender, enumAgeDivision);
     }
 
-//    public Category(Double minimumWeight, Double maximumWeight, String genderCode, Boolean active, String ageDivisionCode, Integer wr) {
-//        this.setMinimumWeight(minimumWeight);
-//        this.setMaximumWeight(maximumWeight);
-//        this.setGender(genderCode);
-//        this.setActive(active);
-//        this.setAgeDivision(ageDivisionCode);
-//        this.setWr(wr);
-//        if (wr >= 0) {
-//            this.setRobiA(1000.0D/Math.pow(wr,ROBI_B));
-//        }
-//
-//        setCategoryName(minimumWeight, maximumWeight, this.getEnumGender(), this.getEnumAgeDivision());
-//    }
 
 
     /*
@@ -216,9 +203,6 @@ public class Category implements Serializable, Comparable<Category> {
      * @return the gender
      */
     public Gender getGender() {
-        if (gender == null) {
-            this.gender = Gender.UNKOWN;
-        }
         return gender;
     }
 
