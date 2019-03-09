@@ -28,7 +28,7 @@ import com.vaadin.flow.data.converter.Converter;
 public interface Bindable<T> {
 
 	public Converter<String, T> getConverter();
-	
-	public Validator<T> getValidator();
+
+	Validator<?> getValidator();
 
 }

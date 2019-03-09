@@ -50,7 +50,12 @@ public class BodyWeightField extends TextField implements Bindable<Double> {
 			 */
 			@Override
 			public String convertToPresentation(Double value, ValueContext context) {
-				return String.format("%.2f", value, locale);
+				NumberFormat formatter = NumberFormat.getNumberInstance(locale);
+				formatter.setMaximumFractionDigits(2);
+				formatter.setMinimumFractionDigits(2);
+				formatter.setGroupingUsed(false);
+				
+				return formatter.format(value);
 			}
 
 			/**
@@ -74,7 +79,7 @@ public class BodyWeightField extends TextField implements Bindable<Double> {
 	}
 
 	@Override
-	public Validator<Double> getValidator() {
+	public Validator<?> getValidator() {
 		return new DoubleRangeValidator("Weight should be between 0 and 350kg",0.0D,350.0D);
 	}
 }

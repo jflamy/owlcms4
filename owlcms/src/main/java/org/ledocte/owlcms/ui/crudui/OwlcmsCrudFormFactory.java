@@ -10,7 +10,6 @@ package org.ledocte.owlcms.ui.crudui;
 
 import java.util.List;
 
-import org.ledocte.owlcms.crudui.Bindable;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.form.CrudFormFactory;
@@ -19,7 +18,6 @@ import org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -29,7 +27,6 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.binder.Binder;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -49,8 +46,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	/**
 	 * Instantiates a new Form Factory
 	 * 
-	 * We add a delete button capability to the CrudUI forms. We also add specific validations to
-	 * certain fields by overriding the bindField method.
+	 * We add a delete button capability to the CrudUI forms.
 	 *
 	 * @param domainType the domain type
 	 */
@@ -118,6 +114,8 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 
 	/**
 	 * Footer with a Delete button.
+	 * 
+	 * Also adds a shortcut so enter submits.
 	 *
 	 * @param operation                 the operation
 	 * @param domainObject              the domain object
@@ -158,22 +156,4 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 		footerLayout.setFlexGrow(1.0, spacer);
 		return footerLayout;
 	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
-	protected void bindField(HasValue field, String property, Class<?> propertyType) {
-		Binder.BindingBuilder bindingBuilder = binder.forField(field);
-
-		if (field instanceof Bindable) {
-			logger.debug("{} {} {}",property, propertyType.getSimpleName(),field.getClass().getSimpleName());
-			bindingBuilder.withConverter(((Bindable) field).getConverter());
-			bindingBuilder.withValidator(((Bindable) field).getValidator());
-			bindingBuilder.withNullRepresentation("");
-			bindingBuilder.bind(property);
-		} else {
-			super.bindField(field, property, propertyType);
-		}
-
-	}
-
 }
