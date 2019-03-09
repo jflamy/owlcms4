@@ -253,28 +253,6 @@ public class AthleteSorter implements Serializable {
     }
 
     /**
-     * Sets the current Athlete as such (setCurrentLifter(true)), the others to false.
-     *
-     * @param lifters the lifters
-     * @return the athlete
-     */
-    static public Athlete markCurrentLifter(List<Athlete> lifters) {
-        if (!lifters.isEmpty()) {
-            final Athlete firstLifter = lifters.get(0);
-            firstLifter.setAsCurrentLifter(firstLifter.getAttemptsDone() < 6);
-            for (Athlete Athlete : lifters) {
-                if (Athlete != firstLifter) {
-                    Athlete.setAsCurrentLifter(false);
-                }
-                Athlete.resetForcedAsCurrent();
-            }
-            return firstLifter;
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Compute the number of lifts already done. During snatch, exclude
      *
      * @param lifters the lifters

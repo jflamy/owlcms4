@@ -1589,7 +1589,6 @@ public class Athlete {
 		if (c.getRobiA() == null || c.getWr() <= 0.000001)
 			return 0.0;
 		double robi = c.getRobiA() * Math.pow(getTotal(), c.getRobiB());
-		// System.err.println(robi);
 		return robi;
 	}
 
@@ -2247,20 +2246,6 @@ public class Athlete {
 		this.forcedAsCurrent = false;
 	}
 
-	/**
-	 * Sets the as current lifter.
-	 *
-	 * @param currentLifter the new as current lifter
-	 */
-	public void setAsCurrentLifter(Boolean currentLifter) {
-		// if (currentLifter)
-		// System.err.println("Athlete.setAsCurrentLifter(): current Athlete is now
-		// "+getLastName()+" "+getFirstName());
-		this.currentLifter = currentLifter;
-		if (currentLifter) {
-			logger.info("{} is current Athlete", this);
-		}
-	}
 
 	/**
 	 * Sets the attempts done.

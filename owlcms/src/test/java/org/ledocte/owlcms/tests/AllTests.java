@@ -46,9 +46,9 @@ public class AllTests {
             String expected = getContents(is);
             assertEquals(referenceFilePath, expected, actual);
         } else {
-            System.err.println("------ if ok, copy following to " + referenceFilePath); //$NON-NLS-1$
-            System.err.println(actual);
-            System.err.println("------"); //$NON-NLS-1$
+            System.out.println("------ if ok, copy following to " + referenceFilePath); //$NON-NLS-1$
+            System.out.println(actual);
+            System.out.println("------"); //$NON-NLS-1$
             fail(referenceFilePath + " not found"); //$NON-NLS-1$
         }
     }

@@ -72,7 +72,7 @@ public class AthletesContent extends VerticalLayout
 	private Checkbox weighedInFilter = new Checkbox();
 
 	/**
-	 * Instantiates a new athlete editing table.
+	 * Instantiates the athlete grid
 	 */
 	public AthletesContent() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
@@ -82,6 +82,11 @@ public class AthletesContent extends VerticalLayout
 		fillHW(crud, this);
 	}
 
+	/**
+	 * Define how to populate the athlete grid
+	 * 
+	 * @param crud
+	 */
 	protected void defineQueries(GridCrud<Athlete> crud) {
 		crud.setFindAllOperation(
 			DataProvider.fromCallbacks(
@@ -93,6 +98,12 @@ public class AthletesContent extends VerticalLayout
 					categoryFilter.getValue(), ageDivisionFilter.getValue(), null)));
 	}
 
+	/**
+	 * The columns of the grid
+	 * 
+	 * @param crudFormFactory what to call to create the form for editing an athlete
+	 * @return
+	 */
 	protected GridCrud<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
 		grid.addColumn("lastName").setHeader("Last Name");
@@ -113,87 +124,24 @@ public class AthletesContent extends VerticalLayout
 	}
 
 	/**
-	 * Define the form used to edit a given athlete
+	 * Define the form used to edit a given athlete.
+	 * 
+	 * Also defines the validations on each field, and cross-field validations.
 	 * 
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		OwlcmsCrudFormFactory<Athlete> crudFormFactory = new OwlcmsCrudFormFactory<Athlete>(Athlete.class) {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			@Override
-			protected void bindField(HasValue field, String property, Class<?> propertyType) {
-				Binder.BindingBuilder bindingBuilder = binder.forField(field);
+		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = createAthleteEditingFormFactory();
+		createFormLayout(athleteEditingFormFactory);
+		return athleteEditingFormFactory;
+	}
 
-				if (field instanceof Bindable) {
-					bindingBuilder.withConverter(((Bindable) field).getConverter());
-
-					if ("fullBirthDate".equals(property)) {
-						fullBirthDateValidation(bindingBuilder);
-						bindingBuilder.bind(property);
-					} else if ("bodyWeight".equals(property)) {
-						bodyWeightValidation(bindingBuilder);
-						bindingBuilder.bind(property);
-					} else {
-						throw new RuntimeException("property " + property + " is Bindable but not covered.");
-					}
-				} else if ("category".equals(property)) {
-					categoryValidation(bindingBuilder);
-					bindingBuilder.bind(property);
-				} else {
-					super.bindField(field, property, propertyType);
-				}
-			}
-
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			protected void fullBirthDateValidation(Binder.BindingBuilder bindingBuilder) {
-				Validator<LocalDate> v = Validator.from(
-					ld -> (ld.compareTo(LocalDate.now()) <= 0),
-					"cannot be in the future");
-				bindingBuilder.withValidator(v);
-			}
-
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			protected void bodyWeightValidation(Binder.BindingBuilder bindingBuilder) {
-				Validator<Double> v1 = new DoubleRangeValidator(
-						"Weight should be between 0 and 350kg", 0.0D, 350.0D);
-				// check wrt body category
-				Validator<Double> v2 = Validator
-					.from((weight) -> {
-						Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
-						// we signal the error on the category drop down
-						categoryBinding.validate(true).isError();
-						return true;
-					}, "Body Weight is outside of selected category");
-				bindingBuilder.withValidator(v2);
-			}
-
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			protected void categoryValidation(Binder.BindingBuilder bindingBuilder) {
-				// check wrt body weight
-				Validator<Category> v = Validator
-					.from((category) -> {
-						try {
-							Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
-							String bwString = (String) bwBinding.getField().getValue();
-							if (bwString == null) {
-								// no body weight - no contradiction
-								return true;
-							}
-							Double bw = Double.parseDouble(bwString);
-							Double min = category.getMinimumWeight();
-							Double max = category.getMaximumWeight();
-							logger.debug(
-								"comparing {} ]{},{}] with body weight {}",category.getName(),  min,  max, bw);
-							return (bw > min && bw <= max);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-						return true;
-					},
-						"Category does not match body weight");
-				bindingBuilder.withValidator(v);
-			}
-		};
+	/**
+	 * The content and ordering of the athlete editing form
+	 * 
+	 * @param crudFormFactory the factory that will create the form using this information
+	 */
+	private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		crudFormFactory.setVisibleProperties("lastName",
 			"firstName",
 			"gender",
@@ -225,10 +173,146 @@ public class AthletesContent extends VerticalLayout
 		
 		crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
 		crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
-		
-		return crudFormFactory;
 	}
 
+	/**
+	 * Create the actual form generator with all the conversions and validations required
+	 * 
+	 * @return the actual factory, with the additional mechanisms to do validation
+	 */
+	private OwlcmsCrudFormFactory<Athlete> createAthleteEditingFormFactory() {
+		return new OwlcmsCrudFormFactory<Athlete>(Athlete.class) {
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			@Override
+			protected void bindField(HasValue field, String property, Class<?> propertyType) {
+				Binder.BindingBuilder bindingBuilder = binder.forField(field);
+
+				if (field instanceof Bindable) {
+					bindingBuilder.withConverter(((Bindable) field).getConverter());
+
+					if ("fullBirthDate".equals(property)) {
+						fullBirthDateValidation(bindingBuilder);
+						bindingBuilder.bind(property);
+					} else if ("bodyWeight".equals(property)) {
+						bodyWeightValidation(bindingBuilder);
+						bindingBuilder.bind(property);
+					} else {
+						throw new RuntimeException("property " + property + " is Bindable but not covered.");
+					}
+				} else if ("category".equals(property)) {
+					categoryValidation(bindingBuilder);
+					bindingBuilder.bind(property);
+				} else {
+					super.bindField(field, property, propertyType);
+				}
+			}
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			protected void fullBirthDateValidation(Binder.BindingBuilder bindingBuilder) {
+				Validator<LocalDate> v = Validator.from(
+					ld -> (ld.compareTo(LocalDate.now()) <= 0),
+					"Birth date cannot be in the future");
+				bindingBuilder.withValidator(v);
+			}
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			protected void bodyWeightValidation(Binder.BindingBuilder bindingBuilder) {
+				Validator<Double> v1 = new DoubleRangeValidator(
+						"Weight should be between 0 and 350kg", 0.0D, 350.0D);
+				// check wrt body category
+				Validator<Double> v2 = Validator
+					.from((weight) -> {
+						// tell the category drop down to signal inconsistent selection
+						Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
+						categoryBinding.validate(true).isError();
+						return true;
+					}, "Body Weight is outside of selected category");
+				bindingBuilder.withValidator(v1);
+				bindingBuilder.withValidator(v2);
+			}
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			protected void categoryValidation(Binder.BindingBuilder bindingBuilder) {
+				// check that category is consistent with body weight
+				Validator<Category> v = Validator
+					.from((category) -> {
+						try {
+							Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
+							String bwString = (String) bwBinding.getField().getValue();
+							if (bwString == null) {
+								// no body weight - no contradiction
+								return true;
+							}
+							Double bw = Double.parseDouble(bwString);
+							Double min = category.getMinimumWeight();
+							Double max = category.getMaximumWeight();
+							logger.debug(
+								"comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
+							return (bw > min && bw <= max);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						return true;
+					},
+						"Category does not match body weight");
+				bindingBuilder.withValidator(v);
+			}
+		};
+	}
+
+
+	/**
+	 * The plus button on the toolbar triggers an add
+	 * 
+	 * This method is called when the pop-up is closed.
+	 * 
+	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
+	 */
+	@Override
+	public Athlete add(Athlete Athlete) {
+		AthleteRepository.save(Athlete);
+		return Athlete;
+	}
+
+	/**
+	 * The pencil button on the toolbar triggers an edit.
+	 * 
+	 * This method is called when the pop-up is closed with Update
+	 * 
+	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+	 */
+	@Override
+	public Athlete update(Athlete Athlete) {
+		return AthleteRepository.save(Athlete);
+	}
+
+	/**
+	 * The delete button on the toolbar 
+	 * 
+	 * (or the one in the form)
+	 * 
+	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
+	 */
+	@Override
+	public void delete(Athlete Athlete) {
+		AthleteRepository.delete(Athlete);
+	}
+
+	/**
+	 * The refresh button on the toolbar
+	 * 
+	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
+	 */
+	@Override
+	public Collection<Athlete> findAll() {
+		return AthleteRepository.findAll();
+	}
+	
+	/**
+	 * The filters at the top of the grid
+	 * 
+	 * @param crud the grid that will be filtered.
+	 */
 	protected void defineFilters(GridCrud<Athlete> crud) {
 		lastNameFilter.setPlaceholder("Last name");
 		lastNameFilter.setClearButtonVisible(true);
@@ -283,51 +367,6 @@ public class AthletesContent extends VerticalLayout
 		});
 		crud.getCrudLayout()
 			.addFilterComponent(clearFilters);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
-	 */
-	@Override
-	public Athlete add(Athlete Athlete) {
-		AthleteRepository.save(Athlete);
-		return Athlete;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-	 */
-	@Override
-	public Athlete update(Athlete Athlete) {
-		if (Athlete.getId()
-			.equals(5l)) {
-			throw new RuntimeException("A simulated error has occurred");
-		}
-		return AthleteRepository.save(Athlete);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
-	 */
-	@Override
-	public void delete(Athlete Athlete) {
-		AthleteRepository.delete(Athlete);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
-	 */
-	@Override
-	public Collection<Athlete> findAll() {
-		return AthleteRepository.findAll();
 	}
 
 }

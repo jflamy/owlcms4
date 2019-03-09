@@ -1368,14 +1368,6 @@ public class XAthlete extends Athlete {
 		a.resetForcedAsCurrent();
 	}
 
-	/**
-	 * @param currentLifter
-	 * @see org.ledocte.owlcms.data.athlete.Athlete#setAsCurrentLifter(java.lang.Boolean)
-	 */
-	@Override
-	public void setAsCurrentLifter(Boolean currentLifter) {
-		a.setAsCurrentLifter(currentLifter);
-	}
 
 	/**
 	 * @param i
