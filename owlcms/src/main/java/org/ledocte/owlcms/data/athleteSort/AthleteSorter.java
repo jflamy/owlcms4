@@ -17,6 +17,7 @@ import java.util.Random;
 import javax.persistence.Entity;
 
 import org.ledocte.owlcms.data.athlete.Athlete;
+import org.ledocte.owlcms.data.athlete.Gender;
 import org.ledocte.owlcms.data.category.Category;
 import org.ledocte.owlcms.data.competition.Competition;
 import org.slf4j.LoggerFactory;
@@ -505,11 +506,11 @@ public class AthleteSorter implements Serializable {
      * @param rankingType the ranking type
      */
     public static void assignSinclairRanksAndPoints(List<Athlete> sortedList, Ranking rankingType) {
-        String prevGender = null;
+        Gender prevGender = null;
         // String prevAgeGroup = null;
         int rank = 1;
         for (Athlete curLifter : sortedList) {
-            final String curGender = curLifter.getGender();
+            final Gender curGender = curLifter.getGender();
             // final Integer curAgeGroup = curLifter.getAgeGroup();
             if (!equals(curGender, prevGender)
             // || !equals(curAgeGroup,prevAgeGroup)

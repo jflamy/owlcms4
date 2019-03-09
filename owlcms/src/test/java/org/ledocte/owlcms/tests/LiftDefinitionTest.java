@@ -19,6 +19,7 @@ import java.util.Random;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.ledocte.owlcms.data.athlete.Athlete;
+import org.ledocte.owlcms.data.athlete.Gender;
 import org.ledocte.owlcms.data.athlete.LiftDefinition;
 import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
 import org.ledocte.owlcms.data.athleteSort.AthleteSorter.Ranking;
@@ -90,10 +91,10 @@ public class LiftDefinitionTest {
         final Athlete verneU = athletes.get(3);
 
         // all males
-        schneiderF.setGender("M");
-        simpsonR.setGender("M");
-        allisonA.setGender("M");
-        verneU.setGender("M");
+        schneiderF.setGender(Gender.M);
+        simpsonR.setGender(Gender.M);
+        allisonA.setGender(Gender.M);
+        verneU.setGender(Gender.M);
 
         // simulate initial declaration at weigh-in
         schneiderF.setSnatch1Declaration(Integer.toString(60));

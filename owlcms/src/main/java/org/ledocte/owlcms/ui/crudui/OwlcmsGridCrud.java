@@ -24,7 +24,7 @@ import com.vaadin.flow.component.notification.Notification;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Class OwlcmsGridCrud.
+ * Class OwlcmsGridCrud.
  *
  * @param <T> the generic type
  */
@@ -54,43 +54,16 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 		initLayoutGrid();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.vaadin.crudui.crud.impl.GridCrud#showForm(org.vaadin.crudui.crud.
-	 * CrudOperation, java.lang.Object, boolean, java.lang.String,
-	 * com.vaadin.flow.component.ComponentEventListener)
-	 */
-	@Override
-	protected void showForm(CrudOperation operation, T domainObject, boolean readOnly, String successMessage,
-			ComponentEventListener<ClickEvent<Button>> buttonClickListener) {
-		showFormWithDeleteButton(operation, domainObject, readOnly, successMessage, buttonClickListener);
-	}
-
-	private void showFormWithDeleteButton(CrudOperation operation, T domainObject, boolean readOnly,
-			String successMessage, ComponentEventListener<ClickEvent<Button>> buttonClickListener) {
-		Component form = this.owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
-				cancelClickEvent -> {
-					grid.asSingleSelect().clear();
-					// make sure we can select again
-					owlcmsCrudLayout.disableNextShowForm(false);
-				}, operationPerformedClickEvent -> {
-					// update re-selects the item, which (because of click-to-select) displays the form again...
-					owlcmsCrudLayout.disableNextShowForm(true);
-					owlcmsCrudLayout.hideForm();
-					buttonClickListener.onComponentEvent(operationPerformedClickEvent);
-					grid.asSingleSelect().clear();
-					Notification.show(successMessage);
-				}, deletePerformedClickEvent -> {
-					owlcmsCrudLayout.hideForm();
-					// we want a confirmation dialog, the same as clicking on the trash can
-					owlcmsCrudLayout.disableNextShowForm(false);
-					this.deleteButtonClicked();
-				});
-       
-        String caption = crudFormFactory.buildCaption(operation, domainObject);
-        owlcmsCrudLayout.showForm(operation, form, caption);
-	}
+    /**
+     * Do nothing.
+     * Initialization must wait for grid to be constructed, constuctor calls
+     * {@link #initLayoutGrid()} instead.
+     * 
+     * @see org.vaadin.crudui.crud.impl.GridCrud#initLayout()
+     */
+    @Override
+	protected void initLayout() {
+    }
 	
 	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.impl.GridCrud#updateButtonClicked()
@@ -134,19 +107,46 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
                 throw e2;
             }
         });
-    }
-	
-    /**
-     * Do nothing.
-     * Initialization must wait for grid to be constructed, constuctor calls
-     * {@link #initLayoutGrid()} instead.
-     * 
-     * @see org.vaadin.crudui.crud.impl.GridCrud#initLayout()
-     */
-    @Override
-	protected void initLayout() {
-    }
+    }	
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.vaadin.crudui.crud.impl.GridCrud#showForm(org.vaadin.crudui.crud.
+	 * CrudOperation, java.lang.Object, boolean, java.lang.String,
+	 * com.vaadin.flow.component.ComponentEventListener)
+	 */
+	@Override
+	protected void showForm(CrudOperation operation, T domainObject, boolean readOnly, String successMessage,
+			ComponentEventListener<ClickEvent<Button>> buttonClickListener) {
+		showFormWithDeleteButton(operation, domainObject, readOnly, successMessage, buttonClickListener);
+	}
+
+	private void showFormWithDeleteButton(CrudOperation operation, T domainObject, boolean readOnly,
+			String successMessage, ComponentEventListener<ClickEvent<Button>> buttonClickListener) {
+		Component form = this.owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
+				cancelClickEvent -> {
+					grid.asSingleSelect().clear();
+					// make sure we can select again
+					owlcmsCrudLayout.disableNextShowForm(false);
+				}, operationPerformedClickEvent -> {
+					// update re-selects the item, which (because of click-to-select) displays the form again...
+					owlcmsCrudLayout.disableNextShowForm(true);
+					owlcmsCrudLayout.hideForm();
+					buttonClickListener.onComponentEvent(operationPerformedClickEvent);
+					grid.asSingleSelect().clear();
+					Notification.show(successMessage);
+				}, deletePerformedClickEvent -> {
+					owlcmsCrudLayout.hideForm();
+					// we want a confirmation dialog, the same as clicking on the trash can
+					owlcmsCrudLayout.disableNextShowForm(false);
+					this.deleteButtonClicked();
+				});
+       
+        String caption = crudFormFactory.buildCaption(operation, domainObject);
+        owlcmsCrudLayout.showForm(operation, form, caption);
+	}
+	
 	/**
 	 * Replacement initialization
 	 * We do not create the grid automatically, but instead receive the grid pre-populated.

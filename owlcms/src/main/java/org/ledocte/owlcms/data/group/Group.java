@@ -436,5 +436,9 @@ public class Group {
         this.weighInTime = w;
     }
 
+    @Override
+	public String toString() {
+    	return getName();
+    }
 
 }

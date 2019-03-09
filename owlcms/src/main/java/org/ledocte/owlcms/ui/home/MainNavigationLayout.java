@@ -14,8 +14,6 @@ import static com.github.appreciated.app.layout.notification.entitiy.Priority.ME
 
 import java.util.function.Consumer;
 
-import org.ledocte.owlcms.init.OwlcmsFactory;
-import org.ledocte.owlcms.init.OwlcmsSession;
 import org.ledocte.owlcms.ui.displaySetup.DisplayNavigationContent;
 import org.ledocte.owlcms.ui.lifting.LiftingNavigationContent;
 import org.ledocte.owlcms.ui.preparation.PreparationNavigationContent;
@@ -78,8 +76,6 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
     }
 	
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
-		OwlcmsSession.setAttribute("fop", OwlcmsFactory.getDefaultFOP());
-		
 		if (variant == null) {
 			variant = Behaviour.LEFT;
 //			notificationHolder = new DefaultNotificationHolder(newStatus -> {

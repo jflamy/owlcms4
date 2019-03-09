@@ -15,12 +15,14 @@ public interface UIEventProcessor {
 	/**
 	 * Access the ui safely
 	 * 
-	 * Do nothing if the event originates from ourselves
+	 * Do nothing if the event originates from ourselves -- if we stop the clock on the timekeeper device, there is no need to
+	 * obey the command to stop the clock on all the devices that will be given as a result.  The event for updating the current
+	 * lifter will be separate.
 	 * 
-	 * @param attachedComponent
-	 * @param uiEventBus
-	 * @param e
-	 * @param originatingUI
+	 * @param attachedComponent the component we are updating (any of them if several)
+	 * @param uiEventBus the bus on which we are listening
+	 * @param e the event we received
+	 * @param originatingUI the UI on which the action that triggered the event chain occurred.
 	 * @param command
 	 */
 	public static void uiAccess(Component attachedComponent, EventBus uiEventBus, UIEvent e, UI originatingUI, Command command) {

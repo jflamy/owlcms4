@@ -108,7 +108,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	private List<Athlete> displayOrder;
 
 	/**
-	 * Instantiates a new attempt board.
+	 * Instantiates a new results board.
 	 */
 	public ResultsBoard() {
 		logger.setLevel(Level.DEBUG);
@@ -146,7 +146,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
 			logger.debug("Starting result board on FOP {}", fop.getName());
-			setId("result-board-template");
+			setId("results-board-"+fop.getName());
 		});
 		setGroupProperties();
 		setTranslationMap();

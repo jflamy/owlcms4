@@ -28,7 +28,7 @@ public class AthleteTest {
         athlete = new Athlete();
         athlete.setLastName("Strong"); //$NON-NLS-1$
         athlete.setFirstName("Paul"); //$NON-NLS-1$
-        athlete.setGender("M"); //$NON-NLS-1$
+        athlete.setGender(Gender.M); //$NON-NLS-1$
         athlete.setBodyWeight(68.5);
         athlete.setSnatch1Declaration("60"); //$NON-NLS-1$
         athlete.setCleanJerk1Declaration("80"); //$NON-NLS-1$
@@ -150,11 +150,11 @@ public class AthleteTest {
         assertEquals(40, (long) athlete.getAgeGroup());
         athlete.setYearOfBirth(thisYear - 86);
         assertEquals(80, (long) athlete.getAgeGroup());
-        athlete.setGender("F"); //$NON-NLS-1$
+        athlete.setGender(Gender.F); //$NON-NLS-1$
         assertEquals(70, (long) athlete.getAgeGroup());
         athlete.setYearOfBirth(null);
         assertEquals(70, (long) athlete.getAgeGroup());
-        athlete.setGender(""); //$NON-NLS-1$
+        athlete.setGender(null); //$NON-NLS-1$
         athlete.setYearOfBirth(1900);
         assertEquals(70, (long) athlete.getAgeGroup());
     }
