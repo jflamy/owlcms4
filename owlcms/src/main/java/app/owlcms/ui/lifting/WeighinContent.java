@@ -76,13 +76,14 @@ public class WeighinContent extends VerticalLayout
 
 	private Checkbox weighedInFilter = new Checkbox();
 	private AppLayoutRouterLayout parentLayout;
+	private GridCrud<Athlete> crud;
 
 	/**
 	 * Instantiates the athlete grid
 	 */
 	public WeighinContent() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
-		GridCrud<Athlete> crud = createGrid(crudFormFactory);		
+		crud = createGrid(crudFormFactory);		
 		defineFilters(crud);
 		defineQueries(crud);
 		fillHW(crud, this);
@@ -310,7 +311,7 @@ public class WeighinContent extends VerticalLayout
 	}
 
 	/**
-	 * The refresh button on the toolbar
+	 * The refresh button on the toolbar calls this.
 	 * 
 	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
 	 */
@@ -398,5 +399,9 @@ public class WeighinContent extends VerticalLayout
 	@Override
 	public void setParentLayout(AppLayoutRouterLayout parentLayout) {
 		this.parentLayout = parentLayout;
+	}
+
+	public void refresh() {
+		crud.refreshGrid();
 	}
 }

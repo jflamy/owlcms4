@@ -19,8 +19,13 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -143,6 +148,10 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 
 	private void clearStartNumbers() {
 		Group group = groupSelect.getValue();
+		if (group == null) {
+			errorNotification();
+			return;
+		}
 		JPAService.runInTransaction((em) -> {
 			List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em,group, false);
 			for (Athlete a: currentGroupAthletes) {
@@ -150,15 +159,36 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 			}
 			return currentGroupAthletes;
 		});
+		((WeighinContent)getLayoutContent()).refresh();
 	}
-
+	
 	private void generateStartNumbers() {
 		Group group = groupSelect.getValue();
+		if (group == null) {
+			errorNotification();
+			return;
+		}
 		JPAService.runInTransaction((em) -> {
 			List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em,group, true);
 			AthleteSorter.displayOrder(currentGroupAthletes);
 			AthleteSorter.assignStartNumbers(currentGroupAthletes);
 			return currentGroupAthletes;
 		});
+		((WeighinContent)getLayoutContent()).refresh();
+	}
+
+	protected void errorNotification() {
+		Label content = new Label(
+		        "Please select a group first.");
+		content.getElement().setAttribute("theme", "error");
+		Button buttonInside = new Button("Got it.");
+		buttonInside.getElement().setAttribute("theme","error primary");
+		VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
+		verticalLayout.setAlignItems(Alignment.CENTER);
+		Notification notification = new Notification(verticalLayout);
+		notification.setDuration(3000);
+		buttonInside.addClickListener(event -> notification.close());
+		notification.setPosition(Position.MIDDLE);
+		notification.open();
 	}
 }
