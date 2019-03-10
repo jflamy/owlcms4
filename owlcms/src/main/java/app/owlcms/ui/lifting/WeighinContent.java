@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.preparation;
+package app.owlcms.ui.lifting;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -17,6 +17,7 @@ import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
+import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -44,10 +45,13 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.ui.appLayout.AppLayoutContent;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudLayout;
 import app.owlcms.ui.crudui.OwlcmsGridCrud;
 import app.owlcms.ui.home.ContentWrapping;
+import app.owlcms.ui.preparation.BodyWeightField;
+import app.owlcms.ui.preparation.LocalDateField;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -58,25 +62,28 @@ import ch.qos.logback.classic.Logger;
  * 
  */
 @SuppressWarnings("serial")
-@Route(value = "preparation/athletes", layout = AthletesLayout.class)
-public class AthletesContent extends VerticalLayout
-		implements CrudListener<Athlete>, ContentWrapping {
+@Route(value = "lifting/weighin", layout = WeighinLayout.class)
+public class WeighinContent extends VerticalLayout 
+		implements CrudListener<Athlete>, ContentWrapping, AppLayoutContent {
 	
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(AthletesContent.class);
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(WeighinContent.class);
 	static {logger.setLevel(Level.DEBUG);}
 
 	private TextField lastNameFilter = new TextField();
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
 	private ComboBox<Group> groupFilter = new ComboBox<>();
+
 	private Checkbox weighedInFilter = new Checkbox();
+	private AppLayoutRouterLayout parentLayout;
+	private GridCrud<Athlete> crud;
 
 	/**
 	 * Instantiates the athlete grid
 	 */
-	public AthletesContent() {
+	public WeighinContent() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
-		GridCrud<Athlete> crud = createGrid(crudFormFactory);		
+		crud = createGrid(crudFormFactory);		
 		defineFilters(crud);
 		defineQueries(crud);
 		fillHW(crud, this);
@@ -106,6 +113,7 @@ public class AthletesContent extends VerticalLayout
 	 */
 	protected GridCrud<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
+		grid.addColumn("startNumber").setHeader("Start#");
 		grid.addColumn("lastName").setHeader("Last Name");
 		grid.addColumn("firstName").setHeader("First Name");
 		grid.addColumn("team").setHeader("Team");
@@ -303,7 +311,7 @@ public class AthletesContent extends VerticalLayout
 	}
 
 	/**
-	 * The refresh button on the toolbar
+	 * The refresh button on the toolbar calls this.
 	 * 
 	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
 	 */
@@ -351,6 +359,9 @@ public class AthletesContent extends VerticalLayout
 		groupFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
+		// hide because the top bar has it
+		groupFilter.getStyle().set("display", "none");
+		
 		crud.getCrudLayout()
 			.addFilterComponent(groupFilter);
 		
@@ -366,10 +377,31 @@ public class AthletesContent extends VerticalLayout
 			lastNameFilter.clear();
 			ageDivisionFilter.clear();
 			categoryFilter.clear();
-			groupFilter.clear();
+			//groupFilter.clear();
 			weighedInFilter.clear();
 		});
 		crud.getCrudLayout()
 			.addFilterComponent(clearFilters);
+	}
+	
+	/**
+	 * @return the groupFilter
+	 */
+	public ComboBox<Group> getGroupFilter() {
+		return groupFilter;
+	}
+
+	@Override
+	public AppLayoutRouterLayout getParentLayout() {
+		return parentLayout;
+	}
+
+	@Override
+	public void setParentLayout(AppLayoutRouterLayout parentLayout) {
+		this.parentLayout = parentLayout;
+	}
+
+	public void refresh() {
+		crud.refreshGrid();
 	}
 }

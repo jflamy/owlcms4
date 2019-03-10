@@ -40,7 +40,6 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
-import app.owlcms.i18n.Messages;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -355,6 +354,15 @@ public class Athlete {
 	boolean forcedAsCurrent = false;
 
 	private Double customScore;
+
+	private boolean invited;
+
+	/**
+	 * @param invited the invited to set
+	 */
+	public void setInvited(boolean invited) {
+		this.invited = invited;
+	}
 
 	/**
 	 * Instantiates a new athlete.
@@ -2190,11 +2198,7 @@ public class Athlete {
 	 * @return true, if is invited
 	 */
 	public boolean isInvited() {
-		final Locale locale = Competition.getCurrent()
-			.getLocale();
-		return membership.equalsIgnoreCase(Messages.getString("Athlete.InvitedAbbreviated", locale)) //$NON-NLS-1$
-		// || !getTeamMember()
-		;
+		return invited;
 	}
 
 	/**

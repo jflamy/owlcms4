@@ -4,7 +4,7 @@
  * This software is licensed under the the Apache 2.0 License amended with the
  * Commons Clause.
  * License text at https://github.com/jflamy/owlcms4/master/License
- * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ * See https://redislabs.com/wp-layoutContent/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package app.owlcms.ui.home;
 
@@ -30,6 +30,7 @@ import com.github.appreciated.app.layout.notification.component.AppBarNotificati
 import com.github.appreciated.app.layout.notification.entitiy.DefaultNotification;
 import com.github.appreciated.app.layout.notification.entitiy.Priority;
 import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
+import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -46,7 +47,7 @@ import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.wrapup.WrapupNavigationContent;
 
 /**
- * The Class MainNavigationLayout.
+ * MainNavigationLayout.
  */
 @Push
 @HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
@@ -70,11 +71,31 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 	private Behaviour variant;
 	private Thread currentThread;
 
+	private HasElement layoutContent;
+
     public MainNavigationLayout() {
         init(getLayoutConfiguration(variant));
         reloadNotifications();
     }
-	
+
+    
+	/* (non-Javadoc)
+	 * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
+	 */
+	@Override
+	public void showRouterLayoutContent(HasElement content) {
+		super.showRouterLayoutContent(content);
+		this.setLayoutContent(content);
+	}
+
+	/**
+	 * @return the layoutContent
+	 */
+	public HasElement getLayoutContent() {
+		return layoutContent;
+	}
+
+
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
 		if (variant == null) {
 			variant = Behaviour.LEFT;
@@ -199,6 +220,10 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 
 	private void openModeSelector(Behaviour variant) {
 		new BehaviourSelector(variant, this::setDrawerVariant).open();
+	}
+
+	private void setLayoutContent(HasElement layoutContent) {
+		this.layoutContent = layoutContent;
 	}
 
 	/**

@@ -41,20 +41,15 @@ public class AthleteSorter implements Serializable {
      */
     public enum Ranking {
         
-        /** The snatch. */
         SNATCH, 
- /** The cleanjerk. */
- CLEANJERK, 
- /** The total. */
- TOTAL, 
- /** The combined. */
- COMBINED, 
- /** The sinclair. */
- SINCLAIR, 
- /** The robi. */
- ROBI, 
- /** The custom. */
- CUSTOM
+        CLEANJERK, 
+        TOTAL, 
+        /** combined (men + women). */
+        COMBINED, 
+        SINCLAIR, 
+        ROBI,
+        //TODO: add custom score on lifter card
+        CUSTOM
     }
 
     /**

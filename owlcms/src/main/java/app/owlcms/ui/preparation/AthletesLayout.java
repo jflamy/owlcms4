@@ -13,14 +13,16 @@ import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.vaadin.flow.component.html.Label;
 
 import app.owlcms.ui.home.MainNavigationLayout;
+import app.owlcms.ui.home.SafeEventBusRegistration;
+import app.owlcms.ui.lifting.UIEventProcessor;
 
 /**
  * The Class CategoryLayout.
  */
 @SuppressWarnings("serial")
-public class AthletesLayout extends MainNavigationLayout {
+public class AthletesLayout extends MainNavigationLayout implements SafeEventBusRegistration, UIEventProcessor  {
 
-	/* (non-Javadoc)
+	/* (non-Javadoc)i
 	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override

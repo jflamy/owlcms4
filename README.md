@@ -1,7 +1,7 @@
 # owlcms4
 Olympic Weightlifting Competition Management System 
 
-Ongoing rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md) using [ Web Components](https://www.webcomponents.org/introduction) and [Vaadin Flow](https://vaadin.com/flow)
+Ongoing rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md) using [Web Components](https://www.webcomponents.org/introduction) and [Vaadin Flow](https://vaadin.com/flow)
 
 Two main incentives for this rewrite:
 - owlcms2 shows its age (owlcms was initially written in 2009). Some of the underlying components cannot be upgraded, and as a consequence some bugs
@@ -14,15 +14,17 @@ Current status: Aiming for Minimal Viable Product (MVP) that can run a club meet
 - Working announcer portion (updating athlete cards and recomputing lifting order).
 - Working attempt board and results board, with timing and decisions handled locally in the browser
 - Working Athlete Registration and Weigh-in screens.
+- A recent demo is normally available on the [Heroku](https://owlcms4.herokuapp.com) cloud service. Note that the cloud demo application is not pre-loaded, so the first load can take a minute. This is not indicative of subsequent loads and is not indicative of local performance (which loads in seconds).
 
 Next steps towards MVP
+- Complete start number generation on weigh-in screen, touch up validations
 - Countdown timer on announcer screen
-- Adding missing buzzers
+- Adding missing buzzers on the attempt board
 - Improving validations on weight request (athlete card)
-- Producing the results
+- Producing the result sheets
+- Minimal packaging for early users/testers
 
-
-General notes:
-- The overall navigation and layout works, using [vaadin-app-layout](https://github.com/appreciated/vaadin-app-layout)
-- Sample administrative screen (e.g. categories) built using [crudui](https://github.com/alejandro-du/crudui)
-- Event-based design to keep clean programming modularity between screens, the field-of-play state, and the back-end data
+Design notes:
+- The overall navigation and layout works using [vaadin-app-layout](https://github.com/appreciated/vaadin-app-layout)
+- Administrative screen (e.g. categories) are built using [crudui](https://github.com/alejandro-du/crudui)
+- Event-based design, strict separation between the presentation, the field-of-play business layer, and the back-end data
