@@ -24,6 +24,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.ui.appLayout.AppLayoutContent;
 import app.owlcms.ui.home.MainNavigationLayout;
+import app.owlcms.ui.home.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -31,7 +32,7 @@ import ch.qos.logback.classic.Logger;
  * Weigh-in page -- top bar.
  */
 @SuppressWarnings("serial")
-public class WeighinLayout extends MainNavigationLayout {
+public class WeighinLayout extends MainNavigationLayout implements SafeEventBusRegistration, UIEventProcessor {
 
 	private final static Logger logger = (Logger)LoggerFactory.getLogger(WeighinLayout.class);
 	static {logger.setLevel(Level.DEBUG);}
