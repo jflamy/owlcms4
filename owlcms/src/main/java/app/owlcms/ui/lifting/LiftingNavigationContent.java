@@ -17,7 +17,6 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.displays.results.ResultsBoard;
 import app.owlcms.ui.home.ContentWrapping;
 import app.owlcms.ui.home.MainNavigationContent;
-import app.owlcms.ui.preparation.AthletesContent;
 import app.owlcms.ui.preparation.CategoryContent;
 
 /**
@@ -34,7 +33,7 @@ public class LiftingNavigationContent extends VerticalLayout
 	public LiftingNavigationContent() {
 		Button weighIn = new Button("Weigh-In and Start Numbers",
 				buttonClickEvent -> UI.getCurrent()
-					.navigate(AthletesContent.class));
+					.navigate(WeighinContent.class));
 		Button announcer = new Button("Announcer",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(AnnouncerContent.class));
