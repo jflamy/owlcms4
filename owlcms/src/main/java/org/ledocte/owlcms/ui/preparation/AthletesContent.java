@@ -54,7 +54,7 @@ import ch.qos.logback.classic.Logger;
 /**
  * Class AthleteContent
  * 
- * Defines the toolbar and the table for editing data for the athletes.
+ * Defines the toolbar and the table for editing data on athletes.
  * 
  */
 @SuppressWarnings("serial")
@@ -126,8 +126,6 @@ public class AthletesContent extends VerticalLayout
 	/**
 	 * Define the form used to edit a given athlete.
 	 * 
-	 * Also defines the validations on each field, and cross-field validations.
-	 * 
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
@@ -137,7 +135,7 @@ public class AthletesContent extends VerticalLayout
 	}
 
 	/**
-	 * The content and ordering of the athlete editing form
+	 * The content and ordering of the editing form
 	 * 
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
@@ -145,20 +143,24 @@ public class AthletesContent extends VerticalLayout
 		crudFormFactory.setVisibleProperties("lastName",
 			"firstName",
 			"gender",
+			"team",
 			"fullBirthDate",
 			"ageDivision",
 			"category",
 			"group",
+			"invited",
 			"bodyWeight",
 			"snatch1Declaration",
 			"cleanJerk1Declaration");
 		crudFormFactory.setFieldCaptions("Last Name",
 			"First Name",
 			"Gender",
+			"Team",
 			"Birth Date",
 			"Age Division",
 			"Category",
 			"Group",
+			"Invited?",
 			"Body Weight",
 			"Snatch Declaration",
 			"Clean&Jerk Declaration");
@@ -167,7 +169,7 @@ public class AthletesContent extends VerticalLayout
 		crudFormFactory.setFieldProvider("group",
             new ComboBoxProvider<>("Group", GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
 		crudFormFactory.setFieldProvider("category",
-            new ComboBoxProvider<>("Category", CategoryRepository.findAll(), new TextRenderer<>(Category::getName), Category::getName));
+            new ComboBoxProvider<>("Category", CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
 		crudFormFactory.setFieldProvider("ageDivision",
             new ComboBoxProvider<>("AgeDivision", Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name), AgeDivision::name));
 		
@@ -178,7 +180,7 @@ public class AthletesContent extends VerticalLayout
 	/**
 	 * Create the actual form generator with all the conversions and validations required
 	 * 
-	 * @return the actual factory, with the additional mechanisms to do validation
+	 * @return the actual factory with field binding and validations
 	 */
 	private OwlcmsCrudFormFactory<Athlete> createAthleteEditingFormFactory() {
 		return new OwlcmsCrudFormFactory<Athlete>(Athlete.class) {
@@ -287,7 +289,7 @@ public class AthletesContent extends VerticalLayout
 	}
 
 	/**
-	 * The delete button on the toolbar 
+	 * The delete button on the toolbar triggers this method
 	 * 
 	 * (or the one in the form)
 	 * 
@@ -333,7 +335,7 @@ public class AthletesContent extends VerticalLayout
 			.addFilterComponent(ageDivisionFilter);
 
 		categoryFilter.setPlaceholder("Category");
-		categoryFilter.setItems(CategoryRepository.findAll());
+		categoryFilter.setItems(CategoryRepository.findActive());
 		categoryFilter.setItemLabelGenerator(Category::getName);
 		categoryFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
@@ -368,5 +370,4 @@ public class AthletesContent extends VerticalLayout
 		crud.getCrudLayout()
 			.addFilterComponent(clearFilters);
 	}
-
 }

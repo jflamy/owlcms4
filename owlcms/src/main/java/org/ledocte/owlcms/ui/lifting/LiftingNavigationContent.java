@@ -8,6 +8,7 @@
  */
 package org.ledocte.owlcms.ui.lifting;
 
+import org.ledocte.owlcms.displays.results.ResultsBoard;
 import org.ledocte.owlcms.ui.home.ContentWrapping;
 import org.ledocte.owlcms.ui.home.MainNavigationContent;
 import org.ledocte.owlcms.ui.preparation.AthletesContent;
@@ -31,25 +32,37 @@ public class LiftingNavigationContent extends VerticalLayout
 	 * Instantiates a new lifting navigation content.
 	 */
 	public LiftingNavigationContent() {
+		Button weighIn = new Button("Weigh-In and Start Numbers",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(AthletesContent.class));
+		Button announcer = new Button("Announcer",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(AnnouncerContent.class));
+		Button marshall = new Button("Marshall",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(CategoryContent.class));
+		Button timekeeper = new Button("Timekeeper",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(CategoryContent.class));
+		Button results = new Button("Current Results",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(ResultsBoard.class));
+		Button print = new Button("Print Results",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(CategoryContent.class));
+		
 		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
-			new Button("Weigh-In and Start Numbers",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(AthletesContent.class)),
-			new Button("Announcer",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(AnnouncerContent.class)),
-			new Button("Marshall",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)),
-			new Button("Timekeeper",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)),
-			new Button("Current Results",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)),
-			new Button("Print Results",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)));
+			weighIn,
+			announcer,
+			marshall,
+			timekeeper,
+			results,
+			print);
+		
+		marshall.setEnabled(false);
+		timekeeper.setEnabled(false);
+		print.setEnabled(false);
+		
 		fillH(grid, this);
 	}
 

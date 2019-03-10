@@ -113,8 +113,7 @@ public class AthleteRepository {
 			Boolean weighedIn,
 			int offset, int limit) {
 		String qlString = "select a from Athlete a" + filteringSelection(lastName, group, category, ageDivision, weighedIn);
-		logger.trace("query = {}",qlString);
-		
+		logger.trace("find query = {}",qlString);		
 		Query query = em.createQuery(qlString);
 		setFilteringParameters(lastName, group, category, ageDivision, query);
 		if (offset >= 0)
@@ -145,7 +144,7 @@ public class AthleteRepository {
 			EntityManager em) {
 		String selection = filteringSelection(lastName, group, category, ageDivision, weighedIn);
 		String qlString = "select count(a.id) from Athlete a " + selection;
-		logger.trace("count = {}",qlString);
+		logger.trace("count query = {}",qlString);
 		Query query = em.createQuery(qlString);
 		setFilteringParameters(lastName, group, category, ageDivision, query);
 		int i = ((Long) query.getSingleResult()).intValue();

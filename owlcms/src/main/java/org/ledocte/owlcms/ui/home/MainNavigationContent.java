@@ -38,20 +38,26 @@ public class MainNavigationContent extends VerticalLayout implements ContentWrap
 	 * Instantiates a new main navigation content.
 	 */
 	public MainNavigationContent() {
+		Button prepare = new Button("Prepare Competition",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(PreparationNavigationContent.class));
+		Button lifting = new Button("Run Lifting Group",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(LiftingNavigationContent.class));
+		Button displays = new Button("Start Displays",
+			buttonClickEvent -> UI.getCurrent()
+				.navigate(DisplayNavigationContent.class));
+		Button documents = new Button("Competition Documents",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(WrapupNavigationContent.class));
 		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
-			new Button("Prepare Competition",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(PreparationNavigationContent.class)),
-			new Button("Setup Displays",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(DisplayNavigationContent.class)),
-			new Button("Run Lifting Group",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(LiftingNavigationContent.class)),
-			new Button("Competition Documents",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(WrapupNavigationContent.class)));
+			prepare,
+			displays,
+			lifting,
+			documents);
 
+		documents.setEnabled(false);
+		
 		fillH(grid, this);
 	}
 

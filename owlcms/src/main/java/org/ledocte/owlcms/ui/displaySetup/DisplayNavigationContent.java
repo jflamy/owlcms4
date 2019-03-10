@@ -32,22 +32,33 @@ public class DisplayNavigationContent extends VerticalLayout
 	 * Instantiates a new display navigation content.
 	 */
 	public DisplayNavigationContent() {
-		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
-			new Button("Attempt Board",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(AttemptBoard.class)),
-			new Button("Results Board",
+		Button attempt = new Button("Attempt Board",
 				buttonClickEvent -> UI.getCurrent()
-					.navigate(ResultsBoard.class)),
-			new Button("Referee Decision Display",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)),
-			new Button("Jury Display",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)),
-			new Button("Plates Display",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)));
+					.navigate(AttemptBoard.class));
+		Button results = new Button("Results Board",
+			buttonClickEvent -> UI.getCurrent()
+				.navigate(ResultsBoard.class));
+		Button referee = new Button("Referee Decision Display",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(CategoryContent.class));
+		Button jury = new Button("Jury Display",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(CategoryContent.class));
+		Button plates = new Button("Plates Display",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(CategoryContent.class));
+		
+		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
+			attempt,
+			results,
+			referee,
+			jury,
+			plates);
+		
+		referee.setEnabled(false);
+		jury.setEnabled(false);
+		plates.setEnabled(false);
+		
 		fillH(grid, this);
 
 	}

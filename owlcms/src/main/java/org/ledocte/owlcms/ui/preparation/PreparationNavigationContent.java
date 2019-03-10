@@ -29,23 +29,35 @@ public class PreparationNavigationContent extends VerticalLayout
 	 * Instantiates a new preparation navigation content.
 	 */
 	public PreparationNavigationContent() {
+		Button competition = new Button("Competition Information",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(CategoryContent.class));
+		Button categories = new Button("Define Categories",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(CategoryContent.class));
+		Button groups = new Button("Define Groups",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(CategoryContent.class));
+		Button upload = new Button("Upload Registration File",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(CategoryContent.class));
+		Button athletes = new Button("Edit Athlete Entries",
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(AthletesContent.class));
 		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
-			new Button("Competition Information",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)),
-			new Button("Define Categories",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)),
-			new Button("Define Groups",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)),
-			new Button("Upload Registration File",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(CategoryContent.class)),
-			new Button("Edit Athlete Entries",
-					buttonClickEvent -> UI.getCurrent()
-						.navigate(AthletesContent.class)));
+			competition,
+			categories,
+			groups,
+			upload,
+			athletes);
+		
+		competition.setEnabled(false);
+		groups.setEnabled(false);
+		upload.setEnabled(false);
+		
 		fillH(grid, this);
+
+		
 	}
 
 }

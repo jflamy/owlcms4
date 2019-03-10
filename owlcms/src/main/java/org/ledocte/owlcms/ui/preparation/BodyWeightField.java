@@ -54,7 +54,7 @@ public class BodyWeightField extends TextField implements Bindable<Double> {
 				formatter.setMaximumFractionDigits(2);
 				formatter.setMinimumFractionDigits(2);
 				formatter.setGroupingUsed(false);
-				
+				if (value == null) return "0.00";
 				return formatter.format(value);
 			}
 
