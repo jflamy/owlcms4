@@ -16,7 +16,7 @@ import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
@@ -37,15 +37,16 @@ public class WeighinLayout extends MainNavigationLayout {
 	static {logger.setLevel(Level.DEBUG);}
 	
 	private HorizontalLayout topBar;
-	private H2 groupName;
+	private H3 title;
 	private ComboBox<Group> gridGroupFilter;
+	private AppLayout appLayout;
 	
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
-		AppLayout appLayout = super.getLayoutConfiguration(variant);
+		appLayout = super.getLayoutConfiguration(variant);
 		this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
 		createTopBar(topBar);
 		appLayout.getTitleWrapper()
@@ -76,26 +77,29 @@ public class WeighinLayout extends MainNavigationLayout {
 	 * Note: the top bar is created before the content.
 	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
 	 * 
-	 * @param announcerBar
+	 * @param topBar
 	 */
-	protected void createTopBar(HorizontalLayout announcerBar) {
+	protected void createTopBar(HorizontalLayout topBar) {
 		logger.warn("createTopBar");
 		logger.warn("layout = {}", this.toString());
 //		logger.warn("content = {}", this.getLayoutContent().toString());
 
 		
-		groupName = new H2();
+		title = new H3();
+		title.setText("Weigh-In");
+		title.add();
+		title.getStyle()
+			.set("margin", "0px 0px 0px 0px")
+			.set("font-weight", "normal");
+		
 		ComboBox<Group> groupSelect = new ComboBox<>();
 		groupSelect.setPlaceholder("Select Group");
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
+		groupSelect.setValue(null);
 		groupSelect.addValueChangeListener(e -> {
 			gridGroupFilter.setValue(e.getValue());
 		});
-//		groupName.setText("\u2013");
-		groupName.add(groupSelect);
-		groupName.getStyle()
-			.set("margin", "0px 0px 0px 0px");
 
 		HorizontalLayout buttons = new HorizontalLayout(
 				new Button("Generate Start Numbers", (e) -> {
@@ -108,15 +112,21 @@ public class WeighinLayout extends MainNavigationLayout {
 					generateProtocolSheet();
 				}));
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+		
+//		HorizontalLayout appBar = new HorizontalLayout();
+//		appBar.add(title, buttons);
+//		appBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
+//		appBar.setAlignItems(FlexComponent.Alignment.CENTER);
+//		((AbstractLeftAppLayoutBase)appLayout).setAppBar(appBar);
 
-		announcerBar
+		topBar
 			.getElement()
 			.getStyle()
 			.set("flex", "100 1");
-		announcerBar.removeAll();
-		announcerBar.add(groupName, buttons);
-		announcerBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
-		announcerBar.setAlignItems(FlexComponent.Alignment.CENTER);
+		topBar.removeAll();
+		topBar.add(title, groupSelect, buttons);
+		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 	}
 
 	private void generateProtocolSheet() {
