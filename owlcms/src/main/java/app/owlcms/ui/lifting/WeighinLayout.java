@@ -8,6 +8,8 @@
  */
 package app.owlcms.ui.lifting;
 
+import java.util.List;
+
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
@@ -20,8 +22,12 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.ui.appLayout.AppLayoutContent;
 import app.owlcms.ui.home.MainNavigationLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
@@ -41,6 +47,7 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 	private H3 title;
 	private ComboBox<Group> gridGroupFilter;
 	private AppLayout appLayout;
+	private ComboBox<Group> groupSelect;
 	
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
@@ -93,7 +100,7 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 			.set("margin", "0px 0px 0px 0px")
 			.set("font-weight", "normal");
 		
-		ComboBox<Group> groupSelect = new ComboBox<>();
+		groupSelect = new ComboBox<>();
 		groupSelect.setPlaceholder("Select Group");
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
@@ -135,12 +142,23 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 	}
 
 	private void clearStartNumbers() {
-		// TODO clearStartNumbers
-		
+		Group group = groupSelect.getValue();
+		JPAService.runInTransaction((em) -> {
+			List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em,group, false);
+			for (Athlete a: currentGroupAthletes) {
+				a.setStartNumber(0);
+			}
+			return currentGroupAthletes;
+		});
 	}
 
 	private void generateStartNumbers() {
-		// TODO generateStartNumbers
-		
+		Group group = groupSelect.getValue();
+		JPAService.runInTransaction((em) -> {
+			List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em,group, true);
+			AthleteSorter.displayOrder(currentGroupAthletes);
+			AthleteSorter.assignStartNumbers(currentGroupAthletes);
+			return currentGroupAthletes;
+		});
 	}
 }

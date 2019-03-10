@@ -112,6 +112,7 @@ public class WeighinContent extends VerticalLayout
 	 */
 	protected GridCrud<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
+		grid.addColumn("startNumber").setHeader("Start#");
 		grid.addColumn("lastName").setHeader("Last Name");
 		grid.addColumn("firstName").setHeader("First Name");
 		grid.addColumn("team").setHeader("Team");
