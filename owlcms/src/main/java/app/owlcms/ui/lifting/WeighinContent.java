@@ -17,6 +17,7 @@ import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
+import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -44,6 +45,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.ui.appLayout.AppLayoutContent;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudLayout;
 import app.owlcms.ui.crudui.OwlcmsGridCrud;
@@ -61,8 +63,8 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "lifting/weighin", layout = WeighinLayout.class)
-public class WeighinContent extends VerticalLayout
-		implements CrudListener<Athlete>, ContentWrapping {
+public class WeighinContent extends VerticalLayout 
+		implements CrudListener<Athlete>, ContentWrapping, AppLayoutContent {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(WeighinContent.class);
 	static {logger.setLevel(Level.DEBUG);}
@@ -71,7 +73,9 @@ public class WeighinContent extends VerticalLayout
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
 	private ComboBox<Group> groupFilter = new ComboBox<>();
+
 	private Checkbox weighedInFilter = new Checkbox();
+	private AppLayoutRouterLayout parentLayout;
 
 	/**
 	 * Instantiates the athlete grid
@@ -353,6 +357,9 @@ public class WeighinContent extends VerticalLayout
 		groupFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
+		// hide because the top bar has it
+		groupFilter.getStyle().set("display", "none");
+		
 		crud.getCrudLayout()
 			.addFilterComponent(groupFilter);
 		
@@ -368,10 +375,27 @@ public class WeighinContent extends VerticalLayout
 			lastNameFilter.clear();
 			ageDivisionFilter.clear();
 			categoryFilter.clear();
-			groupFilter.clear();
+			//groupFilter.clear();
 			weighedInFilter.clear();
 		});
 		crud.getCrudLayout()
 			.addFilterComponent(clearFilters);
+	}
+	
+	/**
+	 * @return the groupFilter
+	 */
+	public ComboBox<Group> getGroupFilter() {
+		return groupFilter;
+	}
+
+	@Override
+	public AppLayoutRouterLayout getParentLayout() {
+		return parentLayout;
+	}
+
+	@Override
+	public void setParentLayout(AppLayoutRouterLayout parentLayout) {
+		this.parentLayout = parentLayout;
 	}
 }
