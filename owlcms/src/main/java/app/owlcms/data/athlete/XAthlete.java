@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.LiftDefinition.Stage;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Logger;
@@ -27,6 +28,33 @@ public class XAthlete extends Athlete {
 	
 	private Athlete a;
 
+
+	/**
+	 * @param invited
+	 * @see app.owlcms.data.athlete.Athlete#setInvited(boolean)
+	 */
+	@Override
+	public void setInvited(boolean invited) {
+		a.setInvited(invited);
+	}
+
+	/**
+	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getAgeDivision()
+	 */
+	@Override
+	public AgeDivision getAgeDivision() {
+		return a.getAgeDivision();
+	}
+
+	/**
+	 * @param ageDivision
+	 * @see app.owlcms.data.athlete.Athlete#setAgeDivision(app.owlcms.data.category.AgeDivision)
+	 */
+	@Override
+	public void setAgeDivision(AgeDivision ageDivision) {
+		a.setAgeDivision(ageDivision);
+	}
 
 	public XAthlete(Athlete a) {
 		this.a = a;

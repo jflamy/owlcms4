@@ -148,10 +148,11 @@ public class AthletesContent extends VerticalLayout
 			"ageDivision",
 			"category",
 			"group",
-			"invited",
+			"qualifyingTotal",
 			"bodyWeight",
 			"snatch1Declaration",
-			"cleanJerk1Declaration");
+			"cleanJerk1Declaration",
+			"invited");
 		crudFormFactory.setFieldCaptions("Last Name",
 			"First Name",
 			"Gender",
@@ -160,10 +161,11 @@ public class AthletesContent extends VerticalLayout
 			"Age Division",
 			"Category",
 			"Group",
-			"Invited?",
+			"Entry Total",
 			"Body Weight",
 			"Snatch Declaration",
-			"Clean&Jerk Declaration");
+			"Clean&Jerk Declaration",
+			"Invited?");
 		crudFormFactory.setFieldProvider("gender",
             new ComboBoxProvider<>("Gender", Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
 		crudFormFactory.setFieldProvider("group",
