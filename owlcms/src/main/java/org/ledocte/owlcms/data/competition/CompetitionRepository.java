@@ -18,14 +18,13 @@ import org.ledocte.owlcms.data.category.AgeDivision;
 import org.ledocte.owlcms.data.jpa.JPAService;
 
 /**
- * The Class CompetitionRepository.
+ * CompetitionRepository.
  *
- * @author Alejandro Duarte
  */
 public class CompetitionRepository {
 	
 	/**
-	 * Gets the by id.
+	 * Gets Competition by id.
 	 *
 	 * @param id the id
 	 * @param em the em

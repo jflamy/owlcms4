@@ -16,18 +16,17 @@ import javax.persistence.Query;
 import org.ledocte.owlcms.data.jpa.JPAService;
 
 /**
- * The Class GroupRepository.
+ * GroupRepository.
  *
- * @author Alejandro Duarte
  */
 public class GroupRepository {
 
 	/**
-	 * Gets the by id.
+	 * Gets group by id
 	 *
 	 * @param id the id
-	 * @param em the em
-	 * @return the by id
+	 * @param em entity manager
+	 * @return the group, null if not found
 	 */
 	@SuppressWarnings("unchecked")
 	public static Group getById(Long id, EntityManager em) {

@@ -16,9 +16,8 @@ import javax.persistence.Query;
 import org.ledocte.owlcms.data.jpa.JPAService;
 
 /**
- * The Class PlatformRepository.
+ * PlatformRepository.
  *
- * @author Alejandro Duarte
  */
 public class PlatformRepository {
 

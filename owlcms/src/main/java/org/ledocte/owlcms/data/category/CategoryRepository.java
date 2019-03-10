@@ -24,7 +24,6 @@ import ch.qos.logback.classic.Logger;
 /**
  * The Class CategoryRepository.
  *
- * @author Alejandro Duarte
  */
 public class CategoryRepository {
 	
