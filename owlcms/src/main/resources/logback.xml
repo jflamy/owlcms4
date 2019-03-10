@@ -14,7 +14,7 @@
 		</encoder>
 	</appender>
 
-	<logger name="org.ledocte.owlcms" level="INFO" />
+	<logger name="app.owlcms" level="INFO" />
 
 	<!-- silence spurious warning messages -->
 	<logger name="org.eclipse.jetty.annotations.AnnotationParser" level="ERROR" />
