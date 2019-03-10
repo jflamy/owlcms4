@@ -147,7 +147,7 @@ public class CategoryContent extends VerticalLayout
 	 */
 	private OwlcmsCrudFormFactory<Category> createCategoryEditingFormFactory() {
 		return new OwlcmsCrudFormFactory<Category>(Category.class) {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
+			@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
 			@Override
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
 				Binder.BindingBuilder bindingBuilder = binder.forField(field);
