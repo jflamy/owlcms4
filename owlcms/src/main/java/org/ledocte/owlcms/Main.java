@@ -52,10 +52,14 @@ public class Main extends AbstractMain {
 		// reads system property (-D on command line)
 		boolean demoMode = Boolean.getBoolean("demoMode");
 		boolean inMemory = demoMode;
+		
 		JPAService.init(inMemory);
 		if (demoMode) {
+			// H2 in-memory mode
 			DemoData.insertInitialData(20, true);
 		} else {
+			// H2 embedded mode
+			// TODO: use Postgres on Heroku
 			ProdData.insertInitialData(0, false);
 		}
 
