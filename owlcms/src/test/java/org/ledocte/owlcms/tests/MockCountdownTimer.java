@@ -8,13 +8,13 @@
  */
 package org.ledocte.owlcms.tests;
 
-import org.ledocte.owlcms.state.ICountdownTimer;
-import org.ledocte.owlcms.state.UIEvent;
-import org.ledocte.owlcms.utils.LoggerUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 
+import app.owlcms.state.ICountdownTimer;
+import app.owlcms.state.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -57,7 +57,7 @@ public class MockCountdownTimer implements ICountdownTimer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ledocte.owlcms.tests.ICountDownTimer#start()
+	 * @see app.owlcms.tests.ICountDownTimer#start()
 	 */
 	@Override
 	public void start() {
@@ -68,7 +68,7 @@ public class MockCountdownTimer implements ICountdownTimer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ledocte.owlcms.tests.ICountDownTimer#stop()
+	 * @see app.owlcms.tests.ICountDownTimer#stop()
 	 */
 	@Override
 	public void stop() {
@@ -79,7 +79,7 @@ public class MockCountdownTimer implements ICountdownTimer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ledocte.owlcms.tests.ICountDownTimer#getTimeRemaining()
+	 * @see app.owlcms.tests.ICountDownTimer#getTimeRemaining()
 	 */
 	@Override
 	public int getTimeRemaining() {
@@ -89,7 +89,7 @@ public class MockCountdownTimer implements ICountdownTimer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ledocte.owlcms.tests.ICountDownTimer#setTimeRemaining(int)
+	 * @see app.owlcms.tests.ICountDownTimer#setTimeRemaining(int)
 	 */
 	@Override
 	public void setTimeRemaining(int timeRemaining) {

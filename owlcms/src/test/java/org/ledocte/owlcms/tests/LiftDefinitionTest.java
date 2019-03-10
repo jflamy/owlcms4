@@ -18,16 +18,17 @@ import java.util.Random;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.ledocte.owlcms.data.athlete.Athlete;
-import org.ledocte.owlcms.data.athlete.Gender;
-import org.ledocte.owlcms.data.athlete.LiftDefinition;
-import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
-import org.ledocte.owlcms.data.athleteSort.AthleteSorter.Ranking;
-import org.ledocte.owlcms.data.athleteSort.WinningOrderComparator;
-import org.ledocte.owlcms.data.category.Category;
-import org.ledocte.owlcms.data.category.CategoryRepository;
-import org.ledocte.owlcms.data.competition.Competition;
-import org.ledocte.owlcms.utils.DebugUtils;
+
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athlete.LiftDefinition;
+import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.WinningOrderComparator;
+import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
+import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.competition.Competition;
+import app.owlcms.utils.DebugUtils;
 
 public class LiftDefinitionTest {
 

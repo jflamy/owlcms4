@@ -14,16 +14,16 @@ import java.util.Random;
 
 import javax.persistence.EntityManager;
 
-import org.ledocte.owlcms.data.athlete.Athlete;
-import org.ledocte.owlcms.data.athlete.AthleteRepository;
-import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
-import org.ledocte.owlcms.data.category.Category;
-import org.ledocte.owlcms.data.category.CategoryRepository;
-import org.ledocte.owlcms.data.group.Group;
-import org.ledocte.owlcms.data.jpa.JPAService;
-import org.ledocte.owlcms.data.platform.Platform;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.group.Group;
+import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.platform.Platform;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 

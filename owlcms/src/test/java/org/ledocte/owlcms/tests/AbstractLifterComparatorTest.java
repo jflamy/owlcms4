@@ -11,7 +11,8 @@ package org.ledocte.owlcms.tests;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.ledocte.owlcms.data.athleteSort.AbstractLifterComparator;
+
+import app.owlcms.data.athleteSort.AbstractLifterComparator;
 
 public class AbstractLifterComparatorTest {
 

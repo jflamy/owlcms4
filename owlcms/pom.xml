@@ -198,7 +198,7 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.6.0</version>
 				<configuration>
-					<mainClass>org.ledocte.owlcms.Main</mainClass>
+					<mainClass>app.owlcms.Main</mainClass>
 					<arguments>
 						<argument>-DdemoMode=true</argument>
 					</arguments>
@@ -211,7 +211,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>org.ledocte.owlcms.Main</mainClass>
+							<mainClass>app.owlcms.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

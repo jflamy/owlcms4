@@ -14,10 +14,11 @@ import java.util.Calendar;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.ledocte.owlcms.data.athlete.Athlete;
-import org.ledocte.owlcms.data.athlete.Gender;
-import org.ledocte.owlcms.data.category.AgeDivision;
-import org.ledocte.owlcms.data.category.Category;
+
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.category.AgeDivision;
+import app.owlcms.data.category.Category;
 
 public class AthleteTest {
 

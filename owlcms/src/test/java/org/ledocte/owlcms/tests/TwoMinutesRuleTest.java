@@ -18,19 +18,19 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.ledocte.owlcms.data.athlete.Athlete;
-import org.ledocte.owlcms.data.athlete.AthleteRepository;
-import org.ledocte.owlcms.data.athleteSort.AthleteSorter;
-import org.ledocte.owlcms.data.group.Group;
-import org.ledocte.owlcms.data.group.GroupRepository;
-import org.ledocte.owlcms.data.jpa.JPAService;
-import org.ledocte.owlcms.state.FOPEvent;
-import org.ledocte.owlcms.state.FieldOfPlayState;
-import org.ledocte.owlcms.utils.DebugUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.jpa.JPAService;
+import app.owlcms.state.FOPEvent;
+import app.owlcms.state.FieldOfPlayState;
+import app.owlcms.utils.DebugUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
