@@ -6,10 +6,10 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package org.ledocte.owlcms.tests;
+package app.owlcms.tests;
 
+import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
-import static org.ledocte.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 
 import java.util.Collections;
 import java.util.List;
