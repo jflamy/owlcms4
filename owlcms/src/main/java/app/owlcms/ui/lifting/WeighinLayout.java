@@ -127,12 +127,6 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 				}),
 				startingWeights);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-		
-//		HorizontalLayout appBar = new HorizontalLayout();
-//		appBar.add(title, buttons);
-//		appBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
-//		appBar.setAlignItems(FlexComponent.Alignment.CENTER);
-//		((AbstractLeftAppLayoutBase)appLayout).setAppBar(appBar);
 
 		topBar
 			.getElement()
