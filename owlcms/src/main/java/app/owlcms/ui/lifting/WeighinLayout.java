@@ -114,6 +114,10 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 			gridGroupFilter.setValue(e.getValue());
 		});
 
+		Button startingWeights = new Button("Generate Protocol Sheet (starting weights)", (e) -> {
+			generateProtocolSheet();
+		});
+		startingWeights.setEnabled(false);
 		HorizontalLayout buttons = new HorizontalLayout(
 				new Button("Generate Start Numbers", (e) -> {
 					generateStartNumbers();
@@ -121,9 +125,7 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 				new Button("Clear Start Numbers", (e) -> {
 					clearStartNumbers();
 				}),
-				new Button("Generate Protocol Sheet (starting weights)", (e) -> {
-					generateProtocolSheet();
-				}));
+				startingWeights);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		
 //		HorizontalLayout appBar = new HorizontalLayout();
