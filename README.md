@@ -13,16 +13,17 @@ Why is it called owlcms4? First there was owlcms. The name was taken on SourceFo
 Current status: Aiming for Minimal Viable Product (MVP) that can run a club meet.
 - Working announcer portion (updating athlete cards and recomputing lifting order).
 - Working attempt board and results board, with timing and decisions handled locally in the browser
-- Working Athlete Registration and Weigh-in screens.
+- Working Athlete Registration and (almost complete) Weigh-in screens.
+- A recent demo is normally available with fake data on [Heroku](https://owlcms4.herokuapp.com) . Note that this is on the cloud and the the application is not pre-loaded. The first load can take a minute, and is not indicative of subsequent loads, and is not indicative of local performance (which loads in seconds)
 
 Next steps towards MVP
+- Complete start number generation on weigh-in screen, touch up validations
 - Countdown timer on announcer screen
-- Adding missing buzzers
+- Adding missing buzzers on the attempt board
 - Improving validations on weight request (athlete card)
-- Producing the results
+- Producing the result sheets
 
-
-General notes:
-- The overall navigation and layout works, using [vaadin-app-layout](https://github.com/appreciated/vaadin-app-layout)
-- Sample administrative screen (e.g. categories) built using [crudui](https://github.com/alejandro-du/crudui)
-- Event-based design to keep clean programming modularity between screens, the field-of-play state, and the back-end data
+Design notes:
+- The overall navigation and layout works using [vaadin-app-layout](https://github.com/appreciated/vaadin-app-layout)
+- Administrative screen (e.g. categories) are built using [crudui](https://github.com/alejandro-du/crudui)
+- Event-based design, strict separation between the presentation, the field-of-play business layer, and the back-end data
