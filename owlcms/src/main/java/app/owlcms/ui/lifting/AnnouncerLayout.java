@@ -27,11 +27,11 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.page.Push;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.UIEvent;
@@ -57,7 +57,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 	private H3 firstName;
 	private Html attempt;
 	private H3 weight;
-	private TextField timeField;
+	private TimerElement timeField;
 	private HorizontalLayout announcerBar;
 	private HorizontalLayout lifter;
 	private EventBus uiEventBus;
@@ -71,7 +71,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 	public void setTime(UIEvent.SetTime e) {
 		UIEventProcessor.uiAccess(announcerBar, uiEventBus, e, () -> {
 			Integer timeRemaining = e.getTimeRemaining();
-			timeField.setValue(msToString(timeRemaining));
+			timeField.setTimeRemaining(timeRemaining);//timeField.setValue(msToString(timeRemaining));
 		});
 	}
 
@@ -79,7 +79,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 	public void startTime(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(announcerBar, uiEventBus, e, () -> {
 			Integer timeRemaining = e.getTimeRemaining();
-			timeField.setValue(msToString(timeRemaining));
+			timeField.setTimeRemaining(timeRemaining);//timeField.setValue(msToString(timeRemaining));
 		});
 	}
 
@@ -87,7 +87,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 	public void stopTime(UIEvent.StopTime e) {
 		UIEventProcessor.uiAccess(announcerBar, uiEventBus, e, () -> {
 			Integer timeRemaining = e.getTimeRemaining();
-			timeField.setValue(msToString(timeRemaining));
+			timeField.setTimeRemaining(timeRemaining);//timeField.setValue(msToString(timeRemaining));
 		});
 	}
 
@@ -104,7 +104,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 		if (athlete != null) {
 			lastName.setText(athlete.getLastName());
 			firstName.setText(athlete.getFirstName());
-			timeField.setValue(msToString(timeAllowed));
+			timeField.setTimeRemaining(timeAllowed);//timeField.setValue(msToString(timeAllowed));
 			Html newAttempt = new Html(
 					"<h3>" + (athlete.getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h3>");
 			lifter.replace(attempt, newAttempt);
@@ -124,6 +124,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 		return OwlcmsSession.getFop().getEventBus();
 	}
 	
+	@SuppressWarnings("unused")
 	private String msToString(Integer millis) {
 		long hours = TimeUnit.MILLISECONDS.toHours(millis);
 		long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
@@ -161,9 +162,9 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 				weight);
 		lifter.setAlignItems(FlexComponent.Alignment.CENTER);
 
-		timeField = new TextField();
-		timeField.setValue("0:00");
-		timeField.setWidth("4em");
+		timeField = new TimerElement();
+		timeField.setTimeRemaining(0);
+//		timeField.setWidth("4em");
 		HorizontalLayout buttons = new HorizontalLayout(
 				timeField,
 				new Button("announce", (e) -> {
