@@ -224,12 +224,12 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 			getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get() ,true, true, true, true));
 			getFopEventBus().post(new FOPEvent.DecisionReset(announcerBar.getUI().get()));
 		});
-		good.getElement().setAttribute("theme", "primary success icon");
+		good.getElement().setAttribute("theme", "success icon");
 		Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
 			getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get(), false, false, false, false));
 			getFopEventBus().post(new FOPEvent.DecisionReset(announcerBar.getUI().get()));
 		});
-		bad.getElement().setAttribute("theme", "primary error icon");
+		bad.getElement().setAttribute("theme", "error icon");
 		HorizontalLayout decisions = new HorizontalLayout(
 				good,
 				bad);
