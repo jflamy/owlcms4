@@ -8,6 +8,8 @@
  */
 package app.owlcms.state;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
@@ -109,5 +111,24 @@ public class RelayTimer implements ICountdownTimer {
 		this.timeRemaining = timeRemaining;
 		fop.getUiEventBus().post(new UIEvent.SetTime(timeRemaining, null));
 	}
+	
+	@SuppressWarnings("unused")
+	private String msToString(Integer millis) {
+		long hours = TimeUnit.MILLISECONDS.toHours(millis);
+		long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+		long fullHoursInMinutes = TimeUnit.HOURS.toMinutes(hours);
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+		long fullMinutesInSeconds = TimeUnit.MINUTES.toSeconds(minutes);
+		if (hours > 0) {
+			return String.format("%02d:%02d:%02d", hours,
+		      minutes - fullHoursInMinutes,
+		      seconds - fullMinutesInSeconds);
+		} else {
+			return String.format("%02d:%02d",
+			      minutes,
+			      seconds - fullMinutesInSeconds);
+		}
+	}
+
 
 }

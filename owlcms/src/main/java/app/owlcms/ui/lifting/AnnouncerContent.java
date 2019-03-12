@@ -18,14 +18,15 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
@@ -41,6 +42,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.state.UIEvent;
+import app.owlcms.ui.appLayout.AppLayoutContent;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudLayout;
 import app.owlcms.ui.crudui.OwlcmsGridCrud;
@@ -56,7 +58,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AnnouncerLayout.class)
 public class AnnouncerContent extends VerticalLayout
-		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor {
+		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor, AppLayoutContent {
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
@@ -70,6 +72,12 @@ public class AnnouncerContent extends VerticalLayout
 	private UI locationUI;
 	private GridCrud<Athlete> crud;
 	private EventBus uiEventBus;
+	private AppLayoutRouterLayout parentLayout;
+	
+//	private TextField lastNameFilter = new TextField();
+//	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
+//	private ComboBox<Category> categoryFilter = new ComboBox<>();
+	private ComboBox<Group> groupFilter = new ComboBox<>();
 
 	/**
 	 * Instantiates a new announcer content.
@@ -153,15 +161,15 @@ public class AnnouncerContent extends VerticalLayout
 			protected void updateButtons() {}
 		};
 		
-		Select<Group> select = new Select<Group>();
-		select.setItems(GroupRepository.findAll());
-		select.setTextRenderer(Group::getName);
-		select.setPlaceholder("Select a Group");
-		select.setEmptySelectionAllowed(true);
+		groupFilter.setPlaceholder("Group");
+		groupFilter.setItems(GroupRepository.findAll());
+		groupFilter.setItemLabelGenerator(Group::getName);
+		// hide because the top bar has it
+		groupFilter.getStyle().set("display", "none");
 		OwlcmsSession.withFop((fop) -> {
-			select.setValue(fop.getGroup());
+			groupFilter.setValue(fop.getGroup());
 		});
-		select.addValueChangeListener(e -> {
+		groupFilter.addValueChangeListener(e -> {
 				Group newGroup = e.getValue();
 				logger.debug("manually switching group to {}",newGroup != null ? newGroup.getName() : null);
 				OwlcmsSession.withFop((fop) -> {
@@ -175,7 +183,7 @@ public class AnnouncerContent extends VerticalLayout
 		crud.setCrudListener(this);
 		crud.setClickRowToUpdate(true);
 		crud.getCrudLayout()
-			.addToolbarComponent(select);
+			.addToolbarComponent(groupFilter);
 
 		return crud;
 	}
@@ -236,5 +244,26 @@ public class AnnouncerContent extends VerticalLayout
 			// no field of play, no group, empty list
 			return ImmutableList.of();
 		}
+	}
+
+	/**
+	 * @return the groupFilter
+	 */
+	public ComboBox<Group> getGroupFilter() {
+		return groupFilter;
+	}
+
+	@Override
+	public AppLayoutRouterLayout getParentLayout() {
+		return parentLayout;
+	}
+
+	@Override
+	public void setParentLayout(AppLayoutRouterLayout parentLayout) {
+		this.parentLayout = parentLayout;
+	}
+
+	public void refresh() {
+		crud.refreshGrid();
 	}
 }
