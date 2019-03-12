@@ -14,7 +14,7 @@ Current status: Aiming for Minimal Viable Product (MVP) that can run a club meet
 - Working announcer portion (updating athlete cards and recomputing lifting order).
 - Working attempt board and results board, with timing and decisions handled locally in the browser
 - Working Athlete Registration and Weigh-in screens.
-- A recent demo is normally available on the [Heroku](https://owlcms4.herokuapp.com) cloud service. Note that the cloud demo application is not pre-loaded, so the first load can take a minute. This is not indicative of subsequent loads and is not indicative of local performance (which loads in seconds).
+- A [live demo](https://owlcms4.herokuapp.com) of a recent build is normally available on the Heroku cloud service. Note that the cloud demo application is not pre-loaded, so the first load can take a minute. This is not indicative of subsequent loads and is not indicative of local performance (which loads in seconds).
 
 Next steps towards MVP
 - Producing the result sheets
