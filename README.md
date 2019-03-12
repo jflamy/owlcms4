@@ -17,11 +17,9 @@ Current status: Aiming for Minimal Viable Product (MVP) that can run a club meet
 - A recent demo is normally available on the [Heroku](https://owlcms4.herokuapp.com) cloud service. Note that the cloud demo application is not pre-loaded, so the first load can take a minute. This is not indicative of subsequent loads and is not indicative of local performance (which loads in seconds).
 
 Next steps towards MVP
-- Complete start number generation on weigh-in screen, touch up validations
-- Countdown timer on announcer screen
+- Producing the result sheets
 - Adding missing buzzers on the attempt board
 - Improving validations on weight request (athlete card)
-- Producing the result sheets
 - Minimal packaging for early users/testers
 
 Design notes:
