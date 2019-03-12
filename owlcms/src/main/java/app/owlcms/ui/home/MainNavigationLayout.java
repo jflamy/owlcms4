@@ -41,10 +41,10 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 
-import app.owlcms.ui.displaySetup.DisplayNavigationContent;
 import app.owlcms.ui.lifting.LiftingNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.wrapup.WrapupNavigationContent;
+import displays.DisplayNavigationContent;
 
 /**
  * MainNavigationLayout.

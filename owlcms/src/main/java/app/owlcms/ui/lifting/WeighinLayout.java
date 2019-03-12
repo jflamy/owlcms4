@@ -49,11 +49,10 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 	static {logger.setLevel(Level.DEBUG);}
 	
 	private HorizontalLayout topBar;
-	private H3 title;
 	private ComboBox<Group> gridGroupFilter;
 	private AppLayout appLayout;
 	private ComboBox<Group> groupSelect;
-	
+
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
@@ -98,7 +97,7 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 //		logger.warn("content = {}", this.getLayoutContent().toString());
 
 		
-		title = new H3();
+		H3 title = new H3();
 		title.setText("Weigh-In");
 		title.add();
 		title.getStyle()

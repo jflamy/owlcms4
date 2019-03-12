@@ -8,33 +8,40 @@
  */
 package app.owlcms.ui.lifting;
 
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.LoggerFactory;
 
+import com.flowingcode.vaadin.addons.ironicons.AvIcons;
+import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.page.Push;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
+import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.UIEvent;
+import app.owlcms.ui.appLayout.AppLayoutContent;
 import app.owlcms.ui.home.MainNavigationLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
@@ -53,14 +60,16 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
 	
-	private H2 lastName;
-	private H3 firstName;
+	private H1 lastName;
+	private H2 firstName;
 	private Html attempt;
-	private H3 weight;
-	private TextField timeField;
+	private H2 weight;
+	private TimerElement timeField;
 	private HorizontalLayout announcerBar;
-	private HorizontalLayout lifter;
+	//private HorizontalLayout request;
 	private EventBus uiEventBus;
+	private ComboBox<Group> gridGroupFilter;
+	private ComboBox<Group> groupSelect;
 	
 	public AnnouncerLayout() {
 		logger.setLevel(Level.INFO);
@@ -71,7 +80,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 	public void setTime(UIEvent.SetTime e) {
 		UIEventProcessor.uiAccess(announcerBar, uiEventBus, e, () -> {
 			Integer timeRemaining = e.getTimeRemaining();
-			timeField.setValue(msToString(timeRemaining));
+			timeField.setTimeRemaining(timeRemaining);//timeField.setValue(msToString(timeRemaining));
 		});
 	}
 
@@ -79,7 +88,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 	public void startTime(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(announcerBar, uiEventBus, e, () -> {
 			Integer timeRemaining = e.getTimeRemaining();
-			timeField.setValue(msToString(timeRemaining));
+			timeField.setTimeRemaining(timeRemaining);//timeField.setValue(msToString(timeRemaining));
 		});
 	}
 
@@ -87,7 +96,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 	public void stopTime(UIEvent.StopTime e) {
 		UIEventProcessor.uiAccess(announcerBar, uiEventBus, e, () -> {
 			Integer timeRemaining = e.getTimeRemaining();
-			timeField.setValue(msToString(timeRemaining));
+			timeField.setTimeRemaining(timeRemaining);//timeField.setValue(msToString(timeRemaining));
 		});
 	}
 
@@ -104,17 +113,18 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 		if (athlete != null) {
 			lastName.setText(athlete.getLastName());
 			firstName.setText(athlete.getFirstName());
-			timeField.setValue(msToString(timeAllowed));
+			timeField.setTimeRemaining(timeAllowed);//timeField.setValue(msToString(timeAllowed));
 			Html newAttempt = new Html(
-					"<h3>" + (athlete.getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h3>");
-			lifter.replace(attempt, newAttempt);
+					"<h2>" + (athlete.getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h2>");
+			announcerBar.replace(attempt, newAttempt);
 			attempt = newAttempt;
-			weight.setText(athlete.getNextAttemptRequestedWeight() + "kg");
+			Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
+			weight.setText((nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() :"\u2013")+ "kg");
 		} else {
 			lastName.setText("\u2013");
 			firstName.setText("");
-			Html newAttempt = new Html("<span></span>");
-			lifter.replace(attempt, newAttempt);
+			Html newAttempt = new Html("<h2><span></span></h2>");
+			announcerBar.replace(attempt, newAttempt);
 			attempt = newAttempt;
 			weight.setText("");
 		}
@@ -124,70 +134,49 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 		return OwlcmsSession.getFop().getEventBus();
 	}
 	
-	private String msToString(Integer millis) {
-		long hours = TimeUnit.MILLISECONDS.toHours(millis);
-		long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
-		long fullHoursInMinutes = TimeUnit.HOURS.toMinutes(hours);
-		long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
-		long fullMinutesInSeconds = TimeUnit.MINUTES.toSeconds(minutes);
-		if (hours > 0) {
-			return String.format("%02d:%02d:%02d", hours,
-		      minutes - fullHoursInMinutes,
-		      seconds - fullMinutesInSeconds);
-		} else {
-			return String.format("%02d:%02d",
-			      minutes,
-			      seconds - fullMinutesInSeconds);
-		}
-	}
 
-	protected void createAnnouncerBar(HorizontalLayout announcerBar) {
-		lastName = new H2();
+	protected void createTopBar(HorizontalLayout announcerBar) {
+		
+		H3 title = new H3();
+		title.setText("Announcer");
+		title.getStyle()
+			.set("margin", "0px 0px 0px 0px")
+			.set("font-weight", "normal");
+		
+		groupSelect = new ComboBox<>();
+		groupSelect.setPlaceholder("Select Group");
+		groupSelect.setItems(GroupRepository.findAll());
+		groupSelect.setItemLabelGenerator(Group::getName);
+		groupSelect.setWidth("7rem");
+		OwlcmsSession.withFop((fop) -> {
+			groupSelect.setValue(fop.getGroup());
+		});
+		groupSelect.addValueChangeListener(e -> {
+			gridGroupFilter.setValue(e.getValue());
+		});
+		
+		lastName = new H1();
 		lastName.setText("\u2013");
 		lastName.getStyle()
 			.set("margin", "0px 0px 0px 0px");
-		firstName = new H3("");
+		firstName = new H2("");
 		firstName.getStyle()
 			.set("margin", "0px 0px 0px 0px");
-		Div div = new Div(
+		Div fullName = new Div(
 				lastName,
 				firstName);
 
-		attempt = new Html("<span></span>");
-		weight = new H3();
+		attempt = new Html("<h2><span></span></h2");
+		weight = new H2();
 		weight.setText("");
-		lifter = new HorizontalLayout(
-				attempt,
-				weight);
-		lifter.setAlignItems(FlexComponent.Alignment.CENTER);
 
-		timeField = new TextField();
-		timeField.setValue("0:00");
-		timeField.setWidth("4em");
-		HorizontalLayout buttons = new HorizontalLayout(
-				timeField,
-				new Button("announce", (e) -> {
-					getFopEventBus().post(new FOPEvent.AthleteAnnounced(announcerBar.getUI().get()));
-				}),
-				new Button("start", (e) -> {
-					getFopEventBus().post(new FOPEvent.TimeStartedManually(announcerBar.getUI().get()));
-				}),
-				new Button("stop", (e) -> {
-					getFopEventBus().post(new FOPEvent.TimeStoppedManually(announcerBar.getUI().get()));
-				}),
-				new Button("1 min"),
-				new Button("2 min"));
-		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+		timeField = new TimerElement();
+		timeField.setTimeRemaining(0);
+		H1 time = new H1(timeField);
+		
+		HorizontalLayout buttons = announcerButtons(announcerBar);
 
-		HorizontalLayout decisions = new HorizontalLayout(
-				new Button("good", (e) -> {
-					getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get() ,true, true, true, true));
-					getFopEventBus().post(new FOPEvent.DecisionReset(announcerBar.getUI().get()));
-				}),
-				new Button("bad", (e) -> {
-					getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get(), false, false, false, false));
-					getFopEventBus().post(new FOPEvent.DecisionReset(announcerBar.getUI().get()));
-				}));
+		HorizontalLayout decisions = decisionButtons(announcerBar);
 
 		decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
 
@@ -196,9 +185,55 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 			.getStyle()
 			.set("flex", "100 1");
 		announcerBar.removeAll();
-		announcerBar.add(div, lifter, buttons, decisions);
+		announcerBar.add(title, groupSelect, fullName, attempt, weight, time, buttons, decisions);
 		announcerBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
 		announcerBar.setAlignItems(FlexComponent.Alignment.CENTER);
+		announcerBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
+		announcerBar.setFlexGrow(0.5, fullName);
+	}
+
+	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
+		Button announce = new Button(AvIcons.MIC.create(), (e) -> {
+			getFopEventBus().post(new FOPEvent.AthleteAnnounced(announcerBar.getUI().get()));
+		});
+		announce.getElement().setAttribute("theme", "primary icon");
+		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
+			getFopEventBus().post(new FOPEvent.TimeStartedManually(announcerBar.getUI().get()));
+		});
+		start.getElement().setAttribute("theme", "primary icon");
+		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
+			getFopEventBus().post(new FOPEvent.TimeStoppedManually(announcerBar.getUI().get()));
+		});
+		stop.getElement().setAttribute("theme", "primary icon");
+		Button _1min = new Button("1:00");
+		_1min.getElement().setAttribute("theme", "icon");
+		Button _2min = new Button("2:00");
+		_2min.getElement().setAttribute("theme", "icon");
+		HorizontalLayout buttons = new HorizontalLayout(
+				announce,
+				start,
+				stop,
+				_1min,
+				_2min);
+		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+		return buttons;
+	}
+
+	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
+		Button good = new Button(IronIcons.DONE.create(), (e) -> {
+			getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get() ,true, true, true, true));
+			getFopEventBus().post(new FOPEvent.DecisionReset(announcerBar.getUI().get()));
+		});
+		good.getElement().setAttribute("theme", "success icon");
+		Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
+			getFopEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get(), false, false, false, false));
+			getFopEventBus().post(new FOPEvent.DecisionReset(announcerBar.getUI().get()));
+		});
+		bad.getElement().setAttribute("theme", "error icon");
+		HorizontalLayout decisions = new HorizontalLayout(
+				good,
+				bad);
+		return decisions;
 	}
 
 
@@ -209,12 +244,27 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
 		this.announcerBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
-		createAnnouncerBar(announcerBar);
+		createTopBar(announcerBar);
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()
 			.set("flex", "0 1 0px");
 		return appLayout;
+	}
+	
+	/**
+	 * The layout is created before the content. This routine has created the content, we can refer to
+	 * the content using {@link #getLayoutContent()} and the content can refer to us via
+	 * {@link AppLayoutContent#getParentLayout()}
+	 * 
+	 * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
+	 */
+	@Override
+	public void showRouterLayoutContent(HasElement content) {
+		super.showRouterLayoutContent(content);
+		AnnouncerContent announcerContent = (AnnouncerContent) getLayoutContent();
+		announcerContent.setParentLayout(this);
+		gridGroupFilter = announcerContent.getGroupFilter();
 	}
 
 	/* (non-Javadoc)
