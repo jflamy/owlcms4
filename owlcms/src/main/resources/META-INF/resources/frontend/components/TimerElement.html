@@ -8,8 +8,12 @@
 <dom-module id="timer-element" attributes="start-time count-up">
 <template>
 <style></style>
+<audio id="initialWarning" preload="auto"><source src="../sounds/initialWarning.mp3"></source></audio>
+<audio id="finalWarning" preload="auto"><source src="../sounds/finalWarning.mp3"></source></audio>
+<audio id="timeOver" preload="auto"><source src="../sounds/timeOver.mp3"></source></audio>
 <div>{{_formattedTime}}</div>
-</template> <script>
+</template>
+<script>
   class TimerElement extends Polymer.Element {
       static get is() {
           return 'timer-element'
@@ -63,8 +67,20 @@
            _formattedTime: {
              type: String,
              value: '0:00'
+           },
+           initialWarningGiven: {
+        	   type: Boolean,
+        	   value: false
+           },
+           finalWarningGiven: {
+        	   type: Boolean,
+        	   value: false
+           },
+           timeOverWarningGiven: {
+        	   type: Boolean,
+        	   value: false
            }
-    	  }
+    	}
       }
       
       ready() {
@@ -83,6 +99,10 @@
             this.pause();
             return;
           }
+          this.initialWarningGiven = (this.currentTime < 90);
+          this.finalWarningGiven = (this.currentTime < 30);
+          this.timeOverWarningGiven = (this.currentTime < 0);
+
           this._elapsed = performance.now()/1000;
           this.running = true;
           window.requestAnimationFrame(this._decreaseTimer.bind(this));
@@ -91,7 +111,7 @@
       pause() {
           this.running = false;
           if (this.$server != null) {
-              this.$server.timerStopped(this.currentTime);  
+			  this.$server.timerStopped(this.currentTime);      
           } else {
         	  console.log("no server$");
           }
@@ -102,41 +122,63 @@
     	  this._init();
       }
       
+
       _init() {
           this.running = false;
           if (this.countUp) {
               this.set('currentTime', 0);
               this.set('_formattedTime', '0:00');
-            } else {
+          } else {
               this.set('currentTime', this.startTime);
               this.set('_formattedTime', this._formatTime(this.startTime));
-            }
+          }
+          this.initialWarningGiven = false;
+          this.finalWarningGiven = false;
+          this.timeOverWarningGiven = false;
       }
       
      _decreaseTimer(timestamp) {
           if (!this.running) {
             return;
           }
-          if ((this.currentTime <= 0 && !this.countUp) 
-              || (this.currentTime >= this.startTime && this.countUp) ) {
-            // timer is over
-            this.currentTime = this.countUp ? this.startTime : 0;
-            this.pause();
-            this.dispatchEvent(new CustomEvent('timer-element-end', {bubbles: true, composed: true}))
-            return;
-          }
-
+          
           var now = timestamp/1000;
           // Compute the relative progress based on the time spent running
           var progress = now - this._elapsed;
           this.currentTime = this.countUp ? this.currentTime + progress : this.currentTime - progress;
+          
+          // we anticipate by 0.1 sec because .play() has a perceptible delay
+          if (this.currentTime <= 30.1 && !this.finalWarningGiven) {
+        	  //console.warn("currentTime "+this.currentTime);
+        	  this.$.finalWarning.play();
+        	  this.finalWarningGiven = true;
+          }
+          if (this.currentTime <= 90.1 && !this.initialWarningGiven) {
+        	  this.$.initialWarning.play();
+        	  this.initialWarningGiven = true;
+          }
+          if (this.currentTime <= 0.1 && !this.timeOverWarningGiven) {
+        	  console.warn("calling play "+this.currentTime);
+              this.$.timeOver.play();
+              this.timeOverWarningGiven = true;
+          }       
+          if ((this.currentTime <= 0 && !this.countUp) 
+              || (this.currentTime >= this.startTime && this.countUp) ) {
+				// timer is over
+                if (this.$server != null) this.$server.timeOver();   
+                this.running = false;
+            	//this.dispatchEvent(new CustomEvent('timer-element-end', {bubbles: true, composed: true}))
+            	this.currentTime = this.countUp ? this.startTime : 0; // avoid ugly if rounding error.
+			}
+
           this._formattedTime = this._formatTime(this.currentTime);
           this._elapsed = now;
           window.requestAnimationFrame(this._decreaseTimer.bind(this));
+
     }
 
     _formatTime(ntime) {
-    	if (ntime < 0) return "-";
+    	if (ntime < 0) return "0:00";
     	var ntime = Math.round(ntime);
     	var hours = Math.trunc(ntime / 3600);
     	var minutes = Math.trunc((ntime - (hours*3600)) / 60);
