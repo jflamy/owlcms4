@@ -303,6 +303,10 @@ public class FieldOfPlayState {
 			} else if (e instanceof FOPEvent.WeightChange) {
 				weightChange(curAthlete);
 				setState(State.CURRENT_ATHLETE_DISPLAYED);
+			} else if (e instanceof FOPEvent.ForceTime) {
+				// need to set time
+				getTimer().setTimeRemaining(((FOPEvent.ForceTime) e).timeAllowed);
+				setState(State.CURRENT_ATHLETE_DISPLAYED);
 			} else {
 				unexpectedEventInState(e, State.CURRENT_ATHLETE_DISPLAYED);
 			}
@@ -362,6 +366,11 @@ public class FieldOfPlayState {
 					weightChangeDoNotDisturb(curAthlete);
 					setState(State.TIME_RUNNING);
 				}
+			} else if (e instanceof FOPEvent.TimeOver) {
+				// timer got down to 0
+				// getTimer() signals this, nothing else required for timer
+				// rule says referees must give reds
+				setState(State.TIME_STOPPED);
 			} else {
 				unexpectedEventInState(e, State.TIME_RUNNING);
 			}
@@ -389,6 +398,10 @@ public class FieldOfPlayState {
 				this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
 				this.setClockOwner(null);
 				decision(e);
+			} else if (e instanceof FOPEvent.ForceTime) {
+				// need to set time
+				getTimer().setTimeRemaining(((FOPEvent.ForceTime) e).timeAllowed);
+				setState(State.CURRENT_ATHLETE_DISPLAYED);
 			} else {
 				unexpectedEventInState(e, State.TIME_STOPPED);
 			}

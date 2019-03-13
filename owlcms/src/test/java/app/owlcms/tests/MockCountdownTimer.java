@@ -11,6 +11,7 @@ package app.owlcms.tests;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.UI;
 
 import app.owlcms.state.ICountdownTimer;
 import app.owlcms.state.UIEvent;
@@ -95,6 +96,12 @@ public class MockCountdownTimer implements ICountdownTimer {
 	public void setTimeRemaining(int timeRemaining) {
 		logger.debug("setting Time -- timeRemaining = {}\t[{}]", timeRemaining, LoggerUtils.whereFrom());
 		this.timeRemaining = timeRemaining;
+	}
+
+	@Override
+	public void timeOver(UI originatingUI) {
+		stop();
+		timeRemaining = 0;
 	}
 
 }

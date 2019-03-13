@@ -18,7 +18,7 @@ Current status: Aiming for Minimal Viable Product (MVP) that can run a club meet
 
 Next steps towards MVP
 - Producing the result sheets
-- Adding missing buzzers on the attempt board
+- Athlete-facing option for decision-lights
 - Improving validations on weight request (athlete card)
 - Minimal packaging for early users/testers
 
