@@ -19,6 +19,7 @@ import app.owlcms.data.athlete.Athlete;
  */
 public class FOPEvent {
 	
+
 	protected UI originatingUI;
 	FOPEvent (UI originatingUI) {
 		this.originatingUI = originatingUI;
@@ -149,6 +150,25 @@ public class FOPEvent {
 			super(originatingUI);
 		}
 
+	}
+	
+	static public class TimeOver extends FOPEvent{
+
+		public TimeOver(UI originatingUI) {
+			super(originatingUI);
+		}
+
+	}
+	
+
+	static public class ForceTime extends FOPEvent {
+
+		public int timeAllowed;
+
+		public ForceTime(int timeAllowed, UI originatingUI) {
+			super(originatingUI);
+			this.timeAllowed = timeAllowed;
+		}
 	}
 
 }

@@ -15,6 +15,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
@@ -234,6 +235,12 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		model.setStartTime(seconds);
 	}
 	
+	@Override
+	public void timeOver(UI originatingUI) {
+		stop();
+		setTimeRemaining(0);
+	}
+	
 	/*** 
 	 * Client-callable functions
 	 */
@@ -248,5 +255,18 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		logger.trace("timer stopped " + remainingTime);
 	}
 	
-	//FIXME: add functions for 90 seconds, 30 seconds, 0 seconds
+	/**
+	 * Timer stopped
+	 * @param remaining Time the remaining time
+	 */
+	@ClientCallable
+	public void timeOver() {
+		logger.info("time over");
+		OwlcmsSession.withFop(fop -> {
+			fop.getTimer().timeOver(UI.getCurrent());
+		});
+	}
+
+
+	
 }

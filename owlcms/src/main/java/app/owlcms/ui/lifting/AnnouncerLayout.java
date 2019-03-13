@@ -205,9 +205,13 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 			getFopEventBus().post(new FOPEvent.TimeStoppedManually(announcerBar.getUI().get()));
 		});
 		stop.getElement().setAttribute("theme", "primary icon");
-		Button _1min = new Button("1:00");
+		Button _1min = new Button("1:00", (e) -> {
+			getFopEventBus().post(new FOPEvent.ForceTime(60000,announcerBar.getUI().get()));
+		});
 		_1min.getElement().setAttribute("theme", "icon");
-		Button _2min = new Button("2:00");
+		Button _2min = new Button("2:00", (e) -> {
+			getFopEventBus().post(new FOPEvent.ForceTime(120000,announcerBar.getUI().get()));
+		});
 		_2min.getElement().setAttribute("theme", "icon");
 		HorizontalLayout buttons = new HorizontalLayout(
 				announce,
