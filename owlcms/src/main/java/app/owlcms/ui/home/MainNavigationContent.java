@@ -22,10 +22,10 @@ import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.ui.displays.DisplayNavigationContent;
 import app.owlcms.ui.lifting.LiftingNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.wrapup.WrapupNavigationContent;
-import displays.DisplayNavigationContent;
 
 /**
  * The Class MainNavigationContent.

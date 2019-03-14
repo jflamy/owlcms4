@@ -661,7 +661,7 @@ public class FieldOfPlayState {
 
 	/**
 	 * weight change while a lift is being performed (bar lifted above knees)
-	 * Lifting order is recomputed, so the displays can get it, but not the attempt
+	 * Lifting order is recomputed, so the app.owlcms.ui.displays can get it, but not the attempt
 	 * board state.
 	 * 
 	 * @param curAthlete
