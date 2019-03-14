@@ -10,8 +10,6 @@ package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,7 +17,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.InputStreamFactory;
@@ -27,7 +24,9 @@ import com.vaadin.flow.server.InputStreamFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
-import app.owlcms.utils.LoggerUtils;
+import app.owlcms.init.OwlcmsSession;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
@@ -36,13 +35,17 @@ import net.sf.jxls.transformer.XLSTransformer;
  */
 @SuppressWarnings("serial")
 public abstract class JXLSWorkbookStreamSource implements InputStreamFactory {
-    private final static Logger logger = LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
+    @SuppressWarnings("unused")
+	private final static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
+    static {logger.setLevel(Level.DEBUG);}
 
     protected List<Athlete> athletes;
 
     private HashMap<String, Object> reportingBeans;
 
     private boolean excludeNotWeighed;
+
+	private Group group;
 
     public JXLSWorkbookStreamSource(boolean excludeNotWeighed) {
         this.excludeNotWeighed = excludeNotWeighed;
@@ -64,42 +67,42 @@ public abstract class JXLSWorkbookStreamSource implements InputStreamFactory {
      */
     abstract protected void getSortedAthletes();
 
-    public InputStream getStream() {
-        try {
-            PipedInputStream in = new PipedInputStream();
-            final PipedOutputStream out = new PipedOutputStream(in);
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        XLSTransformer transformer = new XLSTransformer();
-                        configureTransformer(transformer);
-                        HashMap<String, Object> reportingBeans2 = getReportingBeans();
-                        Workbook workbook = null;
-                        try {
-                            workbook = transformer.transformXLS(getTemplate(), reportingBeans2);
-                        } catch (Exception e) {
-                        	logger.error(LoggerUtils.stackTrace());
-                        }
-                        if (workbook != null) {
-                            postProcess(workbook);
-                            workbook.write(out);
-                        }
-                    } catch (IOException e) {
-                        // ignore
-                    } catch (Throwable e) {
-                    	logger.error(LoggerUtils.stackTrace());
-                        throw new RuntimeException(e);
-                    }
-                }
-            }).start();
-
-            return in;
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public InputStream getStream() {
+//        try {
+//            PipedInputStream in = new PipedInputStream();
+//            final PipedOutputStream out = new PipedOutputStream(in);
+//
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        XLSTransformer transformer = new XLSTransformer();
+//                        configureTransformer(transformer);
+//                        HashMap<String, Object> reportingBeans2 = getReportingBeans();
+//                        Workbook workbook = null;
+//                        try {
+//                            workbook = transformer.transformXLS(getTemplate(), reportingBeans2);
+//                        } catch (Exception e) {
+//                        	logger.error(LoggerUtils.stackTrace());
+//                        }
+//                        if (workbook != null) {
+//                            postProcess(workbook);
+//                            workbook.write(out);
+//                        }
+//                    } catch (IOException e) {
+//                        // ignore
+//                    } catch (Throwable e) {
+//                    	logger.error(LoggerUtils.stackTrace());
+//                        throw new RuntimeException(e);
+//                    }
+//                }
+//            }).start();
+//
+//            return in;
+//        } catch (Throwable e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     protected void configureTransformer(XLSTransformer transformer) {
         // do nothing, to be overridden as needed,
@@ -170,8 +173,17 @@ public abstract class JXLSWorkbookStreamSource implements InputStreamFactory {
 	}
 	
     protected Group getCurrentCompetitionSession() {
-		// FIXME getCurrentCompetitionSession
-		return null;
+    	Group group = null;
+    	OwlcmsSession.withFop((fop) -> {
+    		// FIXME getCurrentCompetitionSession should not require a FOP
+    		setGroup(fop.getGroup());
+    	});
+    	return group;
+
+	}
+
+	private void setGroup(Group group) {
+		this.group = group;
 	}
 
 }
