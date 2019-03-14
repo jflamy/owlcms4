@@ -1,9 +1,10 @@
-/*
- * Copyright 2009-2012, Jean-François Lamy
- *
- * This Source Code Form is subject to the terms of the Mozilla Public License,
- * v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at
- * http://mozilla.org/MPL/2.0/.
+/***
+ * Copyright (c) 2018-2019 Jean-François Lamy
+ * 
+ * This software is licensed under the the Apache 2.0 License amended with the
+ * Commons Clause.
+ * License text at https://github.com/jflamy/owlcms4/master/License
+ * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package app.owlcms.spreadsheet;
 
@@ -40,7 +41,6 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
     public JXLSResultSheet(boolean excludeNotWeighed) {
         super(excludeNotWeighed);
     }
-
 
     @Override
     protected void init() {
