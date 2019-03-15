@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package displays;
+package app.owlcms.ui.displays;
 
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;

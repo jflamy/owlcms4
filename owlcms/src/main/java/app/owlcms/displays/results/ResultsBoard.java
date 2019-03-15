@@ -54,7 +54,7 @@ import elemental.json.JsonValue;
 @SuppressWarnings("serial")
 @Tag("results-board-template")
 @HtmlImport("frontend://components/ResultsBoard.html")
-@Route("displays/resultsBoard")
+@Route("app.owlcms.ui.displays/resultsBoard")
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
 public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>

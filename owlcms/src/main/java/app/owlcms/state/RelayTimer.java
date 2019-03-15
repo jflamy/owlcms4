@@ -21,7 +21,7 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Class RelayTimer.
- * Relays start-stop instructions to the browser-based client displays.
+ * Relays start-stop instructions to the browser-based client app.owlcms.ui.displays.
  * Keeps server-side information on elapsed time.
  */
 public class RelayTimer implements ICountdownTimer {

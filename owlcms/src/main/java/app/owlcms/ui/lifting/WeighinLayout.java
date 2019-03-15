@@ -15,17 +15,22 @@ import org.slf4j.LoggerFactory;
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -33,6 +38,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.ui.appLayout.AppLayoutContent;
 import app.owlcms.ui.home.MainNavigationLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
@@ -52,6 +58,9 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 	private ComboBox<Group> gridGroupFilter;
 	private AppLayout appLayout;
 	private ComboBox<Group> groupSelect;
+	private Group group;
+	private Button download;
+	private Anchor startingWeights;
 
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
@@ -110,20 +119,32 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 		groupSelect.setItemLabelGenerator(Group::getName);
 		groupSelect.setValue(null);
 		groupSelect.addValueChangeListener(e -> {
-			gridGroupFilter.setValue(e.getValue());
+			setContentGroup(e);
+			download.setEnabled(e.getValue() != null);
+			startingWeights.getElement().setAttribute("download", "startingWeights_"+group+".xls");
 		});
 
-		Button startingWeights = new Button("Generate Protocol Sheet (starting weights)", (e) -> {
-			generateProtocolSheet();
+
+		Button start = new Button("Generate Start Numbers", (e) -> {
+			generateStartNumbers();
 		});
-		startingWeights.setEnabled(false);
+		Button clear = new Button("Clear Start Numbers", (e) -> {
+			clearStartNumbers();
+		});
+		
+		JXLSWeighInSheet writer = new JXLSWeighInSheet(group, true);
+		StreamResource href = new StreamResource("startingWeights.xls", writer);
+		startingWeights = new Anchor(href, "");
+		download = new Button("Starting Weights Sheet",new Icon(VaadinIcon.DOWNLOAD_ALT));
+		download.addClickListener((e) -> {
+			writer.setGroup(group);
+		});
+		startingWeights.add(download);
+		download.setEnabled(false);
+			
 		HorizontalLayout buttons = new HorizontalLayout(
-				new Button("Generate Start Numbers", (e) -> {
-					generateStartNumbers();
-				}),
-				new Button("Clear Start Numbers", (e) -> {
-					clearStartNumbers();
-				}),
+				start,
+				clear,
 				startingWeights);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
@@ -137,8 +158,9 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 	}
 
-	private void generateProtocolSheet() {
-		// TODO generateProtocolSheet
+	protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
+		group = e.getValue();
+		gridGroupFilter.setValue(e.getValue());
 	}
 
 	private void clearStartNumbers() {

@@ -32,9 +32,6 @@ import javax.persistence.Version;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
-
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
@@ -390,7 +387,7 @@ public class Athlete {
 			masters15_20Rule(qualTotal);
 	}
 
-	public void regular20kgRule(int qualTotal) {
+	public String regular20kgRule(int qualTotal) {
 		int curStartingTotal = 0;
 		int snatchRequest = 0;
 		int cleanJerkRequest = 0;
@@ -426,11 +423,11 @@ public class Athlete {
 			// LoggerUtils.logException(logger, new Exception("check15_20kiloRule traceback
 			// "+ message));
 			logger.info(message);
-			showMustClickNotification(message, false);
 		}
+		return message;
 	}
 
-	public void masters15_20Rule(int qualTotal) {
+	public String masters15_20Rule(int qualTotal) {
 		int curStartingTotal = 0;
 		int snatch1request = 0;
 		int cleanJerkRequest = 0;
@@ -474,8 +471,8 @@ public class Athlete {
 		if (message != null) {
 			// LoggerUtils.logException(logger, new Exception("check15_20kiloRule traceback "+ message));
 			logger.info(message);
-			showMustClickNotification(message, false);
 		}
+		return message;
 	}
 
 
@@ -3220,17 +3217,6 @@ public class Athlete {
 	 */
 	public void setYearOfBirth(Integer birthYear) {
 		setFullBirthDate(birthYear);
-	}
-
-	/**
-	 * Show must click notification.
-	 *
-	 * @param message       the message
-	 * @param unlessCurrent the unless current
-	 */
-	public void showMustClickNotification(String message, boolean unlessCurrent) {
-		// FIXME Data layer should only post events on bus, no UI calls.
-		Notification.show(message, -1, Position.MIDDLE);
 	}
 
 	/**

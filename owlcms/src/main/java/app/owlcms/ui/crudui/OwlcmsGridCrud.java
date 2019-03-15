@@ -130,7 +130,7 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 					// make sure we can select again
 					owlcmsCrudLayout.disableNextShowForm(false);
 				}, operationPerformedClickEvent -> {
-					// update re-selects the item, which (because of click-to-select) displays the form again...
+					// update re-selects the item, which (because of click-to-select) app.owlcms.ui.displays the form again...
 					owlcmsCrudLayout.disableNextShowForm(true);
 					owlcmsCrudLayout.hideForm();
 					buttonClickListener.onComponentEvent(operationPerformedClickEvent);
