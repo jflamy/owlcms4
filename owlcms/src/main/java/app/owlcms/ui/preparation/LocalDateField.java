@@ -13,7 +13,7 @@ import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
 
-import app.owlcms.crudui.Bindable;
+import app.owlcms.ui.crudui.Bindable;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 
 /**
