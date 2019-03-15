@@ -40,7 +40,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
 @HtmlImport("frontend://components/AttemptBoard.html")
-@Route("displays/attemptBoard")
+@Route("app.owlcms.ui.displays/attemptBoard")
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {

@@ -10,13 +10,14 @@ cannot be fixed.
 
 Why is it called owlcms4? First there was owlcms. The name was taken on SourceForge.net, so I did a cleanup and called it owlcms2. Then I started an owlcms3 rewrite, but it was too tedious to implement the off-line features I wanted, so I gave up until Vaadin Flow came out to rekindle my interest.
 
-Current status: Aiming for Minimal Viable Product (MVP) that can run a club meet.
+Current status: Close to minimal viable product able to run a regional competition
 - Working announcer portion (updating athlete cards and recomputing lifting order).
 - Working attempt board and results board, with timing and decisions handled locally in the browser
-- Working Athlete Registration and Weigh-in screens.
+- Working Athlete Registration and Weigh-in screens, including producing weigh-in sheet
 - A [live demo](https://owlcms4.herokuapp.com) of a recent build is normally available on the Heroku cloud service. Note that the cloud demo application is not pre-loaded, so the first load can take a minute. This is not indicative of subsequent loads and is not indicative of local performance (which loads in seconds).
 
-Next steps towards MVP
+Next steps
+- Producing the lifter cards
 - Producing the result sheets
 - Athlete-facing option for decision-lights
 - Improving validations on weight request (athlete card)

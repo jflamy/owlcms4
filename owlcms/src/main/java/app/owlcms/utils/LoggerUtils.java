@@ -35,4 +35,10 @@ public class LoggerUtils {
 		new Exception("").printStackTrace(new PrintWriter(sw));
 		return sw.toString();
 	}
+	
+	public static String stackTrace(Throwable t) {
+		StringWriter sw = new StringWriter();
+		t.printStackTrace(new PrintWriter(sw));
+		return sw.toString();
+	}
 }

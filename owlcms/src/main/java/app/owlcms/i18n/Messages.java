@@ -26,5 +26,9 @@ public class Messages {
 		return string;
 	}
 
+	public static String getStringNullIfMissing(String string, Locale locale) {
+		return string;
+	}
+
 
 }
