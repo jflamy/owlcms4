@@ -201,6 +201,8 @@ public class Competition {
 	 */
 	public String getProtocolFileName() throws IOException {
 		logger.debug("protocolFileName = {}", protocolFileName);
+		if (protocolFileName == null) return null; 
+		
 		String str = File.separator + "protocolSheet";
 		int protocolPos = protocolFileName.indexOf(str);
 		if (protocolPos != -1) {

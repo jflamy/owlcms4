@@ -8,8 +8,6 @@
  */
 package app.owlcms.spreadsheet;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -35,28 +33,29 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
     Logger logger = LoggerFactory.getLogger(JXLSResultSheet.class);
 
-    private Competition competition;
-
     public JXLSResultSheet() {
         super();
     }
 
 	@Override
     public InputStream getTemplate(Locale locale) throws IOException {
-        String protocolTemplateFileName = competition.getProtocolFileName();
+        String protocolTemplateFileName = Competition.getCurrent().getProtocolFileName();
         
         protocolTemplateFileName = "/templates/protocol/ProtocolSheetTemplate_" + locale.getLanguage() + ".xls";
-        if (protocolTemplateFileName != null) {
-            File templateFile = new File(protocolTemplateFileName);
-            if (templateFile.exists()) {
-                FileInputStream resourceAsStream = new FileInputStream(templateFile);
-                return resourceAsStream;
-            }
+//        if (protocolTemplateFileName != null) {
+//            File templateFile = new File(protocolTemplateFileName);
+//            if (templateFile.exists()) {
+//                FileInputStream resourceAsStream = new FileInputStream(templateFile);
+//                return resourceAsStream;
+//            }
+        	InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
             // can't happen unless system is misconfigured.
-            throw new IOException("resource not found: " + protocolTemplateFileName); //$NON-NLS-1$
-        } else {
-            throw new RuntimeException("Protocol sheet template not defined.");
-        }
+            if (stream == null) throw new IOException("resource not found: " + protocolTemplateFileName); //$NON-NLS-1$
+            else return stream;
+//        } 
+//        else {
+//            throw new RuntimeException("Protocol sheet template not defined.");
+//        }
     }
 
     @Override

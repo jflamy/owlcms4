@@ -46,7 +46,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 			params.put("fop",Arrays.asList(fop.getName()));
 		}
 		
-		// get the group from query parameters, leave as fop if group is absent
+		// get the group from query parameters, do not add value if group is not defined
 		List<String> groupNames = parametersMap.get("group");
 		Group group;
 		if (groupNames != null  && groupNames.get(0) != null) {
