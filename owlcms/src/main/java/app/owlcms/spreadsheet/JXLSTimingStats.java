@@ -14,8 +14,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
@@ -23,9 +23,9 @@ import com.vaadin.flow.component.UI;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Messages;
+import ch.qos.logback.classic.Logger;
 
 /**
  * @author jflamy
@@ -33,6 +33,8 @@ import app.owlcms.i18n.Messages;
  */
 @SuppressWarnings("serial")
 public class JXLSTimingStats extends JXLSWorkbookStreamSource {
+	
+    Logger logger = (Logger) LoggerFactory.getLogger(JXLSTimingStats.class);
 
     public class SessionStats {
 
@@ -117,21 +119,19 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         }
     }
 
-    Logger logger = LoggerFactory.getLogger(JXLSTimingStats.class);
-
     public JXLSTimingStats() {
-        super(false);
+        super();
     }
 
-    public JXLSTimingStats(boolean excludeNotWeighed) {
-        super(excludeNotWeighed);
+    public JXLSTimingStats(Group group, boolean excludeNotWeighed) {
+        super();
     }
 
     @Override
-    protected void getSortedAthletes() {
+    protected List<Athlete> getSortedAthletes() {
         HashMap<String, Object> reportingBeans = getReportingBeans();
 
-        this.athletes = AthleteSorter.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null,isExcludeNotWeighed()));
+        List<Athlete> athletes = AthleteSorter.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null,isExcludeNotWeighed()));
         if (athletes.isEmpty()) {
             // prevent outputting silliness.
             throw new RuntimeException(Messages.getString("OutputSheet.EmptySpreadsheet", UI.getCurrent().getLocale())); //$NON-NLS-1$
@@ -172,24 +172,16 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             processGroup(sessions, curStat);
         }
         reportingBeans.put("groups", sessions);
+        return athletes;
     }
 
     @Override
-    public InputStream getTemplate() throws IOException {
-        String templateName = "/TimingStatsTemplate_" + UI.getCurrent().getLocale().getLanguage() + ".xls";
+    public InputStream getTemplate(Locale locale) throws IOException {
+        String templateName = "/timing/TimingStatsTemplate_" + locale.getLanguage() + ".xls";
         final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName);
         if (resourceAsStream == null) {
             throw new IOException("resource not found: " + templateName);} //$NON-NLS-1$
         return resourceAsStream;
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-
-        Competition competition = Competition.getCurrent();
-        getReportingBeans().put("competition", competition);
-
     }
 
     private void processGroup(List<SessionStats> sessions, SessionStats curStat) {

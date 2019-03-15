@@ -169,7 +169,7 @@ public class CSVHelper {
     /*
      * (non-Javadoc)
      */
-    public List<Athlete> getGroupAthletes(InputStream is, String aGroup, Session session) {
+    public List<Athlete> getGroupAthletes(InputStream is, Group aGroup, Session session) {
         List<Athlete> groupAthletes = new ArrayList<Athlete>();
         for (Athlete curAthlete : getAllAthletes(is, session)) {
             if (aGroup.equals(curAthlete.getGroup())) {

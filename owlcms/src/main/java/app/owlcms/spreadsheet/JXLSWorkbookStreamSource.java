@@ -10,8 +10,10 @@ package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -19,12 +21,13 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.server.InputStreamFactory;
+import com.vaadin.flow.server.StreamResourceWriter;
+import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
-import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import net.sf.jxls.transformer.XLSTransformer;
@@ -34,12 +37,10 @@ import net.sf.jxls.transformer.XLSTransformer;
  * converts the output stream to an input stream that the vaadin framework can consume.
  */
 @SuppressWarnings("serial")
-public abstract class JXLSWorkbookStreamSource implements InputStreamFactory {
-    @SuppressWarnings("unused")
+public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
+
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
     static {logger.setLevel(Level.DEBUG);}
-
-    protected List<Athlete> athletes;
 
     private HashMap<String, Object> reportingBeans;
 
@@ -47,63 +48,92 @@ public abstract class JXLSWorkbookStreamSource implements InputStreamFactory {
 
 	private Group group;
 
-    public JXLSWorkbookStreamSource(boolean excludeNotWeighed) {
-        this.excludeNotWeighed = excludeNotWeighed;
+    public JXLSWorkbookStreamSource() {
+        this.setExcludeNotWeighed(true);
         init();
     }
 
     protected void init() {
-//        System.err.println("JXLSWorkbookStreamSource init");
         setReportingBeans(new HashMap<String, Object>());
-        getSortedAthletes();
-        if (athletes != null) {
-            getReportingBeans().put("athletes", athletes);
-        }
-        getReportingBeans().put("masters", Competition.getCurrent().isMasters());
     }
 
     /**
-     * Return athletes as they should be sorted.
+     * Return athletes as required by the template.
      */
-    abstract protected void getSortedAthletes();
+    protected void setReportingInfo() {
+        List<Athlete> athletes = getSortedAthletes();
+        if (athletes != null) {
+            getReportingBeans().put("athletes", athletes);
+            getReportingBeans().put("lifters", athletes); // legacy
+        }
+        Competition competition = Competition.getCurrent();
+        getReportingBeans().put("competition", competition);
+        getReportingBeans().put("session", getGroup()); // legacy
+        getReportingBeans().put("group", getGroup());
+        getReportingBeans().put("masters", Competition.getCurrent().isMasters());
+    }
 
-//    public InputStream getStream() {
-//        try {
-//            PipedInputStream in = new PipedInputStream();
-//            final PipedOutputStream out = new PipedOutputStream(in);
-//
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    try {
-//                        XLSTransformer transformer = new XLSTransformer();
-//                        configureTransformer(transformer);
-//                        HashMap<String, Object> reportingBeans2 = getReportingBeans();
-//                        Workbook workbook = null;
-//                        try {
-//                            workbook = transformer.transformXLS(getTemplate(), reportingBeans2);
-//                        } catch (Exception e) {
-//                        	logger.error(LoggerUtils.stackTrace());
-//                        }
-//                        if (workbook != null) {
-//                            postProcess(workbook);
-//                            workbook.write(out);
-//                        }
-//                    } catch (IOException e) {
-//                        // ignore
-//                    } catch (Throwable e) {
-//                    	logger.error(LoggerUtils.stackTrace());
-//                        throw new RuntimeException(e);
-//                    }
-//                }
-//            }).start();
-//
-//            return in;
-//        } catch (Throwable e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    protected abstract List<Athlete> getSortedAthletes();
 
+	/**
+     * Read the xls template and write the processed XLS file out. 
+     * 
+	 * @see com.vaadin.flow.server.StreamResourceWriter#accept(java.io.OutputStream, com.vaadin.flow.server.VaadinSession)
+	 */
+	@Override
+	public void accept(OutputStream stream, VaadinSession session) throws IOException {
+        try {
+    		session.lock();
+    		Locale locale = session.getLocale();
+            XLSTransformer transformer = new XLSTransformer();
+            configureTransformer(transformer);
+            Workbook workbook = null;
+            try {
+                setReportingInfo();
+                HashMap<String, Object> reportingBeans2 = getReportingBeans();
+                workbook = transformer.transformXLS(getTemplate(locale), reportingBeans2);
+            } catch (Exception e) {
+            	logger.error(LoggerUtils.stackTrace(e));
+            }
+            if (workbook != null) {
+                postProcess(workbook);
+                workbook.write(stream);
+            }
+        } catch (IOException e) {
+            // ignore
+        } catch (Throwable t) {
+        	logger.error(LoggerUtils.stackTrace(t));
+        } finally {
+        	session.unlock();
+        }
+	}
+	
+    abstract public InputStream getTemplate(Locale locale) throws IOException;
+    
+    public void setReportingBeans(HashMap<String, Object> jXLSBeans) {
+        this.reportingBeans = jXLSBeans;
+    }
+
+    public HashMap<String, Object> getReportingBeans() {
+        return reportingBeans;
+    }
+
+    public void setExcludeNotWeighed(boolean excludeNotWeighed) {
+        this.excludeNotWeighed = excludeNotWeighed;
+    }
+
+    public boolean isExcludeNotWeighed() {
+        return excludeNotWeighed;
+    }
+
+	public Group getGroup() {
+		return group;
+	}
+
+	public void setGroup(Group group) {
+		this.group = group;
+	}
+	
     protected void configureTransformer(XLSTransformer transformer) {
         // do nothing, to be overridden as needed,
     }
@@ -136,54 +166,4 @@ public abstract class JXLSWorkbookStreamSource implements InputStreamFactory {
         cellLeft.setCellStyle(blank);
         cellRight.setCellStyle(blank);
     }
-
-    abstract public InputStream getTemplate() throws IOException;
-
-    public int size() {
-        return athletes.size();
-    }
-
-    public List<Athlete> getAthletes() {
-        return athletes;
-    }
-
-    public void setReportingBeans(HashMap<String, Object> jXLSBeans) {
-        this.reportingBeans = jXLSBeans;
-    }
-
-    public HashMap<String, Object> getReportingBeans() {
-        return reportingBeans;
-    }
-
-    public void setExcludeNotWeighed(boolean excludeNotWeighed) {
-        this.excludeNotWeighed = excludeNotWeighed;
-    }
-
-    public boolean isExcludeNotWeighed() {
-        return excludeNotWeighed;
-    }
-    
-	@Override
-	public InputStream createInputStream() {
-		try {
-			return getTemplate();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-    protected Group getCurrentCompetitionSession() {
-    	Group group = null;
-    	OwlcmsSession.withFop((fop) -> {
-    		// FIXME getCurrentCompetitionSession should not require a FOP
-    		setGroup(fop.getGroup());
-    	});
-    	return group;
-
-	}
-
-	private void setGroup(Group group) {
-		this.group = group;
-	}
-
 }

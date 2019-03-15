@@ -10,16 +10,15 @@ package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Locale;
 
-import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
-
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 
 /**
@@ -28,30 +27,20 @@ import app.owlcms.data.group.Group;
  */
 @SuppressWarnings("serial")
 public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
+	
+	Logger logger = LoggerFactory.getLogger(JXLSWeighInSheet.class);
 
     public JXLSWeighInSheet() {
-        super(true);
+        super();
     }
 
-    public JXLSWeighInSheet(boolean excludeNotWeighed) {
-        super(excludeNotWeighed);
-    }
-
-    Logger logger = LoggerFactory.getLogger(JXLSWeighInSheet.class);
-
-    private Competition competition;
-
-    @Override
-    protected void init() {
-        super.init();
-        competition = Competition.getCurrent();
-        getReportingBeans().put("competition", competition);
-        getReportingBeans().put("session", getCurrentCompetitionSession());
+    public JXLSWeighInSheet(Group group, boolean excludeNotWeighed) {
+        super();
     }
 
     @Override
-    public InputStream getTemplate() throws IOException {
-        String templateName = "/WeighInSheetTemplate_" + UI.getCurrent().getLocale().getLanguage() + ".xls";
+    public InputStream getTemplate(Locale locale) throws IOException {
+        String templateName = "/templates/weighin/WeighInSheetTemplate_" + locale.getLanguage() + ".xls";
         final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName);
         if (resourceAsStream == null) {
             throw new IOException("resource not found: " + templateName);} //$NON-NLS-1$
@@ -59,27 +48,13 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
     }
 
     @Override
-    protected void getSortedAthletes() {
-        final Group currentGroup = getCurrentCompetitionSession();
+    protected List<Athlete> getSortedAthletes() {
+        final Group currentGroup = getGroup();
         if (currentGroup != null) {
             // AthleteContainer is used to ensure filtering to current group
-            this.athletes = AthleteSorter.displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup,isExcludeNotWeighed()));
+            return AthleteSorter.displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup,isExcludeNotWeighed()));
         } else {
-            this.athletes = AthleteSorter.displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null,isExcludeNotWeighed()));
-        }
-        // AthleteSorter.assignStartNumbers(athletes);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#postProcess(org.apache.poi.ss.usermodel.Workbook)
-     */
-    @Override
-    protected void postProcess(Workbook workbook) {
-        final Group currentCompetitionSession = getCurrentCompetitionSession();
-        if (currentCompetitionSession == null) {
-            zapCellPair(workbook, 3, 10);
+            return AthleteSorter.displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null,isExcludeNotWeighed()));
         }
     }
 

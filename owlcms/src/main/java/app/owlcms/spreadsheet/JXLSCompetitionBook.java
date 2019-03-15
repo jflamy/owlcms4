@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -50,15 +51,15 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
     public JXLSCompetitionBook() {
         // by default, we exclude athletes who did not weigh in.
-        super(true);
+        super();
     }
 
     public JXLSCompetitionBook(boolean excludeNotWeighed) {
-        super(excludeNotWeighed);
+        super();
     }
 
     @Override
-    public InputStream getTemplate() throws IOException {
+    public InputStream getTemplate(Locale locale) throws IOException {
         String resultTemplateFileName = Competition.getCurrent().getResultTemplateFileName();
         File templateFile = new File(resultTemplateFileName);
         if (!templateFile.exists()) {
@@ -70,17 +71,11 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     }
 
     @Override
-    public void init() {
-        super.init();
-        Competition competition = Competition.getCurrent();
-        getReportingBeans().put("competition", competition);
-    }
-
-    @Override
-    protected void getSortedAthletes() {
+    protected void setReportingInfo() {
+    	super.setReportingInfo();
         HashMap<String, Object> reportingBeans = getReportingBeans();
 
-        this.athletes = AthleteRepository.findAllByGroupAndWeighIn(null,true);
+        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null,true);
         if (athletes.isEmpty()) {
             // prevent outputting silliness.
             throw new RuntimeException("No athletes."); //$NON-NLS-1$
@@ -278,4 +273,10 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
             }
         }
     }
+
+	@Override
+	protected List<Athlete> getSortedAthletes() {
+		// not used (setReportingInfo does all the work)
+		return null;
+	}
 }

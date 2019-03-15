@@ -10,16 +10,15 @@ package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
-
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.competition.Competition;
-import app.owlcms.data.group.Group;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
@@ -29,30 +28,11 @@ import net.sf.jxls.transformer.XLSTransformer;
 @SuppressWarnings("serial")
 public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 
-    private JXLSJurySheet() {
-        super(true);
-    }
-
-    public JXLSJurySheet(boolean excludeNotWeighed) {
-        super(excludeNotWeighed);
-    }
-
     Logger logger = LoggerFactory.getLogger(JXLSJurySheet.class);
 
-    private Competition competition;
-
     @Override
-    protected void init() {
-        super.init();
-        competition = Competition.getCurrent();
-        getReportingBeans().put("competition", competition);
-        //FIXME: set session without breaking FOP
-        getReportingBeans().put("group", getCurrentGroup());
-    }
-
-    @Override
-    public InputStream getTemplate() throws IOException {
-        String templateName = "/JurySheetTemplate_" + UI.getCurrent().getLocale().getLanguage() + ".xls";
+    public InputStream getTemplate(Locale locale) throws IOException {
+        String templateName = "/jury/JurySheetTemplate_" + locale.getLanguage() + ".xls";
         final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName);
         if (resourceAsStream == null) {
             throw new IOException("resource not found: " + templateName);} //$NON-NLS-1$
@@ -60,14 +40,10 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
     }
 
     @Override
-    protected void getSortedAthletes() {
-        this.athletes = AthleteSorter.displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getCurrentGroup(), isExcludeNotWeighed()));
+    protected List<Athlete> getSortedAthletes() {
+        return AthleteSorter.displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), isExcludeNotWeighed()));
     }
 
-    private Group getCurrentGroup() {
-		//FIXME getCurrentCompetitionSession
-		return null;
-	}
 
 	/*
      * (non-Javadoc)

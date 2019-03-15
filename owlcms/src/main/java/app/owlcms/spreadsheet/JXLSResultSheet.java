@@ -12,11 +12,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Locale;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
@@ -35,28 +38,14 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
     private Competition competition;
 
     public JXLSResultSheet() {
-        super(true);
+        super();
     }
-
-    public JXLSResultSheet(boolean excludeNotWeighed) {
-        super(excludeNotWeighed);
-    }
-
-    @Override
-    protected void init() {
-        //System.err.println("JXLSResultSheet init");
-        super.init();
-        competition = Competition.getCurrent();
-        getReportingBeans().put("competition", competition);
-        getReportingBeans().put("session", getCurrentCompetitionSession());
-        //System.err.println("masters = "+getReportingBeans().get("masters"));
-    }
-
-
 
 	@Override
-    public InputStream getTemplate() throws IOException {
+    public InputStream getTemplate(Locale locale) throws IOException {
         String protocolTemplateFileName = competition.getProtocolFileName();
+        
+        protocolTemplateFileName = "/templates/protocol/ProtocolSheetTemplate_" + locale.getLanguage() + ".xls";
         if (protocolTemplateFileName != null) {
             File templateFile = new File(protocolTemplateFileName);
             if (templateFile.exists()) {
@@ -71,15 +60,16 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
     }
 
     @Override
-    protected void getSortedAthletes() {
-        final Group currentGroup = getCurrentCompetitionSession();
-        if (currentGroup != null) {
-            // AthleteContainer is used to ensure filtering to current group
-            this.athletes = AthleteSorter.resultsOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup,isExcludeNotWeighed()),Ranking.TOTAL);
+    protected List<Athlete> getSortedAthletes() {
+        final Group currentGroup = getGroup();
+        List<Athlete> athletes;
+		if (currentGroup != null) {
+            athletes = AthleteSorter.resultsOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup,true),Ranking.TOTAL);
         } else {
-            this.athletes = AthleteSorter.resultsOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null,isExcludeNotWeighed()),Ranking.TOTAL);
+            athletes = AthleteSorter.resultsOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null,true),Ranking.TOTAL);
         }
         AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+        return athletes;
     }
 
     /*
@@ -89,7 +79,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
      */
     @Override
     protected void postProcess(Workbook workbook) {
-        final Group currentCompetitionSession = getCurrentCompetitionSession();
+        final Group currentCompetitionSession = getGroup();
         if (currentCompetitionSession == null) {
             zapCellPair(workbook, 3, 9);
         }

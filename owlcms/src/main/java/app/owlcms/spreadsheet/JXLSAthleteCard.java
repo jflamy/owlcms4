@@ -10,18 +10,17 @@ package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Locale;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
-
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.group.Group;
-import app.owlcms.init.OwlcmsSession;
 
 @SuppressWarnings("serial")
 public class JXLSAthleteCard extends JXLSWorkbookStreamSource {
@@ -39,19 +38,19 @@ public class JXLSAthleteCard extends JXLSWorkbookStreamSource {
      *
      */
     public JXLSAthleteCard() {
-        super(false);
+        super();
     }
 
     public JXLSAthleteCard(boolean excludeNotWeighed) {
-        super(excludeNotWeighed);
+        super();
     }
 
     @SuppressWarnings("unused")
     private final static Logger logger = LoggerFactory.getLogger(JXLSAthleteCard.class);
 
     @Override
-    public InputStream getTemplate() throws IOException {
-        String templateName = "/AthleteCardTemplate_" + UI.getCurrent().getLocale().getLanguage() + ".xls";
+    public InputStream getTemplate(Locale locale) throws IOException {
+        String templateName = "/card/AthleteCardTemplate_" + locale.getLanguage() + ".xls";
         final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName);
         if (resourceAsStream == null) {
             throw new IOException("resource not found: " + templateName);} //$NON-NLS-1$
@@ -59,20 +58,14 @@ public class JXLSAthleteCard extends JXLSWorkbookStreamSource {
     }
 
     @Override
-    protected void getSortedAthletes() {
-		OwlcmsSession.withFop((fop) -> {
-			Group currentGroup = fop.getGroup();
-			if (currentGroup != null) {
-				// AthleteContainer is used to ensure filtering to current group
-				// this.athletes = AthleteSorter.registrationOrderCopy(new AthleteContainer(app,
-				// isExcludeNotWeighed()).getAllPojos());
-				this.athletes = AthleteSorter
-					.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, false));
-			} else {
-				this.athletes = AthleteSorter
-					.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, false));
-			}
-		});
+    protected List<Athlete> getSortedAthletes() {
+    	if (getGroup() != null) {
+    		return AthleteSorter
+    				.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), false));
+    	} else {
+    		return AthleteSorter
+    				.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, false));
+    	}
     }
 
     /*

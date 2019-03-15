@@ -74,8 +74,8 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#regular20kgRule(int)
 	 */
 	@Override
-	public void regular20kgRule(int qualTotal) {
-		a.regular20kgRule(qualTotal);
+	public String regular20kgRule(int qualTotal) {
+		return a.regular20kgRule(qualTotal);
 	}
 
 	/**
@@ -83,8 +83,8 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#masters15_20Rule(int)
 	 */
 	@Override
-	public void masters15_20Rule(int qualTotal) {
-		a.masters15_20Rule(qualTotal);
+	public String masters15_20Rule(int qualTotal) {
+		return a.masters15_20Rule(qualTotal);
 	}
 
 	/**
@@ -2145,16 +2145,6 @@ public class XAthlete extends Athlete {
 	@Override
 	public void setYearOfBirth(Integer birthYear) {
 		a.setYearOfBirth(birthYear);
-	}
-
-	/**
-	 * @param message
-	 * @param unlessCurrent
-	 * @see app.owlcms.data.athlete.Athlete#showMustClickNotification(java.lang.String, boolean)
-	 */
-	@Override
-	public void showMustClickNotification(String message, boolean unlessCurrent) {
-		a.showMustClickNotification(message, unlessCurrent);
 	}
 
 	/**
