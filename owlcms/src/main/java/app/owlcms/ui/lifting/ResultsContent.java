@@ -27,6 +27,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.BeforeEvent;
@@ -134,6 +135,7 @@ public class ResultsContent extends VerticalLayout
 		// change the URL to reflect group
 		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
+	
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.lifting.UIEventProcessor#updateGrid(app.owlcms.state.UIEvent.LiftingOrderUpdated)
 	 */
@@ -177,6 +179,14 @@ public class ResultsContent extends VerticalLayout
 			protected void initToolbar() {}
 			@Override
 			protected void updateButtons() {}
+			
+			@Override
+		    protected void updateButtonClicked() {
+				// only edit non-lifting groups
+				if (!checkFOP()) {
+					super.updateButtonClicked();
+				}
+		    }
 		};
 		
 		logger.debug("creating filters: group={}",currentGroup);
@@ -235,7 +245,6 @@ public class ResultsContent extends VerticalLayout
 	 */
 	@Override
 	public Athlete add(Athlete Athlete) {
-		checkFOP();
 		AthleteRepository.save(Athlete);
 		return Athlete;
 	}
@@ -245,18 +254,31 @@ public class ResultsContent extends VerticalLayout
 	 */
 	@Override
 	public Athlete update(Athlete Athlete) {
-		FieldOfPlayState fop = checkFOP();
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
-		fop.getEventBus()
-			.post(new FOPEvent.WeightChange(crud.getUI().get(), savedAthlete));
+		if (currentFop != null) {
+			currentFop.getEventBus()
+				.post(new FOPEvent.WeightChange(crud.getUI().get(), savedAthlete));
+		}
 		return savedAthlete;
 	}
 
-	protected FieldOfPlayState checkFOP() {
-		if (currentFop != null) {
-			Notification.show("This group is currently lifting on FOP "+currentFop+". You cannot edit the results.");
+	protected boolean checkFOP() {
+		Collection<FieldOfPlayState> fops = OwlcmsFactory.getFOPs();
+		FieldOfPlayState liftingFop = null;
+		search: for (FieldOfPlayState fop: fops) {
+			if (fop.getGroup() != null && fop.getGroup().equals(currentGroup)) {
+				liftingFop = fop;
+				break search;
+			}
 		}
-		return currentFop;
+		if (liftingFop != null) {
+			Notification.show("This group is currently lifting on platform "+liftingFop.getName()+". You cannot edit the results.", 3000, Position.MIDDLE);
+			logger.debug("Group {} lifting on {}, cannot edit", currentGroup, liftingFop);
+			subscribeIfLifting(currentGroup);
+		} else {
+			logger.debug("Group {} lifting on {}, editing", currentGroup, liftingFop);
+		}
+		return liftingFop != null;
 	}
 
 	/* (non-Javadoc)
@@ -264,7 +286,6 @@ public class ResultsContent extends VerticalLayout
 	 */
 	@Override
 	public void delete(Athlete Athlete) {
-		checkFOP();
 		AthleteRepository.delete(Athlete);
 	}
 
