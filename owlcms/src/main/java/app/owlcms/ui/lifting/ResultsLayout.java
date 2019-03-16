@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
-import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -40,25 +39,29 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Weigh-in page -- top bar.
+ * Results Page -- top bar.
  */
 @SuppressWarnings("serial")
 public class ResultsLayout extends MainNavigationLayout implements SafeEventBusRegistration, UIEventProcessor {
 
-	private final static Logger logger = (Logger)LoggerFactory.getLogger(ResultsLayout.class);
-	static {logger.setLevel(Level.DEBUG);}
+	private final Logger logger = (Logger)LoggerFactory.getLogger(ResultsLayout.class);
+	protected void initLoggers() {
+		logger.setLevel(Level.DEBUG);
+	}
 	
 	private HorizontalLayout topBar;
 	private ComboBox<Group> gridGroupFilter;
 	private AppLayout appLayout;
 	private ComboBox<Group> groupSelect;
-	private Group group;
+	private Group layoutGroup;
 	private Button download;
 	private Anchor groupResults;
+	
+	public ResultsLayout() {
+		initLoggers();
+	}
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
-	 */
+
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
@@ -75,19 +78,23 @@ public class ResultsLayout extends MainNavigationLayout implements SafeEventBusR
 	}
 	
 	/**
-	 * The layout is created before the content. This routine has created the content, we can refer to
-	 * the content using {@link #getLayoutContent()} and the content can refer to us via
-	 * {@link AppLayoutContent#getParentLayout()}
+	 * The layout is created before the content. This routine creates the content, and links Layout and
+	 * Content so we can refer to the content using {@link #getLayoutContent()} and the content can
+	 * refer to us via {@link AppLayoutContent#getParentLayout()}
 	 * 
 	 * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
 	 */
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
+		
 		super.showRouterLayoutContent(content);
 		ResultsContent ResultsContent = (ResultsContent) getLayoutContent();
 		ResultsContent.setParentLayout(this);
 		gridGroupFilter = ResultsContent.getGroupFilter();
+		logger.debug("showing layout content {} {}", content, gridGroupFilter);
+		setGroupSelectionListener();
 	}
+	
 	
 	/**
 	 * Create the top bar.
@@ -98,10 +105,6 @@ public class ResultsLayout extends MainNavigationLayout implements SafeEventBusR
 	 * @param topBar
 	 */
 	protected void createTopBar(HorizontalLayout topBar) {
-		logger.warn("createTopBar");
-		logger.warn("layout = {}", this.toString());
-//		logger.warn("content = {}", this.getLayoutContent().toString());
-
 		
 		H3 title = new H3();
 		title.setText("Group Results");
@@ -116,22 +119,15 @@ public class ResultsLayout extends MainNavigationLayout implements SafeEventBusR
 		groupSelect.setItemLabelGenerator(Group::getName);
 		groupSelect.setValue(null);
 		groupSelect.setWidth("8em");
-		groupSelect.addValueChangeListener(e -> {
-			setContentGroup(e);
-			download.setEnabled(e.getValue() != null);
-			groupResults.getElement().setAttribute("download", "results"+group+".xls");
-		});
-
 
 		JXLSResultSheet writer = new JXLSResultSheet();
 		StreamResource href = new StreamResource("resultSheet.xls", writer);
 		groupResults = new Anchor(href, "");
 		download = new Button("Group Results",new Icon(VaadinIcon.DOWNLOAD_ALT));
 		download.addClickListener((e) -> {
-			writer.setGroup(group);
+			writer.setGroup(layoutGroup);
 		});
 		groupResults.add(download);
-		download.setEnabled(false);
 			
 		HorizontalLayout buttons = new HorizontalLayout(
 				groupResults);
@@ -149,15 +145,28 @@ public class ResultsLayout extends MainNavigationLayout implements SafeEventBusR
 		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 	}
 
-	protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
-		group = e.getValue();
-		gridGroupFilter.setValue(e.getValue());
+
+	protected void setGroupSelectionListener() {
+		groupSelect.setValue(getContentGroup());
+		groupSelect.addValueChangeListener(e -> {
+			setContentGroup(e.getValue());
+			groupResults.getElement().setAttribute("download", "results"+(layoutGroup != null ? layoutGroup : "all") +".xls");
+		});
+	}
+
+	public void setContentGroup(Group group) {
+		this.layoutGroup = group;
+		gridGroupFilter.setValue(group);
+	}
+	
+	public Group getContentGroup() {
+		return gridGroupFilter.getValue();
 	}
 
 
 	protected void errorNotification() {
 		Label content = new Label(
-		        "Please select a group first.");
+		        "Please select a Group first.");
 		content.getElement().setAttribute("theme", "error");
 		Button buttonInside = new Button("Got it.");
 		buttonInside.getElement().setAttribute("theme","error primary");
@@ -168,5 +177,12 @@ public class ResultsLayout extends MainNavigationLayout implements SafeEventBusR
 		buttonInside.addClickListener(event -> notification.close());
 		notification.setPosition(Position.MIDDLE);
 		notification.open();
+	}
+
+
+	public void setLayoutGroup(Group currentGroup) {
+		this.layoutGroup=currentGroup;
+		this.groupSelect.setValue(currentGroup);
+		
 	}
 }

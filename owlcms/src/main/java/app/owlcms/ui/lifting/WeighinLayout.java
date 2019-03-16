@@ -101,11 +101,7 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 	 * @param topBar
 	 */
 	protected void createTopBar(HorizontalLayout topBar) {
-		logger.warn("createTopBar");
-		logger.warn("layout = {}", this.toString());
-//		logger.warn("content = {}", this.getLayoutContent().toString());
 
-		
 		H3 title = new H3();
 		title.setText("Weigh-In");
 		title.add();
