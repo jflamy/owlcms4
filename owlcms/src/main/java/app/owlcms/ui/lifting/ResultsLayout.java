@@ -79,14 +79,13 @@ public class ResultsLayout extends MainNavigationLayout implements SafeEventBusR
 	
 	/**
 	 * The layout is created before the content. This routine creates the content, and links Layout and
-	 * Content so we can refer to the content using {@link #getLayoutContent()} and the content can
+	 * Content together so we can refer to the content using {@link #getLayoutContent()} and the content can
 	 * refer to us via {@link AppLayoutContent#getParentLayout()}
 	 * 
 	 * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
 	 */
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
-		
 		super.showRouterLayoutContent(content);
 		ResultsContent ResultsContent = (ResultsContent) getLayoutContent();
 		ResultsContent.setParentLayout(this);
@@ -150,7 +149,7 @@ public class ResultsLayout extends MainNavigationLayout implements SafeEventBusR
 		groupSelect.setValue(getContentGroup());
 		groupSelect.addValueChangeListener(e -> {
 			setContentGroup(e.getValue());
-			groupResults.getElement().setAttribute("download", "results"+(layoutGroup != null ? layoutGroup : "all") +".xls");
+			groupResults.getElement().setAttribute("download", "results"+(layoutGroup != null ? layoutGroup : "_all") +".xls");
 		});
 	}
 
@@ -180,9 +179,22 @@ public class ResultsLayout extends MainNavigationLayout implements SafeEventBusR
 	}
 
 
-	public void setLayoutGroup(Group currentGroup) {
-		this.layoutGroup=currentGroup;
-		this.groupSelect.setValue(currentGroup);
+	/**
+	 * Set the top bar settings for the group.
+	 * 
+	 * Initialization proceeds as follows (1) The content class receives the routing information and the
+	 * URL parameters (including the group), but does not create its user interface. 
+	 * (2) then the parent layout (this class) is created with the top bar UI, then
+	 * (3) the content UI (the grid and the filters) is created and added.
+	 * 
+	 * This method is used during stage 2 to populate information gathered at stage 1.
+	 * 
+	 * @param nGroup the group as obtained from the URL
+	 */
+	public void setLayoutGroup(Group nGroup) {
+		this.layoutGroup = nGroup;
+		this.groupSelect.setValue(nGroup);
+		groupResults.getElement().setAttribute("download", "results"+(layoutGroup != null ? layoutGroup : "_all") +".xls");
 		
 	}
 }

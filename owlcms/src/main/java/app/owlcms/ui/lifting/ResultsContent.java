@@ -99,42 +99,10 @@ public class ResultsContent extends VerticalLayout
 	protected void onAttach(AttachEvent attachEvent) {
 		crud = getGridCrud();
 		fillHW(crud, this);
+		// only now we know for sure the top bar is ready.
 		((ResultsLayout)getParentLayout()).setLayoutGroup(currentGroup); // from http query parameters
 	}
 
-	/**
-	 * Parse the http query parameters
-	 * 
-	 * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
-	 * 
-	 * @param event Vaadin navigation event
-	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query parameters instead.
-	 * 
-	 * @see app.owlcms.ui.home.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
-	 */
-	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		location = event.getLocation();
-		locationUI = event.getUI();
-				
-		QueryParameters queryParameters = location.getQueryParameters();
-		Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
-		HashMap<String, List<String>> params = new HashMap<String, List<String>>(parametersMap);
-		
-		logger.debug("parsing query parameters");
-		List<String> groupNames = params.get("group");
-		if (groupNames != null && !groupNames.isEmpty()) {
-			String groupName = groupNames.get(0);
-			currentGroup = GroupRepository.findByName(groupName);
-		} else {
-			currentGroup = null;
-		}
-		if (currentGroup != null) params.put("group",Arrays.asList(currentGroup.getName()));
-		params.remove("fop");
-		
-		// change the URL to reflect group
-		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
-	}
 	
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.lifting.UIEventProcessor#updateGrid(app.owlcms.state.UIEvent.LiftingOrderUpdated)
@@ -158,7 +126,8 @@ public class ResultsContent extends VerticalLayout
 		ThemeList themes = grid.getThemeNames();
 		themes.add("compact");
 		themes.add("row-stripes");
-		grid.setColumns("lastName", "firstName", "team", "category", "total");
+		grid.setColumns("lastName", "firstName", "team", "category", "bestSnatch", "snatchRank", "bestCleanJerk",
+			"cleanJerkRank", "total", "totalRank");
 		grid.getColumnByKey("lastName")
 			.setHeader("Last Name");
 		grid.getColumnByKey("firstName")
@@ -167,8 +136,18 @@ public class ResultsContent extends VerticalLayout
 			.setHeader("Team");
 		grid.getColumnByKey("category")
 			.setHeader("Category");
+		grid.getColumnByKey("bestSnatch")
+			.setHeader("Snatch");
+		grid.getColumnByKey("snatchRank")
+			.setHeader("Snatch Rank");
+		grid.getColumnByKey("bestCleanJerk")
+			.setHeader("Clean&Jerk");
+		grid.getColumnByKey("cleanJerkRank")
+			.setHeader("Clean&Jerk Rank");
 		grid.getColumnByKey("total")
 			.setHeader("Total");
+		grid.getColumnByKey("totalRank")
+			.setHeader("Rank");
 
 		OwlcmsCrudLayout owlcmsCrudLayout = new OwlcmsCrudLayout(Athlete.class);
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
@@ -210,35 +189,6 @@ public class ResultsContent extends VerticalLayout
 		return crud;
 	}
 
-	private void subscribeIfLifting(Group nGroup) {
-		logger.debug("subscribeIfLifting {}",nGroup);
-		Collection<FieldOfPlayState> fops = OwlcmsFactory.getFOPs();
-		currentFop = null;
-		for (FieldOfPlayState fop: fops) {
-			if (fop.getGroup() != null && fop.getGroup().equals(nGroup)) {
-				logger.debug("subscribing to {} {}", fop, nGroup);
-				try {fop.getUiEventBus().register(this);} catch (Exception ex) {}
-				try {fop.getEventBus().register(this);} catch (Exception ex) {}
-				currentFop = fop;
-			} else {
-				try {fop.getUiEventBus().unregister(this);} catch (Exception ex) {}
-				try {fop.getEventBus().unregister(this);} catch (Exception ex) {}
-			}
-		}
-		currentGroup = nGroup;
-		refresh();
-	}
-
-	public void updateURLLocation(UI ui, Location location, Group newGroup) {
-		// change the URL to reflect fop group
-		HashMap<String, List<String>> params = new HashMap<String, List<String>>(location.getQueryParameters().getParameters());
-		if (newGroup != null) {
-			params.put("group",Arrays.asList(newGroup.getName()));
-		} else {
-			params.remove("group");
-		}
-		ui.getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
-	}
 
 	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
@@ -262,25 +212,6 @@ public class ResultsContent extends VerticalLayout
 		return savedAthlete;
 	}
 
-	protected boolean checkFOP() {
-		Collection<FieldOfPlayState> fops = OwlcmsFactory.getFOPs();
-		FieldOfPlayState liftingFop = null;
-		search: for (FieldOfPlayState fop: fops) {
-			if (fop.getGroup() != null && fop.getGroup().equals(currentGroup)) {
-				liftingFop = fop;
-				break search;
-			}
-		}
-		if (liftingFop != null) {
-			Notification.show("This group is currently lifting on platform "+liftingFop.getName()+". You cannot edit the results.", 3000, Position.MIDDLE);
-			logger.debug("Group {} lifting on {}, cannot edit", currentGroup, liftingFop);
-			subscribeIfLifting(currentGroup);
-		} else {
-			logger.debug("Group {} lifting on {}, editing", currentGroup, liftingFop);
-		}
-		return liftingFop != null;
-	}
-
 	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
 	 */
@@ -296,7 +227,13 @@ public class ResultsContent extends VerticalLayout
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		return AthleteSorter.resultsOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(), true), Ranking.TOTAL);
+		List<Athlete> athletes = AthleteSorter.resultsOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(), true), Ranking.TOTAL);
+		AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+		AthleteSorter.resultsOrder(athletes, Ranking.SNATCH);
+		AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
+		AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK);
+		AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
+		return athletes;
 	}
 
 	/**
@@ -318,5 +255,90 @@ public class ResultsContent extends VerticalLayout
 
 	public void refresh() {
 		crud.refreshGrid();
+	}
+	
+	private void subscribeIfLifting(Group nGroup) {
+		logger.debug("subscribeIfLifting {}",nGroup);
+		Collection<FieldOfPlayState> fops = OwlcmsFactory.getFOPs();
+		currentFop = null;
+		for (FieldOfPlayState fop: fops) {
+			if (fop.getGroup() != null && fop.getGroup().equals(nGroup)) {
+				logger.debug("subscribing to {} {}", fop, nGroup);
+				try {fop.getUiEventBus().register(this);} catch (Exception ex) {}
+				try {fop.getEventBus().register(this);} catch (Exception ex) {}
+				currentFop = fop;
+			} else {
+				try {fop.getUiEventBus().unregister(this);} catch (Exception ex) {}
+				try {fop.getEventBus().unregister(this);} catch (Exception ex) {}
+			}
+		}
+		currentGroup = nGroup;
+		refresh();
+	}
+	
+	/**
+	 * @return true if the current group is safe for editing -- i.e. not lifting currently
+	 */
+	private boolean checkFOP() {
+		Collection<FieldOfPlayState> fops = OwlcmsFactory.getFOPs();
+		FieldOfPlayState liftingFop = null;
+		search: for (FieldOfPlayState fop: fops) {
+			if (fop.getGroup() != null && fop.getGroup().equals(currentGroup)) {
+				liftingFop = fop;
+				break search;
+			}
+		}
+		if (liftingFop != null) {
+			Notification.show("This group is currently lifting on platform "+liftingFop.getName()+". You cannot edit the results.", 3000, Position.MIDDLE);
+			logger.debug("Group {} lifting on {}, cannot edit", currentGroup, liftingFop);
+			subscribeIfLifting(currentGroup);
+		} else {
+			logger.debug("Group {} lifting on {}, editing", currentGroup, liftingFop);
+		}
+		return liftingFop != null;
+	}
+	
+	/**
+	 * Parse the http query parameters
+	 * 
+	 * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
+	 * 
+	 * @param event Vaadin navigation event
+	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query parameters instead.
+	 * 
+	 * @see app.owlcms.ui.home.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+	 */
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		location = event.getLocation();
+		locationUI = event.getUI();		
+		QueryParameters queryParameters = location.getQueryParameters();
+		Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
+		HashMap<String, List<String>> params = new HashMap<String, List<String>>(parametersMap);
+		
+		logger.debug("parsing query parameters");
+		List<String> groupNames = params.get("group");
+		if (groupNames != null && !groupNames.isEmpty()) {
+			String groupName = groupNames.get(0);
+			currentGroup = GroupRepository.findByName(groupName);
+		} else {
+			currentGroup = null;
+		}
+		if (currentGroup != null) params.put("group",Arrays.asList(currentGroup.getName()));
+		params.remove("fop");
+		
+		// change the URL to reflect group
+		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
+	}
+	
+	private void updateURLLocation(UI ui, Location location, Group newGroup) {
+		// change the URL to reflect fop group
+		HashMap<String, List<String>> params = new HashMap<String, List<String>>(location.getQueryParameters().getParameters());
+		if (newGroup != null) {
+			params.put("group",Arrays.asList(newGroup.getName()));
+		} else {
+			params.remove("group");
+		}
+		ui.getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
 }
