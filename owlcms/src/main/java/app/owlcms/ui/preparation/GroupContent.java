@@ -8,6 +8,7 @@
  */
 package app.owlcms.ui.preparation;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Collection;
@@ -15,16 +16,21 @@ import java.util.Collection;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
+import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.platform.Platform;
+import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudLayout;
 import app.owlcms.ui.crudui.OwlcmsGridCrud;
@@ -129,6 +135,10 @@ public class GroupContent extends VerticalLayout
 			"Weigh-in Time",
 			"Start Time",
 			"Platform");
+		crudFormFactory.setFieldProvider("platform",
+            new ComboBoxProvider<>("Platform", PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
+		crudFormFactory.setFieldType("weighInTime", LocalDateTimeField.class);
+		crudFormFactory.setFieldType("competitionTime", LocalDateTimeField.class);
 	}
 
 	/**
@@ -140,11 +150,45 @@ public class GroupContent extends VerticalLayout
 	 */
 	private OwlcmsCrudFormFactory<Group> createGroupEditingFormFactory() {
 		return new OwlcmsCrudFormFactory<Group>(Group.class) {
-			@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
+			@SuppressWarnings({ "unchecked", "rawtypes" })
 			@Override
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
 				Binder.BindingBuilder bindingBuilder = binder.forField(field);
-				super.bindField(field, property, propertyType);
+				if ("competitionTime".equals(property)) {
+					competitionTimeValidation(bindingBuilder);
+					bindingBuilder.bind(property);
+				} else if ("weighInTime".equals(property)) {
+					weighInTimeValidation(bindingBuilder);
+					bindingBuilder.bind(property);
+				} else {
+					super.bindField(field, property, propertyType);
+				}
+			}
+			
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			protected void competitionTimeValidation(Binder.BindingBuilder bindingBuilder) {
+				Validator<LocalDateTime> v = Validator.from(
+					ld -> {
+						LocalDateTime now = LocalDateTime.now();
+						int compare = ld.compareTo(now);
+						logger.debug("start {}  {}  {}", ld, now, compare);
+						return compare >= 0; // ld is two hours after app start, ld > now for the first two hours
+						},
+					"Competition cannot be in the past");
+				bindingBuilder.withValidator(v);
+			}
+			
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			protected void weighInTimeValidation(Binder.BindingBuilder bindingBuilder) {
+				Validator<LocalDateTime> v = Validator.from(
+					ld -> {
+						LocalDateTime now = LocalDateTime.now();
+						int compare = ld.compareTo(now);
+						logger.debug("weighin {}  {}  {}", ld, now, compare);
+						return compare <= 0;  // ld <= now (set when app starts)
+						},
+					"Weigh-in cannot be in the past");
+				bindingBuilder.withValidator(v);
 			}
 		};
 	}
