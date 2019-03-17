@@ -557,7 +557,7 @@ public void setShowTimer(Boolean showTime) {
      */
     @Override
     public String toString() {
-        return name + "_" + System.identityHashCode(this); //$NON-NLS-1$
+        return name; //$NON-NLS-1$
     }
 
 	/**

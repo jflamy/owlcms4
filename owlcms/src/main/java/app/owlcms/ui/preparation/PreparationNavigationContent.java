@@ -37,7 +37,7 @@ public class PreparationNavigationContent extends VerticalLayout
 					.navigate(CategoryContent.class));
 		Button groups = new Button("Define Groups",
 				buttonClickEvent -> UI.getCurrent()
-					.navigate(CategoryContent.class));
+					.navigate(GroupContent.class));
 		Button upload = new Button("Upload Registration File",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(CategoryContent.class));
@@ -52,7 +52,6 @@ public class PreparationNavigationContent extends VerticalLayout
 			athletes);
 		
 		competition.setEnabled(false);
-		groups.setEnabled(false);
 		upload.setEnabled(false);
 		
 		fillH(grid, this);

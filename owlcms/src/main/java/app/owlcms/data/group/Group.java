@@ -10,6 +10,8 @@ package app.owlcms.data.group;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Cacheable;
@@ -22,7 +24,9 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.Transient;
+
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
@@ -35,8 +39,9 @@ import app.owlcms.data.platform.Platform;
 @Cacheable
 public class Group implements Comparable<Group> {
 	
-    private static final SimpleDateFormat sFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    private String announcer;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     
     /** The athletes. */
     // group is the property in Athlete that is the opposite of Group.athletes
@@ -45,39 +50,34 @@ public class Group implements Comparable<Group> {
     Set<Athlete> athletes;
     
     /** The categories. */
-    @ManyToMany(cascade={CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToMany( cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+			CascadeType.REFRESH }, fetch = FetchType.EAGER)
     Set<Category> categories;
+   
+    /** The platform. */
+    @ManyToOne(cascade={CascadeType.PERSIST, CascadeType.MERGE}, optional = true, fetch = FetchType.EAGER)
+    Platform platform;
 
     /** The competition short date time. */
-    @Transient
-    final transient String competitionShortDateTime = "";
     private LocalDateTime competitionTime;
+    private LocalDateTime weighInTime;
+    private static final SimpleDateFormat sFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    
-    private String jury;
-    private String marshall;
     private String name;
-    
-    /** The platform. */
-    @ManyToOne(cascade={CascadeType.PERSIST, CascadeType.MERGE}, optional = true, fetch = FetchType.LAZY)
-    Platform platform;
+    private String marshall;
+    private String announcer;
+    private String technicalController;
+    private String timeKeeper;
     
     private String referee1;
     private String referee2;
     private String referee3;
-
-    private String technicalController;
-
-    private String timeKeeper;
     
-    /** The weigh in short date time. */
-    @Transient
-    final transient String weighInShortDateTime = "";
-
-    private LocalDateTime weighInTime;
+    private String jury1;
+    private String jury2;
+    private String jury3;
+    private String jury4;
+    private String jury5;
 
     /**
      * Instantiates a new group.
@@ -190,7 +190,7 @@ public class Group implements Comparable<Group> {
     public String getCompetitionShortDateTime() {
         String formatted = "";
         try {
-            formatted = sFormat.format(competitionTime);
+            formatted = sFormat.format(getCompetitionTime());
         } catch (Exception e) {
             //LoggerUtils.errorException(logger, e);
         }
@@ -221,7 +221,9 @@ public class Group implements Comparable<Group> {
      * @return the jury
      */
     public String getJury() {
-        return jury;
+    	List<String> jurors = Arrays.asList(jury1, jury2, jury3, jury4, jury5);
+    	Iterables.removeIf(jurors, Predicates.isNull());
+    	return String.join(", ", jurors);
     }
 
     /**
@@ -367,15 +369,6 @@ public class Group implements Comparable<Group> {
      */
     public void setCompetitionTime(LocalDateTime c) {
         this.competitionTime = c;
-    }
-
-    /**
-     * Sets the jury.
-     *
-     * @param jury the new jury
-     */
-    public void setJury(String jury) {
-        this.jury = jury;
     }
 
     /**
