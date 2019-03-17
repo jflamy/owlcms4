@@ -18,6 +18,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FieldOfPlayState;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public interface QueryParameterReader extends HasUrlParameter<String>{
@@ -30,6 +31,8 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 	 */
 	@Override
 	public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		logger.setLevel(Level.DEBUG);
+		logger.debug("setParameter parameter={}",parameter);
 		
 		Location location = event.getLocation();
 		QueryParameters queryParameters = location.getQueryParameters();
@@ -46,7 +49,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 			params.put("fop",Arrays.asList(fop.getName()));
 		}
 		
-		// get the group from query parameters, leave as fop if group is absent
+		// get the group from query parameters, do not add value if group is not defined
 		List<String> groupNames = parametersMap.get("group");
 		Group group;
 		if (groupNames != null  && groupNames.get(0) != null) {

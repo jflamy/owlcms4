@@ -8,13 +8,11 @@
  */
 package app.owlcms.data.competition;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.jpa.JPAService;
 
 /**
@@ -72,60 +70,6 @@ public class CompetitionRepository {
 	public static List<Competition> findAll() {
 		return JPAService.runInTransaction(em -> em.createQuery("select c from Competition c")
 			.getResultList());
-	}
-
-	private static String byAgeDivision = "from Competition c where c.ageDivision = :division";
-
-	/**
-	 * Find by age division.
-	 *
-	 * @param ageDivision the age division
-	 * @param offset the offset
-	 * @param limit the limit
-	 * @return the collection
-	 */
-	@SuppressWarnings("unchecked")
-	public static Collection<Competition> findByAgeDivision(AgeDivision ageDivision, int offset, int limit) {
-		if (ageDivision == null) {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select c from Competition c");
-				query.setFirstResult(offset);
-				query.setMaxResults(limit);
-				return query.getResultList();
-			});
-		} else {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select c " + byAgeDivision);
-				query.setParameter("division", ageDivision);
-				query.setFirstResult(offset);
-				query.setMaxResults(limit);
-				List<Competition> resultList = query.getResultList();
-				return resultList;
-			});
-		}
-	}
-
-	/**
-	 * Count by age division.
-	 *
-	 * @param ageDivision the age division
-	 * @return the int
-	 */
-	public static int countByAgeDivision(AgeDivision ageDivision) {
-		if (ageDivision == null) {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select count(c.id) from Competition c");
-				int i = ((Long) query.getSingleResult()).intValue();
-				return i;
-			});
-		} else {
-			return JPAService.runInTransaction(em -> {
-				Query query = em.createQuery("select count(c.id) " + byAgeDivision);
-				query.setParameter("division", ageDivision);
-				int i = ((Long) query.getSingleResult()).intValue();
-				return i;
-			});
-		}
 	}
 
 }

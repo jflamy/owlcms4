@@ -24,7 +24,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
@@ -62,23 +61,23 @@ public class CategoryContent extends VerticalLayout
 		OwlcmsCrudFormFactory<Category> crudFormFactory = createFormFactory();
 		GridCrud<Category> crud = createGrid(crudFormFactory);
 		defineFilters(crud);
-		defineQueries(crud);
+//		defineQueries(crud);
 		fillHW(crud, this);
 	}
 	
-	/**
-	 * Define how to populate the athlete grid
-	 * 
-	 * @param crud
-	 */
-	protected void defineQueries(GridCrud<Category> crud) {
-		crud.setFindAllOperation(
-			DataProvider.fromCallbacks(
-				query -> CategoryRepository
-					.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), activeFilter.getValue(), query.getOffset(), query.getLimit())
-					.stream(),
-				query -> CategoryRepository.countFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), activeFilter.getValue())));
-	}
+//	/**
+//	 * Define how to populate the athlete grid
+//	 * 
+//	 * @param crud
+//	 */
+//	protected void defineQueries(GridCrud<Category> crud) {
+//		crud.setFindAllOperation(
+//			DataProvider.fromCallbacks(
+//				query -> CategoryRepository
+//					.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), activeFilter.getValue(), query.getOffset(), query.getLimit())
+//					.stream(),
+//				query -> CategoryRepository.countFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), activeFilter.getValue())));
+//	}
 	
 	/**
 	 * The columns of the grid
@@ -200,7 +199,8 @@ public class CategoryContent extends VerticalLayout
 	 */
 	@Override
 	public Collection<Category> findAll() {
-		return CategoryRepository.findAll();
+		return CategoryRepository
+				.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), activeFilter.getValue(), -1, -1);
 	}
 	
 	/**

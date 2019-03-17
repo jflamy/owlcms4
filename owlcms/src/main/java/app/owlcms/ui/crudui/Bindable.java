@@ -1,9 +1,7 @@
-package app.owlcms.crudui;
+package app.owlcms.ui.crudui;
 
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.converter.Converter;
-
-import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 
 /**
  * Defines an extension to TextField that can be bound to CrudUI form creation

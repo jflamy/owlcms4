@@ -14,7 +14,7 @@ import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.converter.StringToDoubleConverter;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
 
-import app.owlcms.crudui.Bindable;
+import app.owlcms.ui.crudui.Bindable;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 
 /**

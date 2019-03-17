@@ -8,6 +8,7 @@
  */
 package app.owlcms.init;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -86,4 +87,22 @@ public class OwlcmsFactory {
 		return fop.orElseThrow(() -> new RuntimeException("no default platform"));
 	}
 
+	public static FieldOfPlayState getFOPByGroupName(String name) {
+		if (fopByName == null) {
+			return null; // no group is lifting yet.
+		}
+		Collection<FieldOfPlayState> values = fopByName.values();
+		for (FieldOfPlayState v: values) {
+			if (v.getGroup().getName().equals(name)) return v;
+		}
+		return null;
+	}
+
+	public static Collection<FieldOfPlayState> getFOPs() {
+		if (fopByName == null) {
+			initFOPByName();
+		}
+		Collection<FieldOfPlayState> values = fopByName.values();
+		return values;
+	}
 }

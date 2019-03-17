@@ -28,14 +28,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.binder.Validator;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.crudui.Bindable;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -44,6 +42,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.ui.crudui.Bindable;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudLayout;
 import app.owlcms.ui.crudui.OwlcmsGridCrud;
@@ -78,25 +77,25 @@ public class AthletesContent extends VerticalLayout
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
 		GridCrud<Athlete> crud = createGrid(crudFormFactory);		
 		defineFilters(crud);
-		defineQueries(crud);
+//		defineQueries(crud);
 		fillHW(crud, this);
 	}
 
-	/**
-	 * Define how to populate the athlete grid
-	 * 
-	 * @param crud
-	 */
-	protected void defineQueries(GridCrud<Athlete> crud) {
-		crud.setFindAllOperation(
-			DataProvider.fromCallbacks(
-				query -> AthleteRepository
-					.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
-						ageDivisionFilter.getValue(), null, query.getOffset(), query.getLimit())
-					.stream(),
-				query -> AthleteRepository.countFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
-					categoryFilter.getValue(), ageDivisionFilter.getValue(), null)));
-	}
+//	/**
+//	 * Define how to populate the athlete grid
+//	 * 
+//	 * @param crud
+//	 */
+//	protected void defineQueries(GridCrud<Athlete> crud) {
+//		crud.setFindAllOperation(
+//			DataProvider.fromCallbacks(
+//				query -> AthleteRepository
+//					.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
+//						ageDivisionFilter.getValue(), null, query.getOffset(), query.getLimit())
+//					.stream(),
+//				query -> AthleteRepository.countFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
+//					categoryFilter.getValue(), ageDivisionFilter.getValue(), null)));
+//	}
 
 	/**
 	 * The columns of the grid
@@ -309,7 +308,10 @@ public class AthletesContent extends VerticalLayout
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		return AthleteRepository.findAll();
+		return AthleteRepository
+				.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
+					ageDivisionFilter.getValue(), null, -1, -1);
+//		return AthleteRepository.findAll();
 	}
 	
 	/**

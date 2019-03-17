@@ -41,6 +41,14 @@ import ch.qos.logback.classic.Logger;
  * @author owlcms
  */
 public class FieldOfPlayState {
+	
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlayState.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	protected void init_loggers() {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
+ 
 	/**
 	 *  Current state of the competition field of play.
 	 */
@@ -80,12 +88,6 @@ public class FieldOfPlayState {
 		DECISION_VISIBLE,
 	}
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlayState.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
-	static { 
-		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.DEBUG);
-	}
 
 	/**
 	 * Gets the logger.
@@ -122,12 +124,16 @@ public class FieldOfPlayState {
 	 * @param platform2 the platform (to get details such as name)
 	 */
 	public FieldOfPlayState(Group group, Platform platform2) {
+		init_loggers(); 
+		
 		this.name = platform2.getName();
 		this.eventBus = new EventBus("FOP-"+name);
 		this.uiEventBus = new EventBus("UI-"+name);
 		this.timer = null;
 		this.platform = platform2;
 	}
+
+
 	
 	/**
 	 * Instantiates a new field of play state.
@@ -512,7 +518,7 @@ public class FieldOfPlayState {
 	 */
 	public void switchGroup(Group group) {
 		this.group = group;
-		logger.info("switching to group {}", (group != null ? group.getName() : group));
+		logger.info("{} switching to group {}", this.getName(), (group != null ? group.getName() : group));
 		if (group != null) {
 			List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
 			init(findAllByGroupAndWeighIn, timer);
@@ -617,7 +623,7 @@ public class FieldOfPlayState {
 	
 		logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={}",
 			curAthlete,
-			curAthlete.getAttemptedLifts() + 1,
+			curAthlete != null ? curAthlete.getAttemptedLifts() + 1 : 0,
 			nextAttemptRequestedWeight,
 			clock);
 	}
