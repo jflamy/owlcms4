@@ -43,6 +43,8 @@ public class Competition {
 			competition = new Competition();
 		}
 		return competition;
+//FIXME: using database instance breaks init !?
+//		return CompetitionRepository.findAll().get(0);
 	}
 	
 
@@ -50,28 +52,33 @@ public class Competition {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	Long id;	
-	
-	private String competitionCity;
-	private LocalDate competitionDate = null;
+
 	private String competitionName;
+	private LocalDate competitionDate = null;
 	private String competitionOrganizer;
 	private String competitionSite;
-	private Locale defaultLocale = Locale.ENGLISH;
-	private boolean enforce20kgRule = true;
+	private String competitionCity;
+
 	private String federation;
 	private String federationAddress;
 	private String federationEMail;
 	private String federationWebSite;
-	private Integer invitedIfBornBefore;
-	private boolean masters = false;
+	
+	private Locale defaultLocale = Locale.ENGLISH;
 	private String protocolFileName;
 	private String resultTemplateFileName;
+	
+	private boolean enforce20kgRule = true;
+	private boolean masters = false;
+	private boolean useBirthYear = false;
+	
 	private boolean useCategorySinclair = false;
 	private boolean useOld20_15Rule = false;
 	private boolean useOldBodyWeightTieBreak = false;
 	private boolean useRegistrationCategory = true;
+	
 
-	private boolean useBirthYear;
+
 
 
 	/**
@@ -179,9 +186,7 @@ public class Competition {
 	 * @return the invited if born before
 	 */
 	public Integer getInvitedIfBornBefore() {
-		if (invitedIfBornBefore == null)
-			return 0;
-		return invitedIfBornBefore;
+		return 0;
 	}
 
 	/**
@@ -226,6 +231,8 @@ public class Competition {
 	public String getResultTemplateFileName() throws IOException {
 		logger.debug("competitionBookFileName = {}", resultTemplateFileName);
 		String str = File.separator + "competitionBook";
+		if (resultTemplateFileName == null) return "defaultResults.xls";
+		
 		int protocolPos = resultTemplateFileName.indexOf(str);
 		if (protocolPos != -1) {
 			// make file relative
@@ -388,7 +395,6 @@ public class Competition {
 	 * @param invitedIfBornBefore the new invited if born before
 	 */
 	public void setInvitedIfBornBefore(Integer invitedIfBornBefore) {
-		this.invitedIfBornBefore = invitedIfBornBefore;
 	}
 
 	/**
