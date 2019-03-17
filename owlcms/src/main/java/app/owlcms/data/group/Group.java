@@ -33,7 +33,7 @@ import app.owlcms.data.platform.Platform;
  */
 @Entity(name="CompetitionGroup")
 @Cacheable
-public class Group {
+public class Group implements Comparable<Group> {
 	
     private static final SimpleDateFormat sFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     private String announcer;
@@ -132,7 +132,30 @@ public class Group {
         return true;
     }
 
-    /**
+    /* (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(Group obj) {
+        if (this == obj)
+            return 0;
+        if (obj == null)
+            return -1;
+        Group other = obj;
+        if (name == null) {
+            if (other.name != null)
+                return 1;
+            else
+            	return 0;
+        } else {
+            if (other.name != null)
+                return name.compareTo(other.name);
+            else // this != null other.name == null
+            	return -1;
+        }
+	}
+
+	/**
      * Gets the announcer.
      *
      * @return the announcer
@@ -440,5 +463,7 @@ public class Group {
 	public String toString() {
     	return getName();
     }
+
+
 
 }

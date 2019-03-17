@@ -61,9 +61,9 @@ public class AnnouncerContent extends VerticalLayout
 		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor, AppLayoutContent {
 
 	// @SuppressWarnings("unused")
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
-	static {
+	final private Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	private void initLoggers() {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.DEBUG);
 	}
@@ -81,9 +81,10 @@ public class AnnouncerContent extends VerticalLayout
 
 	/**
 	 * Instantiates a new announcer content.
-	 * Does nothing. Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
+	 * Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public AnnouncerContent() {
+		initLoggers();
 	}
 
 	/**
