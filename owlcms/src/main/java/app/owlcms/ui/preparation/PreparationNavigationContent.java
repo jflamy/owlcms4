@@ -31,7 +31,7 @@ public class PreparationNavigationContent extends VerticalLayout
 	public PreparationNavigationContent() {
 		Button competition = new Button("Competition Information",
 				buttonClickEvent -> UI.getCurrent()
-					.navigate(CategoryContent.class));
+					.navigate(CompetitionContent.class));
 		Button categories = new Button("Define Categories",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(CategoryContent.class));
@@ -51,7 +51,6 @@ public class PreparationNavigationContent extends VerticalLayout
 			upload,
 			athletes);
 		
-		competition.setEnabled(false);
 		upload.setEnabled(false);
 		
 		fillH(grid, this);
