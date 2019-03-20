@@ -209,8 +209,6 @@ public class DemoData {
 		Group groupM2 = new Group("M2", w, c); //$NON-NLS-1$
 		groupM2.setPlatform(platform2);
 
-		insertSampleLifters(em, liftersToLoad, groupM1, groupM2);
-
 		em.persist(groupM1);
 		em.persist(groupM2);
 		em.persist(new Group("M3", null, null)); //$NON-NLS-1$
@@ -222,6 +220,8 @@ public class DemoData {
 		em.persist(platform1);
 		em.persist(platform2);
 		em.persist(competition);
+		
+		insertSampleLifters(em, liftersToLoad, groupM1, groupM2);
 	}
 
 	private static void insertSampleLifters(EntityManager em,
