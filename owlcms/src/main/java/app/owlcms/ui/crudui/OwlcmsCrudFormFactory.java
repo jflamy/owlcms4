@@ -156,4 +156,15 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 		footerLayout.setFlexGrow(1.0, spacer);
 		return footerLayout;
 	}
+
+	/** 
+	 * Avoid massive unreadable (Class<? extends HasValueAndElement<?, ?>>) cast when using WrappedTextField subclasses
+	 * 
+	 * @see org.vaadin.crudui.form.AbstractCrudFormFactory#setFieldType(java.lang.String, java.lang.Class)
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public void setFieldType(String property, Class class1) {
+		super.setFieldType(property, class1);
+	}
 }

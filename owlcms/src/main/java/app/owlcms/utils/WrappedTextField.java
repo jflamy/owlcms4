@@ -65,6 +65,7 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 		Result<T> modelValue = getConverter().convertToModel(presentationValue, new ValueContext(this.getLocale()));
 		modelValue.ifOk(v -> super.setModelValue(v, fromClient));
 		modelValue.ifError(e -> {
+			setInvalid(true);
 			setErrorMessage(e);
 			logConversionError(e);
 		});
@@ -82,4 +83,5 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 	protected abstract void logConversionError(String e);
 
 	protected abstract void initLoggers();
+
 }

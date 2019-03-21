@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Class Competition.
+ * Class Competition.
  */
 @Cacheable
 @Entity
@@ -45,8 +45,6 @@ public class Competition {
 		return competition;
 	}
 	
-
-	/** The id. */
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	Long id;	
@@ -75,9 +73,6 @@ public class Competition {
 	private boolean useOldBodyWeightTieBreak = false;
 	private boolean useRegistrationCategory = true;
 	
-
-
-
 
 	/**
 	 * Gets the competition city.

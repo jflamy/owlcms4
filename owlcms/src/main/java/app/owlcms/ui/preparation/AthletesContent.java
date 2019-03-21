@@ -112,7 +112,7 @@ public class AthletesContent extends VerticalLayout
 		grid.addColumn("category").setHeader("Category");
 		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale())).setHeader("Body Weight");
 		grid.addColumn("group").setHeader("Group");
-		grid.addColumn("invited").setHeader("Invited");	
+		grid.addColumn("invited").setHeader("Invited");
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
 				new OwlcmsCrudLayout(Athlete.class),
 				crudFormFactory,
@@ -192,16 +192,15 @@ public class AthletesContent extends VerticalLayout
 
 				if (field instanceof Bindable) {
 					bindingBuilder.withConverter(((Bindable) field).getConverter());
-
-					if ("fullBirthDate".equals(property)) {
-						fullBirthDateValidation(bindingBuilder);
-						bindingBuilder.bind(property);
-					} else if ("bodyWeight".equals(property)) {
+					if ("bodyWeight".equals(property)) {
 						bodyWeightValidation(bindingBuilder);
 						bindingBuilder.bind(property);
 					} else {
 						throw new RuntimeException("property " + property + " is Bindable but not covered.");
 					}
+				} else if ("fullBirthDate".equals(property)) {
+					fullBirthDateValidation(bindingBuilder);
+					bindingBuilder.bind(property);
 				} else if ("category".equals(property)) {
 					categoryValidation(bindingBuilder);
 					bindingBuilder.bind(property);
@@ -225,7 +224,7 @@ public class AthletesContent extends VerticalLayout
 				// check wrt body category
 				Validator<Double> v2 = Validator
 					.from((weight) -> {
-						// tell the category drop down to signal inconsistent selection
+						// tell the category dropdown to signal inconsistent selection
 						Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
 						categoryBinding.validate(true).isError();
 						return true;

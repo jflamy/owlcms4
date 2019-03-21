@@ -20,6 +20,9 @@ import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
+import com.vaadin.flow.data.renderer.LocalDateRenderer;
+import com.vaadin.flow.data.renderer.Renderer;
+import com.vaadin.flow.function.ValueProvider;
 
 import app.owlcms.utils.WrappedTextField;
 import ch.qos.logback.classic.Level;
@@ -40,7 +43,7 @@ public class LocalDateField extends WrappedTextField<LocalDate> {
 		logger.setLevel(Level.DEBUG);
 	}
 
-	private static final DateTimeFormatter ISO_LOCAL_DATE = DateTimeFormatter.ISO_LOCAL_DATE;
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 	
 	public LocalDateField() {
 		this(null, null);
@@ -66,19 +69,19 @@ public class LocalDateField extends WrappedTextField<LocalDate> {
 			public String convertToPresentation(LocalDate value, ValueContext context) {
 				Locale locale = context.getLocale().orElse(Locale.ENGLISH);
 				if (value == null) value = LocalDate.now();
-				return ISO_LOCAL_DATE.withLocale(locale).format(value);
+				return FORMATTER.withLocale(locale).format(value);
 			}
 
 			@Override
 			public Result<LocalDate> convertToModel(String value, ValueContext context) {
-				return parser1(value, context, ISO_LOCAL_DATE);
+				return parser1(value, context, FORMATTER);
 			}
 
 			protected Result<LocalDate> parser1(String value, ValueContext context, DateTimeFormatter formatter) {
 				Locale locale = context.getLocale().orElse(Locale.ENGLISH);
 				LocalDate parse;
 				try {
-					parse = LocalDate.parse(value, ISO_LOCAL_DATE);
+					parse = LocalDate.parse(value, FORMATTER);
 					return Result.ok(parse);
 				} catch (DateTimeParseException e) {
 					return Result.error(this.getErrorMessage(locale));
@@ -86,9 +89,13 @@ public class LocalDateField extends WrappedTextField<LocalDate> {
 			}
 
 			private String getErrorMessage(Locale locale) {
-				return "Date must be in international format YYYY-MM-DD  (2000-12-31 for "
+				LocalDate sampleDate = LocalDate.of(2000, 12, 31);
+				return "Date must be in international format YYYY-MM-DD "
+						+ "("
+						+ FORMATTER.format(sampleDate)
+						+ " for "
 						+ DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
-							.format(LocalDate.of(2000, 12, 31))
+							.format(sampleDate)
 						+ " )";
 			}
 		};
@@ -102,5 +109,16 @@ public class LocalDateField extends WrappedTextField<LocalDate> {
 	protected void logConversionError(String e) {
 		logger.error(e);
 	}
+	
+	
+	@Override
+	public String toString() {
+		return FORMATTER.format(getValue());
+	}
+	
+	public static Renderer<LocalDate> getRenderer(ValueProvider<LocalDate, LocalDate> v, Locale locale) {
+		return new LocalDateRenderer<LocalDate>(v, FORMATTER);
+	}
+
 }
 

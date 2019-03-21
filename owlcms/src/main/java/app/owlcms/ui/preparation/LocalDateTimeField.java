@@ -1,8 +1,8 @@
 package app.owlcms.ui.preparation;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.util.Locale;
@@ -14,6 +14,9 @@ import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
+import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
+import com.vaadin.flow.data.renderer.Renderer;
+import com.vaadin.flow.function.ValueProvider;
 
 import app.owlcms.utils.WrappedTextField;
 import ch.qos.logback.classic.Level;
@@ -26,15 +29,18 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-public class LocalDateTimeField extends WrappedTextField<LocalDateTime> implements HasValidation {
+public class LocalDateTimeField<SOURCE> extends WrappedTextField<LocalDateTime> implements HasValidation {
 	
-	private Logger logger = (Logger)LoggerFactory.getLogger(LocalDateTimeField.class);
+
+	private Logger logger;
 	@Override
 	protected void initLoggers() {
+		logger = (Logger)LoggerFactory.getLogger(LocalDateTimeField.class);
 		logger.setLevel(Level.DEBUG);
 	}
 
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
+	private final static DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder().parseLenient().appendPattern(DATE_FORMAT).toFormatter();
 
 	@Override
 	public Converter<String, LocalDateTime> getConverter() {	
@@ -42,9 +48,9 @@ public class LocalDateTimeField extends WrappedTextField<LocalDateTime> implemen
 			
 			@Override
 			public String convertToPresentation(LocalDateTime value, ValueContext context) {
-				Locale locale = context.getLocale().orElse(Locale.ENGLISH);
+				//Locale locale = context.getLocale().orElse(Locale.ENGLISH);
 				if (value == null) return "";
-				return FORMATTER.withLocale(locale).format(value);
+				return FORMATTER.format(value);
 			}
 			
 			@Override
@@ -60,14 +66,20 @@ public class LocalDateTimeField extends WrappedTextField<LocalDateTime> implemen
 					return Result.ok(parse);
 				} catch (DateTimeParseException e) {
 					String errorMessage = this.getErrorMessage(locale);
+					//errorMessage = "error parsing *"+e.getParsedString()+"* at position "+e.getErrorIndex();
 					return Result.error(errorMessage);
 				}
 			}
 			
 			private String getErrorMessage(Locale locale) {
-				return "Time must be in international format YYYY-MM-DDThh:dd:ss,mmm  (2000-12-31 for "
-						+ DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
-							.format(LocalDate.of(2000, 12, 31))
+				LocalDateTime date = LocalDateTime.of(2000, 11, 29,13,31);
+				return "Time must be in international format "
+						+ DATE_FORMAT
+						+ " ("
+						+ FORMATTER.format(date)
+						+" for "
+						+ DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(locale)
+							.format(date)
 						+ " )";
 			}
 		};
@@ -82,5 +94,13 @@ public class LocalDateTimeField extends WrappedTextField<LocalDateTime> implemen
 		logger.error(e);
 	}
 	
+	@Override
+	public String toString() {
+		return FORMATTER.format(getValue());
+	}
+	
+	public static <SOURCE> Renderer<SOURCE> getRenderer(ValueProvider<SOURCE, LocalDateTime> v, Locale locale) {
+		return new LocalDateTimeRenderer<SOURCE>(v, FORMATTER);
+	}
 }
 

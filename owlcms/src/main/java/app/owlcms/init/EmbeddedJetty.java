@@ -44,6 +44,7 @@ public class EmbeddedJetty {
 	 * @throws Exception the exception
 	 */
 	public void run(int port, String contextPath) throws Exception {
+		logger.info("starting web server");
         URL webRootLocation = this.getClass().getResource("/META-INF/resources/"); //$NON-NLS-1$
         URI webRootUri = webRootLocation.toURI();
 

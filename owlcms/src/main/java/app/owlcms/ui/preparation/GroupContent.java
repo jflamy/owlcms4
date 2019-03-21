@@ -8,9 +8,6 @@
  */
 package app.owlcms.ui.preparation;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.Collection;
 
 import org.slf4j.LoggerFactory;
@@ -22,8 +19,6 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.Validator;
-import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 
@@ -59,23 +54,8 @@ public class GroupContent extends VerticalLayout
 		OwlcmsCrudFormFactory<Group> crudFormFactory = createFormFactory();
 		GridCrud<Group> crud = createGrid(crudFormFactory);
 //		defineFilters(crud);
-//		defineQueries(crud);
 		fillHW(crud, this);
 	}
-	
-//	/**
-//	 * Define how to populate the athlete grid
-//	 * 
-//	 * @param crud
-//	 */
-//	protected void defineQueries(GridCrud<Group> crud) {
-//		crud.setFindAllOperation(
-//			DataProvider.fromCallbacks(
-//				query -> GroupRepository
-//					.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), activeFilter.getValue(), query.getOffset(), query.getLimit())
-//					.stream(),
-//				query -> GroupRepository.countFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), activeFilter.getValue())));
-//	}
 	
 	/**
 	 * The columns of the grid
@@ -87,16 +67,12 @@ public class GroupContent extends VerticalLayout
 		Grid<Group> grid = new Grid<Group>(Group.class, false);
 		grid.addColumn(Group::getName).setHeader("Name");
 		grid.addColumn(
-			new LocalDateTimeRenderer<Group>(
-				Group::getWeighInTime,
-				DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-				.withLocale(this.getLocale())))
+			LocalDateTimeField.getRenderer(
+				Group::getWeighInTime,this.getLocale()))
 			.setHeader("Weigh-in Time");
 		grid.addColumn(
-			new LocalDateTimeRenderer<Group>(
-				Group::getCompetitionTime,
-				DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-				.withLocale(this.getLocale())))
+			LocalDateTimeField.getRenderer(
+				Group::getCompetitionTime,this.getLocale()))
 			.setHeader("Start Time");
 		grid.addColumn(Group::getPlatform)
 			.setHeader("Platform");
@@ -155,41 +131,15 @@ public class GroupContent extends VerticalLayout
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
 				Binder.BindingBuilder bindingBuilder = binder.forField(field);
 				if ("competitionTime".equals(property)) {
-					competitionTimeValidation(bindingBuilder);
 					bindingBuilder.bind(property);
 				} else if ("weighInTime".equals(property)) {
-					weighInTimeValidation(bindingBuilder);
 					bindingBuilder.bind(property);
 				} else {
 					super.bindField(field, property, propertyType);
 				}
 			}
-			
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			protected void competitionTimeValidation(Binder.BindingBuilder bindingBuilder) {
-				Validator<LocalDateTime> v = Validator.from(
-					ld -> {
-						LocalDateTime now = LocalDateTime.now();
-						int compare = ld.compareTo(now);
-						logger.debug("start {}  {}  {}", ld, now, compare);
-						return compare >= 0; // ld is two hours after app start, ld > now for the first two hours
-						},
-					"Competition cannot be in the past");
-				bindingBuilder.withValidator(v);
-			}
-			
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			protected void weighInTimeValidation(Binder.BindingBuilder bindingBuilder) {
-				Validator<LocalDateTime> v = Validator.from(
-					ld -> {
-						LocalDateTime now = LocalDateTime.now();
-						int compare = ld.compareTo(now);
-						logger.debug("weighin {}  {}  {}", ld, now, compare);
-						return compare <= 0;  // ld <= now (set when app starts)
-						},
-					"Weigh-in cannot be in the past");
-				bindingBuilder.withValidator(v);
-			}
+
+
 		};
 	}
 
