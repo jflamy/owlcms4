@@ -65,7 +65,7 @@ public class OwlcmsFactory {
 		for (Platform platform : PlatformRepository.findAll()) {
 			String name = platform.getName();
 			FieldOfPlayState fop = new FieldOfPlayState(null, platform);
-			logger.debug("fop {}",fop.getName());
+			logger.trace("fop {}",fop.getName());
 			// no group selected, no athletes, announcer will need to pick a group.
 			fop.init(new LinkedList<Athlete>(), new RelayTimer(fop));
 			fopByName.put(name, fop);

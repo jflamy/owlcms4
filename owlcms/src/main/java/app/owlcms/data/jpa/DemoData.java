@@ -30,7 +30,6 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
-import app.owlcms.i18n.Messages;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -74,43 +73,15 @@ public class DemoData {
 	protected static Competition createDefaultCompetition() {
 		Competition competition = new Competition();
 
-		competition.setCompetitionName(Messages.getString("Competition.competitionName", getLocale()) + " ?");
-		competition.setCompetitionCity(Messages.getString("Competition.competitionCity", getLocale()) + " ?");
-		competition.setCompetitionDate(LocalDate.now());
-		competition
-			.setCompetitionOrganizer(Messages.getString("Competition.competitionOrganizer", getLocale()) + " ?");
-		competition.setCompetitionSite(Messages.getString("Competition.competitionSite", getLocale()) + " ?");
-
-		String federationLabel = Messages.getString("Competition.federation", getLocale()) + " ?";
-		String defaultFederationKey = "Competition.defaultFederation";
-		String defaultFederation = Messages.getString(defaultFederationKey, getLocale());
-		// if string is not translated, we get its key back.
-		competition
-			.setFederation(defaultFederation.equals(defaultFederationKey) ? federationLabel : defaultFederation);
-
-		String federationAddressLabel = Messages.getString("Competition.federationAddress", getLocale()) + " ?";
-		String defaultFederationAddressKey = "Competition.defaultFederationAddress";
-		String defaultFederationAddress = Messages.getString(defaultFederationAddressKey, getLocale());
-		// if string is not translated, we get its key back.
-		competition.setFederationAddress(
-			defaultFederationAddress.equals(defaultFederationAddressKey) ? federationAddressLabel
-					: defaultFederationAddress);
-
-		String federationEMailLabel = Messages.getString("Competition.federationEMail", getLocale()) + " ?";
-		String defaultFederationEMailKey = "Competition.defaultFederationEMail";
-		String defaultFederationEMail = Messages.getString(defaultFederationEMailKey, getLocale());
-		// if string is not translated, we get its key back.
-		competition
-			.setFederationEMail(defaultFederationEMail.equals(defaultFederationEMailKey) ? federationEMailLabel
-					: defaultFederationEMail);
-
-		String federationWebSiteLabel = Messages.getString("Competition.federationWebSite", getLocale()) + " ?";
-		String defaultFederationWebSiteKey = "Competition.defaultFederationWebSite";
-		String defaultFederationWebSite = Messages.getString(defaultFederationWebSiteKey, getLocale());
-		// if string is not translated, we get its key back.
-		competition.setFederationWebSite(
-			defaultFederationWebSite.equals(defaultFederationWebSiteKey) ? federationWebSiteLabel
-					: defaultFederationWebSite);
+		competition.setCompetitionName("Spring Equinox Open");
+		competition.setCompetitionCity("Sometown, Lower State");
+		competition.setCompetitionDate(LocalDate.of(2019, 03, 23));
+		competition.setCompetitionOrganizer("Giant Weightlifting Club");
+		competition.setCompetitionSite("West-End Gym");
+		competition.setFederation("National Weightlifting Federation");
+		competition.setFederationAddress("22 River Street, Othertown, Upper State,  J0H 1J8");
+		competition.setFederationEMail("results@national-weightlifting.org");
+		competition.setFederationWebSite("http://national-weightlifting.org");
 		return competition;
 	}
 
