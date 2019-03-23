@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>app.owlcms</groupId>
 	<artifactId>owlcms4top</artifactId>
-	<version>4.0.2-SNAPSHOT</version>
+	<version>4.0.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>doc</module>
@@ -32,9 +32,9 @@
 		<vaadin.version>13.0.1</vaadin.version>
 		<!-- flow.version>1.4.0</flow.version -->
 		<logback.version>1.2.3</logback.version>
-		<slf4j.version>1.7.25</slf4j.version>
-		<hibernate.version>5.4.1.Final</hibernate.version>
-		<guava.version>22.0</guava.version>
+		<slf4j.version>1.7.26</slf4j.version>
+		<hibernate.version>5.4.2.Final</hibernate.version>
+		<guava.version>27.1-jre</guava.version>
 
 		<!-- Plugins -->
 		<jetty.version>9.4.11.v20180605</jetty.version>

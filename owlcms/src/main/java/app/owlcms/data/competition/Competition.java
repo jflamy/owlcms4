@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.Locale;
 
 import javax.persistence.Cacheable;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -21,10 +22,11 @@ import javax.persistence.Id;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.jpa.LocaleAttributeConverter;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Class Competition.
+ * Class Competition.
  */
 @Cacheable
 @Entity
@@ -40,15 +42,16 @@ public class Competition {
 	 */
 	public static Competition getCurrent() {
 		if (competition == null) {
-			competition = new Competition();
+//			competition = new Competition();
+			competition = CompetitionRepository.findAll().get(0);
 		}
 		return competition;
-//FIXME: using database instance breaks init !?
-//		return CompetitionRepository.findAll().get(0);
 	}
 	
-
-	/** The id. */
+	public static void setCurrent(Competition c) {
+		competition = c;
+	}
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	Long id;	
@@ -64,6 +67,7 @@ public class Competition {
 	private String federationEMail;
 	private String federationWebSite;
 	
+	@Convert(converter = LocaleAttributeConverter.class)
 	private Locale defaultLocale = Locale.ENGLISH;
 	private String protocolFileName;
 	private String resultTemplateFileName;
@@ -77,9 +81,6 @@ public class Competition {
 	private boolean useOldBodyWeightTieBreak = false;
 	private boolean useRegistrationCategory = true;
 	
-
-
-
 
 	/**
 	 * Gets the competition city.
@@ -450,5 +451,10 @@ public class Competition {
 	public Locale getLocale() {
 		return getDefaultLocale();
 	}
+
+	public void setDefaultLocale(Locale defaultLocale) {
+		this.defaultLocale = defaultLocale;
+	}
+	
 
 }

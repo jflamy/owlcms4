@@ -14,11 +14,13 @@ import java.util.Collection;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
+import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -44,13 +46,12 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.ui.appLayout.AppLayoutContent;
-import app.owlcms.ui.crudui.Bindable;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudLayout;
 import app.owlcms.ui.crudui.OwlcmsGridCrud;
+import app.owlcms.ui.fields.BodyWeightField;
+import app.owlcms.ui.fields.LocalDateField;
 import app.owlcms.ui.home.ContentWrapping;
-import app.owlcms.ui.preparation.BodyWeightField;
-import app.owlcms.ui.preparation.LocalDateField;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -193,23 +194,23 @@ public class WeighinContent extends VerticalLayout
 	 */
 	private OwlcmsCrudFormFactory<Athlete> createAthleteEditingFormFactory() {
 		return new OwlcmsCrudFormFactory<Athlete>(Athlete.class) {
+			@Override
+			public String buildCaption(CrudOperation operation, Athlete a) {
+				if (a.getLastName() == null && a.getFirstName() == null) return null;
+				// If null, CrudLayout.showForm will build its own, for backward compatibility
+				return a.getFullId();
+			}
+			
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			@Override
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
 				Binder.BindingBuilder bindingBuilder = binder.forField(field);
-
-				if (field instanceof Bindable) {
-					bindingBuilder.withConverter(((Bindable) field).getConverter());
-
-					if ("fullBirthDate".equals(property)) {
-						fullBirthDateValidation(bindingBuilder);
-						bindingBuilder.bind(property);
-					} else if ("bodyWeight".equals(property)) {
-						bodyWeightValidation(bindingBuilder);
-						bindingBuilder.bind(property);
-					} else {
-						throw new RuntimeException("property " + property + " is Bindable but not covered.");
-					}
+				if ("fullBirthDate".equals(property)) {
+					fullBirthDateValidation(bindingBuilder);
+					bindingBuilder.bind(property);
+				} else if ("bodyWeight".equals(property)) {
+					bodyWeightValidation(bindingBuilder);
+					bindingBuilder.bind(property);
 				} else if ("category".equals(property)) {
 					categoryValidation(bindingBuilder);
 					bindingBuilder.bind(property);
@@ -220,19 +221,30 @@ public class WeighinContent extends VerticalLayout
 
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			protected void fullBirthDateValidation(Binder.BindingBuilder bindingBuilder) {
+				Validator<LocalDate> fv = ((LocalDateField)bindingBuilder.getField()).formatValidation(UI.getCurrent().getLocale());
+				bindingBuilder.withValidator(fv);
+				
 				Validator<LocalDate> v = Validator.from(
-					ld -> (ld.compareTo(LocalDate.now()) <= 0),
+					ld -> {
+						if (ld == null)
+							return true;
+						return (ld.compareTo(LocalDate.now()) <= 0);
+					},
 					"Birth date cannot be in the future");
 				bindingBuilder.withValidator(v);
 			}
 
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			protected void bodyWeightValidation(Binder.BindingBuilder bindingBuilder) {
+				Validator<Double> fv = ((BodyWeightField)bindingBuilder.getField()).formatValidation(UI.getCurrent().getLocale());
+				bindingBuilder.withValidator(fv);
+				
 				Validator<Double> v1 = new DoubleRangeValidator(
 						"Weight should be between 0 and 350kg", 0.0D, 350.0D);
 				// check wrt body category
 				Validator<Double> v2 = Validator
 					.from((weight) -> {
+						if (weight == null) return true;
 						// tell the category drop down to signal inconsistent selection
 						Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
 						categoryBinding.validate(true).isError();

@@ -33,13 +33,12 @@ import com.vaadin.flow.dom.ClassList;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.utils.ValidationUtils;
+import app.owlcms.ui.fields.ValidationUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	
-	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteCardFormFactory.class);
 
 	private static final int HEADER = 1;
@@ -387,8 +386,12 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			null);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.crud.CrudOperation, java.lang.Object)
+	 */
 	@Override
 	public String buildCaption(CrudOperation operation, Athlete a) {
+		logger.debug("calling Athlete caption");
 		// If null, CrudLayout.showForm will build its own, for backward compatibility
 		return a.getFullId();
 	}

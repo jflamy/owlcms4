@@ -14,10 +14,12 @@ import java.util.Collection;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
+import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -42,10 +44,11 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.ui.crudui.Bindable;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudLayout;
 import app.owlcms.ui.crudui.OwlcmsGridCrud;
+import app.owlcms.ui.fields.BodyWeightField;
+import app.owlcms.ui.fields.LocalDateField;
 import app.owlcms.ui.home.ContentWrapping;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -112,7 +115,7 @@ public class AthletesContent extends VerticalLayout
 		grid.addColumn("category").setHeader("Category");
 		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale())).setHeader("Body Weight");
 		grid.addColumn("group").setHeader("Group");
-		grid.addColumn("invited").setHeader("Invited");	
+		grid.addColumn("invited").setHeader("Invited");
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
 				new OwlcmsCrudLayout(Athlete.class),
 				crudFormFactory,
@@ -185,23 +188,27 @@ public class AthletesContent extends VerticalLayout
 	 */
 	private OwlcmsCrudFormFactory<Athlete> createAthleteEditingFormFactory() {
 		return new OwlcmsCrudFormFactory<Athlete>(Athlete.class) {
+			/* (non-Javadoc)
+			 * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.crud.CrudOperation, java.lang.Object)
+			 */
+			@Override
+			public String buildCaption(CrudOperation operation, Athlete a) {
+				if (a.getLastName() == null && a.getFirstName() == null) return null;
+				// If null, CrudLayout.showForm will build its own, for backward compatibility
+				return a.getFullId();
+			}
+			
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			@Override
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
 				Binder.BindingBuilder bindingBuilder = binder.forField(field);
 
-				if (field instanceof Bindable) {
-					bindingBuilder.withConverter(((Bindable) field).getConverter());
-
-					if ("fullBirthDate".equals(property)) {
-						fullBirthDateValidation(bindingBuilder);
-						bindingBuilder.bind(property);
-					} else if ("bodyWeight".equals(property)) {
-						bodyWeightValidation(bindingBuilder);
-						bindingBuilder.bind(property);
-					} else {
-						throw new RuntimeException("property " + property + " is Bindable but not covered.");
-					}
+				if ("bodyWeight".equals(property)) {
+					bodyWeightValidation(bindingBuilder, ((BodyWeightField)field).isRequired());
+					bindingBuilder.bind(property);
+				} else if ("fullBirthDate".equals(property)) {
+					fullBirthDateValidation(bindingBuilder);
+					bindingBuilder.bind(property);
 				} else if ("category".equals(property)) {
 					categoryValidation(bindingBuilder);
 					bindingBuilder.bind(property);
@@ -212,20 +219,28 @@ public class AthletesContent extends VerticalLayout
 
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			protected void fullBirthDateValidation(Binder.BindingBuilder bindingBuilder) {
+				LocalDateField ldtf = (LocalDateField) bindingBuilder.getField();
+				Validator<LocalDate> fv = ldtf.formatValidation(UI.getCurrent().getLocale());
+				bindingBuilder.withValidator(fv);
+				
 				Validator<LocalDate> v = Validator.from(
-					ld -> (ld.compareTo(LocalDate.now()) <= 0),
+					ld -> {
+						if (ld == null) return true;
+						return ld.compareTo(LocalDate.now()) <= 0;
+					},
 					"Birth date cannot be in the future");
 				bindingBuilder.withValidator(v);
 			}
 
 			@SuppressWarnings({ "rawtypes", "unchecked" })
-			protected void bodyWeightValidation(Binder.BindingBuilder bindingBuilder) {
+			protected void bodyWeightValidation(Binder.BindingBuilder bindingBuilder, boolean isRequired) {
 				Validator<Double> v1 = new DoubleRangeValidator(
 						"Weight should be between 0 and 350kg", 0.0D, 350.0D);
 				// check wrt body category
 				Validator<Double> v2 = Validator
 					.from((weight) -> {
-						// tell the category drop down to signal inconsistent selection
+						if (!isRequired && weight == null) return true;				
+						// inconsistent selection is signaled on the category dropdown since the weight is a factual measure
 						Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
 						categoryBinding.validate(true).isError();
 						return true;
@@ -241,15 +256,14 @@ public class AthletesContent extends VerticalLayout
 					.from((category) -> {
 						try {
 							Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
-							String bwString = (String) bwBinding.getField().getValue();
-							if (bwString == null) {
+							Double bw = (Double) bwBinding.getField().getValue();
+							if (bw == null) {
 								// no body weight - no contradiction
 								return true;
 							}
-							Double bw = Double.parseDouble(bwString);
 							Double min = category.getMinimumWeight();
 							Double max = category.getMaximumWeight();
-							logger.debug(
+							if (logger.isTraceEnabled()) logger.trace(
 								"comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
 							return (bw > min && bw <= max);
 						} catch (Exception e) {

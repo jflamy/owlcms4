@@ -10,19 +10,20 @@ cannot be fixed.
 
 Why is it called owlcms4? First there was owlcms. The name was taken on SourceForge.net, so I did a cleanup and called it owlcms2. Then I started an owlcms3 rewrite, but it was too tedious to implement the off-line features I wanted, so I gave up until Vaadin Flow came out to rekindle my interest.
 
-Current status: Close to minimal viable product ("MVP") able to run a regional competition
+Current status: Quite close to minimal viable product ("MVP") able to run a regional competition
 - Working announcer portion (updating athlete cards and recomputing lifting order).
-- Working attempt board and results board, with timing and decisions handled locally in the browser
+- Working attempt board and results board, with timing and decisions handled locally in the browser. Attempt board acts as referee device.
 - Working Athlete Registration and Weigh-in screens, including producing weigh-in sheet
-- Almost complete forms for defining a competition (general info, groups, categories, etc.)
-- A [live demo](https://owlcms4.herokuapp.com) of a recent build is normally available on the Heroku cloud service. Note that the cloud demo application is not pre-loaded, so the first load can take a minute. This is not indicative of subsequent loads and is not indicative of local performance (which loads in seconds).
+- Working forms for defining a competition (general info, groups, categories, etc.)
+- Working protocol sheet with starting weights, working result sheet.
+- A [live demo](https://owlcms4.herokuapp.com) of a recent build is normally available on the Heroku cloud service. Note that the cloud demo application is not pre-loaded and uses their free tier, so the first load can take a minute. This is *not* indicative of subsequent loads and is not indicative of local performance (both of which start in a few seconds).
 
 Next steps
 - Producing the lifter cards
-- Finishing competition information editing
+- Improving group editing (capturing officials)
 - Athlete-facing option for decision-lights
 - Upload of athlete registrations
-- Improving validations on weight request (athlete card)
+- Cross-checking validations on weight request (athlete card)
 - *Minimal* packaging and documentation for early users/testers
 
 Design notes:
