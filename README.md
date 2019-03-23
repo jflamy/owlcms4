@@ -19,6 +19,7 @@ Current status: Quite close to minimal viable product ("MVP") able to run a regi
 - A [live demo](https://owlcms4.herokuapp.com) of a recent build is normally available on the Heroku cloud service. Note that the cloud demo application is not pre-loaded and uses their free tier, so the first load can take a minute. This is *not* indicative of subsequent loads and is not indicative of local performance (both of which start in a few seconds).
 
 Next steps
+- Double-checking cooperative work between announcer, marshall, timekeeper
 - Producing the lifter cards
 - Improving group editing (capturing officials)
 - Athlete-facing option for decision-lights
