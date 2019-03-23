@@ -228,9 +228,8 @@ public class AthletesContent extends VerticalLayout
 				// check wrt body category
 				Validator<Double> v2 = Validator
 					.from((weight) -> {
-						if (!isRequired && weight == null) return true;
-						
-						// tell the category dropdown to signal inconsistent selection
+						if (!isRequired && weight == null) return true;				
+						// inconsistent selection is signaled on the category dropdown since the weight is a factual measure
 						Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
 						categoryBinding.validate(true).isError();
 						return true;
@@ -253,7 +252,7 @@ public class AthletesContent extends VerticalLayout
 							}
 							Double min = category.getMinimumWeight();
 							Double max = category.getMaximumWeight();
-							logger.debug(
+							if (logger.isTraceEnabled()) logger.trace(
 								"comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
 							return (bw > min && bw <= max);
 						} catch (Exception e) {
