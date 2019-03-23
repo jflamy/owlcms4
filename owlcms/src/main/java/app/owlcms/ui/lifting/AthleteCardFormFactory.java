@@ -39,7 +39,6 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	
-	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteCardFormFactory.class);
 
 	private static final int HEADER = 1;

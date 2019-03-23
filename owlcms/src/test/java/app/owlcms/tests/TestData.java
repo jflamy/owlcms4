@@ -21,6 +21,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
@@ -82,6 +83,9 @@ public class TestData {
 		em.persist(groupA);
 		em.persist(groupB);
 		em.persist(groupC);
+		
+		// needed because some classes such as Athlete refer to the current competition
+		Competition.setCurrent(new Competition());
 	}
 
 	static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,

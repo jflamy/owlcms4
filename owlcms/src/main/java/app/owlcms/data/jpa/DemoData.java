@@ -30,6 +30,7 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -44,7 +45,7 @@ public class DemoData {
 
 	private static Logger logger = (Logger) LoggerFactory.getLogger(DemoData.class);
 	static {
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 	}
 
 	/**
@@ -81,6 +82,10 @@ public class DemoData {
 		competition.setFederationAddress("22 River Street, Othertown, Upper State,  J0H 1J8");
 		competition.setFederationEMail("results@national-weightlifting.org");
 		competition.setFederationWebSite("http://national-weightlifting.org");
+		
+		// needed because some classes such as Athlete refer to the current competition
+		Competition.setCurrent(competition);
+		
 		return competition;
 	}
 
@@ -189,7 +194,7 @@ public class DemoData {
 
 		em.persist(platform1);
 		em.persist(platform2);
-		//em.persist(competition);
+		em.persist(competition);
 		
 		insertSampleLifters(em, liftersToLoad, groupM1, groupM2);
 		em.flush();
@@ -221,17 +226,21 @@ public class DemoData {
 			Random r,
 			int cat1, int cat2, int liftersToLoad) {
 		for (int i = 0; i < liftersToLoad; i++) {
-			Athlete p = new Athlete();
-			p.setGroup(group);
-			p.setFirstName(fnames[r.nextInt(fnames.length)]);
-			p.setLastName(lnames[r.nextInt(lnames.length)]);
-			double nextDouble = r.nextDouble();
-			if (nextDouble > 0.5F) {
-				createAthlete(em, r, p, nextDouble, cat1);
-			} else {
-				createAthlete(em, r, p, nextDouble, cat2);
+			try {
+				Athlete p = new Athlete();
+				p.setGroup(group);
+				p.setFirstName(fnames[r.nextInt(fnames.length)]);
+				p.setLastName(lnames[r.nextInt(lnames.length)]);
+				double nextDouble = r.nextDouble();
+				if (nextDouble > 0.5F) {
+					createAthlete(em, r, p, nextDouble, cat1);
+				} else {
+					createAthlete(em, r, p, nextDouble, cat2);
+				}
+				em.persist(p);
+			} catch (Exception e) {
+				logger.error(LoggerUtils.stackTrace(e));
 			}
-			em.persist(p);
 		}
 	}
 

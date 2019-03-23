@@ -42,10 +42,14 @@ public class Competition {
 	 */
 	public static Competition getCurrent() {
 		if (competition == null) {
-			competition = new Competition();
-			//competition = CompetitionRepository.findAll().get(0);
+//			competition = new Competition();
+			competition = CompetitionRepository.findAll().get(0);
 		}
 		return competition;
+	}
+	
+	public static void setCurrent(Competition c) {
+		competition = c;
 	}
 	
 	@Id
