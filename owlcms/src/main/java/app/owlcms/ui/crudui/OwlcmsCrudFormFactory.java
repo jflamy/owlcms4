@@ -21,8 +21,10 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
@@ -164,9 +166,66 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	 */
 	@Override
     protected Button buildOperationButton(CrudOperation operation, T domainObject, ComponentEventListener<ClickEvent<Button>> clickListener) {
-        if (clickListener == null) {
+		if (clickListener == null) {
             return null;
         }
+        Button button = doBuildButton(operation);
+
+        ComponentEventListener<ClickEvent<Button>> listener = event -> {
+            if (binder.writeBeanIfValid(domainObject)) {
+                try {
+                    clickListener.onComponentEvent(event);
+                } catch (Exception e) {
+                    showError(operation, e);
+                }
+            } else {
+                Notification.show(validationErrorMessage);
+            }
+        };
+		
+        if (operation != CrudOperation.DELETE) {
+        	button.addClickListener(listener);
+        } else {
+        	button.addClickListener(e -> createConfirmDialog(operation, domainObject, clickListener).open());
+        }
+        return button;
+    }
+
+	/**
+	 * Creates a new dialog that executes the original listener after asking for confirmation
+	 * 
+	 * @param operation
+	 * @param domainObject
+	 * @param clickListener
+	 * @return
+	 */
+	public Dialog createConfirmDialog(CrudOperation operation, T domainObject,
+			ComponentEventListener<ClickEvent<Button>> clickListener) {
+		Dialog dialog = new Dialog();
+
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+
+		H3 messageLabel = new H3("Delete "+domainObject.toString()+" ?");
+
+		// create a new delete button for the confirm dialog
+		Button confirmButton = doBuildButton(operation);
+		confirmButton.addClickListener(click -> {
+			try {
+				clickListener.onComponentEvent(click);
+			} catch (Exception e) {
+				showError(operation, e);
+			}
+			dialog.close();
+		});
+		Button cancelButton = new Button("Cancel", event -> {
+			dialog.close();
+		});
+		dialog.add(new VerticalLayout(messageLabel, new HorizontalLayout(confirmButton, cancelButton)));
+		return dialog;
+	}
+
+	public Button doBuildButton(CrudOperation operation) {
 
         String caption = buttonCaptions.get(operation);
         Icon icon = buttonIcons.get(operation);
@@ -177,21 +236,9 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
         if (buttonThemes.containsKey(operation)) {
             button.getElement().setAttribute("theme", buttonThemes.get(operation));
         }
+		return button;
+	}
 
-        // do not not check for validity when deleting -- we don't care about bad content as we are getting rid of the object...
-        button.addClickListener(event -> {
-            if (operation == CrudOperation.DELETE || binder.writeBeanIfValid(domainObject)) {
-                try {
-                    clickListener.onComponentEvent(event);
-                } catch (Exception e) {
-                    showError(operation, e);
-                }
-            } else {
-                Notification.show(validationErrorMessage);
-            }
-        });
-        return button;
-    }
 
 	/** 
 	 * Avoid massive unreadable (Class<? extends HasValueAndElement<?, ?>>) cast when using WrappedTextField subclasses

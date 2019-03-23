@@ -94,19 +94,16 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 	@Override
 	protected void deleteButtonClicked() {
         T domainObject = grid.asSingleSelect().getValue();
-        // make sure we use the original delete code, else we get into a loop.
-        super.showForm(CrudOperation.DELETE, domainObject, true, deletedMessage, event -> {
-            try {
-                deleteOperation.perform(domainObject);
-                refreshGrid();
-                grid.asSingleSelect().clear();
-            } catch (CrudOperationException e1) {
-                refreshGrid();
-            } catch (Exception e2) {
-                refreshGrid();
-                throw e2;
-            }
-        });
+        try {
+        	deleteOperation.perform(domainObject);
+        	grid.asSingleSelect().clear();
+        	refreshGrid();
+        } catch (CrudOperationException e1) {
+        	refreshGrid();
+        } catch (Exception e2) {
+        	refreshGrid();
+        	throw e2;
+        }
     }	
 
 	/*
