@@ -46,7 +46,13 @@ public class CompetitionRepository {
 	 * @return the competition
 	 */
 	public static Competition save(Competition Competition) {
-		return JPAService.runInTransaction(em -> em.merge(Competition));
+		 Competition mc = JPAService.runInTransaction(em -> {
+			Competition nc = em.merge(Competition);
+			// needed because some classes get competition parameters from getCurrent()
+			app.owlcms.data.competition.Competition.setCurrent(nc);
+			return nc;
+		});
+		return mc;
 	}
 
 	/**

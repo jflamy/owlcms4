@@ -90,6 +90,10 @@ public class ProdData {
 		competition.setFederationWebSite(
 			defaultFederationWebSite.equals(defaultFederationWebSiteKey) ? federationWebSiteLabel
 					: defaultFederationWebSite);
+		
+		// needed because some classes such as Athlete refer to the current competition
+		Competition.setCurrent(competition);
+		
 		return competition;
 	}
 

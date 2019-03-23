@@ -24,6 +24,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
 	
+	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsCrudLayout.class);
 
 //	private boolean disableNextShowForm = false;

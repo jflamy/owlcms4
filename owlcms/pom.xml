@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.0.2-SNAPSHOT</version>
+		<version>4.0.3-SNAPSHOT</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -83,17 +83,17 @@
 			<version>${hibernate.version}</version>
 		</dependency>
 		
-<!-- 		<!- - 2nd-level caching - -> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.hibernate</groupId> -->
-<!-- 			<artifactId>hibernate-jcache</artifactId> -->
-<!-- 			<version>${hibernate.version}</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.ehcache</groupId> -->
-<!-- 			<artifactId>ehcache</artifactId> -->
-<!-- 			<version>3.7.0</version> -->
-<!-- 		</dependency> -->
+		<!-- 2nd-level caching -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-jcache</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>3.7.0</version>
+		</dependency>
 
 		
 <!-- 		<dependency> -->
@@ -218,12 +218,6 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>flow-push</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>com.vaadin.external.slf4j</groupId>
-					<artifactId>vaadin-slf4j-jdk14</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 	</dependencies>
 	

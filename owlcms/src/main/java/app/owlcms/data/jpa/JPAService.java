@@ -8,6 +8,7 @@
  */
 package app.owlcms.data.jpa;
 
+import static org.hibernate.cfg.AvailableSettings.CACHE_REGION_FACTORY;
 import static org.hibernate.cfg.AvailableSettings.DIALECT;
 import static org.hibernate.cfg.AvailableSettings.GENERATE_STATISTICS;
 import static org.hibernate.cfg.AvailableSettings.HBM2DDL_AUTO;
@@ -171,10 +172,10 @@ public class JPAService {
 			.put(USE_QUERY_CACHE, false)
 			.put(USE_STRUCTURED_CACHE, false)
 			.put(STATEMENT_BATCH_SIZE, 20)
-//			.put(CACHE_REGION_FACTORY, "org.hibernate.cache.jcache.JCacheRegionFactory")
-//			.put("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider")
-//			.put("hibernate.javax.cache.missing_cache_strategy", "create")
-//			.put("javax.persistence.sharedCache.mode", "ALL")
+			.put(CACHE_REGION_FACTORY, "org.hibernate.cache.jcache.JCacheRegionFactory")
+			.put("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider")
+			.put("hibernate.javax.cache.missing_cache_strategy", "create")
+			.put("javax.persistence.sharedCache.mode", "ALL")
 			.put("hibernate.c3p0.min_size", 5)
 			.put("hibernate.c3p0.max_size", 20)
 			.put("hibernate.c3p0.acquire_increment", 5)
