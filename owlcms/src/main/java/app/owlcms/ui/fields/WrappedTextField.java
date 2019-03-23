@@ -49,6 +49,8 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 	protected Logger logger;
 
 	protected boolean validFormat;
+	
+	//TextField wrappedTextField;
 
 	public WrappedTextField() {
 		this(null, null);
@@ -109,6 +111,20 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 	@Override
 	public void setErrorMessage(String e) {
 		getWrappedTextField().setErrorMessage(e);
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.vaadin.flow.component.HasValueAndElement#setRequiredIndicatorVisible(boolean)
+	 */
+	public void setRequired(boolean required) {
+		getWrappedTextField().setRequired(required);
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.vaadin.flow.component.HasValueAndElement#isRequiredIndicatorVisible()
+	 */
+	public boolean isRequired() {
+		return getWrappedTextField().isRequired();
 	}
 
 	/* (non-Javadoc)
@@ -171,7 +187,13 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 	}
 
 	public Validator<T> formatValidation(Locale locale) {
-		return Validator.from(ld -> (this.validFormat), this.invalidFormatErrorMessage(locale));
+		return Validator.from(value -> {
+			if (!this.isRequired() && value == null) {
+				return true;
+			}
+			logger.debug("format validation {} {}",value,this.validFormat);
+			return this.validFormat;
+		}, this.invalidFormatErrorMessage(locale));
 	}
 
 }

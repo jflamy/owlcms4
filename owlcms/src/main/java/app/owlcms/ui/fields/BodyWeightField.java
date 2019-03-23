@@ -74,6 +74,11 @@ public class BodyWeightField extends WrappedTextField<Double> {
 	}
 	
 	private Result<Double> doParse(String content, Locale locale, NumberFormat formatter) {
+		if ((content == null || content.trim().isEmpty()) && !this.isRequired()) {
+			// field is not required, accept empty content
+			setFormatValidationStatus(true, locale);
+			return Result.ok(null);
+		}
 		// we ignore the provided formatter, and we try both "," and "." as decimal separator, as per ISO 30-1
 		DecimalFormatSymbols dc = new DecimalFormatSymbols(locale);
 		char alternateSeparator = (dc.getDecimalSeparator() == '.' ? ',' : '.');

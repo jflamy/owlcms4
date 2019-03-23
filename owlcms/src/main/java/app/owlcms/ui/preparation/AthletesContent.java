@@ -193,7 +193,7 @@ public class AthletesContent extends VerticalLayout
 				Binder.BindingBuilder bindingBuilder = binder.forField(field);
 
 				if ("bodyWeight".equals(property)) {
-					bodyWeightValidation(bindingBuilder);
+					bodyWeightValidation(bindingBuilder, ((BodyWeightField)field).isRequired());
 					bindingBuilder.bind(property);
 				} else if ("fullBirthDate".equals(property)) {
 					fullBirthDateValidation(bindingBuilder);
@@ -213,18 +213,23 @@ public class AthletesContent extends VerticalLayout
 				bindingBuilder.withValidator(fv);
 				
 				Validator<LocalDate> v = Validator.from(
-					ld -> (ld.compareTo(LocalDate.now()) <= 0),
+					ld -> {
+						if (ld == null) return true;
+						return ld.compareTo(LocalDate.now()) <= 0;
+					},
 					"Birth date cannot be in the future");
 				bindingBuilder.withValidator(v);
 			}
 
 			@SuppressWarnings({ "rawtypes", "unchecked" })
-			protected void bodyWeightValidation(Binder.BindingBuilder bindingBuilder) {
+			protected void bodyWeightValidation(Binder.BindingBuilder bindingBuilder, boolean isRequired) {
 				Validator<Double> v1 = new DoubleRangeValidator(
 						"Weight should be between 0 and 350kg", 0.0D, 350.0D);
 				// check wrt body category
 				Validator<Double> v2 = Validator
 					.from((weight) -> {
+						if (!isRequired && weight == null) return true;
+						
 						// tell the category dropdown to signal inconsistent selection
 						Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
 						categoryBinding.validate(true).isError();
@@ -241,12 +246,11 @@ public class AthletesContent extends VerticalLayout
 					.from((category) -> {
 						try {
 							Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
-							String bwString = (String) bwBinding.getField().getValue();
-							if (bwString == null) {
+							Double bw = (Double) bwBinding.getField().getValue();
+							if (bw == null) {
 								// no body weight - no contradiction
 								return true;
 							}
-							Double bw = Double.parseDouble(bwString);
 							Double min = category.getMinimumWeight();
 							Double max = category.getMaximumWeight();
 							logger.debug(

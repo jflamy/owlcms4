@@ -70,10 +70,15 @@ public class LocalDateTimeField extends WrappedTextField<LocalDateTime> implemen
 		return new LocalDateTimeRenderer<SOURCE>(v, FORMATTER.withLocale(locale));
 	}
 	
-	private Result<LocalDateTime> doParse(String value, Locale locale, DateTimeFormatter formatter) {
+	private Result<LocalDateTime> doParse(String content, Locale locale, DateTimeFormatter formatter) {
 		LocalDateTime parse;
 		try {
-			parse = LocalDateTime.parse(value, formatter);
+			if ((content == null || content.trim().isEmpty()) && !this.isRequired()) {
+				// field is not required, accept empty content
+				setFormatValidationStatus(true, locale);
+				return Result.ok(null);
+			}
+			parse = LocalDateTime.parse(content, formatter);
 			setFormatValidationStatus(true, locale);
 			return Result.ok(parse);
 		} catch (DateTimeParseException e) {

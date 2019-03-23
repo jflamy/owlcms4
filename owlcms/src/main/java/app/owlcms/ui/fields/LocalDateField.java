@@ -85,6 +85,11 @@ public class LocalDateField extends WrappedTextField<LocalDate> {
 	private Result<LocalDate> doParse(String content, Locale locale, DateTimeFormatter formatter) {
 		LocalDate parse;
 		try {
+			if ((content == null || content.trim().isEmpty()) && !this.isRequired()) {
+				// field is not required, accept empty content
+				setFormatValidationStatus(true, locale);
+				return Result.ok(null);
+			}
 			parse = LocalDate.parse(content, formatter);
 			setFormatValidationStatus(true, locale);
 			return Result.ok(parse);
