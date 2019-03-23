@@ -105,7 +105,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 		Component footerLayout = this.buildFooter(operation, domainObject, cancelButtonClickListener,
 			updateButtonClickListener, deleteButtonClickListener);
 
-		com.vaadin.flow.component.orderedlayout.VerticalLayout mainLayout = new VerticalLayout(
+		VerticalLayout mainLayout = new VerticalLayout(
 				formLayout, footerLayout);
 		mainLayout.setFlexGrow(1, formLayout);
 		mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
@@ -226,7 +226,6 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	}
 
 	public Button doBuildButton(CrudOperation operation) {
-
         String caption = buttonCaptions.get(operation);
         Icon icon = buttonIcons.get(operation);
         Button button = icon != null ? new Button(caption, icon) : new Button(caption);

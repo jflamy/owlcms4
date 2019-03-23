@@ -72,7 +72,7 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
     protected void updateButtonClicked() {
         T domainObject = grid.asSingleSelect().getValue();
         // show both an update and a delete button.
-        this.showFormWithDeleteButton(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
+        this.showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
             try {
                 T updatedObject = updateOperation.perform(domainObject);
                 grid.asSingleSelect().clear();
@@ -106,43 +106,32 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
         }
     }	
 
-	/*
-	 * (non-Javadoc)
+
+	/**
+	 * Show form with a delete button.
 	 * 
-	 * @see org.vaadin.crudui.crud.impl.GridCrud#showForm(org.vaadin.crudui.crud.
-	 * CrudOperation, java.lang.Object, boolean, java.lang.String,
-	 * com.vaadin.flow.component.ComponentEventListener)
+	 * @see org.vaadin.crudui.crud.impl.GridCrud#showForm(org.vaadin.crudui.crud.CrudOperation, java.lang.Object, boolean, java.lang.String, com.vaadin.flow.component.ComponentEventListener)
 	 */
 	@Override
 	protected void showForm(CrudOperation operation, T domainObject, boolean readOnly, String successMessage,
 			ComponentEventListener<ClickEvent<Button>> buttonClickListener) {
-		showFormWithDeleteButton(operation, domainObject, readOnly, successMessage, buttonClickListener);
+		Component form = this.owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
+			cancelClickEvent -> {
+				grid.asSingleSelect().clear();
+			}, operationPerformedClickEvent -> {
+				owlcmsCrudLayout.hideForm();
+				buttonClickListener.onComponentEvent(operationPerformedClickEvent);
+				grid.asSingleSelect().clear();
+				Notification.show(successMessage);
+			}, deletePerformedClickEvent -> {
+				owlcmsCrudLayout.hideForm();
+				this.deleteButtonClicked();
+			});
+
+		String caption = this.owlcmsCrudFormFactory.buildCaption(operation, domainObject);
+		owlcmsCrudLayout.showForm(operation, form, caption);
 	}
 
-	private void showFormWithDeleteButton(CrudOperation operation, T domainObject, boolean readOnly,
-			String successMessage, ComponentEventListener<ClickEvent<Button>> buttonClickListener) {
-		Component form = this.owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
-				cancelClickEvent -> {
-					grid.asSingleSelect().clear();
-					// make sure we can select again
-					owlcmsCrudLayout.disableNextShowForm(false);
-				}, operationPerformedClickEvent -> {
-					// update re-selects the item, which (because of click-to-select) app.owlcms.ui.displays the form again...
-					owlcmsCrudLayout.disableNextShowForm(true);
-					owlcmsCrudLayout.hideForm();
-					buttonClickListener.onComponentEvent(operationPerformedClickEvent);
-					grid.asSingleSelect().clear();
-					Notification.show(successMessage);
-				}, deletePerformedClickEvent -> {
-					owlcmsCrudLayout.hideForm();
-					// we want a confirmation dialog, the same as clicking on the trash can
-					owlcmsCrudLayout.disableNextShowForm(false);
-					this.deleteButtonClicked();
-				});
-       
-        String caption = crudFormFactory.buildCaption(operation, domainObject);
-        owlcmsCrudLayout.showForm(operation, form, caption);
-	}
 	
 	/**
 	 * Replacement initialization

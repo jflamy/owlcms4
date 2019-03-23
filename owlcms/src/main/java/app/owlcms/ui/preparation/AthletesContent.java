@@ -14,6 +14,7 @@ import java.util.Collection;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
+import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
@@ -187,6 +188,16 @@ public class AthletesContent extends VerticalLayout
 	 */
 	private OwlcmsCrudFormFactory<Athlete> createAthleteEditingFormFactory() {
 		return new OwlcmsCrudFormFactory<Athlete>(Athlete.class) {
+			/* (non-Javadoc)
+			 * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.crud.CrudOperation, java.lang.Object)
+			 */
+			@Override
+			public String buildCaption(CrudOperation operation, Athlete a) {
+				if (a.getLastName() == null && a.getFirstName() == null) return null;
+				// If null, CrudLayout.showForm will build its own, for backward compatibility
+				return a.getFullId();
+			}
+			
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			@Override
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {

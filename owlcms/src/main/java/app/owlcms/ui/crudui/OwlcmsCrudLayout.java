@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.layout.impl.WindowBasedCrudLayout;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.ThemableLayout;
@@ -27,7 +26,7 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsCrudLayout.class);
 
-	private boolean disableNextShowForm = false;
+//	private boolean disableNextShowForm = false;
 
 	/**
 	 * Instantiates a new owlcms crud layout.
@@ -77,35 +76,35 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
         
     }
 
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.layout.impl.WindowBasedCrudLayout#showForm(org.vaadin.crudui.crud.CrudOperation, com.vaadin.flow.component.Component)
-	 */
-	@Override
-	public void showForm(CrudOperation operation, Component form, String caption) {
-		if (isDisableNextShowForm()) {
-			logger.debug("ignoring open");
-		} else if (!operation.equals(CrudOperation.READ)) {
-        	showDialog(caption, form);
-        }
-		disableNextShowForm(false);
-	}
-	
-	
-	/**
-	 * Disable next show form.
-	 *
-	 * @param isDisabled the is disabled
-	 */
-	public void disableNextShowForm(boolean isDisabled) {
-		setDisableNextShowForm(isDisabled);
-	}
-
-	public boolean isDisableNextShowForm() {
-		return disableNextShowForm;
-	}
-
-	public void setDisableNextShowForm(boolean disableNextShowForm) {
-		this.disableNextShowForm = disableNextShowForm;
-	}
+//	/* (non-Javadoc)
+//	 * @see org.vaadin.crudui.layout.impl.WindowBasedCrudLayout#showForm(org.vaadin.crudui.crud.CrudOperation, com.vaadin.flow.component.Component)
+//	 */
+//	@Override
+//	public void showForm(CrudOperation operation, Component form, String caption) {
+//		if (isDisableNextShowForm()) {
+//			logger.debug("ignoring open");
+//		} else if (!operation.equals(CrudOperation.READ)) {
+//        	showDialog(caption, form);
+//        }
+//		disableNextShowForm(false);
+//	}
+//	
+//	
+//	/**
+//	 * Disable next show form.
+//	 *
+//	 * @param isDisabled the is disabled
+//	 */
+//	public void disableNextShowForm(boolean isDisabled) {
+//		setDisableNextShowForm(isDisabled);
+//	}
+//
+//	public boolean isDisableNextShowForm() {
+//		return disableNextShowForm;
+////	}
+//
+//	public void setDisableNextShowForm(boolean disableNextShowForm) {
+//		this.disableNextShowForm = disableNextShowForm;
+//	}
 	
 }

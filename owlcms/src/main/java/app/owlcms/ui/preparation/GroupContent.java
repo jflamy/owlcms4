@@ -103,8 +103,8 @@ public class GroupContent extends VerticalLayout
 	}
 	
 	/**
-	 * The content and ordering of the editing form
-	 * 
+	 * The content and ordering of the editing form.
+	 *
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<Group> crudFormFactory) {
@@ -149,8 +149,6 @@ public class GroupContent extends VerticalLayout
 					super.bindField(field, property, propertyType);
 				}
 			}
-
-
 		};
 	}
 
@@ -168,9 +166,7 @@ public class GroupContent extends VerticalLayout
 	}
 
 	/**
-	 * The pencil button on the toolbar triggers an edit.
-	 * 
-	 * This method is called when the pop-up is closed with Update
+	 * This method is called when the dialog is closed with the update button
 	 * 
 	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
 	 */
@@ -181,8 +177,7 @@ public class GroupContent extends VerticalLayout
 
 	/**
 	 * The delete button on the toolbar triggers this method
-	 * 
-	 * (or the one in the form)
+	 * (or the delete button in the form)
 	 * 
 	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
 	 */
@@ -200,46 +195,4 @@ public class GroupContent extends VerticalLayout
 	public Collection<Group> findAll() {
 		return GroupRepository.findAll();
 	}
-	
-//	/**
-//	 * The filters at the top of the grid
-//	 * 
-//	 * @param crud the grid that will be filtered.
-//	 */
-//	protected void defineFilters(GridCrud<Group> crud) {
-//		nameFilter.setPlaceholder("Name");
-//		nameFilter.setClearButtonVisible(true);
-//		nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-//		nameFilter.addValueChangeListener(e -> {
-//			crud.refreshGrid();
-//		});
-//		crud.getCrudLayout()
-//			.addFilterComponent(nameFilter);
-//
-//		ageDivisionFilter.setPlaceholder("Age Division");
-//		ageDivisionFilter.setItems(AgeDivision.findAll());
-//		ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
-//		ageDivisionFilter.addValueChangeListener(e -> {
-//			crud.refreshGrid();
-//		});
-//		crud.getCrudLayout()
-//			.addFilterComponent(ageDivisionFilter);
-//		crud.getCrudLayout()
-//			.addToolbarComponent(new Label(""));
-//		
-//		activeFilter.addValueChangeListener(e -> {
-//			crud.refreshGrid();
-//		});
-//		activeFilter.setLabel("Active");
-//		activeFilter.setAriaLabel("Active Categories Only");
-//		crud.getCrudLayout()
-//			.addFilterComponent(activeFilter);
-//
-//		Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
-//		clearFilters.addClickListener(event -> {
-//			ageDivisionFilter.clear();
-//		});
-//		crud.getCrudLayout()
-//			.addFilterComponent(clearFilters);
-//	}
 }

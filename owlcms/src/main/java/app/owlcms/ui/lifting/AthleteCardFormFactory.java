@@ -387,8 +387,12 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			null);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.crud.CrudOperation, java.lang.Object)
+	 */
 	@Override
 	public String buildCaption(CrudOperation operation, Athlete a) {
+		logger.debug("calling Athlete caption");
 		// If null, CrudLayout.showForm will build its own, for backward compatibility
 		return a.getFullId();
 	}

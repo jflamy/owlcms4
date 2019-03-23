@@ -166,7 +166,7 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 	 * @param locale
 	 */
 	protected void setFormatValidationStatus(boolean valid, Locale locale) {
-		logger.warn("format valid = {} ",valid);
+		logger.trace("format valid = {} ",valid);
 		this.validFormat = valid;
 		this.setInvalid(!valid);
 		if (!valid) {
