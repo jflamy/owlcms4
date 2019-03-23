@@ -44,13 +44,12 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.ui.appLayout.AppLayoutContent;
-import app.owlcms.ui.crudui.Bindable;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudLayout;
 import app.owlcms.ui.crudui.OwlcmsGridCrud;
+import app.owlcms.ui.fields.BodyWeightField;
+import app.owlcms.ui.fields.LocalDateField;
 import app.owlcms.ui.home.ContentWrapping;
-import app.owlcms.ui.preparation.BodyWeightField;
-import app.owlcms.ui.preparation.LocalDateField;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -197,19 +196,12 @@ public class WeighinContent extends VerticalLayout
 			@Override
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
 				Binder.BindingBuilder bindingBuilder = binder.forField(field);
-
-				if (field instanceof Bindable) {
-					bindingBuilder.withConverter(((Bindable) field).getConverter());
-
-					if ("fullBirthDate".equals(property)) {
-						fullBirthDateValidation(bindingBuilder);
-						bindingBuilder.bind(property);
-					} else if ("bodyWeight".equals(property)) {
-						bodyWeightValidation(bindingBuilder);
-						bindingBuilder.bind(property);
-					} else {
-						throw new RuntimeException("property " + property + " is Bindable but not covered.");
-					}
+				if ("fullBirthDate".equals(property)) {
+					fullBirthDateValidation(bindingBuilder);
+					bindingBuilder.bind(property);
+				} else if ("bodyWeight".equals(property)) {
+					bodyWeightValidation(bindingBuilder);
+					bindingBuilder.bind(property);
 				} else if ("category".equals(property)) {
 					categoryValidation(bindingBuilder);
 					bindingBuilder.bind(property);

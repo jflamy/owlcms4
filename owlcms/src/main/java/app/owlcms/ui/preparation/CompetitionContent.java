@@ -30,6 +30,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.ui.fields.LocalDateField;
 import app.owlcms.ui.home.ContentWrapping;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

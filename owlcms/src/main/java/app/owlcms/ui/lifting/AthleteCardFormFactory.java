@@ -33,7 +33,7 @@ import com.vaadin.flow.dom.ClassList;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.utils.ValidationUtils;
+import app.owlcms.ui.fields.ValidationUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")

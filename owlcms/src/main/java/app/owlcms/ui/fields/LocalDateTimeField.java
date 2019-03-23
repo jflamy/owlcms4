@@ -1,4 +1,4 @@
-package app.owlcms.ui.preparation;
+package app.owlcms.ui.fields;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +18,6 @@ import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.function.ValueProvider;
 
-import app.owlcms.utils.WrappedTextField;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
