@@ -59,8 +59,7 @@ public class DemoData {
 			Level loggerLevel = Athlete.getLogger()
 				.getLevel();
 			try {
-				Athlete.getLogger()
-					.setLevel(Level.WARN);
+				Athlete.getLogger().setLevel(Level.WARN);
 				setupDemoData(em, nbAthletes);
 			} catch (Exception e) {
 				Athlete.getLogger()
@@ -190,9 +189,10 @@ public class DemoData {
 
 		em.persist(platform1);
 		em.persist(platform2);
-		em.persist(competition);
+		//em.persist(competition);
 		
 		insertSampleLifters(em, liftersToLoad, groupM1, groupM2);
+		em.flush();
 	}
 
 	private static void insertSampleLifters(EntityManager em,

@@ -17,7 +17,6 @@ import java.util.Locale;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.data.binder.Result;
-import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.renderer.LocalDateRenderer;
@@ -29,7 +28,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Implement a LocalDate field with converter and validators.
+ * LocalDate field with conversion, validation and rendering.
  * 
  * @author Jean-François Lamy
  *
@@ -37,87 +36,64 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class LocalDateField extends WrappedTextField<LocalDate> {
 	
-	private final Logger logger = (Logger)LoggerFactory.getLogger(LocalDateField.class);
 	@Override
 	protected void initLoggers() {
+		logger = (Logger)LoggerFactory.getLogger(LocalDateField.class);
 		logger.setLevel(Level.DEBUG);
 	}
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 	
-	public LocalDateField() {
-		this(null, null);
-	}
-	
-	public LocalDateField(String label, LocalDate defaultValue) {
-		super(defaultValue);
-		initLoggers();
-		setLabel(label);
-		getWrappedTextField().addValueChangeListener(
-			event -> {
-				String presentationValue = event.getValue();
-				doConvertToModel(presentationValue, true);
-			});
-	}
 
 	@Override
 	public Converter<String, LocalDate> getConverter() {
-		
-		return new Converter<String,LocalDate>() {
-			
+		return new Converter<String,LocalDate>() {		
 			@Override
 			public String convertToPresentation(LocalDate value, ValueContext context) {
 				Locale locale = context.getLocale().orElse(Locale.ENGLISH);
-				if (value == null) value = LocalDate.now();
-				return FORMATTER.withLocale(locale).format(value);
+				return (value != null ? FORMATTER.withLocale(locale).format(value) : "");
 			}
 
 			@Override
 			public Result<LocalDate> convertToModel(String value, ValueContext context) {
-				return parser1(value, context, FORMATTER);
-			}
-
-			protected Result<LocalDate> parser1(String value, ValueContext context, DateTimeFormatter formatter) {
 				Locale locale = context.getLocale().orElse(Locale.ENGLISH);
-				LocalDate parse;
-				try {
-					parse = LocalDate.parse(value, FORMATTER);
-					return Result.ok(parse);
-				} catch (DateTimeParseException e) {
-					return Result.error(this.getErrorMessage(locale));
-				}
-			}
-
-			private String getErrorMessage(Locale locale) {
-				LocalDate sampleDate = LocalDate.of(2000, 12, 31);
-				return "Date must be in international format YYYY-MM-DD "
-						+ "("
-						+ FORMATTER.format(sampleDate)
-						+ " for "
-						+ DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
-							.format(sampleDate)
-						+ " )";
+				return doParse(value, locale, FORMATTER.withLocale(locale));
 			}
 		};
 	}
-	
-	public Validator<LocalDate> getNotFutureValidator() {
-		return Validator.from(ld -> (ld.compareTo(LocalDate.now()) < 0), "cannot be in the future");
-	}
 
-	@Override
-	protected void logConversionError(String e) {
-		logger.error(e);
+	public static <SOURCE> Renderer<SOURCE> getRenderer(ValueProvider<SOURCE, LocalDate> v, Locale locale) {
+		return new LocalDateRenderer<SOURCE>(v, FORMATTER.withLocale(locale));
 	}
-	
 	
 	@Override
 	public String toString() {
 		return FORMATTER.format(getValue());
 	}
 	
-	public static Renderer<LocalDate> getRenderer(ValueProvider<LocalDate, LocalDate> v, Locale locale) {
-		return new LocalDateRenderer<LocalDate>(v, FORMATTER);
+	@Override
+	protected String invalidFormatErrorMessage(Locale locale) {
+		LocalDate sampleDate = LocalDate.of(2000, 12, 31);
+		return "Date must be in international format YYYY-MM-DD "
+				+ "("
+				+ FORMATTER.format(sampleDate)
+				+ " for "
+				+ DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
+					.format(sampleDate)
+				+ ")";
+	}
+	
+	private Result<LocalDate> doParse(String content, Locale locale, DateTimeFormatter formatter) {
+		LocalDate parse;
+		try {
+			parse = LocalDate.parse(content, formatter);
+			setFormatValidationStatus(true, locale);
+			return Result.ok(parse);
+		} catch (DateTimeParseException e) {
+			String m = invalidFormatErrorMessage(locale);
+			setFormatValidationStatus(false, locale);
+			return Result.error(m);
+		}
 	}
 
 }

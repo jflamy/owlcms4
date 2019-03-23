@@ -18,6 +18,7 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -211,6 +212,10 @@ public class AthletesContent extends VerticalLayout
 
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			protected void fullBirthDateValidation(Binder.BindingBuilder bindingBuilder) {
+				LocalDateField ldtf = (LocalDateField) bindingBuilder.getField();
+				Validator<LocalDate> fv = ldtf.formatValidation(UI.getCurrent().getLocale());
+				bindingBuilder.withValidator(fv);
+				
 				Validator<LocalDate> v = Validator.from(
 					ld -> (ld.compareTo(LocalDate.now()) <= 0),
 					"Birth date cannot be in the future");

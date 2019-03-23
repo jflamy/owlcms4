@@ -23,16 +23,14 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Conversion and validation methods for LocalDateTime
+ * LocalDateTime field with conversion, validation and rendering.
  * 
  * @author Jean-François Lamy
  *
  */
 @SuppressWarnings("serial")
-public class LocalDateTimeField<SOURCE> extends WrappedTextField<LocalDateTime> implements HasValidation {
+public class LocalDateTimeField extends WrappedTextField<LocalDateTime> implements HasValidation {
 	
-
-	private Logger logger;
 	@Override
 	protected void initLoggers() {
 		logger = (Logger)LoggerFactory.getLogger(LocalDateTimeField.class);
@@ -45,53 +43,23 @@ public class LocalDateTimeField<SOURCE> extends WrappedTextField<LocalDateTime> 
 	@Override
 	public Converter<String, LocalDateTime> getConverter() {	
 		return new Converter<String,LocalDateTime>() {
-			
+
 			@Override
 			public String convertToPresentation(LocalDateTime value, ValueContext context) {
-				//Locale locale = context.getLocale().orElse(Locale.ENGLISH);
-				if (value == null) return "";
-				return FORMATTER.format(value);
+				Locale locale = context.getLocale().orElse(Locale.ENGLISH);
+				return (value != null ? FORMATTER.withLocale(locale).format(value) : "");
 			}
-			
+
 			@Override
 			public Result<LocalDateTime> convertToModel(String value, ValueContext context) {
-				return parser1(value, context, FORMATTER);
-			}
-	
-			private Result<LocalDateTime> parser1(String value, ValueContext context, DateTimeFormatter formatter) {
 				Locale locale = context.getLocale().orElse(Locale.ENGLISH);
-				LocalDateTime parse;
-				try {
-					parse = LocalDateTime.parse(value, FORMATTER);
-					return Result.ok(parse);
-				} catch (DateTimeParseException e) {
-					String errorMessage = this.getErrorMessage(locale);
-					//errorMessage = "error parsing *"+e.getParsedString()+"* at position "+e.getErrorIndex();
-					return Result.error(errorMessage);
-				}
-			}
-			
-			private String getErrorMessage(Locale locale) {
-				LocalDateTime date = LocalDateTime.of(2000, 11, 29,13,31);
-				return "Time must be in international format "
-						+ DATE_FORMAT
-						+ " ("
-						+ FORMATTER.format(date)
-						+" for "
-						+ DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(locale)
-							.format(date)
-						+ " )";
+				return doParse(value, locale, FORMATTER.withLocale(locale));
 			}
 		};
 	}
 
 	public Validator<LocalDateTime> getNotPastValidator() {
 		return Validator.from(ld -> (ld.compareTo(LocalDateTime.now()) >= 0), "cannot be in the past");
-	}
-
-	@Override
-	protected void logConversionError(String e) {
-		logger.error(e);
 	}
 	
 	@Override
@@ -100,7 +68,32 @@ public class LocalDateTimeField<SOURCE> extends WrappedTextField<LocalDateTime> 
 	}
 	
 	public static <SOURCE> Renderer<SOURCE> getRenderer(ValueProvider<SOURCE, LocalDateTime> v, Locale locale) {
-		return new LocalDateTimeRenderer<SOURCE>(v, FORMATTER);
+		return new LocalDateTimeRenderer<SOURCE>(v, FORMATTER.withLocale(locale));
+	}
+	
+	private Result<LocalDateTime> doParse(String value, Locale locale, DateTimeFormatter formatter) {
+		LocalDateTime parse;
+		try {
+			parse = LocalDateTime.parse(value, formatter);
+			setFormatValidationStatus(true, locale);
+			return Result.ok(parse);
+		} catch (DateTimeParseException e) {
+			setFormatValidationStatus(false, locale);
+			return Result.error(invalidFormatErrorMessage(locale));
+		}
+	}
+	
+	@Override
+	protected String invalidFormatErrorMessage(Locale locale) {
+		LocalDateTime date = LocalDateTime.of(2000, 11, 29,13,31);
+		return "Time must be in international format "
+				+ DATE_FORMAT
+				+ " ("
+				+ FORMATTER.format(date)
+				+" for "
+				+ DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(locale)
+					.format(date)
+				+ " )";
 	}
 }
 

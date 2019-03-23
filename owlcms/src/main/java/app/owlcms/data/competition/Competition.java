@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.Locale;
 
 import javax.persistence.Cacheable;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -21,6 +22,7 @@ import javax.persistence.Id;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.jpa.LocaleAttributeConverter;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -40,7 +42,8 @@ public class Competition {
 	 */
 	public static Competition getCurrent() {
 		if (competition == null) {
-			competition = CompetitionRepository.findAll().get(0);
+			competition = new Competition();
+			//competition = CompetitionRepository.findAll().get(0);
 		}
 		return competition;
 	}
@@ -60,6 +63,7 @@ public class Competition {
 	private String federationEMail;
 	private String federationWebSite;
 	
+	@Convert(converter = LocaleAttributeConverter.class)
 	private Locale defaultLocale = Locale.ENGLISH;
 	private String protocolFileName;
 	private String resultTemplateFileName;
@@ -443,5 +447,10 @@ public class Competition {
 	public Locale getLocale() {
 		return getDefaultLocale();
 	}
+
+	public void setDefaultLocale(Locale defaultLocale) {
+		this.defaultLocale = defaultLocale;
+	}
+	
 
 }

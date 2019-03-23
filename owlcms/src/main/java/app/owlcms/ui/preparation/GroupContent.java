@@ -8,7 +8,9 @@
  */
 package app.owlcms.ui.preparation;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -16,9 +18,11 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 
@@ -130,10 +134,16 @@ public class GroupContent extends VerticalLayout
 			@Override
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
 				Binder.BindingBuilder bindingBuilder = binder.forField(field);
+				Locale locale = UI.getCurrent().getLocale();
+				
 				if ("competitionTime".equals(property)) {
-					bindingBuilder.bind(property);
+					LocalDateTimeField ldtf = (LocalDateTimeField)field;
+					Validator<LocalDateTime> fv = ldtf.formatValidation(locale);
+					bindingBuilder.withValidator(fv).bind(property);
 				} else if ("weighInTime".equals(property)) {
-					bindingBuilder.bind(property);
+					LocalDateTimeField ldtf = (LocalDateTimeField)field;
+					Validator<LocalDateTime> fv = ldtf.formatValidation(locale);
+					bindingBuilder.withValidator(fv).bind(property);
 				} else {
 					super.bindField(field, property, propertyType);
 				}
