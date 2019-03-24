@@ -272,58 +272,9 @@ public class Athlete {
 
 	private Integer teamSinclairRank;
 	private Integer teamRobiRank;
-
-//	/*
-//	 * Computed properties. We create them here because we want the corresponding
-//	 * accessors to be discovered by introspection. Setters are not defined (the
-//	 * fields are final). Getters perform the required computation.
-//	 *
-//	 * BEWARE: the variables defined here must NOT be used -- you must be able to
-//	 * comment them out and get no compilation errors. All the code should use the
-//	 * getters only.
-//	 */
-//	@Transient
-//	final transient String snatch1AutomaticProgression = ""; //$NON-NLS-1$
-//
-//	@Transient
-//	final transient String snatch2AutomaticProgression = ""; //$NON-NLS-1$
-//	@Transient
-//	final transient String snatch3AutomaticProgression = ""; //$NON-NLS-1$
-//
-//	@Transient
-//	final transient String cleanJerk1AutomaticProgression = ""; //$NON-NLS-1$
-//	@Transient
-//	final transient String cleanJerk2AutomaticProgression = ""; //$NON-NLS-1$
-//
-//	@Transient
-//	final transient String cleanJerk3AutomaticProgression = ""; //$NON-NLS-1$
-//	@Transient
-//	final transient Integer bestSnatch = 0;
-//	@Transient
-//	final transient Integer bestCleanJerk = 0;
-//	@Transient
-//	final transient Integer medalRank = 0;
-//
-//	@Transient
-//	final transient Integer total = 0;
-//	@Transient
-//	final transient Integer attemptsDone = 0;
-//
-//	@Transient
-//	final transient Integer snatchAttemptsDone = 0;
-//	@Transient
-//	final transient Integer cleanJerkAttemptsDone = 0;
-//	@Transient
-//	Date lastLiftTime = null;
-//	@Transient
-//	final transient Integer nextAttemptRequestedWeight = 0;
-
 	private Integer teamSnatchRank;
-
 	private Integer teamCleanJerkRank;
-
 	private Integer teamTotalRank;
-
 	private Integer teamCombinedRank;
 
 	private Boolean teamMember = true; // false if substitute; note that we consider null to be true.;
@@ -630,6 +581,15 @@ public class Athlete {
 		return getSnatchAttemptsDone() + getCleanJerkAttemptsDone();
 	}
 
+	/**
+	 * Number of attempt 1..3, relative to current lift
+	 * 
+	 * @return
+	 */
+	public Integer getAttemptNumber() {
+		return getAttemptsDone() % 3 + 1;
+	}
+	
 	/**
 	 * Gets the best clean jerk.
 	 *

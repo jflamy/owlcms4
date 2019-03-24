@@ -45,7 +45,7 @@ public class FieldOfPlayState {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlayState.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
 	protected void init_loggers() {
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.INFO);
 	}
  
@@ -390,7 +390,7 @@ public class FieldOfPlayState {
 			} else if (e instanceof FOPEvent.WeightChange) {
 				WeightChange wc = (FOPEvent.WeightChange)e;
 				Athlete athlete = wc.getAthlete();
-				if (athlete == curAthlete) {
+				if (athlete.equals(curAthlete)) {
 					// clock is already stopped, coach requesting change
 					weightChange(curAthlete);
 					setState(State.CURRENT_ATHLETE_DISPLAYED);
