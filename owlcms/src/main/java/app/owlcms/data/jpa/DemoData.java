@@ -204,12 +204,110 @@ public class DemoData {
 			int liftersToLoad,
 			Group groupM1,
 			Group groupM2) {
-		final String[] fnames = { "Peter", "Albert", "Joshua", "Mike", "Oliver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-				"Paul", "Alex", "Richard", "Dan", "Umberto", "Henrik", "Rene", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
-				"Fred", "Donald" }; //$NON-NLS-1$ //$NON-NLS-2$
-		final String[] lnames = { "Smith", "Gordon", "Simpson", "Brown", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				"Clavel", "Simons", "Verne", "Scott", "Allison", "Gates", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-				"Rowling", "Barks", "Ross", "Schneider", "Tate" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		final String[] lnames = {
+				"Smith",
+				"Johnson",
+				"Williams",
+				"Jones",
+				"Brown",
+				"Davis",
+				"Miller",
+				"Wilson",
+				"Moore",
+				"Taylor",
+				"Anderson",
+				"Thomas",
+				"Jackson",
+				"White",
+				"Harris",
+				"Martin",
+				"Thompson",
+				"Garcia",
+				"Martinez",
+				"Robinson",
+				"Clark",
+				"Rodriguez",
+				"Lewis",
+				"Lee",
+				"Walker",
+				"Hall",
+				"Allen",
+				"Young",
+				"Hernandez",
+				"King",
+				"Wright",
+				"Lopez",
+				"Hill",
+				"Scott",
+				"Green",
+				"Adams",
+				"Baker",
+				"Gonzalez",
+				"Nelson",
+				"Carter",
+				"Mitchell",
+				"Perez",
+				"Roberts",
+				"Turner",
+				"Phillips",
+				"Campbell",
+				"Parker",
+				"Evans",
+				"Edwards",
+				"Collins",
+		};
+		final String[] fnames = {
+				"James",
+				"John",
+				"Robert",
+				"Michael",
+				"William",
+				"David",
+				"Richard",
+				"Joseph",
+				"Thomas",
+				"Charles",
+				"Christopher",
+				"Daniel",
+				"Matthew",
+				"Anthony",
+				"Donald",
+				"Mark",
+				"Paul",
+				"Steven",
+				"Andrew",
+				"Kenneth",
+				"George",
+				"Joshua",
+				"Kevin",
+				"Brian",
+				"Edward",
+				"Ronald",
+				"Timothy",
+				"Jason",
+				"Jeffrey",
+				"Ryan",
+				"Jacob",
+				"Gary",
+				"Nicholas",
+				"Eric",
+				"Stephen",
+				"Jonathan",
+				"Larry",
+				"Justin",
+				"Scott",
+				"Brandon",
+				"Frank",
+				"Benjamin",
+				"Gregory",
+				"Raymond",
+				"Samuel",
+				"Patrick",
+				"Alexander",
+				"Jack",
+				"Dennis",
+				"Jerry",
+		};
 
 		Random r = new Random(0);
 
@@ -221,10 +319,12 @@ public class DemoData {
 		assignStartNumbers(em, groupM1);
 		assignStartNumbers(em, groupM2);
 	}
-
+	
 	protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
 			Random r,
 			int cat1, int cat2, int liftersToLoad) {
+
+		
 		for (int i = 0; i < liftersToLoad; i++) {
 			try {
 				Athlete p = new Athlete();
@@ -255,14 +355,20 @@ public class DemoData {
 		AthleteSorter.assignStartNumbers(athletes);
 	}
 
+	static int minAge = 18;
+	static int maxAge = 32;
+	static LocalDate baseDate = LocalDate.now().minusYears(minAge);
+	
 	protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit) {
-		p.setBodyWeight(81 - nextDouble);
 		Category categ = CategoryRepository.doFindByName("m" + catLimit, em);
 		p.setCategory(categ);
+		p.setBodyWeight(categ.getMaximumWeight() - nextDouble*2.0);
 
 		double sd = catLimit * (1 + (r.nextGaussian() / 10));
-		p.setSnatch1Declaration(Long.toString(Math.round(sd)));
-		p.setCleanJerk1Declaration(Long.toString(Math.round(sd * 1.20D)));
+		long isd = Math.round(sd);
+		p.setSnatch1Declaration(Long.toString(isd));
+		long icjd = Math.round(sd * 1.20D);
+		p.setCleanJerk1Declaration(Long.toString(icjd));
 		nextDouble = r.nextDouble();
 		String team;
 		if (nextDouble < 0.333)
@@ -272,6 +378,9 @@ public class DemoData {
 		else
 			team = "NORTH";
 		p.setTeam(team);
+		p.setFullBirthDate(baseDate.plusWeeks(Math.round(r.nextDouble()*(maxAge-minAge)*52)));
+		// respect 20kg rule
+		p.setQualifyingTotal((int) (isd+icjd-15));
 	}
 
 }

@@ -38,6 +38,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.ui.appLayout.AppLayoutContent;
 import app.owlcms.ui.home.MainNavigationLayout;
@@ -59,8 +60,11 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 	private AppLayout appLayout;
 	private ComboBox<Group> groupSelect;
 	private Group group;
-	private Button download;
 	private Anchor startingWeights;
+	private Button startingWeightsButton;
+	private Anchor cards;
+	private Button cardsButton;
+
 
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
@@ -116,8 +120,8 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 		groupSelect.setValue(null);
 		groupSelect.addValueChangeListener(e -> {
 			setContentGroup(e);
-			download.setEnabled(e.getValue() != null);
-			startingWeights.getElement().setAttribute("download", "startingWeights_"+group+".xls");
+			startingWeightsButton.setEnabled(e.getValue() != null);
+			startingWeights.getElement().setAttribute("startingWeightsButton", "startingWeights_"+group+".xls");
 		});
 
 
@@ -128,20 +132,34 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 			clearStartNumbers();
 		});
 		
-		JXLSWeighInSheet writer = new JXLSWeighInSheet(group, true);
-		StreamResource href = new StreamResource("startingWeights.xls", writer);
+		JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet(true);
+		StreamResource href = new StreamResource("startingWeights.xls", startingWeightsWriter);
 		startingWeights = new Anchor(href, "");
-		download = new Button("Starting Weights Sheet",new Icon(VaadinIcon.DOWNLOAD_ALT));
-		download.addClickListener((e) -> {
-			writer.setGroup(group);
+		startingWeightsButton = new Button("Starting Weights Sheet",new Icon(VaadinIcon.DOWNLOAD_ALT));
+		startingWeightsButton.addClickListener((e) -> {
+			startingWeightsWriter.setGroup(group);
 		});
-		startingWeights.add(download);
-		download.setEnabled(false);
+		startingWeights.add(startingWeightsButton);
+		startingWeightsButton.setEnabled(false);
+		
+		JXLSCards cardsWriter = new JXLSCards(true);
+		StreamResource href1 = new StreamResource("startingWeights.xls", cardsWriter);
+		cards = new Anchor(href1, "");
+		cardsButton = new Button("Athlete Cards",new Icon(VaadinIcon.DOWNLOAD_ALT));
+		cardsButton.addClickListener((e) -> {
+			cardsWriter.setGroup(group);
+		});
+		cards.add(cardsButton);
+		cardsButton.setEnabled(true);
 			
 		HorizontalLayout buttons = new HorizontalLayout(
 				start,
 				clear,
-				startingWeights);
+				startingWeights,
+				cards
+				);
+		buttons.setPadding(true);
+		buttons.setSpacing(true);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		topBar
