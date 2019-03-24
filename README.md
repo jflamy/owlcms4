@@ -1,13 +1,12 @@
 # owlcms4
 Olympic Weightlifting Competition Management System 
 
-Ongoing rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md) 
+Ongoing rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md).
 
 Main incentives for this rewrite:
-- owlcms2 shows its age (owlcms was initially written in 2009). Some of the underlying components cannot be upgraded, and as a consequence some bugs
-cannot be fixed, leading to convoluted workarounds in the code.
-- Being able to run in the cloud, with decisions, timers and sounds handled locally in the browser.  
-- Reduce the need to run ethernet wiring - the new version will resync automatically if the connection is lost or the application is restarted.
+- Robustness: owlcms was initially written in 2009. Some of the underlying components can no longer be updated to fix bugs.
+- Flexibility: Decisions, timers and sounds handled locally in the browser.  This will enable running the main system in the cloud for those who wish to, and will reduce or eliminate the need for ethernet cables.
+- Simplify the design.  Many things that had to be painstakingly coded in the original version are now built-in modern frameworks (database handling and sophisticated user interfaces for example.)  The rewrite is at least 2 times smaller than the original.
 
 Current status: Quite close to minimal viable product ("MVP") able to run a regional competition
 - Working announcer, marshall and timekeeper screens (updating athlete cards and recomputing lifting order).
