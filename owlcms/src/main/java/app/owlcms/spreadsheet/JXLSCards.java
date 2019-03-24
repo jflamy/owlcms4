@@ -23,7 +23,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 
 @SuppressWarnings("serial")
-public class JXLSAthleteCard extends JXLSWorkbookStreamSource {
+public class JXLSCards extends JXLSWorkbookStreamSource {
 
     /**
      * Number of rows in a card
@@ -34,23 +34,16 @@ public class JXLSAthleteCard extends JXLSWorkbookStreamSource {
      */
     final static int CARDS_PER_PAGE = 2;
 
-    /**
-     *
-     */
-    public JXLSAthleteCard() {
-        super();
-    }
-
-    public JXLSAthleteCard(boolean excludeNotWeighed) {
+    public JXLSCards(boolean excludeNotWeighed) {
         super();
     }
 
     @SuppressWarnings("unused")
-    private final static Logger logger = LoggerFactory.getLogger(JXLSAthleteCard.class);
+    private final static Logger logger = LoggerFactory.getLogger(JXLSCards.class);
 
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
-        String templateName = "/card/AthleteCardTemplate_" + locale.getLanguage() + ".xls";
+        String templateName = "/templates/cards/CardTemplate_" + locale.getLanguage() + ".xls";
         final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName);
         if (resourceAsStream == null) {
             throw new IOException("resource not found: " + templateName);} //$NON-NLS-1$

@@ -30,11 +30,7 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
 	
 	Logger logger = LoggerFactory.getLogger(JXLSWeighInSheet.class);
 
-    public JXLSWeighInSheet() {
-        super();
-    }
-
-    public JXLSWeighInSheet(Group group, boolean excludeNotWeighed) {
+    public JXLSWeighInSheet(boolean excludeNotWeighed) {
         super();
     }
 
@@ -51,7 +47,6 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
     protected List<Athlete> getSortedAthletes() {
         final Group currentGroup = getGroup();
         if (currentGroup != null) {
-            // AthleteContainer is used to ensure filtering to current group
             return AthleteSorter.displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup,isExcludeNotWeighed()));
         } else {
             return AthleteSorter.displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null,isExcludeNotWeighed()));
