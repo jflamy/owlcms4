@@ -581,6 +581,11 @@ public class Athlete {
 		return getSnatchAttemptsDone() + getCleanJerkAttemptsDone();
 	}
 
+	/**
+	 * Number of attempt 1..3, relative to current lift
+	 * 
+	 * @return
+	 */
 	public Integer getAttemptNumber() {
 		return getAttemptsDone() % 3 + 1;
 	}
