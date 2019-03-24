@@ -10,9 +10,15 @@ package app.owlcms.ui.lifting;
 
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
+import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
+import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
+import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.ui.home.MainNavigationLayout;
 
 /**
@@ -28,10 +34,45 @@ public class LiftingNavigationLayout extends MainNavigationLayout {
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
 
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
-		appLayout.setTitleComponent(new Label("Run a Lifting Group"));
+
+		ComboBox<FieldOfPlayState> fopSelect = new ComboBox<>();
+		ComboBox<Group> groupSelect = new ComboBox<>();
 		
-		String fopName = (String) VaadinSession.getCurrent().getAttribute("fopName");
-		appLayout.setAppBar(new Label(fopName != null ? fopName : ""));
+		fopSelect.setPlaceholder("Select Platform");
+		fopSelect.setItems(OwlcmsFactory.getFOPs());
+		fopSelect.setItemLabelGenerator(FieldOfPlayState::getName);
+		fopSelect.setWidth("10rem");
+		OwlcmsSession.withFop((fop) -> {
+			fopSelect.setValue(fop);
+		});
+		fopSelect.addValueChangeListener(e -> {
+			OwlcmsSession.setFop(e.getValue());
+			OwlcmsSession.withFop((fop) -> {
+				Group group = e.getValue().getGroup();
+				fop.setGroup(group);
+				groupSelect.setValue(group);
+			});
+		});
+
+		groupSelect.setPlaceholder("Select Group");
+		groupSelect.setItems(GroupRepository.findAll());
+		groupSelect.setItemLabelGenerator(Group::getName);
+		groupSelect.setWidth("10rem");
+		OwlcmsSession.withFop((fop) -> {
+			groupSelect.setValue(fop.getGroup());
+		});
+		groupSelect.addValueChangeListener(e -> {
+			OwlcmsSession.withFop((fop) -> {
+				fop.setGroup(e.getValue());
+			});
+		});
+		Label label = new Label("Run a Lifting Group");
+		HorizontalLayout titleComponent = new HorizontalLayout(label,fopSelect, groupSelect);
+		titleComponent.setSpacing(true);
+		appLayout.setTitleComponent(titleComponent);
+		
+//		String fopName = (String) VaadinSession.getCurrent().getAttribute("fopName");
+//		appLayout.setAppBar(new Label(fopName != null ? fopName : ""));
 		return appLayout;
 	}
 }

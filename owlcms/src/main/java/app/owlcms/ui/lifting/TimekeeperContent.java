@@ -69,4 +69,11 @@ public class TimekeeperContent extends BaseContent implements QueryParameterRead
 	public void delete(Athlete Athlete) {
 		AthleteRepository.delete(Athlete);
 	}
+	
+	@Override
+	public boolean isIgnoreGroup() {
+		logger.warn("TimekeeperContent ignoreGroup true");
+		// follow group from FOP, do not add group to URL
+		return true;
+	}
 }

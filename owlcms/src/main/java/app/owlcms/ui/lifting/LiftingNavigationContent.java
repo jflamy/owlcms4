@@ -29,9 +29,6 @@ public class LiftingNavigationContent extends VerticalLayout
 	 * Instantiates a new lifting navigation content.
 	 */
 	public LiftingNavigationContent() {
-		Button weighIn = new Button("Weigh-In and Start Numbers",
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(WeighinContent.class));
 		Button announcer = new Button("Announcer",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(AnnouncerContent.class));
@@ -46,7 +43,6 @@ public class LiftingNavigationContent extends VerticalLayout
 					.navigate(ResultsContent.class));
 		
 		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
-			weighIn,
 			announcer,
 			marshall,
 			timekeeper,

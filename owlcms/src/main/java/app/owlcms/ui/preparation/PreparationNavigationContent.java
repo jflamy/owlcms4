@@ -44,12 +44,16 @@ public class PreparationNavigationContent extends VerticalLayout
 		Button athletes = new Button("Edit Athlete Entries",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(AthletesContent.class));
+		Button weighIn = new Button("Weigh-In and Start Numbers",
+			buttonClickEvent -> UI.getCurrent()
+				.navigate(WeighinContent.class));
 		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
 			competition,
 			categories,
 			groups,
 			upload,
-			athletes);
+			athletes,
+			weighIn);
 		
 		upload.setEnabled(false);
 		

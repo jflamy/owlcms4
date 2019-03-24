@@ -154,7 +154,7 @@ public abstract class BaseLayout extends MainNavigationLayout implements SafeEve
 	}
 	
 
-	protected void createTopBar(HorizontalLayout announcerBar) {
+	protected void createTopBar(HorizontalLayout announcerBar) {	
 		title = new H3();
 		title.setText("Announcer");
 		title.getStyle()
@@ -165,10 +165,12 @@ public abstract class BaseLayout extends MainNavigationLayout implements SafeEve
 		groupSelect.setPlaceholder("Select Group");
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
-		groupSelect.setWidth("7rem");
-		OwlcmsSession.withFop((fop) -> {
-			groupSelect.setValue(fop.getGroup());
-		});
+		groupSelect.setWidth("8rem");
+		
+		syncWithFOP();
+//		OwlcmsSession.withFop((fop) -> {
+//			groupSelect.setValue(fop.getGroup());
+//		});
 		groupSelect.addValueChangeListener(e -> {
 			gridGroupFilter.setValue(e.getValue());
 		});

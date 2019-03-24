@@ -69,4 +69,11 @@ public class MarshallContent extends BaseContent implements QueryParameterReader
 	public void delete(Athlete Athlete) {
 		AthleteRepository.delete(Athlete);
 	}
+	
+	@Override
+	public boolean isIgnoreGroup() {
+		logger.warn("MarshallContent ignoreGroup true");
+		// follow group from FOP, do not add group to URL
+		return true;
+	}
 }
