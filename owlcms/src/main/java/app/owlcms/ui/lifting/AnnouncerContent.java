@@ -137,7 +137,7 @@ public class AnnouncerContent extends VerticalLayout
 		ThemeList themes = grid.getThemeNames();
 		themes.add("compact");
 		themes.add("row-stripes");
-		grid.setColumns("lastName", "firstName", "team", "category", "nextAttemptRequestedWeight", "attemptsDone");
+		grid.setColumns("lastName", "firstName", "team", "category", "nextAttemptRequestedWeight", "attemptNumber", "startNumber");
 		grid.getColumnByKey("lastName")
 			.setHeader("Last Name");
 		grid.getColumnByKey("firstName")
@@ -148,8 +148,10 @@ public class AnnouncerContent extends VerticalLayout
 			.setHeader("Category");
 		grid.getColumnByKey("nextAttemptRequestedWeight")
 			.setHeader("Requested Weight");
-		grid.getColumnByKey("attemptsDone")
-			.setHeader("Attempts Done");
+		grid.getColumnByKey("attemptNumber")
+			.setHeader("Attempt");
+		grid.getColumnByKey("startNumber")
+		.setHeader("Start Number");
 
 		OwlcmsCrudLayout owlcmsCrudLayout = new OwlcmsCrudLayout(Athlete.class);
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
@@ -206,7 +208,6 @@ public class AnnouncerContent extends VerticalLayout
 	 */
 	@Override
 	public Athlete add(Athlete Athlete) {
-		//FIXME: should do a persist, not a merge
 		AthleteRepository.save(Athlete);
 		return Athlete;
 	}

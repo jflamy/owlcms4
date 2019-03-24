@@ -133,14 +133,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 				model.setFirstName(a.getFirstName());
 				model.setTeamName(a.getTeam());
 				model.setStartNumber(a.getStartNumber());
-				String formattedAttempt = formatAttempt(a.getAttemptsDone());
+				String formattedAttempt = formatAttempt(a.getAttemptNumber());
 				model.setAttempt(formattedAttempt);
 				model.setWeight(a.getNextAttemptRequestedWeight());
 		});
 	}
 	
 	private String formatAttempt(Integer attemptNo) {
-		return MessageFormat.format("{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.",(attemptNo%3)+1);
+		return MessageFormat.format("{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.",attemptNo);
 	}
 
 	/**

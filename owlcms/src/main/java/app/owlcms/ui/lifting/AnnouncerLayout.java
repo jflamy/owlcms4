@@ -115,7 +115,7 @@ public class AnnouncerLayout extends MainNavigationLayout implements SafeEventBu
 			firstName.setText(athlete.getFirstName());
 			timeField.setTimeRemaining(timeAllowed);//timeField.setValue(msToString(timeAllowed));
 			Html newAttempt = new Html(
-					"<h2>" + (athlete.getAttemptsDone() % 3 + 1) + "<sup>st</sup> att.</h2>");
+					"<h2>" + athlete.getAttemptNumber() + "<sup>st</sup> att.</h2>");
 			announcerBar.replace(attempt, newAttempt);
 			attempt = newAttempt;
 			Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
