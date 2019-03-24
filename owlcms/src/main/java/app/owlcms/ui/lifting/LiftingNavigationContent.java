@@ -16,7 +16,6 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.ui.home.ContentWrapping;
 import app.owlcms.ui.home.MainNavigationContent;
-import app.owlcms.ui.preparation.CategoryContent;
 
 /**
  * The Class LiftingNavigationContent.
@@ -38,16 +37,13 @@ public class LiftingNavigationContent extends VerticalLayout
 					.navigate(AnnouncerContent.class));
 		Button marshall = new Button("Marshall",
 				buttonClickEvent -> UI.getCurrent()
-					.navigate(CategoryContent.class));
+					.navigate(MarshallContent.class));
 		Button timekeeper = new Button("Timekeeper",
 				buttonClickEvent -> UI.getCurrent()
-					.navigate(CategoryContent.class));
+					.navigate(TimekeeperContent.class));
 		Button results = new Button("Results",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(ResultsContent.class));
-//		Button print = new Button("Print Results",
-//				buttonClickEvent -> UI.getCurrent()
-//					.navigate(CategoryContent.class));
 		
 		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
 			weighIn,
@@ -55,12 +51,7 @@ public class LiftingNavigationContent extends VerticalLayout
 			marshall,
 			timekeeper,
 			results
-//			,print
 			);
-		
-		marshall.setEnabled(false);
-		timekeeper.setEnabled(false);
-//		print.setEnabled(false);
 		
 		fillH(grid, this);
 	}

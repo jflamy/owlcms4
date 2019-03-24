@@ -18,6 +18,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.FieldOfPlayState;
+import app.owlcms.ui.home.QueryParameterReader;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -25,18 +26,18 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "group/announcer", layout = AnnouncerLayout.class)
-public class AnnouncerContent extends BaseContent {
+@Route(value = "group/marshall", layout = MarshallLayout.class)
+public class MarshallContent extends BaseContent implements QueryParameterReader {
 
 	// @SuppressWarnings("unused")
-	final private Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
+	final private Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
 	private void initLoggers() {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.DEBUG);
 	}
 	
-	public AnnouncerContent() {
+	public MarshallContent() {
 		initLoggers();
 	}
 
