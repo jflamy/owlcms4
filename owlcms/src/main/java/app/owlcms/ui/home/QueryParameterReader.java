@@ -24,6 +24,7 @@ import ch.qos.logback.classic.Logger;
 public interface QueryParameterReader extends HasUrlParameter<String>{
 
 	final static Logger logger = (Logger)LoggerFactory.getLogger(QueryParameterReader.class);
+	static final boolean ignoreGroup = false;
 	
 	/*
 	 * Process query parameters
@@ -44,27 +45,34 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 		HashMap<String, List<String>> params = new HashMap<String, List<String>>(parametersMap);
 		if (fopNames != null && fopNames.get(0) == null) {
 			fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
+		} else if (OwlcmsSession.getFop() != null) {
+			fop = OwlcmsSession.getFop();
 		} else {
 			fop = OwlcmsFactory.getDefaultFOP();
-			params.put("fop",Arrays.asList(fop.getName()));
 		}
+		params.put("fop",Arrays.asList(fop.getName()));
+		OwlcmsSession.setFop(fop);
 		
 		// get the group from query parameters, do not add value if group is not defined
-		List<String> groupNames = parametersMap.get("group");
-		Group group;
-		if (groupNames != null  && groupNames.get(0) != null) {
-			group = GroupRepository.findByName(groupNames.get(0));
-			fop.setGroup(group);
+		Group group = null;
+		if (!isIgnoreGroup()) {
+			List<String> groupNames = parametersMap.get("group");
+			if (groupNames != null  && groupNames.get(0) != null) {
+				group = GroupRepository.findByName(groupNames.get(0));
+				fop.setGroup(group);
+			} else {
+				group = fop.getGroup();
+			}
+			if (group != null) params.put("group",Arrays.asList(group.getName()));
 		} else {
-			group = fop.getGroup();
+			params.remove("group");
 		}
-		if (group != null) params.put("group",Arrays.asList(group.getName()));
-
-		OwlcmsSession.setAttribute("fop", fop);
-		logger.debug("setting fop in session: {} group={}",(fop != null ? fop.getName() : null),(group != null ? group.getName() : null));
 		
+		logger.debug("setting group in session: {} group={}",(fop != null ? fop.getName() : null),(group != null ? group.getName() : null));
 		// change the URL to reflect fop and group
 		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
+	
+	public boolean isIgnoreGroup();
 
 }

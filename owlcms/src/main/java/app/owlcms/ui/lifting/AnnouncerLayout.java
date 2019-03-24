@@ -100,6 +100,7 @@ public class AnnouncerLayout extends BaseLayout {
 	protected void createTopBar(HorizontalLayout announcerBar) {
 		super.createTopBar(announcerBar);
 		title.setText("Announcer");
+		groupSelect.setReadOnly(true);
 	}
 
 }

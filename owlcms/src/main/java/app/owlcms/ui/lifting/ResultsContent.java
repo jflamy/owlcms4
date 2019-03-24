@@ -318,13 +318,17 @@ public class ResultsContent extends VerticalLayout
 		
 		logger.debug("parsing query parameters");
 		List<String> groupNames = params.get("group");
-		if (groupNames != null && !groupNames.isEmpty()) {
+		if (!isIgnoreGroup() && groupNames != null && !groupNames.isEmpty()) {
 			String groupName = groupNames.get(0);
 			currentGroup = GroupRepository.findByName(groupName);
 		} else {
 			currentGroup = null;
 		}
-		if (currentGroup != null) params.put("group",Arrays.asList(currentGroup.getName()));
+		if (currentGroup != null) {
+			params.put("group",Arrays.asList(currentGroup.getName()));
+		} else {
+			params.remove("group");
+		}
 		params.remove("fop");
 		
 		// change the URL to reflect group
@@ -334,11 +338,17 @@ public class ResultsContent extends VerticalLayout
 	private void updateURLLocation(UI ui, Location location, Group newGroup) {
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<String, List<String>>(location.getQueryParameters().getParameters());
-		if (newGroup != null) {
+		if (!isIgnoreGroup() && newGroup != null) {
 			params.put("group",Arrays.asList(newGroup.getName()));
 		} else {
 			params.remove("group");
 		}
 		ui.getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
+	}
+
+
+	@Override
+	public boolean isIgnoreGroup() {
+		return false;
 	}
 }

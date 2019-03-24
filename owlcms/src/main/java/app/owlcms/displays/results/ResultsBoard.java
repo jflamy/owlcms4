@@ -28,9 +28,9 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
-import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.displays.attemptboard.DecisionElement;
 import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.init.OwlcmsSession;
@@ -301,5 +301,10 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	public void reset() {
 //		this.getElement().callFunction("reset");
 		displayOrder = ImmutableList.of();
+	}
+
+	@Override
+	public boolean isIgnoreGroup() {
+		return false;
 	}
 }

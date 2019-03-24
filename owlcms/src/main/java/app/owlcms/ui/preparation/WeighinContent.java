@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.preparation;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -62,7 +62,7 @@ import ch.qos.logback.classic.Logger;
  * 
  */
 @SuppressWarnings("serial")
-@Route(value = "lifting/weighin", layout = WeighinLayout.class)
+@Route(value = "preparation/weighin", layout = WeighinLayout.class)
 public class WeighinContent extends VerticalLayout 
 		implements CrudListener<Athlete>, ContentWrapping, AppLayoutContent {
 	

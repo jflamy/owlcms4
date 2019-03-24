@@ -184,7 +184,7 @@ public class AthleteRepository {
 			whereList.add("c.id = :categoryId");  // category is via a relationship, select the joined id.
 		if (lastName != null && lastName.trim().length() > 0)
 			whereList.add("lower(a.lastName) like :lastName");
-		if (weighedIn != null)
+		if (weighedIn != null && weighedIn)
 			whereList.add("a.bodyWeight > 0");
 		if (whereList.size() == 0) {
 			return null;

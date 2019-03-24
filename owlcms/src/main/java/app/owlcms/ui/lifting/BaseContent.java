@@ -190,7 +190,7 @@ public class BaseContent extends VerticalLayout
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<String, List<String>>(location.getQueryParameters().getParameters());
 		params.put("fop",Arrays.asList(OwlcmsSession.getFop().getName()));
-		if (newGroup != null) {
+		if (newGroup != null && !isIgnoreGroup()) {
 			params.put("group",Arrays.asList(newGroup.getName()));
 		} else {
 			params.remove("group");
@@ -262,5 +262,11 @@ public class BaseContent extends VerticalLayout
 
 	public void refresh() {
 		crud.refreshGrid();
+	}
+
+	@Override
+	public boolean isIgnoreGroup() {
+		logger.warn("BaseContent ignoreGroup false");
+		return false;
 	}
 }

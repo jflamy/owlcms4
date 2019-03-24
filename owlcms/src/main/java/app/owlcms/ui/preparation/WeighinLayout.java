@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.preparation;
 
 import java.util.List;
 
@@ -38,11 +38,13 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.ui.appLayout.AppLayoutContent;
 import app.owlcms.ui.home.MainNavigationLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
+import app.owlcms.ui.lifting.UIEventProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -117,7 +119,10 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 		groupSelect.setPlaceholder("Select Group");
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
-		groupSelect.setValue(null);
+		OwlcmsSession.withFop((fop) -> {
+			//TODO get group from URL, but not connected to FOP
+			groupSelect.setValue(null);
+		});
 		groupSelect.addValueChangeListener(e -> {
 			setContentGroup(e);
 			startingWeightsButton.setEnabled(e.getValue() != null);

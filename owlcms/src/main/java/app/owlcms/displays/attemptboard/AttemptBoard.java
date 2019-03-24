@@ -149,4 +149,9 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	public void reset() {
 		this.getElement().callFunction("reset");
 	}
+
+	@Override
+	public boolean isIgnoreGroup() {
+		return true;
+	}
 }
