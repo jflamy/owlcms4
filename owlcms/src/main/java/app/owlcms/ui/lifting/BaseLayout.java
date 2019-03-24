@@ -69,9 +69,9 @@ public abstract class BaseLayout extends MainNavigationLayout implements SafeEve
 	protected ComboBox<Group> groupSelect;
 	
 	/**
-	 * This references a hidden field on the top bar of the grid.
-	 * Changing groupSelect changes this slave filter; the logic used for filtering tables
-	 * can then be reused as is.
+	 * gridGroupFilter points to a hidden field on the top bar of the grid.
+	 * Changing groupSelect changes this slave filter; this allows us to use the filtering
+	 * logic used everywhere else to change what is shown in the grid.
 	 */
 	protected ComboBox<Group> gridGroupFilter;
 
@@ -115,6 +115,7 @@ public abstract class BaseLayout extends MainNavigationLayout implements SafeEve
 	}
 	
 	protected void doUpdateAnnouncerBar(Athlete athlete, Integer timeAllowed) {
+		syncWithFOP();
 		if (athlete != null) {
 			lastName.setText(athlete.getLastName());
 			firstName.setText(athlete.getFirstName());
@@ -133,6 +134,19 @@ public abstract class BaseLayout extends MainNavigationLayout implements SafeEve
 			attempt = newAttempt;
 			weight.setText("");
 		}
+	}
+
+	public void syncWithFOP() {
+		OwlcmsSession.withFop((fop) -> {
+			Group fopGroup = fop.getGroup();
+			Group displayedGroup = groupSelect.getValue();
+			if (fopGroup == null && displayedGroup == null) return;
+			if (fopGroup != null && ! fopGroup.equals(displayedGroup)) {
+				groupSelect.setValue(fopGroup);
+			} else if (fopGroup == null) {
+				groupSelect.setValue(null);
+			}
+		});
 	}
 	
 	protected EventBus getFopEventBus() {
