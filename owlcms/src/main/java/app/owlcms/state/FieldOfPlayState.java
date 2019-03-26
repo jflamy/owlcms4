@@ -570,7 +570,9 @@ public class FieldOfPlayState {
 		setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
 		this.setCurAthlete(this.liftingOrder.isEmpty() ? null : this.liftingOrder.get(0));
 		getTimer().setTimeRemaining(getTimeAllowed());
-		logger.debug("recomputed lifting order curAthlete={} prevlifter={}", curAthlete.getFullName(), previousAthlete.getFullName());
+		logger.debug("recomputed lifting order curAthlete={} prevlifter={}",
+			curAthlete != null ? curAthlete.getFullName() : "",
+			previousAthlete != null ? previousAthlete.getFullName() : "");
 	}
 
 	private void remindAnnouncerToAnnounce() {
