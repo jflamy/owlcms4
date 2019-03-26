@@ -181,6 +181,9 @@ public class JPAService {
 			.put("hibernate.c3p0.max_size", 20)
 			.put("hibernate.c3p0.acquire_increment", 5)
 			.put("hibernate.c3p0.timeout", 1800)
+			.put("hibernate.c3p0.preferredTestQuery","SELECT 1")
+			.put("hibernate.c3p0.testConnectionOnCheckout",true)
+			.put("hibernate.c3p0.idle_test_period",500)
 			.build();
 		return vals;
 	}
