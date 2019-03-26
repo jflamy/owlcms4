@@ -8,13 +8,16 @@
  */
 package app.owlcms.init;
 
+import java.util.Locale;
 import java.util.Properties;
 import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 
+import app.owlcms.data.competition.Competition;
 import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -83,8 +86,6 @@ public class OwlcmsSession {
 
 	public static void withFop(Consumer<FieldOfPlayState> command) {
 		FieldOfPlayState fop = getFop();
-		logger.debug("withFop = {}",(fop != null ? fop.getName() : null));
-		
 		if (fop == null) {
 			fop = OwlcmsFactory.getDefaultFOP();
 		}
@@ -100,5 +101,21 @@ public class OwlcmsSession {
 	public static void setFop(FieldOfPlayState fop) {
 		logger.debug("setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom());
 		setAttribute(FOP, fop);
+	}
+	
+	public static Locale getLocale() {
+		UI u = UI.getCurrent();
+		if (u != null) {
+			return u.getLocale();
+		}
+		VaadinSession v = VaadinSession.getCurrent();
+		if (v != null) {
+			return v.getLocale();
+		} 
+		Competition c = Competition.getCurrent();
+		if (c != null) {
+			return c.getDefaultLocale();
+		}
+		return Locale.ENGLISH;
 	}
 }

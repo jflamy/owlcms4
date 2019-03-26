@@ -68,4 +68,10 @@ public class AnnouncerContent extends BaseContent {
 	public void delete(Athlete Athlete) {
 		AthleteRepository.delete(Athlete);
 	}
+	
+	@Override
+	public boolean isIgnoreGroup() {
+		logger.trace("AnnouncerContent ignoreGroup false");
+		return false;
+	}
 }

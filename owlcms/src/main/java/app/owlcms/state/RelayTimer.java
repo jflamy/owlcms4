@@ -40,7 +40,7 @@ public class RelayTimer implements ICountdownTimer {
 	 * @param fop 
 	 */
 	public RelayTimer(FieldOfPlayState fop) {
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 		this.fop = fop;
 	}
 	

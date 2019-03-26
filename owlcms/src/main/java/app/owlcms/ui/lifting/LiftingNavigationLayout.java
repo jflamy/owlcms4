@@ -49,8 +49,12 @@ public class LiftingNavigationLayout extends MainNavigationLayout {
 			OwlcmsSession.setFop(e.getValue());
 			OwlcmsSession.withFop((fop) -> {
 				Group group = e.getValue().getGroup();
-				fop.setGroup(group);
-				groupSelect.setValue(group);
+				Group currentGroup = fop.getGroup();
+				if (group == null) {
+					fop.switchGroup(null);
+				} else if (!group.equals(currentGroup)) {
+					fop.switchGroup(group);
+				}
 			});
 		});
 
@@ -63,7 +67,7 @@ public class LiftingNavigationLayout extends MainNavigationLayout {
 		});
 		groupSelect.addValueChangeListener(e -> {
 			OwlcmsSession.withFop((fop) -> {
-				fop.setGroup(e.getValue());
+				fop.switchGroup(e.getValue());
 			});
 		});
 		Label label = new Label("Run a Lifting Group");

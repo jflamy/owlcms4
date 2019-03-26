@@ -72,7 +72,7 @@ public class TimekeeperContent extends BaseContent implements QueryParameterRead
 	
 	@Override
 	public boolean isIgnoreGroup() {
-		logger.warn("TimekeeperContent ignoreGroup true");
+		logger.trace("TimekeeperContent ignoreGroup true");
 		// follow group from FOP, do not add group to URL
 		return true;
 	}

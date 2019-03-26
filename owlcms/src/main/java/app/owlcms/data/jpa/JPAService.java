@@ -152,7 +152,8 @@ public class JPAService {
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
-		props.put(JPA_JDBC_URL, "jdbc:h2:mem:test");
+		// keep the database even if all the connections have timed out
+		props.put(JPA_JDBC_URL, "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
 		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
 		props.put(JPA_JDBC_USER, "sa");
 		props.put(JPA_JDBC_PASSWORD, "");

@@ -63,11 +63,11 @@ public class FOPEvent {
 	}
 
 	/**
-	 * The Class IntermissionDone.
+	 * The Class StartLifting.
 	 */
-	static public class IntermissionDone extends FOPEvent {
+	static public class StartLifting extends FOPEvent {
 
-		public IntermissionDone(UI originatingUI) {
+		public StartLifting(UI originatingUI) {
 			super(originatingUI);
 		}
 

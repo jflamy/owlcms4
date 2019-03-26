@@ -72,7 +72,7 @@ public class MarshallContent extends BaseContent implements QueryParameterReader
 	
 	@Override
 	public boolean isIgnoreGroup() {
-		logger.warn("MarshallContent ignoreGroup true");
+		logger.trace("MarshallContent ignoreGroup true");
 		// follow group from FOP, do not add group to URL
 		return true;
 	}

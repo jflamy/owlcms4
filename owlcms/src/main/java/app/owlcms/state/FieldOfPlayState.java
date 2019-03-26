@@ -8,11 +8,11 @@
  */
 package app.owlcms.state;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.UI;
@@ -44,7 +44,7 @@ public class FieldOfPlayState {
 	
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlayState.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
-	protected void init_loggers() {
+	static {
 		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.INFO);
 	}
@@ -124,8 +124,6 @@ public class FieldOfPlayState {
 	 * @param platform2 the platform (to get details such as name)
 	 */
 	public FieldOfPlayState(Group group, Platform platform2) {
-		init_loggers(); 
-		
 		this.name = platform2.getName();
 		this.eventBus = new EventBus("FOP-"+name);
 		this.uiEventBus = new EventBus("UI-"+name);
@@ -282,7 +280,7 @@ public class FieldOfPlayState {
 		switch (this.getState()) {
 
 		case INTERMISSION:
-			if (e instanceof FOPEvent.IntermissionDone) {
+			if (e instanceof FOPEvent.StartLifting) {
 				recomputeLiftingOrder();
 				uiDisplayCurrentAthleteAndTime();
 
@@ -522,9 +520,10 @@ public class FieldOfPlayState {
 		if (group != null) {
 			List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
 			init(findAllByGroupAndWeighIn, timer);
-			getEventBus().post(new FOPEvent.IntermissionDone(null));
+			getEventBus().post(new FOPEvent.StartLifting(null));
 		} else {
-			init(ImmutableList.of(), timer);
+			init(new ArrayList<Athlete>(), timer);
+			getEventBus().post(new FOPEvent.StartLifting(null));
 		}
 
 	}
@@ -571,7 +570,7 @@ public class FieldOfPlayState {
 		setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
 		this.setCurAthlete(this.liftingOrder.isEmpty() ? null : this.liftingOrder.get(0));
 		getTimer().setTimeRemaining(getTimeAllowed());
-		logger.info("recomputed lifting order curAthlete={} prevlifter={}", curAthlete, previousAthlete);
+		logger.debug("recomputed lifting order curAthlete={} prevlifter={}", curAthlete.getFullName(), previousAthlete.getFullName());
 	}
 
 	private void remindAnnouncerToAnnounce() {
@@ -689,7 +688,7 @@ public class FieldOfPlayState {
 	 * @param state the new state
 	 */
 	void setState(State state) {
-		logger.debug("entering {}", state);
+		logger.debug("entering {} {}", state, LoggerUtils.whereFrom());
 		this.state = state;
 	}
 

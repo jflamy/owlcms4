@@ -39,7 +39,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
-	protected void initLoggers() {
+	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
@@ -132,7 +132,6 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	 * Instantiates a new timer element.
 	 */
 	public TimerElement() {
-		initLoggers();
 	}
 
 

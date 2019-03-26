@@ -38,9 +38,12 @@ public class AnnouncerLayout extends BaseLayout {
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
 	
 	public AnnouncerLayout() {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.DEBUG);
 	}
+
+
+
 
 
 	@Override

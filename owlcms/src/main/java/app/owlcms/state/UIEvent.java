@@ -59,7 +59,7 @@ public class UIEvent {
 	}
 
 	/**
-	 * Class IntermissionDone.
+	 * Class StartLifting.
 	 */
 	static public class IntermissionDone extends UIEvent {
 

@@ -3705,6 +3705,10 @@ public class Athlete {
 		return this.getLastName()+", "+this.getFirstName()+" "+(category2 != null ? category2 : "");
 //				+(startNumber2 != null && startNumber2 >0 ? " ["+startNumber2+"]" : "");
 	}
+	
+	public String getFullName() {
+		return this.getLastName()+", "+this.getFirstName();
+	}
 
 	public AgeDivision getAgeDivision() {
 		return ageDivision;

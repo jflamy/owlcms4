@@ -30,6 +30,24 @@ public class XAthlete extends Athlete {
 
 
 	/**
+	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getAttemptNumber()
+	 */
+	@Override
+	public Integer getAttemptNumber() {
+		return a.getAttemptNumber();
+	}
+
+	/**
+	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getFullName()
+	 */
+	@Override
+	public String getFullName() {
+		return a.getFullName();
+	}
+
+	/**
 	 * @param invited
 	 * @see app.owlcms.data.athlete.Athlete#setInvited(boolean)
 	 */
