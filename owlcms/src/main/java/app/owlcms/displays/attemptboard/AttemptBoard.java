@@ -28,9 +28,9 @@ import com.vaadin.flow.theme.material.Material;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.UIEvent;
+import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.home.QueryParameterReader;
 import app.owlcms.ui.home.SafeEventBusRegistration;
-import app.owlcms.ui.lifting.UIEventProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -46,7 +46,7 @@ import ch.qos.logback.classic.Logger;
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(AttemptBoard.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	
 	/**
 	 * ResultBoardModel

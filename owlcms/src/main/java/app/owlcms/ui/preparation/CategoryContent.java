@@ -27,12 +27,12 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.components.crudui.OwlcmsCrudLayout;
+import app.owlcms.components.crudui.OwlcmsGridCrud;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
-import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.ui.crudui.OwlcmsCrudLayout;
-import app.owlcms.ui.crudui.OwlcmsGridCrud;
 import app.owlcms.ui.home.ContentWrapping;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

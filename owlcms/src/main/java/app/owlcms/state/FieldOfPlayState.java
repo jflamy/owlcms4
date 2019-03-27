@@ -43,7 +43,7 @@ import ch.qos.logback.classic.Logger;
 public class FieldOfPlayState {
 	
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlayState.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.INFO);

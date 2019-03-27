@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.crudui;
+package app.owlcms.components.crudui;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;

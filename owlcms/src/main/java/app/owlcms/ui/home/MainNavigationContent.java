@@ -23,9 +23,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.ui.displays.DisplayNavigationContent;
-import app.owlcms.ui.lifting.LiftingNavigationContent;
+import app.owlcms.ui.finalresults.WrapupNavigationContent;
+import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
-import app.owlcms.ui.wrapup.WrapupNavigationContent;
 
 /**
  * The Class MainNavigationContent.
@@ -43,11 +43,11 @@ public class MainNavigationContent extends VerticalLayout implements ContentWrap
 					.navigate(PreparationNavigationContent.class));
 		Button lifting = new Button("Run Lifting Group",
 				buttonClickEvent -> UI.getCurrent()
-					.navigate(LiftingNavigationContent.class));
+					.navigate(GroupNavigationContent.class));
 		Button displays = new Button("Start Displays",
 			buttonClickEvent -> UI.getCurrent()
 				.navigate(DisplayNavigationContent.class));
-		Button documents = new Button("Competition Documents",
+		Button documents = new Button("Final Documents",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(WrapupNavigationContent.class));
 		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(

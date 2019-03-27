@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.group;
 
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
@@ -22,10 +22,10 @@ import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.ui.home.MainNavigationLayout;
 
 /**
- * Class LiftingNavigationLayout.
+ * Class GroupNavigationLayout.
  */
 @SuppressWarnings("serial")
-public class LiftingNavigationLayout extends MainNavigationLayout {
+public class GroupNavigationLayout extends MainNavigationLayout {
 
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)

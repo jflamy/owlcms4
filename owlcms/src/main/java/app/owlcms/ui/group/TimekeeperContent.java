@@ -7,7 +7,7 @@
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.group;
 
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ public class TimekeeperContent extends BaseContent implements QueryParameterRead
 
 	// @SuppressWarnings("unused")
 	final private Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent.class);
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	private void initLoggers() {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.DEBUG);

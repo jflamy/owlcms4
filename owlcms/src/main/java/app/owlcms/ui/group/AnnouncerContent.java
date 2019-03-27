@@ -7,7 +7,7 @@
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.group;
 
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,6 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.FieldOfPlayState;
-import app.owlcms.ui.home.QueryParameterReader;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -26,18 +25,18 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "group/marshall", layout = MarshallLayout.class)
-public class MarshallContent extends BaseContent implements QueryParameterReader {
+@Route(value = "group/announcer", layout = AnnouncerLayout.class)
+public class AnnouncerContent extends BaseContent {
 
 	// @SuppressWarnings("unused")
-	final private Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	final private Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	private void initLoggers() {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.DEBUG);
 	}
 	
-	public MarshallContent() {
+	public AnnouncerContent() {
 		initLoggers();
 	}
 
@@ -72,8 +71,7 @@ public class MarshallContent extends BaseContent implements QueryParameterReader
 	
 	@Override
 	public boolean isIgnoreGroup() {
-		logger.trace("MarshallContent ignoreGroup true");
-		// follow group from FOP, do not add group to URL
-		return true;
+		logger.trace("AnnouncerContent ignoreGroup false");
+		return false;
 	}
 }

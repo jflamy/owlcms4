@@ -24,8 +24,8 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.ICountdownTimer;
 import app.owlcms.state.UIEvent;
+import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.home.SafeEventBusRegistration;
-import app.owlcms.ui.lifting.UIEventProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -38,7 +38,7 @@ import ch.qos.logback.classic.Logger;
 public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> implements ICountdownTimer, SafeEventBusRegistration {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);

@@ -42,9 +42,9 @@ import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 
 import app.owlcms.ui.displays.DisplayNavigationContent;
-import app.owlcms.ui.lifting.LiftingNavigationContent;
+import app.owlcms.ui.finalresults.WrapupNavigationContent;
+import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
-import app.owlcms.ui.wrapup.WrapupNavigationContent;
 
 /**
  * MainNavigationLayout.
@@ -124,19 +124,24 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 					.get()
 					.addToSection(new MenuHeaderComponent("OWLCMS", null, null), HEADER)
 					.add(home)
-					.add(new LeftNavigationComponent("Prepare Competition",
+					.add(new LeftNavigationComponent(
+							"Prepare Competition",
 							new Icon("social", "group-add"),
 							PreparationNavigationContent.class))
-					.add(new LeftNavigationComponent("Setup Displays",
+					.add(new LeftNavigationComponent(
+							"Lifting Group",
+							new Icon("places", "fitness-center"),
+							GroupNavigationContent.class))
+					.add(new LeftNavigationComponent(
+							"Setup Displays",
 							new Icon("hardware", "desktop-windows"),
 							DisplayNavigationContent.class))
-					.add(new LeftNavigationComponent("Lifting Group",
-							new FullIronIcon("places", "fitness-center"),
-							LiftingNavigationContent.class))
-					.add(new LeftNavigationComponent("Competition Documents",
+					.add(new LeftNavigationComponent(
+							"Competition Documents",
 							new Icon("maps", "local-printshop"),
 							WrapupNavigationContent.class))
-					.addToSection(new LeftClickableComponent("Preferences",
+					.addToSection(new LeftClickableComponent(
+							"Preferences",
 							VaadinIcon.COG.create(),
 							clickEvent -> openModeSelector(this.variant)),
 						FOOTER)
@@ -161,7 +166,7 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 							DisplayNavigationContent.class))
 					.add(new TopNavigationComponent("Lifting Group",
 							new FullIronIcon("places", "fitness-center"),
-							LiftingNavigationContent.class))
+							GroupNavigationContent.class))
 					.add(new TopNavigationComponent("Competition Documents",
 							new Icon("maps", "local-printshop"),
 							WrapupNavigationContent.class))

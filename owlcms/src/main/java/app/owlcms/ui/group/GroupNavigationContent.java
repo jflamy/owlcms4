@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.group;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
@@ -18,17 +18,17 @@ import app.owlcms.ui.home.ContentWrapping;
 import app.owlcms.ui.home.MainNavigationContent;
 
 /**
- * The Class LiftingNavigationContent.
+ * The Class GroupNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "group", layout = LiftingNavigationLayout.class)
-public class LiftingNavigationContent extends VerticalLayout
+@Route(value = "group", layout = GroupNavigationLayout.class)
+public class GroupNavigationContent extends VerticalLayout
 		implements ContentWrapping {
 
 	/**
 	 * Instantiates a new lifting navigation content.
 	 */
-	public LiftingNavigationContent() {
+	public GroupNavigationContent() {
 		Button announcer = new Button("Announcer",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(AnnouncerContent.class));

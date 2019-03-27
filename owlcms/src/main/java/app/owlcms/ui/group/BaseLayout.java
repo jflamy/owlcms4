@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.group;
 
 import org.slf4j.LoggerFactory;
 
@@ -31,13 +31,13 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.components.appLayout.AppLayoutContent;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.UIEvent;
-import app.owlcms.ui.appLayout.AppLayoutContent;
 import app.owlcms.ui.home.MainNavigationLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
@@ -54,7 +54,7 @@ import ch.qos.logback.classic.Logger;
 public abstract class BaseLayout extends MainNavigationLayout implements SafeEventBusRegistration, UIEventProcessor {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(BaseLayout.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 
 	protected H3 title;
 	protected H1 lastName;

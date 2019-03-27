@@ -23,8 +23,8 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.UIEvent;
+import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.home.SafeEventBusRegistration;
-import app.owlcms.ui.lifting.UIEventProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -79,7 +79,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	}
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
 	
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 
 	private EventBus uiEventBus;
 	private EventBus fopEventBus;

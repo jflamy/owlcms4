@@ -1,4 +1,4 @@
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.group;
 
 import java.util.Optional;
 

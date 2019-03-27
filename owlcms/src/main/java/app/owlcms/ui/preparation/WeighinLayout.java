@@ -32,6 +32,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
 
+import app.owlcms.components.appLayout.AppLayoutContent;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -41,10 +42,9 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
-import app.owlcms.ui.appLayout.AppLayoutContent;
+import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.home.MainNavigationLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
-import app.owlcms.ui.lifting.UIEventProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 

@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.group;
 
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ import ch.qos.logback.classic.Logger;
 public class MarshallLayout extends BaseLayout {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(MarshallLayout.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	
 	public MarshallLayout() {
 		logger.setLevel(Level.INFO);
@@ -60,7 +60,7 @@ public class MarshallLayout extends BaseLayout {
 	}
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.lifting.BaseLayout#createTopBar(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
+	 * @see app.owlcms.ui.group.BaseLayout#createTopBar(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
 	 */
 	@Override
 	protected void createTopBar(HorizontalLayout announcerBar) {

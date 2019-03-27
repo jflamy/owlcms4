@@ -1,4 +1,4 @@
-package app.owlcms.ui.fields;
+package app.owlcms.components.fields;
 
 import java.util.Objects;
 

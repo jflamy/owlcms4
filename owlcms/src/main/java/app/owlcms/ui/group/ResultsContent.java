@@ -7,7 +7,7 @@
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.group;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,6 +36,10 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.appLayout.AppLayoutContent;
+import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.components.crudui.OwlcmsCrudLayout;
+import app.owlcms.components.crudui.OwlcmsGridCrud;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -46,10 +50,6 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.state.UIEvent;
-import app.owlcms.ui.appLayout.AppLayoutContent;
-import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.ui.crudui.OwlcmsCrudLayout;
-import app.owlcms.ui.crudui.OwlcmsGridCrud;
 import app.owlcms.ui.home.ContentWrapping;
 import app.owlcms.ui.home.QueryParameterReader;
 import app.owlcms.ui.home.SafeEventBusRegistration;
@@ -66,7 +66,7 @@ public class ResultsContent extends VerticalLayout
 
 	// @SuppressWarnings("unused")
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsContent.class);
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 
 	protected void initLoggers() {
 		logger.setLevel(Level.DEBUG);
@@ -105,7 +105,7 @@ public class ResultsContent extends VerticalLayout
 
 	
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.lifting.UIEventProcessor#updateGrid(app.owlcms.state.UIEvent.LiftingOrderUpdated)
+	 * @see app.owlcms.ui.group.UIEventProcessor#updateGrid(app.owlcms.state.UIEvent.LiftingOrderUpdated)
 	 */
 	@Subscribe
 	public void updateGrid(UIEvent.LiftingOrderUpdated e) {

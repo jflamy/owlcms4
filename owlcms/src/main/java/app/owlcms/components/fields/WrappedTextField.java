@@ -7,7 +7,7 @@
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 
-package app.owlcms.ui.fields;
+package app.owlcms.components.fields;
 
 import java.util.Locale;
 

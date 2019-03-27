@@ -1,4 +1,4 @@
-package app.owlcms.ui.appLayout;
+package app.owlcms.components.appLayout;
 
 import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
 
