@@ -13,12 +13,10 @@ import org.slf4j.LoggerFactory;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteConfiguration;
-import com.vaadin.flow.server.VaadinServletRequest;
 
+import app.owlcms.components.NavigationPage;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.results.ResultsBoard;
 import app.owlcms.ui.home.ContentWrapping;
@@ -33,7 +31,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "displays", layout = DisplayNavigationLayout.class)
 public class DisplayNavigationContent extends VerticalLayout
-		implements ContentWrapping {
+		implements ContentWrapping, NavigationPage {
 	
 	Logger logger = (Logger)LoggerFactory.getLogger(DisplayNavigationContent.class);
 	{ logger.setLevel(Level.DEBUG); }
@@ -43,17 +41,13 @@ public class DisplayNavigationContent extends VerticalLayout
 	 */
 	public DisplayNavigationContent() {
 		VerticalLayout intro = new VerticalLayout();
-		intro.add(new Paragraph("Use the dropdown to select the platform where the display is located."));
-		intro.add(new Paragraph("Use one of the buttons below to open a display."));
-		
-		RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
-		String attBoard = routeResolver.getUrl(AttemptBoard.class);
-		String attUrl = createURL(VaadinServletRequest.getCurrent(),attBoard);
-		logger.debug("url {}",attUrl);
+		addParagraph(intro, "Use the dropdown to select the platform where the display is located.");
+		addParagraph(intro, "Use one of the buttons below to open a display.");
+		intro.getElement().getStyle().set("margin-bottom", "0");
 		
 		Button attempt = new Button("Attempt Board",
 				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript("window.open('"+attUrl+"','_blank')"));
+					.executeJavaScript(getWindowOpener(AttemptBoard.class)));
 		Button results = new Button("Results Board",
 			buttonClickEvent -> UI.getCurrent()
 				.navigate(ResultsBoard.class));
@@ -78,30 +72,10 @@ public class DisplayNavigationContent extends VerticalLayout
 		jury.setEnabled(false);
 		plates.setEnabled(false);
 
-		fillH(intro,this);
+		fillH(intro, this);
 		fillH(grid, this);
+	}
 
-	}
-	
-	protected static String createURL(VaadinServletRequest request, String resourcePath) {
-		int port = request.getServerPort();
-		StringBuilder result = new StringBuilder();
-		result.append(request.getScheme())
-			.append("://")
-			.append(request.getServerName());
-		if ((request.getScheme().equals("http") && port != 80)
-				|| (request.getScheme().equals("https") && port != 443)) {
-			result.append(':')
-				.append(port);
-		}
-		result.append(request.getContextPath());
-		if (resourcePath != null && resourcePath.length() > 0) {
-			if (!resourcePath.startsWith("/")) {
-				result.append("/");
-			}
-			result.append(resourcePath);
-		}
-		return result.toString();
-	}
+
 
 }

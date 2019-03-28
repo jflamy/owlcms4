@@ -52,8 +52,8 @@ public class MainNavigationContent extends VerticalLayout implements ContentWrap
 					.navigate(WrapupNavigationContent.class));
 		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
 			prepare,
-			displays,
 			lifting,
+			displays,
 			documents);
 
 		documents.setEnabled(false);

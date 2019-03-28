@@ -8,10 +8,13 @@
  */
 package app.owlcms.ui.group;
 
+import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 import app.owlcms.data.group.Group;
@@ -34,6 +37,16 @@ public class GroupNavigationLayout extends MainNavigationLayout {
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
 
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
+		HorizontalLayout announcerBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
+		announcerBar
+			.getElement()
+			.getStyle()
+			.set("flex", "100 1");
+		announcerBar.setJustifyContentMode(JustifyContentMode.START);
+		appLayout.getTitleWrapper()
+			.getElement()
+			.getStyle()
+			.set("flex", "0 1 20em");
 
 		ComboBox<FieldOfPlayState> fopSelect = new ComboBox<>();
 		ComboBox<Group> groupSelect = new ComboBox<>();
@@ -70,13 +83,26 @@ public class GroupNavigationLayout extends MainNavigationLayout {
 				fop.switchGroup(e.getValue());
 			});
 		});
-		Label label = new Label("Run a Lifting Group");
-		HorizontalLayout titleComponent = new HorizontalLayout(label,fopSelect, groupSelect);
-		titleComponent.setSpacing(true);
-		appLayout.setTitleComponent(titleComponent);
 		
-//		String fopName = (String) VaadinSession.getCurrent().getAttribute("fopName");
-//		appLayout.setAppBar(new Label(fopName != null ? fopName : ""));
+		Label label = new Label("Run a Lifting Group");
+		appLayout.setTitleComponent(label);
+		
+		Label fopLabel = new Label("Competition Platform");
+		fopLabel.getStyle().set("font-size", "small");
+		fopLabel.getStyle().set("text-align", "right");
+		
+		Label groupLabel = new Label("Group");
+		groupLabel.getStyle().set("font-size", "small");
+		groupLabel.getStyle().set("text-align", "right");
+		groupLabel.getStyle().set("width", "12em");
+		
+		
+		HorizontalLayout appBar = new HorizontalLayout(fopLabel, fopSelect, groupLabel, groupSelect);
+		appBar.setSpacing(true);
+		appBar.setAlignItems(FlexComponent.Alignment.CENTER);
+		appLayout.setAppBar(appBar);
+
 		return appLayout;
 	}
+	
 }

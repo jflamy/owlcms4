@@ -34,16 +34,12 @@ import ch.qos.logback.classic.Logger;
 @Push
 public class AnnouncerLayout extends BaseLayout {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-	
-	public AnnouncerLayout() {
+	final private Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	{
 		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.DEBUG);
 	}
-
-
-
 
 
 	@Override

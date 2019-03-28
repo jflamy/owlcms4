@@ -98,7 +98,7 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
 		if (variant == null) {
-			variant = Behaviour.LEFT;
+			variant = Behaviour.LEFT_RESPONSIVE;
 //			notificationHolder = new DefaultNotificationHolder(newStatus -> {
 //				/* Do something with it */});
 //			badgeHolder = new DefaultBadgeHolder();

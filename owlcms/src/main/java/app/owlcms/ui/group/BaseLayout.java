@@ -53,8 +53,12 @@ import ch.qos.logback.classic.Logger;
 @Push
 public abstract class BaseLayout extends MainNavigationLayout implements SafeEventBusRegistration, UIEventProcessor {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(BaseLayout.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	final private Logger logger = (Logger) LoggerFactory.getLogger(BaseLayout.class);
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	{
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
 
 	protected H3 title;
 	protected H1 lastName;
@@ -74,13 +78,7 @@ public abstract class BaseLayout extends MainNavigationLayout implements SafeEve
 	 * logic used everywhere else to change what is shown in the grid.
 	 */
 	protected ComboBox<Group> gridGroupFilter;
-
 	
-	public BaseLayout() {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
-	}
-
 	@Subscribe
 	public void setTime(UIEvent.SetTime e) {
 		UIEventProcessor.uiAccess(announcerBar, uiEventBus, e, () -> {
@@ -222,11 +220,15 @@ public abstract class BaseLayout extends MainNavigationLayout implements SafeEve
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
 		this.announcerBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
 		createTopBar(announcerBar);
+		shrinkTitle(appLayout);
+		return appLayout;
+	}
+
+	public void shrinkTitle(AppLayout appLayout) {
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()
 			.set("flex", "0 1 0px");
-		return appLayout;
 	}
 	
 	/**
