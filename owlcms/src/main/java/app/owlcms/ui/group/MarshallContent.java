@@ -27,7 +27,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "group/marshall", layout = MarshallLayout.class)
-public class MarshallContent extends BaseContent implements QueryParameterReader {
+public class MarshallContent extends BaseGridContent implements QueryParameterReader {
 
 	// @SuppressWarnings("unused")
 	final private Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);

@@ -43,7 +43,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.ui.group.UIEventProcessor;
-import app.owlcms.ui.home.MainNavigationLayout;
+import app.owlcms.ui.home.OwlcmsAppLayoutRouterLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -52,7 +52,7 @@ import ch.qos.logback.classic.Logger;
  * Weigh-in page -- top bar.
  */
 @SuppressWarnings("serial")
-public class WeighinLayout extends MainNavigationLayout implements SafeEventBusRegistration, UIEventProcessor {
+public class WeighinLayout extends OwlcmsAppLayoutRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
 
 	private final static Logger logger = (Logger)LoggerFactory.getLogger(WeighinLayout.class);
 	static {logger.setLevel(Level.DEBUG);}
@@ -69,7 +69,7 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
+	 * @see app.owlcms.ui.home.OwlcmsAppLayoutRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {

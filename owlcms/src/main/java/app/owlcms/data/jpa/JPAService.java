@@ -135,7 +135,7 @@ public class JPAService {
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
-		props.put(JPA_JDBC_URL, "jdbc:h2:mem:test");
+		props.put(JPA_JDBC_URL, "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
 		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
 		props.put(JPA_JDBC_USER, "sa");
 		props.put(JPA_JDBC_PASSWORD, "");
@@ -180,7 +180,7 @@ public class JPAService {
 			.put("hibernate.c3p0.min_size", 5)
 			.put("hibernate.c3p0.max_size", 20)
 			.put("hibernate.c3p0.acquire_increment", 5)
-			.put("hibernate.c3p0.timeout", 1800)
+			.put("hibernate.c3p0.timeout", 84200) //FIXME very high timeout value
 			.put("hibernate.c3p0.preferredTestQuery","SELECT 1")
 			.put("hibernate.c3p0.testConnectionOnCheckout",true)
 			.put("hibernate.c3p0.idle_test_period",500)

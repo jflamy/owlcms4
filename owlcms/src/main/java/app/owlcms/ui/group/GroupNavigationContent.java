@@ -8,23 +8,30 @@
  */
 package app.owlcms.ui.group;
 
+import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.ui.home.ContentWrapping;
-import app.owlcms.ui.home.MainNavigationContent;
+import app.owlcms.data.group.Group;
+import app.owlcms.init.OwlcmsSession;
+import app.owlcms.state.FieldOfPlayState;
+import app.owlcms.ui.home.BaseNavigationContent;
+import app.owlcms.ui.home.HomeNavigationContent;
+import app.owlcms.ui.home.NavigationLayout;
 
 /**
  * The Class GroupNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "group", layout = GroupNavigationLayout.class)
-public class GroupNavigationContent extends VerticalLayout
-		implements ContentWrapping, NavigationPage {
+@Route(value = "group", layout = NavigationLayout.class)
+public class GroupNavigationContent extends BaseNavigationContent implements NavigationPage {
 
 	/**
 	 * Instantiates a new lifting navigation content.
@@ -51,7 +58,7 @@ public class GroupNavigationContent extends VerticalLayout
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(ResultsContent.class));
 		
-		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
+		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
 			announcer,
 			marshall,
 			timekeeper,
@@ -61,5 +68,41 @@ public class GroupNavigationContent extends VerticalLayout
 		fillH(intro, this);
 		fillH(grid, this);
 	}
+	
+	/* (non-Javadoc)
+	 * @see app.owlcms.ui.home.BaseNavigationContent#configureTopBar(java.lang.String, com.github.appreciated.app.layout.behaviour.AppLayout)
+	 */
+	@Override
+	protected void configureTopBar(String title, AppLayout appLayout) {
+		super.configureTopBar("Run Lifting Group", appLayout);
+	}
+
+	@Override
+	protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+		Label fopLabel = new Label(label);
+		formatLabel(fopLabel);
+
+		ComboBox<FieldOfPlayState> fopSelect = createFopSelect(placeHolder);
+		OwlcmsSession.withFop((fop) -> {
+			fopSelect.setValue(fop);
+		});
+		fopSelect.addValueChangeListener(e -> {
+			OwlcmsSession.setFop(e.getValue());
+			OwlcmsSession.withFop((fop) -> {
+				Group group = e.getValue().getGroup();
+				Group currentGroup = fop.getGroup();
+				if (group == null) {
+					fop.switchGroup(null);
+				} else if (!group.equals(currentGroup)) {
+					fop.switchGroup(group);
+				}
+			});
+		});
+
+		HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
+		fopField.setAlignItems(Alignment.CENTER);
+		return fopField;
+	}
+
 
 }

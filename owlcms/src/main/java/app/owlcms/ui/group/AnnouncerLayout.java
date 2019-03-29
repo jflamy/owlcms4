@@ -32,7 +32,7 @@ import ch.qos.logback.classic.Logger;
 @HtmlImport("frontend://styles/shared-styles.html")
 @Theme(Lumo.class)
 @Push
-public class AnnouncerLayout extends BaseLayout {
+public class AnnouncerLayout extends BaseGridLayout {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
@@ -74,6 +74,16 @@ public class AnnouncerLayout extends BaseLayout {
 		return buttons;
 	}
 
+	/* (non-Javadoc)
+	 * @see app.owlcms.ui.group.BaseGridLayout#createTopBar(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
+	 */
+	@Override
+	protected void createTopBar(HorizontalLayout announcerBar) {
+		super.createTopBar(announcerBar);
+		title.setText("Announcer");
+		groupSelect.setReadOnly(true);
+	}
+
 	@Override
 	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
 		Button good = new Button(IronIcons.DONE.create(), (e) -> {
@@ -90,16 +100,6 @@ public class AnnouncerLayout extends BaseLayout {
 				good,
 				bad);
 		return decisions;
-	}
-
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.group.BaseLayout#createTopBar(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
-	 */
-	@Override
-	protected void createTopBar(HorizontalLayout announcerBar) {
-		super.createTopBar(announcerBar);
-		title.setText("Announcer");
-		groupSelect.setReadOnly(true);
 	}
 
 }

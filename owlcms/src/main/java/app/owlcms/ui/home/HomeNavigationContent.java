@@ -8,6 +8,7 @@
  */
 package app.owlcms.ui.home;
 
+import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.css.grid.GridLayoutComponent.AutoFlow;
 import com.github.appreciated.css.grid.GridLayoutComponent.Overflow;
 import com.github.appreciated.css.grid.sizes.Flex;
@@ -18,8 +19,9 @@ import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.ui.displays.DisplayNavigationContent;
@@ -28,16 +30,16 @@ import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 
 /**
- * The Class MainNavigationContent.
+ * The Class HomeNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "", layout = MainNavigationLayout.class)
-public class MainNavigationContent extends VerticalLayout implements ContentWrapping {
+@Route(value = "", layout = NavigationLayout.class)
+public class HomeNavigationContent extends BaseNavigationContent {
 
 	/**
 	 * Instantiates a new main navigation content.
 	 */
-	public MainNavigationContent() {
+	public HomeNavigationContent() {
 		Button prepare = new Button("Prepare Competition",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(PreparationNavigationContent.class));
@@ -50,7 +52,7 @@ public class MainNavigationContent extends VerticalLayout implements ContentWrap
 		Button documents = new Button("Final Documents",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(WrapupNavigationContent.class));
-		FlexibleGridLayout grid = MainNavigationContent.navigationGrid(
+		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
 			prepare,
 			lifting,
 			displays,
@@ -82,6 +84,39 @@ public class MainNavigationContent extends VerticalLayout implements ContentWrap
 		layout.setWidth("80%");
 		layout.setBoxSizing(BoxSizing.BORDER_BOX);
 		return layout;
+	}
+	
+	/* (non-Javadoc)
+	 * @see app.owlcms.ui.home.BaseNavigationContent#configureTopBar(java.lang.String, com.github.appreciated.app.layout.behaviour.AppLayout)
+	 */
+	@Override
+	protected void configureTopBar(String title, AppLayout appLayout) {
+		super.configureTopBar("OWLCMS - Olympic Weightlifting Competition Management System", appLayout);
+	}
+
+	/**
+	 * The left part of the top bar.
+	 * @param appLayout
+	 * @param topBarTitle
+	 */
+	@Override
+	protected void configureTopBarTitle(AppLayout appLayout, String topBarTitle) {
+		appLayout.getTitleWrapper()
+		.getElement()
+		.getStyle()
+		.set("flex", "0 1 40em");
+		Label label = new Label(topBarTitle);
+		appLayout.setTitleComponent(label);
+	}
+	
+	@Override
+	protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+		return null;
+	}
+	
+	@Override
+	protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
+		return null;
 	}
 
 }

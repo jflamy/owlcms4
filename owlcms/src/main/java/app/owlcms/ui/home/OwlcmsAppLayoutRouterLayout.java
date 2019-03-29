@@ -47,7 +47,7 @@ import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 
 /**
- * MainNavigationLayout.
+ * OwlcmsAppLayoutRouterLayout.
  */
 @Push
 @HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
@@ -59,7 +59,7 @@ import app.owlcms.ui.preparation.PreparationNavigationContent;
 @HtmlImport("frontend://bower_components/iron-icons/maps-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/social-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/places-icons.html")
-public class MainNavigationLayout extends AppLayoutRouterLayout {
+public class OwlcmsAppLayoutRouterLayout extends AppLayoutRouterLayout {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -73,7 +73,7 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 
 	private HasElement layoutContent;
 
-    public MainNavigationLayout() {
+    public OwlcmsAppLayoutRouterLayout() {
         init(getLayoutConfiguration(variant));
         reloadNotifications();
     }
@@ -108,7 +108,7 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 		if (!variant.isTop()) {
 			LeftNavigationComponent home = new LeftNavigationComponent("Home",
 					VaadinIcon.HOME.create(),
-					MainNavigationContent.class);
+					HomeNavigationContent.class);
 
 //			notificationHolder.bind(home.getBadge());
 
@@ -122,7 +122,7 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 					.build())
 				.withAppMenu(LeftAppMenuBuilder
 					.get()
-					.addToSection(new MenuHeaderComponent("OWLCMS", null, null), HEADER)
+					.addToSection(new MenuHeaderComponent("", null, null), HEADER)
 					.add(home)
 					.add(new LeftNavigationComponent(
 							"Prepare Competition",

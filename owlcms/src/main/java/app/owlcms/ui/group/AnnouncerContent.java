@@ -26,7 +26,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AnnouncerLayout.class)
-public class AnnouncerContent extends BaseContent {
+public class AnnouncerContent extends BaseGridContent {
 
 	// @SuppressWarnings("unused")
 	final private Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);

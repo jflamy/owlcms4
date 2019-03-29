@@ -38,7 +38,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.UIEvent;
-import app.owlcms.ui.home.MainNavigationLayout;
+import app.owlcms.ui.home.OwlcmsAppLayoutRouterLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -51,9 +51,9 @@ import ch.qos.logback.classic.Logger;
 @HtmlImport("frontend://styles/shared-styles.html")
 @Theme(Lumo.class)
 @Push
-public abstract class BaseLayout extends MainNavigationLayout implements SafeEventBusRegistration, UIEventProcessor {
+public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
 
-	final private Logger logger = (Logger) LoggerFactory.getLogger(BaseLayout.class);
+	final private Logger logger = (Logger) LoggerFactory.getLogger(BaseGridLayout.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	{
 		logger.setLevel(Level.INFO);
@@ -108,11 +108,11 @@ public abstract class BaseLayout extends MainNavigationLayout implements SafeEve
 		UIEventProcessor.uiAccess(announcerBar, uiEventBus, e, () -> {
 			Athlete athlete = e.getAthlete();
 			Integer timeAllowed = e.getTimeAllowed();
-			doUpdateAnnouncerBar(athlete, timeAllowed);
+			doUpdateTopBar(athlete, timeAllowed);
 		});
 	}
 	
-	protected void doUpdateAnnouncerBar(Athlete athlete, Integer timeAllowed) {
+	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
 		syncWithFOP();
 		if (athlete != null) {
 			lastName.setText(athlete.getLastName());
@@ -213,12 +213,15 @@ public abstract class BaseLayout extends MainNavigationLayout implements SafeEve
 
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
+	 * @see app.owlcms.ui.home.OwlcmsAppLayoutRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
+		variant = Behaviour.LEFT_HYBRID;
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
-		this.announcerBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
+		AbstractLeftAppLayoutBase appLayoutBase = (AbstractLeftAppLayoutBase) appLayout;
+		appLayout.closeDrawer();
+		this.announcerBar = appLayoutBase.getAppBarElementWrapper();
 		createTopBar(announcerBar);
 		shrinkTitle(appLayout);
 		return appLayout;
@@ -241,9 +244,9 @@ public abstract class BaseLayout extends MainNavigationLayout implements SafeEve
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
 		super.showRouterLayoutContent(content);
-		BaseContent baseContent = (BaseContent) getLayoutContent();
-		baseContent.setParentLayout(this);
-		gridGroupFilter = baseContent.getGroupFilter();
+		BaseGridContent baseGridContent = (BaseGridContent) getLayoutContent();
+		baseGridContent.setParentLayout(this);
+		gridGroupFilter = baseGridContent.getGroupFilter();
 	}
 
 	/* (non-Javadoc)
@@ -253,7 +256,7 @@ public abstract class BaseLayout extends MainNavigationLayout implements SafeEve
 	protected void onAttach(AttachEvent attachEvent) {
 		OwlcmsSession.withFop(fop -> {
 			// sync with current status of FOP
-			doUpdateAnnouncerBar(fop.getCurAthlete(), fop.getTimeAllowed());
+			doUpdateTopBar(fop.getCurAthlete(), fop.getTimeAllowed());
 			// connect to bus for new updating events
 			uiEventBus = uiEventBusRegister(this, fop);
 		});

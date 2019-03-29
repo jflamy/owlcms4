@@ -31,7 +31,7 @@ import ch.qos.logback.classic.Logger;
 @HtmlImport("frontend://styles/shared-styles.html")
 @Theme(Lumo.class)
 @Push
-public class MarshallLayout extends BaseLayout {
+public class MarshallLayout extends BaseGridLayout {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(MarshallLayout.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
@@ -60,7 +60,7 @@ public class MarshallLayout extends BaseLayout {
 	}
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.group.BaseLayout#createTopBar(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
+	 * @see app.owlcms.ui.group.BaseGridLayout#createTopBar(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
 	 */
 	@Override
 	protected void createTopBar(HorizontalLayout announcerBar) {

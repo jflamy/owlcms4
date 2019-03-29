@@ -55,11 +55,11 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-public class BaseContent extends VerticalLayout
+public class BaseGridContent extends VerticalLayout
 		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor, AppLayoutContent {
 
 	// @SuppressWarnings("unused")
-	final private Logger logger = (Logger) LoggerFactory.getLogger(BaseContent.class);
+	final private Logger logger = (Logger) LoggerFactory.getLogger(BaseGridContent.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	private void initLoggers() {
 		logger.setLevel(Level.INFO);
@@ -78,7 +78,7 @@ public class BaseContent extends VerticalLayout
 	 * Instantiates a new announcer content.
 	 * Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
-	public BaseContent() {
+	public BaseGridContent() {
 		initLoggers();
 	}
 
@@ -266,7 +266,7 @@ public class BaseContent extends VerticalLayout
 
 	@Override
 	public boolean isIgnoreGroup() {
-		logger.warn("BaseContent ignoreGroup false");
+		logger.warn("BaseNavigationContent ignoreGroup false");
 		return false;
 	}
 }

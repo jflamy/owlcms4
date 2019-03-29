@@ -27,7 +27,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "group/timekeeper", layout = TimekeeperLayout.class)
-public class TimekeeperContent extends BaseContent implements QueryParameterReader {
+public class TimekeeperContent extends BaseGridContent implements QueryParameterReader {
 
 	// @SuppressWarnings("unused")
 	final private Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent.class);

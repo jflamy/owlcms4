@@ -33,7 +33,7 @@ import app.owlcms.components.appLayout.AppLayoutContent;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.spreadsheet.JXLSResultSheet;
-import app.owlcms.ui.home.MainNavigationLayout;
+import app.owlcms.ui.home.OwlcmsAppLayoutRouterLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -42,7 +42,7 @@ import ch.qos.logback.classic.Logger;
  * Results Page -- top bar.
  */
 @SuppressWarnings("serial")
-public class ResultsLayout extends MainNavigationLayout implements SafeEventBusRegistration, UIEventProcessor {
+public class ResultsLayout extends OwlcmsAppLayoutRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
 
 	private final Logger logger = (Logger)LoggerFactory.getLogger(ResultsLayout.class);
 	protected void initLoggers() {
@@ -63,7 +63,7 @@ public class ResultsLayout extends MainNavigationLayout implements SafeEventBusR
 
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
+	 * @see app.owlcms.ui.home.OwlcmsAppLayoutRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
