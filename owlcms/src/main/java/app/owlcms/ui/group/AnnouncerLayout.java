@@ -36,11 +36,12 @@ public class AnnouncerLayout extends BaseGridLayout {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerLayout.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-	{
+
+	public AnnouncerLayout() {
+		super();
 		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.DEBUG);
 	}
-
 
 	@Override
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {

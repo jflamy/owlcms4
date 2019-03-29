@@ -29,7 +29,10 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class AnnouncerLayout.
+ * Class NavigationLayout.
+ * 
+ * Define the connection between the top bar and the content slot on navigation pages
+ * so they can refer to each other.
  */
 @SuppressWarnings("serial")
 @HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
@@ -66,7 +69,7 @@ public class NavigationLayout extends OwlcmsAppLayoutRouterLayout implements Saf
 		super.showRouterLayoutContent(content);
 		BaseNavigationContent baseNavigationContent = (BaseNavigationContent) getLayoutContent();
 		baseNavigationContent.setParentLayout(this);
-		baseNavigationContent.configureTopBar("Start Displays", appLayoutBase);
+		baseNavigationContent.configureTopBar("", appLayoutBase);
 	}
 
 	/**
@@ -81,6 +84,4 @@ public class NavigationLayout extends OwlcmsAppLayoutRouterLayout implements Saf
 		appLayoutBase = (AbstractLeftAppLayoutBase) appLayout;
 		return appLayout;
 	}
-	
-
 }

@@ -53,12 +53,9 @@ import ch.qos.logback.classic.Logger;
 @Push
 public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
 
-	final private Logger logger = (Logger) LoggerFactory.getLogger(BaseGridLayout.class);
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-	{
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
-	}
+	Logger logger = (Logger) LoggerFactory.getLogger(BaseGridLayout.class);
+	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+
 
 	protected H3 title;
 	protected H1 lastName;
@@ -78,6 +75,13 @@ public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout impleme
 	 * logic used everywhere else to change what is shown in the grid.
 	 */
 	protected ComboBox<Group> gridGroupFilter;
+	protected AppLayout appLayout;
+	
+	BaseGridLayout() {
+		super();
+		logger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
+	}
 	
 	@Subscribe
 	public void setTime(UIEvent.SetTime e) {
@@ -217,8 +221,8 @@ public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout impleme
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
-		variant = Behaviour.LEFT_HYBRID;
-		AppLayout appLayout = super.getLayoutConfiguration(variant);
+		variant = Behaviour.LEFT;
+		appLayout = super.getLayoutConfiguration(variant);
 		AbstractLeftAppLayoutBase appLayoutBase = (AbstractLeftAppLayoutBase) appLayout;
 		appLayout.closeDrawer();
 		this.announcerBar = appLayoutBase.getAppBarElementWrapper();
@@ -243,10 +247,12 @@ public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout impleme
 	 */
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
+		logger.debug("showRouterLayoutContent");
 		super.showRouterLayoutContent(content);
 		BaseGridContent baseGridContent = (BaseGridContent) getLayoutContent();
 		baseGridContent.setParentLayout(this);
 		gridGroupFilter = baseGridContent.getGroupFilter();
+		appLayout.closeDrawer();
 	}
 
 	/* (non-Javadoc)

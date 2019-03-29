@@ -42,7 +42,9 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class AnnouncerContent.
+ * Class NavigationContent
+ * 
+ * Defi
  */
 @SuppressWarnings("serial")
 public abstract class BaseNavigationContent extends VerticalLayout
