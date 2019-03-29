@@ -23,7 +23,6 @@ import app.owlcms.displays.results.ResultsBoard;
 import app.owlcms.ui.home.BaseNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.home.NavigationLayout;
-import app.owlcms.ui.preparation.CategoryContent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -50,17 +49,13 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 			buttonClickEvent -> UI.getCurrent().getPage()
 			.executeJavaScript(getWindowOpener(AttemptBoard.class)));
 		Button results = new Button("Results Board",
-			buttonClickEvent -> UI.getCurrent()
-			.navigate(ResultsBoard.class));
+			buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(ResultsBoard.class)));
 		Button referee = new Button("Referee Decision Display",
-			buttonClickEvent -> UI.getCurrent()
-			.navigate(CategoryContent.class));
+			buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(ResultsBoard.class)));
 		Button jury = new Button("Jury Display",
-			buttonClickEvent -> UI.getCurrent()
-			.navigate(CategoryContent.class));
+			buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(ResultsBoard.class)));
 		Button plates = new Button("Plates Display",
-			buttonClickEvent -> UI.getCurrent()
-			.navigate(CategoryContent.class));
+			buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(ResultsBoard.class)));
 
 		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
 			attempt,
