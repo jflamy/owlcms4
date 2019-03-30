@@ -124,13 +124,12 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	}
 
 	/**
-	 * Update URL location.
+	 * Update URL location on explicit group selection
 	 *
 	 * @param ui the ui
 	 * @param location the location
 	 * @param newGroup the new group
 	 */
-	//FIXME: why is this different than the default interface method
 	public void updateURLLocation(UI ui, Location location, Group newGroup) {
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
@@ -161,11 +160,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 		});
 	}
 
-	@Override
-	public boolean isIgnoreGroup() {
-		logger.warn("BaseNavigationContent ignoreGroup false");
-		return false;
-	}
 	
 	protected String getTopBarTitle() {
 		return topBarTitle;
@@ -204,6 +198,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
 		groupSelect.setWidth("8rem");
+		groupSelect.setReadOnly(true);
 
 		lastName = new H1();
 		lastName.setText("\u2013");
@@ -274,6 +269,9 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
 		logger.warn("doUpdateTopBar {}",LoggerUtils.whereFrom());
+		OwlcmsSession.withFop(fop -> {
+			groupSelect.setValue(fop.getGroup());
+		});
 		if (athlete != null) {
 			lastName.setText(athlete.getLastName());
 			firstName.setText(athlete.getFirstName());
@@ -458,4 +456,5 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	public void refresh() {
 		grid.refreshGrid();
 	}
+
 }

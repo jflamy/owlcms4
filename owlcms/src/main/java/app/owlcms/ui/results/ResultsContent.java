@@ -312,8 +312,8 @@ public class ResultsContent extends AthleteGridContent {
 			// subscribe to fop and start tracking if actually lifting
 			if (fop.getGroup() != null && fop.getGroup().equals(nGroup)) {
 				logger.debug("subscribing to {} {}", fop, nGroup);
-				try {fop.getUiEventBus().register(this);} catch (Exception ex) {}
-				try {fop.getEventBus().register(this);} catch (Exception ex) {}
+				try {fopEventBusRegister(this, fop);} catch (Exception ex) {}
+				try {uiEventBusRegister(this, fop);} catch (Exception ex) {}
 				currentFop = fop;
 			}
 		}
