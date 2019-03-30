@@ -8,7 +8,8 @@
  */
 package app.owlcms.ui.finalresults;
 
-import com.github.appreciated.app.layout.behaviour.AppLayout;
+import org.slf4j.LoggerFactory;
+
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -19,15 +20,20 @@ import app.owlcms.components.NavigationPage;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.ui.home.BaseNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
-import app.owlcms.ui.home.NavigationLayout;
+import app.owlcms.ui.home.OwlcmsRouterLayout;
 import app.owlcms.ui.preparation.CategoryContent;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * The Class WrapupNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "wrapup", layout = NavigationLayout.class)
+@Route(value = "wrapup", layout = OwlcmsRouterLayout.class)
 public class WrapupNavigationContent extends BaseNavigationContent implements NavigationPage {
+	
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(WrapupNavigationContent.class);
+	static { logger.setLevel(Level.DEBUG);}
 
 	/**
 	 * Instantiates a new wrapup navigation content.
@@ -42,9 +48,9 @@ public class WrapupNavigationContent extends BaseNavigationContent implements Na
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.home.BaseNavigationContent#configureTopBar(java.lang.String, com.github.appreciated.app.layout.behaviour.AppLayout)
 	 */
-	@Override
-	protected void configureTopBar(String title, AppLayout appLayout) {
-		super.configureTopBar("Produce Results", appLayout);
+	@Override 
+	protected void createTopBar(String title) {
+		super.createTopBar("Produce Results");
 	}
 
 	

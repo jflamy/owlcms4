@@ -14,6 +14,8 @@ import static com.github.appreciated.app.layout.notification.entitiy.Priority.ME
 
 import java.util.function.Consumer;
 
+import org.slf4j.LoggerFactory;
+
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.github.appreciated.app.layout.builder.AppLayoutBuilder;
@@ -45,10 +47,13 @@ import app.owlcms.ui.displays.DisplayNavigationContent;
 import app.owlcms.ui.finalresults.WrapupNavigationContent;
 import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
- * OwlcmsAppLayoutRouterLayout.
+ * OwlcmsRouterLayout.
  */
+@SuppressWarnings("serial")
 @Push
 @HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
@@ -59,9 +64,14 @@ import app.owlcms.ui.preparation.PreparationNavigationContent;
 @HtmlImport("frontend://bower_components/iron-icons/maps-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/social-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/places-icons.html")
-public class OwlcmsAppLayoutRouterLayout extends AppLayoutRouterLayout {
+public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 
-	private static final long serialVersionUID = 1L;
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	static {
+		logger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
+	}
 	
 	/** The notification holder. */
 	DefaultNotificationHolder notificationHolder;
@@ -73,7 +83,7 @@ public class OwlcmsAppLayoutRouterLayout extends AppLayoutRouterLayout {
 
 	private HasElement layoutContent;
 
-    public OwlcmsAppLayoutRouterLayout() {
+    public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));
         reloadNotifications();
     }
@@ -84,6 +94,7 @@ public class OwlcmsAppLayoutRouterLayout extends AppLayoutRouterLayout {
 	 */
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
+		logger.warn("showRouterLayoutContent");
 		super.showRouterLayoutContent(content);
 		this.setLayoutContent(content);
 	}
@@ -234,7 +245,6 @@ public class OwlcmsAppLayoutRouterLayout extends AppLayoutRouterLayout {
 	/**
 	 * The Class BehaviourSelector.
 	 */
-	@SuppressWarnings("serial")
 	class BehaviourSelector extends Dialog {
 
 		/**

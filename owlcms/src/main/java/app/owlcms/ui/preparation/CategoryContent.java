@@ -28,7 +28,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsCrudLayout;
+import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.crudui.OwlcmsGridCrud;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
@@ -61,17 +61,17 @@ public class CategoryContent extends VerticalLayout
 		OwlcmsCrudFormFactory<Category> crudFormFactory = createFormFactory();
 		GridCrud<Category> crud = createGrid(crudFormFactory);
 		defineFilters(crud);
-//		defineQueries(crud);
+//		defineQueries(grid);
 		fillHW(crud, this);
 	}
 	
 //	/**
 //	 * Define how to populate the athlete grid
 //	 * 
-//	 * @param crud
+//	 * @param grid
 //	 */
-//	protected void defineQueries(GridCrud<Category> crud) {
-//		crud.setFindAllOperation(
+//	protected void defineQueries(GridCrud<Category> grid) {
+//		grid.setFindAllOperation(
 //			DataProvider.fromCallbacks(
 //				query -> CategoryRepository
 //					.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), activeFilter.getValue(), query.getOffset(), query.getLimit())
@@ -96,7 +96,7 @@ public class CategoryContent extends VerticalLayout
 			.setHeader("Gender");
 
 		GridCrud<Category> crud = new OwlcmsGridCrud<Category>(Category.class,
-				new OwlcmsCrudLayout(Category.class),
+				new OwlcmsGridLayout(Category.class),
 				crudFormFactory,
 				grid);
 		crud.setCrudListener(this);
@@ -206,7 +206,7 @@ public class CategoryContent extends VerticalLayout
 	/**
 	 * The filters at the top of the grid
 	 * 
-	 * @param crud the grid that will be filtered.
+	 * @param grid the grid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Category> crud) {
 		nameFilter.setPlaceholder("Name");

@@ -8,7 +8,9 @@
  */
 package app.owlcms.ui.home;
 
-import com.github.appreciated.app.layout.behaviour.AppLayout;
+import org.slf4j.LoggerFactory;
+
+import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.css.grid.GridLayoutComponent.AutoFlow;
 import com.github.appreciated.css.grid.GridLayoutComponent.Overflow;
 import com.github.appreciated.css.grid.sizes.Flex;
@@ -28,13 +30,18 @@ import app.owlcms.ui.displays.DisplayNavigationContent;
 import app.owlcms.ui.finalresults.WrapupNavigationContent;
 import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * The Class HomeNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "", layout = NavigationLayout.class)
+@Route(value = "", layout = OwlcmsRouterLayout.class)
 public class HomeNavigationContent extends BaseNavigationContent {
+	
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(HomeNavigationContent.class);
+	static { logger.setLevel(Level.DEBUG);}
 
 	/**
 	 * Instantiates a new main navigation content.
@@ -90,17 +97,18 @@ public class HomeNavigationContent extends BaseNavigationContent {
 	 * @see app.owlcms.ui.home.BaseNavigationContent#configureTopBar(java.lang.String, com.github.appreciated.app.layout.behaviour.AppLayout)
 	 */
 	@Override
-	protected void configureTopBar(String title, AppLayout appLayout) {
-		super.configureTopBar("OWLCMS - Olympic Weightlifting Competition Management System", appLayout);
+	protected void createTopBar(String title) {
+		super.createTopBar("OWLCMS - Olympic Weightlifting Competition Management System");
 	}
 
 	/**
 	 * The left part of the top bar.
-	 * @param appLayout
 	 * @param topBarTitle
+	 * @param appLayoutComponent
 	 */
 	@Override
-	protected void configureTopBarTitle(AppLayout appLayout, String topBarTitle) {
+	protected void configureTopBarTitle(String topBarTitle) {
+		AbstractLeftAppLayoutBase appLayout = getAppLayout();
 		appLayout.getTitleWrapper()
 		.getElement()
 		.getStyle()

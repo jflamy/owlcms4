@@ -12,16 +12,16 @@ import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.vaadin.flow.component.html.Label;
 
-import app.owlcms.ui.home.OwlcmsAppLayoutRouterLayout;
+import app.owlcms.ui.home.OwlcmsRouterLayout;
 
 /**
  * The Class CategoryLayout.
  */
 @SuppressWarnings("serial")
-public class CategoryLayout extends OwlcmsAppLayoutRouterLayout {
+public class CategoryLayout extends OwlcmsRouterLayout {
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.OwlcmsAppLayoutRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
+	 * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {

@@ -34,23 +34,23 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsGridCrud.class);
 
-	private OwlcmsCrudLayout owlcmsCrudLayout;
+	private OwlcmsGridLayout owlcmsGridLayout;
 	private OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
 
 	/**
-	 * Instantiates a new owlcms grid crud.
+	 * Instantiates a new owlcms grid grid.
 	 *
 	 * @param domainType the domain type
-	 * @param crudLayout the crud layout
-	 * @param owlcmsCrudFormFactory the owlcms crud form factory
+	 * @param crudLayout the grid layout
+	 * @param owlcmsCrudFormFactory the owlcms grid form factory
 	 * @param grid the grid
 	 */
-	public OwlcmsGridCrud(Class<T> domainType, OwlcmsCrudLayout crudLayout, OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory, Grid<T>grid) {
+	public OwlcmsGridCrud(Class<T> domainType, OwlcmsGridLayout crudLayout, OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory, Grid<T>grid) {
 		super(domainType, crudLayout);
 		this.grid = grid;
 		this.owlcmsCrudFormFactory = owlcmsCrudFormFactory;
 		this.setCrudFormFactory(owlcmsCrudFormFactory);
-		this.owlcmsCrudLayout = crudLayout;
+		this.owlcmsGridLayout = crudLayout;
 		initLayoutGrid();
 	}
 
@@ -119,17 +119,17 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 			cancelClickEvent -> {
 				grid.asSingleSelect().clear();
 			}, operationPerformedClickEvent -> {
-				owlcmsCrudLayout.hideForm();
+				owlcmsGridLayout.hideForm();
 				buttonClickListener.onComponentEvent(operationPerformedClickEvent);
 				grid.asSingleSelect().clear();
 				Notification.show(successMessage);
 			}, deletePerformedClickEvent -> {
-				owlcmsCrudLayout.hideForm();
+				owlcmsGridLayout.hideForm();
 				this.deleteButtonClicked();
 			});
 
 		String caption = this.owlcmsCrudFormFactory.buildCaption(operation, domainObject);
-		owlcmsCrudLayout.showForm(operation, form, caption);
+		owlcmsGridLayout.showForm(operation, form, caption);
 	}
 
 	

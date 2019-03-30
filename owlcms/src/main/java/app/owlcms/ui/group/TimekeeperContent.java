@@ -27,7 +27,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "group/timekeeper", layout = TimekeeperLayout.class)
-public class TimekeeperContent extends BaseGridContent implements QueryParameterReader {
+public class TimekeeperContent extends AthleteGridContent implements QueryParameterReader {
 
 	// @SuppressWarnings("unused")
 	final private Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent.class);
@@ -58,7 +58,7 @@ public class TimekeeperContent extends BaseGridContent implements QueryParameter
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		fop.getEventBus()
-			.post(new FOPEvent.WeightChange(crud.getUI().get(), savedAthlete));
+			.post(new FOPEvent.WeightChange(grid.getUI().get(), savedAthlete));
 		return savedAthlete;
 	}
 

@@ -19,7 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
+import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
+import com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
@@ -36,9 +37,8 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.appLayout.AppLayoutContent;
 import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsCrudLayout;
+import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.crudui.OwlcmsGridCrud;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -62,7 +62,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "group/results", layout = ResultsLayout.class)
 public class ResultsContent extends VerticalLayout
-		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor, AppLayoutContent {
+		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor {
 
 	// @SuppressWarnings("unused")
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsContent.class);
@@ -77,7 +77,6 @@ public class ResultsContent extends VerticalLayout
 	private UI locationUI;
 	private GridCrud<Athlete> crud;
 	private EventBus uiEventBus;
-	private AppLayoutRouterLayout parentLayout;
 	
 	private ComboBox<Group> groupFilter = new ComboBox<>();
 	private Group currentGroup;
@@ -99,8 +98,6 @@ public class ResultsContent extends VerticalLayout
 	protected void onAttach(AttachEvent attachEvent) {
 		crud = getGridCrud();
 		fillHW(crud, this);
-		// only now we know for sure the top bar is ready.
-		((ResultsLayout)getParentLayout()).setLayoutGroup(currentGroup); // from http query parameters
 	}
 
 	
@@ -115,9 +112,9 @@ public class ResultsContent extends VerticalLayout
 	}
 	
 	/**
-	 * Gets the grid crud.
+	 * Gets the grid grid.
 	 *
-	 * @return the grid crud
+	 * @return the grid grid
 	 */
 	public GridCrud<Athlete> getGridCrud() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = new AthleteCardFormFactory(Athlete.class);
@@ -149,9 +146,9 @@ public class ResultsContent extends VerticalLayout
 		grid.getColumnByKey("totalRank")
 			.setHeader("Rank");
 
-		OwlcmsCrudLayout owlcmsCrudLayout = new OwlcmsCrudLayout(Athlete.class);
+		OwlcmsGridLayout owlcmsGridLayout = new OwlcmsGridLayout(Athlete.class);
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
-				owlcmsCrudLayout,
+				owlcmsGridLayout,
 				crudFormFactory,
 				grid) {
 			@Override
@@ -241,16 +238,6 @@ public class ResultsContent extends VerticalLayout
 	 */
 	public ComboBox<Group> getGroupFilter() {
 		return groupFilter;
-	}
-
-	@Override
-	public AppLayoutRouterLayout getParentLayout() {
-		return parentLayout;
-	}
-
-	@Override
-	public void setParentLayout(AppLayoutRouterLayout parentLayout) {
-		this.parentLayout = parentLayout;
 	}
 
 	public void refresh() {
@@ -350,5 +337,9 @@ public class ResultsContent extends VerticalLayout
 	@Override
 	public boolean isIgnoreGroup() {
 		return false;
+	}
+	
+	protected AbstractLeftAppLayoutBase getAppLayout() {
+		return (AbstractLeftAppLayoutBase)AppLayoutRouterLayoutBase.getCurrent();
 	}
 }

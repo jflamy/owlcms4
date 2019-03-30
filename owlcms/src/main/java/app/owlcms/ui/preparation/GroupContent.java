@@ -27,7 +27,7 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsCrudLayout;
+import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.crudui.OwlcmsGridCrud;
 import app.owlcms.components.fields.LocalDateTimeField;
 import app.owlcms.data.group.Group;
@@ -58,7 +58,7 @@ public class GroupContent extends VerticalLayout
 	public GroupContent() {
 		OwlcmsCrudFormFactory<Group> crudFormFactory = createFormFactory();
 		GridCrud<Group> crud = createGrid(crudFormFactory);
-//		defineFilters(crud);
+//		defineFilters(grid);
 		fillHW(crud, this);
 	}
 	
@@ -83,7 +83,7 @@ public class GroupContent extends VerticalLayout
 			.setHeader("Platform");
 
 		GridCrud<Group> crud = new OwlcmsGridCrud<Group>(Group.class,
-				new OwlcmsCrudLayout(Group.class),
+				new OwlcmsGridLayout(Group.class),
 				crudFormFactory,
 				grid);
 		crud.setCrudListener(this);

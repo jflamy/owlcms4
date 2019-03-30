@@ -16,8 +16,7 @@ import java.util.List;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
-import com.github.appreciated.app.layout.behaviour.AppLayout;
-import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
+import com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase;
 import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
@@ -31,7 +30,6 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.components.appLayout.AppLayoutContent;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.init.OwlcmsFactory;
@@ -43,12 +41,12 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Class NavigationContent
- * 
+ *
  * Defi
  */
 @SuppressWarnings("serial")
 public abstract class BaseNavigationContent extends VerticalLayout
-implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor, AppLayoutContent {
+implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor {
 
 	// @SuppressWarnings("unused")
 	final private Logger logger = (Logger) LoggerFactory.getLogger(BaseNavigationContent.class);
@@ -61,9 +59,11 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 	protected Location location;
 	protected UI locationUI;
 	protected EventBus uiEventBus;
-	protected NavigationLayout parentLayout;
 
-	protected ComboBox<Group> groupFilter = new ComboBox<>();
+	/**
+	 * Top part content
+	 */
+	private ComboBox<Group> groupSelect;
 
 	/**
 	 * Instantiates a new announcer content.
@@ -84,18 +84,14 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 		locationUI = event.getUI();
 	}
 
-	/* (non-Javadoc)
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
+	/**
+	 * Update URL location.
+	 *
+	 * @param ui the ui
+	 * @param location the location
+	 * @param newGroup the new group
 	 */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsSession.withFop(fop -> {
-			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-		});
-	}
-
-
+	//FIXME: why is this different than the default interface method
 	public void updateURLLocation(UI ui, Location location, Group newGroup) {
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
@@ -108,6 +104,22 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 		ui.getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
 
+	/* (non-Javadoc)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		logger.warn("baseNavigation content onAttach");
+		OwlcmsSession.withFop(fop -> {
+			// sync with current status of FOP
+			//FIXME: syncWithFOP();
+			// create the top bar, now that we know the group and fop
+			createTopBar("");
+			// we listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
+
+		});
+	}
 
 	/**
 	 * if true, the group is shown on the URL and will be restored on a refresh.
@@ -120,37 +132,41 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 	}
 
 	/**
-	 * We want to use the same layout class for all navigation screens, so that the framework only
-	 * changes the slot where the content is shown.  The content will then update the top bar using
-	 * this method.
-	 * @param title TODO
-	 * @param appLayout
+	 * The top bar is logically is the master part of a master-detail
+	 * In the current implementation, the most convenient place to put it is in the top bar
+	 * which is managed by the layout, but this could change. So we change the surrounding layout
+	 * from this class.  In this way, only one class (the content) listens for events.
+	 * Doing it the other way around would require multiple layouts, which breaks the idea of
+	 * a single page app.
 	 */
-	protected void configureTopBar(String title, AppLayout appLayout) {
-		createTopBar(appLayout);
-		configureTopBarTitle(appLayout, title);
+	protected void createTopBar(String title) {
+		configureTopBar();
+		configureTopBarTitle(title);
 		HorizontalLayout fopField = createTopBarFopField("Competition Platform", "Select Platform");
 		HorizontalLayout groupField = createTopBarGroupField("Group", "Select Group");
-		configureAppBar(appLayout, fopField, groupField);
+		createAppBar(fopField, groupField);
 	}
 
-	public void createTopBar(AppLayout appLayout) {
-		HorizontalLayout topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
-		topBar
-		.getElement()
+	public void configureTopBar() {
+		HorizontalLayout topBar = getAppLayout().getAppBarElementWrapper();
+		topBar.getElement()
 		.getStyle()
 		.set("flex", "100 1");
 		topBar.setJustifyContentMode(JustifyContentMode.START);
 	}
 
+	protected AbstractLeftAppLayoutBase getAppLayout() {
+		return (AbstractLeftAppLayoutBase)AppLayoutRouterLayoutBase.getCurrent();
+	}
+
 	/**
 	 * The left part of the top bar.
-	 * @param appLayout
 	 * @param topBarTitle
+	 * @param appLayoutComponent
 	 */
-	protected void configureTopBarTitle(AppLayout appLayout, String topBarTitle) {
-		appLayout.getTitleWrapper()
-		.getElement()
+	protected void configureTopBarTitle(String topBarTitle) {
+		AbstractLeftAppLayoutBase appLayout = getAppLayout();
+		appLayout.getTitleWrapper().getElement()
 		.getStyle()
 		.set("flex", "0 1 20em");
 		Label label = new Label(topBarTitle);
@@ -158,12 +174,11 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 	}
 	/**
 	 * The middle part of the top bar.
-	 *
-	 * @param appLayout
 	 * @param fopField
 	 * @param groupField
+	 * @param appLayoutComponent
 	 */
-	protected void configureAppBar(AppLayout appLayout, HorizontalLayout fopField, HorizontalLayout groupField) {
+	protected void createAppBar(HorizontalLayout fopField, HorizontalLayout groupField) {
 		HorizontalLayout appBar = new HorizontalLayout();
 		if (fopField != null) {
 			appBar.add(fopField);
@@ -173,7 +188,7 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 		}
 		appBar.setSpacing(true);
 		appBar.setAlignItems(FlexComponent.Alignment.CENTER);
-		appLayout.setAppBar(appBar);
+		getAppLayout().setAppBar(appBar);
 	}
 
 	protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
@@ -224,7 +239,7 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 	}
 
 	public ComboBox<Group> createGroupSelect(String placeHolder) {
-		ComboBox<Group> groupSelect = new ComboBox<>();
+		groupSelect = new ComboBox<>();
 		groupSelect.setPlaceholder(placeHolder);
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
@@ -243,31 +258,15 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 		Group currentGroup = fop.getGroup();
 		if (group == null) {
 			fop.switchGroup(null);
-			if (parentLayout.groupSelect != null) {
-				parentLayout.groupSelect.setValue(null);
+			if (groupSelect != null) {
+				groupSelect.setValue(null);
 			}
 		} else if (!group.equals(currentGroup)) {
 			fop.switchGroup(group);
-			if (parentLayout.groupSelect != null) {
-				parentLayout.groupSelect.setValue(group);
+			if (groupSelect != null) {
+				groupSelect.setValue(group);
 			}
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see app.owlcms.components.appLayout.AppLayoutContent#getParentLayout()
-	 */
-	@Override
-	public AppLayoutRouterLayout getParentLayout() {
-		return parentLayout;
-	}
-
-	/* (non-Javadoc)
-	 * @see app.owlcms.components.appLayout.AppLayoutContent#setParentLayout(com.github.appreciated.app.layout.router.AppLayoutRouterLayout)
-	 */
-	@Override
-	public void setParentLayout(AppLayoutRouterLayout parentLayout) {
-		this.parentLayout = (NavigationLayout) parentLayout;
 	}
 
 }

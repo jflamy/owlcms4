@@ -18,7 +18,6 @@ import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
-import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -37,9 +36,8 @@ import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.appLayout.AppLayoutContent;
 import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsCrudLayout;
+import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.crudui.OwlcmsGridCrud;
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
@@ -64,7 +62,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/weighin", layout = WeighinLayout.class)
 public class WeighinContent extends VerticalLayout 
-		implements CrudListener<Athlete>, ContentWrapping, AppLayoutContent {
+		implements CrudListener<Athlete>, ContentWrapping {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(WeighinContent.class);
 	static {logger.setLevel(Level.DEBUG);}
@@ -75,7 +73,6 @@ public class WeighinContent extends VerticalLayout
 	private ComboBox<Group> groupFilter = new ComboBox<>();
 
 	private Checkbox weighedInFilter = new Checkbox();
-	private AppLayoutRouterLayout parentLayout;
 	private GridCrud<Athlete> crud;
 
 	/**
@@ -85,17 +82,17 @@ public class WeighinContent extends VerticalLayout
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
 		crud = createGrid(crudFormFactory);		
 		defineFilters(crud);
-//		defineQueries(crud);
+//		defineQueries(grid);
 		fillHW(crud, this);
 	}
 
 //	/**
 //	 * Define how to populate the athlete grid (Lazy loading)
 //	 * 
-//	 * @param crud
+//	 * @param grid
 //	 */
-//	protected void defineQueries(GridCrud<Athlete> crud) {
-//		crud.setFindAllOperation(
+//	protected void defineQueries(GridCrud<Athlete> grid) {
+//		grid.setFindAllOperation(
 //			DataProvider.fromCallbacks(
 //				query -> AthleteRepository
 //					.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
@@ -123,7 +120,7 @@ public class WeighinContent extends VerticalLayout
 		grid.addColumn("group").setHeader("Group");
 		grid.addColumn("invited").setHeader("Invited");	
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
-				new OwlcmsCrudLayout(Athlete.class),
+				new OwlcmsGridLayout(Athlete.class),
 				crudFormFactory,
 				grid);
 		crud.setCrudListener(this);
@@ -336,7 +333,7 @@ public class WeighinContent extends VerticalLayout
 	/**
 	 * The filters at the top of the grid
 	 * 
-	 * @param crud the grid that will be filtered.
+	 * @param grid the grid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Athlete> crud) {
 		lastNameFilter.setPlaceholder("Last name");
@@ -402,16 +399,6 @@ public class WeighinContent extends VerticalLayout
 	 */
 	public ComboBox<Group> getGroupFilter() {
 		return groupFilter;
-	}
-
-	@Override
-	public AppLayoutRouterLayout getParentLayout() {
-		return parentLayout;
-	}
-
-	@Override
-	public void setParentLayout(AppLayoutRouterLayout parentLayout) {
-		this.parentLayout = parentLayout;
 	}
 
 	public void refresh() {

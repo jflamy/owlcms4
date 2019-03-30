@@ -8,7 +8,8 @@
  */
 package app.owlcms.ui.preparation;
 
-import com.github.appreciated.app.layout.behaviour.AppLayout;
+import org.slf4j.LoggerFactory;
+
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -17,14 +18,19 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.ui.home.BaseNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
-import app.owlcms.ui.home.NavigationLayout;
+import app.owlcms.ui.home.OwlcmsRouterLayout;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * The Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "preparation", layout = NavigationLayout.class)
+@Route(value = "preparation", layout = OwlcmsRouterLayout.class)
 public class PreparationNavigationContent extends BaseNavigationContent {
+	
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(PreparationNavigationContent.class);
+	static { logger.setLevel(Level.DEBUG);}
 
 	/**
 	 * Instantiates a new preparation navigation content.
@@ -65,8 +71,8 @@ public class PreparationNavigationContent extends BaseNavigationContent {
 	 * @see app.owlcms.ui.home.BaseNavigationContent#configureTopBar(java.lang.String, com.github.appreciated.app.layout.behaviour.AppLayout)
 	 */
 	@Override
-	protected void configureTopBar(String title, AppLayout appLayout) {
-		super.configureTopBar("Prepare Competition", appLayout);
+	protected void createTopBar (String title) {
+		super.createTopBar("Prepare Competition");
 	}
 
 	

@@ -60,7 +60,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	}
 
 	/**
-	 * Instantiates a new owlcms crud form factory.
+	 * Instantiates a new owlcms grid form factory.
 	 *
 	 * @param domainType      the domain type
 	 * @param responsiveSteps the responsive steps

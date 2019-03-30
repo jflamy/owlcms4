@@ -8,7 +8,8 @@
  */
 package app.owlcms.ui.group;
 
-import com.github.appreciated.app.layout.behaviour.AppLayout;
+import org.slf4j.LoggerFactory;
+
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -24,19 +25,25 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.ui.home.BaseNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
-import app.owlcms.ui.home.NavigationLayout;
+import app.owlcms.ui.home.OwlcmsRouterLayout;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * The Class GroupNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "group", layout = NavigationLayout.class)
+@Route(value = "group", layout = OwlcmsRouterLayout.class)
 public class GroupNavigationContent extends BaseNavigationContent implements NavigationPage {
 
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(GroupNavigationContent.class);
+	static { logger.setLevel(Level.DEBUG);}
+	
 	/**
 	 * Instantiates a new lifting navigation content.
 	 */
 	public GroupNavigationContent() {
+		logger.warn("GroupNavigationContent constructor start");
 		VerticalLayout intro = new VerticalLayout();
 		addParagraph(intro, "Use the dropdown to select the platform where the display is located.");
 		addParagraph(intro, "At the beginning of each competition group, select the group. "+
@@ -67,14 +74,15 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		
 		fillH(intro, this);
 		fillH(grid, this);
+		logger.warn("GroupNavigationContent constructor stop");
 	}
 	
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.home.BaseNavigationContent#configureTopBar(java.lang.String, com.github.appreciated.app.layout.behaviour.AppLayout)
 	 */
 	@Override
-	protected void configureTopBar(String title, AppLayout appLayout) {
-		super.configureTopBar("Run Lifting Group", appLayout);
+	protected void createTopBar(String title) {
+		super.createTopBar("Run Lifting Group");
 	}
 
 	@Override
@@ -103,6 +111,4 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		fopField.setAlignItems(Alignment.CENTER);
 		return fopField;
 	}
-
-
 }

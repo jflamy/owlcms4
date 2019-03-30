@@ -31,7 +31,7 @@ import ch.qos.logback.classic.Logger;
 @HtmlImport("frontend://styles/shared-styles.html")
 @Theme(Lumo.class)
 @Push
-public class TimekeeperLayout extends BaseGridLayout {
+public class TimekeeperLayout extends _OldBaseGridLayout {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperLayout.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
@@ -44,7 +44,7 @@ public class TimekeeperLayout extends BaseGridLayout {
 	@Override
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
 //		Button announce = new Button(AvIcons.MIC.create(), (e) -> {
-//			getFopEventBus().post(new FOPEvent.AthleteAnnounced(announcerBar.getUI().get()));
+//			getFopEventBus().post(new FOPEvent.AthleteAnnounced(topBar.getUI().get()));
 //		});
 //		announce.getElement().setAttribute("theme", "primary icon");
 		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
@@ -80,7 +80,7 @@ public class TimekeeperLayout extends BaseGridLayout {
 	}
 	
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.group.BaseGridLayout#createTopBar(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
+	 * @see app.owlcms.ui.group._OldBaseGridLayout#createTopBar(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
 	 */
 	@Override
 	protected void createTopBar(HorizontalLayout announcerBar) {

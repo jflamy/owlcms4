@@ -27,7 +27,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "group/marshall", layout = MarshallLayout.class)
-public class MarshallContent extends BaseGridContent implements QueryParameterReader {
+public class MarshallContent extends AthleteGridContent implements QueryParameterReader {
 
 	// @SuppressWarnings("unused")
 	final private Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);
@@ -58,7 +58,7 @@ public class MarshallContent extends BaseGridContent implements QueryParameterRe
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		fop.getEventBus()
-			.post(new FOPEvent.WeightChange(crud.getUI().get(), savedAthlete));
+			.post(new FOPEvent.WeightChange(grid.getUI().get(), savedAthlete));
 		return savedAthlete;
 	}
 
@@ -72,7 +72,7 @@ public class MarshallContent extends BaseGridContent implements QueryParameterRe
 	
 	@Override
 	public boolean isIgnoreGroup() {
-		logger.trace("MarshallContent ignoreGroup true");
+		logger.warn("MarshallContent ignoreGroup true");
 		// follow group from FOP, do not add group to URL
 		return true;
 	}

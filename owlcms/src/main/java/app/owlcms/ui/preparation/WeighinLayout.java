@@ -32,7 +32,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
 
-import app.owlcms.components.appLayout.AppLayoutContent;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -43,7 +42,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.ui.group.UIEventProcessor;
-import app.owlcms.ui.home.OwlcmsAppLayoutRouterLayout;
+import app.owlcms.ui.home.OwlcmsRouterLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -52,7 +51,7 @@ import ch.qos.logback.classic.Logger;
  * Weigh-in page -- top bar.
  */
 @SuppressWarnings("serial")
-public class WeighinLayout extends OwlcmsAppLayoutRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
+public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
 
 	private final static Logger logger = (Logger)LoggerFactory.getLogger(WeighinLayout.class);
 	static {logger.setLevel(Level.DEBUG);}
@@ -69,7 +68,7 @@ public class WeighinLayout extends OwlcmsAppLayoutRouterLayout implements SafeEv
 
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.OwlcmsAppLayoutRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
+	 * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
@@ -94,7 +93,6 @@ public class WeighinLayout extends OwlcmsAppLayoutRouterLayout implements SafeEv
 	public void showRouterLayoutContent(HasElement content) {
 		super.showRouterLayoutContent(content);
 		WeighinContent weighinContent = (WeighinContent) getLayoutContent();
-		weighinContent.setParentLayout(this);
 		gridGroupFilter = weighinContent.getGroupFilter();
 	}
 	

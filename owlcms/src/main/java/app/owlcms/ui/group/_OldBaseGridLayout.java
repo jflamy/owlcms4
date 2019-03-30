@@ -31,15 +31,15 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
-import app.owlcms.components.appLayout.AppLayoutContent;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.UIEvent;
-import app.owlcms.ui.home.OwlcmsAppLayoutRouterLayout;
+import app.owlcms.ui.home.OwlcmsRouterLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -51,11 +51,18 @@ import ch.qos.logback.classic.Logger;
 @HtmlImport("frontend://styles/shared-styles.html")
 @Theme(Lumo.class)
 @Push
-public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
+public abstract class _OldBaseGridLayout extends OwlcmsRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(BaseGridLayout.class);
-	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(_OldBaseGridLayout.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	static {
+		logger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
+	}
+	
+	_OldBaseGridLayout() {
+		super();
+	}
 
 	protected H3 title;
 	protected H1 lastName;
@@ -77,11 +84,7 @@ public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout impleme
 	protected ComboBox<Group> gridGroupFilter;
 	protected AppLayout appLayout;
 	
-	BaseGridLayout() {
-		super();
-		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.INFO);
-	}
+
 	
 	@Subscribe
 	public void setTime(UIEvent.SetTime e) {
@@ -117,7 +120,7 @@ public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout impleme
 	}
 	
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
-		syncWithFOP();
+		logger.warn("doUpdateTopBar {}",LoggerUtils.whereFrom());
 		if (athlete != null) {
 			lastName.setText(athlete.getLastName());
 			firstName.setText(athlete.getFirstName());
@@ -139,6 +142,7 @@ public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout impleme
 	}
 
 	public void syncWithFOP() {
+		logger.warn("syncWithFOP {}",LoggerUtils.whereFrom());
 		OwlcmsSession.withFop((fop) -> {
 			Group fopGroup = fop.getGroup();
 			Group displayedGroup = groupSelect.getValue();
@@ -148,13 +152,11 @@ public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout impleme
 			} else if (fopGroup == null) {
 				groupSelect.setValue(null);
 			}
+			Athlete curAthlete = fop.getCurAthlete();
+			int timeRemaining = fop.getTimer().getTimeRemaining();
+			doUpdateTopBar(curAthlete, timeRemaining);
 		});
 	}
-	
-	protected EventBus getFopEventBus() {
-		return OwlcmsSession.getFop().getEventBus();
-	}
-	
 
 	protected void createTopBar(HorizontalLayout announcerBar) {	
 		title = new H3();
@@ -168,14 +170,6 @@ public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout impleme
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
 		groupSelect.setWidth("8rem");
-		
-		syncWithFOP();
-//		OwlcmsSession.withFop((fop) -> {
-//			groupSelect.setValue(fop.getGroup());
-//		});
-		groupSelect.addValueChangeListener(e -> {
-			gridGroupFilter.setValue(e.getValue());
-		});
 		
 		lastName = new H1();
 		lastName.setText("\u2013");
@@ -214,13 +208,24 @@ public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout impleme
 		announcerBar.setFlexGrow(0.5, fullName);
 	}
 
-
+	public void shrinkTitle(AppLayout appLayout) {
+		appLayout.getTitleWrapper()
+			.getElement()
+			.getStyle()
+			.set("flex", "0 1 0px");
+	}
+	
+	protected EventBus getFopEventBus() {
+		return OwlcmsSession.getFop().getEventBus();
+	}
+	
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.OwlcmsAppLayoutRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
+	 * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
+		logger.debug("getLayoutConfiguration");
 		variant = Behaviour.LEFT;
 		appLayout = super.getLayoutConfiguration(variant);
 		AbstractLeftAppLayoutBase appLayoutBase = (AbstractLeftAppLayoutBase) appLayout;
@@ -231,12 +236,7 @@ public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout impleme
 		return appLayout;
 	}
 
-	public void shrinkTitle(AppLayout appLayout) {
-		appLayout.getTitleWrapper()
-			.getElement()
-			.getStyle()
-			.set("flex", "0 1 0px");
-	}
+
 	
 	/**
 	 * The layout is created before the content. This routine has created the content, we can refer to
@@ -247,12 +247,12 @@ public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout impleme
 	 */
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
-		logger.debug("showRouterLayoutContent");
+		logger.debug("start showRouterLayoutContent");
 		super.showRouterLayoutContent(content);
-		BaseGridContent baseGridContent = (BaseGridContent) getLayoutContent();
-		baseGridContent.setParentLayout(this);
-		gridGroupFilter = baseGridContent.getGroupFilter();
+		AthleteGridContent athleteGridContent = (AthleteGridContent) getLayoutContent();
+		gridGroupFilter = athleteGridContent.getGroupFilter();
 		appLayout.closeDrawer();
+		logger.debug("end showRouterLayoutContent");
 	}
 
 	/* (non-Javadoc)
@@ -261,8 +261,9 @@ public abstract class BaseGridLayout extends OwlcmsAppLayoutRouterLayout impleme
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		OwlcmsSession.withFop(fop -> {
-			// sync with current status of FOP
-			doUpdateTopBar(fop.getCurAthlete(), fop.getTimeAllowed());
+			logger.debug("onAttach");
+			// sync with current status of FOP and update top bar
+			syncWithFOP();
 			// connect to bus for new updating events
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
