@@ -42,18 +42,17 @@ import ch.qos.logback.classic.Logger;
 /**
  * Class NavigationContent
  *
- * Defi
  */
 @SuppressWarnings("serial")
 public abstract class BaseNavigationContent extends VerticalLayout
 implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor {
 
 	// @SuppressWarnings("unused")
-	final private Logger logger = (Logger) LoggerFactory.getLogger(BaseNavigationContent.class);
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-	private void initLoggers() {
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(BaseNavigationContent.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 
 	protected Location location;
@@ -70,7 +69,6 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 	 * Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public BaseNavigationContent() {
-		initLoggers();
 	}
 
 	/**

@@ -41,7 +41,7 @@ import ch.qos.logback.classic.Logger;
 public class HomeNavigationContent extends BaseNavigationContent {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(HomeNavigationContent.class);
-	static { logger.setLevel(Level.DEBUG);}
+	static { logger.setLevel(Level.INFO);}
 
 	/**
 	 * Instantiates a new main navigation content.

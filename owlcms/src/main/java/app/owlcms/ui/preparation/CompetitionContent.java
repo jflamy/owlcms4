@@ -45,7 +45,7 @@ public class CompetitionContent extends VerticalLayout
 
 	Logger logger = (Logger) LoggerFactory.getLogger(CompetitionContent.class);
 	public void initLoggers() {
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 	}
 
 	/**

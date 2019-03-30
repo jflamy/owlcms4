@@ -37,7 +37,7 @@ import ch.qos.logback.classic.Logger;
 public class GroupNavigationContent extends BaseNavigationContent implements NavigationPage {
 
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(GroupNavigationContent.class);
-	static { logger.setLevel(Level.DEBUG);}
+	static { logger.setLevel(Level.INFO);}
 	
 	/**
 	 * Instantiates a new lifting navigation content.

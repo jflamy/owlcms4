@@ -67,11 +67,7 @@ import ch.qos.logback.classic.Logger;
 public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-	static {
-		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.INFO);
-	}
+	static {logger.setLevel(Level.INFO);}
 	
 	/** The notification holder. */
 	DefaultNotificationHolder notificationHolder;

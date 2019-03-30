@@ -38,7 +38,7 @@ public class BodyWeightField extends WrappedTextField<Double> {
 	@Override
 	protected void initLoggers() {
 		logger = (Logger)LoggerFactory.getLogger(BodyWeightField.class);
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 	}
 	
 

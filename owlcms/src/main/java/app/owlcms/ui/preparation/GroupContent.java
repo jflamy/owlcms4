@@ -27,8 +27,8 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.crudui.OwlcmsGridCrud;
+import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.fields.LocalDateTimeField;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -49,7 +49,7 @@ public class GroupContent extends VerticalLayout
 		implements CrudListener<Group>, ContentWrapping {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(GroupContent.class);
-	static {logger.setLevel(Level.DEBUG);}
+	static {logger.setLevel(Level.INFO);}
 
 
 	/**

@@ -32,7 +32,7 @@ import ch.qos.logback.classic.Logger;
 public class AthleteGridLayout extends OwlcmsRouterLayout {
 	
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridLayout.class);
-	static {logger.setLevel(Level.DEBUG);}
+	static {logger.setLevel(Level.INFO);}
 	
 	public AthleteGridLayout() {
 		super();

@@ -30,7 +30,7 @@ import ch.qos.logback.classic.Logger;
 public class PreparationNavigationContent extends BaseNavigationContent {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(PreparationNavigationContent.class);
-	static { logger.setLevel(Level.DEBUG);}
+	static { logger.setLevel(Level.INFO);}
 
 	/**
 	 * Instantiates a new preparation navigation content.

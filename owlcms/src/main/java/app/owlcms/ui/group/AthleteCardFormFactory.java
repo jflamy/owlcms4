@@ -338,10 +338,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		}
 		if (component instanceof TextField) {
 			TextField textField = (TextField) component;
-			//logger.warn("row {} column {} {} {} {} {}",row-1, column-1, ACTUAL, textfields.length, CJ3, textfields[0].length);
+			//logger.debug("row {} column {} {} {} {} {}",row-1, column-1, ACTUAL, textfields.length, CJ3, textfields[0].length);
 			textfields[row-1][column-1] = textField;
 //			if (!textField.isEmpty()) {
-//				logger.warn("{} {}  value = {}", row-1, column-1, textField.getValue());
+//				logger.debug("{} {}  value = {}", row-1, column-1, textField.getValue());
 //			}
 		}
 

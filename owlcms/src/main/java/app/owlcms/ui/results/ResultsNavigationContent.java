@@ -31,7 +31,7 @@ import ch.qos.logback.classic.Logger;
 public class ResultsNavigationContent extends BaseNavigationContent implements NavigationPage {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(ResultsNavigationContent.class);
-	static { logger.setLevel(Level.DEBUG);}
+	static { logger.setLevel(Level.INFO);}
 
 	/**
 	 * Instantiates a new wrapup navigation content.

@@ -28,8 +28,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.crudui.OwlcmsGridCrud;
+import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -48,7 +48,7 @@ public class CategoryContent extends VerticalLayout
 		implements CrudListener<Category>, ContentWrapping {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(CategoryContent.class);
-	static {logger.setLevel(Level.DEBUG);}
+	static {logger.setLevel(Level.INFO);}
 
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 	private TextField nameFilter = new TextField();

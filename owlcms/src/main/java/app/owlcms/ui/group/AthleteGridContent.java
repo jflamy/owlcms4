@@ -72,7 +72,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 
 	protected Location location;
@@ -147,14 +147,12 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		logger.warn("attaching AthleteGridContent, getting Grid");
 		grid = getGrid();
 		fillHW(grid, this);
 		OwlcmsSession.withFop(fop -> {
 			// create the top bar, now that we know the group and fop
 			createTopBar();
 			syncWithFOP();
-//			grid.refreshGrid();
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
 		});

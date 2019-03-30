@@ -37,8 +37,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.crudui.OwlcmsGridCrud;
+import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.athlete.Athlete;
@@ -65,7 +65,7 @@ public class WeighinContent extends VerticalLayout
 		implements CrudListener<Athlete>, ContentWrapping {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(WeighinContent.class);
-	static {logger.setLevel(Level.DEBUG);}
+	static {logger.setLevel(Level.INFO);}
 
 	private TextField lastNameFilter = new TextField();
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();

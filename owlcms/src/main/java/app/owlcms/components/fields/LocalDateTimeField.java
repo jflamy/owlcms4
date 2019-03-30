@@ -33,7 +33,7 @@ public class LocalDateTimeField extends WrappedTextField<LocalDateTime> implemen
 	@Override
 	protected void initLoggers() {
 		logger = (Logger)LoggerFactory.getLogger(LocalDateTimeField.class);
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 	}
 
 	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";

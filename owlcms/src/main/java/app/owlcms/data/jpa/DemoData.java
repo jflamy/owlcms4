@@ -44,9 +44,7 @@ public class DemoData {
 	}
 
 	private static Logger logger = (Logger) LoggerFactory.getLogger(DemoData.class);
-	static {
-		logger.setLevel(Level.DEBUG);
-	}
+	static {logger.setLevel(Level.INFO);}
 
 	/**
 	 * Insert initial data if the database is empty.

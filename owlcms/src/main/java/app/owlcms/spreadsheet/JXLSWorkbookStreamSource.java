@@ -40,7 +40,7 @@ import net.sf.jxls.transformer.XLSTransformer;
 public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
-    static {logger.setLevel(Level.DEBUG);}
+    static {logger.setLevel(Level.INFO);}
 
     private HashMap<String, Object> reportingBeans;
 

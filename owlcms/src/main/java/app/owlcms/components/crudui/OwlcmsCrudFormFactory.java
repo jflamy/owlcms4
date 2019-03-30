@@ -44,6 +44,7 @@ import ch.qos.logback.classic.Logger;
 public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implements CrudFormFactory<T> {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsCrudFormFactory.class);
+	static {logger.setLevel(Level.INFO);}
 
 	protected ResponsiveStep[] responsiveSteps;
 
@@ -72,7 +73,6 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	}
 
 	private void init() {
-		logger.setLevel(Level.DEBUG);
 		setButtonCaption(CrudOperation.DELETE, "Delete");
 	}
 

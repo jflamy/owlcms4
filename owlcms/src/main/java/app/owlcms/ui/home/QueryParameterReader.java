@@ -32,7 +32,6 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 	@Override
 	public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		logger.setLevel(Level.DEBUG);
-		logger.debug("setParameter parameter={}",parameter);
 		
 		Location location = event.getLocation();
 		QueryParameters queryParameters = location.getQueryParameters();

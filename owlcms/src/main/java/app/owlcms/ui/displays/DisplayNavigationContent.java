@@ -33,8 +33,8 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "displays", layout = OwlcmsRouterLayout.class)
 public class DisplayNavigationContent extends BaseNavigationContent implements NavigationPage {
 
-	Logger logger = (Logger)LoggerFactory.getLogger(DisplayNavigationContent.class);
-	{ logger.setLevel(Level.DEBUG); }
+	final static Logger logger = (Logger)LoggerFactory.getLogger(DisplayNavigationContent.class);
+	static { logger.setLevel(Level.INFO); }
 
 	/**
 	 * Instantiates a new display navigation content.

@@ -33,9 +33,7 @@ import ch.qos.logback.classic.Logger;
 public class OwlcmsSession {
 	
 	private final static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsSession.class);
-	static {
-		logger.setLevel(Level.DEBUG);
-	}
+	static {logger.setLevel(Level.INFO);}
 	
 	private static final String FOP = "fop";
 

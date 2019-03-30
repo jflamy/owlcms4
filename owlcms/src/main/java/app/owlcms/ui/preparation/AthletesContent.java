@@ -65,7 +65,7 @@ public class AthletesContent extends VerticalLayout
 		implements CrudListener<Athlete>, ContentWrapping {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(AthletesContent.class);
-	static {logger.setLevel(Level.DEBUG);}
+	static {logger.setLevel(Level.INFO);}
 
 	private TextField lastNameFilter = new TextField();
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();

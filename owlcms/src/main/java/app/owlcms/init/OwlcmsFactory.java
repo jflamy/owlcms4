@@ -39,9 +39,7 @@ import ch.qos.logback.classic.Logger;
 public class OwlcmsFactory {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsFactory.class);
-	static {
-		logger.setLevel(Level.DEBUG);
-	}
+	static {logger.setLevel(Level.INFO);}
 
 	/** The fop by name. */
 	static Map<String, FieldOfPlayState> fopByName = null;

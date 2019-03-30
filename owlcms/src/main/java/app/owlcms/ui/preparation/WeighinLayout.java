@@ -54,7 +54,7 @@ import ch.qos.logback.classic.Logger;
 public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
 
 	private final static Logger logger = (Logger)LoggerFactory.getLogger(WeighinLayout.class);
-	static {logger.setLevel(Level.DEBUG);}
+	static {logger.setLevel(Level.INFO);}
 	
 	private HorizontalLayout topBar;
 	private ComboBox<Group> gridGroupFilter;
