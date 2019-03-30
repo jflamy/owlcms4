@@ -63,18 +63,20 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		Integer getStartNumber();
 		String getAttempt();
 		Integer getWeight();
+		Boolean isPublicFacing();
 		void setLastName(String lastName);
 		void setFirstName(String firstName);
 		void setTeamName(String teamName);
 		void setStartNumber(Integer integer);
 		void setAttempt(String formattedAttempt);
 		void setWeight(Integer weight);
+		void setPublicFacing(Boolean publicFacing);
 	}
 	
 	@Id("timer")
 	private TimerElement timer; // created by Flow during template instanciation
 	@Id("decisions")
-	private DecisionElement decisions; // created by Flow during template instanciation
+	protected DecisionElement decisions; // created by Flow during template instanciation
 	private EventBus uiEventBus;
 
 	/**

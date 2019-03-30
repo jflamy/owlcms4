@@ -41,6 +41,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	 */
 	public interface DecisionModel extends TemplateModel {
 		
+		Boolean isPublicFacing();
+		
 		/**
 		 *  Ref1 decision
 		 *
@@ -62,6 +64,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		 */
 		Boolean isRef3();
 
+		void setPublicFacing(Boolean publicFacing);
+		
 		/**
 		 * @param ref1 decision
 		 */
@@ -138,6 +142,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		model.setRef1(null);
 		model.setRef2(null);
 		model.setRef3(null);
+		model.setPublicFacing(true);
 
 		Element elem = this.getElement();
 		elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
@@ -166,5 +171,12 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		});
 	}
 	
-
+	public void setPublicFacing(boolean publicFacing) {
+		getModel().setPublicFacing(publicFacing);
+	}
+	
+	public boolean isPublicFacing() {
+		return Boolean.TRUE.equals(getModel().isPublicFacing());
+	}
+	
 }

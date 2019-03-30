@@ -69,6 +69,12 @@
 	           decision: {
 					type: Boolean,
 					notify: true
+	           },
+	           publicFacing: {
+					type: Boolean,
+					notify: true,
+					reflectToAttribute: true.
+					value: true
 	           }
     	  }
       }
@@ -164,20 +170,39 @@
       }
       
       setColors(parent, ref1, ref2, ref3) {
-    	  if (ref1 === true) {
-    		  parent.$.ref1span.style = "background-color: white";
-    	  } else if (ref1 === false){
-    		  parent.$.ref1span.style = "background-color: red";
-    	  }
-    	  if (ref2 === true) {
-    		  parent.$.ref2span.style = "background-color: white";
-    	  } else if (ref2 === false){
-    		  parent.$.ref2span.style = "background-color: red";
-    	  }
-    	  if (ref3 === true) {
-    		  parent.$.ref3span.style = "background-color: white";
-    	  } else if (ref3 === false){
-    		  parent.$.ref3span.style = "background-color: red";
+    	  if (this.publicFacing) {
+	    	  if (ref1 === true) {
+	    		  parent.$.ref1span.style = "background-color: white";
+	    	  } else if (ref1 === false){
+	    		  parent.$.ref1span.style = "background-color: red";
+	    	  }
+	    	  if (ref2 === true) {
+	    		  parent.$.ref2span.style = "background-color: white";
+	    	  } else if (ref2 === false){
+	    		  parent.$.ref2span.style = "background-color: red";
+	    	  }
+	    	  if (ref3 === true) {
+	    		  parent.$.ref3span.style = "background-color: white";
+	    	  } else if (ref3 === false){
+	    		  parent.$.ref3span.style = "background-color: red";
+	    	  }
+    	  } else {
+    		  // athlete facing, go the other way, right to left
+	    	  if (ref1 === true) {
+	    		  parent.$.ref3span.style = "background-color: white";
+	    	  } else if (ref1 === false){
+	    		  parent.$.ref3span.style = "background-color: red";
+	    	  }
+	    	  if (ref2 === true) {
+	    		  parent.$.ref2span.style = "background-color: white";
+	    	  } else if (ref2 === false){
+	    		  parent.$.ref2span.style = "background-color: red";
+	    	  }
+	    	  if (ref3 === true) {
+	    		  parent.$.ref1span.style = "background-color: white";
+	    	  } else if (ref3 === false){
+	    		  parent.$.ref1span.style = "background-color: red";
+	    	  }
     	  }
       }
       
