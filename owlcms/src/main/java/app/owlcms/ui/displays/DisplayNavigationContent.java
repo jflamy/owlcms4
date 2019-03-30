@@ -45,17 +45,26 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 		addParagraph(intro, "Use one of the buttons below to open a display.");
 		intro.getElement().getStyle().set("margin-bottom", "0");
 
-		Button attempt = new Button("Attempt Board",
-			buttonClickEvent -> UI.getCurrent().getPage()
-			.executeJavaScript(getWindowOpener(AttemptBoard.class)));
-		Button results = new Button("Results Board",
-			buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(ResultsBoard.class)));
-		Button referee = new Button("Referee Decision Display",
-			buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(ResultsBoard.class)));
-		Button jury = new Button("Jury Display",
-			buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(ResultsBoard.class)));
-		Button plates = new Button("Plates Display",
-			buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(ResultsBoard.class)));
+		Button attempt = new Button(
+				"Attempt Board",
+				buttonClickEvent -> UI.getCurrent().getPage()
+					.executeJavaScript(getWindowOpener(AttemptBoard.class)));
+		Button results = new Button(
+				"Results Board",
+				buttonClickEvent -> UI.getCurrent().getPage()
+					.executeJavaScript(getWindowOpener(ResultsBoard.class)));
+		Button referee = new Button(
+				"Referee Decision Display",
+				buttonClickEvent -> UI.getCurrent().getPage()
+					.executeJavaScript(getWindowOpener(ResultsBoard.class)));
+		Button jury = new Button(
+				"Jury Display",
+				buttonClickEvent -> UI.getCurrent().getPage()
+					.executeJavaScript(getWindowOpener(ResultsBoard.class)));
+		Button plates = new Button(
+				"Plates Display",
+				buttonClickEvent -> UI.getCurrent().getPage()
+					.executeJavaScript(getWindowOpener(ResultsBoard.class)));
 
 		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
 			attempt,

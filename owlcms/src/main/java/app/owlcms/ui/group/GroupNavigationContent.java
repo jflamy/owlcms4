@@ -52,24 +52,24 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		addParagraph(intro, "Use one of the buttons below to start one of the technical official screens.");
 		intro.getElement().getStyle().set("margin-bottom", "0");
 		
-		Button announcer = new Button("Announcer",
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(AnnouncerContent.class));
-		Button marshall = new Button("Marshall",
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(MarshallContent.class));
-		Button timekeeper = new Button("Timekeeper",
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(TimekeeperContent.class));
-		Button results = new Button("Results",
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(ResultsContent.class));
+		Button announcer = new Button(
+				"Announcer",
+				buttonClickEvent -> UI.getCurrent().getPage()
+					.executeJavaScript(getWindowOpener(AnnouncerContent.class)));
+		Button marshall = new Button(
+				"Marshall",
+				buttonClickEvent -> UI.getCurrent().getPage()
+					.executeJavaScript(getWindowOpener(MarshallContent.class)));
+		Button timekeeper = new Button(
+				"Timekeeper",
+				buttonClickEvent -> UI.getCurrent().getPage()
+					.executeJavaScript(getWindowOpener(TimekeeperContent.class)));
+
 		
 		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
 			announcer,
 			marshall,
-			timekeeper,
-			results
+			timekeeper
 			);
 		
 		fillH(intro, this);

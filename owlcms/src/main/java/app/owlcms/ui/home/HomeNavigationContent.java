@@ -27,9 +27,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.ui.displays.DisplayNavigationContent;
-import app.owlcms.ui.finalresults.WrapupNavigationContent;
 import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
+import app.owlcms.ui.results.ResultsNavigationContent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -58,7 +58,7 @@ public class HomeNavigationContent extends BaseNavigationContent {
 				.navigate(DisplayNavigationContent.class));
 		Button documents = new Button("Final Documents",
 				buttonClickEvent -> UI.getCurrent()
-					.navigate(WrapupNavigationContent.class));
+					.navigate(ResultsNavigationContent.class));
 		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
 			prepare,
 			lifting,

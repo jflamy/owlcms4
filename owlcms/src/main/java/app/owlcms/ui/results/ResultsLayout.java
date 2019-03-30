@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.group;
+package app.owlcms.ui.results;
 
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +32,7 @@ import com.vaadin.flow.server.StreamResource;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.spreadsheet.JXLSResultSheet;
+import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.home.OwlcmsRouterLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;

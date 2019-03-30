@@ -7,7 +7,7 @@
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 
-package app.owlcms.ui.group;
+package app.owlcms.ui.results;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,6 +50,8 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.state.UIEvent;
+import app.owlcms.ui.group.AthleteCardFormFactory;
+import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.home.ContentWrapping;
 import app.owlcms.ui.home.QueryParameterReader;
 import app.owlcms.ui.home.SafeEventBusRegistration;

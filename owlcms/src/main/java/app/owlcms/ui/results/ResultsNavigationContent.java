@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.finalresults;
+package app.owlcms.ui.results;
 
 import org.slf4j.LoggerFactory;
 
@@ -26,22 +26,27 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Class WrapupNavigationContent.
+ * The Class ResultsNavigationContent.
  */
 @SuppressWarnings("serial")
 @Route(value = "wrapup", layout = OwlcmsRouterLayout.class)
-public class WrapupNavigationContent extends BaseNavigationContent implements NavigationPage {
+public class ResultsNavigationContent extends BaseNavigationContent implements NavigationPage {
 	
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(WrapupNavigationContent.class);
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(ResultsNavigationContent.class);
 	static { logger.setLevel(Level.DEBUG);}
 
 	/**
 	 * Instantiates a new wrapup navigation content.
 	 */
-	public WrapupNavigationContent() {
+	public ResultsNavigationContent() {
 		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
-			new Button("Competition Book", buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class)),
-			new Button("Timing Statistics", buttonClickEvent -> UI.getCurrent().navigate(AttemptBoard.class)));
+			new Button("Group Results",
+				buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class)),
+			new Button("Final Results Package", 
+				buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class)),
+			new Button("Timing Statistics", 
+				buttonClickEvent -> UI.getCurrent().navigate(AttemptBoard.class))
+			);
 		fillH(grid, this);
     }
 

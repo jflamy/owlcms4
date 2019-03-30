@@ -44,9 +44,9 @@ import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 
 import app.owlcms.ui.displays.DisplayNavigationContent;
-import app.owlcms.ui.finalresults.WrapupNavigationContent;
 import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
+import app.owlcms.ui.results.ResultsNavigationContent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -150,7 +150,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 					.add(new LeftNavigationComponent(
 							"Competition Documents",
 							new Icon("maps", "local-printshop"),
-							WrapupNavigationContent.class))
+							ResultsNavigationContent.class))
 					.addToSection(new LeftClickableComponent(
 							"Preferences",
 							VaadinIcon.COG.create(),
@@ -180,7 +180,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 							GroupNavigationContent.class))
 					.add(new TopNavigationComponent("Competition Documents",
 							new Icon("maps", "local-printshop"),
-							WrapupNavigationContent.class))
+							ResultsNavigationContent.class))
 					.build())
 				.build();
 		}
