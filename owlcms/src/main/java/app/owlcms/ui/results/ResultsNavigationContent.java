@@ -17,11 +17,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.ui.home.BaseNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.home.OwlcmsRouterLayout;
-import app.owlcms.ui.preparation.CategoryContent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -29,7 +27,7 @@ import ch.qos.logback.classic.Logger;
  * The Class ResultsNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "wrapup", layout = OwlcmsRouterLayout.class)
+@Route(value = "results", layout = OwlcmsRouterLayout.class)
 public class ResultsNavigationContent extends BaseNavigationContent implements NavigationPage {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(ResultsNavigationContent.class);
@@ -39,13 +37,19 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	 * Instantiates a new wrapup navigation content.
 	 */
 	public ResultsNavigationContent() {
+		Button groupResults = new Button("Group Results",
+			buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class));
+		Button finalPackage = new Button("Final Results Package", 
+			buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class));
+		Button timingStats = new Button("Timing Statistics", 
+			buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class));
+		
+		finalPackage.setEnabled(false);
+		timingStats.setEnabled(false);
 		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
-			new Button("Group Results",
-				buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class)),
-			new Button("Final Results Package", 
-				buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class)),
-			new Button("Timing Statistics", 
-				buttonClickEvent -> UI.getCurrent().navigate(AttemptBoard.class))
+			groupResults,
+			finalPackage,
+			timingStats
 			);
 		fillH(grid, this);
     }

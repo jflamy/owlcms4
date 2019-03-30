@@ -9,7 +9,7 @@
 		<target>System.err</target>
 		<encoder>
 			<pattern>
-				%d{HH:mm:ss.SSS} %X{currentGroup}.%X{page} - %-5level %-75msg [%class{100}:%L %M]%n
+				%d{HH:mm:ss.SSS} %-5level %-75msg [%logger{100}:%L %M]%n
 			</pattern>
 		</encoder>
 	</appender>

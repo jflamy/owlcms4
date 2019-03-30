@@ -16,30 +16,35 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
-import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.crudui.OwlcmsGridCrud;
+import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -47,14 +52,12 @@ import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.FieldOfPlayState;
-import app.owlcms.state.UIEvent;
 import app.owlcms.ui.group.AthleteCardFormFactory;
-import app.owlcms.ui.group.UIEventProcessor;
-import app.owlcms.ui.home.ContentWrapping;
-import app.owlcms.ui.home.QueryParameterReader;
-import app.owlcms.ui.home.SafeEventBusRegistration;
+import app.owlcms.ui.group.AthleteGridContent;
+import app.owlcms.ui.group.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -62,54 +65,100 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "group/results", layout = ResultsLayout.class)
-public class ResultsContent extends VerticalLayout
-		implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor {
+@Route(value = "results/results", layout = AthleteGridLayout.class)
+public class ResultsContent extends AthleteGridContent {
 
-	// @SuppressWarnings("unused")
-	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsContent.class);
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-
-	protected void initLoggers() {
-		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.DEBUG);
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsContent.class);
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+	static {
+		logger.setLevel(Level.INFO);
+		jexlLogger.setLevel(Level.ERROR);
 	}
 
-	private Location location;
-	private UI locationUI;
-	private GridCrud<Athlete> crud;
-	private EventBus uiEventBus;
-	
-	private ComboBox<Group> groupFilter = new ComboBox<>();
+	private Button download;
+	private Anchor groupResults;
 	private Group currentGroup;
 	private FieldOfPlayState currentFop;
+	private JXLSResultSheet xlsWriter;
 
 	/**
 	 * Instantiates a new announcer content.
 	 * Does nothing. Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public ResultsContent() {
-		initLoggers();
+		setTopBarTitle("Group Results");
 	}
 
 
-	/* (non-Javadoc)
+	/** We do not connect to the event bus, and we do not track a field of play
+	 * (non-Javadoc)
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		crud = getGridCrud();
-		fillHW(crud, this);
+		grid = getGrid();
+		fillHW(grid, this);
+		createTopBar();
+	}
+	
+	/**
+	 * Create the top bar.
+	 * 
+	 * Note: the top bar is created before the content.
+	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
+	 * 
+	 * @param topBar
+	 */
+	@Override
+	protected void createTopBar() {
+		topBar = getAppLayout().getAppBarElementWrapper();
+		
+		H3 title = new H3();
+		title.setText("Group Results");
+		title.add();
+		title.getStyle()
+			.set("margin", "0px 0px 0px 0px")
+			.set("font-weight", "normal");
+		
+		groupSelect = new ComboBox<>();
+		groupSelect.setPlaceholder("Select Group");
+		groupSelect.setItems(GroupRepository.findAll());
+		groupSelect.setItemLabelGenerator(Group::getName);
+		groupSelect.setValue(null);
+		groupSelect.setWidth("8em");
+		setGroupSelectionListener();
+
+		xlsWriter = new JXLSResultSheet();
+		StreamResource href = new StreamResource("resultSheet.xls", xlsWriter);
+		groupResults = new Anchor(href, "");
+		download = new Button("Group Results",new Icon(VaadinIcon.DOWNLOAD_ALT));
+		groupResults.add(download);
+			
+		HorizontalLayout buttons = new HorizontalLayout(
+				groupResults);
+		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+		topBar
+			.getElement()
+			.getStyle()
+			.set("flex", "100 1");
+		topBar.removeAll();
+		topBar.add(title, groupSelect, buttons);
+		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+		topBar.setFlexGrow(0.2, title);
+		topBar.setSpacing(true);
+		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 	}
 
-	
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.group.UIEventProcessor#updateGrid(app.owlcms.state.UIEvent.LiftingOrderUpdated)
-	 */
-	@Subscribe
-	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
-		UIEventProcessor.uiAccess(crud, uiEventBus, e, () -> {
-			crud.refreshGrid();
+	protected void setGroupSelectionListener() {
+		groupSelect.setValue(getGridGroup());
+		groupSelect.addValueChangeListener(e -> {
+			setGridGroup(e.getValue());
+			currentGroup = e.getValue();
+			// the name of the resulting file is set as an attribute on the <a href tag that surrounds
+			// the download button.
+			xlsWriter.setGroup(currentGroup);
+			groupResults.getElement().setAttribute("download", "results"+(currentGroup != null ? "_"+currentGroup : "_all") +".xls");
 		});
 	}
 	
@@ -118,8 +167,9 @@ public class ResultsContent extends VerticalLayout
 	 *
 	 * @return the grid grid
 	 */
-	public GridCrud<Athlete> getGridCrud() {
-		OwlcmsCrudFormFactory<Athlete> crudFormFactory = new AthleteCardFormFactory(Athlete.class);
+	@Override
+	public GridCrud<Athlete> getGrid() {
+		OwlcmsCrudFormFactory<Athlete> formFactory = new AthleteCardFormFactory(Athlete.class);
 
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
 		ThemeList themes = grid.getThemeNames();
@@ -148,10 +198,10 @@ public class ResultsContent extends VerticalLayout
 		grid.getColumnByKey("totalRank")
 			.setHeader("Rank");
 
-		OwlcmsGridLayout owlcmsGridLayout = new OwlcmsGridLayout(Athlete.class);
+		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
-				owlcmsGridLayout,
-				crudFormFactory,
+				gridLayout,
+				formFactory,
 				grid) {
 			@Override
 			protected void initToolbar() {}
@@ -167,7 +217,6 @@ public class ResultsContent extends VerticalLayout
 		    }
 		};
 		
-		logger.debug("creating filters: group={}",currentGroup);
 		groupFilter.setPlaceholder("Group");
 		groupFilter.setItems(GroupRepository.findAll());
 		groupFilter.setItemLabelGenerator(Group::getName);
@@ -206,7 +255,7 @@ public class ResultsContent extends VerticalLayout
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		if (currentFop != null) {
 			currentFop.getEventBus()
-				.post(new FOPEvent.WeightChange(crud.getUI().get(), savedAthlete));
+				.post(new FOPEvent.WeightChange(grid.getUI().get(), savedAthlete));
 		}
 		return savedAthlete;
 	}
@@ -238,31 +287,37 @@ public class ResultsContent extends VerticalLayout
 	/**
 	 * @return the groupFilter
 	 */
+	@Override
 	public ComboBox<Group> getGroupFilter() {
 		return groupFilter;
 	}
 
+	@Override
 	public void refresh() {
-		crud.refreshGrid();
+		grid.refreshGrid();
 	}
 	
 	private void subscribeIfLifting(Group nGroup) {
 		logger.debug("subscribeIfLifting {}",nGroup);
 		Collection<FieldOfPlayState> fops = OwlcmsFactory.getFOPs();
 		currentFop = null;
+		currentGroup = nGroup;
+		
+		// go through all the FOPs
 		for (FieldOfPlayState fop: fops) {
+			// unsubscribe from FOP -- ensures that we clean up if no group is lifting
+			try {fop.getUiEventBus().unregister(this);} catch (Exception ex) {}
+			try {fop.getEventBus().unregister(this);} catch (Exception ex) {}
+			
+			// subscribe to fop and start tracking if actually lifting
 			if (fop.getGroup() != null && fop.getGroup().equals(nGroup)) {
 				logger.debug("subscribing to {} {}", fop, nGroup);
 				try {fop.getUiEventBus().register(this);} catch (Exception ex) {}
 				try {fop.getEventBus().register(this);} catch (Exception ex) {}
 				currentFop = fop;
-			} else {
-				try {fop.getUiEventBus().unregister(this);} catch (Exception ex) {}
-				try {fop.getEventBus().unregister(this);} catch (Exception ex) {}
 			}
 		}
-		currentGroup = nGroup;
-		refresh();
+		
 	}
 	
 	/**
@@ -285,6 +340,16 @@ public class ResultsContent extends VerticalLayout
 			logger.debug("Group {} lifting on {}, editing", currentGroup, liftingFop);
 		}
 		return liftingFop != null;
+	}
+	
+	public void setGridGroup(Group group) {
+		subscribeIfLifting(group);
+		groupFilter.setValue(group);
+		refresh();
+	}
+	
+	public Group getGridGroup() {
+		return groupFilter.getValue();
 	}
 	
 	/**
@@ -324,7 +389,8 @@ public class ResultsContent extends VerticalLayout
 		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
 	
-	private void updateURLLocation(UI ui, Location location, Group newGroup) {
+	@Override
+	public void updateURLLocation(UI ui, Location location, Group newGroup) {
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<String, List<String>>(location.getQueryParameters().getParameters());
 		if (!isIgnoreGroup() && newGroup != null) {
@@ -341,6 +407,7 @@ public class ResultsContent extends VerticalLayout
 		return false;
 	}
 	
+	@Override
 	protected AbstractLeftAppLayoutBase getAppLayout() {
 		return (AbstractLeftAppLayoutBase)AppLayoutRouterLayoutBase.getCurrent();
 	}

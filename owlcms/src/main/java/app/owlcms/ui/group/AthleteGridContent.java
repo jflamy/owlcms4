@@ -90,6 +90,15 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	protected TimerElement timeField;
 	protected HorizontalLayout topBar;
 	protected ComboBox<Group> groupSelect;
+	
+	/**
+	 * groupFilter points to a hidden field on the grid filtering row, which is slave
+	 * to the group selection through the top bar combo box.
+	 * Changing groupSelect on the top bar changes this slave filter; this allows us to use the filtering
+	 * logic used everywhere else to change what is shown in the grid.
+	 */
+	protected ComboBox<Group> groupFilter = new ComboBox<>();
+	private String topBarTitle;
 
 	/**
 	 * Bottom part content
@@ -103,15 +112,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	public AthleteGridContent() {
 	}
 	
-	/**
-	 * groupFilter points to a hidden field on the grid filtering row, which is slave
-	 * to the group selection through the top bar combo box.
-	 * Changing groupSelect on the top bar changes this slave filter; this allows us to use the filtering
-	 * logic used everywhere else to change what is shown in the grid.
-	 */
-	protected ComboBox<Group> groupFilter = new ComboBox<>();
-	private String topBarTitle;
-
 	/**
 	 * Process URL parameters, including query parameters
 	 * @see app.owlcms.ui.home.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
