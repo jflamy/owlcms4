@@ -126,5 +126,10 @@ public class HomeNavigationContent extends BaseNavigationContent {
 	protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
 		return null;
 	}
+	
+	@Override
+	public boolean isIgnoreFop() {
+		return true;
+	}
 
 }

@@ -11,6 +11,10 @@ package app.owlcms.ui.group;
 
 import org.slf4j.LoggerFactory;
 
+import com.flowingcode.vaadin.addons.ironicons.AvIcons;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
@@ -26,19 +30,35 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "group/marshall", layout = MarshallLayout.class)
+@Route(value = "group/marshall", layout = AthleteGridLayout.class)
 public class MarshallContent extends AthleteGridContent implements QueryParameterReader {
 
 	// @SuppressWarnings("unused")
-	final private Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-	private void initLoggers() {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.DEBUG);
-	}
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);
+	static { logger.setLevel(Level.INFO); }
+
 	
 	public MarshallContent() {
-		initLoggers();
+		setTopBarTitle("Marshall");
+	}
+	
+	@Override
+	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
+		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
+			OwlcmsSession.withFop(fop -> fop.getEventBus()
+				.post(new FOPEvent.TimeStoppedManually(announcerBar.getUI().get())));
+		});
+		stop.getElement().setAttribute("theme", "primary icon");
+		HorizontalLayout buttons = new HorizontalLayout(
+				stop);
+		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+		return buttons;
+	}
+
+	@Override
+	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
+		HorizontalLayout decisions = new HorizontalLayout();
+		return decisions;
 	}
 
 	/* (non-Javadoc)
@@ -68,12 +88,5 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 	@Override
 	public void delete(Athlete Athlete) {
 		AthleteRepository.delete(Athlete);
-	}
-	
-	@Override
-	public boolean isIgnoreGroup() {
-		logger.warn("MarshallContent ignoreGroup true");
-		// follow group from FOP, do not add group to URL
-		return true;
 	}
 }

@@ -38,23 +38,20 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
 		super();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Hide the menu and the default title
 	 * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
-		logger.debug("AthleteGridLayout getLayoutConfiguration");
 		variant = Behaviour.LEFT;
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
 		appLayout.closeDrawer();
-		shrinkTitle(appLayout);
-		return appLayout;
-	}
-	
-	public void shrinkTitle(AppLayout appLayout) {
+		// hide the title and icon
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()
 			.set("flex", "0 1 0px");
+		return appLayout;
 	}
 }

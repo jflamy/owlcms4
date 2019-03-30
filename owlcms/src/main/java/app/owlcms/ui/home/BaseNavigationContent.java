@@ -86,12 +86,12 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 
 	/**
 	 * Update URL location.
+	 * This method is called when we set the group explicitly via a dropdown.
 	 *
 	 * @param ui the ui
 	 * @param location the location
 	 * @param newGroup the new group
 	 */
-	//FIXME: why is this different than the default interface method
 	public void updateURLLocation(UI ui, Location location, Group newGroup) {
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
@@ -119,16 +119,6 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 			uiEventBus = uiEventBusRegister(this, fop);
 
 		});
-	}
-
-	/**
-	 * if true, the group is shown on the URL and will be restored on a refresh.
-	 * if false, the group is not shown on the URL, and will be set to the current group for the FOP
-	 * @see app.owlcms.ui.home.QueryParameterReader#isIgnoreGroup()
-	 */
-	@Override
-	public boolean isIgnoreGroup() {
-		return false;
 	}
 
 	/**

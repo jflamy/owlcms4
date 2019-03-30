@@ -68,10 +68,9 @@ import ch.qos.logback.classic.Logger;
 public class AthleteGridContent extends VerticalLayout
 implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor {
 
-	// @SuppressWarnings("unused")
-	final private Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-	private void initLoggers() {
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.DEBUG);
 	}
@@ -102,7 +101,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	 * Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public AthleteGridContent() {
-		initLoggers();
 	}
 	
 	/**

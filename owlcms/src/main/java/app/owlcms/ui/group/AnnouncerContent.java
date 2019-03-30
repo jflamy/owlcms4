@@ -76,7 +76,8 @@ public class AnnouncerContent extends AthleteGridContent {
 	}
 	
 	/**
-	 * Annoncer keeps the group in the URL
+	 * The URL contains the group, contrary to other screens.
+	 * 
 	 * Normally there is only one announcer. If we have to restart the program
 	 * the announcer screen will have the URL correctly set.  if there is no current 
 	 * group in the FOP, the announcer will (exceptionally set it)
