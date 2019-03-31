@@ -89,8 +89,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	private EventBus fopEventBus;
 	
 	public DecisionElement() {
-		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 	
 	@ClientCallable

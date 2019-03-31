@@ -24,11 +24,8 @@ import com.github.appreciated.app.layout.component.appmenu.MenuHeaderComponent;
 import com.github.appreciated.app.layout.component.appmenu.left.LeftClickableComponent;
 import com.github.appreciated.app.layout.component.appmenu.left.LeftNavigationComponent;
 import com.github.appreciated.app.layout.component.appmenu.left.builder.LeftAppMenuBuilder;
-import com.github.appreciated.app.layout.component.appmenu.top.TopNavigationComponent;
-import com.github.appreciated.app.layout.component.appmenu.top.builder.TopAppMenuBuilder;
 import com.github.appreciated.app.layout.entity.DefaultBadgeHolder;
 import com.github.appreciated.app.layout.notification.DefaultNotificationHolder;
-import com.github.appreciated.app.layout.notification.component.AppBarNotificationButton;
 import com.github.appreciated.app.layout.notification.entitiy.DefaultNotification;
 import com.github.appreciated.app.layout.notification.entitiy.Priority;
 import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
@@ -90,7 +87,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 	 */
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
-		logger.warn("showRouterLayoutContent");
+		logger.debug("showRouterLayoutContent");
 		super.showRouterLayoutContent(content);
 		this.setLayoutContent(content);
 	}
@@ -112,74 +109,50 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 		}
 		reloadNotifications();
 
-		if (!variant.isTop()) {
-			LeftNavigationComponent home = new LeftNavigationComponent("Home",
-					VaadinIcon.HOME.create(),
-					HomeNavigationContent.class);
+		LeftNavigationComponent home = new LeftNavigationComponent(
+				"Home",
+				VaadinIcon.HOME.create(),
+				HomeNavigationContent.class);
 
 //			notificationHolder.bind(home.getBadge());
 
-			AppLayout appLayout = AppLayoutBuilder
-				.get(variant)
-				.withTitle("OWLCMS - Olympic Weightlifting Competition Management System")
-				.withIcon("/frontend/images/logo.png")
-				.withAppBar(AppBarBuilder
-					.get()
+		AppLayout appLayout = AppLayoutBuilder
+			.get(variant)
+			.withTitle("OWLCMS - Olympic Weightlifting Competition Management System")
+			.withIcon("/frontend/images/logo.png")
+			.withAppBar(AppBarBuilder
+				.get()
 //					.add(new AppBarNotificationButton(VaadinIcon.BELL, notificationHolder))
-					.build())
-				.withAppMenu(LeftAppMenuBuilder
-					.get()
-					.addToSection(new MenuHeaderComponent("", null, null), HEADER)
-					.add(home)
-					.add(new LeftNavigationComponent(
-							"Prepare Competition",
-							new Icon("social", "group-add"),
-							PreparationNavigationContent.class))
-					.add(new LeftNavigationComponent(
-							"Lifting Group",
-							new Icon("places", "fitness-center"),
-							GroupNavigationContent.class))
-					.add(new LeftNavigationComponent(
-							"Setup Displays",
-							new Icon("hardware", "desktop-windows"),
-							DisplayNavigationContent.class))
-					.add(new LeftNavigationComponent(
-							"Competition Documents",
-							new Icon("maps", "local-printshop"),
-							ResultsNavigationContent.class))
-					.addToSection(new LeftClickableComponent(
-							"Preferences",
-							VaadinIcon.COG.create(),
-							clickEvent -> openModeSelector(this.variant)),
-						FOOTER)
-					.build())
-				.build();
-			return appLayout;
-		} else {
-			return AppLayoutBuilder
-				.get(variant)
-				.withTitle("OWLCMS")
-				.withAppBar(AppBarBuilder
-					.get()
-					.add(new AppBarNotificationButton(VaadinIcon.BELL, notificationHolder))
-					.build())
-				.withAppMenu(TopAppMenuBuilder
-					.get()
-					.add(new TopNavigationComponent("Prepare Competition",
-							new Icon("social", "group-add"),
-							PreparationNavigationContent.class))
-					.add(new TopNavigationComponent("Setup Displays",
-							new Icon("hardware", "desktop-windows"),
-							DisplayNavigationContent.class))
-					.add(new TopNavigationComponent("Lifting Group",
-							new FullIronIcon("places", "fitness-center"),
-							GroupNavigationContent.class))
-					.add(new TopNavigationComponent("Competition Documents",
-							new Icon("maps", "local-printshop"),
-							ResultsNavigationContent.class))
-					.build())
-				.build();
-		}
+				.build())
+			.withAppMenu(LeftAppMenuBuilder
+				.get()
+				.addToSection(new MenuHeaderComponent("", null, null), HEADER)
+				.add(home)
+				.add(new LeftNavigationComponent(
+						"Prepare Competition",
+						new Icon("social", "group-add"),
+						PreparationNavigationContent.class))
+				.add(new LeftNavigationComponent(
+						"Lifting Group",
+						new Icon("places", "fitness-center"),
+						GroupNavigationContent.class))
+				.add(new LeftNavigationComponent(
+						"Setup Displays",
+						new Icon("hardware", "desktop-windows"),
+						DisplayNavigationContent.class))
+				.add(new LeftNavigationComponent(
+						"Competition Documents",
+						new Icon("maps", "local-printshop"),
+						ResultsNavigationContent.class))
+				.addToSection(new LeftClickableComponent(
+						"Preferences",
+						VaadinIcon.COG.create(),
+						clickEvent -> openModeSelector(this.variant)),
+					FOOTER)
+				.build())
+			.build();
+
+		return appLayout;
 	}
 
 	@SuppressWarnings("unused")
@@ -258,14 +231,15 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 				Behaviour.LEFT_HYBRID,
 				Behaviour.LEFT_HYBRID_SMALL,
 				Behaviour.LEFT_RESPONSIVE_HYBRID,
-				Behaviour.LEFT_RESPONSIVE_HYBRID_NO_APP_BAR,
-				Behaviour.LEFT_RESPONSIVE_HYBRID_OVERLAY_NO_APP_BAR,
+//				Behaviour.LEFT_RESPONSIVE_HYBRID_NO_APP_BAR,
+//				Behaviour.LEFT_RESPONSIVE_HYBRID_OVERLAY_NO_APP_BAR,
 				Behaviour.LEFT_RESPONSIVE_OVERLAY,
-				Behaviour.LEFT_RESPONSIVE_OVERLAY_NO_APP_BAR,
-				Behaviour.LEFT_RESPONSIVE_SMALL,
-				Behaviour.LEFT_RESPONSIVE_SMALL_NO_APP_BAR,
-				Behaviour.TOP,
-				Behaviour.TOP_LARGE);
+//				Behaviour.LEFT_RESPONSIVE_OVERLAY_NO_APP_BAR,
+				Behaviour.LEFT_RESPONSIVE_SMALL
+//				Behaviour.LEFT_RESPONSIVE_SMALL_NO_APP_BAR
+//				Behaviour.TOP,
+//				Behaviour.TOP_LARGE
+				);
 			group.setValue(current);
 			layout.add(group);
 			group.addValueChangeListener(singleSelectionEvent -> {

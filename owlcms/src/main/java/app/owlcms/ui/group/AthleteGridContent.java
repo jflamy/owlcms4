@@ -93,9 +93,11 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	
 	/**
 	 * groupFilter points to a hidden field on the grid filtering row, which is slave
-	 * to the group selection through the top bar combo box.
-	 * Changing groupSelect on the top bar changes this slave filter; this allows us to use the filtering
+	 * to the group selection process. this allows us to use the filtering
 	 * logic used everywhere else to change what is shown in the grid.
+	 * 
+	 * In the current implementation groupSelect is readOnly.  If it is made editable,
+	 * it needs to set the value on groupFilter.
 	 */
 	protected ComboBox<Group> groupFilter = new ComboBox<>();
 	private String topBarTitle;
@@ -184,6 +186,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	 */
 	protected void createTopBar() {
 		topBar = getAppLayout().getAppBarElementWrapper();
+		// hide arrow because we open in new page
+		getAppLayout().setMenuVisible(false);
 		
 		title = new H3();
 		title.setText(getTopBarTitle());
@@ -197,6 +201,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 		groupSelect.setItemLabelGenerator(Group::getName);
 		groupSelect.setWidth("8rem");
 		groupSelect.setReadOnly(true);
+		// if groupSelect is made read-write, it needs to set groupFilter and call updateURLLocation
 
 		lastName = new H1();
 		lastName.setText("\u2013");
@@ -266,7 +271,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	}
 
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
-		logger.warn("doUpdateTopBar {}",LoggerUtils.whereFrom());
+		logger.debug("doUpdateTopBar {}",LoggerUtils.whereFrom());
 		OwlcmsSession.withFop(fop -> {
 			groupSelect.setValue(fop.getGroup());
 		});
@@ -291,7 +296,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	}
 
 	public void syncWithFOP() {
-		logger.warn("syncWithFOP {}",LoggerUtils.whereFrom());
+		logger.debug("syncWithFOP {}",LoggerUtils.whereFrom());
 		OwlcmsSession.withFop((fop) -> {
 			Group fopGroup = fop.getGroup();
 			Group displayedGroup = groupSelect.getValue();
@@ -376,6 +381,9 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 		groupFilter.setItemLabelGenerator(Group::getName);
 		// hide because the top bar has it
 		groupFilter.getStyle().set("display", "none");
+		
+		// should be moved to onAttach, and the rest of the grid creation moved
+		// back to constructor.
 		OwlcmsSession.withFop((fop) -> {
 			groupFilter.setValue(fop.getGroup());
 		});
@@ -411,14 +419,13 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	}
 
 	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-	 */
+	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object) */
 	@Override
 	public Athlete update(Athlete Athlete) {
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		fop.getEventBus()
-		.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
+			.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
 		return savedAthlete;
 	}
 
@@ -439,11 +446,11 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	public Collection<Athlete> findAll() {
 		FieldOfPlayState fop = OwlcmsSession.getFop();
 		if (fop != null) {
-			logger.warn("findAll {} {}",fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName());
+			logger.debug("findAll {} {}",fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName());
 			return fop.getLiftingOrder();
 		} else {
 			// no field of play, no group, empty list
-			logger.warn("findAll fop==null");
+			logger.debug("findAll fop==null");
 			return ImmutableList.of();
 		}
 	}

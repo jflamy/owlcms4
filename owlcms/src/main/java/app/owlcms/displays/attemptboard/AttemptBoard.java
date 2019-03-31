@@ -47,6 +47,10 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(AttemptBoard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	static {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
 	
 	/**
 	 * ResultBoardModel
@@ -83,8 +87,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	 * Instantiates a new attempt board.
 	 */
 	public AttemptBoard() {
-		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.INFO);
 	}
 
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
@@ -135,9 +137,9 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	@Subscribe
 	public void downSignal(UIEvent.DownSignal e) {
 		if (this instanceof AthleteFacingBoard) {
-			logger.warn("%%% {} DownSignal {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+			logger.trace("%%% {} DownSignal {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 		} else {
-			logger.warn("&&& {} DownSignal {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+			logger.trace("&&& {} DownSignal {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 		}
 		// hide the timer except if the down signal came from this ui.
 		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
@@ -154,9 +156,9 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	@Subscribe
 	public void refereeDecision(UIEvent.RefereeDecision e) {
 		if (this instanceof AthleteFacingBoard) {
-			logger.warn("%%% {} RefereeDecision {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+			logger.trace("%%% {} RefereeDecision {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 		} else {
-			logger.warn("&&& {} RefereeDecision {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+			logger.trace("&&& {} RefereeDecision {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 		}
 		// hide the timer except if the down signal came from this ui.
 		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {

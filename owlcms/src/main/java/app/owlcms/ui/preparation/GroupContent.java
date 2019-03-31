@@ -17,6 +17,8 @@ import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
+import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
+import com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -61,6 +63,11 @@ public class GroupContent extends VerticalLayout
 //		defineFilters(grid);
 		fillHW(crud, this);
 	}
+	
+	protected AbstractLeftAppLayoutBase getAppLayout() {
+		return (AbstractLeftAppLayoutBase)AppLayoutRouterLayoutBase.getCurrent();
+	}
+
 	
 	/**
 	 * The columns of the grid

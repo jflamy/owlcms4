@@ -86,22 +86,6 @@ public class WeighinContent extends VerticalLayout
 		fillHW(crud, this);
 	}
 
-//	/**
-//	 * Define how to populate the athlete grid (Lazy loading)
-//	 * 
-//	 * @param grid
-//	 */
-//	protected void defineQueries(GridCrud<Athlete> grid) {
-//		grid.setFindAllOperation(
-//			DataProvider.fromCallbacks(
-//				query -> AthleteRepository
-//					.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
-//						ageDivisionFilter.getValue(), null, query.getOffset(), query.getLimit())
-//					.stream(),
-//				query -> AthleteRepository.countFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
-//					categoryFilter.getValue(), ageDivisionFilter.getValue(), null)));
-//	}
-
 	/**
 	 * The columns of the grid
 	 * 

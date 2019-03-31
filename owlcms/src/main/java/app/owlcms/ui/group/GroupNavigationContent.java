@@ -43,7 +43,7 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 	 * Instantiates a new lifting navigation content.
 	 */
 	public GroupNavigationContent() {
-		logger.warn("GroupNavigationContent constructor start");
+		logger.trace("GroupNavigationContent constructor start");
 		VerticalLayout intro = new VerticalLayout();
 		addParagraph(intro, "Use the dropdown to select the platform where the display is located.");
 		addParagraph(intro, "At the beginning of each competition group, select the group. "+
@@ -74,7 +74,7 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		
 		fillH(intro, this);
 		fillH(grid, this);
-		logger.warn("GroupNavigationContent constructor stop");
+		logger.trace("GroupNavigationContent constructor stop");
 	}
 	
 	/* (non-Javadoc)

@@ -107,7 +107,7 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		logger.warn("baseNavigation content onAttach");
+		logger.debug("baseNavigation content onAttach");
 		OwlcmsSession.withFop(fop -> {
 			// sync with current status of FOP
 			//FIXME: syncWithFOP();
