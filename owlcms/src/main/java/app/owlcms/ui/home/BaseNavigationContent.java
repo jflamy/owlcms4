@@ -245,16 +245,20 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 		Group group = group2;
 		Group currentGroup = fop.getGroup();
 		if (group == null) {
-			fop.switchGroup(null);
+			fop.switchGroup(null, this.getOrigin());
 			if (groupSelect != null) {
 				groupSelect.setValue(null);
 			}
 		} else if (!group.equals(currentGroup)) {
-			fop.switchGroup(group);
+			fop.switchGroup(group, this.getOrigin());
 			if (groupSelect != null) {
 				groupSelect.setValue(group);
 			}
 		}
+	}
+
+	protected Object getOrigin() {
+		return this;
 	}
 
 }

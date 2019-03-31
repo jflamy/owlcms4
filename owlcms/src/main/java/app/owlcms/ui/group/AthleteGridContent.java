@@ -383,7 +383,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 			Group newGroup = e.getValue();
 			logger.debug("manually switching group to {}",newGroup != null ? newGroup.getName() : null);
 			OwlcmsSession.withFop((fop) -> {
-				fop.switchGroup(newGroup);
+				fop.switchGroup(newGroup, this.getOrigin());
 			});
 			crud.refreshGrid();
 			updateURLLocation(locationUI, location, newGroup);
@@ -397,6 +397,10 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 		return crud;
 	}
 	
+	protected Object getOrigin() {
+		return this;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
 	 */
@@ -414,7 +418,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		fop.getEventBus()
-		.post(new FOPEvent.WeightChange(grid.getUI().get(), savedAthlete));
+		.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
 		return savedAthlete;
 	}
 

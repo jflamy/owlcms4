@@ -100,9 +100,9 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 				Group group = e.getValue().getGroup();
 				Group currentGroup = fop.getGroup();
 				if (group == null) {
-					fop.switchGroup(null);
+					fop.switchGroup(null, this.getOrigin());
 				} else if (!group.equals(currentGroup)) {
-					fop.switchGroup(group);
+					fop.switchGroup(group, this.getOrigin());
 				}
 			});
 		});

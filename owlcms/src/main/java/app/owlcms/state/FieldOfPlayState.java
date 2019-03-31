@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -351,7 +350,6 @@ public class FieldOfPlayState {
 				// 2 referees have given same decision
 				getTimer().stop();
 				uiShowDownSignalOnSlaveDisplays((DownSignal) e);
-				getTimer().stop();
 				setState(State.DOWN_SIGNAL_VISIBLE);
 			} else if (e instanceof FOPEvent.TimeStoppedManually) {
 				// athlete lifted the bar
@@ -370,6 +368,12 @@ public class FieldOfPlayState {
 					weightChangeDoNotDisturb(curAthlete);
 					setState(State.TIME_RUNNING);
 				}
+			} else if (e instanceof FOPEvent.RefereeDecision) {
+				// in theory not possible, we would get down signal before.
+				getTimer().stop();
+				this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
+				this.setClockOwner(null);
+				decision(e);
 			} else if (e instanceof FOPEvent.TimeOver) {
 				// timer got down to 0
 				// getTimer() signals this, nothing else required for timer
@@ -381,7 +385,12 @@ public class FieldOfPlayState {
 			break;
 
 		case TIME_STOPPED:
-			if (e instanceof FOPEvent.TimeStartedManually) {
+			if (e instanceof FOPEvent.DownSignal) {
+				// 2 referees have given same decision
+				getTimer().stop(); // paranoia
+				uiShowDownSignalOnSlaveDisplays((DownSignal) e);
+				setState(State.DOWN_SIGNAL_VISIBLE);
+			} else if (e instanceof FOPEvent.TimeStartedManually) {
 				// timekeeper mistake, start time again
 				getTimer().start();
 				transitionToTimeRunning();
@@ -389,6 +398,7 @@ public class FieldOfPlayState {
 				WeightChange wc = (FOPEvent.WeightChange)e;
 				Athlete athlete = wc.getAthlete();
 				if (athlete.equals(curAthlete)) {
+					getTimer().stop();
 					// clock is already stopped, coach requesting change
 					weightChange(curAthlete);
 					setState(State.CURRENT_ATHLETE_DISPLAYED);
@@ -433,7 +443,7 @@ public class FieldOfPlayState {
 				weightChangeDoNotDisturb(curAthlete);
 				setState(State.DECISION_VISIBLE);
 			} else if (e instanceof FOPEvent.DecisionReset) {
-				uiEventBus.post(new UIEvent.DecisionReset(e.originatingUI));
+				uiEventBus.post(new UIEvent.DecisionReset(e.origin));
 				clockOwner = null;
 				recomputeLiftingOrder();
 				uiDisplayCurrentAthleteAndTime();
@@ -514,16 +524,16 @@ public class FieldOfPlayState {
 	 *
 	 * @param group the group
 	 */
-	public void switchGroup(Group group) {
+	public void switchGroup(Group group, Object origin) {
 		this.group = group;
 		logger.info("{} switching to group {}", this.getName(), (group != null ? group.getName() : group));
 		if (group != null) {
 			List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
 			init(findAllByGroupAndWeighIn, timer);
-			getEventBus().post(new FOPEvent.StartLifting(null));
+			getEventBus().post(new FOPEvent.StartLifting(origin));
 		} else {
 			init(new ArrayList<Athlete>(), timer);
-			getEventBus().post(new FOPEvent.StartLifting(null));
+			getEventBus().post(new FOPEvent.StartLifting(origin));
 		}
 
 	}
@@ -620,7 +630,7 @@ public class FieldOfPlayState {
 		}
 		Athlete nextAthlete = liftingOrder.size() > 0 ? liftingOrder.get(1) : null;
 
-		uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, liftingOrder, displayOrder, clock, UI.getCurrent()));
+		uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, liftingOrder, displayOrder, clock, this.getOrigin()));
 	
 		logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={}",
 			curAthlete,
@@ -628,6 +638,12 @@ public class FieldOfPlayState {
 			nextAttemptRequestedWeight,
 			clock);
 	}
+
+	private Object getOrigin() {
+		return this;
+	}
+
+
 
 	private void uiDisplayCurrentWeight() {
 		Integer nextAttemptRequestedWeight = curAthlete.getNextAttemptRequestedWeight();
@@ -638,12 +654,12 @@ public class FieldOfPlayState {
 
 	private void uiShowDownSignalOnSlaveDisplays(FOPEvent.DownSignal e) {
 		uiEventLogger.debug("showDownSignalOnSlaveDisplays");
-		uiEventBus.post(new UIEvent.DownSignal(e.originatingUI));
+		uiEventBus.post(new UIEvent.DownSignal(e.origin));
 	}
 
 	private void uiShowRefereeDecisionOnSlaveDisplays(FOPEvent.RefereeDecision e) {
 		uiEventLogger.debug("showRefereeDecisionOnSlaveDisplays");
-		uiEventBus.post(new UIEvent.RefereeDecision(e.success,e.ref1,e.ref2,e.ref3,e.originatingUI));
+		uiEventBus.post(new UIEvent.RefereeDecision(e.success,e.ref1,e.ref2,e.ref3,e.origin));
 	}
 
 	private void unexpectedEventInState(FOPEvent e, State state) {

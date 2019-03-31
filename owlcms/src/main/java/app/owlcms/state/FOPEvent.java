@@ -8,8 +8,6 @@
  */
 package app.owlcms.state;
 
-import com.vaadin.flow.component.UI;
-
 import app.owlcms.data.athlete.Athlete;
 
 /**
@@ -19,14 +17,19 @@ import app.owlcms.data.athlete.Athlete;
  */
 public class FOPEvent {
 	
-
-	protected UI originatingUI;
-	FOPEvent (UI originatingUI) {
-		this.originatingUI = originatingUI;
+	/**
+	 * When a FOPEvent (for example stopping the clock) is handled, it is often reflected
+	 * as a series of UIEvents (for example, all the displays running the clock get told to
+	 * stop it).  The user interface that gave the order doesn't want to be notified again,
+	 * so we memorize which user interface element created the original order so it can ignore it.
+	 */
+	protected Object origin;
+	FOPEvent (Object origin) {
+		this.origin = origin;
 	}
 	
-	public UI getOriginatingUI() {
-		return originatingUI;
+	public Object getOrigin() {
+		return origin;
 	}
 
 	/**
@@ -34,8 +37,8 @@ public class FOPEvent {
 	 */
 	static public class AthleteAnnounced extends FOPEvent {
 
-		public AthleteAnnounced(UI originatingUI) {
-			super(originatingUI);
+		public AthleteAnnounced(Object object) {
+			super(object);
 		}
 
 	}
@@ -45,8 +48,8 @@ public class FOPEvent {
 	 */
 	static public class DecisionReset extends FOPEvent {
 
-		public DecisionReset(UI originatingUI) {
-			super(originatingUI);
+		public DecisionReset(Object object) {
+			super(object);
 		}
 
 	}
@@ -56,8 +59,8 @@ public class FOPEvent {
 	 */
 	static public class DownSignal extends FOPEvent {
 
-		public DownSignal(UI originatingUI) {
-			super(originatingUI);
+		public DownSignal(Object origin) {
+			super(origin);
 		}
 
 	}
@@ -67,8 +70,8 @@ public class FOPEvent {
 	 */
 	static public class StartLifting extends FOPEvent {
 
-		public StartLifting(UI originatingUI) {
-			super(originatingUI);
+		public StartLifting(Object origin) {
+			super(origin);
 		}
 
 	}
@@ -78,8 +81,8 @@ public class FOPEvent {
 	 */
 	static public class IntermissionStarted extends FOPEvent {
 
-		public IntermissionStarted(UI originatingUI) {
-			super(originatingUI);
+		public IntermissionStarted(Object origin) {
+			super(origin);
 		}
 
 	}
@@ -91,8 +94,8 @@ public class FOPEvent {
 
 		private Athlete athlete;
 
-		public WeightChange(UI originatingUI, Athlete a) {
-			super(originatingUI);
+		public WeightChange(Object origin, Athlete a) {
+			super(origin);
 			this.athlete = a;
 		}
 
@@ -120,8 +123,8 @@ public class FOPEvent {
 		 * @param ref2 
 		 * @param ref3 
 		 */
-		public RefereeDecision(UI originatingUI, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
-			super(originatingUI);
+		public RefereeDecision(Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
+			super(origin);
 			this.success = decision;
 			this.ref1 = ref1;
 			this.ref2 = ref2;
@@ -135,8 +138,8 @@ public class FOPEvent {
 	 */
 	static public class TimeStartedManually extends FOPEvent {
 
-		public TimeStartedManually(UI originatingUI) {
-			super(originatingUI);
+		public TimeStartedManually(Object object) {
+			super(object);
 		}
 
 	}
@@ -146,16 +149,16 @@ public class FOPEvent {
 	 */
 	static public class TimeStoppedManually extends FOPEvent {
 
-		public TimeStoppedManually(UI originatingUI) {
-			super(originatingUI);
+		public TimeStoppedManually(Object object) {
+			super(object);
 		}
 
 	}
 	
 	static public class TimeOver extends FOPEvent{
 
-		public TimeOver(UI originatingUI) {
-			super(originatingUI);
+		public TimeOver(Object origin) {
+			super(origin);
 		}
 
 	}
@@ -165,8 +168,8 @@ public class FOPEvent {
 
 		public int timeAllowed;
 
-		public ForceTime(int timeAllowed, UI originatingUI) {
-			super(originatingUI);
+		public ForceTime(int timeAllowed, Object object) {
+			super(object);
 			this.timeAllowed = timeAllowed;
 		}
 	}

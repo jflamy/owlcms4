@@ -64,31 +64,31 @@ public class AnnouncerContent extends AthleteGridContent {
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
 		Button announce = new Button(AvIcons.MIC.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {fop.getEventBus()
-				.post(new FOPEvent.AthleteAnnounced(announcerBar.getUI().get()));
+				.post(new FOPEvent.AthleteAnnounced(this.getOrigin()));
 			});
 		});
 		announce.getElement().setAttribute("theme", "primary icon");
 		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {fop.getEventBus()
-				.post(new FOPEvent.TimeStartedManually(announcerBar.getUI().get()));
+				.post(new FOPEvent.TimeStartedManually(this.getOrigin()));
 			});
 		});
 		start.getElement().setAttribute("theme", "primary icon");
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {fop.getEventBus()
-				.post(new FOPEvent.TimeStoppedManually(announcerBar.getUI().get()));
+				.post(new FOPEvent.TimeStoppedManually(this.getOrigin()));
 			});
 		});
 		stop.getElement().setAttribute("theme", "primary icon");
 		Button _1min = new Button("1:00", (e) -> {
 			OwlcmsSession.withFop(fop -> {fop.getEventBus()
-				.post(new FOPEvent.ForceTime(60000,announcerBar.getUI().get()));
+				.post(new FOPEvent.ForceTime(60000,this.getOrigin()));
 			});
 		});
 		_1min.getElement().setAttribute("theme", "icon");
 		Button _2min = new Button("2:00", (e) -> {
 			OwlcmsSession.withFop(fop -> {fop.getEventBus()
-				.post(new FOPEvent.ForceTime(120000,announcerBar.getUI().get()));
+				.post(new FOPEvent.ForceTime(120000,this.getOrigin()));
 			});
 		});
 		_2min.getElement().setAttribute("theme", "icon");
@@ -107,15 +107,15 @@ public class AnnouncerContent extends AthleteGridContent {
 		//FIXME: timer does not reset correctly after decision
 		Button good = new Button(IronIcons.DONE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
-				fop.getEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get() ,true, true, true, true));
-				fop.getEventBus().post(new FOPEvent.DecisionReset(announcerBar.getUI().get()));
+				fop.getEventBus().post(new FOPEvent.RefereeDecision(this.getOrigin(),true, true, true, true));
+				fop.getEventBus().post(new FOPEvent.DecisionReset(this.getOrigin()));
 			});
 		});
 		good.getElement().setAttribute("theme", "success icon");
 		Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
-				fop.getEventBus().post(new FOPEvent.RefereeDecision(announcerBar.getUI().get() ,false, false, false, false));
-				fop.getEventBus().post(new FOPEvent.DecisionReset(announcerBar.getUI().get()));
+				fop.getEventBus().post(new FOPEvent.RefereeDecision(this.getOrigin() ,false, false, false, false));
+				fop.getEventBus().post(new FOPEvent.DecisionReset(this.getOrigin()));
 			});
 		});
 		bad.getElement().setAttribute("theme", "error icon");
@@ -125,6 +125,7 @@ public class AnnouncerContent extends AthleteGridContent {
 		return decisions;
 	}
 	
+
 	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
 	 */
@@ -142,7 +143,7 @@ public class AnnouncerContent extends AthleteGridContent {
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		OwlcmsSession.withFop(fop -> {
 			fop.getEventBus()
-				.post(new FOPEvent.WeightChange(grid.getUI().get(), savedAthlete));
+				.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
 		});
 		return savedAthlete;
 	}

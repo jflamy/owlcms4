@@ -255,7 +255,7 @@ public class ResultsContent extends AthleteGridContent {
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		if (currentFop != null) {
 			currentFop.getEventBus()
-				.post(new FOPEvent.WeightChange(grid.getUI().get(), savedAthlete));
+				.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
 		}
 		return savedAthlete;
 	}

@@ -18,13 +18,12 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
-
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Messages;
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -130,7 +129,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         List<Athlete> athletes = AthleteSorter.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null,isExcludeNotWeighed()));
         if (athletes.isEmpty()) {
             // prevent outputting silliness.
-            throw new RuntimeException(Messages.getString("OutputSheet.EmptySpreadsheet", UI.getCurrent().getLocale())); //$NON-NLS-1$
+            throw new RuntimeException(Messages.getString("OutputSheet.EmptySpreadsheet", OwlcmsSession.getLocale())); //$NON-NLS-1$
         }
 
         // extract group stats

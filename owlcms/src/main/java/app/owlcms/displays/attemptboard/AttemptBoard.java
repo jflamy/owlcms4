@@ -125,6 +125,48 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		Athlete a = e.getAthlete();
 		doUpdate(a, e);
 	}
+	
+	/**
+	 * Multiple attempt boards and athlete-facing boards can co-exist.
+	 * We need to show down on the slave devices -- the master device is
+	 * the one where refereeing buttons are attached.
+	 * @param e
+	 */
+	@Subscribe
+	public void downSignal(UIEvent.DownSignal e) {
+		if (this instanceof AthleteFacingBoard) {
+			logger.warn("%%% {} DownSignal {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+		} else {
+			logger.warn("&&& {} DownSignal {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+		}
+		// hide the timer except if the down signal came from this ui.
+		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+			this.getElement().callFunction("down");
+		});
+	}
+	
+	/**
+	 * Multiple attempt boards and athlete-facing boards can co-exist.
+	 * We need to show decisions on the slave devices -- the master device is
+	 * the one where refereeing buttons are attached.
+	 * @param e
+	 */
+	@Subscribe
+	public void refereeDecision(UIEvent.RefereeDecision e) {
+		if (this instanceof AthleteFacingBoard) {
+			logger.warn("%%% {} RefereeDecision {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+		} else {
+			logger.warn("&&& {} RefereeDecision {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+		}
+		// hide the timer except if the down signal came from this ui.
+		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+			this.getElement().callFunction("down");
+		});
+	}
+
+	private Object getOrigin() {
+		return this;
+	}
 
 	protected void doUpdate(Athlete a, UIEvent e) {
 		if (a == null) return;

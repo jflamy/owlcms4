@@ -24,14 +24,14 @@ public class UIEvent {
 
 	private Athlete athlete;
 
-	private UI originatingUI;
+	private Object origin;
 	
-	private UIEvent(UI originatingUI) {
-		this.originatingUI = originatingUI;
+	private UIEvent(Object origin) {
+		this.origin = origin;
 	}
 
-	private UIEvent(Athlete athlete, UI originatingUI) {
-		this(originatingUI);
+	private UIEvent(Athlete athlete, Object origin) {
+		this(origin);
 		this.athlete = athlete;
 	}
 
@@ -48,14 +48,14 @@ public class UIEvent {
 	 * Class DecisionReset.
 	 */
 	static public class DecisionReset extends UIEvent {
-		public DecisionReset(UI originatingUI) {super(originatingUI);}
+		public DecisionReset(Object origin) {super(origin);}
 	}
 
 	/**
 	 * Class DownSignal.
 	 */
 	static public class DownSignal extends UIEvent {
-		public DownSignal(UI originatingUI) {super(originatingUI);}
+		public DownSignal(Object origin) {super(origin);}
 	}
 
 	/**
@@ -63,8 +63,8 @@ public class UIEvent {
 	 */
 	static public class IntermissionDone extends UIEvent {
 
-		public IntermissionDone(Athlete athlete, UI originatingUI) {
-			super(athlete, originatingUI);
+		public IntermissionDone(Athlete athlete, Object origin) {
+			super(athlete, origin);
 		}
 
 	}
@@ -74,8 +74,8 @@ public class UIEvent {
 	 */
 	static public class IntermissionStarted extends UIEvent {
 
-		public IntermissionStarted(Athlete athlete, UI originatingUI) {
-			super(athlete, originatingUI);
+		public IntermissionStarted(Athlete athlete, Object origin) {
+			super(athlete, origin);
 		}
 
 	}
@@ -92,8 +92,8 @@ public class UIEvent {
 		private List<Athlete> liftingOrder;
 		private List<Athlete> displayOrder;
 
-		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete, List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed, UI originatingUI) {
-			super(athlete, originatingUI);
+		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete, List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed, Object origin) {
+			super(athlete, origin);
 			this.nextAthlete = nextAthlete;
 			this.previousAthlete = previousAthlete;
 			this.timeAllowed = timeAllowed;
@@ -141,8 +141,8 @@ public class UIEvent {
 		 *
 		 * @param decision the decision
 		 */
-		public RefereeDecision(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, UI originatingUI) {
-			super(originatingUI);
+		public RefereeDecision(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, Object origin) {
+			super(origin);
 			this.decision = decision;
 			this.ref1 = ref1;
 			this.ref2 = ref2;
@@ -155,8 +155,8 @@ public class UIEvent {
 
 		private Integer timeRemaining;
 
-		public SetTime(Integer timeRemaining, UI originatingUI) {
-			super(originatingUI);
+		public SetTime(Integer timeRemaining, Object origin) {
+			super(origin);
 			this.timeRemaining = timeRemaining;
 		}
 
@@ -173,8 +173,8 @@ public class UIEvent {
 
 		private Integer timeRemaining;
 
-		public StartTime(Integer timeRemaining, UI originatingUI) {
-			super(originatingUI);
+		public StartTime(Integer timeRemaining, Object origin) {
+			super(origin);
 			this.timeRemaining = timeRemaining;
 		}
 
@@ -191,8 +191,8 @@ public class UIEvent {
 
 		private int timeRemaining;
 
-		public StopTime(int timeRemaining, UI originatingUI) {
-			super(originatingUI);
+		public StopTime(int timeRemaining, Object origin) {
+			super(origin);
 			this.timeRemaining = timeRemaining;
 		}
 		
@@ -210,10 +210,10 @@ public class UIEvent {
 	}
 
 	/**
-	 * @return the originatingUI
+	 * @return the originating object
 	 */
-	public UI getOriginatingUI() {
-		return originatingUI;
+	public Object getOrigin() {
+		return origin;
 	}
 
 }

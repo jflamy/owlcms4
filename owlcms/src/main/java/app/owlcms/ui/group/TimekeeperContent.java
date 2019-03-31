@@ -46,22 +46,22 @@ public class TimekeeperContent extends AthleteGridContent {
 
 		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getEventBus()
-				.post(new FOPEvent.TimeStartedManually(announcerBar.getUI().get())));
+				.post(new FOPEvent.TimeStartedManually(this.getOrigin())));
 		});
 		start.getElement().setAttribute("theme", "primary");
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getEventBus()
-				.post(new FOPEvent.TimeStoppedManually(announcerBar.getUI().get())));
+				.post(new FOPEvent.TimeStoppedManually(this.getOrigin())));
 		});
 		stop.getElement().setAttribute("theme", "primary");
 		Button _1min = new Button("1:00", (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getEventBus()
-				.post(new FOPEvent.ForceTime(60000,announcerBar.getUI().get())));
+				.post(new FOPEvent.ForceTime(60000,this.getOrigin())));
 		});
 		_1min.getElement().setAttribute("theme", "icon");
 		Button _2min = new Button("2:00", (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getEventBus()
-				.post(new FOPEvent.ForceTime(120000,announcerBar.getUI().get())));
+				.post(new FOPEvent.ForceTime(120000,this.getOrigin())));
 		});
 		_2min.getElement().setAttribute("theme", "icon");
 		HorizontalLayout buttons = new HorizontalLayout(

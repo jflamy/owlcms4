@@ -182,15 +182,6 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 		}
 	}
 
-//	@Override
-//	protected void onAttach(AttachEvent attachEvent) {
-//		super.onAttach(attachEvent);
-//		getUI().get()
-//			.getPage()
-//			.executeJavaScript(
-//				"document.documentElement.setAttribute(\"theme\",\"dark\")");
-//	}
-
 	@SuppressWarnings("unused")
 	private void reloadNotifications() {
 		if (!(0 == 1)) return;

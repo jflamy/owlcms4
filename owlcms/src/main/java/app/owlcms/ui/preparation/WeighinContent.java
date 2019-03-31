@@ -19,7 +19,6 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.HasValue;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -49,6 +48,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.ContentWrapping;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -218,7 +218,7 @@ public class WeighinContent extends VerticalLayout
 
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			protected void fullBirthDateValidation(Binder.BindingBuilder bindingBuilder) {
-				Validator<LocalDate> fv = ((LocalDateField)bindingBuilder.getField()).formatValidation(UI.getCurrent().getLocale());
+				Validator<LocalDate> fv = ((LocalDateField)bindingBuilder.getField()).formatValidation(OwlcmsSession.getLocale());
 				bindingBuilder.withValidator(fv);
 				
 				Validator<LocalDate> v = Validator.from(
@@ -233,7 +233,7 @@ public class WeighinContent extends VerticalLayout
 
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			protected void bodyWeightValidation(Binder.BindingBuilder bindingBuilder) {
-				Validator<Double> fv = ((BodyWeightField)bindingBuilder.getField()).formatValidation(UI.getCurrent().getLocale());
+				Validator<Double> fv = ((BodyWeightField)bindingBuilder.getField()).formatValidation(OwlcmsSession.getLocale());
 				bindingBuilder.withValidator(fv);
 				
 				Validator<Double> v1 = new DoubleRangeValidator(

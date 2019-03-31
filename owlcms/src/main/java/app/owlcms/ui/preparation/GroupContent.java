@@ -18,7 +18,6 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.HasValue;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
@@ -34,6 +33,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.ContentWrapping;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -135,7 +135,7 @@ public class GroupContent extends VerticalLayout
 			@Override
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
 				Binder.BindingBuilder bindingBuilder = binder.forField(field);
-				Locale locale = UI.getCurrent().getLocale();
+				Locale locale = OwlcmsSession.getLocale();
 				
 				if ("competitionTime".equals(property)) {
 					LocalDateTimeField ldtf = (LocalDateTimeField)field;

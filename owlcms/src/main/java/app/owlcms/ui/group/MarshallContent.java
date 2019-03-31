@@ -46,7 +46,7 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getEventBus()
-				.post(new FOPEvent.TimeStoppedManually(announcerBar.getUI().get())));
+				.post(new FOPEvent.TimeStoppedManually(this.getOrigin())));
 		});
 		stop.getElement().setAttribute("theme", "primary icon");
 		HorizontalLayout buttons = new HorizontalLayout(
@@ -78,7 +78,7 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		fop.getEventBus()
-			.post(new FOPEvent.WeightChange(grid.getUI().get(), savedAthlete));
+			.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
 		return savedAthlete;
 	}
 

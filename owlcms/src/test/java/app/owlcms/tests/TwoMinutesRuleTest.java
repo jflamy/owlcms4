@@ -309,7 +309,7 @@ public class TwoMinutesRuleTest {
 			lifter.setCleanJerk3Declaration(weight);
 			break;
 		}
-		eventBus.post(new FOPEvent.WeightChange(null, lifter));
+		eventBus.post(new FOPEvent.WeightChange(this, lifter));
 	}
 
 

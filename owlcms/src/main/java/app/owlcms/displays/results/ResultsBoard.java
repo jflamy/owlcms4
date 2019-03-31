@@ -252,6 +252,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	 * @param a
 	 * @return json string with nested attempts values
 	 */
+	//TODO: add a marker for breaks between categories
 	protected JsonArray getAttemptsJson(Athlete a) {
 		XAthlete x = new XAthlete(a);
 		Integer liftOrderRank = x.getLiftOrderRank();
