@@ -73,7 +73,7 @@ import ch.qos.logback.classic.Logger;
 public class Athlete {
 	
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
-	static { logger.setLevel(Level.DEBUG);}
+	static { logger.setLevel(Level.INFO);}
 
 	/**
 	 * Athlete events all derive from this.
@@ -403,7 +403,7 @@ public class Athlete {
 		int curForecast = bestSnatch1 + zeroIfInvalid(cleanJerk1Declaration); // 70 + 65 = 135
 		if (curForecast >= qualTotal) {
 			// already predicted to clear the QT, may change the CJ request down.
-			logger.warn("forecast = {}", curForecast);
+			logger.info("forecast = {}", curForecast);
 			delta = qualTotal - (bestSnatch1 + cleanJerkRequest); // delta = 135 - 135 = 0
 			snatch1request = bestSnatch1;
 			// possible CJ initial request reduction = _20kgRuleValue - delta
@@ -2770,8 +2770,6 @@ public class Athlete {
 			this.snatch1LiftTime = null;
 		else
 			this.snatch1LiftTime = sqlNow();
-		
-		//logger.warn("{} snatch1ActualLift={} {}", this, snatch1ActualLift, LoggerUtils.stackTrace());
 	}
 
 	/**
@@ -3704,6 +3702,10 @@ public class Athlete {
 		Category category2 = this.getCategory();
 		return this.getLastName()+", "+this.getFirstName()+" "+(category2 != null ? category2 : "");
 //				+(startNumber2 != null && startNumber2 >0 ? " ["+startNumber2+"]" : "");
+	}
+	
+	public String getFullName() {
+		return this.getLastName()+", "+this.getFirstName();
 	}
 
 	public AgeDivision getAgeDivision() {

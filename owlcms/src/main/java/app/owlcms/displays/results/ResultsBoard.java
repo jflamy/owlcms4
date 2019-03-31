@@ -35,9 +35,9 @@ import app.owlcms.displays.attemptboard.DecisionElement;
 import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.UIEvent;
+import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.home.QueryParameterReader;
 import app.owlcms.ui.home.SafeEventBusRegistration;
-import app.owlcms.ui.lifting.UIEventProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -54,14 +54,14 @@ import elemental.json.JsonValue;
 @SuppressWarnings("serial")
 @Tag("results-board-template")
 @HtmlImport("frontend://components/ResultsBoard.html")
-@Route("app.owlcms.ui.displays/resultsBoard")
+@Route("displays/resultsBoard")
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
 public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsBoard.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 
 	/**
 	 * ResultBoardModel
@@ -252,6 +252,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	 * @param a
 	 * @return json string with nested attempts values
 	 */
+	//TODO: add a marker for breaks between categories
 	protected JsonArray getAttemptsJson(Athlete a) {
 		XAthlete x = new XAthlete(a);
 		Integer liftOrderRank = x.getLiftOrderRank();

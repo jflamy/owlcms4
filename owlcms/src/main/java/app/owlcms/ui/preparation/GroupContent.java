@@ -17,8 +17,9 @@ import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
+import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
+import com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase;
 import com.vaadin.flow.component.HasValue;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
@@ -26,14 +27,15 @@ import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.components.crudui.OwlcmsGridCrud;
+import app.owlcms.components.crudui.OwlcmsGridLayout;
+import app.owlcms.components.fields.LocalDateTimeField;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.ui.crudui.OwlcmsCrudLayout;
-import app.owlcms.ui.crudui.OwlcmsGridCrud;
-import app.owlcms.ui.fields.LocalDateTimeField;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.ContentWrapping;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -49,7 +51,7 @@ public class GroupContent extends VerticalLayout
 		implements CrudListener<Group>, ContentWrapping {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(GroupContent.class);
-	static {logger.setLevel(Level.DEBUG);}
+	static {logger.setLevel(Level.INFO);}
 
 
 	/**
@@ -58,9 +60,14 @@ public class GroupContent extends VerticalLayout
 	public GroupContent() {
 		OwlcmsCrudFormFactory<Group> crudFormFactory = createFormFactory();
 		GridCrud<Group> crud = createGrid(crudFormFactory);
-//		defineFilters(crud);
+//		defineFilters(grid);
 		fillHW(crud, this);
 	}
+	
+	protected AbstractLeftAppLayoutBase getAppLayout() {
+		return (AbstractLeftAppLayoutBase)AppLayoutRouterLayoutBase.getCurrent();
+	}
+
 	
 	/**
 	 * The columns of the grid
@@ -83,7 +90,7 @@ public class GroupContent extends VerticalLayout
 			.setHeader("Platform");
 
 		GridCrud<Group> crud = new OwlcmsGridCrud<Group>(Group.class,
-				new OwlcmsCrudLayout(Group.class),
+				new OwlcmsGridLayout(Group.class),
 				crudFormFactory,
 				grid);
 		crud.setCrudListener(this);
@@ -135,7 +142,7 @@ public class GroupContent extends VerticalLayout
 			@Override
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
 				Binder.BindingBuilder bindingBuilder = binder.forField(field);
-				Locale locale = UI.getCurrent().getLocale();
+				Locale locale = OwlcmsSession.getLocale();
 				
 				if ("competitionTime".equals(property)) {
 					LocalDateTimeField ldtf = (LocalDateTimeField)field;

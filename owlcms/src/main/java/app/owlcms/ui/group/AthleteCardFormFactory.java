@@ -7,7 +7,7 @@
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.group;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -31,9 +31,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.ClassList;
 
+import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.ui.fields.ValidationUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -65,7 +65,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.
+	 * app.owlcms.components.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.
 	 * crudui.crud.CrudOperation, java.lang.Object, boolean,
 	 * com.vaadin.flow.component.ComponentEventListener,
 	 * com.vaadin.flow.component.ComponentEventListener,
@@ -338,10 +338,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		}
 		if (component instanceof TextField) {
 			TextField textField = (TextField) component;
-			//logger.warn("row {} column {} {} {} {} {}",row-1, column-1, ACTUAL, textfields.length, CJ3, textfields[0].length);
+			//logger.debug("row {} column {} {} {} {} {}",row-1, column-1, ACTUAL, textfields.length, CJ3, textfields[0].length);
 			textfields[row-1][column-1] = textField;
 //			if (!textField.isEmpty()) {
-//				logger.warn("{} {}  value = {}", row-1, column-1, textField.getValue());
+//				logger.debug("{} {}  value = {}", row-1, column-1, textField.getValue());
 //			}
 		}
 
@@ -368,7 +368,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildFooter(org.vaadin.
+	 * app.owlcms.components.crudui.OwlcmsCrudFormFactory#buildFooter(org.vaadin.
 	 * crudui.crud.CrudOperation, java.lang.Object,
 	 * com.vaadin.flow.component.ComponentEventListener,
 	 * com.vaadin.flow.component.ComponentEventListener,

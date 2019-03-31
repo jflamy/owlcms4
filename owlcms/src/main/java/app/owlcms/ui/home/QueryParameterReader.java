@@ -24,35 +24,37 @@ import ch.qos.logback.classic.Logger;
 public interface QueryParameterReader extends HasUrlParameter<String>{
 
 	final static Logger logger = (Logger)LoggerFactory.getLogger(QueryParameterReader.class);
-	static final boolean ignoreGroup = false;
 	
 	/*
 	 * Process query parameters
-	 * @see app.owlcms.ui.lifting.URLParameter#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+	 * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
 	 */
 	@Override
 	public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		logger.setLevel(Level.DEBUG);
-		logger.debug("setParameter parameter={}",parameter);
 		
 		Location location = event.getLocation();
 		QueryParameters queryParameters = location.getQueryParameters();
+		Map<String, List<String>> parametersMap = queryParameters.getParameters();
+		HashMap<String, List<String>> params = new HashMap<String, List<String>>(parametersMap);
 
 		// get the fop from the query parameters, set as default if not provided
-		Map<String, List<String>> parametersMap = queryParameters.getParameters();
-		List<String> fopNames = parametersMap.get("fop");
-		FieldOfPlayState fop;
-		HashMap<String, List<String>> params = new HashMap<String, List<String>>(parametersMap);
-		if (fopNames != null && fopNames.get(0) == null) {
-			fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
-		} else if (OwlcmsSession.getFop() != null) {
-			fop = OwlcmsSession.getFop();
+		FieldOfPlayState fop = null;
+		if (!isIgnoreFop()) {
+			List<String> fopNames = parametersMap.get("fop");
+			if (fopNames != null && fopNames.get(0) == null) {
+				fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
+			} else if (OwlcmsSession.getFop() != null) {
+				fop = OwlcmsSession.getFop();
+			} else {
+				fop = OwlcmsFactory.getDefaultFOP();
+			}
+			params.put("fop",Arrays.asList(fop.getName()));
+			OwlcmsSession.setFop(fop);
 		} else {
-			fop = OwlcmsFactory.getDefaultFOP();
+			params.remove("fop");
 		}
-		params.put("fop",Arrays.asList(fop.getName()));
-		OwlcmsSession.setFop(fop);
-		
+	
 		// get the group from query parameters, do not add value if group is not defined
 		Group group = null;
 		if (!isIgnoreGroup()) {
@@ -61,18 +63,24 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 				group = GroupRepository.findByName(groupNames.get(0));
 				fop.setGroup(group);
 			} else {
-				group = fop.getGroup();
+				group = (fop != null ? fop.getGroup() : null);
 			}
 			if (group != null) params.put("group",Arrays.asList(group.getName()));
 		} else {
 			params.remove("group");
 		}
 		
-		logger.debug("setting group in session: {} group={}",(fop != null ? fop.getName() : null),(group != null ? group.getName() : null));
+		logger.debug("URL parsing: OwlcmsSession: fop={} group={}",(fop != null ? fop.getName() : null),(group != null ? group.getName() : null));
 		// change the URL to reflect fop and group
 		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
 	
-	public boolean isIgnoreGroup();
+	public default boolean isIgnoreGroup() {
+		return true;
+	}
+	
+	public default boolean isIgnoreFop() {
+		return false;
+	}
 
 }

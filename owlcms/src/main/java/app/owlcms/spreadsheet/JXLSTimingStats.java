@@ -18,13 +18,12 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
-
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Messages;
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -92,20 +91,16 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
         public void updateMaxTime(Date newTime) {
             if (this.maxTime.compareTo(newTime) < 0) {
-//                System.err.println("updateMaxTime updating "+newTime+" later than "+this.maxTime);
                 this.maxTime = newTime;
             } else {
-//                System.err.println("updateMaxTime not updating: "+newTime+" earlier than "+this.maxTime);
             }
 
         }
 
         public void updateMinTime(Date newTime) {
             if (this.minTime.compareTo(newTime) > 0) {
-//                System.err.println("updateMinTime updating: "+newTime+" earlier than "+this.minTime);
                 this.minTime = newTime;
             } else {
-//                System.err.println("updateMinTime not updating: "+newTime+" later than "+this.minTime);
             }
 
         }
@@ -134,7 +129,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         List<Athlete> athletes = AthleteSorter.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null,isExcludeNotWeighed()));
         if (athletes.isEmpty()) {
             // prevent outputting silliness.
-            throw new RuntimeException(Messages.getString("OutputSheet.EmptySpreadsheet", UI.getCurrent().getLocale())); //$NON-NLS-1$
+            throw new RuntimeException(Messages.getString("OutputSheet.EmptySpreadsheet", OwlcmsSession.getLocale())); //$NON-NLS-1$
         }
 
         // extract group stats
@@ -186,7 +181,6 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
     private void processGroup(List<SessionStats> sessions, SessionStats curStat) {
         if (curStat == null) return;
-        //System.err.println(curStat.toString());
         sessions.add(curStat);
     }
 

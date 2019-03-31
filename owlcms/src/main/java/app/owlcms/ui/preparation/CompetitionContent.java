@@ -21,16 +21,16 @@ import org.vaadin.crudui.layout.CrudLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.ItemLabelGenerator;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.ui.fields.LocalDateField;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.ContentWrapping;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -45,7 +45,7 @@ public class CompetitionContent extends VerticalLayout
 
 	Logger logger = (Logger) LoggerFactory.getLogger(CompetitionContent.class);
 	public void initLoggers() {
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 	}
 
 	/**
@@ -125,7 +125,7 @@ public class CompetitionContent extends VerticalLayout
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
 				if ("competitionDate".equals(property)) {
 					LocalDateField f = ((LocalDateField)field);
-					Validator<LocalDate> v = f.formatValidation(UI.getCurrent().getLocale());
+					Validator<LocalDate> v = f.formatValidation(OwlcmsSession.getLocale());
 					binder.forField(f).withValidator(v).bind(property);		
 				} else {
 					super.bindField(field, property, propertyType);

@@ -41,10 +41,9 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
-import app.owlcms.ui.appLayout.AppLayoutContent;
-import app.owlcms.ui.home.MainNavigationLayout;
+import app.owlcms.ui.group.UIEventProcessor;
+import app.owlcms.ui.home.OwlcmsRouterLayout;
 import app.owlcms.ui.home.SafeEventBusRegistration;
-import app.owlcms.ui.lifting.UIEventProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -52,10 +51,10 @@ import ch.qos.logback.classic.Logger;
  * Weigh-in page -- top bar.
  */
 @SuppressWarnings("serial")
-public class WeighinLayout extends MainNavigationLayout implements SafeEventBusRegistration, UIEventProcessor {
+public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
 
 	private final static Logger logger = (Logger)LoggerFactory.getLogger(WeighinLayout.class);
-	static {logger.setLevel(Level.DEBUG);}
+	static {logger.setLevel(Level.INFO);}
 	
 	private HorizontalLayout topBar;
 	private ComboBox<Group> gridGroupFilter;
@@ -69,7 +68,7 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
+	 * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
@@ -94,7 +93,6 @@ public class WeighinLayout extends MainNavigationLayout implements SafeEventBusR
 	public void showRouterLayoutContent(HasElement content) {
 		super.showRouterLayoutContent(content);
 		WeighinContent weighinContent = (WeighinContent) getLayoutContent();
-		weighinContent.setParentLayout(this);
 		gridGroupFilter = weighinContent.getGroupFilter();
 	}
 	

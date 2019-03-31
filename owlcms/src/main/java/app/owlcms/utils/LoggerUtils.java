@@ -11,6 +11,10 @@ package app.owlcms.utils;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.apache.log4j.MDC;
+
+import app.owlcms.init.OwlcmsSession;
+
 /**
  * The Class LoggerUtils.
  */
@@ -40,5 +44,10 @@ public class LoggerUtils {
 		StringWriter sw = new StringWriter();
 		t.printStackTrace(new PrintWriter(sw));
 		return sw.toString();
+	}
+	
+	public static void setWhere(String where) {
+		MDC.put("page", where);
+		OwlcmsSession.withFop(fop -> MDC.put("currentGroup",fop.getGroup() != null ? fop.getGroup() : "-"));
 	}
 }

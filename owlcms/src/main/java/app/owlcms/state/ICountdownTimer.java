@@ -9,7 +9,6 @@
 package app.owlcms.state;
 
 import com.google.common.eventbus.Subscribe;
-import com.vaadin.flow.component.UI;
 
 /**
  * The Interface ICountdownTimer.
@@ -62,6 +61,6 @@ public interface ICountdownTimer {
 	/**
 	 * Stop with no time left.
 	 */
-	void timeOver(UI originatingUI);
+	void timeOut(Object origin);
 
 }

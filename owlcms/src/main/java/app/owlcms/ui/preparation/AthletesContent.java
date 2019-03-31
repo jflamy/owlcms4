@@ -19,7 +19,6 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.HasValue;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -36,6 +35,11 @@ import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.components.crudui.OwlcmsGridCrud;
+import app.owlcms.components.crudui.OwlcmsGridLayout;
+import app.owlcms.components.fields.BodyWeightField;
+import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -44,11 +48,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.ui.crudui.OwlcmsCrudLayout;
-import app.owlcms.ui.crudui.OwlcmsGridCrud;
-import app.owlcms.ui.fields.BodyWeightField;
-import app.owlcms.ui.fields.LocalDateField;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.ContentWrapping;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -65,7 +65,7 @@ public class AthletesContent extends VerticalLayout
 		implements CrudListener<Athlete>, ContentWrapping {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(AthletesContent.class);
-	static {logger.setLevel(Level.DEBUG);}
+	static {logger.setLevel(Level.INFO);}
 
 	private TextField lastNameFilter = new TextField();
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
@@ -80,17 +80,17 @@ public class AthletesContent extends VerticalLayout
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
 		GridCrud<Athlete> crud = createGrid(crudFormFactory);		
 		defineFilters(crud);
-//		defineQueries(crud);
+//		defineQueries(grid);
 		fillHW(crud, this);
 	}
 
 //	/**
 //	 * Define how to populate the athlete grid
 //	 * 
-//	 * @param crud
+//	 * @param grid
 //	 */
-//	protected void defineQueries(GridCrud<Athlete> crud) {
-//		crud.setFindAllOperation(
+//	protected void defineQueries(GridCrud<Athlete> grid) {
+//		grid.setFindAllOperation(
 //			DataProvider.fromCallbacks(
 //				query -> AthleteRepository
 //					.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
@@ -117,7 +117,7 @@ public class AthletesContent extends VerticalLayout
 		grid.addColumn("group").setHeader("Group");
 		grid.addColumn("invited").setHeader("Invited");
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
-				new OwlcmsCrudLayout(Athlete.class),
+				new OwlcmsGridLayout(Athlete.class),
 				crudFormFactory,
 				grid);
 		crud.setCrudListener(this);
@@ -220,7 +220,7 @@ public class AthletesContent extends VerticalLayout
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			protected void fullBirthDateValidation(Binder.BindingBuilder bindingBuilder) {
 				LocalDateField ldtf = (LocalDateField) bindingBuilder.getField();
-				Validator<LocalDate> fv = ldtf.formatValidation(UI.getCurrent().getLocale());
+				Validator<LocalDate> fv = ldtf.formatValidation(OwlcmsSession.getLocale());
 				bindingBuilder.withValidator(fv);
 				
 				Validator<LocalDate> v = Validator.from(
@@ -316,7 +316,7 @@ public class AthletesContent extends VerticalLayout
 	}
 
 	/**
-	 * The refresh button on the toolbar
+	 * The refresh button on the toolbar; also called by refreshGrid when the group is changed.
 	 * 
 	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
 	 */
@@ -325,13 +325,12 @@ public class AthletesContent extends VerticalLayout
 		return AthleteRepository
 				.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
 					ageDivisionFilter.getValue(), null, -1, -1);
-//		return AthleteRepository.findAll();
 	}
 	
 	/**
 	 * The filters at the top of the grid
 	 * 
-	 * @param crud the grid that will be filtered.
+	 * @param grid the grid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Athlete> crud) {
 		lastNameFilter.setPlaceholder("Last name");

@@ -69,6 +69,12 @@
 	           decision: {
 					type: Boolean,
 					notify: true
+	           },
+	           publicFacing: {
+					type: Boolean,
+					notify: true,
+					reflectToAttribute: true,
+					value: true
 	           }
     	  }
       }
@@ -82,9 +88,9 @@
       _init() {
 			this.$.decisionsDiv.style.display = "none";
 			this.$.downDiv.style.display = "none";
-			this.$.ref1span.style = "background-color: gray";
-			this.$.ref2span.style = "background-color: gray";
-			this.$.ref3span.style = "background-color: gray";
+			this.$.ref1span.style = "background-color: #333333";
+			this.$.ref2span.style = "background-color: #333333";
+			this.$.ref3span.style = "background-color: #333333";
 			this.set('ref1',null);
 			this.set('ref2',null);
 			this.set('ref3',null);
@@ -149,7 +155,6 @@
     	  if (count == 2 && (countWhite == 2 || countRed == 2)) {
     		  this.decision = (countWhite >= 2);
     		  this.showDown(true);
-    		  setTimeout(this.hideDown.bind(this), 3000);
     	  }
     	  if ((countWhite + countRed) >= 3) {
     		  this.decision = (countWhite >= 2);
@@ -164,20 +169,39 @@
       }
       
       setColors(parent, ref1, ref2, ref3) {
-    	  if (ref1 === true) {
-    		  parent.$.ref1span.style = "background-color: white";
-    	  } else if (ref1 === false){
-    		  parent.$.ref1span.style = "background-color: red";
-    	  }
-    	  if (ref2 === true) {
-    		  parent.$.ref2span.style = "background-color: white";
-    	  } else if (ref2 === false){
-    		  parent.$.ref2span.style = "background-color: red";
-    	  }
-    	  if (ref3 === true) {
-    		  parent.$.ref3span.style = "background-color: white";
-    	  } else if (ref3 === false){
-    		  parent.$.ref3span.style = "background-color: red";
+    	  if (this.publicFacing) {
+	    	  if (ref1 === true) {
+	    		  parent.$.ref1span.style = "background-color: white";
+	    	  } else if (ref1 === false){
+	    		  parent.$.ref1span.style = "background-color: red";
+	    	  }
+	    	  if (ref2 === true) {
+	    		  parent.$.ref2span.style = "background-color: white";
+	    	  } else if (ref2 === false){
+	    		  parent.$.ref2span.style = "background-color: red";
+	    	  }
+	    	  if (ref3 === true) {
+	    		  parent.$.ref3span.style = "background-color: white";
+	    	  } else if (ref3 === false){
+	    		  parent.$.ref3span.style = "background-color: red";
+	    	  }
+    	  } else {
+    		  // athlete facing, go the other way, right to left
+	    	  if (ref1 === true) {
+	    		  parent.$.ref3span.style = "background-color: white";
+	    	  } else if (ref1 === false){
+	    		  parent.$.ref3span.style = "background-color: red";
+	    	  }
+	    	  if (ref2 === true) {
+	    		  parent.$.ref2span.style = "background-color: white";
+	    	  } else if (ref2 === false){
+	    		  parent.$.ref2span.style = "background-color: red";
+	    	  }
+	    	  if (ref3 === true) {
+	    		  parent.$.ref1span.style = "background-color: white";
+	    	  } else if (ref3 === false){
+	    		  parent.$.ref1span.style = "background-color: red";
+	    	  }
     	  }
       }
       
@@ -193,6 +217,7 @@
 		  if (isMaster) {
 			  this.$server.masterShowDown(this.decision, this.ref1, this.ref2, this.ref3);
 		  }
+		  setTimeout(this.hideDown.bind(this), 3000);
       }
       
       hideDown() {
@@ -201,7 +226,7 @@
       }
       
       showDecisions(isMaster, ref1, ref2, ref3) {
-    	  this.$.decisionsDiv.style.display = "flex";
+    	  this.hideDown();
     	  console.warn("showDecision: "+ref1+" "+ref2+" "+ref3);
 		  this.setColors(this, ref1, ref2, ref3);
 		  console.warn("colorsShown");

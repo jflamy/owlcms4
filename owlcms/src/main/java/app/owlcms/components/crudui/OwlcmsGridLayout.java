@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.crudui;
+package app.owlcms.components.crudui;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -19,22 +19,20 @@ import com.vaadin.flow.component.orderedlayout.ThemableLayout;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Class OwlcmsCrudLayout.
+ * The Class OwlcmsGridLayout.
  */
 @SuppressWarnings("serial")
-public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
+public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 	
 	@SuppressWarnings("unused")
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsCrudLayout.class);
-
-//	private boolean disableNextShowForm = false;
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsGridLayout.class);
 
 	/**
-	 * Instantiates a new owlcms crud layout.
+	 * Instantiates a new owlcms grid layout.
 	 *
 	 * @param aClass the a class
 	 */
-	public OwlcmsCrudLayout(Class<?> aClass) {
+	public OwlcmsGridLayout(Class<?> aClass) {
         getContent().setPadding(false);
         ((ThemableLayout) getContent()).setMargin(false);
         ((HasComponents) getContent()).add(mainLayout);
@@ -50,17 +48,12 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
         headerLayout.setMargin(true);
 
         toolbarLayout.setVisible(false);
-        // toolbarLayout.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
         headerLayout.add(toolbarLayout);
 
         filterLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         filterLayout.setVisible(false);
         filterLayout.setSpacing(true);
         headerLayout.add(filterLayout);
-
-//        Icon icon = VaadinIcon.SEARCH.create();
-//        icon.setSize(".9em");
-//        filterLayout.add(icon);
 
         mainComponentLayout.setWidth("100%");
         mainComponentLayout.setHeight(null);
@@ -77,35 +70,5 @@ public class OwlcmsCrudLayout extends WindowBasedCrudLayout {
         
     }
 
-//	/* (non-Javadoc)
-//	 * @see org.vaadin.crudui.layout.impl.WindowBasedCrudLayout#showForm(org.vaadin.crudui.crud.CrudOperation, com.vaadin.flow.component.Component)
-//	 */
-//	@Override
-//	public void showForm(CrudOperation operation, Component form, String caption) {
-//		if (isDisableNextShowForm()) {
-//			logger.debug("ignoring open");
-//		} else if (!operation.equals(CrudOperation.READ)) {
-//        	showDialog(caption, form);
-//        }
-//		disableNextShowForm(false);
-//	}
-//	
-//	
-//	/**
-//	 * Disable next show form.
-//	 *
-//	 * @param isDisabled the is disabled
-//	 */
-//	public void disableNextShowForm(boolean isDisabled) {
-//		setDisableNextShowForm(isDisabled);
-//	}
-//
-//	public boolean isDisableNextShowForm() {
-//		return disableNextShowForm;
-////	}
-//
-//	public void setDisableNextShowForm(boolean disableNextShowForm) {
-//		this.disableNextShowForm = disableNextShowForm;
-//	}
 	
 }

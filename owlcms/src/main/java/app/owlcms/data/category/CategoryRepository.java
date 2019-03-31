@@ -28,7 +28,7 @@ import ch.qos.logback.classic.Logger;
 public class CategoryRepository {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(CategoryRepository.class);
-	static {logger.setLevel(Level.DEBUG);}
+	static {logger.setLevel(Level.INFO);}
 
 	/**
 	 * Gets the by id.

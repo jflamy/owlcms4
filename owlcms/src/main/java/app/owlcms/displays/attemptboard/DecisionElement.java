@@ -23,8 +23,8 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.UIEvent;
+import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.home.SafeEventBusRegistration;
-import app.owlcms.ui.lifting.UIEventProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -40,6 +40,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	 * The Interface DecisionModel.
 	 */
 	public interface DecisionModel extends TemplateModel {
+		
+		Boolean isPublicFacing();
 		
 		/**
 		 *  Ref1 decision
@@ -62,6 +64,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		 */
 		Boolean isRef3();
 
+		void setPublicFacing(Boolean publicFacing);
+		
 		/**
 		 * @param ref1 decision
 		 */
@@ -79,55 +83,61 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	}
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
 	
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 
 	private EventBus uiEventBus;
 	private EventBus fopEventBus;
 	
 	public DecisionElement() {
-		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 	
 	@ClientCallable
 	public void masterReset() {
 		logger.info("master reset");
-		fopEventBus.post(new FOPEvent.DecisionReset(this.getUI().get()));
+		fopEventBus.post(new FOPEvent.DecisionReset(this.getOrigin()));
 	}
 
 	@ClientCallable
 	public void masterShowDecisions(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
-		logger.info("master decision={} ({} {} {})", decision, ref1, ref2, ref3);
-		fopEventBus.post(new FOPEvent.RefereeDecision(this.getUI().get(), decision, ref1, ref2, ref3));
+		Object origin = this.getOrigin();
+		logger.info("+++ master {} decision={} ({} {} {})", origin, decision, ref1, ref2, ref3);
+		fopEventBus.post(new FOPEvent.RefereeDecision(origin, decision, ref1, ref2, ref3));
 	}
 
 	@ClientCallable
 	public void masterShowDown(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
-		logger.info("master down: decision={} ({} {} {})", decision, ref1, ref2, ref3);
-		fopEventBus.post(new FOPEvent.DownSignal(this.getUI().get()));
+		Object origin = this.getOrigin();
+		logger.info("=== master {} down: decision={} ({} {} {})", origin, decision, ref1, ref2, ref3);
+		fopEventBus.post(new FOPEvent.DownSignal(origin));
 	}
 	
 	@Subscribe
 	public void slaveReset(UIEvent.DecisionReset e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, e.getOriginatingUI(), () -> {
+		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			getElement().callFunction("reset", false);
 		});
 	}
 	
+	private Object getOrigin() {
+		// we use the identity of our parent AttemptBoard or AthleteFacingBoard to identify
+		// our actions.
+		return this.getParent().get();
+	}
+
 	@Subscribe
 	public void slaveShowDecisions(UIEvent.RefereeDecision e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, e.getOriginatingUI(), () -> {
-			logger.warn("{} referee decision ({})",this,this.getParent().get().getClass().getSimpleName());
-//			getModel().setRef1(e.ref1);
-//			getModel().setRef2(e.ref2);
-//			getModel().setRef3(e.ref3);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+			logger.debug("*** {} referee decision ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
 			this.getElement().callFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 		});
 	}
 	
 	@Subscribe
 	public void slaveShowDown(UIEvent.DownSignal e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, e.getOriginatingUI(), () -> {
+		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+			logger.debug("!!! {} down ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
 			this.getElement().callFunction("showDown", false);
 		});
 	}
@@ -138,6 +148,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		model.setRef1(null);
 		model.setRef2(null);
 		model.setRef3(null);
+		model.setPublicFacing(true);
 
 		Element elem = this.getElement();
 		elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
@@ -166,5 +177,12 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		});
 	}
 	
-
+	public void setPublicFacing(boolean publicFacing) {
+		getModel().setPublicFacing(publicFacing);
+	}
+	
+	public boolean isPublicFacing() {
+		return Boolean.TRUE.equals(getModel().isPublicFacing());
+	}
+	
 }

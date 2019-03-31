@@ -7,19 +7,19 @@
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 
-package app.owlcms.ui.fields;
+package app.owlcms.components.fields;
 
 import java.util.Locale;
 
 import com.vaadin.flow.component.AbstractCompositeField;
 import com.vaadin.flow.component.HasValidation;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
 
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -183,7 +183,7 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 			getWrappedTextField().clear();
 		else
 			getWrappedTextField()
-				.setValue(getConverter().convertToPresentation(value, new ValueContext(UI.getCurrent().getLocale())));
+				.setValue(getConverter().convertToPresentation(value, new ValueContext(OwlcmsSession.getLocale())));
 	}
 
 	public Validator<T> formatValidation(Locale locale) {

@@ -12,20 +12,22 @@ import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.vaadin.flow.component.html.Label;
 
-import app.owlcms.ui.home.MainNavigationLayout;
+import app.owlcms.ui.home.OwlcmsRouterLayout;
 
 /**
  * The Class CategoryLayout.
  */
 @SuppressWarnings("serial")
-public class CategoryLayout extends MainNavigationLayout {
+public class CategoryLayout extends OwlcmsRouterLayout {
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.MainNavigationLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
+	 * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
+		variant = Behaviour.LEFT;
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
+		appLayout.closeDrawer();
 		appLayout.setTitleComponent(new Label("Edit Categories"));
 		return appLayout;
 	}

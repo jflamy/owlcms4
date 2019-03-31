@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
-import com.vaadin.flow.component.UI;
 
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -40,7 +39,7 @@ public class RelayTimer implements ICountdownTimer {
 	 * @param fop 
 	 */
 	public RelayTimer(FieldOfPlayState fop) {
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 		this.fop = fop;
 	}
 	
@@ -132,8 +131,8 @@ public class RelayTimer implements ICountdownTimer {
 	}
 
 	@Override
-	public void timeOver(UI originatingUI) {
-		fop.getEventBus().post(new FOPEvent.TimeOver(originatingUI));
+	public void timeOut(Object origin) {
+		fop.getEventBus().post(new FOPEvent.TimeOver(origin));
 	}
 
 

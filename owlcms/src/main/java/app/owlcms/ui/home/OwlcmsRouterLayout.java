@@ -14,6 +14,8 @@ import static com.github.appreciated.app.layout.notification.entitiy.Priority.ME
 
 import java.util.function.Consumer;
 
+import org.slf4j.LoggerFactory;
+
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.github.appreciated.app.layout.builder.AppLayoutBuilder;
@@ -22,11 +24,8 @@ import com.github.appreciated.app.layout.component.appmenu.MenuHeaderComponent;
 import com.github.appreciated.app.layout.component.appmenu.left.LeftClickableComponent;
 import com.github.appreciated.app.layout.component.appmenu.left.LeftNavigationComponent;
 import com.github.appreciated.app.layout.component.appmenu.left.builder.LeftAppMenuBuilder;
-import com.github.appreciated.app.layout.component.appmenu.top.TopNavigationComponent;
-import com.github.appreciated.app.layout.component.appmenu.top.builder.TopAppMenuBuilder;
 import com.github.appreciated.app.layout.entity.DefaultBadgeHolder;
 import com.github.appreciated.app.layout.notification.DefaultNotificationHolder;
-import com.github.appreciated.app.layout.notification.component.AppBarNotificationButton;
 import com.github.appreciated.app.layout.notification.entitiy.DefaultNotification;
 import com.github.appreciated.app.layout.notification.entitiy.Priority;
 import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
@@ -42,13 +41,16 @@ import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 
 import app.owlcms.ui.displays.DisplayNavigationContent;
-import app.owlcms.ui.lifting.LiftingNavigationContent;
+import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
-import app.owlcms.ui.wrapup.WrapupNavigationContent;
+import app.owlcms.ui.results.ResultsNavigationContent;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
- * MainNavigationLayout.
+ * OwlcmsRouterLayout.
  */
+@SuppressWarnings("serial")
 @Push
 @HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
@@ -59,9 +61,10 @@ import app.owlcms.ui.wrapup.WrapupNavigationContent;
 @HtmlImport("frontend://bower_components/iron-icons/maps-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/social-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/places-icons.html")
-public class MainNavigationLayout extends AppLayoutRouterLayout {
+public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 
-	private static final long serialVersionUID = 1L;
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
+	static {logger.setLevel(Level.INFO);}
 	
 	/** The notification holder. */
 	DefaultNotificationHolder notificationHolder;
@@ -73,7 +76,7 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 
 	private HasElement layoutContent;
 
-    public MainNavigationLayout() {
+    public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));
         reloadNotifications();
     }
@@ -84,6 +87,7 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 	 */
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
+		logger.debug("showRouterLayoutContent");
 		super.showRouterLayoutContent(content);
 		this.setLayoutContent(content);
 	}
@@ -98,86 +102,58 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
 		if (variant == null) {
-			variant = Behaviour.LEFT;
+			variant = Behaviour.LEFT_RESPONSIVE;
 //			notificationHolder = new DefaultNotificationHolder(newStatus -> {
 //				/* Do something with it */});
 //			badgeHolder = new DefaultBadgeHolder();
 		}
 		reloadNotifications();
 
-		if (!variant.isTop()) {
-			LeftNavigationComponent home = new LeftNavigationComponent("Home",
-					VaadinIcon.HOME.create(),
-					MainNavigationContent.class);
+		LeftNavigationComponent home = new LeftNavigationComponent(
+				"Home",
+				VaadinIcon.HOME.create(),
+				HomeNavigationContent.class);
 
 //			notificationHolder.bind(home.getBadge());
 
-			AppLayout appLayout = AppLayoutBuilder
-				.get(variant)
-				.withTitle("OWLCMS - Olympic Weightlifting Competition Management System")
-				.withIcon("/frontend/images/logo.png")
-				.withAppBar(AppBarBuilder
-					.get()
+		AppLayout appLayout = AppLayoutBuilder
+			.get(variant)
+			.withTitle("OWLCMS - Olympic Weightlifting Competition Management System")
+			.withIcon("/frontend/images/logo.png")
+			.withAppBar(AppBarBuilder
+				.get()
 //					.add(new AppBarNotificationButton(VaadinIcon.BELL, notificationHolder))
-					.build())
-				.withAppMenu(LeftAppMenuBuilder
-					.get()
-					.addToSection(new MenuHeaderComponent("OWLCMS", null, null), HEADER)
-					.add(home)
-					.add(new LeftNavigationComponent("Prepare Competition",
-							new Icon("social", "group-add"),
-							PreparationNavigationContent.class))
-					.add(new LeftNavigationComponent("Setup Displays",
-							new Icon("hardware", "desktop-windows"),
-							DisplayNavigationContent.class))
-					.add(new LeftNavigationComponent("Lifting Group",
-							new FullIronIcon("places", "fitness-center"),
-							LiftingNavigationContent.class))
-					.add(new LeftNavigationComponent("Competition Documents",
-							new Icon("maps", "local-printshop"),
-							WrapupNavigationContent.class))
-					.addToSection(new LeftClickableComponent("Preferences",
-							VaadinIcon.COG.create(),
-							clickEvent -> openModeSelector(this.variant)),
-						FOOTER)
-					.build())
-				.build();
-			return appLayout;
-		} else {
-			return AppLayoutBuilder
-				.get(variant)
-				.withTitle("OWLCMS")
-				.withAppBar(AppBarBuilder
-					.get()
-					.add(new AppBarNotificationButton(VaadinIcon.BELL, notificationHolder))
-					.build())
-				.withAppMenu(TopAppMenuBuilder
-					.get()
-					.add(new TopNavigationComponent("Prepare Competition",
-							new Icon("social", "group-add"),
-							PreparationNavigationContent.class))
-					.add(new TopNavigationComponent("Setup Displays",
-							new Icon("hardware", "desktop-windows"),
-							DisplayNavigationContent.class))
-					.add(new TopNavigationComponent("Lifting Group",
-							new FullIronIcon("places", "fitness-center"),
-							LiftingNavigationContent.class))
-					.add(new TopNavigationComponent("Competition Documents",
-							new Icon("maps", "local-printshop"),
-							WrapupNavigationContent.class))
-					.build())
-				.build();
-		}
-	}
+				.build())
+			.withAppMenu(LeftAppMenuBuilder
+				.get()
+				.addToSection(new MenuHeaderComponent("", null, null), HEADER)
+				.add(home)
+				.add(new LeftNavigationComponent(
+						"Prepare Competition",
+						new Icon("social", "group-add"),
+						PreparationNavigationContent.class))
+				.add(new LeftNavigationComponent(
+						"Lifting Group",
+						new Icon("places", "fitness-center"),
+						GroupNavigationContent.class))
+				.add(new LeftNavigationComponent(
+						"Setup Displays",
+						new Icon("hardware", "desktop-windows"),
+						DisplayNavigationContent.class))
+				.add(new LeftNavigationComponent(
+						"Competition Documents",
+						new Icon("maps", "local-printshop"),
+						ResultsNavigationContent.class))
+				.addToSection(new LeftClickableComponent(
+						"Preferences",
+						VaadinIcon.COG.create(),
+						clickEvent -> openModeSelector(this.variant)),
+					FOOTER)
+				.build())
+			.build();
 
-//	@Override
-//	protected void onAttach(AttachEvent attachEvent) {
-//		super.onAttach(attachEvent);
-//		getUI().get()
-//			.getPage()
-//			.executeJavaScript(
-//				"document.documentElement.setAttribute(\"theme\",\"dark\")");
-//	}
+		return appLayout;
+	}
 
 	@SuppressWarnings("unused")
 	private void reloadNotifications() {
@@ -229,7 +205,6 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 	/**
 	 * The Class BehaviourSelector.
 	 */
-	@SuppressWarnings("serial")
 	class BehaviourSelector extends Dialog {
 
 		/**
@@ -256,14 +231,15 @@ public class MainNavigationLayout extends AppLayoutRouterLayout {
 				Behaviour.LEFT_HYBRID,
 				Behaviour.LEFT_HYBRID_SMALL,
 				Behaviour.LEFT_RESPONSIVE_HYBRID,
-				Behaviour.LEFT_RESPONSIVE_HYBRID_NO_APP_BAR,
-				Behaviour.LEFT_RESPONSIVE_HYBRID_OVERLAY_NO_APP_BAR,
+//				Behaviour.LEFT_RESPONSIVE_HYBRID_NO_APP_BAR,
+//				Behaviour.LEFT_RESPONSIVE_HYBRID_OVERLAY_NO_APP_BAR,
 				Behaviour.LEFT_RESPONSIVE_OVERLAY,
-				Behaviour.LEFT_RESPONSIVE_OVERLAY_NO_APP_BAR,
-				Behaviour.LEFT_RESPONSIVE_SMALL,
-				Behaviour.LEFT_RESPONSIVE_SMALL_NO_APP_BAR,
-				Behaviour.TOP,
-				Behaviour.TOP_LARGE);
+//				Behaviour.LEFT_RESPONSIVE_OVERLAY_NO_APP_BAR,
+				Behaviour.LEFT_RESPONSIVE_SMALL
+//				Behaviour.LEFT_RESPONSIVE_SMALL_NO_APP_BAR
+//				Behaviour.TOP,
+//				Behaviour.TOP_LARGE
+				);
 			group.setValue(current);
 			layout.add(group);
 			group.addValueChangeListener(singleSelectionEvent -> {

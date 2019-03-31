@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.fields;
+package app.owlcms.components.fields;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -38,7 +38,7 @@ public class BodyWeightField extends WrappedTextField<Double> {
 	@Override
 	protected void initLoggers() {
 		logger = (Logger)LoggerFactory.getLogger(BodyWeightField.class);
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 	}
 	
 

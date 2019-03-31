@@ -28,9 +28,9 @@ import com.vaadin.flow.theme.material.Material;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.UIEvent;
+import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.home.QueryParameterReader;
 import app.owlcms.ui.home.SafeEventBusRegistration;
-import app.owlcms.ui.lifting.UIEventProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -40,13 +40,17 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
 @HtmlImport("frontend://components/AttemptBoard.html")
-@Route("app.owlcms.ui.displays/attemptBoard")
+@Route("displays/attemptBoard")
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(AttemptBoard.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	static {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
 	
 	/**
 	 * ResultBoardModel
@@ -63,26 +67,26 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		Integer getStartNumber();
 		String getAttempt();
 		Integer getWeight();
+		Boolean isPublicFacing();
 		void setLastName(String lastName);
 		void setFirstName(String firstName);
 		void setTeamName(String teamName);
 		void setStartNumber(Integer integer);
 		void setAttempt(String formattedAttempt);
 		void setWeight(Integer weight);
+		void setPublicFacing(Boolean publicFacing);
 	}
 	
 	@Id("timer")
 	private TimerElement timer; // created by Flow during template instanciation
 	@Id("decisions")
-	private DecisionElement decisions; // created by Flow during template instanciation
+	protected DecisionElement decisions; // created by Flow during template instanciation
 	private EventBus uiEventBus;
 
 	/**
 	 * Instantiates a new attempt board.
 	 */
 	public AttemptBoard() {
-		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.INFO);
 	}
 
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
@@ -122,6 +126,48 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	public void intermissionDone(UIEvent.IntermissionDone e) {
 		Athlete a = e.getAthlete();
 		doUpdate(a, e);
+	}
+	
+	/**
+	 * Multiple attempt boards and athlete-facing boards can co-exist.
+	 * We need to show down on the slave devices -- the master device is
+	 * the one where refereeing buttons are attached.
+	 * @param e
+	 */
+	@Subscribe
+	public void downSignal(UIEvent.DownSignal e) {
+		if (this instanceof AthleteFacingBoard) {
+			logger.trace("%%% {} DownSignal {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+		} else {
+			logger.trace("&&& {} DownSignal {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+		}
+		// hide the timer except if the down signal came from this ui.
+		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+			this.getElement().callFunction("down");
+		});
+	}
+	
+	/**
+	 * Multiple attempt boards and athlete-facing boards can co-exist.
+	 * We need to show decisions on the slave devices -- the master device is
+	 * the one where refereeing buttons are attached.
+	 * @param e
+	 */
+	@Subscribe
+	public void refereeDecision(UIEvent.RefereeDecision e) {
+		if (this instanceof AthleteFacingBoard) {
+			logger.trace("%%% {} RefereeDecision {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+		} else {
+			logger.trace("&&& {} RefereeDecision {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+		}
+		// hide the timer except if the down signal came from this ui.
+		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+			this.getElement().callFunction("down");
+		});
+	}
+
+	private Object getOrigin() {
+		return this;
 	}
 
 	protected void doUpdate(Athlete a, UIEvent e) {

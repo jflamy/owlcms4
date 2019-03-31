@@ -35,7 +35,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class TwoMinutesRuleTest {
-	private static Level LoggerLevel = Level.DEBUG;
+	private static Level LoggerLevel = Level.INFO;
 	private static Group gA;
 	private static Group gB;
 	private static Group gC;
@@ -309,7 +309,7 @@ public class TwoMinutesRuleTest {
 			lifter.setCleanJerk3Declaration(weight);
 			break;
 		}
-		eventBus.post(new FOPEvent.WeightChange(null, lifter));
+		eventBus.post(new FOPEvent.WeightChange(this, lifter));
 	}
 
 

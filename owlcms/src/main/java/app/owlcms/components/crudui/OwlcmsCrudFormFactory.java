@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.crudui;
+package app.owlcms.components.crudui;
 
 import java.util.List;
 
@@ -44,6 +44,7 @@ import ch.qos.logback.classic.Logger;
 public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implements CrudFormFactory<T> {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsCrudFormFactory.class);
+	static {logger.setLevel(Level.INFO);}
 
 	protected ResponsiveStep[] responsiveSteps;
 
@@ -60,7 +61,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	}
 
 	/**
-	 * Instantiates a new owlcms crud form factory.
+	 * Instantiates a new owlcms grid form factory.
 	 *
 	 * @param domainType      the domain type
 	 * @param responsiveSteps the responsive steps
@@ -72,7 +73,6 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	}
 
 	private void init() {
-		logger.setLevel(Level.DEBUG);
 		setButtonCaption(CrudOperation.DELETE, "Delete");
 	}
 

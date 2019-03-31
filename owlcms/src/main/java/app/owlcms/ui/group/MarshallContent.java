@@ -7,10 +7,14 @@
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.group;
 
 import org.slf4j.LoggerFactory;
 
+import com.flowingcode.vaadin.addons.ironicons.AvIcons;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
@@ -26,19 +30,35 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "group/timekeeper", layout = TimekeeperLayout.class)
-public class TimekeeperContent extends BaseContent implements QueryParameterReader {
+@Route(value = "group/marshall", layout = AthleteGridLayout.class)
+public class MarshallContent extends AthleteGridContent implements QueryParameterReader {
 
 	// @SuppressWarnings("unused")
-	final private Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent.class);
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
-	private void initLoggers() {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.DEBUG);
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);
+	static { logger.setLevel(Level.INFO); }
+
+	
+	public MarshallContent() {
+		setTopBarTitle("Marshall");
 	}
 	
-	public TimekeeperContent() {
-		initLoggers();
+	@Override
+	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
+		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
+			OwlcmsSession.withFop(fop -> fop.getEventBus()
+				.post(new FOPEvent.TimeStoppedManually(this.getOrigin())));
+		});
+		stop.getElement().setAttribute("theme", "primary icon");
+		HorizontalLayout buttons = new HorizontalLayout(
+				stop);
+		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+		return buttons;
+	}
+
+	@Override
+	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
+		HorizontalLayout decisions = new HorizontalLayout();
+		return decisions;
 	}
 
 	/* (non-Javadoc)
@@ -58,7 +78,7 @@ public class TimekeeperContent extends BaseContent implements QueryParameterRead
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
 		fop.getEventBus()
-			.post(new FOPEvent.WeightChange(crud.getUI().get(), savedAthlete));
+			.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
 		return savedAthlete;
 	}
 
@@ -68,12 +88,5 @@ public class TimekeeperContent extends BaseContent implements QueryParameterRead
 	@Override
 	public void delete(Athlete Athlete) {
 		AthleteRepository.delete(Athlete);
-	}
-	
-	@Override
-	public boolean isIgnoreGroup() {
-		logger.warn("TimekeeperContent ignoreGroup true");
-		// follow group from FOP, do not add group to URL
-		return true;
 	}
 }

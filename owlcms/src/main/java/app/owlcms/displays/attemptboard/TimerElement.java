@@ -15,7 +15,6 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
@@ -24,8 +23,8 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.ICountdownTimer;
 import app.owlcms.state.UIEvent;
+import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.home.SafeEventBusRegistration;
-import app.owlcms.ui.lifting.UIEventProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -38,8 +37,8 @@ import ch.qos.logback.classic.Logger;
 public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> implements ICountdownTimer, SafeEventBusRegistration {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("owlcms.uiEventLogger");
-	protected void initLoggers() {
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
@@ -132,7 +131,6 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	 * Instantiates a new timer element.
 	 */
 	public TimerElement() {
-		initLoggers();
 	}
 
 
@@ -171,7 +169,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	@Override
 	@Subscribe
 	public void startTimer(UIEvent.StartTime e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			Integer milliseconds = e.getTimeRemaining();
 			uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
 			if (milliseconds != null)
@@ -186,7 +184,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	@Override
 	@Subscribe
 	public void stopTimer(UIEvent.StopTime e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			uiEventLogger.debug("<<< stop received {}", e);
 			stop();
 		});
@@ -198,7 +196,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	@Override
 	@Subscribe
 	public void setTimer(UIEvent.SetTime e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			Integer milliseconds = e.getTimeRemaining();
 			uiEventLogger.debug("=== set received {}", milliseconds);
 			setTimeRemaining(milliseconds);
@@ -207,7 +205,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	
 
 	protected void setTimer(Integer milliseconds) {
-		UIEventProcessor.uiAccess(this, uiEventBus, null, () -> {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			setTimeRemaining(milliseconds);
 		});
 	}
@@ -240,7 +238,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	}
 	
 	@Override
-	public void timeOver(UI originatingUI) {
+	public void timeOut(Object origin) {
 		stop();
 		setTimeRemaining(0);
 	}
@@ -256,7 +254,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	 */
 	@ClientCallable
 	public void timerStopped(double remainingTime) {
-		logger.trace("timer stopped " + remainingTime);
+		logger.trace("timer stopped from client" + remainingTime);
 	}
 	
 	/**
@@ -265,12 +263,10 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	 */
 	@ClientCallable
 	public void timeOver() {
-		logger.info("time over");
+		logger.info("time over from client");
 		OwlcmsSession.withFop(fop -> {
-			fop.getTimer().timeOver(UI.getCurrent());
+			fop.getTimer().timeOut(this);
 		});
 	}
-
-
 	
 }
