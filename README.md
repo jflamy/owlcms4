@@ -21,6 +21,7 @@ Current status: Quite close to minimal viable product ("MVP") able to run a regi
 [Live demo](https://owlcms4.herokuapp.com) of the current build is available on the Heroku cloud service.
 - Note that the cloud demo application is not pre-loaded and uses their free tier, so the first load can take a minute. This is *not* indicative of subsequent loads and is not indicative of local performance (both of which start in a few seconds).
 - Use a recent version of Chrome on a laptop.  I do not have access to a recent iPad, I don't know if it runs correctly (it doesn't work on iOS 9 :-) )
+- Chrome has decided that sounds will no longer play automatically.  In order to hear the down signal, you need to go to page ``chrome://flags``. Search for ``autoplay policy`` and set it to ``No user gesture is required`` .  If you don't do this, you will not hear the sounds.
 - There is a single demo database, which resets itself periodically when the Heroku application times out. So if someone else is playing around, you may see surprising things.
 - Suggested steps:
     - Click on "Lifting Group" in the menu
