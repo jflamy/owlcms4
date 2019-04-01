@@ -118,7 +118,7 @@ public class JPAService {
 	 * @param memoryMode run from memory if true
 	 * @return an entity manager factory
 	 */
-	private static EntityManagerFactory getFactoryFromCode(boolean testMode2) {
+	private static EntityManagerFactory getFactoryFromCode(boolean memoryMode) {
 		PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(
 				JPAService.class.getSimpleName(),
 				entityClassNames(),
@@ -135,7 +135,7 @@ public class JPAService {
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
-		props.put(JPA_JDBC_URL, "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
+		props.put(JPA_JDBC_URL, "jdbc:h2:file:~/owlcms;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
 		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
 		props.put(JPA_JDBC_USER, "sa");
 		props.put(JPA_JDBC_PASSWORD, "");

@@ -83,14 +83,14 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	 * @param domainObject              the domain object
 	 * @param readOnly                  the read only
 	 * @param cancelButtonClickListener the cancel button click listener
-	 * @param updateButtonClickListener the update button click listener
+	 * @param operationButtonClickListener the update button click listener
 	 * @param deleteButtonClickListener the delete button click listener
 	 * @return the component
 	 */
 	@SuppressWarnings("rawtypes")
 	public Component buildNewForm(CrudOperation operation, T domainObject, boolean readOnly,
 			ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-			ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
+			ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
 		FormLayout formLayout = new FormLayout();
 		formLayout.setSizeFull();
@@ -103,7 +103,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 			.forEach(field -> formLayout.getElement().appendChild(field.getElement()));
 
 		Component footerLayout = this.buildFooter(operation, domainObject, cancelButtonClickListener,
-			updateButtonClickListener, deleteButtonClickListener);
+			operationButtonClickListener, deleteButtonClickListener);
 
 		VerticalLayout mainLayout = new VerticalLayout(
 				formLayout, footerLayout);
@@ -124,16 +124,21 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	 * @param operation                 the operation
 	 * @param domainObject              the domain object
 	 * @param cancelButtonClickListener the cancel button click listener
-	 * @param updateButtonClickListener the update button click listener
+	 * @param operationButtonClickListener the update button click listener
 	 * @param deleteButtonClickListener the delete button click listener
 	 * @return the component
 	 */
 	protected Component buildFooter(CrudOperation operation, T domainObject,
 			ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-			ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
+			ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
 
-		Button updateButton = buildOperationButton(CrudOperation.UPDATE, domainObject, updateButtonClickListener);
+		Button operationButton = null;
+		if (operation == CrudOperation.UPDATE) {
+			operationButton = buildOperationButton(CrudOperation.UPDATE, domainObject, operationButtonClickListener);
+		} else if (operation == CrudOperation.ADD) {
+			operationButton = buildOperationButton(CrudOperation.ADD, domainObject, operationButtonClickListener);
+		}
 		Button deleteButton = buildOperationButton(CrudOperation.DELETE, domainObject, deleteButtonClickListener);
 		Button cancelButton = buildCancelButton(cancelButtonClickListener);
 
@@ -142,7 +147,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 		footerLayout.setSpacing(true);
 		footerLayout.setPadding(false);
 
-		if (deleteButton != null) {
+		if (deleteButton != null && operation != CrudOperation.ADD) {
 			footerLayout.add(deleteButton);
 		}
 
@@ -153,9 +158,11 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 			footerLayout.add(cancelButton);
 		}
 
-		if (updateButton != null && operation == CrudOperation.UPDATE) {
-			footerLayout.add(updateButton);
-			updateButton.addClickShortcut(Key.ENTER);
+		if (operationButton != null) {
+			footerLayout.add(operationButton);
+			if (operation == CrudOperation.UPDATE) {
+				operationButton.addClickShortcut(Key.ENTER);
+			}
 		}
 		footerLayout.setFlexGrow(1.0, spacer);
 		return footerLayout;

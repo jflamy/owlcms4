@@ -21,11 +21,8 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.data.jpa.ProdData;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -34,26 +31,6 @@ import ch.qos.logback.classic.Logger;
 @WebListener
 public class AbstractMain implements ServletContextListener {
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(AbstractMain.class);
-
-    /**
-	 * The main method.
-	 *
-	 * @param args the arguments
-	 * @throws Exception the exception
-	 */
-	public static void main(String... args) throws Exception {
-		// Redirect java.util.logging logs to SLF4J
-		SLF4JBridgeHandler.removeHandlersForRootLogger();
-		SLF4JBridgeHandler.install();
-		
-		int serverPort = init();
-        try {
-			new EmbeddedJetty().run(serverPort, "/"); //$NON-NLS-1$
-			logger.info("waiting");
-		} finally {
-			tearDown();
-		}
-    }
 
 	protected static void logStart(Integer serverPort) throws IOException, ParseException {
 		InputStream in = AbstractMain.class.getResourceAsStream("/build.properties"); //$NON-NLS-1$
@@ -70,29 +47,6 @@ public class AbstractMain implements ServletContextListener {
 		SimpleDateFormat homeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String homeTimestamp = homeFormat.format(date);
 		logger.info("owlcms {} (built {})",version,homeTimestamp);
-	}
-
-	protected static int init() throws IOException, ParseException {
-    	// read server.port parameter from -D"server.port"=9999 on java command line
-		// this is required for running on Heroku which assigns us the port at run time.
-		// default is 8080
-    	Integer serverPort = Integer.getInteger("server.port",8080);
-    	logStart(serverPort);
-    	
-		// reads system property (-D on command line)
-		boolean demoMode = Boolean.getBoolean("demoMode");
-		boolean inMemory = demoMode;
-		JPAService.init(inMemory);
-		if (demoMode) {
-			DemoData.insertInitialData(20, true);
-		} else {
-			ProdData.insertInitialData(0, false);
-		}
-		
-		// initializes the owlcms singleton
-		OwlcmsFactory.getDefaultFOP();
-		
-		return serverPort;
 	}
 	
 	protected static void tearDown() {

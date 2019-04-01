@@ -12,11 +12,14 @@ import java.io.IOException;
 import java.text.ParseException;
 
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
 import app.owlcms.init.AbstractMain;
+import app.owlcms.init.EmbeddedJetty;
 import app.owlcms.init.OwlcmsFactory;
 import ch.qos.logback.classic.Logger;
 
@@ -24,8 +27,27 @@ import ch.qos.logback.classic.Logger;
  * Main.
  */
 public class Main extends AbstractMain {
-	@SuppressWarnings("unused")
+	
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
+	
+    /**
+	 * The main method.
+	 *
+	 * @param args the arguments
+	 * @throws Exception the exception
+	 */
+	public static void main(String... args) throws Exception {
+		// Redirect java.util.logging logs to SLF4J
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
+		
+		int serverPort = init();
+        try {
+			new EmbeddedJetty().run(serverPort, "/"); //$NON-NLS-1$
+		} finally {
+			tearDown();
+		}
+    }
 
 	/**
 	 * Prepare owlcms
@@ -42,7 +64,7 @@ public class Main extends AbstractMain {
 	 * @throws IOException
 	 * @throws ParseException
 	 */
-	protected static int setup() throws IOException, ParseException {
+	protected static int init() throws IOException, ParseException {
 		// read server.port parameter from -D"server.port"=9999 on java command line
 		// this is required for running on Heroku which assigns us the port at run time.
 		// default is 8080
@@ -51,15 +73,18 @@ public class Main extends AbstractMain {
 
 		// reads system property (-D on command line)
 		boolean demoMode = Boolean.getBoolean("demoMode");
-		boolean inMemory = demoMode;
+		boolean devMode = Boolean.getBoolean("devMode");
 		
+		boolean inMemory = demoMode;
 		JPAService.init(inMemory);
+		
 		if (demoMode) {
-			// H2 in-memory mode
 			DemoData.insertInitialData(20, true);
+		} else if (devMode) {
+			if (CompetitionRepository.findAll().isEmpty()) {
+				DemoData.insertInitialData(20, true);
+			}
 		} else {
-			// H2 embedded mode
-			// TODO: use Postgres on Heroku
 			ProdData.insertInitialData(0, false);
 		}
 
