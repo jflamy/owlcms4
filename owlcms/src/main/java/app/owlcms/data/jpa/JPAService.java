@@ -118,7 +118,7 @@ public class JPAService {
 	 * @param memoryMode run from memory if true
 	 * @return an entity manager factory
 	 */
-	private static EntityManagerFactory getFactoryFromCode(boolean testMode2) {
+	private static EntityManagerFactory getFactoryFromCode(boolean memoryMode) {
 		PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(
 				JPAService.class.getSimpleName(),
 				entityClassNames(),
