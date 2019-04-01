@@ -25,8 +25,8 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
-import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
+import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -53,7 +53,7 @@ public class AthleteSorterTest {
 		// for this test, the initial data does not include body weights, so we use false
 		// on the constructor to disable exclusion of incomplete data.
 		athletes = AthleteRepository.findAll();
-		DebugUtils.longDump(athletes);
+		//System.out.println(DebugUtils.longDump(athletes));
 	}
 
 	@Test
