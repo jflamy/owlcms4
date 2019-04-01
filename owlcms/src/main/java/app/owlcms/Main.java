@@ -10,10 +10,12 @@ package app.owlcms;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
@@ -80,12 +82,17 @@ public class Main extends AbstractMain {
 		
 		if (demoMode) {
 			DemoData.insertInitialData(20, true);
-		} else if (devMode) {
-			if (CompetitionRepository.findAll().isEmpty()) {
-				DemoData.insertInitialData(20, true);
-			}
 		} else {
-			ProdData.insertInitialData(0, false);
+			List<Competition> allCompetitions = CompetitionRepository.findAll();
+			if (allCompetitions.isEmpty()) {
+				if (devMode) {
+					DemoData.insertInitialData(20, true);
+				} else {
+					ProdData.insertInitialData(0, false);
+				}
+			} else {
+				logger.info("database not empty {}",allCompetitions.get(0).getCompetitionName());
+			}
 		}
 
 		// initializes the owlcms singleton
