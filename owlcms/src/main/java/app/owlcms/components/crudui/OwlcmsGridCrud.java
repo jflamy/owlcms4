@@ -117,6 +117,7 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 			ComponentEventListener<ClickEvent<Button>> buttonClickListener) {
 		Component form = this.owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
 			cancelClickEvent -> {
+				owlcmsGridLayout.hideForm();
 				grid.asSingleSelect().clear();
 			}, operationPerformedClickEvent -> {
 				owlcmsGridLayout.hideForm();
