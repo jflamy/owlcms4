@@ -12,10 +12,6 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.jxls.reader.ReaderBuilder;
-import org.jxls.reader.ReaderConfig;
-import org.jxls.reader.XLSDataReadException;
-import org.jxls.reader.XLSReader;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
@@ -25,6 +21,10 @@ import app.owlcms.spreadsheet.RAthlete;
 import app.owlcms.spreadsheet.RCompetition;
 import app.owlcms.utils.DebugUtils;
 import ch.qos.logback.classic.Logger;
+import net.sf.jxls.reader.ReaderBuilder;
+import net.sf.jxls.reader.ReaderConfig;
+import net.sf.jxls.reader.XLSDataReadException;
+import net.sf.jxls.reader.XLSReader;
 
 public class RegistrationReaderTest {
 

@@ -46,8 +46,7 @@ public class PreparationNavigationContent extends BaseNavigationContent {
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(GroupContent.class));
 		Button upload = new Button("Upload Registration File",
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(CategoryContent.class));
+				buttonClickEvent -> new UploadDialog().open());
 		Button athletes = new Button("Edit Athlete Entries",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(AthletesContent.class));
@@ -61,8 +60,6 @@ public class PreparationNavigationContent extends BaseNavigationContent {
 			upload,
 			athletes,
 			weighIn);
-		
-		upload.setEnabled(false);
 		
 		fillH(grid, this);
 	}
