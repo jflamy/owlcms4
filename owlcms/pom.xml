@@ -121,18 +121,25 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>3.8</version>
+            <version>3.17</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>3.8</version>
+            <version>3.17</version>
         </dependency>
 		<dependency>
 		    <groupId>net.sf.supercsv</groupId>
 		    <artifactId>super-csv</artifactId>
 		    <version>2.4.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.jxls/jxls-reader -->
+		<dependency>
+		    <groupId>org.jxls</groupId>
+		    <artifactId>jxls-reader</artifactId>
+		    <version>2.0.5</version>
+		</dependency>
+		
 
 		<!-- event bus -->
 		<dependency>

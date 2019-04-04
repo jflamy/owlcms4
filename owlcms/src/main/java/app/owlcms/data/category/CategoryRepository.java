@@ -97,8 +97,10 @@ public class CategoryRepository {
 	public static Category doFindByName(String string, EntityManager em) {
 		Query query = em.createQuery("select c from Category c where lower(name) = lower(:string)");
 		query.setParameter("string", string);
-		List<Category> resultList = query.getResultList();
-		return resultList.get(0);
+		return (Category) query.getResultList()
+			.stream()
+			.findFirst()
+			.orElse(null);
 	}
 
 	

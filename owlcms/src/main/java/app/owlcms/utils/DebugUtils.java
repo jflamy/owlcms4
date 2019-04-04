@@ -23,7 +23,7 @@ public class DebugUtils {
 	 * @param lifterList
 	 * @return ordered printout of lifters, one per line.
 	 */
-	public static String shortDump(List<Athlete> lifterList) {
+	public static String shortDump(List<? extends Athlete> lifterList) {
 	    StringBuffer sb = new StringBuffer();
 	    for (Athlete lifter : lifterList) {
 	        sb.append(lifter.getLastName() + " " + lifter.getFirstName() //$NON-NLS-1$
