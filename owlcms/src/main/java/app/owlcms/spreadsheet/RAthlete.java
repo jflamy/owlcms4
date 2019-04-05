@@ -2,7 +2,11 @@ package app.owlcms.spreadsheet;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
+
+import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -11,6 +15,8 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * Used for registration.
@@ -21,10 +27,14 @@ import app.owlcms.data.group.GroupRepository;
  */
 public class RAthlete {
 	
+	final Logger logger = (Logger) LoggerFactory.getLogger(RAthlete.class);
+	{logger.setLevel(Level.INFO);}
+	
 	Athlete a = new Athlete();
 	
 
 	public Athlete getAthlete() {
+		
 		return a;
 	}
 
@@ -63,6 +73,38 @@ public class RAthlete {
 		a.setFirstName(firstName);
 	}
 
+	
+	/**
+	 * @param category
+	 * @throws Exception 
+	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
+	 */
+	public void setFullBirthDate(String content) throws Exception {
+		try {
+			long l = Long.parseLong(content);
+			if (l < 3000) {
+				a.setYearOfBirth((int) l);
+				logger.trace("short "+l);
+			} else {
+				LocalDate epoch = LocalDate.of(1900,1,1);
+				LocalDate plusDays = epoch.plusDays(l-2); // Excel quirks: 1 is 1900-01-01 and 1900-02-29 did not exist.
+				logger.trace("long "+plusDays);
+				a.setFullBirthDate(plusDays);
+			}
+			return;
+		} catch (NumberFormatException e) {
+			try {
+				// try as a ISO Date
+				LocalDate parse = LocalDate.parse(content,DateTimeFormatter.ISO_LOCAL_DATE);
+				logger.trace("dateString {}",parse);
+				
+			} catch (DateTimeParseException e1) {
+				throw new Exception(content+" is not a 4-digit year or an international yyyy-MM-dd format date like "+
+						DateTimeFormatter.ISO_LOCAL_DATE.format(LocalDate.of(1961, 02, 28)));
+			}
+		}
+
+	}
 
 	/**
 	 * @param category
@@ -74,7 +116,6 @@ public class RAthlete {
 		LocalDate fbd = fullBirthDate.toInstant()
 			      .atZone(ZoneId.systemDefault())
 			      .toLocalDate();
-		System.err.println(fbd);
 		a.setFullBirthDate(fbd);
 	}
 
