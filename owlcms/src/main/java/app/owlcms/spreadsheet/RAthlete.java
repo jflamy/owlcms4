@@ -1,10 +1,8 @@
 package app.owlcms.spreadsheet;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Date;
 
 import org.slf4j.LoggerFactory;
 
@@ -103,21 +101,20 @@ public class RAthlete {
 						DateTimeFormatter.ISO_LOCAL_DATE.format(LocalDate.of(1961, 02, 28)));
 			}
 		}
-
 	}
 
-	/**
-	 * @param category
-	 * @throws Exception 
-	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
-	 */
-	public void setFullBirthDate(Date fullBirthDate) throws Exception {
-		if (fullBirthDate == null) return;
-		LocalDate fbd = fullBirthDate.toInstant()
-			      .atZone(ZoneId.systemDefault())
-			      .toLocalDate();
-		a.setFullBirthDate(fbd);
-	}
+//	/**
+//	 * @param category
+//	 * @throws Exception 
+//	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
+//	 */
+//	public void setFullBirthDate(Date fullBirthDate) throws Exception {
+//		if (fullBirthDate == null) return;
+//		LocalDate fbd = fullBirthDate.toInstant()
+//			      .atZone(ZoneId.systemDefault())
+//			      .toLocalDate();
+//		a.setFullBirthDate(fbd);
+//	}
 
 
 	/**

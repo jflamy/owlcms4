@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.slf4j.LoggerFactory;
@@ -19,7 +18,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
-import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.spreadsheet.RAthlete;
 import app.owlcms.spreadsheet.RCompetition;
@@ -68,7 +66,7 @@ public class UploadDialog extends Dialog {
 		add(vl);
 	}
 
-	private List<Athlete> processInput(InputStream inputStream, TextArea ta) {
+	private void processInput(InputStream inputStream, TextArea ta) {
 		StringBuffer sb = new StringBuffer();
 		try (InputStream xmlInputStream = this.getClass().getResourceAsStream(REGISTRATION_READER_SPEC)) {
 			ReaderConfig readerConfig = ReaderConfig.getInstance();
@@ -102,21 +100,17 @@ public class UploadDialog extends Dialog {
 				}
 				logger.info("Read " + athletes.size() + " athletes");
 
-				List<Athlete> collect = athletes.stream().map(r -> r.getAthlete()).collect(Collectors.toList());
 				JPAService.runInTransaction(em -> {
-					for (Athlete a : collect) {
-						em.merge(a);
-					}
+					athletes.stream().map(r -> em.merge(r.getAthlete()));
 					return null;
 				});
-				return collect;
 			} catch (InvalidFormatException | IOException e) {
 				logger.error(LoggerUtils.stackTrace(e));
 			}
 		} catch (IOException | SAXException e1) {
 			logger.error(LoggerUtils.stackTrace(e1));
 		}
-		return null;
+		return;
 	}
 
 	public String cleanMessage(String localizedMessage) {
@@ -124,7 +118,7 @@ public class UploadDialog extends Dialog {
 		String cell = localizedMessage.substring(0,localizedMessage.indexOf(" "));
 		String ss = "spreadsheet";
 		int ix = localizedMessage.indexOf(ss)+ss.length();
-		String cleanMessage = cell+" "+localizedMessage.substring(ix);
+		String cleanMessage = "Cell "+cell+": "+localizedMessage.substring(ix);
 		return cleanMessage;
 	}
 }
