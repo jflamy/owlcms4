@@ -111,6 +111,7 @@ public class AthletesContent extends VerticalLayout
 		grid.addColumn("lastName").setHeader("Last Name");
 		grid.addColumn("firstName").setHeader("First Name");
 		grid.addColumn("team").setHeader("Team");
+		grid.addColumn("yearOfBirth").setHeader("Birth");
 		grid.addColumn("ageDivision").setHeader("Age Division");
 		grid.addColumn("category").setHeader("Category");
 		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale())).setHeader("Body Weight");
@@ -324,7 +325,7 @@ public class AthletesContent extends VerticalLayout
 	public Collection<Athlete> findAll() {
 		return AthleteRepository
 				.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
-					ageDivisionFilter.getValue(), null, -1, -1);
+					ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
 	}
 	
 	/**
