@@ -36,7 +36,7 @@ Current status: Quite close to minimal viable product ("MVP") able to run a regi
         
 Next steps
 - Intermission timer
-- Additional validations on weight request (athlete card)
+- Adding missing information on results screen
 - *Minimal* packaging and documentation for early users/testers
 
 Design notes:
