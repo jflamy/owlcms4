@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>app.owlcms</groupId>
 	<artifactId>owlcms4top</artifactId>
-	<version>4.5.0.alpha3</version>
+	<version>4.0.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>doc</module>
