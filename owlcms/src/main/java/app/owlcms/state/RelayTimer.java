@@ -132,6 +132,7 @@ public class RelayTimer implements ICountdownTimer {
 
 	@Override
 	public void timeOut(Object origin) {
+		this.stop();
 		fop.getEventBus().post(new FOPEvent.TimeOver(origin));
 	}
 
