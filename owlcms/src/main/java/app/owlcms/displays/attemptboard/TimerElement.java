@@ -40,7 +40,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.DEBUG);
 	}
 
 	/**
@@ -267,6 +267,18 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		OwlcmsSession.withFop(fop -> {
 			fop.getTimer().timeOut(this);
 		});
+	}
+	
+	/**
+	 * Set the remaining time when the timer element has been hidden for a long time.
+	 */
+	@ClientCallable
+	public void syncRemainingTime() {
+		logger.info("timer element fetching time");
+		OwlcmsSession.withFop(fop -> {
+			this.setTimeRemaining(fop.getTimer().getTimeRemaining());
+		});
+		return;
 	}
 	
 }

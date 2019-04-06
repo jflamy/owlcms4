@@ -4,7 +4,7 @@
  * This software is licensed under the the Apache 2.0 License amended with the
  * Commons Clause.
  * License text at https://github.com/jflamy/owlcms4/master/License
- * See https://redislabs.com/wp-layoutContent/uploads/2018/10/Commons-Clause-White-Paper.pdf
+ * See https://redislabs.com/wp-layoutComponentContent/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 package app.owlcms.ui.home;
 
@@ -41,7 +41,7 @@ import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.ui.displays.DisplayNavigationContent;
+import app.owlcms.ui.displayselection.DisplayNavigationContent;
 import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.results.ResultsNavigationContent;
@@ -64,8 +64,8 @@ import ch.qos.logback.classic.Logger;
 @HtmlImport("frontend://bower_components/iron-icons/places-icons.html")
 public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
-	static {logger.setLevel(Level.INFO);}
+	final private Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
+	{logger.setLevel(Level.DEBUG);}
 	
 	/** The notification holder. */
 	DefaultNotificationHolder notificationHolder;
@@ -75,7 +75,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 	private Behaviour variant;
 	private Thread currentThread;
 
-	private HasElement layoutContent;
+	private HasElement layoutComponentContent;
 
     public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));
@@ -90,14 +90,14 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 	public void showRouterLayoutContent(HasElement content) {
 		logger.debug("showRouterLayoutContent");
 		super.showRouterLayoutContent(content);
-		this.setLayoutContent(content);
+		this.setLayoutComponentContent(content);
 	}
 
 	/**
-	 * @return the layoutContent
+	 * @return the layoutComponentContent
 	 */
-	public HasElement getLayoutContent() {
-		return layoutContent;
+	public HasElement getLayoutComponentContent() {
+		return layoutComponentContent;
 	}
 
 
@@ -199,8 +199,8 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 		new BehaviourSelector(variant, this::setDrawerVariant).open();
 	}
 
-	private void setLayoutContent(HasElement layoutContent) {
-		this.layoutContent = layoutContent;
+	private void setLayoutComponentContent(HasElement layoutContent) {
+		this.layoutComponentContent = layoutContent;
 	}
 
 	/**

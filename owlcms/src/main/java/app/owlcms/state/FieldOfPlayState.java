@@ -41,10 +41,10 @@ import ch.qos.logback.classic.Logger;
  */
 public class FieldOfPlayState {
 	
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlayState.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-	static {
-		logger.setLevel(Level.DEBUG);
+	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlayState.class);
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	{
+		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
  
@@ -93,7 +93,7 @@ public class FieldOfPlayState {
 	 *
 	 * @return the logger
 	 */
-	public static Logger getLogger() {
+	public Logger getLogger() {
 		return logger;
 	}
 
@@ -282,7 +282,6 @@ public class FieldOfPlayState {
 			if (e instanceof FOPEvent.StartLifting) {
 				recomputeLiftingOrder();
 				uiDisplayCurrentAthleteAndTime();
-
 				setState(State.CURRENT_ATHLETE_DISPLAYED);
 			} else if (e instanceof FOPEvent.AthleteAnnounced) {
 				announce();
@@ -525,17 +524,21 @@ public class FieldOfPlayState {
 	 * @param group the group
 	 */
 	public void switchGroup(Group group, Object origin) {
-		this.group = group;
 		logger.info("{} switching to group {}", this.getName(), (group != null ? group.getName() : group));
+		initGroup(group, origin);
+		getEventBus().post(new FOPEvent.StartLifting(origin));
+	}
+
+
+	public void initGroup(Group group, Object origin) {
+		this.group = group;
+		logger.info("{} loading group {}", this.getName(), (group != null ? group.getName() : group));
 		if (group != null) {
 			List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
 			init(findAllByGroupAndWeighIn, timer);
-			getEventBus().post(new FOPEvent.StartLifting(origin));
 		} else {
 			init(new ArrayList<Athlete>(), timer);
-			getEventBus().post(new FOPEvent.StartLifting(origin));
 		}
-
 	}
 
 	private void announce() {
@@ -684,7 +687,7 @@ public class FieldOfPlayState {
 
 	/**
 	 * weight change while a lift is being performed (bar lifted above knees)
-	 * Lifting order is recomputed, so the app.owlcms.ui.displays can get it, but not the attempt
+	 * Lifting order is recomputed, so the app.owlcms.ui.displayselection can get it, but not the attempt
 	 * board state.
 	 * 
 	 * @param curAthlete

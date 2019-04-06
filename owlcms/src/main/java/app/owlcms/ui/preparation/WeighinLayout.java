@@ -84,7 +84,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 	
 	/**
 	 * The layout is created before the content. This routine has created the content, we can refer to
-	 * the content using {@link #getLayoutContent()} and the content can refer to us via
+	 * the content using {@link #getLayoutComponentContent()} and the content can refer to us via
 	 * {@link AppLayoutContent#getParentLayout()}
 	 * 
 	 * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
@@ -92,7 +92,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
 		super.showRouterLayoutContent(content);
-		WeighinContent weighinContent = (WeighinContent) getLayoutContent();
+		WeighinContent weighinContent = (WeighinContent) getLayoutComponentContent();
 		gridGroupFilter = weighinContent.getGroupFilter();
 	}
 	
@@ -193,7 +193,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 			}
 			return currentGroupAthletes;
 		});
-		((WeighinContent)getLayoutContent()).refresh();
+		((WeighinContent)getLayoutComponentContent()).refresh();
 	}
 	
 	private void generateStartNumbers() {
@@ -208,7 +208,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 			AthleteSorter.assignStartNumbers(currentGroupAthletes);
 			return currentGroupAthletes;
 		});
-		((WeighinContent)getLayoutContent()).refresh();
+		((WeighinContent)getLayoutComponentContent()).refresh();
 	}
 
 	protected void errorNotification() {

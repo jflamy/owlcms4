@@ -20,6 +20,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.group.Group;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
 import ch.qos.logback.classic.Level;
@@ -36,7 +37,7 @@ public class AnnouncerContent extends AthleteGridContent {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.INFO);
 	}
 	
@@ -68,12 +69,16 @@ public class AnnouncerContent extends AthleteGridContent {
 		super.createGroupSelect();
 		groupSelect.setReadOnly(false);
 		OwlcmsSession.withFop((fop) -> {
-			groupSelect.setValue(fop.getGroup());
+			Group group = fop.getGroup();
+			logger.debug("select setting group to {}",group);
+			groupSelect.setValue(group);
 		});
 		groupSelect.addValueChangeListener(e -> {
-			OwlcmsSession.withFop((fop) -> {
-				fop.switchGroup(e.getValue(), fop);
-			});
+			// the group management logic and filtering is attached to a
+			// hidden field in the grid part of the page
+			Group group = e.getValue();
+			logger.debug("select setting filter group to {}",group);
+			getGroupFilter().setValue(group);
 		});
 	}
 	

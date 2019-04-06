@@ -22,7 +22,6 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.data.group.Group;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.ui.home.BaseNavigationContent;
@@ -106,15 +105,16 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		});
 		fopSelect.addValueChangeListener(e -> {
 			OwlcmsSession.setFop(e.getValue());
-			OwlcmsSession.withFop((fop) -> {
-				Group group = e.getValue().getGroup();
-				Group currentGroup = fop.getGroup();
-				if (group == null) {
-					fop.switchGroup(null, this.getOrigin());
-				} else if (!group.equals(currentGroup)) {
-					fop.switchGroup(group, this.getOrigin());
-				}
-			});
+			// announcer deals with group
+//			OwlcmsSession.withFop((fop) -> {
+//				Group group = e.getValue().getGroup();
+//				Group currentGroup = fop.getGroup();
+//				if (group == null) {
+//					fop.switchGroup(null, this.getOrigin());
+//				} else if (!group.equals(currentGroup)) {
+//					fop.switchGroup(group, this.getOrigin());
+//				}
+//			});
 		});
 
 		HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
