@@ -60,7 +60,7 @@
            /**
            * Time the timer has spent running since it was started
            */
-           _lastTimerUpdateTime: {
+           _elapsedTime: {
              type: Number,
              value: 0
            },
@@ -86,7 +86,6 @@
       ready() {
     	  super.ready();
 		  this._init();
-		  document.onvisibilitychange = this._decreaseTimer.bind(this);
       }
 
       start() {
@@ -104,9 +103,9 @@
           this.finalWarningGiven = (this.currentTime < 30);
           this.timeOverWarningGiven = (this.currentTime < 0);
 
-          this._lastTimerUpdate = performance.now()/1000;
+          this._elapsed = performance.now()/1000;
           this.running = true;
-          window.requestAnimationFrame(this._fixTimer.bind(this));
+          window.requestAnimationFrame(this._decreaseTimer.bind(this));
       }
 
       pause() {
@@ -138,14 +137,14 @@
           this.timeOverWarningGiven = false;
       }
       
-     _decreaseTimer() {
+     _decreaseTimer(timestamp) {
           if (!this.running) {
             return;
           }
           
-          var now = performance.now()/1000;
+          var now = timestamp/1000;
           // Compute the relative progress based on the time spent running
-          var progress = now - this._lastTimerUpdate;
+          var progress = now - this._elapsed;
           this.currentTime = this.countUp ? this.currentTime + progress : this.currentTime - progress;
           
           // we anticipate by 0.1 sec because .play() has a perceptible delay
@@ -172,18 +171,11 @@
             	this.currentTime = this.countUp ? this.startTime : 0; // avoid ugly if rounding error.
 			}
 
-		this._formattedTime = this._formatTime(this.currentTime);
-		this._lastTimerUpdate = now;
-		window.requestAnimationFrame(this._decreaseTimer.bind(this));
+          this._formattedTime = this._formatTime(this.currentTime);
+          this._elapsed = now;
+          window.requestAnimationFrame(this._decreaseTimer.bind(this));
+
     }
-     
-	_fixTimer() {
-	    if (!this.running) {
-			this.$server.syncTimeRemaining();
-			this._formattedTime = this._formatTime(this.currentTime);
-	    }
-	    return;
-	 }
 
     _formatTime(ntime) {
     	if (ntime < 0) return "0:00";

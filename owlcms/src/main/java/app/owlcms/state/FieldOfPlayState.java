@@ -524,16 +524,16 @@ public class FieldOfPlayState {
 	 * @param group the group
 	 */
 	public void switchGroup(Group group, Object origin) {
-		logger.info("{} switching to group {}", this.getName(), (group != null ? group.getName() : group));
 		initGroup(group, origin);
+		logger.info("{} start lifting for group {}", this.getName(), (group != null ? group.getName() : group));
 		getEventBus().post(new FOPEvent.StartLifting(origin));
 	}
 
 
 	public void initGroup(Group group, Object origin) {
 		this.group = group;
-		logger.info("{} loading group {}", this.getName(), (group != null ? group.getName() : group));
 		if (group != null) {
+			logger.info("{} loading group {}", this.getName(), (group != null ? group.getName() : group));
 			List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
 			init(findAllByGroupAndWeighIn, timer);
 		} else {
