@@ -10,8 +10,10 @@ package app.owlcms.ui.group;
 
 import org.slf4j.LoggerFactory;
 
+import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
+import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.theme.Theme;
@@ -32,10 +34,11 @@ import ch.qos.logback.classic.Logger;
 public class AthleteGridLayout extends OwlcmsRouterLayout {
 	
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridLayout.class);
-	static {logger.setLevel(Level.INFO);}
+	static {logger.setLevel(Level.DEBUG);}
 	
 	public AthleteGridLayout() {
 		super();
+		logger.debug("created AthleteGridLayout");
 	}
 
 	/**
@@ -44,14 +47,24 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
+		logger.debug("AthleteGridLayout getLayoutConfiguration ");
 		variant = Behaviour.LEFT;
-		AppLayout appLayout = super.getLayoutConfiguration(variant);
+		AbstractLeftAppLayoutBase appLayout = (AbstractLeftAppLayoutBase) super.getLayoutConfiguration(variant);
+		// hide arrow because we open in new page
+		appLayout.setMenuVisible(false);
 		appLayout.closeDrawer();
 		// hide the title and icon
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()
-			.set("flex", "0 1 0px");
+			.set("display", "none");
+			//.set("flex", "0 1 0px");
 		return appLayout;
+	}
+	
+	@Override
+	public void showRouterLayoutContent(HasElement content) {
+		logger.debug("AthleteGridLayout setting bi-directional link");
+		super.showRouterLayoutContent(content);
 	}
 }

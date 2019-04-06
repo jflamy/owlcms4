@@ -20,12 +20,13 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Class RelayTimer.
- * Relays start-stop instructions to the browser-based client app.owlcms.ui.displays.
+ * Relays start-stop instructions to the browser-based client app.owlcms.ui.displayselection.
  * Keeps server-side information on elapsed time.
  */
 public class RelayTimer implements ICountdownTimer {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(RelayTimer.class);
+	final private Logger logger = (Logger) LoggerFactory.getLogger(RelayTimer.class);
+	{ logger.setLevel(Level.DEBUG); }
 
 	private int timeRemaining;
 	private FieldOfPlayState fop;
@@ -39,7 +40,6 @@ public class RelayTimer implements ICountdownTimer {
 	 * @param fop 
 	 */
 	public RelayTimer(FieldOfPlayState fop) {
-		logger.setLevel(Level.INFO);
 		this.fop = fop;
 	}
 	
@@ -132,6 +132,7 @@ public class RelayTimer implements ICountdownTimer {
 
 	@Override
 	public void timeOut(Object origin) {
+		this.stop();
 		fop.getEventBus().post(new FOPEvent.TimeOver(origin));
 	}
 

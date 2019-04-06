@@ -269,4 +269,16 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		});
 	}
 	
+	/**
+	 * Set the remaining time when the timer element has been hidden for a long time.
+	 */
+	@ClientCallable
+	public void syncRemainingTime() {
+		logger.info("timer element fetching time");
+		OwlcmsSession.withFop(fop -> {
+			this.setTimeRemaining(fop.getTimer().getTimeRemaining());
+		});
+		return;
+	}
+	
 }

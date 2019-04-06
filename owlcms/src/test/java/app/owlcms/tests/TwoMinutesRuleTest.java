@@ -104,9 +104,8 @@ public class TwoMinutesRuleTest {
 		for (int i = 2; i < size; i++)
 			athletes.remove(2);
 
-		FieldOfPlayState.getLogger()
-			.setLevel(LoggerLevel);
 		FieldOfPlayState fopState = new FieldOfPlayState(athletes, new MockCountdownTimer());
+		fopState.getLogger().setLevel(LoggerLevel);
 		fopState.setStartTimeAutomatically(true);
 		EventBus fopBus = fopState.getEventBus();
 

@@ -63,6 +63,12 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Class AnnouncerContent.
+ * 
+ * Initialization order is
+ * - content class is created
+ * - wrapping app layout is created if not present
+ * - this content is inserted in the app layout slot
+ * 
  */
 @SuppressWarnings("serial")
 public class AthleteGridContent extends VerticalLayout
@@ -71,7 +77,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
@@ -112,6 +118,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	 * Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public AthleteGridContent() {
+		logger.debug("AthleteGridContent constructor");
 	}
 	
 	/**
@@ -120,9 +127,12 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	 */
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		logger.debug("AthleteGridContent parsing URL");
 		QueryParameterReader.super.setParameter(event, parameter);
 		location = event.getLocation();
 		locationUI = event.getUI();
+		// super.setParamet sets the group, but does not reload.
+		OwlcmsSession.withFop(fop -> fop.initGroup(fop.getGroup(), this));
 	}
 
 	/**
@@ -152,9 +162,9 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 		grid = getGrid();
 		fillHW(grid, this);
 		OwlcmsSession.withFop(fop -> {
-			// create the top bar, now that we know the group and fop
+			// create the top bar.
 			createTopBar();
-			syncWithFOP();
+			syncWithFOP(true);
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
@@ -185,9 +195,9 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	 * a single page app.
 	 */
 	protected void createTopBar() {
+		logger.debug("AthleteGridContent creating top bar");
 		topBar = getAppLayout().getAppBarElementWrapper();
-		// hide arrow because we open in new page
-		getAppLayout().setMenuVisible(false);
+
 		
 		title = new H3();
 		title.setText(getTopBarTitle());
@@ -195,13 +205,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 			.set("margin", "0px 0px 0px 0px")
 			.set("font-weight", "normal");
 
-		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder("Select Group");
-		groupSelect.setItems(GroupRepository.findAll());
-		groupSelect.setItemLabelGenerator(Group::getName);
-		groupSelect.setWidth("8rem");
-		groupSelect.setReadOnly(true);
-		// if groupSelect is made read-write, it needs to set groupFilter and call updateURLLocation
+		createGroupSelect();
 
 		lastName = new H1();
 		lastName.setText("\u2013");
@@ -223,9 +227,10 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 		decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		topBar.removeAll();
-		topBar.getElement()
-			.getStyle()
-			.set("flex", "100 1");
+//		topBar.getElement()
+//			.getStyle()
+//			.set("flex", "100 1");
+		topBar.setSizeFull();
 		topBar.add(title, groupSelect, fullName, attempt, weight, time);
 		if (buttons != null) topBar.add(buttons);
 		if (decisions != null) topBar.add(decisions);
@@ -234,6 +239,16 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 		topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
 		topBar.setFlexGrow(0.5, fullName);
+	}
+
+	public void createGroupSelect() {
+		groupSelect = new ComboBox<>();
+		groupSelect.setPlaceholder("Select Group");
+		groupSelect.setItems(GroupRepository.findAll());
+		groupSelect.setItemLabelGenerator(Group::getName);
+		groupSelect.setWidth("8rem");
+		groupSelect.setReadOnly(true);
+		// if groupSelect is made read-write, it needs to set groupFilter and call updateURLLocation
 	}
 
 
@@ -295,14 +310,17 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 		}
 	}
 
-	public void syncWithFOP() {
+	public void syncWithFOP(boolean forceUpdate) {
 		logger.debug("syncWithFOP {}",LoggerUtils.whereFrom());
 		OwlcmsSession.withFop((fop) -> {
 			Group fopGroup = fop.getGroup();
 			Group displayedGroup = groupSelect.getValue();
 			if (fopGroup == null && displayedGroup == null) return;
-			if (fopGroup != null && ! fopGroup.equals(displayedGroup)) {
+			if (fopGroup != null && (forceUpdate || ! fopGroup.equals(displayedGroup))) {
 				groupSelect.setValue(fopGroup);
+				if (forceUpdate) {
+					fop.switchGroup(fop.getGroup(), this);
+				}
 			} else if (fopGroup == null) {
 				groupSelect.setValue(null);
 			}
@@ -381,21 +399,15 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 		groupFilter.setItemLabelGenerator(Group::getName);
 		// hide because the top bar has it
 		groupFilter.getStyle().set("display", "none");
-		
-		// should be moved to onAttach, and the rest of the grid creation moved
-		// back to constructor.
-		OwlcmsSession.withFop((fop) -> {
-			groupFilter.setValue(fop.getGroup());
-		});
+		// we do not set the group filter value
 		groupFilter.addValueChangeListener(e -> {
 			Group newGroup = e.getValue();
-			logger.debug("manually switching group to {}",newGroup != null ? newGroup.getName() : null);
+			logger.debug("filter switching group to {}",newGroup != null ? newGroup.getName() : null);
 			OwlcmsSession.withFop((fop) -> {
 				fop.switchGroup(newGroup, this.getOrigin());
 			});
 			crud.refreshGrid();
 			updateURLLocation(locationUI, location, newGroup);
-
 		});
 
 		crud.setCrudListener(this);
@@ -446,7 +458,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	public Collection<Athlete> findAll() {
 		FieldOfPlayState fop = OwlcmsSession.getFop();
 		if (fop != null) {
-			logger.debug("findAll {} {}",fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName());
+			logger.debug("findAll {} {} {}",fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(), LoggerUtils.whereFrom());
 			return fop.getLiftingOrder();
 		} else {
 			// no field of play, no group, empty list

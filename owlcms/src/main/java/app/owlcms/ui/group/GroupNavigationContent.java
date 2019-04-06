@@ -15,12 +15,13 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.data.group.Group;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.ui.home.BaseNavigationContent;
@@ -45,11 +46,16 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 	public GroupNavigationContent() {
 		logger.trace("GroupNavigationContent constructor start");
 		VerticalLayout intro = new VerticalLayout();
-		addParagraph(intro, "Use the dropdown to select the platform where the display is located.");
-		addParagraph(intro, "At the beginning of each competition group, select the group. "+
-				"Changing the group changes it for all displays and screens connected to this platform "+
-				"(announcer, timekeeper, marshall, results, attempt board, jury, etc.");
-		addParagraph(intro, "Use one of the buttons below to start one of the technical official screens.");
+		addParagraph(intro, "Use the dropdown to select the platform where you are officiating.");
+		Paragraph p = addParagraph(intro, "The lifting group is selected on the");
+		Element setText = new Element("b").setText(" Announcer");
+		setText.getStyle().set("font-style", "italic");
+		p.getElement().appendChild(setText);
+		p.add(" screen");
+		
+		addParagraph(intro, "Changing the group on this platform's announcer page changes it for all displays and screens connected to this platform "+
+				"(announcer, timekeeper, marshall, results, attempt board, jury, etc.)");
+		addParagraph(intro, "Use the buttons below to start one of the technical official screens. The screen will open in a new tab.");
 		intro.getElement().getStyle().set("margin-bottom", "0");
 		
 		Button announcer = new Button(
@@ -85,6 +91,9 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		super.createTopBar("Run Lifting Group");
 	}
 
+	/* (non-Javadoc)
+	 * @see app.owlcms.ui.home.BaseNavigationContent#createTopBarFopField(java.lang.String, java.lang.String)
+	 */
 	@Override
 	protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
 		Label fopLabel = new Label(label);
@@ -96,15 +105,16 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		});
 		fopSelect.addValueChangeListener(e -> {
 			OwlcmsSession.setFop(e.getValue());
-			OwlcmsSession.withFop((fop) -> {
-				Group group = e.getValue().getGroup();
-				Group currentGroup = fop.getGroup();
-				if (group == null) {
-					fop.switchGroup(null, this.getOrigin());
-				} else if (!group.equals(currentGroup)) {
-					fop.switchGroup(group, this.getOrigin());
-				}
-			});
+			// announcer deals with group
+//			OwlcmsSession.withFop((fop) -> {
+//				Group group = e.getValue().getGroup();
+//				Group currentGroup = fop.getGroup();
+//				if (group == null) {
+//					fop.switchGroup(null, this.getOrigin());
+//				} else if (!group.equals(currentGroup)) {
+//					fop.switchGroup(group, this.getOrigin());
+//				}
+//			});
 		});
 
 		HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);

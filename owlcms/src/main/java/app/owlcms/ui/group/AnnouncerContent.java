@@ -20,6 +20,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.group.Group;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
 import ch.qos.logback.classic.Level;
@@ -28,7 +29,6 @@ import ch.qos.logback.classic.Logger;
 /**
  * Class AnnouncerContent.
  */
-//FIXME set the group from URL if the FOP has no group set.
 
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AthleteGridLayout.class)
@@ -37,11 +37,12 @@ public class AnnouncerContent extends AthleteGridContent {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.INFO);
 	}
 	
 	public AnnouncerContent() {
+		super();
 		setTopBarTitle("Announcer");
 	}
 	
@@ -56,9 +57,31 @@ public class AnnouncerContent extends AthleteGridContent {
 	 */
 	@Override
 	public boolean isIgnoreGroup() {
-		logger.trace("AnnouncerContent ignoreGroup false");
 		return false;
 	}
+	
+	
+	/* (non-Javadoc)
+	 * @see app.owlcms.ui.group.AthleteGridContent#createGroupSelect()
+	 */
+	@Override
+	public void createGroupSelect() {
+		super.createGroupSelect();
+		groupSelect.setReadOnly(false);
+		OwlcmsSession.withFop((fop) -> {
+			Group group = fop.getGroup();
+			logger.debug("select setting group to {}",group);
+			groupSelect.setValue(group);
+		});
+		groupSelect.addValueChangeListener(e -> {
+			// the group management logic and filtering is attached to a
+			// hidden field in the grid part of the page
+			Group group = e.getValue();
+			logger.debug("select setting filter group to {}",group);
+			getGroupFilter().setValue(group);
+		});
+	}
+	
 	
 	@Override
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
