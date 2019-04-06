@@ -17,6 +17,7 @@ Current status: Quite close to minimal viable product ("MVP") able to run a regi
 - Working entry screens for defining a competition (general info, groups, categories, etc.)
 - Working athlete cards, weighin sheet (w/ starting weights), group results sheet
 - Supports multiple platforms
+- Upload of registration sheet (same as owlcms2, in either xls or xlsx format)
 
 [Live demo](https://owlcms4.herokuapp.com) of the current build is available on the Heroku cloud service.
 - Note that the cloud demo application is not pre-loaded and uses their free tier, so the first load can take a minute. This is *not* indicative of subsequent loads and is not indicative of local performance (both of which start in a few seconds).
@@ -33,9 +34,7 @@ Current status: Quite close to minimal viable product ("MVP") able to run a regi
     - You can start a Result Board.
     - If you go back to the main screen and change the group, you should see all the screens change to the new group.
         
-
 Next steps
-- Upload of athlete registrations
 - Intermission timer
 - Additional validations on weight request (athlete card)
 - *Minimal* packaging and documentation for early users/testers
