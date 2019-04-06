@@ -51,7 +51,8 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()
-			.set("flex", "0 1 0px");
+			.set("display", "none");
+			//.set("flex", "0 1 0px");
 		return appLayout;
 	}
 }

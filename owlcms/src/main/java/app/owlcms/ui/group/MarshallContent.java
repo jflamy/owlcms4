@@ -39,6 +39,7 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 
 	
 	public MarshallContent() {
+		super();
 		setTopBarTitle("Marshall");
 	}
 	

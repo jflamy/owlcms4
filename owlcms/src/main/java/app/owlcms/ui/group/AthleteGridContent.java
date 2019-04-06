@@ -195,13 +195,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 			.set("margin", "0px 0px 0px 0px")
 			.set("font-weight", "normal");
 
-		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder("Select Group");
-		groupSelect.setItems(GroupRepository.findAll());
-		groupSelect.setItemLabelGenerator(Group::getName);
-		groupSelect.setWidth("8rem");
-		groupSelect.setReadOnly(true);
-		// if groupSelect is made read-write, it needs to set groupFilter and call updateURLLocation
+		createGroupSelect();
 
 		lastName = new H1();
 		lastName.setText("\u2013");
@@ -234,6 +228,16 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 		topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
 		topBar.setFlexGrow(0.5, fullName);
+	}
+
+	public void createGroupSelect() {
+		groupSelect = new ComboBox<>();
+		groupSelect.setPlaceholder("Select Group");
+		groupSelect.setItems(GroupRepository.findAll());
+		groupSelect.setItemLabelGenerator(Group::getName);
+		groupSelect.setWidth("8rem");
+		groupSelect.setReadOnly(true);
+		// if groupSelect is made read-write, it needs to set groupFilter and call updateURLLocation
 	}
 
 

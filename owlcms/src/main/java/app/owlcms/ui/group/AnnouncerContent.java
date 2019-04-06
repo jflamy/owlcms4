@@ -28,7 +28,6 @@ import ch.qos.logback.classic.Logger;
 /**
  * Class AnnouncerContent.
  */
-//FIXME set the group from URL if the FOP has no group set.
 
 @SuppressWarnings("serial")
 @Route(value = "group/announcer", layout = AthleteGridLayout.class)
@@ -42,6 +41,7 @@ public class AnnouncerContent extends AthleteGridContent {
 	}
 	
 	public AnnouncerContent() {
+		super();
 		setTopBarTitle("Announcer");
 	}
 	
@@ -56,9 +56,27 @@ public class AnnouncerContent extends AthleteGridContent {
 	 */
 	@Override
 	public boolean isIgnoreGroup() {
-		logger.trace("AnnouncerContent ignoreGroup false");
 		return false;
 	}
+	
+	
+	/* (non-Javadoc)
+	 * @see app.owlcms.ui.group.AthleteGridContent#createGroupSelect()
+	 */
+	@Override
+	public void createGroupSelect() {
+		super.createGroupSelect();
+		groupSelect.setReadOnly(false);
+		OwlcmsSession.withFop((fop) -> {
+			groupSelect.setValue(fop.getGroup());
+		});
+		groupSelect.addValueChangeListener(e -> {
+			OwlcmsSession.withFop((fop) -> {
+				fop.switchGroup(e.getValue(), fop);
+			});
+		});
+	}
+	
 	
 	@Override
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {

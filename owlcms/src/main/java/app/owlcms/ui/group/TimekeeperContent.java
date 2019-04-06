@@ -38,6 +38,7 @@ public class TimekeeperContent extends AthleteGridContent {
 	}
 	
 	public TimekeeperContent() {
+		super();
 		setTopBarTitle("Timekeeper");	
 	}
 	

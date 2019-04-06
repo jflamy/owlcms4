@@ -35,10 +35,11 @@ public interface NavigationPage {
 		return absoluteURL;
 	}
 
-	public default void addParagraph(HasComponents intro, String text) {
+	public default Paragraph addParagraph(HasComponents intro, String text) {
 		Paragraph paragraph = new Paragraph(text);
 		paragraph.getElement().getStyle().set("margin-bottom", "0");
 		intro.add(paragraph);
+		return paragraph;
 	}
 	
 	public default String buildAbsoluteURL(VaadinServletRequest request, String resourcePath) {

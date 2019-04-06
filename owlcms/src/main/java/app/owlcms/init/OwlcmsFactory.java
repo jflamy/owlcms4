@@ -43,6 +43,7 @@ public class OwlcmsFactory {
 
 	/** The fop by name. */
 	static Map<String, FieldOfPlayState> fopByName = null;
+	private static String version;
 	
 
 	/**
@@ -102,5 +103,13 @@ public class OwlcmsFactory {
 		}
 		Collection<FieldOfPlayState> values = fopByName.values();
 		return values;
+	}
+
+	public static void setVersion(String sVersion) {
+		version = sVersion;
+	}
+
+	public static String getVersion() {
+		return version;
 	}
 }

@@ -34,10 +34,10 @@ public class AbstractMain implements ServletContextListener {
 
 	protected static void logStart(Integer serverPort) throws IOException, ParseException {
 		InputStream in = AbstractMain.class.getResourceAsStream("/build.properties"); //$NON-NLS-1$
-		Properties buildProps = new Properties();
-		buildProps.load(in);
-		Properties props = buildProps;
+		Properties props = new Properties();
+		props.load(in);
     	String version = props.getProperty("version"); //$NON-NLS-1$
+    	OwlcmsFactory.setVersion(version);
 		String buildTimestamp = props.getProperty("buildTimestamp"); //$NON-NLS-1$
 		//String buildZone = props.getProperty("buildZone");
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm"); //$NON-NLS-1$

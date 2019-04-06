@@ -131,8 +131,8 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 		configureTopBar();
 		configureTopBarTitle(title);
 		HorizontalLayout fopField = createTopBarFopField("Competition Platform", "Select Platform");
-		HorizontalLayout groupField = createTopBarGroupField("Group", "Select Group");
-		createAppBar(fopField, groupField);
+		//HorizontalLayout groupField = createTopBarGroupField("Group", "Select Group");
+		createAppBar(fopField, null); //, groupField
 	}
 
 	public void configureTopBar() {

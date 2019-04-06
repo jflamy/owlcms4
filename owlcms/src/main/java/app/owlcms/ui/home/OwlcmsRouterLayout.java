@@ -40,6 +40,7 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.displays.DisplayNavigationContent;
 import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
@@ -126,7 +127,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 				.build())
 			.withAppMenu(LeftAppMenuBuilder
 				.get()
-				.addToSection(new MenuHeaderComponent("", null, null), HEADER)
+				.addToSection(new MenuHeaderComponent(OwlcmsFactory.getVersion(), null, null), HEADER)
 				.add(home)
 				.add(new LeftNavigationComponent(
 						"Prepare Competition",
