@@ -23,7 +23,7 @@ import ch.qos.logback.classic.Logger;
 
 public interface QueryParameterReader extends HasUrlParameter<String>{
 
-	final static Logger logger = (Logger)LoggerFactory.getLogger(QueryParameterReader.class);
+	final Logger logger = (Logger)LoggerFactory.getLogger(QueryParameterReader.class);
 	
 	/*
 	 * Process query parameters
@@ -31,7 +31,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 	 */
 	@Override
 	public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 		
 		Location location = event.getLocation();
 		QueryParameters queryParameters = location.getQueryParameters();

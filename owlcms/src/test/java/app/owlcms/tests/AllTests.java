@@ -59,7 +59,7 @@ public class AllTests {
         try {
             // use buffering, reading one line at a time
             // FileReader always assumes default encoding is OK!
-            BufferedReader input = new BufferedReader(new InputStreamReader(is));
+            BufferedReader input = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             try {
                 String line = null; // not declared within while loop
                 /*
