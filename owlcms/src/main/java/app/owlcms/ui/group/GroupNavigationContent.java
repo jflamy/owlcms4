@@ -54,7 +54,7 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		p.getElement().appendChild(setText);
 		p.add(" screen");
 		
-		addParagraph(intro, "Changing the group changes it for all displays and screens connected to this platform "+
+		addParagraph(intro, "Changing the group on this platform's announcer page changes it for all displays and screens connected to this platform "+
 				"(announcer, timekeeper, marshall, results, attempt board, jury, etc.)");
 		addParagraph(intro, "Use the buttons below to start one of the technical official screens. The screen will open in a new tab.");
 		intro.getElement().getStyle().set("margin-bottom", "0");
