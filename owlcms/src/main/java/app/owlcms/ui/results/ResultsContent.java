@@ -56,8 +56,8 @@ import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.ui.group.AthleteCardFormFactory;
-import app.owlcms.ui.group.AthleteGridContent;
-import app.owlcms.ui.group.AthleteGridLayout;
+import app.owlcms.ui.shared.AthleteGridContent;
+import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -360,7 +360,7 @@ public class ResultsContent extends AthleteGridContent {
 	 * @param event Vaadin navigation event
 	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query parameters instead.
 	 * 
-	 * @see app.owlcms.ui.home.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+	 * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
 	 */
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {

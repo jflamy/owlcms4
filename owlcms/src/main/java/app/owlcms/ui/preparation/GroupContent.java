@@ -36,7 +36,9 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.home.ContentWrapping;
+import app.owlcms.ui.shared.ContentWrapping;
+import app.owlcms.ui.shared.LayoutAware;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -48,10 +50,12 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/groups", layout = GroupLayout.class)
 public class GroupContent extends VerticalLayout
-		implements CrudListener<Group>, ContentWrapping {
+		implements CrudListener<Group>, ContentWrapping, LayoutAware {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(GroupContent.class);
 	static {logger.setLevel(Level.INFO);}
+
+	private OwlcmsRouterLayout routerLayout;
 
 
 	/**
@@ -201,5 +205,15 @@ public class GroupContent extends VerticalLayout
 	@Override
 	public Collection<Group> findAll() {
 		return GroupRepository.findAll();
+	}
+	
+	@Override
+	public OwlcmsRouterLayout getRouterLayout() {
+		return routerLayout;
+	}
+
+	@Override
+	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+		this.routerLayout = routerLayout;
 	}
 }

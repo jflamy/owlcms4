@@ -20,6 +20,8 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
+import app.owlcms.ui.shared.AthleteGridContent;
+import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 

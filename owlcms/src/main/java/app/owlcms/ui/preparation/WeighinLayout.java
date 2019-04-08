@@ -42,8 +42,8 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.ui.group.UIEventProcessor;
-import app.owlcms.ui.home.OwlcmsRouterLayout;
-import app.owlcms.ui.home.SafeEventBusRegistration;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.ui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 

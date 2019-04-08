@@ -1,4 +1,4 @@
-package app.owlcms.ui.home;
+package app.owlcms.ui.shared;
 
 import org.slf4j.LoggerFactory;
 

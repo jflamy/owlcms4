@@ -21,9 +21,9 @@ import app.owlcms.components.NavigationPage;
 import app.owlcms.displays.attemptboard.AthleteFacingBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.results.ResultsBoard;
-import app.owlcms.ui.home.BaseNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
-import app.owlcms.ui.home.OwlcmsRouterLayout;
+import app.owlcms.ui.shared.BaseNavigationContent;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -84,6 +84,11 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	@Override
 	protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
 		return null;
+	}
+
+	@Override
+	protected String getTitle() {
+		return "Start Displays";
 	}
 	
 }

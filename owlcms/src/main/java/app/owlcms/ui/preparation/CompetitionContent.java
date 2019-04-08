@@ -31,7 +31,9 @@ import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.home.ContentWrapping;
+import app.owlcms.ui.shared.ContentWrapping;
+import app.owlcms.ui.shared.LayoutAware;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -41,9 +43,10 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/competition", layout = CompetitionLayout.class)
 public class CompetitionContent extends VerticalLayout
-		implements ContentWrapping, CrudLayout {
+		implements ContentWrapping, CrudLayout, LayoutAware {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(CompetitionContent.class);
+	private OwlcmsRouterLayout routerLayout;
 	public void initLoggers() {
 		logger.setLevel(Level.INFO);
 	}
@@ -166,5 +169,14 @@ public class CompetitionContent extends VerticalLayout
 	@Override
 	public void showDialog(String caption, Component form) {
 	}
-	
+
+	@Override
+	public OwlcmsRouterLayout getRouterLayout() {
+		return routerLayout;
+	}
+
+	@Override
+	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+		this.routerLayout = routerLayout;
+	}
 }

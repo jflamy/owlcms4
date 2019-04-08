@@ -17,9 +17,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.ui.home.BaseNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
-import app.owlcms.ui.home.OwlcmsRouterLayout;
+import app.owlcms.ui.shared.BaseNavigationContent;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -52,16 +52,14 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 			timingStats
 			);
 		fillH(grid, this);
+		
+		getRouterLayout().setNoBackArrow(true);
     }
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.BaseNavigationContent#configureTopBar(java.lang.String, com.github.appreciated.app.layout.behaviour.AppLayout)
-	 */
-	@Override 
-	protected void createTopBar(String title) {
-		super.createTopBar("Produce Results");
+	@Override
+	protected String getTitle() {
+		return "Produce Results";
 	}
-
 	
 	@Override
 	protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {

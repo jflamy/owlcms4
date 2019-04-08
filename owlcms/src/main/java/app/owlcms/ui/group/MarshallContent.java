@@ -22,7 +22,9 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.FieldOfPlayState;
-import app.owlcms.ui.home.QueryParameterReader;
+import app.owlcms.ui.shared.AthleteGridContent;
+import app.owlcms.ui.shared.AthleteGridLayout;
+import app.owlcms.ui.shared.QueryParameterReader;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 

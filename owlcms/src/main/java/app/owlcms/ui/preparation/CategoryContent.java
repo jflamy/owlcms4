@@ -33,7 +33,9 @@ import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
-import app.owlcms.ui.home.ContentWrapping;
+import app.owlcms.ui.shared.ContentWrapping;
+import app.owlcms.ui.shared.LayoutAware;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -45,7 +47,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/categories", layout = CategoryLayout.class)
 public class CategoryContent extends VerticalLayout
-		implements CrudListener<Category>, ContentWrapping {
+		implements CrudListener<Category>, ContentWrapping, LayoutAware {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(CategoryContent.class);
 	static {logger.setLevel(Level.INFO);}
@@ -53,6 +55,7 @@ public class CategoryContent extends VerticalLayout
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 	private TextField nameFilter = new TextField();
 	private Checkbox activeFilter = new Checkbox();
+	private OwlcmsRouterLayout routerLayout;
 
 	/**
 	 * Instantiates the category grid.
@@ -243,5 +246,15 @@ public class CategoryContent extends VerticalLayout
 		});
 		crud.getCrudLayout()
 			.addFilterComponent(clearFilters);
+	}
+	
+	@Override
+	public OwlcmsRouterLayout getRouterLayout() {
+		return routerLayout;
+	}
+
+	@Override
+	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+		this.routerLayout = routerLayout;
 	}
 }
