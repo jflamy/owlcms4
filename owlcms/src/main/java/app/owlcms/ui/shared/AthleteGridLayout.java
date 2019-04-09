@@ -49,9 +49,6 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
 		logger.debug("AthleteGridLayout getLayoutConfiguration ");
 		variant = Behaviour.LEFT;
 		AbstractLeftAppLayoutBase appLayout = (AbstractLeftAppLayoutBase) super.getLayoutConfiguration(variant);
-		// hide arrow because we open in new page
-		if (this.isNoBackArrow()) appLayout.setMenuVisible(false);
-		appLayout.closeDrawer();
 		// hide the title and icon
 		appLayout.getTitleWrapper()
 			.getElement()

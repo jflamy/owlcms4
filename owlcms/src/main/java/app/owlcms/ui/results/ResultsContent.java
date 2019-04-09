@@ -87,7 +87,6 @@ public class ResultsContent extends AthleteGridContent {
 		setTopBarTitle("Group Results");
 	}
 
-
 	/** We do not connect to the event bus, and we do not track a field of play
 	 * (non-Javadoc)
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
@@ -109,6 +108,10 @@ public class ResultsContent extends AthleteGridContent {
 	 */
 	@Override
 	protected void createTopBar() {
+		// show arrow but close menu
+		getAppLayout().setMenuVisible(true);
+		getAppLayout().closeDrawer();
+		
 		topBar = getAppLayout().getAppBarElementWrapper();
 		
 		H3 title = new H3();

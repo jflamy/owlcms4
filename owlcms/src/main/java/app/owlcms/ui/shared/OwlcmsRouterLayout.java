@@ -253,12 +253,4 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 			});
 		}
 	}
-
-	public boolean isNoBackArrow() {
-		return noBackArrow;
-	}
-
-	public void setNoBackArrow(boolean noBack) {
-		noBackArrow = noBack;
-	}
 }

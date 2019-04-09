@@ -62,7 +62,16 @@ public class AnnouncerContent extends AthleteGridContent {
 		return false;
 	}
 	
-	
+	/* (non-Javadoc)
+	 * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
+	 */
+	@Override
+	protected void createTopBar() {
+		super.createTopBar();
+		// this hides the back arrow
+		getAppLayout().setMenuVisible(false);
+	}
+
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.group.AthleteGridContent#createGroupSelect()
 	 */

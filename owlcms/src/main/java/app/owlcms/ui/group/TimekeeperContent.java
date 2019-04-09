@@ -44,6 +44,16 @@ public class TimekeeperContent extends AthleteGridContent {
 		setTopBarTitle("Timekeeper");	
 	}
 	
+	/* (non-Javadoc)
+	 * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
+	 */
+	@Override
+	protected void createTopBar() {
+		super.createTopBar();
+		// this hides the back arrow
+		getAppLayout().setMenuVisible(false);
+	}
+	
 	@Override
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
 

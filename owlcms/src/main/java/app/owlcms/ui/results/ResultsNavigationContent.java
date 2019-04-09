@@ -54,12 +54,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		fillH(grid, this);
 		
     }
-
-	@Override
-	protected void createTopBar(String title) {
-		getRouterLayout().setNoBackArrow(true);
-		super.createTopBar(title);
-	}
 	
 	@Override
 	protected String getTitle() {
