@@ -35,7 +35,7 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.ContentWrapping;
-import app.owlcms.ui.shared.LayoutAware;
+import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -48,7 +48,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/groups", layout = GroupLayout.class)
 public class GroupContent extends VerticalLayout
-		implements CrudListener<Group>, ContentWrapping, LayoutAware {
+		implements CrudListener<Group>, ContentWrapping, AppLayoutAware {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(GroupContent.class);
 	static {logger.setLevel(Level.INFO);}

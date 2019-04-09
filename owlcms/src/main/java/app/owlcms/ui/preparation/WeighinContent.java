@@ -50,7 +50,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.ContentWrapping;
-import app.owlcms.ui.shared.LayoutAware;
+import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -64,7 +64,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/weighin", layout = WeighinLayout.class)
 public class WeighinContent extends VerticalLayout 
-		implements CrudListener<Athlete>, ContentWrapping, LayoutAware {
+		implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(WeighinContent.class);
 	static {logger.setLevel(Level.INFO);}

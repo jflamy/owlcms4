@@ -32,7 +32,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.ContentWrapping;
-import app.owlcms.ui.shared.LayoutAware;
+import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -43,7 +43,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/competition", layout = CompetitionLayout.class)
 public class CompetitionContent extends VerticalLayout
-		implements ContentWrapping, CrudLayout, LayoutAware {
+		implements ContentWrapping, CrudLayout, AppLayoutAware {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(CompetitionContent.class);
 	private OwlcmsRouterLayout routerLayout;

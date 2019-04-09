@@ -34,7 +34,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.ui.shared.ContentWrapping;
-import app.owlcms.ui.shared.LayoutAware;
+import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -47,7 +47,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/categories", layout = CategoryLayout.class)
 public class CategoryContent extends VerticalLayout
-		implements CrudListener<Category>, ContentWrapping, LayoutAware {
+		implements CrudListener<Category>, ContentWrapping, AppLayoutAware {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(CategoryContent.class);
 	static {logger.setLevel(Level.INFO);}
