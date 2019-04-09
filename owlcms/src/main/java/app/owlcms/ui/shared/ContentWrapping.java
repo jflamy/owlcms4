@@ -1,4 +1,4 @@
-package app.owlcms.ui.home;
+package app.owlcms.ui.shared;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;

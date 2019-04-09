@@ -18,8 +18,6 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
-import com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
@@ -56,8 +54,8 @@ import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.ui.group.AthleteCardFormFactory;
-import app.owlcms.ui.group.AthleteGridContent;
-import app.owlcms.ui.group.AthleteGridLayout;
+import app.owlcms.ui.shared.AthleteGridContent;
+import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -89,7 +87,6 @@ public class ResultsContent extends AthleteGridContent {
 		setTopBarTitle("Group Results");
 	}
 
-
 	/** We do not connect to the event bus, and we do not track a field of play
 	 * (non-Javadoc)
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
@@ -111,6 +108,10 @@ public class ResultsContent extends AthleteGridContent {
 	 */
 	@Override
 	protected void createTopBar() {
+		// show arrow but close menu
+		getAppLayout().setMenuVisible(true);
+		getAppLayout().closeDrawer();
+		
 		topBar = getAppLayout().getAppBarElementWrapper();
 		
 		H3 title = new H3();
@@ -360,7 +361,7 @@ public class ResultsContent extends AthleteGridContent {
 	 * @param event Vaadin navigation event
 	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query parameters instead.
 	 * 
-	 * @see app.owlcms.ui.home.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+	 * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
 	 */
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
@@ -405,10 +406,5 @@ public class ResultsContent extends AthleteGridContent {
 	@Override
 	public boolean isIgnoreGroup() {
 		return false;
-	}
-	
-	@Override
-	protected AbstractLeftAppLayoutBase getAppLayout() {
-		return (AbstractLeftAppLayoutBase)AppLayoutRouterLayoutBase.getCurrent();
 	}
 }

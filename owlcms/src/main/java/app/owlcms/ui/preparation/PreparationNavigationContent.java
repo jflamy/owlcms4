@@ -16,9 +16,9 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.ui.home.BaseNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
-import app.owlcms.ui.home.OwlcmsRouterLayout;
+import app.owlcms.ui.shared.BaseNavigationContent;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -64,12 +64,9 @@ public class PreparationNavigationContent extends BaseNavigationContent {
 		fillH(grid, this);
 	}
 	
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.BaseNavigationContent#configureTopBar(java.lang.String, com.github.appreciated.app.layout.behaviour.AppLayout)
-	 */
 	@Override
-	protected void createTopBar (String title) {
-		super.createTopBar("Prepare Competition");
+	protected String getTitle() {
+		return "Prepare Competition";
 	}
 
 	

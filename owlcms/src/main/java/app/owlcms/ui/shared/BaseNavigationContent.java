@@ -7,7 +7,7 @@
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 
-package app.owlcms.ui.home;
+package app.owlcms.ui.shared;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,7 +16,6 @@ import java.util.List;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
-import com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase;
 import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
@@ -45,7 +44,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public abstract class BaseNavigationContent extends VerticalLayout
-implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor {
+implements QueryParameterReader, ContentWrapping, AppLayoutAware, SafeEventBusRegistration, UIEventProcessor {
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(BaseNavigationContent.class);
@@ -63,6 +62,7 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 	 * Top part content
 	 */
 	private ComboBox<Group> groupSelect;
+	protected OwlcmsRouterLayout routerLayout;
 
 	/**
 	 * Instantiates a new announcer content.
@@ -73,7 +73,7 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 
 	/**
 	 * Process URL parameters, including query parameters
-	 * @see app.owlcms.ui.home.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+	 * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
 	 */
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
@@ -109,15 +109,17 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 	protected void onAttach(AttachEvent attachEvent) {
 		logger.debug("baseNavigation content onAttach");
 		OwlcmsSession.withFop(fop -> {
-			// sync with current status of FOP
-			//FIXME: syncWithFOP();
 			// create the top bar, now that we know the group and fop
-			createTopBar("");
+			String title = getTitle();
+			logger.warn("createTopBar {}",title);
+			createTopBar(title);
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
 
 		});
 	}
+
+	protected abstract String getTitle();
 
 	/**
 	 * The top bar is logically is the master part of a master-detail
@@ -137,14 +139,11 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 
 	public void configureTopBar() {
 		HorizontalLayout topBar = getAppLayout().getAppBarElementWrapper();
-		topBar.getElement()
-		.getStyle()
-		.set("flex", "100 1");
+//		topBar.getElement()
+//		.getStyle()
+//		.set("flex", "100 1");
+		topBar.setSizeFull();
 		topBar.setJustifyContentMode(JustifyContentMode.START);
-	}
-
-	protected AbstractLeftAppLayoutBase getAppLayout() {
-		return (AbstractLeftAppLayoutBase)AppLayoutRouterLayoutBase.getCurrent();
 	}
 
 	/**
@@ -153,7 +152,7 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 	 * @param appLayoutComponent
 	 */
 	protected void configureTopBarTitle(String topBarTitle) {
-		AbstractLeftAppLayoutBase appLayout = getAppLayout();
+		AbstractLeftAppLayoutBase appLayout = (AbstractLeftAppLayoutBase) getRouterLayout().getAppLayout();
 		appLayout.getTitleWrapper().getElement()
 		.getStyle()
 		.set("flex", "0 1 20em");
@@ -260,5 +259,14 @@ implements QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEv
 	protected Object getOrigin() {
 		return this;
 	}
+	
+	@Override
+	final public OwlcmsRouterLayout getRouterLayout() {
+		return routerLayout;
+	}
 
+	@Override
+	final public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+		this.routerLayout = routerLayout;
+	}
 }

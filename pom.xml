@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>app.owlcms</groupId>
 	<artifactId>owlcms4top</artifactId>
-	<version>4.0.6</version>
+	<version>4.0.6.1</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>doc</module>
@@ -22,11 +22,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
-
-		<sonar.java.source>8</sonar.java.source>
-		<sonar.analysis.mode>preview</sonar.analysis.mode>
-		<sonar.issuesReport.console.enable>true</sonar.issuesReport.console.enable>
-		<sonar.issuesReport.html.enable>true</sonar.issuesReport.html.enable>
 
 		<!-- Libraries -->
 		<vaadin.version>13.0.1</vaadin.version>

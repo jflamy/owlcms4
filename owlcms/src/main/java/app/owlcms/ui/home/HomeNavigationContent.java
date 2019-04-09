@@ -30,6 +30,8 @@ import app.owlcms.ui.displayselection.DisplayNavigationContent;
 import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.results.ResultsNavigationContent;
+import app.owlcms.ui.shared.BaseNavigationContent;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -93,13 +95,6 @@ public class HomeNavigationContent extends BaseNavigationContent {
 		return layout;
 	}
 	
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.BaseNavigationContent#configureTopBar(java.lang.String, com.github.appreciated.app.layout.behaviour.AppLayout)
-	 */
-	@Override
-	protected void createTopBar(String title) {
-		super.createTopBar("OWLCMS - Olympic Weightlifting Competition Management System");
-	}
 
 	/**
 	 * The left part of the top bar.
@@ -113,7 +108,7 @@ public class HomeNavigationContent extends BaseNavigationContent {
 		.getElement()
 		.getStyle()
 		.set("flex", "0 1 40em");
-		Label label = new Label(topBarTitle);
+		Label label = new Label(getTitle());
 		appLayout.setTitleComponent(label);
 	}
 	
@@ -131,5 +126,11 @@ public class HomeNavigationContent extends BaseNavigationContent {
 	public boolean isIgnoreFop() {
 		return true;
 	}
+
+	@Override
+	protected String getTitle() {
+		return "OWLCMS - Olympic Weightlifting Competition Management System";
+	}
+	
 
 }

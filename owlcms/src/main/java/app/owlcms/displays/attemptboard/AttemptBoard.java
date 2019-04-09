@@ -29,8 +29,8 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.UIEvent;
 import app.owlcms.ui.group.UIEventProcessor;
-import app.owlcms.ui.home.QueryParameterReader;
-import app.owlcms.ui.home.SafeEventBusRegistration;
+import app.owlcms.ui.shared.QueryParameterReader;
+import app.owlcms.ui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 

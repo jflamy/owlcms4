@@ -13,8 +13,8 @@ import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.vaadin.flow.component.html.Label;
 
 import app.owlcms.ui.group.UIEventProcessor;
-import app.owlcms.ui.home.OwlcmsRouterLayout;
-import app.owlcms.ui.home.SafeEventBusRegistration;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.ui.shared.SafeEventBusRegistration;
 
 /**
  * The Class CategoryLayout.

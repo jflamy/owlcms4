@@ -17,8 +17,6 @@ import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
-import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
-import com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -36,7 +34,9 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.home.ContentWrapping;
+import app.owlcms.ui.shared.ContentWrapping;
+import app.owlcms.ui.shared.AppLayoutAware;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -48,10 +48,12 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/groups", layout = GroupLayout.class)
 public class GroupContent extends VerticalLayout
-		implements CrudListener<Group>, ContentWrapping {
+		implements CrudListener<Group>, ContentWrapping, AppLayoutAware {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(GroupContent.class);
 	static {logger.setLevel(Level.INFO);}
+
+	private OwlcmsRouterLayout routerLayout;
 
 
 	/**
@@ -63,11 +65,6 @@ public class GroupContent extends VerticalLayout
 //		defineFilters(grid);
 		fillHW(crud, this);
 	}
-	
-	protected AbstractLeftAppLayoutBase getAppLayout() {
-		return (AbstractLeftAppLayoutBase)AppLayoutRouterLayoutBase.getCurrent();
-	}
-
 	
 	/**
 	 * The columns of the grid
@@ -201,5 +198,15 @@ public class GroupContent extends VerticalLayout
 	@Override
 	public Collection<Group> findAll() {
 		return GroupRepository.findAll();
+	}
+	
+	@Override
+	public OwlcmsRouterLayout getRouterLayout() {
+		return routerLayout;
+	}
+
+	@Override
+	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+		this.routerLayout = routerLayout;
 	}
 }

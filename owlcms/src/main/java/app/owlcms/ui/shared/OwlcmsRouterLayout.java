@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-layoutComponentContent/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.home;
+package app.owlcms.ui.shared;
 
 import static com.github.appreciated.app.layout.entity.Section.FOOTER;
 import static com.github.appreciated.app.layout.entity.Section.HEADER;
@@ -20,10 +20,10 @@ import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.github.appreciated.app.layout.builder.AppLayoutBuilder;
 import com.github.appreciated.app.layout.component.appbar.AppBarBuilder;
-import com.github.appreciated.app.layout.component.appmenu.MenuHeaderComponent;
-import com.github.appreciated.app.layout.component.appmenu.left.LeftClickableComponent;
-import com.github.appreciated.app.layout.component.appmenu.left.LeftNavigationComponent;
-import com.github.appreciated.app.layout.component.appmenu.left.builder.LeftAppMenuBuilder;
+import com.github.appreciated.app.layout.component.menu.left.builder.LeftAppMenuBuilder;
+import com.github.appreciated.app.layout.component.menu.left.items.LeftClickableItem;
+import com.github.appreciated.app.layout.component.menu.left.items.LeftHeaderItem;
+import com.github.appreciated.app.layout.component.menu.left.items.LeftNavigationItem;
 import com.github.appreciated.app.layout.entity.DefaultBadgeHolder;
 import com.github.appreciated.app.layout.notification.DefaultNotificationHolder;
 import com.github.appreciated.app.layout.notification.entitiy.DefaultNotification;
@@ -43,6 +43,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
 import app.owlcms.ui.group.GroupNavigationContent;
+import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.results.ResultsNavigationContent;
 import ch.qos.logback.classic.Level;
@@ -77,6 +78,8 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 
 	private HasElement layoutComponentContent;
 
+	private boolean noBackArrow;
+
     public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));
         reloadNotifications();
@@ -88,7 +91,8 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 	 */
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
-		logger.debug("showRouterLayoutContent");
+		logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName());
+		((AppLayoutAware)content).setRouterLayout(this);
 		super.showRouterLayoutContent(content);
 		this.setLayoutComponentContent(content);
 	}
@@ -110,7 +114,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 		}
 		reloadNotifications();
 
-		LeftNavigationComponent home = new LeftNavigationComponent(
+		LeftNavigationItem home = new LeftNavigationItem(
 				"Home",
 				VaadinIcon.HOME.create(),
 				HomeNavigationContent.class);
@@ -127,25 +131,25 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 				.build())
 			.withAppMenu(LeftAppMenuBuilder
 				.get()
-				.addToSection(new MenuHeaderComponent(OwlcmsFactory.getVersion(), null, null), HEADER)
+				.addToSection(new LeftHeaderItem(null, OwlcmsFactory.getVersion(), null), HEADER)
 				.add(home)
-				.add(new LeftNavigationComponent(
+				.add(new LeftNavigationItem(
 						"Prepare Competition",
 						new Icon("social", "group-add"),
 						PreparationNavigationContent.class))
-				.add(new LeftNavigationComponent(
+				.add(new LeftNavigationItem(
 						"Lifting Group",
 						new Icon("places", "fitness-center"),
 						GroupNavigationContent.class))
-				.add(new LeftNavigationComponent(
+				.add(new LeftNavigationItem(
 						"Setup Displays",
 						new Icon("hardware", "desktop-windows"),
 						DisplayNavigationContent.class))
-				.add(new LeftNavigationComponent(
+				.add(new LeftNavigationItem(
 						"Competition Documents",
 						new Icon("maps", "local-printshop"),
 						ResultsNavigationContent.class))
-				.addToSection(new LeftClickableComponent(
+				.addToSection(new LeftClickableItem(
 						"Preferences",
 						VaadinIcon.COG.create(),
 						clickEvent -> openModeSelector(this.variant)),

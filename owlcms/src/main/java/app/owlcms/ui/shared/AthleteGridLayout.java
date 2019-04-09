@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.ui.group;
+package app.owlcms.ui.shared;
 
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,6 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
-import app.owlcms.ui.home.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -43,16 +42,13 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
 
 	/**
 	 * Hide the menu and the default title
-	 * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
+	 * @see app.owlcms.ui.shared.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
 		logger.debug("AthleteGridLayout getLayoutConfiguration ");
 		variant = Behaviour.LEFT;
 		AbstractLeftAppLayoutBase appLayout = (AbstractLeftAppLayoutBase) super.getLayoutConfiguration(variant);
-		// hide arrow because we open in new page
-		appLayout.setMenuVisible(false);
-		appLayout.closeDrawer();
 		// hide the title and icon
 		appLayout.getTitleWrapper()
 			.getElement()
@@ -61,7 +57,7 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
 			//.set("flex", "0 1 0px");
 		return appLayout;
 	}
-	
+
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
 		logger.debug("AthleteGridLayout setting bi-directional link");

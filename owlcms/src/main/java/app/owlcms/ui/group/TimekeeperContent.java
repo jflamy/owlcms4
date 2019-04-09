@@ -20,6 +20,8 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
+import app.owlcms.ui.shared.AthleteGridContent;
+import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -40,6 +42,16 @@ public class TimekeeperContent extends AthleteGridContent {
 	public TimekeeperContent() {
 		super();
 		setTopBarTitle("Timekeeper");	
+	}
+	
+	/* (non-Javadoc)
+	 * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
+	 */
+	@Override
+	protected void createTopBar() {
+		super.createTopBar();
+		// this hides the back arrow
+		getAppLayout().setMenuVisible(false);
 	}
 	
 	@Override

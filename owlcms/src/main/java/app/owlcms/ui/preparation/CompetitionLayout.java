@@ -12,7 +12,7 @@ import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.vaadin.flow.component.html.Label;
 
-import app.owlcms.ui.home.OwlcmsRouterLayout;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
 
 /**
  * The Class CategoryLayout.

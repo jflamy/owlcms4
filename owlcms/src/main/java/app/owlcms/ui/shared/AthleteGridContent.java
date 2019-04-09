@@ -7,7 +7,7 @@
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
 
-package app.owlcms.ui.group;
+package app.owlcms.ui.shared;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,9 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
 import com.github.appreciated.app.layout.behaviour.AppLayout;
-import com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -54,9 +52,8 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FOPEvent;
 import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.state.UIEvent;
-import app.owlcms.ui.home.ContentWrapping;
-import app.owlcms.ui.home.QueryParameterReader;
-import app.owlcms.ui.home.SafeEventBusRegistration;
+import app.owlcms.ui.group.AthleteCardFormFactory;
+import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -72,7 +69,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public class AthleteGridContent extends VerticalLayout
-implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEventBusRegistration, UIEventProcessor {
+implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayoutAware, SafeEventBusRegistration, UIEventProcessor {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
@@ -112,6 +109,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	 * Bottom part content
 	 */
 	protected GridCrud<Athlete> grid;
+	private OwlcmsRouterLayout routerLayout;
 	
 	/**
 	 * Instantiates a new announcer content.
@@ -123,7 +121,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	
 	/**
 	 * Process URL parameters, including query parameters
-	 * @see app.owlcms.ui.home.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+	 * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
 	 */
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
@@ -180,10 +178,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 	 */
 	protected void setTopBarTitle(String title) {
 		this.topBarTitle = title;
-	}
-	
-	protected AbstractLeftAppLayoutBase getAppLayout() {
-		return (AbstractLeftAppLayoutBase)AppLayoutRouterLayoutBase.getCurrent();
 	}
 	
 	/**
@@ -476,6 +470,16 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, SafeEve
 
 	public void refresh() {
 		grid.refreshGrid();
+	}
+	
+	@Override
+	public OwlcmsRouterLayout getRouterLayout() {
+		return routerLayout;
+	}
+
+	@Override
+	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+		this.routerLayout = routerLayout;
 	}
 
 }

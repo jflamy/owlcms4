@@ -49,7 +49,9 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.home.ContentWrapping;
+import app.owlcms.ui.shared.ContentWrapping;
+import app.owlcms.ui.shared.AppLayoutAware;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -62,7 +64,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/weighin", layout = WeighinLayout.class)
 public class WeighinContent extends VerticalLayout 
-		implements CrudListener<Athlete>, ContentWrapping {
+		implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(WeighinContent.class);
 	static {logger.setLevel(Level.INFO);}
@@ -74,6 +76,7 @@ public class WeighinContent extends VerticalLayout
 
 	private Checkbox weighedInFilter = new Checkbox();
 	private GridCrud<Athlete> crud;
+	private OwlcmsRouterLayout routerLayout;
 
 	/**
 	 * Instantiates the athlete grid
@@ -387,5 +390,15 @@ public class WeighinContent extends VerticalLayout
 
 	public void refresh() {
 		crud.refreshGrid();
+	}
+
+	@Override
+	public OwlcmsRouterLayout getRouterLayout() {
+		return routerLayout;
+	}
+
+	@Override
+	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+		this.routerLayout = routerLayout;
 	}
 }

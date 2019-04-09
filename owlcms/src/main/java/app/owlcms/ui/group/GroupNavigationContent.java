@@ -24,9 +24,9 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.NavigationPage;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.state.FieldOfPlayState;
-import app.owlcms.ui.home.BaseNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
-import app.owlcms.ui.home.OwlcmsRouterLayout;
+import app.owlcms.ui.shared.BaseNavigationContent;
+import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -82,14 +82,7 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		fillH(grid, this);
 		logger.trace("GroupNavigationContent constructor stop");
 	}
-	
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.BaseNavigationContent#configureTopBar(java.lang.String, com.github.appreciated.app.layout.behaviour.AppLayout)
-	 */
-	@Override
-	protected void createTopBar(String title) {
-		super.createTopBar("Run Lifting Group");
-	}
+
 
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.home.BaseNavigationContent#createTopBarFopField(java.lang.String, java.lang.String)
@@ -105,20 +98,16 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		});
 		fopSelect.addValueChangeListener(e -> {
 			OwlcmsSession.setFop(e.getValue());
-			// announcer deals with group
-//			OwlcmsSession.withFop((fop) -> {
-//				Group group = e.getValue().getGroup();
-//				Group currentGroup = fop.getGroup();
-//				if (group == null) {
-//					fop.switchGroup(null, this.getOrigin());
-//				} else if (!group.equals(currentGroup)) {
-//					fop.switchGroup(group, this.getOrigin());
-//				}
-//			});
 		});
 
 		HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
 		fopField.setAlignItems(Alignment.CENTER);
 		return fopField;
+	}
+
+
+	@Override
+	protected String getTitle() {
+		return "Run Lifting Group";
 	}
 }
