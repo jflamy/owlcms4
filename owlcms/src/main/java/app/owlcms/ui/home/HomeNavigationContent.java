@@ -131,5 +131,6 @@ public class HomeNavigationContent extends BaseNavigationContent {
 	protected String getTitle() {
 		return "OWLCMS - Olympic Weightlifting Competition Management System";
 	}
+	
 
 }

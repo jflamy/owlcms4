@@ -92,9 +92,9 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
 		logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName());
+		((LayoutAware)content).setRouterLayout(this);
 		super.showRouterLayoutContent(content);
 		this.setLayoutComponentContent(content);
-		((LayoutAware)content).setRouterLayout(this);
 	}
 
 	/**

@@ -16,7 +16,6 @@ import java.util.List;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
-import com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase;
 import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
@@ -63,7 +62,7 @@ implements QueryParameterReader, ContentWrapping, LayoutAware, SafeEventBusRegis
 	 * Top part content
 	 */
 	private ComboBox<Group> groupSelect;
-	private OwlcmsRouterLayout routerLayout;
+	protected OwlcmsRouterLayout routerLayout;
 
 	/**
 	 * Instantiates a new announcer content.
@@ -147,17 +146,13 @@ implements QueryParameterReader, ContentWrapping, LayoutAware, SafeEventBusRegis
 		topBar.setJustifyContentMode(JustifyContentMode.START);
 	}
 
-	protected AbstractLeftAppLayoutBase getAppLayout() {
-		return (AbstractLeftAppLayoutBase)AppLayoutRouterLayoutBase.getCurrent();
-	}
-
 	/**
 	 * The left part of the top bar.
 	 * @param topBarTitle
 	 * @param appLayoutComponent
 	 */
 	protected void configureTopBarTitle(String topBarTitle) {
-		AbstractLeftAppLayoutBase appLayout = getAppLayout();
+		AbstractLeftAppLayoutBase appLayout = (AbstractLeftAppLayoutBase) getRouterLayout().getAppLayout();
 		appLayout.getTitleWrapper().getElement()
 		.getStyle()
 		.set("flex", "0 1 20em");
@@ -266,12 +261,12 @@ implements QueryParameterReader, ContentWrapping, LayoutAware, SafeEventBusRegis
 	}
 	
 	@Override
-	public OwlcmsRouterLayout getRouterLayout() {
+	final public OwlcmsRouterLayout getRouterLayout() {
 		return routerLayout;
 	}
 
 	@Override
-	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+	final public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
 		this.routerLayout = routerLayout;
 	}
 }

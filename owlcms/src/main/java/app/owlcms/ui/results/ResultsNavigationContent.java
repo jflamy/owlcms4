@@ -53,9 +53,14 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 			);
 		fillH(grid, this);
 		
-		getRouterLayout().setNoBackArrow(true);
     }
 
+	@Override
+	protected void createTopBar(String title) {
+		getRouterLayout().setNoBackArrow(true);
+		super.createTopBar(title);
+	}
+	
 	@Override
 	protected String getTitle() {
 		return "Produce Results";
@@ -70,4 +75,5 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
 		return null;
 	}
+	
 }

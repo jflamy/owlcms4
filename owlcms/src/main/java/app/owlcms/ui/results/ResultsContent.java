@@ -18,8 +18,6 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
-import com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
@@ -405,10 +403,5 @@ public class ResultsContent extends AthleteGridContent {
 	@Override
 	public boolean isIgnoreGroup() {
 		return false;
-	}
-	
-	@Override
-	protected AbstractLeftAppLayoutBase getAppLayout() {
-		return (AbstractLeftAppLayoutBase)AppLayoutRouterLayoutBase.getCurrent();
 	}
 }
