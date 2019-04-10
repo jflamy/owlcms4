@@ -107,11 +107,10 @@ implements QueryParameterReader, ContentWrapping, AppLayoutAware, SafeEventBusRe
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		logger.debug("baseNavigation content onAttach");
 		OwlcmsSession.withFop(fop -> {
 			// create the top bar, now that we know the group and fop
 			String title = getTitle();
-			logger.warn("createTopBar {}",title);
+			logger.debug("createTopBar {}",title);
 			createTopBar(title);
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);

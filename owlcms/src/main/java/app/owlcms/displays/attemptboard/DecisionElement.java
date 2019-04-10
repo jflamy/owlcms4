@@ -121,7 +121,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	}
 	
 	private Object getOrigin() {
-		// we use the identity of our parent AttemptBoard or AthleteFacingBoard to identify
+		// we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard to identify
 		// our actions.
 		return this.getParent().get();
 	}

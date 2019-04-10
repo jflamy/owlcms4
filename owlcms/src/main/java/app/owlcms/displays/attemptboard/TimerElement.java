@@ -25,6 +25,7 @@ import app.owlcms.state.ICountdownTimer;
 import app.owlcms.state.UIEvent;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -231,6 +232,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	/* @see app.owlcms.state.ICountdownTimer#setTimeRemaining(int) */
 	@Override
 	public void setTimeRemaining(int milliseconds) {
+		logger.warn("time remaining = {} from {} ",milliseconds,LoggerUtils.whereFrom());
 		double seconds = milliseconds/1000.0D;
 		TimerModel model = getModel();
 		model.setCurrentTime(seconds);

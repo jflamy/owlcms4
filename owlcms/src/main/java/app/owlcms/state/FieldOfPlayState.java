@@ -52,8 +52,10 @@ public class FieldOfPlayState {
 	 *  Current state of the competition field of play.
 	 */
 	public enum State {
+		/** between sessions, until presentation countdown is shown */
+		 INACTIVE,
 
-		/** between sessions and during breaks. */
+		/** during countdown to presentation or first lift and during breaks. */
 		INTERMISSION,
 
 		/** current athlete displayed on attempt board. */
@@ -270,13 +272,29 @@ public class FieldOfPlayState {
 	@Subscribe
 	public void handleFOPEvent(FOPEvent e) {
 		logger.debug("state {}, event received {}", this.getState(), e.getClass().getSimpleName());
-		// in all cases we can interrupt competition (real intermission, technical
+		// it is always allowed to interrupt competition (real intermission, technical
 		// incident, etc.)
 		if (e instanceof FOPEvent.IntermissionStarted) {
 			transitionToIntermission();
 		}
 
 		switch (this.getState()) {
+		
+		case INACTIVE:
+			if (e instanceof FOPEvent.StartLifting) {
+				recomputeLiftingOrder();
+				uiDisplayCurrentAthleteAndTime();
+				setState(State.CURRENT_ATHLETE_DISPLAYED);
+			} else if (e instanceof FOPEvent.AthleteAnnounced) {
+				announce();
+			} else if (e instanceof FOPEvent.WeightChange) {
+				// display new current weight, stay in current state
+				weightChange(curAthlete);
+				setState(State.INACTIVE);
+			} else {
+				unexpectedEventInState(e, State.INACTIVE);
+			}
+			break;
 
 		case INTERMISSION:
 			if (e instanceof FOPEvent.StartLifting) {
@@ -465,7 +483,7 @@ public class FieldOfPlayState {
 		if (athletes != null && athletes.size() > 0) {
 			recomputeLiftingOrder();
 		}
-		this.setState(State.INTERMISSION);
+		this.setState(State.INACTIVE);
 	}
 
 	public void setDisplayOrder(List<Athlete> displayOrder) {
@@ -613,8 +631,10 @@ public class FieldOfPlayState {
 	}
 
 	private void transitionToIntermission() {
-		recomputeLiftingOrder();
-		uiDisplayCurrentWeight();
+//		recomputeLiftingOrder();
+//		uiDisplayCurrentWeight();
+		getTimer().setTimeRemaining(10*60*1000); // 10 minutes in ms
+		uiEventBus.post(new UIEvent.IntermissionStarted(null, this.getOrigin()));
 		setState(State.INTERMISSION);
 	}
 
@@ -648,6 +668,7 @@ public class FieldOfPlayState {
 
 
 
+	@SuppressWarnings("unused")
 	private void uiDisplayCurrentWeight() {
 		Integer nextAttemptRequestedWeight = curAthlete.getNextAttemptRequestedWeight();
 		uiEventLogger.info("requested weight: {} (from curAthlete {})",

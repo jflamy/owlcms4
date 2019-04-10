@@ -18,7 +18,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.displays.attemptboard.AthleteFacingBoard;
+import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.results.ResultsBoard;
 import app.owlcms.ui.home.HomeNavigationContent;
@@ -57,7 +57,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 		Button referee = new Button(
 				"Athlete-facing Display (Referee Devices)",
 				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(AthleteFacingBoard.class)));
+					.executeJavaScript(getWindowOpener(AthleteFacingAttemptBoard.class)));
 		Button jury = new Button(
 				"Jury Display",
 				buttonClickEvent -> UI.getCurrent().getPage()

@@ -27,6 +27,7 @@ import com.vaadin.flow.theme.material.Material;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.state.FieldOfPlayState.State;
 import app.owlcms.state.UIEvent;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
@@ -82,6 +83,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	@Id("decisions")
 	protected DecisionElement decisions; // created by Flow during template instanciation
 	private EventBus uiEventBus;
+	private boolean intermission;
 
 	/**
 	 * Instantiates a new attempt board.
@@ -95,37 +97,72 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		// fop obtained via QueryParameterReader interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
+			
 			// sync with current status of FOP
-			doUpdate(fop.getCurAthlete(), null);
+			if (fop.getState() == State.INACTIVE) {
+				doEmpty();
+			} else if (fop.getState() == State.INTERMISSION) {
+				doIntermission(null);
+			} else {
+				doUpdate(fop.getCurAthlete(), null);
+			} 
 			// we send on fopEventBus, listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
 
+	private void doEmpty() {
+		this.getElement().callFunction("clear");
+	}
+
+	private void doIntermission(Integer timeRemaining) {
+		if (timeRemaining != null) {
+			OwlcmsSession.withFop(fop -> fop.getTimer().setTimeRemaining(timeRemaining));
+		}
+		this.intermission = true;
+		this.getElement().callFunction("intermission");
+		this.timer.start();
+	}
+
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
-			logger.debug("Starting attempt board on FOP {}", fop.getName());
+			logger.trace("Starting attempt board on FOP {}", fop.getName());
 			setId("attempt-board-template");
-			//this.getElement().setProperty("interactive", true);
 		});
 	}
 
 	@Subscribe
 	public void orderUpdated(UIEvent.LiftingOrderUpdated e) {
+		if (this.intermission) return;
 		Athlete a = e.getAthlete();
 		doUpdate(a, e);
 	}
 
 	@Subscribe
 	public void athleteAnnounced(UIEvent.AthleteAnnounced e) {
+		if (this.intermission) {
+			stopIntermission();
+		}
 		Athlete a = e.getAthlete();
 		doUpdate(a, e);
 	}
 	
+	
+	@Subscribe
+	public void intermissionStarted(UIEvent.IntermissionStarted e) {
+		doIntermission(e.getTimeRemaining());
+	}
+	
 	@Subscribe
 	public void intermissionDone(UIEvent.IntermissionDone e) {
+		stopIntermission();
 		Athlete a = e.getAthlete();
 		doUpdate(a, e);
+	}
+
+	public void stopIntermission() {
+		this.intermission = false;
+		this.timer.stop();
 	}
 	
 	/**
@@ -136,7 +173,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	 */
 	@Subscribe
 	public void downSignal(UIEvent.DownSignal e) {
-		if (this instanceof AthleteFacingBoard) {
+		if (this instanceof AthleteFacingAttemptBoard) {
 			logger.trace("%%% {} DownSignal {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 		} else {
 			logger.trace("&&& {} DownSignal {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
@@ -155,7 +192,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	 */
 	@Subscribe
 	public void refereeDecision(UIEvent.RefereeDecision e) {
-		if (this instanceof AthleteFacingBoard) {
+		if (this instanceof AthleteFacingAttemptBoard) {
 			logger.trace("%%% {} RefereeDecision {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 		} else {
 			logger.trace("&&& {} RefereeDecision {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
@@ -173,6 +210,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	protected void doUpdate(Athlete a, UIEvent e) {
 		if (a == null) return;
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+				this.getElement().callFunction("reset");
 				uiEventLogger.debug("$$$ attemptBoard update");
 				AttemptBoardModel model = getModel();	
 				model.setLastName(a.getLastName());

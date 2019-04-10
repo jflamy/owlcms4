@@ -63,8 +63,8 @@ public class UIEvent {
 	 */
 	static public class IntermissionDone extends UIEvent {
 
-		public IntermissionDone(Athlete athlete, Object origin) {
-			super(athlete, origin);
+		public IntermissionDone(Object origin) {
+			super(origin);
 		}
 
 	}
@@ -73,9 +73,19 @@ public class UIEvent {
 	 * Class IntermissionStarted.
 	 */
 	static public class IntermissionStarted extends UIEvent {
+		private Integer timeRemaining;
+		
+		public IntermissionStarted(Integer timeRemaining, Object origin) {
+			super(origin);
+			this.setTimeRemaining(timeRemaining);
+		}
 
-		public IntermissionStarted(Athlete athlete, Object origin) {
-			super(athlete, origin);
+		public Integer getTimeRemaining() {
+			return timeRemaining;
+		}
+
+		public void setTimeRemaining(Integer timeRemaining) {
+			this.timeRemaining = timeRemaining;
 		}
 
 	}
