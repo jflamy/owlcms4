@@ -10,11 +10,11 @@ import com.vaadin.flow.theme.material.Material;
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
 @HtmlImport("frontend://components/AttemptBoard.html")
-@Route("displays/athleteFacing")
+@Route("displays/athleteFacingAttempt")
 @Theme(value = Material.class, variant = Material.DARK)
-public class AthleteFacingBoard extends AttemptBoard {
+public class AthleteFacingAttemptBoard extends AttemptBoard {
 	
-	public AthleteFacingBoard() {
+	public AthleteFacingAttemptBoard() {
 		super();
 		setPublicFacing(false);
 	}
