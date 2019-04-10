@@ -172,7 +172,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	}
 
 	@Subscribe
-	public void intermissionDone(UIEvent.IntermissionDone e) {
+	public void breakDone(UIEvent.BreakDone e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			Athlete a = e.getAthlete();
 			doUpdate(a, e);

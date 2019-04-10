@@ -56,7 +56,7 @@ public class FieldOfPlayState {
 		 INACTIVE,
 
 		/** during countdown to presentation or first lift and during breaks. */
-		INTERMISSION,
+		BREAK,
 
 		/** current athlete displayed on attempt board. */
 		CURRENT_ATHLETE_DISPLAYED,
@@ -272,10 +272,10 @@ public class FieldOfPlayState {
 	@Subscribe
 	public void handleFOPEvent(FOPEvent e) {
 		logger.debug("state {}, event received {}", this.getState(), e.getClass().getSimpleName());
-		// it is always allowed to interrupt competition (real intermission, technical
+		// it is always possible to explicitly interrupt competition (break between the two lifts, technical
 		// incident, etc.)
-		if (e instanceof FOPEvent.IntermissionStarted) {
-			transitionToIntermission();
+		if (e instanceof FOPEvent.BreakStarted) {
+			transitionToBreak();
 		}
 
 		switch (this.getState()) {
@@ -288,27 +288,27 @@ public class FieldOfPlayState {
 			} else if (e instanceof FOPEvent.AthleteAnnounced) {
 				announce();
 			} else if (e instanceof FOPEvent.WeightChange) {
-				// display new current weight, stay in current state
-				weightChange(curAthlete);
+				weightChangeDoNotDisturb(curAthlete);
 				setState(State.INACTIVE);
 			} else {
 				unexpectedEventInState(e, State.INACTIVE);
 			}
 			break;
 
-		case INTERMISSION:
+		case BREAK:
 			if (e instanceof FOPEvent.StartLifting) {
 				recomputeLiftingOrder();
 				uiDisplayCurrentAthleteAndTime();
 				setState(State.CURRENT_ATHLETE_DISPLAYED);
+			} else if (e instanceof FOPEvent.TimeStoppedManually) {
+				getTimer().stop();
 			} else if (e instanceof FOPEvent.AthleteAnnounced) {
 				announce();
 			} else if (e instanceof FOPEvent.WeightChange) {
-				// display new current weight, stay in current state
-				weightChange(curAthlete);
-				setState(State.INTERMISSION);
+				weightChangeDoNotDisturb(curAthlete);
+				setState(State.BREAK);
 			} else {
-				unexpectedEventInState(e, State.INTERMISSION);
+				unexpectedEventInState(e, State.BREAK);
 			}
 			break;
 
@@ -630,12 +630,12 @@ public class FieldOfPlayState {
 		this.previousAthlete = athlete;
 	}
 
-	private void transitionToIntermission() {
+	private void transitionToBreak() {
 //		recomputeLiftingOrder();
 //		uiDisplayCurrentWeight();
 		getTimer().setTimeRemaining(10*60*1000); // 10 minutes in ms
-		uiEventBus.post(new UIEvent.IntermissionStarted(null, this.getOrigin()));
-		setState(State.INTERMISSION);
+		uiEventBus.post(new UIEvent.BreakStarted(null, this.getOrigin()));
+		setState(State.BREAK);
 	}
 
 	private void transitionToTimeRunning() {

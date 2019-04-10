@@ -221,7 +221,7 @@
             
 			ready() {
 				super.ready();
-				this.intermission(); 
+				this.doBreak(); 
 				this.$.timerDiv.style.display="none";
 			}
             
@@ -246,7 +246,7 @@
             	this.$.decisionDiv.style.display="block";
             }
             
-            intermission() {
+            doBreak() {
             	this.$.attemptBoardDiv.style.display="grid";
                	this.$.timer.reset();
                	this.$.timerDiv.style.display="block";

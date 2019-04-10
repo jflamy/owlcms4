@@ -76,12 +76,17 @@ public class TimekeeperContent extends AthleteGridContent {
 			OwlcmsSession.withFop(fop -> fop.getEventBus()
 				.post(new FOPEvent.ForceTime(120000,this.getOrigin())));
 		});
+		Button _10min = new Button("10:00", (e) -> {
+			OwlcmsSession.withFop(fop -> fop.getEventBus()
+				.post(new FOPEvent.BreakStarted(10*60*1000,this.getOrigin())));
+		});
 		_2min.getElement().setAttribute("theme", "icon");
 		HorizontalLayout buttons = new HorizontalLayout(
 				start,
 				stop,
 				_1min,
-				_2min);
+				_2min,
+				_10min);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		return buttons;
 	}

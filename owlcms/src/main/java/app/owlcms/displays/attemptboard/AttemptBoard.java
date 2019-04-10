@@ -83,7 +83,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	@Id("decisions")
 	protected DecisionElement decisions; // created by Flow during template instanciation
 	private EventBus uiEventBus;
-	private boolean intermission;
+	private boolean isBreak;
 
 	/**
 	 * Instantiates a new attempt board.
@@ -101,8 +101,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 			// sync with current status of FOP
 			if (fop.getState() == State.INACTIVE) {
 				doEmpty();
-			} else if (fop.getState() == State.INTERMISSION) {
-				doIntermission(null);
+			} else if (fop.getState() == State.BREAK) {
+				doBreak(null);
 			} else {
 				doUpdate(fop.getCurAthlete(), null);
 			} 
@@ -115,12 +115,16 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		this.getElement().callFunction("clear");
 	}
 
-	private void doIntermission(Integer timeRemaining) {
+	private void doBreak(Integer timeRemaining) {
 		if (timeRemaining != null) {
 			OwlcmsSession.withFop(fop -> fop.getTimer().setTimeRemaining(timeRemaining));
 		}
-		this.intermission = true;
-		this.getElement().callFunction("intermission");
+		this.isBreak = true;
+		getModel().setLastName("Break");
+		getModel().setFirstName("");
+		getModel().setTeamName("");
+		getModel().setAttempt("");
+		this.getElement().callFunction("doBreak");
 		this.timer.start();
 	}
 
@@ -133,15 +137,15 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 	@Subscribe
 	public void orderUpdated(UIEvent.LiftingOrderUpdated e) {
-		if (this.intermission) return;
+		if (this.isBreak) return;
 		Athlete a = e.getAthlete();
 		doUpdate(a, e);
 	}
 
 	@Subscribe
 	public void athleteAnnounced(UIEvent.AthleteAnnounced e) {
-		if (this.intermission) {
-			stopIntermission();
+		if (this.isBreak) {
+			stopBreak();
 		}
 		Athlete a = e.getAthlete();
 		doUpdate(a, e);
@@ -149,19 +153,19 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	
 	
 	@Subscribe
-	public void intermissionStarted(UIEvent.IntermissionStarted e) {
-		doIntermission(e.getTimeRemaining());
+	public void breakStarted(UIEvent.BreakStarted e) {
+		doBreak(e.getTimeRemaining());
 	}
 	
 	@Subscribe
-	public void intermissionDone(UIEvent.IntermissionDone e) {
-		stopIntermission();
+	public void breakDone(UIEvent.BreakDone e) {
+		stopBreak();
 		Athlete a = e.getAthlete();
 		doUpdate(a, e);
 	}
 
-	public void stopIntermission() {
-		this.intermission = false;
+	public void stopBreak() {
+		this.isBreak = false;
 		this.timer.stop();
 	}
 	

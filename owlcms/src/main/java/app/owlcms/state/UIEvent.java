@@ -61,21 +61,21 @@ public class UIEvent {
 	/**
 	 * Class StartLifting.
 	 */
-	static public class IntermissionDone extends UIEvent {
+	static public class BreakDone extends UIEvent {
 
-		public IntermissionDone(Object origin) {
+		public BreakDone(Object origin) {
 			super(origin);
 		}
 
 	}
 
 	/**
-	 * Class IntermissionStarted.
+	 * Class BreakStarted.
 	 */
-	static public class IntermissionStarted extends UIEvent {
+	static public class BreakStarted extends UIEvent {
 		private Integer timeRemaining;
 		
-		public IntermissionStarted(Integer timeRemaining, Object origin) {
+		public BreakStarted(Integer timeRemaining, Object origin) {
 			super(origin);
 			this.setTimeRemaining(timeRemaining);
 		}
