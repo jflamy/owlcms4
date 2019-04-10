@@ -78,8 +78,6 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 
 	private HasElement layoutComponentContent;
 
-	private boolean noBackArrow;
-
     public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));
         reloadNotifications();
