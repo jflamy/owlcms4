@@ -138,7 +138,6 @@ public class AnnouncerContent extends AthleteGridContent {
 	
 	@Override
 	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
-		//FIXME: timer does not reset correctly after decision
 		Button good = new Button(IronIcons.DONE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				fop.getEventBus().post(new FOPEvent.RefereeDecision(this.getOrigin(),true, true, true, true));
