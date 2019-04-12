@@ -130,7 +130,6 @@
 }
 
 .attemptBoard .timer {
-	color: yellow;
 	font-size: 20vh;
 	font-weight: bold;
 	grid-area: timer-start/timer-start/timer-end/timer-end;
@@ -230,7 +229,9 @@
             }
             
             reset() {
+            	console.warn("reset");
             	this.$.attemptBoardDiv.style.display="grid";
+            	this.$.attemptBoardDiv.style.color="blue";
             	this.$.timer.reset();
             	this.$.timerDiv.style.display="block";
             	this.$.weightDiv.style.display="block";
@@ -247,10 +248,12 @@
             }
             
             doBreak() {
+            	console.warn("doBreak");
             	this.$.attemptBoardDiv.style.display="grid";
+            	this.$.attemptBoardDiv.style.color="red";
                	this.$.timer.reset();
                	this.$.timerDiv.style.display="block";
-               	this.$.timerDiv.style.color="fuschia";
+               	this.$.timerDiv.style.color="pink";
                	this.$.weightDiv.style.display="none";
                	this.$.startNumberDiv.style.display="none";
                	this.$.barbellDiv.style.display="none";

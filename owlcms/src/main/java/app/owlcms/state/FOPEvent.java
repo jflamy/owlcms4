@@ -77,14 +77,23 @@ public class FOPEvent {
 	}
 
 	/**
-	 * The Class BreakStarted.
+	 * Class BreakStarted.
 	 */
 	static public class BreakStarted extends FOPEvent {
 
-		public BreakStarted(Integer timeRemaining, Object origin) {
+		public BreakStarted(Object origin) {
 			super(origin);
 		}
+	}
+	
+	/**
+	 * Class BreakStarted.
+	 */
+	static public class BreakPaused extends FOPEvent {
 
+		public BreakPaused(Object origin) {
+			super(origin);
+		}
 	}
 
 	/**
