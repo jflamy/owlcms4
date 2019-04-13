@@ -26,9 +26,10 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.fieldofplay.FOPState;
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.FieldOfPlayState.State;
-import app.owlcms.state.UIEvent;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
@@ -172,14 +173,16 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		if (timeRemaining != null) {
 			OwlcmsSession.withFop(fop -> fop.getTimer().setTimeRemaining(timeRemaining));
 		}
-		this.isBreak = true;
-		getModel().setLastName("Break");
-		getModel().setFirstName("");
-		getModel().setTeamName("");
-		getModel().setAttempt("");
-		this.getElement().callFunction("doBreak");
-		uiEventLogger.warn("$$$ attemptBoard doBreak");
-		this.timer.start();
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			this.isBreak = true;
+			getModel().setLastName("Break");
+			getModel().setFirstName("");
+			getModel().setTeamName("");
+			getModel().setAttempt("");
+			this.getElement().callFunction("doBreak");
+			uiEventLogger.warn("$$$ attemptBoard doBreak");
+			this.timer.start();
+		});
 	}
 	
 	private void doEmpty() {
@@ -203,6 +206,10 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	
 	protected void doUpdate(Athlete a, UIEvent e) {
 		if (a == null) return;
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		if (fop == null || fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK ) {
+			return;
+		}
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 				this.getElement().callFunction("reset");
 				uiEventLogger.warn("$$$ attemptBoard doUpdate");
@@ -226,9 +233,9 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 			init();
 			
 			// sync with current status of FOP
-			if (fop.getState() == State.INACTIVE) {
+			if (fop.getState() == FOPState.INACTIVE) {
 				doEmpty();
-			} else if (fop.getState() == State.BREAK) {
+			} else if (fop.getState() == FOPState.BREAK) {
 				doBreak(null);
 			} else {
 				doUpdate(fop.getCurAthlete(), null);

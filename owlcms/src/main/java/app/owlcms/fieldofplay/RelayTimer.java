@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.state;
+package app.owlcms.fieldofplay;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +29,7 @@ public class RelayTimer implements ICountdownTimer {
 	{ logger.setLevel(Level.DEBUG); }
 
 	private int timeRemaining;
-	private FieldOfPlayState fop;
+	private FieldOfPlay fop;
 
 	private long startMillis;
 
@@ -39,7 +39,7 @@ public class RelayTimer implements ICountdownTimer {
 	 * Instantiates a new countdown timer.
 	 * @param fop 
 	 */
-	public RelayTimer(FieldOfPlayState fop) {
+	public RelayTimer(FieldOfPlay fop) {
 		this.fop = fop;
 	}
 	
@@ -133,7 +133,7 @@ public class RelayTimer implements ICountdownTimer {
 	@Override
 	public void timeOut(Object origin) {
 		this.stop();
-		fop.getEventBus().post(new FOPEvent.TimeOver(origin));
+		fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
 	}
 
 

@@ -15,9 +15,9 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.FieldOfPlayState;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -39,7 +39,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 		HashMap<String, List<String>> params = new HashMap<String, List<String>>(parametersMap);
 
 		// get the fop from the query parameters, set as default if not provided
-		FieldOfPlayState fop = null;
+		FieldOfPlay fop = null;
 		if (!isIgnoreFop()) {
 			List<String> fopNames = parametersMap.get("fop");
 			if (fopNames != null && fopNames.get(0) == null) {

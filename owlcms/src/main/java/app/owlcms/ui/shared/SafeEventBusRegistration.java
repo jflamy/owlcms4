@@ -6,7 +6,7 @@ import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 
-import app.owlcms.state.FieldOfPlayState;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -16,7 +16,7 @@ public interface SafeEventBusRegistration {
 	Logger logger = (Logger) LoggerFactory.getLogger(SafeEventBusRegistration.class);
 
 
-	public default EventBus uiEventBusRegister(Component c, FieldOfPlayState fop) {
+	public default EventBus uiEventBusRegister(Component c, FieldOfPlay fop) {
 		
 		{logger.setLevel(Level.INFO);}
 		
@@ -34,12 +34,12 @@ public interface SafeEventBusRegistration {
 		return uiEventBus;
 	}
 	
-	public default EventBus fopEventBusRegister(Component c, FieldOfPlayState fop) {
+	public default EventBus fopEventBusRegister(Component c, FieldOfPlay fop) {
 		
 		{logger.setLevel(Level.INFO);}
 		
 		UI ui = c.getUI().get();
-		EventBus fopEventBus = fop.getEventBus();
+		EventBus fopEventBus = fop.getFopEventBus();
 		fopEventBus.register(c);
 		ui.addBeforeLeaveListener((e) -> {
 			logger.debug("leaving : unregister {} from {}", e.getSource(), fopEventBus.identifier());

@@ -48,10 +48,10 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.TimerElement;
+import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.FOPEvent;
-import app.owlcms.state.FieldOfPlayState;
-import app.owlcms.state.UIEvent;
 import app.owlcms.ui.group.AthleteCardFormFactory;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.utils.LoggerUtils;
@@ -340,7 +340,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	}
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.group.UIEventProcessor#updateGrid(app.owlcms.state.UIEvent.LiftingOrderUpdated)
+	 * @see app.owlcms.ui.group.UIEventProcessor#updateGrid(app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated)
 	 */
 	@Subscribe
 	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
@@ -429,8 +429,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	@Override
 	public Athlete update(Athlete Athlete) {
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
-		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
-		fop.getEventBus()
+		FieldOfPlay fop = (FieldOfPlay) OwlcmsSession.getAttribute("fop");
+		fop.getFopEventBus()
 			.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
 		return savedAthlete;
 	}
@@ -450,7 +450,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		FieldOfPlayState fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
 			logger.debug("findAll {} {} {}",fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(), LoggerUtils.whereFrom());
 			return fop.getLiftingOrder();

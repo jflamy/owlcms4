@@ -49,10 +49,10 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.spreadsheet.JXLSResultSheet;
-import app.owlcms.state.FOPEvent;
-import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.ui.group.AthleteCardFormFactory;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
@@ -76,7 +76,7 @@ public class ResultsContent extends AthleteGridContent {
 	private Button download;
 	private Anchor groupResults;
 	private Group currentGroup;
-	private FieldOfPlayState currentFop;
+	private FieldOfPlay currentFop;
 	private JXLSResultSheet xlsWriter;
 
 	/**
@@ -255,7 +255,7 @@ public class ResultsContent extends AthleteGridContent {
 	public Athlete update(Athlete Athlete) {
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
 		if (currentFop != null) {
-			currentFop.getEventBus()
+			currentFop.getFopEventBus()
 				.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
 		}
 		return savedAthlete;
@@ -300,15 +300,15 @@ public class ResultsContent extends AthleteGridContent {
 	
 	private void subscribeIfLifting(Group nGroup) {
 		logger.debug("subscribeIfLifting {}",nGroup);
-		Collection<FieldOfPlayState> fops = OwlcmsFactory.getFOPs();
+		Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
 		currentFop = null;
 		currentGroup = nGroup;
 		
 		// go through all the FOPs
-		for (FieldOfPlayState fop: fops) {
+		for (FieldOfPlay fop: fops) {
 			// unsubscribe from FOP -- ensures that we clean up if no group is lifting
 			try {fop.getUiEventBus().unregister(this);} catch (Exception ex) {}
-			try {fop.getEventBus().unregister(this);} catch (Exception ex) {}
+			try {fop.getFopEventBus().unregister(this);} catch (Exception ex) {}
 			
 			// subscribe to fop and start tracking if actually lifting
 			if (fop.getGroup() != null && fop.getGroup().equals(nGroup)) {
@@ -325,9 +325,9 @@ public class ResultsContent extends AthleteGridContent {
 	 * @return true if the current group is safe for editing -- i.e. not lifting currently
 	 */
 	private boolean checkFOP() {
-		Collection<FieldOfPlayState> fops = OwlcmsFactory.getFOPs();
-		FieldOfPlayState liftingFop = null;
-		search: for (FieldOfPlayState fop: fops) {
+		Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
+		FieldOfPlay liftingFop = null;
+		search: for (FieldOfPlay fop: fops) {
 			if (fop.getGroup() != null && fop.getGroup().equals(currentGroup)) {
 				liftingFop = fop;
 				break search;

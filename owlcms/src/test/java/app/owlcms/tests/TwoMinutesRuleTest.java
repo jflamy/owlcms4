@@ -28,8 +28,9 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.state.FOPEvent;
-import app.owlcms.state.FieldOfPlayState;
+import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.utils.DebugUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -104,10 +105,10 @@ public class TwoMinutesRuleTest {
 		for (int i = 2; i < size; i++)
 			athletes.remove(2);
 
-		FieldOfPlayState fopState = new FieldOfPlayState(athletes, new MockCountdownTimer());
+		FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer());
 		fopState.getLogger().setLevel(LoggerLevel);
 		fopState.setStartTimeAutomatically(true);
-		EventBus fopBus = fopState.getEventBus();
+		EventBus fopBus = fopState.getFopEventBus();
 
 		// competition start
 		assertEquals(60000, fopState.getTimeAllowed());
@@ -157,7 +158,7 @@ public class TwoMinutesRuleTest {
 		// simpson is called again with two minutes
 		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.AthleteAnnounced(null)); // this starts logical time
-		assertEquals(FieldOfPlayState.State.TIME_RUNNING, fopState.getState());
+		assertEquals(FOPState.TIME_RUNNING, fopState.getState());
 		// but simpson now asks for more; weight change should stop clock.
 		declaration(curLifter, "67", fopBus); //$NON-NLS-1$
 		logger.info("declaration by {}: {}", curLifter, "67"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -169,10 +170,10 @@ public class TwoMinutesRuleTest {
 		// schneider is called
 		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.AthleteAnnounced(null)); // this starts logical time
-		assertEquals(FieldOfPlayState.State.TIME_RUNNING, fopState.getState());
+		assertEquals(FOPState.TIME_RUNNING, fopState.getState());
 		// but asks for more weight -- the following stops time.
 		declaration(curLifter, "65", fopBus); //$NON-NLS-1$
-		assertEquals(FieldOfPlayState.State.CURRENT_ATHLETE_DISPLAYED, fopState.getState());
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, fopState.getState());
 		int remainingTime = fopState.getTimer()
 			.getTimeRemaining();
 
@@ -201,9 +202,9 @@ public class TwoMinutesRuleTest {
 		final int size = athletes.size();
 		for (int i = 2; i < size; i++)
 			athletes.remove(2);
-		FieldOfPlayState fopState = new FieldOfPlayState(athletes, new MockCountdownTimer());
+		FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer());
 		fopState.setStartTimeAutomatically(true);
-		EventBus fopBus = fopState.getEventBus();
+		EventBus fopBus = fopState.getFopEventBus();
 
 		// competition start
 		assertEquals(60000, fopState.getTimeAllowed());

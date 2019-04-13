@@ -20,9 +20,9 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
+import app.owlcms.fieldofplay.ICountdownTimer;
+import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.ICountdownTimer;
-import app.owlcms.state.UIEvent;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;
@@ -165,7 +165,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	}
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.state.ICountdownTimer#startTimer(app.owlcms.state.UIEvent.StartTime)
+	 * @see app.owlcms.fieldofplay.ICountdownTimer#startTimer(app.owlcms.fieldofplay.UIEvent.StartTime)
 	 */
 	@Override
 	@Subscribe
@@ -180,7 +180,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	}
 	
 	/* (non-Javadoc)
-	 * @see app.owlcms.state.ICountdownTimer#startTimer(app.owlcms.state.UIEvent.StartTime)
+	 * @see app.owlcms.fieldofplay.ICountdownTimer#startTimer(app.owlcms.fieldofplay.UIEvent.StartTime)
 	 */
 	@Override
 	@Subscribe
@@ -192,7 +192,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	}
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.state.ICountdownTimer#setTimer(app.owlcms.state.UIEvent.SetTime)
+	 * @see app.owlcms.fieldofplay.ICountdownTimer#setTimer(app.owlcms.fieldofplay.UIEvent.SetTime)
 	 */
 	@Override
 	@Subscribe
@@ -211,25 +211,25 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		});
 	}
 
-	/* @see app.owlcms.state.ICountdownTimer#start() */
+	/* @see app.owlcms.fieldofplay.ICountdownTimer#start() */
 	@Override
 	public void start() {
 		timerElement.callFunction("start");
 	}
 
-	/* @see app.owlcms.state.ICountdownTimer#stop() */
+	/* @see app.owlcms.fieldofplay.ICountdownTimer#stop() */
 	@Override
 	public void stop() {
 		timerElement.callFunction("pause");
 	}	
 
-	/* @see app.owlcms.state.ICountdownTimer#getTimeRemaining() */
+	/* @see app.owlcms.fieldofplay.ICountdownTimer#getTimeRemaining() */
 	@Override
 	public int getTimeRemaining() {
 		return (int) (getModel().getCurrentTime()/1000.0D) ;
 	}
 	
-	/* @see app.owlcms.state.ICountdownTimer#setTimeRemaining(int) */
+	/* @see app.owlcms.fieldofplay.ICountdownTimer#setTimeRemaining(int) */
 	@Override
 	public void setTimeRemaining(int milliseconds) {
 		logger.warn("time remaining = {} from {} ",milliseconds,LoggerUtils.whereFrom());

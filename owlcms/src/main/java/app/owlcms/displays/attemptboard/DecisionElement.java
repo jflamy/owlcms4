@@ -20,9 +20,9 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
+import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.FOPEvent;
-import app.owlcms.state.UIEvent;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
@@ -172,7 +172,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		init();
 		OwlcmsSession.withFop(fop -> {
 			// we send on fopEventBus, listen on uiEventBus.
-			fopEventBus = fop.getEventBus();
+			fopEventBus = fop.getFopEventBus();
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}

@@ -31,9 +31,9 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.ui.group.UIEventProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -181,7 +181,7 @@ implements QueryParameterReader, ContentWrapping, AppLayoutAware, SafeEventBusRe
 		Label fopLabel = new Label(label);
 		formatLabel(fopLabel);
 
-		ComboBox<FieldOfPlayState> fopSelect = createFopSelect(placeHolder);
+		ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
 		OwlcmsSession.withFop((fop1) -> {
 			fopSelect.setValue(fop1);
 		});
@@ -196,11 +196,11 @@ implements QueryParameterReader, ContentWrapping, AppLayoutAware, SafeEventBusRe
 		return fopField;
 	}
 
-	protected ComboBox<FieldOfPlayState> createFopSelect(String placeHolder) {
-		ComboBox<FieldOfPlayState> fopSelect = new ComboBox<>();
+	protected ComboBox<FieldOfPlay> createFopSelect(String placeHolder) {
+		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
 		fopSelect.setPlaceholder(placeHolder);
 		fopSelect.setItems(OwlcmsFactory.getFOPs());
-		fopSelect.setItemLabelGenerator(FieldOfPlayState::getName);
+		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
 		fopSelect.setWidth("10rem");
 		return fopSelect;
 	}
@@ -239,7 +239,7 @@ implements QueryParameterReader, ContentWrapping, AppLayoutAware, SafeEventBusRe
 		label.getStyle().set("width", "12em");
 	}
 
-	protected void switchGroup(Group group2,FieldOfPlayState fop) {
+	protected void switchGroup(Group group2,FieldOfPlay fop) {
 		Group group = group2;
 		Group currentGroup = fop.getGroup();
 		if (group == null) {
