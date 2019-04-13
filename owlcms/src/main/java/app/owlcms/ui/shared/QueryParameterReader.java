@@ -40,7 +40,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 
 		// get the fop from the query parameters, set as default if not provided
 		FieldOfPlay fop = null;
-		if (!isIgnoreFop()) {
+		if (!isIgnoreFopFromURL()) {
 			List<String> fopNames = parametersMap.get("fop");
 			if (fopNames != null && fopNames.get(0) == null) {
 				fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
@@ -57,7 +57,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 	
 		// get the group from query parameters, do not add value if group is not defined
 		Group group = null;
-		if (!isIgnoreGroup()) {
+		if (!isIgnoreGroupFromURL()) {
 			List<String> groupNames = parametersMap.get("group");
 			if (groupNames != null  && groupNames.get(0) != null) {
 				group = GroupRepository.findByName(groupNames.get(0));
@@ -75,11 +75,11 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
 	
-	public default boolean isIgnoreGroup() {
+	public default boolean isIgnoreGroupFromURL() {
 		return true;
 	}
 	
-	public default boolean isIgnoreFop() {
+	public default boolean isIgnoreFopFromURL() {
 		return false;
 	}
 

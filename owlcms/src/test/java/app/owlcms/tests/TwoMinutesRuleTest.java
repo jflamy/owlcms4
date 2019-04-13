@@ -105,7 +105,7 @@ public class TwoMinutesRuleTest {
 		for (int i = 2; i < size; i++)
 			athletes.remove(2);
 
-		FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer());
+		FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
 		fopState.getLogger().setLevel(LoggerLevel);
 		fopState.setStartTimeAutomatically(true);
 		EventBus fopBus = fopState.getFopEventBus();
@@ -202,7 +202,7 @@ public class TwoMinutesRuleTest {
 		final int size = athletes.size();
 		for (int i = 2; i < size; i++)
 			athletes.remove(2);
-		FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer());
+		FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
 		fopState.setStartTimeAutomatically(true);
 		EventBus fopBus = fopState.getFopEventBus();
 

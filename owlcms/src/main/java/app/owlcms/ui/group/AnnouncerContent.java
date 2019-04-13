@@ -55,10 +55,10 @@ public class AnnouncerContent extends AthleteGridContent {
 	 * the announcer screen will have the URL correctly set.  if there is no current 
 	 * group in the FOP, the announcer will (exceptionally set it)
 	 * 
-	 * @see app.owlcms.ui.shared.AthleteGridContent#isIgnoreGroup()
+	 * @see app.owlcms.ui.shared.AthleteGridContent#isIgnoreGroupFromURL()
 	 */
 	@Override
-	public boolean isIgnoreGroup() {
+	public boolean isIgnoreGroupFromURL() {
 		return false;
 	}
 	

@@ -69,6 +69,8 @@ public class FieldOfPlay {
 	private boolean startTimeAutomatically;
 	private FOPState state;
 	private ICountdownTimer timer;
+	private ICountdownTimer breakTimer;
+	
 	
 	private List<Athlete> liftingOrder;
 	private List<Athlete> displayOrder;
@@ -88,6 +90,7 @@ public class FieldOfPlay {
 		this.fopEventBus = new EventBus("FOP-"+name);
 		this.uiEventBus = new EventBus("UI-"+name);
 		this.timer = null;
+		this.breakTimer = new RelayTimer(this);
 		this.platform = platform2;
 	}
 	
@@ -98,12 +101,11 @@ public class FieldOfPlay {
 	 * @param athletes the athletes
 	 * @param timer1    the timer
 	 */
-	public FieldOfPlay(List<Athlete> athletes, ICountdownTimer timer1) {
+	public FieldOfPlay(List<Athlete> athletes, ICountdownTimer timer1, ICountdownTimer breakTimer1) {
 		this.name = "test";
 		this.fopEventBus = new EventBus("FOP-"+this.name);
 		this.uiEventBus = new EventBus("UI-"+this.name);
-		this.setTimer(timer1);
-		init(athletes, timer);
+		init(athletes, timer1, breakTimer1);
 	}
 
 	/**
@@ -246,17 +248,20 @@ public class FieldOfPlay {
 
 		case BREAK:
 			if (e instanceof FOPEvent.StartLifting) {
-				getTimer().stop();
+				getBreakTimer().stop();
 				recomputeLiftingOrder();
 				// we set the state before emitting the display order
 				// beacuse attempt boards ignore updates while in BREAK state
 				setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
 				uiDisplayCurrentAthleteAndTime();
 			} else if (e instanceof FOPEvent.BreakPaused) {
-				getTimer().stop();
+				getBreakTimer().stop();
+				getUiEventBus().post(new UIEvent.BreakPaused(e.getOrigin()));
 			} else if (e instanceof FOPEvent.BreakStarted) {
-				getTimer().start();
+				getBreakTimer().start();
+				getUiEventBus().post(new UIEvent.BreakStarted(e.getOrigin()));
 			} else if (e instanceof FOPEvent.AthleteAnnounced) {
+				getBreakTimer().stop();
 				getTimer().stop();
 				announce();
 			} else if (e instanceof FOPEvent.WeightChange) {
@@ -427,7 +432,7 @@ public class FieldOfPlay {
 		}
 	}
 
-	public void init(List<Athlete> athletes, ICountdownTimer timer) {
+	public void init(List<Athlete> athletes, ICountdownTimer timer, ICountdownTimer breakTimer) {
 		this.timer = timer;
 		this.fopEventBus = getFopEventBus();
 		this.fopEventBus.register(this);
@@ -508,9 +513,9 @@ public class FieldOfPlay {
 		if (group != null) {
 			logger.info("{} loading data for group {}", this.getName(), (group != null ? group.getName() : group));
 			List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
-			init(findAllByGroupAndWeighIn, timer);
+			init(findAllByGroupAndWeighIn, timer, breakTimer);
 		} else {
-			init(new ArrayList<Athlete>(), timer);
+			init(new ArrayList<Athlete>(), timer, breakTimer);
 		}
 	}
 
@@ -551,7 +556,7 @@ public class FieldOfPlay {
 		return clockOwner;
 	}
 
-	private void recomputeLiftingOrder() {
+	private synchronized void recomputeLiftingOrder() {
 		AthleteSorter.liftingOrder(this.liftingOrder);
 		setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
 		this.setCurAthlete(this.liftingOrder.isEmpty() ? null : this.liftingOrder.get(0));
@@ -563,7 +568,6 @@ public class FieldOfPlay {
 
 	private void remindAnnouncerToAnnounce() {
 		// TODO remindAnnouncerToAnnounce
-
 	}
 
 	private void remindTimekeeperToStartTime() {
@@ -586,10 +590,7 @@ public class FieldOfPlay {
 	}
 
 	private void transitionToBreak() {
-//		recomputeLiftingOrder();
-//		uiDisplayCurrentWeight();
-		getTimer().setTimeRemaining(10*60*1000); // 10 minutes in ms
-		uiEventBus.post(new UIEvent.BreakStarted(null, this.getOrigin()));
+		uiEventBus.post(new UIEvent.BreakStarted(this.getOrigin()));
 		setState(FOPState.BREAK);
 	}
 
@@ -687,6 +688,10 @@ public class FieldOfPlay {
 	void setState(FOPState state) {
 		logger.debug("entering {} {}", state, LoggerUtils.whereFrom());
 		this.state = state;
+	}
+
+	public ICountdownTimer getBreakTimer() {
+		return this.breakTimer;
 	}
 
 }

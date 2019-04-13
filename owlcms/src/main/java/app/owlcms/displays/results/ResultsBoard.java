@@ -305,7 +305,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	}
 
 	@Override
-	public boolean isIgnoreGroup() {
+	public boolean isIgnoreGroupFromURL() {
 		return false;
 	}
 }

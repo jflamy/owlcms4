@@ -123,7 +123,7 @@ public class HomeNavigationContent extends BaseNavigationContent {
 	}
 	
 	@Override
-	public boolean isIgnoreFop() {
+	public boolean isIgnoreFopFromURL() {
 		return true;
 	}
 

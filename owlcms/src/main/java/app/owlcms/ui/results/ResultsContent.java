@@ -373,7 +373,7 @@ public class ResultsContent extends AthleteGridContent {
 		
 		logger.debug("parsing query parameters");
 		List<String> groupNames = params.get("group");
-		if (!isIgnoreGroup() && groupNames != null && !groupNames.isEmpty()) {
+		if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
 			String groupName = groupNames.get(0);
 			currentGroup = GroupRepository.findByName(groupName);
 		} else {
@@ -394,7 +394,7 @@ public class ResultsContent extends AthleteGridContent {
 	public void updateURLLocation(UI ui, Location location, Group newGroup) {
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<String, List<String>>(location.getQueryParameters().getParameters());
-		if (!isIgnoreGroup() && newGroup != null) {
+		if (!isIgnoreGroupFromURL() && newGroup != null) {
 			params.put("group",Arrays.asList(newGroup.getName()));
 		} else {
 			params.remove("group");
@@ -404,7 +404,7 @@ public class ResultsContent extends AthleteGridContent {
 
 
 	@Override
-	public boolean isIgnoreGroup() {
+	public boolean isIgnoreGroupFromURL() {
 		return false;
 	}
 }

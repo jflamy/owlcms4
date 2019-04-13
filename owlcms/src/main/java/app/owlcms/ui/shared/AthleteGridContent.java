@@ -144,7 +144,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
 		params.put("fop",Arrays.asList(OwlcmsSession.getFop().getName()));
-		if (newGroup != null && !isIgnoreGroup()) {
+		if (newGroup != null && !isIgnoreGroupFromURL()) {
 			params.put("group",Arrays.asList(newGroup.getName()));
 		} else {
 			params.remove("group");

@@ -87,7 +87,7 @@ public class FOPEvent {
 	}
 	
 	/**
-	 * Class BreakStarted.
+	 * Class BreakPaused.
 	 */
 	static public class BreakPaused extends FOPEvent {
 
