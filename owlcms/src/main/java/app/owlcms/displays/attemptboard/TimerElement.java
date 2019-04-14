@@ -37,6 +37,14 @@ import ch.qos.logback.classic.Logger;
 @HtmlImport("frontend://components/TimerElement.html")
 public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> implements ICountdownTimer, SafeEventBusRegistration {
 
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+
+	static {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
+	
 	/**
 	 * TimerModel
 	 * 
@@ -117,13 +125,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		 */
 		void setStartTime(double seconds);
 	}
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 
-	static {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
-	}
 
 	private EventBus uiEventBus;
 	private Element timerElement;
@@ -177,7 +179,7 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	/* @see app.owlcms.fieldofplay.ICountdownTimer#setTimeRemaining(int) */
 	@Override
 	public void setTimeRemaining(int milliseconds) {
-		logger.warn("time remaining = {} from {} ",milliseconds,LoggerUtils.whereFrom());
+		logger.debug("time remaining = {} from {} ",milliseconds,LoggerUtils.whereFrom());
 		double seconds = milliseconds/1000.0D;
 		TimerModel model = getModel();
 		model.setCurrentTime(seconds);

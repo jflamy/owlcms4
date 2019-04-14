@@ -89,6 +89,7 @@
       }
 
       start() {
+    	  console.warn("timer start "+this.startTime);
           if ((this.currentTime <= 0 && !this.countUp) 
               || (this.currentTime >= this.startTime && this.countUp) ) {
             // timer is over
@@ -105,10 +106,12 @@
 
           this._elapsed = performance.now()/1000;
           this.running = true;
+          console.warn("timer running "+this.currentTime);
           window.requestAnimationFrame(this._decreaseTimer.bind(this));
       }
 
       pause() {
+    	  console.warn("timer pause");
           this.running = false;
           if (this.$server != null) {
 			  this.$server.timerStopped(this.currentTime);      
@@ -118,6 +121,7 @@
       }
       
       reset() {
+    	  console.warn("timer reset");
     	  this.pause();
     	  this._init();
       }
@@ -158,7 +162,7 @@
         	  this.initialWarningGiven = true;
           }
           if (this.currentTime <= 0.1 && !this.timeOverWarningGiven) {
-        	  console.warn("calling play "+this.currentTime);
+        	  //console.warn("calling play "+this.currentTime);
               this.$.timeOver.play();
               this.timeOverWarningGiven = true;
           }       

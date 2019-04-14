@@ -28,12 +28,10 @@ public class RelayTimer implements ICountdownTimer {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(RelayTimer.class);
 	{ logger.setLevel(Level.DEBUG); }
 
-	private int timeRemaining;
-	private FieldOfPlay fop;
-
-	private long startMillis;
-
-	private long stopMillis;
+	protected int timeRemaining;
+	protected FieldOfPlay fop;
+	protected long startMillis;
+	protected long stopMillis;
 	
 	/**
 	 * Instantiates a new countdown timer.
@@ -72,7 +70,7 @@ public class RelayTimer implements ICountdownTimer {
 	@Override
 	public void start() {
 		startMillis = System.currentTimeMillis();
-		logger.debug("starting Time -- timeRemaining = {}", timeRemaining);
+		logger.debug("starting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
 		fop.getUiEventBus().post(new UIEvent.StartTime(timeRemaining, null));
 	}
 
@@ -86,7 +84,7 @@ public class RelayTimer implements ICountdownTimer {
 		stopMillis =  System.currentTimeMillis();
 		long elapsed = stopMillis-startMillis;
 		timeRemaining = (int) (timeRemaining - elapsed);
-		logger.debug("stopping Time -- timeRemaining = {}", timeRemaining);
+		logger.debug("stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
 		fop.getUiEventBus().post(new UIEvent.StopTime(timeRemaining, null));
 	}
 
@@ -100,10 +98,8 @@ public class RelayTimer implements ICountdownTimer {
 		return timeRemaining;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see app.owlcms.tests.ICountDownTimer#setTimeRemaining(int)
+	/* (non-Javadoc)
+	 * @see app.owlcms.fieldofplay.ICountdownTimer#setTimeRemaining(int)
 	 */
 	@Override
 	public void setTimeRemaining(int timeRemaining) {

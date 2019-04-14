@@ -26,13 +26,18 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
+import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.group.BreakDialog.BreakType;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -92,7 +97,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.DEBUG);
 	}
 
 	@Id("timer")
@@ -168,25 +173,23 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
-		OwlcmsSession.withFop(fop -> {
-			int milliseconds = fop.getBreakTimer().getTimeRemaining();
-			doBreak();
-			this.timer.doStartTimer(milliseconds);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+			doBreak(e);
 		});
 	}
 
-	
-	@Subscribe
-	public void slaveStopBreak(UIEvent.BreakPaused e) {
-		this.timer.doStopTimer();
-	}
-	
 	
 	@Subscribe
 	public void slaveStopBreak(UIEvent.BreakDone e) {
 		this.timer.doStopTimer();
 		Athlete a = e.getAthlete();
 		doAthleteUpdate(a, e);
+	}
+	
+	
+	@Subscribe
+	public void slaveStopBreak(UIEvent.BreakPaused e) {
+		this.timer.doStopTimer();
 	}
 
 	private String formatAttempt(Integer attemptNo) {
@@ -195,6 +198,44 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 	private Object getOrigin() {
 		return this;
+	}
+
+	private BreakType inferBreakType(FieldOfPlay fop) {
+		BreakType bt;
+		switch (fop.getState()) {
+		case BREAK:
+			bt = fop.liftsDone() > 0 ? BreakType.FIRST_SNATCH : BreakType.FIRST_CJ;
+			break;
+		case INACTIVE:
+			bt = BreakType.INTRODUCTION;
+			break;
+		default:
+			bt = BreakType.TECHNICAL;
+			break;
+		}
+		return bt;
+	}
+
+	private String inferGroupName() {
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		Group group = fop.getGroup();
+		String groupName = group != null ? group.getName() : "";
+		return MessageFormat.format("Group {0}", groupName);
+	}
+
+	private String inferMessage(BreakType bt) {
+		switch (bt) {
+		case FIRST_CJ:
+			return "Time before next lift";
+		case FIRST_SNATCH:
+			return "Time before first lift";
+		case INTRODUCTION:
+			return "Time before introduction";
+		case TECHNICAL:
+			return "Competition paused";
+		default:
+			return "";
+		}
 	}
 
 	private void init() {
@@ -213,7 +254,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		}
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			this.getElement().callFunction("reset");
-			uiEventLogger.warn("$$$ attemptBoard doUpdate");
+			uiEventLogger.debug("$$$ attemptBoard doUpdate");
 			AttemptBoardModel model = getModel();
 			model.setLastName(a.getLastName());
 			model.setFirstName(a.getFirstName());
@@ -225,15 +266,35 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		});
 	}
 
-	protected void doBreak() {
+	protected void doBreak(BreakStarted e) {
+		FOPEvent.BreakStarted event = e.getEvent();
+		uiEventLogger.debug("$$$ event={} [{}]",event,LoggerUtils.whereFrom());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			getModel().setLastName("Break");
-			getModel().setFirstName("");
+			BreakType breakType = event.getBreakType();
+			getModel().setLastName(inferGroupName());
+			getModel().setFirstName(inferMessage(breakType));
 			getModel().setTeamName("");
 			getModel().setAttempt("");
-			this.getElement().callFunction("doBreak");
-			uiEventLogger.warn("$$$ attemptBoard doBreak");
-			this.timer.start();
+
+			int seconds = e.getEvent().getBreakDuration()/1000;
+			this.getElement().callFunction("doBreak",seconds);
+			uiEventLogger.debug("$$$ attemptBoard doBreak(e) {} seconds", seconds);
+		});
+	}
+
+	/**
+	 * Restoring the attempt board during a break.
+	 * The information about how/why the break was started is unavailable.
+	 * @param fop
+	 */
+	protected void doBreak(FieldOfPlay fop) {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			getModel().setLastName(inferGroupName());
+			getModel().setFirstName(inferMessage(inferBreakType(fop)));
+			getModel().setTeamName("");
+			getModel().setAttempt("");
+			this.getElement().callFunction("doBreak",5*60);
+			uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
 		});
 	}
 
@@ -252,7 +313,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 			if (fop.getState() == FOPState.INACTIVE) {
 				doEmpty();
 			} else if (fop.getState() == FOPState.BREAK) {
-				doBreak();
+				doBreak(fop);
 			} else {
 				doAthleteUpdate(fop.getCurAthlete(), null);
 			}

@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.fieldofplay.BreakRelayTimer;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.RelayTimer;
 import ch.qos.logback.classic.Level;
@@ -66,7 +67,7 @@ public class OwlcmsFactory {
 			FieldOfPlay fop = new FieldOfPlay(null, platform);
 			logger.trace("fop {}",fop.getName());
 			// no group selected, no athletes, announcer will need to pick a group.
-			fop.init(new LinkedList<Athlete>(), new RelayTimer(fop), new RelayTimer(fop));
+			fop.init(new LinkedList<Athlete>(), new RelayTimer(fop), new BreakRelayTimer(fop));
 			fopByName.put(name, fop);
 		}
 	}

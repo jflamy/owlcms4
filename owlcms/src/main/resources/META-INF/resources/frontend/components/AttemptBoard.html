@@ -229,9 +229,9 @@
             }
             
             reset() {
-            	console.warn("reset");
+            	//console.warn("attemptBoard reset");
             	this.$.attemptBoardDiv.style.display="grid";
-            	this.$.attemptBoardDiv.style.color="blue";
+            	this.$.attemptBoardDiv.style.color="white";
             	this.$.timer.reset();
             	this.$.timerDiv.style.display="block";
             	this.$.weightDiv.style.display="block";
@@ -247,17 +247,19 @@
             	this.$.decisionDiv.style.display="block";
             }
             
-            doBreak() {
-            	console.warn("doBreak");
+            doBreak(seconds) {
+            	//console.warn("attemptBoard doBreak");
             	this.$.attemptBoardDiv.style.display="grid";
-            	this.$.attemptBoardDiv.style.color="red";
+            	this.$.attemptBoardDiv.style.color="white";
                	this.$.timer.reset();
                	this.$.timerDiv.style.display="block";
-               	this.$.timerDiv.style.color="pink";
+               	this.$.timerDiv.style.color="#99CCFF";
                	this.$.weightDiv.style.display="none";
                	this.$.startNumberDiv.style.display="none";
                	this.$.barbellDiv.style.display="none";
-               	this.$.decisionDiv.style.display="none";           	
+               	this.$.decisionDiv.style.display="none";
+               	this.$.timer.startTime = seconds;
+               	this.$.timer.start();
             }
             
             clear() {

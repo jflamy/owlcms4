@@ -32,8 +32,8 @@ public class BreakDialog extends Dialog {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakDialog.class);
 	{ logger.setLevel(Level.DEBUG);}
 	
-	enum BreakType {INTRODUCTION, FIRST_SNATCH, FIRST_CJ, TECHNICAL};
-	enum CountdownType {DURATION, TARGET};
+	public enum BreakType {INTRODUCTION, FIRST_SNATCH, FIRST_CJ, TECHNICAL};
+	public enum CountdownType {DURATION, TARGET};
 	
 	private Button breakStart = null;
 	private Button breakPause = null;
@@ -57,19 +57,19 @@ public class BreakDialog extends Dialog {
 		ct.setItems(CountdownType.values());
 		ct.setLabel("Countdown Type");
 		
-		nf.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.DURATION, nf, tp, dp));
+		nf.addValueChangeListener(e -> setValues(CountdownType.DURATION, nf, tp, dp));
 		Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time
 		tp.setLocale(locale);
-		tp.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET, nf, tp, dp));
+		tp.addValueChangeListener(e -> setValues(CountdownType.TARGET, nf, tp, dp));
 		dp.setLocale(locale);
-		tp.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET, nf, tp, dp));	
-		setTargetValues(tp, dp);
+		tp.addValueChangeListener(e -> setValues(CountdownType.TARGET, nf, tp, dp));	
 		minutes = new Label("minutes");
 		
 		ct.addComponents(CountdownType.DURATION, nf, new Label(" "), minutes, new Div());
 		ct.addComponents(CountdownType.TARGET, dp, new Label(" "), tp);
 		ct.addValueChangeListener(e -> {
 			CountdownType cType = e.getValue();
+			setValues(cType, nf, tp, dp);
 			if (cType != CountdownType.TARGET) {
 				switchToDuration(cType, nf, tp, dp);
 			} else {
@@ -79,7 +79,8 @@ public class BreakDialog extends Dialog {
 		
 		breakStart = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
-				fop.getFopEventBus().post(new FOPEvent.BreakStarted(this.getOrigin()));
+				long breakDuration = setBreakTimeRemaining(ct.getValue(), nf, tp, dp);
+				fop.getFopEventBus().post(new FOPEvent.BreakStarted(bt.getValue(), (int) breakDuration, this.getOrigin()));
 			});
 			e.getSource().setEnabled(false);
 			breakStart.setEnabled(false);
@@ -138,22 +139,34 @@ public class BreakDialog extends Dialog {
 		});
 	}
 
-	public void setBreakTimeRemaining(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
-		int timeRemaining;
-		LocalDateTime target;
+	public void setValues(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
 		LocalDateTime now = LocalDateTime.now();
+		dp.setEnabled(true);
+		tp.setEnabled(true);
+		nf.setEnabled(true);
 		if (cType == CountdownType.DURATION) {
 			Double value = nf.getValue();
-			target = now.plusMinutes(value != null ? value.intValue() : 0);
+			LocalDateTime target = now.plusMinutes(value != null ? value.intValue() : 0);
 			dp.setValue(target.toLocalDate());
 			tp.setValue(target.toLocalTime());
+		} else {
+			computeRoundedTargetValues(tp, dp);
+		}
+	}
+
+	public long setBreakTimeRemaining(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
+		LocalDateTime target;
+		if (cType == CountdownType.DURATION) {
+			Double value = nf.getValue();
+			target = LocalDateTime.now().plusMinutes(value != null ? value.intValue() : 0);
 		} else {
 			LocalDate date = dp.getValue();
 			LocalTime time = tp.getValue();
 			target = LocalDateTime.of(date, time);
 		}
-		timeRemaining = (int) now.until(target, ChronoUnit.MILLIS);
-		OwlcmsSession.withFop(fop -> fop.getBreakTimer().setTimeRemaining(timeRemaining));
+		long timeRemaining = LocalDateTime.now().until(target, ChronoUnit.MILLIS);
+		OwlcmsSession.withFop(fop -> fop.getBreakTimer().setTimeRemaining((int)timeRemaining));
+		return timeRemaining;
 	}
 
 	private Object getOrigin() {
@@ -166,7 +179,6 @@ public class BreakDialog extends Dialog {
 		dp.setEnabled(true);
 		tp.setEnabled(true);
 		tp.focus();
-		setBreakTimeRemaining(cType, nf, tp, dp);
 	}
 
 	public void switchToDuration(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
@@ -176,10 +188,9 @@ public class BreakDialog extends Dialog {
 		tp.setEnabled(false);
 		nf.focus();
 		nf.setAutoselect(true);
-		setBreakTimeRemaining(cType, nf, tp, dp);
 	}
 
-	public void setTargetValues(TimePicker tp, DatePicker dp) {
+	private void computeRoundedTargetValues(TimePicker tp, DatePicker dp) {
 		int timeStep = 30;
 		tp.setStep(Duration.ofMinutes(timeStep));
 		LocalTime nowTime = LocalTime.now();

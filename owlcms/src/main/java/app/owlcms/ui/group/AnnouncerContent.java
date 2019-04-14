@@ -126,12 +126,19 @@ public class AnnouncerContent extends AthleteGridContent {
 			});
 		});
 		_2min.getElement().setAttribute("theme", "icon");
+		Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
+			(new BreakDialog(this)).open();
+		});
+		breakButton.getElement().setAttribute("theme", "icon");
+		breakButton.getElement().setAttribute("title", "Break Timer");
+		
 		HorizontalLayout buttons = new HorizontalLayout(
 				announce,
 				start,
 				stop,
 				_1min,
-				_2min);
+				_2min,
+				breakButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		return buttons;
 	}

@@ -42,6 +42,9 @@ public interface ICountdownTimer {
 	 * Stop.
 	 */
 	public void stop();
+	public default void start(FOPEvent e) {
+		start();
+	};
 
 	/**
 	 * Gets the time remaining.
@@ -62,5 +65,7 @@ public interface ICountdownTimer {
 	 * Stop with no time left.
 	 */
 	void timeOut(Object origin);
+
+	
 
 }

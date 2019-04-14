@@ -9,6 +9,8 @@
 package app.owlcms.fieldofplay;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.ui.group.BreakDialog;
+import app.owlcms.ui.group.BreakDialog.BreakType;
 
 /**
  * The subclasses of FOPEvent are all the events that can take place on the field of play.
@@ -81,8 +83,29 @@ public class FOPEvent {
 	 */
 	static public class BreakStarted extends FOPEvent {
 
-		public BreakStarted(Object origin) {
+		private BreakType breakType;
+		private int breakDuration;
+
+		public BreakStarted(BreakDialog.BreakType breakType, int timeRemaining, Object origin) {
 			super(origin);
+			this.setBreakType(breakType);
+			this.setBreakDuration(timeRemaining);
+		}
+
+		public BreakType getBreakType() {
+			return breakType;
+		}
+
+		public void setBreakType(BreakType breakType) {
+			this.breakType = breakType;
+		}
+
+		public int getBreakDuration() {
+			return breakDuration;
+		}
+
+		public void setBreakDuration(int breakDuration) {
+			this.breakDuration = breakDuration;
 		}
 	}
 	

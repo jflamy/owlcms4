@@ -76,6 +76,8 @@ public class UIEvent {
 	 */
 	static public class BreakStarted extends UIEvent {
 
+		private FOPEvent.BreakStarted event;
+
 		/**
 		 * Instantiates a new break started.
 		 *
@@ -83,6 +85,19 @@ public class UIEvent {
 		 */
 		public BreakStarted(Object origin) {
 			super(origin);
+		}
+
+		public BreakStarted(FOPEvent.BreakStarted e, Object origin) {
+			super(origin);
+			this.setEvent(e);
+		}
+
+		public FOPEvent.BreakStarted getEvent() {
+			return event;
+		}
+
+		public void setEvent(FOPEvent.BreakStarted event) {
+			this.event = event;
 		}
 	}
 
