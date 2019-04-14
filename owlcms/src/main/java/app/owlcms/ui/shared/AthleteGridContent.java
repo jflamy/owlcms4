@@ -9,6 +9,7 @@
 
 package app.owlcms.ui.shared;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -288,8 +289,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			lastName.setText(athlete.getLastName());
 			firstName.setText(athlete.getFirstName());
 			timeField.setTimeRemaining(timeAllowed);
-			Html newAttempt = new Html(
-				"<h2>" + athlete.getAttemptNumber() + "<sup>st</sup> att.</h2>");
+			String attemptHtml = MessageFormat.format("<h2>{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.</h2>", athlete.getAttemptNumber());
+			Html newAttempt = new Html(attemptHtml);
 			topBar.replace(attempt, newAttempt);
 			attempt = newAttempt;
 			Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();

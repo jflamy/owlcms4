@@ -44,7 +44,7 @@ public class FieldOfPlay {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	{
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.INFO);
 	}
  
@@ -515,7 +515,7 @@ public class FieldOfPlay {
 	 */
 	public void switchGroup(Group group, Object origin) {
 		initGroup(group, origin);
-		logger.info("{} start lifting for group {}", this.getName(), (group != null ? group.getName() : group));
+		logger.info("{} start lifting for group {} origin={}", this.getName(), (group != null ? group.getName() : group),origin);
 		getFopEventBus().post(new FOPEvent.StartLifting(origin));
 	}
 

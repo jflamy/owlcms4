@@ -50,7 +50,7 @@ implements QueryParameterReader, ContentWrapping, AppLayoutAware, SafeEventBusRe
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(BaseNavigationContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.INFO);
 	}
 

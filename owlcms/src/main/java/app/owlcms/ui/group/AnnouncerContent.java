@@ -83,6 +83,7 @@ public class AnnouncerContent extends AthleteGridContent {
 			Group group = fop.getGroup();
 			logger.debug("select setting group to {}",group);
 			groupSelect.setValue(group);
+			getGroupFilter().setValue(group);
 		});
 		groupSelect.addValueChangeListener(e -> {
 			// the group management logic and filtering is attached to a

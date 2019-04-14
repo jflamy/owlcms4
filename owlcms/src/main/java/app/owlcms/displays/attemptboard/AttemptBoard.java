@@ -52,6 +52,14 @@ import ch.qos.logback.classic.Logger;
 @Push
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel>
 		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
+	
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+
+	static {
+		logger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.DEBUG);
+	}
 
 	/**
 	 * ResultBoardModel
@@ -92,13 +100,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		void setWeight(Integer weight);
 	}
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
-	static {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.DEBUG);
-	}
 
 	@Id("timer")
 	private TimerElement timer; // created by Flow during template instanciation
