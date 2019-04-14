@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.VaadinSession;
 
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.FieldOfPlayState;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -566,7 +566,7 @@ public void setShowTimer(Boolean showTime) {
 	 * @return the current
 	 */
 	public static Platform getCurrent() {
-		FieldOfPlayState fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
 			Platform platform = fop.getPlatform();
 			return (platform != null ? platform : testingPlatform);

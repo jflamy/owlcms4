@@ -18,7 +18,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.data.competition.Competition;
-import app.owlcms.state.FieldOfPlayState;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -82,8 +82,8 @@ public class OwlcmsSession {
 		getCurrent().attributes.put(s,o);
 	}
 
-	public static void withFop(Consumer<FieldOfPlayState> command) {
-		FieldOfPlayState fop = getFop();
+	public static void withFop(Consumer<FieldOfPlay> command) {
+		FieldOfPlay fop = getFop();
 		if (fop == null) {
 			fop = OwlcmsFactory.getDefaultFOP();
 		}
@@ -92,11 +92,11 @@ public class OwlcmsSession {
 		}
 	}
 
-	public static FieldOfPlayState getFop() {
-		return (FieldOfPlayState) getAttribute(FOP);
+	public static FieldOfPlay getFop() {
+		return (FieldOfPlay) getAttribute(FOP);
 	}
 	
-	public static void setFop(FieldOfPlayState fop) {
+	public static void setFop(FieldOfPlay fop) {
 		logger.debug("setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom());
 		setAttribute(FOP, fop);
 	}

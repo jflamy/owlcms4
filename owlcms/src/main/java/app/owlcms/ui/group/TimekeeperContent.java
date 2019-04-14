@@ -12,14 +12,15 @@ package app.owlcms.ui.group;
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
+import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.FOPEvent;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
@@ -58,30 +59,38 @@ public class TimekeeperContent extends AthleteGridContent {
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
 
 		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
-			OwlcmsSession.withFop(fop -> fop.getEventBus()
+			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.TimeStartedManually(this.getOrigin())));
 		});
 		start.getElement().setAttribute("theme", "primary");
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
-			OwlcmsSession.withFop(fop -> fop.getEventBus()
+			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.TimeStoppedManually(this.getOrigin())));
 		});
 		stop.getElement().setAttribute("theme", "primary");
 		Button _1min = new Button("1:00", (e) -> {
-			OwlcmsSession.withFop(fop -> fop.getEventBus()
+			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.ForceTime(60000,this.getOrigin())));
 		});
 		_1min.getElement().setAttribute("theme", "icon");
+		_1min.getElement().setAttribute("title", "Reset to 1 min");
 		Button _2min = new Button("2:00", (e) -> {
-			OwlcmsSession.withFop(fop -> fop.getEventBus()
+			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.ForceTime(120000,this.getOrigin())));
 		});
 		_2min.getElement().setAttribute("theme", "icon");
+		_2min.getElement().setAttribute("title", "Reset to 2 min");
+		Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
+			(new BreakDialog(this)).open();
+		});
+		breakButton.getElement().setAttribute("theme", "icon");
+		breakButton.getElement().setAttribute("title", "Break Timer");
 		HorizontalLayout buttons = new HorizontalLayout(
 				start,
 				stop,
 				_1min,
-				_2min);
+				_2min,
+				breakButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		return buttons;
 	}

@@ -8,7 +8,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.server.Command;
 
-import app.owlcms.state.UIEvent;
+import app.owlcms.fieldofplay.UIEvent;
 
 public interface UIEventProcessor {
 	

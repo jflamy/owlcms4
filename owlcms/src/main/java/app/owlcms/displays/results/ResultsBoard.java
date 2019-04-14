@@ -33,8 +33,8 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.displays.attemptboard.DecisionElement;
 import app.owlcms.displays.attemptboard.TimerElement;
+import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.UIEvent;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
@@ -96,6 +96,8 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		void setAttempt(String formattedAttempt);
 
 		void setWeight(Integer weight);
+
+		void setHidden(boolean b);
 	}
 
 	@Id("timer")
@@ -117,7 +119,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 	protected void setTranslationMap() {
 		JsonObject translations = Json.createObject();
-		//TODO read from a PropertyResourceBundle
+		//TODO i18n t.key1 --> translation of key1 for getLocale()
 		translations.put("key1","value1");
 		translations.put("key2","value2");
 		this.getElement().setPropertyJson("t", translations);
@@ -155,6 +157,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 	@Subscribe
 	public void orderUpdated(UIEvent.LiftingOrderUpdated e) {
+		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			Athlete a = e.getAthlete();
 			displayOrder = e.getDisplayOrder();
@@ -164,19 +167,28 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 	@Subscribe
 	public void athleteAnnounced(UIEvent.AthleteAnnounced e) {
+		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			logger.debug("resultBoard athleteAnnounced");
 			Athlete a = e.getAthlete();
 			doUpdate(a, e);
 		});
 	}
 
 	@Subscribe
-	public void intermissionDone(UIEvent.IntermissionDone e) {
+	public void breakDone(UIEvent.BreakDone e) {
+		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			Athlete a = e.getAthlete();
 			doUpdate(a, e);
 		});
+	}
+
+	public void uiLog(UIEvent e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+	}
+
+	private Object getOrigin() {
+		return this;
 	}
 
 	@Subscribe
@@ -197,10 +209,13 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 
 	protected void doUpdate(Athlete a, UIEvent e) {
-		if (a == null)
-			return;
+
+			
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			ResultBoardModel model = getModel();
+			model.setHidden(a == null);
+			if (a == null) return;
+			
 			model.setLastName(a.getLastName().toUpperCase());
 			model.setFirstName(a.getFirstName());
 			model.setTeamName(a.getTeam());
@@ -210,6 +225,10 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			model.setWeight(a.getNextAttemptRequestedWeight());		
 			this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
 		});
+	}
+	
+	protected void doHide() {
+		this.getModel().setHidden(true);
 	}
 
 	private JsonValue getAthletesJson(List<Athlete> list2) {
@@ -305,7 +324,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	}
 
 	@Override
-	public boolean isIgnoreGroup() {
-		return false;
+	public boolean isIgnoreGroupFromURL() {
+		return true;
 	}
 }

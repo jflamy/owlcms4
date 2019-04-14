@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 
-import app.owlcms.state.ICountdownTimer;
-import app.owlcms.state.UIEvent;
+import app.owlcms.fieldofplay.ICountdownTimer;
+import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

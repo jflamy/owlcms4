@@ -19,9 +19,9 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.FOPEvent;
-import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.ui.shared.QueryParameterReader;
@@ -58,7 +58,7 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 	@Override
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
-			OwlcmsSession.withFop(fop -> fop.getEventBus()
+			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.TimeStoppedManually(this.getOrigin())));
 		});
 		stop.getElement().setAttribute("theme", "primary icon");
@@ -89,8 +89,8 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 	@Override
 	public Athlete update(Athlete Athlete) {
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
-		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
-		fop.getEventBus()
+		FieldOfPlay fop = (FieldOfPlay) OwlcmsSession.getAttribute("fop");
+		fop.getFopEventBus()
 			.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
 		return savedAthlete;
 	}

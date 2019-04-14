@@ -22,8 +22,8 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.FieldOfPlayState;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -92,7 +92,7 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		Label fopLabel = new Label(label);
 		formatLabel(fopLabel);
 
-		ComboBox<FieldOfPlayState> fopSelect = createFopSelect(placeHolder);
+		ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
 		OwlcmsSession.withFop((fop) -> {
 			fopSelect.setValue(fop);
 		});

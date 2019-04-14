@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.state;
+package app.owlcms.fieldofplay;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,18 +28,16 @@ public class RelayTimer implements ICountdownTimer {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(RelayTimer.class);
 	{ logger.setLevel(Level.DEBUG); }
 
-	private int timeRemaining;
-	private FieldOfPlayState fop;
-
-	private long startMillis;
-
-	private long stopMillis;
+	protected int timeRemaining;
+	protected FieldOfPlay fop;
+	protected long startMillis;
+	protected long stopMillis;
 	
 	/**
 	 * Instantiates a new countdown timer.
 	 * @param fop 
 	 */
-	public RelayTimer(FieldOfPlayState fop) {
+	public RelayTimer(FieldOfPlay fop) {
 		this.fop = fop;
 	}
 	
@@ -72,7 +70,7 @@ public class RelayTimer implements ICountdownTimer {
 	@Override
 	public void start() {
 		startMillis = System.currentTimeMillis();
-		logger.debug("starting Time -- timeRemaining = {}", timeRemaining);
+		logger.debug("starting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
 		fop.getUiEventBus().post(new UIEvent.StartTime(timeRemaining, null));
 	}
 
@@ -86,7 +84,7 @@ public class RelayTimer implements ICountdownTimer {
 		stopMillis =  System.currentTimeMillis();
 		long elapsed = stopMillis-startMillis;
 		timeRemaining = (int) (timeRemaining - elapsed);
-		logger.debug("stopping Time -- timeRemaining = {}", timeRemaining);
+		logger.debug("stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
 		fop.getUiEventBus().post(new UIEvent.StopTime(timeRemaining, null));
 	}
 
@@ -100,10 +98,8 @@ public class RelayTimer implements ICountdownTimer {
 		return timeRemaining;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see app.owlcms.tests.ICountDownTimer#setTimeRemaining(int)
+	/* (non-Javadoc)
+	 * @see app.owlcms.fieldofplay.ICountdownTimer#setTimeRemaining(int)
 	 */
 	@Override
 	public void setTimeRemaining(int timeRemaining) {
@@ -133,7 +129,7 @@ public class RelayTimer implements ICountdownTimer {
 	@Override
 	public void timeOut(Object origin) {
 		this.stop();
-		fop.getEventBus().post(new FOPEvent.TimeOver(origin));
+		fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
 	}
 
 

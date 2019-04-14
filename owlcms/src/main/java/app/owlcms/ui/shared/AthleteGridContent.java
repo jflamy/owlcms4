@@ -9,6 +9,7 @@
 
 package app.owlcms.ui.shared;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,10 +49,10 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.TimerElement;
+import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.FOPEvent;
-import app.owlcms.state.FieldOfPlayState;
-import app.owlcms.state.UIEvent;
 import app.owlcms.ui.group.AthleteCardFormFactory;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.utils.LoggerUtils;
@@ -74,7 +75,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
@@ -144,7 +145,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
 		params.put("fop",Arrays.asList(OwlcmsSession.getFop().getName()));
-		if (newGroup != null && !isIgnoreGroup()) {
+		if (newGroup != null && !isIgnoreGroupFromURL()) {
 			params.put("group",Arrays.asList(newGroup.getName()));
 		} else {
 			params.remove("group");
@@ -288,8 +289,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			lastName.setText(athlete.getLastName());
 			firstName.setText(athlete.getFirstName());
 			timeField.setTimeRemaining(timeAllowed);
-			Html newAttempt = new Html(
-				"<h2>" + athlete.getAttemptNumber() + "<sup>st</sup> att.</h2>");
+			String attemptHtml = MessageFormat.format("<h2>{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.</h2>", athlete.getAttemptNumber());
+			Html newAttempt = new Html(attemptHtml);
 			topBar.replace(attempt, newAttempt);
 			attempt = newAttempt;
 			Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
@@ -340,7 +341,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	}
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.group.UIEventProcessor#updateGrid(app.owlcms.state.UIEvent.LiftingOrderUpdated)
+	 * @see app.owlcms.ui.group.UIEventProcessor#updateGrid(app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated)
 	 */
 	@Subscribe
 	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
@@ -429,8 +430,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	@Override
 	public Athlete update(Athlete Athlete) {
 		Athlete savedAthlete = AthleteRepository.save(Athlete);
-		FieldOfPlayState fop = (FieldOfPlayState) OwlcmsSession.getAttribute("fop");
-		fop.getEventBus()
+		FieldOfPlay fop = (FieldOfPlay) OwlcmsSession.getAttribute("fop");
+		fop.getFopEventBus()
 			.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
 		return savedAthlete;
 	}
@@ -450,7 +451,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		FieldOfPlayState fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
 			logger.debug("findAll {} {} {}",fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(), LoggerUtils.whereFrom());
 			return fop.getLiftingOrder();

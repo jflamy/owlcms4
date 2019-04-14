@@ -72,12 +72,12 @@ public class DemoData {
 		Competition competition = new Competition();
 
 		competition.setCompetitionName("Spring Equinox Open");
-		competition.setCompetitionCity("Sometown, Lower State");
+		competition.setCompetitionCity("Sometown, Lower FOPState");
 		competition.setCompetitionDate(LocalDate.of(2019, 03, 23));
 		competition.setCompetitionOrganizer("Giant Weightlifting Club");
 		competition.setCompetitionSite("West-End Gym");
 		competition.setFederation("National Weightlifting Federation");
-		competition.setFederationAddress("22 River Street, Othertown, Upper State,  J0H 1J8");
+		competition.setFederationAddress("22 River Street, Othertown, Upper FOPState,  J0H 1J8");
 		competition.setFederationEMail("results@national-weightlifting.org");
 		competition.setFederationWebSite("http://national-weightlifting.org");
 		

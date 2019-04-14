@@ -8,11 +8,11 @@
 	display: none;
 	height: 100%;
 	align-items: stretch;
-	justify-content: space-evenly;
+	justify-content: stretch;
 }
 .decision {
 	border-radius: 5%;
-	border: 0.3rem solid white;
+	border: medium solid white;
 	margin: 3%;
 	background-color: gray;
 	width: 30%;
@@ -169,38 +169,40 @@
       }
       
       setColors(parent, ref1, ref2, ref3) {
+    	  var redStyle = "background-color: red; width: 30%; border-width: thin";
+    	  var whiteStyle = "background-color: white; width: 30%; border-width: thin";
     	  if (this.publicFacing) {
 	    	  if (ref1 === true) {
-	    		  parent.$.ref1span.style = "background-color: white";
+	    		  parent.$.ref1span.style = whiteStyle;
 	    	  } else if (ref1 === false){
-	    		  parent.$.ref1span.style = "background-color: red";
+	    		  parent.$.ref1span.style = redStyle;
 	    	  }
 	    	  if (ref2 === true) {
-	    		  parent.$.ref2span.style = "background-color: white";
+	    		  parent.$.ref2span.style = whiteStyle;
 	    	  } else if (ref2 === false){
-	    		  parent.$.ref2span.style = "background-color: red";
+	    		  parent.$.ref2span.style = redStyle;
 	    	  }
 	    	  if (ref3 === true) {
-	    		  parent.$.ref3span.style = "background-color: white";
+	    		  parent.$.ref3span.style = whiteStyle;
 	    	  } else if (ref3 === false){
-	    		  parent.$.ref3span.style = "background-color: red";
+	    		  parent.$.ref3span.style = redStyle;
 	    	  }
     	  } else {
     		  // athlete facing, go the other way, right to left
 	    	  if (ref1 === true) {
-	    		  parent.$.ref3span.style = "background-color: white";
+	    		  parent.$.ref3span.style = whiteStyle;
 	    	  } else if (ref1 === false){
-	    		  parent.$.ref3span.style = "background-color: red";
+	    		  parent.$.ref3span.style = redStyle;
 	    	  }
 	    	  if (ref2 === true) {
-	    		  parent.$.ref2span.style = "background-color: white";
+	    		  parent.$.ref2span.style = whiteStyle;
 	    	  } else if (ref2 === false){
-	    		  parent.$.ref2span.style = "background-color: red";
+	    		  parent.$.ref2span.style = redStyle;
 	    	  }
 	    	  if (ref3 === true) {
-	    		  parent.$.ref1span.style = "background-color: white";
+	    		  parent.$.ref1span.style = whiteStyle;
 	    	  } else if (ref3 === false){
-	    		  parent.$.ref1span.style = "background-color: red";
+	    		  parent.$.ref1span.style = redStyle;
 	    	  }
     	  }
       }

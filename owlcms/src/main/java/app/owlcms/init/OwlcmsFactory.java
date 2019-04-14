@@ -20,8 +20,9 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.state.FieldOfPlayState;
-import app.owlcms.state.RelayTimer;
+import app.owlcms.fieldofplay.BreakRelayTimer;
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.RelayTimer;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -42,7 +43,7 @@ public class OwlcmsFactory {
 	static {logger.setLevel(Level.INFO);}
 
 	/** The fop by name. */
-	static Map<String, FieldOfPlayState> fopByName = null;
+	static Map<String, FieldOfPlay> fopByName = null;
 	private static String version;
 	
 
@@ -52,7 +53,7 @@ public class OwlcmsFactory {
 	 * @param key the key
 	 * @return the FOP by name
 	 */
-	public static FieldOfPlayState getFOPByName(String key) {
+	public static FieldOfPlay getFOPByName(String key) {
 		if (fopByName == null) {
 			initFOPByName();
 		}
@@ -63,10 +64,10 @@ public class OwlcmsFactory {
 		fopByName = new HashMap<>();
 		for (Platform platform : PlatformRepository.findAll()) {
 			String name = platform.getName();
-			FieldOfPlayState fop = new FieldOfPlayState(null, platform);
+			FieldOfPlay fop = new FieldOfPlay(null, platform);
 			logger.trace("fop {}",fop.getName());
 			// no group selected, no athletes, announcer will need to pick a group.
-			fop.init(new LinkedList<Athlete>(), new RelayTimer(fop));
+			fop.init(new LinkedList<Athlete>(), new RelayTimer(fop), new BreakRelayTimer(fop));
 			fopByName.put(name, fop);
 		}
 	}
@@ -74,11 +75,11 @@ public class OwlcmsFactory {
 	/**
 	 * @return first field of play, sorted alphabetically
 	 */
-	public static FieldOfPlayState getDefaultFOP() {
+	public static FieldOfPlay getDefaultFOP() {
 		if (fopByName == null) {
 			initFOPByName();
 		}
-		Optional<FieldOfPlayState> fop = fopByName.entrySet()
+		Optional<FieldOfPlay> fop = fopByName.entrySet()
 			.stream()
 			.sorted(Comparator.comparing(x -> x.getKey()))
 			.map(x -> x.getValue())
@@ -86,22 +87,22 @@ public class OwlcmsFactory {
 		return fop.orElseThrow(() -> new RuntimeException("no default platform"));
 	}
 
-	public static FieldOfPlayState getFOPByGroupName(String name) {
+	public static FieldOfPlay getFOPByGroupName(String name) {
 		if (fopByName == null) {
 			return null; // no group is lifting yet.
 		}
-		Collection<FieldOfPlayState> values = fopByName.values();
-		for (FieldOfPlayState v: values) {
+		Collection<FieldOfPlay> values = fopByName.values();
+		for (FieldOfPlay v: values) {
 			if (v.getGroup().getName().equals(name)) return v;
 		}
 		return null;
 	}
 
-	public static Collection<FieldOfPlayState> getFOPs() {
+	public static Collection<FieldOfPlay> getFOPs() {
 		if (fopByName == null) {
 			initFOPByName();
 		}
-		Collection<FieldOfPlayState> values = fopByName.values();
+		Collection<FieldOfPlay> values = fopByName.values();
 		return values;
 	}
 

@@ -6,7 +6,7 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.state;
+package app.owlcms.fieldofplay;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -42,6 +42,9 @@ public interface ICountdownTimer {
 	 * Stop.
 	 */
 	public void stop();
+	public default void start(FOPEvent e) {
+		start();
+	};
 
 	/**
 	 * Gets the time remaining.
@@ -62,5 +65,7 @@ public interface ICountdownTimer {
 	 * Stop with no time left.
 	 */
 	void timeOut(Object origin);
+
+	
 
 }

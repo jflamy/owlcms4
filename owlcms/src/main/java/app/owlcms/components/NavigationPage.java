@@ -6,8 +6,8 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.VaadinServletRequest;
 
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.FieldOfPlayState;
 
 /**
  * Utility methods for creating the texts and buttons on navigation pages.
@@ -18,7 +18,7 @@ import app.owlcms.state.FieldOfPlayState;
 public interface NavigationPage {
 
 	public default String getWindowOpener(Class<? extends Component> targetClass) {
-		FieldOfPlayState fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = OwlcmsSession.getFop();
 		String name = fop == null ? "" : "_"+fop.getName();
 		return "window.open('"+
 				getUrlFromTarget(targetClass)+

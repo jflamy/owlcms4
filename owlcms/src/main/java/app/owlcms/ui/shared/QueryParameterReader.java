@@ -15,9 +15,9 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.state.FieldOfPlayState;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -39,8 +39,8 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 		HashMap<String, List<String>> params = new HashMap<String, List<String>>(parametersMap);
 
 		// get the fop from the query parameters, set as default if not provided
-		FieldOfPlayState fop = null;
-		if (!isIgnoreFop()) {
+		FieldOfPlay fop = null;
+		if (!isIgnoreFopFromURL()) {
 			List<String> fopNames = parametersMap.get("fop");
 			if (fopNames != null && fopNames.get(0) == null) {
 				fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
@@ -57,7 +57,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 	
 		// get the group from query parameters, do not add value if group is not defined
 		Group group = null;
-		if (!isIgnoreGroup()) {
+		if (!isIgnoreGroupFromURL()) {
 			List<String> groupNames = parametersMap.get("group");
 			if (groupNames != null  && groupNames.get(0) != null) {
 				group = GroupRepository.findByName(groupNames.get(0));
@@ -75,11 +75,11 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
 	
-	public default boolean isIgnoreGroup() {
+	public default boolean isIgnoreGroupFromURL() {
 		return true;
 	}
 	
-	public default boolean isIgnoreFop() {
+	public default boolean isIgnoreFopFromURL() {
 		return false;
 	}
 

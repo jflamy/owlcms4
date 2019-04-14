@@ -6,9 +6,11 @@
  * License text at https://github.com/jflamy/owlcms4/master/License
  * See https://redislabs.com/wp-content/uploads/2018/10/Commons-Clause-White-Paper.pdf
  */
-package app.owlcms.state;
+package app.owlcms.fieldofplay;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.ui.group.BreakDialog;
+import app.owlcms.ui.group.BreakDialog.BreakType;
 
 /**
  * The subclasses of FOPEvent are all the events that can take place on the field of play.
@@ -77,14 +79,44 @@ public class FOPEvent {
 	}
 
 	/**
-	 * The Class IntermissionStarted.
+	 * Class BreakStarted.
 	 */
-	static public class IntermissionStarted extends FOPEvent {
+	static public class BreakStarted extends FOPEvent {
 
-		public IntermissionStarted(Object origin) {
+		private BreakType breakType;
+		private int breakDuration;
+
+		public BreakStarted(BreakDialog.BreakType breakType, int timeRemaining, Object origin) {
 			super(origin);
+			this.setBreakType(breakType);
+			this.setBreakDuration(timeRemaining);
 		}
 
+		public BreakType getBreakType() {
+			return breakType;
+		}
+
+		public void setBreakType(BreakType breakType) {
+			this.breakType = breakType;
+		}
+
+		public int getBreakDuration() {
+			return breakDuration;
+		}
+
+		public void setBreakDuration(int breakDuration) {
+			this.breakDuration = breakDuration;
+		}
+	}
+	
+	/**
+	 * Class BreakPaused.
+	 */
+	static public class BreakPaused extends FOPEvent {
+
+		public BreakPaused(Object origin) {
+			super(origin);
+		}
 	}
 
 	/**
