@@ -102,7 +102,7 @@ public class FieldOfPlay {
 		this.name = "test";
 		this.fopEventBus = new EventBus("FOP-"+this.name);
 		this.uiEventBus = new EventBus("UI-"+this.name);
-		if (breakTimer1 instanceof BreakRelayTimer) {
+		if (breakTimer1 instanceof BreakRelayTimer  || breakTimer1.getClass().getSimpleName().equals("MockCountdownTimer")) {
 			init(athletes, timer1, breakTimer1);
 		} else {
 			throw new RuntimeException("wrong timer setup");
