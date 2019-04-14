@@ -57,8 +57,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
 	static {
-		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 
 	/**
@@ -146,6 +146,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		logger.debug("%%% {} LiftingOrderUpdated {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 		OwlcmsSession.withFop(fop -> {
 			FOPState state = fop.getState();
 			if (state == FOPState.BREAK || state == FOPState.INACTIVE) {
@@ -190,7 +191,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	
 	
 	@Subscribe
-	public void slaveStopBreak(UIEvent.BreakPaused e) {
+	public void slavePauseBreak(UIEvent.BreakPaused e) {
 		this.timer.doStopTimer();
 	}
 
@@ -248,8 +249,11 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	}
 
 	protected void doAthleteUpdate(Athlete a, UIEvent e) {
-		if (a == null)
+		if (a == null) {
+			doEmpty();
 			return;
+		}
+
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop == null || fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
 			return;

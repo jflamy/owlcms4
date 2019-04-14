@@ -139,7 +139,7 @@ table, tr, th, td {
 }
 </style>
 
-<div class="wrapper">
+<div class="wrapper" id="resultBoardDiv" style$="[[_computeHidden(hidden)]]">
 <div class="attemptBar">
 	<div class="startNumber"><span>[[startNumber]]</span></div>
 	<div class="athleteInfo">
@@ -149,10 +149,10 @@ table, tr, th, td {
 		<div class="weight">
 			[[weight]]<span style="font-size: 75%">kg</span>
 		</div>
-		<div class="timer" id="timerDiv">
+		<div class="timer" id="timerDiv"  style="width: 10vw">
 			<timer-element id="timer"></timer-element>
 		</div>
-		<div class="decision" id="decisionDiv" on-hide="reset">
+		<div class="decision" id="decisionDiv" style="width: 10vw" on-hide="reset">
 			<decision-element id="decisions"></decision-element>
 		</div>
 	</div>
@@ -220,7 +220,17 @@ class Results extends Polymer.Element {
 	_isEqualTo(title, string) {
 		return title == string;
 	}
+	
+	clear() {
+		this.$.resultBoardDiv.style.display="none";
+	}
+	
+	_computeHidden(hidden) {
+		//console.warn(hidden);
+		return hidden ? 'display:none' : 'display:block';
+	}
 }
+
 
 customElements.define(Results.is, Results);
  </script>
