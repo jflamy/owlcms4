@@ -30,8 +30,6 @@ OR
   java -DdemoMode=true -jar owlcms-4.x.y.jar  # to run in demonstration mode
   ```
 
-  
-
 ## Running on Heroku
 
 ### First time setup
@@ -48,32 +46,42 @@ OR
 - Click on the Windows icon at the bottom left and type cmd
   Start the windows command prompt window which shows up in the results and perform the following commands
 
-|                               |                                                            |
-| ----------------------------- | :--------------------------------------------------------- |
-| `heroku login`                |                                                            |
-| `heroku plugins:install java` | (installing the plugin is only needed the very first time) |
+  ```bash
+  heroku login
+  heroku plugins:install java # (installing the plugin is only needed the very first time)
+  ```
 
 ### Installing a version of owlcms
 
-- Unzip the release to a directory
+- Unzip the release to a directory, then
 
-|                                                         |                                          |
-| ------------------------------------------------------- | ---------------------------------------- |
-| `cd` *the_directory_where_you_unzipped_the_files*       |                                          |
-| `cp demoProcfile Procfile`                              | (to get demo mode) OR                    |
-| `cp competitionProcfile Procfile`                       | (to run a real competition)              |
-| `heroku deploy:jar owlcms-4.X.Y.jar --app myfederation` | (use the real numbers and the real name) |
+  ```bash
+   cd *the_directory_where_you_unzipped_the_files*
+  ```
 
-Contents of demoProcfile
+- Type *one* of the following commands
+  ```bash
+  cp demoProcfile Procfile # (to get demo mode) OR 
+  cp competitionProcfile Procfile # (to run a real competition) 
+  ```
+  - For information: contents of demoProcfile
 
-```
-web: java -D"server.port"=$PORT -DdemoMode=true -jar owlcms-4.X.Y.jar
-```
+    ```bash
+    web: java -D"server.port"=$PORT -DdemoMode=true -jar owlcms-4.X.Y.jar
+    ```
 
-Contents of Procfile
+  - For information: contents of Procfile
 
-```
-web: java -D"server.port"=$PORT -jar owlcms-4.X.Y.jar
-```
+    ```bash
+    web: java -D"server.port"=$PORT -jar owlcms-4.X.Y.jar
+    ```
+
+- Use the real numbers and the real name in the following command
+
+  ```bash
+   heroku deploy:jar owlcms-4.X.Y.jar --app myfederation 
+  ```
+
 
 Reference: https://devcenter.heroku.com/articles/deploying-executable-jar-files
+
