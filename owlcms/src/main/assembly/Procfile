@@ -1,0 +1,1 @@
+web: java -D"server.port"=$PORT -jar ${project.artifactId}-${project.version}.jar
