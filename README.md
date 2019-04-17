@@ -1,14 +1,15 @@
 # owlcms4
 Olympic Weightlifting Competition Management System 
 
-Ongoing rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md).
+###Ongoing rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md).
 
 Main incentives for this rewrite:
 - Robustness: owlcms was initially written in 2009. Some of the underlying components can no longer be updated to fix bugs.
 - Flexibility: Decisions, timers and sounds handled locally in the browser.  This will enable running the main system in the cloud for those who wish to, and will reduce or eliminate the need for ethernet cables.
 - Simplify the design.  Many things that had to be painstakingly coded in the original version are now built-in modern frameworks (database handling and sophisticated user interfaces for example.)
 
-Current status: Quite close to minimal viable product ("MVP") able to run a regional competition
+###Current status: 
+Very close to minimal viable product ("MVP") able to run a regional non-Masters competition
 - Announcer, marshall and timekeeper screens (updating athlete cards and recomputing lifting order).
 - Attempt board with timing and decisions handled locally in the browser. USB/Bluetooth keypresses are processed directly in the browser for refereeing.
 - Athlete-facing board (same as attempt board, but with decision display reversed to match referee positions as seen from platform).  Either the attempt board or the athlete-facing board can be used with USB or bluetooth keypads to enter referee decisions.
@@ -20,6 +21,8 @@ Current status: Quite close to minimal viable product ("MVP") able to run a regi
 - Upload of registration sheet (same as owlcms2, in either xls or xlsx format)
 - Countdown timer for breaks (before introduction, before first snatch, break before clean and jerk, technical break)
 
+###Usage
+[Releases] Releases are available at https://github.com/jflamy/owlcms4/releases 
 [Live demo](https://owlcms4.herokuapp.com) of the current build is available on the Heroku cloud service.
 - Note that the cloud demo application is not pre-loaded and uses their free tier, so the first load can take a minute. This is *not* indicative of subsequent loads and is not indicative of local performance (both of which start in a few seconds).
 - Use a recent version of Chrome on a laptop.  I do not have access to a recent iPad, I don't know if it runs correctly (it doesn't work on iOS 9 :-) )
@@ -37,7 +40,6 @@ Current status: Quite close to minimal viable product ("MVP") able to run a regi
         
 Next steps
 - Adding missing information on results screen
-- *Minimal* packaging and documentation for early users/testers
 
 Design notes:
 - Local timer and decision done using new Web standard [Web Components](https://www.webcomponents.org/introduction)
