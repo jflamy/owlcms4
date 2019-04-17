@@ -75,9 +75,11 @@
 table.results {
 	margin-top: 5ex;
 	width: 100%;
+	border-collapse: collapse;
+	border: none;
 }
 
-table, tr, th, td {
+th, td {
 	border-collapse: collapse;
 	border: solid 1px DarkGray;
 	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
@@ -167,25 +169,35 @@ table, tr, th, td {
 			</template>
 			<th class="cat">Cat.</th>
 			<th class='club'>Équipe<div class='english'>Team</div></th>
-			<th colspan="3">Arraché<div class='english'>Snatch</div></th>
-			<th colspan="3">Épaulé-jeté<div class='english'>Clean&amp;Jerk</div></th>
+			<th colspan="4">Arraché<div class='english'>Snatch</div></th>
+			<th colspan="4">Épaulé-jeté<div class='english'>Clean&amp;Jerk</div></th>
 			<th class="veryNarrow">Total</th>
 			<th class="veryNarrow">Rang<div class='english'>Rank</div></th>
 		</tr>
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
-		<tr>
-			<td class$="[[l.classname]] veryNarrow">[[l.startNumber]]</td>
-			<td class$="[[l.classname]]">[[l.lastName]], [[l.firstName]]</td>
-			<template is="dom-if" if="[[g.isMasters]]"><td class="narrow">[[l.mastersAgeGroup]]</td></template>
-			<td class="veryNarrow">[[l.category]]</td>
-			<td class="veryNarrow">[[l.teamName]]</td>
-			<template is="dom-repeat" id="result-table-attempts" items="[[l.attempts]]" as="attempt">
-				<td class$="[[attempt.className]]">[[attempt.stringValue]]</td>
-			</template>
-			<td class="veryNarrow">[[l.total]]</td>
-			<td class="veryNarrow">[[l.totalRank]]</td>
-		</tr>
+		<template is="dom-if" if="[[l.isSpacer]]">
+			<tr><td colspan="0" style="height:0.1ex; border:none"></td></tr>
+		</template>
+		<template is="dom-if" if="[[!l.isSpacer]]">
+			<tr>
+				<td class$="[[l.classname]] veryNarrow">[[l.startNumber]]</td>
+				<td class$="[[l.classname]]">[[l.lastName]], [[l.firstName]]</td>
+				<template is="dom-if" if="[[g.isMasters]]"><td class="narrow">[[l.mastersAgeGroup]]</td></template>
+				<td class="veryNarrow">[[l.category]]</td>
+				<td class="veryNarrow">[[l.teamName]]</td>
+				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
+					<td class$="[[attempt.className]]">[[attempt.stringValue]]</td>
+				</template>
+				<td class="veryNarrow">[[l.snatchRank]]</td>
+				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
+					<td class$="[[attempt.className]]">[[attempt.stringValue]]</td>
+				</template>
+				<td class="veryNarrow">[[l.cleanJerkRank]]</td>		
+				<td class="veryNarrow">[[l.total]]</td>
+				<td class="veryNarrow">[[l.totalRank]]</td>
+			</tr>
+		</template>
 	</template>
 </table>
 </div>
