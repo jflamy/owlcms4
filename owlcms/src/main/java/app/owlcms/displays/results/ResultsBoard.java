@@ -29,6 +29,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
+import app.owlcms.data.category.Category;
 import app.owlcms.displays.attemptboard.DecisionElement;
 import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.fieldofplay.UIEvent;
@@ -206,9 +207,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	}
 
 
-	protected void doUpdate(Athlete a, UIEvent e) {
-
-			
+	protected void doUpdate(Athlete a, UIEvent e) {	
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			ResultBoardModel model = getModel();
 			model.setHidden(a == null);
@@ -232,21 +231,32 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	private JsonValue getAthletesJson(List<Athlete> list2) {
 		JsonArray jath = Json.createArray();
 		int athx = 0;
+		Category prevCat = null;
 		for (Athlete a: list2) {
 			JsonObject ja = Json.createObject();
+			Category curCat = a.getCategory();
+			if (curCat != null && !curCat.equals(prevCat)) {
+				// changing categories, put marker before athlete
+				ja.put("isSpacer", true);
+				jath.set(athx, ja);
+				ja = Json.createObject();
+				prevCat = curCat;
+				athx++;
+			}
 			ja.put("lastName", a.getLastName().toUpperCase());
 			ja.put("firstName", a.getFirstName());
 			ja.put("teamName", a.getTeam());
 			ja.put("startNumber", a.getStartNumber());
-			JsonArray jattempts = getAttemptsJson(a);
-			ja.put("attempts", jattempts);
+			ja.put("category", (curCat != null ? curCat.getName() : ""));
+			getAttemptsJson(a);
+			ja.put("sattempts", sattempts);
+			ja.put("cattempts", cattempts);
 			ja.put("total", formatInt(a.getTotal()));
-			ja.put("totalRank", formatInt(a.getTotalRank()));
+//			ja.put("snatchRank", formatInt(a.getSnatchRank()));
+//			ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
+//			ja.put("totalRank", formatInt(a.getTotalRank()));
 			Integer liftOrderRank = a.getLiftOrderRank();
 			ja.put("classname", (liftOrderRank == 1 ? "current" : (liftOrderRank == 2) ? "next" : ""));
-//			ja.put("snatchRank", a.getSnatchRank());
-//			ja.put("cleanJerkRank", a.getCleanJerkRank());
-			
 			jath.set(athx, ja);
 			athx++;
 		}
@@ -261,6 +271,8 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		return (total == null || total == 0) ? "-" : (total < 0 ? "("+Math.abs(total)+")" : total.toString());
 	}
 
+	JsonArray sattempts;
+	JsonArray cattempts;
 	/**
 	 * Compute Json string ready to be used by web component template
 	 * 
@@ -270,11 +282,12 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	 * @return json string with nested attempts values
 	 */
 	//TODO: add a marker for breaks between categories
-	protected JsonArray getAttemptsJson(Athlete a) {
+	protected void getAttemptsJson(Athlete a) {
+		sattempts = Json.createArray();
+		cattempts = Json.createArray();
 		XAthlete x = new XAthlete(a);
 		Integer liftOrderRank = x.getLiftOrderRank();
 		Integer curLift = x.getAttemptsDone();
-		JsonArray jattempts = Json.createArray();
 		int ix = 0;
 		for (LiftInfo i : x.getRequestInfoArray()) {
 			JsonObject jri = Json.createObject();
@@ -303,10 +316,13 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 				}
 			}
 			
-			jattempts.set(ix, jri);
+			if (ix < 3) {
+				sattempts.set(ix, jri);
+			} else {
+				cattempts.set(ix % 3, jri);
+			}
 			ix++;
 		}
-		return jattempts;
 	}
 	
 	private String formatAttempt(Integer attemptNo) {
