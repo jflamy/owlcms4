@@ -1,14 +1,14 @@
 # owlcms4
 Olympic Weightlifting Competition Management System 
 
-###Ongoing rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md).
+### Ongoing rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md).
 
 Main incentives for this rewrite:
 - Robustness: owlcms was initially written in 2009. Some of the underlying components can no longer be updated to fix bugs.
 - Flexibility: Decisions, timers and sounds handled locally in the browser.  This will enable running the main system in the cloud for those who wish to, and will reduce or eliminate the need for ethernet cables.
 - Simplify the design.  Many things that had to be painstakingly coded in the original version are now built-in modern frameworks (database handling and sophisticated user interfaces for example.)
 
-###Current status: 
+### Current status: 
 Very close to minimal viable product ("MVP") able to run a regional non-Masters competition
 - Announcer, marshall and timekeeper screens (updating athlete cards and recomputing lifting order).
 - Attempt board with timing and decisions handled locally in the browser. USB/Bluetooth keypresses are processed directly in the browser for refereeing.
@@ -21,8 +21,9 @@ Very close to minimal viable product ("MVP") able to run a regional non-Masters 
 - Upload of registration sheet (same as owlcms2, in either xls or xlsx format)
 - Countdown timer for breaks (before introduction, before first snatch, break before clean and jerk, technical break)
 
-###Usage
-[Releases] Releases are available at https://github.com/jflamy/owlcms4/releases 
+### Installation and Demo
+[Releases](https://github.com/jflamy/owlcms4/releases) are available at https://github.com/jflamy/owlcms4/releases
+
 [Live demo](https://owlcms4.herokuapp.com) of the current build is available on the Heroku cloud service.
 - Note that the cloud demo application is not pre-loaded and uses their free tier, so the first load can take a minute. This is *not* indicative of subsequent loads and is not indicative of local performance (both of which start in a few seconds).
 - Use a recent version of Chrome on a laptop.  I do not have access to a recent iPad, I don't know if it runs correctly (it doesn't work on iOS 9 :-) )
@@ -38,10 +39,10 @@ Very close to minimal viable product ("MVP") able to run a regional non-Masters 
     - You can start a Result Board.
     - If you go back to the main screen and change the group, you should see all the screens change to the new group.
         
-Next steps
+### Next steps
 - Adding missing information on results screen
 
-Design notes:
+### Design notes:
 - Local timer and decision done using new Web standard [Web Components](https://www.webcomponents.org/introduction)
 - [Vaadin Flow](https://vaadin.com/flow) is used for programming because it integrates natively with Web Components and enables the use of robust libraries
     - The overall navigation and layout is done using [vaadin-app-layout](https://github.com/appreciated/vaadin-app-layout)
