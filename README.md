@@ -31,8 +31,8 @@ Very close to minimal viable product ("MVP") able to run a regional non-Masters 
 - There is a single demo database, which resets itself periodically when the Heroku application times out. So if someone else is playing around, you may see surprising things.
 - Suggested steps:
     - Click on "Lifting Group" in the menu
-    - Select a group ("M1" or "M2") in the top bar
-    - Click on "Announcer". A new tab opens.  Time starts once the Microphone AND the Play icons have BOTH been clicked. Normally the announcer hits the Microphone button and the Timekeeper hits the Play button.  The announcer can enter manual flag/thumbs-up/down decisions using the buttons at the right.
+    - Click on "Announcer". A new tab opens.  Select a group ("M1" or "M2") in the top bar.
+    - For the time being, clock starts once the Microphone AND the Play icons have BOTH been clicked. Normally the announcer hits the Microphone button and the Timekeeper hits the Play button.  The announcer can enter manual flag/thumbs-up/down decisions using the buttons at the right.  A setting to start the clock on announce will soon be added.
     - You can start a Timekeeper window and test. This opens a new tab, so you can switch.
     - You can go back to the first home tab and go to "Setup Displays"
     - You can start an Attempt Board.  If you stop the time on the Announcer or Timekeeper screen, you can use the keyboard keys 1 3 5 to enter white and 2 4 6 to enter red decisions.  Down signal will appear after two identical.
