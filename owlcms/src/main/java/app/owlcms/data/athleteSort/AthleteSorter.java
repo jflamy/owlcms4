@@ -246,10 +246,10 @@ public class AthleteSorter implements Serializable {
     }
 
     /**
-     * Compute the number of lifts already done. During snatch, exclude
+     * Compute the number of lifts already done. During snatch, exclude cj
      *
-     * @param lifters the lifters
-     * @return the int
+     * @param lifters the athletes in the group
+     * @return number of lifts
      */
     static public int countLiftsDone(List<Athlete> lifters) {
         if (!lifters.isEmpty()) {

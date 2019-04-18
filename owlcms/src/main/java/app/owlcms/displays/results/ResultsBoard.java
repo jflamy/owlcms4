@@ -29,7 +29,9 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.group.Group;
 import app.owlcms.displays.attemptboard.DecisionElement;
 import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.fieldofplay.UIEvent;
@@ -97,6 +99,10 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		void setWeight(Integer weight);
 
 		void setHidden(boolean b);
+		
+		void setGroupName(String name);
+		
+		void setLiftsDone(String formattedDone);
 	}
 
 	@Id("timer")
@@ -107,6 +113,8 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	
 	private EventBus uiEventBus;
 	private List<Athlete> displayOrder;
+	private Group curGroup;
+	private int liftsDone;
 
 	/**
 	 * Instantiates a new results board.
@@ -126,6 +134,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 	protected void setGroupProperties() {
 		JsonObject groupProperties = Json.createObject();
+		groupProperties.put("name", curGroup.getName());
 		groupProperties.put("isMasters", false);
 		this.getElement().setPropertyJson("g", groupProperties);
 	}
@@ -138,6 +147,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			init();
 			// sync with current status of FOP
 			displayOrder = fop.getDisplayOrder();
+			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
 			doUpdate(fop.getCurAthlete(), null);
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
@@ -148,6 +158,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		OwlcmsSession.withFop(fop -> {
 			logger.trace("Starting result board on FOP {}", fop.getName());
 			setId("results-board-"+fop.getName());
+			curGroup = fop.getGroup();
 		});
 		setGroupProperties();
 		setTranslationMap();
@@ -160,6 +171,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			Athlete a = e.getAthlete();
 			displayOrder = e.getDisplayOrder();
+			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
 			doUpdate(a, e);
 		});
 	}
@@ -219,7 +231,11 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			model.setStartNumber(a.getStartNumber());
 			String formattedAttempt = formatAttempt(a.getAttemptsDone());
 			model.setAttempt(formattedAttempt);
-			model.setWeight(a.getNextAttemptRequestedWeight());		
+			model.setWeight(a.getNextAttemptRequestedWeight());
+			
+			model.setGroupName(curGroup != null ? MessageFormat.format("Group {0}", curGroup.getName()) : "");
+			model.setLiftsDone(MessageFormat.format("{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}",liftsDone));
+			
 			this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
 		});
 	}
