@@ -126,7 +126,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 	protected void setGroupProperties() {
 		JsonObject groupProperties = Json.createObject();
-		groupProperties.put("isMasters", true);
+		groupProperties.put("isMasters", false);
 		this.getElement().setPropertyJson("g", groupProperties);
 	}
 
@@ -146,7 +146,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
-			logger.debug("Starting result board on FOP {}", fop.getName());
+			logger.trace("Starting result board on FOP {}", fop.getName());
 			setId("results-board-"+fop.getName());
 		});
 		setGroupProperties();

@@ -15,6 +15,7 @@
 	height: 100vh;
 	width: 100vw;
 	padding: 2vmin 2vmin 2vmin 2vmin;
+	overflow-y: hidden;
 }
 
 .attemptBar {
@@ -77,13 +78,30 @@ table.results {
 	width: 100%;
 	border-collapse: collapse;
 	border: none;
+	/*margin-bottom: 2vmin;*/
 }
 
 th, td {
 	border-collapse: collapse;
 	border: solid 1px DarkGray;
 	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-	font-size: 2.2vmin;
+	font-size: 2.1vmin;
+}
+
+@media screen and (min-width: 1025px) {
+	.showRank {
+		display: table-cell;
+		width: 4vw;
+	}
+}
+
+@media screen and (max-width: 1024px) {
+	.showRank {
+		display: none;
+		width: 0px;
+		padding: 0 0 0 0;
+		margin: 0 0 0 0;
+	}
 }
 
 .veryNarrow {
@@ -160,6 +178,21 @@ th, td {
 	</div>
 </div>
 <table class="results">
+    <colgroup>
+        <col><!-- start -->
+        <col><!-- name -->
+        <template is="dom-if" if="[[g.isMasters]]">
+        	<col><!-- masters age group -->
+        </template>
+        <col><!-- category -->
+        <col><!-- team -->
+        <col span="3"><!-- snatches -->
+        <col class="showRank"><!-- snatch rank -->
+        <col span="3"><!-- clean and jerks -->
+        <col class="showRank"><!-- cj rank -->
+        <col span="1"><!-- total -->
+        <col class="showRank"><!-- total rank -->
+    </colgroup>
 	<thead>
 		<tr>
 			<th class="veryNarrow">Départ<div class='english'>Start</div></th>
@@ -169,16 +202,18 @@ th, td {
 			</template>
 			<th class="cat">Cat.</th>
 			<th class='club'>Équipe<div class='english'>Team</div></th>
-			<th colspan="4">Arraché<div class='english'>Snatch</div></th>
-			<th colspan="4">Épaulé-jeté<div class='english'>Clean&amp;Jerk</div></th>
+			<th colspan="3">Arraché<div class='english'>Snatch</div></th>
+			<th class="showRank">Rang<div class='english'>Rank</div></th>
+			<th colspan="3">Épaulé-jeté<div class='english'>Clean&amp;Jerk</div></th>
+			<th class="showRank">Rang<div class='english'>Rank</div></th>
 			<th class="veryNarrow">Total</th>
 			<th class="veryNarrow">Rang<div class='english'>Rank</div></th>
 		</tr>
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
-		<template is="dom-if" if="[[l.isSpacer]]">
-			<tr><td colspan="0" style="height:0.1ex; border:none"></td></tr>
-		</template>
+<!-- 		<template is="dom-if" if="[[l.isSpacer]]"> -->
+<!-- 			<tr><td colspan="0" style="height:0.1ex; border:none"></td></tr> -->
+<!-- 		</template> -->
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class$="[[l.classname]] veryNarrow">[[l.startNumber]]</td>
@@ -189,11 +224,11 @@ th, td {
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 					<td class$="[[attempt.className]]">[[attempt.stringValue]]</td>
 				</template>
-				<td class="veryNarrow">[[l.snatchRank]]</td>
+				<td class="showRank">[[l.snatchRank]]</td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
 					<td class$="[[attempt.className]]">[[attempt.stringValue]]</td>
 				</template>
-				<td class="veryNarrow">[[l.cleanJerkRank]]</td>		
+				<td class="showRank">[[l.cleanJerkRank]]</td>		
 				<td class="veryNarrow">[[l.total]]</td>
 				<td class="veryNarrow">[[l.totalRank]]</td>
 			</tr>
