@@ -19,17 +19,21 @@ import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.NavigationPage;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
 import app.owlcms.ui.group.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.results.ResultsNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.URLFinder;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -38,7 +42,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "", layout = OwlcmsRouterLayout.class)
-public class HomeNavigationContent extends BaseNavigationContent {
+public class HomeNavigationContent extends BaseNavigationContent implements NavigationPage {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(HomeNavigationContent.class);
 	static { logger.setLevel(Level.INFO);}
@@ -67,7 +71,25 @@ public class HomeNavigationContent extends BaseNavigationContent {
 
 		documents.setEnabled(false);
 		
+		VerticalLayout intro = new VerticalLayout();
+		URLFinder urlFinder = new URLFinder();
+		addParagraph(intro, "owlcms is reachable using the following URLs: ");
+		for (String url : urlFinder.getRecommended()) {
+			intro.add(new Anchor(url, url + " (recommended)"));
+		}
+		for (String url : urlFinder.getWired()) {
+			intro.add(new Anchor(url, url + " (wired)"));
+		}
+		for (String url : urlFinder.getWireless()) {
+			intro.add(new Anchor(url, url + " (wireless)"));
+		}
+		for (String url : urlFinder.getLocalUrl()) {
+			intro.add(new Anchor(url, url + " (only on the computer running the owlcms program)"));
+		}
+		intro.getElement().getStyle().set("margin-bottom", "0");
+		
 		fillH(grid, this);
+		fillH(intro, this);
 	}
 
 	/**
