@@ -2,7 +2,7 @@
  * Copyright (c) 2009-2019 Jean-François Lamy
  * 
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
- * License text at https://github.com/jflamy/owlcms4/master/License.txt
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
 package app.owlcms.ui.shared;
@@ -48,7 +48,7 @@ implements QueryParameterReader, ContentWrapping, AppLayoutAware, SafeEventBusRe
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(BaseNavigationContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
 

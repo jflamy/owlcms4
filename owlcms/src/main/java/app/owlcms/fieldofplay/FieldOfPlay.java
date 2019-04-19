@@ -2,7 +2,7 @@
  * Copyright (c) 2009-2019 Jean-François Lamy
  * 
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
- * License text at https://github.com/jflamy/owlcms4/master/License.txt
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.fieldofplay;
 
@@ -42,7 +42,7 @@ public class FieldOfPlay {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	{
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
  
@@ -458,6 +458,7 @@ public class FieldOfPlay {
 
 	public void setDisplayOrder(List<Athlete> displayOrder) {
 		this.displayOrder = displayOrder;
+		AthleteSorter.assignCategoryRanks(displayOrder);
 	}
 
 	/**
@@ -521,7 +522,7 @@ public class FieldOfPlay {
 	public void initGroup(Group group, Object origin) {
 		this.group = group;
 		if (group != null) {
-			logger.info("{} loading data for group {}", this.getName(), (group != null ? group.getName() : group));
+			logger.info("{} loading data for group {} [{}]", this.getName(), (group != null ? group.getName() : group), LoggerUtils.whereFrom());
 			List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
 			init(findAllByGroupAndWeighIn, timer, breakTimer);
 		} else {
@@ -571,7 +572,7 @@ public class FieldOfPlay {
 		setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
 		this.setCurAthlete(this.liftingOrder.isEmpty() ? null : this.liftingOrder.get(0));
 		getTimer().setTimeRemaining(getTimeAllowed());
-		logger.debug("recomputed lifting order curAthlete={} prevlifter={}",
+		logger.warn("recomputed lifting order curAthlete={} prevlifter={}",
 			curAthlete != null ? curAthlete.getFullName() : "",
 			previousAthlete != null ? previousAthlete.getFullName() : "");
 	}
@@ -614,7 +615,7 @@ public class FieldOfPlay {
 		}
 		Athlete nextAthlete = liftingOrder.size() > 0 ? liftingOrder.get(1) : null;
 
-		uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, liftingOrder, displayOrder, clock, this.getOrigin()));
+		uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, liftingOrder, getDisplayOrder(), clock, this.getOrigin()));
 	
 		logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={}",
 			curAthlete,

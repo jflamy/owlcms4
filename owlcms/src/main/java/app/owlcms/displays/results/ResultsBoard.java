@@ -2,7 +2,7 @@
  * Copyright (c) 2009-2019 Jean-François Lamy
  * 
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
- * License text at https://github.com/jflamy/owlcms4/master/License.txt
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.displays.results;
 
@@ -29,6 +29,10 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
+import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
+import app.owlcms.data.group.Group;
 import app.owlcms.displays.attemptboard.DecisionElement;
 import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.fieldofplay.UIEvent;
@@ -60,7 +64,11 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsBoard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-
+	static {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
+	
 	/**
 	 * ResultBoardModel
 	 * 
@@ -71,32 +79,43 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	 *
 	 */
 	public interface ResultBoardModel extends TemplateModel {
-		String getLastName();
+		String getAttempt();
 
 		String getFirstName();
 
-		String getTeamName();
+		String getLastName();
 
 		Integer getStartNumber();
 
-		String getAttempt();
+		String getTeamName();
 
 		Integer getWeight();
-
-		void setLastName(String lastName);
-
-		void setFirstName(String firstName);
-
-		void setTeamName(String teamName);
-
-		void setStartNumber(Integer integer);
+		
+		Boolean isHidden();
+		
+		Boolean isMasters();
 
 		void setAttempt(String formattedAttempt);
 
-		void setWeight(Integer weight);
+		void setFirstName(String firstName);
+
+		void setGroupName(String name);
 
 		void setHidden(boolean b);
+		
+		void setLastName(String lastName);
+
+		void setLiftsDone(String formattedDone);
+
+		void setMasters(boolean b);
+
+		void setStartNumber(Integer integer);
+		
+		void setTeamName(String teamName);
+		
+		void setWeight(Integer weight);
 	}
+
 
 	@Id("timer")
 	private TimerElement timer; // Flow creates it
@@ -106,70 +125,17 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	
 	private EventBus uiEventBus;
 	private List<Athlete> displayOrder;
+	private Group curGroup;
+	private int liftsDone;
+
+	JsonArray sattempts;
+
+	JsonArray cattempts;
 
 	/**
 	 * Instantiates a new results board.
 	 */
 	public ResultsBoard() {
-		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.DEBUG);
-	}
-
-	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
-		//TODO i18n t.key1 --> translation of key1 for getLocale()
-		translations.put("key1","value1");
-		translations.put("key2","value2");
-		this.getElement().setPropertyJson("t", translations);
-	}
-
-	protected void setGroupProperties() {
-		JsonObject groupProperties = Json.createObject();
-		groupProperties.put("isMasters", true);
-		this.getElement().setPropertyJson("g", groupProperties);
-	}
-
-	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		// fop obtained via QueryParameterReader interface default methods.
-		OwlcmsSession.withFop(fop -> {
-			init();
-			// sync with current status of FOP
-			displayOrder = fop.getDisplayOrder();
-			doUpdate(fop.getCurAthlete(), null);
-			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-		});
-	}
-
-	private void init() {
-		OwlcmsSession.withFop(fop -> {
-			logger.debug("Starting result board on FOP {}", fop.getName());
-			setId("results-board-"+fop.getName());
-		});
-		setGroupProperties();
-		setTranslationMap();
-		displayOrder = ImmutableList.of();
-	}
-
-	@Subscribe
-	public void orderUpdated(UIEvent.LiftingOrderUpdated e) {
-		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			Athlete a = e.getAthlete();
-			displayOrder = e.getDisplayOrder();
-			doUpdate(a, e);
-		});
-	}
-
-	@Subscribe
-	public void athleteAnnounced(UIEvent.AthleteAnnounced e) {
-		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			Athlete a = e.getAthlete();
-			doUpdate(a, e);
-		});
 	}
 
 	@Subscribe
@@ -177,7 +143,66 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			Athlete a = e.getAthlete();
+			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
 			doUpdate(a, e);
+		});
+	}
+
+	@Override
+	public boolean isIgnoreGroupFromURL() {
+		return true;
+	}
+
+	/**
+	 * Reset.
+	 */
+	public void reset() {
+		displayOrder = ImmutableList.of();
+	}
+
+	@Subscribe
+	public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			Athlete a = e.getAthlete();
+			doUpdate(a, e);
+		});
+	}
+
+	@Subscribe
+	public void slaveDecisionReset(UIEvent.DecisionReset e) {
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			this.getElement().callFunction("reset");
+		});
+	}
+
+	@Subscribe
+	public void slaveDownSignal(UIEvent.DownSignal e) {
+		uiLog(e);
+		// hide the timer except if the down signal came from this ui.
+		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+			this.getElement().callFunction("down");
+		});
+	}
+
+	@Subscribe
+	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			Athlete a = e.getAthlete();
+			displayOrder = e.getDisplayOrder();
+			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+			doUpdate(a, e);
+		});
+	}
+	
+
+	@Subscribe
+	public void slaveRefereeDecision(UIEvent.RefereeDecision e) {
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			this.getElement().callFunction("refereeDecision");
 		});
 	}
 
@@ -185,30 +210,73 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 	}
 
+	private String formatAttempt(Integer attemptNo) {
+		return MessageFormat.format("{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.",(attemptNo%3)+1);
+	}
+
+
+	private String formatInt(Integer total) {
+		return (total == null || total == 0) ? "-" : (total < 0 ? "("+Math.abs(total)+")" : total.toString());
+	}
+	
+	private String formatKg(String total) {
+		return (total == null || total.trim().isEmpty()) ? "-" : (total.startsWith("-") ? "("+total.substring(1)+")" : total);
+	}
+
+	private JsonValue getAthletesJson(List<Athlete> list2) {
+		JsonArray jath = Json.createArray();
+		int athx = 0;
+		Category prevCat = null;
+		for (Athlete a: list2) {
+			JsonObject ja = Json.createObject();
+			Category curCat = a.getCategory();
+			if (curCat != null && !curCat.equals(prevCat)) {
+				// changing categories, put marker before athlete
+				ja.put("isSpacer", true);
+				jath.set(athx, ja);
+				ja = Json.createObject();
+				prevCat = curCat;
+				athx++;
+			}
+			ja.put("lastName", a.getLastName().toUpperCase());
+			ja.put("firstName", a.getFirstName());
+			ja.put("teamName", a.getTeam());
+			ja.put("startNumber", a.getStartNumber());
+			ja.put("category", (curCat != null ? curCat.getName() : ""));
+			getAttemptsJson(a);
+			ja.put("sattempts", sattempts);
+			ja.put("cattempts", cattempts);
+			ja.put("total", formatInt(a.getTotal()));
+			ja.put("snatchRank", formatInt(a.getSnatchRank()));
+			ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
+			ja.put("totalRank", formatInt(a.getTotalRank()));
+			Integer liftOrderRank = a.getLiftOrderRank();
+			ja.put("classname", (liftOrderRank == 1 ? "current" : (liftOrderRank == 2) ? "next" : ""));
+			jath.set(athx, ja);
+			athx++;
+		}
+		return jath;
+	}
+	
 	private Object getOrigin() {
 		return this;
 	}
-
-	@Subscribe
-	public void refereeDecision(UIEvent.RefereeDecision e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			logger.debug("resultBoard refereeDecision");
-			this.getElement().callFunction("refereeDecision");
+	
+	private void init() {
+		OwlcmsSession.withFop(fop -> {
+			logger.trace("Starting result board on FOP {}", fop.getName());
+			setId("results-board-"+fop.getName());
+			curGroup = fop.getGroup();
+			getModel().setMasters(Competition.getCurrent().isMasters());
 		});
+		setTranslationMap();
+		displayOrder = ImmutableList.of();
 	}
 
-	@Subscribe
-	public void decisionReset(UIEvent.DecisionReset e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			logger.debug("resultBoard decisionReset");
-			this.getElement().callFunction("reset");
-		});
+	protected void doHide() {
+		this.getModel().setHidden(true);
 	}
-
-
-	protected void doUpdate(Athlete a, UIEvent e) {
-
-			
+	protected void doUpdate(Athlete a, UIEvent e) {	
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			ResultBoardModel model = getModel();
 			model.setHidden(a == null);
@@ -220,47 +288,14 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			model.setStartNumber(a.getStartNumber());
 			String formattedAttempt = formatAttempt(a.getAttemptsDone());
 			model.setAttempt(formattedAttempt);
-			model.setWeight(a.getNextAttemptRequestedWeight());		
+			model.setWeight(a.getNextAttemptRequestedWeight());
+			
+			model.setGroupName(curGroup != null ? MessageFormat.format("Group {0}", curGroup.getName()) : "");
+			model.setLiftsDone(MessageFormat.format("{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}",liftsDone));
+			
 			this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
 		});
 	}
-	
-	protected void doHide() {
-		this.getModel().setHidden(true);
-	}
-
-	private JsonValue getAthletesJson(List<Athlete> list2) {
-		JsonArray jath = Json.createArray();
-		int athx = 0;
-		for (Athlete a: list2) {
-			JsonObject ja = Json.createObject();
-			ja.put("lastName", a.getLastName().toUpperCase());
-			ja.put("firstName", a.getFirstName());
-			ja.put("teamName", a.getTeam());
-			ja.put("startNumber", a.getStartNumber());
-			JsonArray jattempts = getAttemptsJson(a);
-			ja.put("attempts", jattempts);
-			ja.put("total", formatInt(a.getTotal()));
-			ja.put("totalRank", formatInt(a.getTotalRank()));
-			Integer liftOrderRank = a.getLiftOrderRank();
-			ja.put("classname", (liftOrderRank == 1 ? "current" : (liftOrderRank == 2) ? "next" : ""));
-//			ja.put("snatchRank", a.getSnatchRank());
-//			ja.put("cleanJerkRank", a.getCleanJerkRank());
-			
-			jath.set(athx, ja);
-			athx++;
-		}
-		return jath;
-	}
-	
-	private String formatKg(String total) {
-		return (total == null || total.trim().isEmpty()) ? "-" : (total.startsWith("-") ? "("+total.substring(1)+")" : total);
-	}
-	
-	private String formatInt(Integer total) {
-		return (total == null || total == 0) ? "-" : (total < 0 ? "("+Math.abs(total)+")" : total.toString());
-	}
-
 	/**
 	 * Compute Json string ready to be used by web component template
 	 * 
@@ -270,11 +305,12 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	 * @return json string with nested attempts values
 	 */
 	//TODO: add a marker for breaks between categories
-	protected JsonArray getAttemptsJson(Athlete a) {
+	protected void getAttemptsJson(Athlete a) {
+		sattempts = Json.createArray();
+		cattempts = Json.createArray();
 		XAthlete x = new XAthlete(a);
 		Integer liftOrderRank = x.getLiftOrderRank();
 		Integer curLift = x.getAttemptsDone();
-		JsonArray jattempts = Json.createArray();
 		int ix = 0;
 		for (LiftInfo i : x.getRequestInfoArray()) {
 			JsonObject jri = Json.createObject();
@@ -303,26 +339,35 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 				}
 			}
 			
-			jattempts.set(ix, jri);
+			if (ix < 3) {
+				sattempts.set(ix, jri);
+			} else {
+				cattempts.set(ix % 3, jri);
+			}
 			ix++;
 		}
-		return jattempts;
 	}
 	
-	private String formatAttempt(Integer attemptNo) {
-		return MessageFormat.format("{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.",(attemptNo%3)+1);
-	}
-
-	/**
-	 * Reset.
-	 */
-	public void reset() {
-//		this.getElement().callFunction("reset");
-		displayOrder = ImmutableList.of();
-	}
-
+	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
 	@Override
-	public boolean isIgnoreGroupFromURL() {
-		return true;
+	protected void onAttach(AttachEvent attachEvent) {
+		// fop obtained via QueryParameterReader interface default methods.
+		OwlcmsSession.withFop(fop -> {
+			init();
+			// sync with current status of FOP
+			displayOrder = fop.getDisplayOrder();
+			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+			doUpdate(fop.getCurAthlete(), null);
+			// we listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
+		});
+	}
+
+	protected void setTranslationMap() {
+		JsonObject translations = Json.createObject();
+		//TODO i18n t.key1 --> translation of key1 for getLocale()
+		translations.put("key1","value1");
+		translations.put("key2","value2");
+		this.getElement().setPropertyJson("t", translations);
 	}
 }

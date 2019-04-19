@@ -2,7 +2,7 @@
  * Copyright (c) 2009-2019 Jean-François Lamy
  * 
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
- * License text at https://github.com/jflamy/owlcms4/master/License.txt
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athleteSort;
 
@@ -246,13 +246,13 @@ public class AthleteSorter implements Serializable {
     }
 
     /**
-     * Compute the number of lifts already done. During snatch, exclude
+     * Compute the number of lifts already done. During snatch, exclude cj
      *
-     * @param lifters the lifters
-     * @return the int
+     * @param lifters the athletes in the group
+     * @return number of lifts
      */
     static public int countLiftsDone(List<Athlete> lifters) {
-        if (!lifters.isEmpty()) {
+        if (lifters != null && !lifters.isEmpty()) {
             int totalSnatch = 0;
             int totalCJ = 0;
             boolean cJHasStarted = false;
@@ -354,53 +354,23 @@ public class AthleteSorter implements Serializable {
         }
     }
 
-    // /**
-    // * Assign medals, sequentially.
-    // *
-    // * @param sortedList
-    // */
-    // static public void assignMedals(List<Athlete> sortedList) {
-    // Category prevCategory = null;
-    // Integer prevAgeGroup = null;
-    // Integer curAgeGroup = null;
-    //
-    // int rank = 1;
-    // for (Athlete curLifter : sortedList) {
-    // Category curCategory = null;
-    // if (WebApplicationConfiguration.useRegistrationCategory) {
-    // curCategory = curLifter.getRegistrationCategory();
-    // } else {
-    // curCategory = curLifter.getCategory();
-    // }
-    // if (Competition.isMasters()) {
-    // curAgeGroup = curLifter.getAgeGroup();
-    // }
-    //
-    // if (!equals(curCategory, prevCategory) || !equals(curAgeGroup, prevAgeGroup)) {
-    // // category boundary has been crossed
-    // rank = 1;
-    // }
-    //
-    // if (curLifter.isInvited()) {
-    // logger.trace("Athlete {}  totalRank={} total={}",
-    //                		new Object[] { curLifter, -1, curLifter.getTotal() }); //$NON-NLS-1$
-    // curLifter.setRank(-1);
-    // } else if (rank <= 3 && curLifter.getTotal() > 0) {
-    // logger.trace("Athlete {}  totalRank={} total={}",
-    //                		new Object[] { curLifter, rank, curLifter.getTotal() }); //$NON-NLS-1$
-    // curLifter.setRank(rank);
-    // rank++;
-    // } else {
-    // logger.trace("Athlete {}  totalRank={} total={}",
-    //                		new Object[] { curLifter, 0, curLifter.getTotal() }); //$NON-NLS-1$
-    // curLifter.setRank(0);
-    // rank++;
-    // }
-    // prevCategory = curCategory;
-    // prevAgeGroup = curAgeGroup;
-    // }
-    // }
 
+    /**
+     * Assign ranks within each category.
+     * Provided list is left untouched.
+     * 
+     * @param athletes the list of athletes to sort
+     */
+    public static void assignCategoryRanks(List<Athlete> athletes) {
+    	List<Athlete> sortedAthletes;
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.TOTAL);
+    }
+    
     /**
      * Assign ranks, sequentially.
      *

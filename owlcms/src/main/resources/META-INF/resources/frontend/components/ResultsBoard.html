@@ -15,12 +15,13 @@
 	height: 100vh;
 	width: 100vw;
 	padding: 2vmin 2vmin 2vmin 2vmin;
+	overflow-y: hidden;
 }
 
 .attemptBar {
 	display: flex;
 	font-size: 3.6vmin;
-	justify-content: justify-start;
+	justify-content: space-between;
 	width: 100%;
 	height: 4vmin;
 }
@@ -41,13 +42,14 @@
 	font-size: 3.6vmin;
 	justify-content: space-between;
 	width: 100%;
-} 
+}
 
 .athleteInfo .fullName {
 	font-weight: bold;
 	flex: 0 0 30%;
 	text-align: left;
 	margin-left: 1em;
+	flex-grow: 0.5;
 }
 
 .athleteInfo .timer {
@@ -55,33 +57,113 @@
 	flex: 0 0 15%;
 	text-align: right;
 	font-weight: bold;
+	self-justify: right;
+	width: 10vw;
 }
 
-.athleteInfo .decision {
+.athleteInfo .decisionBox {
+	position: fixed;
+	top: 2vmin;
+	right: 2vmin;
+	width: 15vw;
+	height: 10vh;
+	background-color: black;
 	display: none;
-	-iron-icon-height: 100%;
-	-iron-icon-width: 100%;
-	font-weight: normal;
-	color: lime;
-	display: none;
-	overflow: hidden;
-	flex: 0 0 15%;
 }
 
 .athleteInfo .weight {
 	color: aqua;
 }
 
-table.results {
-	margin-top: 5ex;
-	width: 100%;
+.group {
+	font-size: 3vh;
+	margin-top: 1vh;
+	margin-bottom: 1vh;
 }
 
-table, tr, th, td {
+table.results {
+	width: 100%;
+	border-collapse: collapse;
+	border: none;
+	/*margin-bottom: 2vmin;*/
+}
+
+th, td {
 	border-collapse: collapse;
 	border: solid 1px DarkGray;
+	padding: 0.4vmin 1vmin 0.4vmin 1vmin;
+	font-size: 2.1vh;
+	font-weight: normal;
+}
+
+@media screen and (min-width: 1025px) {
+	.showThRank {
+		border-collapse: collapse;
+		border: solid 1px DarkGray;
+		border-left-style: none;
+		padding: 0.5vmin 1vmin 0.5vmin 1vmin;
+		font-size: 1.5vh;
+		font-weight: normal;
+		font-style: italic;
+		width: 4vw;
+		text-align: center;
+	}
+}
+
+@media screen and (max-width: 1024px) {
+	.showThRank {
+		display: none;
+		width: 0px;
+		padding: 0 0 0 0;
+		margin: 0 0 0 0;
+	}
+}
+
+.thRank {
+	border-collapse: collapse;
+	border: solid 1px DarkGray;
+	border-left-style: none;
 	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-	font-size: 2.2vmin;
+	font-size: 1.5vh;
+	font-weight: normal;
+	font-style: italic;
+	width: 4vw;
+	text-align: center;
+}
+
+.masters {
+	display: table-cell;
+	text-align: center;
+	width: 4vw;
+}
+
+.mastersHidden {
+	display: none;
+	width: 0px;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+}
+
+.narrow {
+	width: 6vw;
+	text-align: center;
+}
+
+@media screen and (min-width: 1025px) {
+	.showRank {
+		display: table-cell;
+		width: 4vw;
+		text-align: center;
+	}
+}
+
+@media screen and (max-width: 1024px) {
+	.showRank {
+		display: none;
+		width: 0px;
+		padding: 0 0 0 0;
+		margin: 0 0 0 0;
+	}
 }
 
 .veryNarrow {
@@ -116,18 +198,18 @@ table, tr, th, td {
 	-webkit-animation: blink 1.5s step-start 0s infinite;
 }
 
-@keyframes blink { 
-50% {
+@
+keyframes blink { 50% {
 	opacity: 0.0;
-	}
 }
 
-@-webkit-keyframes blink { 
-50% {
+}
+@
+-webkit-keyframes blink { 50% {
 	opacity: 0.0;
-	}
 }
 
+}
 .next {
 	color: aqua;
 	font-weight: bold;
@@ -149,43 +231,56 @@ table, tr, th, td {
 		<div class="weight">
 			[[weight]]<span style="font-size: 75%">kg</span>
 		</div>
-		<div class="timer" id="timerDiv"  style="width: 10vw">
+		<div class="timer" id="timerDiv">
 			<timer-element id="timer"></timer-element>
 		</div>
-		<div class="decision" id="decisionDiv" style="width: 10vw" on-hide="reset">
-			<decision-element id="decisions"></decision-element>
+		<div class="decisionBox" id="decisionDiv" on-hide="reset">
+			<decision-element style="width: 100%" id="decisions"></decision-element>
 		</div>
 	</div>
+</div>
+<div class="group">
+<span class="groupName"></span>[[groupName]]</span> &ndash; [[liftsDone]]
 </div>
 <table class="results">
 	<thead>
 		<tr>
 			<th class="veryNarrow">Départ<div class='english'>Start</div></th>
 			<th>Nom<div class='english'>Name</div></th>
-			<template is="dom-if" if="[[g.isMasters]]">
-				<th><nobr>Gr. Age.</nobr><div class='english'><nobr>Age Gr.</nobr></div></th>
-			</template>
+			<th class$="[[_computeMasters(masters)]]"><nobr>Gr. Age.</nobr><div class='english'><nobr>Age Gr.</nobr></div></th>
 			<th class="cat">Cat.</th>
 			<th class='club'>Équipe<div class='english'>Team</div></th>
 			<th colspan="3">Arraché<div class='english'>Snatch</div></th>
+			<th class="showThRank">Rang<div class='english'>Rank</div></th>
 			<th colspan="3">Épaulé-jeté<div class='english'>Clean&amp;Jerk</div></th>
+			<th class="showThRank">Rang<div class='english'>Rank</div></th>
 			<th class="veryNarrow">Total</th>
-			<th class="veryNarrow">Rang<div class='english'>Rank</div></th>
+			<th class="thRank">Rang<div class='english'>Rank</div></th>
 		</tr>
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
-		<tr>
-			<td class$="[[l.classname]] veryNarrow">[[l.startNumber]]</td>
-			<td class$="[[l.classname]]">[[l.lastName]], [[l.firstName]]</td>
-			<template is="dom-if" if="[[g.isMasters]]"><td class="narrow">[[l.mastersAgeGroup]]</td></template>
-			<td class="veryNarrow">[[l.category]]</td>
-			<td class="veryNarrow">[[l.teamName]]</td>
-			<template is="dom-repeat" id="result-table-attempts" items="[[l.attempts]]" as="attempt">
-				<td class$="[[attempt.className]]">[[attempt.stringValue]]</td>
-			</template>
-			<td class="veryNarrow">[[l.total]]</td>
-			<td class="veryNarrow">[[l.totalRank]]</td>
-		</tr>
+		<template is="dom-if" if="[[l.isSpacer]]">
+			<tr><td colspan="0" style="height:0.1ex; border:none"></td></tr>
+		</template>
+		<template is="dom-if" if="[[!l.isSpacer]]">
+			<tr>
+				<td class$="[[l.classname]] veryNarrow">[[l.startNumber]]</td>
+				<td class$="[[l.classname]]">[[l.lastName]], [[l.firstName]]</td>
+				<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
+				<td class="veryNarrow">[[l.category]]</td>
+				<td class="veryNarrow">[[l.teamName]]</td>
+				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
+					<td class$="[[attempt.className]]">[[attempt.stringValue]]</td>
+				</template>
+				<td class="showRank">[[l.snatchRank]]</td>
+				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
+					<td class$="[[attempt.className]]">[[attempt.stringValue]]</td>
+				</template>
+				<td class="showRank">[[l.cleanJerkRank]]</td>		
+				<td class="veryNarrow">[[l.total]]</td>
+				<td class="veryNarrow">[[l.totalRank]]</td>
+			</tr>
+		</template>
 	</template>
 </table>
 </div>
@@ -207,13 +302,17 @@ class Results extends Polymer.Element {
 	         
 	reset() {
 		this.$.timer.reset();
-		this.$.timerDiv.style.display="flex";
+		//this.$.timerDiv.style.display="flex";
 		this.$.decisionDiv.style.display="none";
+	}
+	
+	down() {
+		console.warn("refereeDecision");
+		this.$.decisionDiv.style.display="flex";
 	}
 	
 	refereeDecision() {
 		console.warn("refereeDecision");
-		this.$.timerDiv.style.display="none";
 		this.$.decisionDiv.style.display="flex";
 	}
 	         
@@ -226,8 +325,11 @@ class Results extends Polymer.Element {
 	}
 	
 	_computeHidden(hidden) {
-		//console.warn(hidden);
 		return hidden ? 'display:none' : 'display:block';
+	}
+	
+	_computeMasters(masters) {
+		return masters ? 'masters' : 'mastersHidden';
 	}
 }
 
