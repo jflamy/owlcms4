@@ -51,14 +51,6 @@ import ch.qos.logback.classic.Logger;
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel>
 		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
 	
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-
-	static {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
-	}
-
 	/**
 	 * ResultBoardModel
 	 * 
@@ -96,6 +88,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		void setTeamName(String teamName);
 
 		void setWeight(Integer weight);
+	}
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
+
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+
+	static {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 
 
@@ -135,7 +135,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	 */
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
-		logger.trace("%%% {} DownSignal {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+		uiLog(e);
 		// hide the timer except if the down signal came from this ui.
 		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			this.getElement().callFunction("down");
@@ -144,7 +144,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		logger.debug("%%% {} LiftingOrderUpdated {} {}", this.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+		uiLog(e);
 		OwlcmsSession.withFop(fop -> {
 			FOPState state = fop.getState();
 			if (state == FOPState.BREAK || state == FOPState.INACTIVE) {
@@ -155,6 +155,12 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 			}
 		});
 	}
+	
+	@Subscribe
+	public void slavePauseBreak(UIEvent.BreakPaused e) {
+		uiLog(e);
+		this.timer.doStopTimer();
+	}
 
 	/**
 	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to show decisions on the
@@ -164,8 +170,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	 */
 	@Subscribe
 	public void slaveRefereeDecision(UIEvent.RefereeDecision e) {
-		logger.trace("%%% {} RefereeDecision {} {}", this.getClass().getSimpleName(), this.getOrigin(),
-			e.getOrigin());
+		uiLog(e);
 		// hide the timer except if the down signal came from this ui.
 		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			this.getElement().callFunction("down");
@@ -174,6 +179,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
+		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			doBreak(e);
 		});
@@ -182,15 +188,15 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	
 	@Subscribe
 	public void slaveStopBreak(UIEvent.BreakDone e) {
+		uiLog(e);
 		this.timer.doStopTimer();
 		Athlete a = e.getAthlete();
 		doAthleteUpdate(a, e);
 	}
 	
 	
-	@Subscribe
-	public void slavePauseBreak(UIEvent.BreakPaused e) {
-		this.timer.doStopTimer();
+	public void uiLog(UIEvent e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 	}
 
 	private String formatAttempt(Integer attemptNo) {

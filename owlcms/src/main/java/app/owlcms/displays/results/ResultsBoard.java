@@ -60,9 +60,13 @@ import elemental.json.JsonValue;
 @Push
 public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
-
+	
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsBoard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	static {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
 
 	/**
 	 * ResultBoardModel
@@ -74,36 +78,37 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	 *
 	 */
 	public interface ResultBoardModel extends TemplateModel {
-		String getLastName();
+		String getAttempt();
 
 		String getFirstName();
 
-		String getTeamName();
+		String getLastName();
 
 		Integer getStartNumber();
 
-		String getAttempt();
+		String getTeamName();
 
 		Integer getWeight();
 
-		void setLastName(String lastName);
+		void setAttempt(String formattedAttempt);
 
 		void setFirstName(String firstName);
 
-		void setTeamName(String teamName);
-
-		void setStartNumber(Integer integer);
-
-		void setAttempt(String formattedAttempt);
-
-		void setWeight(Integer weight);
+		void setGroupName(String name);
 
 		void setHidden(boolean b);
-		
-		void setGroupName(String name);
-		
+
+		void setLastName(String lastName);
+
 		void setLiftsDone(String formattedDone);
+
+		void setStartNumber(Integer integer);
+		
+		void setTeamName(String teamName);
+		
+		void setWeight(Integer weight);
 	}
+
 
 	@Id("timer")
 	private TimerElement timer; // Flow creates it
@@ -116,57 +121,66 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	private Group curGroup;
 	private int liftsDone;
 
+	JsonArray sattempts;
+
+	JsonArray cattempts;
+
 	/**
 	 * Instantiates a new results board.
 	 */
 	public ResultsBoard() {
-		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.DEBUG);
 	}
 
-	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
-		//TODO i18n t.key1 --> translation of key1 for getLocale()
-		translations.put("key1","value1");
-		translations.put("key2","value2");
-		this.getElement().setPropertyJson("t", translations);
-	}
-
-	protected void setGroupProperties() {
-		JsonObject groupProperties = Json.createObject();
-		groupProperties.put("name", curGroup.getName());
-		groupProperties.put("isMasters", false);
-		this.getElement().setPropertyJson("g", groupProperties);
-	}
-
-	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		// fop obtained via QueryParameterReader interface default methods.
-		OwlcmsSession.withFop(fop -> {
-			init();
-			// sync with current status of FOP
-			displayOrder = fop.getDisplayOrder();
+	@Subscribe
+	public void breakDone(UIEvent.BreakDone e) {
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			Athlete a = e.getAthlete();
 			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-			doUpdate(fop.getCurAthlete(), null);
-			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
+			doUpdate(a, e);
 		});
 	}
 
-	private void init() {
-		OwlcmsSession.withFop(fop -> {
-			logger.trace("Starting result board on FOP {}", fop.getName());
-			setId("results-board-"+fop.getName());
-			curGroup = fop.getGroup();
-		});
-		setGroupProperties();
-		setTranslationMap();
+	@Override
+	public boolean isIgnoreGroupFromURL() {
+		return true;
+	}
+
+	/**
+	 * Reset.
+	 */
+	public void reset() {
 		displayOrder = ImmutableList.of();
 	}
 
 	@Subscribe
-	public void orderUpdated(UIEvent.LiftingOrderUpdated e) {
+	public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			Athlete a = e.getAthlete();
+			doUpdate(a, e);
+		});
+	}
+
+	@Subscribe
+	public void slaveDecisionReset(UIEvent.DecisionReset e) {
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			this.getElement().callFunction("reset");
+		});
+	}
+
+	@Subscribe
+	public void slaveDownSignal(UIEvent.DownSignal e) {
+		uiLog(e);
+		// hide the timer except if the down signal came from this ui.
+		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+			this.getElement().callFunction("down");
+		});
+	}
+
+	@Subscribe
+	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			Athlete a = e.getAthlete();
@@ -175,22 +189,13 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			doUpdate(a, e);
 		});
 	}
+	
 
 	@Subscribe
-	public void athleteAnnounced(UIEvent.AthleteAnnounced e) {
+	public void slaveRefereeDecision(UIEvent.RefereeDecision e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			Athlete a = e.getAthlete();
-			doUpdate(a, e);
-		});
-	}
-
-	@Subscribe
-	public void breakDone(UIEvent.BreakDone e) {
-		uiLog(e);
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			Athlete a = e.getAthlete();
-			doUpdate(a, e);
+			this.getElement().callFunction("refereeDecision");
 		});
 	}
 
@@ -198,50 +203,17 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 	}
 
-	private Object getOrigin() {
-		return this;
-	}
-
-	@Subscribe
-	public void refereeDecision(UIEvent.RefereeDecision e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			logger.debug("resultBoard refereeDecision");
-			this.getElement().callFunction("refereeDecision");
-		});
-	}
-
-	@Subscribe
-	public void decisionReset(UIEvent.DecisionReset e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			logger.debug("resultBoard decisionReset");
-			this.getElement().callFunction("reset");
-		});
+	private String formatAttempt(Integer attemptNo) {
+		return MessageFormat.format("{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.",(attemptNo%3)+1);
 	}
 
 
-	protected void doUpdate(Athlete a, UIEvent e) {	
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			ResultBoardModel model = getModel();
-			model.setHidden(a == null);
-			if (a == null) return;
-			
-			model.setLastName(a.getLastName().toUpperCase());
-			model.setFirstName(a.getFirstName());
-			model.setTeamName(a.getTeam());
-			model.setStartNumber(a.getStartNumber());
-			String formattedAttempt = formatAttempt(a.getAttemptsDone());
-			model.setAttempt(formattedAttempt);
-			model.setWeight(a.getNextAttemptRequestedWeight());
-			
-			model.setGroupName(curGroup != null ? MessageFormat.format("Group {0}", curGroup.getName()) : "");
-			model.setLiftsDone(MessageFormat.format("{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}",liftsDone));
-			
-			this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
-		});
+	private String formatInt(Integer total) {
+		return (total == null || total == 0) ? "-" : (total < 0 ? "("+Math.abs(total)+")" : total.toString());
 	}
 	
-	protected void doHide() {
-		this.getModel().setHidden(true);
+	private String formatKg(String total) {
+		return (total == null || total.trim().isEmpty()) ? "-" : (total.startsWith("-") ? "("+total.substring(1)+")" : total);
 	}
 
 	private JsonValue getAthletesJson(List<Athlete> list2) {
@@ -279,16 +251,44 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		return jath;
 	}
 	
-	private String formatKg(String total) {
-		return (total == null || total.trim().isEmpty()) ? "-" : (total.startsWith("-") ? "("+total.substring(1)+")" : total);
+	private Object getOrigin() {
+		return this;
 	}
 	
-	private String formatInt(Integer total) {
-		return (total == null || total == 0) ? "-" : (total < 0 ? "("+Math.abs(total)+")" : total.toString());
+	private void init() {
+		OwlcmsSession.withFop(fop -> {
+			logger.trace("Starting result board on FOP {}", fop.getName());
+			setId("results-board-"+fop.getName());
+			curGroup = fop.getGroup();
+		});
+		setGroupProperties();
+		setTranslationMap();
+		displayOrder = ImmutableList.of();
 	}
 
-	JsonArray sattempts;
-	JsonArray cattempts;
+	protected void doHide() {
+		this.getModel().setHidden(true);
+	}
+	protected void doUpdate(Athlete a, UIEvent e) {	
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			ResultBoardModel model = getModel();
+			model.setHidden(a == null);
+			if (a == null) return;
+			
+			model.setLastName(a.getLastName().toUpperCase());
+			model.setFirstName(a.getFirstName());
+			model.setTeamName(a.getTeam());
+			model.setStartNumber(a.getStartNumber());
+			String formattedAttempt = formatAttempt(a.getAttemptsDone());
+			model.setAttempt(formattedAttempt);
+			model.setWeight(a.getNextAttemptRequestedWeight());
+			
+			model.setGroupName(curGroup != null ? MessageFormat.format("Group {0}", curGroup.getName()) : "");
+			model.setLiftsDone(MessageFormat.format("{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}",liftsDone));
+			
+			this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
+		});
+	}
 	/**
 	 * Compute Json string ready to be used by web component template
 	 * 
@@ -341,20 +341,32 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		}
 	}
 	
-	private String formatAttempt(Integer attemptNo) {
-		return MessageFormat.format("{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.",(attemptNo%3)+1);
-	}
-
-	/**
-	 * Reset.
-	 */
-	public void reset() {
-//		this.getElement().callFunction("reset");
-		displayOrder = ImmutableList.of();
-	}
-
+	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
 	@Override
-	public boolean isIgnoreGroupFromURL() {
-		return true;
+	protected void onAttach(AttachEvent attachEvent) {
+		// fop obtained via QueryParameterReader interface default methods.
+		OwlcmsSession.withFop(fop -> {
+			init();
+			// sync with current status of FOP
+			displayOrder = fop.getDisplayOrder();
+			liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+			doUpdate(fop.getCurAthlete(), null);
+			// we listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
+		});
+	}
+
+	protected void setGroupProperties() {
+		JsonObject groupProperties = Json.createObject();
+		groupProperties.put("isMasters", false);
+		this.getElement().setPropertyJson("g", groupProperties);
+	}
+
+	protected void setTranslationMap() {
+		JsonObject translations = Json.createObject();
+		//TODO i18n t.key1 --> translation of key1 for getLocale()
+		translations.put("key1","value1");
+		translations.put("key2","value2");
+		this.getElement().setPropertyJson("t", translations);
 	}
 }

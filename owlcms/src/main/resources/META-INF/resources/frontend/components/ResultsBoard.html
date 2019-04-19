@@ -21,7 +21,7 @@
 .attemptBar {
 	display: flex;
 	font-size: 3.6vmin;
-	justify-content: justify-start;
+	justify-content: space-between;
 	width: 100%;
 	height: 4vmin;
 }
@@ -49,6 +49,7 @@
 	flex: 0 0 30%;
 	text-align: left;
 	margin-left: 1em;
+	flex-grow: 0.5;
 }
 
 .athleteInfo .timer {
@@ -56,17 +57,18 @@
 	flex: 0 0 15%;
 	text-align: right;
 	font-weight: bold;
+	self-justify: right;
+	width: 10vw;
 }
 
-.athleteInfo .decision {
+.athleteInfo .decisionBox {
+	position: fixed;
+	top: 2vmin;
+	right: 2vmin;
+	width: 15vw;
+	height: 10vh;
+	background-color: black;
 	display: none;
-	-iron-icon-height: 100%;
-	-iron-icon-width: 100%;
-	font-weight: normal;
-	color: lime;
-	display: none;
-	overflow: hidden;
-	flex: 0 0 15%;
 }
 
 .athleteInfo .weight {
@@ -157,6 +159,8 @@ th, td {
 	background-color: black;
 	font-style: italic;
 }
+
+
 </style>
 
 <div class="wrapper" id="resultBoardDiv" style$="[[_computeHidden(hidden)]]">
@@ -169,11 +173,11 @@ th, td {
 		<div class="weight">
 			[[weight]]<span style="font-size: 75%">kg</span>
 		</div>
-		<div class="timer" id="timerDiv"  style="width: 10vw">
+		<div class="timer" id="timerDiv">
 			<timer-element id="timer"></timer-element>
 		</div>
-		<div class="decision" id="decisionDiv" style="width: 10vw" on-hide="reset">
-			<decision-element id="decisions"></decision-element>
+		<div class="decisionBox" id="decisionDiv" on-hide="reset">
+			<decision-element style="width: 100%" id="decisions"></decision-element>
 		</div>
 	</div>
 </div>
@@ -181,21 +185,6 @@ th, td {
 <span class="groupName"></span>[[groupName]]</span> &ndash; [[liftsDone]]
 </div>
 <table class="results">
-    <colgroup>
-        <col><!-- start -->
-        <col><!-- name -->
-        <template is="dom-if" if="[[g.isMasters]]">
-        	<col><!-- masters age group -->
-        </template>
-        <col><!-- category -->
-        <col><!-- team -->
-        <col span="3"><!-- snatches -->
-        <col class="showRank"><!-- snatch rank -->
-        <col span="3"><!-- clean and jerks -->
-        <col class="showRank"><!-- cj rank -->
-        <col span="1"><!-- total -->
-        <col class="showRank"><!-- total rank -->
-    </colgroup>
 	<thead>
 		<tr>
 			<th class="veryNarrow">Départ<div class='english'>Start</div></th>
@@ -257,13 +246,17 @@ class Results extends Polymer.Element {
 	         
 	reset() {
 		this.$.timer.reset();
-		this.$.timerDiv.style.display="flex";
+		//this.$.timerDiv.style.display="flex";
 		this.$.decisionDiv.style.display="none";
+	}
+	
+	down() {
+		console.warn("refereeDecision");
+		this.$.decisionDiv.style.display="flex";
 	}
 	
 	refereeDecision() {
 		console.warn("refereeDecision");
-		this.$.timerDiv.style.display="none";
 		this.$.decisionDiv.style.display="flex";
 	}
 	         
@@ -276,7 +269,6 @@ class Results extends Polymer.Element {
 	}
 	
 	_computeHidden(hidden) {
-		//console.warn(hidden);
 		return hidden ? 'display:none' : 'display:block';
 	}
 }

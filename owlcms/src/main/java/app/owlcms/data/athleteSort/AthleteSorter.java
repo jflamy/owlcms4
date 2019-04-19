@@ -252,7 +252,7 @@ public class AthleteSorter implements Serializable {
      * @return number of lifts
      */
     static public int countLiftsDone(List<Athlete> lifters) {
-        if (!lifters.isEmpty()) {
+        if (lifters != null && !lifters.isEmpty()) {
             int totalSnatch = 0;
             int totalCJ = 0;
             boolean cJHasStarted = false;

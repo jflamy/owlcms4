@@ -4,19 +4,37 @@
 <dom-module id="decision-element">
 <template>
 <style>
+.decisionWrapper {
+	width: 100%;
+	height: 100%;
+}
 .decisions {
 	display: none;
 	height: 100%;
+	width: 100%;
+	display: flex;
 	align-items: stretch;
-	justify-content: stretch;
+	justify-content: space-between;
 }
 .decision {
 	border-radius: 5%;
 	border: medium solid white;
 	margin: 3%;
-	background-color: gray;
+/* 	background-color: #333333; */
 	width: 30%;
 }
+.red {
+	background-color: red;
+}
+
+.white {
+	background-color: white;
+}
+
+.none {
+	background-color: #333333;
+}
+
 .down {
 	display: flex;
 	height: 100%;
@@ -29,6 +47,7 @@
 	display:block;
 }
 </style>
+<div class="decisionWrapper">
 <div class="down" id="downDiv">
 	<iron-icon id="down-arrow" icon="icons:file-download" on-click="showDecisions"></iron-icon>
 </div>
@@ -36,6 +55,7 @@
 	<span class="decision" id="ref1span" />&nbsp;</span>
 	<span class="decision" id="ref2span" />&nbsp;</span>
 	<span class="decision" id="ref3span" />&nbsp;</span>
+</div>
 </div>
 </template>
 
@@ -88,9 +108,10 @@
       _init() {
 			this.$.decisionsDiv.style.display = "none";
 			this.$.downDiv.style.display = "none";
-			this.$.ref1span.style = "background-color: #333333";
-			this.$.ref2span.style = "background-color: #333333";
-			this.$.ref3span.style = "background-color: #333333";
+
+			this.$.ref1span.className = "decision none";
+			this.$.ref2span.className = "decision none";
+			this.$.ref3span.className = "decision none";
 			this.set('ref1',null);
 			this.set('ref2',null);
 			this.set('ref3',null);
@@ -160,49 +181,51 @@
     		  this.decision = (countWhite >= 2);
     		  // true means we are master -- we are telling the server that the decision has
     		  // been reached
-    		  console.warn("full decision reached, setting timer");
-    		  setTimeout(this.showDecisions.bind(this, true, ref1, ref2, ref3), 5000);
+    		  console.warn("full decision reached, setting timer before decisions are shown");
+    		  
+    		  // show the decisions after 3 seconds (by rule)
+    		  setTimeout(this.showDecisions.bind(this, true, ref1, ref2, ref3), 3000);
     		  return (countWhite >= 2);
     	  } else {
     		  return undefined;
     	  }
       }
       
-      setColors(parent, ref1, ref2, ref3) {
-    	  var redStyle = "background-color: red; width: 30%; border-width: thin";
-    	  var whiteStyle = "background-color: white; width: 30%; border-width: thin";
+      setColors(parent, ref1, ref2, ref3) {  
+    	  var redStyle = "decision red";
+    	  var whiteStyle = "decision white";
     	  if (this.publicFacing) {
 	    	  if (ref1 === true) {
-	    		  parent.$.ref1span.style = whiteStyle;
+	    		  parent.$.ref1span.className = whiteStyle;
 	    	  } else if (ref1 === false){
-	    		  parent.$.ref1span.style = redStyle;
+	    		  parent.$.ref1span.className = redStyle;
 	    	  }
 	    	  if (ref2 === true) {
-	    		  parent.$.ref2span.style = whiteStyle;
+	    		  parent.$.ref2span.className = whiteStyle;
 	    	  } else if (ref2 === false){
-	    		  parent.$.ref2span.style = redStyle;
+	    		  parent.$.ref2span.className = redStyle;
 	    	  }
 	    	  if (ref3 === true) {
-	    		  parent.$.ref3span.style = whiteStyle;
+	    		  parent.$.ref3span.className = whiteStyle;
 	    	  } else if (ref3 === false){
-	    		  parent.$.ref3span.style = redStyle;
+	    		  parent.$.ref3span.className = redStyle;
 	    	  }
     	  } else {
     		  // athlete facing, go the other way, right to left
 	    	  if (ref1 === true) {
-	    		  parent.$.ref3span.style = whiteStyle;
+	    		  parent.$.ref3span.className = whiteStyle;
 	    	  } else if (ref1 === false){
-	    		  parent.$.ref3span.style = redStyle;
+	    		  parent.$.ref3span.className = redStyle;
 	    	  }
 	    	  if (ref2 === true) {
-	    		  parent.$.ref2span.style = whiteStyle;
+	    		  parent.$.ref2span.className = whiteStyle;
 	    	  } else if (ref2 === false){
-	    		  parent.$.ref2span.style = redStyle;
+	    		  parent.$.ref2span.className = redStyle;
 	    	  }
 	    	  if (ref3 === true) {
-	    		  parent.$.ref1span.style = whiteStyle;
+	    		  parent.$.ref1span.className = whiteStyle;
 	    	  } else if (ref3 === false){
-	    		  parent.$.ref1span.style = redStyle;
+	    		  parent.$.ref1span.className = redStyle;
 	    	  }
     	  }
       }
@@ -219,7 +242,10 @@
 		  if (isMaster) {
 			  this.$server.masterShowDown(this.decision, this.ref1, this.ref2, this.ref3);
 		  }
-		  setTimeout(this.hideDown.bind(this), 3000);
+		  // hide the down arrow after 2 seconds -- the decisions will show when available
+		  // (there will be no decision lights for at least one second, more if last referee 
+		  // waits after the other two have given down.
+		  setTimeout(this.hideDown.bind(this), 2000);
       }
       
       hideDown() {
@@ -232,8 +258,8 @@
     	  console.warn("showDecision: "+ref1+" "+ref2+" "+ref3);
 		  this.setColors(this, ref1, ref2, ref3);
 		  console.warn("colorsShown");
-    	  // schedule display reset in 3 seconds
-		  setTimeout(this.reset.bind(this, isMaster), 3000);
+    	  // hide the decisions after 5 seconds (this is arbitrary)
+		  setTimeout(this.reset.bind(this, isMaster), 5000);
     	  // if we are the master, tell the server
     	  if (isMaster) {
     	  	this.$server.masterShowDecisions(this.decision, this.ref1, this.ref2, this.ref3);
