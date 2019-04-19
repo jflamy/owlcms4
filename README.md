@@ -25,6 +25,9 @@ Minimal viable product ("MVP") able to run a regular regional competition (no ju
 - Complete information on preparation documents (start list, allow entering referees per group)
 
 ### Installation and Demo
+See https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt for license. Basically, this is free, as-is, software.
+If you run it on behalf of others or distribute it, you must give free access to the tool source code and to your modifications if any such that anyone can run your version for free.
+
 [Releases](https://github.com/jflamy/owlcms4/releases) are available at https://github.com/jflamy/owlcms4/releases
 
 [Live demo](https://owlcms4.herokuapp.com) of the current build is available on the Heroku cloud service.
