@@ -51,6 +51,14 @@ import ch.qos.logback.classic.Logger;
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel>
 		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
 	
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	static {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
+
+	
 	/**
 	 * ResultBoardModel
 	 * 
@@ -89,14 +97,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 		void setWeight(Integer weight);
 	}
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
-
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-
-	static {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
-	}
 
 
 
@@ -122,6 +122,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 	@Subscribe
 	public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
+		doReset();
 		this.timer.stop();
 		Athlete a = e.getAthlete();
 		doAthleteUpdate(a, e);
@@ -145,6 +146,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiLog(e);
+		doReset();
 		OwlcmsSession.withFop(fop -> {
 			FOPState state = fop.getState();
 			if (state == FOPState.BREAK || state == FOPState.INACTIVE) {
@@ -176,10 +178,17 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 			this.getElement().callFunction("down");
 		});
 	}
+	
+	public void doReset() {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			this.getElement().callFunction("reset");
+		});
+	}
 
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
 		uiLog(e);
+		doReset();
 		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			doBreak(e);
 		});
@@ -189,6 +198,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	@Subscribe
 	public void slaveStopBreak(UIEvent.BreakDone e) {
 		uiLog(e);
+		doReset();
 		this.timer.doStopTimer();
 		Athlete a = e.getAthlete();
 		doAthleteUpdate(a, e);

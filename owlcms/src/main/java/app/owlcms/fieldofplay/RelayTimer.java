@@ -24,7 +24,7 @@ import ch.qos.logback.classic.Logger;
 public class RelayTimer implements ICountdownTimer {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(RelayTimer.class);
-	{ logger.setLevel(Level.DEBUG); }
+	{ logger.setLevel(Level.INFO); }
 
 	protected int timeRemaining;
 	protected FieldOfPlay fop;
