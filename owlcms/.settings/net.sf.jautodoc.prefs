@@ -1,7 +1,7 @@
 add_header=true
 add_todo=false
 eclipse.preferences.version=1
-header_text=/***\r\n * Copyright (c) 2009-${year} Jean-Fran\u00E7ois Lamy\r\n * \r\n * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  \r\n * License text at https\://github.com/jflamy/owlcms4/master/License.txt\r\n */
+header_text=/***\r\n * Copyright (c) 2009-${year} Jean-Fran\u00E7ois Lamy\r\n * \r\n * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  \r\n * License text at https\://github.com/jflamy/owlcms4/blob/master/LICENSE.txt\r\n */
 include_subpackages=true
 project_specific_settings=true
 replace_header=true

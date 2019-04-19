@@ -26,10 +26,6 @@
 		<file>
 			<source>${project.basedir}/src/main/assembly/demoProcfile</source>
 			<outputDirectory>/</outputDirectory>
-		</file>
-		<file>
-			<source>NOTICE.txt</source>
-			<outputDirectory>/</outputDirectory>
 			<filtered>true</filtered>
 		</file>
 	</files>

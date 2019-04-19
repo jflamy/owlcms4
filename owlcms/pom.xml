@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.0.8-SNAPSHOT</version>
+		<version>4.0.8</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -138,13 +138,6 @@
 		    <artifactId>super-csv</artifactId>
 		    <version>2.4.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.jxls/jxls-reader -->
-<!-- 		<dependency> -->
-<!-- 		    <groupId>org.jxls</groupId> -->
-<!-- 		    <artifactId>jxls-reader</artifactId> -->
-<!-- 		    <version>2.0.5</version> -->
-<!-- 		</dependency> -->
-		
 
 		<!-- event bus -->
 		<dependency>
@@ -345,6 +338,7 @@
 			<plugin>
 				<groupId>com.akathist.maven.plugins.launch4j</groupId>
 				<artifactId>launch4j-maven-plugin</artifactId>
+				<version>1.7.25</version>
 				<executions>
 					<execution>
 						<id>l4j</id>

@@ -9,19 +9,25 @@ Main incentives for this rewrite:
 - Simplify the design.  Many things that had to be painstakingly coded in the original version are now built-in modern frameworks (database handling and sophisticated user interfaces for example.)
 
 ### Current status: 
-Very close to minimal viable product ("MVP") able to run a regional non-Masters competition
+Minimal viable product ("MVP") able to run a regular regional competition (no jury, no masters -- these will come later)
 - Announcer, marshall and timekeeper screens (updating athlete cards and recomputing lifting order).
 - Attempt board with timing and decisions handled locally in the browser. USB/Bluetooth keypresses are processed directly in the browser for refereeing.
 - Athlete-facing board (same as attempt board, but with decision display reversed to match referee positions as seen from platform).  Either the attempt board or the athlete-facing board can be used with USB or bluetooth keypads to enter referee decisions.
 - Group results board for public or warm-up room display.  Shows decision lights.
-- Athlete Registration and Weigh-in screens, including producing weigh-in sheet
+- Athlete Registration and Weigh-in screens, including production of weigh-in sheet
 - Working entry screens for defining a competition (general info, groups, categories, etc.)
 - Working athlete cards, weighin sheet (w/ starting weights), group results sheet
-- Supports multiple platforms
+- Supports multiple fields of play (platforms)
 - Upload of registration sheet (same as owlcms2, in either xls or xlsx format)
 - Countdown timer for breaks (before introduction, before first snatch, break before clean and jerk, technical break)
 
+### Next steps
+- Complete information on preparation documents (start list, allow entering referees per group)
+
 ### Installation and Demo
+See https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt for license. Basically, this is free, as-is, software.
+If you run it on behalf of others or distribute it, you must give free access to the full tool source code and to your modifications (if any) so that anyone who wishes so can run your version for free.
+
 [Releases](https://github.com/jflamy/owlcms4/releases) are available at https://github.com/jflamy/owlcms4/releases
 
 [Live demo](https://owlcms4.herokuapp.com) of the current build is available on the Heroku cloud service.
@@ -38,9 +44,7 @@ Very close to minimal viable product ("MVP") able to run a regional non-Masters 
     - You can start an Attempt Board.  If you stop the time on the Announcer or Timekeeper screen, you can use the keyboard keys 1 3 5 to enter white and 2 4 6 to enter red decisions.  Down signal will appear after two identical.
     - You can start a Result Board.
     - If you go back to the main screen and change the group, you should see all the screens change to the new group.
-        
-### Next steps
-- Adding missing information on results screen
+
 
 ### Design notes:
 - Local timer and decision done using new Web standard [Web Components](https://www.webcomponents.org/introduction)
