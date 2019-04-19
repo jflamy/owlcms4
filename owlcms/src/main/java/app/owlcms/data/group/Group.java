@@ -6,8 +6,9 @@
  */
 package app.owlcms.data.group;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -23,12 +24,16 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.utils.LoggerUtils;
+import ch.qos.logback.classic.Logger;
 
 /**
  * The Class Group.
@@ -37,7 +42,10 @@ import app.owlcms.data.platform.Platform;
 @Cacheable
 public class Group implements Comparable<Group> {
 	
-    private static final SimpleDateFormat sFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	final private Logger logger = (Logger)LoggerFactory.getLogger(Group.class);
+    
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
+	private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient().appendPattern(DATE_FORMAT).toFormatter();
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -186,9 +194,9 @@ public class Group implements Comparable<Group> {
     public String getCompetitionShortDateTime() {
         String formatted = "";
         try {
-            formatted = sFormat.format(getCompetitionTime());
+            formatted = DATE_TIME_FORMATTER.format(getCompetitionTime());
         } catch (Exception e) {
-            //LoggerUtils.errorException(logger, e);
+            logger.error(LoggerUtils.stackTrace(e));
         }
         return formatted;
     }
@@ -336,9 +344,9 @@ public class Group implements Comparable<Group> {
     public String getWeighInShortDateTime() {
         String formatted = "";
         try {
-            formatted = sFormat.format(weighInTime);
+            formatted = DATE_TIME_FORMATTER.format(getWeighInTime());
         } catch (Exception e) {
-            //LoggerUtils.errorException(logger, e);
+            logger.error(LoggerUtils.stackTrace(e));
         }
         return formatted;
     }
