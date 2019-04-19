@@ -284,7 +284,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			groupSelect.setValue(fop.getGroup());
 		});
 		if (athlete != null) {
-			lastName.setText(athlete.getLastName());
+			String lastName2 = athlete.getLastName();
+			lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
 			firstName.setText(athlete.getFirstName());
 			timeField.setTimeRemaining(timeAllowed);
 			String attemptHtml = MessageFormat.format("<h2>{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.</h2>", athlete.getAttemptNumber());
@@ -360,21 +361,20 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		ThemeList themes = grid.getThemeNames();
 		themes.add("compact");
 		themes.add("row-stripes");
-		grid.setColumns("lastName", "firstName", "team", "category", "nextAttemptRequestedWeight", "attemptNumber", "startNumber");
-		grid.getColumnByKey("lastName")
-		.setHeader("Last Name");
-		grid.getColumnByKey("firstName")
-		.setHeader("First Name");
-		grid.getColumnByKey("team")
-		.setHeader("Team");
-		grid.getColumnByKey("category")
-		.setHeader("Category");
-		grid.getColumnByKey("nextAttemptRequestedWeight")
-		.setHeader("Requested Weight");
-		grid.getColumnByKey("attemptNumber")
-		.setHeader("Attempt");
-		grid.getColumnByKey("startNumber")
-		.setHeader("Start Number");
+		grid.addColumn(athlete -> athlete.getLastName().toUpperCase())
+			.setHeader("Last Name");
+		grid.addColumn("firstName")
+			.setHeader("First Name");
+		grid.addColumn("team")
+			.setHeader("Team");
+		grid.addColumn("category")
+			.setHeader("Category");
+		grid.addColumn("nextAttemptRequestedWeight")
+			.setHeader("Requested Weight");
+		grid.addColumn("attemptNumber")
+			.setHeader("Attempt");
+		grid.addColumn("startNumber")
+			.setHeader("Start Number");
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
