@@ -42,7 +42,7 @@
 	font-size: 3.6vmin;
 	justify-content: space-between;
 	width: 100%;
-} 
+}
 
 .athleteInfo .fullName {
 	font-weight: bold;
@@ -75,8 +75,13 @@
 	color: aqua;
 }
 
+.group {
+	font-size: 3vh;
+	margin-top: 1vh;
+	margin-bottom: 1vh;
+}
+
 table.results {
-	margin-top: 5ex;
 	width: 100%;
 	border-collapse: collapse;
 	border: none;
@@ -86,14 +91,69 @@ table.results {
 th, td {
 	border-collapse: collapse;
 	border: solid 1px DarkGray;
+	padding: 0.4vmin 1vmin 0.4vmin 1vmin;
+	font-size: 2.1vh;
+	font-weight: normal;
+}
+
+@media screen and (min-width: 1025px) {
+	.showThRank {
+		border-collapse: collapse;
+		border: solid 1px DarkGray;
+		border-left-style: none;
+		padding: 0.5vmin 1vmin 0.5vmin 1vmin;
+		font-size: 1.5vh;
+		font-weight: normal;
+		font-style: italic;
+		width: 4vw;
+		text-align: center;
+	}
+}
+
+@media screen and (max-width: 1024px) {
+	.showThRank {
+		display: none;
+		width: 0px;
+		padding: 0 0 0 0;
+		margin: 0 0 0 0;
+	}
+}
+
+.thRank {
+	border-collapse: collapse;
+	border: solid 1px DarkGray;
+	border-left-style: none;
 	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-	font-size: 2.1vmin;
+	font-size: 1.5vh;
+	font-weight: normal;
+	font-style: italic;
+	width: 4vw;
+	text-align: center;
+}
+
+.masters {
+	display: table-cell;
+	text-align: center;
+	width: 4vw;
+}
+
+.mastersHidden {
+	display: none;
+	width: 0px;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+}
+
+.narrow {
+	width: 6vw;
+	text-align: center;
 }
 
 @media screen and (min-width: 1025px) {
 	.showRank {
 		display: table-cell;
 		width: 4vw;
+		text-align: center;
 	}
 }
 
@@ -138,18 +198,18 @@ th, td {
 	-webkit-animation: blink 1.5s step-start 0s infinite;
 }
 
-@keyframes blink { 
-50% {
+@
+keyframes blink { 50% {
 	opacity: 0.0;
-	}
 }
 
-@-webkit-keyframes blink { 
-50% {
+}
+@
+-webkit-keyframes blink { 50% {
 	opacity: 0.0;
-	}
 }
 
+}
 .next {
 	color: aqua;
 	font-weight: bold;
@@ -159,8 +219,6 @@ th, td {
 	background-color: black;
 	font-style: italic;
 }
-
-
 </style>
 
 <div class="wrapper" id="resultBoardDiv" style$="[[_computeHidden(hidden)]]">
@@ -189,28 +247,26 @@ th, td {
 		<tr>
 			<th class="veryNarrow">Départ<div class='english'>Start</div></th>
 			<th>Nom<div class='english'>Name</div></th>
-			<template is="dom-if" if="[[g.isMasters]]">
-				<th><nobr>Gr. Age.</nobr><div class='english'><nobr>Age Gr.</nobr></div></th>
-			</template>
+			<th class$="[[_computeMasters(masters)]]"><nobr>Gr. Age.</nobr><div class='english'><nobr>Age Gr.</nobr></div></th>
 			<th class="cat">Cat.</th>
 			<th class='club'>Équipe<div class='english'>Team</div></th>
 			<th colspan="3">Arraché<div class='english'>Snatch</div></th>
-			<th class="showRank">Rang<div class='english'>Rank</div></th>
+			<th class="showThRank">Rang<div class='english'>Rank</div></th>
 			<th colspan="3">Épaulé-jeté<div class='english'>Clean&amp;Jerk</div></th>
-			<th class="showRank">Rang<div class='english'>Rank</div></th>
+			<th class="showThRank">Rang<div class='english'>Rank</div></th>
 			<th class="veryNarrow">Total</th>
-			<th class="veryNarrow">Rang<div class='english'>Rank</div></th>
+			<th class="thRank">Rang<div class='english'>Rank</div></th>
 		</tr>
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
-<!-- 		<template is="dom-if" if="[[l.isSpacer]]"> -->
-<!-- 			<tr><td colspan="0" style="height:0.1ex; border:none"></td></tr> -->
-<!-- 		</template> -->
+		<template is="dom-if" if="[[l.isSpacer]]">
+			<tr><td colspan="0" style="height:0.1ex; border:none"></td></tr>
+		</template>
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class$="[[l.classname]] veryNarrow">[[l.startNumber]]</td>
 				<td class$="[[l.classname]]">[[l.lastName]], [[l.firstName]]</td>
-				<template is="dom-if" if="[[g.isMasters]]"><td class="narrow">[[l.mastersAgeGroup]]</td></template>
+				<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
 				<td class="veryNarrow">[[l.category]]</td>
 				<td class="veryNarrow">[[l.teamName]]</td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
@@ -270,6 +326,10 @@ class Results extends Polymer.Element {
 	
 	_computeHidden(hidden) {
 		return hidden ? 'display:none' : 'display:block';
+	}
+	
+	_computeMasters(masters) {
+		return masters ? 'masters' : 'mastersHidden';
 	}
 }
 

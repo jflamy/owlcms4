@@ -31,6 +31,7 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.attemptboard.DecisionElement;
 import app.owlcms.displays.attemptboard.TimerElement;
@@ -60,14 +61,14 @@ import elemental.json.JsonValue;
 @Push
 public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
-	
+
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsBoard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-
+	
 	/**
 	 * ResultBoardModel
 	 * 
@@ -89,6 +90,10 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		String getTeamName();
 
 		Integer getWeight();
+		
+		Boolean isHidden();
+		
+		Boolean isMasters();
 
 		void setAttempt(String formattedAttempt);
 
@@ -97,10 +102,12 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		void setGroupName(String name);
 
 		void setHidden(boolean b);
-
+		
 		void setLastName(String lastName);
 
 		void setLiftsDone(String formattedDone);
+
+		void setMasters(boolean b);
 
 		void setStartNumber(Integer integer);
 		
@@ -240,9 +247,9 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			ja.put("sattempts", sattempts);
 			ja.put("cattempts", cattempts);
 			ja.put("total", formatInt(a.getTotal()));
-//			ja.put("snatchRank", formatInt(a.getSnatchRank()));
-//			ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-//			ja.put("totalRank", formatInt(a.getTotalRank()));
+			ja.put("snatchRank", formatInt(a.getSnatchRank()));
+			ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
+			ja.put("totalRank", formatInt(a.getTotalRank()));
 			Integer liftOrderRank = a.getLiftOrderRank();
 			ja.put("classname", (liftOrderRank == 1 ? "current" : (liftOrderRank == 2) ? "next" : ""));
 			jath.set(athx, ja);
@@ -260,8 +267,8 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			logger.trace("Starting result board on FOP {}", fop.getName());
 			setId("results-board-"+fop.getName());
 			curGroup = fop.getGroup();
+			getModel().setMasters(Competition.getCurrent().isMasters());
 		});
-		setGroupProperties();
 		setTranslationMap();
 		displayOrder = ImmutableList.of();
 	}
@@ -354,12 +361,6 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
-	}
-
-	protected void setGroupProperties() {
-		JsonObject groupProperties = Json.createObject();
-		groupProperties.put("isMasters", false);
-		this.getElement().setPropertyJson("g", groupProperties);
 	}
 
 	protected void setTranslationMap() {

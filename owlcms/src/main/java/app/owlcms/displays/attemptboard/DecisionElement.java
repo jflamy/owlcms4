@@ -33,6 +33,13 @@ import ch.qos.logback.classic.Logger;
 @Tag("decision-element")
 @HtmlImport("frontend://components/DecisionElement.html")
 public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionModel> implements SafeEventBusRegistration {
+	
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	static {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
 
 	/**
 	 * The Interface DecisionModel.
@@ -79,16 +86,12 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		 */
 		void setRef3(Boolean decision);
 	}
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
-	
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+
 
 	private EventBus uiEventBus;
 	private EventBus fopEventBus;
 	
 	public DecisionElement() {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
 	}
 	
 	@ClientCallable
@@ -159,7 +162,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 			logger.trace(e.getPropertyName() + " changed to " + e.getValue());
 		});
 		elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
-			logger.info(e.getPropertyName() + " changed to " + e.getValue());
+			logger.debug(e.getPropertyName() + " changed to " + e.getValue());
 		});
 	}
 	

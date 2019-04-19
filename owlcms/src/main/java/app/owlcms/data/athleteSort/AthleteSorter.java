@@ -354,53 +354,23 @@ public class AthleteSorter implements Serializable {
         }
     }
 
-    // /**
-    // * Assign medals, sequentially.
-    // *
-    // * @param sortedList
-    // */
-    // static public void assignMedals(List<Athlete> sortedList) {
-    // Category prevCategory = null;
-    // Integer prevAgeGroup = null;
-    // Integer curAgeGroup = null;
-    //
-    // int rank = 1;
-    // for (Athlete curLifter : sortedList) {
-    // Category curCategory = null;
-    // if (WebApplicationConfiguration.useRegistrationCategory) {
-    // curCategory = curLifter.getRegistrationCategory();
-    // } else {
-    // curCategory = curLifter.getCategory();
-    // }
-    // if (Competition.isMasters()) {
-    // curAgeGroup = curLifter.getAgeGroup();
-    // }
-    //
-    // if (!equals(curCategory, prevCategory) || !equals(curAgeGroup, prevAgeGroup)) {
-    // // category boundary has been crossed
-    // rank = 1;
-    // }
-    //
-    // if (curLifter.isInvited()) {
-    // logger.trace("Athlete {}  totalRank={} total={}",
-    //                		new Object[] { curLifter, -1, curLifter.getTotal() }); //$NON-NLS-1$
-    // curLifter.setRank(-1);
-    // } else if (rank <= 3 && curLifter.getTotal() > 0) {
-    // logger.trace("Athlete {}  totalRank={} total={}",
-    //                		new Object[] { curLifter, rank, curLifter.getTotal() }); //$NON-NLS-1$
-    // curLifter.setRank(rank);
-    // rank++;
-    // } else {
-    // logger.trace("Athlete {}  totalRank={} total={}",
-    //                		new Object[] { curLifter, 0, curLifter.getTotal() }); //$NON-NLS-1$
-    // curLifter.setRank(0);
-    // rank++;
-    // }
-    // prevCategory = curCategory;
-    // prevAgeGroup = curAgeGroup;
-    // }
-    // }
 
+    /**
+     * Assign ranks within each category.
+     * Provided list is left untouched.
+     * 
+     * @param athletes the list of athletes to sort
+     */
+    public static void assignCategoryRanks(List<Athlete> athletes) {
+    	List<Athlete> sortedAthletes;
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.TOTAL);
+    }
+    
     /**
      * Assign ranks, sequentially.
      *
