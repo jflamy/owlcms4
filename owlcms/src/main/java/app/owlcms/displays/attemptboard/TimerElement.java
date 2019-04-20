@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.displays.attemptboard;
@@ -9,7 +9,6 @@ package app.owlcms.displays.attemptboard;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
@@ -18,8 +17,6 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
-import app.owlcms.fieldofplay.ICountdownTimer;
-import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
@@ -33,23 +30,14 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Tag("timer-element")
 @HtmlImport("frontend://components/TimerElement.html")
-public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> implements ICountdownTimer, SafeEventBusRegistration {
+public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerModel>
+		implements SafeEventBusRegistration {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-
-	static {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
-	}
-	
 	/**
-	 * TimerModel
-	 * 
-	 * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties.
-	 * When the JS properties are changed, a "propname-changed" event is triggered.
-	 * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
-	 * 
+	 * TimerModel Vaadin Flow propagates these variables to the corresponding Polymer template
+	 * JavaScript properties. When the JS properties are changed, a "propname-changed" event is
+	 * triggered. {@link Element.#addPropertyChangeListener(String, String,
+	 * com.vaadin.flow.dom.PropertyChangeListener)}
 	 */
 	public interface TimerModel extends TemplateModel {
 
@@ -75,18 +63,18 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		boolean isCountUp();
 
 		/**
-		 * Checks if is interactive.
-		 *
-		 * @return true, if is interactive
-		 */
-		boolean isInteractive();
-
-		/**
 		 * Checks if timer is running.
 		 *
 		 * @return true, if is running
 		 */
 		boolean isRunning();
+		
+		/**
+		 * Checks if timer is silent.
+		 *
+		 * @return true, if sounds are to be emitted.
+		 */
+		boolean isSilent();
 
 		/**
 		 * Sets the count direction.
@@ -103,16 +91,9 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		void setCurrentTime(double seconds);
 
 		/**
-		 * Sets whether debugging controls are shown.
-		 *
-		 * @param interactive if true.
-		 */
-		void setInteractive(boolean interactive);
-
-		/**
 		 * Sets the timer running with true, stops if false.
 		 *
-		 * @param 
+		 * @param running setting to true starts the timer, false stops it.
 		 */
 		void setRunning(boolean running);
 
@@ -122,8 +103,22 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		 * @param seconds the new start time
 		 */
 		void setStartTime(double seconds);
+
+		/**
+		 * Determine whether sounds are emitted at 90, 30 and 0 seconds
+		 * 
+		 * @param quiet true indicates no sound
+		 */
+		void setSilent(boolean quiet);
 	}
 
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+
+	static {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.DEBUG);
+	}
 
 	private EventBus uiEventBus;
 	private Element timerElement;
@@ -134,135 +129,55 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 	public TimerElement() {
 	}
 
-	public void doSetTimer(Integer milliseconds) {
+	/**
+	 * Client requests that the server send back the remaining time. Intended to be used after client
+	 * has been hidden and is made visible again.
+	 */
+	@ClientCallable
+	abstract public void clientSyncTime();
+
+	/**
+	 * Timer ran down to zero.
+	 */
+	@ClientCallable
+	abstract public void clientTimeOver();
+
+	/**
+	 * Timer has been stopped on the client side.
+	 * 
+	 * @param remainingTime
+	 */
+	@ClientCallable
+	abstract public void clientTimerStopped(double remainingTime);
+
+	protected final void doSetTimer(Integer milliseconds) {
+		if (milliseconds == null) {
+			logger.error(LoggerUtils.stackTrace());
+		}
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			setTimeRemaining(milliseconds);
 		});
 	}
 
-	public void doStartTimer(Integer milliseconds) {
+	protected void doStartTimer(Integer milliseconds) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			if (milliseconds != null)
+			if (milliseconds != null) {
 				setTimeRemaining(milliseconds);
+			}
 			start();
 		});
 	}
 
-	public void doStopTimer() {
+	protected void doStopTimer() {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			stop();
 		});
 	}
 
-
-	/* @see app.owlcms.fieldofplay.ICountdownTimer#getTimeRemaining() */
-	@Override
-	public int getTimeRemaining() {
-		return (int) (getModel().getCurrentTime()/1000.0D) ;
-	}
-	
-	
-	/* (non-Javadoc)
-	 * @see app.owlcms.fieldofplay.ICountdownTimer#setTimer(app.owlcms.fieldofplay.UIEvent.SetTime)
-	 */
-	@Override
-	@Subscribe
-	public void setTimer(UIEvent.SetTime e) {
-		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug("=== set received {}", milliseconds);
-		doSetTimer(milliseconds);
+	protected Element getTimerElement() {
+		return timerElement;
 	}
 
-
-	/* @see app.owlcms.fieldofplay.ICountdownTimer#setTimeRemaining(int) */
-	@Override
-	public void setTimeRemaining(int milliseconds) {
-		logger.debug("time remaining = {} from {} ",milliseconds,LoggerUtils.whereFrom());
-		double seconds = milliseconds/1000.0D;
-		TimerModel model = getModel();
-		model.setCurrentTime(seconds);
-		model.setStartTime(seconds);
-	}
-
-	/* @see app.owlcms.fieldofplay.ICountdownTimer#start() */
-	@Override
-	public void start() {
-		timerElement.callFunction("start");
-	}
-
-
-	/* (non-Javadoc)
-	 * @see app.owlcms.fieldofplay.ICountdownTimer#startTimer(app.owlcms.fieldofplay.UIEvent.StartTime)
-	 */
-	@Override
-	@Subscribe
-	public void startTimer(UIEvent.StartTime e) {
-		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
-		doStartTimer(milliseconds);
-	}
-	
-
-	/* @see app.owlcms.fieldofplay.ICountdownTimer#stop() */
-	@Override
-	public void stop() {
-		timerElement.callFunction("pause");
-	}
-
-	/* (non-Javadoc)
-	 * @see app.owlcms.fieldofplay.ICountdownTimer#startTimer(app.owlcms.fieldofplay.UIEvent.StartTime)
-	 */
-	@Override
-	@Subscribe
-	public void stopTimer(UIEvent.StopTime e) {
-		uiEventLogger.debug("<<< stop received {}", e);
-		doStopTimer();
-	}
-
-	/**
-	 * Set the remaining time when the timer element has been hidden for a long time.
-	 */
-	@ClientCallable
-	public void syncRemainingTime() {
-		logger.info("timer element fetching time");
-		OwlcmsSession.withFop(fop -> {
-			this.setTimeRemaining(fop.getTimer().getTimeRemaining());
-		});
-		return;
-	}	
-
-	@Override
-	public void timeOut(Object origin) {
-		stop();
-		setTimeRemaining(0);
-	}
-	
-	/**
-	 * Timer stopped
-	 * @param remaining Time the remaining time
-	 */
-	@ClientCallable
-	public void timeOver() {
-		logger.info("time over from client");
-		OwlcmsSession.withFop(fop -> {
-			fop.getTimer().timeOut(this);
-		});
-	}
-	
-	/**
-	 * Timer stopped
-	 *
-	 * @param remaining Time the remaining time
-	 */
-	@ClientCallable
-	public void timerStopped(double remainingTime) {
-		logger.trace("timer stopped from client" + remainingTime);
-	}
-	
-	/*** 
-	 * Client-callable functions
-	 */
-	
 	protected void init() {
 		double seconds = 0.00D;
 		TimerModel model = getModel();
@@ -270,30 +185,41 @@ public class TimerElement extends PolymerTemplate<TimerElement.TimerModel> imple
 		model.setCurrentTime(seconds);
 		model.setCountUp(false);
 		model.setRunning(false);
-		model.setInteractive(true);
-		
-		timerElement = this.getElement();
+		model.setSilent(true);
 
-//		timerElement.addPropertyChangeListener("running", "running-changed", (e) -> {
-//			logger.info(
-//				e.getPropertyName() + " changed to " + e.getValue() + " isRunning()=" + this.getModel().isRunning());
-//		});
+		setTimerElement(this.getElement());
 	}
-	
+
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		init();
 		OwlcmsSession.withFop(fop -> {
 			// sync with current status of FOP
-			setTimer(fop.getTimer().getTimeRemaining());
+			doSetTimer(fop.getAthleteTimer().getTimeRemaining());
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
-	
-	protected void setTimer(Integer milliseconds) {
-		doSetTimer(milliseconds);
+
+	protected void setTimerElement(Element timerElement) {
+		this.timerElement = timerElement;
 	}
-	
+
+	private void setTimeRemaining(int milliseconds) {
+		logger.debug("=== time remaining = {} from {} ", milliseconds, LoggerUtils.whereFrom());
+		double seconds = milliseconds / 1000.0D;
+		TimerModel model = getModel();
+		model.setCurrentTime(seconds);
+		model.setStartTime(seconds);
+	}
+
+	private void start() {
+		getTimerElement().callFunction("start");
+	}
+
+	private void stop() {
+		getTimerElement().callFunction("pause");
+	}
+
 }

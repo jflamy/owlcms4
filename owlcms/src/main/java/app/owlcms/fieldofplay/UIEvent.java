@@ -13,10 +13,9 @@ import com.vaadin.flow.component.UI;
 import app.owlcms.data.athlete.Athlete;
 
 /**
- * UIEvents are triggered in response to field of play events (FOPEvents).
- * 
- * Each field of play has an associated uiEventBus on which the user interface commands are posted.
- * The various browsers subscribe to UIEvents and react accordingly.
+ * UIEvents are triggered in response to field of play events (FOPEvents). Each field of play has an
+ * associated uiEventBus on which the user interface commands are posted. The various browsers
+ * subscribe to UIEvents and react accordingly.
  * 
  * @author owlcms
  */
@@ -70,32 +69,37 @@ public class UIEvent {
 	}
 
 	/**
+	 * Class BreakSetTime
+	 */
+	static public class BreakSetTime extends UIEvent {
+
+		private Integer timeRemaining;
+
+		public BreakSetTime(Integer timeRemaining, Object origin) {
+			super(origin);
+			this.timeRemaining = timeRemaining;
+		}
+
+		public Integer getTimeRemaining() {
+			return timeRemaining;
+		}
+	}
+
+	/**
 	 * Class BreakStarted.
 	 */
 	static public class BreakStarted extends UIEvent {
 
-		private FOPEvent.BreakStarted event;
+		private Integer timeRemaining;
 
-		/**
-		 * Instantiates a new break started.
-		 *
-		 * @param origin the origin
-		 */
-		public BreakStarted(Object origin) {
+		public BreakStarted(Integer timeRemaining, Object origin) {
 			super(origin);
+			this.timeRemaining = timeRemaining;
 		}
 
-		public BreakStarted(FOPEvent.BreakStarted e, Object origin) {
-			super(origin);
-			this.setEvent(e);
-		}
 
-		public FOPEvent.BreakStarted getEvent() {
-			return event;
-		}
-
-		public void setEvent(FOPEvent.BreakStarted event) {
-			this.event = event;
+		public Integer getTimeRemaining() {
+			return timeRemaining;
 		}
 	}
 
