@@ -222,6 +222,8 @@ public class FieldOfPlay {
 		if (e instanceof FOPEvent.BreakStarted) {
 			transitionToBreak((BreakStarted) e);
 			return;
+		} else if (e instanceof FOPEvent.StartLifting) {
+			transitionToLifting();
 		}
 
 		switch (this.getState()) {
@@ -229,9 +231,7 @@ public class FieldOfPlay {
 		case INACTIVE:
 			if (e instanceof FOPEvent.BreakStarted) {
 				transitionToBreak((BreakStarted) e);
-			} else if (e instanceof FOPEvent.StartLifting) {
-				transitionToLifting();
-			} else if (e instanceof FOPEvent.AthleteAnnounced) {
+			}  else if (e instanceof FOPEvent.AthleteAnnounced) {
 				transitionToAnnounced();
 			} else if (e instanceof FOPEvent.WeightChange) {
 				weightChange(((FOPEvent.WeightChange) e).getAthlete());
