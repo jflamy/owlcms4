@@ -211,6 +211,9 @@ public class FieldOfPlay {
 	 * 
 	 * Normally, a given user interface will issue a FOP event on our fopEventBus, this method reacts to the event by updating state, and we issue the resulting
 	 * commands on the @link uiEventBus.
+	 * 
+	 * One exception is timers: the task to stop/start/manage timers is delegated to implementers of IProxyTimer; these classes remember the time and broadcast
+	 * to all listening timers.
 	 *
 	 * @param e the event
 	 */
