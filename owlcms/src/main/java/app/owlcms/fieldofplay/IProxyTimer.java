@@ -6,30 +6,10 @@
  */
 package app.owlcms.fieldofplay;
 
-import com.google.common.eventbus.Subscribe;
-
 /**
- * The Interface ICountdownTimer.
+ * The Interface IProxyTimer.
  */
-public interface ICountdownTimer {
-	
-	@Subscribe
-	public default void startTimer(UIEvent.StartTime e) {
-		Integer milliseconds = e.getTimeRemaining();
-		if (milliseconds != null) setTimeRemaining(milliseconds);
-		start();
-	}
-
-	@Subscribe
-	public default void stopTimer(UIEvent.StopTime e) {
-		stop();
-	}
-	
-	@Subscribe
-	public default void setTimer(UIEvent.SetTime e) {
-		Integer milliseconds = e.getTimeRemaining();
-		setTimeRemaining(milliseconds);
-	}
+public interface IProxyTimer {
 		
 	/**
 	 * Start.
@@ -40,9 +20,7 @@ public interface ICountdownTimer {
 	 * Stop.
 	 */
 	public void stop();
-	public default void start(FOPEvent e) {
-		start();
-	};
+
 
 	/**
 	 * Gets the time remaining.

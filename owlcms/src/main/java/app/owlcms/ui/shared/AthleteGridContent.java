@@ -46,6 +46,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.displays.attemptboard.AthleteTimerElement;
 import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -211,8 +212,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		weight = new H2();
 		weight.setText("");
 
-		timeField = new TimerElement();
-		timeField.setTimeRemaining(0);
+		timeField = new AthleteTimerElement();
+//		timeField.setTimeRemaining(0);
 		H1 time = new H1(timeField);
 
 		HorizontalLayout buttons = announcerButtons(topBar);
@@ -245,29 +246,29 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	}
 
 
-	@Subscribe
-	public void setTime(UIEvent.SetTime e) {
-		UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
-			Integer timeRemaining = e.getTimeRemaining();
-			timeField.setTimeRemaining(timeRemaining);
-		});
-	}
-
-	@Subscribe
-	public void startTime(UIEvent.StartTime e) {
-		UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
-			Integer timeRemaining = e.getTimeRemaining();
-			timeField.setTimeRemaining(timeRemaining);
-		});
-	}
-
-	@Subscribe
-	public void stopTime(UIEvent.StopTime e) {
-		UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
-			Integer timeRemaining = e.getTimeRemaining();
-			timeField.setTimeRemaining(timeRemaining);
-		});
-	}
+//	@Subscribe
+//	public void setTime(UIEvent.SetTime e) {
+//		UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
+//			Integer timeRemaining = e.getTimeRemaining();
+//			timeField.setTimeRemaining(timeRemaining);
+//		});
+//	}
+//
+//	@Subscribe
+//	public void startTime(UIEvent.StartTime e) {
+//		UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
+//			Integer timeRemaining = e.getTimeRemaining();
+//			timeField.setTimeRemaining(timeRemaining);
+//		});
+//	}
+//
+//	@Subscribe
+//	public void stopTime(UIEvent.StopTime e) {
+//		UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
+//			Integer timeRemaining = e.getTimeRemaining();
+//			timeField.setTimeRemaining(timeRemaining);
+//		});
+//	}
 
 	@Subscribe
 	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
@@ -284,9 +285,10 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			groupSelect.setValue(fop.getGroup());
 		});
 		if (athlete != null) {
-			lastName.setText(athlete.getLastName());
+			String lastName2 = athlete.getLastName();
+			lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
 			firstName.setText(athlete.getFirstName());
-			timeField.setTimeRemaining(timeAllowed);
+//			timeField.setTimeRemaining(timeAllowed);
 			String attemptHtml = MessageFormat.format("<h2>{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.</h2>", athlete.getAttemptNumber());
 			Html newAttempt = new Html(attemptHtml);
 			topBar.replace(attempt, newAttempt);
@@ -318,7 +320,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 				groupSelect.setValue(null);
 			}
 			Athlete curAthlete = fop.getCurAthlete();
-			int timeRemaining = fop.getTimer().getTimeRemaining();
+			int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
 			doUpdateTopBar(curAthlete, timeRemaining);
 		});
 	}
@@ -360,21 +362,20 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		ThemeList themes = grid.getThemeNames();
 		themes.add("compact");
 		themes.add("row-stripes");
-		grid.setColumns("lastName", "firstName", "team", "category", "nextAttemptRequestedWeight", "attemptNumber", "startNumber");
-		grid.getColumnByKey("lastName")
-		.setHeader("Last Name");
-		grid.getColumnByKey("firstName")
-		.setHeader("First Name");
-		grid.getColumnByKey("team")
-		.setHeader("Team");
-		grid.getColumnByKey("category")
-		.setHeader("Category");
-		grid.getColumnByKey("nextAttemptRequestedWeight")
-		.setHeader("Requested Weight");
-		grid.getColumnByKey("attemptNumber")
-		.setHeader("Attempt");
-		grid.getColumnByKey("startNumber")
-		.setHeader("Start Number");
+		grid.addColumn(athlete -> athlete.getLastName().toUpperCase())
+			.setHeader("Last Name");
+		grid.addColumn("firstName")
+			.setHeader("First Name");
+		grid.addColumn("team")
+			.setHeader("Team");
+		grid.addColumn("category")
+			.setHeader("Category");
+		grid.addColumn("nextAttemptRequestedWeight")
+			.setHeader("Requested Weight");
+		grid.addColumn("attemptNumber")
+			.setHeader("Attempt");
+		grid.addColumn("startNumber")
+			.setHeader("Start Number");
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,

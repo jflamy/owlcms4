@@ -32,8 +32,8 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.AppLayoutAware;
+import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -113,11 +113,35 @@ public class GroupContent extends VerticalLayout
 		crudFormFactory.setVisibleProperties("name",
 				"weighInTime",
 				"competitionTime",
-				"platform");
+				"platform",
+				"announcer",
+				"marshall",
+				"technicalController",
+				"timeKeeper",
+				"referee1",
+				"referee2",
+				"referee3",
+				"jury1",
+				"jury2",
+				"jury3",
+				"jury4",
+				"jury5");
 		crudFormFactory.setFieldCaptions("Name",
 			"Weigh-in Time",
 			"Start Time",
-			"Platform");
+			"Platform",
+			"Announcer",
+			"Marshall",
+			"Technical Controller",
+			"Timekeeper",
+			"Referee 1",
+			"Referee 2",
+			"Referee 3",
+			"Jury 1",
+			"Jury 2",
+			"Jury 3",
+			"Jury 4",
+			"Jury 5");
 		crudFormFactory.setFieldProvider("platform",
             new ComboBoxProvider<>("Platform", PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
 		crudFormFactory.setFieldType("weighInTime", LocalDateTimeField.class);

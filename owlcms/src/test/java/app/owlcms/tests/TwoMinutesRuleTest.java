@@ -172,7 +172,7 @@ public class TwoMinutesRuleTest {
 		// but asks for more weight -- the following stops time.
 		declaration(curLifter, "65", fopBus); //$NON-NLS-1$
 		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, fopState.getState());
-		int remainingTime = fopState.getTimer()
+		int remainingTime = fopState.getAthleteTimer()
 			.getTimeRemaining();
 
 		// at this point, if schneider is called again, he should get the remaining

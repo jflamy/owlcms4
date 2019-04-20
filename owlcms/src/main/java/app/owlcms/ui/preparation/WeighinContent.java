@@ -47,8 +47,8 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.AppLayoutAware;
+import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -243,12 +243,11 @@ public class WeighinContent extends VerticalLayout
 					.from((category) -> {
 						try {
 							Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
-							String bwString = (String) bwBinding.getField().getValue();
-							if (bwString == null) {
+							Double bw = (Double) bwBinding.getField().getValue();
+							if (bw == null) {
 								// no body weight - no contradiction
 								return true;
 							}
-							Double bw = Double.parseDouble(bwString);
 							Double min = category.getMinimumWeight();
 							Double max = category.getMaximumWeight();
 							logger.debug(

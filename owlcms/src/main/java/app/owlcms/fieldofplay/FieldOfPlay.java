@@ -19,8 +19,10 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.fieldofplay.FOPEvent.BreakStarted;
 import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
+import app.owlcms.ui.group.BreakDialog.BreakType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -42,8 +44,8 @@ public class FieldOfPlay {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	{
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.DEBUG);
 	}
  
 	/**
@@ -66,16 +68,16 @@ public class FieldOfPlay {
 	private Athlete previousAthlete;
 	private boolean startTimeAutomatically;
 	private FOPState state;
-	private ICountdownTimer timer;
-	private ICountdownTimer breakTimer;
+	private IProxyTimer athleteTimer;
+	private IProxyTimer breakTimer;
+	private BreakType breakType;
 	
 	private List<Athlete> liftingOrder;
 	private List<Athlete> displayOrder;
 
-
 	/**
 	 * Instantiates a new field of play state. When using this constructor
-	 * {@link #init(List, ICountdownTimer)} must be used to provide the athletes and set the timer
+	 * {@link #init(List, IProxyTimer)} must be used to provide the athletes and set the athleteTimer
 	 *
 	 * @param group     the group (to get details such as name, and to reload athletes)
 	 * @param platform2 the platform (to get details such as name)
@@ -84,27 +86,23 @@ public class FieldOfPlay {
 		this.name = platform2.getName();
 		this.fopEventBus = new EventBus("FOP-"+name);
 		this.uiEventBus = new EventBus("UI-"+name);
-		this.timer = null;
-		this.breakTimer = new BreakRelayTimer(this);
+		this.athleteTimer = null;
+		this.breakTimer = new ProxyBreakTimer(this);
 		this.platform = platform2;
 	}
 	
 	/**
 	 * Instantiates a new field of play state.
-	 * This constructor is used for testing.
+	 * This constructor is only used for testing using mock timers.
 	 *
 	 * @param athletes the athletes
-	 * @param timer1    the timer
+	 * @param timer1    the athleteTimer
 	 */
-	public FieldOfPlay(List<Athlete> athletes, ICountdownTimer timer1, ICountdownTimer breakTimer1) {
+	public FieldOfPlay(List<Athlete> athletes, IProxyTimer timer1, IProxyTimer breakTimer1) {
 		this.name = "test";
 		this.fopEventBus = new EventBus("FOP-"+this.name);
 		this.uiEventBus = new EventBus("UI-"+this.name);
-		if (breakTimer1 instanceof BreakRelayTimer  || breakTimer1.getClass().getSimpleName().equals("MockCountdownTimer")) {
-			init(athletes, timer1, breakTimer1);
-		} else {
-			throw new RuntimeException("wrong timer setup");
-		}
+		init(athletes, timer1, breakTimer1);
 	}
 
 	/**
@@ -175,7 +173,7 @@ public class FieldOfPlay {
 		int timeAllowed;
 		if (getClockOwner() == a) {
 			// the clock was started for us. we own the clock, clock keeps running
-			timeAllowed = getTimer().getTimeRemaining();
+			timeAllowed = getAthleteTimer().getTimeRemaining();
 			logger.debug("timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
 		} else if (previousAthlete == a) {
 			if (getClockOwner() != null) {
@@ -191,10 +189,10 @@ public class FieldOfPlay {
 	}
 
 	/**
-	 * @return the server-side timer that tracks the time used
+	 * @return the server-side athleteTimer that tracks the time used
 	 */
-	public ICountdownTimer getTimer() {
-		return this.timer;
+	public IProxyTimer getAthleteTimer() {
+		return this.athleteTimer;
 	}
 
 
@@ -207,7 +205,7 @@ public class FieldOfPlay {
 
 	/**
 	 * Handle FOP event.
-	 * FOP (Field of Play) events inform us of what is happening (e.g. timer started by timekeeper, decision given by official, etc.)
+	 * FOP (Field of Play) events inform us of what is happening (e.g. athleteTimer started by timekeeper, decision given by official, etc.)
 	 * The current state determines what we do with the event.  Typically, we update the state of the field of play (e.g. time is now
 	 * running) and we issue commands to the listening user interfaces (e.g. start or stop time being displayed, show the decision, etc.)
 	 * 
@@ -222,18 +220,18 @@ public class FieldOfPlay {
 		// it is always possible to explicitly interrupt competition (break between the two lifts, technical
 		// incident, etc.)
 		if (e instanceof FOPEvent.BreakStarted) {
-			transitionToBreak(e);
+			transitionToBreak((BreakStarted) e);
 			return;
+		} else if (e instanceof FOPEvent.StartLifting) {
+			transitionToLifting();
 		}
 
 		switch (this.getState()) {
 		
 		case INACTIVE:
 			if (e instanceof FOPEvent.BreakStarted) {
-				transitionToBreak(e);
-			} else if (e instanceof FOPEvent.StartLifting) {
-				transitionToLifting();
-			} else if (e instanceof FOPEvent.AthleteAnnounced) {
+				transitionToBreak((BreakStarted) e);
+			}  else if (e instanceof FOPEvent.AthleteAnnounced) {
 				transitionToAnnounced();
 			} else if (e instanceof FOPEvent.WeightChange) {
 				weightChange(((FOPEvent.WeightChange) e).getAthlete());
@@ -250,7 +248,7 @@ public class FieldOfPlay {
 				getBreakTimer().stop();
 				getUiEventBus().post(new UIEvent.BreakPaused(e.getOrigin()));
 			} else if (e instanceof FOPEvent.BreakStarted) {
-				transitionToBreak(e);
+				transitionToBreak((BreakStarted) e);
 			} else if (e instanceof FOPEvent.AthleteAnnounced) {
 				transitionToAnnounced();
 			} else if (e instanceof FOPEvent.WeightChange) {
@@ -274,7 +272,7 @@ public class FieldOfPlay {
 				setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
 			} else if (e instanceof FOPEvent.ForceTime) {
 				// need to set time
-				getTimer().setTimeRemaining(((FOPEvent.ForceTime) e).timeAllowed);
+				getAthleteTimer().setTimeRemaining(((FOPEvent.ForceTime) e).timeAllowed);
 				setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
 			} else {
 				unexpectedEventInState(e, FOPState.CURRENT_ATHLETE_DISPLAYED);
@@ -283,7 +281,7 @@ public class FieldOfPlay {
 
 		case ANNOUNCER_WAITING_FOR_TIMEKEEPER:
 			if (e instanceof FOPEvent.TimeStartedManually) {
-				getTimer().start();
+				getAthleteTimer().start();
 				transitionToTimeRunning();
 			} else if (e instanceof FOPEvent.WeightChange) {
 				weightChange(curAthlete);
@@ -298,7 +296,7 @@ public class FieldOfPlay {
 				// remove the warnings on announcer and timekeeper
 				clearTimekeeperWarnings();
 				clearAnnouncerWarnings();
-				getTimer().start();
+				getAthleteTimer().start();
 				transitionToTimeRunning();
 			} else if (e instanceof FOPEvent.TimeStartedManually) {
 				// we are already in this state, do nothing (we could escalate)
@@ -314,19 +312,19 @@ public class FieldOfPlay {
 		case TIME_RUNNING:
 			if (e instanceof FOPEvent.DownSignal) {
 				// 2 referees have given same decision
-				getTimer().stop();
+				getAthleteTimer().stop();
 				uiShowDownSignalOnSlaveDisplays((DownSignal) e);
 				setState(FOPState.DOWN_SIGNAL_VISIBLE);
 			} else if (e instanceof FOPEvent.TimeStoppedManually) {
 				// athlete lifted the bar
-				getTimer().stop();
+				getAthleteTimer().stop();
 				setState(FOPState.TIME_STOPPED);
 			} else if (e instanceof FOPEvent.WeightChange) {
 				WeightChange wc = (FOPEvent.WeightChange)e;
 				Athlete athlete = wc.getAthlete();
 				if (athlete == curAthlete) {
 					// coach is requesting change, stop clock
-					getTimer().stop();
+					getAthleteTimer().stop();
 					weightChange(curAthlete);
 					setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
 				} else {
@@ -336,13 +334,13 @@ public class FieldOfPlay {
 				}
 			} else if (e instanceof FOPEvent.RefereeDecision) {
 				// in theory not possible, we would get down signal before.
-				getTimer().stop();
+				getAthleteTimer().stop();
 				this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
 				this.setClockOwner(null);
 				decision(e);
 			} else if (e instanceof FOPEvent.TimeOver) {
-				// timer got down to 0
-				// getTimer() signals this, nothing else required for timer
+				// athleteTimer got down to 0
+				// getTimer() signals this, nothing else required for athleteTimer
 				// rule says referees must give reds
 				setState(FOPState.TIME_STOPPED);
 			} else {
@@ -353,18 +351,18 @@ public class FieldOfPlay {
 		case TIME_STOPPED:
 			if (e instanceof FOPEvent.DownSignal) {
 				// 2 referees have given same decision
-				getTimer().stop(); // paranoia
+				getAthleteTimer().stop(); // paranoia
 				uiShowDownSignalOnSlaveDisplays((DownSignal) e);
 				setState(FOPState.DOWN_SIGNAL_VISIBLE);
 			} else if (e instanceof FOPEvent.TimeStartedManually) {
 				// timekeeper mistake, start time again
-				getTimer().start();
+				getAthleteTimer().start();
 				transitionToTimeRunning();
 			} else if (e instanceof FOPEvent.WeightChange) {
 				WeightChange wc = (FOPEvent.WeightChange)e;
 				Athlete athlete = wc.getAthlete();
 				if (athlete.equals(curAthlete)) {
-					getTimer().stop();
+					getAthleteTimer().stop();
 					// clock is already stopped, coach requesting change
 					weightChange(curAthlete);
 					setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
@@ -374,13 +372,13 @@ public class FieldOfPlay {
 					setState(FOPState.TIME_STOPPED);
 				}
 			} else if (e instanceof FOPEvent.RefereeDecision) {
-				getTimer().stop();
+				getAthleteTimer().stop();
 				this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
 				this.setClockOwner(null);
 				decision(e);
 			} else if (e instanceof FOPEvent.ForceTime) {
 				// need to set time
-				getTimer().setTimeRemaining(((FOPEvent.ForceTime) e).timeAllowed);
+				getAthleteTimer().setTimeRemaining(((FOPEvent.ForceTime) e).timeAllowed);
 				setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
 			} else {
 				unexpectedEventInState(e, FOPState.TIME_STOPPED);
@@ -391,7 +389,7 @@ public class FieldOfPlay {
 			this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
 			this.setClockOwner(null);
 			if (e instanceof FOPEvent.RefereeDecision) {
-				getTimer().stop();
+				getAthleteTimer().stop();
 				decision(e);
 			} else if (e instanceof FOPEvent.WeightChange) {
 				weightChangeDoNotDisturb(curAthlete);
@@ -423,12 +421,13 @@ public class FieldOfPlay {
 
 	public void transitionToAnnounced() {
 		getBreakTimer().stop();
-		getTimer().stop();
+		getAthleteTimer().stop();
 		announce();
 	}
 
-	public void transitionToBreak(FOPEvent e) {
-		getBreakTimer().start(e);
+	public void transitionToBreak(FOPEvent.BreakStarted e) {
+		this.setBreakType(e.getBreakType());
+		getBreakTimer().start();
 		setState(FOPState.BREAK);
 	}
 
@@ -441,8 +440,8 @@ public class FieldOfPlay {
 		uiDisplayCurrentAthleteAndTime();
 	}
 
-	public void init(List<Athlete> athletes, ICountdownTimer timer, ICountdownTimer breakTimer) {
-		this.timer = timer;
+	public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer) {
+		this.athleteTimer = timer;
 		this.breakTimer = breakTimer;
 		this.fopEventBus = getFopEventBus();
 		this.fopEventBus.register(this);
@@ -498,12 +497,12 @@ public class FieldOfPlay {
 	}
 
 	/**
-	 * Sets the timer.
+	 * Sets the athleteTimer.
 	 *
-	 * @param timer the new timer
+	 * @param athleteTimer the new athleteTimer
 	 */
-	public void setTimer(ICountdownTimer timer) {
-		this.timer = timer;
+	public void setAthleteTimer(IProxyTimer timer) {
+		this.athleteTimer = timer;
 	}
 
 
@@ -524,15 +523,15 @@ public class FieldOfPlay {
 		if (group != null) {
 			logger.info("{} loading data for group {} [{}]", this.getName(), (group != null ? group.getName() : group), LoggerUtils.whereFrom());
 			List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
-			init(findAllByGroupAndWeighIn, timer, breakTimer);
+			init(findAllByGroupAndWeighIn, athleteTimer, breakTimer);
 		} else {
-			init(new ArrayList<Athlete>(), timer, breakTimer);
+			init(new ArrayList<Athlete>(), athleteTimer, breakTimer);
 		}
 	}
 
 	private void announce() {
 		if (this.startTimeAutomatically) {
-			getTimer().start();
+			getAthleteTimer().start();
 			// time is already running
 			transitionToTimeRunning();
 		} else {
@@ -571,10 +570,11 @@ public class FieldOfPlay {
 		AthleteSorter.liftingOrder(this.liftingOrder);
 		setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
 		this.setCurAthlete(this.liftingOrder.isEmpty() ? null : this.liftingOrder.get(0));
-		getTimer().setTimeRemaining(getTimeAllowed());
-		logger.warn("recomputed lifting order curAthlete={} prevlifter={}",
+		int timeAllowed = getTimeAllowed();
+		logger.warn("recomputed lifting order curAthlete={} prevlifter={} time={}",
 			curAthlete != null ? curAthlete.getFullName() : "",
-			previousAthlete != null ? previousAthlete.getFullName() : "");
+			previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed);
+		getAthleteTimer().setTimeRemaining(timeAllowed);
 	}
 
 	private void remindAnnouncerToAnnounce() {
@@ -608,7 +608,7 @@ public class FieldOfPlay {
 	}
 
 	private void uiDisplayCurrentAthleteAndTime() {
-		Integer clock = getTimer().getTimeRemaining();
+		Integer clock = getAthleteTimer().getTimeRemaining();
 		Integer nextAttemptRequestedWeight = 0;
 		if (curAthlete != null) {
 			nextAttemptRequestedWeight = curAthlete.getNextAttemptRequestedWeight();
@@ -691,8 +691,8 @@ public class FieldOfPlay {
 		this.state = state;
 	}
 
-	public ICountdownTimer getBreakTimer() {
-//		if (!(this.breakTimer.getClass().isAssignableFrom(BreakRelayTimer.class))) throw new RuntimeException("wrong timer setup");
+	public IProxyTimer getBreakTimer() {
+//		if (!(this.breakTimer.getClass().isAssignableFrom(ProxyBreakTimer.class))) throw new RuntimeException("wrong athleteTimer setup");
 		return this.breakTimer;
 	}
 
@@ -702,6 +702,14 @@ public class FieldOfPlay {
 	public int liftsDone() {
 		// TODO how many lifts done so far in the group.
 		return 0;
+	}
+
+	public BreakType getBreakType() {
+		return breakType;
+	}
+
+	public void setBreakType(BreakType breakType) {
+		this.breakType = breakType;
 	}
 
 }
