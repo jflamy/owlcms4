@@ -105,7 +105,6 @@ public class TwoMinutesRuleTest {
 
 		FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
 		fopState.getLogger().setLevel(LoggerLevel);
-		fopState.setStartTimeAutomatically(true);
 		EventBus fopBus = fopState.getFopEventBus();
 
 		// competition start
@@ -155,7 +154,7 @@ public class TwoMinutesRuleTest {
 		assertEquals(120000, fopState.getTimeAllowed());
 		// simpson is called again with two minutes
 		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-		fopBus.post(new FOPEvent.AthleteAnnounced(null)); // this starts logical time
+		fopBus.post(new FOPEvent.TimeStarted(null)); // this starts logical time
 		assertEquals(FOPState.TIME_RUNNING, fopState.getState());
 		// but simpson now asks for more; weight change should stop clock.
 		declaration(curLifter, "67", fopBus); //$NON-NLS-1$
@@ -167,7 +166,7 @@ public class TwoMinutesRuleTest {
 		assertEquals(60000, fopState.getTimeAllowed());
 		// schneider is called
 		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
-		fopBus.post(new FOPEvent.AthleteAnnounced(null)); // this starts logical time
+		fopBus.post(new FOPEvent.TimeStarted(null)); // this starts logical time
 		assertEquals(FOPState.TIME_RUNNING, fopState.getState());
 		// but asks for more weight -- the following stops time.
 		declaration(curLifter, "65", fopBus); //$NON-NLS-1$
@@ -201,7 +200,6 @@ public class TwoMinutesRuleTest {
 		for (int i = 2; i < size; i++)
 			athletes.remove(2);
 		FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
-		fopState.setStartTimeAutomatically(true);
 		EventBus fopBus = fopState.getFopEventBus();
 
 		// competition start
@@ -313,7 +311,7 @@ public class TwoMinutesRuleTest {
 
 	private void failedLift(EventBus fopBus, Athlete curLifter) {
 		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
-		fopBus.post(new FOPEvent.AthleteAnnounced(null));
+		fopBus.post(new FOPEvent.TimeStarted(null));
 		fopBus.post(new FOPEvent.DownSignal(null));
 		fopBus.post(new FOPEvent.RefereeDecision(null, false, false, false, false));
 		logger.debug("failed lift for {}", curLifter); //$NON-NLS-1$
@@ -322,7 +320,7 @@ public class TwoMinutesRuleTest {
 
 	private void successfulLift(EventBus fopBus, Athlete curLifter) {
 		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
-		fopBus.post(new FOPEvent.AthleteAnnounced(null));
+		fopBus.post(new FOPEvent.TimeStarted(null));
 		fopBus.post(new FOPEvent.DownSignal(null));
 		fopBus.post(new FOPEvent.RefereeDecision(null, true, true, true, true));
 		logger.debug("successful lift for {}", curLifter); //$NON-NLS-1$

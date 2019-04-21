@@ -73,7 +73,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		
 		VerticalLayout intro = new VerticalLayout();
 		URLFinder urlFinder = new URLFinder();
-		addParagraph(intro, "owlcms is reachable using the following URLs: ");
+		addP(intro, "owlcms is reachable using the following URLs: ");
 		for (String url : urlFinder.getRecommended()) {
 			intro.add(new Anchor(url, url + " (recommended)"));
 		}

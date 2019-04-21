@@ -33,8 +33,8 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.attemptboard.AthleteTimerElement;
 import app.owlcms.displays.attemptboard.DecisionElement;
-import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.group.UIEventProcessor;
@@ -118,7 +118,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 
 	@Id("timer")
-	private TimerElement timer; // Flow creates it
+	private AthleteTimerElement timer; // Flow creates it
 	
 	@Id("decisions")
 	private DecisionElement decisions; // Flow creates it

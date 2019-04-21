@@ -58,12 +58,12 @@ public class TimekeeperContent extends AthleteGridContent {
 
 		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
-				.post(new FOPEvent.TimeStartedManually(this.getOrigin())));
+				.post(new FOPEvent.TimeStarted(this.getOrigin())));
 		});
 		start.getElement().setAttribute("theme", "primary");
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
-				.post(new FOPEvent.TimeStoppedManually(this.getOrigin())));
+				.post(new FOPEvent.TimeStopped(this.getOrigin())));
 		});
 		stop.getElement().setAttribute("theme", "primary");
 		Button _1min = new Button("1:00", (e) -> {

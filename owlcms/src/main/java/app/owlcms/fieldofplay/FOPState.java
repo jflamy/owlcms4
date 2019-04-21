@@ -22,12 +22,12 @@ public enum FOPState {
 	/**
 	 * announcer has announced athlete and indicated so, waiting for timekeeper to start time.
 	 */
-	ANNOUNCER_WAITING_FOR_TIMEKEEPER,
+//	ANNOUNCER_WAITING_FOR_TIMEKEEPER,
 
 	/**
 	 * timekeeper waiting for announcer to confirm she has announced.
 	 */
-	TIMEKEEPER_WAITING_FOR_ANNOUNCER,
+//	TIMEKEEPER_WAITING_FOR_ANNOUNCER,
 
 	/**
 	 * time is running. Either automatically started on announce (if using the

@@ -66,7 +66,6 @@ public class FieldOfPlay {
 	private String name;
 	private Platform platform = null;
 	private Athlete previousAthlete;
-	private boolean startTimeAutomatically;
 	private FOPState state;
 	private IProxyTimer athleteTimer;
 	private IProxyTimer breakTimer;
@@ -211,6 +210,9 @@ public class FieldOfPlay {
 	 * 
 	 * Normally, a given user interface will issue a FOP event on our fopEventBus, this method reacts to the event by updating state, and we issue the resulting
 	 * commands on the @link uiEventBus.
+	 * 
+	 * One exception is timers: the task to stop/start/manage timers is delegated to implementers of IProxyTimer; these classes remember the time and broadcast
+	 * to all listening timers.
 	 *
 	 * @param e the event
 	 */
@@ -231,8 +233,11 @@ public class FieldOfPlay {
 		case INACTIVE:
 			if (e instanceof FOPEvent.BreakStarted) {
 				transitionToBreak((BreakStarted) e);
-			}  else if (e instanceof FOPEvent.AthleteAnnounced) {
-				transitionToAnnounced();
+			} else if (e instanceof FOPEvent.TimeStarted) {
+				getAthleteTimer().start();
+				transitionToTimeRunning();
+//			} else if (e instanceof FOPEvent.AthleteAnnounced) {
+//				transitionToAnnounced();
 			} else if (e instanceof FOPEvent.WeightChange) {
 				weightChange(((FOPEvent.WeightChange) e).getAthlete());
 				setState(FOPState.INACTIVE);
@@ -249,8 +254,8 @@ public class FieldOfPlay {
 				getUiEventBus().post(new UIEvent.BreakPaused(e.getOrigin()));
 			} else if (e instanceof FOPEvent.BreakStarted) {
 				transitionToBreak((BreakStarted) e);
-			} else if (e instanceof FOPEvent.AthleteAnnounced) {
-				transitionToAnnounced();
+//			} else if (e instanceof FOPEvent.AthleteAnnounced) {
+//				transitionToAnnounced();
 			} else if (e instanceof FOPEvent.WeightChange) {
 				weightChange(curAthlete);
 				setState(FOPState.BREAK);
@@ -260,13 +265,19 @@ public class FieldOfPlay {
 			break;
 
 		case CURRENT_ATHLETE_DISPLAYED:
-			if (e instanceof FOPEvent.AthleteAnnounced) {
-				announce(); // will set next state depending on automatic or not
-			} else if (e instanceof FOPEvent.TimeStartedManually) {
-				// time was started prematurely before announcer hit "announce" button
-				warnTimekeeperPrematureStart();
-				remindAnnouncerToAnnounce();
-				setState(FOPState.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
+// Following code was for prior logic where announcer and timekeeper had both
+// to have clicked.  			
+//			if (e instanceof FOPEvent.AthleteAnnounced) {				
+//				announce(); // will set next state depending on automatic or not
+//			} else 
+			if (e instanceof FOPEvent.TimeStarted) {
+				getAthleteTimer().start();
+				transitionToTimeRunning();
+				
+//				// time was started prematurely before announcer hit "announce" button
+//				warnTimekeeperPrematureStart();
+//				remindAnnouncerToAnnounce();
+//				setState(FOPState.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
 			} else if (e instanceof FOPEvent.WeightChange) {
 				weightChange(curAthlete);
 				setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
@@ -279,35 +290,41 @@ public class FieldOfPlay {
 			}
 			break;
 
-		case ANNOUNCER_WAITING_FOR_TIMEKEEPER:
-			if (e instanceof FOPEvent.TimeStartedManually) {
-				getAthleteTimer().start();
-				transitionToTimeRunning();
-			} else if (e instanceof FOPEvent.WeightChange) {
-				weightChange(curAthlete);
-				setState(FOPState.ANNOUNCER_WAITING_FOR_TIMEKEEPER);
-			} else {
-				unexpectedEventInState(e, FOPState.ANNOUNCER_WAITING_FOR_TIMEKEEPER);
-			}
-			break;
+//		case ANNOUNCER_WAITING_FOR_TIMEKEEPER:
+// following code meant for announcer and timekeeper both required to press button.
+// will be removed.
+			
+//			if (e instanceof FOPEvent.TimeStarted) {
+//				getAthleteTimer().start();
+//				transitionToTimeRunning();
+//			} else if (e instanceof FOPEvent.WeightChange) {
+//				weightChange(curAthlete);
+//				setState(FOPState.ANNOUNCER_WAITING_FOR_TIMEKEEPER);
+//			} else {
+//				unexpectedEventInState(e, FOPState.ANNOUNCER_WAITING_FOR_TIMEKEEPER);
+//			}
+//			break;
 
-		case TIMEKEEPER_WAITING_FOR_ANNOUNCER:
-			if (e instanceof FOPEvent.AthleteAnnounced) {
-				// remove the warnings on announcer and timekeeper
-				clearTimekeeperWarnings();
-				clearAnnouncerWarnings();
-				getAthleteTimer().start();
-				transitionToTimeRunning();
-			} else if (e instanceof FOPEvent.TimeStartedManually) {
-				// we are already in this state, do nothing (we could escalate)
-				setState(FOPState.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
-			} else if (e instanceof FOPEvent.WeightChange) {
-				weightChange(curAthlete);
-				setState(FOPState.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
-			} else {
-				unexpectedEventInState(e, FOPState.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
-			}
-			break;
+//		case TIMEKEEPER_WAITING_FOR_ANNOUNCER:
+// following code meant for announcer and timekeeper both required to press button.
+// will be removed.
+			
+//			if (e instanceof FOPEvent.AthleteAnnounced) {
+//				// remove the warnings on announcer and timekeeper
+//				clearTimekeeperWarnings();
+//				clearAnnouncerWarnings();
+//				getAthleteTimer().start();
+//				transitionToTimeRunning();
+//			} else if (e instanceof FOPEvent.TimeStarted) {
+//				// we are already in this state, do nothing (we could escalate)
+//				setState(FOPState.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
+//			} else if (e instanceof FOPEvent.WeightChange) {
+//				weightChange(curAthlete);
+//				setState(FOPState.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
+//			} else {
+//				unexpectedEventInState(e, FOPState.TIMEKEEPER_WAITING_FOR_ANNOUNCER);
+//			}
+//			break;
 
 		case TIME_RUNNING:
 			if (e instanceof FOPEvent.DownSignal) {
@@ -315,7 +332,7 @@ public class FieldOfPlay {
 				getAthleteTimer().stop();
 				uiShowDownSignalOnSlaveDisplays((DownSignal) e);
 				setState(FOPState.DOWN_SIGNAL_VISIBLE);
-			} else if (e instanceof FOPEvent.TimeStoppedManually) {
+			} else if (e instanceof FOPEvent.TimeStopped) {
 				// athlete lifted the bar
 				getAthleteTimer().stop();
 				setState(FOPState.TIME_STOPPED);
@@ -354,7 +371,7 @@ public class FieldOfPlay {
 				getAthleteTimer().stop(); // paranoia
 				uiShowDownSignalOnSlaveDisplays((DownSignal) e);
 				setState(FOPState.DOWN_SIGNAL_VISIBLE);
-			} else if (e instanceof FOPEvent.TimeStartedManually) {
+			} else if (e instanceof FOPEvent.TimeStarted) {
 				// timekeeper mistake, start time again
 				getAthleteTimer().start();
 				transitionToTimeRunning();
@@ -419,19 +436,19 @@ public class FieldOfPlay {
 		}
 	}
 
-	public void transitionToAnnounced() {
-		getBreakTimer().stop();
-		getAthleteTimer().stop();
-		announce();
-	}
+//	private void transitionToAnnounced() {
+//		getBreakTimer().stop();
+//		getAthleteTimer().stop();
+//		announce();
+//	}
 
-	public void transitionToBreak(FOPEvent.BreakStarted e) {
+	private void transitionToBreak(FOPEvent.BreakStarted e) {
 		this.setBreakType(e.getBreakType());
 		getBreakTimer().start();
 		setState(FOPState.BREAK);
 	}
 
-	public void transitionToLifting() {
+	private void transitionToLifting() {
 		getBreakTimer().stop();
 		recomputeLiftingOrder();
 		// we set the state before emitting the display order
@@ -487,14 +504,14 @@ public class FieldOfPlay {
 		this.platform = platform;
 	}
 
-	/**
-	 * Sets the start time automatically.
-	 *
-	 * @param startTime the new start time automatically
-	 */
-	public void setStartTimeAutomatically(boolean startTime) {
-		this.startTimeAutomatically = startTime;
-	}
+//	/**
+//	 * Sets the start time automatically.
+//	 *
+//	 * @param startTime the new start time automatically
+//	 */
+//	public void setStartTimeAutomatically(boolean startTime) {
+//		this.startTimeAutomatically = startTime;
+//	}
 
 	/**
 	 * Sets the athleteTimer.
@@ -529,24 +546,17 @@ public class FieldOfPlay {
 		}
 	}
 
-	private void announce() {
-		if (this.startTimeAutomatically) {
-			getAthleteTimer().start();
-			// time is already running
-			transitionToTimeRunning();
-		} else {
-			remindTimekeeperToStartTime();
-			setState(FOPState.ANNOUNCER_WAITING_FOR_TIMEKEEPER);
-		}
-	}
+//	private void announce() {
+//		if (this.startTimeAutomatically) {
+//			getAthleteTimer().start();
+//			// time is already running
+//			transitionToTimeRunning();
+//		} else {
+//			remindTimekeeperToStartTime();
+//			setState(FOPState.ANNOUNCER_WAITING_FOR_TIMEKEEPER);
+//		}
+//	}
 
-	private void clearAnnouncerWarnings() {
-		// TODO clearAnnouncerWarnings
-	}
-
-	private void clearTimekeeperWarnings() {
-		// TODO clearTimekeeperWarnings
-	}
 
 	private void decision(FOPEvent e) {
 		FOPEvent.RefereeDecision decision = (FOPEvent.RefereeDecision) e;
@@ -575,14 +585,6 @@ public class FieldOfPlay {
 			curAthlete != null ? curAthlete.getFullName() : "",
 			previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed);
 		getAthleteTimer().setTimeRemaining(timeAllowed);
-	}
-
-	private void remindAnnouncerToAnnounce() {
-		// TODO remindAnnouncerToAnnounce
-	}
-
-	private void remindTimekeeperToStartTime() {
-		// TODO remindTimekeeperToStartTime
 	}
 
 	private void setClockOwner(Athlete athlete) {
@@ -655,12 +657,6 @@ public class FieldOfPlay {
 	private void unlockReferees() {
 		// TODO unlockReferees
 		uiEventLogger.debug("unlockReferees");
-	}
-
-	private void warnTimekeeperPrematureStart() {
-		// TODO warnTimekeeperPrematureStart
-		uiEventLogger.debug("warnTimekeeperPrematureStart");
-
 	}
 
 	private void weightChange(Athlete curLifter) {

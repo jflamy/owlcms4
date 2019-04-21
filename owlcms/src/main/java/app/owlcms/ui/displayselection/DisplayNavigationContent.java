@@ -40,8 +40,8 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	public DisplayNavigationContent() {
 		VerticalLayout intro = new VerticalLayout();
-		addParagraph(intro, "Use the dropdown to select the platform where the display is located.");
-		addParagraph(intro, "Use one of the buttons below to open a display.");
+		addP(intro, "Use the dropdown to select the platform where the display is located.");
+		addP(intro, "Use one of the buttons below to open a display.");
 		intro.getElement().getStyle().set("margin-bottom", "0");
 
 		Button attempt = new Button(
