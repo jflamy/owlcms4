@@ -57,7 +57,7 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
-				.post(new FOPEvent.TimeStoppedManually(this.getOrigin())));
+				.post(new FOPEvent.TimeStopped(this.getOrigin())));
 		});
 		stop.getElement().setAttribute("theme", "primary icon");
 		HorizontalLayout buttons = new HorizontalLayout(

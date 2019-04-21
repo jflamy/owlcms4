@@ -245,31 +245,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		// if groupSelect is made read-write, it needs to set groupFilter and call updateURLLocation
 	}
 
-
-//	@Subscribe
-//	public void setTime(UIEvent.SetTime e) {
-//		UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
-//			Integer timeRemaining = e.getTimeRemaining();
-//			timeField.setTimeRemaining(timeRemaining);
-//		});
-//	}
-//
-//	@Subscribe
-//	public void startTime(UIEvent.StartTime e) {
-//		UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
-//			Integer timeRemaining = e.getTimeRemaining();
-//			timeField.setTimeRemaining(timeRemaining);
-//		});
-//	}
-//
-//	@Subscribe
-//	public void stopTime(UIEvent.StopTime e) {
-//		UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
-//			Integer timeRemaining = e.getTimeRemaining();
-//			timeField.setTimeRemaining(timeRemaining);
-//		});
-//	}
-
 	@Subscribe
 	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
 		UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {

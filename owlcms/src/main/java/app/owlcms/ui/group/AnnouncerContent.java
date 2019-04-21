@@ -95,21 +95,27 @@ public class AnnouncerContent extends AthleteGridContent {
 	
 	@Override
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
-		Button announce = new Button(AvIcons.MIC.create(), (e) -> {
-			OwlcmsSession.withFop(fop -> {fop.getFopEventBus()
-				.post(new FOPEvent.AthleteAnnounced(this.getOrigin()));
-			});
-		});
-		announce.getElement().setAttribute("theme", "primary icon");
+//		Button announce = new Button(AvIcons.MIC.create(), (e) -> {
+//			OwlcmsSession.withFop(fop -> {fop.getFopEventBus()
+//				.post(new FOPEvent.AthleteAnnounced(this.getOrigin()));
+//			});
+//		});
+//		announce.getElement().setAttribute("theme", "primary icon");
+		
+		// we are on the announcer screen, so time start is understood to
+		// mean that there is no timekeeper and time starts on announce.
+		// a different event is used just to signal the difference when a timekeeper is
+		// present.
 		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {fop.getFopEventBus()
-				.post(new FOPEvent.TimeStartedManually(this.getOrigin()));
+//				.post(new FOPEvent.AthleteAnnounced(this.getOrigin()));
+				.post(new FOPEvent.TimeStarted(this.getOrigin()));
 			});
 		});
 		start.getElement().setAttribute("theme", "primary icon");
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {fop.getFopEventBus()
-				.post(new FOPEvent.TimeStoppedManually(this.getOrigin()));
+				.post(new FOPEvent.TimeStopped(this.getOrigin()));
 			});
 		});
 		stop.getElement().setAttribute("theme", "primary icon");
@@ -132,7 +138,7 @@ public class AnnouncerContent extends AthleteGridContent {
 		breakButton.getElement().setAttribute("title", "Break Timer");
 		
 		HorizontalLayout buttons = new HorizontalLayout(
-				announce,
+//				announce,
 				start,
 				stop,
 				_1min,

@@ -32,16 +32,16 @@ public class FOPEvent {
 		return origin;
 	}
 
-	/**
-	 * The Class AthleteAnnounced.
-	 */
-	static public class AthleteAnnounced extends FOPEvent {
-
-		public AthleteAnnounced(Object object) {
-			super(object);
-		}
-
-	}
+//	/**
+//	 * The Class AthleteAnnounced.
+//	 */
+//	static public class AthleteAnnounced extends FOPEvent {
+//
+//		public AthleteAnnounced(Object object) {
+//			super(object);
+//		}
+//
+//	}
 
 	/**
 	 * The Class DecisionReset.
@@ -166,9 +166,9 @@ public class FOPEvent {
 	/**
 	 * The Class StartTime.
 	 */
-	static public class TimeStartedManually extends FOPEvent {
+	static public class TimeStarted extends FOPEvent {
 
-		public TimeStartedManually(Object object) {
+		public TimeStarted(Object object) {
 			super(object);
 		}
 
@@ -177,9 +177,9 @@ public class FOPEvent {
 	/**
 	 * The Class StopTime.
 	 */
-	static public class TimeStoppedManually extends FOPEvent {
+	static public class TimeStopped extends FOPEvent {
 
-		public TimeStoppedManually(Object object) {
+		public TimeStopped(Object object) {
 			super(object);
 		}
 

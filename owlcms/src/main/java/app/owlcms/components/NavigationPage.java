@@ -41,8 +41,16 @@ public interface NavigationPage {
 		return absoluteURL;
 	}
 
-	public default Paragraph addParagraph(HasComponents intro, String text) {
-		Paragraph paragraph = new Paragraph(text);
+	/**
+	 * Create a paragraph with HTML inside.
+	 * 
+	 * @param intro
+	 * @param text
+	 * @return the formatted paragraph
+	 */
+	public default Paragraph addP(HasComponents intro, String text) {
+		Paragraph paragraph = new Paragraph();
+		paragraph.getElement().setProperty("innerHTML", text);
 		paragraph.getElement().getStyle().set("margin-bottom", "0");
 		intro.add(paragraph);
 		return paragraph;
