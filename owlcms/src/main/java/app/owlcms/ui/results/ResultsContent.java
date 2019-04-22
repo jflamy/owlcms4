@@ -51,7 +51,6 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.spreadsheet.JXLSResultSheet;
-import app.owlcms.ui.group.AthleteCardFormFactory;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
@@ -82,8 +81,8 @@ public class ResultsContent extends AthleteGridContent {
 	 * Does nothing. Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public ResultsContent() {
-		OwlcmsCrudFormFactory<Athlete> formFactory = new AthleteCardFormFactory(Athlete.class);
-		grid = createGrid(formFactory);
+		super();
+		defineFilters(grid);
 		setTopBarTitle("Group Results");
 	}
 
@@ -93,7 +92,6 @@ public class ResultsContent extends AthleteGridContent {
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		fillHW(grid, this);
 		createTopBar();
 	}
 	

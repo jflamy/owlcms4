@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -120,7 +121,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 * Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public AthleteGridContent() {
-		logger.debug("AthleteGridContent constructor");
+		logger.warn("AthleteGridContent constructor");
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
 		grid = createGrid(crudFormFactory);		
 		defineFilters(grid);
@@ -457,23 +458,23 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		AthleteRepository.delete(Athlete);
 	}
 
-	/**
-	 * Get the content of the grid.
-	 * Invoked by refreshGrid.
-	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
-	 */
-	@Override
-	public Collection<Athlete> findAll() {
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (fop != null) {
-			logger.debug("findAll {} {} {}",fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(), LoggerUtils.whereFrom());
-			return fop.getLiftingOrder();
-		} else {
-			// no field of play, no group, empty list
-			logger.debug("findAll fop==null");
-			return ImmutableList.of();
-		}
-	}
+//	/**
+//	 * Get the content of the grid.
+//	 * Invoked by refreshGrid.
+//	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
+//	 */
+//	@Override
+//	public Collection<Athlete> findAll() {
+//		FieldOfPlay fop = OwlcmsSession.getFop();
+//		if (fop != null) {
+//			logger.debug("findAll {} {} {}",fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(), LoggerUtils.whereFrom());
+//			return fop.getLiftingOrder();
+//		} else {
+//			// no field of play, no group, empty list
+//			logger.debug("findAll fop==null");
+//			return ImmutableList.of();
+//		}
+//	}
 
 	/**
 	 * @return the groupFilter
@@ -491,6 +492,31 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	@Override
 	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
 		this.routerLayout = routerLayout;
+	}
+	
+	/**
+	 * Get the content of the grid. Invoked by refreshGrid.
+	 *
+	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
+	 */
+	@Override
+	public Collection<Athlete> findAll() {
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		if (fop != null) {
+			logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+					LoggerUtils.whereFrom());
+			final String filterValue;
+			if (lastNameFilter.getValue() != null) {
+				filterValue = lastNameFilter.getValue().toLowerCase();
+			} else
+				return fop.getDisplayOrder();
+			return fop.getLiftingOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
+					.collect(Collectors.toList());
+		} else {
+			// no field of play, no group, empty list
+			logger.debug("findAll fop==null");
+			return ImmutableList.of();
+		}
 	}
 
 }

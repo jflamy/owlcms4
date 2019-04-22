@@ -7,14 +7,10 @@
 
 package app.owlcms.ui.group;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
-
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
-import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -24,11 +20,9 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -90,30 +84,7 @@ public class AnnouncerContent extends AthleteGridContent {
 		AthleteRepository.delete(Athlete);
 	}
 
-	/**
-	 * Get the content of the grid. Invoked by refreshGrid.
-	 *
-	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
-	 */
-	@Override
-	public Collection<Athlete> findAll() {
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (fop != null) {
-			logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
-					LoggerUtils.whereFrom());
-			final String filterValue;
-			if (lastNameFilter.getValue() != null) {
-				filterValue = lastNameFilter.getValue().toLowerCase();
-			} else
-				return fop.getDisplayOrder();
-			return fop.getLiftingOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
-					.collect(Collectors.toList());
-		} else {
-			// no field of play, no group, empty list
-			logger.debug("findAll fop==null");
-			return ImmutableList.of();
-		}
-	}
+
 
 	/**
 	 * The URL contains the group, contrary to other screens.
