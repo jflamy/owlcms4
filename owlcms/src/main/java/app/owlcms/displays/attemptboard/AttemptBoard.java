@@ -50,10 +50,20 @@ import ch.qos.logback.classic.Logger;
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel>
 		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
 
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	static {
+		logger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.INFO);
+	}
+
 	/**
-	 * ResultBoardModel Vaadin Flow propagates these variables to the corresponding Polymer template
-	 * JavaScript properties. When the JS properties are changed, a "propname-changed" event is
-	 * triggered. {@link Element.#addPropertyChangeListener(String, String,
+	 * AttemptBoardModel
+	 * 
+	 * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript
+	 * properties. When the JS properties are changed, a "propname-changed" event is triggered.
+	 * 
+	 * {@link Element.#addPropertyChangeListener(String, String,
 	 * com.vaadin.flow.dom.PropertyChangeListener)}
 	 */
 	public interface AttemptBoardModel extends TemplateModel {
@@ -84,13 +94,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		void setTeamName(String teamName);
 
 		void setWeight(Integer weight);
-	}
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-
-	static {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.DEBUG);
 	}
 
 	@Id("athleteTimer")
@@ -203,8 +206,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop.getState() == FOPState.INACTIVE
-				|| fop.getState() == FOPState.BREAK
-				) {
+				|| fop.getState() == FOPState.BREAK) {
 			doEmpty();
 			return;
 		}

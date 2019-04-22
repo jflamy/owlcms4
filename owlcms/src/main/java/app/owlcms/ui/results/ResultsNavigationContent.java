@@ -44,13 +44,16 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		
 		finalPackage.setEnabled(false);
 		timingStats.setEnabled(false);
-		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
-			groupResults,
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
+			groupResults
+			);
+		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
 			finalPackage,
 			timingStats
 			);
-		fillH(grid, this);
 		
+		doGroup("For each competition group", grid1, this);
+		doGroup("End of competition documents", grid2, this);
     }
 	
 	@Override

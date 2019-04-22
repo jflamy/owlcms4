@@ -130,19 +130,19 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 				.addToSection(new LeftHeaderItem(null, OwlcmsFactory.getVersion(), null), HEADER)
 				.add(home)
 				.add(new LeftNavigationItem(
-						"Prepare Competition",
+						HomeNavigationContent.PREPARE_COMPETITION,
 						new Icon("social", "group-add"),
 						PreparationNavigationContent.class))
 				.add(new LeftNavigationItem(
-						"Lifting Group",
+						HomeNavigationContent.RUN_LIFTING_GROUP,
 						new Icon("places", "fitness-center"),
 						GroupNavigationContent.class))
 				.add(new LeftNavigationItem(
-						"Setup Displays",
+						HomeNavigationContent.START_DISPLAYS,
 						new Icon("hardware", "desktop-windows"),
 						DisplayNavigationContent.class))
 				.add(new LeftNavigationItem(
-						"Competition Documents",
+						HomeNavigationContent.RESULT_DOCUMENTS,
 						new Icon("maps", "local-printshop"),
 						ResultsNavigationContent.class))
 				.addToSection(new LeftClickableItem(

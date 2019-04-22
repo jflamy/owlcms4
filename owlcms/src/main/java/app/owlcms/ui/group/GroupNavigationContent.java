@@ -45,7 +45,7 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		addP(intro, "Use the dropdown above to select the platform where you are officiating.");
 		addP(intro,
 				"The <b><i>Announcer</i></b> selects the current group for the platform.<br> " +
-				"Changing the group on the announcer page changes it for all displays and screens associated with the platform "+
+				"This changes the current group for all displays and screens associated with the platform "+
 				"(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.)");
 		addP(intro, "");
 		addP(intro, "Use the buttons below to start one of the technical official screens. The screen will open in a new tab.");
