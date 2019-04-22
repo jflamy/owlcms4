@@ -8,7 +8,7 @@ This page gives you access to a set of PDF documents that provide the necessary 
 
 ####A Quick Read
 +	If you are intimately familiar with running Web Server Software, you may skip this section.  But then again, if so, you'll probably be curious and look at the documents anyway.
-+   See the [Equipment Setup](#Equipment_Setup) section at the bottom of this page which explains how owlcms works in more detail. This will help making sense of the steps below. The document includes pretty pictures and discusses options for Equipment from the most basic to the most elaborate.
++   See the [Equipment Setup] section at the bottom of this page which explains how owlcms works in more detail. This will help making sense of the steps below. The document includes pretty pictures and discusses options for Equipment from the most basic to the most elaborate.
 
 ## Windows Installation
 +	An [Installer](https://sourceforge.net/projects/owlcms2/) for Windows can be downloaded from this [location](https://sourceforge.net/projects/owlcms2/) (use the green button from a Windows laptop).
