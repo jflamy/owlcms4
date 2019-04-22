@@ -2,7 +2,7 @@
 
 ## Chrome configuration
 
-Recent versions of Chrome no longer allow web pages to emit sounds by themselves.  In order to hear the signals from the clock and the down signal, we have to override this setting.
+Recent versions of Chrome no longer allow web pages to emit sounds by themselves.  In order to hear the signals from the clock and the down signal, you have to override this setting.
 
 - in Chrome, go to page ``chrome://flags``  and search for ``autoplay policy``  in the search bar.
   Set the parameter to ``No user gesture is required``
