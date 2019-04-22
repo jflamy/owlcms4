@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.preparation;
@@ -16,6 +16,7 @@ import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -47,25 +48,27 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.AppLayoutAware;
+import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
  * Class AthleteContent
- * 
+ *
  * Defines the toolbar and the table for editing data on athletes.
- * 
+ *
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/athletes", layout = AthletesLayout.class)
 public class AthletesContent extends VerticalLayout
-		implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
-	
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(AthletesContent.class);
-	static {logger.setLevel(Level.INFO);}
+implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
+
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthletesContent.class);
+	static {
+		logger.setLevel(Level.INFO);
+	}
 
 	private TextField lastNameFilter = new TextField();
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
@@ -79,46 +82,48 @@ public class AthletesContent extends VerticalLayout
 	 */
 	public AthletesContent() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
-		GridCrud<Athlete> crud = createGrid(crudFormFactory);		
+		GridCrud<Athlete> crud = createGrid(crudFormFactory);
 		defineFilters(crud);
-//		defineQueries(grid);
 		fillHW(crud, this);
 	}
 
-//	/**
-//	 * Define how to populate the athlete grid
-//	 * 
-//	 * @param grid
-//	 */
-//	protected void defineQueries(GridCrud<Athlete> grid) {
-//		grid.setFindAllOperation(
-//			DataProvider.fromCallbacks(
-//				query -> AthleteRepository
-//					.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
-//						ageDivisionFilter.getValue(), null, query.getOffset(), query.getLimit())
-//					.stream(),
-//				query -> AthleteRepository.countFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
-//					categoryFilter.getValue(), ageDivisionFilter.getValue(), null)));
-//	}
+	//	/**
+	//	 * Define how to populate the athlete grid.
+	//   * DO NOT USE -- WE WANT IN-MEMORY FILTERING
+	//	 *
+	//	 * @param grid
+	//	 */
+	//	protected void defineQueries(GridCrud<Athlete> grid) {
+	//		grid.setFindAllOperation(
+	//			DataProvider.fromCallbacks(
+	//				query -> AthleteRepository
+	//					.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
+	//						ageDivisionFilter.getValue(), null, query.getOffset(), query.getLimit())
+	//					.stream(),
+	//				query -> AthleteRepository.countFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
+	//					categoryFilter.getValue(), ageDivisionFilter.getValue(), null)));
+	//	}
 
 	/**
 	 * The columns of the grid
-	 * 
+	 *
 	 * @param crudFormFactory what to call to create the form for editing an athlete
 	 * @return
 	 */
 	protected GridCrud<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
+		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
 		grid.addColumn("lastName").setHeader("Last Name");
 		grid.addColumn("firstName").setHeader("First Name");
 		grid.addColumn("team").setHeader("Team");
 		grid.addColumn("yearOfBirth").setHeader("Birth");
 		grid.addColumn("ageDivision").setHeader("Age Division");
 		grid.addColumn("category").setHeader("Category");
-		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale())).setHeader("Body Weight");
+		grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
+		.setHeader("Body Weight");
 		grid.addColumn("group").setHeader("Group");
 		grid.addColumn("invited").setHeader("Invited");
-		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
+		GridCrud<Athlete> crud = new OwlcmsGridCrud<>(
+				Athlete.class,
 				new OwlcmsGridLayout(Athlete.class),
 				crudFormFactory,
 				grid);
@@ -129,7 +134,7 @@ public class AthletesContent extends VerticalLayout
 
 	/**
 	 * Define the form used to edit a given athlete.
-	 * 
+	 *
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
@@ -140,7 +145,7 @@ public class AthletesContent extends VerticalLayout
 
 	/**
 	 * The content and ordering of the editing form
-	 * 
+	 *
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
@@ -169,44 +174,52 @@ public class AthletesContent extends VerticalLayout
 			"Body Weight",
 			"Snatch Declaration",
 			"Clean&Jerk Declaration",
-			"Invited?");
+				"Invited?");
 		crudFormFactory.setFieldProvider("gender",
-            new ComboBoxProvider<>("Gender", Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
+			new ComboBoxProvider<>(
+					"Gender", Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
 		crudFormFactory.setFieldProvider("group",
-            new ComboBoxProvider<>("Group", GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
+			new ComboBoxProvider<>(
+					"Group", GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
 		crudFormFactory.setFieldProvider("category",
-            new ComboBoxProvider<>("Category", CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
+			new ComboBoxProvider<>(
+					"Category", CategoryRepository.findActive(), new TextRenderer<>(Category::getName),
+					Category::getName));
 		crudFormFactory.setFieldProvider("ageDivision",
-            new ComboBoxProvider<>("AgeDivision", Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name), AgeDivision::name));
-		
+			new ComboBoxProvider<>(
+					"AgeDivision", Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name),
+					AgeDivision::name));
+
 		crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
 		crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
 	}
 
 	/**
 	 * Create the actual form generator with all the conversions and validations required
-	 * 
+	 *
 	 * @return the actual factory with field binding and validations
 	 */
 	private OwlcmsCrudFormFactory<Athlete> createAthleteEditingFormFactory() {
 		return new OwlcmsCrudFormFactory<Athlete>(Athlete.class) {
 			/* (non-Javadoc)
-			 * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.crud.CrudOperation, java.lang.Object)
-			 */
+			 * @see
+			 * org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.
+			 * crud.CrudOperation, java.lang.Object) */
 			@Override
 			public String buildCaption(CrudOperation operation, Athlete a) {
-				if (a.getLastName() == null && a.getFirstName() == null) return null;
+				if (a.getLastName() == null && a.getFirstName() == null)
+					return null;
 				// If null, CrudLayout.showForm will build its own, for backward compatibility
 				return a.getFullId();
 			}
-			
+
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			@Override
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
 				Binder.BindingBuilder bindingBuilder = binder.forField(field);
 
 				if ("bodyWeight".equals(property)) {
-					bodyWeightValidation(bindingBuilder, ((BodyWeightField)field).isRequired());
+					bodyWeightValidation(bindingBuilder, ((BodyWeightField) field).isRequired());
 					bindingBuilder.bind(property);
 				} else if ("fullBirthDate".equals(property)) {
 					fullBirthDateValidation(bindingBuilder);
@@ -224,29 +237,32 @@ public class AthletesContent extends VerticalLayout
 				LocalDateField ldtf = (LocalDateField) bindingBuilder.getField();
 				Validator<LocalDate> fv = ldtf.formatValidation(OwlcmsSession.getLocale());
 				bindingBuilder.withValidator(fv);
-				
+
 				Validator<LocalDate> v = Validator.from(
 					ld -> {
-						if (ld == null) return true;
+						if (ld == null)
+							return true;
 						return ld.compareTo(LocalDate.now()) <= 0;
 					},
-					"Birth date cannot be in the future");
+						"Birth date cannot be in the future");
 				bindingBuilder.withValidator(v);
 			}
 
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			protected void bodyWeightValidation(Binder.BindingBuilder bindingBuilder, boolean isRequired) {
 				Validator<Double> v1 = new DoubleRangeValidator(
-						"Weight should be between 0 and 350kg", 0.0D, 350.0D);
+					"Weight should be between 0 and 350kg", 0.0D, 350.0D);
 				// check wrt body category
 				Validator<Double> v2 = Validator
-					.from((weight) -> {
-						if (!isRequired && weight == null) return true;				
-						// inconsistent selection is signaled on the category dropdown since the weight is a factual measure
-						Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
-						categoryBinding.validate(true).isError();
-						return true;
-					}, "Body Weight is outside of selected category");
+						.from((weight) -> {
+							if (!isRequired && weight == null)
+								return true;
+							// inconsistent selection is signaled on the category dropdown since the weight is a factual
+							// measure
+							Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
+							categoryBinding.validate(true).isError();
+							return true;
+						}, "Body Weight is outside of selected category");
 				bindingBuilder.withValidator(v1);
 				bindingBuilder.withValidator(v2);
 			}
@@ -255,36 +271,36 @@ public class AthletesContent extends VerticalLayout
 			protected void categoryValidation(Binder.BindingBuilder bindingBuilder) {
 				// check that category is consistent with body weight
 				Validator<Category> v = Validator
-					.from((category) -> {
-						try {
-							Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
-							Double bw = (Double) bwBinding.getField().getValue();
-							if (bw == null) {
-								// no body weight - no contradiction
-								return true;
+						.from((category) -> {
+							try {
+								Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
+								Double bw = (Double) bwBinding.getField().getValue();
+								if (bw == null)
+									// no body weight - no contradiction
+									return true;
+								Double min = category.getMinimumWeight();
+								Double max = category.getMaximumWeight();
+								if (logger.isTraceEnabled()) {
+									logger.trace(
+										"comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
+								}
+								return (bw > min && bw <= max);
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
-							Double min = category.getMinimumWeight();
-							Double max = category.getMaximumWeight();
-							if (logger.isTraceEnabled()) logger.trace(
-								"comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
-							return (bw > min && bw <= max);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-						return true;
-					},
-						"Category does not match body weight");
+							return true;
+						},
+								"Category does not match body weight");
 				bindingBuilder.withValidator(v);
 			}
 		};
 	}
 
-
 	/**
 	 * The plus button on the toolbar triggers an add
-	 * 
+	 *
 	 * This method is called when the pop-up is closed.
-	 * 
+	 *
 	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
 	 */
 	@Override
@@ -295,9 +311,9 @@ public class AthletesContent extends VerticalLayout
 
 	/**
 	 * The pencil button on the toolbar triggers an edit.
-	 * 
+	 *
 	 * This method is called when the pop-up is closed with Update
-	 * 
+	 *
 	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
 	 */
 	@Override
@@ -307,9 +323,9 @@ public class AthletesContent extends VerticalLayout
 
 	/**
 	 * The delete button on the toolbar triggers this method
-	 * 
+	 *
 	 * (or the one in the form)
-	 * 
+	 *
 	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
 	 */
 	@Override
@@ -319,7 +335,7 @@ public class AthletesContent extends VerticalLayout
 
 	/**
 	 * The refresh button on the toolbar; also called by refreshGrid when the group is changed.
-	 * 
+	 *
 	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
 	 */
 	@Override
@@ -328,10 +344,10 @@ public class AthletesContent extends VerticalLayout
 				.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
 					ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
 	}
-	
+
 	/**
 	 * The filters at the top of the grid
-	 * 
+	 *
 	 * @param grid the grid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Athlete> crud) {
@@ -342,7 +358,7 @@ public class AthletesContent extends VerticalLayout
 			crud.refreshGrid();
 		});
 		crud.getCrudLayout()
-			.addFilterComponent(lastNameFilter);
+		.addFilterComponent(lastNameFilter);
 
 		ageDivisionFilter.setPlaceholder("Age Division");
 		ageDivisionFilter.setItems(AgeDivision.findAll());
@@ -351,7 +367,7 @@ public class AthletesContent extends VerticalLayout
 			crud.refreshGrid();
 		});
 		crud.getCrudLayout()
-			.addFilterComponent(ageDivisionFilter);
+		.addFilterComponent(ageDivisionFilter);
 
 		categoryFilter.setPlaceholder("Category");
 		categoryFilter.setItems(CategoryRepository.findActive());
@@ -360,8 +376,8 @@ public class AthletesContent extends VerticalLayout
 			crud.refreshGrid();
 		});
 		crud.getCrudLayout()
-			.addFilterComponent(categoryFilter);
-		
+		.addFilterComponent(categoryFilter);
+
 		groupFilter.setPlaceholder("Group");
 		groupFilter.setItems(GroupRepository.findAll());
 		groupFilter.setItemLabelGenerator(Group::getName);
@@ -369,15 +385,15 @@ public class AthletesContent extends VerticalLayout
 			crud.refreshGrid();
 		});
 		crud.getCrudLayout()
-			.addFilterComponent(groupFilter);
-		
+		.addFilterComponent(groupFilter);
+
 		weighedInFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
 		weighedInFilter.setLabel("Weighed-in");
 		crud.getCrudLayout()
-			.addFilterComponent(weighedInFilter);
-		
+		.addFilterComponent(weighedInFilter);
+
 		Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
 		clearFilters.addClickListener(event -> {
 			lastNameFilter.clear();
@@ -387,16 +403,27 @@ public class AthletesContent extends VerticalLayout
 			weighedInFilter.clear();
 		});
 		crud.getCrudLayout()
-			.addFilterComponent(clearFilters);
+		.addFilterComponent(clearFilters);
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see app.owlcms.ui.shared.AppLayoutAware#getRouterLayout() */
 	@Override
 	public OwlcmsRouterLayout getRouterLayout() {
 		return routerLayout;
 	}
 
+	/* (non-Javadoc)
+	 * @see
+	 * app.owlcms.ui.shared.AppLayoutAware#setRouterLayout(app.owlcms.ui.shared.OwlcmsRouterLayout) */
 	@Override
 	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
 		this.routerLayout = routerLayout;
+	}
+
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		getRouterLayout().closeDrawer();
 	}
 }

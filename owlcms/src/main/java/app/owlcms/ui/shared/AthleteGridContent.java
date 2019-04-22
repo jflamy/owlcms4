@@ -33,6 +33,8 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
@@ -105,11 +107,13 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	protected ComboBox<Group> groupFilter = new ComboBox<>();
 	private String topBarTitle;
 
+	protected TextField lastNameFilter = new TextField();
+
 	/**
 	 * Bottom part content
 	 */
-	protected GridCrud<Athlete> grid;
 	private OwlcmsRouterLayout routerLayout;
+	protected GridCrud<Athlete> grid;
 	
 	/**
 	 * Instantiates a new announcer content.
@@ -117,6 +121,57 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 */
 	public AthleteGridContent() {
 		logger.debug("AthleteGridContent constructor");
+		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
+		grid = createGrid(crudFormFactory);		
+		defineFilters(grid);
+		fillHW(grid, this);
+	}
+	
+	/**
+	 * Define the form used to edit a given athlete.
+	 * 
+	 * @return the form factory that will create the actual form on demand
+	 */
+	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
+		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = createAthleteEditingFormFactory();
+		return athleteEditingFormFactory;
+	}
+	
+
+	private OwlcmsCrudFormFactory<Athlete> createAthleteEditingFormFactory() {
+		return  new AthleteCardFormFactory(Athlete.class);
+	}
+
+	/**
+	 * The filters at the top of the grid
+	 *
+	 * @param grid the grid that will be filtered.
+	 */
+	protected void defineFilters(GridCrud<Athlete> crud) {
+		lastNameFilter.setPlaceholder("Last name");
+		lastNameFilter.setClearButtonVisible(true);
+		lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+		lastNameFilter.addValueChangeListener(e -> {
+			crud.refreshGrid();
+		});
+		crud.getCrudLayout().addFilterComponent(lastNameFilter);
+		
+		groupFilter.setPlaceholder("Group");
+		groupFilter.setItems(GroupRepository.findAll());
+		groupFilter.setItemLabelGenerator(Group::getName);
+		// hide because the top bar has it
+		groupFilter.getStyle().set("display", "none");
+		// we do not set the group filter value
+		groupFilter.addValueChangeListener(e -> {
+			Group newGroup = e.getValue();
+			logger.debug("filter switching group to {}",newGroup != null ? newGroup.getName() : null);
+			OwlcmsSession.withFop((fop) -> {
+				fop.switchGroup(newGroup, this.getOrigin());
+			});
+			crud.refreshGrid();
+			updateURLLocation(locationUI, location, newGroup);
+		});
+		crud.getCrudLayout().addFilterComponent(groupFilter);
 	}
 	
 	/**
@@ -157,8 +212,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		grid = getGrid();
-		fillHW(grid, this);
 		OwlcmsSession.withFop(fop -> {
 			// create the top bar.
 			createTopBar();
@@ -192,7 +245,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		logger.debug("AthleteGridContent creating top bar");
 		topBar = getAppLayout().getAppBarElementWrapper();
 
-		
 		title = new H3();
 		title.setText(getTopBarTitle());
 		title.getStyle()
@@ -242,7 +294,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		groupSelect.setItemLabelGenerator(Group::getName);
 		groupSelect.setWidth("8rem");
 		groupSelect.setReadOnly(true);
-		// if groupSelect is made read-write, it needs to set groupFilter and call updateURLLocation
+		// if groupSelect is made read-write, it needs to set values in groupFilter and call updateURLLocation
+		// see AnnouncerContent for an example.
 	}
 
 	@Subscribe
@@ -320,6 +373,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 */
 	@Subscribe
 	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
+		logger.warn("{} {}",e.getOrigin(),LoggerUtils.whereFrom());
 		UIEventProcessor.uiAccess(grid, uiEventBus, e, () -> {
 			grid.refreshGrid();
 		});
@@ -327,11 +381,12 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 
 	/**
 	 * Gets the grid.
+	 * @param crudFormFactory 
 	 *
 	 * @return the grid grid
 	 */
-	public GridCrud<Athlete> getGrid() {
-		OwlcmsCrudFormFactory<Athlete> formFactory = new AthleteCardFormFactory(Athlete.class);
+	public GridCrud<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+		
 
 		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
 		ThemeList themes = grid.getThemeNames();
@@ -355,29 +410,13 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
 				gridLayout,
-				formFactory,
+				crudFormFactory,
 				grid) {
 			@Override
 			protected void initToolbar() {}
 			@Override
 			protected void updateButtons() {}
 		};
-
-		groupFilter.setPlaceholder("Group");
-		groupFilter.setItems(GroupRepository.findAll());
-		groupFilter.setItemLabelGenerator(Group::getName);
-		// hide because the top bar has it
-		groupFilter.getStyle().set("display", "none");
-		// we do not set the group filter value
-		groupFilter.addValueChangeListener(e -> {
-			Group newGroup = e.getValue();
-			logger.debug("filter switching group to {}",newGroup != null ? newGroup.getName() : null);
-			OwlcmsSession.withFop((fop) -> {
-				fop.switchGroup(newGroup, this.getOrigin());
-			});
-			crud.refreshGrid();
-			updateURLLocation(locationUI, location, newGroup);
-		});
 
 		crud.setCrudListener(this);
 		crud.setClickRowToUpdate(true);
@@ -443,9 +482,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		return groupFilter;
 	}
 
-	public void refresh() {
-		grid.refreshGrid();
-	}
 	
 	@Override
 	public OwlcmsRouterLayout getRouterLayout() {

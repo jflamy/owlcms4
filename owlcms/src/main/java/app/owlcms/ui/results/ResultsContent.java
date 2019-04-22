@@ -82,6 +82,8 @@ public class ResultsContent extends AthleteGridContent {
 	 * Does nothing. Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public ResultsContent() {
+		OwlcmsCrudFormFactory<Athlete> formFactory = new AthleteCardFormFactory(Athlete.class);
+		grid = createGrid(formFactory);
 		setTopBarTitle("Group Results");
 	}
 
@@ -91,7 +93,6 @@ public class ResultsContent extends AthleteGridContent {
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		grid = getGrid();
 		fillHW(grid, this);
 		createTopBar();
 	}
@@ -167,9 +168,7 @@ public class ResultsContent extends AthleteGridContent {
 	 * @return the grid grid
 	 */
 	@Override
-	public GridCrud<Athlete> getGrid() {
-		OwlcmsCrudFormFactory<Athlete> formFactory = new AthleteCardFormFactory(Athlete.class);
-
+	public GridCrud<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
 		ThemeList themes = grid.getThemeNames();
 		themes.add("compact");
@@ -200,7 +199,7 @@ public class ResultsContent extends AthleteGridContent {
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
 				gridLayout,
-				formFactory,
+				crudFormFactory,
 				grid) {
 			@Override
 			protected void initToolbar() {}
@@ -291,7 +290,6 @@ public class ResultsContent extends AthleteGridContent {
 		return groupFilter;
 	}
 
-	@Override
 	public void refresh() {
 		grid.refreshGrid();
 	}

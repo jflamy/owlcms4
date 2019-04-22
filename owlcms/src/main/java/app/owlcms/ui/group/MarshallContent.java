@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
@@ -35,24 +35,41 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);
-	static { logger.setLevel(Level.INFO); }
+	static {
+		logger.setLevel(Level.INFO);
+	}
 
-	
 	public MarshallContent() {
 		super();
 		setTopBarTitle("Marshall");
 	}
-	
+
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
-	 */
+	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object) */
 	@Override
-	protected void createTopBar() {
-		super.createTopBar();
-		// this hides the back arrow
-		getAppLayout().setMenuVisible(false);
+	public Athlete add(Athlete Athlete) {
+		AthleteRepository.save(Athlete);
+		return Athlete;
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object) */
+	@Override
+	public void delete(Athlete Athlete) {
+		AthleteRepository.delete(Athlete);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object) */
+	@Override
+	public Athlete update(Athlete Athlete) {
+		Athlete savedAthlete = AthleteRepository.save(Athlete);
+		FieldOfPlay fop = (FieldOfPlay) OwlcmsSession.getAttribute("fop");
+		fop.getFopEventBus()
+		.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
+		return savedAthlete;
+	}
+
 	@Override
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
@@ -61,43 +78,23 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 		});
 		stop.getElement().setAttribute("theme", "primary icon");
 		HorizontalLayout buttons = new HorizontalLayout(
-				stop);
+			stop);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		return buttons;
+	}
+
+	/* (non-Javadoc)
+	 * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar() */
+	@Override
+	protected void createTopBar() {
+		super.createTopBar();
+		// this hides the back arrow
+		getAppLayout().setMenuVisible(false);
 	}
 
 	@Override
 	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
 		HorizontalLayout decisions = new HorizontalLayout();
 		return decisions;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
-	 */
-	@Override
-	public Athlete add(Athlete Athlete) {
-		AthleteRepository.save(Athlete);
-		return Athlete;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-	 */
-	@Override
-	public Athlete update(Athlete Athlete) {
-		Athlete savedAthlete = AthleteRepository.save(Athlete);
-		FieldOfPlay fop = (FieldOfPlay) OwlcmsSession.getAttribute("fop");
-		fop.getFopEventBus()
-			.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
-		return savedAthlete;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
-	 */
-	@Override
-	public void delete(Athlete Athlete) {
-		AthleteRepository.delete(Athlete);
 	}
 }
