@@ -70,7 +70,9 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
+		variant = Behaviour.LEFT;
 		appLayout = super.getLayoutConfiguration(variant);
+		appLayout.closeDrawer();
 		this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
 		createTopBar(topBar);
 		appLayout.getTitleWrapper()

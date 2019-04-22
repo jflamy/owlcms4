@@ -61,11 +61,11 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-@Route(value = "preparation/athletes", layout = AthletesLayout.class)
-public class AthletesContent extends VerticalLayout
+@Route(value = "preparation/athletes", layout = RegistrationLayout.class)
+public class RegistrationContent extends VerticalLayout
 implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthletesContent.class);
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationContent.class);
 	static {
 		logger.setLevel(Level.INFO);
 	}
@@ -80,7 +80,7 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 	/**
 	 * Instantiates the athlete grid
 	 */
-	public AthletesContent() {
+	public RegistrationContent() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
 		GridCrud<Athlete> crud = createGrid(crudFormFactory);
 		defineFilters(crud);

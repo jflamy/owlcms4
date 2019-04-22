@@ -128,7 +128,7 @@ implements CrudListener<Category>, ContentWrapping, AppLayoutAware {
 	/**
 	 * Create the actual form generator with all the conversions and validations required
 	 *
-	 * {@link AthletesContent#createAthleteEditingFormFactory} for example of redefinition of bindField
+	 * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
 	 *
 	 * @return the actual factory, with the additional mechanisms to do validation
 	 */

@@ -11,8 +11,13 @@ import org.slf4j.LoggerFactory;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.components.NavigationPage;
 import app.owlcms.ui.home.HomeNavigationContent;
@@ -45,27 +50,39 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button groups = new Button("Define Groups",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(GroupContent.class));
-		Button upload = new Button("Upload Registration File",
+		
+		StreamResource href = new StreamResource("registration.xls",() -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
+		Anchor download = new Anchor(href, "");
+		Button downloadButton = new Button("Download Empty Registration Spreadsheet", new Icon(VaadinIcon.DOWNLOAD_ALT));
+		downloadButton.setWidth("93%");  // don't ask. this is a kludge.
+		download.add(downloadButton);
+		download.setWidth("100%");
+		Div downloadDiv = new Div(download);
+		downloadDiv.setWidthFull();
+		
+		Button upload = new Button("Upload Completed Registration Spreadsheet",
 				buttonClickEvent -> new UploadDialog().open());
 		Button athletes = new Button("Edit Athlete Entries",
 				buttonClickEvent -> UI.getCurrent()
-					.navigate(AthletesContent.class));
+					.navigate(RegistrationContent.class));
 		Button weighIn = new Button("Weigh-In and Start Numbers",
 			buttonClickEvent -> UI.getCurrent()
 				.navigate(WeighinContent.class));
 		
+		
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			competition,
 			categories,
-			groups);
+			groups,
+			downloadDiv,
+			upload);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
-			upload,
 			athletes);
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(
 			weighIn);
 		
 		doGroup("Pre-competition setup", grid1, this);
-		doGroup("Athlete Registration", grid2, this);
+		doGroup("Edit Athlete Entries (adjust group assignments)", grid2, this);
 		doGroup("Weigh-in (for each lifting group)", grid3, this);
 	
 	}
