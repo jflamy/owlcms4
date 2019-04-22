@@ -68,7 +68,7 @@ public class Main extends AbstractMain {
 		// read server.port parameter from -D"server.port"=9999 on java command line
 		// this is required for running on Heroku which assigns us the port at run time.
 		// default is 8080
-		Integer serverPort = Integer.getInteger("server.port", 8080);
+		Integer serverPort = Integer.getInteger("port", 8080);
 		logStart(serverPort);
 
 		// reads system property (-D on command line)

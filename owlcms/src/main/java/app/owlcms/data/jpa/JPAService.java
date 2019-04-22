@@ -45,6 +45,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -53,10 +54,23 @@ import ch.qos.logback.classic.Logger;
 public class JPAService {
 
 	protected static final Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
+	static {
+		logger.setLevel(Level.DEBUG);
+	}
 
 	protected static EntityManagerFactory factory;
 
 	private static boolean memoryMode;
+
+	private static Object schemaGeneration;
+
+	private static String dbUrl;
+
+	private static String userName;
+
+	private static String password;
+
+	private static boolean demoMode;
 
 	/**
 	 * @return true if running in memory
@@ -117,10 +131,12 @@ public class JPAService {
 	 * @return an entity manager factory
 	 */
 	private static EntityManagerFactory getFactoryFromCode(boolean memoryMode) {
+		Properties properties = processSettings(memoryMode);
+
 		PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(
 				JPAService.class.getSimpleName(),
 				entityClassNames(),
-				(memoryMode ? memoryProperties() : prodProperties()));
+				properties);
 		Map<String, Object> configuration = new HashMap<>();
 
 		factory = new EntityManagerFactoryBuilderImpl(
@@ -129,39 +145,91 @@ public class JPAService {
 		return factory;
 	}
 
-	private static Properties prodProperties() {
+	public static Properties processSettings(boolean memoryMode) throws RuntimeException {
+		Properties properties;
+		
+		// Environment variables (set by the operating system)
+		dbUrl = System.getenv("JDBC_DATABASE_URL");
+		userName = System.getenv("JDBC_DATABASE_USERNAME");
+		password = System.getenv("JDBC_DATABASE_PASSWORD");
+
+		// java System properties (-D on command line)
+		demoMode = Boolean.getBoolean("demoMode"); // data dropped and reloaded on each restart
+		memoryMode = Boolean.getBoolean("memoryMode"); // force running in memory with h2
+		schemaGeneration = demoMode ? "drop-and-create" : "update";
+
+		if (memoryMode || dbUrl == null || dbUrl.startsWith("jdbc:h2")) {
+			if (dbUrl != null && dbUrl.startsWith("jdbc:h2:mem")) {
+				memoryMode = true;
+			}
+			properties = (memoryMode ? h2MemProperties() : h2FileProperties());	
+		} else if (dbUrl != null && dbUrl.startsWith("jdbc:postgres")) {
+			memoryMode = false;
+			properties = pgProperties();
+		} else {
+			throw new RuntimeException("Unsupported database: " + dbUrl);
+		}
+		logger.debug("Database: {}, memoryMode={}, demoMode={}", properties.get(JPA_JDBC_URL), memoryMode, demoMode);
+		return properties;
+	}
+
+	private static Properties pgProperties() {
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
-		props.put(JPA_JDBC_URL, "jdbc:h2:file:~/owlcms;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
+
+		// if running on Heroku, the following three settings will come from the environment
+		props.put(JPA_JDBC_URL, dbUrl != null ? dbUrl : "jdbc:postgresql://localhost:5432/owlcms");
+		props.put(JPA_JDBC_USER, userName != null ? userName : "owlcms");
+		props.put(JPA_JDBC_PASSWORD, password != null ? password : "db_owlcms");
+
+		props.put(JPA_JDBC_DRIVER, org.postgresql.Driver.class.getName());
+		props.put(DIALECT, org.hibernate.dialect.PostgreSQL95Dialect.class.getName());
+		props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
+
+		return props;
+	}
+
+	private static Properties h2FileProperties() {
+		ImmutableMap<String, Object> vals = jpaProperties();
+		Properties props = new Properties();
+		props.putAll(vals);
+
+		props.put(JPA_JDBC_URL,
+			(dbUrl != null ? dbUrl : "jdbc:h2:file:~/owlcms") + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
+		props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
+		props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
+
 		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
-		props.put(JPA_JDBC_USER, "sa");
-		props.put(JPA_JDBC_PASSWORD, "");
+		props.put(DIALECT, H2Dialect.class.getName());
 		props.put("javax.persistence.schema-generation.database.action", "update");
+
 		return props;
 	}
 
 	/**
-	 * Test properties.
+	 * Properties for running in memory (used for tests and demos)
 	 *
 	 * @return the properties
 	 */
-	protected static Properties memoryProperties() {
+	protected static Properties h2MemProperties() {
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
+		
 		// keep the database even if all the connections have timed out
 		props.put(JPA_JDBC_URL, "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
-		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
 		props.put(JPA_JDBC_USER, "sa");
 		props.put(JPA_JDBC_PASSWORD, "");
+		
+		props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
 		props.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+		props.put(DIALECT, H2Dialect.class.getName());
 		return props;
 	}
 
 	private static ImmutableMap<String, Object> jpaProperties() {
 		ImmutableMap<String, Object> vals = new ImmutableMap.Builder<String, Object>()
-			.put(DIALECT, H2Dialect.class.getName())
 			.put(HBM2DDL_AUTO, "update")
 			.put(SHOW_SQL, false)
 			.put(QUERY_STARTUP_CHECKING, false)
@@ -178,10 +246,10 @@ public class JPAService {
 			.put("hibernate.c3p0.min_size", 5)
 			.put("hibernate.c3p0.max_size", 20)
 			.put("hibernate.c3p0.acquire_increment", 5)
-			.put("hibernate.c3p0.timeout", 84200) //FIXME very high timeout value
-			.put("hibernate.c3p0.preferredTestQuery","SELECT 1")
-			.put("hibernate.c3p0.testConnectionOnCheckout",true)
-			.put("hibernate.c3p0.idle_test_period",500)
+			.put("hibernate.c3p0.timeout", 84200) // FIXME very high timeout value
+			.put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
+			.put("hibernate.c3p0.testConnectionOnCheckout", true)
+			.put("hibernate.c3p0.idle_test_period", 500)
 			.build();
 		return vals;
 	}
@@ -189,7 +257,7 @@ public class JPAService {
 	/**
 	 * Run in transaction.
 	 *
-	 * @param <T> the generic type
+	 * @param          <T> the generic type
 	 * @param function the function
 	 * @return the t
 	 */
@@ -213,7 +281,6 @@ public class JPAService {
 			}
 		}
 	}
-
 
 	/**
 	 * Sets the in-memory mode.
