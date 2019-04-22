@@ -49,7 +49,7 @@ public class BreakDialog extends Dialog {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakDialog.class);;
 	{
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 	};
 
 	private Button breakStart = null;

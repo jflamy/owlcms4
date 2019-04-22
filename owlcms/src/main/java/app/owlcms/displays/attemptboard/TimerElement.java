@@ -117,7 +117,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 
 	private EventBus uiEventBus;

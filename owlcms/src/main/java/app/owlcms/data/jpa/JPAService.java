@@ -155,17 +155,18 @@ public class JPAService {
 
 		// java System properties (-D on command line)
 		demoMode = Boolean.getBoolean("demoMode"); // data dropped and reloaded on each restart
-		memoryMode = Boolean.getBoolean("memoryMode"); // force running in memory with h2
+		memoryMode = memoryMode || Boolean.getBoolean("memoryMode"); // force running in memory with h2
 		schemaGeneration = demoMode ? "drop-and-create" : "update";
 
-		if (memoryMode || dbUrl == null || dbUrl.startsWith("jdbc:h2")) {
-			if (dbUrl != null && dbUrl.startsWith("jdbc:h2:mem")) {
-				memoryMode = true;
-			}
-			properties = (memoryMode ? h2MemProperties() : h2FileProperties());	
-		} else if (dbUrl != null && dbUrl.startsWith("jdbc:postgres")) {
+		if (memoryMode || dbUrl == null || dbUrl.startsWith("jdbc:h2:mem")) {
+			properties = h2MemProperties();
+			memoryMode = true;
+		} else if (dbUrl != null && dbUrl.startsWith("jdbc:h2:file")) {
+			properties = h2FileProperties();
 			memoryMode = false;
+		} else if (dbUrl != null && dbUrl.startsWith("jdbc:postgres")) {
 			properties = pgProperties();
+			memoryMode = false;
 		} else {
 			throw new RuntimeException("Unsupported database: " + dbUrl);
 		}

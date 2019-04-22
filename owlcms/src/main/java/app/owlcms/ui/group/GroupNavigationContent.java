@@ -18,6 +18,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
+import app.owlcms.displays.results.ResultsBoard;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.HomeNavigationContent;
@@ -42,13 +43,10 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 	public GroupNavigationContent() {
 		logger.trace("GroupNavigationContent constructor start");
 		VerticalLayout intro = new VerticalLayout();
-		addP(intro, "Use the dropdown above to select the platform where you are officiating.");
 		addP(intro,
 				"The <b><i>Announcer</i></b> selects the current group for the platform.<br> " +
 				"This changes the current group for all displays and screens associated with the platform "+
 				"(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.)");
-		addP(intro, "");
-		addP(intro, "Use the buttons below to start one of the technical official screens. The screen will open in a new tab.");
 		intro.getElement().getStyle().set("margin-bottom", "0");
 		
 		Button announcer = new Button(
@@ -63,16 +61,29 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 				"Timekeeper",
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(TimekeeperContent.class)));
+		Button jury = new Button(
+			"Jury Display",
+			buttonClickEvent -> UI.getCurrent().getPage()
+				.executeJavaScript(getWindowOpener(ResultsBoard.class)));
 
 		
-		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
+		fillH(intro, this);
+		
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			announcer,
 			marshall,
-			timekeeper
+			timekeeper,
+			jury
 			);
+		doGroup("Technical Official Screens (select the correct platform above before clicking)", grid1, this);
+		jury.setEnabled(false);
 		
-		fillH(intro, this);
-		fillH(grid, this);
+		Button weighIn = new Button("Weigh-In and Start Numbers",
+			buttonClickEvent -> UI.getCurrent()
+				.navigate(WeighinContent.class));
+		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(
+			weighIn);
+		doGroup("Weigh-in", grid3, this);
 		logger.trace("GroupNavigationContent constructor stop");
 	}
 

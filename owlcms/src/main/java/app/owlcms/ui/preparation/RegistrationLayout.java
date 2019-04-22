@@ -32,9 +32,9 @@ import ch.qos.logback.classic.Logger;
  * Athletes Registration Layout.
  */
 @SuppressWarnings("serial")
-public class AthletesLayout extends OwlcmsRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
+public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
 	
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthletesLayout.class);
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationLayout.class);
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
 	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
 	static {

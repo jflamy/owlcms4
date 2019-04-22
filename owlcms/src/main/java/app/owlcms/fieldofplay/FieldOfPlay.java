@@ -45,7 +45,7 @@ public class FieldOfPlay {
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	{
 		logger.setLevel(Level.DEBUG);
-		uiEventLogger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
 	}
  
 	/**

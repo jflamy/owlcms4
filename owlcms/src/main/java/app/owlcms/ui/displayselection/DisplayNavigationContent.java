@@ -56,10 +56,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 				"Athlete-facing Display (Referee Devices)",
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AthleteFacingAttemptBoard.class)));
-		Button jury = new Button(
-				"Jury Display",
-				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(ResultsBoard.class)));
+
 		Button plates = new Button(
 				"Plates Display",
 				buttonClickEvent -> UI.getCurrent().getPage()
@@ -70,10 +67,8 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 			results,
 			plates);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
-			referee,
-			jury);
-
-		jury.setEnabled(false);
+			referee	
+			);
 		plates.setEnabled(false);
 
 		fillH(intro, this);

@@ -1,17 +1,9 @@
-# OWLCMS
+# OWLCMS4
 
-[Intro](index.md)
-
-[Features](Screenshots.md)
-
-[Setting-up](Setup.md)
-
-[Running a Competition](Running.md)
+[Setting-up](Installation.md)
 
 [Downloads]()
 
-+	[Installer](https://sourceforge.net/projects/owlcms2/)
-+	[Archive](https://sourceforge.net/projects/owlcms2/files)
-+	[Source Repository](https://sourceforge.net/p/owlcms2/code/ci/default/tree)
++	[Releases](https://github.com/jflamy/owlcms4/releases)
++	[Source Repository](https://https://github.com/jflamy/owlcms4)
 
-[Support](Support.md)
