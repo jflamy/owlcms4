@@ -28,7 +28,7 @@ Minimal viable product ("MVP") able to run a regular regional competition (no ju
 ### Licensing
 This is free, as-is, no warranty software.  If you want to run it as is for your own club or federation, just go ahead.
 If you wish to host the software for others or modify it, see the [License](https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt) for details. 
-The idea is that anyone who wishes to can run the software for free, so the license asks that you make full sources available for free.
+The idea is that this software and modified versions can always be run for free, so the license requires you to make full sources and instructions available for free.
 
 ### Installation and Demo
 [Ready-to-run Releases](https://github.com/jflamy/owlcms4/releases) are available at [https://github.com/jflamy/owlcms4/releases](https://github.com/jflamy/owlcms4/releases) .  Each release text includes installation notes.
@@ -49,6 +49,13 @@ The idea is that anyone who wishes to can run the software for free, so the lice
     - You can also start a Result Board.
     - If you go back to the main screen and change the group, you should see all the screens change to the new group.
 
+### Building from source
+This is a standard Maven project.  If you so wish, you can build the binaries from this source.  
+- Install Java 8 and the support for Maven and Git in your favorite development environment. Eclipse, M2E and EGit work fine.
+- Clone this repository.
+- Running ``mvn package`` inside the owlcms subdirectory should give you a working .jar and .zip in the target directory.
+
+You are welcome to make improvements and correct issues.  If you do, please clone this repository and create a pull request.  See the [License](https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt) if you distribute or host modified versions.
 
 ### Design notes:
 - Local timer and decision done using new Web standard [Web Components](https://www.webcomponents.org/introduction)

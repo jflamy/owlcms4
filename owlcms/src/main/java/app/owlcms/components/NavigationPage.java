@@ -6,14 +6,18 @@
  */
 package app.owlcms.components;
 
+import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.VaadinServletRequest;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.shared.ContentWrapping;
 
 /**
  * Utility methods for creating the texts and buttons on navigation pages.
@@ -21,7 +25,7 @@ import app.owlcms.init.OwlcmsSession;
  * @author Jean-François Lamy
  *
  */
-public interface NavigationPage {
+public interface NavigationPage extends ContentWrapping {
 
 	public default String getWindowOpener(Class<? extends Component> targetClass) {
 		FieldOfPlay fop = OwlcmsSession.getFop();
@@ -54,6 +58,14 @@ public interface NavigationPage {
 		paragraph.getElement().getStyle().set("margin-bottom", "0");
 		intro.add(paragraph);
 		return paragraph;
+	}
+	
+	public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper) {
+		VerticalLayout content1 = new VerticalLayout();
+		content1.add(new Label(label));
+		content1.getStyle().set("margin-bottom", "-2ex");
+		fillH(content1, wrapper);
+		fillH(grid1, wrapper);
 	}
 	
 	public default String buildAbsoluteURL(VaadinServletRequest request, String resourcePath) {

@@ -22,7 +22,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 
 	final private Logger breakLogger = (Logger) LoggerFactory.getLogger(ProxyBreakTimer.class);
 	{
-		breakLogger.setLevel(Level.DEBUG);
+		breakLogger.setLevel(Level.INFO);
 	}
 
 	private int timeRemaining;

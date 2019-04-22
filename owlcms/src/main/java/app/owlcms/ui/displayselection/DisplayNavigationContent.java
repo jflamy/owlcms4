@@ -65,18 +65,20 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(ResultsBoard.class)));
 
-		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			attempt,
 			results,
-			referee,
-			jury,
 			plates);
+		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
+			referee,
+			jury);
 
 		jury.setEnabled(false);
 		plates.setEnabled(false);
 
 		fillH(intro, this);
-		fillH(grid, this);
+		doGroup("Field of Play Displays", grid1, this);
+		doGroup("Refereeing Displays (can accept keyboard input from refereeing devices)", grid2, this);
 	}
 
 	@Override

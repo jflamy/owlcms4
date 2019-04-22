@@ -14,6 +14,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.NavigationPage;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -25,7 +26,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation", layout = OwlcmsRouterLayout.class)
-public class PreparationNavigationContent extends BaseNavigationContent {
+public class PreparationNavigationContent extends BaseNavigationContent implements NavigationPage {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(PreparationNavigationContent.class);
 	static { logger.setLevel(Level.INFO);}
@@ -34,6 +35,7 @@ public class PreparationNavigationContent extends BaseNavigationContent {
 	 * Instantiates a new preparation navigation content.
 	 */
 	public PreparationNavigationContent() {
+		
 		Button competition = new Button("Competition Information",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(CompetitionContent.class));
@@ -51,15 +53,21 @@ public class PreparationNavigationContent extends BaseNavigationContent {
 		Button weighIn = new Button("Weigh-In and Start Numbers",
 			buttonClickEvent -> UI.getCurrent()
 				.navigate(WeighinContent.class));
-		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
+		
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			competition,
 			categories,
-			groups,
+			groups);
+		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
 			upload,
-			athletes,
+			athletes);
+		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(
 			weighIn);
 		
-		fillH(grid, this);
+		doGroup("Pre-competition setup", grid1, this);
+		doGroup("Athlete Registration", grid2, this);
+		doGroup("Weigh-in (for each lifting group)", grid3, this);
+	
 	}
 	
 	@Override
