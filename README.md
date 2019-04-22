@@ -31,7 +31,8 @@ If you wish to host the software for others or modify it, see the [License](http
 The idea is that this software and modified versions can always be run for free, so the license requires you to make full sources and instructions available for free.
 
 ### Installation and Demo
-[Ready-to-run Releases](https://github.com/jflamy/owlcms4/releases) are available at [https://github.com/jflamy/owlcms4/releases](https://github.com/jflamy/owlcms4/releases) .  Each release text includes installation notes.
+[Ready-to-run Releases](https://github.com/jflamy/owlcms4/releases) are available at [https://github.com/jflamy/owlcms4/releases](https://github.com/jflamy/owlcms4/releases) .  
+[Installation Instructions](<https://jflamy.github.io/owlcms4/#!index.md>) are available.  Each release includes specific installation notes as required.
 
 [Live demo](https://owlcms4.herokuapp.com) of the current build is available on the Heroku cloud service.
 - Note that the cloud demo application is not pre-loaded and uses their free tier, so the first load can take a minute. This is *not* indicative of subsequent loads and is not indicative of local performance (both of which start in a few seconds).
