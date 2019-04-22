@@ -21,7 +21,6 @@ public interface AppLayoutAware {
 	public OwlcmsRouterLayout getRouterLayout();
 	
 	/**
-	 * U
 	 * @param routerLayout
 	 */
 	public void setRouterLayout(OwlcmsRouterLayout routerLayout);

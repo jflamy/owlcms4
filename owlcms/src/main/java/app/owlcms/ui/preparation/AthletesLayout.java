@@ -55,9 +55,11 @@ public class AthletesLayout extends OwlcmsRouterLayout implements SafeEventBusRe
 	 * behaviour.Behaviour) */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
+		variant = Behaviour.LEFT;
 		appLayout = super.getLayoutConfiguration(variant);
 		this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
 		createTopBar(topBar);
+		appLayout.closeDrawer();
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()

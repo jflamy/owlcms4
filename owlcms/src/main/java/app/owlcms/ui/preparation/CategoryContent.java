@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.preparation;
@@ -21,7 +21,6 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
@@ -31,24 +30,26 @@ import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
-import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.AppLayoutAware;
+import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
  * Class CategoryContent.
- * 
+ *
  * Defines the toolbar and the table for editing data on categories.
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/categories", layout = CategoryLayout.class)
 public class CategoryContent extends VerticalLayout
-		implements CrudListener<Category>, ContentWrapping, AppLayoutAware {
-	
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(CategoryContent.class);
-	static {logger.setLevel(Level.INFO);}
+implements CrudListener<Category>, ContentWrapping, AppLayoutAware {
+
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(CategoryContent.class);
+	static {
+		logger.setLevel(Level.INFO);
+	}
 
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 	private TextField nameFilter = new TextField();
@@ -62,41 +63,27 @@ public class CategoryContent extends VerticalLayout
 		OwlcmsCrudFormFactory<Category> crudFormFactory = createFormFactory();
 		GridCrud<Category> crud = createGrid(crudFormFactory);
 		defineFilters(crud);
-//		defineQueries(grid);
 		fillHW(crud, this);
 	}
-	
-//	/**
-//	 * Define how to populate the athlete grid
-//	 * 
-//	 * @param grid
-//	 */
-//	protected void defineQueries(GridCrud<Category> grid) {
-//		grid.setFindAllOperation(
-//			DataProvider.fromCallbacks(
-//				query -> CategoryRepository
-//					.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), activeFilter.getValue(), query.getOffset(), query.getLimit())
-//					.stream(),
-//				query -> CategoryRepository.countFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), activeFilter.getValue())));
-//	}
-	
+
 	/**
 	 * The columns of the grid
-	 * 
+	 *
 	 * @param crudFormFactory what to call to create the form for editing an athlete
 	 * @return
 	 */
 	protected GridCrud<Category> createGrid(OwlcmsCrudFormFactory<Category> crudFormFactory) {
-		Grid<Category> grid = new Grid<Category>(Category.class, false);
+		Grid<Category> grid = new Grid<>(Category.class, false);
 		grid.setColumns("name", "ageDivision", "gender", "minimumWeight", "maximumWeight", "active");
 		grid.getColumnByKey("name")
-			.setHeader("Name");
+		.setHeader("Name");
 		grid.getColumnByKey("ageDivision")
-			.setHeader("Age Division");
+		.setHeader("Age Division");
 		grid.getColumnByKey("gender")
-			.setHeader("Gender");
+		.setHeader("Gender");
 
-		GridCrud<Category> crud = new OwlcmsGridCrud<Category>(Category.class,
+		GridCrud<Category> crud = new OwlcmsGridCrud<>(
+				Category.class,
 				new OwlcmsGridLayout(Category.class),
 				crudFormFactory,
 				grid);
@@ -107,7 +94,7 @@ public class CategoryContent extends VerticalLayout
 
 	/**
 	 * Define the form used to edit a given category.
-	 * 
+	 *
 	 * @return the form factory that will create the actual form on demand
 	 */
 	private OwlcmsCrudFormFactory<Category> createFormFactory() {
@@ -115,10 +102,10 @@ public class CategoryContent extends VerticalLayout
 		createFormLayout(editingFormFactory);
 		return editingFormFactory;
 	}
-	
+
 	/**
 	 * The content and ordering of the editing form
-	 * 
+	 *
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<Category> crudFormFactory) {
@@ -128,29 +115,29 @@ public class CategoryContent extends VerticalLayout
 			"minimumWeight",
 			"maximumWeight",
 			"wr",
-			"active");
+				"active");
 		crudFormFactory.setFieldCaptions("Name",
 			"Age Division",
 			"Gender",
 			"Minimum Weight",
 			"Maximum Weight",
 			"World Record",
-			"Active");
+				"Active");
 	}
 
 	/**
 	 * Create the actual form generator with all the conversions and validations required
-	 * 
+	 *
 	 * {@link AthletesContent#createAthleteEditingFormFactory} for example of redefinition of bindField
-	 * 
+	 *
 	 * @return the actual factory, with the additional mechanisms to do validation
 	 */
 	private OwlcmsCrudFormFactory<Category> createCategoryEditingFormFactory() {
 		return new OwlcmsCrudFormFactory<Category>(Category.class) {
-			@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
+			@SuppressWarnings({ "unchecked", "rawtypes" })
 			@Override
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
-				Binder.BindingBuilder bindingBuilder = binder.forField(field);
+				binder.forField(field);
 				super.bindField(field, property, propertyType);
 			}
 		};
@@ -158,9 +145,9 @@ public class CategoryContent extends VerticalLayout
 
 	/**
 	 * The plus button on the toolbar triggers an add
-	 * 
+	 *
 	 * This method is called when the pop-up is closed.
-	 * 
+	 *
 	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
 	 */
 	@Override
@@ -171,9 +158,9 @@ public class CategoryContent extends VerticalLayout
 
 	/**
 	 * The pencil button on the toolbar triggers an edit.
-	 * 
+	 *
 	 * This method is called when the pop-up is closed with Update
-	 * 
+	 *
 	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
 	 */
 	@Override
@@ -183,9 +170,9 @@ public class CategoryContent extends VerticalLayout
 
 	/**
 	 * The delete button on the toolbar triggers this method
-	 * 
+	 *
 	 * (or the one in the form)
-	 * 
+	 *
 	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
 	 */
 	@Override
@@ -195,7 +182,7 @@ public class CategoryContent extends VerticalLayout
 
 	/**
 	 * The refresh button on the toolbar
-	 * 
+	 *
 	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
 	 */
 	@Override
@@ -203,10 +190,10 @@ public class CategoryContent extends VerticalLayout
 		return CategoryRepository
 				.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), activeFilter.getValue(), -1, -1);
 	}
-	
+
 	/**
 	 * The filters at the top of the grid
-	 * 
+	 *
 	 * @param grid the grid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Category> crud) {
@@ -217,7 +204,7 @@ public class CategoryContent extends VerticalLayout
 			crud.refreshGrid();
 		});
 		crud.getCrudLayout()
-			.addFilterComponent(nameFilter);
+		.addFilterComponent(nameFilter);
 
 		ageDivisionFilter.setPlaceholder("Age Division");
 		ageDivisionFilter.setItems(AgeDivision.findAll());
@@ -226,26 +213,26 @@ public class CategoryContent extends VerticalLayout
 			crud.refreshGrid();
 		});
 		crud.getCrudLayout()
-			.addFilterComponent(ageDivisionFilter);
+		.addFilterComponent(ageDivisionFilter);
 		crud.getCrudLayout()
-			.addToolbarComponent(new Label(""));
-		
+		.addToolbarComponent(new Label(""));
+
 		activeFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
 		activeFilter.setLabel("Active");
 		activeFilter.setAriaLabel("Active Categories Only");
 		crud.getCrudLayout()
-			.addFilterComponent(activeFilter);
+		.addFilterComponent(activeFilter);
 
 		Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
 		clearFilters.addClickListener(event -> {
 			ageDivisionFilter.clear();
 		});
 		crud.getCrudLayout()
-			.addFilterComponent(clearFilters);
+		.addFilterComponent(clearFilters);
 	}
-	
+
 	@Override
 	public OwlcmsRouterLayout getRouterLayout() {
 		return routerLayout;
