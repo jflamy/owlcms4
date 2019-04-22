@@ -50,6 +50,9 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button groups = new Button("Define Groups",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(GroupContent.class));
+		Button platforms = new Button("Define Fields of Play",
+			buttonClickEvent -> UI.getCurrent()
+				.navigate(GroupContent.class));
 		
 		StreamResource href = new StreamResource("registration.xls",() -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
 		Anchor download = new Anchor(href, "");
@@ -65,25 +68,29 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button athletes = new Button("Edit Athlete Entries",
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(RegistrationContent.class));
-		Button weighIn = new Button("Weigh-In and Start Numbers",
-			buttonClickEvent -> UI.getCurrent()
-				.navigate(WeighinContent.class));
+
 		
 		
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			competition,
 			categories,
 			groups,
+			platforms,
 			downloadDiv,
 			upload);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
-			athletes);
+			downloadDiv,
+			upload);
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(
-			weighIn);
+			athletes);
+
 		
+		platforms.setEnabled(false);
 		doGroup("Pre-competition setup", grid1, this);
-		doGroup("Edit Athlete Entries (adjust group assignments)", grid2, this);
-		doGroup("Weigh-in (for each lifting group)", grid3, this);
+		doGroup("Registration", grid2, this);
+		doGroup("Edit Athlete Entries (adjust group assignments)", grid3, this);
+		
+
 	
 	}
 	
