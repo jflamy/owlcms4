@@ -178,6 +178,24 @@ public class Athlete {
 			return 0;
 		}
 	}
+	
+	/**
+	 * Zero if invalid.
+	 *
+	 * @param value the value
+	 * @return the int
+	 */
+	public static int throwIfInvalid(String value) throws RuleViolationException {
+		try {
+			Integer valueOf = Integer.valueOf(value);
+			logger.warn("parsed value {}",valueOf);
+			return valueOf;
+		} catch (NumberFormatException nfe) {
+			logger.error("cannot parse {}",value);
+			throw new RuleViolationException(nfe.getLocalizedMessage());
+		}
+	}
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
@@ -3277,6 +3295,11 @@ public class Athlete {
 			false);
 		return true;
 	}
+	
+	public boolean validateCleanJerk1Declaration(String cleanJerk1Declaration) throws RuleViolationException {
+		// always true
+		return true;
+	}
 
 	public boolean validateCleanJerk2ActualLift(String cleanJerk2ActualLift) throws RuleViolationException {
 		try {
@@ -3314,6 +3337,17 @@ public class Athlete {
 		return true;
 	}
 
+	public boolean validateCleanJerk2Declaration(String cleanJerk2Declaration) throws RuleViolationException {
+		validateDeclaration(2,
+			getCleanJerk2AutomaticProgression(),
+			cleanJerk2Declaration,
+			cleanJerk2Change1,
+			cleanJerk2Declaration,
+			cleanJerk2ActualLift,
+			false);
+		return true;
+	}
+	
 	public boolean validateCleanJerk3ActualLift(String cleanJerk3ActualLift) throws RuleViolationException {
 		validateActualLift(3,
 			getCleanJerk3AutomaticProgression(),
@@ -3342,6 +3376,17 @@ public class Athlete {
 			cleanJerk3Declaration,
 			cleanJerk3Change1,
 			cleanJerk3Change2,
+			cleanJerk3ActualLift,
+			false);
+		return true;
+	}
+	
+	public boolean validateCleanJerk3Declaration(String cleanJerk3Declaration) throws RuleViolationException {
+		validateDeclaration(3,
+			getCleanJerk3AutomaticProgression(),
+			cleanJerk3Declaration,
+			cleanJerk3Change1,
+			cleanJerk3Declaration,
 			cleanJerk3ActualLift,
 			false);
 		return true;
@@ -3376,6 +3421,11 @@ public class Athlete {
 			snatch1Change2,
 			snatch1ActualLift,
 			true);
+		return true;
+	}
+	
+	public boolean validateSnatch1Declaration(String snatch1Declaration) throws RuleViolationException {
+		// always true
 		return true;
 	}
 
@@ -3415,6 +3465,17 @@ public class Athlete {
 		return true;
 	}
 
+	public boolean validateSnatch2Declaration(String snatch2Declaration) throws RuleViolationException {
+		validateDeclaration(2,
+			getSnatch2AutomaticProgression(),
+			snatch2Declaration,
+			snatch2Change1,
+			snatch2Change2,
+			snatch2ActualLift,
+			true);
+		return true;
+	}
+	
 	public boolean validateSnatch3ActualLift(String snatch3ActualLift) throws RuleViolationException {
 		validateActualLift(3,
 			getSnatch3AutomaticProgression(),
@@ -3446,6 +3507,18 @@ public class Athlete {
 			true);
 		return true;
 	}
+	
+	public boolean validateSnatch3Declaration(String snatch3Declaration) throws RuleViolationException {
+		validateDeclaration(3,
+			getSnatch3AutomaticProgression(),
+			snatch3Declaration,
+			snatch3Change1,
+			snatch3Declaration,
+			snatch3ActualLift,
+			true);
+		return true;
+	}
+
 
 	/**
 	 * Withdraw.
@@ -3640,7 +3713,7 @@ public class Athlete {
 		if (change1 == null || change1.trim()
 			.length() == 0)
 			return; // allow reset of field.
-		int newVal = zeroIfInvalid(change1);
+		int newVal = throwIfInvalid(change1);
 		int prevVal = zeroIfInvalid(automaticProgression);
 		if (newVal < prevVal)
 			throw RuleViolation.declaredChangesNotOk(curLift, newVal, prevVal);
@@ -3656,7 +3729,7 @@ public class Athlete {
 		if (change2 == null || change2.trim()
 			.length() == 0)
 			return; // allow reset of field.
-		int newVal = zeroIfInvalid(change2);
+		int newVal = throwIfInvalid(change2);
 		int prevVal = zeroIfInvalid(automaticProgression);
 		if (newVal < prevVal)
 			throw RuleViolation.declaredChangesNotOk(curLift, newVal, prevVal);
@@ -3671,7 +3744,7 @@ public class Athlete {
 		if (declaration == null || declaration.trim()
 			.length() == 0)
 			return; // allow reset of field.
-		int newVal = zeroIfInvalid(declaration);
+		int newVal = throwIfInvalid(declaration);
 		int iAutomaticProgression = zeroIfInvalid(automaticProgression);
 		// allow null declaration for reloading old results.
 		if (iAutomaticProgression > 0 && newVal < iAutomaticProgression)
