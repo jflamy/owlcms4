@@ -79,7 +79,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	 */
 	TextField[][] textfields = new TextField[ACTUAL][CJ3];
 
-	private Athlete workingCopy;
+	private Athlete editedAthlete;
 
 	public AthleteCardFormFactory(Class<Athlete> domainType) {
 		super(domainType);
@@ -89,24 +89,20 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	 * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.crud.CrudOperation, java.lang.Object)
 	 */
 	@Override
-	public String buildCaption(CrudOperation operation, Athlete a) {
+	public String buildCaption(CrudOperation operation, Athlete aFromDb) {
 		logger.debug("calling Athlete caption");
 		// If null, CrudLayout.showForm will build its own, for backward compatibility
-		return a.getFullId();
+		return aFromDb.getFullId();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * app.owlcms.components.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.
+	/* (non-Javadoc)
+	 * @see app.owlcms.components.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.
 	 * crudui.crud.CrudOperation, java.lang.Object, boolean,
 	 * com.vaadin.flow.component.ComponentEventListener,
 	 * com.vaadin.flow.component.ComponentEventListener,
-	 * com.vaadin.flow.component.ComponentEventListener)
-	 */
+	 * com.vaadin.flow.component.ComponentEventListener) */
 	@Override
-	public Component buildNewForm(CrudOperation operation, Athlete a, boolean readOnly,
+	public Component buildNewForm(CrudOperation operation, Athlete aFromDb, boolean readOnly,
 			ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
@@ -119,12 +115,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		GridLayout gridLayout = setupGrid();
 		errorLabel = new Label();
 		errorLabel.addClassName("errorMessage");
-		bindGridFields(operation, a, gridLayout);
+		
+		// We use a copy so that if the user cancels, we still have the original object.
+		// This allows us to use cleaner validation methods coded in the Athlete class as opposed to 
+		// tedious validations on the form fields using getValue().
+		editedAthlete = copyAthlete(aFromDb);
+		bindGridFields(operation, gridLayout);
 
 		Component footerLayout = this
-			.buildFooter(operation, a, cancelButtonClickListener, updateButtonClickListener, deleteButtonClickListener);
+			.buildFooter(operation, editedAthlete, cancelButtonClickListener, updateButtonClickListener, deleteButtonClickListener);
 
-		com.vaadin.flow.component.orderedlayout.VerticalLayout mainLayout = new VerticalLayout(formLayout,
+		com.vaadin.flow.component.orderedlayout.VerticalLayout mainLayout = new VerticalLayout(
+				formLayout,
 				gridLayout,
 				errorLabel,
 				footerLayout);
@@ -152,213 +154,212 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		return tf;
 	}
 	
-	
-	protected void bindGridFields(CrudOperation operation, Athlete athlete, GridLayout gridLayout) {
-		// We use a copy so that if the user cancels, we still have the original object.
-		// This allows us to use cleaner validation methods coded in the Athlete class as opposed to 
-		// tedious validations on the form fields using getValue().
-		Athlete a = copyAthlete(athlete);
-		binder = buildBinder(operation, a);
-
-		snatch2AutomaticProgression = new TextField();
-		snatch2AutomaticProgression.setReadOnly(true);
-		binder.forField(snatch2AutomaticProgression)
-			.bind(Athlete::getSnatch2AutomaticProgression, Athlete::setSnatch2AutomaticProgression);
-		atRowAndColumn(gridLayout, snatch2AutomaticProgression, AUTOMATIC, SNATCH2);
-		
-		snatch3AutomaticProgression = new TextField();
-		snatch3AutomaticProgression.setReadOnly(true);
-		binder.forField(snatch3AutomaticProgression)
-			.bind(Athlete::getSnatch3AutomaticProgression, Athlete::setSnatch3AutomaticProgression);
-		atRowAndColumn(gridLayout, snatch3AutomaticProgression, AUTOMATIC, SNATCH3);
+	protected void bindGridFields(CrudOperation operation, GridLayout gridLayout) {
+		binder = buildBinder(operation, editedAthlete);
 
 		TextField snatch1Declaration  = createPositiveWeightField();
 		binder.forField(snatch1Declaration)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch1Declaration(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch1Declaration(v)))
 			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch1Declaration, Athlete::setSnatch1Declaration);
 		atRowAndColumn(gridLayout, snatch1Declaration, DECLARATION, SNATCH1);
 		
-		TextField snatch2Declaration = createPositiveWeightField();
-		binder.forField(snatch2Declaration)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch2Declaration(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
-			.bind(Athlete::getSnatch2Declaration, Athlete::setSnatch2Declaration);
-		atRowAndColumn(gridLayout, snatch2Declaration, DECLARATION, SNATCH2);
-		
-		TextField snatch3Declaration = createPositiveWeightField();
-		binder.forField(snatch3Declaration)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch3Declaration(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
-			.bind(Athlete::getSnatch3Declaration, Athlete::setSnatch3Declaration);
-		atRowAndColumn(gridLayout, snatch3Declaration, DECLARATION, SNATCH3);
-
 		TextField snatch1Change1 = createPositiveWeightField();
 		binder.forField(snatch1Change1)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch1Change1(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch1Change1(v)))
 			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch1Change1, Athlete::setSnatch1Change1);
 		atRowAndColumn(gridLayout, snatch1Change1, CHANGE1, SNATCH1);
 		
-		TextField snatch2Change1 = createPositiveWeightField();
-		binder.forField(snatch2Change1)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch2Change1(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
-			.bind(Athlete::getSnatch2Change1, Athlete::setSnatch2Change1);
-		atRowAndColumn(gridLayout, snatch2Change1, CHANGE1, SNATCH2);
-		
-		TextField snatch3Change1 = createPositiveWeightField();
-		binder.forField(snatch3Change1)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch3Change1(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
-			.bind(Athlete::getSnatch3Change1, Athlete::setSnatch3Change1);
-		atRowAndColumn(gridLayout, snatch3Change1, CHANGE1, SNATCH3);
-
 		TextField snatch1Change2 = createPositiveWeightField();
 		binder.forField(snatch1Change2)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch1Change2(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch1Change2(v)))
 			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch1Change2, Athlete::setSnatch1Change2);
 		atRowAndColumn(gridLayout, snatch1Change2, CHANGE2, SNATCH1);
 		
-		TextField snatch2Change2 = createPositiveWeightField();
-		binder.forField(snatch2Change2)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch2Change2(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
-			.bind(Athlete::getSnatch2Change2, Athlete::setSnatch2Change2);
-		atRowAndColumn(gridLayout, snatch2Change2, CHANGE2, SNATCH2);
-		
-		TextField snatch3Change2 = createPositiveWeightField();
-		binder.forField(snatch3Change2)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch3Change2(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
-			.bind(Athlete::getSnatch3Change2, Athlete::setSnatch3Change2);
-		atRowAndColumn(gridLayout, snatch3Change2, CHANGE2, SNATCH3);
-
 		snatch1ActualLift = createActualWeightField();
 		binder.forField(snatch1ActualLift)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch1ActualLift(v)))
-			.withValidator(ValidationUtils.checkUsing(v -> setAutomaticProgressions(a)))
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch1ActualLift(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> setAutomaticProgressions(editedAthlete)))
 			.withValidationStatusHandler(status -> setActualLiftStyle(status))
 			.bind(Athlete::getSnatch1ActualLift, Athlete::setSnatch1ActualLift);
 		atRowAndColumn(gridLayout, snatch1ActualLift, ACTUAL, SNATCH1);
 		
+		snatch2AutomaticProgression = new TextField();
+		snatch2AutomaticProgression.setReadOnly(true);
+		snatch2AutomaticProgression.setTabIndex(-1);
+		binder.forField(snatch2AutomaticProgression)
+			.bind(Athlete::getSnatch2AutomaticProgression, Athlete::setSnatch2AutomaticProgression);
+		atRowAndColumn(gridLayout, snatch2AutomaticProgression, AUTOMATIC, SNATCH2);
+		
+		TextField snatch2Declaration = createPositiveWeightField();
+		binder.forField(snatch2Declaration)
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch2Declaration(v)))
+			.withValidationStatusHandler(status -> setErrorLabel(status))
+			.bind(Athlete::getSnatch2Declaration, Athlete::setSnatch2Declaration);
+		atRowAndColumn(gridLayout, snatch2Declaration, DECLARATION, SNATCH2);
+		
+		TextField snatch2Change1 = createPositiveWeightField();
+		binder.forField(snatch2Change1)
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch2Change1(v)))
+			.withValidationStatusHandler(status -> setErrorLabel(status))
+			.bind(Athlete::getSnatch2Change1, Athlete::setSnatch2Change1);
+		atRowAndColumn(gridLayout, snatch2Change1, CHANGE1, SNATCH2);	
+		
+		TextField snatch2Change2 = createPositiveWeightField();
+		binder.forField(snatch2Change2)
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch2Change2(v)))
+			.withValidationStatusHandler(status -> setErrorLabel(status))
+			.bind(Athlete::getSnatch2Change2, Athlete::setSnatch2Change2);
+		atRowAndColumn(gridLayout, snatch2Change2, CHANGE2, SNATCH2);
+		
 		snatch2ActualLift = createActualWeightField();
 		binder.forField(snatch2ActualLift)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch2ActualLift(v)))
-			.withValidator(ValidationUtils.checkUsing(v -> setAutomaticProgressions(a)))
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch2ActualLift(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> setAutomaticProgressions(editedAthlete)))
 			.withValidationStatusHandler(status -> setActualLiftStyle(status))
 			.bind(Athlete::getSnatch2ActualLift, Athlete::setSnatch2ActualLift);
 		atRowAndColumn(gridLayout, snatch2ActualLift, ACTUAL, SNATCH2);
 		
+		snatch3AutomaticProgression = new TextField();
+		snatch3AutomaticProgression.setReadOnly(true);
+		snatch3AutomaticProgression.setTabIndex(-1);
+		binder.forField(snatch3AutomaticProgression)
+			.bind(Athlete::getSnatch3AutomaticProgression, Athlete::setSnatch3AutomaticProgression);
+		atRowAndColumn(gridLayout, snatch3AutomaticProgression, AUTOMATIC, SNATCH3);
+		
+		TextField snatch3Declaration = createPositiveWeightField();
+		binder.forField(snatch3Declaration)
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch3Declaration(v)))
+			.withValidationStatusHandler(status -> setErrorLabel(status))
+			.bind(Athlete::getSnatch3Declaration, Athlete::setSnatch3Declaration);
+		atRowAndColumn(gridLayout, snatch3Declaration, DECLARATION, SNATCH3);
+		
+		TextField snatch3Change1 = createPositiveWeightField();
+		binder.forField(snatch3Change1)
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch3Change1(v)))
+			.withValidationStatusHandler(status -> setErrorLabel(status))
+			.bind(Athlete::getSnatch3Change1, Athlete::setSnatch3Change1);
+		atRowAndColumn(gridLayout, snatch3Change1, CHANGE1, SNATCH3);
+
+		TextField snatch3Change2 = createPositiveWeightField();
+		binder.forField(snatch3Change2)
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch3Change2(v)))
+			.withValidationStatusHandler(status -> setErrorLabel(status))
+			.bind(Athlete::getSnatch3Change2, Athlete::setSnatch3Change2);
+		atRowAndColumn(gridLayout, snatch3Change2, CHANGE2, SNATCH3);
+		
 		snatch3ActualLift = createActualWeightField();
 		binder.forField(snatch3ActualLift)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch3ActualLift(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch3ActualLift(v)))
 			.withValidationStatusHandler(status -> setActualLiftStyle(status))
 			.bind(Athlete::getSnatch3ActualLift, Athlete::setSnatch3ActualLift);
 		atRowAndColumn(gridLayout, snatch3ActualLift, ACTUAL, SNATCH3);
 		
-		cj2AutomaticProgression = new TextField();
-		cj2AutomaticProgression.setReadOnly(true);
-		binder.forField(cj2AutomaticProgression)
-			.bind(Athlete::getCleanJerk2AutomaticProgression, Athlete::setCleanJerk2AutomaticProgression);
-		atRowAndColumn(gridLayout, cj2AutomaticProgression, AUTOMATIC, CJ2);
-		
-		cj3AutomaticProgression = new TextField();
-		cj3AutomaticProgression.setReadOnly(true);
-		binder.forField(cj3AutomaticProgression)
-			.bind(Athlete::getCleanJerk3AutomaticProgression, Athlete::setCleanJerk3AutomaticProgression);
-		atRowAndColumn(gridLayout, cj3AutomaticProgression, AUTOMATIC, CJ3);
-
 		TextField cj1Declaration = createPositiveWeightField();
 		binder.forField(cj1Declaration)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk1Declaration(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk1Declaration(v)))
 			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk1Declaration, Athlete::setCleanJerk1Declaration);
 		atRowAndColumn(gridLayout, cj1Declaration, DECLARATION, CJ1);
 		
-		TextField cj2Declaration = createPositiveWeightField();
-		binder.forField(cj2Declaration)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk2Declaration(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
-			.bind(Athlete::getCleanJerk2Declaration, Athlete::setCleanJerk2Declaration);
-		atRowAndColumn(gridLayout, cj2Declaration, DECLARATION, CJ2);
-		
-		TextField cj3Declaration = createPositiveWeightField();
-		binder.forField(cj3Declaration)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk3Declaration(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
-			.bind(Athlete::getCleanJerk3Declaration, Athlete::setCleanJerk3Declaration);
-		atRowAndColumn(gridLayout, cj3Declaration, DECLARATION, CJ3);
-
 		TextField cj1Change1 = createPositiveWeightField();
 		binder.forField(cj1Change1)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk1Change1(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk1Change1(v)))
 			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk1Change1, Athlete::setCleanJerk1Change1);
 		atRowAndColumn(gridLayout, cj1Change1, CHANGE1, CJ1);
 		
-		TextField cj2Change1 = createPositiveWeightField();
-		binder.forField(cj2Change1)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk2Change1(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
-			.bind(Athlete::getCleanJerk2Change1, Athlete::setCleanJerk2Change1);
-		atRowAndColumn(gridLayout, cj2Change1, CHANGE1, CJ2);
-		
-		TextField cj3Change1 = createPositiveWeightField();
-		binder.forField(cj3Change1)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk3Change1(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
-			.bind(Athlete::getCleanJerk3Change1, Athlete::setCleanJerk3Change1);
-		atRowAndColumn(gridLayout, cj3Change1, CHANGE1, CJ3);
-
 		TextField cj1Change2 = createPositiveWeightField();
 		binder.forField(cj1Change2)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk1Change2(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk1Change2(v)))
 			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk1Change2, Athlete::setCleanJerk1Change2);
 		atRowAndColumn(gridLayout, cj1Change2, CHANGE2, CJ1);
 		
+		cj1ActualLift = createActualWeightField();
+		binder.forField(cj1ActualLift)
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk1ActualLift(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> setAutomaticProgressions(editedAthlete)))
+			.withValidationStatusHandler(status -> setActualLiftStyle(status))
+			.bind(Athlete::getCleanJerk1ActualLift, Athlete::setCleanJerk1ActualLift);
+		atRowAndColumn(gridLayout, cj1ActualLift, ACTUAL, CJ1);
+
+		cj2AutomaticProgression = new TextField();
+		cj2AutomaticProgression.setReadOnly(true);
+		cj2AutomaticProgression.setTabIndex(-1);
+		binder.forField(cj2AutomaticProgression)
+			.bind(Athlete::getCleanJerk2AutomaticProgression, Athlete::setCleanJerk2AutomaticProgression);
+		atRowAndColumn(gridLayout, cj2AutomaticProgression, AUTOMATIC, CJ2);
+		
+		TextField cj2Declaration = createPositiveWeightField();
+		binder.forField(cj2Declaration)
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk2Declaration(v)))
+			.withValidationStatusHandler(status -> setErrorLabel(status))
+			.bind(Athlete::getCleanJerk2Declaration, Athlete::setCleanJerk2Declaration);
+		atRowAndColumn(gridLayout, cj2Declaration, DECLARATION, CJ2);
+		
+		TextField cj2Change1 = createPositiveWeightField();
+		binder.forField(cj2Change1)
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk2Change1(v)))
+			.withValidationStatusHandler(status -> setErrorLabel(status))
+			.bind(Athlete::getCleanJerk2Change1, Athlete::setCleanJerk2Change1);
+		atRowAndColumn(gridLayout, cj2Change1, CHANGE1, CJ2);
+		
 		TextField cj2Change2 = createPositiveWeightField();
 		binder.forField(cj2Change2)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk2Change2(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk2Change2(v)))
 			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk2Change2, Athlete::setCleanJerk2Change2);
 		atRowAndColumn(gridLayout, cj2Change2, CHANGE2, CJ2);
 		
-		TextField cj3Change2 = createPositiveWeightField();
-		binder.forField(cj3Change2)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk3Change2(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
-			.bind(Athlete::getCleanJerk3Change2, Athlete::setCleanJerk3Change2);
-		atRowAndColumn(gridLayout, cj3Change2, CHANGE2, CJ3);
-
-		cj1ActualLift = createActualWeightField();
-		binder.forField(cj1ActualLift)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk1ActualLift(v)))
-			.withValidator(ValidationUtils.checkUsing(v -> setAutomaticProgressions(a)))
-			.withValidationStatusHandler(status -> setActualLiftStyle(status))
-			.bind(Athlete::getCleanJerk1ActualLift, Athlete::setCleanJerk1ActualLift);
-		atRowAndColumn(gridLayout, cj1ActualLift, ACTUAL, CJ1);
-		
 		cj2ActualLift = createActualWeightField();
 		binder.forField(cj2ActualLift)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk2ActualLift(v)))
-			.withValidator(ValidationUtils.checkUsing(v -> setAutomaticProgressions(a)))
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk2ActualLift(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> setAutomaticProgressions(editedAthlete)))
 			.withValidationStatusHandler(status -> setActualLiftStyle(status))
 			.bind(Athlete::getCleanJerk2ActualLift, Athlete::setCleanJerk2ActualLift);
 		atRowAndColumn(gridLayout, cj2ActualLift, ACTUAL, CJ2);
 		
+		cj3AutomaticProgression = new TextField();
+		cj3AutomaticProgression.setReadOnly(true);
+		cj3AutomaticProgression.setTabIndex(-1);
+		binder.forField(cj3AutomaticProgression)
+			.bind(Athlete::getCleanJerk3AutomaticProgression, Athlete::setCleanJerk3AutomaticProgression);
+		atRowAndColumn(gridLayout, cj3AutomaticProgression, AUTOMATIC, CJ3);
+		
+		TextField cj3Declaration = createPositiveWeightField();
+		binder.forField(cj3Declaration)
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk3Declaration(v)))
+			.withValidationStatusHandler(status -> setErrorLabel(status))
+			.bind(Athlete::getCleanJerk3Declaration, Athlete::setCleanJerk3Declaration);
+		atRowAndColumn(gridLayout, cj3Declaration, DECLARATION, CJ3);
+			
+		TextField cj3Change1 = createPositiveWeightField();
+		binder.forField(cj3Change1)
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk3Change1(v)))
+			.withValidationStatusHandler(status -> setErrorLabel(status))
+			.bind(Athlete::getCleanJerk3Change1, Athlete::setCleanJerk3Change1);
+		atRowAndColumn(gridLayout, cj3Change1, CHANGE1, CJ3);
+		
+		TextField cj3Change2 = createPositiveWeightField();
+		binder.forField(cj3Change2)
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk3Change2(v)))
+			.withValidationStatusHandler(status -> setErrorLabel(status))
+			.bind(Athlete::getCleanJerk3Change2, Athlete::setCleanJerk3Change2);
+		atRowAndColumn(gridLayout, cj3Change2, CHANGE2, CJ3);
+		
 		cj3ActualLift = createActualWeightField();
 		binder.forField(cj3ActualLift)
-			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk3ActualLift(v)))
+			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk3ActualLift(v)))
 			.withValidationStatusHandler(status -> setActualLiftStyle(status))
 			.bind(Athlete::getCleanJerk3ActualLift, Athlete::setCleanJerk3ActualLift);
 		atRowAndColumn(gridLayout, cj3ActualLift, ACTUAL, CJ3);
 
 		// use setBean so that changes are immediately reflected to the working copy.
-		binder.setBean(a);
-		setFocus(a);
+		binder.setBean(editedAthlete);
+		setFocus(editedAthlete);
 
 	}
 
@@ -560,12 +561,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		}
 	}
 	
-	public Athlete getWorkingCopy() {
-		return workingCopy;
+	public Athlete getEditedAthlete() {
+		return editedAthlete;
 	}
-
-	protected void setWorkingCopy(Athlete workingCopy) {
-		this.workingCopy = workingCopy;
-	}
-
 }

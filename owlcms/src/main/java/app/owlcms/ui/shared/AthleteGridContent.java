@@ -452,12 +452,12 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object) */
 	@Override
-	public Athlete update(Athlete athlete) {
-		Athlete working = getAthleteEditingFormFactory().getWorkingCopy();
+	public Athlete update(Athlete athleteFromDb) {
+		Athlete editedAthlete = getAthleteEditingFormFactory().getEditedAthlete();
 		try {
-			// get the updated values from the working copy of the athlete
-			BeanUtils.copyProperties(athlete, working);
-			Athlete savedAthlete = AthleteRepository.save(athlete);
+			// update the athlete object in the database cache with the new values as edited
+			BeanUtils.copyProperties(athleteFromDb, editedAthlete);
+			Athlete savedAthlete = AthleteRepository.save(athleteFromDb);
 			OwlcmsSession.withFop((fop) -> {
 				fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
 			});
