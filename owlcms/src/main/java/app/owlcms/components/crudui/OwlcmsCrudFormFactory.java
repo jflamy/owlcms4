@@ -254,4 +254,5 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	public void setFieldType(String property, Class class1) {
 		super.setFieldType(property, class1);
 	}
+
 }

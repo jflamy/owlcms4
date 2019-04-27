@@ -53,14 +53,11 @@ public class DemoData {
 	public static void insertInitialData(int nbAthletes, boolean testMode) {
 		logger.info("inserting demo data.");
 		JPAService.runInTransaction(em -> {
-			Level loggerLevel = Athlete.getLogger()
-				.getLevel();
 			try {
-				Athlete.getLogger().setLevel(Level.WARN);
-				setupDemoData(em, nbAthletes);
-			} catch (Exception e) {
-				Athlete.getLogger()
-					.setLevel(loggerLevel);
+				Athlete.setLoggerLevel(Level.WARN);
+				setupDemoData(em, nbAthletes);		
+			} finally {
+				Athlete.resetLoggerLevel();
 			}
 			return null;
 		});

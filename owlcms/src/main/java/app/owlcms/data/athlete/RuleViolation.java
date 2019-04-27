@@ -88,4 +88,8 @@ public class RuleViolation {
         return new RuleViolationException("RuleViolation.rule15_20Violated", objs); //$NON-NLS-1$
     }
 
+	public static RuleViolationException declarationValueRequired(int curLift) {
+		 return new RuleViolationException("RuleViolation.declarationRequired"); //$NON-NLS-1$
+	}
+
 }

@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.converters.DateConverter;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -77,6 +79,10 @@ public class Main extends AbstractMain {
 		
 		boolean inMemory = demoMode;
 		JPAService.init(inMemory);
+		
+		// misc initializations
+		ConvertUtils.register(new DateConverter(null), java.util.Date.class);
+		ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 		
 		if (demoMode) {
 			DemoData.insertInitialData(20, true);

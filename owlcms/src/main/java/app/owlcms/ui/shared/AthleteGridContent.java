@@ -7,6 +7,7 @@
 
 package app.owlcms.ui.shared;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -115,7 +117,15 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 */
 	private OwlcmsRouterLayout routerLayout;
 	protected GridCrud<Athlete> grid;
+	private AthleteCardFormFactory athleteEditingFormFactory;
 	
+	/**
+	 * @return the athleteEditingFormFactory
+	 */
+	public AthleteCardFormFactory getAthleteEditingFormFactory() {
+		return athleteEditingFormFactory;
+	}
+
 	/**
 	 * Instantiates a new announcer content.
 	 * Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
@@ -134,13 +144,13 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = createAthleteEditingFormFactory();
+		athleteEditingFormFactory = createAthleteEditingFormFactory();
 		return athleteEditingFormFactory;
 	}
 	
 
-	private OwlcmsCrudFormFactory<Athlete> createAthleteEditingFormFactory() {
-		return  new AthleteCardFormFactory(Athlete.class);
+	private AthleteCardFormFactory createAthleteEditingFormFactory() {
+		return new AthleteCardFormFactory(Athlete.class);
 	}
 
 	/**
@@ -442,12 +452,19 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object) */
 	@Override
-	public Athlete update(Athlete Athlete) {
-		Athlete savedAthlete = AthleteRepository.save(Athlete);
-		FieldOfPlay fop = (FieldOfPlay) OwlcmsSession.getAttribute("fop");
-		fop.getFopEventBus()
-			.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
-		return savedAthlete;
+	public Athlete update(Athlete athlete) {
+		Athlete working = getAthleteEditingFormFactory().getWorkingCopy();
+		try {
+			// get the updated values from the working copy of the athlete
+			BeanUtils.copyProperties(athlete, working);
+			Athlete savedAthlete = AthleteRepository.save(athlete);
+			OwlcmsSession.withFop((fop) -> {
+				fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
+			});
+			return savedAthlete;
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -517,6 +534,13 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			logger.debug("findAll fop==null");
 			return ImmutableList.of();
 		}
+	}
+
+	/**
+	 * @param athleteEditingFormFactory the athleteEditingFormFactory to set
+	 */
+	public void setAthleteEditingFormFactory(AthleteCardFormFactory athleteEditingFormFactory) {
+		this.athleteEditingFormFactory = athleteEditingFormFactory;
 	}
 
 }

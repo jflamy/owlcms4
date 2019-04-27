@@ -7,6 +7,9 @@
 
 package app.owlcms.ui.group;
 
+import java.lang.reflect.InvocationTargetException;
+
+import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 
@@ -33,6 +36,7 @@ import com.vaadin.flow.dom.ClassList;
 import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -72,6 +76,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	 * text fields to facilitate moving focus.
 	 */
 	TextField[][] textfields = new TextField[ACTUAL][CJ3];
+
+	private Athlete workingCopy;
 
 	public AthleteCardFormFactory(Class<Athlete> domainType) {
 		super(domainType);
@@ -145,7 +151,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	}
 	
 	
-	protected void bindGridFields(CrudOperation operation, Athlete a, GridLayout gridLayout) {
+	protected void bindGridFields(CrudOperation operation, Athlete athlete, GridLayout gridLayout) {
+		// We use a copy so that if the user cancels, we still have the original object.
+		// This allows us to use cleaner validation methods coded in the Athlete class as opposed to 
+		// tedious validations on the form fields using getValue().
+		Athlete a = copyAthlete(athlete);
 		binder = buildBinder(operation, a);
 
 		snatch2AutomaticProgression = new TextField();
@@ -326,10 +336,29 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			.bind(Athlete::getCleanJerk3ActualLift, Athlete::setCleanJerk3ActualLift);
 		atRowAndColumn(gridLayout, cj3ActualLift, ACTUAL, CJ3);
 
-		binder.readBean(a);
+
+
+		// use setBean so that changes are immediately reflected to the working copy.
+		binder.setBean(a);
 		setFocus(a);
+
 	}
-	
+
+	public Athlete copyAthlete(Athlete athlete) throws RuntimeException {
+		try {
+			Athlete a = new Athlete();
+			Athlete.setLoggerLevel(Level.WARN); // prevent spurious logs
+			BeanUtils.copyProperties(a, athlete);
+			logger.debug("orig athlete = {}",System.identityHashCode(athlete));
+			logger.debug("copy a = {}",System.identityHashCode(a));
+			return a;
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		} finally {
+			Athlete.resetLoggerLevel();
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -484,6 +513,14 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 				classNames.add("good");
 			}
 		}
+	}
+
+	public Athlete getWorkingCopy() {
+		return workingCopy;
+	}
+
+	protected void setWorkingCopy(Athlete workingCopy) {
+		this.workingCopy = workingCopy;
 	}
 
 }
