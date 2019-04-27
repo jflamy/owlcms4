@@ -20,16 +20,18 @@ import com.github.appreciated.css.grid.sizes.Int;
 import com.github.appreciated.css.grid.sizes.Length;
 import com.github.appreciated.css.grid.sizes.Repeat;
 import com.github.appreciated.layout.GridLayout;
-import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.HasStyle;
+import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BindingValidationStatus;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.ClassList;
 
@@ -179,6 +181,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		TextField snatch2Declaration = createPositiveWeightField();
 		binder.forField(snatch2Declaration)
 			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch2Declaration(v)))
+			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch2Declaration, Athlete::setSnatch2Declaration);
 		atRowAndColumn(gridLayout, snatch2Declaration, DECLARATION, SNATCH2);
 		
@@ -228,7 +231,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		binder.forField(snatch1ActualLift)
 			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch1ActualLift(v)))
 			.withValidator(ValidationUtils.checkUsing(v -> setAutomaticProgressions(a)))
-			.withStatusLabel(errorLabel)
+			.withValidationStatusHandler(status -> setActualLiftStyle(status))
 			.bind(Athlete::getSnatch1ActualLift, Athlete::setSnatch1ActualLift);
 		atRowAndColumn(gridLayout, snatch1ActualLift, ACTUAL, SNATCH1);
 		
@@ -236,14 +239,14 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		binder.forField(snatch2ActualLift)
 			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch2ActualLift(v)))
 			.withValidator(ValidationUtils.checkUsing(v -> setAutomaticProgressions(a)))
-			.withStatusLabel(errorLabel)
+			.withValidationStatusHandler(status -> setActualLiftStyle(status))
 			.bind(Athlete::getSnatch2ActualLift, Athlete::setSnatch2ActualLift);
 		atRowAndColumn(gridLayout, snatch2ActualLift, ACTUAL, SNATCH2);
 		
 		snatch3ActualLift = createActualWeightField();
 		binder.forField(snatch3ActualLift)
 			.withValidator(ValidationUtils.checkUsing(v -> a.validateSnatch3ActualLift(v)))
-			.withStatusLabel(errorLabel)
+			.withValidationStatusHandler(status -> setActualLiftStyle(status))
 			.bind(Athlete::getSnatch3ActualLift, Athlete::setSnatch3ActualLift);
 		atRowAndColumn(gridLayout, snatch3ActualLift, ACTUAL, SNATCH3);
 		
@@ -317,7 +320,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		binder.forField(cj1ActualLift)
 			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk1ActualLift(v)))
 			.withValidator(ValidationUtils.checkUsing(v -> setAutomaticProgressions(a)))
-			.withStatusLabel(errorLabel)
+			.withValidationStatusHandler(status -> setActualLiftStyle(status))
 			.bind(Athlete::getCleanJerk1ActualLift, Athlete::setCleanJerk1ActualLift);
 		atRowAndColumn(gridLayout, cj1ActualLift, ACTUAL, CJ1);
 		
@@ -325,24 +328,64 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		binder.forField(cj2ActualLift)
 			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk2ActualLift(v)))
 			.withValidator(ValidationUtils.checkUsing(v -> setAutomaticProgressions(a)))
-			.withStatusLabel(errorLabel)
+			.withValidationStatusHandler(status -> setActualLiftStyle(status))
 			.bind(Athlete::getCleanJerk2ActualLift, Athlete::setCleanJerk2ActualLift);
 		atRowAndColumn(gridLayout, cj2ActualLift, ACTUAL, CJ2);
 		
 		cj3ActualLift = createActualWeightField();
 		binder.forField(cj3ActualLift)
 			.withValidator(ValidationUtils.checkUsing(v -> a.validateCleanJerk3ActualLift(v)))
-			.withStatusLabel(errorLabel)
+			.withValidationStatusHandler(status -> setActualLiftStyle(status))
 			.bind(Athlete::getCleanJerk3ActualLift, Athlete::setCleanJerk3ActualLift);
 		atRowAndColumn(gridLayout, cj3ActualLift, ACTUAL, CJ3);
-
-
 
 		// use setBean so that changes are immediately reflected to the working copy.
 		binder.setBean(a);
 		setFocus(a);
 
 	}
+
+	public void setActualLiftStyle(BindingValidationStatus<?> status) throws NumberFormatException {
+		setErrorLabel(status);
+		if (status.isError()) {;
+			snatch1ActualLift.getElement().getClassList().set("error", true);
+			snatch1ActualLift.getElement().getClassList().set("good", false);
+			snatch1ActualLift.getElement().getClassList().set("bad", false);
+		} else {
+			String value = snatch1ActualLift.getValue();
+			boolean empty = value == null || value.trim().isEmpty();
+			if (empty) {
+				snatch1ActualLift.getElement().getClassList().clear();
+			} else {
+				int intValue = Integer.parseInt(value);
+				snatch1ActualLift.getElement().getClassList().clear();
+				snatch1ActualLift.getElement().getClassList().set(
+					(intValue <= 0 ? "bad" : "good"), true);
+			}
+		}
+	}
+	
+	public void setErrorLabel(BindingValidationStatus<?> status) throws NumberFormatException {
+		if (status.isError()) {
+			ClassList classNames = ((HasStyle) status.getField()).getClassNames();
+			classNames.clear();
+			classNames.add("error");
+			errorLabel.setText(status.getMessage().orElse("Error"));
+			setVisible(errorLabel,true);
+			errorLabel.getClassNames().set("errorMessage", true);
+		} else {
+			setVisible(errorLabel,false);
+			errorLabel.getClassNames().clear();
+		}
+	}
+	
+    private void setVisible(HasText label, boolean visible) {
+        if (visible) {
+            label.getElement().getStyle().remove("display");
+        } else {
+            label.getElement().getStyle().set("display", "none");
+        }
+    }
 
 	public Athlete copyAthlete(Athlete athlete) throws RuntimeException {
 		try {
@@ -421,10 +464,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			.getStyle()
 			.set("width", "6em");
 		;
-		if (row == ACTUAL && column > LEFT) {
-			TextField textField = (TextField) component;
-			textField.addValueChangeListener(e -> setGoodBadStyle(e));
-		}
+// now done as part of validation
+//		if (row == ACTUAL && column > LEFT) {
+//			TextField textField = (TextField) component;
+//			textField.addValueChangeListener(e -> setGoodBadStyle(e));
+//		}
 		if (component instanceof TextField) {
 			TextField textField = (TextField) component;
 			//logger.debug("row {} column {} {} {} {} {}",row-1, column-1, ACTUAL, textfields.length, CJ3, textfields[0].length);
@@ -499,22 +543,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		}
 	}
 	
-	private void setGoodBadStyle(ComponentValueChangeEvent<TextField, String> e) {
-		String value = e.getValue();
-		ClassList classNames = e.getSource()
-			.getClassNames();
-		classNames.remove("bad");
-		classNames.remove("good");
-		if (value != null && value.trim()
-			.length() > 0) {
-			if (value.startsWith("-")) {
-				classNames.add("bad");
-			} else {
-				classNames.add("good");
-			}
-		}
-	}
-
 	public Athlete getWorkingCopy() {
 		return workingCopy;
 	}

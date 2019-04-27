@@ -4,6 +4,11 @@
   <style>
 	/** global css definitions go here */
 	/* note that vaadin components are styled using dom-modules below */
+	
+	label.errorMessage {
+		color: red;
+		font-weight: bold;
+	}
   </style>
 </custom-style>
 
@@ -19,6 +24,11 @@
 		:host(.good) [part="input-field"] {
 			background-color: green;
 			color: white;
+		}
+		
+		:host(.error) [part="input-field"] {
+			background-color: var(--lumo-error-color-10pct);
+			color: black;
 		}
 </style>
 </template>
