@@ -272,8 +272,7 @@ public class FieldOfPlay {
 //			} else 
 			if (e instanceof FOPEvent.TimeStarted) {
 				getAthleteTimer().start();
-				transitionToTimeRunning();
-				
+				transitionToTimeRunning();		
 //				// time was started prematurely before announcer hit "announce" button
 //				warnTimekeeperPrematureStart();
 //				remindAnnouncerToAnnounce();
@@ -284,6 +283,9 @@ public class FieldOfPlay {
 			} else if (e instanceof FOPEvent.ForceTime) {
 				// need to set time
 				getAthleteTimer().setTimeRemaining(((FOPEvent.ForceTime) e).timeAllowed);
+				setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
+			} else if (e instanceof FOPEvent.StartLifting) {
+				// announcer can set break manually
 				setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
 			} else {
 				unexpectedEventInState(e, FOPState.CURRENT_ATHLETE_DISPLAYED);
