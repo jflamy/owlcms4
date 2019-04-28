@@ -7,7 +7,6 @@
 
 package app.owlcms.ui.shared;
 
-import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -45,7 +43,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsGridCrud;
+import app.owlcms.components.crudui.OwlcmsCrudGrid;
 import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -53,7 +51,6 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.AthleteTimerElement;
 import app.owlcms.displays.attemptboard.TimerElement;
-import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
@@ -64,7 +61,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class AnnouncerContent.
+ * Class AthleteGridContent.
  * 
  * Initialization order is
  * - content class is created
@@ -100,9 +97,9 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	protected ComboBox<Group> groupSelect;
 	
 	/**
-	 * groupFilter points to a hidden field on the grid filtering row, which is slave
+	 * groupFilter points to a hidden field on the crudGrid filtering row, which is slave
 	 * to the group selection process. this allows us to use the filtering
-	 * logic used everywhere else to change what is shown in the grid.
+	 * logic used everywhere else to change what is shown in the crudGrid.
 	 * 
 	 * In the current implementation groupSelect is readOnly.  If it is made editable,
 	 * it needs to set the value on groupFilter.
@@ -116,7 +113,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 * Bottom part content
 	 */
 	private OwlcmsRouterLayout routerLayout;
-	protected GridCrud<Athlete> grid;
+	protected OwlcmsCrudGrid<Athlete> crudGrid;
 	private AthleteCardFormFactory athleteEditingFormFactory;
 	
 	/**
@@ -133,9 +130,9 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	public AthleteGridContent() {
 		logger.warn("AthleteGridContent constructor");
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
-		grid = createGrid(crudFormFactory);		
-		defineFilters(grid);
-		fillHW(grid, this);
+		crudGrid = createCrudGrid(crudFormFactory);		
+		defineFilters(crudGrid);
+		fillHW(crudGrid, this);
 	}
 	
 	/**
@@ -150,13 +147,13 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	
 
 	private AthleteCardFormFactory createAthleteEditingFormFactory() {
-		return new AthleteCardFormFactory(Athlete.class);
+		return new AthleteCardFormFactory(Athlete.class, this);
 	}
 
 	/**
-	 * The filters at the top of the grid
+	 * The filters at the top of the crudGrid
 	 *
-	 * @param grid the grid that will be filtered.
+	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Athlete> crud) {
 		lastNameFilter.setPlaceholder("Last name");
@@ -385,20 +382,18 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	@Subscribe
 	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
 		logger.warn("{} {}",e.getOrigin(),LoggerUtils.whereFrom());
-		UIEventProcessor.uiAccess(grid, uiEventBus, e, () -> {
-			grid.refreshGrid();
+		UIEventProcessor.uiAccess(crudGrid, uiEventBus, e, () -> {
+			crudGrid.refreshGrid();
 		});
 	}
 
 	/**
-	 * Gets the grid.
+	 * Gets the crudGrid.
 	 * @param crudFormFactory 
 	 *
-	 * @return the grid grid
+	 * @return the crudGrid crudGrid
 	 */
-	public GridCrud<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-		
-
+	public OwlcmsCrudGrid<Athlete> createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
 		ThemeList themes = grid.getThemeNames();
 		themes.add("compact");
@@ -419,7 +414,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			.setHeader("Start Number");
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
-		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
+		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<Athlete>(Athlete.class,
 				gridLayout,
 				crudFormFactory,
 				grid) {
@@ -429,11 +424,11 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			protected void updateButtons() {}
 		};
 
-		crud.setCrudListener(this);
-		crud.setClickRowToUpdate(true);
-		crud.getCrudLayout().addToolbarComponent(groupFilter);
+		crudGrid.setCrudListener(this);
+		crudGrid.setClickRowToUpdate(true);
+		crudGrid.getCrudLayout().addToolbarComponent(groupFilter);
 
-		return crud;
+		return crudGrid;
 	}
 	
 	protected Object getOrigin() {
@@ -453,45 +448,18 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object) */
 	@Override
 	public Athlete update(Athlete athleteFromDb) {
-		Athlete editedAthlete = getAthleteEditingFormFactory().getEditedAthlete();
-		try {
-			// update the athlete object in the database cache with the new values as edited
-			BeanUtils.copyProperties(athleteFromDb, editedAthlete);
-			Athlete savedAthlete = AthleteRepository.save(athleteFromDb);
-			OwlcmsSession.withFop((fop) -> {
-				fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
-			});
-			return savedAthlete;
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			throw new RuntimeException(e);
-		}
+		throw new UnsupportedOperationException("Programming error, update is implemented in "+AthleteCardFormFactory.class.getSimpleName());
 	}
+
 
 	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
 	 */
 	@Override
-	public void delete(Athlete Athlete) {
-		AthleteRepository.delete(Athlete);
+	public void delete(Athlete notUsed) {
+		Athlete originalAthlete = getAthleteEditingFormFactory().getOriginalAthlete();
+		AthleteRepository.delete(originalAthlete);
 	}
-
-//	/**
-//	 * Get the content of the grid.
-//	 * Invoked by refreshGrid.
-//	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
-//	 */
-//	@Override
-//	public Collection<Athlete> findAll() {
-//		FieldOfPlay fop = OwlcmsSession.getFop();
-//		if (fop != null) {
-//			logger.debug("findAll {} {} {}",fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(), LoggerUtils.whereFrom());
-//			return fop.getLiftingOrder();
-//		} else {
-//			// no field of play, no group, empty list
-//			logger.debug("findAll fop==null");
-//			return ImmutableList.of();
-//		}
-//	}
 
 	/**
 	 * @return the groupFilter
@@ -512,7 +480,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	}
 	
 	/**
-	 * Get the content of the grid. Invoked by refreshGrid.
+	 * Get the content of the crudGrid. Invoked by refreshGrid.
 	 *
 	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
 	 */
@@ -536,11 +504,9 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		}
 	}
 
-	/**
-	 * @param athleteEditingFormFactory the athleteEditingFormFactory to set
-	 */
-	public void setAthleteEditingFormFactory(AthleteCardFormFactory athleteEditingFormFactory) {
-		this.athleteEditingFormFactory = athleteEditingFormFactory;
+	public void closeDialog() {
+		crudGrid.getCrudLayout().hideForm();
+		crudGrid.getGrid().asSingleSelect().clear();
 	}
 
 }

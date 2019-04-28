@@ -35,7 +35,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsGridCrud;
+import app.owlcms.components.crudui.OwlcmsCrudGrid;
 import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
@@ -78,7 +78,7 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 	private OwlcmsRouterLayout routerLayout;
 
 	/**
-	 * Instantiates the athlete grid
+	 * Instantiates the athlete crudGrid
 	 */
 	public RegistrationContent() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
@@ -88,13 +88,13 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 	}
 
 	//	/**
-	//	 * Define how to populate the athlete grid.
+	//	 * Define how to populate the athlete crudGrid.
 	//   * DO NOT USE -- WE WANT IN-MEMORY FILTERING
 	//	 *
-	//	 * @param grid
+	//	 * @param crudGrid
 	//	 */
-	//	protected void defineQueries(GridCrud<Athlete> grid) {
-	//		grid.setFindAllOperation(
+	//	protected void defineQueries(GridCrud<Athlete> crudGrid) {
+	//		crudGrid.setFindAllOperation(
 	//			DataProvider.fromCallbacks(
 	//				query -> AthleteRepository
 	//					.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
@@ -105,7 +105,7 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 	//	}
 
 	/**
-	 * The columns of the grid
+	 * The columns of the crudGrid
 	 *
 	 * @param crudFormFactory what to call to create the form for editing an athlete
 	 * @return
@@ -122,7 +122,7 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 		.setHeader("Body Weight");
 		grid.addColumn("group").setHeader("Group");
 		grid.addColumn("invited").setHeader("Invited");
-		GridCrud<Athlete> crud = new OwlcmsGridCrud<>(
+		GridCrud<Athlete> crud = new OwlcmsCrudGrid<>(
 				Athlete.class,
 				new OwlcmsGridLayout(Athlete.class),
 				crudFormFactory,
@@ -346,9 +346,9 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 	}
 
 	/**
-	 * The filters at the top of the grid
+	 * The filters at the top of the crudGrid
 	 *
-	 * @param grid the grid that will be filtered.
+	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Athlete> crud) {
 		lastNameFilter.setPlaceholder("Last name");

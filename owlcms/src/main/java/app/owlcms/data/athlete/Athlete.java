@@ -8,11 +8,11 @@ package app.owlcms.data.athlete;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.EventObject;
 import java.util.List;
 import java.util.Locale;
 
@@ -70,58 +70,11 @@ import ch.qos.logback.classic.Logger;
 @Entity
 @Cacheable
 public class Athlete {
-
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
 	private final static Level NORMAL_LEVEL = Level.INFO;
 
-	/**
-	 * Athlete events all derive from this.
-	 */
-	public class UpdateEvent extends EventObject {
-		private static final long serialVersionUID = -126644150054472005L;
-		private List<String> propertyIds;
-
-		/**
-		 * Constructs a new event with a specified source component.
-		 *
-		 * @param source      the source component of the event.
-		 * @param propertyIds that have been updated.
-		 */
-		public UpdateEvent(Athlete source, String... propertyIds) {
-			super(source);
-			this.propertyIds = Arrays.asList(propertyIds);
-		}
-
-		/**
-		 * Gets the property ids.
-		 *
-		 * @return the property ids
-		 */
-		public List<String> getPropertyIds() {
-			return propertyIds;
-		}
-
-	}
-
-	/**
-	 * Listener interface for receiving <code>Athlete.UpdateEvent</code>s.
-	 *
-	 * @see UpdateEventEvent
-	 */
-	public interface UpdateEventListener extends java.util.EventListener {
-
-		/**
-		 * This method will be invoked when a Athlete.UpdateEvent is fired.
-		 *
-		 * @param updateEvent the event that has occured.
-		 */
-		public void updateEvent(Athlete.UpdateEvent updateEvent);
-	}
-
-	/** The year. */
-	static int year = Calendar.getInstance()
-		.get(Calendar.YEAR);
-
+	private static final int YEAR = LocalDateTime.now().getYear();
+	
 	/**
 	 * Gets the logger.
 	 *
@@ -131,14 +84,6 @@ public class Athlete {
 		return logger;
 	}
 
-	/**
-	 * Gets the year.
-	 *
-	 * @return the year
-	 */
-	public static int getYear() {
-		return year;
-	}
 
 	/**
 	 * Checks if is empty.
@@ -1722,7 +1667,7 @@ public class Athlete {
 		final Integer birthDate1 = getYearOfBirth();
 		if (birthDate1 == null)
 			return 0.0;
-		return getSinclair() * SinclairCoefficients.getSMMCoefficient(year - birthDate1);
+		return getSinclair() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1);
 	}
 
 	/**
@@ -2278,11 +2223,12 @@ public class Athlete {
 	public void setCleanJerk1ActualLift(String cleanJerk1ActualLift) {
 		validateCleanJerk1ActualLift(cleanJerk1ActualLift);
 		this.cleanJerk1ActualLift = cleanJerk1ActualLift;
+		logger.info("{} cleanJerk1ActualLift={}", this, cleanJerk1ActualLift);
 		if (zeroIfInvalid(cleanJerk1ActualLift) == 0)
 			this.cleanJerk1LiftTime = (null);
 		else
 			this.cleanJerk1LiftTime = sqlNow();
-		logger.info("{} cleanJerk1ActualLift={}", this, cleanJerk1ActualLift);
+
 	}
 
 	/**
@@ -2373,11 +2319,12 @@ public class Athlete {
 	public void setCleanJerk2ActualLift(String cleanJerk2ActualLift) {
 		validateCleanJerk2ActualLift(cleanJerk2ActualLift);
 		this.cleanJerk2ActualLift = cleanJerk2ActualLift;
+		logger.info("{} cleanJerk2ActualLift={}", this, cleanJerk2ActualLift);
+
 		if (zeroIfInvalid(cleanJerk2ActualLift) == 0)
 			this.cleanJerk2LiftTime = (null);
 		else
 			this.cleanJerk2LiftTime = sqlNow();
-		logger.info("{} cleanJerk2ActualLift={}", this, cleanJerk2ActualLift);
 	}
 
 	/**
@@ -2460,11 +2407,12 @@ public class Athlete {
 	public void setCleanJerk3ActualLift(String cleanJerk3ActualLift) {
 		validateCleanJerk3ActualLift(cleanJerk3ActualLift);
 		this.cleanJerk3ActualLift = cleanJerk3ActualLift;
+		logger.info("{} cleanJerk3ActualLift={}", this, cleanJerk3ActualLift);
+
 		if (zeroIfInvalid(cleanJerk3ActualLift) == 0)
 			this.cleanJerk3LiftTime = (null);
 		else
 			this.cleanJerk3LiftTime = sqlNow();
-		logger.info("{} cleanJerk3ActualLift={}", this, cleanJerk3ActualLift);
 	}
 
 	/**
@@ -2772,6 +2720,7 @@ public class Athlete {
 	public void setSnatch1ActualLift(String snatch1ActualLift) {
 		validateSnatch1ActualLift(snatch1ActualLift);
 		this.snatch1ActualLift = snatch1ActualLift;
+		logger.info("{} snatch1ActualLift={} - {}", this, snatch1ActualLift, LoggerUtils.whereFrom());
 		if (zeroIfInvalid(snatch1ActualLift) == 0)
 			this.snatch1LiftTime = null;
 		else
@@ -2867,11 +2816,11 @@ public class Athlete {
 	public void setSnatch2ActualLift(String snatch2ActualLift) {
 		validateSnatch2ActualLift(snatch2ActualLift);
 		this.snatch2ActualLift = snatch2ActualLift;
+		logger.info("{} snatch2ActualLift={}", this, snatch2ActualLift);
 		if (zeroIfInvalid(snatch2ActualLift) == 0)
 			this.snatch2LiftTime = (null);
 		else
 			this.snatch2LiftTime = sqlNow();
-		logger.info("{} snatch2ActualLift={}", this, snatch2ActualLift);
 	}
 
 	/* General event framework: we implement the com.vaadin.event.MethodEventSource interface which
@@ -2958,11 +2907,12 @@ public class Athlete {
 	public void setSnatch3ActualLift(String snatch3ActualLift) {
 		validateSnatch3ActualLift(snatch3ActualLift);
 		this.snatch3ActualLift = snatch3ActualLift;
+		logger.info("{} snatch3ActualLift={}", this, snatch3ActualLift);
 		if (zeroIfInvalid(snatch3ActualLift) == 0)
 			this.snatch3LiftTime = (null);
 		else
 			this.snatch3LiftTime = sqlNow();
-		logger.info("{} snatch3ActualLift={}", this, snatch3ActualLift);
+
 	}
 
 	/**
@@ -3192,7 +3142,7 @@ public class Athlete {
 	 * @see java.lang.Object#toString() */
 	@Override
 	public String toString() {
-		return getLastName() + "_" + getFirstName() + "_" + System.identityHashCode(this); //$NON-NLS-1$ //$NON-NLS-2$
+		return getLastName() + "_" + getFirstName() + "_" + getId() + "_" + System.identityHashCode(this); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -3769,6 +3719,57 @@ public class Athlete {
 
 	public void setAgeDivision(AgeDivision ageDivision) {
 		this.ageDivision = ageDivision;
+	}
+
+	/**
+	 * Copy lift values to/from another athlete object used as editing scratchpad.
+	 * 
+	 * The methods must be called in the proper order otherwise validation errors will occur
+	 * (e.g. actual lift must match last requested change)
+	 * 
+	 * @param dest
+	 * @param src
+	 */
+	public static void copyLifts(Athlete dest, Athlete src) {
+		try {
+			setLoggerLevel(Level.WARN); // avoid spurious log entries
+			
+			dest.setSnatch1Declaration(src.getSnatch1Declaration());
+			dest.setSnatch1Change1(src.getSnatch1Change1());
+			dest.setSnatch1Change2(src.getSnatch1Change2());
+			dest.setSnatch1ActualLift(src.getSnatch1ActualLift());
+			
+			dest.setSnatch2AutomaticProgression(src.getSnatch2AutomaticProgression());
+			dest.setSnatch2Declaration(src.getSnatch2Declaration());
+			dest.setSnatch2Change1(src.getSnatch2Change1());
+			dest.setSnatch2Change2(src.getSnatch2Change2());
+			dest.setSnatch2ActualLift(src.getSnatch2ActualLift());
+			
+			dest.setSnatch3AutomaticProgression(src.getSnatch3AutomaticProgression());
+			dest.setSnatch3Declaration(src.getSnatch3Declaration());
+			dest.setSnatch3Change1(src.getSnatch3Change1());
+			dest.setSnatch3Change2(src.getSnatch3Change2());
+			dest.setSnatch3ActualLift(src.getSnatch3ActualLift());
+			
+			dest.setCleanJerk1Declaration(src.getCleanJerk1Declaration());
+			dest.setCleanJerk1Change1(src.getCleanJerk1Change1());
+			dest.setCleanJerk1Change2(src.getCleanJerk1Change2());
+			dest.setCleanJerk1ActualLift(src.getCleanJerk1ActualLift());
+			
+			dest.setCleanJerk2AutomaticProgression(src.getCleanJerk2AutomaticProgression());
+			dest.setCleanJerk2Declaration(src.getCleanJerk2Declaration());
+			dest.setCleanJerk2Change1(src.getCleanJerk2Change1());
+			dest.setCleanJerk2Change2(src.getCleanJerk2Change2());
+			dest.setCleanJerk2ActualLift(src.getCleanJerk2ActualLift());
+			
+			dest.setCleanJerk3AutomaticProgression(src.getCleanJerk3AutomaticProgression());
+			dest.setCleanJerk3Declaration(src.getCleanJerk3Declaration());
+			dest.setCleanJerk3Change1(src.getCleanJerk3Change1());
+			dest.setCleanJerk3Change2(src.getCleanJerk3Change2());
+			dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
+		} finally {
+			resetLoggerLevel();
+		}
 	}
 
 }

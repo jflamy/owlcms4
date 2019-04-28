@@ -24,7 +24,7 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsGridCrud;
+import app.owlcms.components.crudui.OwlcmsCrudGrid;
 import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.fields.LocalDateTimeField;
 import app.owlcms.data.group.Group;
@@ -55,17 +55,17 @@ public class GroupContent extends VerticalLayout
 
 
 	/**
-	 * Instantiates the Group grid.
+	 * Instantiates the Group crudGrid.
 	 */
 	public GroupContent() {
 		OwlcmsCrudFormFactory<Group> crudFormFactory = createFormFactory();
 		GridCrud<Group> crud = createGrid(crudFormFactory);
-//		defineFilters(grid);
+//		defineFilters(crudGrid);
 		fillHW(crud, this);
 	}
 	
 	/**
-	 * The columns of the grid
+	 * The columns of the crudGrid
 	 * 
 	 * @param crudFormFactory what to call to create the form for editing an athlete
 	 * @return
@@ -84,7 +84,7 @@ public class GroupContent extends VerticalLayout
 		grid.addColumn(Group::getPlatform)
 			.setHeader("Platform");
 
-		GridCrud<Group> crud = new OwlcmsGridCrud<Group>(Group.class,
+		GridCrud<Group> crud = new OwlcmsCrudGrid<Group>(Group.class,
 				new OwlcmsGridLayout(Group.class),
 				crudFormFactory,
 				grid);

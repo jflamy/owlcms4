@@ -26,7 +26,7 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsGridLayout.class);
 
 	/**
-	 * Instantiates a new owlcms grid layout.
+	 * Instantiates a new owlcms crudGrid layout.
 	 *
 	 * @param aClass the a class
 	 */
