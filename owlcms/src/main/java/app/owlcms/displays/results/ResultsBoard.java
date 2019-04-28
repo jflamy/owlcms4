@@ -242,6 +242,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			ja.put("lastName", a.getLastName().toUpperCase());
 			ja.put("firstName", a.getFirstName());
 			ja.put("teamName", a.getTeam());
+			ja.put("yearOfBirth", a.getYearOfBirth());
 			ja.put("startNumber", a.getStartNumber());
 			ja.put("category", (curCat != null ? curCat.getName() : ""));
 			getAttemptsJson(a);

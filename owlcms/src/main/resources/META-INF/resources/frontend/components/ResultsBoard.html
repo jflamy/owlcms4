@@ -241,6 +241,7 @@ th, td {
 			<th>Nom<div class='english'>Name</div></th>
 			<th class$="[[_computeMasters(masters)]]"><nobr>Gr. Age.</nobr><div class='english'><nobr>Age Gr.</nobr></div></th>
 			<th class="cat">Cat.</th>
+			<th class="cat">Naiss.<div class='english'>Born</div></th>
 			<th class='club'>Équipe<div class='english'>Team</div></th>
 			<th colspan="3">Arraché<div class='english'>Snatch</div></th>
 			<th class="showThRank">Rang<div class='english'>Rank</div></th>
@@ -260,6 +261,7 @@ th, td {
 				<td class$="[[l.classname]]">[[l.lastName]], [[l.firstName]]</td>
 				<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
 				<td class="veryNarrow">[[l.category]]</td>
+				<td class="veryNarrow">[[l.yearOfBirth]]</td>
 				<td class="veryNarrow">[[l.teamName]]</td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 					<td class$="[[attempt.className]]">[[attempt.stringValue]]</td>
