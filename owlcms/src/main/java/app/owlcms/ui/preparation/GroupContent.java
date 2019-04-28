@@ -23,15 +23,15 @@ import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsCrudGrid;
-import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.fields.LocalDateTimeField;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.ui.crudui.OwlcmsCrudGrid;
+import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;

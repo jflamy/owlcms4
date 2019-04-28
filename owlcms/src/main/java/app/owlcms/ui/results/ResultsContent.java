@@ -37,9 +37,6 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
-import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsCrudGrid;
-import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -49,13 +46,18 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.spreadsheet.JXLSResultSheet;
+import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.ui.crudui.OwlcmsGridLayout;
+import app.owlcms.ui.shared.AthleteCrudGrid;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
-/**
+/** 
  * Class AnnouncerContent.
+ * 
+ * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
 @Route(value = "results/results", layout = AthleteGridLayout.class)
@@ -163,7 +165,7 @@ public class ResultsContent extends AthleteGridContent {
 	 * @return the crudGrid crudGrid
 	 */
 	@Override
-	public OwlcmsCrudGrid<Athlete> createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+	public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
 		ThemeList themes = grid.getThemeNames();
 		themes.add("compact");
@@ -192,7 +194,7 @@ public class ResultsContent extends AthleteGridContent {
 			.setHeader("Rank");
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
-		OwlcmsCrudGrid<Athlete> crud = new OwlcmsCrudGrid<Athlete>(Athlete.class,
+		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class,
 				gridLayout,
 				crudFormFactory,
 				grid) {
@@ -222,12 +224,12 @@ public class ResultsContent extends AthleteGridContent {
 				subscribeIfLifting(e.getValue());
 		});
 		
-		crud.setCrudListener(this);
-		crud.setClickRowToUpdate(true);
-		crud.getCrudLayout()
+		crudGrid.setCrudListener(this);
+		crudGrid.setClickRowToUpdate(true);
+		crudGrid.getCrudLayout()
 			.addToolbarComponent(groupFilter);
 
-		return crud;
+		return crudGrid;
 	}
 
 	/**

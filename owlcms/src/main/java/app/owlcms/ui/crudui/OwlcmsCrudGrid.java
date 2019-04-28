@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.components.crudui;
+package app.owlcms.ui.crudui;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -19,7 +19,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 
-import app.owlcms.data.athlete.Athlete;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -64,57 +63,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	protected void initLayout() {
     }
 	
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.impl.GridCrud#updateButtonClicked()
-	 */
-	@Override
-    protected void updateButtonClicked() {
-        T domainObject = grid.asSingleSelect().getValue();
-        logger.warn("domainObject = {} {}",domainObject, ((Athlete)domainObject).getId());
-        // show both an update and a delete button.
-        this.showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
-            try {
-            	logger.warn("before updateOperation, {}, after binder validation {}", domainObject, LoggerUtils.whereFrom());
-                T updatedObject = updateOperation.perform(domainObject);
-                grid.asSingleSelect().clear();
-                refreshGrid();
-                grid.asSingleSelect().setValue(updatedObject);
-            } catch (IllegalArgumentException ignore) {
-            	logger.error(LoggerUtils.stackTrace(ignore));
-            } catch (CrudOperationException e1) {
-            	logger.error(LoggerUtils.stackTrace(e1));
-                refreshGrid();
-            } catch (Exception e2) {
-            	logger.error(LoggerUtils.stackTrace(e2));
-                refreshGrid();
-                throw e2;
-            }
-        });
-    }
 	
-//	@Override
-//	public void setUpdateOperation(UpdateOperationListener<T> updateOperation) {
-//		logger.debug("***** setting update operation {} {}", updateOperation, LoggerUtils.stackTrace());
-//		this.updateOperation = updateOperation;
-//	}
-//	
-//	/* (non-Javadoc)
-//	 * @see org.vaadin.crudui.crud.AbstractCrud#setCrudListener(org.vaadin.crudui.crud.CrudListener)
-//	 */
-//	@SuppressWarnings({ "rawtypes", "unchecked" })
-//	@Override
-//	public void setCrudListener(CrudListener<T> crudListener) {
-//		logger.debug("***** setCrudListener {} - {}", crudListener, LoggerUtils.whereFrom());
-//		setAddOperation(crudListener::add);
-//		setUpdateOperation(crudListener::update);
-//		setDeleteOperation(crudListener::delete);
-//		
-//		if (LazyCrudListener.class.isAssignableFrom(crudListener.getClass())) {
-//		    setFindAllOperation((LazyFindAllCrudOperationListener<T>) () -> ((LazyCrudListener)crudListener).getDataProvider());
-//		} else {
-//		    setFindAllOperation(crudListener::findAll);
-//		}
-//	}
 
 	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.impl.GridCrud#deleteButtonClicked()

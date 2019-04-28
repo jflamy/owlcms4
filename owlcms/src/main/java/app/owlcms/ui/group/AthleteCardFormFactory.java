@@ -25,20 +25,21 @@ import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.binder.BindingValidationStatus;
+import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.ClassList;
 
-import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -85,9 +86,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	private Athlete originalAthlete;
 
 	private AthleteGridContent origin;
-	private TextField currentField;
-
-	private TextField snatch1Declaration;
+	private TextField updateTrigger;
 
 	public AthleteCardFormFactory(Class<Athlete> domainType, AthleteGridContent origin) {
 		super(domainType);
@@ -105,7 +104,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	}
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.components.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.
+	 * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.
 	 * crudui.crud.CrudOperation, java.lang.Object, boolean,
 	 * com.vaadin.flow.component.ComponentEventListener,
 	 * com.vaadin.flow.component.ComponentEventListener,
@@ -160,7 +159,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		tf.setPattern("^[-]{0,1}\\d*$");
 		tf.setPreventInvalidInput(true);
 		tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
-		tf.addFocusListener((e) -> {currentField = e.getSource(); logger.warn("current field is at {}, {}", row, col);});
+//		tf.addFocusListener((e) -> {currentField = e.getSource(); logger.warn("current field is at {}, {}", row, col);});
 		return tf;
 	}
 
@@ -169,14 +168,21 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		tf.setPattern("^\\d*$");
 		tf.setPreventInvalidInput(true);
 		tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
-		tf.addFocusListener((e) -> {currentField = e.getSource(); logger.warn("current field is at {}, {}", row, col);});
+//		tf.addFocusListener((e) -> {currentField = e.getSource(); logger.warn("current field is at {}, {}", row, col);});
 		return tf;
 	}
 
+	/**
+	 * @param operation
+	 * @param gridLayout
+	 */
 	protected void bindGridFields(CrudOperation operation, GridLayout gridLayout) {
 		binder = buildBinder(operation, editedAthlete);
+		// workaround for the fact that ENTER as keyboard shortcut prevents the value being
+		// typed from being set in the underlying object.
+		updateTrigger(operation, gridLayout);
 
-		snatch1Declaration = createPositiveWeightField(DECLARATION, SNATCH1);
+		TextField snatch1Declaration = createPositiveWeightField(DECLARATION, SNATCH1);
 		binder.forField(snatch1Declaration)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch1Declaration(v)))
 			.withValidationStatusHandler(status -> setErrorLabel(status))
@@ -210,19 +216,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		snatch2AutomaticProgression.setTabIndex(-1);
 		binder.forField(snatch2AutomaticProgression)
 			.bind(Athlete::getSnatch2AutomaticProgression, Athlete::setSnatch2AutomaticProgression);
-		snatch2AutomaticProgression.addFocusListener((f) -> {
-			// absolutely barbaric kludge
-        	logger.warn("***finalfocus {}",currentField.getValue()); 
-            if (binder.validate().isOk()) {
-                try {
-                    doUpdate();
-                } catch (Exception e) {
-                    showError(operation, e);
-                }
-            } else {
-                Notification.show(validationErrorMessage);
-            }
-		});
 		atRowAndColumn(gridLayout, snatch2AutomaticProgression, AUTOMATIC, SNATCH2);
 
 		TextField snatch2Declaration = createPositiveWeightField(DECLARATION, SNATCH2);
@@ -389,10 +382,49 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			.bind(Athlete::getCleanJerk3ActualLift, Athlete::setCleanJerk3ActualLift);
 		atRowAndColumn(gridLayout, cj3ActualLift, ACTUAL, CJ3);
 
-		// use setBean so that changes are immediately reflected to the working copy.
+		// use setBean so that changes are immediately reflected to the working copy
+		// otherwise the changes are only visible in the fields, and the validation routines in the
+		// Athlete class don't work
 		binder.setBean(editedAthlete);
 		setFocus(editedAthlete);
 	}
+
+	/**
+	 * Workaround for the fact that ENTER as keyboard shortcut prevents the value being typed from being
+	 * set in the underlying object.
+	 *
+	 * i.e. Typing TAB followed by ENTER works (tab causes ON_BLUR), but ENTER alone doesn't.  This method
+	 * we work around this issue by causing focus to move, and reacting to the focus being set.  We create
+	 * a "hidden" field.
+	 * 
+	 * @param operation
+	 * @param gridLayout
+	 */
+	public void updateTrigger(CrudOperation operation, GridLayout gridLayout) {
+		updateTrigger = new TextField();
+		updateTrigger.setReadOnly(true);
+		updateTrigger.setTabIndex(-1);
+		updateTrigger.addFocusListener((f) -> {
+			// absolutely barbaric kludge
+			synchronized (binder) {
+				BinderValidationStatus<Athlete> validationStatus = binder.validate();
+				if (validationStatus.isOk()) {
+					try {
+						doUpdate();
+					} catch (Exception e) {
+						showError(operation, e);
+					}
+				} else {
+					setErrorLabel(validationStatus);
+				}
+			}
+		});
+		// field must visible and added to the layout for focus() to work, so we hide it brutally
+		atRowAndColumn(gridLayout, updateTrigger, AUTOMATIC, SNATCH1);
+		updateTrigger.getStyle().set("z-index", "-10");
+
+	}
+
 
 	public void setActualLiftStyle(BindingValidationStatus<?> status) throws NumberFormatException {
 		setErrorLabel(status);
@@ -417,29 +449,60 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	}
 
 	public void setErrorLabel(BindingValidationStatus<?> status) throws NumberFormatException {
+		HasStyle field = (TextField) status.getField();
+		ClassList fieldClasses = field.getElement().getClassList();
 		if (status.isError()) {
-			ClassList classNames = ((HasStyle) status.getField()).getClassNames();
-			classNames.clear();
-			classNames.add("error");
-			errorLabel.setText(status.getMessage().orElse("Error"));
+			fieldClasses.clear();
+			fieldClasses.set("error",true);
 			setVisible(errorLabel, true);
+			errorLabel.setText(status.getMessage().orElse("Error"));
 			errorLabel.getClassNames().set("errorMessage", true);
 		} else {
-			setVisible(errorLabel, false);
+			fieldClasses.clear();
+			setVisible(errorLabel, true);
+			errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
 			errorLabel.getClassNames().clear();
 		}
 	}
+	
+	private void setErrorLabel(BinderValidationStatus<Athlete> validationStatus) {
+		StringBuilder sb = new StringBuilder();
+		for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
+			HasStyle field = (TextField) ve.getField();
+			ClassList fieldClasses = field.getElement().getClassList();
+			fieldClasses.clear();
+			fieldClasses.set("error",true);
+			if (sb.length() > 0) sb.append("; ");
+			sb.append(ve.getMessage().orElse("Error"));
+		}
+		for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
+			if (sb.length() > 0) sb.append("; ");
+			sb.append(ve.getErrorMessage());
+		}
+		if (sb.length() > 0) {
+			setVisible(errorLabel, true);
+			errorLabel.setText(sb.toString());
+			errorLabel.getClassNames().set("errorMessage", true);
+		} else {
+			setVisible(errorLabel, true);
+			errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
+			errorLabel.getClassNames().clear();
+		}
+		
+	}
+
+
 
 	private void setVisible(HasText label, boolean visible) {
 		if (visible) {
-			label.getElement().getStyle().remove("display");
+			label.getElement().getStyle().remove("visibility");
 		} else {
-			label.getElement().getStyle().set("display", "none");
+			label.getElement().getStyle().set("visibility", "hidden");
 		}
 	}
 
 	/* (non-Javadoc)
-	 * @see app.owlcms.components.crudui.OwlcmsCrudFormFactory#buildFooter(org.vaadin.
+	 * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildFooter(org.vaadin.
 	 * crudui.crud.CrudOperation, java.lang.Object, com.vaadin.flow.component.ComponentEventListener,
 	 * com.vaadin.flow.component.ComponentEventListener,
 	 * com.vaadin.flow.component.ComponentEventListener) */
@@ -455,9 +518,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			null);
 	}
 
-	public void doUpdate() {
+	/**
+	 * Update the original athlete so that the lifting order picks up the change.
+	 */
+	private void doUpdate() {
 		Athlete.copyLifts(originalAthlete, editedAthlete);
-		// FIXME using the return value from the JPA merge seems to break lifting order recalculation. Perhaps a wrong ==
 		AthleteRepository.save(originalAthlete);
 		OwlcmsSession.withFop((fop) -> {
 			fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
@@ -468,7 +533,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	/** 
 	 * Special version because we use setBean instead of readBean
 	 * 
-	 * @see app.owlcms.components.crudui.OwlcmsCrudFormFactory#buildOperationButton(org.vaadin.crudui.crud.CrudOperation, java.lang.Object, com.vaadin.flow.component.ComponentEventListener)
+	 * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildOperationButton(org.vaadin.crudui.crud.CrudOperation, java.lang.Object, com.vaadin.flow.component.ComponentEventListener)
 	 */
 	@Override
     protected Button buildOperationButton(CrudOperation operation, Athlete domainObject, ComponentEventListener<ClickEvent<Button>> clickListener) {
@@ -479,7 +544,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
         ComponentEventListener<ClickEvent<Button>> listener = event -> {
         	// force value to be written to underlying bean -- the keyboard shortcut on the button breaks this
-        	snatch2AutomaticProgression.focus();
+        	updateTrigger.focus();
         };
 		
         if (operation != CrudOperation.DELETE) {

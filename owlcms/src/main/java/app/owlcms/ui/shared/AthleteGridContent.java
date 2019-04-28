@@ -42,9 +42,6 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsCrudGrid;
-import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.group.Group;
@@ -54,6 +51,9 @@ import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.ui.crudui.OwlcmsCrudGrid;
+import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.group.AthleteCardFormFactory;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.utils.LoggerUtils;
@@ -128,7 +128,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 * Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public AthleteGridContent() {
-		logger.warn("AthleteGridContent constructor");
+		logger.debug("AthleteGridContent constructor");
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
 		crudGrid = createCrudGrid(crudFormFactory);		
 		defineFilters(crudGrid);
@@ -381,7 +381,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 */
 	@Subscribe
 	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
-		logger.warn("{} {}",e.getOrigin(),LoggerUtils.whereFrom());
+		logger.debug("{} {}",e.getOrigin(),LoggerUtils.whereFrom());
 		UIEventProcessor.uiAccess(crudGrid, uiEventBus, e, () -> {
 			crudGrid.refreshGrid();
 		});
@@ -393,7 +393,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 *
 	 * @return the crudGrid crudGrid
 	 */
-	public OwlcmsCrudGrid<Athlete> createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+	public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
 		ThemeList themes = grid.getThemeNames();
 		themes.add("compact");
@@ -414,7 +414,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			.setHeader("Start Number");
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
-		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<Athlete>(Athlete.class,
+		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class,
 				gridLayout,
 				crudFormFactory,
 				grid) {

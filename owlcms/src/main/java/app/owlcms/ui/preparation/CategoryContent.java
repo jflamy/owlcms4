@@ -24,12 +24,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsCrudGrid;
-import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.ui.crudui.OwlcmsCrudGrid;
+import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;

@@ -52,11 +52,12 @@ public class AthleteRepository {
 	/**
 	 * Save an athlete
 	 *
-	 * @param Athlete the athlete
+	 * @param athlete the athlete
 	 * @return the athlete
 	 */
-	public static Athlete save(Athlete Athlete) {
-		return JPAService.runInTransaction(em -> em.merge(Athlete));
+	public static Athlete save(Athlete athlete) {
+		// FIXME: we need to return the non-merged athlete (erroneous check on == somewhere)
+		return JPAService.runInTransaction((em) -> {em.merge(athlete); return athlete;});
 	}
 
 	/**
