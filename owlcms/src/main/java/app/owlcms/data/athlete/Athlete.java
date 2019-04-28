@@ -3668,20 +3668,19 @@ public class Athlete {
 	 */
 	private void validateDeclaration(int curLift, String automaticProgression, String declaration, String change1,
 			String change2, String actualLift) throws RuleViolationException {
-		boolean actualLiftEmpty = actualLift == null || actualLift.trim().isEmpty();
-		boolean declarationEmpty = declaration == null || declaration.trim().isEmpty();
-		if (declarationEmpty) {
-			if (actualLiftEmpty)
-				return; // allow reset of field.
-			else
-				throw RuleViolation.declarationValueRequired(curLift);
-		}
+//		boolean actualLiftEmpty = actualLift == null || actualLift.trim().isEmpty();
+//		boolean declarationEmpty = declaration == null || declaration.trim().isEmpty();
+//		if (declarationEmpty) {
+//			if (actualLiftEmpty)
+//				return; // allow reset of field.
+//			else
+//				throw RuleViolation.declarationValueRequired(curLift);
+//		}
 
-		// actual lift given, we need declaration.
 		int newVal = zeroIfInvalid(declaration);
 		int iAutomaticProgression = zeroIfInvalid(automaticProgression);
 		// allow null declaration for reloading old results.
-		if (iAutomaticProgression > 0 && newVal < iAutomaticProgression)
+		if (iAutomaticProgression > 0 && newVal > 0 && newVal < iAutomaticProgression)
 			throw RuleViolation.declarationValueTooSmall(curLift, newVal, iAutomaticProgression);
 
 	}

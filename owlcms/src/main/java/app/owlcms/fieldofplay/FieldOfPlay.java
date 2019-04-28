@@ -581,7 +581,7 @@ public class FieldOfPlay {
 		setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
 		this.setCurAthlete(this.liftingOrder.isEmpty() ? null : this.liftingOrder.get(0));
 		int timeAllowed = getTimeAllowed();
-		logger.warn("recomputed lifting order curAthlete={} prevlifter={} time={}",
+		logger.debug("recomputed lifting order curAthlete={} prevlifter={} time={}",
 			curAthlete != null ? curAthlete.getFullName() : "",
 			previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed);
 		getAthleteTimer().setTimeRemaining(timeAllowed);

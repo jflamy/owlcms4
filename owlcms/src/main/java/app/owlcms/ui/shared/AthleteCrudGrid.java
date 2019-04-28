@@ -68,7 +68,7 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 		// show both an update and a delete button.
 		this.showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
 			try {
-				logger.warn("before updateOperation, {}, after binder validation {}", match, LoggerUtils.whereFrom());
+				logger.trace("before updateOperation, {}, after binder validation {}", match, LoggerUtils.whereFrom());
 				Athlete updatedObject = updateOperation.perform(match);
 				grid.asSingleSelect().clear();
 				refreshGrid();

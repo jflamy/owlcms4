@@ -47,7 +47,6 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.AthleteTimerElement;
-import app.owlcms.displays.attemptboard.TimerElement;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
@@ -92,7 +91,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	protected H2 firstName;
 	protected Html attempt;
 	protected H2 weight;
-	protected TimerElement timeField;
+	protected AthleteTimerElement timeField;
 	protected HorizontalLayout topBar;
 	protected ComboBox<Group> groupSelect;
 	
@@ -272,8 +271,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		weight = new H2();
 		weight.setText("");
 
-		timeField = new AthleteTimerElement();
-//		timeField.setTimeRemaining(0);
+		timeField = new AthleteTimerElement(this);
 		H1 time = new H1(timeField);
 
 		HorizontalLayout buttons = announcerButtons(topBar);
@@ -324,7 +322,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			String lastName2 = athlete.getLastName();
 			lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
 			firstName.setText(athlete.getFirstName());
-//			timeField.setTimeRemaining(timeAllowed);
 			String attemptHtml = MessageFormat.format("<h2>{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.</h2>", athlete.getAttemptNumber());
 			Html newAttempt = new Html(attemptHtml);
 			topBar.replace(attempt, newAttempt);

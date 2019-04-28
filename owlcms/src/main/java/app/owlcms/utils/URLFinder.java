@@ -134,12 +134,12 @@ public class URLFinder {
 							break;
 						}
 					} catch (Exception e) {
-						logger.warn(LoggerUtils.stackTrace(e));
+						logger.error(LoggerUtils.stackTrace(e));
 					}
 				}
 			}
 		} catch (SocketException e) {
-			logger.warn(LoggerUtils.stackTrace(e));
+			logger.error(LoggerUtils.stackTrace(e));
 		}
 		logger.debug("wired = {} {}", wired, wired.size());
 		logger.debug("wireless = {} {}", wireless, wireless.size());

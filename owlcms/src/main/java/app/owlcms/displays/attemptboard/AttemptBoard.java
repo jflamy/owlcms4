@@ -111,6 +111,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	 * Instantiates a new attempt board.
 	 */
 	public AttemptBoard() {
+		athleteTimer.setOrigin(this);
 	}
 
 	public void doReset() {
@@ -205,8 +206,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		}
 
 		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (fop.getState() == FOPState.INACTIVE
-				|| fop.getState() == FOPState.BREAK) {
+		if (fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
 			doEmpty();
 			return;
 		}

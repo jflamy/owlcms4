@@ -155,6 +155,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 			logger.error(LoggerUtils.stackTrace());
 		}
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			stop();
 			setTimeRemaining(milliseconds);
 		});
 	}
@@ -212,6 +213,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 		TimerModel model = getModel();
 		model.setCurrentTime(seconds);
 		model.setStartTime(seconds);
+		// should not be necessary
+		getTimerElement().callFunction("reset");
 	}
 
 	private void start() {

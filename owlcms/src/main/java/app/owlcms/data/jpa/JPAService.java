@@ -55,7 +55,7 @@ public class JPAService {
 
 	protected static final Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
 	static {
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 	}
 
 	protected static EntityManagerFactory factory;
@@ -170,7 +170,7 @@ public class JPAService {
 		} else {
 			throw new RuntimeException("Unsupported database: " + dbUrl);
 		}
-		logger.debug("Database: {}, memoryMode={}, demoMode={}", properties.get(JPA_JDBC_URL), memoryMode, demoMode);
+		logger.info("Database: {}, memoryMode={}, demoMode={}", properties.get(JPA_JDBC_URL), memoryMode, demoMode);
 		return properties;
 	}
 

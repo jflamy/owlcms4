@@ -136,6 +136,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	 * Instantiates a new results board.
 	 */
 	public ResultsBoard() {
+		timer.setOrigin(this);
 	}
 
 	@Subscribe

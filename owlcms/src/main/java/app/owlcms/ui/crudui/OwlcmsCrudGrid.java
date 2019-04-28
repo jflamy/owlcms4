@@ -103,7 +103,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 					buttonClickListener.onComponentEvent(operationPerformedClickEvent);
 					grid.asSingleSelect().clear();
 					Notification.show(successMessage);
-					logger.warn("operation performed");
+					logger.trace("operation performed");
 				} catch (Exception e) {
 					logger.error(LoggerUtils.stackTrace(e));
 				}
