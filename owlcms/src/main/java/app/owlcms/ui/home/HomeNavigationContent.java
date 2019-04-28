@@ -123,10 +123,10 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	}
 
 	/**
-	 * Navigation grid.
+	 * Navigation crudGrid.
 	 *
 	 * @param items the items
-	 * @return the flexible grid layout
+	 * @return the flexible crudGrid layout
 	 */
 	public static FlexibleGridLayout navigationGrid(Component... items) {
 		FlexibleGridLayout layout = new FlexibleGridLayout();

@@ -8,11 +8,11 @@ package app.owlcms.data.athlete;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.EventObject;
 import java.util.List;
 import java.util.Locale;
 
@@ -35,6 +35,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -69,76 +70,21 @@ import ch.qos.logback.classic.Logger;
 @Entity
 @Cacheable
 public class Athlete {
+	private final static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
+	private final static Level NORMAL_LEVEL = Level.INFO;
+
+	private static final int YEAR = LocalDateTime.now().getYear();
 	
-	private static final Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
-	static { logger.setLevel(Level.INFO);}
-
-	/**
-	 * Athlete events all derive from this.
-	 */
-	public class UpdateEvent extends EventObject {
-		private static final long serialVersionUID = -126644150054472005L;
-		private List<String> propertyIds;
-
-		/**
-		 * Constructs a new event with a specified source component.
-		 *
-		 * @param source      the source component of the event.
-		 * @param propertyIds that have been updated.
-		 */
-		public UpdateEvent(Athlete source, String... propertyIds) {
-			super(source);
-			this.propertyIds = Arrays.asList(propertyIds);
-		}
-
-		/**
-		 * Gets the property ids.
-		 *
-		 * @return the property ids
-		 */
-		public List<String> getPropertyIds() {
-			return propertyIds;
-		}
-
-	}
-
-	/**
-	 * Listener interface for receiving <code>Athlete.UpdateEvent</code>s.
-	 *
-	 * @see UpdateEventEvent
-	 */
-	public interface UpdateEventListener extends java.util.EventListener {
-
-		/**
-		 * This method will be invoked when a Athlete.UpdateEvent is fired.
-		 *
-		 * @param updateEvent the event that has occured.
-		 */
-		public void updateEvent(Athlete.UpdateEvent updateEvent);
-	}
-
-
-	/** The year. */
-	static int year = Calendar.getInstance()
-		.get(Calendar.YEAR);
-
 	/**
 	 * Gets the logger.
 	 *
 	 * @return the logger
 	 */
-	public static Logger getLogger() {
+	public Logger getLogger() {
 		return logger;
 	}
 
-	/**
-	 * Gets the year.
-	 *
-	 * @return the year
-	 */
-	public static int getYear() {
-		return year;
-	}
+
 	/**
 	 * Checks if is empty.
 	 *
@@ -149,6 +95,7 @@ public class Athlete {
 		return (value == null) || value.trim()
 			.isEmpty();
 	}
+
 	/**
 	 * Last.
 	 *
@@ -165,6 +112,7 @@ public class Athlete {
 		}
 		return 0;
 	}
+
 	/**
 	 * Zero if invalid.
 	 *
@@ -178,6 +126,22 @@ public class Athlete {
 			return 0;
 		}
 	}
+
+	/**
+	 * Zero if invalid.
+	 *
+	 * @param value the value
+	 * @return the int
+	 */
+	public static int throwIfInvalid(String value) throws RuleViolationException {
+		try {
+			Integer valueOf = Integer.valueOf(value);
+			return valueOf;
+		} catch (NumberFormatException nfe) {
+			throw new RuleViolationException(nfe.getLocalizedMessage());
+		}
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
@@ -203,10 +167,10 @@ public class Athlete {
 	// "-" or other things in the cells, so Strings are actually easier.
 
 	private String team = ""; //$NON-NLS-1$
-	private Gender gender = null; //$NON-NLS-1$
+	private Gender gender = null; // $NON-NLS-1$
 	private LocalDate fullBirthDate = null;
 	private AgeDivision ageDivision = null;
-	
+
 	private Double bodyWeight = null;
 	private String membership = ""; //$NON-NLS-1$
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
@@ -280,10 +244,8 @@ public class Athlete {
 	private Integer qualifyingTotal = 0;
 
 	/** The lift order rank. */
-	/*
-	 * Non-persistent properties. These properties are used during computations, but
-	 * need not be stored in the database
-	 */
+	/* Non-persistent properties. These properties are used during computations, but need not be stored
+	 * in the database */
 	@Transient
 	Integer liftOrderRank = 0;
 
@@ -315,6 +277,14 @@ public class Athlete {
 	 */
 	public Athlete() {
 		super();
+	}
+
+	public static void setLoggerLevel(Level newLevel) {
+		logger.setLevel(newLevel);
+	}
+
+	public static void resetLoggerLevel() {
+		logger.setLevel(NORMAL_LEVEL);
 	}
 
 	/**
@@ -424,10 +394,8 @@ public class Athlete {
 		return message;
 	}
 
-
 	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
+	 * @see java.lang.Object#equals(java.lang.Object) */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -442,38 +410,38 @@ public class Athlete {
 			if (other.fullBirthDate != null)
 				return false;
 		} else if (!fullBirthDate.equals(other.fullBirthDate))
-			return false; 
-		
+			return false;
+
 		if (firstName == null) {
 			if (other.firstName != null)
 				return false;
 		} else if (!firstName.equals(other.firstName))
 			return false;
-		
+
 		if (lastName == null) {
 			if (other.lastName != null)
 				return false;
 		} else if (!lastName.equals(other.lastName))
-			return false; 
-		
+			return false;
+
 		if (team == null) {
 			if (other.team != null)
 				return false;
 		} else if (!team.equals(other.team))
 			return false;
-		
+
 		if (gender == null) {
 			if (other.gender != null)
 				return false;
 		} else if (!gender.equals(other.gender))
 			return false;
-		
+
 		if (membership == null) {
 			if (other.membership != null)
 				return false;
 		} else if (!membership.equals(other.membership))
 			return false;
-		
+
 		return true;
 	}
 
@@ -515,8 +483,8 @@ public class Athlete {
 	/**
 	 * Gets the age group.
 	 *
-	 * @return the ageGroup. M80 if male missing birth date, F70 if female missing
-	 *         birth date or missing both gender and birth.
+	 * @return the ageGroup. M80 if male missing birth date, F70 if female missing birth date or missing
+	 *         both gender and birth.
 	 */
 	public Integer getAgeGroup() {
 		Integer yob = this.getYearOfBirth();
@@ -538,10 +506,10 @@ public class Athlete {
 		}
 		int ageGroup1 = (int) (Math.ceil(age / 5) * 5);
 
-		if (Gender.F == gender2 && ageGroup1 >= 70) { //$NON-NLS-1$
+		if (Gender.F == gender2 && ageGroup1 >= 70) { // $NON-NLS-1$
 			return 70;
 		}
-		if (Gender.M == gender2 && ageGroup1 >= 80) { //$NON-NLS-1$
+		if (Gender.M == gender2 && ageGroup1 >= 80) { // $NON-NLS-1$
 			return 80;
 		}
 		// normal case
@@ -587,7 +555,7 @@ public class Athlete {
 	public Integer getAttemptNumber() {
 		return getAttemptsDone() % 3 + 1;
 	}
-	
+
 	/**
 	 * Gets the best clean jerk.
 	 *
@@ -708,10 +676,9 @@ public class Athlete {
 	};
 
 	/**
-	 * Compute the body weight at the maximum weight of the Athlete's category.
-	 * Note: for the purpose of this computation, only "official" categories are
-	 * used as the purpose is to totalRank athletes according to their competition
-	 * potential.
+	 * Compute the body weight at the maximum weight of the Athlete's category. Note: for the purpose of
+	 * this computation, only "official" categories are used as the purpose is to totalRank athletes
+	 * according to their competition potential.
 	 *
 	 * @return the category sinclair
 	 */
@@ -723,7 +690,7 @@ public class Athlete {
 		final Integer total1 = getTotal();
 		if (total1 == null || total1 < 0.1)
 			return 0.0;
-		if (getGender() == Gender.M) { //$NON-NLS-1$
+		if (getGender() == Gender.M) { // $NON-NLS-1$
 			if (categoryWeight < 55.0) {
 				categoryWeight = 55.0;
 			} else if (categoryWeight > SinclairCoefficients.menMaxWeight()) {
@@ -1311,10 +1278,10 @@ public class Athlete {
 	 */
 	public String getMastersAgeGroupInterval() {
 		Integer ageGroup1 = getAgeGroup();
-		if (this.getGender() == Gender.F && ageGroup1 >= 70) { //$NON-NLS-1$
+		if (this.getGender() == Gender.F && ageGroup1 >= 70) { // $NON-NLS-1$
 			return "70+";
 		}
-		if (this.getGender() == Gender.M && ageGroup1 >= 80) { //$NON-NLS-1$
+		if (this.getGender() == Gender.M && ageGroup1 >= 80) { // $NON-NLS-1$
 			return "80+";
 		}
 		if (ageGroup1 == 17) {
@@ -1399,9 +1366,8 @@ public class Athlete {
 	}
 
 	/**
-	 * Compute the time of last lift for Athlete. Times are only compared within the
-	 * same lift type (if a Athlete is at the first attempt of clean and jerk, then
-	 * the last lift occurred forever ago.)
+	 * Compute the time of last lift for Athlete. Times are only compared within the same lift type (if
+	 * a Athlete is at the first attempt of clean and jerk, then the last lift occurred forever ago.)
 	 *
 	 * @return null if Athlete has not lifted
 	 */
@@ -1620,10 +1586,9 @@ public class Athlete {
 	}
 
 	/**
-	 * Compute the Sinclair total for the Athlete, that is, the total multiplied by
-	 * a value that depends on the Athlete's body weight. This value extrapolates
-	 * what the Athlete would have lifted if he/she had the bodymass of a
-	 * maximum-weight Athlete.
+	 * Compute the Sinclair total for the Athlete, that is, the total multiplied by a value that depends
+	 * on the Athlete's body weight. This value extrapolates what the Athlete would have lifted if
+	 * he/she had the bodymass of a maximum-weight Athlete.
 	 *
 	 * @return the sinclair-adjusted value for the Athlete
 	 */
@@ -1651,7 +1616,7 @@ public class Athlete {
 	 * @return the sinclair factor
 	 */
 	public Double getSinclairFactor() {
-		if (gender == Gender.M) { //$NON-NLS-1$
+		if (gender == Gender.M) { // $NON-NLS-1$
 			return sinclairFactor(this.bodyWeight,
 				SinclairCoefficients.menCoefficient(),
 				SinclairCoefficients.menMaxWeight());
@@ -1702,7 +1667,7 @@ public class Athlete {
 		final Integer birthDate1 = getYearOfBirth();
 		if (birthDate1 == null)
 			return 0.0;
-		return getSinclair() * SinclairCoefficients.getSMMCoefficient(year - birthDate1);
+		return getSinclair() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1);
 	}
 
 	/**
@@ -2040,10 +2005,9 @@ public class Athlete {
 	}
 
 	/**
-	 * Total is zero if all three snatches or all three clean&jerks are failed.
-	 * Failed lifts are indicated as negative amounts. Total is the sum of all good
-	 * lifts otherwise. Null entries indicate that no data has been captured, and
-	 * are counted as zero.
+	 * Total is zero if all three snatches or all three clean&jerks are failed. Failed lifts are
+	 * indicated as negative amounts. Total is the sum of all good lifts otherwise. Null entries
+	 * indicate that no data has been captured, and are counted as zero.
 	 *
 	 * @return the total
 	 */
@@ -2100,11 +2064,8 @@ public class Athlete {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Object#hashCode()
-	 */
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode() */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -2195,16 +2156,11 @@ public class Athlete {
 	/**
 	 * Reset forced as current.
 	 */
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.vaadin.event.MethodEventSource#removeListener(java.lang.Class,
-	 * java.lang.Object)
-	 */
+	/* (non-Javadoc)
+	 * @see com.vaadin.event.MethodEventSource#removeListener(java.lang.Class, java.lang.Object) */
 	public void resetForcedAsCurrent() {
 		this.forcedAsCurrent = false;
 	}
-
 
 	/**
 	 * Sets the attempts done.
@@ -2267,11 +2223,12 @@ public class Athlete {
 	public void setCleanJerk1ActualLift(String cleanJerk1ActualLift) {
 		validateCleanJerk1ActualLift(cleanJerk1ActualLift);
 		this.cleanJerk1ActualLift = cleanJerk1ActualLift;
+		logger.info("{} cleanJerk1ActualLift={}", this, cleanJerk1ActualLift);
 		if (zeroIfInvalid(cleanJerk1ActualLift) == 0)
 			this.cleanJerk1LiftTime = (null);
 		else
 			this.cleanJerk1LiftTime = sqlNow();
-		logger.info("{} cleanJerk1ActualLift={}", this, cleanJerk1ActualLift);
+
 	}
 
 	/**
@@ -2338,8 +2295,7 @@ public class Athlete {
 			cleanJerk1Declaration,
 			cleanJerk1Change1,
 			cleanJerk1Change2,
-			cleanJerk1ActualLift,
-			false);
+			cleanJerk1ActualLift);
 		this.cleanJerk1Declaration = cleanJerk1Declaration;
 		if (zeroIfInvalid(getSnatch1Declaration()) > 0)
 			checkStartingTotalsRule(true);
@@ -2363,11 +2319,12 @@ public class Athlete {
 	public void setCleanJerk2ActualLift(String cleanJerk2ActualLift) {
 		validateCleanJerk2ActualLift(cleanJerk2ActualLift);
 		this.cleanJerk2ActualLift = cleanJerk2ActualLift;
+		logger.info("{} cleanJerk2ActualLift={}", this, cleanJerk2ActualLift);
+
 		if (zeroIfInvalid(cleanJerk2ActualLift) == 0)
 			this.cleanJerk2LiftTime = (null);
 		else
 			this.cleanJerk2LiftTime = sqlNow();
-		logger.info("{} cleanJerk2ActualLift={}", this, cleanJerk2ActualLift);
 	}
 
 	/**
@@ -2429,8 +2386,7 @@ public class Athlete {
 			cleanJerk2Declaration,
 			cleanJerk2Change1,
 			cleanJerk2Change2,
-			cleanJerk2ActualLift,
-			false);
+			cleanJerk2ActualLift);
 		this.cleanJerk2Declaration = cleanJerk2Declaration;
 		logger.info("{} cleanJerk2Declaration={}", this, cleanJerk2Declaration);
 	}
@@ -2451,11 +2407,12 @@ public class Athlete {
 	public void setCleanJerk3ActualLift(String cleanJerk3ActualLift) {
 		validateCleanJerk3ActualLift(cleanJerk3ActualLift);
 		this.cleanJerk3ActualLift = cleanJerk3ActualLift;
+		logger.info("{} cleanJerk3ActualLift={}", this, cleanJerk3ActualLift);
+
 		if (zeroIfInvalid(cleanJerk3ActualLift) == 0)
 			this.cleanJerk3LiftTime = (null);
 		else
 			this.cleanJerk3LiftTime = sqlNow();
-		logger.info("{} cleanJerk3ActualLift={}", this, cleanJerk3ActualLift);
 	}
 
 	/**
@@ -2518,8 +2475,7 @@ public class Athlete {
 			cleanJerk3Declaration,
 			cleanJerk3Change1,
 			cleanJerk3Change2,
-			cleanJerk3ActualLift,
-			false);
+			cleanJerk3ActualLift);
 		this.cleanJerk3Declaration = cleanJerk3Declaration;
 		logger.info("{} cleanJerk3Declaration={}", this, cleanJerk3Declaration);
 	}
@@ -2764,6 +2720,7 @@ public class Athlete {
 	public void setSnatch1ActualLift(String snatch1ActualLift) {
 		validateSnatch1ActualLift(snatch1ActualLift);
 		this.snatch1ActualLift = snatch1ActualLift;
+		logger.info("{} snatch1ActualLift={} - {}", this, snatch1ActualLift, LoggerUtils.whereFrom());
 		if (zeroIfInvalid(snatch1ActualLift) == 0)
 			this.snatch1LiftTime = null;
 		else
@@ -2790,6 +2747,8 @@ public class Athlete {
 			setSnatch1ActualLift("0");
 			return;
 		}
+		logger.debug("* {} snatch1Change1={} - {}", System.identityHashCode(this), snatch1Change1,
+			LoggerUtils.whereFrom());
 		validateSnatch1Change1(snatch1Change1);
 		this.snatch1Change1 = snatch1Change1;
 		checkStartingTotalsRule(true);
@@ -2833,8 +2792,7 @@ public class Athlete {
 			snatch1Declaration,
 			snatch1Change1,
 			snatch1Change2,
-			snatch1ActualLift,
-			true);
+			snatch1ActualLift);
 		this.snatch1Declaration = snatch1Declaration;
 		if (zeroIfInvalid(getCleanJerk1Declaration()) > 0)
 			checkStartingTotalsRule(true);
@@ -2858,19 +2816,16 @@ public class Athlete {
 	public void setSnatch2ActualLift(String snatch2ActualLift) {
 		validateSnatch2ActualLift(snatch2ActualLift);
 		this.snatch2ActualLift = snatch2ActualLift;
+		logger.info("{} snatch2ActualLift={}", this, snatch2ActualLift);
 		if (zeroIfInvalid(snatch2ActualLift) == 0)
 			this.snatch2LiftTime = (null);
 		else
 			this.snatch2LiftTime = sqlNow();
-		logger.info("{} snatch2ActualLift={}", this, snatch2ActualLift);
 	}
 
-	/*
-	 * General event framework: we implement the com.vaadin.event.MethodEventSource
-	 * interface which defines how a notifier can call a method on a listener to
-	 * signal that an event has occurred, and how the listener can
-	 * register/unregister itself.
-	 */
+	/* General event framework: we implement the com.vaadin.event.MethodEventSource interface which
+	 * defines how a notifier can call a method on a listener to signal that an event has occurred, and
+	 * how the listener can register/unregister itself. */
 
 	/**
 	 * Sets the snatch 2 automatic progression.
@@ -2931,8 +2886,7 @@ public class Athlete {
 			snatch2Declaration,
 			snatch2Change1,
 			snatch2Change2,
-			snatch2ActualLift,
-			true);
+			snatch2ActualLift);
 		this.snatch2Declaration = snatch2Declaration;
 		logger.info("{} snatch2Declaration={}", this, snatch2Declaration);
 	}
@@ -2953,11 +2907,12 @@ public class Athlete {
 	public void setSnatch3ActualLift(String snatch3ActualLift) {
 		validateSnatch3ActualLift(snatch3ActualLift);
 		this.snatch3ActualLift = snatch3ActualLift;
+		logger.info("{} snatch3ActualLift={}", this, snatch3ActualLift);
 		if (zeroIfInvalid(snatch3ActualLift) == 0)
 			this.snatch3LiftTime = (null);
 		else
 			this.snatch3LiftTime = sqlNow();
-		logger.info("{} snatch3ActualLift={}", this, snatch3ActualLift);
+
 	}
 
 	/**
@@ -3019,8 +2974,7 @@ public class Athlete {
 			snatch3Declaration,
 			snatch3Change1,
 			snatch3Change2,
-			snatch3ActualLift,
-			true);
+			snatch3ActualLift);
 		this.snatch3Declaration = snatch3Declaration;
 		logger.info("{} snatch3Declaration={}", this, snatch3Declaration);
 	}
@@ -3184,14 +3138,11 @@ public class Athlete {
 		doLift(weight);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString() */
 	@Override
 	public String toString() {
-		return getLastName() + "_" + getFirstName() + "_" + System.identityHashCode(this); //$NON-NLS-1$ //$NON-NLS-2$
+		return getLastName() + "_" + getFirstName() + "_" + getId() + "_" + System.identityHashCode(this); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -3200,46 +3151,46 @@ public class Athlete {
 	 */
 	public void validateActualLift(int curLift, String automaticProgression, String declaration, String change1,
 			String change2, String actualLift) {
-		if (actualLift == null || actualLift.trim()
-			.length() == 0)
+		if (actualLift == null || actualLift.trim().length() == 0)
 			return; // allow reset of field.
-		final int declaredChanges = last(zeroIfInvalid(declaration), zeroIfInvalid(change1), zeroIfInvalid(change2));
+		
+		int declaredChanges = last(zeroIfInvalid(automaticProgression), zeroIfInvalid(declaration), zeroIfInvalid(change1), zeroIfInvalid(change2));
 		final int iAutomaticProgression = zeroIfInvalid(automaticProgression);
 		final int liftedWeight = zeroIfInvalid(actualLift);
-		logger.debug("declaredChanges={} automaticProgression={} liftedWeight={}", //$NON-NLS-1$
-			new Object[] { declaredChanges, automaticProgression, liftedWeight });
+		
+		logger.debug("declaredChanges={} automaticProgression={} liftedWeight={}", declaredChanges, automaticProgression, liftedWeight);
 		if (liftedWeight == 0) {
 			// Athlete is not taking try; always ok no matter what was declared.
 			return;
 		}
-		if (declaredChanges == 0 && iAutomaticProgression > 0) {
-			// assume data entry is being done without reference to
-			// declarations, check if > progression
-			if (Math.abs(liftedWeight) >= iAutomaticProgression) {
-				return;
-			} else {
-				throw RuleViolation.liftValueBelowProgression(curLift, actualLift, iAutomaticProgression);
-			}
+//		if (declaredChanges == 0 && iAutomaticProgression > 0) {
+//			// assume data entry is being done without reference to
+//			// declarations, check if > progression
+//			if (Math.abs(liftedWeight) >= iAutomaticProgression) {
+//				return;
+//			} else {
+//				throw RuleViolation.liftValueBelowProgression(curLift, actualLift, iAutomaticProgression);
+//			}
+//		} else {
+		
+		// allow empty declaration (declaration == automatic progression).
+		// validateDeclaration(curLift, automaticProgression, declaration, change1, change2, actualLift);
+		final boolean declaredChangesOk = declaredChanges >= iAutomaticProgression;
+		final boolean liftedWeightOk = Math.abs(liftedWeight) == declaredChanges;
+		if (liftedWeightOk && declaredChangesOk) {
+			return;
 		} else {
-			// declarations are being captured, lift must match declared
-			// changes.
-			final boolean declaredChangesOk = declaredChanges >= iAutomaticProgression;
-			final boolean liftedWeightOk = Math.abs(liftedWeight) == declaredChanges;
-			if (liftedWeightOk && declaredChangesOk) {
-				return;
-			} else {
-				if (declaredChanges == 0)
-					return;
-				if (!declaredChangesOk)
-					throw RuleViolation.declaredChangesNotOk(curLift,
-						declaredChanges,
-						iAutomaticProgression,
-						iAutomaticProgression + 1);
-				if (!liftedWeightOk)
-					throw RuleViolation
-						.liftValueNotWhatWasRequested(curLift, actualLift, declaredChanges, liftedWeight);
-			}
+			if (!declaredChangesOk)
+				throw RuleViolation.declaredChangesNotOk(curLift,
+					declaredChanges,
+					iAutomaticProgression,
+					iAutomaticProgression + 1);
+			if (!liftedWeightOk)
+				throw RuleViolation
+					.liftValueNotWhatWasRequested(curLift, actualLift, declaredChanges, liftedWeight);
+			return;
 		}
+//		}
 	}
 
 	public boolean validateCleanJerk1ActualLift(String cleanJerk1ActualLift) throws RuleViolationException {
@@ -3275,6 +3226,11 @@ public class Athlete {
 			cleanJerk1Change2,
 			cleanJerk1ActualLift,
 			false);
+		return true;
+	}
+
+	public boolean validateCleanJerk1Declaration(String cleanJerk1Declaration) throws RuleViolationException {
+		// always true
 		return true;
 	}
 
@@ -3314,6 +3270,16 @@ public class Athlete {
 		return true;
 	}
 
+	public boolean validateCleanJerk2Declaration(String cleanJerk2Declaration) throws RuleViolationException {
+		validateDeclaration(2,
+			getCleanJerk2AutomaticProgression(),
+			cleanJerk2Declaration,
+			cleanJerk2Change1,
+			cleanJerk2Declaration,
+			cleanJerk2ActualLift);
+		return true;
+	}
+
 	public boolean validateCleanJerk3ActualLift(String cleanJerk3ActualLift) throws RuleViolationException {
 		validateActualLift(3,
 			getCleanJerk3AutomaticProgression(),
@@ -3347,7 +3313,19 @@ public class Athlete {
 		return true;
 	}
 
+	public boolean validateCleanJerk3Declaration(String cleanJerk3Declaration) throws RuleViolationException {
+		validateDeclaration(3,
+			getCleanJerk3AutomaticProgression(),
+			cleanJerk3Declaration,
+			cleanJerk3Change1,
+			cleanJerk3Declaration,
+			cleanJerk3ActualLift);
+		return true;
+	}
+
 	public boolean validateSnatch1ActualLift(String snatch1ActualLift) throws RuleViolationException {
+		logger.debug("validateSnatch1ActualLift {} {} {} - {}", System.identityHashCode(this), snatch1Change1,
+			"<" + getSnatch1Change1() + ">", LoggerUtils.whereFrom());
 		validateActualLift(1,
 			getSnatch1AutomaticProgression(),
 			snatch1Declaration,
@@ -3379,18 +3357,19 @@ public class Athlete {
 		return true;
 	}
 
+	public boolean validateSnatch1Declaration(String snatch1Declaration) throws RuleViolationException {
+		// always true
+		return true;
+	}
+
 	public boolean validateSnatch2ActualLift(String snatch2ActualLift) throws RuleViolationException {
-		try {
-			validateActualLift(3,
-				getSnatch2AutomaticProgression(),
-				snatch2Declaration,
-				snatch2Change2,
-				snatch2Change2,
-				snatch2ActualLift);
-			return true;
-		} catch (RuleViolationException e) {
-			return false;
-		}
+		validateActualLift(3,
+			getSnatch2AutomaticProgression(),
+			snatch2Declaration,
+			snatch2Change2,
+			snatch2Change2,
+			snatch2ActualLift);
+		return true;
 	}
 
 	public boolean validateSnatch2Change1(String snatch2Change1) throws RuleViolationException {
@@ -3412,6 +3391,16 @@ public class Athlete {
 			snatch2Change2,
 			snatch2ActualLift,
 			true);
+		return true;
+	}
+
+	public boolean validateSnatch2Declaration(String snatch2Declaration) throws RuleViolationException {
+		validateDeclaration(2,
+			getSnatch2AutomaticProgression(),
+			snatch2Declaration,
+			snatch2Change1,
+			snatch2Change2,
+			snatch2ActualLift);
 		return true;
 	}
 
@@ -3444,6 +3433,16 @@ public class Athlete {
 			snatch3Change2,
 			snatch3ActualLift,
 			true);
+		return true;
+	}
+
+	public boolean validateSnatch3Declaration(String snatch3Declaration) throws RuleViolationException {
+		validateDeclaration(3,
+			getSnatch3AutomaticProgression(),
+			snatch3Declaration,
+			snatch3Change1,
+			snatch3Declaration,
+			snatch3ActualLift);
 		return true;
 	}
 
@@ -3567,7 +3566,7 @@ public class Athlete {
 			return 0.0;
 		if (gender == null)
 			return 0.0;
-		if (gender == Gender.M) { //$NON-NLS-1$
+		if (gender == Gender.M) { // $NON-NLS-1$
 			return total1 * sinclairFactor(bodyWeight1,
 				SinclairCoefficients.menCoefficient(),
 				SinclairCoefficients.menMaxWeight());
@@ -3626,9 +3625,10 @@ public class Athlete {
 	}
 
 	private Date sqlNow() {
-		return new Date(Calendar.getInstance()
-			.getTime()
-			.getTime());
+		return new Date(
+				Calendar.getInstance()
+					.getTime()
+					.getTime());
 	}
 
 	/**
@@ -3667,14 +3667,20 @@ public class Athlete {
 	 * @param actualLift
 	 */
 	private void validateDeclaration(int curLift, String automaticProgression, String declaration, String change1,
-			String change2, String actualLift, boolean isSnatch) throws RuleViolationException {
-		if (declaration == null || declaration.trim()
-			.length() == 0)
-			return; // allow reset of field.
+			String change2, String actualLift) throws RuleViolationException {
+//		boolean actualLiftEmpty = actualLift == null || actualLift.trim().isEmpty();
+//		boolean declarationEmpty = declaration == null || declaration.trim().isEmpty();
+//		if (declarationEmpty) {
+//			if (actualLiftEmpty)
+//				return; // allow reset of field.
+//			else
+//				throw RuleViolation.declarationValueRequired(curLift);
+//		}
+
 		int newVal = zeroIfInvalid(declaration);
 		int iAutomaticProgression = zeroIfInvalid(automaticProgression);
 		// allow null declaration for reloading old results.
-		if (iAutomaticProgression > 0 && newVal < iAutomaticProgression)
+		if (iAutomaticProgression > 0 && newVal > 0 && newVal < iAutomaticProgression)
 			throw RuleViolation.declarationValueTooSmall(curLift, newVal, iAutomaticProgression);
 
 	}
@@ -3698,12 +3704,12 @@ public class Athlete {
 	public String getFullId() {
 //		Integer startNumber2 = this.getStartNumber();
 		Category category2 = this.getCategory();
-		return this.getLastName()+", "+this.getFirstName()+" "+(category2 != null ? category2 : "");
+		return this.getLastName() + ", " + this.getFirstName() + " " + (category2 != null ? category2 : "");
 //				+(startNumber2 != null && startNumber2 >0 ? " ["+startNumber2+"]" : "");
 	}
-	
+
 	public String getFullName() {
-		return this.getLastName()+", "+this.getFirstName();
+		return this.getLastName() + ", " + this.getFirstName();
 	}
 
 	public AgeDivision getAgeDivision() {
@@ -3712,6 +3718,57 @@ public class Athlete {
 
 	public void setAgeDivision(AgeDivision ageDivision) {
 		this.ageDivision = ageDivision;
+	}
+
+	/**
+	 * Copy lift values to/from another athlete object used as editing scratchpad.
+	 * 
+	 * The methods must be called in the proper order otherwise validation errors will occur
+	 * (e.g. actual lift must match last requested change)
+	 * 
+	 * @param dest
+	 * @param src
+	 */
+	public static void copyLifts(Athlete dest, Athlete src) {
+		try {
+			setLoggerLevel(Level.WARN); // avoid spurious log entries
+			
+			dest.setSnatch1Declaration(src.getSnatch1Declaration());
+			dest.setSnatch1Change1(src.getSnatch1Change1());
+			dest.setSnatch1Change2(src.getSnatch1Change2());
+			dest.setSnatch1ActualLift(src.getSnatch1ActualLift());
+			
+			dest.setSnatch2AutomaticProgression(src.getSnatch2AutomaticProgression());
+			dest.setSnatch2Declaration(src.getSnatch2Declaration());
+			dest.setSnatch2Change1(src.getSnatch2Change1());
+			dest.setSnatch2Change2(src.getSnatch2Change2());
+			dest.setSnatch2ActualLift(src.getSnatch2ActualLift());
+			
+			dest.setSnatch3AutomaticProgression(src.getSnatch3AutomaticProgression());
+			dest.setSnatch3Declaration(src.getSnatch3Declaration());
+			dest.setSnatch3Change1(src.getSnatch3Change1());
+			dest.setSnatch3Change2(src.getSnatch3Change2());
+			dest.setSnatch3ActualLift(src.getSnatch3ActualLift());
+			
+			dest.setCleanJerk1Declaration(src.getCleanJerk1Declaration());
+			dest.setCleanJerk1Change1(src.getCleanJerk1Change1());
+			dest.setCleanJerk1Change2(src.getCleanJerk1Change2());
+			dest.setCleanJerk1ActualLift(src.getCleanJerk1ActualLift());
+			
+			dest.setCleanJerk2AutomaticProgression(src.getCleanJerk2AutomaticProgression());
+			dest.setCleanJerk2Declaration(src.getCleanJerk2Declaration());
+			dest.setCleanJerk2Change1(src.getCleanJerk2Change1());
+			dest.setCleanJerk2Change2(src.getCleanJerk2Change2());
+			dest.setCleanJerk2ActualLift(src.getCleanJerk2ActualLift());
+			
+			dest.setCleanJerk3AutomaticProgression(src.getCleanJerk3AutomaticProgression());
+			dest.setCleanJerk3Declaration(src.getCleanJerk3Declaration());
+			dest.setCleanJerk3Change1(src.getCleanJerk3Change1());
+			dest.setCleanJerk3Change2(src.getCleanJerk3Change2());
+			dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
+		} finally {
+			resetLoggerLevel();
+		}
 	}
 
 }

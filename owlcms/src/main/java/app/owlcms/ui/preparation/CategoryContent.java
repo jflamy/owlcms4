@@ -24,12 +24,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsGridCrud;
-import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.ui.crudui.OwlcmsCrudGrid;
+import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -57,7 +57,7 @@ implements CrudListener<Category>, ContentWrapping, AppLayoutAware {
 	private OwlcmsRouterLayout routerLayout;
 
 	/**
-	 * Instantiates the category grid.
+	 * Instantiates the category crudGrid.
 	 */
 	public CategoryContent() {
 		OwlcmsCrudFormFactory<Category> crudFormFactory = createFormFactory();
@@ -67,7 +67,7 @@ implements CrudListener<Category>, ContentWrapping, AppLayoutAware {
 	}
 
 	/**
-	 * The columns of the grid
+	 * The columns of the crudGrid
 	 *
 	 * @param crudFormFactory what to call to create the form for editing an athlete
 	 * @return
@@ -82,7 +82,7 @@ implements CrudListener<Category>, ContentWrapping, AppLayoutAware {
 		grid.getColumnByKey("gender")
 		.setHeader("Gender");
 
-		GridCrud<Category> crud = new OwlcmsGridCrud<>(
+		GridCrud<Category> crud = new OwlcmsCrudGrid<>(
 				Category.class,
 				new OwlcmsGridLayout(Category.class),
 				crudFormFactory,
@@ -192,9 +192,9 @@ implements CrudListener<Category>, ContentWrapping, AppLayoutAware {
 	}
 
 	/**
-	 * The filters at the top of the grid
+	 * The filters at the top of the crudGrid
 	 *
-	 * @param grid the grid that will be filtered.
+	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Category> crud) {
 		nameFilter.setPlaceholder("Name");

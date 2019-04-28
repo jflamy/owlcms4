@@ -32,7 +32,7 @@ public class LiftInfo {
 		return stringValue;
 	}
 	
-	public String getChange() {
+	public String getChangeName() {
 		if (changeNo < 0) return "";
 		Changes changes = LiftDefinition.Changes.values()[changeNo];
 		return changes.name();

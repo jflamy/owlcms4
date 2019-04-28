@@ -15,10 +15,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
@@ -44,31 +41,6 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 		setTopBarTitle("Marshall");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object) */
-	@Override
-	public Athlete add(Athlete Athlete) {
-		AthleteRepository.save(Athlete);
-		return Athlete;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object) */
-	@Override
-	public void delete(Athlete Athlete) {
-		AthleteRepository.delete(Athlete);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object) */
-	@Override
-	public Athlete update(Athlete Athlete) {
-		Athlete savedAthlete = AthleteRepository.save(Athlete);
-		FieldOfPlay fop = (FieldOfPlay) OwlcmsSession.getAttribute("fop");
-		fop.getFopEventBus()
-		.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
-		return savedAthlete;
-	}
 
 	@Override
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {

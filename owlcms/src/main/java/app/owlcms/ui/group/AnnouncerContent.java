@@ -16,8 +16,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.init.OwlcmsSession;
@@ -44,18 +42,10 @@ public class AnnouncerContent extends AthleteGridContent {
 
 	public AnnouncerContent() {
 		super();
-		defineFilters(grid);
+		defineFilters(crudGrid);
 		setTopBarTitle("Announcer");
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object) */
-	@Override
-	public Athlete add(Athlete Athlete) {
-		AthleteRepository.save(Athlete);
-		return Athlete;
-	}
-
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.group.AthleteGridContent#createGroupSelect() */
 	@Override
@@ -70,21 +60,12 @@ public class AnnouncerContent extends AthleteGridContent {
 		});
 		groupSelect.addValueChangeListener(e -> {
 			// the group management logic and filtering is attached to a
-			// hidden field in the grid part of the page
+			// hidden field in the crudGrid part of the page
 			Group group = e.getValue();
 			logger.debug("select setting filter group to {}", group);
 			getGroupFilter().setValue(group);
 		});
 	}
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object) */
-	@Override
-	public void delete(Athlete Athlete) {
-		AthleteRepository.delete(Athlete);
-	}
-
-
 
 	/**
 	 * The URL contains the group, contrary to other screens.
@@ -98,18 +79,6 @@ public class AnnouncerContent extends AthleteGridContent {
 	@Override
 	public boolean isIgnoreGroupFromURL() {
 		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object) */
-	@Override
-	public Athlete update(Athlete Athlete) {
-		Athlete savedAthlete = AthleteRepository.save(Athlete);
-		OwlcmsSession.withFop(fop -> {
-			fop.getFopEventBus()
-			.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
-		});
-		return savedAthlete;
 	}
 
 	@Override

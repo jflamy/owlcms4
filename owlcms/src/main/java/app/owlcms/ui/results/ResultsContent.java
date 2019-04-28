@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
-import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasElement;
@@ -38,26 +37,27 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
-import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsGridCrud;
-import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.spreadsheet.JXLSResultSheet;
+import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.ui.crudui.OwlcmsGridLayout;
+import app.owlcms.ui.shared.AthleteCrudGrid;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
-/**
+/** 
  * Class AnnouncerContent.
+ * 
+ * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
 @Route(value = "results/results", layout = AthleteGridLayout.class)
@@ -73,7 +73,6 @@ public class ResultsContent extends AthleteGridContent {
 	private Button download;
 	private Anchor groupResults;
 	private Group currentGroup;
-	private FieldOfPlay currentFop;
 	private JXLSResultSheet xlsWriter;
 
 	/**
@@ -82,7 +81,7 @@ public class ResultsContent extends AthleteGridContent {
 	 */
 	public ResultsContent() {
 		super();
-		defineFilters(grid);
+		defineFilters(crudGrid);
 		setTopBarTitle("Group Results");
 	}
 
@@ -161,12 +160,12 @@ public class ResultsContent extends AthleteGridContent {
 	}
 	
 	/**
-	 * Gets the grid grid.
+	 * Gets the crudGrid crudGrid.
 	 *
-	 * @return the grid grid
+	 * @return the crudGrid crudGrid
 	 */
 	@Override
-	public GridCrud<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+	public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
 		ThemeList themes = grid.getThemeNames();
 		themes.add("compact");
@@ -195,7 +194,7 @@ public class ResultsContent extends AthleteGridContent {
 			.setHeader("Rank");
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
-		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
+		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class,
 				gridLayout,
 				crudFormFactory,
 				grid) {
@@ -225,47 +224,16 @@ public class ResultsContent extends AthleteGridContent {
 				subscribeIfLifting(e.getValue());
 		});
 		
-		crud.setCrudListener(this);
-		crud.setClickRowToUpdate(true);
-		crud.getCrudLayout()
+		crudGrid.setCrudListener(this);
+		crudGrid.setClickRowToUpdate(true);
+		crudGrid.getCrudLayout()
 			.addToolbarComponent(groupFilter);
 
-		return crud;
-	}
-
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
-	 */
-	@Override
-	public Athlete add(Athlete Athlete) {
-		AthleteRepository.save(Athlete);
-		return Athlete;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-	 */
-	@Override
-	public Athlete update(Athlete Athlete) {
-		Athlete savedAthlete = AthleteRepository.save(Athlete);
-		if (currentFop != null) {
-			currentFop.getFopEventBus()
-				.post(new FOPEvent.WeightChange(this.getOrigin(), savedAthlete));
-		}
-		return savedAthlete;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
-	 */
-	@Override
-	public void delete(Athlete Athlete) {
-		AthleteRepository.delete(Athlete);
+		return crudGrid;
 	}
 
 	/**
-	 * Get the content of the grid.
+	 * Get the content of the crudGrid.
 	 * Invoked by refreshGrid.
 	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
 	 */
@@ -289,13 +257,12 @@ public class ResultsContent extends AthleteGridContent {
 	}
 
 	public void refresh() {
-		grid.refreshGrid();
+		crudGrid.refreshGrid();
 	}
 	
 	private void subscribeIfLifting(Group nGroup) {
 		logger.debug("subscribeIfLifting {}",nGroup);
 		Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
-		currentFop = null;
 		currentGroup = nGroup;
 		
 		// go through all the FOPs
@@ -309,10 +276,8 @@ public class ResultsContent extends AthleteGridContent {
 				logger.debug("subscribing to {} {}", fop, nGroup);
 				try {fopEventBusRegister(this, fop);} catch (Exception ex) {}
 				try {uiEventBusRegister(this, fop);} catch (Exception ex) {}
-				currentFop = fop;
 			}
 		}
-		
 	}
 	
 	/**

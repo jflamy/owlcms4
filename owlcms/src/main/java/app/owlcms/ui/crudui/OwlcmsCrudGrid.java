@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.components.crudui;
+package app.owlcms.ui.crudui;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -19,31 +19,31 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class OwlcmsGridCrud.
+ * Class OwlcmsCrudGrid.
  *
  * @param <T> the generic type
  */
 @SuppressWarnings("serial")
-public class OwlcmsGridCrud<T> extends GridCrud<T> {
+public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	
-	@SuppressWarnings("unused")
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsGridCrud.class);
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsCrudGrid.class);
 
 	private OwlcmsGridLayout owlcmsGridLayout;
 	private OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
 
 	/**
-	 * Instantiates a new owlcms grid grid.
+	 * Instantiates a new owlcms crudGrid crudGrid.
 	 *
 	 * @param domainType the domain type
-	 * @param crudLayout the grid layout
-	 * @param owlcmsCrudFormFactory the owlcms grid form factory
-	 * @param grid the grid
+	 * @param crudLayout the crudGrid layout
+	 * @param owlcmsCrudFormFactory the owlcms crudGrid form factory
+	 * @param crudGrid the crudGrid
 	 */
-	public OwlcmsGridCrud(Class<T> domainType, OwlcmsGridLayout crudLayout, OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory, Grid<T>grid) {
+	public OwlcmsCrudGrid(Class<T> domainType, OwlcmsGridLayout crudLayout, OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory, Grid<T>grid) {
 		super(domainType, crudLayout);
 		this.grid = grid;
 		this.owlcmsCrudFormFactory = owlcmsCrudFormFactory;
@@ -54,7 +54,7 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 
     /**
      * Do nothing.
-     * Initialization must wait for grid to be constructed, constuctor calls
+     * Initialization must wait for crudGrid to be constructed, constuctor calls
      * {@link #initLayoutGrid()} instead.
      * 
      * @see org.vaadin.crudui.crud.impl.GridCrud#initLayout()
@@ -63,29 +63,8 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 	protected void initLayout() {
     }
 	
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.impl.GridCrud#updateButtonClicked()
-	 */
-	@Override
-    protected void updateButtonClicked() {
-        T domainObject = grid.asSingleSelect().getValue();
-        // show both an update and a delete button.
-        this.showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
-            try {
-                T updatedObject = updateOperation.perform(domainObject);
-                grid.asSingleSelect().clear();
-                refreshGrid();
-                grid.asSingleSelect().setValue(updatedObject);
-            } catch (IllegalArgumentException ignore) {
-            } catch (CrudOperationException e1) {
-                refreshGrid();
-            } catch (Exception e2) {
-                refreshGrid();
-                throw e2;
-            }
-        });
-    }
 	
+
 	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.impl.GridCrud#deleteButtonClicked()
 	 */
@@ -117,11 +96,17 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 			cancelClickEvent -> {
 				owlcmsGridLayout.hideForm();
 				grid.asSingleSelect().clear();
-			}, operationPerformedClickEvent -> {
-				owlcmsGridLayout.hideForm();
-				buttonClickListener.onComponentEvent(operationPerformedClickEvent);
-				grid.asSingleSelect().clear();
-				Notification.show(successMessage);
+			}, 
+			operationPerformedClickEvent -> {
+				try {
+					owlcmsGridLayout.hideForm();
+					buttonClickListener.onComponentEvent(operationPerformedClickEvent);
+					grid.asSingleSelect().clear();
+					Notification.show(successMessage);
+					logger.trace("operation performed");
+				} catch (Exception e) {
+					logger.error(LoggerUtils.stackTrace(e));
+				}
 			}, deletePerformedClickEvent -> {
 				owlcmsGridLayout.hideForm();
 				this.deleteButtonClicked();
@@ -134,7 +119,7 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
 	
 	/**
 	 * Replacement initialization
-	 * We do not create the grid automatically, but instead receive the grid pre-populated.
+	 * We do not create the crudGrid automatically, but instead receive the crudGrid pre-populated.
 	 */
 	protected void initLayoutGrid() {
         initToolbar();
@@ -166,5 +151,7 @@ public class OwlcmsGridCrud<T> extends GridCrud<T> {
         
         updateButtons();
 	}
+	
+	
 
 }

@@ -33,9 +33,6 @@ import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.components.crudui.OwlcmsGridCrud;
-import app.owlcms.components.crudui.OwlcmsGridLayout;
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.athlete.Athlete;
@@ -47,6 +44,9 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.ui.crudui.OwlcmsCrudGrid;
+import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -77,18 +77,18 @@ public class WeighinContent extends VerticalLayout
 	private OwlcmsRouterLayout routerLayout;
 
 	/**
-	 * Instantiates the athlete grid
+	 * Instantiates the athlete crudGrid
 	 */
 	public WeighinContent() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
 		crud = createGrid(crudFormFactory);		
 		defineFilters(crud);
-//		defineQueries(grid);
+//		defineQueries(crudGrid);
 		fillHW(crud, this);
 	}
 
 	/**
-	 * The columns of the grid
+	 * The columns of the crudGrid
 	 * 
 	 * @param crudFormFactory what to call to create the form for editing an athlete
 	 * @return
@@ -104,7 +104,7 @@ public class WeighinContent extends VerticalLayout
 		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale())).setHeader("Body Weight");
 		grid.addColumn("group").setHeader("Group");
 		grid.addColumn("invited").setHeader("Invited");	
-		GridCrud<Athlete> crud = new OwlcmsGridCrud<Athlete>(Athlete.class,
+		GridCrud<Athlete> crud = new OwlcmsCrudGrid<Athlete>(Athlete.class,
 				new OwlcmsGridLayout(Athlete.class),
 				crudFormFactory,
 				grid);
@@ -315,9 +315,9 @@ public class WeighinContent extends VerticalLayout
 	}
 	
 	/**
-	 * The filters at the top of the grid
+	 * The filters at the top of the crudGrid
 	 * 
-	 * @param grid the grid that will be filtered.
+	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Athlete> crud) {
 		lastNameFilter.setPlaceholder("Last name");

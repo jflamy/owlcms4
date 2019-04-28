@@ -14,7 +14,6 @@ import com.vaadin.flow.component.ClientCallable;
 
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -33,39 +32,17 @@ public class AthleteTimerElement extends TimerElement {
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
+	private Object origin;
+
 	/**
 	 * Instantiates a new timer element.
 	 */
 	public AthleteTimerElement() {
+		this.setOrigin(null); // force exception
 	}
-
-	@Subscribe
-	public void slaveSetTimer(UIEvent.SetTime e) {
-		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug("=== set received {} from {} ", milliseconds, LoggerUtils.whereFrom());
-		doSetTimer(milliseconds);
-	}
-
-	/* (non-Javadoc)
-	 * @see app.owlcms.displays.attemptboard.TimerElement#init()
-	 */
-	@Override
-	protected void init() {
-		super.init();
-		getModel().setSilent(false); // emit sounds
-	}
-
-	@Subscribe
-	public void slaveStartTimer(UIEvent.StartTime e) {
-		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
-		doStartTimer(milliseconds);
-	}
-
-	@Subscribe
-	public void slaveStopTimer(UIEvent.StopTime e) {
-		uiEventLogger.debug("<<< stop received {}", e);
-		doStopTimer();
+	
+	public AthleteTimerElement(Object origin) {
+		this.setOrigin(origin);
 	}
 
 	/* (non-Javadoc)
@@ -74,9 +51,10 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientSyncTime() {
-		logger.info("timer element fetching time");
 		OwlcmsSession.withFop(fop -> {
-			doSetTimer(fop.getAthleteTimer().getTimeRemaining());
+			int timeRemaining = fop.getAthleteTimer().getTimeRemaining();		
+			logger.debug("fetched time = {} for {}",timeRemaining, fop.getCurAthlete());
+			doSetTimer(timeRemaining);
 		});
 		return;
 	}
@@ -86,7 +64,7 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimeOver() {
-		logger.info("time over from client");
+		logger.info("Received time over from client");
 		OwlcmsSession.withFop(fop -> {
 			fop.getAthleteTimer().timeOut(this);
 		});
@@ -102,9 +80,64 @@ public class AthleteTimerElement extends TimerElement {
 		// server-side timer issuing a command.  Otherwise we create an infinite loop.
 	}
 
+	/**
+	 * @return the origin
+	 */
+	public Object getOrigin() {
+		return origin;
+	}
+
+	@Subscribe
+	public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+			this.getOrigin(), e.getOrigin());
+		clientSyncTime();
+	}
+	
+	@Subscribe
+	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+			this.getOrigin(), e.getOrigin());
+		clientSyncTime();
+	}
+
+	@Subscribe
+	public void slaveSetTimer(UIEvent.SetTime e) {
+		Integer milliseconds = e.getTimeRemaining();
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+			this.getOrigin(), e.getOrigin());
+		doSetTimer(milliseconds);
+	}
+
+	@Subscribe
+	public void slaveStartTimer(UIEvent.StartTime e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+			this.getOrigin(), e.getOrigin());
+		Integer milliseconds = e.getTimeRemaining();
+		uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
+		doStartTimer(milliseconds);
+	}
+
+	@Subscribe
+	public void slaveStopTimer(UIEvent.StopTime e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+			this.getOrigin(), e.getOrigin());
+		doStopTimer();
+	}
+
+	/* (non-Javadoc)
+	 * @see app.owlcms.displays.attemptboard.TimerElement#init()
+	 */
+	@Override
+	protected void init() {
+		super.init();
+		getModel().setSilent(false); // emit sounds
+	}
+
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
+		logger.debug("attaching to {}",this.getOrigin());
 		init();
 		OwlcmsSession.withFop(fop -> {
 			// sync with current status of FOP
@@ -112,6 +145,10 @@ public class AthleteTimerElement extends TimerElement {
 			// we listen on uiEventBus; this method ensures we stop when detached.
 			uiEventBusRegister(this, fop);
 		});
+	}
+
+	public void setOrigin(Object origin) {
+		this.origin = origin;
 	}
 
 }

@@ -8,7 +8,6 @@ package app.owlcms.components.fields;
 
 import java.util.Objects;
 
-import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.function.SerializablePredicate;
@@ -38,14 +37,16 @@ public class ValidationUtils {
                 if (guard.test(value)) {
                     return ValidationResult.ok();
                 } else {
-                    return ValidationResult.create(
-                            errorMessage.length > 0 ? errorMessage[0] : "Validation Error",  ErrorLevel.ERROR);
+                    return ValidationResult.error(
+                            errorMessage.length > 0 ? errorMessage[0] : "Validation Error");
                 }
             } catch (Exception e) {
-                return ValidationResult.create(
-                        e.getLocalizedMessage(), ErrorLevel.ERROR);
+                return ValidationResult.error(
+                        e.getLocalizedMessage());
             }
         };
     }
+    
+
 
 }
