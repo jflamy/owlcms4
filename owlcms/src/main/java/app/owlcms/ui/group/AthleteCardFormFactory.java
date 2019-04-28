@@ -114,7 +114,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
-		logger.warn("building athlete editing form {}",LoggerUtils.whereFrom());
+		logger.trace("building athlete editing form {}",LoggerUtils.whereFrom());
 		FormLayout formLayout = new FormLayout();
 		formLayout.setSizeFull();
 		if (this.responsiveSteps != null) {
@@ -132,9 +132,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		originalAthlete = aFromDb;
 		Athlete.copyLifts(editedAthlete, originalAthlete);
 		
-		logger.warn("aFromDb = {} {}", System.identityHashCode(aFromDb), LoggerUtils.whereFrom());
-		logger.warn("originalAthlete = {} {}", System.identityHashCode(originalAthlete), LoggerUtils.whereFrom());
-		logger.warn("editedAthlete = {}", System.identityHashCode(editedAthlete));
+		logger.debug("aFromDb = {} {}", System.identityHashCode(aFromDb), LoggerUtils.whereFrom());
+		logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete), LoggerUtils.whereFrom());
+		logger.trace("editedAthlete = {}", System.identityHashCode(editedAthlete));
 		bindGridFields(operation, gridLayout);
 
 		Component footerLayout = this
@@ -159,7 +159,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		tf.setPattern("^[-]{0,1}\\d*$");
 		tf.setPreventInvalidInput(true);
 		tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
-//		tf.addFocusListener((e) -> {currentField = e.getSource(); logger.warn("current field is at {}, {}", row, col);});
 		return tf;
 	}
 
@@ -168,7 +167,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		tf.setPattern("^\\d*$");
 		tf.setPreventInvalidInput(true);
 		tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
-//		tf.addFocusListener((e) -> {currentField = e.getSource(); logger.warn("current field is at {}, {}", row, col);});
 		return tf;
 	}
 

@@ -31,7 +31,7 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(AthleteCrudGrid.class);
 	{
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 	}
 
 	public AthleteCrudGrid(Class<Athlete> domainType, OwlcmsGridLayout crudLayout,
@@ -53,7 +53,7 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 		OwlcmsSession.withFop((fop) -> {
 			Long id = sought.getId();
 			found: for (Athlete a : fop.getLiftingOrder()) {
-				logger.warn("checking for {} : {} {}", id, a, a.getId());
+				logger.debug("checking for {} : {} {}", id, a, a.getId());
 				if (a.getId().equals(id)) {
 					match = a;
 					break found;
@@ -61,7 +61,7 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 			}
 			;
 		});
-		logger.warn("domainObject = {} {}", (domainObject != match ? "!!!!" : ""), domainObject, match);
+		logger.debug("domainObject = {} {}", (domainObject != match ? "!!!!" : ""), domainObject, match);
 		if (match != null)
 			domainObject = match;
 
