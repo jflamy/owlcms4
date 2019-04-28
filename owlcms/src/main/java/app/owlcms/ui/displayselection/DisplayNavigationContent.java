@@ -17,6 +17,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
 import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
+import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.results.ResultsBoard;
 import app.owlcms.ui.home.HomeNavigationContent;
@@ -53,7 +54,11 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(ResultsBoard.class)));
 		Button referee = new Button(
-				"Athlete-facing Display (Referee Devices)",
+			"Athlete-facing Timer/Down/Decisions",
+			buttonClickEvent -> UI.getCurrent().getPage()
+				.executeJavaScript(getWindowOpener(AthleteFacingDecisionBoard.class)));
+		Button athleteFacingAttempt = new Button(
+				"Athlete-facing Attempt Board Display",
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AthleteFacingAttemptBoard.class)));
 
@@ -65,9 +70,11 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			attempt,
 			results,
-			plates);
+			plates
+			);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
-			referee	
+			referee,
+			athleteFacingAttempt	
 			);
 		plates.setEnabled(false);
 

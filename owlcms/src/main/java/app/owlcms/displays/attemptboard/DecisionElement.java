@@ -96,21 +96,21 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	
 	@ClientCallable
 	public void masterReset() {
-		logger.info("master reset");
+		logger.debug("master reset");
 		fopEventBus.post(new FOPEvent.DecisionReset(this.getOrigin()));
 	}
 
 	@ClientCallable
 	public void masterShowDecisions(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 		Object origin = this.getOrigin();
-		logger.info("+++ master {} decision={} ({} {} {})", origin, decision, ref1, ref2, ref3);
+		logger.info("=== master {} decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1, ref2, ref3);
 		fopEventBus.post(new FOPEvent.RefereeDecision(origin, decision, ref1, ref2, ref3));
 	}
 
 	@ClientCallable
 	public void masterShowDown(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 		Object origin = this.getOrigin();
-		logger.info("=== master {} down: decision={} ({} {} {})", origin, decision, ref1, ref2, ref3);
+		logger.debug("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1, ref2, ref3);
 		fopEventBus.post(new FOPEvent.DownSignal(origin));
 	}
 	
@@ -130,7 +130,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	@Subscribe
 	public void slaveShowDecisions(UIEvent.RefereeDecision e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-			logger.debug("*** {} referee decision ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
+			uiEventLogger.debug("*** {} referee decision ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
 			this.getElement().callFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 		});
 	}
@@ -138,7 +138,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	@Subscribe
 	public void slaveShowDown(UIEvent.DownSignal e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-			logger.debug("!!! {} down ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
+			uiEventLogger.debug("!!! {} down ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
 			this.getElement().callFunction("showDown", false);
 		});
 	}
@@ -153,16 +153,16 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
 		Element elem = this.getElement();
 		elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
-			logger.trace(e.getPropertyName() + " changed to " + e.getValue());
+			uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
 		});
 		elem.addPropertyChangeListener("ref2", "ref2-changed", (e) -> {
-			logger.trace(e.getPropertyName() + " changed to " + e.getValue());
+			uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
 		});
 		elem.addPropertyChangeListener("ref3", "ref3-changed", (e) -> {
-			logger.trace(e.getPropertyName() + " changed to " + e.getValue());
+			uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
 		});
 		elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
-			logger.debug(e.getPropertyName() + " changed to " + e.getValue());
+			uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
 		});
 	}
 	
