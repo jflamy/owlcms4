@@ -8,6 +8,8 @@ import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,7 +24,7 @@ public class URLFinder {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(URLFinder.class);
 	{
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 	}
 
 	
@@ -58,6 +60,8 @@ public class URLFinder {
 	public URLFinder() {
 
 		HttpServletRequest request = VaadinServletRequest.getCurrent().getHttpServletRequest();
+		getRequestHeadersInMap(request);
+		
 		String protocol = request.getScheme();
 		int requestPort = request.getServerPort();
 		String server = request.getServerName();
@@ -168,7 +172,7 @@ public class URLFinder {
 
 	public boolean isLocalAddress(String serverString) {
 		boolean isLocal = false;
-		if (serverString.toLowerCase().startsWith("localhost") || serverString.startsWith("10.") || serverString.startsWith("192.168")) {
+		if (serverString.toLowerCase().startsWith("localhost") || serverString.startsWith("127.") || serverString.startsWith("10.") || serverString.startsWith("192.168")) {
 			isLocal = true;
 		} else if (serverString.startsWith("172.")) {
 			serverString = serverString.substring(4);
@@ -188,6 +192,22 @@ public class URLFinder {
 			isLocal = false;
 		}
 		return isLocal;
+	}
+	
+	public Map<String, String> getRequestHeadersInMap(HttpServletRequest request) {
+
+		Map<String, String> result = new HashMap<>();
+		String remoteAddr = request.getRemoteAddr();
+		logger.debug("remoteAddr: {}", remoteAddr);
+		Enumeration<String> headerNames = request.getHeaderNames();
+		while (headerNames.hasMoreElements()) {
+			String key = headerNames.nextElement();
+			String value = request.getHeader(key);
+			result.put(key, value);
+			logger.debug(key+": "+value);
+		}
+
+		return result;
 	}
 	
 }
