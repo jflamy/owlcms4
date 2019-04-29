@@ -54,7 +54,9 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 			buttonClickEvent -> UI.getCurrent()
 				.navigate(GroupContent.class));
 		
-		StreamResource href = new StreamResource("registration.xls",() -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
+		StreamResource href = new StreamResource(
+				"registration.xls",
+				() -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
 		Anchor download = new Anchor(href, "");
 		Button downloadButton = new Button("Download Empty Registration Spreadsheet", new Icon(VaadinIcon.DOWNLOAD_ALT));
 		downloadButton.setWidth("93%");  // don't ask. this is a kludge.

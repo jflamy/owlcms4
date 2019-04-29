@@ -227,7 +227,7 @@ public class Competition {
 	 * @return the result template file name
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public String getResultTemplateFileName() throws IOException {
+	public String getFinalPackageTemplateFileName() throws IOException {
 		logger.debug("competitionBookFileName = {}", resultTemplateFileName);
 		String str = File.separator + "competitionBook";
 		if (resultTemplateFileName == null) return "defaultResults.xls";

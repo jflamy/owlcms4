@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.poi.ss.usermodel.Workbook;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
@@ -21,6 +20,8 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * @author jflamy
@@ -29,7 +30,14 @@ import app.owlcms.data.group.Group;
 @SuppressWarnings("serial")
 public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
-    Logger logger = LoggerFactory.getLogger(JXLSResultSheet.class);
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSResultSheet.class);
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+	static {
+		logger.setLevel(Level.INFO);
+		jexlLogger.setLevel(Level.ERROR);
+		tagLogger.setLevel(Level.ERROR);
+	}
 
     public JXLSResultSheet() {
         super();

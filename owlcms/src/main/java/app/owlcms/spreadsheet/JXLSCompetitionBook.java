@@ -6,8 +6,6 @@
  */
 package app.owlcms.spreadsheet;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -27,7 +25,6 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Messages;
 import app.owlcms.init.OwlcmsSession;
 import net.sf.jxls.transformer.XLSTransformer;
@@ -57,14 +54,11 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
-        String resultTemplateFileName = Competition.getCurrent().getResultTemplateFileName();
-        File templateFile = new File(resultTemplateFileName);
-        if (!templateFile.exists()) {
-            // can't happen unless system is misconfigured.
-            throw new IOException("resource not found: " + resultTemplateFileName); //$NON-NLS-1$
-        }
-        FileInputStream resourceAsStream = new FileInputStream(templateFile);
-        return resourceAsStream;
+    	String packageTemplateFileName = "/templates/competitionBook/CompetitionBook_Total_" + locale.getLanguage() + ".xls";
+    	InputStream stream = this.getClass().getResourceAsStream(packageTemplateFileName);
+        // can't happen unless system is misconfigured.
+        if (stream == null) throw new IOException("resource not found: " + packageTemplateFileName); //$NON-NLS-1$
+        else return stream;
     }
 
     @Override
@@ -263,10 +257,13 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     public static void splitByGender(List<Athlete> sortedAthletes,
             List<Athlete> sortedMen, List<Athlete> sortedWomen) {
         for (Athlete l : sortedAthletes) {
-            if (Gender.M == (l.getGender())) {
+            Gender gender = l.getGender();
+            if (Gender.M == gender) {
                 sortedMen.add(l);
-            } else {
+            } else if (Gender.F == gender) {
                 sortedWomen.add(l);
+            } else {
+            	throw new RuntimeException("gender is "+gender);
             }
         }
     }
