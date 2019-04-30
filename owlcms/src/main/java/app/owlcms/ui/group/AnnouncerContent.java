@@ -39,7 +39,6 @@ public class AnnouncerContent extends AthleteGridContent {
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
-
 	public AnnouncerContent() {
 		super();
 		defineFilters(crudGrid);
@@ -65,6 +64,18 @@ public class AnnouncerContent extends AthleteGridContent {
 			logger.debug("select setting filter group to {}", group);
 			getGroupFilter().setValue(group);
 		});
+	}
+	
+	@Override
+	public void createReset() {
+		reset = new Button(IronIcons.REFRESH.create(), (e) ->
+			OwlcmsSession.withFop((fop) -> {
+				Group group = fop.getGroup();
+				logger.warn("resetting {} from database", group);
+				fop.switchGroup(group,this);
+			}));
+		reset.getElement().setAttribute("title", "Reload group from database.");
+		reset.getElement().setAttribute("theme", "secondary contrast small icon");
 	}
 
 	/**
