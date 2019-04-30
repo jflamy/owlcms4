@@ -19,14 +19,14 @@ public enum FOPState {
 	/** current athlete displayed on attempt board. */
 	CURRENT_ATHLETE_DISPLAYED,
 
-	/**
-	 * announcer has announced athlete and indicated so, waiting for timekeeper to start time.
-	 */
+//	/**
+//	 * announcer has announced athlete and indicated so, waiting for timekeeper to start time.
+//	 */
 //	ANNOUNCER_WAITING_FOR_TIMEKEEPER,
-
-	/**
-	 * timekeeper waiting for announcer to confirm she has announced.
-	 */
+//
+//	/**
+//	 * timekeeper waiting for announcer to confirm she has announced.
+//	 */
 //	TIMEKEEPER_WAITING_FOR_ANNOUNCER,
 
 	/**
