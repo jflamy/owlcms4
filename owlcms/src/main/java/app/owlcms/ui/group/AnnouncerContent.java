@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -67,7 +68,7 @@ public class AnnouncerContent extends AthleteGridContent {
 	}
 	
 	@Override
-	public void createReset() {
+	public Component createReset() {
 		reset = new Button(IronIcons.REFRESH.create(), (e) ->
 			OwlcmsSession.withFop((fop) -> {
 				Group group = fop.getGroup();
@@ -76,6 +77,7 @@ public class AnnouncerContent extends AthleteGridContent {
 			}));
 		reset.getElement().setAttribute("title", "Reload group from database.");
 		reset.getElement().setAttribute("theme", "secondary contrast small icon");
+		return reset;
 	}
 
 	/**

@@ -71,7 +71,7 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 public class Athlete {
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
-	private final static Level NORMAL_LEVEL = Level.WARN;
+	private final static Level NORMAL_LEVEL = Level.INFO;
 
 	private static final int YEAR = LocalDateTime.now().getYear();
 	

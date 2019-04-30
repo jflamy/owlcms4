@@ -32,7 +32,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -261,7 +260,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			.set("margin", "0px 0px 0px 0px")
 			.set("font-weight", "normal");
 
-		createReset();
 		createGroupSelect();
 
 		lastName = new H1();
@@ -284,7 +282,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 
 		topBar.removeAll();
 		topBar.setSizeFull();
-		topBar.add(title, reset, groupSelect, fullName, attempt, weight, time);
+		topBar.add(title, groupSelect, fullName, attempt, weight, time);
 		if (buttons != null) topBar.add(buttons);
 		if (decisions != null) topBar.add(decisions);
 		
@@ -294,9 +292,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		topBar.setFlexGrow(0.5, fullName);
 	}
 
-	
-	public void createReset() {
-		reset = new Span();
+	public Component createReset() {
+		return null;
 	}
 	
 	public void createGroupSelect() {
@@ -422,7 +419,12 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 				crudFormFactory,
 				grid) {
 			@Override
-			protected void initToolbar() {}
+			protected void initToolbar() {
+				Component reset = createReset();
+				if (reset != null) {
+					crudLayout.addToolbarComponent(reset);
+				}
+			}
 			@Override
 			protected void updateButtons() {}
 		};
@@ -491,7 +493,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	public Collection<Athlete> findAll() {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
-			logger.warn("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+			logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
 					LoggerUtils.whereFrom());
 			final String filterValue;
 			if (lastNameFilter.getValue() != null) {
