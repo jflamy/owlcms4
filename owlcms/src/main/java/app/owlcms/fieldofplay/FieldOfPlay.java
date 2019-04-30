@@ -44,7 +44,7 @@ public class FieldOfPlay {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	{
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
  
@@ -540,7 +540,7 @@ public class FieldOfPlay {
 	public void initGroup(Group group, Object origin) {
 		this.group = group;
 		if (group != null) {
-			logger.info("{} loading data for group {} [{}]", this.getName(), (group != null ? group.getName() : group), LoggerUtils.whereFrom());
+			logger.debug("{} loading data for group {} [{}]", this.getName(), (group != null ? group.getName() : group), LoggerUtils.whereFrom());
 			List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
 			init(findAllByGroupAndWeighIn, athleteTimer, breakTimer);
 		} else {
