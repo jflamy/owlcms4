@@ -3141,7 +3141,7 @@ public class Athlete {
 	@Override
 	public String toString() {
 		Integer startNumber2 = getStartNumber();
-		String prefix = getGroup() + "." + startNumber2 != null ? startNumber2.toString() : "";
+		String prefix = getGroup() + "." + (startNumber2 != null ? startNumber2.toString() : "");
 		String suffix = "_" + System.identityHashCode(this);
 		if (getLastName() != null) {
 			return  prefix + "_" + getLastName() + "_" + getFirstName() + suffix; //$NON-NLS-1$ //$NON-NLS-2$

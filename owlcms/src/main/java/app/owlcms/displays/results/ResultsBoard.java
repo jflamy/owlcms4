@@ -243,7 +243,8 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			ja.put("firstName", a.getFirstName());
 			ja.put("teamName", a.getTeam());
 			ja.put("yearOfBirth", a.getYearOfBirth());
-			ja.put("startNumber", a.getStartNumber());
+			Integer startNumber = a.getStartNumber();
+			ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 			ja.put("category", (curCat != null ? curCat.getName() : ""));
 			getAttemptsJson(a);
 			ja.put("sattempts", sattempts);

@@ -617,7 +617,8 @@ public class FieldOfPlay {
 		if (curAthlete != null) {
 			nextAttemptRequestedWeight = curAthlete.getNextAttemptRequestedWeight();
 		}
-		Athlete nextAthlete = liftingOrder.size() > 0 ? liftingOrder.get(1) : null;
+		// if only one athlete, no next athlete
+		Athlete nextAthlete = liftingOrder.size() > 1 ? liftingOrder.get(1) : null;
 
 		uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, liftingOrder, getDisplayOrder(), clock, this.getOrigin()));
 	
