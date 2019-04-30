@@ -71,7 +71,7 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 public class Athlete {
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
-	private final static Level NORMAL_LEVEL = Level.INFO;
+	private final static Level NORMAL_LEVEL = Level.WARN;
 
 	private static final int YEAR = LocalDateTime.now().getYear();
 	
@@ -2574,7 +2574,7 @@ public class Athlete {
 	 * @param forcedAsCurrent the new forced as current
 	 */
 	public void setForcedAsCurrent(boolean forcedAsCurrent) {
-		logger.debug("setForcedAsCurrent({})", forcedAsCurrent); //$NON-NLS-1$
+		logger.trace("setForcedAsCurrent({})", forcedAsCurrent); //$NON-NLS-1$
 		this.forcedAsCurrent = forcedAsCurrent;
 	}
 
@@ -2720,7 +2720,7 @@ public class Athlete {
 	public void setSnatch1ActualLift(String snatch1ActualLift) {
 		validateSnatch1ActualLift(snatch1ActualLift);
 		this.snatch1ActualLift = snatch1ActualLift;
-		logger.info("{} snatch1ActualLift={} - {}", this, snatch1ActualLift, LoggerUtils.whereFrom());
+		logger.info("{} snatch1ActualLift={} - {}", this, snatch1ActualLift);
 		if (zeroIfInvalid(snatch1ActualLift) == 0)
 			this.snatch1LiftTime = null;
 		else
@@ -2747,8 +2747,6 @@ public class Athlete {
 			setSnatch1ActualLift("0");
 			return;
 		}
-		logger.debug("* {} snatch1Change1={} - {}", System.identityHashCode(this), snatch1Change1,
-			LoggerUtils.whereFrom());
 		validateSnatch1Change1(snatch1Change1);
 		this.snatch1Change1 = snatch1Change1;
 		checkStartingTotalsRule(true);
@@ -3142,7 +3140,15 @@ public class Athlete {
 	 * @see java.lang.Object#toString() */
 	@Override
 	public String toString() {
-		return getLastName() + "_" + getFirstName() + "_" + getId() + "_" + System.identityHashCode(this); //$NON-NLS-1$ //$NON-NLS-2$
+		Integer startNumber2 = getStartNumber();
+		String prefix = getGroup() + "." + startNumber2 != null ? startNumber2.toString() : "";
+		String suffix = "_" + System.identityHashCode(this);
+		if (getLastName() != null) {
+			return  prefix + "_" + getLastName() + "_" + getFirstName() + suffix; //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			return prefix + suffix;
+		}
+
 	}
 
 	/**
@@ -3158,7 +3164,7 @@ public class Athlete {
 		final int iAutomaticProgression = zeroIfInvalid(automaticProgression);
 		final int liftedWeight = zeroIfInvalid(actualLift);
 		
-		logger.debug("declaredChanges={} automaticProgression={} liftedWeight={}", declaredChanges, automaticProgression, liftedWeight);
+		logger.trace("declaredChanges={} automaticProgression={} liftedWeight={}", declaredChanges, automaticProgression, liftedWeight);
 		if (liftedWeight == 0) {
 			// Athlete is not taking try; always ok no matter what was declared.
 			return;
@@ -3324,7 +3330,7 @@ public class Athlete {
 	}
 
 	public boolean validateSnatch1ActualLift(String snatch1ActualLift) throws RuleViolationException {
-		logger.debug("validateSnatch1ActualLift {} {} {} - {}", System.identityHashCode(this), snatch1Change1,
+		logger.trace("validateSnatch1ActualLift {} {} {} - {}", System.identityHashCode(this), snatch1Change1,
 			"<" + getSnatch1Change1() + ">", LoggerUtils.whereFrom());
 		validateActualLift(1,
 			getSnatch1AutomaticProgression(),
