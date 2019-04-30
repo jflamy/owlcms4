@@ -84,7 +84,6 @@ public class RCompetition{
 		LocalDate cd = date.toInstant()
 			      .atZone(ZoneId.systemDefault())
 			      .toLocalDate();
-		System.err.println(cd);
 		c.setCompetitionDate(cd);
 	}
 	

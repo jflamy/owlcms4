@@ -107,7 +107,9 @@ public class UploadDialog extends Dialog {
 				logger.info("Read " + athletes.size() + " athletes");
 
 				JPAService.runInTransaction(em -> {
-					athletes.stream().map(r -> em.merge(r.getAthlete()));
+					em.merge(c.getCompetition());
+					athletes.stream().forEach(r -> em.merge(r.getAthlete()));
+					em.flush();
 					return null;
 				});
 			} catch (InvalidFormatException | IOException e) {
