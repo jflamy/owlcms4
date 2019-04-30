@@ -191,7 +191,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		QueryParameterReader.super.setParameter(event, parameter);
 		location = event.getLocation();
 		locationUI = event.getUI();
-		// super.setParamet sets the group, but does not reload.
+		// super.setParameter sets the group, but does not reload.
 		OwlcmsSession.withFop(fop -> fop.initGroup(fop.getGroup(), this));
 	}
 
@@ -485,7 +485,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	public Collection<Athlete> findAll() {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
-			logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+			logger.warn("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
 					LoggerUtils.whereFrom());
 			final String filterValue;
 			if (lastNameFilter.getValue() != null) {
