@@ -90,14 +90,9 @@ public class AnnouncerContent extends AthleteGridContent {
 		//		});
 		//		announce.getElement().setAttribute("theme", "primary icon");
 
-		// we are on the announcer screen, so time start is understood to
-		// mean that there is no timekeeper and time starts on announce.
-		// a different event is used just to signal the difference when a timekeeper is
-		// present.
 		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				fop.getFopEventBus()
-				//				.post(new FOPEvent.AthleteAnnounced(this.getOrigin()));
 				.post(new FOPEvent.TimeStarted(this.getOrigin()));
 			});
 		});
@@ -127,7 +122,7 @@ public class AnnouncerContent extends AthleteGridContent {
 			(new BreakDialog(this)).open();
 		});
 		breakButton.getElement().setAttribute("theme", "icon");
-		breakButton.getElement().setAttribute("title", "Break Timer");
+		breakButton.getElement().setAttribute("title", "Time to start countdown / Break Timer");
 
 		HorizontalLayout buttons = new HorizontalLayout(
 			//				announce,
