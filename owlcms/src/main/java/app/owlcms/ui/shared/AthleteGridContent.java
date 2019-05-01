@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -114,6 +115,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	private OwlcmsRouterLayout routerLayout;
 	protected OwlcmsCrudGrid<Athlete> crudGrid;
 	private AthleteCardFormFactory athleteEditingFormFactory;
+	protected Component reset;
 	
 	/**
 	 * @return the athleteEditingFormFactory
@@ -191,7 +193,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		QueryParameterReader.super.setParameter(event, parameter);
 		location = event.getLocation();
 		locationUI = event.getUI();
-		// super.setParamet sets the group, but does not reload.
+		// super.setParameter sets the group, but does not reload.
 		OwlcmsSession.withFop(fop -> fop.initGroup(fop.getGroup(), this));
 	}
 
@@ -279,9 +281,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		topBar.removeAll();
-//		topBar.getElement()
-//			.getStyle()
-//			.set("flex", "100 1");
 		topBar.setSizeFull();
 		topBar.add(title, groupSelect, fullName, attempt, weight, time);
 		if (buttons != null) topBar.add(buttons);
@@ -293,12 +292,16 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		topBar.setFlexGrow(0.5, fullName);
 	}
 
+	public Component createReset() {
+		return null;
+	}
+	
 	public void createGroupSelect() {
 		groupSelect = new ComboBox<>();
 		groupSelect.setPlaceholder("Select Group");
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
-		groupSelect.setWidth("8rem");
+		groupSelect.setWidth("7rem");
 		groupSelect.setReadOnly(true);
 		// if groupSelect is made read-write, it needs to set values in groupFilter and call updateURLLocation
 		// see AnnouncerContent for an example.
@@ -416,7 +419,12 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 				crudFormFactory,
 				grid) {
 			@Override
-			protected void initToolbar() {}
+			protected void initToolbar() {
+				Component reset = createReset();
+				if (reset != null) {
+					crudLayout.addToolbarComponent(reset);
+				}
+			}
 			@Override
 			protected void updateButtons() {}
 		};

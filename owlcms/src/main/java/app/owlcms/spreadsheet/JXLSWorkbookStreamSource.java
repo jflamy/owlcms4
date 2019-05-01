@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -38,8 +37,14 @@ import net.sf.jxls.transformer.XLSTransformer;
 @SuppressWarnings("serial")
 public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
-	private final static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
-    static {logger.setLevel(Level.INFO);}
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+	static {
+		logger.setLevel(Level.INFO);
+		jexlLogger.setLevel(Level.ERROR);
+		tagLogger.setLevel(Level.ERROR);
+	}
 
     private HashMap<String, Object> reportingBeans;
 
@@ -161,7 +166,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         cellRight.setCellValue("");
 
         CellStyle blank = workbook.createCellStyle();
-        blank.setBorderBottom(BorderStyle.NONE);
+        blank.setBorderBottom(CellStyle.BORDER_NONE);
         cellLeft.setCellStyle(blank);
         cellRight.setCellStyle(blank);
     }

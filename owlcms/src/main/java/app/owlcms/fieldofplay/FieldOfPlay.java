@@ -44,7 +44,7 @@ public class FieldOfPlay {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	{
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
  
@@ -272,8 +272,7 @@ public class FieldOfPlay {
 //			} else 
 			if (e instanceof FOPEvent.TimeStarted) {
 				getAthleteTimer().start();
-				transitionToTimeRunning();
-				
+				transitionToTimeRunning();		
 //				// time was started prematurely before announcer hit "announce" button
 //				warnTimekeeperPrematureStart();
 //				remindAnnouncerToAnnounce();
@@ -284,6 +283,9 @@ public class FieldOfPlay {
 			} else if (e instanceof FOPEvent.ForceTime) {
 				// need to set time
 				getAthleteTimer().setTimeRemaining(((FOPEvent.ForceTime) e).timeAllowed);
+				setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
+			} else if (e instanceof FOPEvent.StartLifting) {
+				// announcer can set break manually
 				setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
 			} else {
 				unexpectedEventInState(e, FOPState.CURRENT_ATHLETE_DISPLAYED);
@@ -538,7 +540,7 @@ public class FieldOfPlay {
 	public void initGroup(Group group, Object origin) {
 		this.group = group;
 		if (group != null) {
-			logger.info("{} loading data for group {} [{}]", this.getName(), (group != null ? group.getName() : group), LoggerUtils.whereFrom());
+			logger.debug("{} loading data for group {} [{}]", this.getName(), (group != null ? group.getName() : group), LoggerUtils.whereFrom());
 			List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
 			init(findAllByGroupAndWeighIn, athleteTimer, breakTimer);
 		} else {
@@ -615,7 +617,8 @@ public class FieldOfPlay {
 		if (curAthlete != null) {
 			nextAttemptRequestedWeight = curAthlete.getNextAttemptRequestedWeight();
 		}
-		Athlete nextAthlete = liftingOrder.size() > 0 ? liftingOrder.get(1) : null;
+		// if only one athlete, no next athlete
+		Athlete nextAthlete = liftingOrder.size() > 1 ? liftingOrder.get(1) : null;
 
 		uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, liftingOrder, getDisplayOrder(), clock, this.getOrigin()));
 	

@@ -37,11 +37,11 @@
 
 .down {
 	display: flex;
-	height: 100%;
-    align-items: stretch;
+    align-items: center;
+    height: 100%;
 	justify-content: space-evenly;
-	--iron-icon-height: 100%;
-    --iron-icon-width: 100%;
+	--iron-icon-height: 75%;
+    --iron-icon-width: 75%;
 	font-weight: normal;
 	color: lime;
 	display:block;
@@ -108,6 +108,7 @@
       _init() {
 			this.$.decisionsDiv.style.display = "none";
 			this.$.downDiv.style.display = "none";
+			this.downShown = false;
 
 			this.$.ref1span.className = "decision none";
 			this.$.ref2span.className = "decision none";
@@ -173,7 +174,7 @@
     	  if (ref2 === true) {countWhite++;} else if (ref2 === false){countRed++;}
     	  if (ref3 === true) {countWhite++;} else if (ref3 === false){countRed++;}
           var count = countWhite + countRed;
-    	  if (count == 2 && (countWhite == 2 || countRed == 2)) {
+    	  if (!this.downShown && (countWhite == 2 || countRed == 2)) {
     		  this.decision = (countWhite >= 2);
     		  this.showDown(true);
     	  }
@@ -232,6 +233,7 @@
       
       showDown(isMaster) {
     	  console.warn("showDown");
+    	  this.downShown = true;
     	  this.$.downDiv.style.display = "flex";
     	  this.oscillator.start(0);
     	  this.oscillator.stop(this.context.currentTime + 2);

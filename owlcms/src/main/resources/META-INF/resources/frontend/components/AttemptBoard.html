@@ -19,7 +19,7 @@
 		weight-end barbell-start down-start decision-start] 3fr[barbell-end
 		timer-start] 3fr[timer-end name-end down-end decision-end];
 	grid-template-rows: [lastName-start]1fr[lastName-end firstName-start]1fr[firstName-end
-		teamName-start]2fr[teamName-end down-start decision-start]1fr[startNumber-start
+		teamName-start down-start]2fr[teamName-end  decision-start]1fr[startNumber-start
 		attempt-start barbell-start timer-start]1fr[startNumber-end
 		attempt-end weight-start]5fr[weight-end barbell-end timer-end down-end
 		decision-end];
@@ -137,9 +137,15 @@
 	justify-self: stretch;
 }
 
-@media screen and (max-width: 1300px) {
+@media screen and (max-width: 1025px) {
 	.attemptBoard .timer {
 		font-size: 12vw;
+	}
+}
+
+@media screen and (max-width: 1300px) {
+	.attemptBoard .timer {
+		font-size: 15vw;
 	}
 }
 
@@ -156,8 +162,8 @@
 	grid-area: down-start/down-start/down-end/down-end;
 	align-self: stretch;
 	justify-self: stretch; -
-	-iron-icon-height: 100%; -
-	-iron-icon-width: 100%;
+	-iron-icon-height: 120%; -
+	-iron-icon-width: 120%;
 	font-weight: normal;
 	color: lime;
 	display: none;

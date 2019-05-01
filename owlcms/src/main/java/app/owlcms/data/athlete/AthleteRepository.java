@@ -216,7 +216,7 @@ public class AthleteRepository {
 	 */
 	public static List<Athlete> findAllByGroupAndWeighIn(Group group, Boolean weighedIn) {
 		List<Athlete> findFiltered = findFiltered((String) null, group, (Category) null, (AgeDivision) null, weighedIn, -1, -1);
-		logger.trace("findFiltered found {}", findFiltered.size());
+		logger.debug("findFiltered found {}", findFiltered.size());
 		return findFiltered;
 	}
 

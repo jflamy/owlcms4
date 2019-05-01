@@ -10,10 +10,11 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.persistence.EntityManager;
+
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.CrudOperation;
-import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.AttachEvent;
@@ -63,7 +64,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/athletes", layout = RegistrationLayout.class)
 public class RegistrationContent extends VerticalLayout
-implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
+		implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationContent.class);
 	static {
@@ -76,33 +77,17 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 	private ComboBox<Group> groupFilter = new ComboBox<>();
 	private Checkbox weighedInFilter = new Checkbox();
 	private OwlcmsRouterLayout routerLayout;
+	private OwlcmsCrudGrid<Athlete> crudGrid;
 
 	/**
 	 * Instantiates the athlete crudGrid
 	 */
 	public RegistrationContent() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
-		GridCrud<Athlete> crud = createGrid(crudFormFactory);
-		defineFilters(crud);
-		fillHW(crud, this);
+		crudGrid = createCrudGrid(crudFormFactory);
+		defineFilters(crudGrid);
+		fillHW(crudGrid, this);
 	}
-
-	//	/**
-	//	 * Define how to populate the athlete crudGrid.
-	//   * DO NOT USE -- WE WANT IN-MEMORY FILTERING
-	//	 *
-	//	 * @param crudGrid
-	//	 */
-	//	protected void defineQueries(GridCrud<Athlete> crudGrid) {
-	//		crudGrid.setFindAllOperation(
-	//			DataProvider.fromCallbacks(
-	//				query -> AthleteRepository
-	//					.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
-	//						ageDivisionFilter.getValue(), null, query.getOffset(), query.getLimit())
-	//					.stream(),
-	//				query -> AthleteRepository.countFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
-	//					categoryFilter.getValue(), ageDivisionFilter.getValue(), null)));
-	//	}
 
 	/**
 	 * The columns of the crudGrid
@@ -110,19 +95,22 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 	 * @param crudFormFactory what to call to create the form for editing an athlete
 	 * @return
 	 */
-	protected GridCrud<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+	protected OwlcmsCrudGrid<Athlete> createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+		grid.addColumn("lotNumber").setHeader("Lot");
 		grid.addColumn("lastName").setHeader("Last Name");
 		grid.addColumn("firstName").setHeader("First Name");
 		grid.addColumn("team").setHeader("Team");
 		grid.addColumn("yearOfBirth").setHeader("Birth");
+		grid.addColumn("gender").setHeader("Gender");
 		grid.addColumn("ageDivision").setHeader("Age Division");
 		grid.addColumn("category").setHeader("Category");
-		grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
-		.setHeader("Body Weight");
+		grid.addColumn(
+			new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
+			.setHeader("Body Weight");
 		grid.addColumn("group").setHeader("Group");
 		grid.addColumn("invited").setHeader("Invited");
-		GridCrud<Athlete> crud = new OwlcmsCrudGrid<>(
+		OwlcmsCrudGrid<Athlete> crud = new OwlcmsCrudGrid<>(
 				Athlete.class,
 				new OwlcmsGridLayout(Athlete.class),
 				crudFormFactory,
@@ -161,7 +149,7 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 			"bodyWeight",
 			"snatch1Declaration",
 			"cleanJerk1Declaration",
-			"invited");
+			"invited", "lotNumber");
 		crudFormFactory.setFieldCaptions("Last Name",
 			"First Name",
 			"Gender",
@@ -174,7 +162,8 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 			"Body Weight",
 			"Snatch Declaration",
 			"Clean&Jerk Declaration",
-				"Invited?");
+			"Invited?",
+			"Lot Number");
 		crudFormFactory.setFieldProvider("gender",
 			new ComboBoxProvider<>(
 					"Gender", Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
@@ -204,7 +193,7 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 			/* (non-Javadoc)
 			 * @see
 			 * org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.
-			 * crud.CrudOperation, java.lang.Object) */
+			 * crudGrid.CrudOperation, java.lang.Object) */
 			@Override
 			public String buildCaption(CrudOperation operation, Athlete a) {
 				if (a.getLastName() == null && a.getFirstName() == null)
@@ -244,25 +233,25 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 							return true;
 						return ld.compareTo(LocalDate.now()) <= 0;
 					},
-						"Birth date cannot be in the future");
+					"Birth date cannot be in the future");
 				bindingBuilder.withValidator(v);
 			}
 
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			protected void bodyWeightValidation(Binder.BindingBuilder bindingBuilder, boolean isRequired) {
 				Validator<Double> v1 = new DoubleRangeValidator(
-					"Weight should be between 0 and 350kg", 0.0D, 350.0D);
+						"Weight should be between 0 and 350kg", 0.0D, 350.0D);
 				// check wrt body category
 				Validator<Double> v2 = Validator
-						.from((weight) -> {
-							if (!isRequired && weight == null)
-								return true;
-							// inconsistent selection is signaled on the category dropdown since the weight is a factual
-							// measure
-							Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
-							categoryBinding.validate(true).isError();
+					.from((weight) -> {
+						if (!isRequired && weight == null)
 							return true;
-						}, "Body Weight is outside of selected category");
+						// inconsistent selection is signaled on the category dropdown since the weight is a factual
+						// measure
+						Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
+						categoryBinding.validate(true).isError();
+						return true;
+					}, "Body Weight is outside of selected category");
 				bindingBuilder.withValidator(v1);
 				bindingBuilder.withValidator(v2);
 			}
@@ -271,26 +260,26 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 			protected void categoryValidation(Binder.BindingBuilder bindingBuilder) {
 				// check that category is consistent with body weight
 				Validator<Category> v = Validator
-						.from((category) -> {
-							try {
-								Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
-								Double bw = (Double) bwBinding.getField().getValue();
-								if (bw == null)
-									// no body weight - no contradiction
-									return true;
-								Double min = category.getMinimumWeight();
-								Double max = category.getMaximumWeight();
-								if (logger.isTraceEnabled()) {
-									logger.trace(
-										"comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
-								}
-								return (bw > min && bw <= max);
-							} catch (Exception e) {
-								e.printStackTrace();
+					.from((category) -> {
+						try {
+							Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
+							Double bw = (Double) bwBinding.getField().getValue();
+							if (bw == null)
+								// no body weight - no contradiction
+								return true;
+							Double min = category.getMinimumWeight();
+							Double max = category.getMaximumWeight();
+							if (logger.isTraceEnabled()) {
+								logger.trace(
+									"comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
 							}
-							return true;
-						},
-								"Category does not match body weight");
+							return (bw > min && bw <= max);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						return true;
+					},
+						"Category does not match body weight");
 				bindingBuilder.withValidator(v);
 			}
 		};
@@ -341,8 +330,14 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 	@Override
 	public Collection<Athlete> findAll() {
 		return AthleteRepository
-				.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
-					ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
+			.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
+				ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
+	}
+
+	public Collection<Athlete> doFindAll(EntityManager em) {
+		return AthleteRepository
+			.doFindFiltered(em, lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
+				ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
 	}
 
 	/**
@@ -350,49 +345,47 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 	 *
 	 * @param crudGrid the crudGrid that will be filtered.
 	 */
-	protected void defineFilters(GridCrud<Athlete> crud) {
+	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
 		lastNameFilter.setPlaceholder("Last name");
 		lastNameFilter.setClearButtonVisible(true);
 		lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
 		lastNameFilter.addValueChangeListener(e -> {
-			crud.refreshGrid();
+			crudGrid.refreshGrid();
 		});
-		crud.getCrudLayout()
-		.addFilterComponent(lastNameFilter);
+		crudGrid.getCrudLayout().addFilterComponent(lastNameFilter);
 
 		ageDivisionFilter.setPlaceholder("Age Division");
 		ageDivisionFilter.setItems(AgeDivision.findAll());
 		ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
 		ageDivisionFilter.addValueChangeListener(e -> {
-			crud.refreshGrid();
+			crudGrid.refreshGrid();
 		});
-		crud.getCrudLayout()
-		.addFilterComponent(ageDivisionFilter);
+		crudGrid.getCrudLayout().addFilterComponent(ageDivisionFilter);
 
 		categoryFilter.setPlaceholder("Category");
 		categoryFilter.setItems(CategoryRepository.findActive());
 		categoryFilter.setItemLabelGenerator(Category::getName);
 		categoryFilter.addValueChangeListener(e -> {
-			crud.refreshGrid();
+			crudGrid.refreshGrid();
 		});
-		crud.getCrudLayout()
-		.addFilterComponent(categoryFilter);
+		crudGrid.getCrudLayout()
+			.addFilterComponent(categoryFilter);
 
 		groupFilter.setPlaceholder("Group");
 		groupFilter.setItems(GroupRepository.findAll());
 		groupFilter.setItemLabelGenerator(Group::getName);
 		groupFilter.addValueChangeListener(e -> {
-			crud.refreshGrid();
+			crudGrid.refreshGrid();
 		});
-		crud.getCrudLayout()
-		.addFilterComponent(groupFilter);
+		crudGrid.getCrudLayout()
+			.addFilterComponent(groupFilter);
 
 		weighedInFilter.addValueChangeListener(e -> {
-			crud.refreshGrid();
+			crudGrid.refreshGrid();
 		});
 		weighedInFilter.setLabel("Weighed-in");
-		crud.getCrudLayout()
-		.addFilterComponent(weighedInFilter);
+		crudGrid.getCrudLayout()
+			.addFilterComponent(weighedInFilter);
 
 		Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
 		clearFilters.addClickListener(event -> {
@@ -402,8 +395,7 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 			groupFilter.clear();
 			weighedInFilter.clear();
 		});
-		crud.getCrudLayout()
-		.addFilterComponent(clearFilters);
+		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
 	}
 
 	/* (non-Javadoc)
@@ -425,5 +417,9 @@ implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		getRouterLayout().closeDrawer();
+	}
+
+	public void refreshCrudGrid() {
+		crudGrid.refreshGrid();
 	}
 }

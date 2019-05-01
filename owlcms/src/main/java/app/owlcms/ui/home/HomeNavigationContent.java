@@ -35,7 +35,7 @@ import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.results.ResultsNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
-import app.owlcms.utils.URLFinder;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -92,7 +92,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 	public VerticalLayout buildIntro() {
 		VerticalLayout intro = new VerticalLayout();
-		URLFinder urlFinder = new URLFinder();
+		URLUtils urlFinder = new URLUtils();
 		addP(intro, "The competition system is reachable using the following address(es): ");
 		for (String url : urlFinder.getRecommended()) {
 			intro.add(new Div(new Anchor(url, url)));

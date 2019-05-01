@@ -179,7 +179,7 @@ public class JPAService {
 		Properties props = new Properties();
 		props.putAll(vals);
 
-		// if running on Heroku, the following three settings will come from the environment
+		// if running on Heroku, the following three settings will come from the environment (see System.getenv calls above)
 		props.put(JPA_JDBC_URL, dbUrl != null ? dbUrl : "jdbc:postgresql://localhost:5432/owlcms");
 		props.put(JPA_JDBC_USER, userName != null ? userName : "owlcms");
 		props.put(JPA_JDBC_PASSWORD, password != null ? password : "db_owlcms");

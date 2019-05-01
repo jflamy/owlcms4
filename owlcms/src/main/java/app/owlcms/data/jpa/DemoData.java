@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -324,6 +325,7 @@ public class DemoData {
 				p.setGroup(group);
 				p.setFirstName(fnames[r.nextInt(fnames.length)]);
 				p.setLastName(lnames[r.nextInt(lnames.length)]);
+				p.setGender(Gender.M);
 				double nextDouble = r.nextDouble();
 				if (nextDouble > 0.5F) {
 					createAthlete(em, r, p, nextDouble, cat1);

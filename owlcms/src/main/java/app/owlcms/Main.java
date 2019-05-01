@@ -67,6 +67,8 @@ public class Main extends AbstractMain {
 	 * @throws ParseException
 	 */
 	protected static int init() throws IOException, ParseException {
+		System.setProperty("java.net.preferIPv4Stack", "true"); 
+		
 		// read server.port parameter from -D"server.port"=9999 on java command line
 		// this is required for running on Heroku which assigns us the port at run time.
 		// default is 8080
@@ -95,7 +97,7 @@ public class Main extends AbstractMain {
 					ProdData.insertInitialData(0, false);
 				}
 			} else {
-				logger.info("database not empty {}",allCompetitions.get(0).getCompetitionName());
+				logger.info("database not empty: {}",allCompetitions.get(0).getCompetitionName());
 			}
 		}
 

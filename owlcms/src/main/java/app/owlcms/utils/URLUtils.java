@@ -8,6 +8,8 @@ import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,11 +20,11 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
-public class URLFinder {
+public class URLUtils {
 
-	final private Logger logger = (Logger) LoggerFactory.getLogger(URLFinder.class);
+	final private Logger logger = (Logger) LoggerFactory.getLogger(URLUtils.class);
 	{
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 	}
 
 	
@@ -55,9 +57,11 @@ public class URLFinder {
 	 *
 	 * @return HTML ("a" tags) for the various URLs that appear to work.
 	 */
-	public URLFinder() {
+	public URLUtils() {
 
 		HttpServletRequest request = VaadinServletRequest.getCurrent().getHttpServletRequest();
+		getRequestHeadersInMap(request);
+		
 		String protocol = request.getScheme();
 		int requestPort = request.getServerPort();
 		String server = request.getServerName();
@@ -141,8 +145,8 @@ public class URLFinder {
 		} catch (SocketException e) {
 			logger.error(LoggerUtils.stackTrace(e));
 		}
-		logger.debug("wired = {} {}", wired, wired.size());
-		logger.debug("wireless = {} {}", wireless, wireless.size());
+		logger.trace("wired = {} {}", wired, wired.size());
+		logger.trace("wireless = {} {}", wireless, wireless.size());
 	}
 	/**
 	 * @return the wired urls
@@ -168,7 +172,7 @@ public class URLFinder {
 
 	public boolean isLocalAddress(String serverString) {
 		boolean isLocal = false;
-		if (serverString.toLowerCase().startsWith("localhost") || serverString.startsWith("10.") || serverString.startsWith("192.168")) {
+		if (serverString.toLowerCase().startsWith("localhost") || serverString.startsWith("127.") || serverString.startsWith("10.") || serverString.startsWith("192.168")) {
 			isLocal = true;
 		} else if (serverString.startsWith("172.")) {
 			serverString = serverString.substring(4);
@@ -188,6 +192,25 @@ public class URLFinder {
 			isLocal = false;
 		}
 		return isLocal;
+	}
+	
+	public Map<String, String> getRequestHeadersInMap(HttpServletRequest request) {
+
+		Map<String, String> result = new HashMap<>();
+		String remoteAddr = request.getRemoteAddr();
+		logger.debug("remoteAddr: {}", remoteAddr);
+		result.put("remoteAddr",remoteAddr);
+		Enumeration<String> headerNames = request.getHeaderNames();
+		while (headerNames.hasMoreElements()) {
+			String key = headerNames.nextElement().toLowerCase();
+			if (key.equals("x-forwarded-for") || key.equals("host")) {
+				String value = request.getHeader(key);
+				result.put(key, value);
+				logger.debug(key+": "+value);
+			}
+		}
+
+		return result;
 	}
 	
 }

@@ -28,9 +28,9 @@ import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.AppLayoutAware;
+import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -96,11 +96,11 @@ public class CompetitionContent extends VerticalLayout
 			"federationEMail",
 			"federationWebSite",
 			"defaultLocale",
-			"protocolFileName",
-			"resultTemplateFileName",
+//			"protocolFileName",
+//			"finalPackageTemplateFileName",
 			"enforce20kgRule",
 			"masters",
-			"useBirthYear"		
+			"useBirthYear"
 			);
 		ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(Locale.US);
 		crudFormFactory.setFieldProvider("defaultLocale",

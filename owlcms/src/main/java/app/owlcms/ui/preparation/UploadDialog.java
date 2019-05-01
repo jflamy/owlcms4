@@ -8,11 +8,13 @@ package app.owlcms.ui.preparation;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -24,6 +26,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.spreadsheet.RAthlete;
 import app.owlcms.spreadsheet.RCompetition;
@@ -107,7 +110,24 @@ public class UploadDialog extends Dialog {
 				logger.info("Read " + athletes.size() + " athletes");
 
 				JPAService.runInTransaction(em -> {
-					athletes.stream().map(r -> em.merge(r.getAthlete()));
+					
+					Competition curC = Competition.getCurrent();
+					try {
+						// update the current competition with the new properties
+						BeanUtils.copyProperties(curC, c.getCompetition());
+						// update in database and set current to result of JPA merging.
+						Competition.setCurrent(em.merge(curC));
+						
+						// update the athletes with the values read; create if not present.
+						// because the athletes in the file have got no Id, this will create
+						// new athletes if the file is reloaded.
+						athletes.stream().forEach(r -> em.merge(r.getAthlete()));
+						em.flush();
+					} catch (IllegalAccessException | InvocationTargetException e) {
+						sb.append(e.getLocalizedMessage());
+					}
+					
+
 					return null;
 				});
 			} catch (InvalidFormatException | IOException e) {

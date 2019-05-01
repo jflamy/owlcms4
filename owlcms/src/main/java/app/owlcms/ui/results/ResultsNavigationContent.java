@@ -11,12 +11,15 @@ import org.slf4j.LoggerFactory;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
+import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
+import app.owlcms.ui.shared.DownloadButtonFactory;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -37,24 +40,30 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	public ResultsNavigationContent() {
 		Button groupResults = new Button("Group Results",
 			buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class));
-		Button finalPackage = new Button("Final Results Package", 
-			buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class));
+		
+		Div finalResultsButton = DownloadButtonFactory.createDynamicDownloadButton(
+			"finalResults",
+			"Final Results Package",
+			new JXLSCompetitionBook(true));
+		
 		Button timingStats = new Button("Timing Statistics", 
 			buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class));
 		
-		finalPackage.setEnabled(false);
+		finalResultsButton.setEnabled(true);
 		timingStats.setEnabled(false);
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			groupResults
 			);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
-			finalPackage,
+			finalResultsButton,
 			timingStats
 			);
 		
 		doGroup("For each competition group", grid1, this);
 		doGroup("End of competition documents", grid2, this);
     }
+
+
 	
 	@Override
 	protected String getTitle() {

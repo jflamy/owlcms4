@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -39,7 +40,6 @@ public class AnnouncerContent extends AthleteGridContent {
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
-
 	public AnnouncerContent() {
 		super();
 		defineFilters(crudGrid);
@@ -66,6 +66,19 @@ public class AnnouncerContent extends AthleteGridContent {
 			getGroupFilter().setValue(group);
 		});
 	}
+	
+	@Override
+	public Component createReset() {
+		reset = new Button(IronIcons.REFRESH.create(), (e) ->
+			OwlcmsSession.withFop((fop) -> {
+				Group group = fop.getGroup();
+				logger.warn("resetting {} from database", group);
+				fop.switchGroup(group,this);
+			}));
+		reset.getElement().setAttribute("title", "Reload group from database.");
+		reset.getElement().setAttribute("theme", "secondary contrast small icon");
+		return reset;
+	}
 
 	/**
 	 * The URL contains the group, contrary to other screens.
@@ -90,14 +103,9 @@ public class AnnouncerContent extends AthleteGridContent {
 		//		});
 		//		announce.getElement().setAttribute("theme", "primary icon");
 
-		// we are on the announcer screen, so time start is understood to
-		// mean that there is no timekeeper and time starts on announce.
-		// a different event is used just to signal the difference when a timekeeper is
-		// present.
 		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				fop.getFopEventBus()
-				//				.post(new FOPEvent.AthleteAnnounced(this.getOrigin()));
 				.post(new FOPEvent.TimeStarted(this.getOrigin()));
 			});
 		});
@@ -127,7 +135,7 @@ public class AnnouncerContent extends AthleteGridContent {
 			(new BreakDialog(this)).open();
 		});
 		breakButton.getElement().setAttribute("theme", "icon");
-		breakButton.getElement().setAttribute("title", "Break Timer");
+		breakButton.getElement().setAttribute("title", "Time to start countdown / Break Timer");
 
 		HorizontalLayout buttons = new HorizontalLayout(
 			//				announce,
