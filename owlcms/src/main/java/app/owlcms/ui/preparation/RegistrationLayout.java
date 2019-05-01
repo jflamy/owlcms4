@@ -6,6 +6,8 @@
  */
 package app.owlcms.ui.preparation;
 
+import java.util.List;
+
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
@@ -21,6 +23,11 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.server.StreamResource;
 
+import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.spreadsheet.JXLSStartingList;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -84,6 +91,10 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
 		title.getStyle()
 			.set("margin", "0px 0px 0px 0px")
 			.set("font-weight", "normal");
+		
+		Button drawLots = new Button("Draw Lot Numbers", (e) -> {
+			drawLots();
+		});
 
 		JXLSStartingList startingListWriter = new JXLSStartingList();
 		StreamResource href = new StreamResource("startingList.xls", startingListWriter);
@@ -91,9 +102,33 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
 		startingListButton = new Button("Starting List", new Icon(VaadinIcon.DOWNLOAD_ALT));
 		startingList.add(startingListButton);
 		startingListButton.setEnabled(true);
+		
+		Button deleteAthletes = new Button("Delete Athletes", (e) -> {
+			new ConfirmationDialog(
+				"Delete Athletes", 
+				"This will delete the athletes currently displayed from the database.<br>Are you sure?", 
+				"Done.",
+				() -> {deleteAthletes();}
+				).open();
+			
+		});
+		deleteAthletes.getElement().setAttribute("title", "Delete Athletes Currently Listed");
+		
+		Button clearLifts = new Button("Clear Lifts", (e) -> {
+			new ConfirmationDialog(
+				"Clear Lifts", 
+				"This will clear all lifting data for the athletes currently displayed except for initial declarations.<br>Are you sure?", 
+				"Lifts cleared",
+				() -> {clearLifts();}
+				).open();
+		});
+		deleteAthletes.getElement().setAttribute("title", "Clear Lifts for Athletes Currently Listed");
 
 		HorizontalLayout buttons = new HorizontalLayout(
-				startingList);
+				drawLots,
+				startingList,
+				deleteAthletes,
+				clearLifts);
 		buttons.setPadding(true);
 		buttons.setSpacing(true);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -106,5 +141,47 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
 		topBar.add(title, buttons);
 		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+	}
+
+	private void clearLifts() {
+		JPAService.runInTransaction(em -> {
+			RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+			List<Athlete> athletes = (List<Athlete>) content.doFindAll(em);
+			for (Athlete a : athletes) {
+				a.clearLifts();
+				em.merge(a);
+			}
+			em.flush();
+			return null;
+		});
+	}
+
+
+
+	private void deleteAthletes() {
+		RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+		JPAService.runInTransaction(em -> {
+			List<Athlete> athletes = (List<Athlete>) content.doFindAll(em);
+			for (Athlete a: athletes) {
+				em.remove(a);
+			}
+			em.flush();
+			return null;
+		});
+		content.refreshCrudGrid();
+	}
+
+	private void drawLots() {
+		RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+		JPAService.runInTransaction(em -> {
+			List<Athlete> toBeShuffled = AthleteRepository.doFindAll(em);
+			AthleteSorter.drawLots(toBeShuffled);
+			for (Athlete a: toBeShuffled) {
+				em.merge(a);
+			}
+			em.flush();
+			return null;
+		});
+		content.refreshCrudGrid();
 	}
 }
