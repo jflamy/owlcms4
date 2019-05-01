@@ -22,13 +22,14 @@ public class ProxyAthleteTimer implements IProxyTimer {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ProxyAthleteTimer.class);
 	{
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 	}
 
 	private int timeRemaining;
 	private FieldOfPlay fop;
 	private long startMillis;
 	private long stopMillis;
+	private boolean running = false;
 
 	/**
 	 * Instantiates a new countdown timer.
@@ -50,34 +51,50 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	 * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int) */
 	@Override
 	public void setTimeRemaining(int timeRemaining) {
+		if (running) {
+			computeTimeRemaining();
+		}
 		logger.debug("setting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
 		this.timeRemaining = timeRemaining;
 		fop.getUiEventBus().post(new UIEvent.SetTime(timeRemaining, null));
+		running = false;
 	}
 
 	/* (non-Javadoc)
 	 * @see app.owlcms.tests.ICountDownTimer#start() */
 	@Override
 	public void start() {
-		startMillis = System.currentTimeMillis();
-		logger.debug("starting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+		if (!running) {
+			startMillis = System.currentTimeMillis();
+			logger.debug("starting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+		}
 		fop.getUiEventBus().post(new UIEvent.StartTime(timeRemaining, null));
+		running = true;
 	}
 
 	/* (non-Javadoc)
 	 * @see app.owlcms.tests.ICountDownTimer#stop() */
 	@Override
 	public void stop() {
+		if (running) {
+			computeTimeRemaining();
+		}
+		logger.debug("stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+		fop.getUiEventBus().post(new UIEvent.StopTime(timeRemaining, null));
+		running = false;
+	}
+
+	private void computeTimeRemaining() {
 		stopMillis = System.currentTimeMillis();
 		long elapsed = stopMillis - startMillis;
 		timeRemaining = (int) (timeRemaining - elapsed);
-		logger.debug("stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
-		fop.getUiEventBus().post(new UIEvent.StopTime(timeRemaining, null));
 	}
 
 	@Override
 	public void timeOut(Object origin) {
-		this.stop();
+		if (running) {
+			this.stop();
+		}
 		fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
 	}
 

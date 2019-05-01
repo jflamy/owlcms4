@@ -130,7 +130,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		// tedious validations on the form fields using getValue().
 		editedAthlete = new Athlete();
 		originalAthlete = aFromDb;
-		Athlete.copyLifts(editedAthlete, originalAthlete);
+		Athlete.copy(editedAthlete, originalAthlete);
 		
 		logger.debug("aFromDb = {} {}", System.identityHashCode(aFromDb), LoggerUtils.whereFrom());
 		logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete), LoggerUtils.whereFrom());
@@ -520,7 +520,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	 * Update the original athlete so that the lifting order picks up the change.
 	 */
 	private void doUpdate() {
-		Athlete.copyLifts(originalAthlete, editedAthlete);
+		Athlete.copy(originalAthlete, editedAthlete);
 		AthleteRepository.save(originalAthlete);
 		OwlcmsSession.withFop((fop) -> {
 			fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
@@ -612,20 +612,24 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	 */
 	private boolean setAutomaticProgressions(Athlete athlete) {
 		int value = Athlete.zeroIfInvalid(snatch1ActualLift.getValue());
-		int autoVal = (value <= 0 ? value : value + 1);
+		int autoVal = computeAutomaticProgression(value);
 		snatch2AutomaticProgression.setValue(Integer.toString(autoVal));
 		value = Athlete.zeroIfInvalid(snatch2ActualLift.getValue());
-		autoVal = (value <= 0 ? value : value + 1);
+		autoVal = computeAutomaticProgression(value);
 		snatch3AutomaticProgression.setValue(Integer.toString(autoVal));
 
 		value = Athlete.zeroIfInvalid(cj1ActualLift.getValue());
-		autoVal = (value <= 0 ? value : value + 1);
+		autoVal = computeAutomaticProgression(value);
 		cj2AutomaticProgression.setValue(Integer.toString(autoVal));
 		value = Athlete.zeroIfInvalid(cj2ActualLift.getValue());
-		autoVal = (value <= 0 ? value : value + 1);
+		autoVal = computeAutomaticProgression(value);
 		cj3AutomaticProgression.setValue(Integer.toString(autoVal));
 
 		return true;
+	}
+
+	public int computeAutomaticProgression(int value) {
+		return value <= 0 ? Math.abs(value) : value + 1;
 	}
 
 	private void setFocus(Athlete a) {

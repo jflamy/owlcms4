@@ -104,7 +104,9 @@
             this.currentTime = this.countUp ? this.startTime : 0;
           }
           
-          if (!this.startTime || this.running) {
+          if (!this.startTime 
+        		  // || this.running    /* start should not result in pause() ! */
+        		  ) {
             this.pause();
             return;
           }

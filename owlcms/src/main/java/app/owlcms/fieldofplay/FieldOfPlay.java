@@ -532,7 +532,7 @@ public class FieldOfPlay {
 	 */
 	public void switchGroup(Group group, Object origin) {
 		initGroup(group, origin);
-		logger.info("{} start lifting for group {} origin={}", this.getName(), (group != null ? group.getName() : group),origin);
+		logger.debug("{} start lifting for group {} origin={}", this.getName(), (group != null ? group.getName() : group),origin);
 		getFopEventBus().post(new FOPEvent.StartLifting(origin));
 	}
 
