@@ -70,8 +70,8 @@ import ch.qos.logback.classic.Logger;
 @Entity
 @Cacheable
 public class Athlete {
-	private final static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
-	private final static Level NORMAL_LEVEL = Level.INFO;
+	private final Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
+	private final Level NORMAL_LEVEL = Level.INFO;
 
 	private static final int YEAR = LocalDateTime.now().getYear();
 	
@@ -264,7 +264,7 @@ public class Athlete {
 	private Double customScore;
 
 	private boolean invited;
-	private boolean validation;
+	private boolean validation = true;
 
 	/**
 	 * @param invited the invited to set
@@ -280,11 +280,11 @@ public class Athlete {
 		super();
 	}
 
-	public static void setLoggerLevel(Level newLevel) {
+	public void setLoggerLevel(Level newLevel) {
 		logger.setLevel(newLevel);
 	}
 
-	public static void resetLoggerLevel() {
+	public void resetLoggerLevel() {
 		logger.setLevel(NORMAL_LEVEL);
 	}
 
@@ -3695,7 +3695,6 @@ public class Athlete {
 		// allow null declaration for reloading old results.
 		if (iAutomaticProgression > 0 && newVal > 0 && newVal < iAutomaticProgression)
 			throw RuleViolation.declarationValueTooSmall(curLift, newVal, iAutomaticProgression);
-
 	}
 
 	/**
@@ -3742,10 +3741,16 @@ public class Athlete {
 	 * @param dest
 	 * @param src
 	 */
-	public static void copyLifts(Athlete dest, Athlete src) {
+	public static void copy(Athlete dest, Athlete src) {
 		boolean validation = dest.isValidation();
 		try {
 			dest.setValidation(false);
+			dest.setLoggerLevel(Level.WARN);
+			
+			dest.setLastName(src.getLastName());
+			dest.setFirstName(src.getFirstName());
+			dest.setGroup(src.getGroup());
+			dest.setStartNumber(src.getStartNumber());
 			
 			dest.setSnatch1Declaration(src.getSnatch1Declaration());
 			dest.setSnatch1Change1(src.getSnatch1Change1());
@@ -3782,6 +3787,7 @@ public class Athlete {
 			dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
 		} finally {
 			dest.setValidation(validation);
+			dest.resetLoggerLevel();
 		}
 	}
 	
@@ -3791,6 +3797,7 @@ public class Athlete {
         boolean validate  = this.isValidation();
 		try {
         	this.setValidation(false);
+        	this.setLoggerLevel(Level.WARN);
 
             this.setCleanJerk1Declaration("");
             this.setCleanJerk1AutomaticProgression("");
@@ -3832,11 +3839,13 @@ public class Athlete {
             this.setCleanJerk1Declaration(cj1Decl);
         } finally {
             this.setValidation(validate);
+            this.resetLoggerLevel();
         }
 	}
 
 
 	public void setValidation(boolean b) {
+		logger.trace("Validation {}",b);
 		validation = b;
 	}
 	

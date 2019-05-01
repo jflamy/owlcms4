@@ -54,12 +54,7 @@ public class DemoData {
 	public static void insertInitialData(int nbAthletes, boolean testMode) {
 		logger.info("inserting demo data.");
 		JPAService.runInTransaction(em -> {
-			try {
-				Athlete.setLoggerLevel(Level.WARN);
-				setupDemoData(em, nbAthletes);		
-			} finally {
-				Athlete.resetLoggerLevel();
-			}
+			setupDemoData(em, nbAthletes);		
 			return null;
 		});
 	}
@@ -320,8 +315,9 @@ public class DemoData {
 
 		
 		for (int i = 0; i < liftersToLoad; i++) {
+			Athlete p = new Athlete();
 			try {
-				Athlete p = new Athlete();
+				p.setLoggerLevel(Level.WARN);
 				p.setGroup(group);
 				p.setFirstName(fnames[r.nextInt(fnames.length)]);
 				p.setLastName(lnames[r.nextInt(lnames.length)]);
@@ -335,6 +331,8 @@ public class DemoData {
 				em.persist(p);
 			} catch (Exception e) {
 				logger.error(LoggerUtils.stackTrace(e));
+			} finally {
+				p.resetLoggerLevel();
 			}
 		}
 	}
@@ -352,7 +350,8 @@ public class DemoData {
 
 	static int minAge = 18;
 	static int maxAge = 32;
-	static LocalDate baseDate = LocalDate.now().minusYears(minAge);
+	static int referenceYear = LocalDate.now().getYear()-minAge;
+	static LocalDate baseDate = LocalDate.of(referenceYear, 1, 1);
 	
 	protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit) {
 		Category categ = CategoryRepository.doFindByName("m" + catLimit, em);
@@ -373,6 +372,7 @@ public class DemoData {
 		else
 			team = "NORTH";
 		p.setTeam(team);
+		// compute a random number of weeks inside the age bracket
 		p.setFullBirthDate(baseDate.plusWeeks(Math.round(r.nextDouble()*(maxAge-minAge)*52)));
 		// respect 20kg rule
 		p.setQualifyingTotal((int) (isd+icjd-15));
