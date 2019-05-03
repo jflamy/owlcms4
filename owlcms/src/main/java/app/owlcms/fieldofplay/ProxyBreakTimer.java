@@ -29,6 +29,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 	private FieldOfPlay fop;
 	private long startMillis;
 	private long stopMillis;
+	private int timeRemainingAtLastStop;
 
 	/**
 	 * Instantiates a new break timer proxy.
@@ -61,6 +62,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 	public void start() {
 		startMillis = System.currentTimeMillis();
 		breakLogger.debug("break start = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+		timeRemainingAtLastStop = timeRemaining;
 		fop.getUiEventBus().post(new UIEvent.BreakStarted(timeRemaining, this));
 	}
 
@@ -71,8 +73,17 @@ public class ProxyBreakTimer implements IProxyTimer {
 		stopMillis = System.currentTimeMillis();
 		long elapsed = stopMillis - startMillis;
 		timeRemaining = (int) (timeRemaining - elapsed);
+		timeRemainingAtLastStop = timeRemaining;
 		breakLogger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
 		fop.getUiEventBus().post(new UIEvent.BreakPaused(this));
+	}
+
+	/**
+	 * @return the timeRemainingAtLastStop
+	 */
+	@Override
+	public int getTimeRemainingAtLastStop() {
+		return timeRemainingAtLastStop;
 	}
 
 	/* (non-Javadoc)
