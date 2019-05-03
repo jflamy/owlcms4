@@ -175,7 +175,7 @@ public class FieldOfPlay {
 		if (owner != null && owner.equals(a)) {
 			// the clock was started for us. we own the clock, clock is set to what time was left
 			timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
-			logger.warn("timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
+			logger.debug("timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
 		} else if (previousAthlete != null && previousAthlete.equals(a)) {
 			if (owner != null) {
 				// clock has started for someone else, one minute
@@ -220,7 +220,7 @@ public class FieldOfPlay {
 	 */
 	@Subscribe
 	public void handleFOPEvent(FOPEvent e) {
-		logger.debug("state {}, event received {}", this.getState(), e.getClass().getSimpleName());
+		logger.trace("state {}, event received {}", this.getState(), e.getClass().getSimpleName());
 		// it is always possible to explicitly interrupt competition (break between the two lifts, technical
 		// incident, etc.)
 		if (e instanceof FOPEvent.BreakStarted) {
@@ -533,7 +533,7 @@ public class FieldOfPlay {
 	 */
 	public void switchGroup(Group group, Object origin) {
 		initGroup(group, origin);
-		logger.debug("{} start lifting for group {} origin={}", this.getName(), (group != null ? group.getName() : group),origin);
+		logger.trace("{} start lifting for group {} origin={}", this.getName(), (group != null ? group.getName() : group),origin);
 		getFopEventBus().post(new FOPEvent.StartLifting(origin));
 	}
 
@@ -541,7 +541,7 @@ public class FieldOfPlay {
 	public void initGroup(Group group, Object origin) {
 		this.group = group;
 		if (group != null) {
-			logger.debug("{} loading data for group {} [{}]", this.getName(), (group != null ? group.getName() : group), LoggerUtils.whereFrom());
+			logger.trace("{} loading data for group {} [{}]", this.getName(), (group != null ? group.getName() : group), LoggerUtils.whereFrom());
 			List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
 			init(findAllByGroupAndWeighIn, athleteTimer, breakTimer);
 		} else {
@@ -584,7 +584,7 @@ public class FieldOfPlay {
 		setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
 		this.setCurAthlete(this.liftingOrder.isEmpty() ? null : this.liftingOrder.get(0));
 		int timeAllowed = getTimeAllowed();
-		logger.debug("recomputed lifting order curAthlete={} prevlifter={} time={}",
+		logger.trace("recomputed lifting order curAthlete={} prevlifter={} time={}",
 			curAthlete != null ? curAthlete.getFullName() : "",
 			previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed);
 
@@ -592,17 +592,17 @@ public class FieldOfPlay {
 	}
 
 	private void setClockOwner(Athlete athlete) {
-		logger.warn("setting clock owner to {} [{}]", athlete, LoggerUtils.whereFrom());
+		logger.trace("setting clock owner to {} [{}]", athlete, LoggerUtils.whereFrom());
 		this.clockOwner = athlete;
 	}
 
 	private void setCurAthlete(Athlete athlete) {
-		logger.debug("changing curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
+		logger.trace("changing curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
 		this.curAthlete = athlete;
 	}
 
 	private void setPreviousAthlete(Athlete athlete) {
-		logger.debug("setting previousAthlete to {}", curAthlete);
+		logger.trace("setting previousAthlete to {}", curAthlete);
 		this.previousAthlete = athlete;
 	}
 
@@ -646,12 +646,12 @@ public class FieldOfPlay {
 	}
 
 	private void uiShowDownSignalOnSlaveDisplays(FOPEvent.DownSignal e) {
-		uiEventLogger.debug("showDownSignalOnSlaveDisplays");
+		uiEventLogger.trace("showDownSignalOnSlaveDisplays");
 		uiEventBus.post(new UIEvent.DownSignal(e.origin));
 	}
 
 	private void uiShowRefereeDecisionOnSlaveDisplays(FOPEvent.RefereeDecision e) {
-		uiEventLogger.debug("showRefereeDecisionOnSlaveDisplays");
+		uiEventLogger.trace("showRefereeDecisionOnSlaveDisplays");
 		uiEventBus.post(new UIEvent.RefereeDecision(e.success,e.ref1,e.ref2,e.ref3,e.origin));
 	}
 
@@ -661,7 +661,7 @@ public class FieldOfPlay {
 
 	private void unlockReferees() {
 		// TODO unlockReferees
-		uiEventLogger.debug("unlockReferees");
+		uiEventLogger.trace("unlockReferees");
 	}
 
 	private void weightChange(Athlete changedAthlete) {
@@ -691,7 +691,7 @@ public class FieldOfPlay {
 	 * @param state the new state
 	 */
 	void setState(FOPState state) {
-		logger.debug("entering {} {}", state, LoggerUtils.whereFrom());
+		logger.trace("entering {} {}", state, LoggerUtils.whereFrom());
 		this.state = state;
 	}
 
