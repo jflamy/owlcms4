@@ -23,6 +23,8 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
+import app.owlcms.components.elements.BreakTimerElement;
+import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPState;

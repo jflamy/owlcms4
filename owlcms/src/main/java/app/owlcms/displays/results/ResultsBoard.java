@@ -25,6 +25,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
+import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
@@ -34,7 +35,6 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.attemptboard.AthleteTimerElement;
-import app.owlcms.displays.attemptboard.DecisionElement;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.group.UIEventProcessor;
@@ -279,6 +279,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	protected void doHide() {
 		this.getModel().setHidden(true);
 	}
+	
 	protected void doUpdate(Athlete a, UIEvent e) {	
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			ResultBoardModel model = getModel();

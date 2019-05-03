@@ -42,6 +42,11 @@ public interface IProxyTimer {
 	 */
 	void timeOut(Object origin);
 
+	/**
+	 * @return time remaining when the clock owner last stopped it.
+	 */
+	public int getTimeRemainingAtLastStop();
+
 	
 
 }
