@@ -229,6 +229,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
 		Athlete a = e.getAthlete();
+		this.getElement().callFunction("reset");
 		doUpdate(a, e);
 	}
 	
