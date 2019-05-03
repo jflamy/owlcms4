@@ -26,7 +26,6 @@ import com.vaadin.flow.theme.material.Material;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
@@ -50,7 +49,7 @@ import ch.qos.logback.classic.Logger;
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel>
-		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
+		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -226,7 +225,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		});
 	}
 
-	protected void doBreak(BreakStarted e) {
+	@Override
+	public void doBreak(BreakStarted e) {
 		uiEventLogger.debug("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			BreakType breakType = fop.getBreakType();
@@ -291,43 +291,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		return this;
 	}
 
-	private BreakType inferBreakType(FieldOfPlay fop) {
-		BreakType bt;
-		switch (fop.getState()) {
-		case BREAK:
-			bt = fop.liftsDone() > 0 ? BreakType.FIRST_SNATCH : BreakType.FIRST_CJ;
-			break;
-		case INACTIVE:
-			bt = BreakType.INTRODUCTION;
-			break;
-		default:
-			bt = BreakType.TECHNICAL;
-			break;
-		}
-		return bt;
-	}
-
-	private String inferGroupName() {
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		Group group = fop.getGroup();
-		String groupName = group != null ? group.getName() : "";
-		return MessageFormat.format("Group {0}", groupName);
-	}
-
-	private String inferMessage(BreakType bt) {
-		switch (bt) {
-		case FIRST_CJ:
-			return "Time before next lift";
-		case FIRST_SNATCH:
-			return "Time before first lift";
-		case INTRODUCTION:
-			return "Time before introduction";
-		case TECHNICAL:
-			return "Competition paused";
-		default:
-			return "";
-		}
-	}
 
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
@@ -335,4 +298,5 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 			setId("attempt-board-template");
 		});
 	}
+
 }
