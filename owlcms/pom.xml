@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.0.13.4</version>
+		<version>4.0.14-SNAPSHOT</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -257,9 +257,16 @@
 				<version>1.6.0</version>
 				<configuration>
 					<mainClass>app.owlcms.Main</mainClass>
-					<arguments>
-						<argument>-DdemoMode=true</argument>
-					</arguments>
+					<systemProperties>
+						<systemProperty>
+							<key>demoMode</key>
+							<value>true</value>
+						</systemProperty>
+						<systemProperty>
+							<key>memoryMode</key>
+							<value>true</value>
+						</systemProperty>
+			       </systemProperties>
 				</configuration>
 			</plugin>
 			<plugin>

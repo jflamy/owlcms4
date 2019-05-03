@@ -143,6 +143,7 @@ public class UIEvent {
 		private Integer timeAllowed;
 		private List<Athlete> liftingOrder;
 		private List<Athlete> displayOrder;
+		private boolean stopAthleteTimer;
 
 		/**
 		 * Instantiates a new lifting order updated.
@@ -156,7 +157,8 @@ public class UIEvent {
 		 * @param origin          the origin
 		 */
 		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete,
-				List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed, Object origin) {
+				List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed, 
+				boolean aboutCurrentAthlete, Object origin) {
 			super(athlete, origin);
 			this.nextAthlete = nextAthlete;
 			this.previousAthlete = previousAthlete;
@@ -208,6 +210,13 @@ public class UIEvent {
 		 */
 		public Integer getTimeAllowed() {
 			return timeAllowed;
+		}
+
+		/**
+		 * @return true if the current event requires to stop the timer
+		 */
+		public boolean isStopAthleteTimer() {
+			return stopAthleteTimer;
 		}
 
 	}

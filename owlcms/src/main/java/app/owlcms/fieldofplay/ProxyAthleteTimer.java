@@ -22,7 +22,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ProxyAthleteTimer.class);
 	{
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 	}
 
 	private int timeRemaining;
@@ -30,6 +30,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	private long startMillis;
 	private long stopMillis;
 	private boolean running = false;
+	private int timeRemainingAtLastStop;
 
 	/**
 	 * Instantiates a new countdown timer.
@@ -67,6 +68,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		if (!running) {
 			startMillis = System.currentTimeMillis();
 			logger.debug("starting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+			timeRemainingAtLastStop = timeRemaining;
 		}
 		fop.getUiEventBus().post(new UIEvent.StartTime(timeRemaining, null));
 		running = true;
@@ -80,10 +82,14 @@ public class ProxyAthleteTimer implements IProxyTimer {
 			computeTimeRemaining();
 		}
 		logger.debug("stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+		timeRemainingAtLastStop = timeRemaining;
 		fop.getUiEventBus().post(new UIEvent.StopTime(timeRemaining, null));
 		running = false;
 	}
 
+	/**
+	 * Compute time elapsed since start and adjust time remaining accordingly.
+	 */
 	private void computeTimeRemaining() {
 		stopMillis = System.currentTimeMillis();
 		long elapsed = stopMillis - startMillis;
@@ -96,6 +102,11 @@ public class ProxyAthleteTimer implements IProxyTimer {
 			this.stop();
 		}
 		fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
+	}
+
+	@Override
+	public int getTimeRemainingAtLastStop() {
+		return timeRemainingAtLastStop;
 	}
 
 }

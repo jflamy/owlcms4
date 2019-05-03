@@ -31,7 +31,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 
-import app.owlcms.displays.attemptboard.BreakTimerElement;
+import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;

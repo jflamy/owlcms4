@@ -12,6 +12,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 
+import app.owlcms.components.elements.TimerElement;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
@@ -53,7 +54,7 @@ public class AthleteTimerElement extends TimerElement {
 	public void clientSyncTime() {
 		OwlcmsSession.withFop(fop -> {
 			int timeRemaining = fop.getAthleteTimer().getTimeRemaining();		
-			logger.debug("fetched time = {} for {}",timeRemaining, fop.getCurAthlete());
+			logger.debug("Fetched time = {} for {}",timeRemaining, fop.getCurAthlete());
 			doSetTimer(timeRemaining);
 		});
 		return;
@@ -96,9 +97,12 @@ public class AthleteTimerElement extends TimerElement {
 	
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		// TODO: must not stop timer if the lifting order change does not concern the clock owner.
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
-		clientSyncTime();
+		if (e.isStopAthleteTimer()) {
+			clientSyncTime();
+		}
 	}
 
 	@Subscribe

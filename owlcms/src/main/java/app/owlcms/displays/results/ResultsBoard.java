@@ -25,6 +25,8 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
+import app.owlcms.components.elements.BreakTimerElement;
+import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
@@ -34,12 +36,15 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.attemptboard.AthleteTimerElement;
-import app.owlcms.displays.attemptboard.DecisionElement;
+import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.UIEvent;
+import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.group.BreakDialog.BreakType;
 import app.owlcms.ui.group.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -60,7 +65,7 @@ import elemental.json.JsonValue;
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
 public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
-		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
+		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsBoard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
@@ -119,6 +124,9 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 	@Id("timer")
 	private AthleteTimerElement timer; // Flow creates it
+	
+	@Id("breakTimer")
+	private BreakTimerElement breakTimer; // Flow creates it
 	
 	@Id("decisions")
 	private DecisionElement decisions; // Flow creates it
@@ -207,6 +215,24 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		});
 	}
 
+	@Subscribe
+	public void slaveStartBreak(UIEvent.BreakStarted e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+			this.getOrigin(), e.getOrigin());
+		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+			doBreak(e);
+		});
+	}
+
+	@Subscribe
+	public void slaveStopBreak(UIEvent.BreakDone e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+			this.getOrigin(), e.getOrigin());
+		Athlete a = e.getAthlete();
+		this.getElement().callFunction("reset");
+		doUpdate(a, e);
+	}
+	
 	public void uiLog(UIEvent e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 	}
@@ -279,6 +305,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	protected void doHide() {
 		this.getModel().setHidden(true);
 	}
+	
 	protected void doUpdate(Athlete a, UIEvent e) {	
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			ResultBoardModel model = getModel();
@@ -372,5 +399,20 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		translations.put("key1","value1");
 		translations.put("key2","value2");
 		this.getElement().setPropertyJson("t", translations);
+	}
+	
+	@Override
+	public void doBreak(BreakStarted e) {
+		uiEventLogger.warn("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom());
+		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			BreakType breakType = fop.getBreakType();
+			getModel().setLastName(inferGroupName());
+			getModel().setFirstName(inferMessage(breakType));
+			getModel().setTeamName("");
+			getModel().setAttempt("");
+
+			uiEventLogger.warn("$$$ attemptBoard calling doBreak()");
+			this.getElement().callFunction("doBreak");
+		}));
 	}
 }
