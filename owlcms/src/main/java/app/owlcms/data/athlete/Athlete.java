@@ -289,29 +289,30 @@ public class Athlete {
 	}
 
 	/**
-	 * Check starting totals rule.
-	 *
-	 * @param unlessCurrent the unless current
+	 * @param entryTotal
+	 * @return true if ok, exception if not
+	 * @throws RuleViolationException if rule violated, exception contails details.
 	 */
-	public void checkStartingTotalsRule(boolean unlessCurrent) {
-		if (!isValidation()) return;
-		
+	public boolean validateStartingTotalsRule() {
+		logger.warn("validateStartingTotalsRule");
+		if (!isValidation() || !Competition.getCurrent().isEnforce20kgRule()) return true;
 		int qualTotal = getQualifyingTotal();
-		boolean enforce15_20rule = Competition.getCurrent()
-			.isEnforce20kgRule();
-		if (qualTotal == 0 || !enforce15_20rule) {
-			return;
+		if (qualTotal == 0) {
+			return true;
 		}
 
 		if (!Competition.getCurrent().isMasters()) {
-			regular20kgRule(qualTotal);
+			return validateRegular20kgRule(qualTotal);
 		} else
-			masters15_20Rule(qualTotal);
+			return validateMasters15_20Rule(qualTotal);
 	}
 
-	public String regular20kgRule(int qualTotal) {
-		if (!isValidation()) return null;
-		
+	/**
+	 * @param entryTotal
+	 * @return true if ok, exception if not
+	 * @throws RuleViolationException if rule violated, exception contails details.
+	 */
+	private boolean validateRegular20kgRule(int qualTotal) {
 		int curStartingTotal = 0;
 		int snatchRequest = 0;
 		int cleanJerkRequest = 0;
@@ -333,27 +334,32 @@ public class Athlete {
 		int _20kgRuleValue = this.get20kgRuleValue();
 		if (delta > _20kgRuleValue) {
 			Integer startNumber2 = this.getStartNumber();
-			message = RuleViolation
-				.rule15_20Violated(this.getLastName(),
-					this.getFirstName(),
-					(startNumber2 != null ? startNumber2 : "-"),
-					snatchRequest,
-					cleanJerkRequest,
-					delta - _20kgRuleValue,
-					qualTotal)
+			message = RuleViolation.rule15_20Violated(
+				this.getLastName(),
+				this.getFirstName(),
+				(startNumber2 != null ? startNumber2 : "-"),
+				snatchRequest,
+				cleanJerkRequest,
+				delta - _20kgRuleValue,
+				qualTotal)
 				.getLocalizedMessage(locale);
 		}
 		if (message != null) {
 			// LoggerUtils.logException(logger, new Exception("check15_20kiloRule traceback
 			// "+ message));
 			logger.info(message);
+			throw new RuleViolationException(message);
 		}
-		return message;
+		return true;
 	}
 
-	public String masters15_20Rule(int qualTotal) {
-		if (!isValidation()) return null;
-		
+
+	/**
+	 * @param entryTotal
+	 * @return true if ok, exception if not
+	 * @throws RuleViolationException if rule violated, exception contails details.
+	 */
+	private boolean validateMasters15_20Rule(int entryTotal) throws RuleViolationException {
 		int curStartingTotal = 0;
 		int snatch1request = 0;
 		int cleanJerkRequest = 0;
@@ -368,37 +374,39 @@ public class Athlete {
 			zeroIfInvalid(cleanJerk1Change2));
 
 		int _20kgRuleValue = this.get20kgRuleValue();
-		int bestSnatch1 = getBestSnatch();
+//		int bestSnatch1 = getBestSnatch();
 		// example: male 55/65 declarations given 135 qual total (120 within 15kg of 135, ok)
 		// athlete does 70 snatch, which is bigger than 15kg gap.
 		// can now declare 50 opening CJ according to 2.4.3
 		curStartingTotal = snatch1request + cleanJerkRequest; // 120
-		int delta = qualTotal - curStartingTotal; // 15 -- no margin of error
+		int delta = entryTotal - curStartingTotal; // 15 -- no margin of error
 
-		int curForecast = bestSnatch1 + zeroIfInvalid(cleanJerk1Declaration); // 70 + 65 = 135
-		if (curForecast >= qualTotal) {
-			// already predicted to clear the QT, may change the CJ request down.
-			logger.info("forecast = {}", curForecast);
-			delta = qualTotal - (bestSnatch1 + cleanJerkRequest); // delta = 135 - 135 = 0
-			snatch1request = bestSnatch1;
-			// possible CJ initial request reduction = _20kgRuleValue - delta
-			// can bring CJ down to 50 (15 - 0)
-		}
+//		int curForecast = bestSnatch1 + zeroIfInvalid(cleanJerk1Declaration); // 70 + 65 = 135
+//		if (curForecast >= qualTotal) {
+//			// already predicted to clear the QT, may change the CJ request down.
+//			logger.info("forecast = {}", curForecast);
+//			delta = qualTotal - (bestSnatch1 + cleanJerkRequest); // delta = 135 - 135 = 0
+//			snatch1request = bestSnatch1;
+//			// possible CJ initial request reduction = _20kgRuleValue - delta
+//			// can bring CJ down to 50 (15 - 0)
+//		}
 
 		String message = null;
 		Locale locale = Competition.getCurrent().getLocale();
 
 		if (delta > _20kgRuleValue) {
 			Integer startNumber2 = this.getStartNumber();
-			message = RuleViolation.rule15_20Violated(this.getLastName(), this.getFirstName(),
+			message = RuleViolation.rule15_20Violated(
+				this.getLastName(), this.getFirstName(),
 				(startNumber2 != null ? startNumber2 : "-"), snatch1request,
-				cleanJerkRequest, delta - _20kgRuleValue, qualTotal).getLocalizedMessage(locale);
+				cleanJerkRequest, delta - _20kgRuleValue, entryTotal).getLocalizedMessage(locale);
 		}
 		if (message != null) {
 			// LoggerUtils.logException(logger, new Exception("check15_20kiloRule traceback "+ message));
 			logger.info(message);
+			throw new RuleViolationException(message);
 		}
-		return message;
+		return true;
 	}
 
 	/* (non-Javadoc)
@@ -2260,7 +2268,7 @@ public class Athlete {
 		}
 		if (validation) validateCleanJerk1Change1(cleanJerk1Change1);
 		this.cleanJerk1Change1 = cleanJerk1Change1;
-		checkStartingTotalsRule(true);
+		validateStartingTotalsRule();
 
 		logger.info("{} cleanJerk1Change1={}", this, cleanJerk1Change1);
 	}
@@ -2279,7 +2287,7 @@ public class Athlete {
 		}
 		if (validation) validateCleanJerk1Change2(cleanJerk1Change2);
 		this.cleanJerk1Change2 = cleanJerk1Change2;
-		checkStartingTotalsRule(true);
+		validateStartingTotalsRule();
 
 		logger.info("{} cleanJerk1Change2={}", this, cleanJerk1Change2);
 	}
@@ -2304,8 +2312,8 @@ public class Athlete {
 			cleanJerk1Change2,
 			cleanJerk1ActualLift);
 		this.cleanJerk1Declaration = cleanJerk1Declaration;
-		if (zeroIfInvalid(getSnatch1Declaration()) > 0)
-			checkStartingTotalsRule(true);
+//		if (zeroIfInvalid(getSnatch1Declaration()) > 0)
+//			validateStartingTotalsRule();
 
 		logger.info("{} cleanJerk1Declaration={}", this, cleanJerk1Declaration);
 	}
@@ -2756,7 +2764,7 @@ public class Athlete {
 		}
 		if (validation) validateSnatch1Change1(snatch1Change1);
 		this.snatch1Change1 = snatch1Change1;
-		checkStartingTotalsRule(true);
+		validateStartingTotalsRule();
 
 		logger.info("{} snatch1Change1={}", this, snatch1Change1);
 	}
@@ -2775,7 +2783,7 @@ public class Athlete {
 		}
 		if (validation) validateSnatch1Change2(snatch1Change2);
 		this.snatch1Change2 = snatch1Change2;
-		checkStartingTotalsRule(true);
+		validateStartingTotalsRule();
 
 		logger.info("{} snatch1Change2={}", this, snatch1Change2);
 	}
@@ -2799,8 +2807,8 @@ public class Athlete {
 			snatch1Change2,
 			snatch1ActualLift);
 		this.snatch1Declaration = snatch1Declaration;
-		if (zeroIfInvalid(getCleanJerk1Declaration()) > 0)
-			checkStartingTotalsRule(true);
+//		if (zeroIfInvalid(getCleanJerk1Declaration()) > 0)
+//			validateStartingTotalsRule();
 
 		logger.info("{} snatch1Declaration={}", this, snatch1Declaration);
 	}
