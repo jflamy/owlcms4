@@ -46,7 +46,7 @@ public class AthleteSorter implements Serializable {
         COMBINED, 
         SINCLAIR, 
         ROBI,
-        //TODO: add custom score on lifter card
+        //TODO: add custom score on results data entry (athleteCardFormFactory)
         CUSTOM
     }
 

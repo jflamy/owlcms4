@@ -45,8 +45,6 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 	 * @see org.vaadin.crudui.crud.impl.GridCrud#updateButtonClicked() */
 	@Override
 	protected void updateButtonClicked() {
-		// FIXME: getValue() the first time around does not return the same object as present in lifting
-		// order.
 		Athlete domainObject = grid.asSingleSelect().getValue();
 		Athlete sought = domainObject;
 		// if available we want the exact object from the lifting order and not a copy

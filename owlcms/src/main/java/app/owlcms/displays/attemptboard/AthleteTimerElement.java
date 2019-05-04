@@ -97,7 +97,6 @@ public class AthleteTimerElement extends TimerElement {
 	
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		// TODO: must not stop timer if the lifting order change does not concern the clock owner.
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
 		if (e.isStopAthleteTimer()) {
