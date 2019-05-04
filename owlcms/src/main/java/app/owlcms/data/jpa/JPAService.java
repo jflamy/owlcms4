@@ -247,7 +247,7 @@ public class JPAService {
 			.put("hibernate.c3p0.min_size", 5)
 			.put("hibernate.c3p0.max_size", 20)
 			.put("hibernate.c3p0.acquire_increment", 5)
-			.put("hibernate.c3p0.timeout", 84200) // FIXME very high timeout value
+			.put("hibernate.c3p0.timeout", 84200) // FIXME this timeout should not be required
 			.put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
 			.put("hibernate.c3p0.testConnectionOnCheckout", true)
 			.put("hibernate.c3p0.idle_test_period", 500)

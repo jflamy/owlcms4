@@ -1,65 +1,133 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athlete;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Properties;
+
+import org.slf4j.LoggerFactory;
+
+import app.owlcms.utils.LoggerUtils;
+import ch.qos.logback.classic.Logger;
 
 /**
  * The Class SinclairCoefficients.
  */
 public class SinclairCoefficients {
 
+	static Logger logger = (Logger) LoggerFactory.getLogger(SinclairCoefficients.class);
+
+	private static HashMap<Integer, Float> smm = null;
+	static Properties props = null;
+	static Double menCoefficient = null;
+	static Double womenCoefficient = null;
+	static Double menMaxWeight = null;
+	static Double womenMaxWeight = null;
+
 	/**
-	 * Men max weight.
-	 *
-	 * @return the double
+	 * @return
+	 * @throws IOException
 	 */
-	public static Double menMaxWeight() {
-		// TODO menMaxWeight
-		return 0.0D;
+	private static HashMap<Integer, Float> loadSMM() {
+
+		if (props == null) {
+			loadProps();
+		}
+
+		smm = new HashMap<>((int) (props.size() * 1.4));
+		for (Entry<Object, Object> entry : props.entrySet()) {
+			String curKey = (String) entry.getKey();
+			if (curKey.startsWith("smm.")) {
+				smm.put(Integer.valueOf(curKey.replace("smm.", "")), Float.valueOf((String) entry.getValue()));
+			}
+		}
+		return smm;
 	}
 
 	/**
-	 * Women max weight.
-	 *
-	 * @return the double
+	 * @throws IOException
 	 */
-	public static Double womenMaxWeight() {
-		// TODO womenMaxWeight
-		return 0.0D;
+	private static void loadProps() {
+		props = new Properties();
+		try {
+			InputStream stream = SinclairCoefficients.class.getResourceAsStream("/sinclair.properties");
+			props.load(stream);
+			// props.list(System.err);
+		} catch (IOException e) {
+			logger.error(LoggerUtils.stackTrace(e));
+		}
+	}
+
+	private static void loadCoefficients() {
+		if (props == null) {
+			loadProps();
+		}
+		menCoefficient = Double.valueOf((String) props.get("sinclair.menCoefficient"));
+		menMaxWeight = Double.valueOf((String) props.get("sinclair.menMaxWeight"));
+		womenCoefficient = Double.valueOf((String) props.get("sinclair.womenCoefficient"));
+		womenMaxWeight = Double.valueOf((String) props.get("sinclair.womenMaxWeight"));
 	}
 
 	/**
-	 * Men coefficient.
-	 *
-	 * @return the double
+	 * @return
 	 */
 	public static Double menCoefficient() {
-		// TODO menCoefficient
-		return 0.0D;
+		if (menCoefficient == null) {
+			loadCoefficients();
+		}
+		return menCoefficient;
 	}
 
 	/**
-	 * Women coefficient.
-	 *
-	 * @return the double
+	 * @return
 	 */
 	public static Double womenCoefficient() {
-		// TODO womenCoefficient
-		return 0.0D;
+		if (womenCoefficient == null) {
+			loadCoefficients();
+		}
+		return womenCoefficient;
 	}
 
 	/**
-	 * Gets the SMM coefficient.
-	 *
-	 * @param i the i
-	 * @return the SMM coefficient
+	 * @return
 	 */
-	public static Double getSMMCoefficient(int i) {
-		// TODO getSMMCoefficient
-		return 0.0D;
+	public static Double menMaxWeight() {
+		if (menMaxWeight == null) {
+			loadCoefficients();
+		}
+		return menMaxWeight;
 	}
 
+	/**
+	 * @return
+	 */
+	public static Double womenMaxWeight() {
+		if (womenMaxWeight == null) {
+			loadCoefficients();
+		}
+		return womenMaxWeight;
+	}
+
+	/**
+	 * @param age
+	 * @return the Sinclair-Malone-Meltzer Coefficient for that age.
+	 * @throws IOException
+	 */
+	public static Float getSMMCoefficient(Integer age) {
+		if (smm == null) {
+			loadSMM();
+		}
+		if (age <= 30)
+			return 1.0F;
+		if (age >= 90)
+			return smm.get(90);
+		return smm.get(age);
+	}
 }
