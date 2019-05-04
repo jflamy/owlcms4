@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -35,6 +34,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -294,17 +294,19 @@ public class Athlete {
 	 * @throws RuleViolationException if rule violated, exception contails details.
 	 */
 	public boolean validateStartingTotalsRule() {
-		logger.warn("validateStartingTotalsRule");
-		if (!isValidation() || !Competition.getCurrent().isEnforce20kgRule()) return true;
+		boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
+		if (!isValidation() || !enforce20kg) return true;
+		
 		int qualTotal = getQualifyingTotal();
+		logger.warn("enforcing 20kg rule {} {}",enforce20kg, qualTotal);
 		if (qualTotal == 0) {
 			return true;
 		}
 
-		if (!Competition.getCurrent().isMasters()) {
-			return validateRegular20kgRule(qualTotal);
-		} else
-			return validateMasters15_20Rule(qualTotal);
+//		if (!Competition.getCurrent().isMasters()) {
+			return validate20kgRule(qualTotal);
+//		} else
+//			return validateMasters15_20Rule(qualTotal);
 	}
 
 	/**
@@ -312,7 +314,8 @@ public class Athlete {
 	 * @return true if ok, exception if not
 	 * @throws RuleViolationException if rule violated, exception contails details.
 	 */
-	private boolean validateRegular20kgRule(int qualTotal) {
+	private boolean validate20kgRule(int qualTotal) {
+		logger.warn("validateStartingTotalsRule {}",isValidation());
 		int curStartingTotal = 0;
 		int snatchRequest = 0;
 		int cleanJerkRequest = 0;
@@ -330,84 +333,68 @@ public class Athlete {
 		int delta = qualTotal - curStartingTotal;
 		String message = null;
 
-		Locale locale = Competition.getCurrent().getLocale();
 		int _20kgRuleValue = this.get20kgRuleValue();
+		RuleViolationException rule15_20Violated = null;
 		if (delta > _20kgRuleValue) {
 			Integer startNumber2 = this.getStartNumber();
-			message = RuleViolation.rule15_20Violated(
+			rule15_20Violated = RuleViolation.rule15_20Violated(
 				this.getLastName(),
 				this.getFirstName(),
 				(startNumber2 != null ? startNumber2 : "-"),
 				snatchRequest,
 				cleanJerkRequest,
 				delta - _20kgRuleValue,
-				qualTotal)
-				.getLocalizedMessage(locale);
+				qualTotal);
 		}
-		if (message != null) {
-			// LoggerUtils.logException(logger, new Exception("check15_20kiloRule traceback
-			// "+ message));
-			logger.info(message);
-			throw new RuleViolationException(message);
+		if (rule15_20Violated != null) {
+			message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
+			logger.info("{} {}", this, message);
+			throw rule15_20Violated;
 		}
 		return true;
 	}
 
 
-	/**
-	 * @param entryTotal
-	 * @return true if ok, exception if not
-	 * @throws RuleViolationException if rule violated, exception contails details.
-	 */
-	private boolean validateMasters15_20Rule(int entryTotal) throws RuleViolationException {
-		int curStartingTotal = 0;
-		int snatch1request = 0;
-		int cleanJerkRequest = 0;
+//	/**
+//	 * @param entryTotal
+//	 * @return true if ok, exception if not
+//	 * @throws RuleViolationException if rule violated, exception contails details.
+//	 */
+//	private boolean validateMasters15_20Rule(int entryTotal) throws RuleViolationException {
+//		int curStartingTotal = 0;
+//		int snatch1request = 0;
+//		int cleanJerkRequest = 0;
+//
+//		snatch1request = last(
+//			zeroIfInvalid(snatch1Declaration),
+//			zeroIfInvalid(snatch1Change1),
+//			zeroIfInvalid(snatch1Change2));
+//		cleanJerkRequest = last(
+//			zeroIfInvalid(cleanJerk1Declaration),
+//			zeroIfInvalid(cleanJerk1Change1),
+//			zeroIfInvalid(cleanJerk1Change2));
+//
+//		int _20kgRuleValue = this.get20kgRuleValue();
+////		int bestSnatch1 = getBestSnatch();
+//		// example: male 55/65 declarations given 135 qual total (120 within 15kg of 135, ok)
+//		// athlete does 70 snatch, which is bigger than 15kg gap.
+//		// can now declare 50 opening CJ according to 2.4.3
+//		curStartingTotal = snatch1request + cleanJerkRequest; // 120
+//		int delta = entryTotal - curStartingTotal; // 15 -- no margin of error
+//
+////		int curForecast = bestSnatch1 + zeroIfInvalid(cleanJerk1Declaration); // 70 + 65 = 135
+////		if (curForecast >= qualTotal) {
+////			// already predicted to clear the QT, may change the CJ request down.
+////			logger.info("forecast = {}", curForecast);
+////			delta = qualTotal - (bestSnatch1 + cleanJerkRequest); // delta = 135 - 135 = 0
+////			snatch1request = bestSnatch1;
+////			// possible CJ initial request reduction = _20kgRuleValue - delta
+////			// can bring CJ down to 50 (15 - 0)
+////		}
+//
+//		return doCheckRule(entryTotal, snatch1request, cleanJerkRequest, _20kgRuleValue, delta);
+//	}
 
-		snatch1request = last(
-			zeroIfInvalid(snatch1Declaration),
-			zeroIfInvalid(snatch1Change1),
-			zeroIfInvalid(snatch1Change2));
-		cleanJerkRequest = last(
-			zeroIfInvalid(cleanJerk1Declaration),
-			zeroIfInvalid(cleanJerk1Change1),
-			zeroIfInvalid(cleanJerk1Change2));
-
-		int _20kgRuleValue = this.get20kgRuleValue();
-//		int bestSnatch1 = getBestSnatch();
-		// example: male 55/65 declarations given 135 qual total (120 within 15kg of 135, ok)
-		// athlete does 70 snatch, which is bigger than 15kg gap.
-		// can now declare 50 opening CJ according to 2.4.3
-		curStartingTotal = snatch1request + cleanJerkRequest; // 120
-		int delta = entryTotal - curStartingTotal; // 15 -- no margin of error
-
-//		int curForecast = bestSnatch1 + zeroIfInvalid(cleanJerk1Declaration); // 70 + 65 = 135
-//		if (curForecast >= qualTotal) {
-//			// already predicted to clear the QT, may change the CJ request down.
-//			logger.info("forecast = {}", curForecast);
-//			delta = qualTotal - (bestSnatch1 + cleanJerkRequest); // delta = 135 - 135 = 0
-//			snatch1request = bestSnatch1;
-//			// possible CJ initial request reduction = _20kgRuleValue - delta
-//			// can bring CJ down to 50 (15 - 0)
-//		}
-
-		String message = null;
-		Locale locale = Competition.getCurrent().getLocale();
-
-		if (delta > _20kgRuleValue) {
-			Integer startNumber2 = this.getStartNumber();
-			message = RuleViolation.rule15_20Violated(
-				this.getLastName(), this.getFirstName(),
-				(startNumber2 != null ? startNumber2 : "-"), snatch1request,
-				cleanJerkRequest, delta - _20kgRuleValue, entryTotal).getLocalizedMessage(locale);
-		}
-		if (message != null) {
-			// LoggerUtils.logException(logger, new Exception("check15_20kiloRule traceback "+ message));
-			logger.info(message);
-			throw new RuleViolationException(message);
-		}
-		return true;
-	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object) */
@@ -475,15 +462,13 @@ public class Athlete {
 	 * @return the 20 kg rule value
 	 */
 	public int get20kgRuleValue() {
-		if (Competition.getCurrent()
-			.isMasters()) {
+		if (Competition.getCurrent().isMasters()) {
 			if (Gender.M.equals(this.getGender())) {
 				return 15;
 			} else {
 				return 10;
 			}
-		} else if (Competition.getCurrent()
-			.isUseOld20_15rule()) {
+		} else if (Competition.getCurrent().isUseOld20_15rule()) {
 			if (Gender.M.equals(this.getGender())) {
 				return 20;
 			} else {
@@ -3759,6 +3744,7 @@ public class Athlete {
 			dest.setFirstName(src.getFirstName());
 			dest.setGroup(src.getGroup());
 			dest.setStartNumber(src.getStartNumber());
+			dest.setQualifyingTotal(src.getQualifyingTotal());
 			
 			dest.setSnatch1Declaration(src.getSnatch1Declaration());
 			dest.setSnatch1Change1(src.getSnatch1Change1());

@@ -19,18 +19,12 @@ import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -71,6 +65,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/athletes", layout = RegistrationLayout.class)
+@HtmlImport("frontend://styles/shared-styles.html")
 public class RegistrationContent extends VerticalLayout
 		implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
 
@@ -194,7 +189,7 @@ public class RegistrationContent extends VerticalLayout
 	/**
 	 * Create the actual form generator with all the conversions and validations required
 	 *
-	 * @return the actual factory with field binding and validations
+	 * @return the factory to create a form with field binding and validations
 	 */
 	private OwlcmsCrudFormFactory<Athlete> createAthleteEditingFormFactory() {
 		return new OwlcmsCrudFormFactory<Athlete>(Athlete.class) {
@@ -210,30 +205,10 @@ public class RegistrationContent extends VerticalLayout
 				binder.setValidationStatusHandler((s) -> {
 					String errorMessages = s.getBeanValidationErrors().stream().map((vr) -> vr.getErrorMessage()).collect(Collectors.joining(", "));
 					if (errorMessages != null && !errorMessages.isEmpty()) {
-						NativeButton buttonInside = new NativeButton("Close");
-						Div content = new Div();
-						content.getElement().setProperty("innerHTML",errorMessages);
-						Notification notification = new Notification(content, buttonInside);
-						notification.setDuration(-1);
-						buttonInside.addClickListener(event -> notification.close());
-						notification.setPosition(Position.MIDDLE);
-						notification.open();
+						errorLabel.getElement().setProperty("innerHTML",errorMessages);
 					}
 				});
 				return binder;
-			}
-			
-			/* (non-Javadoc)
-			 * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.crudui.crud.CrudOperation, java.lang.Object, boolean, com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener)
-			 */
-			@Override
-			public Component buildNewForm(CrudOperation operation, Athlete domainObject, boolean readOnly,
-					ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-					ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
-					ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
-				// TODO Auto-generated method stub
-				return super.buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener, operationButtonClickListener,
-					deleteButtonClickListener);
 			}
 			
 			/** 
