@@ -319,8 +319,10 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			String formattedAttempt = formatAttempt(a.getAttemptsDone());
 			model.setAttempt(formattedAttempt);
 			model.setWeight(a.getNextAttemptRequestedWeight());
-			
-			model.setGroupName(curGroup != null ? MessageFormat.format("Group {0}", curGroup.getName()) : "");
+			OwlcmsSession.withFop((fop) -> {
+				curGroup = fop.getGroup();
+				model.setGroupName(curGroup != null ? MessageFormat.format("Group {0}", curGroup.getName()) : "");
+			});
 			model.setLiftsDone(MessageFormat.format("{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}",liftsDone));
 			
 			this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
@@ -403,7 +405,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	
 	@Override
 	public void doBreak(BreakStarted e) {
-		uiEventLogger.warn("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom());
+		uiEventLogger.debug("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			BreakType breakType = fop.getBreakType();
 			getModel().setLastName(inferGroupName());
@@ -411,7 +413,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			getModel().setTeamName("");
 			getModel().setAttempt("");
 
-			uiEventLogger.warn("$$$ attemptBoard calling doBreak()");
+			uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
 			this.getElement().callFunction("doBreak");
 		}));
 	}
