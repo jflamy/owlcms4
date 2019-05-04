@@ -20,7 +20,6 @@ import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -75,7 +74,7 @@ public class RegistrationContent extends VerticalLayout
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
 	private ComboBox<Group> groupFilter = new ComboBox<>();
-	private Checkbox weighedInFilter = new Checkbox();
+	private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
 	private OwlcmsRouterLayout routerLayout;
 	private OwlcmsCrudGrid<Athlete> crudGrid;
 
@@ -380,10 +379,12 @@ public class RegistrationContent extends VerticalLayout
 		crudGrid.getCrudLayout()
 			.addFilterComponent(groupFilter);
 
+		weighedInFilter.setPlaceholder("Weighed-In?");
+		weighedInFilter.setItems(Boolean.TRUE,Boolean.FALSE);
+		weighedInFilter.setItemLabelGenerator((i) -> {return i ? "Weighed" : "Not weighed";});
 		weighedInFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();
 		});
-		weighedInFilter.setLabel("Weighed-in");
 		crudGrid.getCrudLayout()
 			.addFilterComponent(weighedInFilter);
 
