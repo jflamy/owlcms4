@@ -16,7 +16,7 @@ public interface BreakDisplay {
 		BreakType bt;
 		switch (fop.getState()) {
 		case BREAK:
-			bt = fop.liftsDone() > 0 ? BreakType.FIRST_SNATCH : BreakType.FIRST_CJ;
+			bt = fop.countLiftsDone() > 0 ? BreakType.FIRST_SNATCH : BreakType.FIRST_CJ;
 			break;
 		case INACTIVE:
 			bt = BreakType.INTRODUCTION;

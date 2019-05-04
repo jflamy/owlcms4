@@ -681,7 +681,6 @@ public class FieldOfPlay {
 	private void weightChangeDoNotDisturb(Athlete curLifter) {
 		AthleteSorter.liftingOrder(this.liftingOrder);
 		this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
-		//TODO update lifting order boards but not attempt boards.
 		uiDisplayCurrentAthleteAndTime(false);
 	}
 
@@ -703,9 +702,9 @@ public class FieldOfPlay {
 	/**
 	 * @return how many lifts done so far in the group.
 	 */
-	public int liftsDone() {
-		// TODO how many lifts done so far in the group.
-		return 0;
+	public int countLiftsDone() {
+		int liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+		return liftsDone;
 	}
 
 	public BreakType getBreakType() {
