@@ -118,7 +118,7 @@ public class FOPEvent {
 	}
 
 	/**
-	 * The Class LiftingOrderUpdated.
+	 * Class WeightChange.
 	 */
 	static public class WeightChange extends FOPEvent {
 
