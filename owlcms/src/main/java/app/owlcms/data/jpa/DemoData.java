@@ -72,6 +72,8 @@ public class DemoData {
 		competition.setFederationEMail("results@national-weightlifting.org");
 		competition.setFederationWebSite("http://national-weightlifting.org");
 		
+		competition.setEnforce20kgRule(true);
+		
 		// needed because some classes such as Athlete refer to the current competition
 		Competition.setCurrent(competition);
 		

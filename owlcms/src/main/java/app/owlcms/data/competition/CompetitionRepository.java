@@ -11,13 +11,19 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.data.jpa.JPAService;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * CompetitionRepository.
  *
  */
 public class CompetitionRepository {
+	private final static Logger logger = (Logger)LoggerFactory.getLogger(CompetitionRepository.class);
+	static { logger.setLevel(Level.INFO); } 
 	
 	/**
 	 * Gets Competition by id.
@@ -44,13 +50,16 @@ public class CompetitionRepository {
 	 * @return the competition
 	 */
 	public static Competition save(Competition Competition) {
-		 Competition mc = JPAService.runInTransaction(em -> {
-			Competition nc = em.merge(Competition);
+		 JPAService.runInTransaction(em -> {
+			 Competition nc = em.merge(Competition);
 			// needed because some classes get competition parameters from getCurrent()
 			app.owlcms.data.competition.Competition.setCurrent(nc);
 			return nc;
 		});
-		return mc;
+		 
+		Competition current = app.owlcms.data.competition.Competition.getCurrent();
+		logger.debug("current.isEnforce20kgRule() = {}",current.isEnforce20kgRule());
+		return current;
 	}
 
 	/**

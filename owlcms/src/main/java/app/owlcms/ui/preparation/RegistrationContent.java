@@ -9,7 +9,6 @@ package app.owlcms.ui.preparation;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -202,12 +201,7 @@ public class RegistrationContent extends VerticalLayout
 			protected Binder<Athlete> buildBinder(CrudOperation operation, Athlete domainObject) {
 				binder = super.buildBinder(operation, domainObject);
 				binder.withValidator(ValidationUtils.checkUsing((a) -> a.validateStartingTotalsRule(), ""));
-				binder.setValidationStatusHandler((s) -> {
-					String errorMessages = s.getBeanValidationErrors().stream().map((vr) -> vr.getErrorMessage()).collect(Collectors.joining(", "));
-					if (errorMessages != null && !errorMessages.isEmpty()) {
-						errorLabel.getElement().setProperty("innerHTML",errorMessages);
-					}
-				});
+				updateErrorLabelFromBeanValidationErrors();
 				return binder;
 			}
 			

@@ -70,7 +70,7 @@ public class Competition {
 	private String protocolFileName;
 	private String resultTemplateFileName;
 
-	private boolean enforce20kgRule = true;
+	private boolean enforce20kgRule;
 	private boolean masters;
 	private boolean useBirthYear;
 
@@ -442,7 +442,7 @@ public class Competition {
 	 * @param b the new use birth year
 	 */
 	public void setUseBirthYear(boolean b) {
-		this.useBirthYear = true;
+		this.useBirthYear = b;
 	}
 
 	/**

@@ -7,6 +7,7 @@
 package app.owlcms.ui.crudui;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -262,6 +263,23 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	@Override
 	public void setFieldType(String property, Class class1) {
 		super.setFieldType(property, class1);
+	}
+
+	public void updateErrorLabelFromBeanValidationErrors() {
+		binder.setValidationStatusHandler((s) -> {
+			String errorMessages = s.getBeanValidationErrors().stream().map((vr) -> vr.getErrorMessage()).collect(Collectors.joining(", "));
+			if (errorMessages != null && !errorMessages.isEmpty()) {
+				if (errorLabel != null) {
+					errorLabel.getElement().setProperty("innerHTML",errorMessages);
+					errorLabel.setVisible(true);
+				}
+			} else {
+				if (errorLabel != null) {
+					errorLabel.setText("");
+					errorLabel.setVisible(false);
+				}
+			}
+		});
 	}
 
 }
