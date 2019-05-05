@@ -188,7 +188,7 @@ implements CrudListener<Category>, ContentWrapping, AppLayoutAware {
 	@Override
 	public Collection<Category> findAll() {
 		return CategoryRepository
-				.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), activeFilter.getValue(), -1, -1);
+				.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), null, activeFilter.getValue(), -1, -1);
 	}
 
 	/**

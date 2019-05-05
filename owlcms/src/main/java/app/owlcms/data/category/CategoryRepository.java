@@ -112,9 +112,9 @@ public class CategoryRepository {
 	 * @param limit       the limit
 	 * @return the list
 	 */
-	public static List<Category> findFiltered(String name, AgeDivision ageDivision, Boolean active, int offset, int limit) {
+	public static List<Category> findFiltered(String name, AgeDivision ageDivision, Gender gender, Boolean active, int offset, int limit) {
 		return JPAService.runInTransaction(em -> {
-			return doFindFiltered(em, name, ageDivision, active, offset, limit);
+			return doFindFiltered(em, name, ageDivision, gender, active, offset, limit);
 		});
 	}
 	
@@ -123,21 +123,32 @@ public class CategoryRepository {
 	 */
 	public static List<Category> findActive() {
 		return JPAService.runInTransaction(em -> {
-			return doFindFiltered(em, null, null, true, -1, -1);
+			return doFindFiltered(em, null, null, null, true, -1, -1);
 		});
 	}
+	
+	/**
+	 * @return active categories
+	 */
+	public static List<Category> findActive(Gender gender) {
+		return JPAService.runInTransaction(em -> {
+			return doFindFiltered(em, null, null, gender, true, -1, -1);
+		});
+	}
+
 
 	public static List<Category> doFindFiltered(EntityManager em,
 			String name,
 			AgeDivision ageDivision,
+			Gender gender,
 			Boolean active,
 			int offset,
 			int limit) {
-		String qlString = "select c from Category c" + filteringSelection(name, ageDivision, active);
+		String qlString = "select c from Category c" + filteringSelection(name, ageDivision, gender, active);
 		logger.trace("query = {}",qlString);
 		
 		Query query = em.createQuery(qlString);
-		setFilteringParameters(name, ageDivision, active, query);
+		setFilteringParameters(name, ageDivision, gender, active, query);
 		if (offset >= 0)
 			query.setFirstResult(offset);
 		if (limit > 0)
@@ -155,23 +166,23 @@ public class CategoryRepository {
 	 * @param active   active category
 	 * @return the int
 	 */
-	public static int countFiltered(String name, AgeDivision ageDivision, Boolean active) {
+	public static int countFiltered(String name, AgeDivision ageDivision, Gender gender, Boolean active) {
 		return JPAService.runInTransaction(em -> {
-			return doCountFiltered(name, ageDivision, active, em);
+			return doCountFiltered(name, ageDivision, gender, active, em);
 		});
 	}
 
-	public static Integer doCountFiltered(String name, AgeDivision ageDivision, Boolean active, EntityManager em) {
-		String selection = filteringSelection(name, ageDivision, active);
+	public static Integer doCountFiltered(String name, AgeDivision ageDivision, Gender gender, Boolean active, EntityManager em) {
+		String selection = filteringSelection(name, ageDivision, gender, active);
 		String qlString = "select count(c.id) from Category c " + selection;
 		logger.trace("count = {}",qlString);
 		Query query = em.createQuery(qlString);
-		setFilteringParameters(name, ageDivision, true, query);
+		setFilteringParameters(name, ageDivision, gender, true, query);
 		int i = ((Long) query.getSingleResult()).intValue();
 		return i;
 	}
 
-	private static void setFilteringParameters(String name, AgeDivision ageDivision, Boolean active, Query query) {
+	private static void setFilteringParameters(String name, AgeDivision ageDivision, Gender gender, Boolean active, Query query) {
 		if (name != null && name.trim().length() > 0) {
 			// starts with
 			query.setParameter("name", "%"+name.toLowerCase()+"%");
@@ -187,15 +198,15 @@ public class CategoryRepository {
 //		}
 	}
 
-	private static String filteringSelection(String name, AgeDivision ageDivision, Boolean active) {
+	private static String filteringSelection(String name, AgeDivision ageDivision, Gender gender, Boolean active) {
 		String joins = null; // filteringJoins(group, category);
-		String where = filteringWhere(name, ageDivision, active);
+		String where = filteringWhere(name, ageDivision, gender, active);
 		String selection = (joins != null ? " " + joins : "") +
 				(where != null ? " where " + where : "");
 		return selection;
 	}
 
-	private static String filteringWhere(String name, AgeDivision ageDivision, Boolean active) {
+	private static String filteringWhere(String name, AgeDivision ageDivision, Gender gender, Boolean active) {
 		List<String> whereList = new LinkedList<String>();
 		if (ageDivision != null)
 			whereList.add("c.ageDivision = :division");

@@ -267,6 +267,8 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 
 	public void updateErrorLabelFromBeanValidationErrors() {
 		binder.setValidationStatusHandler((s) -> {
+			s.notifyBindingValidationStatusHandlers();
+			
 			String errorMessages = s.getBeanValidationErrors().stream().map((vr) -> vr.getErrorMessage()).collect(Collectors.joining(", "));
 			if (errorMessages != null && !errorMessages.isEmpty()) {
 				if (errorLabel != null) {
