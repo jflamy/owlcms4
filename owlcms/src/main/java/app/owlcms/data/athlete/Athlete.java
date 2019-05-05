@@ -298,7 +298,7 @@ public class Athlete {
 		if (!isValidation() || !enforce20kg) return true;
 		
 		int qualTotal = getQualifyingTotal();
-		logger.warn("enforcing 20kg rule {} {}",enforce20kg, qualTotal);
+		logger.debug("enforcing 20kg rule {} {}",enforce20kg, qualTotal);
 		if (qualTotal == 0) {
 			return true;
 		}
