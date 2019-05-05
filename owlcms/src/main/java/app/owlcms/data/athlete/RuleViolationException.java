@@ -9,13 +9,19 @@ package app.owlcms.data.athlete;
 import java.text.MessageFormat;
 import java.util.Locale;
 
-import app.owlcms.data.competition.Competition;
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.i18n.Messages;
+import app.owlcms.init.OwlcmsSession;
+import ch.qos.logback.classic.Logger;
 
 /**
  * The Class RuleViolationException.
  */
 public class RuleViolationException extends RuntimeException {
+	@SuppressWarnings("unused")
+	private static final Logger logger = (Logger)LoggerFactory.getLogger(RuleViolationException.class);
+	
     private static final long serialVersionUID = 8965943679108964933L;
     private String messageKey;
     private Object[] messageFormatData;
@@ -69,7 +75,7 @@ public class RuleViolationException extends RuntimeException {
      */
     @Override
     public String getLocalizedMessage() {
-        final Locale locale1 = (this.locale == null ? Competition.getCurrent().getDefaultLocale() : this.locale);
+        final Locale locale1 = (this.locale != null ? this.locale : OwlcmsSession.getLocale());
         final String messageTemplate = Messages.getString(this.messageKey, locale1);
         return MessageFormat.format(messageTemplate, messageFormatData);
     }

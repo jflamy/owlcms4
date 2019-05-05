@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.competition;
@@ -32,7 +32,7 @@ public class Competition {
 	final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
 
 	private static Competition competition;
-	
+
 	/**
 	 * Gets the current.
 	 *
@@ -40,19 +40,19 @@ public class Competition {
 	 */
 	public static Competition getCurrent() {
 		if (competition == null) {
-//			competition = new Competition();
+			//			competition = new Competition();
 			competition = CompetitionRepository.findAll().get(0);
 		}
 		return competition;
 	}
-	
+
 	public static void setCurrent(Competition c) {
 		competition = c;
 	}
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	Long id;	
+	Long id;
 
 	private String competitionName;
 	private LocalDate competitionDate = null;
@@ -64,21 +64,21 @@ public class Competition {
 	private String federationAddress;
 	private String federationEMail;
 	private String federationWebSite;
-	
+
 	@Convert(converter = LocaleAttributeConverter.class)
 	private Locale defaultLocale = Locale.ENGLISH;
 	private String protocolFileName;
 	private String resultTemplateFileName;
-	
-	private boolean enforce20kgRule = true;
-	private boolean masters = false;
-	private boolean useBirthYear = false;
-	
+
+	private boolean enforce20kgRule;
+	private boolean masters;
+	private boolean useBirthYear;
+
 	private boolean useCategorySinclair = false;
 	private boolean useOld20_15Rule = false;
 	private boolean useOldBodyWeightTieBreak = false;
 	private boolean useRegistrationCategory = true;
-	
+
 
 	/**
 	 * Gets the competition city.
@@ -171,6 +171,29 @@ public class Competition {
 	}
 
 	/**
+	 * Gets the result template file name.
+	 *
+	 * @return the result template file name
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public String getFinalPackageTemplateFileName() throws IOException {
+		logger.debug("competitionBookFileName = {}", resultTemplateFileName);
+		String str = File.separator + "competitionBook";
+		if (resultTemplateFileName == null) return "defaultResults.xls";
+
+		int protocolPos = resultTemplateFileName.indexOf(str);
+		if (protocolPos != -1) {
+			// make file relative
+			String substring = resultTemplateFileName.substring(protocolPos + 1);
+			logger.debug("relative competitionBookFileName = {}", substring);
+			return "not implemented";
+		} else {
+			logger.debug("could not find {}", str);
+		}
+		return "not implemented";
+	}
+
+	/**
 	 * Gets the id.
 	 *
 	 * @return the id
@@ -189,12 +212,21 @@ public class Competition {
 	}
 
 	/**
+	 * Gets the locale.
+	 *
+	 * @return the locale
+	 */
+	public Locale getLocale() {
+		return getDefaultLocale();
+	}
+
+	/**
 	 * Gets the masters.
 	 *
 	 * @return the masters
 	 */
 	public Boolean getMasters() {
-		return masters;
+		return isMasters();
 	}
 
 	/**
@@ -205,40 +237,17 @@ public class Competition {
 	 */
 	public String getProtocolFileName() throws IOException {
 		logger.debug("protocolFileName = {}", protocolFileName);
-		if (protocolFileName == null) return null; 
-		
+		if (protocolFileName == null) return null;
+
 		String str = File.separator + "protocolSheet";
 		int protocolPos = protocolFileName.indexOf(str);
-		if (protocolPos != -1) {
+		if (protocolPos != -1)
 			// make file relative
-//	            String substring = protocolFileName.substring(protocolPos+1);
-//	            logger.debug("relative protocolFileName = {}",substring);
-//	            return Competition.getCurrent().getResourceFileName(substring);
+			//	            String substring = protocolFileName.substring(protocolPos+1);
+			//	            logger.debug("relative protocolFileName = {}",substring);
+			//	            return Competition.getCurrent().getResourceFileName(substring);
 			return "not implemented";
-		} else {
-			logger.debug("could not find {}", str);
-		}
-		return "not implemented";
-	}
-
-	/**
-	 * Gets the result template file name.
-	 *
-	 * @return the result template file name
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
-	public String getFinalPackageTemplateFileName() throws IOException {
-		logger.debug("competitionBookFileName = {}", resultTemplateFileName);
-		String str = File.separator + "competitionBook";
-		if (resultTemplateFileName == null) return "defaultResults.xls";
-		
-		int protocolPos = resultTemplateFileName.indexOf(str);
-		if (protocolPos != -1) {
-			// make file relative
-			String substring = resultTemplateFileName.substring(protocolPos + 1);
-			logger.debug("relative competitionBookFileName = {}", substring);
-			return "not implemented";
-		} else {
+		else {
 			logger.debug("could not find {}", str);
 		}
 		return "not implemented";
@@ -352,6 +361,10 @@ public class Competition {
 		this.competitionSite = competitionSite;
 	}
 
+	public void setDefaultLocale(Locale defaultLocale) {
+		this.defaultLocale = defaultLocale;
+	}
+
 	/**
 	 * Sets the federation.
 	 *
@@ -429,7 +442,7 @@ public class Competition {
 	 * @param b the new use birth year
 	 */
 	public void setUseBirthYear(boolean b) {
-		this.useBirthYear = true;
+		this.useBirthYear = b;
 	}
 
 	/**
@@ -440,19 +453,15 @@ public class Competition {
 	public void setUseRegistrationCategory(boolean useRegistrationCategory) {
 		this.useRegistrationCategory = useRegistrationCategory;
 	}
-
-	/**
-	 * Gets the locale.
-	 *
-	 * @return the locale
-	 */
-	public Locale getLocale() {
-		return getDefaultLocale();
-	}
-
-	public void setDefaultLocale(Locale defaultLocale) {
-		this.defaultLocale = defaultLocale;
-	}
 	
+
+	public void setEnforce20kgRule(boolean enforce20kgRule) {
+		this.enforce20kgRule = enforce20kgRule;
+	}
+
+	public void setMasters(boolean masters) {
+		this.masters = masters;
+	}
+
 
 }

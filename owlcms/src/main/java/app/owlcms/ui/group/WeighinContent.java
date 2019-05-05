@@ -18,7 +18,6 @@ import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -72,8 +71,8 @@ public class WeighinContent extends VerticalLayout
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
 	private ComboBox<Group> groupFilter = new ComboBox<>();
 
-	private Checkbox weighedInFilter = new Checkbox();
-	private GridCrud<Athlete> crud;
+	private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
+	private OwlcmsCrudGrid<Athlete> crudGrid;
 	private OwlcmsRouterLayout routerLayout;
 
 	/**
@@ -81,10 +80,10 @@ public class WeighinContent extends VerticalLayout
 	 */
 	public WeighinContent() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
-		crud = createGrid(crudFormFactory);		
-		defineFilters(crud);
+		crudGrid = createGrid(crudFormFactory);		
+		defineFilters(crudGrid);
 //		defineQueries(crudGrid);
-		fillHW(crud, this);
+		fillHW(crudGrid, this);
 	}
 
 	/**
@@ -93,7 +92,7 @@ public class WeighinContent extends VerticalLayout
 	 * @param crudFormFactory what to call to create the form for editing an athlete
 	 * @return
 	 */
-	protected GridCrud<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+	protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
 		grid.addColumn("startNumber").setHeader("Start#");
 		grid.addColumn("lastName").setHeader("Last Name");
@@ -104,13 +103,13 @@ public class WeighinContent extends VerticalLayout
 		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale())).setHeader("Body Weight");
 		grid.addColumn("group").setHeader("Group");
 		grid.addColumn("invited").setHeader("Invited");	
-		GridCrud<Athlete> crud = new OwlcmsCrudGrid<Athlete>(Athlete.class,
+		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<Athlete>(Athlete.class,
 				new OwlcmsGridLayout(Athlete.class),
 				crudFormFactory,
 				grid);
-		crud.setCrudListener(this);
-		crud.setClickRowToUpdate(true);
-		return crud;
+		crudGrid.setCrudListener(this);
+		crudGrid.setClickRowToUpdate(true);
+		return crudGrid;
 	}
 
 	/**
@@ -311,7 +310,7 @@ public class WeighinContent extends VerticalLayout
 	public Collection<Athlete> findAll() {
 		return AthleteRepository
 				.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
-					ageDivisionFilter.getValue(), null, -1, -1);
+					ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
 	}
 	
 	/**
@@ -359,10 +358,12 @@ public class WeighinContent extends VerticalLayout
 		crud.getCrudLayout()
 			.addFilterComponent(groupFilter);
 		
+		weighedInFilter.setPlaceholder("Weighed-In?");
+		weighedInFilter.setItems(Boolean.TRUE,Boolean.FALSE);
+		weighedInFilter.setItemLabelGenerator((i) -> {return i ? "Weighed" : "Not weighed";});
 		weighedInFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
-		weighedInFilter.setLabel("Weighed-in");
 		crud.getCrudLayout()
 			.addFilterComponent(weighedInFilter);
 		
@@ -386,7 +387,7 @@ public class WeighinContent extends VerticalLayout
 	}
 
 	public void refresh() {
-		crud.refreshGrid();
+		crudGrid.refreshGrid();
 	}
 
 	@Override

@@ -7,6 +7,7 @@
 package app.owlcms.ui.crudui;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -27,6 +28,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -45,6 +47,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	static {logger.setLevel(Level.INFO);}
 
 	protected ResponsiveStep[] responsiveSteps;
+	protected Label errorLabel;
 
 	/**
 	 * Instantiates a new Form Factory
@@ -102,9 +105,15 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 
 		Component footerLayout = this.buildFooter(operation, domainObject, cancelButtonClickListener,
 			operationButtonClickListener, deleteButtonClickListener);
+		
+		errorLabel = new Label();
+		HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
+		labelWrapper.addClassName("errorMessage");
+		labelWrapper.setWidthFull();
+		labelWrapper.setJustifyContentMode(JustifyContentMode.CENTER);
 
 		VerticalLayout mainLayout = new VerticalLayout(
-				formLayout, footerLayout);
+				formLayout, labelWrapper, footerLayout);
 		mainLayout.setFlexGrow(1, formLayout);
 		mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
 		mainLayout.setMargin(false);
@@ -254,6 +263,25 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	@Override
 	public void setFieldType(String property, Class class1) {
 		super.setFieldType(property, class1);
+	}
+
+	public void updateErrorLabelFromBeanValidationErrors() {
+		binder.setValidationStatusHandler((s) -> {
+			s.notifyBindingValidationStatusHandlers();
+			
+			String errorMessages = s.getBeanValidationErrors().stream().map((vr) -> vr.getErrorMessage()).collect(Collectors.joining(", "));
+			if (errorMessages != null && !errorMessages.isEmpty()) {
+				if (errorLabel != null) {
+					errorLabel.getElement().setProperty("innerHTML",errorMessages);
+					errorLabel.setVisible(true);
+				}
+			} else {
+				if (errorLabel != null) {
+					errorLabel.setText("");
+					errorLabel.setVisible(false);
+				}
+			}
+		});
 	}
 
 }

@@ -89,26 +89,8 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#checkStartingTotalsRule(boolean)
 	 */
 	@Override
-	public void checkStartingTotalsRule(boolean unlessCurrent) {
-		a.checkStartingTotalsRule(unlessCurrent);
-	}
-
-	/**
-	 * @param qualTotal
-	 * @see app.owlcms.data.athlete.Athlete#regular20kgRule(int)
-	 */
-	@Override
-	public String regular20kgRule(int qualTotal) {
-		return a.regular20kgRule(qualTotal);
-	}
-
-	/**
-	 * @param qualTotal
-	 * @see app.owlcms.data.athlete.Athlete#masters15_20Rule(int)
-	 */
-	@Override
-	public String masters15_20Rule(int qualTotal) {
-		return a.masters15_20Rule(qualTotal);
+	public boolean validateStartingTotalsRule() {
+		return a.validateStartingTotalsRule();
 	}
 
 	/**

@@ -117,7 +117,6 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
 		OwlcmsSession.withFop((fop) -> {
-			//TODO get group from URL, but not connected to FOP
 			groupSelect.setValue(null);
 		});
 		groupSelect.addValueChangeListener(e -> {

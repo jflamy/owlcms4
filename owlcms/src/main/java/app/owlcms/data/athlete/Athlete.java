@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -35,6 +34,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -289,29 +289,33 @@ public class Athlete {
 	}
 
 	/**
-	 * Check starting totals rule.
-	 *
-	 * @param unlessCurrent the unless current
+	 * @param entryTotal
+	 * @return true if ok, exception if not
+	 * @throws RuleViolationException if rule violated, exception contails details.
 	 */
-	public void checkStartingTotalsRule(boolean unlessCurrent) {
-		if (!isValidation()) return;
+	public boolean validateStartingTotalsRule() {
+		boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
+		if (!isValidation() || !enforce20kg) return true;
 		
 		int qualTotal = getQualifyingTotal();
-		boolean enforce15_20rule = Competition.getCurrent()
-			.isEnforce20kgRule();
-		if (qualTotal == 0 || !enforce15_20rule) {
-			return;
+		logger.debug("enforcing 20kg rule {} {}",enforce20kg, qualTotal);
+		if (qualTotal == 0) {
+			return true;
 		}
 
-		if (!Competition.getCurrent().isMasters()) {
-			regular20kgRule(qualTotal);
-		} else
-			masters15_20Rule(qualTotal);
+//		if (!Competition.getCurrent().isMasters()) {
+			return validate20kgRule(qualTotal);
+//		} else
+//			return validateMasters15_20Rule(qualTotal);
 	}
 
-	public String regular20kgRule(int qualTotal) {
-		if (!isValidation()) return null;
-		
+	/**
+	 * @param entryTotal
+	 * @return true if ok, exception if not
+	 * @throws RuleViolationException if rule violated, exception contails details.
+	 */
+	private boolean validate20kgRule(int qualTotal) {
+
 		int curStartingTotal = 0;
 		int snatchRequest = 0;
 		int cleanJerkRequest = 0;
@@ -328,78 +332,73 @@ public class Athlete {
 		curStartingTotal = snatchRequest + cleanJerkRequest;
 		int delta = qualTotal - curStartingTotal;
 		String message = null;
-
-		Locale locale = Competition.getCurrent().getLocale();
 		int _20kgRuleValue = this.get20kgRuleValue();
-		if (delta > _20kgRuleValue) {
-			Integer startNumber2 = this.getStartNumber();
-			message = RuleViolation
-				.rule15_20Violated(this.getLastName(),
-					this.getFirstName(),
-					(startNumber2 != null ? startNumber2 : "-"),
-					snatchRequest,
-					cleanJerkRequest,
-					delta - _20kgRuleValue,
-					qualTotal)
-				.getLocalizedMessage(locale);
-		}
-		if (message != null) {
-			// LoggerUtils.logException(logger, new Exception("check15_20kiloRule traceback
-			// "+ message));
-			logger.info(message);
-		}
-		return message;
-	}
-
-	public String masters15_20Rule(int qualTotal) {
-		if (!isValidation()) return null;
 		
-		int curStartingTotal = 0;
-		int snatch1request = 0;
-		int cleanJerkRequest = 0;
+		logger.debug("{} validateStartingTotalsRule {} {} {}, {}, {}", this, snatchRequest, cleanJerkRequest, curStartingTotal, qualTotal, delta);
 
-		snatch1request = last(
-			zeroIfInvalid(snatch1Declaration),
-			zeroIfInvalid(snatch1Change1),
-			zeroIfInvalid(snatch1Change2));
-		cleanJerkRequest = last(
-			zeroIfInvalid(cleanJerk1Declaration),
-			zeroIfInvalid(cleanJerk1Change1),
-			zeroIfInvalid(cleanJerk1Change2));
-
-		int _20kgRuleValue = this.get20kgRuleValue();
-		int bestSnatch1 = getBestSnatch();
-		// example: male 55/65 declarations given 135 qual total (120 within 15kg of 135, ok)
-		// athlete does 70 snatch, which is bigger than 15kg gap.
-		// can now declare 50 opening CJ according to 2.4.3
-		curStartingTotal = snatch1request + cleanJerkRequest; // 120
-		int delta = qualTotal - curStartingTotal; // 15 -- no margin of error
-
-		int curForecast = bestSnatch1 + zeroIfInvalid(cleanJerk1Declaration); // 70 + 65 = 135
-		if (curForecast >= qualTotal) {
-			// already predicted to clear the QT, may change the CJ request down.
-			logger.info("forecast = {}", curForecast);
-			delta = qualTotal - (bestSnatch1 + cleanJerkRequest); // delta = 135 - 135 = 0
-			snatch1request = bestSnatch1;
-			// possible CJ initial request reduction = _20kgRuleValue - delta
-			// can bring CJ down to 50 (15 - 0)
-		}
-
-		String message = null;
-		Locale locale = Competition.getCurrent().getLocale();
-
-		if (delta > _20kgRuleValue) {
+		RuleViolationException rule15_20Violated = null;
+		int missing = delta - _20kgRuleValue;
+		if (missing > 0) {
+			logger.debug("FAIL missing {}",missing);
 			Integer startNumber2 = this.getStartNumber();
-			message = RuleViolation.rule15_20Violated(this.getLastName(), this.getFirstName(),
-				(startNumber2 != null ? startNumber2 : "-"), snatch1request,
-				cleanJerkRequest, delta - _20kgRuleValue, qualTotal).getLocalizedMessage(locale);
+			rule15_20Violated = RuleViolation.rule15_20Violated(
+				this.getLastName(),
+				this.getFirstName(),
+				(startNumber2 != null ? startNumber2 : "-"),
+				snatchRequest,
+				cleanJerkRequest,
+				missing,
+				qualTotal);
+			message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
+			logger.info("{} {}", this, message);
+			throw rule15_20Violated;
+		} else {
+			logger.debug("OK missing {}",missing);
+			return true;
 		}
-		if (message != null) {
-			// LoggerUtils.logException(logger, new Exception("check15_20kiloRule traceback "+ message));
-			logger.info(message);
-		}
-		return message;
 	}
+
+
+//	/**
+//	 * @param entryTotal
+//	 * @return true if ok, exception if not
+//	 * @throws RuleViolationException if rule violated, exception contails details.
+//	 */
+//	private boolean validateMasters15_20Rule(int entryTotal) throws RuleViolationException {
+//		int curStartingTotal = 0;
+//		int snatch1request = 0;
+//		int cleanJerkRequest = 0;
+//
+//		snatch1request = last(
+//			zeroIfInvalid(snatch1Declaration),
+//			zeroIfInvalid(snatch1Change1),
+//			zeroIfInvalid(snatch1Change2));
+//		cleanJerkRequest = last(
+//			zeroIfInvalid(cleanJerk1Declaration),
+//			zeroIfInvalid(cleanJerk1Change1),
+//			zeroIfInvalid(cleanJerk1Change2));
+//
+//		int _20kgRuleValue = this.get20kgRuleValue();
+////		int bestSnatch1 = getBestSnatch();
+//		// example: male 55/65 declarations given 135 qual total (120 within 15kg of 135, ok)
+//		// athlete does 70 snatch, which is bigger than 15kg gap.
+//		// can now declare 50 opening CJ according to 2.4.3
+//		curStartingTotal = snatch1request + cleanJerkRequest; // 120
+//		int delta = entryTotal - curStartingTotal; // 15 -- no margin of error
+//
+////		int curForecast = bestSnatch1 + zeroIfInvalid(cleanJerk1Declaration); // 70 + 65 = 135
+////		if (curForecast >= qualTotal) {
+////			// already predicted to clear the QT, may change the CJ request down.
+////			logger.info("forecast = {}", curForecast);
+////			delta = qualTotal - (bestSnatch1 + cleanJerkRequest); // delta = 135 - 135 = 0
+////			snatch1request = bestSnatch1;
+////			// possible CJ initial request reduction = _20kgRuleValue - delta
+////			// can bring CJ down to 50 (15 - 0)
+////		}
+//
+//		return doCheckRule(entryTotal, snatch1request, cleanJerkRequest, _20kgRuleValue, delta);
+//	}
+
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object) */
@@ -467,15 +466,13 @@ public class Athlete {
 	 * @return the 20 kg rule value
 	 */
 	public int get20kgRuleValue() {
-		if (Competition.getCurrent()
-			.isMasters()) {
+		if (Competition.getCurrent().isMasters()) {
 			if (Gender.M.equals(this.getGender())) {
 				return 15;
 			} else {
 				return 10;
 			}
-		} else if (Competition.getCurrent()
-			.isUseOld20_15rule()) {
+		} else if (Competition.getCurrent().isUseOld20_15rule()) {
 			if (Gender.M.equals(this.getGender())) {
 				return 20;
 			} else {
@@ -2260,7 +2257,7 @@ public class Athlete {
 		}
 		if (validation) validateCleanJerk1Change1(cleanJerk1Change1);
 		this.cleanJerk1Change1 = cleanJerk1Change1;
-		checkStartingTotalsRule(true);
+		// validateStartingTotalsRule();
 
 		logger.info("{} cleanJerk1Change1={}", this, cleanJerk1Change1);
 	}
@@ -2279,7 +2276,7 @@ public class Athlete {
 		}
 		if (validation) validateCleanJerk1Change2(cleanJerk1Change2);
 		this.cleanJerk1Change2 = cleanJerk1Change2;
-		checkStartingTotalsRule(true);
+		// validateStartingTotalsRule();
 
 		logger.info("{} cleanJerk1Change2={}", this, cleanJerk1Change2);
 	}
@@ -2304,8 +2301,8 @@ public class Athlete {
 			cleanJerk1Change2,
 			cleanJerk1ActualLift);
 		this.cleanJerk1Declaration = cleanJerk1Declaration;
-		if (zeroIfInvalid(getSnatch1Declaration()) > 0)
-			checkStartingTotalsRule(true);
+//		if (zeroIfInvalid(getSnatch1Declaration()) > 0)
+//			// validateStartingTotalsRule();
 
 		logger.info("{} cleanJerk1Declaration={}", this, cleanJerk1Declaration);
 	}
@@ -2756,7 +2753,7 @@ public class Athlete {
 		}
 		if (validation) validateSnatch1Change1(snatch1Change1);
 		this.snatch1Change1 = snatch1Change1;
-		checkStartingTotalsRule(true);
+		// validateStartingTotalsRule();
 
 		logger.info("{} snatch1Change1={}", this, snatch1Change1);
 	}
@@ -2775,7 +2772,7 @@ public class Athlete {
 		}
 		if (validation) validateSnatch1Change2(snatch1Change2);
 		this.snatch1Change2 = snatch1Change2;
-		checkStartingTotalsRule(true);
+		// validateStartingTotalsRule();
 
 		logger.info("{} snatch1Change2={}", this, snatch1Change2);
 	}
@@ -2799,8 +2796,8 @@ public class Athlete {
 			snatch1Change2,
 			snatch1ActualLift);
 		this.snatch1Declaration = snatch1Declaration;
-		if (zeroIfInvalid(getCleanJerk1Declaration()) > 0)
-			checkStartingTotalsRule(true);
+//		if (zeroIfInvalid(getCleanJerk1Declaration()) > 0)
+//			validateStartingTotalsRule();
 
 		logger.info("{} snatch1Declaration={}", this, snatch1Declaration);
 	}
@@ -3751,6 +3748,7 @@ public class Athlete {
 			dest.setFirstName(src.getFirstName());
 			dest.setGroup(src.getGroup());
 			dest.setStartNumber(src.getStartNumber());
+			dest.setQualifyingTotal(src.getQualifyingTotal());
 			
 			dest.setSnatch1Declaration(src.getSnatch1Declaration());
 			dest.setSnatch1Change1(src.getSnatch1Change1());

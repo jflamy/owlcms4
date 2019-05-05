@@ -336,7 +336,6 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	 * @param a
 	 * @return json string with nested attempts values
 	 */
-	//TODO: add a marker for breaks between categories
 	protected void getAttemptsJson(Athlete a) {
 		sattempts = Json.createArray();
 		cattempts = Json.createArray();
