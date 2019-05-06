@@ -78,6 +78,7 @@ public class Main extends AbstractMain {
 		// reads system property (-D on command line)
 		boolean demoMode = Boolean.getBoolean("demoMode");
 		boolean devMode = Boolean.getBoolean("devMode");
+		boolean masters = Boolean.getBoolean("masters");
 		
 		boolean inMemory = demoMode;
 		JPAService.init(inMemory);
@@ -87,12 +88,12 @@ public class Main extends AbstractMain {
 		ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 		
 		if (demoMode) {
-			DemoData.insertInitialData(20, true);
+			DemoData.insertInitialData(20, true, masters);
 		} else {
 			List<Competition> allCompetitions = CompetitionRepository.findAll();
 			if (allCompetitions.isEmpty()) {
 				if (devMode) {
-					DemoData.insertInitialData(20, true);
+					DemoData.insertInitialData(20, true, masters);
 				} else {
 					ProdData.insertInitialData(0, false);
 				}

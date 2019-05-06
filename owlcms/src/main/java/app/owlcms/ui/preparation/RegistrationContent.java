@@ -46,6 +46,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.init.OwlcmsSession;
@@ -109,6 +110,9 @@ public class RegistrationContent extends VerticalLayout
 		grid.addColumn("yearOfBirth").setHeader("Birth");
 		grid.addColumn("gender").setHeader("Gender");
 		grid.addColumn("ageDivision").setHeader("Age Division");
+		if (Competition.getCurrent().isMasters()) {
+			grid.addColumn("ageGroup").setHeader("Age Group");
+		}
 		grid.addColumn("category").setHeader("Category");
 		grid.addColumn(
 			new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))

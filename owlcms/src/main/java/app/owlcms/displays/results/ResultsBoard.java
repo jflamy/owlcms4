@@ -271,6 +271,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			ja.put("yearOfBirth", a.getYearOfBirth());
 			Integer startNumber = a.getStartNumber();
 			ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
+			ja.put("mastersAgeGroup", a.getAgeGroup());
 			ja.put("category", (curCat != null ? curCat.getName() : ""));
 			getAttemptsJson(a);
 			ja.put("sattempts", sattempts);
