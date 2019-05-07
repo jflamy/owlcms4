@@ -12,7 +12,7 @@ import java.util.Collection;
 /**
  * The Enum AgeDivision.
  */
-public enum AgeDivision {
+public enum AgeGroups {
 
 	/** The default. */
 	DEFAULT,
@@ -66,13 +66,13 @@ public enum AgeDivision {
 	 * @param code the code
 	 * @return the age division from code
 	 */
-	static public AgeDivision getAgeDivisionFromCode(String code) {
-		for (AgeDivision curAD : AgeDivision.values()) {
+	static public AgeGroups getAgeDivisionFromCode(String code) {
+		for (AgeGroups curAD : AgeGroups.values()) {
 			if (code.equals(curAD.getCode())) {
 				return curAD;
 			}
 		}
-		return AgeDivision.DEFAULT;
+		return AgeGroups.DEFAULT;
 	}
 
 	/**
@@ -80,7 +80,7 @@ public enum AgeDivision {
 	 *
 	 * @return the collection
 	 */
-	public static Collection<AgeDivision> findAll() {
-		return Arrays.asList(AgeDivision.values());
+	public static Collection<AgeGroups> findAll() {
+		return Arrays.asList(AgeGroups.values());
 	}
 }
