@@ -265,14 +265,20 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 				prevCat = curCat;
 				athx++;
 			}
+			String category;
+			if (Competition.getCurrent().isMasters()) {
+				category = a.getShortCategory();
+			} else {
+				category = curCat != null ? curCat.getName() : "";
+			}
 			ja.put("lastName", a.getLastName().toUpperCase());
 			ja.put("firstName", a.getFirstName());
 			ja.put("teamName", a.getTeam());
 			ja.put("yearOfBirth", a.getYearOfBirth());
 			Integer startNumber = a.getStartNumber();
 			ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-			ja.put("mastersAgeGroup", a.getAgeGroup());
-			ja.put("category", (curCat != null ? curCat.getName() : ""));
+			ja.put("mastersAgeGroup", a.getMastersAgeGroup());
+			ja.put("category", category);
 			getAttemptsJson(a);
 			ja.put("sattempts", sattempts);
 			ja.put("cattempts", cattempts);

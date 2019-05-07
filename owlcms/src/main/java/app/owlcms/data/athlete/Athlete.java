@@ -1092,8 +1092,7 @@ public class Athlete {
 	 * @return the display category
 	 */
 	public String getDisplayCategory() {
-		if (Competition.getCurrent()
-			.isMasters()) {
+		if (Competition.getCurrent().isMasters()) {
 			return getShortCategory();
 		} else {
 			return getLongCategory();
