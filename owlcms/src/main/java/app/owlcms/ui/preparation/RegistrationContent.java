@@ -203,6 +203,8 @@ public class RegistrationContent extends VerticalLayout
 		return new OwlcmsCrudFormFactory<Athlete>(Athlete.class) {
 			
 			private Athlete editedAthlete = null;
+			private boolean genderCatOk = false;
+			private boolean catGenderOk = false;
 
 			/**
 			 * Add bean-level validations
@@ -265,6 +267,7 @@ public class RegistrationContent extends VerticalLayout
 					//filterCategories(bindingBuilder);
 					bindingBuilder.bind(property);
 				} else if ("gender".equals(property)) {
+					genderValidation(bindingBuilder);
 					HasValue<?, ?> genderField = bindingBuilder.getField();
 					genderField.addValueChangeListener((e) -> {
 						Gender gender = (Gender) e.getValue();
@@ -323,6 +326,7 @@ public class RegistrationContent extends VerticalLayout
 				
 				// check that category is consistent with body weight
 				Validator<Category> v1 = Validator.from((category) -> {
+					if (category == null) return true;
 					try {
 						Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
 						Double bw = (Double) bwBinding.getField().getValue();
@@ -345,14 +349,51 @@ public class RegistrationContent extends VerticalLayout
 				// check that category is consistent with gender
 				Validator<Category> v2 = Validator.from((category) -> {
 					try {
-						Binding<Athlete, ?> bwBinding = binder.getBinding("gender").get();
-						Gender g = (Gender) bwBinding.getField().getValue();
-						logger.trace("validating gender {} vs category {}: {}",g,category.getGender(),category.getGender() == g);
+						if (category == null) return true;
+						Binding<Athlete, ?> genderBinding = binder.getBinding("gender").get();
+						ComboBox<Gender> genderCombo = (ComboBox<Gender>) genderBinding.getField();
+						Gender g = (Gender) genderCombo.getValue();
+						Gender catGender = category != null ? category.getGender() : null;
+						logger.debug("categoryValidation: validating gender {} vs category {}: {}",g,catGender,catGender == g);
 						if (g == null) {
 							// no gender - no contradiction
 							return true;
 						}
-						return category.getGender() == g;
+						catGenderOk = catGender == g;
+						if (catGenderOk && !genderCatOk) {
+							// validate() does not validate if no change, ugly workaround
+							logger.debug("resetting gender");
+							genderCombo.setValue(null);
+							genderCombo.setValue(g); // turn off message if present.
+						}
+						return catGender == g;
+					} catch (Exception e) {
+						logger.error(LoggerUtils.stackTrace(e));
+					}
+					return true;
+				},
+					"Category does not match gender.");
+				bindingBuilder.withValidator(v2);
+			}
+			
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			protected void genderValidation(Binder.BindingBuilder bindingBuilder) {
+				// check that category is consistent with gender
+				Validator<Gender> v2 = Validator.from((g) -> {
+					try {
+						if (g == null) return true;
+						Binding<Athlete, ?> catBinding = binder.getBinding("category").get();
+						ComboBox<Category> categoryCombo = (ComboBox<Category>) catBinding.getField();
+						Category category = (Category) categoryCombo.getValue();
+						logger.debug("genderValidation: validating gender {} vs category {}: {}",g,category.getGender(),category.getGender() == g);
+						genderCatOk = category.getGender() == g;
+						if (genderCatOk && !catGenderOk) {
+							 // turn off message if present.
+							logger.debug("resetting category");
+							categoryCombo.setValue(null);
+							categoryCombo.setValue(category);
+						}
+						return genderCatOk;
 					} catch (Exception e) {
 						logger.error(LoggerUtils.stackTrace(e));
 					}
