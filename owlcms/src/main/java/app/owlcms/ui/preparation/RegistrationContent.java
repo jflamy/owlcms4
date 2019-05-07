@@ -47,6 +47,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
+import app.owlcms.data.category.AgeGroups;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -461,16 +462,24 @@ public class RegistrationContent extends VerticalLayout
 		List<Athlete> all = AthleteRepository
 			.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
 				ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
-		return all;
+		return doExtraFiltering(all);
 	}
 
 	public Collection<Athlete> doFindAll(EntityManager em) {
-		List<Athlete> all = AthleteRepository
-			.doFindFiltered(em, lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
-				ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
+		List<Athlete> all = AthleteRepository.doFindFiltered(em, lastNameFilter.getValue(), groupFilter.getValue(),
+				categoryFilter.getValue(), ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
+		return doExtraFiltering(all);
+	}
+
+	private Collection<Athlete> doExtraFiltering(List<Athlete> all) {
 		String filterValue = ageGroupFilter != null ? ageGroupFilter.getValue() : null;
-		all = all.stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue)).collect(Collectors.toList());
-		return all;
+		if (filterValue == null) {
+			return all;
+		} else {
+			List<Athlete> some = all.stream().filter(a -> a.getMastersAgeGroup().startsWith(filterValue))
+					.collect(Collectors.toList());
+			return some;
+		}
 	}
 
 	/**
@@ -485,6 +494,7 @@ public class RegistrationContent extends VerticalLayout
 		lastNameFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();
 		});
+		lastNameFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(lastNameFilter);
 
 		ageDivisionFilter.setPlaceholder("Age Division");
@@ -493,7 +503,17 @@ public class RegistrationContent extends VerticalLayout
 		ageDivisionFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();
 		});
+		lastNameFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(ageDivisionFilter);
+		
+		ageGroupFilter.setPlaceholder("Age Group");
+		ageGroupFilter.setItems(AgeGroups.findAllStrings());
+//		ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
+		ageGroupFilter.addValueChangeListener(e -> {
+			crudGrid.refreshGrid();
+		});
+		ageGroupFilter.setWidth("10em");
+		crudGrid.getCrudLayout().addFilterComponent(ageGroupFilter);
 
 		categoryFilter.setPlaceholder("Category");
 		categoryFilter.setItems(CategoryRepository.findActive());
@@ -501,8 +521,8 @@ public class RegistrationContent extends VerticalLayout
 		categoryFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();
 		});
-		crudGrid.getCrudLayout()
-			.addFilterComponent(categoryFilter);
+		categoryFilter.setWidth("10em");
+		crudGrid.getCrudLayout().addFilterComponent(categoryFilter);
 
 		groupFilter.setPlaceholder("Group");
 		groupFilter.setItems(GroupRepository.findAll());
@@ -510,8 +530,8 @@ public class RegistrationContent extends VerticalLayout
 		groupFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();
 		});
-		crudGrid.getCrudLayout()
-			.addFilterComponent(groupFilter);
+		groupFilter.setWidth("10em");
+		crudGrid.getCrudLayout().addFilterComponent(groupFilter);
 
 		weighedInFilter.setPlaceholder("Weighed-In?");
 		weighedInFilter.setItems(Boolean.TRUE,Boolean.FALSE);
@@ -519,8 +539,8 @@ public class RegistrationContent extends VerticalLayout
 		weighedInFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();
 		});
-		crudGrid.getCrudLayout()
-			.addFilterComponent(weighedInFilter);
+		weighedInFilter.setWidth("10em");
+		crudGrid.getCrudLayout().addFilterComponent(weighedInFilter);
 
 		Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
 		clearFilters.addClickListener(event -> {
@@ -530,6 +550,7 @@ public class RegistrationContent extends VerticalLayout
 			groupFilter.clear();
 			weighedInFilter.clear();
 		});
+		lastNameFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
 	}
 

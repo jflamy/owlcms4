@@ -8,72 +8,28 @@ package app.owlcms.data.category;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The Enum AgeDivision.
  */
 public enum AgeGroups {
 
-	/** The default. */
-	DEFAULT,
-	/** The senior. */
-	SENIOR,
-	/** The junior. */
-	JUNIOR,
-	/** The youth. */
-	YOUTH,
-	/** The kids. */
-	KIDS,
-	/** The masters. */
-	MASTERS,
-	/** The traditional. */
-	TRADITIONAL,
-	/** The a. */
-	A,
-	/** The b. */
-	B,
-	/** The c. */
-	C,
-	/** The d. */
-	D;
-
-//    @Override
-//    public String toString() {
-//        return (isDefault() ? "" : name().charAt(0) + name().substring(1).toLowerCase());
-//    }
-
-	/**
-	 * Gets the code.
-	 *
-	 * @return the code
-	 */
-	public String getCode() {
-		return (isDefault() ? "" : name().substring(0, 1).toLowerCase());
-	}
-
-	/**
-	 * Checks if is default.
-	 *
-	 * @return true, if is default
-	 */
-	public boolean isDefault() {
-		return this == DEFAULT;
-	}
-
-	/**
-	 * Gets the age division from code.
-	 *
-	 * @param code the code
-	 * @return the age division from code
-	 */
-	static public AgeGroups getAgeDivisionFromCode(String code) {
-		for (AgeGroups curAD : AgeGroups.values()) {
-			if (code.equals(curAD.getCode())) {
-				return curAD;
-			}
+	M30, M35, M40, M45, M50, M55, M65, M70, M75, 
+	M75PLUS {
+		@Override
+		public String toString() {
+			return "M75+";
 		}
-		return AgeGroups.DEFAULT;
-	}
+	},
+	W30, W35, W40, W45, W50, W55, W65, W70, W70PLUS {
+		@Override
+		public String toString() {
+			return "W70+";
+		}
+	};
+
 
 	/**
 	 * Find all.
@@ -82,5 +38,14 @@ public enum AgeGroups {
 	 */
 	public static Collection<AgeGroups> findAll() {
 		return Arrays.asList(AgeGroups.values());
+	}
+	
+	/**
+	 * Find all.
+	 *
+	 * @return the collection
+	 */
+	public static List<String> findAllStrings() {
+		return Arrays.asList(AgeGroups.values()).stream().map((v) -> v.toString()).collect(Collectors.toList());
 	}
 }
