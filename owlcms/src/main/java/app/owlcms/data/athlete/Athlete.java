@@ -1498,15 +1498,6 @@ public class Athlete {
 	}
 
 	/**
-	 * Gets the result order rank.
-	 *
-	 * @return the result order rank
-	 */
-	public Integer getResultOrderRank() {
-		return resultOrderRank;
-	}
-
-	/**
 	 * Gets the robi.
 	 *
 	 * @return the robi

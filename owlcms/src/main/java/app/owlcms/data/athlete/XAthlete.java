@@ -869,15 +869,6 @@ public class XAthlete extends Athlete {
 
 	/**
 	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getResultOrderRank()
-	 */
-	@Override
-	public Integer getResultOrderRank() {
-		return a.getResultOrderRank();
-	}
-
-	/**
-	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getRobi()
 	 */
 	@Override
