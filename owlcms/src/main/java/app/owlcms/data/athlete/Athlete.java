@@ -492,6 +492,11 @@ public class Athlete {
 	 */
 	public Integer getAgeGroup() {
 		Integer yob = this.getYearOfBirth();
+		return doGetAgeGroup(yob);
+	}
+
+
+	private Integer doGetAgeGroup(Integer yob) {
 		if (yob == null) {
 			yob = 1900;
 		}
@@ -1092,8 +1097,7 @@ public class Athlete {
 	 * @return the display category
 	 */
 	public String getDisplayCategory() {
-		if (Competition.getCurrent()
-			.isMasters()) {
+		if (Competition.getCurrent().isMasters()) {
 			return getShortCategory();
 		} else {
 			return getLongCategory();
@@ -1271,8 +1275,10 @@ public class Athlete {
 	 * @return the masters age group
 	 */
 	public String getMastersAgeGroup() {
+		if (this.getGender() == null) return "";
 		String gender1 = getGender().name();
-		return getMastersAgeGroup(gender1);
+		Integer yob = this.getYearOfBirth();
+		return getMastersAgeGroup(gender1, yob);
 	}
 
 	/**
@@ -1318,7 +1324,7 @@ public class Athlete {
 	public String getMastersLongCategory() {
 		String catString;
 		String gender1 = getGender().name();
-		final String mastersAgeCategory = getMastersAgeGroup(gender1);
+		final String mastersAgeCategory = getMastersAgeGroup(gender1,this.getYearOfBirth());
 		final String shortCategory = getShortCategory(gender1);
 		catString = mastersAgeCategory + " " + shortCategory;
 		return catString;
@@ -1332,7 +1338,7 @@ public class Athlete {
 	public String getMastersLongRegistrationCategoryName() {
 		String catString;
 		String gender1 = getGender().name();
-		final String mastersAgeCategory = getMastersAgeGroup(gender1);
+		final String mastersAgeCategory = getMastersAgeGroup(gender1,this.getYearOfBirth());
 		final String shortCategory = getShortRegistrationCategory(gender1);
 		catString = mastersAgeCategory + " " + shortCategory;
 		return catString;
@@ -3548,11 +3554,12 @@ public class Athlete {
 
 	/**
 	 * @param gender1
+	 * @param yob 
 	 * @return
 	 */
-	private String getMastersAgeGroup(String gender1) {
+	public String getMastersAgeGroup(String gender1, Integer yob) {
 		Integer ageGroup1;
-		ageGroup1 = getAgeGroup();
+		ageGroup1 = doGetAgeGroup(yob);
 
 		String agePlus = "";
 		if ("M".equals(gender1) && ageGroup1 == 80)
