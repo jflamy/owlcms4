@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * The Enum AgeDivision.
  */
-public enum AgeGroups {
+public enum MastersAgeGroup {
 
 	M30, M35, M40, M45, M50, M55, M65, M70, M75, 
 	M75PLUS {
@@ -36,8 +36,8 @@ public enum AgeGroups {
 	 *
 	 * @return the collection
 	 */
-	public static Collection<AgeGroups> findAll() {
-		return Arrays.asList(AgeGroups.values());
+	public static Collection<MastersAgeGroup> findAll() {
+		return Arrays.asList(MastersAgeGroup.values());
 	}
 	
 	/**
@@ -46,6 +46,6 @@ public enum AgeGroups {
 	 * @return the collection
 	 */
 	public static List<String> findAllStrings() {
-		return Arrays.asList(AgeGroups.values()).stream().map((v) -> v.toString()).collect(Collectors.toList());
+		return Arrays.asList(MastersAgeGroup.values()).stream().map((v) -> v.toString()).collect(Collectors.toList());
 	}
 }

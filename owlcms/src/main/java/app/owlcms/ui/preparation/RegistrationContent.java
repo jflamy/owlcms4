@@ -47,7 +47,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
-import app.owlcms.data.category.AgeGroups;
+import app.owlcms.data.category.MastersAgeGroup;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -506,14 +506,16 @@ public class RegistrationContent extends VerticalLayout
 		lastNameFilter.setWidth("10em");
 		crudGrid.getCrudLayout().addFilterComponent(ageDivisionFilter);
 		
-		ageGroupFilter.setPlaceholder("Age Group");
-		ageGroupFilter.setItems(AgeGroups.findAllStrings());
+		if (Competition.getCurrent().isMasters()) {
+			ageGroupFilter.setPlaceholder("Age Group");
+			ageGroupFilter.setItems(MastersAgeGroup.findAllStrings());
 //		ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
-		ageGroupFilter.addValueChangeListener(e -> {
-			crudGrid.refreshGrid();
-		});
-		ageGroupFilter.setWidth("10em");
-		crudGrid.getCrudLayout().addFilterComponent(ageGroupFilter);
+			ageGroupFilter.addValueChangeListener(e -> {
+				crudGrid.refreshGrid();
+			});
+			ageGroupFilter.setWidth("10em");
+			crudGrid.getCrudLayout().addFilterComponent(ageGroupFilter);
+		}
 
 		categoryFilter.setPlaceholder("Category");
 		categoryFilter.setItems(CategoryRepository.findActive());
