@@ -50,10 +50,9 @@ public class DemoData {
 	 * Insert initial data if the database is empty.
 	 *
 	 * @param nbAthletes how many athletes
-	 * @param testMode   true if creating dummy data
 	 * @param masters 
 	 */
-	public static void insertInitialData(int nbAthletes, boolean testMode, boolean masters) {
+	public static void insertInitialData(int nbAthletes, boolean masters) {
 		logger.info("inserting demo data.{}", masters ? " (masters=true)" : "");
 		JPAService.runInTransaction(em -> {
 			setupDemoData(em, nbAthletes, masters);		

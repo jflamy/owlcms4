@@ -7,8 +7,16 @@
 package app.owlcms;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
@@ -20,7 +28,6 @@ import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
-import app.owlcms.init.AbstractMain;
 import app.owlcms.init.EmbeddedJetty;
 import app.owlcms.init.OwlcmsFactory;
 import ch.qos.logback.classic.Logger;
@@ -28,7 +35,7 @@ import ch.qos.logback.classic.Logger;
 /**
  * Main.
  */
-public class Main extends AbstractMain {
+public class Main implements ServletContextListener {
 	
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 	
@@ -50,7 +57,7 @@ public class Main extends AbstractMain {
 			tearDown();
 		}
     }
-
+	
 	/**
 	 * Prepare owlcms
 	 * 
@@ -78,34 +85,75 @@ public class Main extends AbstractMain {
 		// reads system property (-D on command line)
 		boolean demoMode = Boolean.getBoolean("demoMode");
 		boolean devMode = Boolean.getBoolean("devMode");
+		boolean testMode = Boolean.getBoolean("testMode");
 		boolean masters = Boolean.getBoolean("masters");
+		
+		initializeLibraries();
 		
 		boolean inMemory = demoMode;
 		JPAService.init(inMemory);
-		
-		// misc initializations
-		ConvertUtils.register(new DateConverter(null), java.util.Date.class);
-		ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
-		
-		if (demoMode) {
-			DemoData.insertInitialData(20, true, masters);
-		} else {
-			List<Competition> allCompetitions = CompetitionRepository.findAll();
-			if (allCompetitions.isEmpty()) {
-				if (devMode) {
-					DemoData.insertInitialData(20, true, masters);
-				} else {
-					ProdData.insertInitialData(0, false);
-				}
-			} else {
-				logger.info("database not empty: {}",allCompetitions.get(0).getCompetitionName());
-			}
-		}
+		injectData(demoMode, devMode, testMode, masters);
 
 		// initializes the owlcms singleton
 		OwlcmsFactory.getDefaultFOP();
 
 		return serverPort;
+	}
+
+	private static void initializeLibraries() {
+		// misc initializations
+		ConvertUtils.register(new DateConverter(null), java.util.Date.class);
+		ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
+	}
+
+	private static void injectData(boolean demoMode, boolean devMode, boolean testMode, boolean masters) {
+		if (testMode) {
+			DemoData.insertInitialData(2, masters);
+		} else if (demoMode) {
+			DemoData.insertInitialData(20, masters);
+		} else {
+			List<Competition> allCompetitions = CompetitionRepository.findAll();
+			if (allCompetitions.isEmpty()) {
+				if (devMode) {
+					DemoData.insertInitialData(20, masters);
+				} else {
+					ProdData.insertInitialData(0);
+				}
+			} else {
+				logger.info("database not empty: {}",allCompetitions.get(0).getCompetitionName());
+			}
+		}
+	}
+	
+	protected static void logStart(Integer serverPort) throws IOException, ParseException {
+		InputStream in = Main.class.getResourceAsStream("/build.properties"); //$NON-NLS-1$
+		Properties props = new Properties();
+		props.load(in);
+    	String version = props.getProperty("version"); //$NON-NLS-1$
+    	OwlcmsFactory.setVersion(version);
+		String buildTimestamp = props.getProperty("buildTimestamp"); //$NON-NLS-1$
+		//String buildZone = props.getProperty("buildZone");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm"); //$NON-NLS-1$
+		format.setTimeZone(TimeZone.getTimeZone("UTC")); //$NON-NLS-1$
+		Date date = format.parse(buildTimestamp);
+		//format.setTimeZone(TimeZone.getTimeZone(buildZone));
+		SimpleDateFormat homeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String homeTimestamp = homeFormat.format(date);
+		logger.info("owlcms {} (built {})",version,homeTimestamp);
+	}
+	
+	protected static void tearDown() {
+		JPAService.close();
+	}
+
+	@Override
+	public void contextInitialized(ServletContextEvent sce) {
+	}
+
+	@Override
+	public void contextDestroyed(ServletContextEvent sce) {
+		tearDown();
+		logger.info("owlcms end.");
 	}
 
 }
