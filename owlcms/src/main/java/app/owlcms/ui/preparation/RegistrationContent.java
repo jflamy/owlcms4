@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -253,13 +254,16 @@ public class RegistrationContent extends VerticalLayout
 					bdateField.addValueChangeListener((e) -> {
 						LocalDate date = (LocalDate) e.getValue();
 						HasValue<?, ?> genderField = binder.getBinding("gender").get().getField();
-						HasValue<?, String> ageGroupField = (HasValue<?, String>) binder.getBinding("mastersAgeGroup").get().getField();
-						Gender gender = (Gender) genderField.getValue();
-						if (gender != null && date != null) {
-							int year = date.getYear();
-							ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(),year));
-						} else {
-							ageGroupField.setValue(null);
+						Optional<Binding<Athlete, ?>> magBinding = binder.getBinding("mastersAgeGroup");
+						if (magBinding.isPresent()) {
+							HasValue<?, String> ageGroupField = (HasValue<?, String>) magBinding.get().getField();
+							Gender gender = (Gender) genderField.getValue();
+							if (gender != null && date != null) {
+								int year = date.getYear();
+								ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(),year));
+							} else {
+								ageGroupField.setValue(null);
+							}
 						}
 					});
 					bindingBuilder.bind(property);
@@ -272,14 +276,18 @@ public class RegistrationContent extends VerticalLayout
 					HasValue<?, ?> genderField = bindingBuilder.getField();
 					genderField.addValueChangeListener((e) -> {
 						Gender gender = (Gender) e.getValue();
-						HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) binder.getBinding("fullBirthDate").get().getField();
-						HasValue<?, String> ageGroupField = (HasValue<?, String>) binder.getBinding("mastersAgeGroup").get().getField();
-						LocalDate date = dateField.getValue();
-						if (gender != null && date != null) {
-							int year = date.getYear();
-							ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(),year));
-						} else {
-							ageGroupField.setValue("");
+						Optional<Binding<Athlete, ?>> fbdBinding = binder.getBinding("fullBirthDate");
+						HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
+						Optional<Binding<Athlete, ?>> agBinding = binder.getBinding("mastersAgeGroup");
+						if (agBinding.isPresent()) {
+							HasValue<?, String> ageGroupField = (HasValue<?, String>) agBinding.get().getField();
+							LocalDate date = dateField.getValue();
+							if (gender != null && date != null) {
+								int year = date.getYear();
+								ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(),year));
+							} else {
+								ageGroupField.setValue("");
+							}
 						}
 					});
 					bindingBuilder.bind(property);

@@ -29,7 +29,6 @@ import javax.persistence.Version;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
@@ -2694,15 +2693,15 @@ public class Athlete {
 		this.category = registrationCategory;
 	}
 
-	/**
-	 * Sets the result order rank.
-	 *
-	 * @param resultOrderRank the result order rank
-	 * @param rankingType     the ranking type
-	 */
-	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-		this.resultOrderRank = resultOrderRank;
-	}
+//	/**
+//	 * Sets the result order rank.
+//	 *
+//	 * @param resultOrderRank the result order rank
+//	 * @param rankingType     the ranking type
+//	 */
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		this.resultOrderRank = resultOrderRank;
+//	}
 
 	/**
 	 * Sets the robi rank.

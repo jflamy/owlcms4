@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.LiftDefinition.Stage;
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
@@ -1819,15 +1818,15 @@ public class XAthlete extends Athlete {
 		a.setRegistrationCategory(registrationCategory);
 	}
 
-	/**
-	 * @param resultOrderRank
-	 * @param rankingType
-	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
-	 */
-	@Override
-	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-		a.setResultOrderRank(resultOrderRank, rankingType);
-	}
+//	/**
+//	 * @param resultOrderRank
+//	 * @param rankingType
+//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
+//	 */
+//	@Override
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		a.setResultOrderRank(resultOrderRank, rankingType);
+//	}
 
 	/**
 	 * @param robiRank

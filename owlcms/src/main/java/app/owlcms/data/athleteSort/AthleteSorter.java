@@ -195,10 +195,11 @@ public class AthleteSorter implements Serializable {
      */
     static public void resultsOrder(List<Athlete> toBeSorted, Ranking rankingType) {
         Collections.sort(toBeSorted, new WinningOrderComparator(rankingType));
-        int liftOrder = 1;
-        for (Athlete curLifter : toBeSorted) {
-            curLifter.setResultOrderRank(liftOrder++, rankingType);
-        }
+//        int liftOrder = 1;
+//        for (Athlete curLifter : toBeSorted) {
+////        	setRank(curLifter,liftOrder++, rankingType);
+//            curLifter.setResultOrderRank(liftOrder++, rankingType);
+//        }
     }
 
     /**
