@@ -56,7 +56,6 @@
 	flex: 0 0 15%;
 	text-align: right;
 	font-weight: bold;
-	self-justify: right;
 	width: 10vw;
 	display: flex;
 }
@@ -299,14 +298,12 @@ class Results extends Polymer.Element {
        
 	ready() {
 		super.ready();
-		//this.reset();
 		this.$.groupDiv.style.display="block";
 		this.$.startNumberDiv.style.display="block";
 		this.$.weightDiv.style.display="block";
 		this.$.timerDiv.style.display="block";
 		this.$.breakTimerDiv.style.display="none";
 		this.$.decisionDiv.style.display="none";
-
 	}
          
 	start() {

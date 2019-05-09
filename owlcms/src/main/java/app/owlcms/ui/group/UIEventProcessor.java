@@ -31,7 +31,7 @@ public interface UIEventProcessor {
 	 * @param eventOrigin the element on which the action that triggered the event chain occurred.
 	 * @param command
 	 */
-	public static void uiAccess(Component attachedComponent, EventBus uiEventBus, UIEvent e, Object selfOrigin, Object eventOrigin, Command command) {
+	public static void uiAccessIgnoreIfSelfOrigin(Component attachedComponent, EventBus uiEventBus, UIEvent e, Object selfOrigin, Object eventOrigin, Command command) {
 		Optional<UI> attachedUI = attachedComponent.getUI();
 		// for locking purposes, we want the UI associated with the component.
 		if (attachedUI.isPresent()) {
@@ -58,7 +58,7 @@ public interface UIEventProcessor {
 	 */
 	static void uiAccess(Component attachedComponent, EventBus uiEventBus, UIEvent e, Command command) {
 		// The use of a number as selfOrigin means that we always execute the command.
-		UIEventProcessor.uiAccess(attachedComponent, uiEventBus, e, 1, (e != null ? e.getOrigin() : null), command);
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(attachedComponent, uiEventBus, e, 1, (e != null ? e.getOrigin() : null), command);
 	}
 	
 	/**
@@ -72,7 +72,7 @@ public interface UIEventProcessor {
 	 */
 	static void uiAccess(Component attachedComponent, EventBus uiEventBus, Command command) {
 		// The use of different numbers as selfOrigin and eventOrigin implies that we always execute the command.
-		UIEventProcessor.uiAccess(attachedComponent, uiEventBus, null, 1, 2, command);
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(attachedComponent, uiEventBus, null, 1, 2, command);
 	}
 
 }

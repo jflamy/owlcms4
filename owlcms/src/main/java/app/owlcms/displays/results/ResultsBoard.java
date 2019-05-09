@@ -189,8 +189,9 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		uiLog(e);
-		// hide the timer except if the down signal came from this ui.
-		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+		// ignore if the down signal was initiated by this result board.
+		// (the timer element on the result board will actually process the keyboard codes if devices are attached)
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			this.getElement().callFunction("down");
 		});
 	}
@@ -219,7 +220,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
-		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			doBreak(e);
 		});
 	}
