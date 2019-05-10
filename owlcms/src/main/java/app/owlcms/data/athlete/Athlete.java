@@ -239,30 +239,20 @@ public class Athlete {
 	private Integer teamCombinedRank;
 
 	private Boolean teamMember = true; // false if substitute; note that we consider null to be true.;
-
 	private Integer qualifyingTotal = 0;
+	private Double customScore;
+	private boolean invited;
 
-	/** The lift order rank. */
 	/* Non-persistent properties. These properties are used during computations, but need not be stored
 	 * in the database */
 	@Transient
 	Integer liftOrderRank = 0;
 
-	/** The result order rank. */
-	@Transient
-	Integer resultOrderRank = 0;
-
-	/** The current lifter. */
-	@Transient
-	boolean currentLifter = false;
-
 	/** The forced as current. */
 	@Transient
 	boolean forcedAsCurrent = false;
 
-	private Double customScore;
-
-	private boolean invited;
+	@Transient
 	private boolean validation = true;
 
 	/**
@@ -1050,15 +1040,6 @@ public class Athlete {
 			return this.getCleanJerk3Declaration();
 		}
 		return null;
-	}
-
-	/**
-	 * Gets the current lifter.
-	 *
-	 * @return the current lifter
-	 */
-	public boolean getCurrentLifter() {
-		return currentLifter;
 	}
 
 	/**
@@ -2090,14 +2071,6 @@ public class Athlete {
 		return teamMember;
 	}
 
-	/**
-	 * Checks if is current lifter.
-	 *
-	 * @return true, if is current lifter
-	 */
-	public boolean isCurrentLifter() {
-		return currentLifter;
-	}
 
 	/**
 	 * Checks if is forced as current.
@@ -2521,15 +2494,6 @@ public class Athlete {
 	 */
 	public void setClub(String club) {
 		setTeam(club);
-	}
-
-	/**
-	 * Sets the current lifter.
-	 *
-	 * @param currentLifter the new current lifter
-	 */
-	public void setCurrentLifter(boolean currentLifter) {
-		this.currentLifter = currentLifter;
 	}
 
 	/**
