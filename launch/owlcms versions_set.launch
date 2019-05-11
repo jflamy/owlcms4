@@ -15,7 +15,6 @@
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/openjdk-1.8.0.181-1"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DnewVersion=${string_prompt:New version number?}"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${project_loc:owlcms4top}"/>
 </launchConfiguration>

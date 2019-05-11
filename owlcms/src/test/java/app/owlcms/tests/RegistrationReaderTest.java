@@ -39,7 +39,7 @@ public class RegistrationReaderTest {
 	
 	@BeforeClass
 	public static void setupTests() {
-		JPAService.init(true);
+		JPAService.init(true, true);
 		TestData.insertInitialData(5, true);
 	}
 
