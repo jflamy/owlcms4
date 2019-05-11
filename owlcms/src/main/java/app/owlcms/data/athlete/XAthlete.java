@@ -589,15 +589,6 @@ public class XAthlete extends Athlete {
 
 	/**
 	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getCurrentLifter()
-	 */
-	@Override
-	public boolean getCurrentLifter() {
-		return a.getCurrentLifter();
-	}
-
-	/**
-	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getCustomPoints()
 	 */
 	@Override
@@ -1349,15 +1340,6 @@ public class XAthlete extends Athlete {
 
 	/**
 	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#isCurrentLifter()
-	 */
-	@Override
-	public boolean isCurrentLifter() {
-		return a.isCurrentLifter();
-	}
-
-	/**
-	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#isForcedAsCurrent()
 	 */
 	@Override
@@ -1645,15 +1627,6 @@ public class XAthlete extends Athlete {
 	@Override
 	public void setClub(String club) {
 		a.setClub(club);
-	}
-
-	/**
-	 * @param currentLifter
-	 * @see app.owlcms.data.athlete.Athlete#setCurrentLifter(boolean)
-	 */
-	@Override
-	public void setCurrentLifter(boolean currentLifter) {
-		a.setCurrentLifter(currentLifter);
 	}
 
 	/**

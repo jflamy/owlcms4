@@ -73,6 +73,7 @@ public class Main implements ServletContextListener {
 	 * @throws IOException
 	 * @throws ParseException
 	 */
+	@SuppressWarnings("unused")
 	protected static int init() throws IOException, ParseException {
 		System.setProperty("java.net.preferIPv4Stack", "true"); 
 		
@@ -83,15 +84,16 @@ public class Main implements ServletContextListener {
 		logStart(serverPort);
 
 		// reads system property (-D on command line)
-		boolean demoMode = Boolean.getBoolean("demoMode");
-		boolean devMode = Boolean.getBoolean("devMode");
-		boolean testMode = Boolean.getBoolean("testMode");
+		boolean demoMode = Boolean.getBoolean("demoMode"); // run in memory with large dummy data, in memory, reset first
+		boolean memoryMode = Boolean.getBoolean("memoryMode"); // run in memory
+		boolean resetMode = Boolean.getBoolean("resetMode"); // drop the schema first
+		boolean devMode = Boolean.getBoolean("devMode"); // load large dummy data if empty, do not reset unless resetMode, persistent unless memoryMode also
+		boolean testMode = Boolean.getBoolean("testMode"); // load small dummy data if empty, do not reset unless resetMode, persistent unless memoryMode
 		boolean masters = Boolean.getBoolean("masters");
 		
 		initializeLibraries();
 		
-		boolean inMemory = demoMode;
-		JPAService.init(inMemory);
+		JPAService.init(demoMode || memoryMode);
 		injectData(demoMode, devMode, testMode, masters);
 
 		// initializes the owlcms singleton

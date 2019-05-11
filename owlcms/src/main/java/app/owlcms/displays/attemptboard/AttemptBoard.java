@@ -26,6 +26,7 @@ import com.vaadin.flow.theme.material.Material;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
@@ -198,6 +199,15 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 			this.getOrigin(), e.getOrigin());
 		Athlete a = e.getAthlete();
 		doAthleteUpdate(a, e);
+	}
+	
+	@Subscribe
+	public void slaveGroupDone(UIEvent.GroupDone e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+				this.getOrigin(), e.getOrigin());
+		Group g = e.getGroup();
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> this.getElement().callFunction("groupDone",
+				MessageFormat.format("Group {0} done.", g.toString())));
 	}
 
 	protected void doAthleteUpdate(Athlete a, UIEvent e) {

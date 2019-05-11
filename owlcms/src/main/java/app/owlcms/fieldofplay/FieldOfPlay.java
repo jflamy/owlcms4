@@ -44,7 +44,7 @@ public class FieldOfPlay {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	{
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.TRACE);
 		uiEventLogger.setLevel(Level.INFO);
 	}
  
@@ -583,6 +583,16 @@ public class FieldOfPlay {
 		AthleteSorter.liftingOrder(this.liftingOrder);
 		setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
 		this.setCurAthlete(this.liftingOrder.isEmpty() ? null : this.liftingOrder.get(0));
+		if (curAthlete != null) {
+			if (curAthlete.getAttemptsDone() >= 6) {
+				setCurAthlete(null);
+				UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
+				uiEventBus.post(event);
+				getAthleteTimer().setTimeRemaining(0);
+				setState(FOPState.BREAK);
+				return;
+			}
+		}
 		int timeAllowed = getTimeAllowed();
 		logger.trace("recomputed lifting order curAthlete={} prevlifter={} time={}",
 			curAthlete != null ? curAthlete.getFullName() : "",

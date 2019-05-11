@@ -461,6 +461,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			boolean empty = value == null || value.trim().isEmpty();
 			if (empty) {
 				field.getElement().getClassList().clear();
+			} else if (value.equals("-")) {
+				field.getElement().getClassList().clear();
+				field.getElement().getClassList().set("bad",true);
 			} else {
 				int intValue = Integer.parseInt(value);
 				field.getElement().getClassList().clear();

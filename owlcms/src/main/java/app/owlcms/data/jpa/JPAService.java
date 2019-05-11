@@ -60,8 +60,6 @@ public class JPAService {
 
 	protected static EntityManagerFactory factory;
 
-	private static boolean memoryMode;
-
 	private static Object schemaGeneration;
 
 	private static String dbUrl;
@@ -72,12 +70,9 @@ public class JPAService {
 
 	private static boolean demoMode;
 
-	/**
-	 * @return true if running in memory
-	 */
-	public static boolean isMemoryMode() {
-		return memoryMode;
-	}
+	private static boolean resetMode;
+
+	private static boolean memoryMode;
 
 	/**
 	 * Close.
@@ -114,17 +109,6 @@ public class JPAService {
 	}
 
 	/**
-	 * Inits the database
-	 *
-	 * @param inMemory if true, start with in-memory database
-	 */
-	public static void init(boolean inMemory) {
-		if (factory == null) {
-			factory = getFactoryFromCode(inMemory);
-		}
-	}
-
-	/**
 	 * Gets the factory from code (without a persistance.xml file)
 	 *
 	 * @param memoryMode run from memory if true
@@ -145,59 +129,14 @@ public class JPAService {
 		return factory;
 	}
 
-	public static Properties processSettings(boolean memoryMode) throws RuntimeException {
-		Properties properties;
-		
-		// Environment variables (set by the operating system)
-		dbUrl = System.getenv("JDBC_DATABASE_URL");
-		userName = System.getenv("JDBC_DATABASE_USERNAME");
-		password = System.getenv("JDBC_DATABASE_PASSWORD");
-
-		// java System properties (-D on command line)
-		demoMode = Boolean.getBoolean("demoMode"); // data dropped and reloaded on each restart
-		memoryMode = memoryMode || Boolean.getBoolean("memoryMode"); // force running in memory with h2
-		schemaGeneration = demoMode ? "drop-and-create" : "update";
-
-		if (memoryMode || dbUrl == null || dbUrl.startsWith("jdbc:h2:mem")) {
-			properties = h2MemProperties();
-			memoryMode = true;
-		} else if (dbUrl != null && dbUrl.startsWith("jdbc:h2:file")) {
-			properties = h2FileProperties();
-			memoryMode = false;
-		} else if (dbUrl != null && dbUrl.startsWith("jdbc:postgres")) {
-			properties = pgProperties();
-			memoryMode = false;
-		} else {
-			throw new RuntimeException("Unsupported database: " + dbUrl);
-		}
-		logger.info("Database: {}, memoryMode={}, demoMode={}", properties.get(JPA_JDBC_URL), memoryMode, demoMode);
-		return properties;
-	}
-
-	private static Properties pgProperties() {
-		ImmutableMap<String, Object> vals = jpaProperties();
-		Properties props = new Properties();
-		props.putAll(vals);
-
-		// if running on Heroku, the following three settings will come from the environment (see System.getenv calls above)
-		props.put(JPA_JDBC_URL, dbUrl != null ? dbUrl : "jdbc:postgresql://localhost:5432/owlcms");
-		props.put(JPA_JDBC_USER, userName != null ? userName : "owlcms");
-		props.put(JPA_JDBC_PASSWORD, password != null ? password : "db_owlcms");
-
-		props.put(JPA_JDBC_DRIVER, org.postgresql.Driver.class.getName());
-		props.put(DIALECT, org.hibernate.dialect.PostgreSQL95Dialect.class.getName());
-		props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
-
-		return props;
-	}
-
 	private static Properties h2FileProperties() {
 		ImmutableMap<String, Object> vals = jpaProperties();
 		Properties props = new Properties();
 		props.putAll(vals);
 
 		props.put(JPA_JDBC_URL,
-			(dbUrl != null ? dbUrl : "jdbc:h2:file:~/owlcms") + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
+			(dbUrl != null ? dbUrl : "jdbc:h2:file:./database/owlcms") + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
+		logger.info("Starting in directory {},",System.getProperty("user.dir"));
 		props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
 		props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
 
@@ -229,6 +168,21 @@ public class JPAService {
 		return props;
 	}
 
+	/**
+	 * Inits the database
+	 *
+	 * @param inMemory if true, start with in-memory database
+	 */
+	public static void init(boolean inMemory) {
+		if (factory == null) {
+			factory = getFactoryFromCode(inMemory);
+		}
+	}
+
+	public static boolean isMemoryMode() {
+		return memoryMode;
+	}
+
 	private static ImmutableMap<String, Object> jpaProperties() {
 		ImmutableMap<String, Object> vals = new ImmutableMap.Builder<String, Object>()
 			.put(HBM2DDL_AUTO, "update")
@@ -253,6 +207,52 @@ public class JPAService {
 			.put("hibernate.c3p0.idle_test_period", 500)
 			.build();
 		return vals;
+	}
+
+	private static Properties pgProperties() {
+		ImmutableMap<String, Object> vals = jpaProperties();
+		Properties props = new Properties();
+		props.putAll(vals);
+
+		// if running on Heroku, the following three settings will come from the environment (see System.getenv calls above)
+		props.put(JPA_JDBC_URL, dbUrl != null ? dbUrl : "jdbc:postgresql://localhost:5432/owlcms");
+		props.put(JPA_JDBC_USER, userName != null ? userName : "owlcms");
+		props.put(JPA_JDBC_PASSWORD, password != null ? password : "db_owlcms");
+
+		props.put(JPA_JDBC_DRIVER, org.postgresql.Driver.class.getName());
+		props.put(DIALECT, org.hibernate.dialect.PostgreSQL95Dialect.class.getName());
+		props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
+
+		return props;
+	}
+
+	public static Properties processSettings(boolean inMemory) throws RuntimeException {
+		Properties properties;
+		
+		// Environment variables (set by the operating system)
+		dbUrl = System.getenv("JDBC_DATABASE_URL");
+		userName = System.getenv("JDBC_DATABASE_USERNAME");
+		password = System.getenv("JDBC_DATABASE_PASSWORD");
+
+		// java System properties (-D on command line)
+		demoMode = Boolean.getBoolean("demoMode"); // data dropped and reloaded on each restart
+		resetMode = demoMode || Boolean.getBoolean("resetMode"); 
+		schemaGeneration = resetMode ? "drop-and-create" : "update";
+
+		if (inMemory || (dbUrl != null && dbUrl.startsWith("jdbc:h2:mem"))) {
+			properties = h2MemProperties();
+			memoryMode = true;
+		} else if (dbUrl == null || (dbUrl != null && dbUrl.startsWith("jdbc:h2:file"))) {
+			properties = h2FileProperties();
+			memoryMode = false;
+		} else if (dbUrl != null && dbUrl.startsWith("jdbc:postgres")) {
+			properties = pgProperties();
+			memoryMode = false;
+		} else {
+			throw new RuntimeException("Unsupported database: " + dbUrl);
+		}
+		logger.info("Database: {}, inMemory={}, reset={}", properties.get(JPA_JDBC_URL), memoryMode, resetMode);
+		return properties;
 	}
 
 	/**
@@ -283,12 +283,8 @@ public class JPAService {
 		}
 	}
 
-	/**
-	 * Sets the in-memory mode.
-	 *
-	 * @param b the new test mode
-	 */
-	public static void setMemoryMode(boolean b) {
-		memoryMode = b;
+	public static void setMemoryMode(boolean memoryMode) {
+		JPAService.memoryMode = memoryMode;
 	}
+
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.group.Group;
 
 /**
  * UIEvents are triggered in response to field of play events (FOPEvents). Each field of play has an
@@ -20,6 +21,30 @@ import app.owlcms.data.athlete.Athlete;
  * @author owlcms
  */
 public class UIEvent {
+
+	static public class GroupDone extends UIEvent {
+		
+		private Group group;
+
+		/**
+		 * Instantiates a new athlete announced.
+		 *
+		 * @param athlete the athlete
+		 * @param ui      the ui
+		 */
+		public GroupDone(Group group, UI ui) {
+			super(ui);
+			this.setGroup(group);
+		}
+
+		public Group getGroup() {
+			return group;
+		}
+
+		public void setGroup(Group group) {
+			this.group = group;
+		}
+	}
 
 	/**
 	 * Class AthleteAnnounced.

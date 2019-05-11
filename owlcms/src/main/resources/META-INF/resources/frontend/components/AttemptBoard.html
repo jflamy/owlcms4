@@ -177,7 +177,7 @@
 </style>
 
 <div class="attemptBoard" id="attemptBoardDiv">
-	<div class="lastName" on-click="reset">[[lastName]]</div>
+	<div class="lastName" on-click="reset" id="lastNameDiv">[[lastName]]</div>
 	<div class="firstName">[[firstName]]</div>
 	<div class="teamName">[[teamName]]</div>
 	<div class="startNumber" id="startNumberDiv">
@@ -273,6 +273,20 @@
                	//this.$.breakTimer.reset();
                	this.$.athleteTimerDiv.style.display="none";
                	this.$.breakTimerDiv.style.display="block";
+               	this.$.weightDiv.style.display="none";
+               	this.$.startNumberDiv.style.display="none";
+               	this.$.barbellDiv.style.display="none";
+               	this.$.decisionDiv.style.display="none";
+            }
+            
+            groupDone(groupString) {
+            	//console.warn("attemptBoard doBreak");
+            	this.$.lastNameDiv.innerHTML = groupString;
+            	this.$.attemptBoardDiv.style.display="grid";
+            	this.$.attemptBoardDiv.style.color="white";
+               	//this.$.breakTimer.reset();
+               	this.$.athleteTimerDiv.style.display="none";
+               	this.$.breakTimerDiv.style.display="none";
                	this.$.weightDiv.style.display="none";
                	this.$.startNumberDiv.style.display="none";
                	this.$.barbellDiv.style.display="none";
