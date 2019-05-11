@@ -10,11 +10,12 @@ Main incentives for this rewrite:
 
 ### Current status
 
-The current release is able to run a regular regional competition (no jury, no masters -- these are planned for upcoming releases).
+The current release is able to run a regular or masters regional competition (no jury -- will be added back in a future release).
 
-- See the following pages for
-  -  [project board](https://github.com/jflamy/owlcms4/projects/1) for current status (items in progress or planned, etc.)
-  -  [open issues and enhancement requests](https://github.com/jflamy/owlcms4/issues)
+- For our current status, see
+  -  [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows the current issues we are working on, and the order we are following
+  -  [Issues and enhancement requests](https://github.com/jflamy/owlcms4/issues) For the full history.
+  
 - The following key features are present
   - Announcer, marshall and timekeeper screens (updating athlete cards and recomputing lifting order).
   - Attempt board with timing and decisions handled locally in the browser. USB/Bluetooth keypresses are processed directly in the browser for refereeing (see demo walkthrough below for mapping).
@@ -26,17 +27,14 @@ The current release is able to run a regular regional competition (no jury, no m
   - Upload of registration sheet (same format as owlcms2, in either xls or xlsx format)
   - Countdown timer for breaks (before introduction, before first snatch, break before clean and jerk, technical break)
   - Production of group results/protocol sheets
-
-### Installation and Demo
-
-- [Ready-to-run Releases](https://github.com/jflamy/owlcms4/releases) are available at [https://github.com/jflamy/owlcms4/releases](https://github.com/jflamy/owlcms4/releases) .  
-- [Installation Instructions](<https://jflamy.github.io/owlcms4/#!index.md>) are available.  Each release includes additional notes as required.
+  - Option to treat the competition as a Masters competition with proper processing of age groups.
 
 ### Licensing and Caveats
-This is free, as-is, no warranty whatsoever software (see the [License](https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt) for details.)  If you want to run it as is for your own club or federation, just go ahead. 
-If you wish to host the software for others or modify it, the license requires you to make full sources and instructions available for free, so that anyone who wants to use the software always has the option of doing so on her own.
+This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download and go ahead. 
 
-The software is meant to comply with the current IWF Technical Competition Rules and Regulations (TCRR) and with the current Masters Weightlifting rules, but as stated above, there  is no warranty that it does. You should perform your own tests to see if the software is fit for your own purposes and circumstances.  To the best of our knowledge, the only provisions not implemented are related to the refereeing devices. There is currently no capability provided to activate visual or audio reminders, as the system is normally used with keypads as refereeing devices.
+If however you wish to sell or host the software as a service to others, or if you create a modified version, the license *requires* you to make full sources and building instructions of the modified version available for free, so that anyone who wants to compile or further modify the software always has the option of doing so on her own (see the [License](https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt) for details.)
+
+The software is meant to comply with the current IWF Technical Competition Rules and Regulations (TCRR) and with the current Masters Weightlifting rules, except for the refereeing devices (visual and sound reminders). You should perform your own tests to see if the software is fit for your own purposes and circumstances.
 
 ### Installation and Demo
 [Ready-to-run Releases](https://github.com/jflamy/owlcms4/releases) are available at [https://github.com/jflamy/owlcms4/releases](https://github.com/jflamy/owlcms4/releases) .  
@@ -51,8 +49,8 @@ The software is meant to comply with the current IWF Technical Competition Rules
     - Click on "Lifting Group" in the menu
     - Click on "Announcer". A new tab opens.  Select a group ("M1" or "M2") in the top bar.
     - You can start and stop the clock with the "play" and "pause" buttons.
-    - The announcer can enter manual flag/thumbs-up/down decisions using the buttons at the right.
     - Start time for the athlete and stop the clock after a few seconds.
+    - The announcer can enter manual flag/thumbs-up/down decisions using the buttons at the right.
     - Go back to the first home tab you opened and go to "Setup Displays" in the menu
     - Start an Attempt Board and click on the black area. You can then use the keyboard keys 1 3 5 to enter white and 2 4 6 to enter red decisions.  Down signal will appear after two identical.
     - You can also start a Result Board.
@@ -60,14 +58,14 @@ The software is meant to comply with the current IWF Technical Competition Rules
 
 ### Building from source
 This is a standard Maven project.  If you so wish, you can build the binaries from this source.  
-- Install Java 8 and the support for Maven and Git in your favorite development environment. Eclipse with the M2E and EGit plugins works fine.  In the future, you will also be required to install Node.js because the Web Component support from the user interface framework is moving towards npm.
+- Install Java 8 and the support for Maven and Git in your favorite development environment. Eclipse Java IDE includes the M2E and EGit plugins and works fine -- the project includes the settings file for that configuration.
 - Clone this repository.
 - Running ``mvn package`` inside the owlcms subdirectory should give you a working .jar and .zip in the target directory.
 
-You are welcome to make improvements and correct issues.  If you do, please clone this repository and create a pull request.  See the [License](https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt) if you distribute or host modified versions.
+You are welcome to make improvements and correct issues.  If you do, please clone this repository and create a pull request.
 
 ### Design notes:
-Local timer and decision is done using new Web standard [Web Components](https://www.webcomponents.org/introduction)
+Local timer and decision is done using [Web Components](https://www.webcomponents.org/introduction)
 
 [Vaadin Flow](https://vaadin.com/flow) is used for programming because it integrates natively with Web Components and enables the use of robust libraries
 - The overall navigation and layout is done using [vaadin-app-layout](https://github.com/appreciated/vaadin-app-layout)

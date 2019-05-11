@@ -73,7 +73,6 @@ public class Main implements ServletContextListener {
 	 * @throws IOException
 	 * @throws ParseException
 	 */
-	@SuppressWarnings("unused")
 	protected static int init() throws IOException, ParseException {
 		System.setProperty("java.net.preferIPv4Stack", "true"); 
 		
@@ -83,17 +82,17 @@ public class Main implements ServletContextListener {
 		Integer serverPort = Integer.getInteger("port", 8080);
 		logStart(serverPort);
 
-		// reads system property (-D on command line)
-		boolean demoMode = Boolean.getBoolean("demoMode"); // run in memory with large dummy data, in memory, reset first
+		// reads system properties (-D on command line)
+		boolean demoMode = Boolean.getBoolean("demoMode"); // same as devMode + resetMode + memoryMode
 		boolean memoryMode = Boolean.getBoolean("memoryMode"); // run in memory
 		boolean resetMode = Boolean.getBoolean("resetMode"); // drop the schema first
-		boolean devMode = Boolean.getBoolean("devMode"); // load large dummy data if empty, do not reset unless resetMode, persistent unless memoryMode also
+		boolean devMode = Boolean.getBoolean("devMode"); // load large demo data if empty, do not reset unless resetMode, persistent unless memoryMode also
 		boolean testMode = Boolean.getBoolean("testMode"); // load small dummy data if empty, do not reset unless resetMode, persistent unless memoryMode
 		boolean masters = Boolean.getBoolean("masters");
 		
 		initializeLibraries();
 		
-		JPAService.init(demoMode || memoryMode);
+		JPAService.init(demoMode || memoryMode, demoMode || resetMode);
 		injectData(demoMode, devMode, testMode, masters);
 
 		// initializes the owlcms singleton
@@ -109,14 +108,16 @@ public class Main implements ServletContextListener {
 	}
 
 	private static void injectData(boolean demoMode, boolean devMode, boolean testMode, boolean masters) {
-		if (testMode) {
-			DemoData.insertInitialData(2, masters);
-		} else if (demoMode) {
+		if (demoMode) {
+			// demoMode forces JPAService to reset.
 			DemoData.insertInitialData(20, masters);
 		} else {
+			// the other modes require explicit resetMode.  We don't want multiple inserts.
 			List<Competition> allCompetitions = CompetitionRepository.findAll();
 			if (allCompetitions.isEmpty()) {
-				if (devMode) {
+				if (testMode) {
+					DemoData.insertInitialData(1, masters);
+				} else if (devMode) {
 					DemoData.insertInitialData(20, masters);
 				} else {
 					ProdData.insertInitialData(0);
