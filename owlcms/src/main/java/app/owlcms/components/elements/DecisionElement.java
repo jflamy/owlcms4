@@ -116,7 +116,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	
 	@Subscribe
 	public void slaveReset(UIEvent.DecisionReset e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			getElement().callFunction("reset", false);
 		});
 	}
@@ -129,7 +129,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
 	@Subscribe
 	public void slaveShowDecisions(UIEvent.RefereeDecision e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			uiEventLogger.debug("*** {} referee decision ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
 			this.getElement().callFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 		});
@@ -137,7 +137,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	
 	@Subscribe
 	public void slaveShowDown(UIEvent.DownSignal e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			uiEventLogger.debug("!!! {} down ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
 			this.getElement().callFunction("showDown", false);
 		});

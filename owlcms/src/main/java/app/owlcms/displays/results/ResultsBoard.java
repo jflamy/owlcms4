@@ -71,7 +71,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.DEBUG);
 	}
 	
 	/**
@@ -189,8 +189,9 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		uiLog(e);
-		// hide the timer except if the down signal came from this ui.
-		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+		// ignore if the down signal was initiated by this result board.
+		// (the timer element on the result board will actually process the keyboard codes if devices are attached)
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			this.getElement().callFunction("down");
 		});
 	}
@@ -219,7 +220,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
-		UIEventProcessor.uiAccess(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			doBreak(e);
 		});
 	}
@@ -233,6 +234,15 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		doUpdate(a, e);
 	}
 	
+	@Subscribe
+	public void slaveGroupDone(UIEvent.GroupDone e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+				this.getOrigin(), e.getOrigin());
+		Group g = e.getGroup();
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> this.getElement().callFunction("groupDone",
+				MessageFormat.format("Group {0} done.", g.toString())));
+	}
+	
 	public void uiLog(UIEvent e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
 	}
@@ -243,6 +253,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 
 	private String formatInt(Integer total) {
+		if (total == -1) return "inv.";//invited lifter, not eligible.
 		return (total == null || total == 0) ? "-" : (total < 0 ? "("+Math.abs(total)+")" : total.toString());
 	}
 	
@@ -265,13 +276,20 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 				prevCat = curCat;
 				athx++;
 			}
+			String category;
+			if (Competition.getCurrent().isMasters()) {
+				category = a.getShortCategory();
+			} else {
+				category = curCat != null ? curCat.getName() : "";
+			}
 			ja.put("lastName", a.getLastName().toUpperCase());
 			ja.put("firstName", a.getFirstName());
 			ja.put("teamName", a.getTeam());
 			ja.put("yearOfBirth", a.getYearOfBirth());
 			Integer startNumber = a.getStartNumber();
 			ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-			ja.put("category", (curCat != null ? curCat.getName() : ""));
+			ja.put("mastersAgeGroup", a.getMastersAgeGroup());
+			ja.put("category", category);
 			getAttemptsJson(a);
 			ja.put("sattempts", sattempts);
 			ja.put("cattempts", cattempts);
@@ -347,23 +365,29 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			JsonObject jri = Json.createObject();
 			String stringValue = i.getStringValue();
 			
-			jri.put("className", "narrow empty");
+			jri.put("goodBadClassName", "narrow empty");
 			jri.put("stringValue", "");
 			if (i.getChangeNo() >= 0) {
+				String trim = stringValue != null ? stringValue.trim() : "";
 				switch (Changes.values()[i.getChangeNo()]) {
 				case ACTUAL:
-					if (stringValue != null && !stringValue.trim().isEmpty()) {
-						boolean failed = stringValue.startsWith("-");
-						jri.put("className", failed ? "narrow fail" : "narrow good");
-						jri.put("stringValue", formatKg(stringValue));
+					if (!trim.isEmpty()) {
+						if (trim.contentEquals("-") || trim.contentEquals("0")) {
+							jri.put("goodBadClassName", "narrow fail");
+							jri.put("stringValue", "-");
+						} else {
+							boolean failed = stringValue.startsWith("-");
+							jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
+							jri.put("stringValue", formatKg(stringValue));
+						}
 					}
 					break;
 				default:
-					if (stringValue != null && !stringValue.trim().isEmpty()) {
+					if (stringValue != null && !trim.isEmpty()) {
 						String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? " current"
 								: (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
-						jri.put("className",
-							"narrow request" + highlight);
+						jri.put("goodBadClassName","narrow request");
+						jri.put("className", highlight);
 						jri.put("stringValue", stringValue);
 					}
 					break;

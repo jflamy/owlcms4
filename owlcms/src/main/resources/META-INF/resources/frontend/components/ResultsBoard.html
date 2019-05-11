@@ -56,7 +56,6 @@
 	flex: 0 0 15%;
 	text-align: right;
 	font-weight: bold;
-	self-justify: right;
 	width: 10vw;
 	display: flex;
 }
@@ -192,7 +191,7 @@ th, td {
 }
 
 .current {
-	color: aqua;
+	color: yellow;
 	font-weight: bold;
 	animation: blink 1.5s step-start 0s infinite;
 	-webkit-animation: blink 1.5s step-start 0s infinite;
@@ -203,7 +202,7 @@ th, td {
 @-webkit-keyframes blink { 50% {opacity: 0.0;}}
 
 .next {
-	color: aqua;
+	color: orange;
 	font-weight: bold;
 }
 
@@ -226,7 +225,7 @@ th, td {
 <div class="attemptBar">
 	<div class="athleteInfo">
 		<div class="startNumber" id="startNumberDiv"><span>[[startNumber]]</span></div>
-		<div class="fullName">[[lastName]], [[firstName]]</div>
+		<div class="fullName" id="fullNameDiv">[[lastName]], [[firstName]]</div>
 		<div class="teamName">[[teamName]]</div>
 		<div class="attempt" inner-h-t-m-l="[[attempt]]"></div>
 		<div class="weight" id="weightDiv">
@@ -269,18 +268,18 @@ th, td {
 		</template>
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
-				<td class$="[[l.classname]] veryNarrow">[[l.startNumber]]</td>
-				<td class$="[[l.classname]]">[[l.lastName]], [[l.firstName]]</td>
+				<td class$="veryNarrow"><div class$="[[l.classname]]">[[l.startNumber]]</div></td>
+				<td><div class$="[[l.classname]]">[[l.lastName]], [[l.firstName]]</div></td>
 				<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
 				<td class="veryNarrow">[[l.category]]</td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
 				<td class="veryNarrow">[[l.teamName]]</td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-					<td class$="[[attempt.className]]">[[attempt.stringValue]]</td>
+					<td class$="[[attempt.goodBadClassName]]"><div class$="[[attempt.className]]">[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank">[[l.snatchRank]]</td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-					<td class$="[[attempt.className]]">[[attempt.stringValue]]</td>
+					<td class$="[[attempt.goodBadClassName]]"><div class$="[[attempt.className]]">[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank">[[l.cleanJerkRank]]</td>		
 				<td class="veryNarrow">[[l.total]]</td>
@@ -299,14 +298,12 @@ class Results extends Polymer.Element {
        
 	ready() {
 		super.ready();
-		//this.reset();
 		this.$.groupDiv.style.display="block";
 		this.$.startNumberDiv.style.display="block";
 		this.$.weightDiv.style.display="block";
 		this.$.timerDiv.style.display="block";
 		this.$.breakTimerDiv.style.display="none";
 		this.$.decisionDiv.style.display="none";
-
 	}
          
 	start() {
@@ -339,6 +336,16 @@ class Results extends Polymer.Element {
 		this.$.weightDiv.style.display="none";
 		this.$.timerDiv.style.display="none";
     	this.$.breakTimerDiv.style.display="block";
+       	this.$.decisionDiv.style.display="none";
+    }
+    
+    groupDone(groupString) {
+    	this.$.fullNameDiv.innerHTML = groupString;
+    	this.$.groupDiv.style.visibility="hidden";
+		this.$.startNumberDiv.style.display="none";
+		this.$.weightDiv.style.display="none";
+		this.$.timerDiv.style.display="none";
+    	this.$.breakTimerDiv.style.display="none";
        	this.$.decisionDiv.style.display="none";
     }
 	

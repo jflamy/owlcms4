@@ -26,6 +26,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -119,7 +121,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		return aFromDb.getFullId();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * We create a copy of the edited object so that we can validate live
+	 * 
 	 * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.
 	 * crudui.crud.CrudOperation, java.lang.Object, boolean,
 	 * com.vaadin.flow.component.ComponentEventListener,
@@ -139,7 +143,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
 		GridLayout gridLayout = setupGrid();
 		errorLabel = new Label();
-		errorLabel.addClassName("errorMessage");
+		HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
+		labelWrapper.addClassName("errorMessage");
+		labelWrapper.setWidthFull();
+		labelWrapper.setJustifyContentMode(JustifyContentMode.CENTER);
 
 		// We use a copy so that if the user cancels, we still have the original object.
 		// This allows us to use cleaner validation methods coded in the Athlete class as opposed to
@@ -454,6 +461,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			boolean empty = value == null || value.trim().isEmpty();
 			if (empty) {
 				field.getElement().getClassList().clear();
+			} else if (value.equals("-")) {
+				field.getElement().getClassList().clear();
+				field.getElement().getClassList().set("bad",true);
 			} else {
 				int intValue = Integer.parseInt(value);
 				field.getElement().getClassList().clear();
@@ -464,6 +474,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	}
 
 	public void setErrorLabel(BindingValidationStatus<?> status) throws NumberFormatException {
+		logger.trace("setting error message field validation");
 		HasStyle field = (TextField) status.getField();
 		ClassList fieldClasses = field.getElement().getClassList();
 		if (status.isError()) {
@@ -476,11 +487,12 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			fieldClasses.clear();
 			setVisible(errorLabel, true);
 			errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
-			errorLabel.getClassNames().clear();
+			errorLabel.getClassNames().set("errorMessage", true);
 		}
 	}
 	
 	private void setErrorLabel(BinderValidationStatus<Athlete> validationStatus) {
+		logger.trace("setting error message bean validation");
 		StringBuilder sb = new StringBuilder();
 		for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
 			HasStyle field = (TextField) ve.getField();
@@ -506,11 +518,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		
 	}
 
-
-
 	private void setVisible(HasText label, boolean visible) {
 		if (visible) {
-			label.getElement().getStyle().remove("visibility");
+			label.getElement().getStyle().set("visibility", "visible");
 		} else {
 			label.getElement().getStyle().set("visibility", "hidden");
 		}

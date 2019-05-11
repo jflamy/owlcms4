@@ -43,7 +43,7 @@ public class TwoMinutesRuleTest {
 
 	@BeforeClass
 	public static void setupTests() {
-		JPAService.init(true);
+		JPAService.init(true, true);
 	}
 
 	@AfterClass

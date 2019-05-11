@@ -225,7 +225,7 @@ public class Competition {
 	 *
 	 * @return the masters
 	 */
-	public Boolean getMasters() {
+	public boolean getMasters() {
 		return isMasters();
 	}
 
@@ -407,15 +407,6 @@ public class Competition {
 	 * @param invitedIfBornBefore the new invited if born before
 	 */
 	public void setInvitedIfBornBefore(Integer invitedIfBornBefore) {
-	}
-
-	/**
-	 * Sets the masters.
-	 *
-	 * @param masters the new masters
-	 */
-	public void setMasters(Boolean masters) {
-		this.masters = masters;
 	}
 
 	/**

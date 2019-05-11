@@ -39,9 +39,8 @@ public class ProdData {
 	 * Insert initial data if the database is empty.
 	 *
 	 * @param nbAthletes 	how many athletes
-	 * @param testMode      true if creating dummy data
 	 */
-	public static void insertInitialData(int nbAthletes, boolean testMode) {
+	public static void insertInitialData(int nbAthletes) {
 		JPAService.runInTransaction(em -> {
 			setupEmptyCompetition(em);
 			return null;

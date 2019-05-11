@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.LiftDefinition.Stage;
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
@@ -590,15 +589,6 @@ public class XAthlete extends Athlete {
 
 	/**
 	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getCurrentLifter()
-	 */
-	@Override
-	public boolean getCurrentLifter() {
-		return a.getCurrentLifter();
-	}
-
-	/**
-	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getCustomPoints()
 	 */
 	@Override
@@ -866,15 +856,6 @@ public class XAthlete extends Athlete {
 	@Override
 	public Integer getRequestedWeightForAttempt(int attempt) {
 		return a.getRequestedWeightForAttempt(attempt);
-	}
-
-	/**
-	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getResultOrderRank()
-	 */
-	@Override
-	public Integer getResultOrderRank() {
-		return a.getResultOrderRank();
 	}
 
 	/**
@@ -1359,15 +1340,6 @@ public class XAthlete extends Athlete {
 
 	/**
 	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#isCurrentLifter()
-	 */
-	@Override
-	public boolean isCurrentLifter() {
-		return a.isCurrentLifter();
-	}
-
-	/**
-	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#isForcedAsCurrent()
 	 */
 	@Override
@@ -1658,15 +1630,6 @@ public class XAthlete extends Athlete {
 	}
 
 	/**
-	 * @param currentLifter
-	 * @see app.owlcms.data.athlete.Athlete#setCurrentLifter(boolean)
-	 */
-	@Override
-	public void setCurrentLifter(boolean currentLifter) {
-		a.setCurrentLifter(currentLifter);
-	}
-
-	/**
 	 * @param customPoints
 	 * @see app.owlcms.data.athlete.Athlete#setCustomPoints(float)
 	 */
@@ -1819,15 +1782,15 @@ public class XAthlete extends Athlete {
 		a.setRegistrationCategory(registrationCategory);
 	}
 
-	/**
-	 * @param resultOrderRank
-	 * @param rankingType
-	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
-	 */
-	@Override
-	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-		a.setResultOrderRank(resultOrderRank, rankingType);
-	}
+//	/**
+//	 * @param resultOrderRank
+//	 * @param rankingType
+//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
+//	 */
+//	@Override
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		a.setResultOrderRank(resultOrderRank, rankingType);
+//	}
 
 	/**
 	 * @param robiRank

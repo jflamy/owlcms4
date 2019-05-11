@@ -86,7 +86,7 @@ public class TestData {
 		Competition.setCurrent(new Competition());
 	}
 
-	static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
+	public static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
 			Group groupB,
 			Group groupC) {
 		final String[] fnames = { "Peter", "Albert", "Joshua", "Mike", "Oliver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
@@ -133,7 +133,7 @@ public class TestData {
 		p.setCategory(categ);
 	}
 	
-	protected static void deleteAllLifters(EntityManager em) {
+	public static void deleteAllLifters(EntityManager em) {
 		List<Athlete> athletes = AthleteRepository.doFindAll(em);
 		for (Athlete a: athletes) {
 			em.remove(a);

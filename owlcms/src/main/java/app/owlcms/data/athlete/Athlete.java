@@ -29,7 +29,6 @@ import javax.persistence.Version;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
@@ -240,30 +239,20 @@ public class Athlete {
 	private Integer teamCombinedRank;
 
 	private Boolean teamMember = true; // false if substitute; note that we consider null to be true.;
-
 	private Integer qualifyingTotal = 0;
+	private Double customScore;
+	private boolean invited;
 
-	/** The lift order rank. */
 	/* Non-persistent properties. These properties are used during computations, but need not be stored
 	 * in the database */
 	@Transient
 	Integer liftOrderRank = 0;
 
-	/** The result order rank. */
-	@Transient
-	Integer resultOrderRank = 0;
-
-	/** The current lifter. */
-	@Transient
-	boolean currentLifter = false;
-
 	/** The forced as current. */
 	@Transient
 	boolean forcedAsCurrent = false;
 
-	private Double customScore;
-
-	private boolean invited;
+	@Transient
 	private boolean validation = true;
 
 	/**
@@ -492,6 +481,11 @@ public class Athlete {
 	 */
 	public Integer getAgeGroup() {
 		Integer yob = this.getYearOfBirth();
+		return doGetAgeGroup(yob);
+	}
+
+
+	private Integer doGetAgeGroup(Integer yob) {
 		if (yob == null) {
 			yob = 1900;
 		}
@@ -1049,15 +1043,6 @@ public class Athlete {
 	}
 
 	/**
-	 * Gets the current lifter.
-	 *
-	 * @return the current lifter
-	 */
-	public boolean getCurrentLifter() {
-		return currentLifter;
-	}
-
-	/**
 	 * Gets the custom points.
 	 *
 	 * @return the customPoints
@@ -1092,8 +1077,7 @@ public class Athlete {
 	 * @return the display category
 	 */
 	public String getDisplayCategory() {
-		if (Competition.getCurrent()
-			.isMasters()) {
+		if (Competition.getCurrent().isMasters()) {
 			return getShortCategory();
 		} else {
 			return getLongCategory();
@@ -1271,8 +1255,10 @@ public class Athlete {
 	 * @return the masters age group
 	 */
 	public String getMastersAgeGroup() {
+		if (this.getGender() == null) return "";
 		String gender1 = getGender().name();
-		return getMastersAgeGroup(gender1);
+		Integer yob = this.getYearOfBirth();
+		return getMastersAgeGroup(gender1, yob);
 	}
 
 	/**
@@ -1318,7 +1304,7 @@ public class Athlete {
 	public String getMastersLongCategory() {
 		String catString;
 		String gender1 = getGender().name();
-		final String mastersAgeCategory = getMastersAgeGroup(gender1);
+		final String mastersAgeCategory = getMastersAgeGroup(gender1,this.getYearOfBirth());
 		final String shortCategory = getShortCategory(gender1);
 		catString = mastersAgeCategory + " " + shortCategory;
 		return catString;
@@ -1332,7 +1318,7 @@ public class Athlete {
 	public String getMastersLongRegistrationCategoryName() {
 		String catString;
 		String gender1 = getGender().name();
-		final String mastersAgeCategory = getMastersAgeGroup(gender1);
+		final String mastersAgeCategory = getMastersAgeGroup(gender1,this.getYearOfBirth());
 		final String shortCategory = getShortRegistrationCategory(gender1);
 		catString = mastersAgeCategory + " " + shortCategory;
 		return catString;
@@ -1490,15 +1476,6 @@ public class Athlete {
 				zeroIfInvalid(cleanJerk3Change2));
 		}
 		return 0;
-	}
-
-	/**
-	 * Gets the result order rank.
-	 *
-	 * @return the result order rank
-	 */
-	public Integer getResultOrderRank() {
-		return resultOrderRank;
 	}
 
 	/**
@@ -2094,14 +2071,6 @@ public class Athlete {
 		return teamMember;
 	}
 
-	/**
-	 * Checks if is current lifter.
-	 *
-	 * @return true, if is current lifter
-	 */
-	public boolean isCurrentLifter() {
-		return currentLifter;
-	}
 
 	/**
 	 * Checks if is forced as current.
@@ -2528,15 +2497,6 @@ public class Athlete {
 	}
 
 	/**
-	 * Sets the current lifter.
-	 *
-	 * @param currentLifter the new current lifter
-	 */
-	public void setCurrentLifter(boolean currentLifter) {
-		this.currentLifter = currentLifter;
-	}
-
-	/**
 	 * Sets the custom points.
 	 *
 	 * @param customPoints the new custom points
@@ -2688,15 +2648,15 @@ public class Athlete {
 		this.category = registrationCategory;
 	}
 
-	/**
-	 * Sets the result order rank.
-	 *
-	 * @param resultOrderRank the result order rank
-	 * @param rankingType     the ranking type
-	 */
-	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-		this.resultOrderRank = resultOrderRank;
-	}
+//	/**
+//	 * Sets the result order rank.
+//	 *
+//	 * @param resultOrderRank the result order rank
+//	 * @param rankingType     the ranking type
+//	 */
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		this.resultOrderRank = resultOrderRank;
+//	}
 
 	/**
 	 * Sets the robi rank.
@@ -3548,11 +3508,12 @@ public class Athlete {
 
 	/**
 	 * @param gender1
+	 * @param yob 
 	 * @return
 	 */
-	private String getMastersAgeGroup(String gender1) {
+	public String getMastersAgeGroup(String gender1, Integer yob) {
 		Integer ageGroup1;
-		ageGroup1 = getAgeGroup();
+		ageGroup1 = doGetAgeGroup(yob);
 
 		String agePlus = "";
 		if ("M".equals(gender1) && ageGroup1 == 80)

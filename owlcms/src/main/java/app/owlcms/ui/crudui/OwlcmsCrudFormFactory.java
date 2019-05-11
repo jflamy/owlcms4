@@ -266,6 +266,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	}
 
 	public void updateErrorLabelFromBeanValidationErrors() {
+		logger.trace("updateErrorLabelFromBeanValidationErrors");
 		binder.setValidationStatusHandler((s) -> {
 			s.notifyBindingValidationStatusHandlers();
 			

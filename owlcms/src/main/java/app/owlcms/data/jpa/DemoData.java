@@ -24,6 +24,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -49,17 +50,17 @@ public class DemoData {
 	 * Insert initial data if the database is empty.
 	 *
 	 * @param nbAthletes how many athletes
-	 * @param testMode   true if creating dummy data
+	 * @param masters 
 	 */
-	public static void insertInitialData(int nbAthletes, boolean testMode) {
-		logger.info("inserting demo data.");
+	public static void insertInitialData(int nbAthletes, boolean masters) {
+		logger.info("inserting demo data.{}", masters ? " (masters=true)" : "");
 		JPAService.runInTransaction(em -> {
-			setupDemoData(em, nbAthletes);		
+			setupDemoData(em, nbAthletes, masters);		
 			return null;
 		});
 	}
 
-	protected static Competition createDefaultCompetition() {
+	protected static Competition createDefaultCompetition(boolean masters) {
 		Competition competition = new Competition();
 
 		competition.setCompetitionName("Spring Equinox Open");
@@ -73,6 +74,7 @@ public class DemoData {
 		competition.setFederationWebSite("http://national-weightlifting.org");
 		
 		competition.setEnforce20kgRule(true);
+		competition.setMasters(masters);
 		
 		// needed because some classes such as Athlete refer to the current competition
 		Competition.setCurrent(competition);
@@ -153,11 +155,12 @@ public class DemoData {
 	 *
 	 * @param competition   the competition
 	 * @param liftersToLoad the lifters to load
+	 * @param masters 
 	 * @param w             the w
 	 * @param c             the c
 	 */
-	protected static void setupDemoData(EntityManager em, int liftersToLoad) {
-		Competition competition = createDefaultCompetition();
+	protected static void setupDemoData(EntityManager em, int liftersToLoad, boolean masters) {
+		Competition competition = createDefaultCompetition(masters);
 
 		CategoryRepository.insertStandardCategories(em);
 
@@ -187,14 +190,15 @@ public class DemoData {
 		em.persist(platform2);
 		em.persist(competition);
 		
-		insertSampleLifters(em, liftersToLoad, groupM1, groupM2);
+		insertSampleLifters(em, liftersToLoad, groupM1, groupM2, masters);
 		em.flush();
 	}
 
 	private static void insertSampleLifters(EntityManager em,
 			int liftersToLoad,
 			Group groupM1,
-			Group groupM2) {
+			Group groupM2,
+			boolean masters) {
 		final String[] lnames = {
 				"Smith",
 				"Johnson",
@@ -302,8 +306,8 @@ public class DemoData {
 
 		Random r = new Random(0);
 
-		createGroup(em, groupM1, fnames, lnames, r, 81, 73, liftersToLoad);
-		createGroup(em, groupM2, fnames, lnames, r, 73, 67, liftersToLoad);
+		createGroup(em, groupM1, fnames, lnames, r, 81, 73, liftersToLoad, masters, 35, 45);
+		createGroup(em, groupM2, fnames, lnames, r, 73, 67, liftersToLoad, masters, 45, 50);
 
 		drawLots(em);
 
@@ -313,7 +317,7 @@ public class DemoData {
 	
 	protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
 			Random r,
-			int cat1, int cat2, int liftersToLoad) {
+			int cat1, int cat2, int liftersToLoad, boolean masters, int min, int max) {
 
 		
 		for (int i = 0; i < liftersToLoad; i++) {
@@ -326,9 +330,9 @@ public class DemoData {
 				p.setGender(Gender.M);
 				double nextDouble = r.nextDouble();
 				if (nextDouble > 0.5F) {
-					createAthlete(em, r, p, nextDouble, cat1);
+					createAthlete(em, r, p, nextDouble, cat1, masters, min, max);
 				} else {
-					createAthlete(em, r, p, nextDouble, cat2);
+					createAthlete(em, r, p, nextDouble, cat2, masters, min, max);
 				}
 				em.persist(p);
 			} catch (Exception e) {
@@ -350,12 +354,18 @@ public class DemoData {
 		AthleteSorter.assignStartNumbers(athletes);
 	}
 
-	static int minAge = 18;
-	static int maxAge = 32;
-	static int referenceYear = LocalDate.now().getYear()-minAge;
-	static LocalDate baseDate = LocalDate.of(referenceYear, 1, 1);
+
 	
-	protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit) {
+	protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit, boolean masters, int min, int max) {
+		int minAge = 18;
+		int maxAge = 32;
+		if (masters ) {
+			minAge = min;
+			maxAge = max;
+		}
+		int referenceYear = LocalDate.now().getYear();
+		LocalDate baseDate = LocalDate.of(referenceYear, 12, 31);
+		
 		Category categ = CategoryRepository.doFindByName("m" + catLimit, em);
 		p.setCategory(categ);
 		p.setBodyWeight(categ.getMaximumWeight() - nextDouble*2.0);
@@ -375,9 +385,11 @@ public class DemoData {
 			team = "NORTH";
 		p.setTeam(team);
 		// compute a random number of weeks inside the age bracket
-		p.setFullBirthDate(baseDate.plusWeeks(Math.round(r.nextDouble()*(maxAge-minAge)*52)));
+		long weeksToSubtract = (long) ((minAge*52)+Math.floor(r.nextDouble()*(maxAge-minAge)*52));
+		p.setFullBirthDate(baseDate.minusWeeks(weeksToSubtract));
 		// respect 20kg rule
 		p.setQualifyingTotal((int) (isd+icjd-15));
+		if (masters) p.setAgeDivision(AgeDivision.MASTERS);
 	}
 
 }
