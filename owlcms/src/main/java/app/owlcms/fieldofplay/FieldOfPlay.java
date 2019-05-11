@@ -389,7 +389,7 @@ public class FieldOfPlay {
 				uiEventBus.post(new UIEvent.DecisionReset(e.origin));
 				setClockOwner(null);
 				recomputeLiftingOrder();
-				displayIfNotDone();
+				breakIfDone();
 			} else {
 				unexpectedEventInState(e, FOPState.DECISION_VISIBLE);
 			}
@@ -397,23 +397,15 @@ public class FieldOfPlay {
 		}
 	}
 
-	private void displayIfNotDone() {
-		//FIXME: separate events for current attempt section vs upcoming attempt (next athlete) info.
-		uiDisplayCurrentAthleteAndTime(true);
-//		if (curAthlete != null) {
+	private void breakIfDone() {
+		if (curAthlete != null && curAthlete.getAttemptsDone() < 6) {
 			setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
-//		} else {
-//			UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
-//			uiEventBus.post(event);
-//			setState(FOPState.BREAK);
-//		}
+		} else {
+			UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
+			uiEventBus.post(event);
+			setState(FOPState.BREAK);
+		}
 	}
-
-//	private void transitionToAnnounced() {
-//		getBreakTimer().stop();
-//		getAthleteTimer().stop();
-//		announce();
-//	}
 
 	private void transitionToBreak(FOPEvent.BreakStarted e) {
 		this.setBreakType(e.getBreakType());
@@ -512,18 +504,6 @@ public class FieldOfPlay {
 		}
 	}
 
-//	private void announce() {
-//		if (this.startTimeAutomatically) {
-//			getAthleteTimer().start();
-//			// time is already running
-//			transitionToTimeRunning();
-//		} else {
-//			remindTimekeeperToStartTime();
-//			setState(FOPState.ANNOUNCER_WAITING_FOR_TIMEKEEPER);
-//		}
-//	}
-
-
 	private void decision(FOPEvent e) {
 		FOPEvent.RefereeDecision decision = (FOPEvent.RefereeDecision) e;
 		if (decision.success) {
@@ -533,8 +513,6 @@ public class FieldOfPlay {
 		}
 		AthleteRepository.save(curAthlete);
 		uiShowRefereeDecisionOnSlaveDisplays(decision);
-//		fopDecisionReset();
-
 		setState(FOPState.DECISION_VISIBLE);
 	}
 

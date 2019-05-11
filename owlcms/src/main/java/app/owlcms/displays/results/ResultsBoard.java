@@ -39,6 +39,7 @@ import app.owlcms.displays.attemptboard.AthleteTimerElement;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.BreakStarted;
+import app.owlcms.fieldofplay.UIEvent.RefereeDecision;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.group.BreakDialog.BreakType;
 import app.owlcms.ui.group.UIEventProcessor;
@@ -137,7 +138,6 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	private int liftsDone;
 
 	JsonArray sattempts;
-
 	JsonArray cattempts;
 
 	/**
@@ -212,9 +212,11 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	public void slaveRefereeDecision(UIEvent.RefereeDecision e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			doUpdateBottomPart(e);
 			this.getElement().callFunction("refereeDecision");
 		});
 	}
+
 
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
@@ -238,9 +240,12 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 				this.getOrigin(), e.getOrigin());
-		Group g = e.getGroup();
+		doDone(e.getGroup());
+	}
+
+	private void doDone(Group g) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> this.getElement().callFunction("groupDone",
-				MessageFormat.format("Group {0} done.", g.toString())));
+				MessageFormat.format("Group {0} Results", g.toString())));
 	}
 	
 	public void uiLog(UIEvent e) {
@@ -324,7 +329,8 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		this.getModel().setHidden(true);
 	}
 	
-	protected void doUpdate(Athlete a, UIEvent e) {	
+	protected void doUpdate(Athlete a, UIEvent e) {
+		logger.warn("doUpdate {} {}",a, a != null ? a.getAttemptsDone() : null);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			ResultBoardModel model = getModel();
 			model.setHidden(a == null);
@@ -337,14 +343,26 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			String formattedAttempt = formatAttempt(a.getAttemptsDone());
 			model.setAttempt(formattedAttempt);
 			model.setWeight(a.getNextAttemptRequestedWeight());
-			OwlcmsSession.withFop((fop) -> {
-				curGroup = fop.getGroup();
-				model.setGroupName(curGroup != null ? MessageFormat.format("Group {0}", curGroup.getName()) : "");
-			});
-			model.setLiftsDone(MessageFormat.format("{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}",liftsDone));
-			
-			this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
+			updateBottom(model);
 		});
+		if (a == null || a.getAttemptsDone() >= 6) {
+			OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+			return;
+		}
+	}
+
+	private void updateBottom(ResultBoardModel model) {
+		OwlcmsSession.withFop((fop) -> {
+			curGroup = fop.getGroup();
+			model.setGroupName(curGroup != null ? MessageFormat.format("Group {0}", curGroup.getName()) : "");
+		});
+		model.setLiftsDone(MessageFormat.format("{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}",liftsDone));		
+		this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
+	}
+	
+	private void doUpdateBottomPart(RefereeDecision e) {
+		ResultBoardModel model = getModel();
+		updateBottom(model);
 	}
 	/**
 	 * Compute Json string ready to be used by web component template
@@ -364,6 +382,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		for (LiftInfo i : x.getRequestInfoArray()) {
 			JsonObject jri = Json.createObject();
 			String stringValue = i.getStringValue();
+			String blink = (a.getAttemptsDone() < 6 ? " blink" : "");
 			
 			jri.put("goodBadClassName", "narrow empty");
 			jri.put("stringValue", "");
@@ -384,7 +403,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 					break;
 				default:
 					if (stringValue != null && !trim.isEmpty()) {
-						String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? " current"
+						String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
 								: (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
 						jri.put("goodBadClassName","narrow request");
 						jri.put("className", highlight);
