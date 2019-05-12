@@ -87,7 +87,7 @@
 	<div class="timer breakTime" id="breakTimerDiv">
 		<timer-element id="breakTimer"></timer-element>
 	</div>
-	<div class="decision" id="decisionDiv" on-down="down" on-hide="reset">
+	<div class="decision" id="decisionDiv" on-down="down">
 		<decision-element id="decisions"></decision-element>
 	</div>
 </div>
@@ -143,6 +143,10 @@
                	this.$.breakTimerDiv.style.display="block";
                	this.$.barbellDiv.style.display="none";
                	this.$.decisionDiv.style.display="none";
+            }
+            
+            groupDone() {
+            	this.clear();
             }
             
             clear() {
