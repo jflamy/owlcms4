@@ -72,7 +72,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 	
 	/**
@@ -329,7 +329,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	}
 	
 	protected void doUpdate(Athlete a, UIEvent e) {
-		logger.warn("doUpdate {} {}",a, a != null ? a.getAttemptsDone() : null);
+		logger.debug("doUpdate {} {}",a, a != null ? a.getAttemptsDone() : null);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			ResultBoardModel model = getModel();
 			model.setHidden(a == null);
@@ -341,7 +341,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 				String formattedAttempt = formatAttempt(a.getAttemptsDone());
 				model.setAttempt(formattedAttempt);
 				model.setWeight(a.getNextAttemptRequestedWeight());
-				updateBottom(model);
+				updateBottom(model,computeLiftType(a));
 			}
 		});
 		if (a == null || a.getAttemptsDone() >= 6) {
@@ -350,10 +350,10 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		}
 	}
 
-	private void updateBottom(ResultBoardModel model) {
+	private void updateBottom(ResultBoardModel model, String liftType) {
 		OwlcmsSession.withFop((fop) -> {
 			curGroup = fop.getGroup();
-			model.setGroupName(curGroup != null ? MessageFormat.format("Group {0}", curGroup.getName()) : "");
+			model.setGroupName(curGroup != null ? MessageFormat.format("Group {0} {1}", curGroup.getName(), liftType) : "");
 		});
 		model.setLiftsDone(MessageFormat.format("{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}",liftsDone));		
 		this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
@@ -361,7 +361,14 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	
 	private void doUpdateBottomPart(RefereeDecision e) {
 		ResultBoardModel model = getModel();
-		updateBottom(model);
+		Athlete a = e.getAthlete();
+		updateBottom(model,computeLiftType(a));
+	}
+
+	private String computeLiftType(Athlete a) {
+		if (a == null) return "";
+		String liftType = a.getAttemptsDone() >= 3 ? "Clean&Jerk" : "Snatch";
+		return liftType;
 	}
 	/**
 	 * Compute Json string ready to be used by web component template

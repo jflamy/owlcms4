@@ -24,7 +24,7 @@ public class URLUtils {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(URLUtils.class);
 	{
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 	}
 
 	

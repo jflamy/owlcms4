@@ -317,28 +317,32 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	}
 
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
-		logger.debug("doUpdateTopBar {}",LoggerUtils.whereFrom());
+		logger.debug("doUpdateTopBar {}", LoggerUtils.whereFrom());
 		OwlcmsSession.withFop(fop -> {
 			groupSelect.setValue(fop.getGroup());
+			if (athlete != null && athlete.getAttemptsDone() < 6) {
+				String lastName2 = athlete.getLastName();
+				lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
+				firstName.setText(athlete.getFirstName());
+				timeField.getElement().getStyle().set("visibility", "visible");
+				String attemptHtml = MessageFormat.format("<h2>{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.</h2>",
+						athlete.getAttemptNumber());
+				Html newAttempt = new Html(attemptHtml);
+				topBar.replace(attempt, newAttempt);
+				attempt = newAttempt;
+				Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
+				weight.setText(
+						(nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013") + "kg");
+			} else {
+				lastName.setText(athlete == null ? "\u2013" : MessageFormat.format("Group {0} done.", fop.getGroup()));
+				firstName.setText("");
+				timeField.getElement().getStyle().set("visibility", "hidden");
+				Html newAttempt = new Html("<h2><span></span></h2>");
+				topBar.replace(attempt, newAttempt);
+				attempt = newAttempt;
+				weight.setText("");
+			}
 		});
-		if (athlete != null) {
-			String lastName2 = athlete.getLastName();
-			lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
-			firstName.setText(athlete.getFirstName());
-			String attemptHtml = MessageFormat.format("<h2>{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.</h2>", athlete.getAttemptNumber());
-			Html newAttempt = new Html(attemptHtml);
-			topBar.replace(attempt, newAttempt);
-			attempt = newAttempt;
-			Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
-			weight.setText((nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() :"\u2013")+ "kg");
-		} else {
-			lastName.setText("\u2013");
-			firstName.setText("");
-			Html newAttempt = new Html("<h2><span></span></h2>");
-			topBar.replace(attempt, newAttempt);
-			attempt = newAttempt;
-			weight.setText("");
-		}
 	}
 
 	public void syncWithFOP(boolean forceUpdate) {

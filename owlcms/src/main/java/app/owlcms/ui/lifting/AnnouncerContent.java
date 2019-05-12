@@ -72,7 +72,7 @@ public class AnnouncerContent extends AthleteGridContent {
 		reset = new Button(IronIcons.REFRESH.create(), (e) ->
 			OwlcmsSession.withFop((fop) -> {
 				Group group = fop.getGroup();
-				logger.warn("resetting {} from database", group);
+				logger.debug("resetting {} from database", group);
 				fop.switchGroup(group,this);
 			}));
 		reset.getElement().setAttribute("title", "Reload group from database.");
@@ -96,13 +96,6 @@ public class AnnouncerContent extends AthleteGridContent {
 
 	@Override
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
-		//		Button announce = new Button(AvIcons.MIC.create(), (e) -> {
-		//			OwlcmsSession.withFop(fop -> {fop.getFopEventBus()
-		//				.post(new FOPEvent.AthleteAnnounced(this.getOrigin()));
-		//			});
-		//		});
-		//		announce.getElement().setAttribute("theme", "primary icon");
-
 		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				fop.getFopEventBus()
