@@ -125,7 +125,7 @@ public class RegistrationContent extends VerticalLayout
 			new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
 			.setHeader("Body Weight");
 		grid.addColumn("group").setHeader("Group");
-		grid.addColumn("invited").setHeader("Invited");
+		grid.addColumn("eligibleForIndividualRanking").setHeader("Eligible");
 		OwlcmsCrudGrid<Athlete> crud = new OwlcmsCrudGrid<>(
 				Athlete.class,
 				new OwlcmsGridLayout(Athlete.class),
@@ -172,7 +172,7 @@ public class RegistrationContent extends VerticalLayout
 		props.add("bodyWeight"); captions.add("Body Weight");
 		props.add("snatch1Declaration"); captions.add("Snatch Decl.");
 		props.add("cleanJerk1Declaration"); captions.add("C&J Decl.");
-		props.add("invited"); captions.add("Invited?"); 
+		props.add("eligibleForIndividualRanking"); captions.add("Eligible for Individual Ranking?"); 
 		props.add("lotNumber"); captions.add("Lot");
 		crudFormFactory.setVisibleProperties((String[]) props.toArray(new String[0]));
 		crudFormFactory.setFieldCaptions((String[]) captions.toArray(new String[0]));

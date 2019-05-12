@@ -10,14 +10,21 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.Iterator;
 
 import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.event.LoggingEvent;
 
 import app.owlcms.data.athlete.LiftDefinition.Stage;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 
 /**
  * Simplified API to access an athlete.
@@ -52,13 +59,376 @@ public class XAthlete extends Athlete {
 		return a.getFullName();
 	}
 
-	/**
-	 * @param invited
-	 * @see app.owlcms.data.athlete.Athlete#setInvited(boolean)
-	 */
-	@Override
-	public void setInvited(boolean invited) {
-		a.setInvited(invited);
+	public Level getEffectiveLevel() {
+		return logger.getEffectiveLevel();
+	}
+
+	public Level getLevel() {
+		return logger.getLevel();
+	}
+
+	public String getName() {
+		return logger.getName();
+	}
+
+	public void setLevel(Level newLevel) {
+		logger.setLevel(newLevel);
+	}
+
+	public void detachAndStopAllAppenders() {
+		logger.detachAndStopAllAppenders();
+	}
+
+	public boolean detachAppender(String name) {
+		return logger.detachAppender(name);
+	}
+
+	public void addAppender(Appender<ILoggingEvent> newAppender) {
+		logger.addAppender(newAppender);
+	}
+
+	public boolean isAttached(Appender<ILoggingEvent> appender) {
+		return logger.isAttached(appender);
+	}
+
+	public Iterator<Appender<ILoggingEvent>> iteratorForAppenders() {
+		return logger.iteratorForAppenders();
+	}
+
+	public Appender<ILoggingEvent> getAppender(String name) {
+		return logger.getAppender(name);
+	}
+
+	public void callAppenders(ILoggingEvent event) {
+		logger.callAppenders(event);
+	}
+
+	public boolean detachAppender(Appender<ILoggingEvent> appender) {
+		return logger.detachAppender(appender);
+	}
+
+	public void trace(String msg) {
+		logger.trace(msg);
+	}
+
+	public void trace(String format, Object arg) {
+		logger.trace(format, arg);
+	}
+
+	public void trace(String format, Object arg1, Object arg2) {
+		logger.trace(format, arg1, arg2);
+	}
+
+	public void trace(String format, Object... argArray) {
+		logger.trace(format, argArray);
+	}
+
+	public void trace(String msg, Throwable t) {
+		logger.trace(msg, t);
+	}
+
+	public void trace(Marker marker, String msg) {
+		logger.trace(marker, msg);
+	}
+
+	public void trace(Marker marker, String format, Object arg) {
+		logger.trace(marker, format, arg);
+	}
+
+	public void trace(Marker marker, String format, Object arg1, Object arg2) {
+		logger.trace(marker, format, arg1, arg2);
+	}
+
+	public void trace(Marker marker, String format, Object... argArray) {
+		logger.trace(marker, format, argArray);
+	}
+
+	public void trace(Marker marker, String msg, Throwable t) {
+		logger.trace(marker, msg, t);
+	}
+
+	public boolean isDebugEnabled() {
+		return logger.isDebugEnabled();
+	}
+
+	public boolean isDebugEnabled(Marker marker) {
+		return logger.isDebugEnabled(marker);
+	}
+
+	public void debug(String msg) {
+		logger.debug(msg);
+	}
+
+	public void debug(String format, Object arg) {
+		logger.debug(format, arg);
+	}
+
+	public void debug(String format, Object arg1, Object arg2) {
+		logger.debug(format, arg1, arg2);
+	}
+
+	public void debug(String format, Object... argArray) {
+		logger.debug(format, argArray);
+	}
+
+	public void debug(String msg, Throwable t) {
+		logger.debug(msg, t);
+	}
+
+	public void debug(Marker marker, String msg) {
+		logger.debug(marker, msg);
+	}
+
+	public void debug(Marker marker, String format, Object arg) {
+		logger.debug(marker, format, arg);
+	}
+
+	public void debug(Marker marker, String format, Object arg1, Object arg2) {
+		logger.debug(marker, format, arg1, arg2);
+	}
+
+	public void debug(Marker marker, String format, Object... argArray) {
+		logger.debug(marker, format, argArray);
+	}
+
+	public void debug(Marker marker, String msg, Throwable t) {
+		logger.debug(marker, msg, t);
+	}
+
+	public void error(String msg) {
+		logger.error(msg);
+	}
+
+	public void error(String format, Object arg) {
+		logger.error(format, arg);
+	}
+
+	public void error(String format, Object arg1, Object arg2) {
+		logger.error(format, arg1, arg2);
+	}
+
+	public void error(String format, Object... argArray) {
+		logger.error(format, argArray);
+	}
+
+	public void error(String msg, Throwable t) {
+		logger.error(msg, t);
+	}
+
+	public void error(Marker marker, String msg) {
+		logger.error(marker, msg);
+	}
+
+	public void error(Marker marker, String format, Object arg) {
+		logger.error(marker, format, arg);
+	}
+
+	public void error(Marker marker, String format, Object arg1, Object arg2) {
+		logger.error(marker, format, arg1, arg2);
+	}
+
+	public void error(Marker marker, String format, Object... argArray) {
+		logger.error(marker, format, argArray);
+	}
+
+	public void error(Marker marker, String msg, Throwable t) {
+		logger.error(marker, msg, t);
+	}
+
+	public boolean isInfoEnabled() {
+		return logger.isInfoEnabled();
+	}
+
+	public boolean isInfoEnabled(Marker marker) {
+		return logger.isInfoEnabled(marker);
+	}
+
+	public void info(String msg) {
+		logger.info(msg);
+	}
+
+	public void info(String format, Object arg) {
+		logger.info(format, arg);
+	}
+
+	public void info(String format, Object arg1, Object arg2) {
+		logger.info(format, arg1, arg2);
+	}
+
+	public void info(String format, Object... argArray) {
+		logger.info(format, argArray);
+	}
+
+	public void info(String msg, Throwable t) {
+		logger.info(msg, t);
+	}
+
+	public void info(Marker marker, String msg) {
+		logger.info(marker, msg);
+	}
+
+	public void info(Marker marker, String format, Object arg) {
+		logger.info(marker, format, arg);
+	}
+
+	public void info(Marker marker, String format, Object arg1, Object arg2) {
+		logger.info(marker, format, arg1, arg2);
+	}
+
+	public void info(Marker marker, String format, Object... argArray) {
+		logger.info(marker, format, argArray);
+	}
+
+	public void info(Marker marker, String msg, Throwable t) {
+		logger.info(marker, msg, t);
+	}
+
+	public boolean isTraceEnabled() {
+		return logger.isTraceEnabled();
+	}
+
+	public boolean isTraceEnabled(Marker marker) {
+		return logger.isTraceEnabled(marker);
+	}
+
+	public boolean isErrorEnabled() {
+		return logger.isErrorEnabled();
+	}
+
+	public boolean isErrorEnabled(Marker marker) {
+		return logger.isErrorEnabled(marker);
+	}
+
+	public boolean isWarnEnabled() {
+		return logger.isWarnEnabled();
+	}
+
+	public boolean isWarnEnabled(Marker marker) {
+		return logger.isWarnEnabled(marker);
+	}
+
+	public boolean isEnabledFor(Marker marker, Level level) {
+		return logger.isEnabledFor(marker, level);
+	}
+
+	public boolean isEnabledFor(Level level) {
+		return logger.isEnabledFor(level);
+	}
+
+	public void warn(String msg) {
+		logger.warn(msg);
+	}
+
+	public void warn(String msg, Throwable t) {
+		logger.warn(msg, t);
+	}
+
+	public void warn(String format, Object arg) {
+		logger.warn(format, arg);
+	}
+
+	public void warn(String format, Object arg1, Object arg2) {
+		logger.warn(format, arg1, arg2);
+	}
+
+	public void warn(String format, Object... argArray) {
+		logger.warn(format, argArray);
+	}
+
+	public void warn(Marker marker, String msg) {
+		logger.warn(marker, msg);
+	}
+
+	public void warn(Marker marker, String format, Object arg) {
+		logger.warn(marker, format, arg);
+	}
+
+	public void warn(Marker marker, String format, Object... argArray) {
+		logger.warn(marker, format, argArray);
+	}
+
+	public void warn(Marker marker, String format, Object arg1, Object arg2) {
+		logger.warn(marker, format, arg1, arg2);
+	}
+
+	public void warn(Marker marker, String msg, Throwable t) {
+		logger.warn(marker, msg, t);
+	}
+
+	public boolean isAdditive() {
+		return logger.isAdditive();
+	}
+
+	public void setAdditive(boolean additive) {
+		logger.setAdditive(additive);
+	}
+
+	public LoggerContext getLoggerContext() {
+		return logger.getLoggerContext();
+	}
+
+	public void log(Marker marker, String fqcn, int levelInt, String message, Object[] argArray, Throwable t) {
+		logger.log(marker, fqcn, levelInt, message, argArray, t);
+	}
+
+	public void log(LoggingEvent slf4jEvent) {
+		logger.log(slf4jEvent);
+	}
+
+	public boolean validateCleanJerk1Declaration(String cleanJerk1Declaration) throws RuleViolationException {
+		return a.validateCleanJerk1Declaration(cleanJerk1Declaration);
+	}
+
+	public boolean validateCleanJerk2Declaration(String cleanJerk2Declaration) throws RuleViolationException {
+		return a.validateCleanJerk2Declaration(cleanJerk2Declaration);
+	}
+
+	public boolean validateCleanJerk3Declaration(String cleanJerk3Declaration) throws RuleViolationException {
+		return a.validateCleanJerk3Declaration(cleanJerk3Declaration);
+	}
+
+	public boolean validateSnatch1Declaration(String snatch1Declaration) throws RuleViolationException {
+		return a.validateSnatch1Declaration(snatch1Declaration);
+	}
+
+	public boolean validateSnatch2Declaration(String snatch2Declaration) throws RuleViolationException {
+		return a.validateSnatch2Declaration(snatch2Declaration);
+	}
+
+	public boolean validateSnatch3Declaration(String snatch3Declaration) throws RuleViolationException {
+		return a.validateSnatch3Declaration(snatch3Declaration);
+	}
+
+	public String getMastersAgeGroup(String gender1, Integer yob) {
+		return a.getMastersAgeGroup(gender1, yob);
+	}
+
+	public void clearLifts() {
+		a.clearLifts();
+	}
+
+	public void setValidation(boolean b) {
+		a.setValidation(b);
+	}
+
+	public boolean isValidation() {
+		return a.isValidation();
+	}
+
+	public boolean isEligibleForIndividualRanking() {
+		return a.isEligibleForIndividualRanking();
+	}
+
+	public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
+		a.setEligibleForIndividualRanking(eligibleForIndividualRanking);
+	}
+
+	public boolean isEligibleForTeamRanking() {
+		return a.isEligibleForTeamRanking();
+	}
+
+	public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
+		a.setEligibleForTeamRanking(eligibleForTeamRanking);
 	}
 
 	/**
@@ -2033,15 +2403,6 @@ public class XAthlete extends Athlete {
 	@Override
 	public void setTeamCombinedRank(Integer teamCombinedRank) {
 		a.setTeamCombinedRank(teamCombinedRank);
-	}
-
-	/**
-	 * @param teamMember
-	 * @see app.owlcms.data.athlete.Athlete#setTeamMember(java.lang.Boolean)
-	 */
-	@Override
-	public void setTeamMember(Boolean teamMember) {
-		a.setTeamMember(teamMember);
 	}
 
 	/**

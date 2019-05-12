@@ -102,7 +102,7 @@ public class WeighinContent extends VerticalLayout
 		grid.addColumn("category").setHeader("Category");
 		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale())).setHeader("Body Weight");
 		grid.addColumn("group").setHeader("Group");
-		grid.addColumn("invited").setHeader("Invited");	
+		grid.addColumn("eligibleForIndividualRanking").setHeader("Eligible");	
 		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<Athlete>(Athlete.class,
 				new OwlcmsGridLayout(Athlete.class),
 				crudFormFactory,
@@ -141,7 +141,7 @@ public class WeighinContent extends VerticalLayout
 			"bodyWeight",
 			"snatch1Declaration",
 			"cleanJerk1Declaration",
-			"invited");
+			"eligibleForIndividualRanking");
 		crudFormFactory.setFieldCaptions("Last Name",
 			"First Name",
 			"Gender",
@@ -154,7 +154,7 @@ public class WeighinContent extends VerticalLayout
 			"Body Weight",
 			"Snatch Declaration",
 			"Clean&Jerk Declaration",
-			"Invited?");
+			"Eligible for individual ranking?");
 		crudFormFactory.setFieldProvider("gender",
             new ComboBoxProvider<>("Gender", Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
 		crudFormFactory.setFieldProvider("group",
