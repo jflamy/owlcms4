@@ -163,7 +163,7 @@ public class FOPEvent {
 		 */
 		public RefereeDecision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 			super(origin);
-			logger.warn("referee decision for {}", athlete);
+			logger.trace("referee decision for {}", athlete);
 			this.setAthlete(athlete);
 			this.success = decision;
 			this.ref1 = ref1;

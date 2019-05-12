@@ -10,21 +10,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.Iterator;
 
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.event.LoggingEvent;
 
 import app.owlcms.data.athlete.LiftDefinition.Stage;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
 
 /**
  * Simplified API to access an athlete.
@@ -40,426 +33,12 @@ public class XAthlete extends Athlete {
 	
 	private Athlete a;
 
-
-	/**
-	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getAttemptNumber()
-	 */
-	@Override
-	public Integer getAttemptNumber() {
-		return a.getAttemptNumber();
-	}
-
-	/**
-	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getFullName()
-	 */
-	@Override
-	public String getFullName() {
-		return a.getFullName();
-	}
-
-	public Level getEffectiveLevel() {
-		return logger.getEffectiveLevel();
-	}
-
-	public Level getLevel() {
-		return logger.getLevel();
-	}
-
-	public String getName() {
-		return logger.getName();
-	}
-
-	public void setLevel(Level newLevel) {
-		logger.setLevel(newLevel);
-	}
-
-	public void detachAndStopAllAppenders() {
-		logger.detachAndStopAllAppenders();
-	}
-
-	public boolean detachAppender(String name) {
-		return logger.detachAppender(name);
-	}
-
-	public void addAppender(Appender<ILoggingEvent> newAppender) {
-		logger.addAppender(newAppender);
-	}
-
-	public boolean isAttached(Appender<ILoggingEvent> appender) {
-		return logger.isAttached(appender);
-	}
-
-	public Iterator<Appender<ILoggingEvent>> iteratorForAppenders() {
-		return logger.iteratorForAppenders();
-	}
-
-	public Appender<ILoggingEvent> getAppender(String name) {
-		return logger.getAppender(name);
-	}
-
-	public void callAppenders(ILoggingEvent event) {
-		logger.callAppenders(event);
-	}
-
-	public boolean detachAppender(Appender<ILoggingEvent> appender) {
-		return logger.detachAppender(appender);
-	}
-
-	public void trace(String msg) {
-		logger.trace(msg);
-	}
-
-	public void trace(String format, Object arg) {
-		logger.trace(format, arg);
-	}
-
-	public void trace(String format, Object arg1, Object arg2) {
-		logger.trace(format, arg1, arg2);
-	}
-
-	public void trace(String format, Object... argArray) {
-		logger.trace(format, argArray);
-	}
-
-	public void trace(String msg, Throwable t) {
-		logger.trace(msg, t);
-	}
-
-	public void trace(Marker marker, String msg) {
-		logger.trace(marker, msg);
-	}
-
-	public void trace(Marker marker, String format, Object arg) {
-		logger.trace(marker, format, arg);
-	}
-
-	public void trace(Marker marker, String format, Object arg1, Object arg2) {
-		logger.trace(marker, format, arg1, arg2);
-	}
-
-	public void trace(Marker marker, String format, Object... argArray) {
-		logger.trace(marker, format, argArray);
-	}
-
-	public void trace(Marker marker, String msg, Throwable t) {
-		logger.trace(marker, msg, t);
-	}
-
-	public boolean isDebugEnabled() {
-		return logger.isDebugEnabled();
-	}
-
-	public boolean isDebugEnabled(Marker marker) {
-		return logger.isDebugEnabled(marker);
-	}
-
-	public void debug(String msg) {
-		logger.debug(msg);
-	}
-
-	public void debug(String format, Object arg) {
-		logger.debug(format, arg);
-	}
-
-	public void debug(String format, Object arg1, Object arg2) {
-		logger.debug(format, arg1, arg2);
-	}
-
-	public void debug(String format, Object... argArray) {
-		logger.debug(format, argArray);
-	}
-
-	public void debug(String msg, Throwable t) {
-		logger.debug(msg, t);
-	}
-
-	public void debug(Marker marker, String msg) {
-		logger.debug(marker, msg);
-	}
-
-	public void debug(Marker marker, String format, Object arg) {
-		logger.debug(marker, format, arg);
-	}
-
-	public void debug(Marker marker, String format, Object arg1, Object arg2) {
-		logger.debug(marker, format, arg1, arg2);
-	}
-
-	public void debug(Marker marker, String format, Object... argArray) {
-		logger.debug(marker, format, argArray);
-	}
-
-	public void debug(Marker marker, String msg, Throwable t) {
-		logger.debug(marker, msg, t);
-	}
-
-	public void error(String msg) {
-		logger.error(msg);
-	}
-
-	public void error(String format, Object arg) {
-		logger.error(format, arg);
-	}
-
-	public void error(String format, Object arg1, Object arg2) {
-		logger.error(format, arg1, arg2);
-	}
-
-	public void error(String format, Object... argArray) {
-		logger.error(format, argArray);
-	}
-
-	public void error(String msg, Throwable t) {
-		logger.error(msg, t);
-	}
-
-	public void error(Marker marker, String msg) {
-		logger.error(marker, msg);
-	}
-
-	public void error(Marker marker, String format, Object arg) {
-		logger.error(marker, format, arg);
-	}
-
-	public void error(Marker marker, String format, Object arg1, Object arg2) {
-		logger.error(marker, format, arg1, arg2);
-	}
-
-	public void error(Marker marker, String format, Object... argArray) {
-		logger.error(marker, format, argArray);
-	}
-
-	public void error(Marker marker, String msg, Throwable t) {
-		logger.error(marker, msg, t);
-	}
-
-	public boolean isInfoEnabled() {
-		return logger.isInfoEnabled();
-	}
-
-	public boolean isInfoEnabled(Marker marker) {
-		return logger.isInfoEnabled(marker);
-	}
-
-	public void info(String msg) {
-		logger.info(msg);
-	}
-
-	public void info(String format, Object arg) {
-		logger.info(format, arg);
-	}
-
-	public void info(String format, Object arg1, Object arg2) {
-		logger.info(format, arg1, arg2);
-	}
-
-	public void info(String format, Object... argArray) {
-		logger.info(format, argArray);
-	}
-
-	public void info(String msg, Throwable t) {
-		logger.info(msg, t);
-	}
-
-	public void info(Marker marker, String msg) {
-		logger.info(marker, msg);
-	}
-
-	public void info(Marker marker, String format, Object arg) {
-		logger.info(marker, format, arg);
-	}
-
-	public void info(Marker marker, String format, Object arg1, Object arg2) {
-		logger.info(marker, format, arg1, arg2);
-	}
-
-	public void info(Marker marker, String format, Object... argArray) {
-		logger.info(marker, format, argArray);
-	}
-
-	public void info(Marker marker, String msg, Throwable t) {
-		logger.info(marker, msg, t);
-	}
-
-	public boolean isTraceEnabled() {
-		return logger.isTraceEnabled();
-	}
-
-	public boolean isTraceEnabled(Marker marker) {
-		return logger.isTraceEnabled(marker);
-	}
-
-	public boolean isErrorEnabled() {
-		return logger.isErrorEnabled();
-	}
-
-	public boolean isErrorEnabled(Marker marker) {
-		return logger.isErrorEnabled(marker);
-	}
-
-	public boolean isWarnEnabled() {
-		return logger.isWarnEnabled();
-	}
-
-	public boolean isWarnEnabled(Marker marker) {
-		return logger.isWarnEnabled(marker);
-	}
-
-	public boolean isEnabledFor(Marker marker, Level level) {
-		return logger.isEnabledFor(marker, level);
-	}
-
-	public boolean isEnabledFor(Level level) {
-		return logger.isEnabledFor(level);
-	}
-
-	public void warn(String msg) {
-		logger.warn(msg);
-	}
-
-	public void warn(String msg, Throwable t) {
-		logger.warn(msg, t);
-	}
-
-	public void warn(String format, Object arg) {
-		logger.warn(format, arg);
-	}
-
-	public void warn(String format, Object arg1, Object arg2) {
-		logger.warn(format, arg1, arg2);
-	}
-
-	public void warn(String format, Object... argArray) {
-		logger.warn(format, argArray);
-	}
-
-	public void warn(Marker marker, String msg) {
-		logger.warn(marker, msg);
-	}
-
-	public void warn(Marker marker, String format, Object arg) {
-		logger.warn(marker, format, arg);
-	}
-
-	public void warn(Marker marker, String format, Object... argArray) {
-		logger.warn(marker, format, argArray);
-	}
-
-	public void warn(Marker marker, String format, Object arg1, Object arg2) {
-		logger.warn(marker, format, arg1, arg2);
-	}
-
-	public void warn(Marker marker, String msg, Throwable t) {
-		logger.warn(marker, msg, t);
-	}
-
-	public boolean isAdditive() {
-		return logger.isAdditive();
-	}
-
-	public void setAdditive(boolean additive) {
-		logger.setAdditive(additive);
-	}
-
-	public LoggerContext getLoggerContext() {
-		return logger.getLoggerContext();
-	}
-
-	public void log(Marker marker, String fqcn, int levelInt, String message, Object[] argArray, Throwable t) {
-		logger.log(marker, fqcn, levelInt, message, argArray, t);
-	}
-
-	public void log(LoggingEvent slf4jEvent) {
-		logger.log(slf4jEvent);
-	}
-
-	public boolean validateCleanJerk1Declaration(String cleanJerk1Declaration) throws RuleViolationException {
-		return a.validateCleanJerk1Declaration(cleanJerk1Declaration);
-	}
-
-	public boolean validateCleanJerk2Declaration(String cleanJerk2Declaration) throws RuleViolationException {
-		return a.validateCleanJerk2Declaration(cleanJerk2Declaration);
-	}
-
-	public boolean validateCleanJerk3Declaration(String cleanJerk3Declaration) throws RuleViolationException {
-		return a.validateCleanJerk3Declaration(cleanJerk3Declaration);
-	}
-
-	public boolean validateSnatch1Declaration(String snatch1Declaration) throws RuleViolationException {
-		return a.validateSnatch1Declaration(snatch1Declaration);
-	}
-
-	public boolean validateSnatch2Declaration(String snatch2Declaration) throws RuleViolationException {
-		return a.validateSnatch2Declaration(snatch2Declaration);
-	}
-
-	public boolean validateSnatch3Declaration(String snatch3Declaration) throws RuleViolationException {
-		return a.validateSnatch3Declaration(snatch3Declaration);
-	}
-
-	public String getMastersAgeGroup(String gender1, Integer yob) {
-		return a.getMastersAgeGroup(gender1, yob);
-	}
-
-	public void clearLifts() {
-		a.clearLifts();
-	}
-
-	public void setValidation(boolean b) {
-		a.setValidation(b);
-	}
-
-	public boolean isValidation() {
-		return a.isValidation();
-	}
-
-	public boolean isEligibleForIndividualRanking() {
-		return a.isEligibleForIndividualRanking();
-	}
-
-	public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
-		a.setEligibleForIndividualRanking(eligibleForIndividualRanking);
-	}
-
-	public boolean isEligibleForTeamRanking() {
-		return a.isEligibleForTeamRanking();
-	}
-
-	public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
-		a.setEligibleForTeamRanking(eligibleForTeamRanking);
-	}
-
-	/**
-	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getAgeDivision()
-	 */
-	@Override
-	public AgeDivision getAgeDivision() {
-		return a.getAgeDivision();
-	}
-
-	/**
-	 * @param ageDivision
-	 * @see app.owlcms.data.athlete.Athlete#setAgeDivision(app.owlcms.data.category.AgeDivision)
-	 */
-	@Override
-	public void setAgeDivision(AgeDivision ageDivision) {
-		a.setAgeDivision(ageDivision);
-	}
-
 	public XAthlete(Athlete a) {
 		this.a = a;
 	}
 
-	/**
-	 * @param unlessCurrent
-	 * @see app.owlcms.data.athlete.Athlete#checkStartingTotalsRule(boolean)
-	 */
-	@Override
-	public boolean validateStartingTotalsRule() {
-		return a.validateStartingTotalsRule();
+	public void clearLifts() {
+		a.clearLifts();
 	}
 
 	/**
@@ -492,6 +71,15 @@ public class XAthlete extends Athlete {
 
 	/**
 	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getAgeDivision()
+	 */
+	@Override
+	public AgeDivision getAgeDivision() {
+		return a.getAgeDivision();
+	}
+
+	/**
+	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getAgeGroup()
 	 */
 	@Override
@@ -506,6 +94,15 @@ public class XAthlete extends Athlete {
 	@Override
 	public int getAttemptedLifts() {
 		return getAttemptsDone();
+	}
+
+	/**
+	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getAttemptNumber()
+	 */
+	@Override
+	public Integer getAttemptNumber() {
+		return a.getAttemptNumber();
 	}
 
 	/**
@@ -530,15 +127,6 @@ public class XAthlete extends Athlete {
 			logger.error(e.getLocalizedMessage(),e);
 		}
 		return null;
-	}
-	
-	/**
-	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getBestCleanJerk()
-	 */
-	@Override
-	public Integer getBestCleanJerk() {
-		return getBest(LiftDefinition.Changes.ACTUAL, LiftDefinition.Stage.CLEANJERK).value;
 	}
 
 	protected LiftInfo getBest(LiftDefinition.Changes change, Stage stage) {
@@ -566,47 +154,16 @@ public class XAthlete extends Athlete {
 			throw new RuntimeException(e);
 		}
 	}
-	
-	public LiftInfo getCurrentRequestInfo() {
-		return getRequestInfo(getAttemptsDone());
+
+	/**
+	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getBestCleanJerk()
+	 */
+	@Override
+	public Integer getBestCleanJerk() {
+		return getBest(LiftDefinition.Changes.ACTUAL, LiftDefinition.Stage.CLEANJERK).value;
 	}
 
-	private LiftInfo getRequestInfo(Integer liftNo) {
-		try {
-			int changeNo = LiftDefinition.NBCHANGES -1 ;
-			String stringValue = null;
-			boolean found = false;
-			while (!found && changeNo >= 0 ) {
-				Method method = LiftDefinition.lifts[liftNo].getters[changeNo];
-				stringValue = (String) method.invoke(a);
-				boolean zeroKgAutomaticChange = (changeNo == 0 && "0".equals(stringValue));
-				if (stringValue != null && !stringValue.isEmpty()
-						&& ! zeroKgAutomaticChange) {
-					found = true;
-				} else {
-					changeNo--;
-				}
-			}
-			if (found) {
-				return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, changeNo, stringValue);
-			} else {
-				return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, -1, null);
-			}
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			logger.error(e.getLocalizedMessage(),e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	
-	public LiftInfo[] getRequestInfoArray() {
-		LiftInfo[] infoArray = new LiftInfo[LiftDefinition.NBLIFTS];
-		for (int i = 0; i < LiftDefinition.NBLIFTS; i++) {
-			infoArray[i] = getRequestInfo(i);
-		}
-		return infoArray;
-	}
-	
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getBestCleanJerkAttemptNumber()
@@ -740,7 +297,7 @@ public class XAthlete extends Athlete {
 	public String getCleanJerk1Declaration() {
 		return a.getCleanJerk1Declaration();
 	}
-
+	
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getCleanJerk1LiftTime()
@@ -758,7 +315,7 @@ public class XAthlete extends Athlete {
 	public String getCleanJerk2ActualLift() {
 		return a.getCleanJerk2ActualLift();
 	}
-
+	
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getCleanJerk2AsInteger()
@@ -777,6 +334,7 @@ public class XAthlete extends Athlete {
 		return a.getCleanJerk2AutomaticProgression();
 	}
 
+	
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getCleanJerk2Change1()
@@ -785,7 +343,7 @@ public class XAthlete extends Athlete {
 	public String getCleanJerk2Change1() {
 		return a.getCleanJerk2Change1();
 	}
-
+	
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getCleanJerk2Change2()
@@ -957,6 +515,10 @@ public class XAthlete extends Athlete {
 		return a.getCurrentDeclaration();
 	}
 
+	public LiftInfo getCurrentRequestInfo() {
+		return getRequestInfo(getAttemptsDone());
+	}
+
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getCustomPoints()
@@ -1027,6 +589,24 @@ public class XAthlete extends Athlete {
 	@Override
 	public LocalDate getFullBirthDate() {
 		return a.getFullBirthDate();
+	}
+
+	/**
+	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getFullId()
+	 */
+	@Override
+	public String getFullId() {
+		return a.getFullId();
+	}
+
+	/**
+	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getFullName()
+	 */
+	@Override
+	public String getFullName() {
+		return a.getFullName();
 	}
 
 	/**
@@ -1117,6 +697,10 @@ public class XAthlete extends Athlete {
 	@Override
 	public String getMastersAgeGroup() {
 		return a.getMastersAgeGroup();
+	}
+
+	public String getMastersAgeGroup(String gender1, Integer yob) {
+		return a.getMastersAgeGroup(gender1, yob);
 	}
 
 	/**
@@ -1226,6 +810,41 @@ public class XAthlete extends Athlete {
 	@Override
 	public Integer getRequestedWeightForAttempt(int attempt) {
 		return a.getRequestedWeightForAttempt(attempt);
+	}
+
+	private LiftInfo getRequestInfo(Integer liftNo) {
+		try {
+			int changeNo = LiftDefinition.NBCHANGES -1 ;
+			String stringValue = null;
+			boolean found = false;
+			while (!found && changeNo >= 0 ) {
+				Method method = LiftDefinition.lifts[liftNo].getters[changeNo];
+				stringValue = (String) method.invoke(a);
+				boolean zeroKgAutomaticChange = (changeNo == 0 && "0".equals(stringValue));
+				if (stringValue != null && !stringValue.isEmpty()
+						&& ! zeroKgAutomaticChange) {
+					found = true;
+				} else {
+					changeNo--;
+				}
+			}
+			if (found) {
+				return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, changeNo, stringValue);
+			} else {
+				return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, -1, null);
+			}
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			logger.error(e.getLocalizedMessage(),e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public LiftInfo[] getRequestInfoArray() {
+		LiftInfo[] infoArray = new LiftInfo[LiftDefinition.NBLIFTS];
+		for (int i = 0; i < LiftDefinition.NBLIFTS; i++) {
+			infoArray[i] = getRequestInfo(i);
+		}
+		return infoArray;
 	}
 
 	/**
@@ -1708,6 +1327,14 @@ public class XAthlete extends Athlete {
 		return a.isATeamMember();
 	}
 
+	public boolean isEligibleForIndividualRanking() {
+		return a.isEligibleForIndividualRanking();
+	}
+
+	public boolean isEligibleForTeamRanking() {
+		return a.isEligibleForTeamRanking();
+	}
+
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#isForcedAsCurrent()
@@ -1724,6 +1351,10 @@ public class XAthlete extends Athlete {
 	@Override
 	public boolean isInvited() {
 		return a.isInvited();
+	}
+
+	public boolean isValidation() {
+		return a.isValidation();
 	}
 
 	/**
@@ -1744,6 +1375,14 @@ public class XAthlete extends Athlete {
 		a.resetForcedAsCurrent();
 	}
 
+	/**
+	 * @param ageDivision
+	 * @see app.owlcms.data.athlete.Athlete#setAgeDivision(app.owlcms.data.category.AgeDivision)
+	 */
+	@Override
+	public void setAgeDivision(AgeDivision ageDivision) {
+		a.setAgeDivision(ageDivision);
+	}
 
 	/**
 	 * @param i
@@ -1827,6 +1466,7 @@ public class XAthlete extends Athlete {
 	public void setCleanJerk1Change1(String cleanJerk1Change1) {
 		a.setCleanJerk1Change1(cleanJerk1Change1);
 	}
+
 
 	/**
 	 * @param cleanJerk1Change2
@@ -2026,6 +1666,14 @@ public class XAthlete extends Athlete {
 		a.setCustomScore(customScore);
 	}
 
+	public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
+		a.setEligibleForIndividualRanking(eligibleForIndividualRanking);
+	}
+
+	public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
+		a.setEligibleForTeamRanking(eligibleForTeamRanking);
+	}
+
 	/**
 	 * @param firstName
 	 * @see app.owlcms.data.athlete.Athlete#setFirstName(java.lang.String)
@@ -2152,16 +1800,6 @@ public class XAthlete extends Athlete {
 		a.setRegistrationCategory(registrationCategory);
 	}
 
-//	/**
-//	 * @param resultOrderRank
-//	 * @param rankingType
-//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
-//	 */
-//	@Override
-//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//		a.setResultOrderRank(resultOrderRank, rankingType);
-//	}
-
 	/**
 	 * @param robiRank
 	 * @see app.owlcms.data.athlete.Athlete#setRobiRank(java.lang.Integer)
@@ -2224,6 +1862,16 @@ public class XAthlete extends Athlete {
 	public void setSnatch1Declaration(String snatch1Declaration) {
 		a.setSnatch1Declaration(snatch1Declaration);
 	}
+
+//	/**
+//	 * @param resultOrderRank
+//	 * @param rankingType
+//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
+//	 */
+//	@Override
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		a.setResultOrderRank(resultOrderRank, rankingType);
+//	}
 
 	/**
 	 * @param snatch1LiftTime
@@ -2468,6 +2116,10 @@ public class XAthlete extends Athlete {
 		a.setTotalRank(totalRank);
 	}
 
+	public void setValidation(boolean b) {
+		a.setValidation(b);
+	}
+
 	/**
 	 * @param birthYear
 	 * @see app.owlcms.data.athlete.Athlete#setYearOfBirth(java.lang.Integer)
@@ -2543,6 +2195,10 @@ public class XAthlete extends Athlete {
 		return a.validateCleanJerk1Change2(cleanJerk1Change2);
 	}
 
+	public boolean validateCleanJerk1Declaration(String cleanJerk1Declaration) throws RuleViolationException {
+		return a.validateCleanJerk1Declaration(cleanJerk1Declaration);
+	}
+
 	/**
 	 * @param cleanJerk2ActualLift
 	 * @return
@@ -2574,6 +2230,10 @@ public class XAthlete extends Athlete {
 	@Override
 	public boolean validateCleanJerk2Change2(String cleanJerk2Change2) throws RuleViolationException {
 		return a.validateCleanJerk2Change2(cleanJerk2Change2);
+	}
+
+	public boolean validateCleanJerk2Declaration(String cleanJerk2Declaration) throws RuleViolationException {
+		return a.validateCleanJerk2Declaration(cleanJerk2Declaration);
 	}
 
 	/**
@@ -2609,6 +2269,10 @@ public class XAthlete extends Athlete {
 		return a.validateCleanJerk3Change2(cleanJerk3Change2);
 	}
 
+	public boolean validateCleanJerk3Declaration(String cleanJerk3Declaration) throws RuleViolationException {
+		return a.validateCleanJerk3Declaration(cleanJerk3Declaration);
+	}
+
 	/**
 	 * @param snatch1ActualLift
 	 * @return
@@ -2640,6 +2304,10 @@ public class XAthlete extends Athlete {
 	@Override
 	public boolean validateSnatch1Change2(String snatch1Change2) throws RuleViolationException {
 		return a.validateSnatch1Change2(snatch1Change2);
+	}
+
+	public boolean validateSnatch1Declaration(String snatch1Declaration) throws RuleViolationException {
+		return a.validateSnatch1Declaration(snatch1Declaration);
 	}
 
 	/**
@@ -2675,6 +2343,10 @@ public class XAthlete extends Athlete {
 		return a.validateSnatch2Change2(snatch2Change2);
 	}
 
+	public boolean validateSnatch2Declaration(String snatch2Declaration) throws RuleViolationException {
+		return a.validateSnatch2Declaration(snatch2Declaration);
+	}
+
 	/**
 	 * @param snatch3ActualLift
 	 * @return
@@ -2708,6 +2380,19 @@ public class XAthlete extends Athlete {
 		return a.validateSnatch3Change2(snatch3Change2);
 	}
 
+	public boolean validateSnatch3Declaration(String snatch3Declaration) throws RuleViolationException {
+		return a.validateSnatch3Declaration(snatch3Declaration);
+	}
+
+	/**
+	 * @param unlessCurrent
+	 * @see app.owlcms.data.athlete.Athlete#checkStartingTotalsRule(boolean)
+	 */
+	@Override
+	public boolean validateStartingTotalsRule() {
+		return a.validateStartingTotalsRule();
+	}
+
 	/**
 	 * 
 	 * @see app.owlcms.data.athlete.Athlete#withdraw()
@@ -2715,15 +2400,6 @@ public class XAthlete extends Athlete {
 	@Override
 	public void withdraw() {
 		a.withdraw();
-	}
-
-	/**
-	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getFullId()
-	 */
-	@Override
-	public String getFullId() {
-		return a.getFullId();
 	}
 
 

@@ -315,7 +315,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	}
 
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
-		logger.warn("doUpdateTopBar {}", LoggerUtils.whereFrom());
+		logger.debug("doUpdateTopBar {}", LoggerUtils.whereFrom());
 		OwlcmsSession.withFop(fop -> {
 			UIEventProcessor.uiAccess(topBar, uiEventBus, () -> {
 				groupSelect.setValue(fop.getGroup());
@@ -522,7 +522,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	
 	@Subscribe
 	public void slaveGroupDone(UIEvent.GroupDone e) {
-		uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 				this.getOrigin(), e.getOrigin());
 		OwlcmsSession.withFop((fop) -> doUpdateTopBar(fop.getCurAthlete(), 0));
 		crudGrid.refreshGrid();
