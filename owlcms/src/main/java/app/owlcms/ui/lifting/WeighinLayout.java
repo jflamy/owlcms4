@@ -113,7 +113,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 			.set("font-weight", "normal");
 		
 		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder("Select Group");
+		groupSelect.setPlaceholder("Group");
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
 		OwlcmsSession.withFop((fop) -> {
