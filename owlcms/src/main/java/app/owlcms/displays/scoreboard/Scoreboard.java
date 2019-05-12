@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.displays.results;
+package app.owlcms.displays.scoreboard;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -20,6 +20,7 @@ import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -39,9 +40,10 @@ import app.owlcms.displays.attemptboard.AthleteTimerElement;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.BreakStarted;
+import app.owlcms.fieldofplay.UIEvent.RefereeDecision;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.group.BreakDialog.BreakType;
-import app.owlcms.ui.group.UIEventProcessor;
+import app.owlcms.ui.lifting.UIEventProcessor;
+import app.owlcms.ui.lifting.BreakDialog.BreakType;
 import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;
@@ -53,29 +55,29 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 /**
- * Class ResultsBoard
+ * Class Scoreboard
  * 
  * Show athlete 6-attempt results
  * 
  */
 @SuppressWarnings("serial")
-@Tag("results-board-template")
-@HtmlImport("frontend://components/ResultsBoard.html")
-@Route("displays/resultsBoard")
+@Tag("scoreboard-template")
+@HtmlImport("frontend://components/Scoreboard.html")
+@Route("displays/scoreboard")
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
-public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
-		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay {
+public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
+		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsBoard.class);
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(Scoreboard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 	
 	/**
-	 * ResultBoardModel
+	 * ScoreboardModel
 	 * 
 	 * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript
 	 * properties. When the JS properties are changed, a "propname-changed" event is triggered.
@@ -83,12 +85,10 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	 * com.vaadin.flow.dom.PropertyChangeListener)}
 	 *
 	 */
-	public interface ResultBoardModel extends TemplateModel {
+	public interface ScoreboardModel extends TemplateModel {
 		String getAttempt();
 
-		String getFirstName();
-
-		String getLastName();
+		String getFullName();
 
 		Integer getStartNumber();
 
@@ -102,13 +102,11 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 		void setAttempt(String formattedAttempt);
 
-		void setFirstName(String firstName);
-
 		void setGroupName(String name);
 
 		void setHidden(boolean b);
 		
-		void setLastName(String lastName);
+		void setFullName(String lastName);
 
 		void setLiftsDone(String formattedDone);
 
@@ -137,13 +135,12 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	private int liftsDone;
 
 	JsonArray sattempts;
-
 	JsonArray cattempts;
 
 	/**
 	 * Instantiates a new results board.
 	 */
-	public ResultsBoard() {
+	public Scoreboard() {
 		timer.setOrigin(this);
 	}
 
@@ -212,9 +209,11 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	public void slaveRefereeDecision(UIEvent.RefereeDecision e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			doUpdateBottomPart(e);
 			this.getElement().callFunction("refereeDecision");
 		});
 	}
+
 
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
@@ -238,9 +237,15 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 				this.getOrigin(), e.getOrigin());
-		Group g = e.getGroup();
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> this.getElement().callFunction("groupDone",
-				MessageFormat.format("Group {0} done.", g.toString())));
+		doDone(e.getGroup());
+	}
+
+	private void doDone(Group g) {
+		if (g == null) return;
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			getModel().setFullName(MessageFormat.format("Group {0} Results", g.toString()));
+			this.getElement().callFunction("groupDone");
+		});
 	}
 	
 	public void uiLog(UIEvent e) {
@@ -282,8 +287,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			} else {
 				category = curCat != null ? curCat.getName() : "";
 			}
-			ja.put("lastName", a.getLastName().toUpperCase());
-			ja.put("firstName", a.getFirstName());
+			ja.put("fullName", a.getFullName());
 			ja.put("teamName", a.getTeam());
 			ja.put("yearOfBirth", a.getYearOfBirth());
 			Integer startNumber = a.getStartNumber();
@@ -298,7 +302,8 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
 			ja.put("totalRank", formatInt(a.getTotalRank()));
 			Integer liftOrderRank = a.getLiftOrderRank();
-			ja.put("classname", (liftOrderRank == 1 ? "current" : (liftOrderRank == 2) ? "next" : ""));
+			String blink =  (a.getAttemptsDone() < 6 ? " blink" : "");
+			ja.put("classname", (liftOrderRank == 1 ? "current"+blink : (liftOrderRank == 2) ? "next" : ""));
 			jath.set(athx, ja);
 			athx++;
 		}
@@ -312,7 +317,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
 			logger.trace("Starting result board on FOP {}", fop.getName());
-			setId("results-board-"+fop.getName());
+			setId("scoreboard-"+fop.getName());
 			curGroup = fop.getGroup();
 			getModel().setMasters(Competition.getCurrent().isMasters());
 		});
@@ -324,27 +329,47 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		this.getModel().setHidden(true);
 	}
 	
-	protected void doUpdate(Athlete a, UIEvent e) {	
+	protected void doUpdate(Athlete a, UIEvent e) {
+		logger.debug("doUpdate {} {}",a, a != null ? a.getAttemptsDone() : null);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			ResultBoardModel model = getModel();
+			ScoreboardModel model = getModel();
 			model.setHidden(a == null);
-			if (a == null) return;
-			
-			model.setLastName(a.getLastName().toUpperCase());
-			model.setFirstName(a.getFirstName());
-			model.setTeamName(a.getTeam());
-			model.setStartNumber(a.getStartNumber());
-			String formattedAttempt = formatAttempt(a.getAttemptsDone());
-			model.setAttempt(formattedAttempt);
-			model.setWeight(a.getNextAttemptRequestedWeight());
-			OwlcmsSession.withFop((fop) -> {
-				curGroup = fop.getGroup();
-				model.setGroupName(curGroup != null ? MessageFormat.format("Group {0}", curGroup.getName()) : "");
-			});
-			model.setLiftsDone(MessageFormat.format("{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}",liftsDone));
-			
-			this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
+			if (a != null) {
+				this.getElement().callFunction("reset");
+				model.setFullName(a.getFullName());
+				model.setTeamName(a.getTeam());
+				model.setStartNumber(a.getStartNumber());
+				String formattedAttempt = formatAttempt(a.getAttemptsDone());
+				model.setAttempt(formattedAttempt);
+				model.setWeight(a.getNextAttemptRequestedWeight());
+				updateBottom(model,computeLiftType(a));
+			}
 		});
+		if (a == null || a.getAttemptsDone() >= 6) {
+			OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+			return;
+		}
+	}
+
+	private void updateBottom(ScoreboardModel model, String liftType) {
+		OwlcmsSession.withFop((fop) -> {
+			curGroup = fop.getGroup();
+			model.setGroupName(curGroup != null ? MessageFormat.format("Group {0} {1}", curGroup.getName(), liftType) : "");
+		});
+		model.setLiftsDone(MessageFormat.format("{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}",liftsDone));		
+		this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
+	}
+	
+	private void doUpdateBottomPart(RefereeDecision e) {
+		ScoreboardModel model = getModel();
+		Athlete a = e.getAthlete();
+		updateBottom(model,computeLiftType(a));
+	}
+
+	private String computeLiftType(Athlete a) {
+		if (a == null) return "";
+		String liftType = a.getAttemptsDone() >= 3 ? "Clean&Jerk" : "Snatch";
+		return liftType;
 	}
 	/**
 	 * Compute Json string ready to be used by web component template
@@ -364,6 +389,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		for (LiftInfo i : x.getRequestInfoArray()) {
 			JsonObject jri = Json.createObject();
 			String stringValue = i.getStringValue();
+			String blink = (x.getAttemptsDone() < 6 ? " blink" : "");
 			
 			jri.put("goodBadClassName", "narrow empty");
 			jri.put("stringValue", "");
@@ -384,7 +410,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 					break;
 				default:
 					if (stringValue != null && !trim.isEmpty()) {
-						String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? " current"
+						String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
 								: (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
 						jri.put("goodBadClassName","narrow request");
 						jri.put("className", highlight);
@@ -431,13 +457,17 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		uiEventLogger.debug("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			BreakType breakType = fop.getBreakType();
-			getModel().setLastName(inferGroupName());
-			getModel().setFirstName(inferMessage(breakType));
+			getModel().setFullName(inferGroupName()+" "+inferMessage(breakType));
 			getModel().setTeamName("");
 			getModel().setAttempt("");
 
 			uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
 			this.getElement().callFunction("doBreak");
 		}));
+	}
+
+	@Override
+	public String getPageTitle() {
+		return "Scoreboard";
 	}
 }

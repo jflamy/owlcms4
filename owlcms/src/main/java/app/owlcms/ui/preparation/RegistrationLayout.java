@@ -29,7 +29,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.spreadsheet.JXLSStartingList;
-import app.owlcms.ui.group.UIEventProcessor;
+import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;

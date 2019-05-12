@@ -2,7 +2,7 @@
 <link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
 <link rel="import" href="../bower_components/polymer/lib/elements/dom-if.html">
 
-<dom-module id="results-board-template">
+<dom-module id="scoreboard-template">
 <template>
 <style>
 * {
@@ -49,6 +49,7 @@
 	flex: 0 0 35%;
 	text-align: left;
 	margin-left: 1em;
+	/*margin-right: auto;*/
 	flex-grow: 0.5;
 }
 
@@ -193,12 +194,13 @@ th, td {
 .current {
 	color: yellow;
 	font-weight: bold;
+}
+
+.blink {
 	animation: blink 1.5s step-start 0s infinite;
 	-webkit-animation: blink 1.5s step-start 0s infinite;
 }
-
 @keyframes blink { 50% {opacity: 0.0;}}
-
 @-webkit-keyframes blink { 50% {opacity: 0.0;}}
 
 .next {
@@ -223,11 +225,11 @@ th, td {
 
 <div class="wrapper" id="resultBoardDiv" style$="[[_computeHidden(hidden)]]">
 <div class="attemptBar">
-	<div class="athleteInfo">
+	<div class="athleteInfo" id="athleteInfoDiv">
 		<div class="startNumber" id="startNumberDiv"><span>[[startNumber]]</span></div>
-		<div class="fullName" id="fullNameDiv">[[lastName]], [[firstName]]</div>
-		<div class="teamName">[[teamName]]</div>
-		<div class="attempt" inner-h-t-m-l="[[attempt]]"></div>
+		<div class="fullName" id="fullNameDiv">[[fullName]]</div>
+		<div class="teamName" id="teamNameDiv">[[teamName]]</div>
+		<div class="attempt" id="attemptDiv" inner-h-t-m-l="[[attempt]]"></div>
 		<div class="weight" id="weightDiv">
 			[[weight]]<span style="font-size: 75%">kg</span>
 		</div>
@@ -237,7 +239,7 @@ th, td {
 		<div class="timer breakTime" id="breakTimerDiv">
 			<timer-element id="breakTimer"></timer-element>
 		</div>		
-		<div class="decisionBox" id="decisionDiv" on-hide="reset">
+		<div class="decisionBox" id="decisionDiv">
 			<decision-element style="width: 100%" id="decisions"></decision-element>
 		</div>
 	</div>
@@ -269,7 +271,7 @@ th, td {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class$="veryNarrow"><div class$="[[l.classname]]">[[l.startNumber]]</div></td>
-				<td><div class$="[[l.classname]]">[[l.lastName]], [[l.firstName]]</div></td>
+				<td><div class$="[[l.classname]]">[[l.fullName]]</div></td>
 				<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
 				<td class="veryNarrow">[[l.category]]</td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
@@ -291,15 +293,17 @@ th, td {
 </div>
 </template>
 <script>
-class Results extends Polymer.Element {
+class Scoreboard extends Polymer.Element {
 	static get is() {
-		return 'results-board-template'
+		return 'scoreboard-template'
 	}
        
 	ready() {
 		super.ready();
 		this.$.groupDiv.style.display="block";
 		this.$.startNumberDiv.style.display="block";
+		this.$.teamNameDiv.style.display="block";
+		this.$.attemptDiv.style.display="block";
 		this.$.weightDiv.style.display="block";
 		this.$.timerDiv.style.display="block";
 		this.$.breakTimerDiv.style.display="none";
@@ -311,9 +315,12 @@ class Results extends Polymer.Element {
 	}
 	         
 	reset() {
+		console.warn("reset");
 		this.$.timer.reset();
 		this.$.groupDiv.style.visibility="visible";
 		this.$.startNumberDiv.style.display="block";
+		this.$.teamNameDiv.style.display="block";
+		this.$.attemptDiv.style.display="block";
 		this.$.weightDiv.style.display="block";
 		this.$.timerDiv.style.display="block";
 		this.$.breakTimerDiv.style.display="none";
@@ -324,36 +331,45 @@ class Results extends Polymer.Element {
 		console.warn("refereeDecision");
 		this.$.groupDiv.style.visibility="visible";
 		this.$.startNumberDiv.style.display="block";
+		this.$.teamNameDiv.style.display="block";
+		this.$.attemptDiv.style.display="block";
 		this.$.weightDiv.style.display="block";
-		this.$.timerDiv.style.display="none";
+		this.$.timerDiv.style.display="block";
 		this.$.breakTimerDiv.style.display="none";
 		this.$.decisionDiv.style.display="flex";
 	}
 	
     doBreak() {
+    	console.warn("break");
     	this.$.groupDiv.style.visibility="hidden";
 		this.$.startNumberDiv.style.display="none";
+		this.$.teamNameDiv.style.display="none";
+		this.$.attemptDiv.style.display="none";
 		this.$.weightDiv.style.display="none";
 		this.$.timerDiv.style.display="none";
     	this.$.breakTimerDiv.style.display="block";
        	this.$.decisionDiv.style.display="none";
     }
     
-    groupDone(groupString) {
-    	this.$.fullNameDiv.innerHTML = groupString;
+    groupDone() {
+    	console.warn("done");
     	this.$.groupDiv.style.visibility="hidden";
+    	this.$.fullNameDiv.style.display="block";
 		this.$.startNumberDiv.style.display="none";
+		this.$.teamNameDiv.style.display="none";
+		this.$.attemptDiv.style.display="none";
 		this.$.weightDiv.style.display="none";
 		this.$.timerDiv.style.display="none";
-    	this.$.breakTimerDiv.style.display="none";
-       	this.$.decisionDiv.style.display="none";
+		this.$.breakTimerDiv.style.display="none";
+		this.$.decisionDiv.style.display="none";
     }
 	
 	refereeDecision() {
 		console.warn("refereeDecision");
 		this.$.groupDiv.style.visibility="visible";
 		this.$.decisionDiv.style.display="flex";
-    	this.$.timerDiv.style.display="none";
+		this.$.weightDiv.style.display="block";
+    	this.$.timerDiv.style.display="block";
     	this.$.breakTimer.style.display="none";
 	}
 	         
@@ -375,6 +391,6 @@ class Results extends Polymer.Element {
 }
 
 
-customElements.define(Results.is, Results);
+customElements.define(Scoreboard.is, Scoreboard);
  </script>
  </dom-module>

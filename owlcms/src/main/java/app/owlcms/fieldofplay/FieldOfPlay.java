@@ -22,7 +22,7 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FOPEvent.BreakStarted;
 import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
-import app.owlcms.ui.group.BreakDialog.BreakType;
+import app.owlcms.ui.lifting.BreakDialog.BreakType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -44,7 +44,7 @@ public class FieldOfPlay {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	{
-		logger.setLevel(Level.DEBUG);
+		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
  
@@ -260,8 +260,6 @@ public class FieldOfPlay {
 				getUiEventBus().post(new UIEvent.BreakPaused(e.getOrigin()));
 			} else if (e instanceof FOPEvent.BreakStarted) {
 				transitionToBreak((BreakStarted) e);
-//			} else if (e instanceof FOPEvent.AthleteAnnounced) {
-//				transitionToAnnounced();
 			} else if (e instanceof FOPEvent.WeightChange) {
 				weightChange(curAthlete);
 				setState(FOPState.BREAK);
@@ -389,7 +387,7 @@ public class FieldOfPlay {
 				uiEventBus.post(new UIEvent.DecisionReset(e.origin));
 				setClockOwner(null);
 				recomputeLiftingOrder();
-				displayIfNotDone();
+				breakIfDone();
 			} else {
 				unexpectedEventInState(e, FOPState.DECISION_VISIBLE);
 			}
@@ -397,23 +395,15 @@ public class FieldOfPlay {
 		}
 	}
 
-	private void displayIfNotDone() {
-		//FIXME: separate events for current attempt section vs upcoming attempt (next athlete) info.
-		uiDisplayCurrentAthleteAndTime(true);
-//		if (curAthlete != null) {
+	private void breakIfDone() {
+		if (curAthlete != null && curAthlete.getAttemptsDone() < 6) {
 			setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
-//		} else {
-//			UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
-//			uiEventBus.post(event);
-//			setState(FOPState.BREAK);
-//		}
+		} else {
+			UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
+			uiEventBus.post(event);
+			setState(FOPState.BREAK);
+		}
 	}
-
-//	private void transitionToAnnounced() {
-//		getBreakTimer().stop();
-//		getAthleteTimer().stop();
-//		announce();
-//	}
 
 	private void transitionToBreak(FOPEvent.BreakStarted e) {
 		this.setBreakType(e.getBreakType());
@@ -512,18 +502,6 @@ public class FieldOfPlay {
 		}
 	}
 
-//	private void announce() {
-//		if (this.startTimeAutomatically) {
-//			getAthleteTimer().start();
-//			// time is already running
-//			transitionToTimeRunning();
-//		} else {
-//			remindTimekeeperToStartTime();
-//			setState(FOPState.ANNOUNCER_WAITING_FOR_TIMEKEEPER);
-//		}
-//	}
-
-
 	private void decision(FOPEvent e) {
 		FOPEvent.RefereeDecision decision = (FOPEvent.RefereeDecision) e;
 		if (decision.success) {
@@ -533,8 +511,6 @@ public class FieldOfPlay {
 		}
 		AthleteRepository.save(curAthlete);
 		uiShowRefereeDecisionOnSlaveDisplays(decision);
-//		fopDecisionReset();
-
 		setState(FOPState.DECISION_VISIBLE);
 	}
 
@@ -622,7 +598,7 @@ public class FieldOfPlay {
 
 	private void uiShowRefereeDecisionOnSlaveDisplays(FOPEvent.RefereeDecision e) {
 		uiEventLogger.trace("showRefereeDecisionOnSlaveDisplays");
-		uiEventBus.post(new UIEvent.RefereeDecision(e.success,e.ref1,e.ref2,e.ref3,e.origin));
+		uiEventBus.post(new UIEvent.RefereeDecision(e.getAthlete(), e.success,e.ref1,e.ref2,e.ref3,e.origin));
 	}
 
 	private void unexpectedEventInState(FOPEvent e, FOPState state) {

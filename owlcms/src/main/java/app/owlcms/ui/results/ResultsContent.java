@@ -31,6 +31,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
@@ -55,13 +56,13 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /** 
- * Class AnnouncerContent.
+ * Class ResultsContent.
  * 
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
 @Route(value = "results/results", layout = AthleteGridLayout.class)
-public class ResultsContent extends AthleteGridContent {
+public class ResultsContent extends AthleteGridContent implements HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsContent.class);
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
@@ -118,7 +119,7 @@ public class ResultsContent extends AthleteGridContent {
 			.set("font-weight", "normal");
 		
 		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder("Select Group");
+		groupSelect.setPlaceholder("Group");
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
 		groupSelect.setValue(null);
@@ -361,9 +362,17 @@ public class ResultsContent extends AthleteGridContent {
 		ui.getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
 
-
 	@Override
 	public boolean isIgnoreGroupFromURL() {
 		return false;
 	}
+
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return "Results";
+	}
+
 }

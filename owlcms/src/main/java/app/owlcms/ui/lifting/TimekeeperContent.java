@@ -5,7 +5,7 @@
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
-package app.owlcms.ui.group;
+package app.owlcms.ui.lifting;
 
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +14,7 @@ import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
@@ -28,8 +29,8 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "group/timekeeper", layout = AthleteGridLayout.class)
-public class TimekeeperContent extends AthleteGridContent {
+@Route(value = "lifting/timekeeper", layout = AthleteGridLayout.class)
+public class TimekeeperContent extends AthleteGridContent implements HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
@@ -123,6 +124,14 @@ public class TimekeeperContent extends AthleteGridContent {
 	@Override
 	public void delete(Athlete Athlete) {;
 		// do nothing;
+	}
+
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return "Timekeeper";
 	}
 	
 }

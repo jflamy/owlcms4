@@ -301,8 +301,8 @@ public class AthleteSorterTest {
 			Competition.getCurrent().setUseRegistrationCategory(true);
 
 			// replicate canadian masters bug
-			allisonA.setTeamMember(false);
-			verneU.setTeamMember(false);
+			allisonA.setEligibleForTeamRanking(false);
+			verneU.setEligibleForTeamRanking(false);
 			simpsonR.setLastName("Thorne");
 			simpsonR.setFirstName("");
 			simpsonR.setLotNumber(453);

@@ -6,9 +6,13 @@
  */
 package app.owlcms.fieldofplay;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.ui.group.BreakDialog;
-import app.owlcms.ui.group.BreakDialog.BreakType;
+import app.owlcms.ui.lifting.BreakDialog;
+import app.owlcms.ui.lifting.BreakDialog.BreakType;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * The subclasses of FOPEvent are all the events that can take place on the field of play.
@@ -16,6 +20,9 @@ import app.owlcms.ui.group.BreakDialog.BreakType;
  * @author owlcms
  */
 public class FOPEvent {
+	
+	final Logger logger = (Logger)LoggerFactory.getLogger(FOPEvent.class);
+	{logger.setLevel(Level.DEBUG);}
 	
 	/**
 	 * When a FOPEvent (for example stopping the clock) is handled, it is often reflected
@@ -145,6 +152,7 @@ public class FOPEvent {
 		public Boolean ref1;
 		public Boolean ref2;
 		public Boolean ref3;
+		private Athlete athlete;
 
 		/**
 		 * Instantiates a new referee decision.
@@ -153,12 +161,22 @@ public class FOPEvent {
 		 * @param ref2 
 		 * @param ref3 
 		 */
-		public RefereeDecision(Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
+		public RefereeDecision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 			super(origin);
+			logger.trace("referee decision for {}", athlete);
+			this.setAthlete(athlete);
 			this.success = decision;
 			this.ref1 = ref1;
 			this.ref2 = ref2;
 			this.ref3 = ref3;
+		}
+
+		public Athlete getAthlete() {
+			return athlete;
+		}
+
+		public void setAthlete(Athlete athlete) {
+			this.athlete = athlete;
 		}
 
 	}

@@ -5,7 +5,7 @@
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
-package app.owlcms.ui.group;
+package app.owlcms.ui.lifting;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -105,7 +105,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		// we use editedAthlete, which this form retrieves from the underlying data source
 		
 		binder = super.buildBinder(operation, editedAthlete);
-		logger.warn("athlete from grid={} edited={}",doNotUse,editedAthlete);
+		logger.debug("athlete from grid={} edited={}",doNotUse,editedAthlete);
 		binder.withValidator(ValidationUtils.checkUsing((ignored) -> editedAthlete.validateStartingTotalsRule(), ""));
 		updateErrorLabelFromBeanValidationErrors();
 		return binder;
@@ -428,7 +428,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		updateTrigger.addFocusListener((f) -> {
 			// absolutely barbaric kludge
 			synchronized (binder) {
-				logger.warn("validating {}",binder.getBean());
+				logger.debug("validating {}",binder.getBean());
 				BinderValidationStatus<Athlete> validationStatus = binder.validate();
 				if (validationStatus.isOk()) {
 					try {

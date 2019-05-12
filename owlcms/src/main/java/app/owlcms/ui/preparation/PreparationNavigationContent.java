@@ -16,6 +16,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
@@ -31,7 +32,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation", layout = OwlcmsRouterLayout.class)
-public class PreparationNavigationContent extends BaseNavigationContent implements NavigationPage {
+public class PreparationNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(PreparationNavigationContent.class);
 	static { logger.setLevel(Level.INFO);}
@@ -112,4 +113,11 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		return null;
 	}
 
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return "OWLCMS - Preparation";
+	}
 }

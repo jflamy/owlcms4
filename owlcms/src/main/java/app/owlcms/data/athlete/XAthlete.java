@@ -33,63 +33,12 @@ public class XAthlete extends Athlete {
 	
 	private Athlete a;
 
-
-	/**
-	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getAttemptNumber()
-	 */
-	@Override
-	public Integer getAttemptNumber() {
-		return a.getAttemptNumber();
-	}
-
-	/**
-	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getFullName()
-	 */
-	@Override
-	public String getFullName() {
-		return a.getFullName();
-	}
-
-	/**
-	 * @param invited
-	 * @see app.owlcms.data.athlete.Athlete#setInvited(boolean)
-	 */
-	@Override
-	public void setInvited(boolean invited) {
-		a.setInvited(invited);
-	}
-
-	/**
-	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getAgeDivision()
-	 */
-	@Override
-	public AgeDivision getAgeDivision() {
-		return a.getAgeDivision();
-	}
-
-	/**
-	 * @param ageDivision
-	 * @see app.owlcms.data.athlete.Athlete#setAgeDivision(app.owlcms.data.category.AgeDivision)
-	 */
-	@Override
-	public void setAgeDivision(AgeDivision ageDivision) {
-		a.setAgeDivision(ageDivision);
-	}
-
 	public XAthlete(Athlete a) {
 		this.a = a;
 	}
 
-	/**
-	 * @param unlessCurrent
-	 * @see app.owlcms.data.athlete.Athlete#checkStartingTotalsRule(boolean)
-	 */
-	@Override
-	public boolean validateStartingTotalsRule() {
-		return a.validateStartingTotalsRule();
+	public void clearLifts() {
+		a.clearLifts();
 	}
 
 	/**
@@ -122,6 +71,15 @@ public class XAthlete extends Athlete {
 
 	/**
 	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getAgeDivision()
+	 */
+	@Override
+	public AgeDivision getAgeDivision() {
+		return a.getAgeDivision();
+	}
+
+	/**
+	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getAgeGroup()
 	 */
 	@Override
@@ -136,6 +94,15 @@ public class XAthlete extends Athlete {
 	@Override
 	public int getAttemptedLifts() {
 		return getAttemptsDone();
+	}
+
+	/**
+	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getAttemptNumber()
+	 */
+	@Override
+	public Integer getAttemptNumber() {
+		return a.getAttemptNumber();
 	}
 
 	/**
@@ -160,15 +127,6 @@ public class XAthlete extends Athlete {
 			logger.error(e.getLocalizedMessage(),e);
 		}
 		return null;
-	}
-	
-	/**
-	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getBestCleanJerk()
-	 */
-	@Override
-	public Integer getBestCleanJerk() {
-		return getBest(LiftDefinition.Changes.ACTUAL, LiftDefinition.Stage.CLEANJERK).value;
 	}
 
 	protected LiftInfo getBest(LiftDefinition.Changes change, Stage stage) {
@@ -196,47 +154,16 @@ public class XAthlete extends Athlete {
 			throw new RuntimeException(e);
 		}
 	}
-	
-	public LiftInfo getCurrentRequestInfo() {
-		return getRequestInfo(getAttemptsDone());
+
+	/**
+	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getBestCleanJerk()
+	 */
+	@Override
+	public Integer getBestCleanJerk() {
+		return getBest(LiftDefinition.Changes.ACTUAL, LiftDefinition.Stage.CLEANJERK).value;
 	}
 
-	private LiftInfo getRequestInfo(Integer liftNo) {
-		try {
-			int changeNo = LiftDefinition.NBCHANGES -1 ;
-			String stringValue = null;
-			boolean found = false;
-			while (!found && changeNo >= 0 ) {
-				Method method = LiftDefinition.lifts[liftNo].getters[changeNo];
-				stringValue = (String) method.invoke(a);
-				boolean zeroKgAutomaticChange = (changeNo == 0 && "0".equals(stringValue));
-				if (stringValue != null && !stringValue.isEmpty()
-						&& ! zeroKgAutomaticChange) {
-					found = true;
-				} else {
-					changeNo--;
-				}
-			}
-			if (found) {
-				return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, changeNo, stringValue);
-			} else {
-				return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, -1, null);
-			}
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			logger.error(e.getLocalizedMessage(),e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	
-	public LiftInfo[] getRequestInfoArray() {
-		LiftInfo[] infoArray = new LiftInfo[LiftDefinition.NBLIFTS];
-		for (int i = 0; i < LiftDefinition.NBLIFTS; i++) {
-			infoArray[i] = getRequestInfo(i);
-		}
-		return infoArray;
-	}
-	
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getBestCleanJerkAttemptNumber()
@@ -370,7 +297,7 @@ public class XAthlete extends Athlete {
 	public String getCleanJerk1Declaration() {
 		return a.getCleanJerk1Declaration();
 	}
-
+	
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getCleanJerk1LiftTime()
@@ -388,7 +315,7 @@ public class XAthlete extends Athlete {
 	public String getCleanJerk2ActualLift() {
 		return a.getCleanJerk2ActualLift();
 	}
-
+	
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getCleanJerk2AsInteger()
@@ -407,6 +334,7 @@ public class XAthlete extends Athlete {
 		return a.getCleanJerk2AutomaticProgression();
 	}
 
+	
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getCleanJerk2Change1()
@@ -415,7 +343,7 @@ public class XAthlete extends Athlete {
 	public String getCleanJerk2Change1() {
 		return a.getCleanJerk2Change1();
 	}
-
+	
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getCleanJerk2Change2()
@@ -587,6 +515,10 @@ public class XAthlete extends Athlete {
 		return a.getCurrentDeclaration();
 	}
 
+	public LiftInfo getCurrentRequestInfo() {
+		return getRequestInfo(getAttemptsDone());
+	}
+
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getCustomPoints()
@@ -657,6 +589,24 @@ public class XAthlete extends Athlete {
 	@Override
 	public LocalDate getFullBirthDate() {
 		return a.getFullBirthDate();
+	}
+
+	/**
+	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getFullId()
+	 */
+	@Override
+	public String getFullId() {
+		return a.getFullId();
+	}
+
+	/**
+	 * @return
+	 * @see app.owlcms.data.athlete.Athlete#getFullName()
+	 */
+	@Override
+	public String getFullName() {
+		return a.getFullName();
 	}
 
 	/**
@@ -747,6 +697,10 @@ public class XAthlete extends Athlete {
 	@Override
 	public String getMastersAgeGroup() {
 		return a.getMastersAgeGroup();
+	}
+
+	public String getMastersAgeGroup(String gender1, Integer yob) {
+		return a.getMastersAgeGroup(gender1, yob);
 	}
 
 	/**
@@ -856,6 +810,41 @@ public class XAthlete extends Athlete {
 	@Override
 	public Integer getRequestedWeightForAttempt(int attempt) {
 		return a.getRequestedWeightForAttempt(attempt);
+	}
+
+	private LiftInfo getRequestInfo(Integer liftNo) {
+		try {
+			int changeNo = LiftDefinition.NBCHANGES -1 ;
+			String stringValue = null;
+			boolean found = false;
+			while (!found && changeNo >= 0 ) {
+				Method method = LiftDefinition.lifts[liftNo].getters[changeNo];
+				stringValue = (String) method.invoke(a);
+				boolean zeroKgAutomaticChange = (changeNo == 0 && "0".equals(stringValue));
+				if (stringValue != null && !stringValue.isEmpty()
+						&& ! zeroKgAutomaticChange) {
+					found = true;
+				} else {
+					changeNo--;
+				}
+			}
+			if (found) {
+				return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, changeNo, stringValue);
+			} else {
+				return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, -1, null);
+			}
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			logger.error(e.getLocalizedMessage(),e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public LiftInfo[] getRequestInfoArray() {
+		LiftInfo[] infoArray = new LiftInfo[LiftDefinition.NBLIFTS];
+		for (int i = 0; i < LiftDefinition.NBLIFTS; i++) {
+			infoArray[i] = getRequestInfo(i);
+		}
+		return infoArray;
 	}
 
 	/**
@@ -1338,6 +1327,14 @@ public class XAthlete extends Athlete {
 		return a.isATeamMember();
 	}
 
+	public boolean isEligibleForIndividualRanking() {
+		return a.isEligibleForIndividualRanking();
+	}
+
+	public boolean isEligibleForTeamRanking() {
+		return a.isEligibleForTeamRanking();
+	}
+
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#isForcedAsCurrent()
@@ -1354,6 +1351,10 @@ public class XAthlete extends Athlete {
 	@Override
 	public boolean isInvited() {
 		return a.isInvited();
+	}
+
+	public boolean isValidation() {
+		return a.isValidation();
 	}
 
 	/**
@@ -1374,6 +1375,14 @@ public class XAthlete extends Athlete {
 		a.resetForcedAsCurrent();
 	}
 
+	/**
+	 * @param ageDivision
+	 * @see app.owlcms.data.athlete.Athlete#setAgeDivision(app.owlcms.data.category.AgeDivision)
+	 */
+	@Override
+	public void setAgeDivision(AgeDivision ageDivision) {
+		a.setAgeDivision(ageDivision);
+	}
 
 	/**
 	 * @param i
@@ -1457,6 +1466,7 @@ public class XAthlete extends Athlete {
 	public void setCleanJerk1Change1(String cleanJerk1Change1) {
 		a.setCleanJerk1Change1(cleanJerk1Change1);
 	}
+
 
 	/**
 	 * @param cleanJerk1Change2
@@ -1656,6 +1666,14 @@ public class XAthlete extends Athlete {
 		a.setCustomScore(customScore);
 	}
 
+	public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
+		a.setEligibleForIndividualRanking(eligibleForIndividualRanking);
+	}
+
+	public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
+		a.setEligibleForTeamRanking(eligibleForTeamRanking);
+	}
+
 	/**
 	 * @param firstName
 	 * @see app.owlcms.data.athlete.Athlete#setFirstName(java.lang.String)
@@ -1782,16 +1800,6 @@ public class XAthlete extends Athlete {
 		a.setRegistrationCategory(registrationCategory);
 	}
 
-//	/**
-//	 * @param resultOrderRank
-//	 * @param rankingType
-//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
-//	 */
-//	@Override
-//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//		a.setResultOrderRank(resultOrderRank, rankingType);
-//	}
-
 	/**
 	 * @param robiRank
 	 * @see app.owlcms.data.athlete.Athlete#setRobiRank(java.lang.Integer)
@@ -1854,6 +1862,16 @@ public class XAthlete extends Athlete {
 	public void setSnatch1Declaration(String snatch1Declaration) {
 		a.setSnatch1Declaration(snatch1Declaration);
 	}
+
+//	/**
+//	 * @param resultOrderRank
+//	 * @param rankingType
+//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
+//	 */
+//	@Override
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		a.setResultOrderRank(resultOrderRank, rankingType);
+//	}
 
 	/**
 	 * @param snatch1LiftTime
@@ -2036,15 +2054,6 @@ public class XAthlete extends Athlete {
 	}
 
 	/**
-	 * @param teamMember
-	 * @see app.owlcms.data.athlete.Athlete#setTeamMember(java.lang.Boolean)
-	 */
-	@Override
-	public void setTeamMember(Boolean teamMember) {
-		a.setTeamMember(teamMember);
-	}
-
-	/**
 	 * @param teamRobiRank
 	 * @see app.owlcms.data.athlete.Athlete#setTeamRobiRank(java.lang.Integer)
 	 */
@@ -2105,6 +2114,10 @@ public class XAthlete extends Athlete {
 	@Override
 	public void setTotalRank(Integer totalRank) {
 		a.setTotalRank(totalRank);
+	}
+
+	public void setValidation(boolean b) {
+		a.setValidation(b);
 	}
 
 	/**
@@ -2182,6 +2195,10 @@ public class XAthlete extends Athlete {
 		return a.validateCleanJerk1Change2(cleanJerk1Change2);
 	}
 
+	public boolean validateCleanJerk1Declaration(String cleanJerk1Declaration) throws RuleViolationException {
+		return a.validateCleanJerk1Declaration(cleanJerk1Declaration);
+	}
+
 	/**
 	 * @param cleanJerk2ActualLift
 	 * @return
@@ -2213,6 +2230,10 @@ public class XAthlete extends Athlete {
 	@Override
 	public boolean validateCleanJerk2Change2(String cleanJerk2Change2) throws RuleViolationException {
 		return a.validateCleanJerk2Change2(cleanJerk2Change2);
+	}
+
+	public boolean validateCleanJerk2Declaration(String cleanJerk2Declaration) throws RuleViolationException {
+		return a.validateCleanJerk2Declaration(cleanJerk2Declaration);
 	}
 
 	/**
@@ -2248,6 +2269,10 @@ public class XAthlete extends Athlete {
 		return a.validateCleanJerk3Change2(cleanJerk3Change2);
 	}
 
+	public boolean validateCleanJerk3Declaration(String cleanJerk3Declaration) throws RuleViolationException {
+		return a.validateCleanJerk3Declaration(cleanJerk3Declaration);
+	}
+
 	/**
 	 * @param snatch1ActualLift
 	 * @return
@@ -2279,6 +2304,10 @@ public class XAthlete extends Athlete {
 	@Override
 	public boolean validateSnatch1Change2(String snatch1Change2) throws RuleViolationException {
 		return a.validateSnatch1Change2(snatch1Change2);
+	}
+
+	public boolean validateSnatch1Declaration(String snatch1Declaration) throws RuleViolationException {
+		return a.validateSnatch1Declaration(snatch1Declaration);
 	}
 
 	/**
@@ -2314,6 +2343,10 @@ public class XAthlete extends Athlete {
 		return a.validateSnatch2Change2(snatch2Change2);
 	}
 
+	public boolean validateSnatch2Declaration(String snatch2Declaration) throws RuleViolationException {
+		return a.validateSnatch2Declaration(snatch2Declaration);
+	}
+
 	/**
 	 * @param snatch3ActualLift
 	 * @return
@@ -2347,6 +2380,19 @@ public class XAthlete extends Athlete {
 		return a.validateSnatch3Change2(snatch3Change2);
 	}
 
+	public boolean validateSnatch3Declaration(String snatch3Declaration) throws RuleViolationException {
+		return a.validateSnatch3Declaration(snatch3Declaration);
+	}
+
+	/**
+	 * @param unlessCurrent
+	 * @see app.owlcms.data.athlete.Athlete#checkStartingTotalsRule(boolean)
+	 */
+	@Override
+	public boolean validateStartingTotalsRule() {
+		return a.validateStartingTotalsRule();
+	}
+
 	/**
 	 * 
 	 * @see app.owlcms.data.athlete.Athlete#withdraw()
@@ -2354,15 +2400,6 @@ public class XAthlete extends Athlete {
 	@Override
 	public void withdraw() {
 		a.withdraw();
-	}
-
-	/**
-	 * @return
-	 * @see app.owlcms.data.athlete.Athlete#getFullId()
-	 */
-	@Override
-	public String getFullId() {
-		return a.getFullId();
 	}
 
 

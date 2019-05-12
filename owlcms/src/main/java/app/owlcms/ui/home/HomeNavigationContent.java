@@ -26,11 +26,12 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
-import app.owlcms.ui.group.GroupNavigationContent;
+import app.owlcms.ui.lifting.LiftingNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.results.ResultsNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
@@ -42,9 +43,13 @@ import ch.qos.logback.classic.Logger;
 /**
  * The Class HomeNavigationContent.
  */
+/**
+ * @author owlcms
+ *
+ */
 @SuppressWarnings("serial")
 @Route(value = "", layout = OwlcmsRouterLayout.class)
-public class HomeNavigationContent extends BaseNavigationContent implements NavigationPage {
+public class HomeNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(HomeNavigationContent.class);
 	static {
@@ -69,7 +74,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		Button lifting = new Button(
 				RUN_LIFTING_GROUP,
 				buttonClickEvent -> UI.getCurrent()
-					.navigate(GroupNavigationContent.class));
+					.navigate(LiftingNavigationContent.class));
 		Button displays = new Button(
 				START_DISPLAYS,
 				buttonClickEvent -> UI.getCurrent()
@@ -147,9 +152,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 	/**
 	 * The left part of the top bar.
-	 * 
-	 * @param topBarTitle
-	 * @param appLayoutComponent
+	 * @see app.owlcms.ui.shared.BaseNavigationContent#configureTopBarTitle(java.lang.String)
 	 */
 	@Override
 	protected void configureTopBarTitle(String topBarTitle) {
@@ -162,24 +165,44 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		appLayout.setTitleComponent(label);
 	}
 
+	/**
+	 * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarFopField(java.lang.String, java.lang.String)
+	 */
 	@Override
 	protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
 		return null;
 	}
 
+	/**
+	 * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String, java.lang.String)
+	 */
 	@Override
 	protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
 		return null;
 	}
 
+	/**
+	 * @see app.owlcms.ui.shared.QueryParameterReader#isIgnoreFopFromURL()
+	 */
 	@Override
 	public boolean isIgnoreFopFromURL() {
 		return true;
 	}
 
+	/**
+	 * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
+	 */
 	@Override
 	protected String getTitle() {
 		return "OWLCMS - Olympic Weightlifting Competition Management System";
+	}
+
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return "OWLCMS - Home";
 	}
 
 }
