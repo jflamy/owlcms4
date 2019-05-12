@@ -28,7 +28,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "group/timekeeper", layout = AthleteGridLayout.class)
+@Route(value = "lifting/timekeeper", layout = AthleteGridLayout.class)
 public class TimekeeperContent extends AthleteGridContent {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent.class);

@@ -27,7 +27,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "group/marshall", layout = AthleteGridLayout.class)
+@Route(value = "lifting/marshall", layout = AthleteGridLayout.class)
 public class MarshallContent extends AthleteGridContent implements QueryParameterReader {
 
 	// @SuppressWarnings("unused")

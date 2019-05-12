@@ -30,7 +30,7 @@ import ch.qos.logback.classic.Logger;
  */
 
 @SuppressWarnings("serial")
-@Route(value = "group/announcer", layout = AthleteGridLayout.class)
+@Route(value = "lifting/announcer", layout = AthleteGridLayout.class)
 public class AnnouncerContent extends AthleteGridContent {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
