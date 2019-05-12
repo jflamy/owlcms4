@@ -7,8 +7,8 @@
 package app.owlcms.fieldofplay;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.ui.group.BreakDialog;
-import app.owlcms.ui.group.BreakDialog.BreakType;
+import app.owlcms.ui.lifting.BreakDialog;
+import app.owlcms.ui.lifting.BreakDialog.BreakType;
 
 /**
  * The subclasses of FOPEvent are all the events that can take place on the field of play.

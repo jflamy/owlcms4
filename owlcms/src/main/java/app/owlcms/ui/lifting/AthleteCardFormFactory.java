@@ -5,7 +5,7 @@
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
-package app.owlcms.ui.group;
+package app.owlcms.ui.lifting;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;

@@ -30,7 +30,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
-import app.owlcms.ui.group.GroupNavigationContent;
+import app.owlcms.ui.lifting.GroupNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.results.ResultsNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;

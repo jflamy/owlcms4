@@ -22,7 +22,7 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FOPEvent.BreakStarted;
 import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
-import app.owlcms.ui.group.BreakDialog.BreakType;
+import app.owlcms.ui.lifting.BreakDialog.BreakType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

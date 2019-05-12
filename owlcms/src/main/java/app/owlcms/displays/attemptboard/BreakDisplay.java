@@ -6,7 +6,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.group.BreakDialog.BreakType;
+import app.owlcms.ui.lifting.BreakDialog.BreakType;
 
 public interface BreakDisplay {
 	
