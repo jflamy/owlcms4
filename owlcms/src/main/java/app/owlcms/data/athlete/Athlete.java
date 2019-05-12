@@ -238,10 +238,10 @@ public class Athlete {
 	private Integer teamTotalRank;
 	private Integer teamCombinedRank;
 
-	private Boolean teamMember = true; // false if substitute; note that we consider null to be true.;
 	private Integer qualifyingTotal = 0;
 	private Double customScore;
-	private boolean invited;
+	private boolean eligibleForIndividualRanking = true;
+	private boolean eligibleForTeamRanking = true;
 
 	/* Non-persistent properties. These properties are used during computations, but need not be stored
 	 * in the database */
@@ -254,13 +254,6 @@ public class Athlete {
 
 	@Transient
 	private boolean validation = true;
-
-	/**
-	 * @param invited the invited to set
-	 */
-	public void setInvited(boolean invited) {
-		this.invited = invited;
-	}
 
 	/**
 	 * Instantiates a new athlete.
@@ -1944,9 +1937,7 @@ public class Athlete {
 	 * @return the team member
 	 */
 	public Boolean getTeamMember() {
-		if (teamMember == null)
-			return true;
-		return teamMember;
+		return isEligibleForTeamRanking();
 	}
 
 	/**
@@ -2066,9 +2057,7 @@ public class Athlete {
 	 * @return true, if is a team member
 	 */
 	public boolean isATeamMember() {
-		if (teamMember == null)
-			return true;
-		return teamMember;
+		return isEligibleForTeamRanking();
 	}
 
 
@@ -2087,7 +2076,7 @@ public class Athlete {
 	 * @return true, if is invited
 	 */
 	public boolean isInvited() {
-		return invited;
+		return !isEligibleForIndividualRanking();
 	}
 
 	/**
@@ -3012,15 +3001,6 @@ public class Athlete {
 	}
 
 	/**
-	 * Sets the team member.
-	 *
-	 * @param teamMember the new team member
-	 */
-	public void setTeamMember(Boolean teamMember) {
-		this.teamMember = Boolean.TRUE.equals(teamMember);
-	}
-
-	/**
 	 * Sets the team robi rank.
 	 *
 	 * @param teamRobiRank the new team robi rank
@@ -3810,6 +3790,26 @@ public class Athlete {
 	
 	public boolean isValidation( ) {
 		return validation;
+	}
+
+
+	public boolean isEligibleForIndividualRanking() {
+		return eligibleForIndividualRanking;
+	}
+
+
+	public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
+		this.eligibleForIndividualRanking = eligibleForIndividualRanking;
+	}
+
+
+	public boolean isEligibleForTeamRanking() {
+		return eligibleForTeamRanking;
+	}
+
+
+	public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
+		this.eligibleForTeamRanking = eligibleForTeamRanking;
 	}
 
 }

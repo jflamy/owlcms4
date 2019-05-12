@@ -41,4 +41,9 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
 		super.onAttach(attachEvent);
 		decisions.setPublicFacing(false);
 	}
+	
+	@Override
+	public String getPageTitle() {
+		return "Decision (AF)";
+	}
 }

@@ -7,18 +7,25 @@
 
 package app.owlcms.ui.lifting;
 
+import java.text.MessageFormat;
+
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
@@ -31,7 +38,7 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 @Route(value = "lifting/announcer", layout = AthleteGridLayout.class)
-public class AnnouncerContent extends AthleteGridContent {
+public class AnnouncerContent extends AthleteGridContent implements HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -150,26 +157,54 @@ public class AnnouncerContent extends AthleteGridContent {
 		getAppLayout().setMenuVisible(false);
 	}
 
+	/**
+	 * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
+	 */
 	@Override
 	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
 		Button good = new Button(IronIcons.DONE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
-				fop.getFopEventBus().post(new FOPEvent.RefereeDecision(this.getOrigin(), true, true, true, true));
+				fop.getFopEventBus().post(new FOPEvent.RefereeDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true, true));
 				fop.getFopEventBus().post(new FOPEvent.DecisionReset(this.getOrigin()));
 			});
 		});
 		good.getElement().setAttribute("theme", "success icon");
+		
 		Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
-				fop.getFopEventBus().post(new FOPEvent.RefereeDecision(this.getOrigin(), false, false, false, false));
+				fop.getFopEventBus().post(new FOPEvent.RefereeDecision(fop.getCurAthlete(), this.getOrigin(), false, false, false, false));
 				fop.getFopEventBus().post(new FOPEvent.DecisionReset(this.getOrigin()));
 			});
 		});
 		bad.getElement().setAttribute("theme", "error icon");
+		
 		HorizontalLayout decisions = new HorizontalLayout(
 			good,
 			bad);
 		return decisions;
+	}
+
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return "Announcer";
+	}
+	
+	@Subscribe
+	public void slaveRefereeDecision(UIEvent.RefereeDecision e) {
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			int d = e.decision ? 1 : 0;
+			Notification n = new Notification();
+			n.getElement().getStyle().set("background-color", e.decision?"green":"red");
+			n.getElement().getStyle().set("color", "white");
+			n.getElement().getStyle().set("font-weight", "bold");
+			n.setPosition(Position.TOP_END);
+			n.setText(MessageFormat.format("{0,choice,0#No Lift|1#Good Lift} for {1}", d, e.getAthlete().getFullName()));
+			n.setDuration(5000);
+			n.open();
+		});
 	}
 
 }

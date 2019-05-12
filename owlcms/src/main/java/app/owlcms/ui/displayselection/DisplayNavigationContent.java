@@ -13,13 +13,14 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
 import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
 import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
-import app.owlcms.displays.results.ResultsBoard;
+import app.owlcms.displays.scoreboard.Scoreboard;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -31,7 +32,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "displays", layout = OwlcmsRouterLayout.class)
-public class DisplayNavigationContent extends BaseNavigationContent implements NavigationPage {
+public class DisplayNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
 	final static Logger logger = (Logger)LoggerFactory.getLogger(DisplayNavigationContent.class);
 	static { logger.setLevel(Level.INFO); }
@@ -49,10 +50,10 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 				"Attempt Board",
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AttemptBoard.class)));
-		Button results = new Button(
-				"Results Board",
+		Button scoreboard = new Button(
+				"Scoreboard",
 				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(ResultsBoard.class)));
+					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 		Button referee = new Button(
 			"Athlete-facing Timer/Down/Decisions",
 			buttonClickEvent -> UI.getCurrent().getPage()
@@ -65,11 +66,11 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 		Button plates = new Button(
 				"Plates Display",
 				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(ResultsBoard.class)));
+					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			attempt,
-			results,
+			scoreboard,
 			plates
 			);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
@@ -83,14 +84,28 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 		doGroup("Refereeing Displays (can accept keyboard input from refereeing devices)", grid2, this);
 	}
 
+	/**
+	 * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String, java.lang.String)
+	 */
 	@Override
 	protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
 		return null;
 	}
 
+	/**
+	 * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
+	 */
 	@Override
 	protected String getTitle() {
 		return "Start Displays";
+	}
+
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return "OWLCMS - Displays";
 	}
 	
 }

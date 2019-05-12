@@ -41,7 +41,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
-import app.owlcms.ui.lifting.GroupNavigationContent;
+import app.owlcms.ui.lifting.LiftingNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.results.ResultsNavigationContent;
 import ch.qos.logback.classic.Level;
@@ -136,7 +136,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 				.add(new LeftNavigationItem(
 						HomeNavigationContent.RUN_LIFTING_GROUP,
 						new Icon("places", "fitness-center"),
-						GroupNavigationContent.class))
+						LiftingNavigationContent.class))
 				.add(new LeftNavigationItem(
 						HomeNavigationContent.START_DISPLAYS,
 						new Icon("hardware", "desktop-windows"),

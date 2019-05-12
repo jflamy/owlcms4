@@ -15,10 +15,11 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.displays.results.ResultsBoard;
+import app.owlcms.displays.scoreboard.Scoreboard;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.HomeNavigationContent;
@@ -28,20 +29,20 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Class GroupNavigationContent.
+ * The Class LiftingNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "group", layout = OwlcmsRouterLayout.class)
-public class GroupNavigationContent extends BaseNavigationContent implements NavigationPage {
+@Route(value = "lifting", layout = OwlcmsRouterLayout.class)
+public class LiftingNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(GroupNavigationContent.class);
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(LiftingNavigationContent.class);
 	static { logger.setLevel(Level.INFO);}
 	
 	/**
 	 * Instantiates a new lifting navigation content.
 	 */
-	public GroupNavigationContent() {
-		logger.trace("GroupNavigationContent constructor start");
+	public LiftingNavigationContent() {
+		logger.trace("LiftingNavigationContent constructor start");
 		VerticalLayout intro = new VerticalLayout();
 		addP(intro,
 				"The <b><i>Announcer</i></b> selects the current group for the platform.<br> " +
@@ -64,7 +65,7 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		Button jury = new Button(
 			"Jury Display",
 			buttonClickEvent -> UI.getCurrent().getPage()
-				.executeJavaScript(getWindowOpener(ResultsBoard.class)));
+				.executeJavaScript(getWindowOpener(Scoreboard.class)));
 
 		
 		fillH(intro, this);
@@ -84,7 +85,7 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(
 			weighIn);
 		doGroup("Weigh-in", grid3, this);
-		logger.trace("GroupNavigationContent constructor stop");
+		logger.trace("LiftingNavigationContent constructor stop");
 	}
 
 
@@ -113,5 +114,11 @@ public class GroupNavigationContent extends BaseNavigationContent implements Nav
 	@Override
 	protected String getTitle() {
 		return "Run Lifting Group";
+	}
+
+
+	@Override
+	public String getPageTitle() {
+		return "OWLCMS - Lifting";
 	}
 }

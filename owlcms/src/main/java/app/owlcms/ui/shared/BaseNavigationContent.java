@@ -130,15 +130,11 @@ implements QueryParameterReader, ContentWrapping, AppLayoutAware, SafeEventBusRe
 		configureTopBar();
 		configureTopBarTitle(title);
 		HorizontalLayout fopField = createTopBarFopField("Competition Platform", "Select Platform");
-		//HorizontalLayout groupField = createTopBarGroupField("Group", "Select Group");
 		createAppBar(fopField, null); //, groupField
 	}
 
 	public void configureTopBar() {
 		HorizontalLayout topBar = getAppLayout().getAppBarElementWrapper();
-//		topBar.getElement()
-//		.getStyle()
-//		.set("flex", "100 1");
 		topBar.setSizeFull();
 		topBar.setJustifyContentMode(JustifyContentMode.START);
 	}

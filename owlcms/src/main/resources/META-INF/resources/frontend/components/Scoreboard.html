@@ -2,7 +2,7 @@
 <link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
 <link rel="import" href="../bower_components/polymer/lib/elements/dom-if.html">
 
-<dom-module id="results-board-template">
+<dom-module id="scoreboard-template">
 <template>
 <style>
 * {
@@ -293,9 +293,9 @@ th, td {
 </div>
 </template>
 <script>
-class Results extends Polymer.Element {
+class Scoreboard extends Polymer.Element {
 	static get is() {
-		return 'results-board-template'
+		return 'scoreboard-template'
 	}
        
 	ready() {
@@ -391,6 +391,6 @@ class Results extends Polymer.Element {
 }
 
 
-customElements.define(Results.is, Results);
+customElements.define(Scoreboard.is, Scoreboard);
  </script>
  </dom-module>

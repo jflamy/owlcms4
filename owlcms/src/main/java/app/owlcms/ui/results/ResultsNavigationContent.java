@@ -13,6 +13,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
@@ -29,7 +30,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "results", layout = OwlcmsRouterLayout.class)
-public class ResultsNavigationContent extends BaseNavigationContent implements NavigationPage {
+public class ResultsNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(ResultsNavigationContent.class);
 	static { logger.setLevel(Level.INFO);}
@@ -78,6 +79,11 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	@Override
 	protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
 		return null;
+	}
+
+	@Override
+	public String getPageTitle() {
+		return "OWLCMS - Results";
 	}
 	
 }
