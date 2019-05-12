@@ -13,13 +13,13 @@ import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
-import app.owlcms.ui.shared.QueryParameterReader;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -28,7 +28,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "lifting/marshall", layout = AthleteGridLayout.class)
-public class MarshallContent extends AthleteGridContent implements QueryParameterReader {
+public class MarshallContent extends AthleteGridContent implements HasDynamicTitle {
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);
@@ -42,6 +42,9 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 	}
 
 
+	/**
+	 * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
+	 */
 	@Override
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
@@ -55,8 +58,9 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 		return buttons;
 	}
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar() */
+	/**
+	 * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
+	 */
 	@Override
 	protected void createTopBar() {
 		super.createTopBar();
@@ -64,9 +68,20 @@ public class MarshallContent extends AthleteGridContent implements QueryParamete
 		getAppLayout().setMenuVisible(false);
 	}
 
+	/**
+	 * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
+	 */
 	@Override
 	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
 		HorizontalLayout decisions = new HorizontalLayout();
 		return decisions;
+	}
+
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return "Marshall";
 	}
 }

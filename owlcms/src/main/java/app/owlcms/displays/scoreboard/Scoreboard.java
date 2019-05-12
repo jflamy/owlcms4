@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.displays.results;
+package app.owlcms.displays.scoreboard;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -20,6 +20,7 @@ import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -54,21 +55,21 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 /**
- * Class ResultsBoard
+ * Class Scoreboard
  * 
  * Show athlete 6-attempt results
  * 
  */
 @SuppressWarnings("serial")
-@Tag("results-board-template")
-@HtmlImport("frontend://components/ResultsBoard.html")
-@Route("displays/resultsBoard")
+@Tag("scoreboard-template")
+@HtmlImport("frontend://components/Scoreboard.html")
+@Route("displays/scoreboard")
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
-public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
-		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay {
+public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
+		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsBoard.class);
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(Scoreboard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
@@ -76,7 +77,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	}
 	
 	/**
-	 * ResultBoardModel
+	 * ScoreboardModel
 	 * 
 	 * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript
 	 * properties. When the JS properties are changed, a "propname-changed" event is triggered.
@@ -84,7 +85,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	 * com.vaadin.flow.dom.PropertyChangeListener)}
 	 *
 	 */
-	public interface ResultBoardModel extends TemplateModel {
+	public interface ScoreboardModel extends TemplateModel {
 		String getAttempt();
 
 		String getFullName();
@@ -139,7 +140,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	/**
 	 * Instantiates a new results board.
 	 */
-	public ResultsBoard() {
+	public Scoreboard() {
 		timer.setOrigin(this);
 	}
 
@@ -316,7 +317,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	private void init() {
 		OwlcmsSession.withFop(fop -> {
 			logger.trace("Starting result board on FOP {}", fop.getName());
-			setId("results-board-"+fop.getName());
+			setId("scoreboard-"+fop.getName());
 			curGroup = fop.getGroup();
 			getModel().setMasters(Competition.getCurrent().isMasters());
 		});
@@ -331,7 +332,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	protected void doUpdate(Athlete a, UIEvent e) {
 		logger.debug("doUpdate {} {}",a, a != null ? a.getAttemptsDone() : null);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			ResultBoardModel model = getModel();
+			ScoreboardModel model = getModel();
 			model.setHidden(a == null);
 			if (a != null) {
 				this.getElement().callFunction("reset");
@@ -350,7 +351,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		}
 	}
 
-	private void updateBottom(ResultBoardModel model, String liftType) {
+	private void updateBottom(ScoreboardModel model, String liftType) {
 		OwlcmsSession.withFop((fop) -> {
 			curGroup = fop.getGroup();
 			model.setGroupName(curGroup != null ? MessageFormat.format("Group {0} {1}", curGroup.getName(), liftType) : "");
@@ -360,7 +361,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	}
 	
 	private void doUpdateBottomPart(RefereeDecision e) {
-		ResultBoardModel model = getModel();
+		ScoreboardModel model = getModel();
 		Athlete a = e.getAthlete();
 		updateBottom(model,computeLiftType(a));
 	}
@@ -463,5 +464,10 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
 			this.getElement().callFunction("doBreak");
 		}));
+	}
+
+	@Override
+	public String getPageTitle() {
+		return "Scoreboard";
 	}
 }

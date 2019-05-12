@@ -103,8 +103,10 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	@ClientCallable
 	public void masterShowDecisions(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 		Object origin = this.getOrigin();
-		logger.debug("=== master {} decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1, ref2, ref3);
-		fopEventBus.post(new FOPEvent.RefereeDecision(origin, decision, ref1, ref2, ref3));
+		OwlcmsSession.withFop((fop) -> {
+			logger.info("{} decision={} ({} {} {})", fop.getCurAthlete(), decision, ref1, ref2, ref3);
+			fopEventBus.post(new FOPEvent.RefereeDecision(fop.getCurAthlete(), origin, decision, ref1, ref2, ref3));
+		});
 	}
 
 	@ClientCallable

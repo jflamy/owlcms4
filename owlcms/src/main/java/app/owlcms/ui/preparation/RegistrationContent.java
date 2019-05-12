@@ -39,6 +39,7 @@ import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.BodyWeightField;
@@ -75,7 +76,7 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation/athletes", layout = RegistrationLayout.class)
 @HtmlImport("frontend://styles/shared-styles.html")
 public class RegistrationContent extends VerticalLayout
-		implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
+		implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware, HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationContent.class);
 	static {
@@ -587,5 +588,13 @@ public class RegistrationContent extends VerticalLayout
 
 	public void refreshCrudGrid() {
 		crudGrid.refreshGrid();
+	}
+	
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return "Preparation - Registration";
 	}
 }

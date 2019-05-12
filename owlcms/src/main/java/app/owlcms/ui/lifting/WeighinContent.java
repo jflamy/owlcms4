@@ -30,6 +30,7 @@ import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.BodyWeightField;
@@ -61,7 +62,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/weighin", layout = WeighinLayout.class)
 public class WeighinContent extends VerticalLayout 
-		implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware {
+		implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware, HasDynamicTitle {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(WeighinContent.class);
 	static {logger.setLevel(Level.INFO);}
@@ -398,5 +399,13 @@ public class WeighinContent extends VerticalLayout
 	@Override
 	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
 		this.routerLayout = routerLayout;
+	}
+
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return "Weigh-in";
 	}
 }

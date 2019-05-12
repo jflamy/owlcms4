@@ -22,6 +22,7 @@ import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.renderer.TextRenderer;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.LocalDateField;
@@ -41,7 +42,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/competition", layout = CompetitionLayout.class)
 public class CompetitionContent extends VerticalLayout
-		implements ContentWrapping, CrudLayout, AppLayoutAware {
+		implements ContentWrapping, CrudLayout, AppLayoutAware, HasDynamicTitle {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(CompetitionContent.class);
 	private OwlcmsRouterLayout routerLayout;
@@ -176,5 +177,13 @@ public class CompetitionContent extends VerticalLayout
 	@Override
 	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
 		this.routerLayout = routerLayout;
+	}
+	
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return "Preparation - Competition";
 	}
 }

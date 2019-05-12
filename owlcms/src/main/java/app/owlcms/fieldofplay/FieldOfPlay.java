@@ -598,7 +598,7 @@ public class FieldOfPlay {
 
 	private void uiShowRefereeDecisionOnSlaveDisplays(FOPEvent.RefereeDecision e) {
 		uiEventLogger.trace("showRefereeDecisionOnSlaveDisplays");
-		uiEventBus.post(new UIEvent.RefereeDecision(e.success,e.ref1,e.ref2,e.ref3,e.origin));
+		uiEventBus.post(new UIEvent.RefereeDecision(e.getAthlete(), e.success,e.ref1,e.ref2,e.ref3,e.origin));
 	}
 
 	private void unexpectedEventInState(FOPEvent e, FOPState state) {
