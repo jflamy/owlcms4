@@ -334,7 +334,7 @@ class Results extends Polymer.Element {
 		this.$.teamNameDiv.style.display="block";
 		this.$.attemptDiv.style.display="block";
 		this.$.weightDiv.style.display="block";
-		this.$.timerDiv.style.display="none";
+		this.$.timerDiv.style.display="block";
 		this.$.breakTimerDiv.style.display="none";
 		this.$.decisionDiv.style.display="flex";
 	}
@@ -368,7 +368,8 @@ class Results extends Polymer.Element {
 		console.warn("refereeDecision");
 		this.$.groupDiv.style.visibility="visible";
 		this.$.decisionDiv.style.display="flex";
-    	this.$.timerDiv.style.display="none";
+		this.$.weightDiv.style.display="block";
+    	this.$.timerDiv.style.display="block";
     	this.$.breakTimer.style.display="none";
 	}
 	         
