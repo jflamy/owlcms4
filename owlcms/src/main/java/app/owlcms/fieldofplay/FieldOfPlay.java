@@ -260,8 +260,6 @@ public class FieldOfPlay {
 				getUiEventBus().post(new UIEvent.BreakPaused(e.getOrigin()));
 			} else if (e instanceof FOPEvent.BreakStarted) {
 				transitionToBreak((BreakStarted) e);
-//			} else if (e instanceof FOPEvent.AthleteAnnounced) {
-//				transitionToAnnounced();
 			} else if (e instanceof FOPEvent.WeightChange) {
 				weightChange(curAthlete);
 				setState(FOPState.BREAK);

@@ -56,7 +56,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.DEBUG);
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-			this.getOrigin(), e.getOrigin());
+				this.getOrigin(), e.getOrigin());
 		OwlcmsSession.withFop(fop -> {
 			FOPState state = fop.getState();
 			if (state == FOPState.BREAK || state == FOPState.INACTIVE) {
@@ -165,6 +165,15 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 				Athlete a = e.getAthlete();
 				doAthleteUpdate(a, e);
 			}
+		});
+	}
+	
+	@Subscribe
+	public void slaveDecisionReset(UIEvent.DecisionReset e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+				this.getOrigin(), e.getOrigin());
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			this.getElement().callFunction("reset");
 		});
 	}
 
@@ -206,13 +215,22 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 				this.getOrigin(), e.getOrigin());
 		Group g = e.getGroup();
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> this.getElement().callFunction("groupDone",
-				MessageFormat.format("Group {0} done.", g.toString())));
+		doDone(g);
+	}
+
+	private void doDone(Group g) {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			getModel().setLastName(MessageFormat.format("Group {0} done.", g.toString()));
+			this.getElement().callFunction("groupDone");
+		});			
 	}
 
 	protected void doAthleteUpdate(Athlete a, UIEvent e) {
 		if (a == null) {
 			doEmpty();
+			return;
+		} else if (a.getAttemptsDone() >= 6) {
+			OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
 			return;
 		}
 
@@ -221,9 +239,10 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 			doEmpty();
 			return;
 		}
+		String trace = null; LoggerUtils.stackTrace();
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			this.getElement().callFunction("reset");
-			uiEventLogger.debug("$$$ attemptBoard doUpdate {}");
+			uiEventLogger.debug("$$$ attemptBoard doUpdate from\n{}", trace);
 			AttemptBoardModel model = getModel();
 			model.setLastName(a.getLastName());
 			model.setFirstName(a.getFirstName());
@@ -283,10 +302,17 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 			// sync with current status of FOP
 			if (fop.getState() == FOPState.INACTIVE) {
 				doEmpty();
-			} else if (fop.getState() == FOPState.BREAK) {
-				doBreak(fop);
 			} else {
-				doAthleteUpdate(fop.getCurAthlete(), null);
+				Athlete curAthlete = fop.getCurAthlete();
+				if (fop.getState() == FOPState.BREAK) {
+					if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {
+						doDone(fop.getGroup());
+					} else {
+						doBreak(fop);
+					}
+				} else {
+					doAthleteUpdate(curAthlete, null);
+				}
 			}
 			// we send on fopEventBus, listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);

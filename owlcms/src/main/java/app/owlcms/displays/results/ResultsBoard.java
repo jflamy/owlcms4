@@ -87,9 +87,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	public interface ResultBoardModel extends TemplateModel {
 		String getAttempt();
 
-		String getFirstName();
-
-		String getLastName();
+		String getFullName();
 
 		Integer getStartNumber();
 
@@ -103,13 +101,11 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 
 		void setAttempt(String formattedAttempt);
 
-		void setFirstName(String firstName);
-
 		void setGroupName(String name);
 
 		void setHidden(boolean b);
 		
-		void setLastName(String lastName);
+		void setFullName(String lastName);
 
 		void setLiftsDone(String formattedDone);
 
@@ -244,8 +240,11 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 	}
 
 	private void doDone(Group g) {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> this.getElement().callFunction("groupDone",
-				MessageFormat.format("Group {0} Results", g.toString())));
+		if (g == null) return;
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			getModel().setFullName(MessageFormat.format("Group {0} Results", g.toString()));
+			this.getElement().callFunction("groupDone");
+		});
 	}
 	
 	public void uiLog(UIEvent e) {
@@ -287,8 +286,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			} else {
 				category = curCat != null ? curCat.getName() : "";
 			}
-			ja.put("lastName", a.getLastName().toUpperCase());
-			ja.put("firstName", a.getFirstName());
+			ja.put("fullName", a.getFullName());
 			ja.put("teamName", a.getTeam());
 			ja.put("yearOfBirth", a.getYearOfBirth());
 			Integer startNumber = a.getStartNumber();
@@ -303,7 +301,8 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 			ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
 			ja.put("totalRank", formatInt(a.getTotalRank()));
 			Integer liftOrderRank = a.getLiftOrderRank();
-			ja.put("classname", (liftOrderRank == 1 ? "current" : (liftOrderRank == 2) ? "next" : ""));
+			String blink =  (a.getAttemptsDone() < 6 ? " blink" : "");
+			ja.put("classname", (liftOrderRank == 1 ? "current"+blink : (liftOrderRank == 2) ? "next" : ""));
 			jath.set(athx, ja);
 			athx++;
 		}
@@ -334,16 +333,16 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			ResultBoardModel model = getModel();
 			model.setHidden(a == null);
-			if (a == null) return;
-			
-			model.setLastName(a.getLastName().toUpperCase());
-			model.setFirstName(a.getFirstName());
-			model.setTeamName(a.getTeam());
-			model.setStartNumber(a.getStartNumber());
-			String formattedAttempt = formatAttempt(a.getAttemptsDone());
-			model.setAttempt(formattedAttempt);
-			model.setWeight(a.getNextAttemptRequestedWeight());
-			updateBottom(model);
+			if (a != null) {
+				this.getElement().callFunction("reset");
+				model.setFullName(a.getFullName());
+				model.setTeamName(a.getTeam());
+				model.setStartNumber(a.getStartNumber());
+				String formattedAttempt = formatAttempt(a.getAttemptsDone());
+				model.setAttempt(formattedAttempt);
+				model.setWeight(a.getNextAttemptRequestedWeight());
+				updateBottom(model);
+			}
 		});
 		if (a == null || a.getAttemptsDone() >= 6) {
 			OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
@@ -382,7 +381,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		for (LiftInfo i : x.getRequestInfoArray()) {
 			JsonObject jri = Json.createObject();
 			String stringValue = i.getStringValue();
-			String blink = (a.getAttemptsDone() < 6 ? " blink" : "");
+			String blink = (x.getAttemptsDone() < 6 ? " blink" : "");
 			
 			jri.put("goodBadClassName", "narrow empty");
 			jri.put("stringValue", "");
@@ -450,8 +449,7 @@ public class ResultsBoard extends PolymerTemplate<ResultsBoard.ResultBoardModel>
 		uiEventLogger.debug("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom());
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			BreakType breakType = fop.getBreakType();
-			getModel().setLastName(inferGroupName());
-			getModel().setFirstName(inferMessage(breakType));
+			getModel().setFullName(inferGroupName()+" "+inferMessage(breakType));
 			getModel().setTeamName("");
 			getModel().setAttempt("");
 

@@ -177,13 +177,13 @@
 </style>
 
 <div class="attemptBoard" id="attemptBoardDiv">
-	<div class="lastName" on-click="reset" id="lastNameDiv">[[lastName]]</div>
-	<div class="firstName">[[firstName]]</div>
-	<div class="teamName">[[teamName]]</div>
+	<div class="lastName" id="lastNameDiv">[[lastName]]</div>
+	<div class="firstName" id="firstNameDiv">[[firstName]]</div>
+	<div class="teamName" id="teamNameDiv">[[teamName]]</div>
 	<div class="startNumber" id="startNumberDiv">
 		<span>[[startNumber]]</span>
 	</div>
-	<div class="attempt" inner-h-t-m-l="[[attempt]]"></div><!-- kludge to have preformatted html -->
+	<div class="attempt" id="attemptDiv" inner-h-t-m-l="[[attempt]]"></div><!-- kludge to have preformatted html -->
 	<div class="weight" id="weightDiv">
 		[[weight]]<span style="font-size: 75%">kg</span>
 	</div>
@@ -196,7 +196,7 @@
 	<div class="timer breakTime" id="breakTimerDiv">
 		<timer-element id="breakTimer"></timer-element>
 	</div>
-	<div class="decision" id="decisionDiv" on-down="down" on-hide="reset">
+	<div class="decision" id="decisionDiv" on-down="down" on-hideX="reset">
 		<decision-element id="decisions"></decision-element>
 	</div>
 </div>
@@ -252,6 +252,9 @@
             	this.$.attemptBoardDiv.style.color="white";
             	this.$.athleteTimer.reset();
             	this.$.athleteTimerDiv.style.display="block";
+            	this.$.firstNameDiv.style.display="block";
+            	this.$.teamNameDiv.style.display="block";
+            	this.$.attemptDiv.style.display="block";
             	this.$.breakTimerDiv.style.display="none";
             	this.$.weightDiv.style.display="block";
             	this.$.startNumberDiv.style.display="block";
@@ -273,19 +276,24 @@
                	//this.$.breakTimer.reset();
                	this.$.athleteTimerDiv.style.display="none";
                	this.$.breakTimerDiv.style.display="block";
+            	this.$.firstNameDiv.style.display="none";
+            	this.$.teamNameDiv.style.display="none";
+            	this.$.attemptDiv.style.display="none";
                	this.$.weightDiv.style.display="none";
                	this.$.startNumberDiv.style.display="none";
                	this.$.barbellDiv.style.display="none";
                	this.$.decisionDiv.style.display="none";
             }
             
-            groupDone(groupString) {
+            groupDone() {
             	//console.warn("attemptBoard doBreak");
-            	this.$.lastNameDiv.innerHTML = groupString;
             	this.$.attemptBoardDiv.style.display="grid";
             	this.$.attemptBoardDiv.style.color="white";
                	//this.$.breakTimer.reset();
                	this.$.athleteTimerDiv.style.display="none";
+                this.$.firstNameDiv.style.display="none";
+            	this.$.teamNameDiv.style.display="none";
+            	this.$.attemptDiv.style.display="none";
                	this.$.breakTimerDiv.style.display="none";
                	this.$.weightDiv.style.display="none";
                	this.$.startNumberDiv.style.display="none";

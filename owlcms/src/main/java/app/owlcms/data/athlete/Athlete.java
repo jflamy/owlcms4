@@ -3679,7 +3679,7 @@ public class Athlete {
 	}
 
 	public String getFullName() {
-		return this.getLastName() + ", " + this.getFirstName();
+		return this.getLastName().toUpperCase() + ", " + this.getFirstName();
 	}
 
 	public AgeDivision getAgeDivision() {
