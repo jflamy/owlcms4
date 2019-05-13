@@ -16,7 +16,9 @@ import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -200,10 +202,17 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			String text = MessageFormat.format("{0,choice,0#No Lift|1#Good Lift} for {1}", d, e.getAthlete().getFullName());
 			
 			Notification n = new Notification();
-			// Notification theme styling is done in /owlcms/src/main/resources/META-INF/resources/frontend/styles/shared-styles.html
-			n.getElement().getThemeList().add(e.decision?"success":"error");
-			n.setText(text);
-			n.setPosition(Position.TOP_END);
+			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
+			String themeName = e.decision?"success":"error";
+			n.getElement().getThemeList().add(themeName);
+
+//			Button button = new Button("Close");
+//			button.getElement().setAttribute("theme","primary contrast");
+//			button.addClickListener((event) -> n.close());
+			Label label = new Label(text);
+			label.getStyle().set("font-size", "x-large");
+			n.add(label);
+			n.setPosition(Position.TOP_START);
 			n.setDuration(5000);
 			n.open();
 		});
