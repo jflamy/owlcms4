@@ -71,14 +71,14 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				PREPARE_COMPETITION,
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(PreparationNavigationContent.class));
-		Button lifting = new Button(
-				RUN_LIFTING_GROUP,
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(LiftingNavigationContent.class));
 		Button displays = new Button(
 				START_DISPLAYS,
 				buttonClickEvent -> UI.getCurrent()
 					.navigate(DisplayNavigationContent.class));
+		Button lifting = new Button(
+				RUN_LIFTING_GROUP,
+				buttonClickEvent -> UI.getCurrent()
+					.navigate(LiftingNavigationContent.class));
 		Button documents = new Button(
 				RESULT_DOCUMENTS,
 				buttonClickEvent -> UI.getCurrent()
@@ -93,6 +93,20 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 		fillH(intro, this);
 		fillH(grid, this);
+		
+		VerticalLayout license = buildLicense();
+		fillH(license, this);
+	}
+
+	private VerticalLayout buildLicense() {
+		VerticalLayout license = new VerticalLayout();
+		addP(license,
+				"This is open source software."+
+				"<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for full source and licensing information."+
+				"<li>See also the <a href='https://https://jflamy.github.io/owlcms4/'>documentation</a> for "+
+				"installation and configuration information"
+				);
+		return license;
 	}
 
 	public VerticalLayout buildIntro() {
@@ -114,12 +128,11 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		intro.add(new Div());
 		intro.add(new Hr());
 		addP(intro,
-			"Use the menu at the left to navigate to the various screens.  A typical scenario is as follows:<ul>" +
-			"<li>Prepare Competition : Enter the competition coordinates, enter the athletes, etc. These steps are performed on the main competition computer.<br>" +
-			"This section also includes the group weigh-in where you can produce a printable spreadsheet with starting weights. " +
-			"When setting up, enter some fictitious body weight and starting weight information for an athlete so you can test the setup.</li>" +
-			"<li>Run lifting group : Used to start the announcer screen, the marshall, the timekeeper.  Each of these uses a separate laptop or mini-PC.</li>" +
-			"<li>Setup displays : Used to start the attempt board, the athlete-facing board, and the result board. Each of these displays uses a separate laptop or mini-PC connected to a projector or screen.</li>" +
+			"Use the menu at the left to navigate to the various screens:<ul>" +
+			"<li>Prepare Competition : Enter the competition coordinates, enter the athletes, etc.<br>" +
+			"This section also includes the group weigh-in where you can produce a printable spreadsheet with starting weights.</li>" +
+			"<li>Run lifting group : Used to start the announcer screen, the marshall, the timekeeper.  Each of these uses a separate laptop. The announcer controls which group is shown on the displays.</li>" +
+			"<li>Start displays : Used to start the attempt board, the athlete-facing board, and the scoreboard. Each of these displays uses a separate laptop or mini-PC connected to a projector or screen.</li>" +
 			"<li>Competition documents : After each group, the competition secretary can produce printable group results.</li>"+
 			"</ul>"
 		);
