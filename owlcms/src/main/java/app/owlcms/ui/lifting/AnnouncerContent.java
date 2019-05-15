@@ -16,6 +16,7 @@ import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -44,7 +45,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.TRACE);
 	}
 
 	public AnnouncerContent() {
@@ -196,12 +197,23 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	public void slaveRefereeDecision(UIEvent.RefereeDecision e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			int d = e.decision ? 1 : 0;
+			String text = MessageFormat.format("{0,choice,0#No Lift|1#Good Lift} for {1}", d, e.getAthlete().getFullName());
+			
 			Notification n = new Notification();
-			n.getElement().getStyle().set("background-color", e.decision?"green":"red");
-			n.getElement().getStyle().set("color", "white");
-			n.getElement().getStyle().set("font-weight", "bold");
+			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
+			String themeName = e.decision?"success":"error";
+			n.getElement().getThemeList().add(themeName);
+
+//			Button button = new Button("Close");
+//			button.getElement().setAttribute("theme","primary contrast");
+//			button.addClickListener((event) -> n.close());
+			Div label = new Div();
+			label.add(text);
+			label.addClickListener((event)-> n.close());
+			label.setSizeFull();
+			label.getStyle().set("font-size", "large");
+			n.add(label);
 			n.setPosition(Position.TOP_END);
-			n.setText(MessageFormat.format("{0,choice,0#No Lift|1#Good Lift} for {1}", d, e.getAthlete().getFullName()));
 			n.setDuration(5000);
 			n.open();
 		});

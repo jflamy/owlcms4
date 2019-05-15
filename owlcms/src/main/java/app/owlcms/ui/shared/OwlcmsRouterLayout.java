@@ -37,6 +37,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.server.InitialPageSettings;
+import com.vaadin.flow.server.PageConfigurator;
 
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
@@ -61,7 +63,7 @@ import ch.qos.logback.classic.Logger;
 @HtmlImport("frontend://bower_components/iron-icons/maps-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/social-icons.html")
 @HtmlImport("frontend://bower_components/iron-icons/places-icons.html")
-public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
+public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageConfigurator {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
 	{logger.setLevel(Level.INFO);}
@@ -248,5 +250,11 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout {
 				close();
 			});
 		}
+	}
+	
+	@Override
+	public void configurePage(InitialPageSettings settings) {
+		settings.addInlineWithContents("<link rel=\"icon\" href=\"./frontend/images/owlcms.ico\">",
+				InitialPageSettings.WrapMode.NONE);
 	}
 }
