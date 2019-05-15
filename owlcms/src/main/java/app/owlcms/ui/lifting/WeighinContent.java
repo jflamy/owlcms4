@@ -6,29 +6,23 @@
  */
 package app.owlcms.ui.lifting;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
-import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
-import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.Binder.Binding;
-import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
-import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
@@ -43,11 +37,11 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AppLayoutAware;
+import app.owlcms.ui.shared.AthleteRegistrationFormFactory;
 import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
@@ -61,6 +55,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/weighin", layout = WeighinLayout.class)
+@HtmlImport("frontend://styles/shared-styles.html")
 public class WeighinContent extends VerticalLayout 
 		implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware, HasDynamicTitle {
 	
@@ -175,94 +170,107 @@ public class WeighinContent extends VerticalLayout
 	 * @return the actual factory with field binding and validations
 	 */
 	private OwlcmsCrudFormFactory<Athlete> createAthleteEditingFormFactory() {
-		return new OwlcmsCrudFormFactory<Athlete>(Athlete.class) {
-			@Override
-			public String buildCaption(CrudOperation operation, Athlete a) {
-				if (a.getLastName() == null && a.getFirstName() == null) return null;
-				// If null, CrudLayout.showForm will build its own, for backward compatibility
-				return a.getFullId();
-			}
-			
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			@Override
-			protected void bindField(HasValue field, String property, Class<?> propertyType) {
-				Binder.BindingBuilder bindingBuilder = binder.forField(field);
-				if ("fullBirthDate".equals(property)) {
-					fullBirthDateValidation(bindingBuilder);
-					bindingBuilder.bind(property);
-				} else if ("bodyWeight".equals(property)) {
-					bodyWeightValidation(bindingBuilder);
-					bindingBuilder.bind(property);
-				} else if ("category".equals(property)) {
-					categoryValidation(bindingBuilder);
-					bindingBuilder.bind(property);
-				} else {
-					super.bindField(field, property, propertyType);
-				}
-			}
-
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			protected void fullBirthDateValidation(Binder.BindingBuilder bindingBuilder) {
-				Validator<LocalDate> fv = ((LocalDateField)bindingBuilder.getField()).formatValidation(OwlcmsSession.getLocale());
-				bindingBuilder.withValidator(fv);
-				
-				Validator<LocalDate> v = Validator.from(
-					ld -> {
-						if (ld == null)
-							return true;
-						return (ld.compareTo(LocalDate.now()) <= 0);
-					},
-					"Birth date cannot be in the future");
-				bindingBuilder.withValidator(v);
-			}
-
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			protected void bodyWeightValidation(Binder.BindingBuilder bindingBuilder) {
-				Validator<Double> fv = ((BodyWeightField)bindingBuilder.getField()).formatValidation(OwlcmsSession.getLocale());
-				bindingBuilder.withValidator(fv);
-				
-				Validator<Double> v1 = new DoubleRangeValidator(
-						"Weight should be between 0 and 350kg", 0.0D, 350.0D);
-				// check wrt body category
-				Validator<Double> v2 = Validator
-					.from((weight) -> {
-						if (weight == null) return true;
-						// tell the category drop down to signal inconsistent selection
-						Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
-						categoryBinding.validate(true).isError();
-						return true;
-					}, "Body Weight is outside of selected category");
-				bindingBuilder.withValidator(v1);
-				bindingBuilder.withValidator(v2);
-			}
-
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			protected void categoryValidation(Binder.BindingBuilder bindingBuilder) {
-				// check that category is consistent with body weight
-				Validator<Category> v = Validator
-					.from((category) -> {
-						try {
-							Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
-							Double bw = (Double) bwBinding.getField().getValue();
-							if (bw == null) {
-								// no body weight - no contradiction
-								return true;
-							}
-							Double min = category.getMinimumWeight();
-							Double max = category.getMaximumWeight();
-							logger.debug(
-								"comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
-							return (bw > min && bw <= max);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-						return true;
-					},
-						"Category does not match body weight");
-				bindingBuilder.withValidator(v);
-			}
-		};
+		return new AthleteRegistrationFormFactory(Athlete.class);
 	}
+//	private OwlcmsCrudFormFactory<Athlete> createAthleteEditingFormFactory() {
+//		return new OwlcmsCrudFormFactory<Athlete>(Athlete.class) {
+//			@Override
+//			public String buildCaption(CrudOperation operation, Athlete a) {
+//				if (a.getLastName() == null && a.getFirstName() == null) return null;
+//				// If null, CrudLayout.showForm will build its own, for backward compatibility
+//				return a.getFullId();
+//			}
+//			
+//			@SuppressWarnings({ "unchecked", "rawtypes" })
+//			@Override
+//			protected void bindField(HasValue field, String property, Class<?> propertyType) {
+//				Binder.BindingBuilder bindingBuilder = binder.forField(field);
+//				if ("fullBirthDate".equals(property)) {
+//					fullBirthDateValidation(bindingBuilder);
+//					bindingBuilder.bind(property);
+//				} else if ("bodyWeight".equals(property)) {
+//					bodyWeightValidation(bindingBuilder);
+//					bindingBuilder.bind(property);
+//				} else if ("category".equals(property)) {
+//					categoryValidation(bindingBuilder);
+//					bindingBuilder.bind(property);
+//				} else if (property.endsWith("Declaration")) {
+//					declarationValidation(bindingBuilder);
+//					bindingBuilder.bind(property);
+//				} else {
+//					super.bindField(field, property, propertyType);
+//				}
+//			}
+//
+//			@SuppressWarnings({ "rawtypes"})
+//			private void declarationValidation(BindingBuilder bindingBuilder) {
+//				TextField declField = (TextField)bindingBuilder.getField();
+//				declField.setPattern("^[-]{0,1}\\d*$");
+//				declField.setPreventInvalidInput(true);
+//			}
+//
+//			@SuppressWarnings({ "rawtypes", "unchecked" })
+//			protected void fullBirthDateValidation(Binder.BindingBuilder bindingBuilder) {
+//				Validator<LocalDate> fv = ((LocalDateField)bindingBuilder.getField()).formatValidation(OwlcmsSession.getLocale());
+//				bindingBuilder.withValidator(fv);
+//				
+//				Validator<LocalDate> v = Validator.from(
+//					ld -> {
+//						if (ld == null)
+//							return true;
+//						return (ld.compareTo(LocalDate.now()) <= 0);
+//					},
+//					"Birth date cannot be in the future");
+//				bindingBuilder.withValidator(v);
+//			}
+//
+//			@SuppressWarnings({ "rawtypes", "unchecked" })
+//			protected void bodyWeightValidation(Binder.BindingBuilder bindingBuilder) {
+//				Validator<Double> fv = ((BodyWeightField)bindingBuilder.getField()).formatValidation(OwlcmsSession.getLocale());
+//				bindingBuilder.withValidator(fv);
+//				
+//				Validator<Double> v1 = new DoubleRangeValidator(
+//						"Weight should be between 0 and 350kg", 0.0D, 350.0D);
+//				// check wrt body category
+//				Validator<Double> v2 = Validator
+//					.from((weight) -> {
+//						if (weight == null) return true;
+//						// tell the category drop down to signal inconsistent selection
+//						Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
+//						categoryBinding.validate(true).isError();
+//						return true;
+//					}, "Body Weight is outside of selected category");
+//				bindingBuilder.withValidator(v1);
+//				bindingBuilder.withValidator(v2);
+//			}
+//
+//			@SuppressWarnings({ "rawtypes", "unchecked" })
+//			protected void categoryValidation(Binder.BindingBuilder bindingBuilder) {
+//				// check that category is consistent with body weight
+//				Validator<Category> v = Validator
+//					.from((category) -> {
+//						try {
+//							Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
+//							Double bw = (Double) bwBinding.getField().getValue();
+//							if (bw == null) {
+//								// no body weight - no contradiction
+//								return true;
+//							}
+//							Double min = category.getMinimumWeight();
+//							Double max = category.getMaximumWeight();
+//							logger.debug(
+//								"comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
+//							return (bw > min && bw <= max);
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//						}
+//						return true;
+//					},
+//						"Category does not match body weight");
+//				bindingBuilder.withValidator(v);
+//			}
+//		};
+//	}
 
 
 	/**
