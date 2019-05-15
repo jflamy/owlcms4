@@ -6,6 +6,7 @@
  */
 package app.owlcms.fieldofplay;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -44,7 +47,7 @@ public class FieldOfPlay {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	{
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.INFO);
 	}
  
@@ -262,7 +265,11 @@ public class FieldOfPlay {
 				transitionToBreak((BreakStarted) e);
 			} else if (e instanceof FOPEvent.WeightChange) {
 				weightChange(curAthlete);
-				setState(FOPState.BREAK);
+				if (curAthlete.getAttemptsDone() == 0) {
+					// the group has not started lifting, override the change to
+					// lifting state from weightChange and stay in BREAK mode
+					setState(FOPState.BREAK);
+				}	
 			} else {
 				unexpectedEventInState(e, FOPState.BREAK);
 			}
@@ -387,7 +394,7 @@ public class FieldOfPlay {
 				uiEventBus.post(new UIEvent.DecisionReset(e.origin));
 				setClockOwner(null);
 				recomputeLiftingOrder();
-				breakIfDone();
+				displayOrBreak();
 			} else {
 				unexpectedEventInState(e, FOPState.DECISION_VISIBLE);
 			}
@@ -395,8 +402,9 @@ public class FieldOfPlay {
 		}
 	}
 
-	private void breakIfDone() {
+	private void displayOrBreak() {
 		if (curAthlete != null && curAthlete.getAttemptsDone() < 6) {
+			uiDisplayCurrentAthleteAndTime(true);
 			setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
 		} else {
 			UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
@@ -522,15 +530,8 @@ public class FieldOfPlay {
 		AthleteSorter.liftingOrder(this.liftingOrder);
 		setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
 		this.setCurAthlete(this.liftingOrder.isEmpty() ? null : this.liftingOrder.get(0));
-//		if (curAthlete != null) {
-//			if (curAthlete.getAttemptsDone() >= 6) {
-//				setCurAthlete(null);
-//				getAthleteTimer().setTimeRemaining(0);
-//				return;
-//			}
-//		}
 		int timeAllowed = getTimeAllowed();
-		logger.trace("recomputed lifting order curAthlete={} prevlifter={} time={}",
+		logger.debug("recomputed lifting order curAthlete={} prevlifter={} time={}",
 			curAthlete != null ? curAthlete.getFullName() : "",
 			previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed);
 
@@ -602,7 +603,9 @@ public class FieldOfPlay {
 	}
 
 	private void unexpectedEventInState(FOPEvent e, FOPState state) {
-		logger.warn("Unexpected event: {} in state {}",e,state);
+		String text = MessageFormat.format("Unexpected event: {0} in state {1}",e.getClass().getSimpleName(),state);
+		logger.warn("Unexpected event: {} in state {}",e.getClass().getSimpleName(),state);
+		Notification.show(text,5000,Position.BOTTOM_END);
 	}
 
 	private void unlockReferees() {
@@ -611,10 +614,12 @@ public class FieldOfPlay {
 	}
 
 	private void weightChange(Athlete changedAthlete) {
-		//boolean stopTimer = changedAthlete.equals(curAthlete);	
-		// time is running for curLifter
-		recomputeLiftingOrder();
-		uiDisplayCurrentAthleteAndTime(true);
+		// we use transitionToLifting because if we are in a BREAK due to last lift,
+		// and there was a loading error, and we edit the weight, we want to resume lifting
+//		recomputeLiftingOrder();
+//		uiDisplayCurrentAthleteAndTime(true);
+		transitionToLifting();
+
 	}
 
 	/**

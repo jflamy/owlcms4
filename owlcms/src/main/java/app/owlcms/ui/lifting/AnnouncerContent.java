@@ -45,7 +45,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.TRACE);
 	}
 
 	public AnnouncerContent() {
