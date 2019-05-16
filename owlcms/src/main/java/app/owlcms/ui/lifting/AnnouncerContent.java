@@ -204,9 +204,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			String themeName = e.decision?"success":"error";
 			n.getElement().getThemeList().add(themeName);
 
-//			Button button = new Button("Close");
-//			button.getElement().setAttribute("theme","primary contrast");
-//			button.addClickListener((event) -> n.close());
 			Div label = new Div();
 			label.add(text);
 			label.addClickListener((event)-> n.close());
