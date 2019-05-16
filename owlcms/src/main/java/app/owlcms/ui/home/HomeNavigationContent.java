@@ -89,8 +89,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			displays,
 			documents);
 
-		documents.setEnabled(false);
-
 		fillH(intro, this);
 		fillH(grid, this);
 		
@@ -101,9 +99,9 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	private VerticalLayout buildLicense() {
 		VerticalLayout license = new VerticalLayout();
 		addP(license,
-				"This is open source software."+
-				"<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for full source and licensing information."+
-				"<li>See also the <a href='https://https://jflamy.github.io/owlcms4/'>documentation</a> for "+
+				"This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>."+
+				"<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source."+
+				"<li>See also the <a href='https://jflamy.github.io/owlcms4/'>documentation</a> for "+
 				"installation and configuration information"
 				);
 		return license;
@@ -123,18 +121,17 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			intro.add(new Div(new Anchor(url, url), new Label(" (wireless)")));
 		}
 		for (String url : urlFinder.getLocalUrl()) {
-			intro.add(new Div(new Anchor(url, url), new Label(" (only on the computer running the owlcms program)")));
+			intro.add(new Div(new Anchor(url, url), new Label(" (on the computer running the owlcms program)")));
 		}
 		intro.add(new Div());
 		intro.add(new Hr());
 		addP(intro,
 			"Use the menu at the left to navigate to the various screens:<ul>" +
-			"<li>Prepare Competition : Enter the competition coordinates, enter the athletes, etc.<br>" +
-			"This section also includes the group weigh-in where you can produce a printable spreadsheet with starting weights.</li>" +
-			"<li>Run lifting group : Used to start the announcer screen, the marshall, the timekeeper.  Each of these uses a separate laptop. The announcer controls which group is shown on the displays.</li>" +
-			"<li>Start displays : Used to start the attempt board, the athlete-facing board, and the scoreboard. Each of these displays uses a separate laptop or mini-PC connected to a projector or screen.</li>" +
-			"<li>Competition documents : After each group, the competition secretary can produce printable group results.</li>"+
-			"</ul>"
+			"<li><b>Prepare Competition</b>: Enter the competition coordinates, enter the athletes, perform weigh-in, print starting weights<br></li>" +
+			"<li><b>Run lifting group</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>" +
+			"<li><b>Start displays</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>" +
+			"<li><b>Competition documents</b>: Produce printable documents for each group and the final results package.</li>"+
+			"</ul>Each of the various screens or displays uses a separate laptop or mini-pc."
 		);
 		intro.getElement().getStyle().set("margin-bottom", "-1em");
 		return intro;
