@@ -180,9 +180,9 @@ public class FieldOfPlay {
 			timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
 			logger.trace("timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
 		} else if (previousAthlete != null && previousAthlete.equals(a)) { 
-			if (owner != null || a.getAttemptNumber() >= 1) {
+			if (owner != null || a.getAttemptNumber() == 1) {
 				// clock has started for someone else, one minute
-				// OR first C&J, one minute (doesn't matter who lifted last during snatch)
+				// first C&J, one minute (doesn't matter who lifted last during snatch)
 				timeAllowed = 60000;
 			} else {
 				timeAllowed = 120000;
@@ -599,6 +599,10 @@ public class FieldOfPlay {
 	}
 
 	private void unexpectedEventInState(FOPEvent e, FOPState state) {
+		if (e instanceof FOPEvent.DecisionReset) {
+			// ignore
+			return;
+		}
 		String text = MessageFormat.format("Unexpected event: {0} in state {1}",e.getClass().getSimpleName(),state);
 		logger.warn("Unexpected event: {} in state {}",e.getClass().getSimpleName(),state);
 		Notification.show(text,5000,Position.BOTTOM_END);
@@ -637,7 +641,7 @@ public class FieldOfPlay {
 	 * @param state the new state
 	 */
 	void setState(FOPState state) {
-		logger.debug("entering {} {}", state, LoggerUtils.whereFrom());
+		logger.trace("entering {} {}", state, LoggerUtils.whereFrom());
 		this.state = state;
 	}
 
