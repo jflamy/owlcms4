@@ -24,7 +24,6 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -93,7 +92,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	protected H3 title;
 	protected H1 lastName;
 	protected H2 firstName;
-	protected Html attempt;
+	protected H2 attempt;
 	protected H2 weight;
 	protected AthleteTimerElement timeField;
 	protected HorizontalLayout topBar;
@@ -273,7 +272,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		firstName.getStyle().set("margin", "0px 0px 0px 0px");
 		Div fullName = new Div(lastName,firstName);
 
-		attempt = new Html("<h2><span></span></h2");
+		attempt = new H2();
 		weight = new H2();
 		weight.setText("");
 
@@ -363,11 +362,14 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 					lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
 					firstName.setText(athlete.getFirstName());
 					timeField.getElement().getStyle().set("visibility", "visible");
-					String attemptHtml = MessageFormat.format("<h2>{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.</h2>",
-							athlete.getAttemptNumber());
-					Html newAttempt = new Html(attemptHtml);
-					topBar.replace(attempt, newAttempt);
-					attempt = newAttempt;
+//					String attemptHtml = MessageFormat.format("<h2>{0} {1}<sup>{1,choice,1#st|2#nd|3#rd}</sup> att.</h2>",
+//					String attemptHtml = MessageFormat.format("<h2>{0} #{1}</h2>",
+//							athlete.getAttemptsDone() > 2 ? "C & J" : "Snatch",
+//							athlete.getAttemptNumber());
+//					Html newAttempt = new Html(attemptHtml);
+//					topBar.replace(attempt, newAttempt);
+//					attempt = newAttempt;
+					attempt.setText(formatAttemptNumber(athlete));
 					Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
 					weight.setText(
 							(nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
@@ -377,15 +379,19 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 							fop.getGroup() == null ? "\u2013" : MessageFormat.format("Group {0} done.", fop.getGroup()));
 					firstName.setText("");
 					timeField.getElement().getStyle().set("visibility", "hidden");
-					Html newAttempt = new Html("<h2><span></span></h2>");
-					topBar.replace(attempt, newAttempt);
-					attempt = newAttempt;
+//					Html newAttempt = new Html("<h2><span></span></h2>");
+//					topBar.replace(attempt, newAttempt);
+//					attempt = newAttempt;
+					attempt.setText("");
 					weight.setText("");
 				}
 			});
 		});
 	}
 
+	/**
+	 * @param forceUpdate
+	 */
 	public void syncWithFOP(boolean forceUpdate) {
 		logger.debug("syncWithFOP {}",LoggerUtils.whereFrom());
 		OwlcmsSession.withFop((fop) -> {
@@ -453,8 +459,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			.setHeader("Category");
 		grid.addColumn("nextAttemptRequestedWeight")
 			.setHeader("Requested Weight");
-		grid.addColumn("attemptNumber")
-			.setHeader("Attempt");
+		// format attempt
+		grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader("Attempt");
 		grid.addColumn("startNumber")
 			.setHeader("Start Number");
 
@@ -479,6 +485,14 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		crudGrid.getCrudLayout().addToolbarComponent(groupFilter);
 
 		return crudGrid;
+	}
+
+	private String formatAttemptNumber(Athlete a) {
+		Integer attemptsDone = a.getAttemptsDone();
+		Integer attemptNumber = a.getAttemptNumber();
+		return (attemptsDone > 2) ? 
+				MessageFormat.format("C&J #{0}", attemptNumber)
+				: MessageFormat.format("Snatch #{0}", attemptNumber);
 	}
 	
 	protected Object getOrigin() {

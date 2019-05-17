@@ -111,7 +111,7 @@ public class RegistrationContent extends VerticalLayout
 		}
 		grid.addColumn("category").setHeader("Category");
 		grid.addColumn(
-			new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()))
+			new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()),"bodyWeight")
 			.setHeader("Body Weight");
 		grid.addColumn("group").setHeader("Group");
 		grid.addColumn("eligibleForIndividualRanking").setHeader("Eligible");
