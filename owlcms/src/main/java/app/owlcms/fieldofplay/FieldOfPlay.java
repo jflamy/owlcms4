@@ -179,9 +179,10 @@ public class FieldOfPlay {
 			// the clock was started for us. we own the clock, clock is set to what time was left
 			timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
 			logger.trace("timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
-		} else if (previousAthlete != null && previousAthlete.equals(a)) {
-			if (owner != null) {
+		} else if (previousAthlete != null && previousAthlete.equals(a)) { 
+			if (owner != null || a.getAttemptNumber() >= 1) {
 				// clock has started for someone else, one minute
+				// OR first C&J, one minute (doesn't matter who lifted last during snatch)
 				timeAllowed = 60000;
 			} else {
 				timeAllowed = 120000;
