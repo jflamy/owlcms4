@@ -302,8 +302,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 			ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
 			ja.put("totalRank", formatInt(a.getTotalRank()));
 			Integer liftOrderRank = a.getLiftOrderRank();
-			String blink =  (a.getAttemptsDone() < 6 ? " blink" : "");
-			ja.put("classname", (liftOrderRank == 1 ? "current"+blink : (liftOrderRank == 2) ? "next" : ""));
+			boolean notDone = a.getAttemptsDone() < 6;
+			String blink =  (notDone ? " blink" : "");
+			if (notDone) ja.put("classname", (liftOrderRank == 1 ? "current"+blink : (liftOrderRank == 2) ? "next" : ""));
 			jath.set(athx, ja);
 			athx++;
 		}
@@ -389,7 +390,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 		for (LiftInfo i : x.getRequestInfoArray()) {
 			JsonObject jri = Json.createObject();
 			String stringValue = i.getStringValue();
-			String blink = (x.getAttemptsDone() < 6 ? " blink" : "");
+			boolean notDone = x.getAttemptsDone() < 6;
+			String blink = (notDone ? " blink" : "");
 			
 			jri.put("goodBadClassName", "narrow empty");
 			jri.put("stringValue", "");
@@ -413,7 +415,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 						String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
 								: (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
 						jri.put("goodBadClassName","narrow request");
-						jri.put("className", highlight);
+						if (notDone) jri.put("className", highlight);
 						jri.put("stringValue", stringValue);
 					}
 					break;

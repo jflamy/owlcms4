@@ -96,7 +96,7 @@ public class WeighinContent extends VerticalLayout
 		grid.addColumn("team").setHeader("Team");
 		grid.addColumn("ageDivision").setHeader("Age Division");
 		grid.addColumn("category").setHeader("Category");
-		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale())).setHeader("Body Weight");
+		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale()),"bodyWeight").setHeader("Body Weight");
 		grid.addColumn("group").setHeader("Group");
 		grid.addColumn("eligibleForIndividualRanking").setHeader("Eligible");	
 		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<Athlete>(Athlete.class,
