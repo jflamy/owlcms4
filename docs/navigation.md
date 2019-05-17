@@ -5,5 +5,5 @@
 [Downloads]()
 
 +	[Releases](https://github.com/jflamy/owlcms4/releases)
-+	[Source Repository](https://https://github.com/jflamy/owlcms4)
++	[Source Repository](https://github.com/jflamy/owlcms4)
 
