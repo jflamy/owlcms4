@@ -34,7 +34,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class TwoMinutesRuleTest {
-	private static Level LoggerLevel = Level.INFO;
+	private static Level LoggerLevel = Level.DEBUG;
 	private static Group gA;
 	private static Group gB;
 	private static Group gC;
