@@ -185,7 +185,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		});
 		crud.getCrudLayout().addFilterComponent(groupFilter);
 	}
-	
+
+
 	/**
 	 * Process URL parameters, including query parameters
 	 * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
@@ -352,6 +353,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	}
 
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
+		if (title == null) return; // createTopBar has not yet been called;
 		logger.debug("doUpdateTopBar {}", LoggerUtils.whereFrom());
 		OwlcmsSession.withFop(fop -> {
 			UIEventProcessor.uiAccess(topBar, uiEventBus, () -> {

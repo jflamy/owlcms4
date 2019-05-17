@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
+import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasElement;
@@ -29,6 +30,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -46,6 +48,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -161,9 +164,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	}
 	
 	/**
-	 * Gets the crudGrid crudGrid.
+	 * Gets the crudGrid.
 	 *
 	 * @return the crudGrid crudGrid
+	 *
+	 * @see app.owlcms.ui.shared.AthleteGridContent#createCrudGrid(app.owlcms.ui.crudui.OwlcmsCrudFormFactory)
 	 */
 	@Override
 	public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
@@ -213,9 +218,26 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		    }
 		};
 		
+		defineFilters(crudGrid);
+		
+		crudGrid.setCrudListener(this);
+		crudGrid.setClickRowToUpdate(true);
+		crudGrid.getCrudLayout()
+			.addToolbarComponent(groupFilter);
+
+		return crudGrid;
+	}
+	
+	/**
+	 * We do not control the groups on other screens/displays
+	 *
+	 * @param crudGrid the crudGrid that will be filtered.
+	 */
+	@Override
+	protected void defineFilters(GridCrud<Athlete> crud) {
 		groupFilter.setPlaceholder("Group");
 		groupFilter.setItems(GroupRepository.findAll());
-		groupFilter.setItemLabelGenerator(Group::getName);
+		groupFilter.setItemLabelGenerator(Group::getName);	
 		// hide because the top bar has it
 		groupFilter.getStyle().set("display", "none");
 		groupFilter.addValueChangeListener(e -> {
@@ -224,13 +246,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 				updateURLLocation(locationUI, location, currentGroup);
 				subscribeIfLifting(e.getValue());
 		});
-		
-		crudGrid.setCrudListener(this);
-		crudGrid.setClickRowToUpdate(true);
-		crudGrid.getCrudLayout()
-			.addToolbarComponent(groupFilter);
-
-		return crudGrid;
+		crud.getCrudLayout().addFilterComponent(groupFilter);
 	}
 
 	/**
