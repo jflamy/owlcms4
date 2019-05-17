@@ -412,7 +412,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 					break;
 				default:
 					if (stringValue != null && !trim.isEmpty()) {
-						logger.warn("liftNo{} curLift{}",i.getLiftNo(),curLift);
 						String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
 								: (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
 						jri.put("goodBadClassName","narrow request");
