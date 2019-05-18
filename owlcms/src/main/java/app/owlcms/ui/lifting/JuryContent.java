@@ -10,17 +10,27 @@ package app.owlcms.ui.lifting;
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
+import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.KeyModifier;
+import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.splitlayout.SplitLayout;
-import com.vaadin.flow.component.splitlayout.SplitLayout.Orientation;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.BreakDialog.BreakType;
@@ -42,19 +52,71 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
+
+	private DecisionElement decisions;
 	
 	public JuryContent() {
+		// this just calls init, which we override.
 		super();
 	}
 
 	@Override
 	protected void init() {
+		this.setBoxSizing(BoxSizing.BORDER_BOX);
+		this.setSizeFull();
 		setTopBarTitle("Jury");
-		Label topLabel = new Label("Referee Decisions");
+		
+		buildRefereeBox(this);
+		buildJuryBox(this, 3);
+	}
+
+	private void buildRefereeBox(VerticalLayout container) {
+		Label label = new Label("Referee Decisions");
+		H3 labelWrapper = new H3(label);
+		labelWrapper.setHeight("5%");
+		container.add(labelWrapper);
+		
+		decisions = new DecisionElement();
+		Div decisionWrapper = new Div(decisions);
+		decisionWrapper.getStyle().set("width", "50%");
+		
+		HorizontalLayout top = new HorizontalLayout(decisionWrapper);
+		top.setBoxSizing(BoxSizing.BORDER_BOX);
+		top.setJustifyContentMode(JustifyContentMode.CENTER);
+		top.getStyle().set("background-color", "black");
+		top.setHeight("40%");
+		top.setWidthFull();
+		top.setPadding(true);
+		top.setMargin(true);
+
+		container.add(top);
+		container.setAlignSelf(Alignment.CENTER, top);
+	}
+	
+	private void buildJuryBox(VerticalLayout container, int nbJurors) {
 		Label bottomLabel = new Label("Jury Decisions");
-		SplitLayout split = new SplitLayout(topLabel,bottomLabel);
-		split.setOrientation(Orientation.VERTICAL);
-		fillHW(split,this);
+		H3 labelWrapper = new H3(bottomLabel);
+		labelWrapper.setHeight("5%");
+		container.add(labelWrapper);
+		
+		HorizontalLayout bottom = new HorizontalLayout();
+		bottom.setBoxSizing(BoxSizing.BORDER_BOX);
+		bottom.setJustifyContentMode(JustifyContentMode.AROUND);
+		bottom.setHeight("40%");
+		bottom.setWidthFull();
+		bottom.setPadding(true);
+		bottom.setMargin(true);
+		
+		for (int i = 0; i < nbJurors; i++) {
+			Icon icon = VaadinIcon.CIRCLE_THIN.create();
+			icon.setSize("100%");
+			bottom.add(icon);
+			Shortcuts.addShortcutListener(icon, () -> {logger.warn("0");}, Key.DIGIT_0, (KeyModifier)null);
+			
+		}
+
+		container.add(bottom);
+		container.setAlignSelf(Alignment.CENTER, bottom);
 	}
 	
 	/* (non-Javadoc)
@@ -123,6 +185,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	@Override
 	public void updateGrid(LiftingOrderUpdated e) {
 		// ignore
+		if (decisions != null) {
+			decisions.getElement().callFunction("showDecisions", false, true, true, false);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -157,6 +222,18 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	@Override
 	public String getPageTitle() {
 		return "Jury";
+	}
+	
+	@Subscribe
+	public void slaveGroupDone(UIEvent.GroupDone e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+				this.getOrigin(), e.getOrigin());
+		OwlcmsSession.withFop((fop) -> doUpdateTopBar(fop.getCurAthlete(), 0));
+	}
+	
+	@Subscribe
+	public void down(UIEvent.DownSignal e) {
+		// Ignore down signal
 	}
 	
 }
