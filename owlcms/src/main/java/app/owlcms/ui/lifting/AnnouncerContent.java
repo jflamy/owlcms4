@@ -158,6 +158,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		getAppLayout().setMenuVisible(false);
 	}
 
+
 	/**
 	 * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
 	 */

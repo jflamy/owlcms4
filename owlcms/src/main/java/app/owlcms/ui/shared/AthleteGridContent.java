@@ -131,7 +131,10 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 * Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public AthleteGridContent() {
-		logger.debug("AthleteGridContent constructor");
+		init();
+	}
+
+	protected void init() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
 		crudGrid = createCrudGrid(crudFormFactory);		
 		defineFilters(crudGrid);

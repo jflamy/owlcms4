@@ -21,6 +21,9 @@ import ch.qos.logback.classic.Logger;
  */
 public class FOPEvent {
 	
+
+
+
 	final Logger logger = (Logger)LoggerFactory.getLogger(FOPEvent.class);
 	{logger.setLevel(Level.DEBUG);}
 	
@@ -31,10 +34,25 @@ public class FOPEvent {
 	 * so we memorize which user interface element created the original order so it can ignore it.
 	 */
 	protected Object origin;
+	protected Athlete athlete;
+	
 	FOPEvent (Object origin) {
-		this.origin = origin;
+		this(null, origin);
 	}
 	
+	public FOPEvent(Athlete athlete, Object origin) {
+		this.athlete = athlete;
+		this.origin = origin;
+	}
+
+	public Athlete getAthlete() {
+		return athlete;
+	}
+
+	public void setAthlete(Athlete athlete) {
+		this.athlete = athlete;
+	}
+
 	public Object getOrigin() {
 		return origin;
 	}
@@ -129,17 +147,10 @@ public class FOPEvent {
 	 */
 	static public class WeightChange extends FOPEvent {
 
-		private Athlete athlete;
-
 		public WeightChange(Object origin, Athlete a) {
-			super(origin);
-			this.athlete = a;
+			super(a, origin);
 		}
-
-		public Athlete getAthlete() {
-			return athlete;
-		}
-
+		
 	}
 
 	/**
@@ -152,7 +163,6 @@ public class FOPEvent {
 		public Boolean ref1;
 		public Boolean ref2;
 		public Boolean ref3;
-		private Athlete athlete;
 
 		/**
 		 * Instantiates a new referee decision.
@@ -162,21 +172,30 @@ public class FOPEvent {
 		 * @param ref3 
 		 */
 		public RefereeDecision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
-			super(origin);
+			super(athlete, origin);
 			logger.trace("referee decision for {}", athlete);
-			this.setAthlete(athlete);
 			this.success = decision;
 			this.ref1 = ref1;
 			this.ref2 = ref2;
 			this.ref3 = ref3;
 		}
-
-		public Athlete getAthlete() {
-			return athlete;
-		}
-
-		public void setAthlete(Athlete athlete) {
-			this.athlete = athlete;
+	}
+	
+	public static class JuryDecision extends FOPEvent {
+		/** The decision. */
+		public Boolean success = null;
+		
+		/**
+		 * Instantiates a new referee decision.
+		 * @param decision the decision
+		 * @param ref1 
+		 * @param ref2 
+		 * @param ref3 
+		 */
+		public JuryDecision(Athlete athlete, Object origin, boolean decision) {
+			super(athlete, origin);
+			logger.trace("referee decision for {}", athlete);
+			this.success = decision;
 		}
 
 	}
