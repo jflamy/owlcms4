@@ -118,6 +118,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	protected OwlcmsCrudGrid<Athlete> crudGrid;
 	private AthleteCardFormFactory athleteEditingFormFactory;
 	protected Component reset;
+	private Athlete displayedAthlete;
 	
 	/**
 	 * @return the athleteEditingFormFactory
@@ -334,14 +335,14 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 * @param fop
 	 */
 	private void warnAnnouncerIfCurrent(UIEvent.LiftingOrderUpdated e, Athlete athlete, FieldOfPlay fop) {
-		// 
-		Athlete curAthlete = fop.getCurAthlete();
-		if (curAthlete != null && curAthlete.equals(athlete) && e.getOrigin() instanceof MarshallContent) {
+		// the athlete currently displayed is not necessarily the fop curAthlete, because the lifting order has been recalculated behind the scenes
+		Athlete curDisplayAthlete = displayedAthlete;
+		if (curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete()) && e.getOrigin() instanceof MarshallContent) {
 			Notification n = new Notification();
 			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
 			n.getElement().getThemeList().add("warning");
 			String text = MessageFormat.format("Weight change for current athlete<br>{0}",
-					e.getAthlete().getFullName());
+					curDisplayAthlete.getFullName());
 			n.setDuration(6000);
 			n.setPosition(Position.TOP_START);
 			Div label = new Div();
@@ -356,6 +357,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
 		if (title == null) return; // createTopBar has not yet been called;
+		displayedAthlete = athlete;
 		logger.debug("doUpdateTopBar {}", LoggerUtils.whereFrom());
 		OwlcmsSession.withFop(fop -> {
 			UIEventProcessor.uiAccess(topBar, uiEventBus, () -> {

@@ -169,24 +169,27 @@ public class UIEvent {
 		private List<Athlete> liftingOrder;
 		private List<Athlete> displayOrder;
 		private boolean stopAthleteTimer;
+		private Athlete changingAthlete;
 
 		/**
 		 * Instantiates a new lifting order updated.
 		 *
-		 * @param athlete         the athlete
-		 * @param nextAthlete     the next athlete
-		 * @param previousAthlete the previous athlete
+		 * @param athlete         the current athlete after recalculation
+		 * @param nextAthlete     the next athlete that will lift (cannot be the same as athlete)
+		 * @param previousAthlete the last athlete to have lifted (can be the same as athlete)
+		 * @param changingAthlete the athlete who triggered the lifting update
 		 * @param liftingOrder    the lifting order
 		 * @param displayOrder    the display order
 		 * @param timeAllowed     the time allowed
 		 * @param origin          the origin
 		 */
 		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete,
-				List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed, 
-				boolean aboutCurrentAthlete, Object origin) {
+				Athlete changingAthlete, List<Athlete> liftingOrder, List<Athlete> displayOrder, 
+				Integer timeAllowed, boolean aboutCurrentAthlete, Object origin) {
 			super(athlete, origin);
 			this.nextAthlete = nextAthlete;
 			this.previousAthlete = previousAthlete;
+			this.changingAthlete = changingAthlete;
 			this.timeAllowed = timeAllowed;
 			this.liftingOrder = liftingOrder;
 			this.displayOrder = displayOrder;
@@ -242,6 +245,10 @@ public class UIEvent {
 		 */
 		public boolean isStopAthleteTimer() {
 			return stopAthleteTimer;
+		}
+		
+		public Athlete getChangingAthlete() {
+			return changingAthlete;
 		}
 
 	}

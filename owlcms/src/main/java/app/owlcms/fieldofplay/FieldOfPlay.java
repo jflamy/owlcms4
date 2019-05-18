@@ -237,7 +237,7 @@ public class FieldOfPlay {
 			transitionToBreak((BreakStarted) e);
 			return;
 		} else if (e instanceof FOPEvent.StartLifting) {
-			transitionToLifting(e);
+			transitionToLifting(e, true);
 		}
 
 		switch (this.getState()) {
@@ -248,9 +248,9 @@ public class FieldOfPlay {
 			} else if (e instanceof FOPEvent.TimeStarted) {
 				getAthleteTimer().start();
 				transitionToTimeRunning();
-			} else if (e instanceof FOPEvent.WeightChange) {
-				WeightChange weightChangeEvent = (FOPEvent.WeightChange) e;
-				weightChange(weightChangeEvent.getAthlete(), weightChangeEvent);
+			} else if (e instanceof WeightChange) {
+				doWeightChangeDisturbIfNeeded((WeightChange) e);
+				// leave us in INACTIVE state
 				setState(FOPState.INACTIVE);
 			} else {
 				unexpectedEventInState(e, FOPState.INACTIVE);
@@ -259,19 +259,19 @@ public class FieldOfPlay {
 
 		case BREAK:
 			if (e instanceof FOPEvent.StartLifting) {
-				transitionToLifting(e);
+				transitionToLifting(e, true);
 			} else if (e instanceof FOPEvent.BreakPaused) {
 				getBreakTimer().stop();
 				getUiEventBus().post(new UIEvent.BreakPaused(e.getOrigin()));
 			} else if (e instanceof FOPEvent.BreakStarted) {
 				transitionToBreak((BreakStarted) e);
 			} else if (e instanceof FOPEvent.WeightChange) {
-				weightChange(curAthlete, e);
-				if (curAthlete.getAttemptsDone() == 0) {
-					// the group has not started lifting, override the change to
-					// lifting state from weightChange and stay in BREAK mode
-					setState(FOPState.BREAK);
-				}	
+				doWeightChangeDisturbIfNeeded((WeightChange) e);
+//				if (curAthlete.getAttemptsDone() == 0) {
+//					// the group has not started lifting, override the change to
+//					// lifting state from weightChange and stay in BREAK mode
+//					setState(FOPState.BREAK);
+//				}	
 			} else {
 				unexpectedEventInState(e, FOPState.BREAK);
 			}
@@ -282,7 +282,7 @@ public class FieldOfPlay {
 				getAthleteTimer().start();
 				transitionToTimeRunning();		
 			} else if (e instanceof FOPEvent.WeightChange) {
-				weightChange(curAthlete, e);
+				doWeightChangeDisturbIfNeeded((WeightChange) e);
 				setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
 			} else if (e instanceof FOPEvent.ForceTime) {
 				// need to set time
@@ -307,18 +307,7 @@ public class FieldOfPlay {
 				getAthleteTimer().stop();
 				setState(FOPState.TIME_STOPPED);
 			} else if (e instanceof FOPEvent.WeightChange) {
-				WeightChange wc = (FOPEvent.WeightChange)e;
-				Athlete athlete = wc.getAthlete();
-				if (athlete == curAthlete) {
-					// coach is requesting change, stop clock
-					getAthleteTimer().stop();
-					weightChange(curAthlete, e);
-					setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
-				} else {
-					// changing athlete is not currently called, leave main clock running
-					weightChangeDoNotDisturb(curAthlete);
-					setState(FOPState.TIME_RUNNING);
-				}
+				doWeightChangeDisturbIfNeeded((WeightChange) e);
 			} else if (e instanceof FOPEvent.RefereeDecision) {
 				// in theory not possible, we would get down signal before.
 				getAthleteTimer().stop();
@@ -345,18 +334,7 @@ public class FieldOfPlay {
 				getAthleteTimer().start();
 				transitionToTimeRunning();
 			} else if (e instanceof FOPEvent.WeightChange) {
-				WeightChange wc = (FOPEvent.WeightChange)e;
-				Athlete athlete = wc.getAthlete();
-				if (athlete.equals(curAthlete)) {
-					getAthleteTimer().stop();
-					// clock is already stopped, coach requesting change
-					weightChange(curAthlete, e);
-					setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
-				} else {
-					// other athlete is changing, leave clock alone
-					weightChangeDoNotDisturb(curAthlete);
-					setState(FOPState.TIME_STOPPED);
-				}
+				doWeightChangeDisturbIfNeeded((WeightChange) e);
 			} else if (e instanceof FOPEvent.RefereeDecision) {
 				getAthleteTimer().stop();
 				this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
@@ -378,7 +356,7 @@ public class FieldOfPlay {
 				getAthleteTimer().stop();
 				decision(e);
 			} else if (e instanceof FOPEvent.WeightChange) {
-				weightChangeDoNotDisturb(curAthlete);
+				weightChangeDoNotDisturb((WeightChange) e);
 				setState(FOPState.DOWN_SIGNAL_VISIBLE);
 			} else {
 				unexpectedEventInState(e, FOPState.DOWN_SIGNAL_VISIBLE);
@@ -390,7 +368,7 @@ public class FieldOfPlay {
 				// decision reversal
 				decision(e);
 			} else if (e instanceof FOPEvent.WeightChange) {
-				weightChangeDoNotDisturb(curAthlete);
+				weightChangeDoNotDisturb((WeightChange) e);
 				setState(FOPState.DECISION_VISIBLE);
 			} else if (e instanceof FOPEvent.DecisionReset) {
 				uiEventBus.post(new UIEvent.DecisionReset(e.origin));
@@ -404,6 +382,25 @@ public class FieldOfPlay {
 		}
 	}
 
+	private void doWeightChangeDisturbIfNeeded(FOPEvent.WeightChange wc) {
+		logger.trace("doWeightChangeDisturbIfNeeded change for {}",wc.getAthlete());
+		Athlete changingAthlete = wc.getAthlete();
+		
+		// if in a break, we don't stop break timer on a weight change.
+		// unless we are at the end of a group (a loading error may have occurred)
+		boolean stopBreakTimer = (state == FOPState.BREAK && getBreakType() == BreakType.GROUP_DONE);
+		if (changingAthlete.equals(curAthlete)) {
+			// coach is requesting change, make sure clock is stopped.
+			// defensively, this will re-issue a stop order to the remote browsers in case
+			// a glitch caused a previous stop to be missed.
+			transitionToLifting(wc, stopBreakTimer);
+		} else {
+			// changing athlete is not current, do not change state (stay in break, update boards)
+			recomputeLiftingOrder();
+			uiDisplayCurrentAthleteAndTime(true, wc);
+		}
+	}
+
 	private void displayOrBreak(FOPEvent e) {
 		if (curAthlete != null && curAthlete.getAttemptsDone() < 6) {
 			uiDisplayCurrentAthleteAndTime(true, e);
@@ -411,6 +408,7 @@ public class FieldOfPlay {
 		} else {
 			UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
 			uiEventBus.post(event);
+			setBreakType(BreakType.GROUP_DONE);
 			setState(FOPState.BREAK);
 		}
 	}
@@ -421,12 +419,14 @@ public class FieldOfPlay {
 		setState(FOPState.BREAK);
 	}
 
-	private void transitionToLifting(FOPEvent e) {
-		getBreakTimer().stop();
+	private void transitionToLifting(FOPEvent e, boolean stopBreakTimer) {
+		logger.trace("transitionToLifting {} {}",e.getAthlete(), LoggerUtils.stackTrace());
 		recomputeLiftingOrder();
-		// we set the state before emitting the display order
-		// beacuse attempt boards ignore updates while in BREAK state
-		setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
+		if (stopBreakTimer) {
+			getBreakTimer().stop();
+			// set the state now, otherwise attempt board will ignore request to display
+			setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
+		}
 		uiDisplayCurrentAthleteAndTime(true, e);
 	}
 
@@ -571,7 +571,9 @@ public class FieldOfPlay {
 		// if only one athlete, no next athlete
 		Athlete nextAthlete = liftingOrder.size() > 1 ? liftingOrder.get(1) : null;
 
-		uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, liftingOrder, getDisplayOrder(), clock, stopTimer, e.getOrigin()));
+		Athlete changingAthlete = null ;
+		if (e instanceof FOPEvent.WeightChange) changingAthlete= e.getAthlete();
+		uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, changingAthlete, liftingOrder, getDisplayOrder(), clock, stopTimer, e.getOrigin()));
 	
 		logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={}",
 			curAthlete,
@@ -613,26 +615,17 @@ public class FieldOfPlay {
 		uiEventLogger.trace("unlockReferees");
 	}
 
-	private void weightChange(Athlete changedAthlete, FOPEvent e) {
-		// we use transitionToLifting because if we are in a BREAK due to last lift,
-		// and there was a loading error, and we edit the weight, we want to resume lifting
-//		recomputeLiftingOrder();
-//		uiDisplayCurrentAthleteAndTime(true);
-		transitionToLifting(e);
-
-	}
-
 	/**
 	 * weight change while a lift is being performed (bar lifted above knees)
 	 * Lifting order is recomputed, so the app.owlcms.ui.displayselection can get it, but not the attempt
 	 * board state.
-	 * 
+	 * @param e 
 	 * @param curAthlete
 	 */
-	private void weightChangeDoNotDisturb(Athlete curLifter) {
+	private void weightChangeDoNotDisturb(WeightChange e) {
 		AthleteSorter.liftingOrder(this.liftingOrder);
 		this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
-		uiDisplayCurrentAthleteAndTime(false, null);
+		uiDisplayCurrentAthleteAndTime(false, e);
 	}
 
 	/**

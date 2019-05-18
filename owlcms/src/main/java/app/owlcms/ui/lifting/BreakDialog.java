@@ -40,7 +40,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class BreakDialog extends Dialog {
 	public enum BreakType {
-		INTRODUCTION, FIRST_SNATCH, FIRST_CJ, TECHNICAL, JURY
+		INTRODUCTION, FIRST_SNATCH, FIRST_CJ, TECHNICAL, JURY, GROUP_DONE
 	}
 
 	public enum CountdownType {
