@@ -335,14 +335,17 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			ScoreboardModel model = getModel();
 			model.setHidden(a == null);
+			boolean leaveTopAlone = e instanceof UIEvent.LiftingOrderUpdated && !((UIEvent.LiftingOrderUpdated)e).isStopAthleteTimer();
 			if (a != null) {
-				this.getElement().callFunction("reset");
-				model.setFullName(a.getFullName());
-				model.setTeamName(a.getTeam());
-				model.setStartNumber(a.getStartNumber());
-				String formattedAttempt = formatAttempt(a.getAttemptsDone());
-				model.setAttempt(formattedAttempt);
-				model.setWeight(a.getNextAttemptRequestedWeight());
+				if (!leaveTopAlone) {
+					this.getElement().callFunction("reset");
+					model.setFullName(a.getFullName());
+					model.setTeamName(a.getTeam());
+					model.setStartNumber(a.getStartNumber());
+					String formattedAttempt = formatAttempt(a.getAttemptsDone());
+					model.setAttempt(formattedAttempt);
+					model.setWeight(a.getNextAttemptRequestedWeight());
+				}
 				updateBottom(model,computeLiftType(a));
 			}
 		});

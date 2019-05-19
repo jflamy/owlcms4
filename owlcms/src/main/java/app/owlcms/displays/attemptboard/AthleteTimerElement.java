@@ -54,7 +54,7 @@ public class AthleteTimerElement extends TimerElement {
 	public void clientSyncTime() {
 		OwlcmsSession.withFop(fop -> {
 			int timeRemaining = fop.getAthleteTimer().getTimeRemaining();		
-			logger.debug("Fetched time = {} for {}",timeRemaining, fop.getCurAthlete());
+			logger.trace("Fetched time = {} for {}",timeRemaining, fop.getCurAthlete());
 			doSetTimer(timeRemaining);
 		});
 		return;
@@ -65,7 +65,7 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimeOver() {
-		logger.info("Received time over from client");
+		logger.info("Received time over from client.");
 		OwlcmsSession.withFop(fop -> {
 			fop.getAthleteTimer().timeOut(this);
 		});
@@ -76,7 +76,7 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimerStopped(double remainingTime) {
-		logger.trace("timer stopped from client" + remainingTime);
+		logger.trace("timer stopped from client: " + remainingTime);
 		// do not stop the server-side timer, this is getting called as a result of the
 		// server-side timer issuing a command.  Otherwise we create an infinite loop.
 	}
@@ -97,11 +97,14 @@ public class AthleteTimerElement extends TimerElement {
 	
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), (e.isStopAthleteTimer()?"stop_timer":"leave_asis"),
 			this.getOrigin(), e.getOrigin());
 		if (e.isStopAthleteTimer()) {
 			clientSyncTime();
-		}
+		} 
+//		else {
+//			uiEventLogger.trace(LoggerUtils.stackTrace());
+//		}
 	}
 
 	@Subscribe

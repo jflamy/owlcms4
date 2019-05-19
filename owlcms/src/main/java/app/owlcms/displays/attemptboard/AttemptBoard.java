@@ -156,11 +156,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		uiEventLogger.debug("### {} {} stop={} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.isStopAthleteTimer(),
 				this.getOrigin(), e.getOrigin());
 		OwlcmsSession.withFop(fop -> {
 			FOPState state = fop.getState();
 			if (state == FOPState.BREAK || state == FOPState.INACTIVE) {
+				return;
+			} else if (!e.isStopAthleteTimer()) {
+				// order change does not affect current lifter
 				return;
 			} else {
 				Athlete a = e.getAthlete();

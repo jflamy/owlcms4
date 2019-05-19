@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -367,13 +366,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 					lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
 					firstName.setText(athlete.getFirstName());
 					timeField.getElement().getStyle().set("visibility", "visible");
-//					String attemptHtml = MessageFormat.format("<h2>{0} {1}<sup>{1,choice,1#st|2#nd|3#rd}</sup> att.</h2>",
-//					String attemptHtml = MessageFormat.format("<h2>{0} #{1}</h2>",
-//							athlete.getAttemptsDone() > 2 ? "C & J" : "Snatch",
-//							athlete.getAttemptNumber());
-//					Html newAttempt = new Html(attemptHtml);
-//					topBar.replace(attempt, newAttempt);
-//					attempt = newAttempt;
 					attempt.setText(formatAttemptNumber(athlete));
 					Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
 					weight.setText(
@@ -384,16 +376,28 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 							fop.getGroup() == null ? "\u2013" : MessageFormat.format("Group {0} done.", fop.getGroup()));
 					firstName.setText("");
 					timeField.getElement().getStyle().set("visibility", "hidden");
-//					Html newAttempt = new Html("<h2><span></span></h2>");
-//					topBar.replace(attempt, newAttempt);
-//					attempt = newAttempt;
+
 					attempt.setText("");
 					weight.setText("");
 				}
 			});
 		});
 	}
-
+	
+	/*
+	 *  Old code to create HTML. Should recheck whether getElement().setProperty("innerHTML", "...") works
+	 * 
+	 * // String attemptHtml = MessageFormat.
+	 * format("<h2>{0} {1}<sup>{1,choice,1#st|2#nd|3#rd}</sup> att.</h2>", // String
+	 * attemptHtml = MessageFormat.format("<h2>{0} #{1}</h2>", //
+	 * athlete.getAttemptsDone() > 2 ? "C & J" : "Snatch", //
+	 * athlete.getAttemptNumber()); // Html newAttempt = new Html(attemptHtml); //
+	 * topBar.replace(attempt, newAttempt); // attempt = newAttempt;
+	 * 
+	 * // Html newAttempt = new Html("<h2><span></span></h2>"); //
+	 * topBar.replace(attempt, newAttempt); // attempt = newAttempt;
+	 */
+	
 	/**
 	 * @param forceUpdate
 	 */
@@ -423,13 +427,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar2) {
 		return null;
-	}
-
-	public void shrinkTitle(AppLayout appLayout) {
-		appLayout.getTitleWrapper()
-		.getElement()
-		.getStyle()
-		.set("flex", "0 1 0px");
 	}
 
 	/* (non-Javadoc)
