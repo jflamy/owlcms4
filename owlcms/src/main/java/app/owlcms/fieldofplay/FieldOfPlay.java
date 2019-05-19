@@ -25,7 +25,6 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FOPEvent.BreakStarted;
 import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
-import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.lifting.BreakDialog.BreakType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -395,13 +394,26 @@ public class FieldOfPlay {
 		if (clockOwner != null) {
 			// time has started
 			if (changingAthlete.equals(clockOwner)) {
-				logger.trace("&&3 changingAthlete.equals(clockOwner)");
+				logger.trace("&&3.A clock IS running for changing athlete");
 				// X is the current lifter
 				// if a real change (and not simply a declaration that does not change weight), make sure clock is stopped.
 				if (curWeight != newWeight) {
+					logger.trace("&&3.A.A weight change for clock owner: stop clock");
 					getAthleteTimer().stop(); // memorize time
 					stopAthleteTimer = true; // make sure we broacast to clients
+					logger.trace("&&4.1 stop, recompute, state");
+					recomputeLiftingOrder();
+					// set the state now, otherwise attempt board will ignore request to display if in a break
+					setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
+					// if in a break, we don't stop break timer on a weight change.
+					// unless we are at the end of a group (a loading error may have occurred)
+					boolean stopBreakTimer = (state == FOPState.BREAK && getBreakType() == BreakType.GROUP_DONE);
+					if (stopBreakTimer) {
+						getBreakTimer().stop();
+					}
+					uiDisplayCurrentAthleteAndTime(stopAthleteTimer, wc);
 				} else {
+					logger.trace("&&3.A.B declaration for clock owner: leave clock running");
 					// no weight change.  this is most likely a declaration.
 					//TODO: post uiEvent to signal declaration
 					if (Athlete.zeroIfInvalid(changingAthlete.getCurrentDeclaration()) == newWeight) {
@@ -409,25 +421,13 @@ public class FieldOfPlay {
 					}
 					return;
 				}
+			} else {
+				logger.trace("&&3.B clock running, but NOT for changing athlete");
+				weightChangeDoNotDisturb(wc);
+				return;
 			}
-//			} else {
-//				// time is running for athlete X, weight change for athlete B
-//				weightChangeDoNotDisturb(wc);
-//			}
-
-			logger.trace("&&4 recompute + setting state");
-			recomputeLiftingOrder();
-			// set the state now, otherwise attempt board will ignore request to display if in a break
-			setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
-			// if in a break, we don't stop break timer on a weight change.
-			// unless we are at the end of a group (a loading error may have occurred)
-			boolean stopBreakTimer = (state == FOPState.BREAK && getBreakType() == BreakType.GROUP_DONE);
-			if (stopBreakTimer) {
-				getBreakTimer().stop();
-			}
-			uiDisplayCurrentAthleteAndTime(stopAthleteTimer, wc);
 		} else {
-			logger.trace("&&5 recompute + NOT changing state");
+			logger.trace("&&4 recompute + NOT changing state");
 			// time is not running
 			// changing athlete is not current athlete, do not change state (stay in break, update boards)
 			recomputeLiftingOrder();
