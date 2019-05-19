@@ -185,7 +185,7 @@ public class UIEvent {
 		 */
 		public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete,
 				Athlete changingAthlete, List<Athlete> liftingOrder, List<Athlete> displayOrder, 
-				Integer timeAllowed, boolean aboutCurrentAthlete, Object origin) {
+				Integer timeAllowed, boolean stopTimer, Object origin) {
 			super(athlete, origin);
 			this.nextAthlete = nextAthlete;
 			this.previousAthlete = previousAthlete;
@@ -193,6 +193,7 @@ public class UIEvent {
 			this.timeAllowed = timeAllowed;
 			this.liftingOrder = liftingOrder;
 			this.displayOrder = displayOrder;
+			this.stopAthleteTimer = stopTimer;
 		}
 
 		/**

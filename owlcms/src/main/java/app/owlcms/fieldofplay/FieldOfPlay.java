@@ -47,7 +47,7 @@ public class FieldOfPlay {
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	{
-		logger.setLevel(Level.TRACE);
+		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.INFO);
 	}
  
@@ -429,9 +429,9 @@ public class FieldOfPlay {
 		} else {
 			logger.trace("&&4 recompute + NOT changing state");
 			// time is not running
-			// changing athlete is not current athlete, do not change state (stay in break, update boards)
+			// changing athlete is not current athlete
 			recomputeLiftingOrder();
-			uiDisplayCurrentAthleteAndTime(false, wc);
+			uiDisplayCurrentAthleteAndTime(true, wc);
 		}
 	}
 
