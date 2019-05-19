@@ -65,9 +65,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 			"Jury",
 			buttonClickEvent -> UI.getCurrent().getPage()
 				.executeJavaScript(getWindowOpener(JuryContent.class)));
-		jury.setEnabled(false);
 
-		
 		fillH(intro, this);
 		
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(

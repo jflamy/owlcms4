@@ -120,13 +120,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	private Athlete displayedAthlete;
 	
 	/**
-	 * @return the athleteEditingFormFactory
-	 */
-	public AthleteCardFormFactory getAthleteEditingFormFactory() {
-		return athleteEditingFormFactory;
-	}
-
-	/**
 	 * Instantiates a new announcer content.
 	 * Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
@@ -134,61 +127,140 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		init();
 	}
 
-	protected void init() {
-		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
-		crudGrid = createCrudGrid(crudFormFactory);		
-		defineFilters(crudGrid);
-		fillHW(crudGrid, this);
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
+	 */
+	@Override
+	public Athlete add(Athlete Athlete) {
+		AthleteRepository.save(Athlete);
+		return Athlete;
+	}
+
+	public void closeDialog() {
+		crudGrid.getCrudLayout().hideForm();
+		crudGrid.getGrid().asSingleSelect().clear();
 	}
 	
 	/**
-	 * Define the form used to edit a given athlete.
-	 * 
-	 * @return the form factory that will create the actual form on demand
+	 * Gets the crudGrid.
+	 * @param crudFormFactory 
+	 *
+	 * @return the crudGrid crudGrid
 	 */
-	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		athleteEditingFormFactory = createAthleteEditingFormFactory();
+	public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+		ThemeList themes = grid.getThemeNames();
+		themes.add("compact");
+		themes.add("row-stripes");
+		grid.addColumn(athlete -> athlete.getLastName().toUpperCase())
+			.setHeader("Last Name");
+		grid.addColumn("firstName")
+			.setHeader("First Name");
+		grid.addColumn("team")
+			.setHeader("Team");
+		grid.addColumn("category")
+			.setHeader("Category");
+		grid.addColumn("nextAttemptRequestedWeight")
+			.setHeader("Requested Weight");
+		// format attempt
+		grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader("Attempt");
+		grid.addColumn("startNumber")
+			.setHeader("Start Number");
+
+		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
+		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class,
+				gridLayout,
+				crudFormFactory,
+				grid) {
+			@Override
+			protected void initToolbar() {
+				Component reset = createReset();
+				if (reset != null) {
+					crudLayout.addToolbarComponent(reset);
+				}
+			}
+			@Override
+			protected void updateButtons() {}
+		};
+
+		crudGrid.setCrudListener(this);
+		crudGrid.setClickRowToUpdate(true);
+		crudGrid.getCrudLayout().addToolbarComponent(groupFilter);
+
+		return crudGrid;
+	}
+	
+
+	public void createGroupSelect() {
+		groupSelect = new ComboBox<>();
+		groupSelect.setPlaceholder("Group");
+		groupSelect.setItems(GroupRepository.findAll());
+		groupSelect.setItemLabelGenerator(Group::getName);
+		groupSelect.setWidth("7rem");
+		groupSelect.setReadOnly(true);
+		// if groupSelect is made read-write, it needs to set values in groupFilter and call updateURLLocation
+		// see AnnouncerContent for an example.
+	}
+
+	public Component createReset() {
+		return null;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
+	 */
+	@Override
+	public void delete(Athlete notUsed) {
+		Athlete originalAthlete = getAthleteEditingFormFactory().getOriginalAthlete();
+		AthleteRepository.delete(originalAthlete);
+	}
+
+	/**
+	 * Get the content of the crudGrid. Invoked by refreshGrid.
+	 *
+	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
+	 */
+	@Override
+	public Collection<Athlete> findAll() {
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		if (fop != null) {
+			logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+					LoggerUtils.whereFrom());
+			final String filterValue;
+			if (lastNameFilter.getValue() != null) {
+				filterValue = lastNameFilter.getValue().toLowerCase();
+			} else
+				return fop.getDisplayOrder();
+			return fop.getLiftingOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
+					.collect(Collectors.toList());
+		} else {
+			// no field of play, no group, empty list
+			logger.debug("findAll fop==null");
+			return ImmutableList.of();
+		}
+	}
+
+	/**
+	 * @return the athleteEditingFormFactory
+	 */
+	public AthleteCardFormFactory getAthleteEditingFormFactory() {
 		return athleteEditingFormFactory;
 	}
+
 	
-
-	private AthleteCardFormFactory createAthleteEditingFormFactory() {
-		return new AthleteCardFormFactory(Athlete.class, this);
-	}
-
 	/**
-	 * The filters at the top of the crudGrid
-	 *
-	 * @param crudGrid the crudGrid that will be filtered.
+	 * @return the groupFilter
 	 */
-	protected void defineFilters(GridCrud<Athlete> crud) {
-		lastNameFilter.setPlaceholder("Last name");
-		lastNameFilter.setClearButtonVisible(true);
-		lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-		lastNameFilter.addValueChangeListener(e -> {
-			crud.refreshGrid();
-		});
-		crud.getCrudLayout().addFilterComponent(lastNameFilter);
-		
-		groupFilter.setPlaceholder("Group");
-		groupFilter.setItems(GroupRepository.findAll());
-		groupFilter.setItemLabelGenerator(Group::getName);
-		// hide because the top bar has it
-		groupFilter.getStyle().set("display", "none");
-		// we do not set the group filter value
-		groupFilter.addValueChangeListener(e -> {
-			Group newGroup = e.getValue();
-			logger.debug("filter switching group to {}",newGroup != null ? newGroup.getName() : null);
-			OwlcmsSession.withFop((fop) -> {
-				fop.switchGroup(newGroup, this.getOrigin());
-			});
-			crud.refreshGrid();
-			updateURLLocation(locationUI, location, newGroup);
-		});
-		crud.getCrudLayout().addFilterComponent(groupFilter);
+	public ComboBox<Group> getGroupFilter() {
+		return groupFilter;
 	}
 
-
+	@Override
+	public OwlcmsRouterLayout getRouterLayout() {
+		return routerLayout;
+	}
+	
 	/**
 	 * Process URL parameters, including query parameters
 	 * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
@@ -201,6 +273,87 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		locationUI = event.getUI();
 		// super.setParameter sets the group, but does not reload.
 		OwlcmsSession.withFop(fop -> fop.initGroup(fop.getGroup(), this));
+	}
+
+	@Override
+	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+		this.routerLayout = routerLayout;
+	}
+	
+	@Subscribe
+	public void slaveGroupDone(UIEvent.GroupDone e) {
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+				this.getOrigin(), e.getOrigin());
+		OwlcmsSession.withFop((fop) -> doUpdateTopBar(fop.getCurAthlete(), 0));
+		crudGrid.refreshGrid();
+	}
+
+	/**
+	 * @param forceUpdate
+	 */
+	public void syncWithFOP(boolean forceUpdate) {
+		logger.debug("syncWithFOP {}",LoggerUtils.whereFrom());
+		OwlcmsSession.withFop((fop) -> {
+			Group fopGroup = fop.getGroup();
+			Group displayedGroup = groupSelect.getValue();
+			if (fopGroup == null && displayedGroup == null) return;
+			if (fopGroup != null && (forceUpdate || ! fopGroup.equals(displayedGroup))) {
+				groupSelect.setValue(fopGroup);
+				if (forceUpdate) {
+					fop.switchGroup(fop.getGroup(), this);
+				}
+			} else if (fopGroup == null) {
+				groupSelect.setValue(null);
+			}
+			Athlete curAthlete = fop.getCurAthlete();
+			int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
+			doUpdateTopBar(curAthlete, timeRemaining);
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object) */
+	@Override
+	public Athlete update(Athlete athleteFromDb) {
+		throw new UnsupportedOperationException("Programming error, update is implemented in "+AthleteCardFormFactory.class.getSimpleName());
+	}
+
+	@Subscribe
+	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
+		Athlete athlete = e.getAthlete();
+		OwlcmsSession.withFop(fop -> {
+			// do not send weight change notification if we are the source of the weight change
+			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBar, uiEventBus, e, e.getOrigin(), this.getOrigin(), () -> {
+				warnAnnouncerIfCurrent(e, athlete, fop);
+			});
+			UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> 
+				doUpdateTopBar(athlete, e.getTimeAllowed()));
+		});
+	}
+	
+	/*
+	 *  Old code to create HTML. Should recheck whether getElement().setProperty("innerHTML", "...") works
+	 * 
+	 * // String attemptHtml = MessageFormat.
+	 * format("<h2>{0} {1}<sup>{1,choice,1#st|2#nd|3#rd}</sup> att.</h2>", // String
+	 * attemptHtml = MessageFormat.format("<h2>{0} #{1}</h2>", //
+	 * athlete.getAttemptsDone() > 2 ? "C & J" : "Snatch", //
+	 * athlete.getAttemptNumber()); // Html newAttempt = new Html(attemptHtml); //
+	 * topBar.replace(attempt, newAttempt); // attempt = newAttempt;
+	 * 
+	 * // Html newAttempt = new Html("<h2><span></span></h2>"); //
+	 * topBar.replace(attempt, newAttempt); // attempt = newAttempt;
+	 */
+	
+	/* (non-Javadoc)
+	 * @see app.owlcms.ui.group.UIEventProcessor#updateGrid(app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated)
+	 */
+	@Subscribe
+	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
+		logger.debug("{} {}",e.getOrigin(),LoggerUtils.whereFrom());
+		UIEventProcessor.uiAccess(crudGrid, uiEventBus, e, () -> {
+			crudGrid.refreshGrid();
+		});
 	}
 
 	/**
@@ -222,32 +375,20 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		ui.getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
 
-	/* (non-Javadoc)
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
-	 */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsSession.withFop(fop -> {
-			// create the top bar.
-			createTopBar();
-			syncWithFOP(true);
-			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-		});
-	}
-
-	
-	protected String getTopBarTitle() {
-		return topBarTitle;
+	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar2) {
+		return null;
 	}
 
 	/**
-	 * @param topBarTitle the topBarTitle to set
+	 * Define the form used to edit a given athlete.
+	 * 
+	 * @return the form factory that will create the actual form on demand
 	 */
-	protected void setTopBarTitle(String title) {
-		this.topBarTitle = title;
+	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
+		athleteEditingFormFactory = createAthleteEditingFormFactory();
+		return athleteEditingFormFactory;
 	}
-	
+
 	/**
 	 * The top bar is logically is the master part of a master-detail
 	 * In the current implementation, the most convenient place to put it is in the top bar
@@ -298,60 +439,40 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		topBar.setFlexGrow(0.5, fullName);
 	}
 
-	public Component createReset() {
+	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar2) {
 		return null;
 	}
 	
-	public void createGroupSelect() {
-		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder("Group");
-		groupSelect.setItems(GroupRepository.findAll());
-		groupSelect.setItemLabelGenerator(Group::getName);
-		groupSelect.setWidth("7rem");
-		groupSelect.setReadOnly(true);
-		// if groupSelect is made read-write, it needs to set values in groupFilter and call updateURLLocation
-		// see AnnouncerContent for an example.
-	}
-
-	@Subscribe
-	public void updateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
-		Athlete athlete = e.getAthlete();
-		OwlcmsSession.withFop(fop -> {
-			// do not send weight change notification if we are the source of the weight change
-			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBar, uiEventBus, e, e.getOrigin(), this.getOrigin(), () -> {
-				warnAnnouncerIfCurrent(e, athlete, fop);
-			});
-			UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> 
-				doUpdateTopBar(athlete, e.getTimeAllowed()));
-		});
-	}
-
 	/**
-	 * display a warning to other Technical Officials that marshall has changed weight for current athlete
-	 * 
-	 * @param e
-	 * @param athlete
-	 * @param fop
+	 * The filters at the top of the crudGrid
+	 *
+	 * @param crudGrid the crudGrid that will be filtered.
 	 */
-	private void warnAnnouncerIfCurrent(UIEvent.LiftingOrderUpdated e, Athlete athlete, FieldOfPlay fop) {
-		// the athlete currently displayed is not necessarily the fop curAthlete, because the lifting order has been recalculated behind the scenes
-		Athlete curDisplayAthlete = displayedAthlete;
-		if (curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete()) && e.getOrigin() instanceof MarshallContent) {
-			Notification n = new Notification();
-			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
-			n.getElement().getThemeList().add("warning");
-			String text = MessageFormat.format("Weight change for current athlete<br>{0}",
-					curDisplayAthlete.getFullName());
-			n.setDuration(6000);
-			n.setPosition(Position.TOP_START);
-			Div label = new Div();
-			label.getElement().setProperty("innerHTML",text);
-			label.addClickListener((event)-> n.close());
-			label.setSizeFull();
-			label.getStyle().set("font-size", "large");
-			n.add(label);
-			n.open();
-		}
+	protected void defineFilters(GridCrud<Athlete> crud) {
+		lastNameFilter.setPlaceholder("Last name");
+		lastNameFilter.setClearButtonVisible(true);
+		lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+		lastNameFilter.addValueChangeListener(e -> {
+			crud.refreshGrid();
+		});
+		crud.getCrudLayout().addFilterComponent(lastNameFilter);
+		
+		groupFilter.setPlaceholder("Group");
+		groupFilter.setItems(GroupRepository.findAll());
+		groupFilter.setItemLabelGenerator(Group::getName);
+		// hide because the top bar has it
+		groupFilter.getStyle().set("display", "none");
+		// we do not set the group filter value
+		groupFilter.addValueChangeListener(e -> {
+			Group newGroup = e.getValue();
+			logger.debug("filter switching group to {}",newGroup != null ? newGroup.getName() : null);
+			OwlcmsSession.withFop((fop) -> {
+				fop.switchGroup(newGroup, this.getOrigin());
+			});
+			crud.refreshGrid();
+			updateURLLocation(locationUI, location, newGroup);
+		});
+		crud.getCrudLayout().addFilterComponent(groupFilter);
 	}
 
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
@@ -383,110 +504,47 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			});
 		});
 	}
+
+	protected Object getOrigin() {
+		return this;
+	}
+
+
+	protected String getTopBarTitle() {
+		return topBarTitle;
+	}
+
+	protected void init() {
+		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
+		crudGrid = createCrudGrid(crudFormFactory);		
+		defineFilters(crudGrid);
+		fillHW(crudGrid, this);
+	}
+
 	
-	/*
-	 *  Old code to create HTML. Should recheck whether getElement().setProperty("innerHTML", "...") works
-	 * 
-	 * // String attemptHtml = MessageFormat.
-	 * format("<h2>{0} {1}<sup>{1,choice,1#st|2#nd|3#rd}</sup> att.</h2>", // String
-	 * attemptHtml = MessageFormat.format("<h2>{0} #{1}</h2>", //
-	 * athlete.getAttemptsDone() > 2 ? "C & J" : "Snatch", //
-	 * athlete.getAttemptNumber()); // Html newAttempt = new Html(attemptHtml); //
-	 * topBar.replace(attempt, newAttempt); // attempt = newAttempt;
-	 * 
-	 * // Html newAttempt = new Html("<h2><span></span></h2>"); //
-	 * topBar.replace(attempt, newAttempt); // attempt = newAttempt;
-	 */
-	
-	/**
-	 * @param forceUpdate
-	 */
-	public void syncWithFOP(boolean forceUpdate) {
-		logger.debug("syncWithFOP {}",LoggerUtils.whereFrom());
-		OwlcmsSession.withFop((fop) -> {
-			Group fopGroup = fop.getGroup();
-			Group displayedGroup = groupSelect.getValue();
-			if (fopGroup == null && displayedGroup == null) return;
-			if (fopGroup != null && (forceUpdate || ! fopGroup.equals(displayedGroup))) {
-				groupSelect.setValue(fopGroup);
-				if (forceUpdate) {
-					fop.switchGroup(fop.getGroup(), this);
-				}
-			} else if (fopGroup == null) {
-				groupSelect.setValue(null);
-			}
-			Athlete curAthlete = fop.getCurAthlete();
-			int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
-			doUpdateTopBar(curAthlete, timeRemaining);
-		});
-	}
-
-	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar2) {
-		return null;
-	}
-
-	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar2) {
-		return null;
-	}
-
 	/* (non-Javadoc)
-	 * @see app.owlcms.ui.group.UIEventProcessor#updateGrid(app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
 	 */
-	@Subscribe
-	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
-		logger.debug("{} {}",e.getOrigin(),LoggerUtils.whereFrom());
-		UIEventProcessor.uiAccess(crudGrid, uiEventBus, e, () -> {
-			crudGrid.refreshGrid();
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		OwlcmsSession.withFop(fop -> {
+			// create the top bar.
+			createTopBar();
+			syncWithFOP(true);
+			// we listen on uiEventBus.
+			uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
 
 	/**
-	 * Gets the crudGrid.
-	 * @param crudFormFactory 
-	 *
-	 * @return the crudGrid crudGrid
+	 * @param topBarTitle the topBarTitle to set
 	 */
-	public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
-		ThemeList themes = grid.getThemeNames();
-		themes.add("compact");
-		themes.add("row-stripes");
-		grid.addColumn(athlete -> athlete.getLastName().toUpperCase())
-			.setHeader("Last Name");
-		grid.addColumn("firstName")
-			.setHeader("First Name");
-		grid.addColumn("team")
-			.setHeader("Team");
-		grid.addColumn("category")
-			.setHeader("Category");
-		grid.addColumn("nextAttemptRequestedWeight")
-			.setHeader("Requested Weight");
-		// format attempt
-		grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader("Attempt");
-		grid.addColumn("startNumber")
-			.setHeader("Start Number");
-
-		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
-		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class,
-				gridLayout,
-				crudFormFactory,
-				grid) {
-			@Override
-			protected void initToolbar() {
-				Component reset = createReset();
-				if (reset != null) {
-					crudLayout.addToolbarComponent(reset);
-				}
-			}
-			@Override
-			protected void updateButtons() {}
-		};
-
-		crudGrid.setCrudListener(this);
-		crudGrid.setClickRowToUpdate(true);
-		crudGrid.getCrudLayout().addToolbarComponent(groupFilter);
-
-		return crudGrid;
+	protected void setTopBarTitle(String title) {
+		this.topBarTitle = title;
+	}
+	
+	private AthleteCardFormFactory createAthleteEditingFormFactory() {
+		return new AthleteCardFormFactory(Athlete.class, this);
 	}
 
 	private String formatAttemptNumber(Athlete a) {
@@ -497,90 +555,32 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 				: MessageFormat.format("Snatch #{0}", attemptNumber);
 	}
 	
-	protected Object getOrigin() {
-		return this;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
-	 */
-	@Override
-	public Athlete add(Athlete Athlete) {
-		AthleteRepository.save(Athlete);
-		return Athlete;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object) */
-	@Override
-	public Athlete update(Athlete athleteFromDb) {
-		throw new UnsupportedOperationException("Programming error, update is implemented in "+AthleteCardFormFactory.class.getSimpleName());
-	}
-
-
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
-	 */
-	@Override
-	public void delete(Athlete notUsed) {
-		Athlete originalAthlete = getAthleteEditingFormFactory().getOriginalAthlete();
-		AthleteRepository.delete(originalAthlete);
-	}
-
 	/**
-	 * @return the groupFilter
+	 * display a warning to other Technical Officials that marshall has changed weight for current athlete
+	 * 
+	 * @param e
+	 * @param athlete
+	 * @param fop
 	 */
-	public ComboBox<Group> getGroupFilter() {
-		return groupFilter;
-	}
-
-	
-	@Override
-	public OwlcmsRouterLayout getRouterLayout() {
-		return routerLayout;
-	}
-
-	@Override
-	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
-		this.routerLayout = routerLayout;
-	}
-	
-	/**
-	 * Get the content of the crudGrid. Invoked by refreshGrid.
-	 *
-	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
-	 */
-	@Override
-	public Collection<Athlete> findAll() {
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (fop != null) {
-			logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
-					LoggerUtils.whereFrom());
-			final String filterValue;
-			if (lastNameFilter.getValue() != null) {
-				filterValue = lastNameFilter.getValue().toLowerCase();
-			} else
-				return fop.getDisplayOrder();
-			return fop.getLiftingOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
-					.collect(Collectors.toList());
-		} else {
-			// no field of play, no group, empty list
-			logger.debug("findAll fop==null");
-			return ImmutableList.of();
+	private void warnAnnouncerIfCurrent(UIEvent.LiftingOrderUpdated e, Athlete athlete, FieldOfPlay fop) {
+		// the athlete currently displayed is not necessarily the fop curAthlete, because the lifting order has been recalculated behind the scenes
+		Athlete curDisplayAthlete = displayedAthlete;
+		if (curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete()) && e.getOrigin() instanceof MarshallContent) {
+			Notification n = new Notification();
+			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
+			n.getElement().getThemeList().add("warning");
+			String text = MessageFormat.format("Weight change for current athlete<br>{0}",
+					curDisplayAthlete.getFullName());
+			n.setDuration(6000);
+			n.setPosition(Position.TOP_START);
+			Div label = new Div();
+			label.getElement().setProperty("innerHTML",text);
+			label.addClickListener((event)-> n.close());
+			label.setSizeFull();
+			label.getStyle().set("font-size", "large");
+			n.add(label);
+			n.open();
 		}
-	}
-
-	public void closeDialog() {
-		crudGrid.getCrudLayout().hideForm();
-		crudGrid.getGrid().asSingleSelect().clear();
-	}
-	
-	@Subscribe
-	public void slaveGroupDone(UIEvent.GroupDone e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-				this.getOrigin(), e.getOrigin());
-		OwlcmsSession.withFop((fop) -> doUpdateTopBar(fop.getCurAthlete(), 0));
-		crudGrid.refreshGrid();
 	}
 
 }

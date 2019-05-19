@@ -108,7 +108,9 @@
       ready() {
 		super.ready();
 		console.warn("decision ready");
-		document.body.addEventListener('keydown', e => this._readRef(e));
+		if (! this.jury) {
+			document.body.addEventListener('keydown', e => this._readRef(e));
+		}
 		this._init();
       }
       
@@ -273,6 +275,12 @@
     	  if (isMaster) {
     	  	this.$server.masterShowDecisions(this.decision, this.ref1, this.ref2, this.ref3);
     	  }
+      }
+      
+      showDecisionsForJury(ref1, ref2, ref3) {
+    	  console.warn("showDecisionForJury: "+ref1+" "+ref2+" "+ref3);
+		  this.setColors(this, ref1, ref2, ref3);
+		  console.warn("colorsShown");
       }
       
       reset(isMaster) {

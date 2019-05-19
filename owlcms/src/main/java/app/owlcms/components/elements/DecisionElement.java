@@ -198,4 +198,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		return Boolean.TRUE.equals(getModel().isPublicFacing());
 	}
 	
+	public void setJury(boolean juryMode) {
+		getModel().setJury(juryMode);
+	}
 }
