@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -428,13 +427,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar2) {
 		return null;
-	}
-
-	public void shrinkTitle(AppLayout appLayout) {
-		appLayout.getTitleWrapper()
-		.getElement()
-		.getStyle()
-		.set("flex", "0 1 0px");
 	}
 
 	/* (non-Javadoc)
