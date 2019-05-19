@@ -68,6 +68,11 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		 * @return true if accepted, false if rejected, null if no decision
 		 */
 		Boolean isRef3();
+		
+		/**
+		 * @return true if operating in Jury mode (display immediately, no down signal)
+		 */
+		Boolean isJury();
 
 		void setPublicFacing(Boolean publicFacing);
 		
@@ -85,6 +90,11 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		 * @param ref1 decision
 		 */
 		void setRef3(Boolean decision);
+		
+		/**
+		 * @param juryMode
+		 */
+		void setJury(Boolean juryMode);
 	}
 
 

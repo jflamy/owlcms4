@@ -19,7 +19,6 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.displays.scoreboard.Scoreboard;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.HomeNavigationContent;
@@ -63,9 +62,10 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(TimekeeperContent.class)));
 		Button jury = new Button(
-			"Jury Display",
+			"Jury",
 			buttonClickEvent -> UI.getCurrent().getPage()
-				.executeJavaScript(getWindowOpener(Scoreboard.class)));
+				.executeJavaScript(getWindowOpener(JuryContent.class)));
+		jury.setEnabled(false);
 
 		
 		fillH(intro, this);
@@ -77,7 +77,6 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 			jury
 			);
 		doGroup("Technical Official Screens (select the correct platform above before clicking)", grid1, this);
-		jury.setEnabled(false);
 		
 		Button weighIn = new Button("Weigh-In and Start Numbers",
 			buttonClickEvent -> UI.getCurrent()

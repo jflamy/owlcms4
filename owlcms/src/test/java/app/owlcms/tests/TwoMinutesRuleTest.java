@@ -34,7 +34,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class TwoMinutesRuleTest {
-	private static Level LoggerLevel = Level.DEBUG;
+	private static Level LoggerLevel = Level.INFO;
 	private static Group gA;
 	private static Group gB;
 	private static Group gC;
@@ -53,10 +53,6 @@ public class TwoMinutesRuleTest {
 
 	@Before
 	public void setupTest() {
-		// for this test, the initial data does not include body weights, so we use
-		// false
-		// on the constructor to disable exclusion of incomplete data.
-
 		logger.setLevel(LoggerLevel);
 		
 		TestData.insertInitialData(5, true);
@@ -156,8 +152,10 @@ public class TwoMinutesRuleTest {
 		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.TimeStarted(null)); // this starts logical time
 		assertEquals(FOPState.TIME_RUNNING, fopState.getState());
+		
 		// but simpson now asks for more; weight change should stop clock.
 		declaration(curLifter, "67", fopBus); //$NON-NLS-1$
+		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, fopState.getState());
 		logger.info("declaration by {}: {}", curLifter, "67"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// schneider does not get 2 minutes.

@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -118,6 +117,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	protected OwlcmsCrudGrid<Athlete> crudGrid;
 	private AthleteCardFormFactory athleteEditingFormFactory;
 	protected Component reset;
+	private Athlete displayedAthlete;
 	
 	/**
 	 * @return the athleteEditingFormFactory
@@ -131,7 +131,10 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 * Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public AthleteGridContent() {
-		logger.debug("AthleteGridContent constructor");
+		init();
+	}
+
+	protected void init() {
 		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
 		crudGrid = createCrudGrid(crudFormFactory);		
 		defineFilters(crudGrid);
@@ -331,14 +334,14 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 * @param fop
 	 */
 	private void warnAnnouncerIfCurrent(UIEvent.LiftingOrderUpdated e, Athlete athlete, FieldOfPlay fop) {
-		// 
-		Athlete curAthlete = fop.getCurAthlete();
-		if (curAthlete != null && curAthlete.equals(athlete) && e.getOrigin() instanceof MarshallContent) {
+		// the athlete currently displayed is not necessarily the fop curAthlete, because the lifting order has been recalculated behind the scenes
+		Athlete curDisplayAthlete = displayedAthlete;
+		if (curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete()) && e.getOrigin() instanceof MarshallContent) {
 			Notification n = new Notification();
 			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
 			n.getElement().getThemeList().add("warning");
 			String text = MessageFormat.format("Weight change for current athlete<br>{0}",
-					e.getAthlete().getFullName());
+					curDisplayAthlete.getFullName());
 			n.setDuration(6000);
 			n.setPosition(Position.TOP_START);
 			Div label = new Div();
@@ -353,6 +356,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
 		if (title == null) return; // createTopBar has not yet been called;
+		displayedAthlete = athlete;
 		logger.debug("doUpdateTopBar {}", LoggerUtils.whereFrom());
 		OwlcmsSession.withFop(fop -> {
 			UIEventProcessor.uiAccess(topBar, uiEventBus, () -> {
@@ -362,13 +366,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 					lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
 					firstName.setText(athlete.getFirstName());
 					timeField.getElement().getStyle().set("visibility", "visible");
-//					String attemptHtml = MessageFormat.format("<h2>{0} {1}<sup>{1,choice,1#st|2#nd|3#rd}</sup> att.</h2>",
-//					String attemptHtml = MessageFormat.format("<h2>{0} #{1}</h2>",
-//							athlete.getAttemptsDone() > 2 ? "C & J" : "Snatch",
-//							athlete.getAttemptNumber());
-//					Html newAttempt = new Html(attemptHtml);
-//					topBar.replace(attempt, newAttempt);
-//					attempt = newAttempt;
 					attempt.setText(formatAttemptNumber(athlete));
 					Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
 					weight.setText(
@@ -379,16 +376,28 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 							fop.getGroup() == null ? "\u2013" : MessageFormat.format("Group {0} done.", fop.getGroup()));
 					firstName.setText("");
 					timeField.getElement().getStyle().set("visibility", "hidden");
-//					Html newAttempt = new Html("<h2><span></span></h2>");
-//					topBar.replace(attempt, newAttempt);
-//					attempt = newAttempt;
+
 					attempt.setText("");
 					weight.setText("");
 				}
 			});
 		});
 	}
-
+	
+	/*
+	 *  Old code to create HTML. Should recheck whether getElement().setProperty("innerHTML", "...") works
+	 * 
+	 * // String attemptHtml = MessageFormat.
+	 * format("<h2>{0} {1}<sup>{1,choice,1#st|2#nd|3#rd}</sup> att.</h2>", // String
+	 * attemptHtml = MessageFormat.format("<h2>{0} #{1}</h2>", //
+	 * athlete.getAttemptsDone() > 2 ? "C & J" : "Snatch", //
+	 * athlete.getAttemptNumber()); // Html newAttempt = new Html(attemptHtml); //
+	 * topBar.replace(attempt, newAttempt); // attempt = newAttempt;
+	 * 
+	 * // Html newAttempt = new Html("<h2><span></span></h2>"); //
+	 * topBar.replace(attempt, newAttempt); // attempt = newAttempt;
+	 */
+	
 	/**
 	 * @param forceUpdate
 	 */
@@ -418,13 +427,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar2) {
 		return null;
-	}
-
-	public void shrinkTitle(AppLayout appLayout) {
-		appLayout.getTitleWrapper()
-		.getElement()
-		.getStyle()
-		.set("flex", "0 1 0px");
 	}
 
 	/* (non-Javadoc)

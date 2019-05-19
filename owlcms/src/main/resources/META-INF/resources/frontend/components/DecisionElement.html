@@ -95,12 +95,19 @@
 					notify: true,
 					reflectToAttribute: true,
 					value: true
+	           },
+	           jury: {
+					type: Boolean,
+					notify: true,
+					reflectToAttribute: true,
+					value: false
 	           }
     	  }
       }
       
       ready() {
 		super.ready();
+		console.warn("decision ready");
 		document.body.addEventListener('keydown', e => this._readRef(e));
 		this._init();
       }

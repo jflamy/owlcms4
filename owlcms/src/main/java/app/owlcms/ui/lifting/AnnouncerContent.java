@@ -45,7 +45,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.TRACE);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 
 	public AnnouncerContent() {
@@ -157,6 +157,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		// this hides the back arrow
 		getAppLayout().setMenuVisible(false);
 	}
+
 
 	/**
 	 * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)

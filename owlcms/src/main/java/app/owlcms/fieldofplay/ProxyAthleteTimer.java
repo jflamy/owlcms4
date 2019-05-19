@@ -22,7 +22,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ProxyAthleteTimer.class);
 	{
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 	}
 
 	private int timeRemaining;
@@ -81,7 +81,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		if (running) {
 			computeTimeRemaining();
 		}
-		logger.debug("stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+		logger.trace("***stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
 		timeRemainingAtLastStop = timeRemaining;
 		fop.getUiEventBus().post(new UIEvent.StopTime(timeRemaining, null));
 		running = false;
