@@ -222,13 +222,13 @@
 	    		  console.warn("full decision reached, setting timer before decisions are shown");
 	    		  
 	    		  // show the decisions after 3 seconds (by rule)
-	    		  setTimeout(this.showDecisions.bind(this, true, ref1, ref2, ref3), 3000);
+	    		  if (!this.jury) setTimeout(this.showDecisions.bind(this, true, ref1, ref2, ref3), 3000);
 	    	  }
     		  maj = (countWhite >= 2);
     	  } else {
     		  maj = undefined;
     	  }
-    	  this.masterDecisionsUpdated();
+    	  this.masterRefereeUpdate(ref1, ref2, ref3);
     	  return maj;
       }
       
@@ -236,8 +236,8 @@
          values are are available; the server will call back the slaves operating in jury display
          mode to update their displays immediately.  the slaves not operating in jury display mode
          (e.g. the attempt board) will be updated after 3 seconds */
-      masterDecisionsUpdated() {
-    	  this.$server.masterDecisionsUpdated();
+      masterRefereeUpdate(ref1, ref2, ref3) {
+    	  this.$server.masterRefereeUpdate(ref1, ref2, ref3, this.ref1Time, this.ref2Time, this.ref3Time);
       }
       
       setColors(parent, ref1, ref2, ref3) {  
@@ -295,7 +295,7 @@
 		  // hide the down arrow after 2 seconds -- the decisions will show when available
 		  // (there will be no decision lights for at least one second, more if last referee 
 		  // waits after the other two have given down.
-		  setTimeout(this.hideDown.bind(this), 2000);
+		  if (!this.jury) setTimeout(this.hideDown.bind(this), 2000);
       }
       
       hideDown() {
@@ -309,14 +309,15 @@
 		  this.setColors(this, ref1, ref2, ref3);
 		  console.warn("colorsShown");
     	  // hide the decisions after 5 seconds (this is arbitrary)
-		  setTimeout(this.reset.bind(this, isMaster), 5000);
+		  if (!this.jury) setTimeout(this.reset.bind(this, isMaster), 5000);
     	  // if we are the master, tell the server
     	  if (isMaster) {
     	  	this.$server.masterShowDecisions(this.decision, this.ref1, this.ref2, this.ref3);
     	  }
       }
       
-      showDecisionsForJury(ref1, ref2, ref3) {
+      showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
+    	  this.hideDown();
     	  console.warn("showDecisionForJury: "+ref1+" "+ref2+" "+ref3);
 		  this.setColors(this, ref1, ref2, ref3);
 		  console.warn("jury colorsShown");

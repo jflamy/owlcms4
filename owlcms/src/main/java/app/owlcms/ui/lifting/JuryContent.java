@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -26,13 +27,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.elements.DecisionElement;
+import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.lifting.BreakDialog.BreakType;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
@@ -47,18 +48,19 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JuryContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-	private static final String BUTTON_WIDTH = "10em";
+	private static final String BUTTON_WIDTH = "5em";
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
-	private DecisionElement decisions;
+	private JuryDisplayDecisionElement decisions;
 	private HorizontalLayout juryVotingButtons;
+	private VerticalLayout juryVotingCenterHorizontally;
 	private Icon[] juryIcons;
 	private Boolean[] juryVotes;
 	private int nbJurors;
-	private VerticalLayout juryVotingContainer;
+
 
 	public JuryContent() {
 		//  we don't actually inherit behaviour from the superclass because
@@ -107,9 +109,11 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	
 	@Subscribe
 	public void slaveTimeStarted(UIEvent.StartTime e) {
-		juryVotingButtons.removeAll();
-		resetTop();
-		resetJuryVoting();
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			juryVotingButtons.removeAll();
+			resetJuryVoting();
+			// referee decisions handle reset on their own, nothing to do.
+		});
 	}
 
 	/**
@@ -162,11 +166,14 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	@Override
 	protected void init() {
+		init(3);
+	}
+
+	protected void init(int nbj) {
 		this.setBoxSizing(BoxSizing.BORDER_BOX);
 		this.setSizeFull();
 		setTopBarTitle("Jury");
-		
-		nbJurors = 3;
+		nbJurors = nbj;
 		buildJuryBox(this);
 		buildRefereeBox(this);
 	}
@@ -184,39 +191,65 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		Label juryLabel = new Label("Jury Decisions");
 		H3 labelWrapper = new H3(juryLabel);
 		labelWrapper.setWidth("15em");
-		topRow.add(labelWrapper, juryDeliberationButtons(), juryDecisionButtons());
-		topRow.setAlignItems(Alignment.CENTER);
-		juryContainer.setBoxSizing(BoxSizing.BORDER_BOX);
-		juryContainer.setMargin(false);
-		juryContainer.add(topRow);
+		Label spacer = new Label();
+		spacer.setWidth("3em");
+		topRow.add(labelWrapper, juryDeliberationButtons(), juryDecisionButtons(), spacer, jurySelectionButtons());
+		topRow.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 		
 		buildJuryVoting();
 		resetJuryVoting();
-		juryContainer.add(juryVotingContainer);
-		juryContainer.setAlignSelf(Alignment.CENTER, juryVotingContainer);
+		
+		juryContainer.setBoxSizing(BoxSizing.BORDER_BOX);
+		juryContainer.setMargin(false);
+		juryContainer.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+		juryContainer.add(topRow);
+		juryContainer.setAlignSelf(Alignment.START, topRow);
+		juryContainer.add(juryVotingCenterHorizontally);
+
 	}
 
+	private Component jurySelectionButtons() {
+		Button three = new Button("3", (e) -> {
+			OwlcmsSession.withFop(fop -> {
+				this.setNbJurors(3);
+			});
+		});
+		three.setWidth("4em");
+
+		Button five = new Button("5", (e) -> {
+			OwlcmsSession.withFop(fop -> {
+				this.setNbJurors(5);
+			});
+		});
+		five.setWidth("4em");
+
+		HorizontalLayout selection = new HorizontalLayout(three, five);
+		return selection;
+	}
+
+
 	private void buildJuryVoting() {
+		// center buttons vertically, spread withing proper width
 		juryVotingButtons = new HorizontalLayout();
 		juryVotingButtons.setBoxSizing(BoxSizing.BORDER_BOX);
 		juryVotingButtons.setJustifyContentMode(JustifyContentMode.EVENLY);
-		juryVotingButtons.setAlignItems(Alignment.CENTER);
-		juryVotingButtons.setWidth(nbJurors == 3 ? "50%" : "85%");
+		juryVotingButtons.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+		juryVotingButtons.setHeight("35vh");
+		juryVotingButtons.setWidth(getNbJurors() == 3 ? "50%" : "85%");
 		juryVotingButtons.getStyle().set("background-color", "black");
 		juryVotingButtons.setPadding(false);
 		juryVotingButtons.setMargin(false);
 		
-		juryVotingContainer = new VerticalLayout();
-		juryVotingContainer.setHeight("35vh");
-		juryVotingContainer.setWidthFull();
-		juryVotingContainer.setBoxSizing(BoxSizing.BORDER_BOX);
-		juryVotingContainer.setAlignItems(Alignment.CENTER);
-		juryVotingContainer.setPadding(true);
-		juryVotingContainer.setMargin(true);
-		juryVotingContainer.getStyle().set("background-color", "black");
+		// center the button cluster within page width
+		juryVotingCenterHorizontally = new VerticalLayout();
+		juryVotingCenterHorizontally.setWidthFull();
+		juryVotingCenterHorizontally.setBoxSizing(BoxSizing.BORDER_BOX);
+		juryVotingCenterHorizontally.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+		juryVotingCenterHorizontally.setPadding(true);
+		juryVotingCenterHorizontally.setMargin(true);
+		juryVotingCenterHorizontally.getStyle().set("background-color", "black");
 		
-		juryVotingContainer.add(juryVotingButtons);
-		juryVotingContainer.setAlignSelf(Alignment.CENTER, juryVotingButtons);
+		juryVotingCenterHorizontally.add(juryVotingButtons);
 		return;
 	}
 
@@ -224,11 +257,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		Label label = new Label("Referee Decisions");
 		H3 labelWrapper = new H3(label);
 		labelWrapper.setHeight("5%");
-		container.add(labelWrapper);
 
-		decisions = new DecisionElement();
-		decisions.setJury(true);
-
+		decisions = new JuryDisplayDecisionElement();
 		Div decisionWrapper = new Div(decisions);
 		decisionWrapper.getStyle().set("width", "50%");
 		decisionWrapper.getStyle().set("height", "30vh");
@@ -242,8 +272,10 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		refContainer.setPadding(true);
 		refContainer.setMargin(true);
 
+		container.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+		container.add(labelWrapper);
+		container.setAlignSelf(Alignment.START, labelWrapper);
 		container.add(refContainer);
-		container.setAlignSelf(Alignment.CENTER, refContainer);
 	}
 
 	private void checkAllVoted() {
@@ -312,6 +344,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		});
 		good.getElement().setAttribute("theme", "success");
 		good.setWidth(BUTTON_WIDTH);
+		good.setEnabled(false);
 
 		Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
@@ -320,6 +353,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		});
 		bad.getElement().setAttribute("theme", "error");
 		bad.setWidth(BUTTON_WIDTH);
+		bad.setEnabled(false);
 
 		HorizontalLayout decisions = new HorizontalLayout(good, bad);
 		return decisions;
@@ -333,27 +367,30 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		});
 		stopCompetition.getElement().setAttribute("theme", "secondary");
 		stopCompetition.setWidth(BUTTON_WIDTH);
+		stopCompetition.setEnabled(false);
 
 		Button resumeCompetition = new Button("Resume Competition", (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin())));
 		});
 		resumeCompetition.getElement().setAttribute("theme", "secondary");
 		resumeCompetition.setWidth(BUTTON_WIDTH);
+		resumeCompetition.setEnabled(false);
 
 		Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
 			(new BreakDialog(this)).open();
 		});
 		breakButton.getElement().setAttribute("theme", "icon");
 		breakButton.getElement().setAttribute("title", "Break Timer");
-		HorizontalLayout buttons = new HorizontalLayout(stopCompetition, resumeCompetition);
+//		HorizontalLayout buttons = new HorizontalLayout(stopCompetition, resumeCompetition);
+		HorizontalLayout buttons = new HorizontalLayout(breakButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		return buttons;
 	}
 
 	private void resetJuryVoting() {
-		juryIcons = new Icon[nbJurors];
-		juryVotes = new Boolean[nbJurors];
-		for (int i = 0; i < nbJurors; i++) {
+		juryIcons = new Icon[getNbJurors()];
+		juryVotes = new Boolean[getNbJurors()];
+		for (int i = 0; i < getNbJurors(); i++) {
 			final int ix = i;
 			Icon nonVotedIcon = bigIcon(VaadinIcon.CIRCLE_THIN, "gray");
 			juryIcons[ix] = nonVotedIcon;
@@ -376,8 +413,14 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		}
 	}
 
-	private void resetTop() {
-		// TODO Auto-generated method stub
+
+	private int getNbJurors() {
+		return nbJurors;
+	}
+
+	private void setNbJurors(int nbJurors) {
+		this.removeAll();
+		init(nbJurors);
 	}
 
 }

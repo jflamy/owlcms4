@@ -9,8 +9,6 @@ package app.owlcms.fieldofplay;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.ui.lifting.BreakDialog;
-import app.owlcms.ui.lifting.BreakDialog.BreakType;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -43,7 +41,7 @@ public class FOPEvent {
 		private BreakType breakType;
 		private int breakDuration;
 
-		public BreakStarted(BreakDialog.BreakType breakType, int timeRemaining, Object origin) {
+		public BreakStarted(BreakType breakType, int timeRemaining, Object origin) {
 			super(origin);
 			this.setBreakType(breakType);
 			this.setBreakDuration(timeRemaining);
@@ -116,9 +114,9 @@ public class FOPEvent {
 	}
 	
 	/**
-	 * The Class RefereeDecision.
+	 * The Class MajorityDecision.
 	 */
-	static public class RefereeDecision extends FOPEvent {
+	static public class MajorityDecision extends FOPEvent {
 		
 		/** The decision. */
 		public Boolean success = null;
@@ -133,7 +131,7 @@ public class FOPEvent {
 		 * @param ref2 
 		 * @param ref3 
 		 */
-		public RefereeDecision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
+		public MajorityDecision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 			super(athlete, origin);
 			logger.trace("referee decision for {}", athlete);
 			this.success = decision;
@@ -143,16 +141,25 @@ public class FOPEvent {
 		}
 	}
 
-	public static class RefereeUpdate extends RefereeDecision {
-
+	/**
+	 * Report an individual decision.
+	 * 
+	 * No subclassing relationship with {@link MajorityDecision} because of different @Subscribe requirements
+	 */
+	public static class RefereeUpdate extends FOPEvent {
+		public Boolean ref1;
+		public Boolean ref2;
+		public Boolean ref3;
 		public Integer ref1Time;
 		public Integer ref2Time;
 		public Integer ref3Time;
 
-		public RefereeUpdate(Object origin, Athlete athlete, Boolean decision, Boolean ref1, Boolean ref2,
-				Boolean ref3, Integer ref1Time, Integer ref2Time, Integer ref3Time) {
-			// don't care about decision
-			super(athlete, origin, decision, ref1, ref2, ref3);
+		public RefereeUpdate(Object origin, Athlete athlete, Boolean ref1, Boolean ref2, Boolean ref3,
+				Integer ref1Time, Integer ref2Time, Integer ref3Time) {
+			super(athlete, origin);
+			this.ref1 = ref1;
+			this.ref2 = ref2;
+			this.ref3 = ref3;
 			this.ref1Time = ref1Time;
 			this.ref2Time = ref2Time;
 			this.ref3Time = ref3Time;

@@ -32,6 +32,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 
 import app.owlcms.components.elements.BreakTimerElement;
+import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
@@ -39,10 +40,6 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class BreakDialog extends Dialog {
-	public enum BreakType {
-		INTRODUCTION, FIRST_SNATCH, FIRST_CJ, TECHNICAL, JURY, GROUP_DONE
-	}
-
 	public enum CountdownType {
 		DURATION, TARGET
 	}

@@ -39,115 +39,25 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	 */
 	public interface DecisionModel extends TemplateModel {
 		
-		/**
-		 *  Ref1 decision time
-		 *
-		 * @return time at which decision was made by ref (ms), null if no decision
-		 */
-		Integer getRef1Time();
+		boolean isPublicFacing();
 		
-		/**
-		 *  Ref2 decision time
-		 *
-		 * @return time at which decision was made by ref (ms), null if no decision
-		 */
-		Integer getRef2Time();
+		boolean isJury();
 
-		/**
-		 *  Ref3 decision time
-		 *
-		 * @return time at which decision was made by ref (ms), null if no decision
-		 */
-		Integer getRef3Time();
+		void setJury(boolean juryMode);
 
-		/**
-		 * @return true if good lift, false if not, null if no majority yet
-		 */
-		Boolean isDecision();
-		
-		/**
-		 * @return true if operating in Jury mode (display immediately, no down signal)
-		 */
-		Boolean isJury();
-
-		Boolean isPublicFacing();
-		
-		/**
-		 *  Ref1 decision
-		 *
-		 * @return true if accepted, false if rejected, null if no decision
-		 */
-		Boolean isRef1();
-
-		/**
-		 *  Ref2 decision
-		 *
-		 * @return true if accepted, false if rejected, null if no decision
-		 */
-		Boolean isRef2();
-
-		/**
-		 *  Ref3 decision
-		 *
-		 * @return true if accepted, false if rejected, null if no decision
-		 */
-		Boolean isRef3();
-		
-		/**
-		 * @param isGood true if good lift, false if no lift, null if no decision yet.
-		 */
-		void setDecision(Boolean isGood);
-		
-		/**
-		 * @param juryMode
-		 */
-		void setJury(Boolean juryMode);
-
-		void setPublicFacing(Boolean publicFacing);
-
-		/**
-		 * @param ref1 decision
-		 */
-		void setRef1(Boolean decision);
-		
-
-		/**
-		 * @param ms time at which decision made
-		 */
-		void setRef1Time(Integer ms);
-		
-		/**
-		 * @param ref2 decision
-		 */
-		void setRef2(Boolean decision);
-		
-		/**
-		 *  Ref1 decision time
-		 *
-		 */
-		void setRef2Time(Integer ms);
-		
-		/**
-		 * @param ref1 decision
-		 */
-		void setRef3(Boolean decision);
-		/**
-		 *  Ref3 decision time
-		 *
-		 */
-		void setRef3Time(Integer ms);
+		void setPublicFacing(boolean publicFacing);
 	}
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 
 	static {
-		logger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
 		uiEventLogger.setLevel(Level.INFO);
 	}
 	
-	private EventBus uiEventBus;
-	private EventBus fopEventBus;
+	protected EventBus uiEventBus;
+	protected EventBus fopEventBus;
 	
 	public DecisionElement() {
 	}
@@ -157,13 +67,12 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	}
 
 	@ClientCallable
-	public void masterDecisionsUpdated() {
-		logger.debug("master decisions updated");
+	public void masterRefereeUpdate(Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time, Integer ref2Time, Integer ref3Time) {
+		logger.debug("master referee decision update");
 		Object origin = this.getOrigin();
-		DecisionModel model = this.getModel();
 		OwlcmsSession.withFop((fop) -> {
-			logger.info("{} decision={} ({} {} {})", fop.getCurAthlete(), model.isRef1(), model.isRef2(), model.isRef3(), model.getRef1Time(), model.getRef2Time(), model.getRef3Time());
-			fopEventBus.post(new FOPEvent.RefereeUpdate(origin, fop.getCurAthlete(), model.isDecision(), model.isRef1(), model.isRef2(), model.isRef3(), model.getRef1Time(), model.getRef2Time(), model.getRef3Time()));
+			logger.debug("referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time, ref3Time);
+			fopEventBus.post(new FOPEvent.RefereeUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time, ref3Time));
 		});
 
 	}
@@ -179,7 +88,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		Object origin = this.getOrigin();
 		OwlcmsSession.withFop((fop) -> {
 			logger.info("{} decision={} ({} {} {})", fop.getCurAthlete(), decision, ref1, ref2, ref3);
-			fopEventBus.post(new FOPEvent.RefereeDecision(fop.getCurAthlete(), origin, decision, ref1, ref2, ref3));
+			fopEventBus.post(new FOPEvent.MajorityDecision(fop.getCurAthlete(), origin, decision, ref1, ref2, ref3));
 		});
 	}
 	
@@ -204,18 +113,17 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 			getElement().callFunction("reset", false);
 		});
 	}
-	
-	
+		
 	@Subscribe
-	public void slaveShowDecisions(UIEvent.RefereeDecision e) {
+	public void slaveMajorityDecision(UIEvent.MajorityDecision e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-			uiEventLogger.debug("*** {} referee decision ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
+			uiEventLogger.debug("*** {} majority decision ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
 			this.getElement().callFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 		});
 	}
 	
 	@Subscribe
-	public void slaveShowDown(UIEvent.DownSignal e) {
+	public void slaveDownSignal(UIEvent.DownSignal e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			uiEventLogger.debug("!!! {} down ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
 			this.getElement().callFunction("showDown", false);
@@ -234,7 +142,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		});
 	}
 	
-	private Object getOrigin() {
+	protected Object getOrigin() {
 		// we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard to identify
 		// our actions.
 		return this.getParent().get();
@@ -242,9 +150,6 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	
 	private void init() {
 		DecisionModel model = getModel();
-		model.setRef1(null);
-		model.setRef2(null);
-		model.setRef3(null);
 		model.setPublicFacing(true);
 
 		Element elem = this.getElement();
