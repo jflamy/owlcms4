@@ -47,6 +47,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JuryContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	private static final String BUTTON_WIDTH = "10em";
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
@@ -61,7 +62,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	public JuryContent() {
 		//  we don't actually inherit behaviour from the superclass because
-		// all this does is call init() which we override.
+		// all this does is call init() -- which we override.
 		super();
 	}
 
@@ -120,15 +121,22 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		return athlete;
 	}
 
+	/**
+	 * @see app.owlcms.ui.shared.AthleteGridContent#updateGrid(app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated)
+	 */
 	@Override
 	public void updateGrid(LiftingOrderUpdated e) {
 		// ignore
 	}
 
 
+	/**
+	 * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
+	 */
 	@Override
 	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
-		return juryDeliberationButtons();
+		// moved down to the jury section
+		return new HorizontalLayout(); // juryDeliberationButtons();
 	}
 
 
@@ -147,7 +155,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	 */
 	@Override
 	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
-		return juryDecisionButtons();
+		// moved down to the jury section
+		return new HorizontalLayout(); // juryDecisionButtons();
 	}
 
 
@@ -177,6 +186,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		labelWrapper.setWidth("15em");
 		topRow.add(labelWrapper, juryDeliberationButtons(), juryDecisionButtons());
 		topRow.setAlignItems(Alignment.CENTER);
+		juryContainer.setBoxSizing(BoxSizing.BORDER_BOX);
+		juryContainer.setMargin(false);
 		juryContainer.add(topRow);
 		
 		buildJuryVoting();
@@ -192,11 +203,11 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		juryVotingButtons.setAlignItems(Alignment.CENTER);
 		juryVotingButtons.setWidth(nbJurors == 3 ? "50%" : "85%");
 		juryVotingButtons.getStyle().set("background-color", "black");
-		juryVotingButtons.setPadding(true);
-		juryVotingButtons.setMargin(true);
+		juryVotingButtons.setPadding(false);
+		juryVotingButtons.setMargin(false);
 		
 		juryVotingContainer = new VerticalLayout();
-		juryVotingContainer.setHeight("40%");
+		juryVotingContainer.setHeight("35vh");
 		juryVotingContainer.setWidthFull();
 		juryVotingContainer.setBoxSizing(BoxSizing.BORDER_BOX);
 		juryVotingContainer.setAlignItems(Alignment.CENTER);
@@ -220,12 +231,13 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 		Div decisionWrapper = new Div(decisions);
 		decisionWrapper.getStyle().set("width", "50%");
+		decisionWrapper.getStyle().set("height", "30vh");
 
 		HorizontalLayout refContainer = new HorizontalLayout(decisionWrapper);
 		refContainer.setBoxSizing(BoxSizing.BORDER_BOX);
 		refContainer.setJustifyContentMode(JustifyContentMode.CENTER);
 		refContainer.getStyle().set("background-color", "black");
-		refContainer.setHeight("40%");
+		refContainer.setHeight("35vh");
 		refContainer.setWidthFull();
 		refContainer.setPadding(true);
 		refContainer.setMargin(true);
@@ -299,6 +311,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			});
 		});
 		good.getElement().setAttribute("theme", "success");
+		good.setWidth(BUTTON_WIDTH);
 
 		Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
@@ -306,6 +319,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			});
 		});
 		bad.getElement().setAttribute("theme", "error");
+		bad.setWidth(BUTTON_WIDTH);
 
 		HorizontalLayout decisions = new HorizontalLayout(good, bad);
 		return decisions;
@@ -318,11 +332,13 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 					fop -> fop.getFopEventBus().post(new FOPEvent.BreakStarted(BreakType.JURY, 0, this.getOrigin())));
 		});
 		stopCompetition.getElement().setAttribute("theme", "secondary");
+		stopCompetition.setWidth(BUTTON_WIDTH);
 
 		Button resumeCompetition = new Button("Resume Competition", (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin())));
 		});
 		resumeCompetition.getElement().setAttribute("theme", "secondary");
+		resumeCompetition.setWidth(BUTTON_WIDTH);
 
 		Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
 			(new BreakDialog(this)).open();

@@ -24,82 +24,16 @@ public class FOPEvent {
 
 
 
-	final Logger logger = (Logger)LoggerFactory.getLogger(FOPEvent.class);
-	{logger.setLevel(Level.DEBUG);}
-	
 	/**
-	 * When a FOPEvent (for example stopping the clock) is handled, it is often reflected
-	 * as a series of UIEvents (for example, all the displays running the clock get told to
-	 * stop it).  The user interface that gave the order doesn't want to be notified again,
-	 * so we memorize which user interface element created the original order so it can ignore it.
+	 * Class BreakPaused.
 	 */
-	protected Object origin;
-	protected Athlete athlete;
-	
-	FOPEvent (Object origin) {
-		this(null, origin);
-	}
-	
-	public FOPEvent(Athlete athlete, Object origin) {
-		this.athlete = athlete;
-		this.origin = origin;
-	}
+	static public class BreakPaused extends FOPEvent {
 
-	public Athlete getAthlete() {
-		return athlete;
-	}
-
-	public void setAthlete(Athlete athlete) {
-		this.athlete = athlete;
-	}
-
-	public Object getOrigin() {
-		return origin;
-	}
-
-//	/**
-//	 * The Class AthleteAnnounced.
-//	 */
-//	static public class AthleteAnnounced extends FOPEvent {
-//
-//		public AthleteAnnounced(Object object) {
-//			super(object);
-//		}
-//
-//	}
-
-	/**
-	 * The Class DecisionReset.
-	 */
-	static public class DecisionReset extends FOPEvent {
-
-		public DecisionReset(Object object) {
-			super(object);
-		}
-
-	}
-
-	/**
-	 * The Class DownSignal.
-	 */
-	static public class DownSignal extends FOPEvent {
-
-		public DownSignal(Object origin) {
+		public BreakPaused(Object origin) {
 			super(origin);
 		}
-
 	}
 
-	/**
-	 * The Class StartLifting.
-	 */
-	static public class StartLifting extends FOPEvent {
-
-		public StartLifting(Object origin) {
-			super(origin);
-		}
-
-	}
 
 	/**
 	 * Class BreakStarted.
@@ -115,44 +49,72 @@ public class FOPEvent {
 			this.setBreakDuration(timeRemaining);
 		}
 
-		public BreakType getBreakType() {
-			return breakType;
-		}
-
-		public void setBreakType(BreakType breakType) {
-			this.breakType = breakType;
-		}
-
 		public int getBreakDuration() {
 			return breakDuration;
+		}
+
+		public BreakType getBreakType() {
+			return breakType;
 		}
 
 		public void setBreakDuration(int breakDuration) {
 			this.breakDuration = breakDuration;
 		}
+
+		public void setBreakType(BreakType breakType) {
+			this.breakType = breakType;
+		}
+	}
+	/**
+	 * The Class DecisionReset.
+	 */
+	static public class DecisionReset extends FOPEvent {
+
+		public DecisionReset(Object object) {
+			super(object);
+		}
+
 	}
 	
 	/**
-	 * Class BreakPaused.
+	 * The Class DownSignal.
 	 */
-	static public class BreakPaused extends FOPEvent {
+	static public class DownSignal extends FOPEvent {
 
-		public BreakPaused(Object origin) {
+		public DownSignal(Object origin) {
 			super(origin);
 		}
+
 	}
+	static public class ForceTime extends FOPEvent {
 
-	/**
-	 * Class WeightChange.
-	 */
-	static public class WeightChange extends FOPEvent {
+		public int timeAllowed;
 
-		public WeightChange(Object origin, Athlete a) {
-			super(a, origin);
+		public ForceTime(int timeAllowed, Object object) {
+			super(object);
+			this.timeAllowed = timeAllowed;
 		}
-		
 	}
+	
+	public static class JuryDecision extends FOPEvent {
+		/** The decision. */
+		public Boolean success = null;
+		
+		/**
+		 * Instantiates a new referee decision.
+		 * @param decision the decision
+		 * @param ref1 
+		 * @param ref2 
+		 * @param ref3 
+		 */
+		public JuryDecision(Athlete athlete, Object origin, boolean decision) {
+			super(athlete, origin);
+			logger.trace("referee decision for {}", athlete);
+			this.success = decision;
+		}
 
+	}
+	
 	/**
 	 * The Class RefereeDecision.
 	 */
@@ -180,25 +142,53 @@ public class FOPEvent {
 			this.ref3 = ref3;
 		}
 	}
-	
-	public static class JuryDecision extends FOPEvent {
-		/** The decision. */
-		public Boolean success = null;
-		
-		/**
-		 * Instantiates a new referee decision.
-		 * @param decision the decision
-		 * @param ref1 
-		 * @param ref2 
-		 * @param ref3 
-		 */
-		public JuryDecision(Athlete athlete, Object origin, boolean decision) {
-			super(athlete, origin);
-			logger.trace("referee decision for {}", athlete);
-			this.success = decision;
+
+	public static class RefereeUpdate extends RefereeDecision {
+
+		public Integer ref1Time;
+		public Integer ref2Time;
+		public Integer ref3Time;
+
+		public RefereeUpdate(Object origin, Athlete athlete, Boolean decision, Boolean ref1, Boolean ref2,
+				Boolean ref3, Integer ref1Time, Integer ref2Time, Integer ref3Time) {
+			// don't care about decision
+			super(athlete, origin, decision, ref1, ref2, ref3);
+			this.ref1Time = ref1Time;
+			this.ref2Time = ref2Time;
+			this.ref3Time = ref3Time;
 		}
 
 	}
+
+	/**
+	 * The Class StartLifting.
+	 */
+	static public class StartLifting extends FOPEvent {
+
+		public StartLifting(Object origin) {
+			super(origin);
+		}
+
+	}
+
+	static public class TimeOver extends FOPEvent{
+
+		public TimeOver(Object origin) {
+			super(origin);
+		}
+
+	}
+
+//	/**
+//	 * The Class AthleteAnnounced.
+//	 */
+//	static public class AthleteAnnounced extends FOPEvent {
+//
+//		public AthleteAnnounced(Object object) {
+//			super(object);
+//		}
+//
+//	}
 
 	/**
 	 * The Class StartTime.
@@ -221,24 +211,52 @@ public class FOPEvent {
 		}
 
 	}
-	
-	static public class TimeOver extends FOPEvent{
 
-		public TimeOver(Object origin) {
-			super(origin);
+	/**
+	 * Class WeightChange.
+	 */
+	static public class WeightChange extends FOPEvent {
+
+		public WeightChange(Object origin, Athlete a) {
+			super(a, origin);
 		}
+		
+	}
 
+	final Logger logger = (Logger)LoggerFactory.getLogger(FOPEvent.class);
+	
+	{logger.setLevel(Level.DEBUG);}
+
+	/**
+	 * When a FOPEvent (for example stopping the clock) is handled, it is often reflected
+	 * as a series of UIEvents (for example, all the displays running the clock get told to
+	 * stop it).  The user interface that gave the order doesn't want to be notified again,
+	 * so we memorize which user interface element created the original order so it can ignore it.
+	 */
+	protected Object origin;
+
+	protected Athlete athlete;
+	
+	public FOPEvent(Athlete athlete, Object origin) {
+		this.athlete = athlete;
+		this.origin = origin;
+	}
+
+	FOPEvent (Object origin) {
+		this(null, origin);
+	}
+
+	public Athlete getAthlete() {
+		return athlete;
+	}
+	
+	public Object getOrigin() {
+		return origin;
 	}
 	
 
-	static public class ForceTime extends FOPEvent {
-
-		public int timeAllowed;
-
-		public ForceTime(int timeAllowed, Object object) {
-			super(object);
-			this.timeAllowed = timeAllowed;
-		}
+	public void setAthlete(Athlete athlete) {
+		this.athlete = athlete;
 	}
 
 }
