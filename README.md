@@ -28,7 +28,7 @@ The current release is able to run a regular or masters competition, with or wit
   - **Countdown timer for breaks** (before introduction, before first snatch, break before clean and jerk, technical break)
   - Production of **group results/protocol sheets**
   - Option to treat the competition as a **Masters competition** with proper processing of age groups.
-  - **3 and 5-person jury**.  Jury members see their vote outcome once all jurors have voted.
+  - **3 and 5-person jury**.  Jury members see referee decisions as they happen. Jury members see their vote outcome once all jurors have voted.
 
 ### Licensing and Caveats
 This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/jflamy/owlcms4/releases) page and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
@@ -89,4 +89,4 @@ Local timer and decision is done using [Web Components](https://www.webcomponent
 
 The software is written and maintained by Jean-François Lamy, IWF International Referee Category 1 (Canada)
 
-Thanks to Anders Bendix Nielsen (Denmark), Alexey Ruchev (Russia) and Brock Pederson (Canada) for their support, feedback and help testing the software.
+Thanks to Anders Bendix Nielsen (Denmark), Alexey Ruchev (Russia) and Brock Pedersen (Canada) for their support, feedback and help testing the software.
