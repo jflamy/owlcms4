@@ -34,96 +34,77 @@ import ch.qos.logback.classic.Logger;
 @HtmlImport("frontend://components/DecisionElement.html")
 public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionModel> implements SafeEventBusRegistration {
 	
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-	static {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
-	}
-
 	/**
 	 * The Interface DecisionModel.
 	 */
 	public interface DecisionModel extends TemplateModel {
 		
-		Boolean isPublicFacing();
+		boolean isPublicFacing();
 		
-		/**
-		 *  Ref1 decision
-		 *
-		 * @return true if accepted, false if rejected, null if no decision
-		 */
-		Boolean isRef1();
+		boolean isJury();
 
-		/**
-		 *  Ref2 decision
-		 *
-		 * @return true if accepted, false if rejected, null if no decision
-		 */
-		Boolean isRef2();
+		void setJury(boolean juryMode);
 
-		/**
-		 *  Ref3 decision
-		 *
-		 * @return true if accepted, false if rejected, null if no decision
-		 */
-		Boolean isRef3();
-		
-		/**
-		 * @return true if operating in Jury mode (display immediately, no down signal)
-		 */
-		Boolean isJury();
-
-		void setPublicFacing(Boolean publicFacing);
-		
-		/**
-		 * @param ref1 decision
-		 */
-		void setRef1(Boolean decision);
-
-		/**
-		 * @param ref2 decision
-		 */
-		void setRef2(Boolean decision);
-
-		/**
-		 * @param ref1 decision
-		 */
-		void setRef3(Boolean decision);
-		
-		/**
-		 * @param juryMode
-		 */
-		void setJury(Boolean juryMode);
+		void setPublicFacing(boolean publicFacing);
 	}
 
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 
-	private EventBus uiEventBus;
-	private EventBus fopEventBus;
+	static {
+		logger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.INFO);
+	}
+	
+	protected EventBus uiEventBus;
+	protected EventBus fopEventBus;
 	
 	public DecisionElement() {
 	}
 	
+	public boolean isPublicFacing() {
+		return Boolean.TRUE.equals(getModel().isPublicFacing());
+	}
+
+	@ClientCallable
+	public void masterRefereeUpdate(Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time, Integer ref2Time, Integer ref3Time) {
+		logger.debug("master referee decision update");
+		Object origin = this.getOrigin();
+		OwlcmsSession.withFop((fop) -> {
+			logger.debug("referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time, ref3Time);
+			fopEventBus.post(new FOPEvent.RefereeUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time, ref3Time));
+		});
+
+	}
+
 	@ClientCallable
 	public void masterReset() {
 		logger.debug("master reset");
 		fopEventBus.post(new FOPEvent.DecisionReset(this.getOrigin()));
 	}
-
+	
 	@ClientCallable
 	public void masterShowDecisions(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 		Object origin = this.getOrigin();
 		OwlcmsSession.withFop((fop) -> {
 			logger.info("{} decision={} ({} {} {})", fop.getCurAthlete(), decision, ref1, ref2, ref3);
-			fopEventBus.post(new FOPEvent.RefereeDecision(fop.getCurAthlete(), origin, decision, ref1, ref2, ref3));
+			fopEventBus.post(new FOPEvent.MajorityDecision(fop.getCurAthlete(), origin, decision, ref1, ref2, ref3));
 		});
 	}
-
+	
 	@ClientCallable
 	public void masterShowDown(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 		Object origin = this.getOrigin();
 		logger.debug("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1, ref2, ref3);
 		fopEventBus.post(new FOPEvent.DownSignal(origin));
+	}
+	
+	public void setJury(boolean juryMode) {
+		getModel().setJury(juryMode);
+	}
+
+	public void setPublicFacing(boolean publicFacing) {
+		getModel().setPublicFacing(publicFacing);
 	}
 	
 	@Subscribe
@@ -132,35 +113,43 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 			getElement().callFunction("reset", false);
 		});
 	}
-	
-	private Object getOrigin() {
-		// we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard to identify
-		// our actions.
-		return this.getParent().get();
-	}
-
+		
 	@Subscribe
-	public void slaveShowDecisions(UIEvent.RefereeDecision e) {
+	public void slaveMajorityDecision(UIEvent.MajorityDecision e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-			uiEventLogger.debug("*** {} referee decision ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
+			uiEventLogger.debug("*** {} majority decision ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
 			this.getElement().callFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 		});
 	}
 	
 	@Subscribe
-	public void slaveShowDown(UIEvent.DownSignal e) {
+	public void slaveDownSignal(UIEvent.DownSignal e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			uiEventLogger.debug("!!! {} down ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
 			this.getElement().callFunction("showDown", false);
 		});
 	}
 	
+	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		init();
+		OwlcmsSession.withFop(fop -> {
+			// we send on fopEventBus, listen on uiEventBus.
+			fopEventBus = fop.getFopEventBus();
+			uiEventBus = uiEventBusRegister(this, fop);
+		});
+	}
+	
+	protected Object getOrigin() {
+		// we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard to identify
+		// our actions.
+		return this.getParent().get();
+	}
 	
 	private void init() {
 		DecisionModel model = getModel();
-		model.setRef1(null);
-		model.setRef2(null);
-		model.setRef3(null);
 		model.setPublicFacing(true);
 
 		Element elem = this.getElement();
@@ -177,25 +166,4 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 			uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
 		});
 	}
-	
-	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
-		init();
-		OwlcmsSession.withFop(fop -> {
-			// we send on fopEventBus, listen on uiEventBus.
-			fopEventBus = fop.getFopEventBus();
-			uiEventBus = uiEventBusRegister(this, fop);
-		});
-	}
-	
-	public void setPublicFacing(boolean publicFacing) {
-		getModel().setPublicFacing(publicFacing);
-	}
-	
-	public boolean isPublicFacing() {
-		return Boolean.TRUE.equals(getModel().isPublicFacing());
-	}
-	
 }

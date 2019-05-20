@@ -115,5 +115,11 @@ public class BodyWeightField extends WrappedTextField<Double> {
 		return formatter;
 	}
 
+
+	public void focus() {
+		getWrappedTextField().focus();
+		getWrappedTextField().setAutoselect(true);
+	}
+
 }
 

@@ -22,30 +22,6 @@ import app.owlcms.data.group.Group;
  */
 public class UIEvent {
 
-	static public class GroupDone extends UIEvent {
-		
-		private Group group;
-
-		/**
-		 * Instantiates a new athlete announced.
-		 *
-		 * @param athlete the athlete
-		 * @param ui      the ui
-		 */
-		public GroupDone(Group group, UI ui) {
-			super(ui);
-			this.setGroup(group);
-		}
-
-		public Group getGroup() {
-			return group;
-		}
-
-		public void setGroup(Group group) {
-			this.group = group;
-		}
-	}
-
 	/**
 	 * Class AthleteAnnounced.
 	 */
@@ -158,6 +134,30 @@ public class UIEvent {
 		}
 	}
 
+	static public class GroupDone extends UIEvent {
+		
+		private Group group;
+
+		/**
+		 * Instantiates a new athlete announced.
+		 *
+		 * @param athlete the athlete
+		 * @param ui      the ui
+		 */
+		public GroupDone(Group group, UI ui) {
+			super(ui);
+			this.setGroup(group);
+		}
+
+		public Group getGroup() {
+			return group;
+		}
+
+		public void setGroup(Group group) {
+			this.group = group;
+		}
+	}
+
 	/**
 	 * Class LiftingOrderUpdated.
 	 */
@@ -194,6 +194,10 @@ public class UIEvent {
 			this.liftingOrder = liftingOrder;
 			this.displayOrder = displayOrder;
 			this.stopAthleteTimer = stopTimer;
+		}
+
+		public Athlete getChangingAthlete() {
+			return changingAthlete;
 		}
 
 		/**
@@ -240,24 +244,20 @@ public class UIEvent {
 		public Integer getTimeAllowed() {
 			return timeAllowed;
 		}
-
+		
 		/**
 		 * @return true if the current event requires to stop the timer
 		 */
 		public boolean isStopAthleteTimer() {
 			return stopAthleteTimer;
 		}
-		
-		public Athlete getChangingAthlete() {
-			return changingAthlete;
-		}
 
 	}
 
 	/**
-	 * Class RefereeDecision.
+	 * Class MajorityDecision.
 	 */
-	static public class RefereeDecision extends UIEvent {
+	static public class MajorityDecision extends UIEvent {
 
 		/** decision. */
 		public Boolean decision = null;
@@ -280,7 +280,7 @@ public class UIEvent {
 		 * @param ref3     the ref 3
 		 * @param origin   the origin
 		 */
-		public RefereeDecision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, Object origin) {
+		public MajorityDecision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, Object origin) {
 			super(a, origin);
 			this.decision = decision;
 			this.ref1 = ref1;
@@ -288,6 +288,33 @@ public class UIEvent {
 			this.ref3 = ref3;
 		}
 
+	}
+
+	/**
+	 * Individual referee decision.
+	 * 
+	 * No subclassing wrt MajorityDecision because @Subscribe must be distinct.
+	 * 
+	 * @author owlcms
+	 */
+	static public class RefereeUpdate extends UIEvent {
+		public Boolean ref1;
+		public Boolean ref2;
+		public Boolean ref3;
+		public Integer ref1Time;
+		public Integer ref2Time;
+		public Integer ref3Time;
+
+		public RefereeUpdate(Athlete a, Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time, 
+				Integer ref2Time, Integer ref3Time, Object origin) {
+			super(a, origin);
+			this.ref1 = ref1;
+			this.ref2 = ref2;
+			this.ref3 = ref3;
+			this.ref1Time = ref1Time;
+			this.ref2Time = ref2Time;
+			this.ref3Time = ref3Time;
+		}
 	}
 
 	/**

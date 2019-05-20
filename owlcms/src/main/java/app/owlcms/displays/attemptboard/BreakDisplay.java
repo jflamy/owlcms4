@@ -3,10 +3,10 @@ package app.owlcms.displays.attemptboard;
 import java.text.MessageFormat;
 
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.lifting.BreakDialog.BreakType;
 
 public interface BreakDisplay {
 	

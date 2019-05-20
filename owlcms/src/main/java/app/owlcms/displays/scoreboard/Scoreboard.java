@@ -38,12 +38,12 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.attemptboard.AthleteTimerElement;
 import app.owlcms.displays.attemptboard.BreakDisplay;
+import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.BreakStarted;
-import app.owlcms.fieldofplay.UIEvent.RefereeDecision;
+import app.owlcms.fieldofplay.UIEvent.MajorityDecision;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.lifting.BreakDialog.BreakType;
 import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;
@@ -206,7 +206,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 	
 
 	@Subscribe
-	public void slaveRefereeDecision(UIEvent.RefereeDecision e) {
+	public void slaveRefereeDecision(UIEvent.MajorityDecision e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			doUpdateBottomPart(e);
@@ -364,7 +364,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 		this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
 	}
 	
-	private void doUpdateBottomPart(RefereeDecision e) {
+	private void doUpdateBottomPart(MajorityDecision e) {
 		ScoreboardModel model = getModel();
 		Athlete a = e.getAthlete();
 		updateBottom(model,computeLiftType(a));

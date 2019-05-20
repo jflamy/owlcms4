@@ -96,8 +96,11 @@ public class WeighinContent extends VerticalLayout
 		grid.addColumn("team").setHeader("Team");
 		grid.addColumn("ageDivision").setHeader("Age Division");
 		grid.addColumn("category").setHeader("Category");
-		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale()),"bodyWeight").setHeader("Body Weight");
 		grid.addColumn("group").setHeader("Group");
+		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale()),"bodyWeight").setHeader("Body Weight");
+		grid.addColumn("snatch1Declaration").setHeader("Snatch Decl.");
+		grid.addColumn("cleanJerk1Declaration").setHeader("C&J Decl.");
+
 		grid.addColumn("eligibleForIndividualRanking").setHeader("Eligible");	
 		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<Athlete>(Athlete.class,
 				new OwlcmsGridLayout(Athlete.class),
@@ -125,31 +128,34 @@ public class WeighinContent extends VerticalLayout
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-		crudFormFactory.setVisibleProperties("lastName",
-			"firstName",
+		crudFormFactory.setVisibleProperties(
+			"bodyWeight",
+			"category",
+			"snatch1Declaration",
+			"cleanJerk1Declaration",
 			"gender",
+			"group",
+			"lastName",
+			"firstName",
 			"team",
 			"fullBirthDate",
 			"ageDivision",
-			"category",
-			"group",
 			"qualifyingTotal",
-			"bodyWeight",
-			"snatch1Declaration",
-			"cleanJerk1Declaration",
 			"eligibleForIndividualRanking");
-		crudFormFactory.setFieldCaptions("Last Name",
-			"First Name",
+		crudFormFactory.setFieldCaptions(
+			"Body Weight",
+			"Category",
+			"Snatch Declaration",
+			"Clean&Jerk Declaration",
 			"Gender",
+			"Group",
+			"Last Name",
+			"First Name",
 			"Team",
 			"Birth Date",
 			"Age Division",
-			"Category",
-			"Group",
 			"Entry Total",
-			"Body Weight",
-			"Snatch Declaration",
-			"Clean&Jerk Declaration",
+
 			"Eligible for individual ranking?");
 		crudFormFactory.setFieldProvider("gender",
             new ComboBoxProvider<>("Gender", Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
@@ -162,6 +168,8 @@ public class WeighinContent extends VerticalLayout
 		
 		crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
 		crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
+		
+		crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {((BodyWeightField) e).focus();});
 	}
 
 	/**
