@@ -86,6 +86,24 @@
 	               notify: true,
 	               value: null
 	           },
+	           ref1Time: {
+					type: Number,
+					reflectToAttribute: false,
+					notify: false,
+					value: 0
+	           },
+	           ref2Time: {
+					type: Number,
+					reflectToAttribute: false,
+					notify: false,
+					value: 0
+	           }, 
+	           ref3Time: {
+					type: Number,
+					reflectToAttribute: false,
+					notify: false,
+					value: 0
+	           },
 	           decision: {
 					type: Boolean,
 					notify: true
@@ -145,26 +163,32 @@
 			switch (e.key) {
 			case '1':
 				this.set('ref1',true);
+				this.set('ref1Time', Date.now());
 				this._majority(this.ref1,this.ref2,this.ref3)
 				break;
 			case '2':
 				this.set('ref1',false);
+				this.set('ref1Time', Date.now());
 				this._majority(this.ref1,this.ref2,this.ref3)
 				break;
 			case '3':
 				this.set('ref2',true);
+				this.set('ref2Time', Date.now());
 				this._majority(this.ref1,this.ref2,this.ref3)
 				break;
 			case '4':
 				this.set('ref2',false);
+				this.set('ref2Time', Date.now());
 				this._majority(this.ref1,this.ref2,this.ref3)
 				break;
 			case '5':
 				this.set('ref3',true);
+				this.set('ref3Time', Date.now());
 				this._majority(this.ref1,this.ref2,this.ref3)
 				break;
 			case '6':
 				this.set('ref3',false);
+				this.set('ref3Time', Date.now());
 				this._majority(this.ref1,this.ref2,this.ref3)
 				break;
 			default:
@@ -176,9 +200,12 @@
     	  console.warn(key);
       }
       
+      /* this is called from the client side to signal that a decision has been made
+         immediate feedback is given if majority has been reached */
       _majority(ref1,ref2,ref3) {
     	  var countWhite = 0;
     	  var countRed = 0;
+    	  var maj = false;
     	  if (ref1 === true) {countWhite++;} else if (ref1 === false){countRed++;}
     	  if (ref2 === true) {countWhite++;} else if (ref2 === false){countRed++;}
     	  if (ref3 === true) {countWhite++;} else if (ref3 === false){countRed++;}
@@ -195,10 +222,20 @@
     		  
     		  // show the decisions after 3 seconds (by rule)
     		  setTimeout(this.showDecisions.bind(this, true, ref1, ref2, ref3), 3000);
-    		  return (countWhite >= 2);
+    		  maj = (countWhite >= 2);
     	  } else {
-    		  return undefined;
+    		  maj = undefined;
     	  }
+    	  this.masterDecisionsUpdated();
+    	  return maj;
+      }
+      
+      /* the individual values are set in the this.refN properties. this tells the server that the
+         values are are available; the server will call back the slaves operating in jury display
+         mode to update their displays immediately.  the slaves not operating in jury display mode
+         (e.g. the attempt board) will be updated after 3 seconds */
+      masterDecisionsUpdated() {
+    	  this.$server.masterDecisionsUpdated();
       }
       
       setColors(parent, ref1, ref2, ref3) {  
@@ -280,7 +317,7 @@
       showDecisionsForJury(ref1, ref2, ref3) {
     	  console.warn("showDecisionForJury: "+ref1+" "+ref2+" "+ref3);
 		  this.setColors(this, ref1, ref2, ref3);
-		  console.warn("colorsShown");
+		  console.warn("jury colorsShown");
       }
       
       reset(isMaster) {
@@ -294,6 +331,7 @@
       }
       
       hideDecisions() {
+		  // tell our parent to hide us.
     	  this.dispatchEvent(new CustomEvent('hide', {bubbles: true, composed: true}))
       }
   }
