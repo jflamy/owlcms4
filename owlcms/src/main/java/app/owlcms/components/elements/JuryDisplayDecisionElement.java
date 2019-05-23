@@ -8,7 +8,7 @@ import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.DecisionReset;
 import app.owlcms.fieldofplay.UIEvent.DownSignal;
-import app.owlcms.fieldofplay.UIEvent.MajorityDecision;
+import app.owlcms.fieldofplay.UIEvent.Decision;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import ch.qos.logback.classic.Level;
@@ -37,7 +37,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 
 	@Override
-	public void slaveMajorityDecision(MajorityDecision e) {
+	public void slaveMajorityDecision(Decision e) {
 		// ignore
 	}
 

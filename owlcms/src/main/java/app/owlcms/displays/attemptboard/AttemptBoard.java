@@ -188,7 +188,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	 * @param e
 	 */
 	@Subscribe
-	public void slaveRefereeDecision(UIEvent.MajorityDecision e) {
+	public void slaveRefereeDecision(UIEvent.Decision e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
 		// hide the athleteTimer except if the down signal came from this ui.

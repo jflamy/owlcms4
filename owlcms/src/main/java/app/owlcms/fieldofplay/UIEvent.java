@@ -255,9 +255,9 @@ public class UIEvent {
 	}
 
 	/**
-	 * Class MajorityDecision.
+	 * Class Decision.
 	 */
-	static public class MajorityDecision extends UIEvent {
+	static public class Decision extends UIEvent {
 
 		/** decision. */
 		public Boolean decision = null;
@@ -280,7 +280,7 @@ public class UIEvent {
 		 * @param ref3     the ref 3
 		 * @param origin   the origin
 		 */
-		public MajorityDecision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, Object origin) {
+		public Decision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, Object origin) {
 			super(a, origin);
 			this.decision = decision;
 			this.ref1 = ref1;
@@ -293,7 +293,7 @@ public class UIEvent {
 	/**
 	 * Individual referee decision.
 	 * 
-	 * No subclassing wrt MajorityDecision because @Subscribe must be distinct.
+	 * No subclassing wrt Decision because @Subscribe must be distinct.
 	 * 
 	 * @author owlcms
 	 */

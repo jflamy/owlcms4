@@ -166,7 +166,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
 		Button good = new Button(IronIcons.DONE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
-				fop.getFopEventBus().post(new FOPEvent.MajorityDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true, true));
+				fop.getFopEventBus().post(new FOPEvent.Decision(fop.getCurAthlete(), this.getOrigin(), true, true, true, true));
 				fop.getFopEventBus().post(new FOPEvent.DecisionReset(this.getOrigin()));
 			});
 		});
@@ -174,7 +174,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		
 		Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
-				fop.getFopEventBus().post(new FOPEvent.MajorityDecision(fop.getCurAthlete(), this.getOrigin(), false, false, false, false));
+				fop.getFopEventBus().post(new FOPEvent.Decision(fop.getCurAthlete(), this.getOrigin(), false, false, false, false));
 				fop.getFopEventBus().post(new FOPEvent.DecisionReset(this.getOrigin()));
 			});
 		});
@@ -195,7 +195,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 	
 	@Subscribe
-	public void slaveRefereeDecision(UIEvent.MajorityDecision e) {
+	public void slaveRefereeDecision(UIEvent.Decision e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			int d = e.decision ? 1 : 0;
 			String text = MessageFormat.format("{0,choice,0#No Lift|1#Good Lift} for {1}", d, e.getAthlete().getFullName());

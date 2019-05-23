@@ -41,7 +41,7 @@ import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.BreakStarted;
-import app.owlcms.fieldofplay.UIEvent.MajorityDecision;
+import app.owlcms.fieldofplay.UIEvent.Decision;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
@@ -73,7 +73,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.TRACE);
 	}
 	
 	/**
@@ -206,7 +206,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 	
 
 	@Subscribe
-	public void slaveRefereeDecision(UIEvent.MajorityDecision e) {
+	public void slaveDecision(UIEvent.Decision e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			doUpdateBottomPart(e);
@@ -364,7 +364,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 		this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
 	}
 	
-	private void doUpdateBottomPart(MajorityDecision e) {
+	private void doUpdateBottomPart(Decision e) {
 		ScoreboardModel model = getModel();
 		Athlete a = e.getAthlete();
 		updateBottom(model,computeLiftType(a));
