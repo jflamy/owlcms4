@@ -73,7 +73,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.TRACE);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 	
 	/**
