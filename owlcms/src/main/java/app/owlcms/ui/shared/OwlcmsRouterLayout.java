@@ -43,6 +43,7 @@ import com.vaadin.flow.server.PageConfigurator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
+import app.owlcms.ui.home.InfoNavigationContent;
 import app.owlcms.ui.lifting.LiftingNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.results.ResultsNavigationContent;
@@ -68,19 +69,12 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 	final private Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
 	{logger.setLevel(Level.INFO);}
 	
-	/** The notification holder. */
-	DefaultNotificationHolder notificationHolder;
-	
-	/** The badge holder. */
-	DefaultBadgeHolder badgeHolder;
 	private Behaviour variant;
-	private Thread currentThread;
 
 	private HasElement layoutComponentContent;
 
     public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));
-        reloadNotifications();
     }
 
     
@@ -106,18 +100,12 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
 		if (variant == null) {
 			variant = Behaviour.LEFT_RESPONSIVE;
-//			notificationHolder = new DefaultNotificationHolder(newStatus -> {
-//				/* Do something with it */});
-//			badgeHolder = new DefaultBadgeHolder();
 		}
-		reloadNotifications();
 
 		LeftNavigationItem home = new LeftNavigationItem(
 				"Home",
 				VaadinIcon.HOME.create(),
 				HomeNavigationContent.class);
-
-//			notificationHolder.bind(home.getBadge());
 
 		AppLayout appLayout = AppLayoutBuilder
 			.get(variant)
@@ -125,7 +113,6 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 			.withIcon("/frontend/images/logo.png")
 			.withAppBar(AppBarBuilder
 				.get()
-//					.add(new AppBarNotificationButton(VaadinIcon.BELL, notificationHolder))
 				.build())
 			.withAppMenu(LeftAppMenuBuilder
 				.get()
@@ -147,6 +134,10 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 						HomeNavigationContent.RESULT_DOCUMENTS,
 						new Icon("maps", "local-printshop"),
 						ResultsNavigationContent.class))
+				.add(new LeftNavigationItem(
+						HomeNavigationContent.INFO,
+						new Icon("icons", "info-outline"),
+						InfoNavigationContent.class))
 				.addToSection(new LeftClickableItem(
 						"Preferences",
 						VaadinIcon.COG.create(),
@@ -156,40 +147,6 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 			.build();
 
 		return appLayout;
-	}
-
-	@SuppressWarnings("unused")
-	private void reloadNotifications() {
-		if (!(0 == 1)) return;
-		if (currentThread != null && !currentThread.isInterrupted()) {
-			currentThread.interrupt();
-		}
-		badgeHolder.clearCount();
-		notificationHolder.clearNotifications();
-		currentThread = new Thread(() -> {
-			try {
-				Thread.sleep(1000);
-				for (int i = 0; i < 3; i++) {
-					// Thread.sleep(5000);
-					getUI().ifPresent(ui -> ui.access(() -> {
-						addNotification(MEDIUM);
-						badgeHolder.increase();
-						badgeHolder.increase();
-					}));
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		});
-		currentThread.start();
-	}
-
-	private void addNotification(Priority priority) {
-		notificationHolder.addNotification(new DefaultNotification(
-				"Title" + badgeHolder.getCount(),
-				"Description ..............................................."
-						+ badgeHolder.getCount(),
-				priority));
 	}
 
 	private void setDrawerVariant(Behaviour variant) {
@@ -209,7 +166,6 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 	 * The Class BehaviourSelector.
 	 */
 	class BehaviourSelector extends Dialog {
-
 		/**
 		 * Instantiates a new behaviour selector.
 		 *

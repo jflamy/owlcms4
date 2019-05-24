@@ -29,7 +29,7 @@ public class BreakTimerElement extends TimerElement {
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.TRACE);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 
 	/**
