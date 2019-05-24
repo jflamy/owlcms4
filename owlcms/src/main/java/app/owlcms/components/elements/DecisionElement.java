@@ -88,7 +88,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		Object origin = this.getOrigin();
 		OwlcmsSession.withFop((fop) -> {
 			logger.info("{} decision={} ({} {} {})", fop.getCurAthlete(), decision, ref1, ref2, ref3);
-			fopEventBus.post(new FOPEvent.MajorityDecision(fop.getCurAthlete(), origin, decision, ref1, ref2, ref3));
+			fopEventBus.post(new FOPEvent.Decision(fop.getCurAthlete(), origin, decision, ref1, ref2, ref3));
 		});
 	}
 	
@@ -115,7 +115,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	}
 		
 	@Subscribe
-	public void slaveMajorityDecision(UIEvent.MajorityDecision e) {
+	public void slaveMajorityDecision(UIEvent.Decision e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
 			uiEventLogger.debug("*** {} majority decision ({})",this.getOrigin(),this.getParent().get().getClass().getSimpleName());
 			this.getElement().callFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);

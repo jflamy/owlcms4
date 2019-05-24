@@ -35,7 +35,7 @@ import app.owlcms.fieldofplay.FOPEvent.BreakStarted;
 import app.owlcms.fieldofplay.FOPEvent.DecisionReset;
 import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
-import app.owlcms.fieldofplay.FOPEvent.MajorityDecision;
+import app.owlcms.fieldofplay.FOPEvent.Decision;
 import app.owlcms.fieldofplay.FOPEvent.RefereeUpdate;
 import app.owlcms.fieldofplay.FOPEvent.StartLifting;
 import app.owlcms.fieldofplay.FOPEvent.TimeOver;
@@ -342,7 +342,7 @@ public class FieldOfPlay {
 				setState(TIME_STOPPED);
 			} else if (e instanceof WeightChange) {
 				doWeightChangeDisturbIfNeeded((WeightChange) e);
-			} else if (e instanceof MajorityDecision) {
+			} else if (e instanceof Decision) {
 				// in theory not possible, we would get down signal before.
 				getAthleteTimer().stop();
 				this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
@@ -374,7 +374,7 @@ public class FieldOfPlay {
 				transitionToTimeRunning();
 			} else if (e instanceof WeightChange) {
 				doWeightChangeDisturbIfNeeded((WeightChange) e);
-			} else if (e instanceof MajorityDecision) {
+			} else if (e instanceof Decision) {
 				getAthleteTimer().stop();
 				this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
 				this.setClockOwner(null);
@@ -396,13 +396,11 @@ public class FieldOfPlay {
 		case DOWN_SIGNAL_VISIBLE:
 			this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
 			this.setClockOwner(null);
-			if (e instanceof MajorityDecision) {
+			if (e instanceof Decision) {
 				getAthleteTimer().stop();
 				decision(e);
 			} else if (e instanceof RefereeUpdate) {
-				// a referee entered a decision
-				// for now, this is only used for jury (in the future, may accomodate multiple
-				// devices such as phones.
+				// a referee entered a decision.
 				uiShowUpdateOnJuryScreen((RefereeUpdate) e);
 			} else if (e instanceof WeightChange) {
 				weightChangeDoNotDisturb((WeightChange) e);
@@ -413,13 +411,11 @@ public class FieldOfPlay {
 			break;
 
 		case DECISION_VISIBLE:
-			if (e instanceof MajorityDecision) {
+			if (e instanceof Decision) {
 				// decision reversal
 				decision(e);
 			} else if (e instanceof RefereeUpdate) {
 				// a referee entered a decision
-				// for now, this is only used for jury (in the future, may accomodate multiple
-				// devices such as phones.
 				uiShowUpdateOnJuryScreen((RefereeUpdate) e);
 			} else if (e instanceof WeightChange) {
 				weightChangeDoNotDisturb((WeightChange) e);
@@ -427,7 +423,7 @@ public class FieldOfPlay {
 			} else if (e instanceof DecisionReset) {
 				uiEventBus.post(new UIEvent.DecisionReset(e.origin));
 				setClockOwner(null);
-				recomputeLiftingOrder();
+//				recomputeLiftingOrder(); // now done as part of decision(e)
 				displayOrBreak(e);
 			} else {
 				unexpectedEventInState(e, DECISION_VISIBLE);
@@ -533,13 +529,14 @@ public class FieldOfPlay {
 	}
 
 	private void decision(FOPEvent e) {
-		MajorityDecision decision = (MajorityDecision) e;
+		Decision decision = (Decision) e;
 		if (decision.success) {
 			curAthlete.successfulLift();
 		} else {
 			curAthlete.failedLift();
 		}
 		AthleteRepository.save(curAthlete);
+		recomputeLiftingOrder();
 		uiShowRefereeDecisionOnSlaveDisplays(decision);
 		setState(DECISION_VISIBLE);
 	}
@@ -698,9 +695,9 @@ public class FieldOfPlay {
 		uiEventBus.post(new UIEvent.DownSignal(e.origin));
 	}
 
-	private void uiShowRefereeDecisionOnSlaveDisplays(MajorityDecision e) {
+	private void uiShowRefereeDecisionOnSlaveDisplays(Decision e) {
 		uiEventLogger.trace("showRefereeDecisionOnSlaveDisplays");
-		uiEventBus.post(new UIEvent.MajorityDecision(e.getAthlete(), e.success,e.ref1,e.ref2,e.ref3,e.origin));
+		uiEventBus.post(new UIEvent.Decision(e.getAthlete(), e.success,e.ref1,e.ref2,e.ref3,e.origin));
 	}
 
 	private void uiShowUpdateOnJuryScreen(RefereeUpdate e) {

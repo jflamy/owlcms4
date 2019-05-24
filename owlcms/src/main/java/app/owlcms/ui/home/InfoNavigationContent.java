@@ -6,6 +6,8 @@
  */
 package app.owlcms.ui.home;
 
+import java.time.LocalDate;
+
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
@@ -17,10 +19,9 @@ import com.github.appreciated.css.grid.sizes.MinMax;
 import com.github.appreciated.css.grid.sizes.Repeat;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
@@ -30,10 +31,6 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.ui.displayselection.DisplayNavigationContent;
-import app.owlcms.ui.lifting.LiftingNavigationContent;
-import app.owlcms.ui.preparation.PreparationNavigationContent;
-import app.owlcms.ui.results.ResultsNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.utils.URLUtils;
@@ -48,50 +45,53 @@ import ch.qos.logback.classic.Logger;
  *
  */
 @SuppressWarnings("serial")
-@Route(value = "", layout = OwlcmsRouterLayout.class)
-public class HomeNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
+@Route(value = "info", layout = OwlcmsRouterLayout.class)
+public class InfoNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(HomeNavigationContent.class);
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(InfoNavigationContent.class);
 	static {
 		logger.setLevel(Level.INFO);
 	}
-
-	public static final String PREPARE_COMPETITION = "Prepare Competition";
-	public static final String RUN_LIFTING_GROUP = "Run Lifting Group";
-	public static final String START_DISPLAYS = "Start Displays";
-	public static final String RESULT_DOCUMENTS = "Result Documents";
-	public static final String INFO = "About";
 	
 	/**
 	 * Instantiates a new main navigation content.
 	 */
-	public HomeNavigationContent() {
-		VerticalLayout intro = buildIntro();
+	public InfoNavigationContent() {
+		VerticalLayout license = buildLicense();
+		fillH(license, this);
+	}
 
-		Button prepare = new Button(
-				PREPARE_COMPETITION,
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(PreparationNavigationContent.class));
-		Button displays = new Button(
-				START_DISPLAYS,
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(DisplayNavigationContent.class));
-		Button lifting = new Button(
-				RUN_LIFTING_GROUP,
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(LiftingNavigationContent.class));
-		Button documents = new Button(
-				RESULT_DOCUMENTS,
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(ResultsNavigationContent.class));
-		FlexibleGridLayout grid = HomeNavigationContent.navigationGrid(
-			prepare,
-			lifting,
-			displays,
-			documents);
-
-		fillH(intro, this);
-		fillH(grid, this);
+	private VerticalLayout buildLicense() {
+		VerticalLayout license = new VerticalLayout();
+		license.add(new H3("Copyright and License"));
+		addP(license,
+				"This software is (c) 2009-"+LocalDate.now().getYear()+" Jean-François Lamy"
+				);
+		addP(license,
+				"This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>."
+				);
+		license.add(new H3("Source and Documentation"));
+		addP(license,
+				"<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source."+
+				"<li>See also the <a href='https://jflamy.github.io/owlcms4/'>documentation</a> for "+
+				"installation and configuration information."
+				);
+		
+		license.add(new H3("Notes"));
+		addP(license,
+				"This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules"+
+				" as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you"+
+				" are responsible for performing whatever tests are need to establish that the sofware is fit for your circumstances."
+				);
+		
+		license.add(new H3("Credits"));
+		addP(license,
+				"The software is written by Jean-François Lamy, IWF International Technical Official Category 1.<br>"+
+				"Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pederson for feedback and testing.<br>"+
+				"Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software."
+				);
+		
+		return license;
 	}
 
 	public VerticalLayout buildIntro() {

@@ -135,14 +135,8 @@ public class Main implements ServletContextListener {
     	String version = props.getProperty("version"); //$NON-NLS-1$
     	OwlcmsFactory.setVersion(version);
 		String buildTimestamp = props.getProperty("buildTimestamp"); //$NON-NLS-1$
-		//String buildZone = props.getProperty("buildZone");
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm"); //$NON-NLS-1$
-		format.setTimeZone(TimeZone.getTimeZone("UTC")); //$NON-NLS-1$
-		Date date = format.parse(buildTimestamp);
-		//format.setTimeZone(TimeZone.getTimeZone(buildZone));
-		SimpleDateFormat homeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-		String homeTimestamp = homeFormat.format(date);
-		logger.info("owlcms {} (built {})",version,homeTimestamp);
+		String buildZone = props.getProperty("buildZone");
+		logger.info("owlcms {} built {} ({})",version,buildTimestamp, buildZone);
 	}
 	
 	protected static void tearDown() {
