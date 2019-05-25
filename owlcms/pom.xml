@@ -279,6 +279,9 @@
 							<mainClass>app.owlcms.Main</mainClass>
 						</manifest>
 					</archive>
+					<excludes>
+						<exclude>logback-test.xml</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 	        <plugin>
@@ -295,6 +298,7 @@
 	                        <name>timestamp</name>
 	                        <pattern>yyyy-MM-dd HH:mm:ss</pattern>
 	                        <timeZone>America/Montreal</timeZone>
+	                        <locale>en,US</locale>
 	                    </configuration>
 	                </execution>
 	            </executions>
