@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- testing/development logback file, writes to stderr -->
+<!-- 
+Testing/development logback file, writes to stderr
+Also used for certain cloud services (e.g. Heroku)
+-->
 <configuration scan="true" debug="false">
 
 	<appender name="STDERR"
