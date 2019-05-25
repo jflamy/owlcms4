@@ -332,7 +332,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	}
 	
 	/*
-	 *  Old code to create HTML. Should recheck whether getElement().setProperty("innerHTML", "...") works
+	 *  Old kludge code to create HTML. Should recheck whether getElement().setProperty("innerHTML", "...") works now.
 	 * 
 	 * // String attemptHtml = MessageFormat.
 	 * format("<h2>{0} {1}<sup>{1,choice,1#st|2#nd|3#rd}</sup> att.</h2>", // String
@@ -550,8 +550,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	private String formatAttemptNumber(Athlete a) {
 		Integer attemptsDone = a.getAttemptsDone();
 		Integer attemptNumber = a.getAttemptNumber();
-		return (attemptsDone > 2) ? 
-				MessageFormat.format("C&J #{0}", attemptNumber)
+		return (attemptsDone >= 3) ? 
+				((attemptsDone >= 6) ? "done" : MessageFormat.format("C&J #{0}", attemptNumber))
 				: MessageFormat.format("Snatch #{0}", attemptNumber);
 	}
 	
