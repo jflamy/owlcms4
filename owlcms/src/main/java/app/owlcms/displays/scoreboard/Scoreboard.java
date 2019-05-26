@@ -179,7 +179,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			this.getElement().callFunction("reset");
+			this.getElement().callJsFunction("reset");
 		});
 	}
 
@@ -189,7 +189,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 		// ignore if the down signal was initiated by this result board.
 		// (the timer element on the result board will actually process the keyboard codes if devices are attached)
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-			this.getElement().callFunction("down");
+			this.getElement().callJsFunction("down");
 		});
 	}
 
@@ -210,7 +210,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			doUpdateBottomPart(e);
-			this.getElement().callFunction("refereeDecision");
+			this.getElement().callJsFunction("refereeDecision");
 		});
 	}
 
@@ -229,7 +229,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
 		Athlete a = e.getAthlete();
-		this.getElement().callFunction("reset");
+		this.getElement().callJsFunction("reset");
 		doUpdate(a, e);
 	}
 	
@@ -244,7 +244,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 		if (g == null) return;
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			getModel().setFullName(MessageFormat.format("Group {0} Results", g.toString()));
-			this.getElement().callFunction("groupDone");
+			this.getElement().callJsFunction("groupDone");
 		});
 	}
 	
@@ -338,7 +338,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 			boolean leaveTopAlone = e instanceof UIEvent.LiftingOrderUpdated && !((UIEvent.LiftingOrderUpdated)e).isStopAthleteTimer();
 			if (a != null) {
 				if (!leaveTopAlone) {
-					this.getElement().callFunction("reset");
+					this.getElement().callJsFunction("reset");
 					model.setFullName(a.getFullName());
 					model.setTeamName(a.getTeam());
 					model.setStartNumber(a.getStartNumber());
@@ -467,7 +467,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 			getModel().setAttempt("");
 
 			uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-			this.getElement().callFunction("doBreak");
+			this.getElement().callJsFunction("doBreak");
 		}));
 	}
 

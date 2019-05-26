@@ -52,19 +52,19 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		Button announcer = new Button(
 				"Announcer",
 				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(AnnouncerContent.class)));
+					.executeJs(getWindowOpener(AnnouncerContent.class)));
 		Button marshall = new Button(
 				"Marshall",
 				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(MarshallContent.class)));
+					.executeJs(getWindowOpener(MarshallContent.class)));
 		Button timekeeper = new Button(
 				"Timekeeper",
 				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(TimekeeperContent.class)));
+					.executeJs(getWindowOpener(TimekeeperContent.class)));
 		Button jury = new Button(
 			"Jury",
 			buttonClickEvent -> UI.getCurrent().getPage()
-				.executeJavaScript(getWindowOpener(JuryContent.class)));
+				.executeJs(getWindowOpener(JuryContent.class)));
 
 		fillH(intro, this);
 		

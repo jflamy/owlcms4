@@ -19,6 +19,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -168,7 +169,8 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 		if (operationButton != null) {
 			footerLayout.add(operationButton);
 			if (operation == CrudOperation.UPDATE) {
-				operationButton.addClickShortcut(Key.ENTER);
+				ShortcutRegistration reg = operationButton.addClickShortcut(Key.ENTER);
+				reg.setBrowserDefaultAllowed(false);
 			}
 		}
 		footerLayout.setFlexGrow(1.0, spacer);

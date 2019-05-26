@@ -214,15 +214,15 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 		model.setCurrentTime(seconds);
 		model.setStartTime(seconds);
 		// should not be necessary
-		getTimerElement().callFunction("reset");
+		getTimerElement().callJsFunction("reset");
 	}
 
 	private void start() {
-		getTimerElement().callFunction("start");
+		getTimerElement().callJsFunction("start");
 	}
 
 	private void stop() {
-		getTimerElement().callFunction("pause");
+		getTimerElement().callJsFunction("pause");
 	}
 
 }
