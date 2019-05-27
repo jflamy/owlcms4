@@ -49,24 +49,24 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 		Button attempt = new Button(
 				"Attempt Board",
 				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(AttemptBoard.class)));
+					.executeJs(getWindowOpener(AttemptBoard.class)));
 		Button scoreboard = new Button(
 				"Scoreboard",
 				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(Scoreboard.class)));
+					.executeJs(getWindowOpener(Scoreboard.class)));
 		Button referee = new Button(
 			"Athlete-facing Timer/Down/Decisions",
 			buttonClickEvent -> UI.getCurrent().getPage()
-				.executeJavaScript(getWindowOpener(AthleteFacingDecisionBoard.class)));
+				.executeJs(getWindowOpener(AthleteFacingDecisionBoard.class)));
 		Button athleteFacingAttempt = new Button(
 				"Athlete-facing Attempt Board Display",
 				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(AthleteFacingAttemptBoard.class)));
+					.executeJs(getWindowOpener(AthleteFacingAttemptBoard.class)));
 
 		Button plates = new Button(
 				"Plates Display",
 				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(Scoreboard.class)));
+					.executeJs(getWindowOpener(Scoreboard.class)));
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			attempt,

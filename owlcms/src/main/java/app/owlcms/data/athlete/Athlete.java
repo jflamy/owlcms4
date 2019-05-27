@@ -275,48 +275,53 @@ public class Athlete {
 	 * @return true if ok, exception if not
 	 * @throws RuleViolationException if rule violated, exception contails details.
 	 */
-	public boolean validateStartingTotalsRule() {
+	public boolean validateStartingTotalsRule(String snatch1Declaration, String snatch1Change1, String snatch1Change2, String cleanJerk1Declaration, String cleanJerk1Change1, String cleanJerk1Change2) {
 		boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
-		if (!isValidation() || !enforce20kg) return true;
-		
 		int qualTotal = getQualifyingTotal();
 		logger.debug("enforcing 20kg rule {} {}",enforce20kg, qualTotal);
+		if (!enforce20kg) return true;
 		if (qualTotal == 0) {
 			return true;
 		}
 
 //		if (!Competition.getCurrent().isMasters()) {
-			return validate20kgRule(qualTotal);
+			return validate20kgRule(qualTotal, snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration, cleanJerk1Change1, cleanJerk1Change2);
 //		} else
 //			return validateMasters15_20Rule(qualTotal);
 	}
 
 	/**
+	 * @param cleanJerk1Change22 
+	 * @param cleanJerk1Change12 
+	 * @param cleanJerk1Declaration2 
+	 * @param snatch1Change22 
+	 * @param snatch1Change12 
+	 * @param snatch1Declaration2 
 	 * @param entryTotal
 	 * @return true if ok, exception if not
 	 * @throws RuleViolationException if rule violated, exception contails details.
 	 */
-	private boolean validate20kgRule(int qualTotal) {
+	private boolean validate20kgRule(int qualTotal, String snatch1Declaration2, String snatch1Change12, String snatch1Change22, String cleanJerk1Declaration2, String cleanJerk1Change12, String cleanJerk1Change22) {
 
 		int curStartingTotal = 0;
 		int snatchRequest = 0;
 		int cleanJerkRequest = 0;
 
 		snatchRequest = last(
-			zeroIfInvalid(snatch1Declaration),
-			zeroIfInvalid(snatch1Change1),
-			zeroIfInvalid(snatch1Change2));
+			zeroIfInvalid(snatch1Declaration2),
+			zeroIfInvalid(snatch1Change12),
+			zeroIfInvalid(snatch1Change22));
 		cleanJerkRequest = last(
-			zeroIfInvalid(cleanJerk1Declaration),
-			zeroIfInvalid(cleanJerk1Change1),
-			zeroIfInvalid(cleanJerk1Change2));
+			zeroIfInvalid(cleanJerk1Declaration2),
+			zeroIfInvalid(cleanJerk1Change12),
+			zeroIfInvalid(cleanJerk1Change22));
 
 		curStartingTotal = snatchRequest + cleanJerkRequest;
 		int delta = qualTotal - curStartingTotal;
 		String message = null;
 		int _20kgRuleValue = this.get20kgRuleValue();
 		
-		logger.debug("{} validateStartingTotalsRule {} {} {}, {}, {}", this, snatchRequest, cleanJerkRequest, curStartingTotal, qualTotal, delta);
+		logger.warn("{} validateStartingTotalsRule {} {} {}, {}, {}, {}", this, snatchRequest, cleanJerkRequest, curStartingTotal, qualTotal, delta, LoggerUtils.whereFrom());
 
 		RuleViolationException rule15_20Violated = null;
 		int missing = delta - _20kgRuleValue;
@@ -335,7 +340,7 @@ public class Athlete {
 			logger.info("{} {}", this, message);
 			throw rule15_20Violated;
 		} else {
-			logger.debug("OK missing {}",missing);
+			logger.debug("OK margin={}",-(missing));
 			return true;
 		}
 	}
@@ -3145,7 +3150,7 @@ public class Athlete {
 
 	public boolean validateCleanJerk1ActualLift(String cleanJerk1ActualLift) throws RuleViolationException {
 		try {
-			if (validation) validateActualLift(1,
+			validateActualLift(1,
 				getCleanJerk1AutomaticProgression(),
 				cleanJerk1Declaration,
 				cleanJerk1Change1,
@@ -3158,35 +3163,40 @@ public class Athlete {
 	}
 
 	public boolean validateCleanJerk1Change1(String cleanJerk1Change1) throws RuleViolationException {
-		if (validation) validateChange1(1,
+		validateChange1(1,
 			getCleanJerk1AutomaticProgression(),
 			cleanJerk1Declaration,
 			cleanJerk1Change1,
 			cleanJerk1Change2,
 			cleanJerk1ActualLift,
 			false);
+		validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+				cleanJerk1Change1, cleanJerk1Change2);
 		return true;
 	}
 
 	public boolean validateCleanJerk1Change2(String cleanJerk1Change2) throws RuleViolationException {
-		if (validation) validateChange2(1,
+		validateChange2(1,
 			getCleanJerk1AutomaticProgression(),
 			cleanJerk1Declaration,
 			cleanJerk1Change1,
 			cleanJerk1Change2,
 			cleanJerk1ActualLift,
 			false);
+		validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+				cleanJerk1Change1, cleanJerk1Change2);
 		return true;
 	}
 
 	public boolean validateCleanJerk1Declaration(String cleanJerk1Declaration) throws RuleViolationException {
 		// always true
-		return true;
+		return validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+				cleanJerk1Change1, cleanJerk1Change2);
 	}
 
 	public boolean validateCleanJerk2ActualLift(String cleanJerk2ActualLift) throws RuleViolationException {
 		try {
-			if (validation) validateActualLift(2,
+			validateActualLift(2,
 				getCleanJerk2AutomaticProgression(),
 				cleanJerk2Declaration,
 				cleanJerk2Change2,
@@ -3199,7 +3209,7 @@ public class Athlete {
 	}
 
 	public boolean validateCleanJerk2Change1(String cleanJerk2Change1) throws RuleViolationException {
-		if (validation) validateChange1(2,
+		validateChange1(2,
 			getCleanJerk2AutomaticProgression(),
 			cleanJerk2Declaration,
 			cleanJerk2Change1,
@@ -3210,7 +3220,7 @@ public class Athlete {
 	}
 
 	public boolean validateCleanJerk2Change2(String cleanJerk2Change2) throws RuleViolationException {
-		if (validation) validateChange2(2,
+		validateChange2(2,
 			getCleanJerk2AutomaticProgression(),
 			cleanJerk2Declaration,
 			cleanJerk2Change1,
@@ -3221,7 +3231,7 @@ public class Athlete {
 	}
 
 	public boolean validateCleanJerk2Declaration(String cleanJerk2Declaration) throws RuleViolationException {
-		if (validation) validateDeclaration(2,
+		validateDeclaration(2,
 			getCleanJerk2AutomaticProgression(),
 			cleanJerk2Declaration,
 			cleanJerk2Change1,
@@ -3231,7 +3241,7 @@ public class Athlete {
 	}
 
 	public boolean validateCleanJerk3ActualLift(String cleanJerk3ActualLift) throws RuleViolationException {
-		if (validation) validateActualLift(3,
+		validateActualLift(3,
 			getCleanJerk3AutomaticProgression(),
 			cleanJerk3Declaration,
 			cleanJerk3Change1,
@@ -3242,7 +3252,7 @@ public class Athlete {
 	}
 
 	public boolean validateCleanJerk3Change1(String cleanJerk3Change1) throws RuleViolationException {
-		if (validation) validateChange1(3,
+		validateChange1(3,
 			getCleanJerk3AutomaticProgression(),
 			cleanJerk3Declaration,
 			cleanJerk3Change1,
@@ -3253,7 +3263,7 @@ public class Athlete {
 	}
 
 	public boolean validateCleanJerk3Change2(String cleanJerk3Change2) throws RuleViolationException {
-		if (validation) validateChange2(3,
+		validateChange2(3,
 			getCleanJerk3AutomaticProgression(),
 			cleanJerk3Declaration,
 			cleanJerk3Change1,
@@ -3264,7 +3274,7 @@ public class Athlete {
 	}
 
 	public boolean validateCleanJerk3Declaration(String cleanJerk3Declaration) throws RuleViolationException {
-		if (validation) validateDeclaration(3,
+		validateDeclaration(3,
 			getCleanJerk3AutomaticProgression(),
 			cleanJerk3Declaration,
 			cleanJerk3Change1,
@@ -3276,7 +3286,7 @@ public class Athlete {
 	public boolean validateSnatch1ActualLift(String snatch1ActualLift) throws RuleViolationException {
 		logger.trace("if (validation) validateSnatch1ActualLift {} {} {} - {}", System.identityHashCode(this), snatch1Change1,
 			"<" + getSnatch1Change1() + ">", LoggerUtils.whereFrom());
-		if (validation) validateActualLift(1,
+		validateActualLift(1,
 			getSnatch1AutomaticProgression(),
 			snatch1Declaration,
 			snatch1Change1,
@@ -3286,34 +3296,39 @@ public class Athlete {
 	}
 
 	public boolean validateSnatch1Change1(String snatch1Change1) throws RuleViolationException {
-		if (validation) validateChange1(1,
+		validateChange1(1,
 			getSnatch1AutomaticProgression(),
 			snatch1Declaration,
 			snatch1Change1,
 			snatch1Change2,
 			snatch1ActualLift,
 			true);
+		validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+				cleanJerk1Change1, cleanJerk1Change2);
 		return true;
 	}
 
 	public boolean validateSnatch1Change2(String snatch1Change2) throws RuleViolationException {
-		if (validation) validateChange2(1,
+		validateChange2(1,
 			getSnatch1AutomaticProgression(),
 			snatch1Declaration,
 			snatch1Change1,
 			snatch1Change2,
 			snatch1ActualLift,
 			true);
+		validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+				cleanJerk1Change1, cleanJerk1Change2);
 		return true;
 	}
 
 	public boolean validateSnatch1Declaration(String snatch1Declaration) throws RuleViolationException {
 		// always true
-		return true;
+		return validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration,
+				cleanJerk1Change1, cleanJerk1Change2);
 	}
 
 	public boolean validateSnatch2ActualLift(String snatch2ActualLift) throws RuleViolationException {
-		if (validation) validateActualLift(3,
+		validateActualLift(3,
 			getSnatch2AutomaticProgression(),
 			snatch2Declaration,
 			snatch2Change2,
@@ -3323,7 +3338,7 @@ public class Athlete {
 	}
 
 	public boolean validateSnatch2Change1(String snatch2Change1) throws RuleViolationException {
-		if (validation) validateChange1(2,
+		validateChange1(2,
 			getSnatch2AutomaticProgression(),
 			snatch2Declaration,
 			snatch2Change1,
@@ -3334,7 +3349,7 @@ public class Athlete {
 	}
 
 	public boolean validateSnatch2Change2(String snatch2Change2) throws RuleViolationException {
-		if (validation) validateChange2(2,
+		validateChange2(2,
 			getSnatch2AutomaticProgression(),
 			snatch2Declaration,
 			snatch2Change1,
@@ -3345,7 +3360,7 @@ public class Athlete {
 	}
 
 	public boolean validateSnatch2Declaration(String snatch2Declaration) throws RuleViolationException {
-		if (validation) validateDeclaration(2,
+		validateDeclaration(2,
 			getSnatch2AutomaticProgression(),
 			snatch2Declaration,
 			snatch2Change1,
@@ -3355,7 +3370,7 @@ public class Athlete {
 	}
 
 	public boolean validateSnatch3ActualLift(String snatch3ActualLift) throws RuleViolationException {
-		if (validation) validateActualLift(3,
+		validateActualLift(3,
 			getSnatch3AutomaticProgression(),
 			snatch3Declaration,
 			snatch3Change1,
@@ -3365,7 +3380,7 @@ public class Athlete {
 	}
 
 	public boolean validateSnatch3Change1(String snatch3Change1) throws RuleViolationException {
-		if (validation) validateChange1(3,
+		validateChange1(3,
 			getSnatch3AutomaticProgression(),
 			snatch3Declaration,
 			snatch3Change1,
@@ -3376,7 +3391,7 @@ public class Athlete {
 	}
 
 	public boolean validateSnatch3Change2(String snatch3Change2) throws RuleViolationException {
-		if (validation) validateChange2(3,
+		validateChange2(3,
 			getSnatch3AutomaticProgression(),
 			snatch3Declaration,
 			snatch3Change1,
@@ -3387,7 +3402,7 @@ public class Athlete {
 	}
 
 	public boolean validateSnatch3Declaration(String snatch3Declaration) throws RuleViolationException {
-		if (validation) validateDeclaration(3,
+		validateDeclaration(3,
 			getSnatch3AutomaticProgression(),
 			snatch3Declaration,
 			snatch3Change1,
@@ -3627,7 +3642,7 @@ public class Athlete {
 //			else
 //				throw RuleViolation.declarationValueRequired(curLift);
 //		}
-
+		logger.warn("{} validateDeclaration",this,declaration);
 		int newVal = zeroIfInvalid(declaration);
 		int iAutomaticProgression = zeroIfInvalid(automaticProgression);
 		// allow null declaration for reloading old results.
@@ -3683,7 +3698,7 @@ public class Athlete {
 		boolean validation = dest.isValidation();
 		try {
 			dest.setValidation(false);
-			dest.setLoggerLevel(Level.WARN);
+			dest.setLoggerLevel(Level.OFF);
 			
 			dest.setLastName(src.getLastName());
 			dest.setFirstName(src.getFirstName());
@@ -3736,7 +3751,7 @@ public class Athlete {
         boolean validate  = this.isValidation();
 		try {
         	this.setValidation(false);
-        	this.setLoggerLevel(Level.WARN);
+        	this.setLoggerLevel(Level.OFF);
 
             this.setCleanJerk1Declaration("");
             this.setCleanJerk1AutomaticProgression("");

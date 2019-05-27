@@ -7,7 +7,6 @@
 package app.owlcms.ui.crudui;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -17,8 +16,11 @@ import org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Focusable;
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -31,6 +33,11 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BinderValidationStatus;
+import com.vaadin.flow.data.binder.BindingValidationStatus;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.dom.ClassList;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -168,7 +175,8 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 		if (operationButton != null) {
 			footerLayout.add(operationButton);
 			if (operation == CrudOperation.UPDATE) {
-				operationButton.addClickShortcut(Key.ENTER);
+				ShortcutRegistration reg = operationButton.addClickShortcut(Key.ENTER);
+				reg.setBrowserDefaultAllowed(false);
 			}
 		}
 		footerLayout.setFlexGrow(1.0, spacer);
@@ -265,24 +273,58 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 		super.setFieldType(property, class1);
 	}
 
-	public void updateErrorLabelFromBeanValidationErrors() {
+	public void updateErrorLabelFromBeanValidationErrors(boolean updateFields) {
 		logger.trace("updateErrorLabelFromBeanValidationErrors");
 		binder.setValidationStatusHandler((s) -> {
-			s.notifyBindingValidationStatusHandlers();
-			
-			String errorMessages = s.getBeanValidationErrors().stream().map((vr) -> vr.getErrorMessage()).collect(Collectors.joining(", "));
-			if (errorMessages != null && !errorMessages.isEmpty()) {
-				if (errorLabel != null) {
-					errorLabel.getElement().setProperty("innerHTML",errorMessages);
-					errorLabel.setVisible(true);
-				}
-			} else {
-				if (errorLabel != null) {
-					errorLabel.setText("");
-					errorLabel.setVisible(false);
-				}
-			}
+			if (updateFields) s.notifyBindingValidationStatusHandlers();		
+			if (errorLabel != null) setErrorLabel(s);
 		});
 	}
-
+	
+	/**
+	 * Force correcting one error at a time
+	 * 
+	 * @param validationStatus
+	 * @return
+	 */
+	protected boolean setErrorLabel(BinderValidationStatus<?> validationStatus) {
+		logger.trace("field validations");
+		boolean hasErrors = validationStatus.getFieldValidationErrors().size() > 0;;
+		
+		StringBuilder sb = new StringBuilder();
+		for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
+			HasValue<?, ?> field = ve.getField();
+			ClassList fieldClasses = ((Component) field).getElement().getClassList();
+			fieldClasses.clear();
+			fieldClasses.set("error",true);
+			if (field instanceof TextField) {
+				((TextField) field).setAutoselect(true);
+			}
+			if (field instanceof Focusable) {
+				((Focusable<?>) field).focus();
+			}
+			if (sb.length() > 0) sb.append("; ");
+			String message = ve.getMessage().orElse("Error");
+			logger.trace("field message: {}",message);
+			sb.append(message);
+		}
+		logger.trace("bean validation");
+		for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
+			if (sb.length() > 0) sb.append("; ");
+			String message = ve.getErrorMessage();
+			logger.trace("bean message: {}",message);
+			sb.append(message);
+		}
+		if (sb.length() > 0) {
+			String message = sb.toString();
+			errorLabel.setVisible(true);
+			errorLabel.getElement().setProperty("innerHTML",message);
+			errorLabel.getClassNames().set("errorMessage", true);
+		} else {
+			errorLabel.setVisible(true);
+			errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
+			errorLabel.getClassNames().clear();
+		}
+		return hasErrors;
+	}
 }

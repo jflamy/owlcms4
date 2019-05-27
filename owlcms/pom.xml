@@ -5,25 +5,20 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.0.22</version>
+		<version>4.0.23</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
 	<artifactId>owlcms</artifactId>
 	<packaging>jar</packaging>
 
-	<properties>
-		<!-- timestamp>${maven.build.timestamp}</timestamp -->
-		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
-	</properties>
-
 	<dependencies>
 		<dependency>
-	        <groupId>com.vaadin</groupId>
-	        <artifactId>vaadin-core</artifactId>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-core</artifactId>
 		</dependency>
-		
-		<!--  user interface -->
+
+		<!-- user interface -->
 		<dependency>
 			<groupId>com.github.appreciated</groupId>
 			<artifactId>app-layout-addon</artifactId>
@@ -38,7 +33,7 @@
 					<groupId>com.vaadin</groupId>
 					<artifactId>vaadin-accordion-flow</artifactId>
 				</exclusion>
-			</exclusions>			
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.vaadin.crudui</groupId>
@@ -50,7 +45,7 @@
 					<artifactId>slf4j-simple</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>			
+		</dependency>
 
 		<!-- iron-icons -->
 		<dependency>
@@ -64,7 +59,7 @@
 			<version>2.1.1</version>
 		</dependency>
 
-		<!--  database -->
+		<!-- database -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -75,7 +70,7 @@
 			<artifactId>postgresql</artifactId>
 			<version>42.2.5</version>
 		</dependency>
-		
+
 		<!-- jpa using hibernate -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -87,7 +82,7 @@
 			<artifactId>hibernate-c3p0</artifactId>
 			<version>${hibernate.version}</version>
 		</dependency>
-		
+
 		<!-- 2nd-level caching -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -100,22 +95,22 @@
 			<version>3.7.0</version>
 		</dependency>
 
-		
-<!-- 		<dependency> -->
-<!-- 			<groupId>javax.validation</groupId> -->
-<!-- 			<artifactId>validation-api</artifactId> -->
-<!-- 			<version>2.0.1.Final</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.hibernate</groupId> -->
-<!-- 			<artifactId>hibernate-validator</artifactId> -->
-<!-- 			<version>6.0.14.Final</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.glassfish</groupId> -->
-<!-- 			<artifactId>javax.el</artifactId> -->
-<!-- 			<version>3.0.1-b08</version> -->
-<!-- 		</dependency> -->
+
+		<!-- <dependency> -->
+		<!-- <groupId>javax.validation</groupId> -->
+		<!-- <artifactId>validation-api</artifactId> -->
+		<!-- <version>2.0.1.Final</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.hibernate</groupId> -->
+		<!-- <artifactId>hibernate-validator</artifactId> -->
+		<!-- <version>6.0.14.Final</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.glassfish</groupId> -->
+		<!-- <artifactId>javax.el</artifactId> -->
+		<!-- <version>3.0.1-b08</version> -->
+		<!-- </dependency> -->
 
 		<!-- spreadsheets -->
 		<dependency>
@@ -127,21 +122,21 @@
 			<groupId>net.sf.jxls</groupId>
 			<artifactId>jxls-reader</artifactId>
 			<version>1.0.6</version>
-		</dependency>		
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>3.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>3.9</version>
-        </dependency>
+		</dependency>
 		<dependency>
-		    <groupId>net.sf.supercsv</groupId>
-		    <artifactId>super-csv</artifactId>
-		    <version>2.4.0</version>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.9</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.9</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.supercsv</groupId>
+			<artifactId>super-csv</artifactId>
+			<version>2.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-beanutils</groupId>
@@ -155,8 +150,8 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
-		
-		<!--  logging -->
+
+		<!-- logging -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
@@ -186,7 +181,7 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>jul-to-slf4j</artifactId>
 		</dependency>
-		
+
 		<!-- testing -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -195,7 +190,7 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!--  web server -->
+		<!-- web server -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -236,7 +231,7 @@
 			<artifactId>flow-push</artifactId>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<resources>
 			<resource>
@@ -251,7 +246,7 @@
 
 		<plugins>
 			<plugin>
-				<!-- support mvn exec:java  -->
+				<!-- support mvn exec:java -->
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.6.0</version>
@@ -266,7 +261,7 @@
 							<key>memoryMode</key>
 							<value>true</value>
 						</systemProperty>
-			       </systemProperties>
+					</systemProperties>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -281,24 +276,25 @@
 					</archive>
 				</configuration>
 			</plugin>
-	        <plugin>
-	            <groupId>org.codehaus.mojo</groupId>
-	            <artifactId>build-helper-maven-plugin</artifactId>
-	            <version>3.0.0</version>
-	            <executions>
-	                <execution>
-	                    <id>timestamp-property</id>
-	                    <goals>
-	                        <goal>timestamp-property</goal>
-	                    </goals>
-	                    <configuration>
-	                        <name>timestamp</name>
-	                        <pattern>yyyy-MM-dd HH:mm:ss</pattern>
-	                        <timeZone>America/Montreal</timeZone>
-	                    </configuration>
-	                </execution>
-	            </executions>
-	        </plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>timestamp-property</id>
+						<goals>
+							<goal>timestamp-property</goal>
+						</goals>
+						<configuration>
+							<name>timestamp</name>
+							<pattern>yyyy-MM-dd HH:mm:ss</pattern>
+							<timeZone>America/Montreal</timeZone>
+							<locale>en,US</locale>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
@@ -396,9 +392,9 @@
 							<icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
 							<jre>
 								<minVersion>1.8.0</minVersion>
-<!-- 								<opts> -->
-<!-- 									<opt>-Djava.endorsed.dirs=./endorsed</opt> -->
-<!-- 								</opts> -->
+								<!-- <opts> -->
+								<!-- <opt>-Djava.endorsed.dirs=./endorsed</opt> -->
+								<!-- </opts> -->
 							</jre>
 							<versionInfo>
 								<fileVersion>1.0.0.0</fileVersion>
@@ -432,22 +428,32 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>			
-			<plugin>
-				<groupId>com.heroku.sdk</groupId>
-				<artifactId>heroku-maven-plugin</artifactId>
-				<version>2.0.6</version>
-				<configuration>
-					<includeTarget>false</includeTarget>
-					<includes>
-						<include>target/owlcms-${project.version}.jar</include>
-					</includes>
-					<processTypes>
-						<web>java -Dport=$PORT -DdemoMode=true -jar target/owlcms-${project.version}.jar</web>
-					</processTypes>
-					<appName>${project.artifactId}4</appName>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>heroku</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.heroku.sdk</groupId>
+						<artifactId>heroku-maven-plugin</artifactId>
+						<version>2.0.6</version>
+						<configuration>
+							<includeTarget>false</includeTarget>
+							<includes>
+								<include>target/owlcms-${project.version}.jar</include>
+							</includes>
+							<processTypes>
+								<!-- following must be a single command line, cdata used to prevent xml formatters from splitting it -->
+								<web><![CDATA[java -Dport=$PORT -DdemoMode=true -Dlogback.configurationFile=logback-console.xml -jar target/owlcms-${project.version}.jar]]></web>
+							</processTypes>
+							<appName>${project.artifactId}4</appName>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

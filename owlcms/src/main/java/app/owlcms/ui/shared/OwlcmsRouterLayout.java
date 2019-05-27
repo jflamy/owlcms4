@@ -8,7 +8,6 @@ package app.owlcms.ui.shared;
 
 import static com.github.appreciated.app.layout.entity.Section.FOOTER;
 import static com.github.appreciated.app.layout.entity.Section.HEADER;
-import static com.github.appreciated.app.layout.notification.entitiy.Priority.MEDIUM;
 
 import java.util.function.Consumer;
 
@@ -22,10 +21,6 @@ import com.github.appreciated.app.layout.component.menu.left.builder.LeftAppMenu
 import com.github.appreciated.app.layout.component.menu.left.items.LeftClickableItem;
 import com.github.appreciated.app.layout.component.menu.left.items.LeftHeaderItem;
 import com.github.appreciated.app.layout.component.menu.left.items.LeftNavigationItem;
-import com.github.appreciated.app.layout.entity.DefaultBadgeHolder;
-import com.github.appreciated.app.layout.notification.DefaultNotificationHolder;
-import com.github.appreciated.app.layout.notification.entitiy.DefaultNotification;
-import com.github.appreciated.app.layout.notification.entitiy.Priority;
 import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.dependency.HtmlImport;
