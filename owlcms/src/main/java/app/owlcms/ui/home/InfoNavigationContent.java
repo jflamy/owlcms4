@@ -65,7 +65,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 		VerticalLayout license = new VerticalLayout();
 		license.add(new H3("Copyright and License"));
 		addP(license,
-				"This software is (c) 2009-"+LocalDate.now().getYear()+" Jean-François Lamy"
+				"This software is Copyright \u00a9 2009-"+LocalDate.now().getYear()+" Jean-François Lamy"
 				);
 		addP(license,
 				"This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>."
@@ -86,8 +86,8 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 		
 		license.add(new H3("Credits"));
 		addP(license,
-				"The software is written by Jean-François Lamy, IWF International Technical Official Category 1.<br>"+
-				"Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pederson for feedback and testing.<br>"+
+				"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>"+
+				"Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>"+
 				"Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software."
 				);
 		
