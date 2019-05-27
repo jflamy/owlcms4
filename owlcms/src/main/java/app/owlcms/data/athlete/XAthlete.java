@@ -2389,8 +2389,8 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#checkStartingTotalsRule(boolean)
 	 */
 	@Override
-	public boolean validateStartingTotalsRule() {
-		return a.validateStartingTotalsRule();
+	public boolean validateStartingTotalsRule(String snatch1Declaration, String snatch1Change1, String snatch1Change2, String cleanJerk1Declaration, String cleanJerk1Change1, String cleanJerk1Change2) {
+		return a.validateStartingTotalsRule(snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration, cleanJerk1Change1, cleanJerk1Change2);
 	}
 
 	/**

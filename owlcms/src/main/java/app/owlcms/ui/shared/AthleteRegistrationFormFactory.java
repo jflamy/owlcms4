@@ -18,7 +18,6 @@ import com.vaadin.flow.data.validator.DoubleRangeValidator;
 
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
-import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
@@ -48,8 +47,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 	protected Binder<Athlete> buildBinder(CrudOperation operation, Athlete domainObject) {
 		editedAthlete  = domainObject;
 		binder = super.buildBinder(operation, domainObject);
-		binder.withValidator(ValidationUtils.checkUsing((a) -> a.validateStartingTotalsRule(), ""));
-		updateErrorLabelFromBeanValidationErrors();
+		//binder.withValidator(ValidationUtils.checkUsing((a) -> a.validateStartingTotalsRule(), ""));
+		updateErrorLabelFromBeanValidationErrors(true);
 		return binder;
 	}
 

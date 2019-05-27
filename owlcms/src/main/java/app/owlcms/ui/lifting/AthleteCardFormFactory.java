@@ -20,8 +20,6 @@ import com.github.appreciated.layout.GridLayout;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.HasStyle;
-import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
@@ -105,9 +103,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		// we use editedAthlete, which this form retrieves from the underlying data source
 		
 		binder = super.buildBinder(operation, editedAthlete);
-		logger.debug("athlete from grid={} edited={}",doNotUse,editedAthlete);
-		binder.withValidator(ValidationUtils.checkUsing((ignored) -> editedAthlete.validateStartingTotalsRule(), ""));
-		updateErrorLabelFromBeanValidationErrors();
+		logger.trace("athlete from grid={} edited={}",doNotUse,editedAthlete);
+//		binder.withValidator(ValidationUtils.checkUsing((ignored) -> editedAthlete.validateStartingTotalsRule(), ""));
+		updateErrorLabelFromBeanValidationErrors(false);
 		return binder;
 	}
 
@@ -154,6 +152,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		editedAthlete = new Athlete();
 		originalAthlete = aFromDb;
 		Athlete.copy(editedAthlete, originalAthlete);
+		editedAthlete.setValidation(false);  // turn off validation in the setters; vaadin will call validation routines explicitly
 		
 		logger.debug("aFromDb = {} {}", System.identityHashCode(aFromDb), LoggerUtils.whereFrom());
 		logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete), LoggerUtils.whereFrom());
@@ -206,21 +205,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		TextField snatch1Declaration = createPositiveWeightField(DECLARATION, SNATCH1);
 		binder.forField(snatch1Declaration)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch1Declaration(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch1Declaration, Athlete::setSnatch1Declaration);
 		atRowAndColumn(gridLayout, snatch1Declaration, DECLARATION, SNATCH1);
 
 		TextField snatch1Change1 = createPositiveWeightField(CHANGE1, SNATCH1);
 		binder.forField(snatch1Change1)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch1Change1(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch1Change1, Athlete::setSnatch1Change1);
 		atRowAndColumn(gridLayout, snatch1Change1, CHANGE1, SNATCH1);
 
 		TextField snatch1Change2 = createPositiveWeightField(CHANGE2, SNATCH1);
 		binder.forField(snatch1Change2)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch1Change2(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch1Change2, Athlete::setSnatch1Change2);
 		atRowAndColumn(gridLayout, snatch1Change2, CHANGE2, SNATCH1);
 
@@ -242,21 +238,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		TextField snatch2Declaration = createPositiveWeightField(DECLARATION, SNATCH2);
 		binder.forField(snatch2Declaration)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch2Declaration(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch2Declaration, Athlete::setSnatch2Declaration);
 		atRowAndColumn(gridLayout, snatch2Declaration, DECLARATION, SNATCH2);
 
 		TextField snatch2Change1 = createPositiveWeightField(CHANGE1, SNATCH2);
 		binder.forField(snatch2Change1)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch2Change1(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch2Change1, Athlete::setSnatch2Change1);
 		atRowAndColumn(gridLayout, snatch2Change1, CHANGE1, SNATCH2);
 
 		TextField snatch2Change2 = createPositiveWeightField(CHANGE2, SNATCH2);
 		binder.forField(snatch2Change2)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch2Change2(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch2Change2, Athlete::setSnatch2Change2);
 		atRowAndColumn(gridLayout, snatch2Change2, CHANGE2, SNATCH2);
 
@@ -278,21 +271,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		TextField snatch3Declaration = createPositiveWeightField(DECLARATION, SNATCH3);
 		binder.forField(snatch3Declaration)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch3Declaration(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch3Declaration, Athlete::setSnatch3Declaration);
 		atRowAndColumn(gridLayout, snatch3Declaration, DECLARATION, SNATCH3);
 
 		TextField snatch3Change1 = createPositiveWeightField(CHANGE1, SNATCH3);
 		binder.forField(snatch3Change1)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch3Change1(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch3Change1, Athlete::setSnatch3Change1);
 		atRowAndColumn(gridLayout, snatch3Change1, CHANGE1, SNATCH3);
 
 		TextField snatch3Change2 = createPositiveWeightField(CHANGE2, SNATCH3);
 		binder.forField(snatch3Change2)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateSnatch3Change2(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getSnatch3Change2, Athlete::setSnatch3Change2);
 		atRowAndColumn(gridLayout, snatch3Change2, CHANGE2, SNATCH3);
 
@@ -306,21 +296,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		TextField cj1Declaration = createPositiveWeightField(DECLARATION, CJ1);
 		binder.forField(cj1Declaration)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk1Declaration(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk1Declaration, Athlete::setCleanJerk1Declaration);
 		atRowAndColumn(gridLayout, cj1Declaration, DECLARATION, CJ1);
 
 		TextField cj1Change1 = createPositiveWeightField(CHANGE1, CJ1);
 		binder.forField(cj1Change1)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk1Change1(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk1Change1, Athlete::setCleanJerk1Change1);
 		atRowAndColumn(gridLayout, cj1Change1, CHANGE1, CJ1);
 
 		TextField cj1Change2 = createPositiveWeightField(CHANGE2, CJ1);
 		binder.forField(cj1Change2)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk1Change2(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk1Change2, Athlete::setCleanJerk1Change2);
 		atRowAndColumn(gridLayout, cj1Change2, CHANGE2, CJ1);
 
@@ -342,21 +329,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		TextField cj2Declaration = createPositiveWeightField(DECLARATION, CJ2);
 		binder.forField(cj2Declaration)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk2Declaration(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk2Declaration, Athlete::setCleanJerk2Declaration);
 		atRowAndColumn(gridLayout, cj2Declaration, DECLARATION, CJ2);
 
 		TextField cj2Change1 = createPositiveWeightField(CHANGE1, CJ2);
 		binder.forField(cj2Change1)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk2Change1(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk2Change1, Athlete::setCleanJerk2Change1);
 		atRowAndColumn(gridLayout, cj2Change1, CHANGE1, CJ2);
 
 		TextField cj2Change2 = createPositiveWeightField(CHANGE2, CJ2);
 		binder.forField(cj2Change2)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk2Change2(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk2Change2, Athlete::setCleanJerk2Change2);
 		atRowAndColumn(gridLayout, cj2Change2, CHANGE2, CJ2);
 
@@ -378,21 +362,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		TextField cj3Declaration = createPositiveWeightField(DECLARATION, CJ3);
 		binder.forField(cj3Declaration)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk3Declaration(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk3Declaration, Athlete::setCleanJerk3Declaration);
 		atRowAndColumn(gridLayout, cj3Declaration, DECLARATION, CJ3);
 
 		TextField cj3Change1 = createPositiveWeightField(CHANGE1, CJ3);
 		binder.forField(cj3Change1)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk3Change1(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk3Change1, Athlete::setCleanJerk3Change1);
 		atRowAndColumn(gridLayout, cj3Change1, CHANGE1, CJ3);
 
 		TextField cj3Change2 = createPositiveWeightField(CHANGE2, CJ3);
 		binder.forField(cj3Change2)
 			.withValidator(ValidationUtils.checkUsing(v -> editedAthlete.validateCleanJerk3Change2(v)))
-			.withValidationStatusHandler(status -> setErrorLabel(status))
 			.bind(Athlete::getCleanJerk3Change2, Athlete::setCleanJerk3Change2);
 		atRowAndColumn(gridLayout, cj3Change2, CHANGE2, CJ3);
 
@@ -428,10 +409,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		updateTrigger.addFocusListener((f) -> {
 			// absolutely barbaric kludge
 			synchronized (binder) {
-				logger.debug("validating {}",binder.getBean());
+				logger.trace("*** validating {}",binder.getBean());
 				BinderValidationStatus<Athlete> validationStatus = binder.validate();
 				if (validationStatus.isOk()) {
 					try {
+						logger.trace("*** updating");
 						doUpdate();
 					} catch (Exception e) {
 						showError(operation, e);
@@ -449,7 +431,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
 
 	public void setActualLiftStyle(BindingValidationStatus<?> status) throws NumberFormatException {
-		setErrorLabel(status);
 		TextField field = (TextField) status.getField();
 		if (status.isError()) {
 			field.getElement().getClassList().set("error", true);
@@ -473,59 +454,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		}
 	}
 
-	public void setErrorLabel(BindingValidationStatus<?> status) throws NumberFormatException {
-		logger.trace("setting error message field validation");
-		HasStyle field = (TextField) status.getField();
-		ClassList fieldClasses = field.getElement().getClassList();
-		if (status.isError()) {
-			fieldClasses.clear();
-			fieldClasses.set("error",true);
-			setVisible(errorLabel, true);
-			errorLabel.setText(status.getMessage().orElse("Error"));
-			errorLabel.getClassNames().set("errorMessage", true);
-		} else {
-			fieldClasses.clear();
-			setVisible(errorLabel, true);
-			errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
-			errorLabel.getClassNames().set("errorMessage", true);
-		}
-	}
-	
-	private void setErrorLabel(BinderValidationStatus<Athlete> validationStatus) {
-		logger.trace("setting error message bean validation");
-		StringBuilder sb = new StringBuilder();
-		for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
-			HasStyle field = (TextField) ve.getField();
-			ClassList fieldClasses = field.getElement().getClassList();
-			fieldClasses.clear();
-			fieldClasses.set("error",true);
-			if (sb.length() > 0) sb.append("; ");
-			sb.append(ve.getMessage().orElse("Error"));
-		}
-		for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
-			if (sb.length() > 0) sb.append("; ");
-			sb.append(ve.getErrorMessage());
-		}
-		if (sb.length() > 0) {
-			setVisible(errorLabel, true);
-			errorLabel.setText(sb.toString());
-			errorLabel.getClassNames().set("errorMessage", true);
-		} else {
-			setVisible(errorLabel, true);
-			errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
-			errorLabel.getClassNames().clear();
-		}
-		
-	}
-
-	private void setVisible(HasText label, boolean visible) {
-		if (visible) {
-			label.getElement().getStyle().set("visibility", "visible");
-		} else {
-			label.getElement().getStyle().set("visibility", "hidden");
-		}
-	}
-
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildFooter(org.vaadin.
 	 * crudui.crud.CrudOperation, java.lang.Object, com.vaadin.flow.component.ComponentEventListener,
@@ -539,7 +467,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		return super.buildFooter(operation,
 			originalAthlete,
 			cancelButtonClickListener,
-			(e) -> doUpdate(),
+			(e) -> { logger.trace("*** footer callback"); doUpdate();},
 			null);
 	}
 
@@ -701,5 +629,64 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
 	public Athlete getOriginalAthlete() {
 		return originalAthlete;
+	}
+	
+	/**
+	 * Force correcting one error at a time
+	 * 
+	 * @param validationStatus
+	 * @return
+	 */
+	@Override
+	protected boolean setErrorLabel(BinderValidationStatus<?> validationStatus) {
+		logger.trace("field validations");
+		StringBuilder sb = new StringBuilder();
+		
+		boolean hasErrors = validationStatus.getFieldValidationErrors().size() > 0;
+		validationStatus.getBinder().getFields().forEach(f -> {
+			ClassList fieldClasses = ((Component) f).getElement().getClassList();
+			fieldClasses.set("error",false);
+			f.setReadOnly(hasErrors);
+		});
+		for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
+			TextField field = (TextField) ve.getField();
+			ClassList fieldClasses = field.getElement().getClassList();
+			fieldClasses.clear();
+			fieldClasses.set("error",true);
+			field.setReadOnly(false);
+			field.setAutoselect(true);
+			field.focus();
+			if (sb.length() > 0) sb.append("; ");
+			String message = ve.getMessage().orElse("Error");
+			logger.trace("field message: {}",message);
+			sb.append(message);
+		}
+		logger.trace("bean validation");
+		for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
+			if (sb.length() > 0) sb.append("; ");
+			String message = ve.getErrorMessage();
+			logger.trace("bean message: {}",message);
+			sb.append(message);
+		}
+		if (sb.length() > 0) {
+			String message = sb.toString();
+			errorLabel.setVisible(true);
+			errorLabel.getElement().setProperty("innerHTML",message);
+			errorLabel.getClassNames().set("errorMessage", true);
+		} else {
+			errorLabel.setVisible(true);
+			errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
+			errorLabel.getClassNames().clear();
+		}
+		
+		if (!hasErrors) resetReadOnlyFields();
+		return hasErrors;
+	}
+
+	private void resetReadOnlyFields() {
+		snatch2AutomaticProgression.setReadOnly(true);
+		snatch3AutomaticProgression.setReadOnly(true);
+		cj2AutomaticProgression.setReadOnly(true);
+		cj3AutomaticProgression.setReadOnly(true);
 	}
 }

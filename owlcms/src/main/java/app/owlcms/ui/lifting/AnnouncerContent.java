@@ -211,7 +211,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			label.setSizeFull();
 			label.getStyle().set("font-size", "large");
 			n.add(label);
-			n.setPosition(Position.TOP_END);
+			n.setPosition(Position.TOP_START);
 			n.setDuration(5000);
 			n.open();
 		});
