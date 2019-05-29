@@ -55,6 +55,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 
 	protected ResponsiveStep[] responsiveSteps;
 	protected Label errorLabel;
+	protected boolean valid = false;
 
 	/**
 	 * Instantiates a new Form Factory
@@ -273,11 +274,14 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 		super.setFieldType(property, class1);
 	}
 
-	public void updateErrorLabelFromBeanValidationErrors(boolean updateFields) {
-		logger.trace("updateErrorLabelFromBeanValidationErrors");
+	
+	public void setValidationStatusHandler(boolean updateFieldErrors) {
 		binder.setValidationStatusHandler((s) -> {
-			if (updateFields) s.notifyBindingValidationStatusHandlers();		
-			if (errorLabel != null) setErrorLabel(s);
+			logger.debug("validationStatusHandler updateFieldErrors={}", updateFieldErrors);
+			if (updateFieldErrors) s.notifyBindingValidationStatusHandlers();		
+			if (errorLabel != null) {
+				valid = !setErrorLabel(s);
+			}
 		});
 	}
 	
@@ -288,7 +292,7 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	 * @return
 	 */
 	protected boolean setErrorLabel(BinderValidationStatus<?> validationStatus) {
-		logger.trace("field validations");
+		logger.debug("{} validations",this.getClass().getSimpleName());
 		boolean hasErrors = validationStatus.getFieldValidationErrors().size() > 0;;
 		
 		StringBuilder sb = new StringBuilder();
@@ -305,14 +309,11 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 			}
 			if (sb.length() > 0) sb.append("; ");
 			String message = ve.getMessage().orElse("Error");
-			logger.trace("field message: {}",message);
 			sb.append(message);
 		}
-		logger.trace("bean validation");
 		for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
 			if (sb.length() > 0) sb.append("; ");
 			String message = ve.getErrorMessage();
-			logger.trace("bean message: {}",message);
 			sb.append(message);
 		}
 		if (sb.length() > 0) {
