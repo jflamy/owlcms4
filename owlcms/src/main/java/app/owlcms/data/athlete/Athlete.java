@@ -34,7 +34,6 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -321,12 +320,12 @@ public class Athlete {
 		String message = null;
 		int _20kgRuleValue = this.get20kgRuleValue();
 		
-		logger.trace("{} validateStartingTotalsRule {} {} {}, {}, {}, {}", this, snatchRequest, cleanJerkRequest, curStartingTotal, qualTotal, delta, LoggerUtils.whereFrom());
+		//logger.trace("{} validateStartingTotalsRule {} {} {}, {}, {}, {}", this, snatchRequest, cleanJerkRequest, curStartingTotal, qualTotal, delta, LoggerUtils.whereFrom());
 
 		RuleViolationException rule15_20Violated = null;
 		int missing = delta - _20kgRuleValue;
 		if (missing > 0) {
-			logger.debug("FAIL missing {}",missing);
+			//logger.debug("FAIL missing {}",missing);
 			Integer startNumber2 = this.getStartNumber();
 			rule15_20Violated = RuleViolation.rule15_20Violated(
 				this.getLastName(),

@@ -38,7 +38,6 @@ public class AthleteSorter implements Serializable {
      * The Enum Ranking.
      */
     public enum Ranking {
-        
         SNATCH, 
         CLEANJERK, 
         TOTAL, 
