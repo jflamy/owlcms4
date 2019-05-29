@@ -7,7 +7,7 @@ Also used for certain cloud services (e.g. Heroku)
 
 	<appender name="STDERR"
 		class="ch.qos.logback.core.ConsoleAppender">
-		<target>System.out</target>
+		<target>System.err</target>
 		<encoder>
 			<pattern>
 				%d{HH:mm:ss.SSS} %-5level %-75msg [%logger{100}:%L %M]%n

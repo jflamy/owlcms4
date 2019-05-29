@@ -48,7 +48,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 		editedAthlete  = domainObject;
 		binder = super.buildBinder(operation, domainObject);
 		//binder.withValidator(ValidationUtils.checkUsing((a) -> a.validateStartingTotalsRule(), ""));
-		updateErrorLabelFromBeanValidationErrors(true);
+		setValidationStatusHandler(true);
 		return binder;
 	}
 
