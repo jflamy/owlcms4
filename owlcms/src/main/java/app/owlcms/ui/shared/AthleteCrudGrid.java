@@ -4,6 +4,9 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.CrudOperationException;
 
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 
 import app.owlcms.data.athlete.Athlete;
@@ -64,7 +67,11 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 			domainObject = match;
 
 		// show both an update and a delete button.
-		this.showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
+		this.showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, updateAndRefresh());
+	}
+
+	private ComponentEventListener<ClickEvent<Button>> updateAndRefresh() {
+		return event -> {
 			try {
 				logger.trace("before updateOperation, {}, after binder validation {}", match, LoggerUtils.whereFrom());
 				Athlete updatedObject = updateOperation.perform(match);
@@ -81,6 +88,6 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 				refreshGrid();
 				throw e2;
 			}
-		});
+		};
 	}
 }

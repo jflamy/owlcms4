@@ -13,6 +13,7 @@ import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.form.CrudFormFactory;
 import org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory;
 
+import com.github.appreciated.layout.GridLayout;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -39,6 +40,7 @@ import com.vaadin.flow.data.binder.BindingValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.dom.ClassList;
 
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -177,11 +179,40 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 			footerLayout.add(operationButton);
 			if (operation == CrudOperation.UPDATE) {
 				ShortcutRegistration reg = operationButton.addClickShortcut(Key.ENTER);
-				reg.setBrowserDefaultAllowed(false);
+				//reg.allowEventPropagation();
+				reg.allowBrowserDefault();
 			}
 		}
 		footerLayout.setFlexGrow(1.0, spacer);
 		return footerLayout;
+	}
+	
+	/**
+	 * Workaround for the fact that ENTER as keyboard shortcut prevents the value being typed from being
+	 * set in the underlying object.
+	 *
+	 * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but ENTER alone doesn't.  This method
+	 * we work around this issue by causing focus to move, and reacting to the focus being set.
+	 * 
+	 * @param operation
+	 * @param gridLayout
+	 */
+	public TextField updateTrigger(CrudOperation operation, GridLayout gridLayout) {
+		TextField updateTrigger = new TextField();
+		updateTrigger.setReadOnly(true);
+		updateTrigger.setTabIndex(-1);
+		updateTrigger.addFocusListener((f) -> {
+			if (valid) {
+				logger.debug("updating");
+//FIXME: move the operation logic to a routine to be called from trigger.
+//				doUpdate();
+			} else {
+				logger.debug("not updating");
+			}
+		});
+		// field must visible and added to the layout for focus() to work, so we hide it brutally
+		updateTrigger.getStyle().set("z-index", "-10");
+		return updateTrigger;
 	}
 	
 	/** 
@@ -275,12 +306,14 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	}
 
 	
-	public void setValidationStatusHandler(boolean updateFieldErrors) {
+	public void setValidationStatusHandler(boolean showErrorsOnFields) {
 		binder.setValidationStatusHandler((s) -> {
-			logger.debug("validationStatusHandler updateFieldErrors={}", updateFieldErrors);
-			if (updateFieldErrors) s.notifyBindingValidationStatusHandlers();		
-			if (errorLabel != null) {
-				valid = !setErrorLabel(s);
+			if (s.hasErrors()) {
+				logger.warn("validationStatusHandler updateFieldErrors={}\n{}", showErrorsOnFields, LoggerUtils.stackTrace());
+				if (showErrorsOnFields) s.notifyBindingValidationStatusHandlers();		
+				if (errorLabel != null) {
+					valid = !setErrorLabel(s, showErrorsOnFields);
+				}
 			}
 		});
 	}
@@ -289,18 +322,23 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	 * Force correcting one error at a time
 	 * 
 	 * @param validationStatus
+	 * @param showErrorOnFields if true, vaadin displays the errors
 	 * @return
 	 */
-	protected boolean setErrorLabel(BinderValidationStatus<?> validationStatus) {
+	protected boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
 		logger.debug("{} validations",this.getClass().getSimpleName());
-		boolean hasErrors = validationStatus.getFieldValidationErrors().size() > 0;;
+		boolean hasErrors = validationStatus.getFieldValidationErrors().size() > 0;
+		boolean showInLabel = !showErrorOnFields;
 		
 		StringBuilder sb = new StringBuilder();
 		for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
 			HasValue<?, ?> field = ve.getField();
-			ClassList fieldClasses = ((Component) field).getElement().getClassList();
-			fieldClasses.clear();
-			fieldClasses.set("error",true);
+			if (showInLabel) {
+				// error message is only shown on label, we highlight the classes ourselves
+				ClassList fieldClasses = ((Component) field).getElement().getClassList();
+				fieldClasses.clear();
+				fieldClasses.set("error",true);
+			}
 			if (field instanceof TextField) {
 				((TextField) field).setAutoselect(true);
 			}
@@ -312,19 +350,18 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 			sb.append(message);
 		}
 		for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
+			showInLabel = true;
 			if (sb.length() > 0) sb.append("; ");
 			String message = ve.getErrorMessage();
 			sb.append(message);
 		}
-		if (sb.length() > 0) {
+		if (showInLabel) {
 			String message = sb.toString();
 			errorLabel.setVisible(true);
 			errorLabel.getElement().setProperty("innerHTML",message);
 			errorLabel.getClassNames().set("errorMessage", true);
 		} else {
-			errorLabel.setVisible(true);
-			errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
-			errorLabel.getClassNames().clear();
+			errorLabel.setVisible(false);
 		}
 		return hasErrors;
 	}

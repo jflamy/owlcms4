@@ -15,9 +15,11 @@ import com.vaadin.flow.data.binder.Binder.BindingBuilder;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
+import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
@@ -47,7 +49,6 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 	protected Binder<Athlete> buildBinder(CrudOperation operation, Athlete domainObject) {
 		editedAthlete  = domainObject;
 		binder = super.buildBinder(operation, domainObject);
-		//binder.withValidator(ValidationUtils.checkUsing((a) -> a.validateStartingTotalsRule(), ""));
 		setValidationStatusHandler(true);
 		return binder;
 	}
@@ -123,9 +124,17 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			});
 			bindingBuilder.bind(property);
 		} else if (property.endsWith("Declaration")) {
+			logger.debug(property);
 			TextField declField = (TextField)bindingBuilder.getField();
 			declField.setPattern("^(-?\\d+)|()$"); // optional minus and at least one digit, or empty.
 			declField.setPreventInvalidInput(true);
+			declField.setValueChangeMode(ValueChangeMode.ON_BLUR);
+			bindingBuilder.withValidator(ValidationUtils.<String>checkUsing(
+					(unused) -> Athlete.validate20kgRule(
+							editedAthlete,
+							getIntegerFieldValue("snatch1Declaration"),
+							getIntegerFieldValue("cleanJerk1Declaration"), 
+							getIntegerFieldValue("qualifyingTotal")), ""));
 			bindingBuilder.bind(property);
 		} else {
 			super.bindField(field, property, propertyType);
@@ -159,7 +168,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				// inconsistent selection is signaled on the category dropdown since the weight is a factual
 				// measure
 				Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
-				categoryBinding.validate(true).isError();
+				categoryBinding.validate(true);
 				return true;
 			}, "Body Weight is outside of selected category");
 		bindingBuilder.withValidator(v1);
@@ -246,6 +255,13 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 		},
 			"Category does not match gender.");
 		bindingBuilder.withValidator(v2);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Integer getIntegerFieldValue(String property) {
+		Optional<Binding<Athlete, ?>> binding = binder.getBinding(property);
+		HasValue<?, String> field = (HasValue<?, String>) binding.get().getField();
+		return Athlete.zeroIfInvalid(field.getValue());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes"})

@@ -34,6 +34,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -68,7 +69,7 @@ import ch.qos.logback.classic.Logger;
 @Entity
 @Cacheable
 public class Athlete {
-	private final Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
+	private final static Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
 	private final Level NORMAL_LEVEL = Level.INFO;
 
 	private static final int YEAR = LocalDateTime.now().getYear();
@@ -282,61 +283,54 @@ public class Athlete {
 		if (qualTotal == 0) {
 			return true;
 		}
-
+		Integer snatchRequest = last(
+				zeroIfInvalid(snatch1Declaration),
+				zeroIfInvalid(snatch1Change1),
+				zeroIfInvalid(snatch1Change2));
+		Integer cleanJerkRequest = last(
+				zeroIfInvalid(cleanJerk1Declaration),
+				zeroIfInvalid(cleanJerk1Change1),
+				zeroIfInvalid(cleanJerk1Change2));
 //		if (!Competition.getCurrent().isMasters()) {
-			return validate20kgRule(qualTotal, snatch1Declaration, snatch1Change1, snatch1Change2, cleanJerk1Declaration, cleanJerk1Change1, cleanJerk1Change2);
+			return validate20kgRule(this, snatchRequest, cleanJerkRequest, qualTotal);
 //		} else
 //			return validateMasters15_20Rule(qualTotal);
 	}
 
 	/**
-	 * @param cleanJerk1Change22 
-	 * @param cleanJerk1Change12 
-	 * @param cleanJerk1Declaration2 
-	 * @param snatch1Change22 
-	 * @param snatch1Change12 
-	 * @param snatch1Declaration2 
+	 * @param a Athlete being validated
+	 * @param snatchDeclaration 
+	 * @param cleanJerkDeclaration 
 	 * @param entryTotal
 	 * @return true if ok, exception if not
 	 * @throws RuleViolationException if rule violated, exception contails details.
 	 */
-	private boolean validate20kgRule(int qualTotal, String snatch1Declaration2, String snatch1Change12, String snatch1Change22, String cleanJerk1Declaration2, String cleanJerk1Change12, String cleanJerk1Change22) {
+	public static boolean validate20kgRule(Athlete a, Integer snatchRequest, Integer cleanJerkRequest, int qualTotal) {
 
 		int curStartingTotal = 0;
-		int snatchRequest = 0;
-		int cleanJerkRequest = 0;
-
-		snatchRequest = last(
-			zeroIfInvalid(snatch1Declaration2),
-			zeroIfInvalid(snatch1Change12),
-			zeroIfInvalid(snatch1Change22));
-		cleanJerkRequest = last(
-			zeroIfInvalid(cleanJerk1Declaration2),
-			zeroIfInvalid(cleanJerk1Change12),
-			zeroIfInvalid(cleanJerk1Change22));
 
 		curStartingTotal = snatchRequest + cleanJerkRequest;
 		int delta = qualTotal - curStartingTotal;
 		String message = null;
-		int _20kgRuleValue = this.get20kgRuleValue();
+		int _20kgRuleValue = a.get20kgRuleValue();
 		
-		//logger.trace("{} validateStartingTotalsRule {} {} {}, {}, {}, {}", this, snatchRequest, cleanJerkRequest, curStartingTotal, qualTotal, delta, LoggerUtils.whereFrom());
+		logger.debug("{} validate20kgRule {} {} {}, {}, {}, {}", a, snatchRequest, cleanJerkRequest, curStartingTotal, qualTotal, delta, LoggerUtils.whereFrom());
 
 		RuleViolationException rule15_20Violated = null;
 		int missing = delta - _20kgRuleValue;
 		if (missing > 0) {
 			//logger.debug("FAIL missing {}",missing);
-			Integer startNumber2 = this.getStartNumber();
+			Integer startNumber2 = a.getStartNumber();
 			rule15_20Violated = RuleViolation.rule15_20Violated(
-				this.getLastName(),
-				this.getFirstName(),
+				a.getLastName(),
+				a.getFirstName(),
 				(startNumber2 != null ? startNumber2 : "-"),
 				snatchRequest,
 				cleanJerkRequest,
 				missing,
 				qualTotal);
 			message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());
-			logger.info("{} {}", this, message);
+			logger.info("{} {}", a, message);
 			throw rule15_20Violated;
 		} else {
 			logger.debug("OK margin={}",-(missing));

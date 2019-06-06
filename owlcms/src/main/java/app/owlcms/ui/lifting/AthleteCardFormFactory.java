@@ -412,14 +412,17 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	 * Workaround for the fact that ENTER as keyboard shortcut prevents the value being typed from being
 	 * set in the underlying object.
 	 *
-	 * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but ENTER alone doesn't.  This method
-	 * we work around this issue by causing focus to move, and reacting to the focus being set.
+	 * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but ENTER alone doesn't.
+	 * We work around this issue by causing focus to move, and reacting to the focus being set.
 	 * 
 	 * @param operation
 	 * @param gridLayout
+	 * 
+	 * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#updateTrigger(org.vaadin.crudui.crud.CrudOperation, com.github.appreciated.layout.GridLayout)
 	 */
-	public void updateTrigger(CrudOperation operation, GridLayout gridLayout) {
-		updateTrigger = new TextField();
+	@Override
+	public TextField updateTrigger(CrudOperation operation, GridLayout gridLayout) {
+		TextField updateTrigger = new TextField();
 		updateTrigger.setReadOnly(true);
 		updateTrigger.setTabIndex(-1);
 		updateTrigger.addFocusListener((f) -> {
@@ -433,6 +436,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		// field must visible and added to the layout for focus() to work, so we hide it brutally
 		atRowAndColumn(gridLayout, updateTrigger, AUTOMATIC, SNATCH1);
 		updateTrigger.getStyle().set("z-index", "-10");
+		return updateTrigger;
 	}
 
 
@@ -474,7 +478,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			originalAthlete,
 			cancelButtonClickListener,
 			// next line is actually ignored by buildOperationButton which overrides it.
-			(e) -> doUpdate(),
+			(e) -> {},
 			null);
 	}
 
@@ -645,7 +649,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	 * @return
 	 */
 	@Override
-	protected boolean setErrorLabel(BinderValidationStatus<?> validationStatus) {
+	protected boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean updateFieldStatus) {
 		String simpleName = this.getClass().getSimpleName();
 		logger.debug("{} validations",simpleName);
 		StringBuilder sb = new StringBuilder();
