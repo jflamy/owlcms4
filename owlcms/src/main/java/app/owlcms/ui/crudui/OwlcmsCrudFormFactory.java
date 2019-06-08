@@ -9,11 +9,12 @@ package app.owlcms.ui.crudui;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
+import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.CrudOperation;
+import org.vaadin.crudui.crud.UpdateOperationListener;
 import org.vaadin.crudui.form.CrudFormFactory;
 import org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory;
 
-import com.github.appreciated.layout.GridLayout;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -50,7 +51,7 @@ import ch.qos.logback.classic.Logger;
  * @param <T> the generic type
  */
 @SuppressWarnings("serial")
-public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implements CrudFormFactory<T> {
+public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implements CrudFormFactory<T>, CrudListener<T>{
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsCrudFormFactory.class);
 	static {logger.setLevel(Level.INFO);}
@@ -197,15 +198,14 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	 * @param operation
 	 * @param gridLayout
 	 */
-	public TextField updateTrigger(CrudOperation operation, GridLayout gridLayout) {
+	public TextField defineUpdateTrigger(UpdateOperationListener<T> operation, T domainObject) {
 		TextField updateTrigger = new TextField();
 		updateTrigger.setReadOnly(true);
 		updateTrigger.setTabIndex(-1);
 		updateTrigger.addFocusListener((f) -> {
 			if (valid) {
 				logger.debug("updating");
-//FIXME: move the operation logic to a routine to be called from trigger.
-//				doUpdate();
+				operation.perform(domainObject);
 			} else {
 				logger.debug("not updating");
 			}
@@ -308,11 +308,12 @@ public class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implemen
 	
 	public void setValidationStatusHandler(boolean showErrorsOnFields) {
 		binder.setValidationStatusHandler((s) -> {
-			if (s.hasErrors()) {
+			valid = !s.hasErrors();
+			if (!valid) {
 				logger.warn("validationStatusHandler updateFieldErrors={}\n{}", showErrorsOnFields, LoggerUtils.stackTrace());
 				if (showErrorsOnFields) s.notifyBindingValidationStatusHandlers();		
 				if (errorLabel != null) {
-					valid = !setErrorLabel(s, showErrorsOnFields);
+					setErrorLabel(s, showErrorsOnFields);
 				}
 			}
 		});
