@@ -1,6 +1,7 @@
 package app.owlcms.ui.shared;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -50,6 +52,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 		editedAthlete  = domainObject;
 		binder = super.buildBinder(operation, domainObject);
 		setValidationStatusHandler(true);
+		
+		// workaround for the fact that ENTER as keyboard shortcut prevents the value being
+		// typed from being set in the underlying object.
+		defineUpdateTrigger(this::update,editedAthlete);
 		return binder;
 	}
 
@@ -271,5 +277,36 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 		ComboBox<Gender> genderField =  (ComboBox<Gender>) genderBinding.getField();
 		ListDataProvider<Category> listDataProvider = new ListDataProvider<Category>(CategoryRepository.findActive(genderField.getValue()));
 		genderField.addValueChangeListener((vc) -> {categoryField.setDataProvider(listDataProvider);});
+	}
+	
+	/**
+	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
+	 */
+	@Override
+	public void delete(Athlete athlete) {
+		AthleteRepository.delete(athlete);
+	}
+	
+	/**
+	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+	 */
+	@Override
+	public Athlete update(Athlete athlete) {
+		AthleteRepository.save(athlete);
+		return athlete;
+	}
+	
+	/**
+	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
+	 */
+	@Override
+	public Athlete add(Athlete athlete) {
+		AthleteRepository.save(athlete);
+		return athlete;
+	}
+
+	@Override
+	public Collection<Athlete> findAll() {
+		throw new UnsupportedOperationException(); // should be called on the grid, not on the form
 	}
 }

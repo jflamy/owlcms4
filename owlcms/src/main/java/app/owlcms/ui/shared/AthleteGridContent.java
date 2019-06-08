@@ -44,7 +44,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.AthleteTimerElement;
@@ -131,9 +130,8 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
 	 */
 	@Override
-	public Athlete add(Athlete Athlete) {
-		AthleteRepository.save(Athlete);
-		return Athlete;
+	public Athlete add(Athlete athlete) {
+		return getAthleteEditingFormFactory().add(athlete);
 	}
 
 	public void closeDialog() {
@@ -152,20 +150,14 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		ThemeList themes = grid.getThemeNames();
 		themes.add("compact");
 		themes.add("row-stripes");
-		grid.addColumn(athlete -> athlete.getLastName().toUpperCase())
-			.setHeader("Last Name");
-		grid.addColumn("firstName")
-			.setHeader("First Name");
-		grid.addColumn("team")
-			.setHeader("Team");
-		grid.addColumn("category")
-			.setHeader("Category");
-		grid.addColumn("nextAttemptRequestedWeight")
-			.setHeader("Requested Weight");
+		grid.addColumn(athlete -> athlete.getLastName().toUpperCase()).setHeader("Last Name");
+		grid.addColumn("firstName").setHeader("First Name");
+		grid.addColumn("team").setHeader("Team");
+		grid.addColumn("category").setHeader("Category");
+		grid.addColumn("nextAttemptRequestedWeight").setHeader("Requested Weight");
 		// format attempt
 		grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader("Attempt");
-		grid.addColumn("startNumber")
-			.setHeader("Start Number");
+		grid.addColumn("startNumber").setHeader("Start Number");
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class,
@@ -206,14 +198,13 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		return null;
 	}
 
-
-	/* (non-Javadoc)
+	/**
+	 * Delegate to the form factory which actually implements deletion
 	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
 	 */
 	@Override
 	public void delete(Athlete notUsed) {
-		Athlete originalAthlete = getAthleteEditingFormFactory().getOriginalAthlete();
-		AthleteRepository.delete(originalAthlete);
+		getAthleteEditingFormFactory().delete(notUsed);
 	}
 
 	/**
@@ -311,11 +302,13 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		});
 	}
 
-	/* (non-Javadoc)
-	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object) */
+	/**
+	 * Update button and validation logic is in form factory
+	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+	 */
 	@Override
-	public Athlete update(Athlete athleteFromDb) {
-		throw new UnsupportedOperationException("Programming error, update is implemented in "+AthleteCardFormFactory.class.getSimpleName());
+	public Athlete update(Athlete notUsed) {
+		return athleteEditingFormFactory.update(notUsed);
 	}
 
 	@Subscribe
@@ -385,7 +378,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		athleteEditingFormFactory = createAthleteEditingFormFactory();
+		athleteEditingFormFactory = new AthleteCardFormFactory(Athlete.class, this);
 		return athleteEditingFormFactory;
 	}
 
@@ -543,10 +536,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		this.topBarTitle = title;
 	}
 	
-	private AthleteCardFormFactory createAthleteEditingFormFactory() {
-		return new AthleteCardFormFactory(Athlete.class, this);
-	}
-
 	private String formatAttemptNumber(Athlete a) {
 		Integer attemptsDone = a.getAttemptsDone();
 		Integer attemptNumber = a.getAttemptNumber();

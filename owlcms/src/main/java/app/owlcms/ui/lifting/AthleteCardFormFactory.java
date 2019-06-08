@@ -7,8 +7,11 @@
 
 package app.owlcms.ui.lifting;
 
+import java.util.Collection;
+
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
+import org.vaadin.crudui.crud.UpdateOperationListener;
 
 import com.github.appreciated.css.grid.GridLayoutComponent.ColumnAlign;
 import com.github.appreciated.css.grid.GridLayoutComponent.RowAlign;
@@ -87,6 +90,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	private AthleteGridContent origin;
 	private TextField updateTrigger;
 
+	private GridLayout gridLayout;
+
 	public AthleteCardFormFactory(Class<Athlete> domainType, AthleteGridContent origin) {
 		super(domainType);
 		this.origin = origin;
@@ -106,6 +111,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		logger.trace("athlete from grid={} edited={}",doNotUse,editedAthlete);
 		setValidationStatusHandler(true);
 		return binder;
+
 	}
 
 	/* (non-Javadoc)
@@ -156,7 +162,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		logger.debug("aFromDb = {} {}", System.identityHashCode(aFromDb), LoggerUtils.whereFrom());
 		logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete), LoggerUtils.whereFrom());
 		logger.trace("editedAthlete = {}", System.identityHashCode(editedAthlete));
-		bindGridFields(operation, gridLayout);
+		bindGridFields();
 
 		Component footerLayout = this
 			.buildFooter(operation, editedAthlete, cancelButtonClickListener, updateButtonClickListener,
@@ -195,11 +201,12 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	 * @param operation
 	 * @param gridLayout
 	 */
-	protected void bindGridFields(CrudOperation operation, GridLayout gridLayout) {
-		binder = buildBinder(operation, editedAthlete);
+	protected void bindGridFields() {
+		binder = buildBinder(null, editedAthlete);
 		// workaround for the fact that ENTER as keyboard shortcut prevents the value being
 		// typed from being set in the underlying object.
-		updateTrigger(operation, gridLayout);
+		defineUpdateTrigger(this::update,editedAthlete);
+
 
 		TextField snatch1Declaration = createPositiveWeightField(DECLARATION, SNATCH1);
 		binder.forField(snatch1Declaration)
@@ -418,10 +425,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 	 * @param operation
 	 * @param gridLayout
 	 * 
-	 * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#updateTrigger(org.vaadin.crudui.crud.CrudOperation, com.github.appreciated.layout.GridLayout)
+	 * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#defineUpdateTrigger(org.vaadin.crudui.crud.CrudOperation, com.github.appreciated.layout.GridLayout)
 	 */
 	@Override
-	public TextField updateTrigger(CrudOperation operation, GridLayout gridLayout) {
+	public TextField defineUpdateTrigger(UpdateOperationListener<Athlete> operation, Athlete domainObject) {
 		TextField updateTrigger = new TextField();
 		updateTrigger.setReadOnly(true);
 		updateTrigger.setTabIndex(-1);
@@ -429,6 +436,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			if (valid) {
 				logger.debug("updating");
 				doUpdate();
+				
+				// the following calls the operation (the actual update routine)
+				// operation.perform(domainObject);
+				
 			} else {
 				logger.debug("not updating");
 			}
@@ -699,5 +710,39 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		snatch3AutomaticProgression.setReadOnly(true);
 		cj2AutomaticProgression.setReadOnly(true);
 		cj3AutomaticProgression.setReadOnly(true);
+	}
+	
+	/**
+	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
+	 */
+	@Override
+	public void delete(Athlete notUsed) {
+		AthleteRepository.delete(originalAthlete);
+	}
+	
+	/**
+	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+	 */
+	@Override
+	public Athlete update(Athlete athleteFromDb) {
+		doUpdate();
+		return originalAthlete;
+	}
+	
+	/**
+	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
+	 */
+	@Override
+	public Athlete add(Athlete Athlete) {
+		AthleteRepository.save(Athlete);
+		return Athlete;
+	}
+
+	/**
+	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
+	 */
+	@Override
+	public Collection<Athlete> findAll() {
+		throw new UnsupportedOperationException(); // should be called on the grid
 	}
 }

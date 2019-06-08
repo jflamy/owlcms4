@@ -53,6 +53,7 @@ public class GroupContent extends VerticalLayout
 	static {logger.setLevel(Level.INFO);}
 
 	private OwlcmsRouterLayout routerLayout;
+	private OwlcmsCrudFormFactory<Group> editingFormFactory;
 
 
 	/**
@@ -100,7 +101,7 @@ public class GroupContent extends VerticalLayout
 	 * @return the form factory that will create the actual form on demand
 	 */
 	private OwlcmsCrudFormFactory<Group> createFormFactory() {
-		OwlcmsCrudFormFactory<Group> editingFormFactory = createGroupEditingFormFactory();
+		editingFormFactory = createGroupEditingFormFactory();
 		createFormLayout(editingFormFactory);
 		return editingFormFactory;
 	}
@@ -128,23 +129,23 @@ public class GroupContent extends VerticalLayout
 				"jury4",
 				"jury5");
 		crudFormFactory.setFieldCaptions("Name",
-			"Weigh-in Time",
-			"Start Time",
-			"Platform",
-			"Announcer",
-			"Marshall",
-			"Technical Controller",
-			"Timekeeper",
-			"Referee 1",
-			"Referee 2",
-			"Referee 3",
-			"Jury 1",
-			"Jury 2",
-			"Jury 3",
-			"Jury 4",
-			"Jury 5");
+				"Weigh-in Time",
+				"Start Time",
+				"Platform",
+				"Announcer",
+				"Marshall",
+				"Technical Controller",
+				"Timekeeper",
+				"Referee 1",
+				"Referee 2",
+				"Referee 3",
+				"Jury 1",
+				"Jury 2",
+				"Jury 3",
+				"Jury 4",
+				"Jury 5");
 		crudFormFactory.setFieldProvider("platform",
-            new ComboBoxProvider<>("Platform", PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
+				new ComboBoxProvider<>("Platform", PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
 		crudFormFactory.setFieldType("weighInTime", LocalDateTimeField.class);
 		crudFormFactory.setFieldType("competitionTime", LocalDateTimeField.class);
 	}
@@ -176,41 +177,43 @@ public class GroupContent extends VerticalLayout
 					super.bindField(field, property, propertyType);
 				}
 			}
+			
+			@Override
+			public Group add(Group Group) {
+				GroupRepository.save(Group);
+				return Group;
+			}
+
+			@Override
+			public Group update(Group Group) {
+				return GroupRepository.save(Group);
+			}
+
+			@Override
+			public void delete(Group Group) {
+				GroupRepository.delete(Group);
+			}
+
+			@Override
+			public Collection<Group> findAll() {
+				// implemented on grid
+				return null;
+			}
 		};
 	}
 
-	/**
-	 * The plus button on the toolbar triggers an add
-	 * 
-	 * This method is called when the pop-up is closed.
-	 * 
-	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
-	 */
-	@Override
-	public Group add(Group Group) {
-		GroupRepository.save(Group);
-		return Group;
+
+
+	public Group add(Group domainObjectToAdd) {
+		return editingFormFactory.add(domainObjectToAdd);
 	}
 
-	/**
-	 * This method is called when the dialog is closed with the update button
-	 * 
-	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-	 */
-	@Override
-	public Group update(Group Group) {
-		return GroupRepository.save(Group);
+	public Group update(Group domainObjectToUpdate) {
+		return editingFormFactory.update(domainObjectToUpdate);
 	}
 
-	/**
-	 * The delete button on the toolbar triggers this method
-	 * (or the delete button in the form)
-	 * 
-	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
-	 */
-	@Override
-	public void delete(Group Group) {
-		GroupRepository.delete(Group);
+	public void delete(Group domainObjectToDelete) {
+		editingFormFactory.delete(domainObjectToDelete);
 	}
 
 	/**
