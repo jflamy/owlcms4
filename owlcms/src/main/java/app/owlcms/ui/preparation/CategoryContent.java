@@ -96,7 +96,7 @@ implements CrudListener<Category>, ContentWrapping, AppLayoutAware, HasDynamicTi
 	 * @return the form factory that will create the actual form on demand
 	 */
 	private OwlcmsCrudFormFactory<Category> createFormFactory() {
-		OwlcmsCrudFormFactory<Category> editingFormFactory = createCategoryEditingFormFactory();
+		OwlcmsCrudFormFactory<Category> editingFormFactory = new CategoryEditingFormFactory(Category.class);
 		createFormLayout(editingFormFactory);
 		return editingFormFactory;
 	}
@@ -122,19 +122,6 @@ implements CrudListener<Category>, ContentWrapping, AppLayoutAware, HasDynamicTi
 				"World Record",
 				"Active");
 	}
-
-	/**
-	 * Create the actual form generator with all the conversions and validations required
-	 *
-	 * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
-	 *
-	 * @return the actual factory, with the additional mechanisms to do validation
-	 */
-	private OwlcmsCrudFormFactory<Category> createCategoryEditingFormFactory() {
-		return new CategoryEditingFormFactory(Category.class);
-	}
-
-
 
 	public Category add(Category domainObjectToAdd) {
 		return crudFormFactory.add(domainObjectToAdd);
