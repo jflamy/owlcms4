@@ -53,7 +53,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 					.navigate(GroupContent.class));
 		Button platforms = new Button("Define Fields of Play",
 			buttonClickEvent -> UI.getCurrent()
-				.navigate(GroupContent.class));
+				.navigate(PlatformContent.class));
 		
 		StreamResource href = new StreamResource(
 				"registration.xls",
@@ -87,8 +87,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(
 			athletes);
 
-		
-		platforms.setEnabled(false);
 		doGroup("Pre-competition setup", grid1, this);
 		doGroup("Registration", grid2, this);
 		doGroup("Edit Athlete Entries (adjust group assignments)", grid3, this);
