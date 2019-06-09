@@ -166,7 +166,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	@Override
 	protected void init() {
-		logger.warn("init");
 		init(3);
 	}
 
@@ -391,10 +390,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	private void resetJuryVoting() {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+		UIEventProcessor.uiAccess(UI.getCurrent(), uiEventBus, () -> {
 			juryIcons = new Icon[getNbJurors()];
 			juryVotes = new Boolean[getNbJurors()];
-			logger.warn("resetJuryVoting {}", getNbJurors());
 			for (int i = 0; i < getNbJurors(); i++) {
 				final int ix = i;
 				Icon nonVotedIcon = bigIcon(VaadinIcon.CIRCLE_THIN, "gray");
