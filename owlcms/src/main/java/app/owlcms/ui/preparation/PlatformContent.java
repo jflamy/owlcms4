@@ -6,9 +6,7 @@
  */
 package app.owlcms.ui.preparation;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -18,18 +16,13 @@ import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.LocalDateTimeField;
-import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -45,23 +38,23 @@ import ch.qos.logback.classic.Logger;
  * Defines the toolbar and the table for editing data on categories.
  */
 @SuppressWarnings("serial")
-@Route(value = "preparation/groups", layout = GroupLayout.class)
-public class GroupContent extends VerticalLayout
-		implements CrudListener<Group>, ContentWrapping, AppLayoutAware, HasDynamicTitle {
+@Route(value = "preparation/platforms", layout = PlatformLayout.class)
+public class PlatformContent extends VerticalLayout
+		implements CrudListener<Platform>, ContentWrapping, AppLayoutAware, HasDynamicTitle {
 	
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(GroupContent.class);
+	final private static Logger logger = (Logger)LoggerFactory.getLogger(PlatformContent.class);
 	static {logger.setLevel(Level.INFO);}
 
 	private OwlcmsRouterLayout routerLayout;
-	private OwlcmsCrudFormFactory<Group> editingFormFactory;
+	private OwlcmsCrudFormFactory<Platform> editingFormFactory;
 
 
 	/**
-	 * Instantiates the Group crudGrid.
+	 * Instantiates the Platform crudGrid.
 	 */
-	public GroupContent() {
-		OwlcmsCrudFormFactory<Group> crudFormFactory = createFormFactory();
-		GridCrud<Group> crud = createGrid(crudFormFactory);
+	public PlatformContent() {
+		OwlcmsCrudFormFactory<Platform> crudFormFactory = createFormFactory();
+		GridCrud<Platform> crud = createGrid(crudFormFactory);
 //		defineFilters(crudGrid);
 		fillHW(crud, this);
 	}
@@ -72,22 +65,12 @@ public class GroupContent extends VerticalLayout
 	 * @param crudFormFactory what to call to create the form for editing an athlete
 	 * @return
 	 */
-	protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
-		Grid<Group> grid = new Grid<Group>(Group.class, false);
-		grid.addColumn(Group::getName).setHeader("Name");
-		grid.addColumn(
-			LocalDateTimeField.getRenderer(
-				Group::getWeighInTime,this.getLocale()))
-			.setHeader("Weigh-in Time");
-		grid.addColumn(
-			LocalDateTimeField.getRenderer(
-				Group::getCompetitionTime,this.getLocale()))
-			.setHeader("Start Time");
-		grid.addColumn(Group::getPlatform)
-			.setHeader("Platform");
+	protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
+		Grid<Platform> grid = new Grid<Platform>(Platform.class, false);
+		grid.addColumn(Platform::getName).setHeader("Name");
 
-		GridCrud<Group> crud = new OwlcmsCrudGrid<Group>(Group.class,
-				new OwlcmsGridLayout(Group.class),
+		GridCrud<Platform> crud = new OwlcmsCrudGrid<Platform>(Platform.class,
+				new OwlcmsGridLayout(Platform.class),
 				crudFormFactory,
 				grid);
 		crud.setCrudListener(this);
@@ -96,12 +79,12 @@ public class GroupContent extends VerticalLayout
 	}
 
 	/**
-	 * Define the form used to edit a given Group.
+	 * Define the form used to edit a given Platform.
 	 * 
 	 * @return the form factory that will create the actual form on demand
 	 */
-	private OwlcmsCrudFormFactory<Group> createFormFactory() {
-		editingFormFactory = createGroupEditingFormFactory();
+	private OwlcmsCrudFormFactory<Platform> createFormFactory() {
+		editingFormFactory = createPlatformEditingFactory();
 		createFormLayout(editingFormFactory);
 		return editingFormFactory;
 	}
@@ -111,39 +94,9 @@ public class GroupContent extends VerticalLayout
 	 *
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
-	protected void createFormLayout(OwlcmsCrudFormFactory<Group> crudFormFactory) {
-		crudFormFactory.setVisibleProperties("name",
-				"weighInTime",
-				"competitionTime",
-				"platform",
-				"announcer",
-				"marshall",
-				"technicalController",
-				"timeKeeper",
-				"referee1",
-				"referee2",
-				"referee3",
-				"jury1",
-				"jury2",
-				"jury3",
-				"jury4",
-				"jury5");
-		crudFormFactory.setFieldCaptions("Name",
-				"Weigh-in Time",
-				"Start Time",
-				"Platform",
-				"Announcer",
-				"Marshall",
-				"Technical Controller",
-				"Timekeeper",
-				"Referee 1",
-				"Referee 2",
-				"Referee 3",
-				"Jury 1",
-				"Jury 2",
-				"Jury 3",
-				"Jury 4",
-				"Jury 5");
+	protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
+		crudFormFactory.setVisibleProperties("name");
+		crudFormFactory.setFieldCaptions("Platform Name");
 		crudFormFactory.setFieldProvider("platform",
 				new ComboBoxProvider<>("Platform", PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
 		crudFormFactory.setFieldType("weighInTime", LocalDateTimeField.class);
@@ -157,45 +110,32 @@ public class GroupContent extends VerticalLayout
 	 * 
 	 * @return the actual factory, with the additional mechanisms to do validation
 	 */
-	private OwlcmsCrudFormFactory<Group> createGroupEditingFormFactory() {
-		return new OwlcmsCrudFormFactory<Group>(Group.class) {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
+	private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
+		return new OwlcmsCrudFormFactory<Platform>(Platform.class) {
+			@SuppressWarnings({ "rawtypes" })
 			@Override
 			protected void bindField(HasValue field, String property, Class<?> propertyType) {
-				Binder.BindingBuilder bindingBuilder = binder.forField(field);
-				Locale locale = OwlcmsSession.getLocale();
-				
-				if ("competitionTime".equals(property)) {
-					LocalDateTimeField ldtf = (LocalDateTimeField)field;
-					Validator<LocalDateTime> fv = ldtf.formatValidation(locale);
-					bindingBuilder.withValidator(fv).bind(property);
-				} else if ("weighInTime".equals(property)) {
-					LocalDateTimeField ldtf = (LocalDateTimeField)field;
-					Validator<LocalDateTime> fv = ldtf.formatValidation(locale);
-					bindingBuilder.withValidator(fv).bind(property);
-				} else {
-					super.bindField(field, property, propertyType);
-				}
+				super.bindField(field, property, propertyType);
 			}
 			
 			@Override
-			public Group add(Group Group) {
-				GroupRepository.save(Group);
-				return Group;
+			public Platform add(Platform Platform) {
+				PlatformRepository.save(Platform);
+				return Platform;
 			}
 
 			@Override
-			public Group update(Group Group) {
-				return GroupRepository.save(Group);
+			public Platform update(Platform Platform) {
+				return PlatformRepository.save(Platform);
 			}
 
 			@Override
-			public void delete(Group Group) {
-				GroupRepository.delete(Group);
+			public void delete(Platform Platform) {
+				PlatformRepository.delete(Platform);
 			}
 
 			@Override
-			public Collection<Group> findAll() {
+			public Collection<Platform> findAll() {
 				// implemented on grid
 				return null;
 			}
@@ -204,15 +144,15 @@ public class GroupContent extends VerticalLayout
 
 
 
-	public Group add(Group domainObjectToAdd) {
+	public Platform add(Platform domainObjectToAdd) {
 		return editingFormFactory.add(domainObjectToAdd);
 	}
 
-	public Group update(Group domainObjectToUpdate) {
+	public Platform update(Platform domainObjectToUpdate) {
 		return editingFormFactory.update(domainObjectToUpdate);
 	}
 
-	public void delete(Group domainObjectToDelete) {
+	public void delete(Platform domainObjectToDelete) {
 		editingFormFactory.delete(domainObjectToDelete);
 	}
 
@@ -222,8 +162,8 @@ public class GroupContent extends VerticalLayout
 	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
 	 */
 	@Override
-	public Collection<Group> findAll() {
-		return GroupRepository.findAll();
+	public Collection<Platform> findAll() {
+		return PlatformRepository.findAll();
 	}
 	
 	@Override
@@ -241,6 +181,6 @@ public class GroupContent extends VerticalLayout
 	 */
 	@Override
 	public String getPageTitle() {
-		return "Preparation - Groups";
+		return "Preparation - Platforms";
 	}
 }

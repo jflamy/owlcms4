@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -56,12 +55,13 @@ implements CrudListener<Category>, ContentWrapping, AppLayoutAware, HasDynamicTi
 	private TextField nameFilter = new TextField();
 	private Checkbox activeFilter = new Checkbox();
 	private OwlcmsRouterLayout routerLayout;
+	private OwlcmsCrudFormFactory<Category> crudFormFactory;
 
 	/**
 	 * Instantiates the category crudGrid.
 	 */
 	public CategoryContent() {
-		OwlcmsCrudFormFactory<Category> crudFormFactory = createFormFactory();
+		crudFormFactory = createFormFactory();
 		GridCrud<Category> crud = createGrid(crudFormFactory);
 		defineFilters(crud);
 		fillHW(crud, this);
@@ -76,12 +76,9 @@ implements CrudListener<Category>, ContentWrapping, AppLayoutAware, HasDynamicTi
 	protected GridCrud<Category> createGrid(OwlcmsCrudFormFactory<Category> crudFormFactory) {
 		Grid<Category> grid = new Grid<>(Category.class, false);
 		grid.setColumns("name", "ageDivision", "gender", "minimumWeight", "maximumWeight", "active");
-		grid.getColumnByKey("name")
-		.setHeader("Name");
-		grid.getColumnByKey("ageDivision")
-		.setHeader("Age Division");
-		grid.getColumnByKey("gender")
-		.setHeader("Gender");
+		grid.getColumnByKey("name").setHeader("Name");
+		grid.getColumnByKey("ageDivision").setHeader("Age Division");
+		grid.getColumnByKey("gender").setHeader("Gender");
 
 		GridCrud<Category> crud = new OwlcmsCrudGrid<>(
 				Category.class,
@@ -99,7 +96,7 @@ implements CrudListener<Category>, ContentWrapping, AppLayoutAware, HasDynamicTi
 	 * @return the form factory that will create the actual form on demand
 	 */
 	private OwlcmsCrudFormFactory<Category> createFormFactory() {
-		OwlcmsCrudFormFactory<Category> editingFormFactory = createCategoryEditingFormFactory();
+		OwlcmsCrudFormFactory<Category> editingFormFactory = new CategoryEditingFormFactory(Category.class);
 		createFormLayout(editingFormFactory);
 		return editingFormFactory;
 	}
@@ -111,74 +108,31 @@ implements CrudListener<Category>, ContentWrapping, AppLayoutAware, HasDynamicTi
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<Category> crudFormFactory) {
 		crudFormFactory.setVisibleProperties("name",
-			"ageDivision",
-			"gender",
-			"minimumWeight",
-			"maximumWeight",
-			"wr",
+				"ageDivision",
+				"gender",
+				"minimumWeight",
+				"maximumWeight",
+				"wr",
 				"active");
 		crudFormFactory.setFieldCaptions("Name",
-			"Age Division",
-			"Gender",
-			"Minimum Weight",
-			"Maximum Weight",
-			"World Record",
+				"Age Division",
+				"Gender",
+				"Minimum Weight",
+				"Maximum Weight",
+				"World Record",
 				"Active");
 	}
 
-	/**
-	 * Create the actual form generator with all the conversions and validations required
-	 *
-	 * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
-	 *
-	 * @return the actual factory, with the additional mechanisms to do validation
-	 */
-	private OwlcmsCrudFormFactory<Category> createCategoryEditingFormFactory() {
-		return new OwlcmsCrudFormFactory<Category>(Category.class) {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			@Override
-			protected void bindField(HasValue field, String property, Class<?> propertyType) {
-				binder.forField(field);
-				super.bindField(field, property, propertyType);
-			}
-		};
+	public Category add(Category domainObjectToAdd) {
+		return crudFormFactory.add(domainObjectToAdd);
 	}
 
-	/**
-	 * The plus button on the toolbar triggers an add
-	 *
-	 * This method is called when the pop-up is closed.
-	 *
-	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
-	 */
-	@Override
-	public Category add(Category Category) {
-		CategoryRepository.save(Category);
-		return Category;
+	public Category update(Category domainObjectToUpdate) {
+		return crudFormFactory.update(domainObjectToUpdate);
 	}
 
-	/**
-	 * The pencil button on the toolbar triggers an edit.
-	 *
-	 * This method is called when the pop-up is closed with Update
-	 *
-	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-	 */
-	@Override
-	public Category update(Category Category) {
-		return CategoryRepository.save(Category);
-	}
-
-	/**
-	 * The delete button on the toolbar triggers this method
-	 *
-	 * (or the one in the form)
-	 *
-	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
-	 */
-	@Override
-	public void delete(Category Category) {
-		CategoryRepository.delete(Category);
+	public void delete(Category domainObjectToDelete) {
+		crudFormFactory.delete(domainObjectToDelete);
 	}
 
 	/**

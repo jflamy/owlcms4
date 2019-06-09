@@ -2,7 +2,6 @@ package app.owlcms.ui.shared;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
-import org.vaadin.crudui.crud.CrudOperationException;
 
 import com.vaadin.flow.component.grid.Grid;
 
@@ -11,7 +10,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -59,28 +57,11 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 			}
 			;
 		});
-		logger.debug("domainObject = {} {}", (domainObject != match ? "!!!!" : ""), domainObject, match);
+		logger.trace("domainObject = {} {}", (domainObject != match ? "!!!!" : ""), domainObject, match);
 		if (match != null)
 			domainObject = match;
 
-		// show both an update and a delete button.
-		this.showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
-			try {
-				logger.trace("before updateOperation, {}, after binder validation {}", match, LoggerUtils.whereFrom());
-				Athlete updatedObject = updateOperation.perform(match);
-				grid.asSingleSelect().clear();
-				refreshGrid();
-				grid.asSingleSelect().setValue(updatedObject);
-			} catch (IllegalArgumentException ignore) {
-				logger.error(LoggerUtils.stackTrace(ignore));
-			} catch (CrudOperationException e1) {
-				logger.error(LoggerUtils.stackTrace(e1));
-				refreshGrid();
-			} catch (Exception e2) {
-				logger.error(LoggerUtils.stackTrace(e2));
-				refreshGrid();
-				throw e2;
-			}
-		});
+		// show both an update and a delete button. 
+		this.showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, null);
 	}
 }
