@@ -53,6 +53,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
+import app.owlcms.ui.lifting.AnnouncerContent;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
 import app.owlcms.ui.lifting.MarshallContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -263,7 +264,9 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		location = event.getLocation();
 		locationUI = event.getUI();
 		// super.setParameter sets the group, but does not reload.
-		OwlcmsSession.withFop(fop -> fop.initGroup(fop.getGroup(), this));
+		if (this instanceof AnnouncerContent) {
+			OwlcmsSession.withFop(fop -> fop.initGroup(fop.getGroup(), this));
+		}
 	}
 
 	@Override
@@ -523,7 +526,7 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 		OwlcmsSession.withFop(fop -> {
 			// create the top bar.
 			createTopBar();
-			syncWithFOP(true);
+			syncWithFOP(this instanceof AnnouncerContent);
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
 		});

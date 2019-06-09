@@ -166,6 +166,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	@Override
 	protected void init() {
+		logger.warn("init");
 		init(3);
 	}
 
@@ -279,27 +280,29 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	private void checkAllVoted() {
-		boolean allVoted = true;
-		for (int i = 0; i < juryVotes.length; i++) {
-			if (juryVotes[i] == null) {
-				allVoted = false;
-				break;
-			}
-		}
-		
-		if (allVoted) {
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			boolean allVoted = true;
 			for (int i = 0; i < juryVotes.length; i++) {
-				if (juryVotes[i]) {
-					Icon fullSizeIcon = bigIcon(VaadinIcon.CHECK_CIRCLE, "white");
-					juryVotingButtons.replace(juryIcons[i],fullSizeIcon);
-					juryIcons[i] = fullSizeIcon;
-				} else {
-					Icon fullSizeIcon = bigIcon(VaadinIcon.CLOSE_CIRCLE, "red");
-					juryVotingButtons.replace(juryIcons[i],fullSizeIcon);
+				if (juryVotes[i] == null) {
+					allVoted = false;
+					break;
+				}
+			}
+
+			if (allVoted) {
+				juryVotingButtons.removeAll();
+				for (int i = 0; i < juryVotes.length; i++) {
+					Icon fullSizeIcon;
+					if (juryVotes[i]) {
+						fullSizeIcon = bigIcon(VaadinIcon.CHECK_CIRCLE, "white");
+					} else {
+						fullSizeIcon = bigIcon(VaadinIcon.CLOSE_CIRCLE, "red");
+					}
+					juryVotingButtons.add(fullSizeIcon);
 					juryIcons[i] = fullSizeIcon;
 				}
 			}
-		}
+		});
 	}
 
 	private Key getBadKey(int i) {
@@ -388,29 +391,32 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	private void resetJuryVoting() {
-		juryIcons = new Icon[getNbJurors()];
-		juryVotes = new Boolean[getNbJurors()];
-		for (int i = 0; i < getNbJurors(); i++) {
-			final int ix = i;
-			Icon nonVotedIcon = bigIcon(VaadinIcon.CIRCLE_THIN, "gray");
-			juryIcons[ix] = nonVotedIcon;
-			juryVotes[ix] = null;
-			juryVotingButtons.add(juryIcons[ix], nonVotedIcon);
-			UI.getCurrent().addShortcutListener(() -> {
-				Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
-				juryVotingButtons.replace(juryIcons[ix], votedIcon);
-				juryIcons[ix] = votedIcon;
-				juryVotes[ix] = true;
-				checkAllVoted();
-			}, getGoodKey(i));
-			UI.getCurrent().addShortcutListener(() -> {
-				Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
-				juryVotingButtons.replace(juryIcons[ix], votedIcon);
-				juryIcons[ix] = votedIcon;
-				juryVotes[ix] = false;
-				checkAllVoted();
-			}, getBadKey(i));
-		}
+		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+			juryIcons = new Icon[getNbJurors()];
+			juryVotes = new Boolean[getNbJurors()];
+			logger.warn("resetJuryVoting {}", getNbJurors());
+			for (int i = 0; i < getNbJurors(); i++) {
+				final int ix = i;
+				Icon nonVotedIcon = bigIcon(VaadinIcon.CIRCLE_THIN, "gray");
+				juryIcons[ix] = nonVotedIcon;
+				juryVotes[ix] = null;
+				juryVotingButtons.add(juryIcons[ix], nonVotedIcon);
+				UI.getCurrent().addShortcutListener(() -> {
+					Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
+					juryVotingButtons.replace(juryIcons[ix], votedIcon);
+					juryIcons[ix] = votedIcon;
+					juryVotes[ix] = true;
+					checkAllVoted();
+				}, getGoodKey(i));
+				UI.getCurrent().addShortcutListener(() -> {
+					Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
+					juryVotingButtons.replace(juryIcons[ix], votedIcon);
+					juryIcons[ix] = votedIcon;
+					juryVotes[ix] = false;
+					checkAllVoted();
+				}, getBadKey(i));
+			}
+		});
 	}
 
 
@@ -422,5 +428,5 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		this.removeAll();
 		init(nbJurors);
 	}
-
+	
 }
