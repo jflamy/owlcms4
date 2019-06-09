@@ -89,7 +89,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	 */
 	@Override
 	protected void showForm(CrudOperation operation, T domainObject, boolean readOnly, String successMessage,
-			ComponentEventListener<ClickEvent<Button>> buttonClickListener) {
+			ComponentEventListener<ClickEvent<Button>> unused) {
 		Component form = this.owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
 			cancelButtonClickEvent -> {
 				logger.warn("cancelButtonClickEvent");
@@ -100,8 +100,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 				try {
 					logger.warn("postOperation");
 					grid.asSingleSelect().clear();
-//					buttonClickListener.onComponentEvent(operationButtonClickEvent);
 					owlcmsGridLayout.hideForm();
+					refreshGrid();
 					Notification.show(successMessage);
 					logger.trace("operation performed");
 				} catch (Exception e) {
