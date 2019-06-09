@@ -66,7 +66,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Div downloadDiv = new Div(download);
 		downloadDiv.setWidthFull();
 		
-		Button upload = new Button("Upload Completed Registration Spreadsheet",
+		Button upload = new Button("Upload Completed Registration Spreadsheet", new Icon(VaadinIcon.UPLOAD_ALT), 
 				buttonClickEvent -> new UploadDialog().open());
 		Button athletes = new Button("Edit Athlete Entries",
 				buttonClickEvent -> UI.getCurrent()
