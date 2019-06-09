@@ -11,7 +11,6 @@ import java.util.List;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.CrudOperation;
-import org.vaadin.crudui.crud.UpdateOperationListener;
 import org.vaadin.crudui.form.CrudFormFactory;
 import org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory;
 
@@ -30,7 +29,6 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -51,14 +49,19 @@ import ch.qos.logback.classic.Logger;
  * @param <T> the generic type
  */
 @SuppressWarnings("serial")
-public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T> implements CrudFormFactory<T>, CrudListener<T>{
-	
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsCrudFormFactory.class);
-	static {logger.setLevel(Level.INFO);}
+public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
+		implements CrudFormFactory<T>, CrudListener<T> {
+
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsCrudFormFactory.class);
+	static {
+		logger.setLevel(Level.INFO);
+	}
 
 	protected ResponsiveStep[] responsiveSteps;
 	protected Label errorLabel;
 	protected boolean valid = false;
+	protected TextField operationTrigger;
+	private ClickEvent<Button> operationTriggerEvent;
 
 	/**
 	 * Instantiates a new Form Factory
@@ -91,12 +94,12 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	/**
 	 * Form with a Delete button
 	 *
-	 * @param operation                 the operation
-	 * @param domainObject              the domain object
-	 * @param readOnly                  the read only
-	 * @param cancelButtonClickListener the cancel button click listener
+	 * @param operation                    the operation
+	 * @param domainObject                 the domain object
+	 * @param readOnly                     the read only
+	 * @param cancelButtonClickListener    the cancel button click listener
 	 * @param operationButtonClickListener the update button click listener
-	 * @param deleteButtonClickListener the delete button click listener
+	 * @param deleteButtonClickListener    the delete button click listener
 	 * @return the component
 	 */
 	@SuppressWarnings("rawtypes")
@@ -111,20 +114,18 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		}
 
 		List<HasValueAndElement> fields = buildFields(operation, domainObject, readOnly);
-		fields.stream()
-			.forEach(field -> formLayout.getElement().appendChild(field.getElement()));
+		fields.stream().forEach(field -> formLayout.getElement().appendChild(field.getElement()));
 
 		Component footerLayout = this.buildFooter(operation, domainObject, cancelButtonClickListener,
-			operationButtonClickListener, deleteButtonClickListener);
-		
+				operationButtonClickListener, deleteButtonClickListener);
+
 		errorLabel = new Label();
 		HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
 		labelWrapper.addClassName("errorMessage");
 		labelWrapper.setWidthFull();
 		labelWrapper.setJustifyContentMode(JustifyContentMode.CENTER);
 
-		VerticalLayout mainLayout = new VerticalLayout(
-				formLayout, labelWrapper, footerLayout);
+		VerticalLayout mainLayout = new VerticalLayout(formLayout, labelWrapper, footerLayout);
 		mainLayout.setFlexGrow(1, formLayout);
 		mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
 		mainLayout.setMargin(false);
@@ -139,25 +140,25 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	 * 
 	 * Also adds a shortcut so enter submits.
 	 *
-	 * @param operation                 the operation
-	 * @param domainObject              the domain object
-	 * @param cancelButtonClickListener the cancel button click listener
-	 * @param operationButtonClickListener the update button click listener
-	 * @param deleteButtonClickListener the delete button click listener
+	 * @param operation                    the operation
+	 * @param domainObject                 the domain object
+	 * @param cancelButtonClickListener    the cancel button click listener
+	 * @param postOperationCallBack		   what to do after the object is created/updated
+	 * @param deleteButtonClickListener    the delete button click listener
 	 * @return the component
 	 */
 	protected Component buildFooter(CrudOperation operation, T domainObject,
 			ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-			ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
+			ComponentEventListener<ClickEvent<Button>> postOperationCallBack,
 			ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
 
 		Button operationButton = null;
 		if (operation == CrudOperation.UPDATE) {
-			operationButton = buildOperationButton(CrudOperation.UPDATE, domainObject, operationButtonClickListener);
+			operationButton = buildOperationButton(CrudOperation.UPDATE, domainObject, postOperationCallBack);
 		} else if (operation == CrudOperation.ADD) {
-			operationButton = buildOperationButton(CrudOperation.ADD, domainObject, operationButtonClickListener);
+			operationButton = buildOperationButton(CrudOperation.ADD, domainObject, postOperationCallBack);
 		}
-		Button deleteButton = buildOperationButton(CrudOperation.DELETE, domainObject, deleteButtonClickListener);
+		Button deleteButton = buildDeleteButton(CrudOperation.DELETE, domainObject, deleteButtonClickListener);
 		Button cancelButton = buildCancelButton(cancelButtonClickListener);
 
 		HorizontalLayout footerLayout = new HorizontalLayout();
@@ -170,7 +171,8 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		}
 
 		Label spacer = new Label();
-		footerLayout.add(spacer);
+
+		footerLayout.add(spacer, operationTrigger);
 
 		if (cancelButton != null) {
 			footerLayout.add(cancelButton);
@@ -180,88 +182,125 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 			footerLayout.add(operationButton);
 			if (operation == CrudOperation.UPDATE) {
 				ShortcutRegistration reg = operationButton.addClickShortcut(Key.ENTER);
-				//reg.allowEventPropagation();
 				reg.allowBrowserDefault();
 			}
 		}
 		footerLayout.setFlexGrow(1.0, spacer);
 		return footerLayout;
 	}
-	
+
 	/**
-	 * Workaround for the fact that ENTER as keyboard shortcut prevents the value being typed from being
-	 * set in the underlying object.
+	 * Workaround for the fact that ENTER as keyboard shortcut prevents the value
+	 * being typed from being set in the underlying object.
 	 *
-	 * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but ENTER alone doesn't.  This method
-	 * we work around this issue by causing focus to move, and reacting to the focus being set.
+	 * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but
+	 * ENTER alone doesn't.
+	 * 
+	 * So we cause ENTER to move focus, which forces an ON_BLUR, and we do the
+	 * processing in the focus handler.
 	 * 
 	 * @param operation
+	 * @param action
+	 * 
 	 * @param gridLayout
 	 */
-	public TextField defineUpdateTrigger(UpdateOperationListener<T> operation, T domainObject) {
+	protected TextField defineOperationTrigger(CrudOperation operation, T domainObject,
+			ComponentEventListener<ClickEvent<Button>> action) {
 		TextField updateTrigger = new TextField();
 		updateTrigger.setReadOnly(true);
 		updateTrigger.setTabIndex(-1);
 		updateTrigger.addFocusListener((f) -> {
-			if (valid) {
-				logger.debug("updating");
-				operation.perform(domainObject);
-			} else {
-				logger.debug("not updating");
-			}
+			performOperationAndCallback(operation, domainObject, action);
 		});
-		// field must visible and added to the layout for focus() to work, so we hide it brutally
+		// field must visible and added to the layout for focus() to work, so we hide it
+		// brutally
 		updateTrigger.getStyle().set("z-index", "-10");
 		return updateTrigger;
 	}
-	
-	/** 
-	 * Added delete button
-	 * @see org.vaadin.crudui.form.AbstractAutoGeneratedCrudFormFactory#buildOperationButton(org.vaadin.crudui.crud.CrudOperation, java.lang.Object, com.vaadin.flow.component.ComponentEventListener)
-	 */
-	@Override
-    protected Button buildOperationButton(CrudOperation operation, T domainObject, ComponentEventListener<ClickEvent<Button>> clickListener) {
-		if (clickListener == null) {
-            return null;
-        }
-        Button button = doBuildButton(operation);
 
-        ComponentEventListener<ClickEvent<Button>> listener = event -> {
-            if (binder.writeBeanIfValid(domainObject)) {
-                try {
-                    clickListener.onComponentEvent(event);
-                } catch (Exception e) {
-                    showError(operation, e);
-                }
-            } else {
-                Notification.show(validationErrorMessage);
-            }
-        };
-		
-        if (operation != CrudOperation.DELETE) {
-        	button.addClickListener(listener);
-        } else {
-        	button.addClickListener(e -> createConfirmDialog(operation, domainObject, clickListener).open());
-        }
-        return button;
-    }
+	protected void performOperationAndCallback(CrudOperation operation, T domainObject,
+			ComponentEventListener<ClickEvent<Button>> gridCallback) {
+		valid = binder.writeBeanIfValid(domainObject);
+		if (valid) {
+			if (operation == CrudOperation.ADD) {
+				logger.warn("adding 	{}", domainObject);
+				this.add(domainObject);
+				gridCallback.onComponentEvent(operationTriggerEvent);
+			} else if (operation == CrudOperation.UPDATE) {
+				logger.warn("updating 	{}", domainObject);
+				this.update(domainObject);
+				gridCallback.onComponentEvent(operationTriggerEvent);
+			} else if (operation == CrudOperation.DELETE) {
+				logger.warn("deleting 	{}", domainObject);
+				this.delete(domainObject);
+				gridCallback.onComponentEvent(operationTriggerEvent);
+			}
+		} else {
+			logger.warn("not valid {}", domainObject);
+		}
+	}
 
 	/**
-	 * Creates a new dialog that executes the original listener after asking for confirmation
+	 * Special button that uses an auxilliary field focus trigger to perform the
+	 * operation.
+	 * 
+	 * @see org.vaadin.crudui.form.AbstractAutoGeneratedCrudFormFactory#buildOperationButton(org.vaadin.crudui.crud.CrudOperation,
+	 *      java.lang.Object, com.vaadin.flow.component.ComponentEventListener)
+	 */
+	@Override
+	protected Button buildOperationButton(CrudOperation operation, T domainObject,
+			ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
+		if (gridCallBackAction == null) {
+			return null;
+		}
+		Button button = doBuildButton(operation);
+
+		// workaround for keyboard shortcut bug; the add/update takes place in the
+		// trigger callback. The trigger then calls the gridCallBackAction
+		operationTrigger = defineOperationTrigger(operation, domainObject, gridCallBackAction);
+		ComponentEventListener<ClickEvent<Button>> listener = event -> {
+			logger.warn("{} clicked", operation);
+			operationTriggerEvent = event;
+			operationTrigger.focus();
+		};
+		button.addClickListener(listener);
+
+		return button;
+	}
+
+	/**
+	 * Added support for a delete button
+	 * 
+	 * @see org.vaadin.crudui.form.AbstractAutoGeneratedCrudFormFactory#buildOperationButton(org.vaadin.crudui.crud.CrudOperation,
+	 *      java.lang.Object, com.vaadin.flow.component.ComponentEventListener)
+	 */
+	protected Button buildDeleteButton(CrudOperation operation, T domainObject,
+			ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
+		if (gridCallBackAction == null) {
+			return null;
+		}
+		Button button = doBuildButton(operation);
+		button.addClickListener(e -> buildConfirmDialog(operation, domainObject, gridCallBackAction).open());
+		return button;
+	}
+
+	/**
+	 * Creates a new dialog that executes the original listener after asking for
+	 * confirmation
 	 * 
 	 * @param operation
 	 * @param domainObject
 	 * @param clickListener
 	 * @return
 	 */
-	public Dialog createConfirmDialog(CrudOperation operation, T domainObject,
+	protected Dialog buildConfirmDialog(CrudOperation operation, T domainObject,
 			ComponentEventListener<ClickEvent<Button>> clickListener) {
 		Dialog dialog = new Dialog();
 
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 
-		H3 messageLabel = new H3("Delete "+domainObject.toString()+" ?");
+		H3 messageLabel = new H3("Delete " + domainObject.toString() + " ?");
 
 		// create a new delete button for the confirm dialog
 		Button confirmButton = doBuildButton(operation);
@@ -281,23 +320,25 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	}
 
 	public Button doBuildButton(CrudOperation operation) {
-        String caption = buttonCaptions.get(operation);
-        Icon icon = buttonIcons.get(operation);
-        Button button = icon != null ? new Button(caption, icon) : new Button(caption);
-        if (buttonStyleNames.containsKey(operation)) {
-            buttonStyleNames.get(operation).stream().filter(styleName -> styleName != null).forEach(styleName -> button.addClassName(styleName));
-        }
-        if (buttonThemes.containsKey(operation)) {
-            button.getElement().setAttribute("theme", buttonThemes.get(operation));
-        }
+		String caption = buttonCaptions.get(operation);
+		Icon icon = buttonIcons.get(operation);
+		Button button = icon != null ? new Button(caption, icon) : new Button(caption);
+		if (buttonStyleNames.containsKey(operation)) {
+			buttonStyleNames.get(operation).stream().filter(styleName -> styleName != null)
+					.forEach(styleName -> button.addClassName(styleName));
+		}
+		if (buttonThemes.containsKey(operation)) {
+			button.getElement().setAttribute("theme", buttonThemes.get(operation));
+		}
 		return button;
 	}
 
-
-	/** 
-	 * Avoid massive unreadable (Class<? extends HasValueAndElement<?, ?>>) cast when using WrappedTextField subclasses
+	/**
+	 * Utility method to avoid unreadable cast (Class<? extends
+	 * HasValueAndElement<?, ?>>) when using WrappedTextField subclasses
 	 * 
-	 * @see org.vaadin.crudui.form.AbstractCrudFormFactory#setFieldType(java.lang.String, java.lang.Class)
+	 * @see org.vaadin.crudui.form.AbstractCrudFormFactory#setFieldType(java.lang.String,
+	 *      java.lang.Class)
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
@@ -305,20 +346,21 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		super.setFieldType(property, class1);
 	}
 
-	
 	public void setValidationStatusHandler(boolean showErrorsOnFields) {
 		binder.setValidationStatusHandler((s) -> {
 			valid = !s.hasErrors();
 			if (!valid) {
-				logger.warn("validationStatusHandler updateFieldErrors={}\n{}", showErrorsOnFields, LoggerUtils.stackTrace());
-				if (showErrorsOnFields) s.notifyBindingValidationStatusHandlers();		
+				logger.warn("validationStatusHandler updateFieldErrors={} {}", showErrorsOnFields,
+						LoggerUtils.whereFrom());
+				if (showErrorsOnFields)
+					s.notifyBindingValidationStatusHandlers();
 				if (errorLabel != null) {
 					setErrorLabel(s, showErrorsOnFields);
 				}
 			}
 		});
 	}
-	
+
 	/**
 	 * Force correcting one error at a time
 	 * 
@@ -327,10 +369,10 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	 * @return
 	 */
 	protected boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
-		logger.debug("{} validations",this.getClass().getSimpleName());
+		logger.debug("{} validations", this.getClass().getSimpleName());
 		boolean hasErrors = validationStatus.getFieldValidationErrors().size() > 0;
 		boolean showInLabel = !showErrorOnFields;
-		
+
 		StringBuilder sb = new StringBuilder();
 		for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
 			HasValue<?, ?> field = ve.getField();
@@ -338,7 +380,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 				// error message is only shown on label, we highlight the classes ourselves
 				ClassList fieldClasses = ((Component) field).getElement().getClassList();
 				fieldClasses.clear();
-				fieldClasses.set("error",true);
+				fieldClasses.set("error", true);
 			}
 			if (field instanceof TextField) {
 				((TextField) field).setAutoselect(true);
@@ -346,20 +388,22 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 			if (field instanceof Focusable) {
 				((Focusable<?>) field).focus();
 			}
-			if (sb.length() > 0) sb.append("; ");
+			if (sb.length() > 0)
+				sb.append("; ");
 			String message = ve.getMessage().orElse("Error");
 			sb.append(message);
 		}
 		for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
 			showInLabel = true;
-			if (sb.length() > 0) sb.append("; ");
+			if (sb.length() > 0)
+				sb.append("; ");
 			String message = ve.getErrorMessage();
 			sb.append(message);
 		}
 		if (showInLabel) {
 			String message = sb.toString();
 			errorLabel.setVisible(true);
-			errorLabel.getElement().setProperty("innerHTML",message);
+			errorLabel.getElement().setProperty("innerHTML", message);
 			errorLabel.getClassNames().set("errorMessage", true);
 		} else {
 			errorLabel.setVisible(false);

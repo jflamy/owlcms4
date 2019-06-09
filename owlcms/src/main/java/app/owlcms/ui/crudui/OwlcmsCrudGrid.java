@@ -63,8 +63,6 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	protected void initLayout() {
     }
 	
-	
-
 	/* (non-Javadoc)
 	 * @see org.vaadin.crudui.crud.impl.GridCrud#deleteButtonClicked()
 	 */
@@ -93,21 +91,25 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	protected void showForm(CrudOperation operation, T domainObject, boolean readOnly, String successMessage,
 			ComponentEventListener<ClickEvent<Button>> buttonClickListener) {
 		Component form = this.owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
-			cancelClickEvent -> {
+			cancelButtonClickEvent -> {
+				logger.warn("cancelButtonClickEvent");
 				owlcmsGridLayout.hideForm();
 				grid.asSingleSelect().clear();
 			}, 
-			operationPerformedClickEvent -> {
+			operationButtonClickEvent -> {
 				try {
-					owlcmsGridLayout.hideForm();
-					buttonClickListener.onComponentEvent(operationPerformedClickEvent);
+					logger.warn("postOperation");
 					grid.asSingleSelect().clear();
+//					buttonClickListener.onComponentEvent(operationButtonClickEvent);
+					owlcmsGridLayout.hideForm();
 					Notification.show(successMessage);
 					logger.trace("operation performed");
 				} catch (Exception e) {
 					logger.error(LoggerUtils.stackTrace(e));
 				}
-			}, deletePerformedClickEvent -> {
+			}, 
+			deleteButtonClickEvent -> {
+				logger.warn("preDelete");
 				owlcmsGridLayout.hideForm();
 				this.deleteButtonClicked();
 			});

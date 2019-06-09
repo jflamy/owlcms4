@@ -79,13 +79,14 @@ public class RegistrationContent extends VerticalLayout
 	private ComboBox<String> ageGroupFilter = new ComboBox<>();
 	private OwlcmsRouterLayout routerLayout;
 	private OwlcmsCrudGrid<Athlete> crudGrid;
+	private OwlcmsCrudFormFactory<Athlete> crudFormFactory;
 	
 
 	/**
 	 * Instantiates the athlete crudGrid
 	 */
 	public RegistrationContent() {
-		OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
+		crudFormFactory = createFormFactory();
 		crudGrid = createCrudGrid(crudFormFactory);
 		defineFilters(crudGrid);
 		fillHW(crudGrid, this);
@@ -131,7 +132,7 @@ public class RegistrationContent extends VerticalLayout
 	 * @return the form factory that will create the actual form on demand
 	 */
 	protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
-		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = createAthleteEditingFormFactory();
+		OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class);
 		createFormLayout(athleteEditingFormFactory);
 		return athleteEditingFormFactory;
 	}
@@ -145,6 +146,7 @@ public class RegistrationContent extends VerticalLayout
 		List<String> props = new LinkedList<>();
 		List<String> captions = new LinkedList<>();
 		
+		props.add("lastName"); captions.add("Last Name");
 		props.add("firstName"); captions.add("First Name");
 		props.add("gender"); captions.add("Gender");
 
@@ -185,51 +187,23 @@ public class RegistrationContent extends VerticalLayout
 		crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
 	}
 
-	/**
-	 * Create the conversions and validations required
-	 *
-	 * @return the factory to create field bindings and validations
-	 */
-	private OwlcmsCrudFormFactory<Athlete> createAthleteEditingFormFactory() {
-		return new AthleteRegistrationFormFactory(Athlete.class);
-	}
-
-	/**
-	 * The plus button on the toolbar triggers an add
-	 *
-	 * This method is called when the pop-up is closed.
-	 *
-	 * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
-	 */
 	@Override
 	public Athlete add(Athlete Athlete) {
-		AthleteRepository.save(Athlete);
+		crudFormFactory.add(Athlete);
 		return Athlete;
 	}
 
-	/**
-	 * The pencil button on the toolbar triggers an edit.
-	 *
-	 * This method is called when the pop-up is closed with Update
-	 *
-	 * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-	 */
 	@Override
 	public Athlete update(Athlete Athlete) {
-		return AthleteRepository.save(Athlete);
+		return crudFormFactory.update(Athlete);
 	}
 
-	/**
-	 * The delete button on the toolbar triggers this method
-	 *
-	 * (or the one in the form)
-	 *
-	 * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
-	 */
 	@Override
 	public void delete(Athlete Athlete) {
-		AthleteRepository.delete(Athlete);
+		crudFormFactory.delete(Athlete);
+		return;
 	}
+
 
 	/**
 	 * The refresh button on the toolbar; also called by refreshGrid when the group is changed.
