@@ -61,11 +61,7 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 		if (match != null)
 			domainObject = match;
 
-		// show both an update and a delete button.
-		this.showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, event -> {
-				// update actions after ADD or DELETE which is performed in the form
-				grid.asSingleSelect().clear();
-				refreshGrid();
-		});
+		// show both an update and a delete button. 
+		this.showForm(CrudOperation.UPDATE, domainObject, false, savedMessage, null);
 	}
 }
