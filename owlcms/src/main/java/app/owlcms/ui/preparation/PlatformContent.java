@@ -95,38 +95,8 @@ public class PlatformContent extends VerticalLayout
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-		crudFormFactory.setVisibleProperties("name",
-				"weighInTime",
-				"competitionTime",
-				"platform",
-				"announcer",
-				"marshall",
-				"technicalController",
-				"timeKeeper",
-				"referee1",
-				"referee2",
-				"referee3",
-				"jury1",
-				"jury2",
-				"jury3",
-				"jury4",
-				"jury5");
-		crudFormFactory.setFieldCaptions("Name",
-				"Weigh-in Time",
-				"Start Time",
-				"Platform",
-				"Announcer",
-				"Marshall",
-				"Technical Controller",
-				"Timekeeper",
-				"Referee 1",
-				"Referee 2",
-				"Referee 3",
-				"Jury 1",
-				"Jury 2",
-				"Jury 3",
-				"Jury 4",
-				"Jury 5");
+		crudFormFactory.setVisibleProperties("name");
+		crudFormFactory.setFieldCaptions("Platform Name");
 		crudFormFactory.setFieldProvider("platform",
 				new ComboBoxProvider<>("Platform", PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
 		crudFormFactory.setFieldType("weighInTime", LocalDateTimeField.class);
