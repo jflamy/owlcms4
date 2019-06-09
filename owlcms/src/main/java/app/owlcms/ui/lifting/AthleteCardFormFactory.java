@@ -139,7 +139,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
 			ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
-		logger.warn("building athlete card form {}", LoggerUtils.whereFrom());
+		logger.trace("building athlete card form {}", LoggerUtils.whereFrom());
 		FormLayout formLayout = new FormLayout();
 		formLayout.setSizeFull();
 		if (this.responsiveSteps != null) {
@@ -667,8 +667,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			fieldClasses.set("error", false);
 			f.setReadOnly(hasErrors);
 		});
+		TextField field = null;
 		for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
-			TextField field = (TextField) ve.getField();
+			field = (TextField) ve.getField();
 			ClassList fieldClasses = field.getElement().getClassList();
 			fieldClasses.clear();
 			fieldClasses.set("error", true);
@@ -701,6 +702,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		}
 		if (!hasErrors)
 			resetReadOnlyFields();
+		else if (field != null)
+			field.focus();
 		return hasErrors;
 	}
 

@@ -223,20 +223,20 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		valid = binder.writeBeanIfValid(domainObject);
 		if (valid) {
 			if (operation == CrudOperation.ADD) {
-				logger.warn("adding 	{}", domainObject);
+				logger.debug("adding 	{}", domainObject);
 				this.add(domainObject);
 				gridCallback.onComponentEvent(operationTriggerEvent);
 			} else if (operation == CrudOperation.UPDATE) {
-				logger.warn("updating 	{}", domainObject);
+				logger.debug("updating 	{}", domainObject);
 				this.update(domainObject);
 				gridCallback.onComponentEvent(operationTriggerEvent);
 			} else if (operation == CrudOperation.DELETE) {
-				logger.warn("deleting 	{}", domainObject);
+				logger.debug("deleting 	{}", domainObject);
 				this.delete(domainObject);
 				gridCallback.onComponentEvent(operationTriggerEvent);
 			}
 		} else {
-			logger.warn("not valid {}", domainObject);
+			logger.debug("not valid {}", domainObject);
 		}
 	}
 
@@ -259,7 +259,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		// trigger callback. The trigger then calls the gridCallBackAction
 		operationTrigger = defineOperationTrigger(operation, domainObject, gridCallBackAction);
 		ComponentEventListener<ClickEvent<Button>> listener = event -> {
-			logger.warn("{} clicked", operation);
+			logger.debug("{} clicked", operation);
 			operationTriggerEvent = event;
 			operationTrigger.focus();
 		};
@@ -349,13 +349,18 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	public void setValidationStatusHandler(boolean showErrorsOnFields) {
 		binder.setValidationStatusHandler((s) -> {
 			valid = !s.hasErrors();
+			if (showErrorsOnFields)
+				s.notifyBindingValidationStatusHandlers();
 			if (!valid) {
-				logger.warn("validationStatusHandler updateFieldErrors={} {}", showErrorsOnFields,
+				logger.debug("validationStatusHandler updateFieldErrors={} {}", showErrorsOnFields,
 						LoggerUtils.whereFrom());
-				if (showErrorsOnFields)
-					s.notifyBindingValidationStatusHandlers();
 				if (errorLabel != null) {
 					setErrorLabel(s, showErrorsOnFields);
+				}
+			} else {
+				if (errorLabel != null) {
+					setErrorLabel(s, showErrorsOnFields);
+					errorLabel.setVisible(false);
 				}
 			}
 		});

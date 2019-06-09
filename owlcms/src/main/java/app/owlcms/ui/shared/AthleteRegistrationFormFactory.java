@@ -7,7 +7,11 @@ import java.util.Optional;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -41,6 +45,16 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
 	public AthleteRegistrationFormFactory(Class<Athlete> domainType) {
 		super(domainType);
+	}
+
+	@Override
+	public Component buildNewForm(CrudOperation operation, Athlete domainObject, boolean readOnly,
+			ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
+			ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
+			ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
+		Component form = super.buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener, operationButtonClickListener,
+				deleteButtonClickListener);
+		return form;
 	}
 
 	/**
@@ -163,6 +177,12 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			declField.setPattern("^(-?\\d+)|()$"); // optional minus and at least one digit, or empty.
 			declField.setPreventInvalidInput(true);
 			declField.setValueChangeMode(ValueChangeMode.ON_BLUR);
+			// ON_BLUR seems to be broken
+//			declField.addValueChangeListener((vc) -> {
+//				binder.getBinding(property).get().validate(true);
+//				logger.debug("BLUR validation of {}", property);
+//			});
+			
 			bindingBuilder.withValidator(ValidationUtils.<String>checkUsing(
 					(unused) -> Athlete.validate20kgRule(editedAthlete, getIntegerFieldValue("snatch1Declaration"),
 							getIntegerFieldValue("cleanJerk1Declaration"), getIntegerFieldValue("qualifyingTotal")),
@@ -195,8 +215,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			if (!isRequired && weight == null)
 				return true;
 			// inconsistent selection is signaled on the category dropdown since the weight
-			// is a factual
-			// measure
+			// is a factual measure
 			Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
 			categoryBinding.validate(true);
 			return true;
@@ -220,7 +239,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 					return true;
 				Double min = category.getMinimumWeight();
 				Double max = category.getMaximumWeight();
-				logger.trace("comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
+				logger.debug("comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
 				return (bw > min && bw <= max);
 			} catch (Exception e) {
 				logger.error(LoggerUtils.stackTrace(e));

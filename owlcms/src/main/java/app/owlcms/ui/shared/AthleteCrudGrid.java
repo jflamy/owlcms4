@@ -57,7 +57,7 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 			}
 			;
 		});
-		logger.warn("domainObject = {} {}", (domainObject != match ? "!!!!" : ""), domainObject, match);
+		logger.trace("domainObject = {} {}", (domainObject != match ? "!!!!" : ""), domainObject, match);
 		if (match != null)
 			domainObject = match;
 
