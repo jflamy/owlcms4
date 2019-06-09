@@ -98,16 +98,9 @@ public class FOPEvent {
 		/** The decision. */
 		public Boolean success = null;
 		
-		/**
-		 * Instantiates a new referee decision.
-		 * @param decision the decision
-		 * @param ref1 
-		 * @param ref2 
-		 * @param ref3 
-		 */
 		public JuryDecision(Athlete athlete, Object origin, boolean decision) {
 			super(athlete, origin);
-			logger.trace("referee decision for {}", athlete);
+			logger.trace("jury decision for {}", athlete);
 			this.success = decision;
 		}
 
