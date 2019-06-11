@@ -3,16 +3,22 @@ package app.owlcms.ui.preparation;
 import java.time.LocalDate;
 import java.util.Collection;
 
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.data.binder.Validator;
 
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
+import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 class CompetitionEditingFormFactory extends OwlcmsCrudFormFactory<Competition> {
+    Logger logger = (Logger)LoggerFactory.getLogger(CompetitionEditingFormFactory.class);
+    
 	CompetitionEditingFormFactory(Class<Competition> domainType) {
 		super(domainType);
 	}
@@ -42,18 +48,18 @@ class CompetitionEditingFormFactory extends OwlcmsCrudFormFactory<Competition> {
 
 	@Override
 	public Competition add(Competition domainObjectToAdd) {
-		// not yet used
+		// not used
 		return null;
 	}
 
 	@Override
-	public Competition update(Competition domainObjectToUpdate) {
-		// not yet used
+	public Competition update(Competition ignored) {
+		CompetitionRepository.save(Competition.getCurrent());
 		return null;
 	}
 
 	@Override
 	public void delete(Competition domainObjectToDelete) {
-		// not yet used
+		// not used
 	}
 }
