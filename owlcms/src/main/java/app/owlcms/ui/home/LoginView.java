@@ -11,8 +11,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.login.LoginForm;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServletRequest;
@@ -60,7 +60,9 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
         button.getThemeNames().add("primary");
         button.getThemeNames().add("icon");
         
-        getContent().add(new H3("Log in"), pinField,button);
+        H3 h3 = new H3("Log in");
+        h3.getStyle().set("color","black");
+        getContent().add(h3, pinField,button);
         getContent().setWidth("20em");
         getContent().setAlignSelf(Alignment.CENTER, button);
         
