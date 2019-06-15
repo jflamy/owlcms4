@@ -17,7 +17,7 @@ import com.vaadin.flow.server.VaadinServletRequest;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.shared.ContentWrapping;
+import app.owlcms.ui.shared.OwlcmsContent;
 
 /**
  * Utility methods for creating the texts and buttons on navigation pages.
@@ -25,7 +25,7 @@ import app.owlcms.ui.shared.ContentWrapping;
  * @author Jean-François Lamy
  *
  */
-public interface NavigationPage extends ContentWrapping {
+public interface NavigationPage extends OwlcmsContent {
 
 	public default String getWindowOpener(Class<? extends Component> targetClass) {
 		FieldOfPlay fop = OwlcmsSession.getFop();

@@ -114,4 +114,20 @@ public class OwlcmsSession {
 		}
 		return Locale.ENGLISH;
 	}
+
+    public static boolean isAuthenticated() {
+        return Boolean.TRUE.equals(getAttribute("authenticated"));
+    }
+    
+    public static void setAuthenticated(boolean isAuthenticated) {
+        setAttribute("authenticated",isAuthenticated);
+    }
+
+    public static void setRequestedUrl(String url) {
+        setAttribute("requestedURL", url);
+    }
+
+    public static String getRequestedUrl() {
+        return (String) getAttribute("requestedURL");
+    }
 }

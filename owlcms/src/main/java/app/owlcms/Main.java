@@ -34,7 +34,7 @@ import ch.qos.logback.classic.Logger;
  */
 public class Main implements ServletContextListener {
 	
-	private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
+	public final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 	
     /**
 	 * The main method.

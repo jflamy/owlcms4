@@ -20,6 +20,7 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -44,6 +45,7 @@ public class DemoData {
 	}
 
 	private static Logger logger = (Logger) LoggerFactory.getLogger(DemoData.class);
+	private static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
 	static {logger.setLevel(Level.INFO);}
 
 	/**
@@ -53,7 +55,7 @@ public class DemoData {
 	 * @param masters 
 	 */
 	public static void insertInitialData(int nbAthletes, boolean masters) {
-		logger.info("inserting demo data.{}", masters ? " (masters=true)" : "");
+		startLogger.info("inserting demo data.{}", masters ? " (masters=true)" : "");
 		JPAService.runInTransaction(em -> {
 			setupDemoData(em, nbAthletes, masters);		
 			return null;

@@ -1,9 +1,10 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
+
 package app.owlcms.ui.preparation;
 
 import org.slf4j.LoggerFactory;
@@ -33,89 +34,72 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation", layout = OwlcmsRouterLayout.class)
 public class PreparationNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
-	
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(PreparationNavigationContent.class);
-	static { logger.setLevel(Level.INFO);}
 
-	/**
-	 * Instantiates a new preparation navigation content.
-	 */
-	public PreparationNavigationContent() {
-		
-		Button competition = new Button("Competition Information",
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(CompetitionContent.class));
-		Button categories = new Button("Define Categories",
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(CategoryContent.class));
-		Button groups = new Button("Define Groups",
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(GroupContent.class));
-		Button platforms = new Button("Define Fields of Play",
-			buttonClickEvent -> UI.getCurrent()
-				.navigate(PlatformContent.class));
-		
-		StreamResource href = new StreamResource(
-				"registration.xls",
-				() -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
-		Anchor download = new Anchor(href, "");
-		Button downloadButton = new Button("Download Empty Registration Spreadsheet", new Icon(VaadinIcon.DOWNLOAD_ALT));
-		downloadButton.setWidth("93%");  // don't ask. this is a kludge.
-		download.add(downloadButton);
-		download.setWidth("100%");
-		Div downloadDiv = new Div(download);
-		downloadDiv.setWidthFull();
-		
-		Button upload = new Button("Upload Completed Registration Spreadsheet",
-				buttonClickEvent -> new UploadDialog().open());
-		Button athletes = new Button("Edit Athlete Entries",
-				buttonClickEvent -> UI.getCurrent()
-					.navigate(RegistrationContent.class));
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(PreparationNavigationContent.class);
+    static {
+        logger.setLevel(Level.INFO);
+    }
 
-		
-		
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
-			competition,
-			categories,
-			groups,
-			platforms,
-			downloadDiv,
-			upload);
-		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
-			downloadDiv,
-			upload);
-		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(
-			athletes);
+    /**
+     * Instantiates a new preparation navigation content.
+     */
+    public PreparationNavigationContent() {
 
-		doGroup("Pre-competition setup", grid1, this);
-		doGroup("Registration", grid2, this);
-		doGroup("Edit Athlete Entries (adjust group assignments)", grid3, this);
-		
+        Button competition = new Button("Competition Information",
+                buttonClickEvent -> UI.getCurrent().navigate(CompetitionContent.class));
+        Button categories = new Button("Define Categories",
+                buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class));
+        Button groups = new Button("Define Groups", buttonClickEvent -> UI.getCurrent().navigate(GroupContent.class));
+        Button platforms = new Button("Define Fields of Play",
+                buttonClickEvent -> UI.getCurrent().navigate(PlatformContent.class));
 
-	
-	}
-	
-	@Override
-	protected String getTitle() {
-		return "Prepare Competition";
-	}
+        StreamResource href = new StreamResource("registration.xls",
+                () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
+        Anchor download = new Anchor(href, "");
+        Button downloadButton = new Button("Download Empty Registration Spreadsheet",
+                new Icon(VaadinIcon.DOWNLOAD_ALT));
+        downloadButton.setWidth("93%"); // don't ask. this is a kludge.
+        download.add(downloadButton);
+        download.setWidth("100%");
+        Div downloadDiv = new Div(download);
+        downloadDiv.setWidthFull();
 
-	
-	@Override
-	protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
-		return null;
-	}
-	
-	@Override
-	protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-		return null;
-	}
+        Button upload = new Button("Upload Completed Registration Spreadsheet", new Icon(VaadinIcon.UPLOAD_ALT),
+                buttonClickEvent -> new UploadDialog().open());
+        Button athletes = new Button("Edit Athlete Entries",
+                buttonClickEvent -> UI.getCurrent().navigate(RegistrationContent.class));
 
-	/**
-	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-	 */
-	@Override
-	public String getPageTitle() {
-		return "OWLCMS - Preparation";
-	}
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, categories, groups, platforms,
+                downloadDiv, upload);
+        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
+        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes);
+
+        doGroup("Pre-competition setup", grid1, this);
+        doGroup("Registration", grid2, this);
+        doGroup("Edit Athlete Entries (adjust group assignments)", grid3, this);
+
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return "OWLCMS - Preparation";
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+        return null;
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
+        return null;
+    }
+
+    @Override
+    protected String getTitle() {
+        return "Prepare Competition";
+    }
 }

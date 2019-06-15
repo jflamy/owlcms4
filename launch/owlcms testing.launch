@@ -6,6 +6,10 @@
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
+<mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="_IP" value="127.0.0.1,10.0.2.2"/>
+<mapEntry key="_PIN" value="0000"/>
+</mapAttribute>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>

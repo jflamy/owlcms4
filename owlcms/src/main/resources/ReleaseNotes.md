@@ -1,0 +1,7 @@
+- See [README](https://github.com/jflamy/owlcms4#features) for feature set
+- Release Highlights:
+  - Added IP whitelisting and PIN support for cloud deployment. See [Setup Instructions](https://jflamy.github.io/owlcms4/#!index.md)
+  - Information about startup now visible when using command line.
+- [Change Log](https://github.com/jflamy/owlcms4/milestone/23?closed=1) for this release (enhancements and fixes)
+- [Installation](https://jflamy.github.io/owlcms4/#!index.md) instructions
+- [Live Demo](https://github.com/jflamy/owlcms4#installation-and-demo) instructions.

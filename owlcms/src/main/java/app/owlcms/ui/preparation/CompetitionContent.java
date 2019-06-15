@@ -16,17 +16,15 @@ import org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory;
 import org.vaadin.crudui.layout.CrudLayout;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.TextRenderer;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.ui.shared.AppLayoutAware;
-import app.owlcms.ui.shared.ContentWrapping;
+import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -36,8 +34,8 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/competition", layout = CompetitionLayout.class)
-public class CompetitionContent extends VerticalLayout
-		implements ContentWrapping, CrudLayout, AppLayoutAware, HasDynamicTitle {
+public class CompetitionContent extends Composite<VerticalLayout>
+		implements CrudLayout, OwlcmsContent {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(CompetitionContent.class);
 	private OwlcmsRouterLayout routerLayout;
@@ -50,16 +48,9 @@ public class CompetitionContent extends VerticalLayout
 	 */
 	public CompetitionContent() {
 		initLoggers();
-		DefaultCrudFormFactory<Competition> factory = createFormFactory();
-		Component form = factory.buildNewForm(CrudOperation.UPDATE, Competition.getCurrent(), false, null, event -> {
-            try {
-            	CompetitionRepository.save(Competition.getCurrent());
-            } catch (IllegalArgumentException ignore) {
-            } catch (Exception e2) {
-                throw e2;
-            }
-        });	
-		fillH(form, this);	
+		CompetitionEditingFormFactory factory = createFormFactory();
+		Component form = factory.buildNewForm(CrudOperation.UPDATE, Competition.getCurrent(), false, null, event -> {});	
+		fillH(form, getContent());	
 	}
 
 
@@ -69,8 +60,8 @@ public class CompetitionContent extends VerticalLayout
 	 * 
 	 * @return the form factory that will create the actual form on demand
 	 */
-	protected DefaultCrudFormFactory<Competition>  createFormFactory() {
-		DefaultCrudFormFactory<Competition>  competitionEditingFormFactory = createCompetitionEditingFormFactory();
+	protected CompetitionEditingFormFactory  createFormFactory() {
+		CompetitionEditingFormFactory competitionEditingFormFactory = new CompetitionEditingFormFactory(Competition.class);
 		createFormLayout(competitionEditingFormFactory);
 		return competitionEditingFormFactory;
 	}
@@ -105,24 +96,10 @@ public class CompetitionContent extends VerticalLayout
 		crudFormFactory.setFieldType("competitionDate", LocalDateField.class);
 	}
 	
-	/**
-	 * Create the actual form generator with all the conversions and validations required
-	 * 
-	 * @return the actual factory with field binding and validations
-	 */
-	private DefaultCrudFormFactory<Competition> createCompetitionEditingFormFactory() {
-		return new CompetitionEditingFormFactory(Competition.class);
-	}
-
-	public Competition update(Competition domainObjectToUpdate) {
-			Competition ndo = CompetitionRepository.save(domainObjectToUpdate);
-			return ndo;
-	}
-
 	@Override
 	public void setMainComponent(Component component) {
-		this.removeAll();
-		this.add(component);
+		getContent().removeAll();
+		getContent().add(component);
 	}
 
 	@Override
@@ -135,8 +112,8 @@ public class CompetitionContent extends VerticalLayout
 
 	@Override
 	public void showForm(CrudOperation operation, Component form, String caption) {
-		this.removeAll();
-		this.add(form);
+	    getContent().removeAll();
+	    getContent().add(form);
 	}
 
 	@Override

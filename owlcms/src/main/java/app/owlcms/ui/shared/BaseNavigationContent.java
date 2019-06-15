@@ -42,7 +42,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public abstract class BaseNavigationContent extends VerticalLayout
-implements QueryParameterReader, ContentWrapping, AppLayoutAware, SafeEventBusRegistration, UIEventProcessor {
+implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(BaseNavigationContent.class);

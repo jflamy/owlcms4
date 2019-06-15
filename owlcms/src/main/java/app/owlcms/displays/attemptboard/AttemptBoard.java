@@ -36,6 +36,7 @@ import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
+import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -51,7 +52,7 @@ import ch.qos.logback.classic.Logger;
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel>
-		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle {
+		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());

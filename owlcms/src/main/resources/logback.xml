@@ -2,7 +2,7 @@
 <!-- production logback file, writes to logs/owlcms.log, creates new files daily -->
 <configuration scan="true" debug="false">
 
-	<appender name="STDERR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>logs/owlcms.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
@@ -11,6 +11,16 @@
 		<encoder>
 			<pattern>
 				%d{HH:mm:ss.SSS} %-5level %-75msg [%logger{100}:%L %M]%n
+			</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="STDERR"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<target>System.err</target>
+		<encoder>
+			<pattern>
+				%d{HH:mm:ss.SSS} %-5level %-75msg %n
 			</pattern>
 		</encoder>
 	</appender>
@@ -27,9 +37,13 @@
 	<logger
 		name="com.vaadin.flow.server.DefaultDeploymentConfiguration"
 		level="ERROR" />
+		
+	<logger name="app.owlcms.Main" level="INFO">
+        <appender-ref ref="STDERR" />
+    </logger>
 
 	<root level="WARN">
-		<appender-ref ref="STDERR" />
+		<appender-ref ref="FILE" />
 	</root>
 
 </configuration>

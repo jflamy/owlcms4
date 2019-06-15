@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.0.25</version>
+		<version>4.0.26</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -429,6 +429,29 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.ragedunicorn.tools.maven</groupId>
+				<artifactId>github-release-maven-plugin</artifactId>
+				<version>1.0.1</version>
+				<executions>
+					<execution>
+						<id>default-cli</id>
+						<configuration>
+							<owner>jflamy</owner>
+							<repository>owlcms4</repository>
+							<server>github-oauth</server>
+							<tagName>${project.version}</tagName>
+							<name>${project.version} (release candidate)</name>
+							<targetCommitish>master</targetCommitish>
+							<body>${project.version} (release candidate)</body>
+							<releaseNotes>src/main/resources/ReleaseNotes.md</releaseNotes>
+							<assets>
+								<asset>target/owlcms-${project.version}.zip</asset>
+							</assets>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<profiles>
@@ -446,7 +469,8 @@
 								<include>target/owlcms-${project.version}.jar</include>
 							</includes>
 							<processTypes>
-								<!-- following must be a single command line, cdata used to prevent xml formatters from splitting it -->
+								<!-- following must be a single command line, cdata used to prevent 
+									xml formatters from splitting it -->
 								<web><![CDATA[java -Dport=$PORT -DdemoMode=true -Dlogback.configurationFile=logback-console.xml -jar target/owlcms-${project.version}.jar]]></web>
 							</processTypes>
 							<appName>${project.artifactId}4</appName>

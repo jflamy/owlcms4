@@ -24,7 +24,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.BodyWeightField;
@@ -40,9 +39,8 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
-import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.AthleteRegistrationFormFactory;
-import app.owlcms.ui.shared.ContentWrapping;
+import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -57,7 +55,7 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation/weighin", layout = WeighinLayout.class)
 @HtmlImport("frontend://styles/shared-styles.html")
 public class WeighinContent extends VerticalLayout 
-		implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware, HasDynamicTitle {
+		implements CrudListener<Athlete>, OwlcmsContent {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(WeighinContent.class);
 	static {logger.setLevel(Level.INFO);}

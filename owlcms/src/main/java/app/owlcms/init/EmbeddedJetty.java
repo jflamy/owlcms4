@@ -25,14 +25,16 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.startup.ServletContextListeners;
 
+import app.owlcms.Main;
 import ch.qos.logback.classic.Logger;
 
 /**
  * jetty web server
  */
 public class EmbeddedJetty {
-	private final static Logger logger = (Logger) LoggerFactory.getLogger(EmbeddedJetty.class);
-
+	@SuppressWarnings("unused")
+    private final static Logger logger = (Logger) LoggerFactory.getLogger(EmbeddedJetty.class);
+	private final static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
 	
 	/**
 	 * Run.
@@ -42,7 +44,7 @@ public class EmbeddedJetty {
 	 * @throws Exception the exception
 	 */
 	public void run(int port, String contextPath) throws Exception {
-		logger.info("starting web server");
+		startLogger.info("starting web server");
         URL webRootLocation = this.getClass().getResource("/META-INF/resources/"); //$NON-NLS-1$
         URI webRootUri = webRootLocation.toURI();
 
@@ -68,7 +70,7 @@ public class EmbeddedJetty {
         server.setHandler(context);
 
         server.start();
-        logger.info("started on port {}", port); //$NON-NLS-1$
+        startLogger.info("started on port {}", port); //$NON-NLS-1$
         server.join();
     }
 
