@@ -22,9 +22,23 @@ public interface RequireLogin extends BeforeEnterObserver {
         String pin = System.getenv("PIN");
 
         boolean isAuthenticated = OwlcmsSession.isAuthenticated();
-        if ((ipAddress != null || pin != null) && !isAuthenticated && !path.equals(LoginView.LOGIN)) {
+        if (isAuthenticated || (pin == null && ipAddress == null)) {
+            // no check required
+            OwlcmsSession.setAuthenticated(true);
+            return;
+        } else if (pin == null && ipAddress != null && LoginView.checkWhitelist()) {
+            // no pin required, proper origin, no need to challenge
+            OwlcmsSession.setAuthenticated(true);
+            return;
+        } else if (!path.equals(LoginView.LOGIN)) {
+            // prompt user for PIN
+            // (if whitelist membership is required, will be prompted even if no PIN is
+            // required, so that an error message is shown)
             OwlcmsSession.setRequestedUrl(path);
             event.forwardTo(LoginView.LOGIN);
+        } else {
+            // already on login view, do nothing.
+            // login will send to home.
         }
     }
 

@@ -1,5 +1,8 @@
 package app.owlcms.ui.home;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.LoggerFactory;
@@ -9,7 +12,6 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -20,20 +22,38 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.ui.shared.RequireLogin;
 import ch.qos.logback.classic.Logger;
 
+/**
+ * Check for proper credentials.
+ * 
+ * Scenarios:
+ * <ul>
+ * <li>If the IP environment variable is present, it is expected to be a
+ * commma-separated address list of IPv4 addresses. Browser must come from one
+ * of these addresses The IP address(es) will normally be those for the local
+ * router or routers used at the competition site.
+ * <li>if a PIN environment variable is present, the PIN will be required (even
+ * if no IP whitelist)
+ * <li>if PIN enviroment variable is not present, all accesses from the
+ * whitelisted routers will be allowed. This can be sufficient if the router
+ * password is well-protected (which is not likely). Users can type any NIP,
+ * including an empty value.
+ * <li>if neither IP nor PIN is present, no check is done ({@link RequireLogin}
+ * does not display this view).
+ * </ul>
+ */
 @SuppressWarnings("serial")
 @Route(value = LoginView.LOGIN, layout = OwlcmsRouterLayout.class)
 public class LoginView extends Composite<VerticalLayout> implements AppLayoutAware, ContentWrapping {
-    
-    Logger logger = (Logger)LoggerFactory.getLogger(LoginView.class);
+
+    static Logger logger = (Logger) LoggerFactory.getLogger(LoginView.class);
 
     public static final String LOGIN = "login";
-    private final LoginForm loginForm = new LoginForm();
     private PasswordField pinField = new PasswordField();
-    
-    private OwlcmsRouterLayout routerLayout;
 
+    private OwlcmsRouterLayout routerLayout;
 
     public LoginView() {
         pinField.setClearButtonVisible(true);
@@ -43,31 +63,35 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
         pinField.addValueChangeListener(event -> {
             String value = event.getValue();
             if (!checkAuthenticated(value)) {
-                logger.trace("Incorrect PIN {}", value);
-                pinField.setErrorMessage("Incorrect PIN.");
+                pinField.setErrorMessage("Incorrect Access Information Provided.");
                 pinField.setInvalid(true);
             } else {
                 pinField.setInvalid(false);
-                UI.getCurrent().navigate(OwlcmsSession.getRequestedUrl());
+                String requestedUrl = OwlcmsSession.getRequestedUrl();
+                if (requestedUrl != null) {
+                    UI.getCurrent().navigate(requestedUrl);
+                } else {
+                    UI.getCurrent().navigate(HomeNavigationContent.class);
+                }
             }
         });
-        
-        Button button = new Button("Login");
-        button.addClickShortcut(Key.ENTER);
-        button.setWidth("10em");
-        button.getThemeNames().add("primary");
-        button.getThemeNames().add("icon");
-        
+
         // brute-force the color because some display views use a white text color.
         H3 h3 = new H3("Log in");
         h3.getStyle().set("color", "var(--lumo-header-text-color)");
         h3.getStyle().set("font-size", "var(--lumo-font-size-xl)");
 
+        Button button = new Button("Login");
+        button.addClickShortcut(Key.ENTER);
+        button.setWidth("10em");
+        button.getThemeNames().add("primary");
+        button.getThemeNames().add("icon");
+
         VerticalLayout form = new VerticalLayout();
         form.add(h3, pinField, button);
         form.setWidth("20em");
         form.setAlignSelf(Alignment.CENTER, button);
-        
+
         getContent().add(form);
 
     }
@@ -75,26 +99,43 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
     private boolean checkAuthenticated(String password) {
         boolean isAuthenticated = OwlcmsSession.isAuthenticated();
 
-        if (!isAuthenticated) {      
-            String whitelistedIp = System.getenv("IP");
+        if (!isAuthenticated) {
+            boolean whiteListed = checkWhitelist();
+
+            // check for PIN if one is specified
             String pin = System.getenv("PIN");
-            
-            String clientIp = getClientIp();
-            if ("0:0:0:0:0:0:0:1".equals(clientIp)) {
-                // compensate for IPv6 returned in spite of IPv4-only configuration...
-                clientIp = "127.0.0.1";
-            }
-            logger.debug("checking client IP={} vs configured IP={}", clientIp,whitelistedIp);
-            // must come from whitelisted address and have matching PIN
-            if (clientIp.equals(whitelistedIp) && (pin == null || pin.contentEquals(password))) {
+            if (whiteListed && (pin == null || pin.contentEquals(password))) {
                 OwlcmsSession.setAuthenticated(true);
                 return true;
             } else {
-                loginForm.setError(true);
+                OwlcmsSession.setAuthenticated(false);
                 return false;
             }
         }
         return true;
+    }
+
+    public static boolean checkWhitelist() {
+        String whiteList = System.getenv("IP");
+        String clientIp = getClientIp();
+        if ("0:0:0:0:0:0:0:1".equals(clientIp)) {
+            // compensate for IPv6 returned in spite of IPv4-only configuration...
+            clientIp = "127.0.0.1";
+        }
+        boolean whiteListed;
+        if (whiteList != null) {
+            List<String> whiteListedList = Arrays.asList(whiteList.split(","));
+            logger.debug("checking client IP={} vs configured IP={}", clientIp, whiteList);
+            // must come from whitelisted address and have matching PIN
+            whiteListed = whiteListedList.contains(clientIp);
+            if (!whiteListed) {
+                logger.warn("login attempt from non-whitelisted host {} (whitelist={})", clientIp, whiteListedList);
+            }
+        } else {
+            // no white list, allow all IP addresses
+            whiteListed = true;
+        }
+        return whiteListed;
     }
 
     @Override
@@ -106,8 +147,8 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
     public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
         this.routerLayout = routerLayout;
     }
-    
-    private String getClientIp() {
+
+    public static String getClientIp() {
         HttpServletRequest request;
         request = VaadinServletRequest.getCurrent().getHttpServletRequest();
 
