@@ -107,18 +107,21 @@ It is therefore necessary to protect the application.  This is done by setting t
 
 In order to require a PIN on a local installation (running the program on a computer at the local competition site), start the program as follows
 
+- Under Windows
+
+```bash
+set PIN=1234
+java -jar owlcms-4.X.Y.jar
+```
+
+- Under Linux
+
 ```bash
 PIN=1234 java -jar owlcms-4.X.Y.jar
 ```
 
 ##### Securing a Heroku cloud installation
 
-The first way to secure the application is to start it from the command line and adding the environment variables.
-
-```bash
-IP=24.157.203.247 PIN=1234 heroku open --app=myfederation
-```
-
-The second way is to use the Heroku dashboard and add the variables under the Config section
+The simplest way is to use the Heroku dashboard for the application and add the IP and PIN variables under the Settings tab, in the Config Vars section.
 
 ![pin](img\Heroku\pin.png)

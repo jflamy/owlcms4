@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
@@ -53,7 +54,8 @@ import ch.qos.logback.classic.Logger;
  */
 public class JPAService {
 
-	protected static final Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
+	private static final Logger logger = (Logger) LoggerFactory.getLogger(JPAService.class);
+	private static final Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
 	static {
 		logger.setLevel(Level.INFO);
 	}
@@ -118,7 +120,7 @@ public class JPAService {
 
 		props.put(JPA_JDBC_URL,
 			(dbUrl != null ? dbUrl : "jdbc:h2:file:./database/owlcms") + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
-		logger.info("Starting in directory {}",System.getProperty("user.dir"));
+		startLogger.info("Starting in directory {}",System.getProperty("user.dir"));
 		props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
 		props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
 
@@ -223,7 +225,7 @@ public class JPAService {
 		} else {
 			throw new RuntimeException("Unsupported database: " + dbUrl);
 		}
-		logger.info("Database: {}, inMemory={}, reset={}", properties.get(JPA_JDBC_URL), inMemory, reset);
+		startLogger.info("Database: {}, inMemory={}, reset={}", properties.get(JPA_JDBC_URL), inMemory, reset);
 		return properties;
 	}
 
