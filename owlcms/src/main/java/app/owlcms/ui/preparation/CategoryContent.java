@@ -21,7 +21,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.category.AgeDivision;
@@ -30,9 +29,9 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
-import app.owlcms.ui.shared.AppLayoutAware;
-import app.owlcms.ui.shared.ContentWrapping;
+import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.ui.shared.RequireLogin;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -44,7 +43,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/categories", layout = CategoryLayout.class)
 public class CategoryContent extends VerticalLayout
-implements CrudListener<Category>, ContentWrapping, AppLayoutAware, HasDynamicTitle {
+implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(CategoryContent.class);
 	static {

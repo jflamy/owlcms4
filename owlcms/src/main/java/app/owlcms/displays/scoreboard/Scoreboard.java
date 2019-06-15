@@ -45,6 +45,7 @@ import app.owlcms.fieldofplay.UIEvent.Decision;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
+import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -67,7 +68,7 @@ import elemental.json.JsonValue;
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
 public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
-		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle {
+		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(Scoreboard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());

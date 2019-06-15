@@ -71,8 +71,8 @@ import ch.qos.logback.classic.Logger;
  * 
  */
 @SuppressWarnings("serial")
-public class AthleteGridContent extends VerticalLayout
-implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayoutAware, SafeEventBusRegistration, UIEventProcessor {
+public abstract class AthleteGridContent extends VerticalLayout
+implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
@@ -574,5 +574,6 @@ implements CrudListener<Athlete>, QueryParameterReader, ContentWrapping, AppLayo
 			n.open();
 		}
 	}
+
 
 }

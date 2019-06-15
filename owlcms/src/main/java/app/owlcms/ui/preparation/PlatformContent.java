@@ -17,7 +17,6 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.TextRenderer;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.LocalDateTimeField;
@@ -26,8 +25,7 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
-import app.owlcms.ui.shared.AppLayoutAware;
-import app.owlcms.ui.shared.ContentWrapping;
+import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -40,7 +38,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/platforms", layout = PlatformLayout.class)
 public class PlatformContent extends VerticalLayout
-		implements CrudListener<Platform>, ContentWrapping, AppLayoutAware, HasDynamicTitle {
+		implements CrudListener<Platform>, OwlcmsContent {
 	
 	final private static Logger logger = (Logger)LoggerFactory.getLogger(PlatformContent.class);
 	static {logger.setLevel(Level.INFO);}

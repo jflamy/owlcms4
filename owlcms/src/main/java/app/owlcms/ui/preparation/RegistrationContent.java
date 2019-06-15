@@ -29,7 +29,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.BodyWeightField;
@@ -38,18 +37,17 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
-import app.owlcms.data.category.MastersAgeGroup;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.category.MastersAgeGroup;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
-import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.AthleteRegistrationFormFactory;
-import app.owlcms.ui.shared.ContentWrapping;
+import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -64,7 +62,7 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation/athletes", layout = RegistrationLayout.class)
 @HtmlImport("frontend://styles/shared-styles.html")
 public class RegistrationContent extends VerticalLayout
-		implements CrudListener<Athlete>, ContentWrapping, AppLayoutAware, HasDynamicTitle {
+		implements CrudListener<Athlete>, OwlcmsContent {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationContent.class);
 	static {
@@ -309,16 +307,11 @@ public class RegistrationContent extends VerticalLayout
 		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
 	}
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.shared.AppLayoutAware#getRouterLayout() */
 	@Override
 	public OwlcmsRouterLayout getRouterLayout() {
 		return routerLayout;
 	}
 
-	/* (non-Javadoc)
-	 * @see
-	 * app.owlcms.ui.shared.AppLayoutAware#setRouterLayout(app.owlcms.ui.shared.OwlcmsRouterLayout) */
 	@Override
 	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
 		this.routerLayout = routerLayout;

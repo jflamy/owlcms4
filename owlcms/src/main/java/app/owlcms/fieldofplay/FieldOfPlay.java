@@ -512,7 +512,7 @@ public class FieldOfPlay {
 	 * @param group the group
 	 */
 	public void switchGroup(Group group, Object origin) {
-		logger.debug("switchGroup {}",LoggerUtils.stackTrace());
+		logger.trace("switchGroup {}",LoggerUtils.stackTrace());
 		initGroup(group, origin);
 		logger.trace("{} start lifting for group {} origin={}", this.getName(), (group != null ? group.getName() : group),origin);
 		getFopEventBus().post(new StartLifting(origin));

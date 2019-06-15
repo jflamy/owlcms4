@@ -20,13 +20,11 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.TextRenderer;
-import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.ui.shared.AppLayoutAware;
-import app.owlcms.ui.shared.ContentWrapping;
+import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -37,7 +35,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/competition", layout = CompetitionLayout.class)
 public class CompetitionContent extends Composite<VerticalLayout>
-		implements ContentWrapping, CrudLayout, AppLayoutAware, HasDynamicTitle {
+		implements CrudLayout, OwlcmsContent {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(CompetitionContent.class);
 	private OwlcmsRouterLayout routerLayout;
