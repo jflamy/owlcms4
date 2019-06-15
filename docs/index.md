@@ -1,92 +1,74 @@
-# owlcms4 Setup Instructions
+# Olympic Weightlifting Competition Management System 
 
-## Chrome configuration
+This system is a full rewrite of [owlcms2](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity.
 
-Recent versions of Chrome no longer allow web pages to emit sounds by themselves.  In order to hear the signals from the clock and the down signal, you have to override this setting.
+For the current status, see
 
-- in Chrome, go to page ``chrome://flags``  and search for ``autoplay policy``  in the search bar.
-  Set the parameter to ``No user gesture is required``
+- [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.
+- [Issues and enhancement requests](https://github.com/jflamy/owlcms4/issues) This is the complete log of requests and planned enhancements.
 
+## Features
 
-OR
+- The following key features are present
+  - The current release is able to run a **regular** or **masters** competition, with or without a **jury**.
+  - Ability to run in the **cloud**: Decisions, timers and sounds are now handled locally in the browser to provide better feedback.
+  - **Announcer, marshall and timekeeper** screens (updating athlete cards and recomputing lifting order).
+  - **Attempt board with timing and decisions** handled locally in the browser. 
+  - **Support for refereeing devices** Any keypad that can be programmed to generate the digits 0 to 9 can be used to enter decisions (see the demo walkthrough below for the key mapping).  
+  - **Athlete-facing decision display** (decision display reversed to match referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
+  - **Scoreboard** for public or warm-up room display.  Shows timer, down and decision lights.
+  - **Athlete Registration and Weigh-in screens**, including production of **weigh-in sheet** with starting weights and **athlete cards**.
+  - Working entry screens for defining a competition (general info, groups, categories, etc.)
+  - **Multiple fields of play** (platforms)
+  - **Upload of registration sheet** (same format as owlcms2, in either xls or xlsx format)
+  - **Countdown timer for breaks** (before introduction, before first snatch, break before clean and jerk, technical break)
+  - Production of **group results/protocol sheets**
+  - Option to treat the competition as a **Masters competition** with proper processing of age groups.
+  - **3 and 5-person jury**.  Jury members see referee decisions as they happen. Jury members see their vote outcome once all jurors have voted.
 
-- Create a shortcut to chrome and add the following flag
-  ```bash
-   --autoplay-policy=no-user-gesture-required
-  ```
-  The path in the shortcut would look like this
-  ```bash
-  "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --autoplay-policy=no-user-gesture-required
-  
-  ```
+The software is meant to comply with current IWF Technical Competition Rules and Regulations (TCRR) and with the current Masters Weightlifting rules.  TCRR Requirements regarding equipment are outside our scope (such as the presence of indicator lights and buzzers on refereeing devices, etc.)
 
-## Running stand-alone
+## Installation
 
-- Get the current zip file from <https://github.com/jflamy/owlcms4/releases>
+[Ready-to-run Releases](https://github.com/jflamy/owlcms4/releases) are available at [https://github.com/jflamy/owlcms4/releases](https://github.com/jflamy/owlcms4/releases) . The releases can be run either locally (on any machine where Java8 is available), or on the cloud.
 
-- On Windows,
+[Installation Instructions](index.html#!Installation.md) are available for both local installations and for running on the Heroku cloud service.
 
-  - double click on the zip file, and double-click on `owlcms.exe` .
-  - You will be prompted to extract the files to a directory.  Select the directory and perform the extraction.  
-  - Running owlcms.exe from that location will start the server program in competition mode (see below if you want to run in demo mode with fake data).  You can then connect to the application using [http://localhost:8080](http://localhost:8080)
+Until which time documentation for owlcms4 is fully updated, you may wish to refer to the [owlcms2](https://owlcms2.sourceforge.io/#!Running.md) documentation.  The general concepts are the same.
 
-- On MacOS or Linux, use the following commands (substitute the proper numbers for x.y )
+#### Requirements
 
-  ```bash
-  java -jar owlcms-4.x.y.jar
-  ```
-- On all platforms, if you want to run in demo mode with fake athletes 
-  ```bash
-  java -DdemoMode=true -jar owlcms-4.x.y.jar
-  ```
+- The server software will run on any recent laptop acting as a server (or on a cloud) with Java8 installed.
+- For the user interface and displays, use a recent version of Chrome or Firefox on a laptop (Windows, Mac, Linux).  Apple iPads are not supported as I do not have access to a development Mac to iron out the glitches.
+- In order to drive the displays, you may use any laptop or miniPC (such as a [Raspberry Pi](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/)).  You need one laptop or miniPC for each display.
 
-## Running on Heroku
+## Demo
 
-### First time setup
+A [Live demo](https://owlcms4.herokuapp.com) of the current build is available on the Heroku cloud service.
 
-- Go to page https://heroku.com
-- Create a free account. Remember the login and password information.
-- Create an app, pick an available name -- for the rest of this example, the name we use will be "myfederation"
-- On the application configuration page, add the Postgres plugin.  This will automatically associate a free database with your application.
-- Go to page https://devcenter.heroku.com/articles/heroku-cli#download-and-install
-- Get the Windows installer.  Ignore the note about installing Git, we don't need actually need it.
-  
-- Run the installer to install the heroku CLI (command line interface)
-- Click on the Windows icon at the bottom left and type cmd
-  Start the windows command prompt window which shows up in the results and perform the following commands
+- Note that the cloud demo application is not pre-loaded and uses a zero-cost service, so the first load can take a minute. This is *not* indicative of subsequent cloud loads neither is it indicative of local performance (both of which start in a few seconds)
+- There is a single demo database, which resets itself periodically when the Heroku application times out. So if someone else is playing around, you may see surprising things.
+- Suggested steps for a walkthrough:
+  - Click on "Lifting Group" in the menu
+  - Click on "Announcer". A new tab opens.  Select a group ("M1" or "M2") in the top bar.
+  - You can start and stop the clock with the "play" and "pause" buttons.
+  - Start time for the athlete and stop the clock after a few seconds.
+  - The announcer can enter manual flag/thumbs-up/down decisions using the buttons at the right.
+  - Go back to the first home tab you opened and go to "Setup Displays" in the menu
+  - Start an Attempt Board and click on the black area. You can then use the keyboard keys 1 3 5 to enter white and 2 4 6 to enter red decisions.  Down signal will appear after two identical.
+  - You can also start a Result Board.
+  - If you go back to the main screen and change the group, you should see all the screens change to the new group.
 
-  ```bash
-  heroku login
-  heroku plugins:install java 
-  ```
-  These commands are only needed once.
+## Licensing and Notes
 
-### Deploying a version of owlcms to Heroku
+This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/jflamy/owlcms4/releases) page and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
 
-- Download a release and unzip it release to a directory by double-clicking on it. 
-  
-- Start a command shell and go to the directory where you unzipped the files
-  ```bash
-   cd *the_directory_where_you_unzipped_the_files*
-  ```
+If however you wish to provide or host the software as a service to others, or if you create a modified version, the license *requires* you to make full sources and building instructions available for free, so that anyone who wants to compile or further modify your version can do so on their own (see the [License](https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt) for details.).  You may contact the author to seek alternative licensing agreements.
 
-- Run the deploy command (replace X.Y and myfederation with the proper values)
+## Credits
 
-  ```bash
-   heroku deploy:jar owlcms-4.X.Y.jar --app myfederation 
-  ```
-  
-- Open the application (or go to ``https://myfederation.herokuapp.com``). This will start the application. Heroku provides the database names and database login information automatically.
-  
-  ```bash
-  heroku open
-  ```
-  
-- If you want to run in demo mode with fictitious athletes, run the following commands before doing the deployment
-  
-  ```bash
-  cp Procfile prodProcfile
-  cp demoProcfile Procfile
-  ```
+The software is written and maintained by Jean-François Lamy, IWF International Referee Category 1 (Canada)
 
-Reference: https://devcenter.heroku.com/articles/deploying-executable-jar-files
+Thanks to Anders Bendix Nielsen (Denmark), Alexey Ruchev (Russia) and Brock Pedersen (Canada) for their support, feedback and help testing the software.
+
+See the file [pom.xml](pom.xml) for the list of Open Source software used in the project.# owlcms4 Setup Instructions

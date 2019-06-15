@@ -1,6 +1,6 @@
 # OWLCMS4
 
-[Setting-up](Installation.md)
+[Installation](Installation.md)
 
 [Downloads]()
 

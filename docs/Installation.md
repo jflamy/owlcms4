@@ -92,35 +92,34 @@ OR
 
 Reference: https://devcenter.heroku.com/articles/deploying-executable-jar-files
 
-### Securing the application
+## Controlling access to the application
 
-In actual competition settings, malicious users may know the password to your WiFi.  In cloud settings, the application address will be visible to attendees on some screens.
-It is therefore necessary to protect the application.  This is done by setting two environment variables:
+In actual competition settings, malicious users may know the password to your WiFi.  In cloud settings, the application address will be visible to attendees on some screens.  It is therefore recommended to limit access to the application.  This is done by setting two environment variables:
 
-- ``IP` is a comma-separated list of allowed addresses.  It is used when connecting to the cloud from a router on the competition site. In order to find the proper value, go to https://google.com and type 
+- `IP` is a comma-separated list of allowed addresses.  It is used when connecting to the cloud from a router on the competition site. In order to find the proper value, go to https://google.com and type 
   `my ip`
   in the search box.  This will display the address of your competition site router as seen from the cloud.  You should see a set of four numbers separated by dots like `24.157.203.247`                                        
 
-- ``PIN` is an arbitrary strings of characters that will be requested when starting the first screen whenever you start a new session (typically, once per browser, or when the system is restarted).  You can use it whether or not you are connected to the cloud.
+- `PIN` is an arbitrary strings of characters that will be requested when starting the first screen whenever you start a new session (typically, once per browser, or when the system is restarted).  You can use it whether or not you are connected to the cloud.
 
-##### Securing a local installation
+### Securing a local installation
 
 In order to require a PIN on a local installation (running the program on a computer at the local competition site), start the program as follows
 
-- Under Windows
+- Under Windows 10, right click on the Windows icon at the bottom left and select the option to start a command prompt.  Change directory to where the program was extracted.
 
 ```bash
 set PIN=1234
 java -jar owlcms-4.X.Y.jar
 ```
 
-- Under Linux
+- Under Mac or Linux, start a terminal shell and change directory to where the program was extracted.
 
 ```bash
 PIN=1234 java -jar owlcms-4.X.Y.jar
 ```
 
-##### Securing a Heroku cloud installation
+### Securing a Heroku cloud installation
 
 The simplest way is to use the Heroku dashboard for the application and add the IP and PIN variables under the Settings tab, in the Config Vars section.
 
