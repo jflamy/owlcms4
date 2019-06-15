@@ -5,45 +5,79 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.login.AbstractLogin.LoginEvent;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServletRequest;
 
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AppLayoutAware;
+import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 @Route(value = LoginView.LOGIN, layout = OwlcmsRouterLayout.class)
-public class LoginView extends Composite<Div> implements AppLayoutAware {
+public class LoginView extends Composite<VerticalLayout> implements AppLayoutAware, ContentWrapping {
     
     Logger logger = (Logger)LoggerFactory.getLogger(LoginView.class);
 
     public static final String LOGIN = "login";
     private final LoginForm loginForm = new LoginForm();
+    
+    private FormLayout form = new FormLayout();
+    private PasswordField pinField = new PasswordField();
+    
     private OwlcmsRouterLayout routerLayout;
 
 
     public LoginView() {
-        loginForm.addLoginListener(event -> {
-            UI current = UI.getCurrent();
-            checkAuthenticated(event);
-            current.navigate(OwlcmsSession.getRequestedUrl());
+        pinField.setClearButtonVisible(true);
+        pinField.setRevealButtonVisible(true);
+        pinField.setLabel("Enter PIN");
+        pinField.setWidthFull();
+        pinField.addValueChangeListener(event -> {
+            String value = event.getValue();
+            if (!checkAuthenticated(value)) {
+                logger.error("Incorrect PIN {}", value);
+                pinField.setErrorMessage("Incorrect PIN");
+                pinField.setInvalid(true);
+            } else {
+                pinField.setInvalid(false);
+                UI.getCurrent().navigate(OwlcmsSession.getRequestedUrl());
+            }
         });
-        loginForm.setForgotPasswordButtonVisible(false);
-        getContent().add(loginForm);
+        Button button = new Button("Login");
+        button.addClickShortcut(Key.ENTER);
+        button.setWidth("10em");
+        button.getThemeNames().add("primary");
+        button.getThemeNames().add("icon");
+        
+        getContent().add(new H3("Log in"), pinField,button);
+        getContent().setWidth("20em");
+        getContent().setAlignSelf(Alignment.CENTER, button);
+        
+//        
+//        loginForm.addLoginListener(event -> {
+//            UI current = UI.getCurrent();
+//            checkAuthenticated(event.getPassword());
+//            current.navigate(OwlcmsSession.getRequestedUrl());
+//        });
+//        loginForm.setForgotPasswordButtonVisible(false);
+//        getContent().add(loginForm);
     }
 
-    private void checkAuthenticated(LoginEvent event) {
+    private boolean checkAuthenticated(String password) {
         boolean isAuthenticated = OwlcmsSession.isAuthenticated();
 
-        if (!isAuthenticated) {
-            String password = event.getPassword();
-            
+        if (!isAuthenticated) {      
             String whitelistedIp = System.getenv("IP");
             String pin = System.getenv("PIN");
             
@@ -56,10 +90,13 @@ public class LoginView extends Composite<Div> implements AppLayoutAware {
             // must come from whitelisted address and have matching PIN
             if (clientIp.equals(whitelistedIp) && (pin == null || pin.contentEquals(password))) {
                 OwlcmsSession.setAuthenticated(true);
+                return true;
             } else {
                 loginForm.setError(true);
+                return false;
             }
         }
+        return true;
     }
 
     @Override
