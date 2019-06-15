@@ -52,7 +52,7 @@ public class LoginView extends Composite<Div> implements AppLayoutAware {
                 // compensate for IPv6 returned in spite of IPv4-only configuration...
                 clientIp = "127.0.0.1";
             }
-            logger.warn("checking client IP={} vs configured IP={}", clientIp,whitelistedIp);
+            logger.debug("checking client IP={} vs configured IP={}", clientIp,whitelistedIp);
             // must come from whitelisted address and have matching PIN
             if (clientIp.equals(whitelistedIp) && (pin == null || pin.contentEquals(password))) {
                 OwlcmsSession.setAuthenticated(true);
