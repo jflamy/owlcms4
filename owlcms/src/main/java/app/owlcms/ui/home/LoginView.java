@@ -8,7 +8,6 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -31,8 +30,6 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
 
     public static final String LOGIN = "login";
     private final LoginForm loginForm = new LoginForm();
-    
-    private FormLayout form = new FormLayout();
     private PasswordField pinField = new PasswordField();
     
     private OwlcmsRouterLayout routerLayout;
@@ -47,33 +44,32 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
             String value = event.getValue();
             if (!checkAuthenticated(value)) {
                 logger.trace("Incorrect PIN {}", value);
-                pinField.setErrorMessage("Incorrect PIN");
+                pinField.setErrorMessage("Incorrect PIN.");
                 pinField.setInvalid(true);
             } else {
                 pinField.setInvalid(false);
                 UI.getCurrent().navigate(OwlcmsSession.getRequestedUrl());
             }
         });
+        
         Button button = new Button("Login");
         button.addClickShortcut(Key.ENTER);
         button.setWidth("10em");
         button.getThemeNames().add("primary");
         button.getThemeNames().add("icon");
         
+        // brute-force the color because some display views use a white text color.
         H3 h3 = new H3("Log in");
-        h3.getStyle().set("color","black");
-        getContent().add(h3, pinField,button);
-        getContent().setWidth("20em");
-        getContent().setAlignSelf(Alignment.CENTER, button);
+        h3.getStyle().set("color", "var(--lumo-header-text-color)");
+        h3.getStyle().set("font-size", "var(--lumo-font-size-xl)");
+
+        VerticalLayout form = new VerticalLayout();
+        form.add(h3, pinField, button);
+        form.setWidth("20em");
+        form.setAlignSelf(Alignment.CENTER, button);
         
-//        
-//        loginForm.addLoginListener(event -> {
-//            UI current = UI.getCurrent();
-//            checkAuthenticated(event.getPassword());
-//            current.navigate(OwlcmsSession.getRequestedUrl());
-//        });
-//        loginForm.setForgotPasswordButtonVisible(false);
-//        getContent().add(loginForm);
+        getContent().add(form);
+
     }
 
     private boolean checkAuthenticated(String password) {
