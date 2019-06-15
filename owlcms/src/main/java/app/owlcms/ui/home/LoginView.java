@@ -46,7 +46,7 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
         pinField.addValueChangeListener(event -> {
             String value = event.getValue();
             if (!checkAuthenticated(value)) {
-                logger.error("Incorrect PIN {}", value);
+                logger.trace("Incorrect PIN {}", value);
                 pinField.setErrorMessage("Incorrect PIN");
                 pinField.setInvalid(true);
             } else {
