@@ -17,6 +17,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
@@ -38,7 +39,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 
 	public MarshallContent() {
 		super();
-		setTopBarTitle("Marshall");
+		setTopBarTitle(TranslationProvider.getTranslation("MarshallContent.0")); //$NON-NLS-1$
 	}
 
 
@@ -51,7 +52,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.TimeStopped(this.getOrigin())));
 		});
-		stop.getElement().setAttribute("theme", "primary icon");
+		stop.getElement().setAttribute("theme", "primary icon"); //$NON-NLS-1$ //$NON-NLS-2$
 		HorizontalLayout buttons = new HorizontalLayout(
 			stop);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -82,6 +83,6 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	 */
 	@Override
 	public String getPageTitle() {
-		return "Marshall";
+		return TranslationProvider.getTranslation("MarshallContent.3"); //$NON-NLS-1$
 	}
 }

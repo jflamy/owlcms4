@@ -21,6 +21,7 @@ import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
 import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.scoreboard.Scoreboard;
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -42,29 +43,29 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	public DisplayNavigationContent() {
 		VerticalLayout intro = new VerticalLayout();
-		addP(intro, "Use the dropdown to select the platform where the display is located.");
-		addP(intro, "Use one of the buttons below to open a display.");
-		intro.getElement().getStyle().set("margin-bottom", "0");
+		addP(intro, TranslationProvider.getTranslation("DisplayNavigationContent.0")); //$NON-NLS-1$
+		addP(intro, TranslationProvider.getTranslation("DisplayNavigationContent.1")); //$NON-NLS-1$
+		intro.getElement().getStyle().set(TranslationProvider.getTranslation("DisplayNavigationContent.2"), "0"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		Button attempt = new Button(
-				"Attempt Board",
+				TranslationProvider.getTranslation("DisplayNavigationContent.4"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AttemptBoard.class)));
 		Button scoreboard = new Button(
-				"Scoreboard",
+				TranslationProvider.getTranslation("DisplayNavigationContent.5"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 		Button referee = new Button(
-			"Athlete-facing Timer/Down/Decisions",
+			TranslationProvider.getTranslation("DisplayNavigationContent.6"), //$NON-NLS-1$
 			buttonClickEvent -> UI.getCurrent().getPage()
 				.executeJavaScript(getWindowOpener(AthleteFacingDecisionBoard.class)));
 		Button athleteFacingAttempt = new Button(
-				"Athlete-facing Attempt Board Display",
+				TranslationProvider.getTranslation("DisplayNavigationContent.7"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AthleteFacingAttemptBoard.class)));
 
 		Button plates = new Button(
-				"Plates Display",
+				TranslationProvider.getTranslation("DisplayNavigationContent.8"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 
@@ -80,8 +81,8 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 		plates.setEnabled(false);
 
 		fillH(intro, this);
-		doGroup("Field of Play Displays", grid1, this);
-		doGroup("Refereeing Displays (can accept keyboard input from refereeing devices)", grid2, this);
+		doGroup(TranslationProvider.getTranslation("DisplayNavigationContent.9"), grid1, this); //$NON-NLS-1$
+		doGroup(TranslationProvider.getTranslation("DisplayNavigationContent.10"), grid2, this); //$NON-NLS-1$
 	}
 
 	/**
@@ -97,7 +98,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	@Override
 	protected String getTitle() {
-		return "Start Displays";
+		return TranslationProvider.getTranslation("DisplayNavigationContent.11"); //$NON-NLS-1$
 	}
 
 	/**
@@ -105,7 +106,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	@Override
 	public String getPageTitle() {
-		return "OWLCMS - Displays";
+		return TranslationProvider.getTranslation("DisplayNavigationContent.12"); //$NON-NLS-1$
 	}
 	
 }

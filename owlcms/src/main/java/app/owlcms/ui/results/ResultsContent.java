@@ -46,6 +46,7 @@ import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
@@ -66,7 +67,7 @@ import ch.qos.logback.classic.Logger;
 public class ResultsContent extends AthleteGridContent implements HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsContent.class);
-	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine"); //$NON-NLS-1$
 	static {
 		logger.setLevel(Level.INFO);
 		jexlLogger.setLevel(Level.ERROR);
@@ -84,7 +85,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	public ResultsContent() {
 		super();
 		defineFilters(crudGrid);
-		setTopBarTitle("Group Results");
+		setTopBarTitle(TranslationProvider.getString("ResultsContent.0")); //$NON-NLS-1$
 	}
 
 	/** We do not connect to the event bus, and we do not track a field of play
@@ -113,24 +114,24 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		topBar = getAppLayout().getAppBarElementWrapper();
 		
 		H3 title = new H3();
-		title.setText("Group Results");
+		title.setText(TranslationProvider.getString("ResultsContent.1")); //$NON-NLS-1$
 		title.add();
 		title.getStyle()
-			.set("margin", "0px 0px 0px 0px")
-			.set("font-weight", "normal");
+			.set("margin", "0px 0px 0px 0px") //$NON-NLS-1$ //$NON-NLS-2$
+			.set("font-weight", "normal"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder("Group");
+		groupSelect.setPlaceholder(TranslationProvider.getString("ResultsContent.2")); //$NON-NLS-1$
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
 		groupSelect.setValue(null);
-		groupSelect.setWidth("8em");
+		groupSelect.setWidth("8em"); //$NON-NLS-1$
 		setGroupSelectionListener();
 
 		xlsWriter = new JXLSResultSheet();
-		StreamResource href = new StreamResource("resultSheet.xls", xlsWriter);
-		groupResults = new Anchor(href, "");
-		download = new Button("Group Results",new Icon(VaadinIcon.DOWNLOAD_ALT));
+		StreamResource href = new StreamResource("resultSheet.xls", xlsWriter); //$NON-NLS-1$
+		groupResults = new Anchor(href, ""); //$NON-NLS-1$
+		download = new Button(TranslationProvider.getString("ResultsContent.3"),new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
 		groupResults.add(download);
 			
 		HorizontalLayout buttons = new HorizontalLayout(
@@ -140,7 +141,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		topBar
 			.getElement()
 			.getStyle()
-			.set("flex", "100 1");
+			.set("flex", "100 1"); //$NON-NLS-1$ //$NON-NLS-2$
 		topBar.removeAll();
 		topBar.add(title, groupSelect, buttons);
 		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
@@ -157,7 +158,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 			// the name of the resulting file is set as an attribute on the <a href tag that surrounds
 			// the download button.
 			xlsWriter.setGroup(currentGroup);
-			groupResults.getElement().setAttribute("download", "results"+(currentGroup != null ? "_"+currentGroup : "_all") +".xls");
+			groupResults.getElement().setAttribute("download", "results"+(currentGroup != null ? "_"+currentGroup : "_all") +".xls"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		});
 	}
 	
@@ -172,30 +173,30 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
 		ThemeList themes = grid.getThemeNames();
-		themes.add("compact");
-		themes.add("row-stripes");
-		grid.setColumns("lastName", "firstName", "team", "category", "bestSnatch", "snatchRank", "bestCleanJerk",
-			"cleanJerkRank", "total", "totalRank");
-		grid.getColumnByKey("lastName")
-			.setHeader("Last Name");
-		grid.getColumnByKey("firstName")
-			.setHeader("First Name");
-		grid.getColumnByKey("team")
-			.setHeader("Team");
-		grid.getColumnByKey("category")
-			.setHeader("Category");
-		grid.getColumnByKey("bestSnatch")
-			.setHeader("Snatch");
-		grid.getColumnByKey("snatchRank")
-			.setHeader("Snatch Rank");
-		grid.getColumnByKey("bestCleanJerk")
-			.setHeader("Clean&Jerk");
-		grid.getColumnByKey("cleanJerkRank")
-			.setHeader("Clean&Jerk Rank");
-		grid.getColumnByKey("total")
-			.setHeader("Total");
-		grid.getColumnByKey("totalRank")
-			.setHeader("Rank");
+		themes.add("compact"); //$NON-NLS-1$
+		themes.add("row-stripes"); //$NON-NLS-1$
+		grid.setColumns("lastName", "firstName", "team", "category", "bestSnatch", "snatchRank", "bestCleanJerk", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+			"cleanJerkRank", "total", "totalRank"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		grid.getColumnByKey("lastName") //$NON-NLS-1$
+			.setHeader(TranslationProvider.getString("ResultsContent.4")); //$NON-NLS-1$
+		grid.getColumnByKey("firstName") //$NON-NLS-1$
+			.setHeader(TranslationProvider.getString("ResultsContent.5")); //$NON-NLS-1$
+		grid.getColumnByKey("team") //$NON-NLS-1$
+			.setHeader(TranslationProvider.getString("ResultsContent.6")); //$NON-NLS-1$
+		grid.getColumnByKey("category") //$NON-NLS-1$
+			.setHeader(TranslationProvider.getString("ResultsContent.7")); //$NON-NLS-1$
+		grid.getColumnByKey("bestSnatch") //$NON-NLS-1$
+			.setHeader(TranslationProvider.getString("ResultsContent.8")); //$NON-NLS-1$
+		grid.getColumnByKey("snatchRank") //$NON-NLS-1$
+			.setHeader(TranslationProvider.getString("ResultsContent.9")); //$NON-NLS-1$
+		grid.getColumnByKey("bestCleanJerk") //$NON-NLS-1$
+			.setHeader(TranslationProvider.getString("ResultsContent.10")); //$NON-NLS-1$
+		grid.getColumnByKey("cleanJerkRank") //$NON-NLS-1$
+			.setHeader(TranslationProvider.getString("ResultsContent.11")); //$NON-NLS-1$
+		grid.getColumnByKey("total") //$NON-NLS-1$
+			.setHeader(TranslationProvider.getString("ResultsContent.12")); //$NON-NLS-1$
+		grid.getColumnByKey("totalRank") //$NON-NLS-1$
+			.setHeader(TranslationProvider.getString("ResultsContent.13")); //$NON-NLS-1$
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class,
@@ -233,13 +234,13 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	protected void defineFilters(GridCrud<Athlete> crud) {
-		groupFilter.setPlaceholder("Group");
+		groupFilter.setPlaceholder(TranslationProvider.getString("ResultsContent.14")); //$NON-NLS-1$
 		groupFilter.setItems(GroupRepository.findAll());
 		groupFilter.setItemLabelGenerator(Group::getName);	
 		// hide because the top bar has it
-		groupFilter.getStyle().set("display", "none");
+		groupFilter.getStyle().set("display", "none"); //$NON-NLS-1$ //$NON-NLS-2$
 		groupFilter.addValueChangeListener(e -> {
-				logger.debug("updating filters: group={}",e.getValue());
+				logger.debug("updating filters: group={}",e.getValue()); //$NON-NLS-1$
 				currentGroup = e.getValue();
 				updateURLLocation(locationUI, location, currentGroup);
 				subscribeIfLifting(e.getValue());
@@ -276,7 +277,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	}
 	
 	private void subscribeIfLifting(Group nGroup) {
-		logger.debug("subscribeIfLifting {}",nGroup);
+		logger.debug("subscribeIfLifting {}",nGroup); //$NON-NLS-1$
 		Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
 		currentGroup = nGroup;
 		
@@ -288,7 +289,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 			
 			// subscribe to fop and start tracking if actually lifting
 			if (fop.getGroup() != null && fop.getGroup().equals(nGroup)) {
-				logger.debug("subscribing to {} {}", fop, nGroup);
+				logger.debug("subscribing to {} {}", fop, nGroup); //$NON-NLS-1$
 				try {fopEventBusRegister(this, fop);} catch (Exception ex) {}
 				try {uiEventBusRegister(this, fop);} catch (Exception ex) {}
 			}
@@ -308,11 +309,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 			}
 		}
 		if (liftingFop != null) {
-			Notification.show("This group is currently lifting on platform "+liftingFop.getName()+". You cannot edit the results.", 3000, Position.MIDDLE);
-			logger.debug("Group {} lifting on {}, cannot edit", currentGroup, liftingFop);
+			Notification.show(TranslationProvider.getString("ResultsContent.15")+liftingFop.getName()+TranslationProvider.getString("ResultsContent.16"), 3000, Position.MIDDLE); //$NON-NLS-1$ //$NON-NLS-2$
+			logger.debug(TranslationProvider.getString("ResultsContent.17"), currentGroup, liftingFop); //$NON-NLS-1$
 			subscribeIfLifting(currentGroup);
 		} else {
-			logger.debug("Group {} lifting on {}, editing", currentGroup, liftingFop);
+			logger.debug(TranslationProvider.getString("ResultsContent.18"), currentGroup, liftingFop); //$NON-NLS-1$
 		}
 		return liftingFop != null;
 	}
@@ -345,8 +346,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
 		HashMap<String, List<String>> params = new HashMap<String, List<String>>(parametersMap);
 		
-		logger.debug("parsing query parameters");
-		List<String> groupNames = params.get("group");
+		logger.debug("parsing query parameters"); //$NON-NLS-1$
+		List<String> groupNames = params.get("group"); //$NON-NLS-1$
 		if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
 			String groupName = groupNames.get(0);
 			currentGroup = GroupRepository.findByName(groupName);
@@ -354,11 +355,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 			currentGroup = null;
 		}
 		if (currentGroup != null) {
-			params.put("group",Arrays.asList(currentGroup.getName()));
+			params.put("group",Arrays.asList(currentGroup.getName())); //$NON-NLS-1$
 		} else {
-			params.remove("group");
+			params.remove("group"); //$NON-NLS-1$
 		}
-		params.remove("fop");
+		params.remove("fop"); //$NON-NLS-1$
 		
 		// change the URL to reflect group
 		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
@@ -369,9 +370,9 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<String, List<String>>(location.getQueryParameters().getParameters());
 		if (!isIgnoreGroupFromURL() && newGroup != null) {
-			params.put("group",Arrays.asList(newGroup.getName()));
+			params.put("group",Arrays.asList(newGroup.getName())); //$NON-NLS-1$
 		} else {
-			params.remove("group");
+			params.remove("group"); //$NON-NLS-1$
 		}
 		ui.getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
@@ -386,7 +387,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	public String getPageTitle() {
-		return "Results";
+		return TranslationProvider.getString("ResultsContent.19"); //$NON-NLS-1$
 	}
 
 }

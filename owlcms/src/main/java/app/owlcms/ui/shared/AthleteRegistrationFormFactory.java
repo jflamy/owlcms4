@@ -30,6 +30,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.utils.LoggerUtils;
@@ -91,7 +92,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void filterCategories(BindingBuilder categoryBindingBuilder) {
 		ComboBox<Category> categoryField = (ComboBox<Category>) categoryBindingBuilder.getField();
-		Binding<Athlete, ?> genderBinding = binder.getBinding("gender").get();
+		Binding<Athlete, ?> genderBinding = binder.getBinding("gender").get(); //$NON-NLS-1$
 		ComboBox<Gender> genderField = (ComboBox<Gender>) genderBinding.getField();
 		ListDataProvider<Category> listDataProvider = new ListDataProvider<Category>(
 				CategoryRepository.findActive(genderField.getValue()));
@@ -125,16 +126,16 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 	protected void bindField(HasValue field, String property, Class<?> propertyType) {
 		Binder.BindingBuilder bindingBuilder = binder.forField(field);
 
-		if ("bodyWeight".equals(property)) {
+		if ("bodyWeight".equals(property)) { //$NON-NLS-1$
 			validateBodyWeight(bindingBuilder, ((BodyWeightField) field).isRequired());
 			bindingBuilder.bind(property);
-		} else if ("fullBirthDate".equals(property)) {
+		} else if ("fullBirthDate".equals(property)) { //$NON-NLS-1$
 			validateFullBirthDate(bindingBuilder);
 			HasValue<?, ?> bdateField = bindingBuilder.getField();
 			bdateField.addValueChangeListener((e) -> {
 				LocalDate date = (LocalDate) e.getValue();
-				HasValue<?, ?> genderField = binder.getBinding("gender").get().getField();
-				Optional<Binding<Athlete, ?>> magBinding = binder.getBinding("mastersAgeGroup");
+				HasValue<?, ?> genderField = binder.getBinding("gender").get().getField(); //$NON-NLS-1$
+				Optional<Binding<Athlete, ?>> magBinding = binder.getBinding("mastersAgeGroup"); //$NON-NLS-1$
 				if (magBinding.isPresent()) {
 					HasValue<?, String> ageGroupField = (HasValue<?, String>) magBinding.get().getField();
 					Gender gender = (Gender) genderField.getValue();
@@ -147,18 +148,18 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				}
 			});
 			bindingBuilder.bind(property);
-		} else if ("category".equals(property)) {
+		} else if ("category".equals(property)) { //$NON-NLS-1$
 			validateCategory(bindingBuilder);
 			// filterCategories(bindingBuilder);
 			bindingBuilder.bind(property);
-		} else if ("gender".equals(property)) {
+		} else if ("gender".equals(property)) { //$NON-NLS-1$
 			validateGender(bindingBuilder);
 			HasValue<?, ?> genderField = bindingBuilder.getField();
 			genderField.addValueChangeListener((e) -> {
 				Gender gender = (Gender) e.getValue();
-				Optional<Binding<Athlete, ?>> fbdBinding = binder.getBinding("fullBirthDate");
+				Optional<Binding<Athlete, ?>> fbdBinding = binder.getBinding("fullBirthDate"); //$NON-NLS-1$
 				HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
-				Optional<Binding<Athlete, ?>> agBinding = binder.getBinding("mastersAgeGroup");
+				Optional<Binding<Athlete, ?>> agBinding = binder.getBinding("mastersAgeGroup"); //$NON-NLS-1$
 				if (agBinding.isPresent()) {
 					HasValue<?, String> ageGroupField = (HasValue<?, String>) agBinding.get().getField();
 					LocalDate date = dateField.getValue();
@@ -166,15 +167,15 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 						int year = date.getYear();
 						ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), year));
 					} else {
-						ageGroupField.setValue("");
+						ageGroupField.setValue(""); //$NON-NLS-1$
 					}
 				}
 			});
 			bindingBuilder.bind(property);
-		} else if (property.endsWith("Declaration")) {
+		} else if (property.endsWith(TranslationProvider.getString("AthleteRegistrationFormFactory.0"))) { //$NON-NLS-1$
 			logger.debug(property);
 			TextField declField = (TextField) bindingBuilder.getField();
-			declField.setPattern("^(-?\\d+)|()$"); // optional minus and at least one digit, or empty.
+			declField.setPattern("^(-?\\d+)|()$"); // optional minus and at least one digit, or empty. //$NON-NLS-1$
 			declField.setPreventInvalidInput(true);
 			declField.setValueChangeMode(ValueChangeMode.ON_BLUR);
 			// ON_BLUR seems to be broken
@@ -184,9 +185,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 //			});
 			
 			bindingBuilder.withValidator(ValidationUtils.<String>checkUsing(
-					(unused) -> Athlete.validate20kgRule(editedAthlete, getIntegerFieldValue("snatch1Declaration"),
-							getIntegerFieldValue("cleanJerk1Declaration"), getIntegerFieldValue("qualifyingTotal")),
-					""));
+					(unused) -> Athlete.validate20kgRule(editedAthlete, getIntegerFieldValue("snatch1Declaration"), //$NON-NLS-1$
+							getIntegerFieldValue("cleanJerk1Declaration"), getIntegerFieldValue("qualifyingTotal")), //$NON-NLS-1$ //$NON-NLS-2$
+					"")); //$NON-NLS-1$
 			bindingBuilder.bind(property);
 		} else {
 			super.bindField(field, property, propertyType);
@@ -209,17 +210,17 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void validateBodyWeight(Binder.BindingBuilder bindingBuilder, boolean isRequired) {
-		Validator<Double> v1 = new DoubleRangeValidator("Weight should be between 0 and 350kg", 0.0D, 350.0D);
+		Validator<Double> v1 = new DoubleRangeValidator(TranslationProvider.getString("AthleteRegistrationFormFactory.1"), 0.0D, 350.0D); //$NON-NLS-1$
 		// check wrt body category
 		Validator<Double> v2 = Validator.from((weight) -> {
 			if (!isRequired && weight == null)
 				return true;
 			// inconsistent selection is signaled on the category dropdown since the weight
 			// is a factual measure
-			Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
+			Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get(); //$NON-NLS-1$
 			categoryBinding.validate(true);
 			return true;
-		}, "Body Weight is outside of selected category");
+		}, TranslationProvider.getString("AthleteRegistrationFormFactory.2")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v1);
 		bindingBuilder.withValidator(v2);
 	}
@@ -232,20 +233,20 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			if (category == null)
 				return true;
 			try {
-				Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
+				Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get(); //$NON-NLS-1$
 				Double bw = (Double) bwBinding.getField().getValue();
 				if (bw == null)
 					// no body weight - no contradiction
 					return true;
 				Double min = category.getMinimumWeight();
 				Double max = category.getMaximumWeight();
-				logger.debug("comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);
+				logger.debug("comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw); //$NON-NLS-1$
 				return (bw > min && bw <= max);
 			} catch (Exception e) {
 				logger.error(LoggerUtils.stackTrace(e));
 			}
 			return true;
-		}, "Category does not match body weight");
+		}, TranslationProvider.getString("AthleteRegistrationFormFactory.3")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v1);
 
 		// check that category is consistent with gender
@@ -253,11 +254,11 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			try {
 				if (category == null)
 					return true;
-				Binding<Athlete, ?> genderBinding = binder.getBinding("gender").get();
+				Binding<Athlete, ?> genderBinding = binder.getBinding("gender").get(); //$NON-NLS-1$
 				ComboBox<Gender> genderCombo = (ComboBox<Gender>) genderBinding.getField();
 				Gender g = (Gender) genderCombo.getValue();
 				Gender catGender = category != null ? category.getGender() : null;
-				logger.debug("categoryValidation: validating gender {} vs category {}: {}", g, catGender,
+				logger.debug("categoryValidation: validating gender {} vs category {}: {}", g, catGender, //$NON-NLS-1$
 						catGender == g);
 				if (g == null) {
 					// no gender - no contradiction
@@ -266,7 +267,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				catGenderOk = catGender == g;
 				if (catGenderOk && !genderCatOk) {
 					// validate() does not validate if no change, ugly workaround
-					logger.debug("resetting gender");
+					logger.debug("resetting gender"); //$NON-NLS-1$
 					genderCombo.setValue(null);
 					genderCombo.setValue(g); // turn off message if present.
 				}
@@ -275,7 +276,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				logger.error(LoggerUtils.stackTrace(e));
 			}
 			return true;
-		}, "Category does not match gender.");
+		}, TranslationProvider.getString("AthleteRegistrationFormFactory.4")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v2);
 	}
 
@@ -289,7 +290,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			if (ld == null)
 				return true;
 			return ld.compareTo(LocalDate.now()) <= 0;
-		}, "Birth date cannot be in the future");
+		}, TranslationProvider.getString("AthleteRegistrationFormFactory.5")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v);
 	}
 
@@ -300,15 +301,15 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			try {
 				if (g == null)
 					return true;
-				Binding<Athlete, ?> catBinding = binder.getBinding("category").get();
+				Binding<Athlete, ?> catBinding = binder.getBinding("category").get(); //$NON-NLS-1$
 				ComboBox<Category> categoryCombo = (ComboBox<Category>) catBinding.getField();
 				Category category = (Category) categoryCombo.getValue();
-				logger.debug("genderValidation: validating gender {} vs category {}: {}", g, category.getGender(),
+				logger.debug("genderValidation: validating gender {} vs category {}: {}", g, category.getGender(), //$NON-NLS-1$
 						category.getGender() == g);
 				genderCatOk = category.getGender() == g;
 				if (genderCatOk && !catGenderOk) {
 					// turn off message if present.
-					logger.debug("resetting category");
+					logger.debug("resetting category"); //$NON-NLS-1$
 					categoryCombo.setValue(null);
 					categoryCombo.setValue(category);
 				}
@@ -317,7 +318,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				logger.error(LoggerUtils.stackTrace(e));
 			}
 			return true;
-		}, "Category does not match gender.");
+		}, TranslationProvider.getString("AthleteRegistrationFormFactory.6")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v2);
 	}
 

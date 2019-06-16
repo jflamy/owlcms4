@@ -6,6 +6,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent.BreakStarted;
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsSession;
 
 public interface BreakDisplay {
@@ -31,22 +32,22 @@ public interface BreakDisplay {
 	public default String inferGroupName() {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		Group group = fop.getGroup();
-		String groupName = group != null ? group.getName() : "";
-		return MessageFormat.format("Group {0}", groupName);
+		String groupName = group != null ? group.getName() : ""; //$NON-NLS-1$
+		return MessageFormat.format(TranslationProvider.getTranslation("BreakDisplay.1"), groupName); //$NON-NLS-1$
 	}
 
 	public default String inferMessage(BreakType bt) {
 		switch (bt) {
 		case FIRST_CJ:
-			return "Time before next lift";
+			return TranslationProvider.getTranslation("BreakDisplay.2"); //$NON-NLS-1$
 		case FIRST_SNATCH:
-			return "Time before first lift";
+			return TranslationProvider.getTranslation("BreakDisplay.3"); //$NON-NLS-1$
 		case INTRODUCTION:
-			return "Time before introduction";
+			return TranslationProvider.getTranslation("BreakDisplay.4"); //$NON-NLS-1$
 		case TECHNICAL:
-			return "Competition paused";
+			return TranslationProvider.getTranslation("BreakDisplay.5"); //$NON-NLS-1$
 		default:
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 	}
 

@@ -22,6 +22,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.components.NavigationPage;
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -45,28 +46,28 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
      */
     public PreparationNavigationContent() {
 
-        Button competition = new Button("Competition Information",
+        Button competition = new Button(TranslationProvider.getString("PreparationNavigationContent.0"), //$NON-NLS-1$
                 buttonClickEvent -> UI.getCurrent().navigate(CompetitionContent.class));
-        Button categories = new Button("Define Categories",
+        Button categories = new Button(TranslationProvider.getString("PreparationNavigationContent.1"), //$NON-NLS-1$
                 buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class));
-        Button groups = new Button("Define Groups", buttonClickEvent -> UI.getCurrent().navigate(GroupContent.class));
-        Button platforms = new Button("Define Fields of Play",
+        Button groups = new Button(TranslationProvider.getString("PreparationNavigationContent.2"), buttonClickEvent -> UI.getCurrent().navigate(GroupContent.class)); //$NON-NLS-1$
+        Button platforms = new Button(TranslationProvider.getString("PreparationNavigationContent.3"), //$NON-NLS-1$
                 buttonClickEvent -> UI.getCurrent().navigate(PlatformContent.class));
 
-        StreamResource href = new StreamResource("registration.xls",
-                () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
-        Anchor download = new Anchor(href, "");
-        Button downloadButton = new Button("Download Empty Registration Spreadsheet",
+        StreamResource href = new StreamResource("registration.xls", //$NON-NLS-1$
+                () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls")); //$NON-NLS-1$
+        Anchor download = new Anchor(href, ""); //$NON-NLS-1$
+        Button downloadButton = new Button(TranslationProvider.getString("PreparationNavigationContent.7"), //$NON-NLS-1$
                 new Icon(VaadinIcon.DOWNLOAD_ALT));
-        downloadButton.setWidth("93%"); // don't ask. this is a kludge.
+        downloadButton.setWidth("93%"); // don't ask. this is a kludge. //$NON-NLS-1$
         download.add(downloadButton);
-        download.setWidth("100%");
+        download.setWidth("100%"); //$NON-NLS-1$
         Div downloadDiv = new Div(download);
         downloadDiv.setWidthFull();
 
-        Button upload = new Button("Upload Completed Registration Spreadsheet", new Icon(VaadinIcon.UPLOAD_ALT),
+        Button upload = new Button(TranslationProvider.getString("PreparationNavigationContent.10"), new Icon(VaadinIcon.UPLOAD_ALT), //$NON-NLS-1$
                 buttonClickEvent -> new UploadDialog().open());
-        Button athletes = new Button("Edit Athlete Entries",
+        Button athletes = new Button(TranslationProvider.getString("PreparationNavigationContent.11"), //$NON-NLS-1$
                 buttonClickEvent -> UI.getCurrent().navigate(RegistrationContent.class));
 
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, categories, groups, platforms,
@@ -74,9 +75,9 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes);
 
-        doGroup("Pre-competition setup", grid1, this);
-        doGroup("Registration", grid2, this);
-        doGroup("Edit Athlete Entries (adjust group assignments)", grid3, this);
+        doGroup(TranslationProvider.getString("PreparationNavigationContent.12"), grid1, this); //$NON-NLS-1$
+        doGroup(TranslationProvider.getString("PreparationNavigationContent.13"), grid2, this); //$NON-NLS-1$
+        doGroup(TranslationProvider.getString("PreparationNavigationContent.14"), grid3, this); //$NON-NLS-1$
 
     }
 
@@ -85,7 +86,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
      */
     @Override
     public String getPageTitle() {
-        return "OWLCMS - Preparation";
+        return TranslationProvider.getString("PreparationNavigationContent.15"); //$NON-NLS-1$
     }
 
     @Override
@@ -100,6 +101,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
     @Override
     protected String getTitle() {
-        return "Prepare Competition";
+        return TranslationProvider.getString("PreparationNavigationContent.16"); //$NON-NLS-1$
     }
 }

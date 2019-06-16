@@ -13,6 +13,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
+import app.owlcms.i18n.TranslationProvider;
+
 @SuppressWarnings("serial")
 @Tag("decision-board-template")
 @HtmlImport("frontend://components/DecisionBoard.html")
@@ -44,6 +46,6 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
 	
 	@Override
 	public String getPageTitle() {
-		return "Decision (AF)";
+		return TranslationProvider.getTranslation("AthleteFacingDecisionBoard.0"); //$NON-NLS-1$
 	}
 }

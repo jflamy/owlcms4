@@ -92,4 +92,14 @@ public class TranslationProvider implements I18NProvider {
 		}
 		return propertiesBundle;
 	}
+
+    public static String getString(String string) {
+        // FIXME: use TransationProvider
+        return Messages.getString(string, Locale.ENGLISH);
+    }
+
+    public static String getTranslation(String string) {
+     // FIXME: use TransationProvider
+        return Messages.getString(string, Locale.ENGLISH);
+    }
 }

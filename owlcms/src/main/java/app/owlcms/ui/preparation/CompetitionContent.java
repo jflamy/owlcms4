@@ -24,6 +24,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
@@ -73,27 +74,27 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	 */
 	private void createFormLayout(DefaultCrudFormFactory<Competition> crudFormFactory) {
 		crudFormFactory.setVisibleProperties(
-			"competitionName",
-			"competitionDate",
-			"competitionOrganizer",
-			"competitionSite",
-			"competitionCity",
-			"federation",
-			"federationAddress",
-			"federationEMail",
-			"federationWebSite",
-			"defaultLocale",
+			"competitionName", //$NON-NLS-1$
+			"competitionDate", //$NON-NLS-1$
+			"competitionOrganizer", //$NON-NLS-1$
+			"competitionSite", //$NON-NLS-1$
+			"competitionCity", //$NON-NLS-1$
+			"federation", //$NON-NLS-1$
+			"federationAddress", //$NON-NLS-1$
+			"federationEMail", //$NON-NLS-1$
+			"federationWebSite", //$NON-NLS-1$
+			"defaultLocale", //$NON-NLS-1$
 //			"protocolFileName",
 //			"finalPackageTemplateFileName",
-			"enforce20kgRule",
-			"masters",
-			"useBirthYear"
+			"enforce20kgRule", //$NON-NLS-1$
+			"masters", //$NON-NLS-1$
+			"useBirthYear" //$NON-NLS-1$
 			);
 		ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(Locale.US);
-		crudFormFactory.setFieldProvider("defaultLocale",
-            new ComboBoxProvider<Locale>("Locale", Arrays.asList(Locale.ENGLISH,Locale.FRENCH), new TextRenderer<>(nameGenerator), 
+		crudFormFactory.setFieldProvider("defaultLocale", //$NON-NLS-1$
+            new ComboBoxProvider<Locale>(TranslationProvider.getString("CompetitionContent.1"), Arrays.asList(Locale.ENGLISH,Locale.FRENCH), new TextRenderer<>(nameGenerator),  //$NON-NLS-1$
             		nameGenerator));
-		crudFormFactory.setFieldType("competitionDate", LocalDateField.class);
+		crudFormFactory.setFieldType("competitionDate", LocalDateField.class); //$NON-NLS-1$
 	}
 	
 	@Override
@@ -139,6 +140,6 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	 */
 	@Override
 	public String getPageTitle() {
-		return "Preparation - Competition";
+		return TranslationProvider.getString("CompetitionContent.0"); //$NON-NLS-1$
 	}
 }

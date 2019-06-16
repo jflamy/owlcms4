@@ -20,8 +20,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
-import app.owlcms.i18n.Messages;
-import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -38,8 +36,8 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         @Override
         public String toString() {
             double hours = (maxTime.getTime()-minTime.getTime())/1000.0/60.0/60.0;
-            return "SessionStats [groupName=" + getGroupName() + ", nbAthletes=" + nbAthletes + ", minTime=" + minTime + ", maxTime=" + maxTime
-                    + ", nbAttemptedLifts=" + nbAttemptedLifts + " Hours=" + hours+ " AthletesPerHour=" + nbAthletes/hours+ "]" ;
+            return "SessionStats [groupName=" + getGroupName() + ", nbAthletes=" + nbAthletes + ", minTime=" + minTime + ", maxTime=" + maxTime //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    + ", nbAttemptedLifts=" + nbAttemptedLifts + " Hours=" + hours+ " AthletesPerHour=" + nbAthletes/hours+ "]" ; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         }
 
         String groupName = null;
@@ -127,7 +125,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         List<Athlete> athletes = AthleteSorter.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null,isExcludeNotWeighed()));
         if (athletes.isEmpty()) {
             // prevent outputting silliness.
-            throw new RuntimeException(Messages.getString("OutputSheet.EmptySpreadsheet", OwlcmsSession.getLocale())); //$NON-NLS-1$
+            throw new RuntimeException(""); //$NON-NLS-1$
         }
 
         // extract group stats
@@ -164,13 +162,13 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         if (curStat.getNbAthletes() > 0) {
             processGroup(sessions, curStat);
         }
-        reportingBeans.put("groups", sessions);
+        reportingBeans.put("groups", sessions); //$NON-NLS-1$
         return athletes;
     }
 
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
-        String templateName = "/timing/TimingStatsTemplate_" + locale.getLanguage() + ".xls";
+        String templateName = "/timing/TimingStatsTemplate_" + locale.getLanguage() + ".xls"; //$NON-NLS-1$ //$NON-NLS-2$
         final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName);
         if (resourceAsStream == null) {
             throw new IOException("resource not found: " + templateName);} //$NON-NLS-1$

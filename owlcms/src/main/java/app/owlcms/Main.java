@@ -71,21 +71,21 @@ public class Main implements ServletContextListener {
 	 * @throws ParseException
 	 */
 	protected static int init() throws IOException, ParseException {
-		System.setProperty("java.net.preferIPv4Stack", "true"); 
+		System.setProperty("java.net.preferIPv4Stack", "true");  //$NON-NLS-1$ //$NON-NLS-2$
 		
 		// read server.port parameter from -D"server.port"=9999 on java command line
 		// this is required for running on Heroku which assigns us the port at run time.
 		// default is 8080
-		Integer serverPort = Integer.getInteger("port", 8080);
+		Integer serverPort = Integer.getInteger("port", 8080); //$NON-NLS-1$
 		logStart(serverPort);
 
 		// reads system properties (-D on command line)
-		boolean demoMode = Boolean.getBoolean("demoMode"); // same as devMode + resetMode + memoryMode
-		boolean memoryMode = Boolean.getBoolean("memoryMode"); // run in memory
-		boolean resetMode = Boolean.getBoolean("resetMode"); // drop the schema first
-		boolean devMode = Boolean.getBoolean("devMode"); // load large demo data if empty, do not reset unless resetMode, persistent unless memoryMode also
-		boolean testMode = Boolean.getBoolean("testMode"); // load small dummy data if empty, do not reset unless resetMode, persistent unless memoryMode
-		boolean masters = Boolean.getBoolean("masters");
+		boolean demoMode = Boolean.getBoolean("demoMode"); // same as devMode + resetMode + memoryMode //$NON-NLS-1$
+		boolean memoryMode = Boolean.getBoolean("memoryMode"); // run in memory //$NON-NLS-1$
+		boolean resetMode = Boolean.getBoolean("resetMode"); // drop the schema first //$NON-NLS-1$
+		boolean devMode = Boolean.getBoolean("devMode"); // load large demo data if empty, do not reset unless resetMode, persistent unless memoryMode also //$NON-NLS-1$
+		boolean testMode = Boolean.getBoolean("testMode"); // load small dummy data if empty, do not reset unless resetMode, persistent unless memoryMode //$NON-NLS-1$
+		boolean masters = Boolean.getBoolean("masters"); //$NON-NLS-1$
 		
 		initializeLibraries();
 		
@@ -120,7 +120,7 @@ public class Main implements ServletContextListener {
 					ProdData.insertInitialData(0);
 				}
 			} else {
-				logger.info("database not empty: {}",allCompetitions.get(0).getCompetitionName());
+				logger.info("database not empty: {}",allCompetitions.get(0).getCompetitionName()); //$NON-NLS-1$
 			}
 		}
 	}
@@ -132,8 +132,8 @@ public class Main implements ServletContextListener {
     	String version = props.getProperty("version"); //$NON-NLS-1$
     	OwlcmsFactory.setVersion(version);
 		String buildTimestamp = props.getProperty("buildTimestamp"); //$NON-NLS-1$
-		String buildZone = props.getProperty("buildZone");
-		logger.info("owlcms {} built {} ({})",version,buildTimestamp, buildZone);
+		String buildZone = props.getProperty("buildZone"); //$NON-NLS-1$
+		logger.info("owlcms {} built {} ({})",version,buildTimestamp, buildZone); //$NON-NLS-1$
 	}
 	
 	protected static void tearDown() {
@@ -147,7 +147,7 @@ public class Main implements ServletContextListener {
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
 		tearDown();
-		logger.info("owlcms end.");
+		logger.info("owlcms end."); //$NON-NLS-1$
 	}
 
 }

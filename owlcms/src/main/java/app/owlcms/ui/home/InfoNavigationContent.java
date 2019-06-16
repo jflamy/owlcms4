@@ -31,6 +31,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.utils.URLUtils;
@@ -63,32 +64,32 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 
 	private VerticalLayout buildLicense() {
 		VerticalLayout license = new VerticalLayout();
-		license.add(new H3("Copyright and License"));
+		license.add(new H3(TranslationProvider.getTranslation("InfoNavigationContent.0"))); //$NON-NLS-1$
 		addP(license,
-				"This software is Copyright \u00a9 2009-"+LocalDate.now().getYear()+" Jean-François Lamy"
+				TranslationProvider.getTranslation("InfoNavigationContent.1")+LocalDate.now().getYear()+TranslationProvider.getTranslation("InfoNavigationContent.2") //$NON-NLS-1$ //$NON-NLS-2$
 				);
 		addP(license,
-				"This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>."
+				TranslationProvider.getTranslation("InfoNavigationContent.3") //$NON-NLS-1$
 				);
-		license.add(new H3("Source and Documentation"));
+		license.add(new H3(TranslationProvider.getTranslation("InfoNavigationContent.4"))); //$NON-NLS-1$
 		addP(license,
-				"<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source."+
-				"<li>See also the <a href='https://jflamy.github.io/owlcms4/'>documentation</a> for "+
-				"installation and configuration information."
-				);
-		
-		license.add(new H3("Notes"));
-		addP(license,
-				"This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules"+
-				" as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you"+
-				" are responsible for performing whatever tests are need to establish that the sofware is fit for your circumstances."
+				TranslationProvider.getTranslation("InfoNavigationContent.5")+ //$NON-NLS-1$
+				TranslationProvider.getTranslation("InfoNavigationContent.6")+ //$NON-NLS-1$
+				TranslationProvider.getTranslation("InfoNavigationContent.7") //$NON-NLS-1$
 				);
 		
-		license.add(new H3("Credits"));
+		license.add(new H3(TranslationProvider.getTranslation("InfoNavigationContent.8"))); //$NON-NLS-1$
 		addP(license,
-				"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>"+
-				"Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>"+
-				"Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software."
+				TranslationProvider.getTranslation("InfoNavigationContent.9")+ //$NON-NLS-1$
+				TranslationProvider.getTranslation("InfoNavigationContent.10")+ //$NON-NLS-1$
+				TranslationProvider.getTranslation("InfoNavigationContent.11") //$NON-NLS-1$
+				);
+		
+		license.add(new H3(TranslationProvider.getTranslation("InfoNavigationContent.12"))); //$NON-NLS-1$
+		addP(license,
+				TranslationProvider.getTranslation("InfoNavigationContent.13")+ //$NON-NLS-1$
+				TranslationProvider.getTranslation("InfoNavigationContent.14")+ //$NON-NLS-1$
+				TranslationProvider.getTranslation("InfoNavigationContent.15") //$NON-NLS-1$
 				);
 		
 		return license;
@@ -97,30 +98,30 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	public VerticalLayout buildIntro() {
 		VerticalLayout intro = new VerticalLayout();
 		URLUtils urlFinder = new URLUtils();
-		addP(intro, "The competition system is reachable using the following address(es): ");
+		addP(intro, TranslationProvider.getTranslation("InfoNavigationContent.16")); //$NON-NLS-1$
 		for (String url : urlFinder.getRecommended()) {
 			intro.add(new Div(new Anchor(url, url)));
 		}
 		for (String url : urlFinder.getWired()) {
-			intro.add(new Div(new Anchor(url, url), new Label(" (wired)")));
+			intro.add(new Div(new Anchor(url, url), new Label(TranslationProvider.getTranslation("InfoNavigationContent.17")))); //$NON-NLS-1$
 		}
 		for (String url : urlFinder.getWireless()) {
-			intro.add(new Div(new Anchor(url, url), new Label(" (wireless)")));
+			intro.add(new Div(new Anchor(url, url), new Label(TranslationProvider.getTranslation("InfoNavigationContent.18")))); //$NON-NLS-1$
 		}
 		for (String url : urlFinder.getLocalUrl()) {
-			intro.add(new Div(new Anchor(url, url), new Label(" (on the computer running the owlcms program)")));
+			intro.add(new Div(new Anchor(url, url), new Label(TranslationProvider.getTranslation("InfoNavigationContent.19")))); //$NON-NLS-1$
 		}
 		intro.add(new Div());
 		intro.add(new Hr());
 		addP(intro,
-			"Use the menu at the left to navigate to the various screens:<ul>" +
-			"<li><b>Prepare Competition</b>: Enter the competition coordinates, enter the athletes, perform weigh-in, print starting weights<br></li>" +
-			"<li><b>Run lifting group</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>" +
-			"<li><b>Start displays</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>" +
-			"<li><b>Competition documents</b>: Produce printable documents for each group and the final results package.</li>"+
-			"</ul>Each of the various screens or displays uses a separate laptop or mini-pc."
+			TranslationProvider.getTranslation("InfoNavigationContent.20") + //$NON-NLS-1$
+			TranslationProvider.getTranslation("InfoNavigationContent.21") + //$NON-NLS-1$
+			TranslationProvider.getTranslation("InfoNavigationContent.22") + //$NON-NLS-1$
+			TranslationProvider.getTranslation("InfoNavigationContent.23") + //$NON-NLS-1$
+			TranslationProvider.getTranslation("InfoNavigationContent.24")+ //$NON-NLS-1$
+			TranslationProvider.getTranslation("InfoNavigationContent.25") //$NON-NLS-1$
 		);
-		intro.getElement().getStyle().set("margin-bottom", "-1em");
+		intro.getElement().getStyle().set("margin-bottom", "-1em"); //$NON-NLS-1$ //$NON-NLS-2$
 		return intro;
 	}
 
@@ -132,17 +133,17 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	public static FlexibleGridLayout navigationGrid(Component... items) {
 		FlexibleGridLayout layout = new FlexibleGridLayout();
-		layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1)))
-			.withAutoRows(new Length("1fr"))
+		layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1))) //$NON-NLS-1$
+			.withAutoRows(new Length("1fr")) //$NON-NLS-1$
 			.withItems(items)
-			.withGap(new Length("2vmin"))
+			.withGap(new Length("2vmin")) //$NON-NLS-1$
 			.withOverflow(Overflow.AUTO)
 			.withAutoFlow(AutoFlow.ROW)
 			.withMargin(false)
 			.withPadding(true)
 			.withSpacing(false);
 		layout.setSizeUndefined();
-		layout.setWidth("80%");
+		layout.setWidth("80%"); //$NON-NLS-1$
 		layout.setBoxSizing(BoxSizing.BORDER_BOX);
 		return layout;
 	}
@@ -157,7 +158,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()
-			.set("flex", "0 1 40em");
+			.set("flex", "0 1 40em"); //$NON-NLS-1$ //$NON-NLS-2$
 		Label label = new Label(getTitle());
 		appLayout.setTitleComponent(label);
 	}
@@ -191,7 +192,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	protected String getTitle() {
-		return "OWLCMS - Olympic Weightlifting Competition Management System";
+		return TranslationProvider.getTranslation("InfoNavigationContent.34"); //$NON-NLS-1$
 	}
 
 	/**
@@ -199,7 +200,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	public String getPageTitle() {
-		return "OWLCMS - Home";
+		return TranslationProvider.getTranslation("InfoNavigationContent.35"); //$NON-NLS-1$
 	}
 
 }

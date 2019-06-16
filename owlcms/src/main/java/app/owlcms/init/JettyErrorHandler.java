@@ -30,7 +30,7 @@ private final static Logger logger = (Logger) LoggerFactory.getLogger(JettyError
 		if (event.getThrowable() instanceof org.eclipse.jetty.io.EofException) {
 			logger.trace(t.getLocalizedMessage());
 		} else {
-			logger.error("",t);
+			logger.error("",t); //$NON-NLS-1$
 		}
 	}
 

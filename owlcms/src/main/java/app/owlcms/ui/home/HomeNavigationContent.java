@@ -30,6 +30,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
 import app.owlcms.ui.lifting.LiftingNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
@@ -56,11 +57,11 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		logger.setLevel(Level.INFO);
 	}
 
-	public static final String PREPARE_COMPETITION = "Prepare Competition";
-	public static final String RUN_LIFTING_GROUP = "Run Lifting Group";
-	public static final String START_DISPLAYS = "Start Displays";
-	public static final String RESULT_DOCUMENTS = "Result Documents";
-	public static final String INFO = "About";
+	public static final String PREPARE_COMPETITION = TranslationProvider.getTranslation("HomeNavigationContent.0"); //$NON-NLS-1$
+	public static final String RUN_LIFTING_GROUP = TranslationProvider.getTranslation("HomeNavigationContent.1"); //$NON-NLS-1$
+	public static final String START_DISPLAYS = TranslationProvider.getTranslation("HomeNavigationContent.2"); //$NON-NLS-1$
+	public static final String RESULT_DOCUMENTS = TranslationProvider.getTranslation("HomeNavigationContent.3"); //$NON-NLS-1$
+	public static final String INFO = TranslationProvider.getTranslation("HomeNavigationContent.4"); //$NON-NLS-1$
 	
 	/**
 	 * Instantiates a new main navigation content.
@@ -97,30 +98,30 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	public VerticalLayout buildIntro() {
 		VerticalLayout intro = new VerticalLayout();
 		URLUtils urlFinder = new URLUtils();
-		addP(intro, "The competition system is reachable using the following address(es): ");
+		addP(intro, TranslationProvider.getTranslation("HomeNavigationContent.5")); //$NON-NLS-1$
 		for (String url : urlFinder.getRecommended()) {
 			intro.add(new Div(new Anchor(url, url)));
 		}
 		for (String url : urlFinder.getWired()) {
-			intro.add(new Div(new Anchor(url, url), new Label(" (wired)")));
+			intro.add(new Div(new Anchor(url, url), new Label(TranslationProvider.getTranslation("HomeNavigationContent.6")))); //$NON-NLS-1$
 		}
 		for (String url : urlFinder.getWireless()) {
-			intro.add(new Div(new Anchor(url, url), new Label(" (wireless)")));
+			intro.add(new Div(new Anchor(url, url), new Label(TranslationProvider.getTranslation("HomeNavigationContent.7")))); //$NON-NLS-1$
 		}
 		for (String url : urlFinder.getLocalUrl()) {
-			intro.add(new Div(new Anchor(url, url), new Label(" (on the computer running the owlcms program)")));
+			intro.add(new Div(new Anchor(url, url), new Label(TranslationProvider.getTranslation("HomeNavigationContent.8")))); //$NON-NLS-1$
 		}
 		intro.add(new Div());
 		intro.add(new Hr());
 		addP(intro,
-			"Use the menu at the left to navigate to the various screens:<ul>" +
-			"<li><b>Prepare Competition</b>: Enter the competition coordinates, enter the athletes, perform weigh-in, print starting weights<br></li>" +
-			"<li><b>Run lifting group</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>" +
-			"<li><b>Start displays</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>" +
-			"<li><b>Competition documents</b>: Produce printable documents for each group and the final results package.</li>"+
-			"</ul>Each of the various screens or displays uses a separate laptop or mini-pc."
+			TranslationProvider.getTranslation("HomeNavigationContent.9") + //$NON-NLS-1$
+			TranslationProvider.getTranslation("HomeNavigationContent.10") + //$NON-NLS-1$
+			TranslationProvider.getTranslation("HomeNavigationContent.11") + //$NON-NLS-1$
+			TranslationProvider.getTranslation("HomeNavigationContent.12") + //$NON-NLS-1$
+			TranslationProvider.getTranslation("HomeNavigationContent.13")+ //$NON-NLS-1$
+			TranslationProvider.getTranslation("HomeNavigationContent.14") //$NON-NLS-1$
 		);
-		intro.getElement().getStyle().set("margin-bottom", "-1em");
+		intro.getElement().getStyle().set("margin-bottom", "-1em"); //$NON-NLS-1$ //$NON-NLS-2$
 		return intro;
 	}
 
@@ -132,17 +133,17 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	public static FlexibleGridLayout navigationGrid(Component... items) {
 		FlexibleGridLayout layout = new FlexibleGridLayout();
-		layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1)))
-			.withAutoRows(new Length("1fr"))
+		layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1))) //$NON-NLS-1$
+			.withAutoRows(new Length("1fr")) //$NON-NLS-1$
 			.withItems(items)
-			.withGap(new Length("2vmin"))
+			.withGap(new Length("2vmin")) //$NON-NLS-1$
 			.withOverflow(Overflow.AUTO)
 			.withAutoFlow(AutoFlow.ROW)
 			.withMargin(false)
 			.withPadding(true)
 			.withSpacing(false);
 		layout.setSizeUndefined();
-		layout.setWidth("80%");
+		layout.setWidth("80%"); //$NON-NLS-1$
 		layout.setBoxSizing(BoxSizing.BORDER_BOX);
 		return layout;
 	}
@@ -157,7 +158,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()
-			.set("flex", "0 1 40em");
+			.set("flex", "0 1 40em"); //$NON-NLS-1$ //$NON-NLS-2$
 		Label label = new Label(getTitle());
 		appLayout.setTitleComponent(label);
 	}
@@ -191,7 +192,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	protected String getTitle() {
-		return "OWLCMS - Olympic Weightlifting Competition Management System";
+		return TranslationProvider.getTranslation("HomeNavigationContent.23"); //$NON-NLS-1$
 	}
 
 	/**
@@ -199,7 +200,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	public String getPageTitle() {
-		return "OWLCMS - Home";
+		return TranslationProvider.getTranslation("HomeNavigationContent.24"); //$NON-NLS-1$
 	}
 
 }

@@ -47,7 +47,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 		// get the fop from the query parameters, set as default if not provided
 		FieldOfPlay fop = null;
 		if (!isIgnoreFopFromURL()) {
-			List<String> fopNames = parametersMap.get("fop");
+			List<String> fopNames = parametersMap.get("fop"); //$NON-NLS-1$
 			if (fopNames != null && fopNames.get(0) == null) {
 				fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
 			} else if (OwlcmsSession.getFop() != null) {
@@ -55,28 +55,28 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 			} else {
 				fop = OwlcmsFactory.getDefaultFOP();
 			}
-			params.put("fop",Arrays.asList(fop.getName()));
+			params.put("fop",Arrays.asList(fop.getName())); //$NON-NLS-1$
 			OwlcmsSession.setFop(fop);
 		} else {
-			params.remove("fop");
+			params.remove("fop"); //$NON-NLS-1$
 		}
 	
 		// get the group from query parameters, do not add value if group is not defined
 		Group group = null;
 		if (!isIgnoreGroupFromURL()) {
-			List<String> groupNames = parametersMap.get("group");
+			List<String> groupNames = parametersMap.get("group"); //$NON-NLS-1$
 			if (groupNames != null  && groupNames.get(0) != null) {
 				group = GroupRepository.findByName(groupNames.get(0));
 				fop.setGroup(group);
 			} else {
 				group = (fop != null ? fop.getGroup() : null);
 			}
-			if (group != null) params.put("group",Arrays.asList(group.getName()));
+			if (group != null) params.put("group",Arrays.asList(group.getName())); //$NON-NLS-1$
 		} else {
-			params.remove("group");
+			params.remove("group"); //$NON-NLS-1$
 		}
 		
-		logger.debug("URL parsing: OwlcmsSession: fop={} group={}",(fop != null ? fop.getName() : null),(group != null ? group.getName() : null));
+		logger.debug("URL parsing: OwlcmsSession: fop={} group={}",(fop != null ? fop.getName() : null),(group != null ? group.getName() : null)); //$NON-NLS-1$
 		// change the URL to reflect fop and group
 		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}

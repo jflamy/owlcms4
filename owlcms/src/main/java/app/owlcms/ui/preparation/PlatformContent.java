@@ -22,6 +22,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.fields.LocalDateTimeField;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -65,7 +66,7 @@ public class PlatformContent extends VerticalLayout
 	 */
 	protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
 		Grid<Platform> grid = new Grid<Platform>(Platform.class, false);
-		grid.addColumn(Platform::getName).setHeader("Name");
+		grid.addColumn(Platform::getName).setHeader(TranslationProvider.getString("PlatformContent.0")); //$NON-NLS-1$
 
 		GridCrud<Platform> crud = new OwlcmsCrudGrid<Platform>(Platform.class,
 				new OwlcmsGridLayout(Platform.class),
@@ -93,12 +94,12 @@ public class PlatformContent extends VerticalLayout
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-		crudFormFactory.setVisibleProperties("name");
-		crudFormFactory.setFieldCaptions("Platform Name");
-		crudFormFactory.setFieldProvider("platform",
-				new ComboBoxProvider<>("Platform", PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
-		crudFormFactory.setFieldType("weighInTime", LocalDateTimeField.class);
-		crudFormFactory.setFieldType("competitionTime", LocalDateTimeField.class);
+		crudFormFactory.setVisibleProperties("name"); //$NON-NLS-1$
+		crudFormFactory.setFieldCaptions(TranslationProvider.getString("PlatformContent.2")); //$NON-NLS-1$
+		crudFormFactory.setFieldProvider("platform", //$NON-NLS-1$
+				new ComboBoxProvider<>(TranslationProvider.getString("PlatformContent.4"), PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName)); //$NON-NLS-1$
+		crudFormFactory.setFieldType("weighInTime", LocalDateTimeField.class); //$NON-NLS-1$
+		crudFormFactory.setFieldType("competitionTime", LocalDateTimeField.class); //$NON-NLS-1$
 	}
 
 	/**
@@ -179,6 +180,6 @@ public class PlatformContent extends VerticalLayout
 	 */
 	@Override
 	public String getPageTitle() {
-		return "Preparation - Platforms";
+		return TranslationProvider.getString("PlatformContent.7"); //$NON-NLS-1$
 	}
 }

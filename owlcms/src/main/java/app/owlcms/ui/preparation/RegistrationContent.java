@@ -43,6 +43,7 @@ import app.owlcms.data.category.MastersAgeGroup;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -98,22 +99,22 @@ public class RegistrationContent extends VerticalLayout
 	 */
 	protected OwlcmsCrudGrid<Athlete> createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
-		grid.addColumn("lotNumber").setHeader("Lot");
-		grid.addColumn("lastName").setHeader("Last Name");
-		grid.addColumn("firstName").setHeader("First Name");
-		grid.addColumn("team").setHeader("Team");
-		grid.addColumn("yearOfBirth").setHeader("Birth");
-		grid.addColumn("gender").setHeader("Gender");
-		grid.addColumn("ageDivision").setHeader("Age Division");
+		grid.addColumn("lotNumber").setHeader(TranslationProvider.getString("RegistrationContent.1")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("lastName").setHeader(TranslationProvider.getString("RegistrationContent.0")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("firstName").setHeader(TranslationProvider.getString("RegistrationContent.2")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("team").setHeader(TranslationProvider.getString("RegistrationContent.3")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("yearOfBirth").setHeader(TranslationProvider.getString("RegistrationContent.4")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("gender").setHeader(TranslationProvider.getString("RegistrationContent.5")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("ageDivision").setHeader(TranslationProvider.getString("RegistrationContent.6")); //$NON-NLS-1$ //$NON-NLS-2$
 		if (Competition.getCurrent().isMasters()) {
-			grid.addColumn("mastersAgeGroup").setHeader("Age Group");
+			grid.addColumn("mastersAgeGroup").setHeader(TranslationProvider.getString("RegistrationContent.7")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		grid.addColumn("category").setHeader("Category");
+		grid.addColumn("category").setHeader(TranslationProvider.getString("RegistrationContent.8")); //$NON-NLS-1$ //$NON-NLS-2$
 		grid.addColumn(
-			new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()),"bodyWeight")
-			.setHeader("Body Weight");
-		grid.addColumn("group").setHeader("Group");
-		grid.addColumn("eligibleForIndividualRanking").setHeader("Eligible");
+			new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()),"bodyWeight") //$NON-NLS-1$ //$NON-NLS-2$
+			.setHeader(TranslationProvider.getString("RegistrationContent.9")); //$NON-NLS-1$
+		grid.addColumn("group").setHeader(TranslationProvider.getString("RegistrationContent.10")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("eligibleForIndividualRanking").setHeader(TranslationProvider.getString("RegistrationContent.11")); //$NON-NLS-1$ //$NON-NLS-2$
 		OwlcmsCrudGrid<Athlete> crud = new OwlcmsCrudGrid<>(
 				Athlete.class,
 				new OwlcmsGridLayout(Athlete.class),
@@ -144,45 +145,45 @@ public class RegistrationContent extends VerticalLayout
 		List<String> props = new LinkedList<>();
 		List<String> captions = new LinkedList<>();
 		
-		props.add("lastName"); captions.add("Last Name");
-		props.add("firstName"); captions.add("First Name");
-		props.add("gender"); captions.add("Gender");
+		props.add("lastName"); captions.add(TranslationProvider.getString("RegistrationContent.12")); //$NON-NLS-1$ //$NON-NLS-2$
+		props.add("firstName"); captions.add(TranslationProvider.getString("RegistrationContent.13")); //$NON-NLS-1$ //$NON-NLS-2$
+		props.add("gender"); captions.add(TranslationProvider.getString("RegistrationContent.14")); //$NON-NLS-1$ //$NON-NLS-2$
 
-		props.add("team"); captions.add("Team");
-		props.add("fullBirthDate"); captions.add("Birth Date (yyyy-mm-dd)");
+		props.add("team"); captions.add(TranslationProvider.getString("RegistrationContent.15")); //$NON-NLS-1$ //$NON-NLS-2$
+		props.add("fullBirthDate"); captions.add(TranslationProvider.getString("RegistrationContent.16")); //$NON-NLS-1$ //$NON-NLS-2$
 		if (Competition.getCurrent().isMasters()) {
-			props.add("mastersAgeGroup"); captions.add("Age Group");
+			props.add("mastersAgeGroup"); captions.add(TranslationProvider.getString("RegistrationContent.17")); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			props.add("ageDivision"); captions.add("Age Division");
+			props.add("ageDivision"); captions.add(TranslationProvider.getString("RegistrationContent.18")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		props.add("category"); captions.add("Category");
-		props.add("group"); captions.add("Group");
-		props.add("qualifyingTotal"); captions.add("Entry Total");
-		props.add("bodyWeight"); captions.add("Body Weight");
-		props.add("snatch1Declaration"); captions.add("Snatch Decl.");
-		props.add("cleanJerk1Declaration"); captions.add("C&J Decl.");
-		props.add("eligibleForIndividualRanking"); captions.add("Eligible for Individual Ranking?"); 
-		props.add("lotNumber"); captions.add("Lot");
+		props.add("category"); captions.add(TranslationProvider.getString("RegistrationContent.19")); //$NON-NLS-1$ //$NON-NLS-2$
+		props.add("group"); captions.add(TranslationProvider.getString("RegistrationContent.20")); //$NON-NLS-1$ //$NON-NLS-2$
+		props.add("qualifyingTotal"); captions.add(TranslationProvider.getString("RegistrationContent.21")); //$NON-NLS-1$ //$NON-NLS-2$
+		props.add("bodyWeight"); captions.add(TranslationProvider.getString("RegistrationContent.22")); //$NON-NLS-1$ //$NON-NLS-2$
+		props.add("snatch1Declaration"); captions.add(TranslationProvider.getString("RegistrationContent.23")); //$NON-NLS-1$ //$NON-NLS-2$
+		props.add("cleanJerk1Declaration"); captions.add(TranslationProvider.getString("RegistrationContent.24")); //$NON-NLS-1$ //$NON-NLS-2$
+		props.add("eligibleForIndividualRanking"); captions.add(TranslationProvider.getString("RegistrationContent.25"));  //$NON-NLS-1$ //$NON-NLS-2$
+		props.add("lotNumber"); captions.add(TranslationProvider.getString("RegistrationContent.26")); //$NON-NLS-1$ //$NON-NLS-2$
 		crudFormFactory.setVisibleProperties((String[]) props.toArray(new String[0]));
 		crudFormFactory.setFieldCaptions((String[]) captions.toArray(new String[0]));
 		
-		crudFormFactory.setFieldProvider("gender",
+		crudFormFactory.setFieldProvider("gender", //$NON-NLS-1$
 			new ComboBoxProvider<>(
-					"Gender", Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
-		crudFormFactory.setFieldProvider("group",
+					TranslationProvider.getString("RegistrationContent.27"), Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name)); //$NON-NLS-1$
+		crudFormFactory.setFieldProvider("group", //$NON-NLS-1$
 			new ComboBoxProvider<>(
-					"Group", GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
-		crudFormFactory.setFieldProvider("category",
+					TranslationProvider.getString("RegistrationContent.28"), GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName)); //$NON-NLS-1$
+		crudFormFactory.setFieldProvider("category", //$NON-NLS-1$
 			new ComboBoxProvider<>(
-					"Category", CategoryRepository.findActive(), new TextRenderer<>(Category::getName),
+					TranslationProvider.getString("RegistrationContent.29"), CategoryRepository.findActive(), new TextRenderer<>(Category::getName), //$NON-NLS-1$
 					Category::getName));
-		crudFormFactory.setFieldProvider("ageDivision",
+		crudFormFactory.setFieldProvider("ageDivision", //$NON-NLS-1$
 			new ComboBoxProvider<>(
-					"AgeDivision", Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name),
+					TranslationProvider.getString("RegistrationContent.30"), Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name), //$NON-NLS-1$
 					AgeDivision::name));
 
-		crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
-		crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
+		crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class); //$NON-NLS-1$
+		crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class); //$NON-NLS-1$
 	}
 
 	@Override
@@ -239,60 +240,60 @@ public class RegistrationContent extends VerticalLayout
 	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
-		lastNameFilter.setPlaceholder("Last name");
+		lastNameFilter.setPlaceholder(TranslationProvider.getString("RegistrationContent.31")); //$NON-NLS-1$
 		lastNameFilter.setClearButtonVisible(true);
 		lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
 		lastNameFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();
 		});
-		lastNameFilter.setWidth("10em");
+		lastNameFilter.setWidth("10em"); //$NON-NLS-1$
 		crudGrid.getCrudLayout().addFilterComponent(lastNameFilter);
 
-		ageDivisionFilter.setPlaceholder("Age Division");
+		ageDivisionFilter.setPlaceholder(TranslationProvider.getString("RegistrationContent.32")); //$NON-NLS-1$
 		ageDivisionFilter.setItems(AgeDivision.findAll());
 		ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
 		ageDivisionFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();
 		});
-		lastNameFilter.setWidth("10em");
+		lastNameFilter.setWidth("10em"); //$NON-NLS-1$
 		crudGrid.getCrudLayout().addFilterComponent(ageDivisionFilter);
 		
 		if (Competition.getCurrent().isMasters()) {
-			ageGroupFilter.setPlaceholder("Age Group");
+			ageGroupFilter.setPlaceholder(TranslationProvider.getString("RegistrationContent.33")); //$NON-NLS-1$
 			ageGroupFilter.setItems(MastersAgeGroup.findAllStrings());
 //		ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
 			ageGroupFilter.addValueChangeListener(e -> {
 				crudGrid.refreshGrid();
 			});
-			ageGroupFilter.setWidth("10em");
+			ageGroupFilter.setWidth("10em"); //$NON-NLS-1$
 			crudGrid.getCrudLayout().addFilterComponent(ageGroupFilter);
 		}
 
-		categoryFilter.setPlaceholder("Category");
+		categoryFilter.setPlaceholder(TranslationProvider.getString("RegistrationContent.34")); //$NON-NLS-1$
 		categoryFilter.setItems(CategoryRepository.findActive());
 		categoryFilter.setItemLabelGenerator(Category::getName);
 		categoryFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();
 		});
-		categoryFilter.setWidth("10em");
+		categoryFilter.setWidth("10em"); //$NON-NLS-1$
 		crudGrid.getCrudLayout().addFilterComponent(categoryFilter);
 
-		groupFilter.setPlaceholder("Group");
+		groupFilter.setPlaceholder(TranslationProvider.getString("RegistrationContent.35")); //$NON-NLS-1$
 		groupFilter.setItems(GroupRepository.findAll());
 		groupFilter.setItemLabelGenerator(Group::getName);
 		groupFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();
 		});
-		groupFilter.setWidth("10em");
+		groupFilter.setWidth("10em"); //$NON-NLS-1$
 		crudGrid.getCrudLayout().addFilterComponent(groupFilter);
 
-		weighedInFilter.setPlaceholder("Weighed-In?");
+		weighedInFilter.setPlaceholder(TranslationProvider.getString("RegistrationContent.36")); //$NON-NLS-1$
 		weighedInFilter.setItems(Boolean.TRUE,Boolean.FALSE);
-		weighedInFilter.setItemLabelGenerator((i) -> {return i ? "Weighed" : "Not weighed";});
+		weighedInFilter.setItemLabelGenerator((i) -> {return i ? TranslationProvider.getString("RegistrationContent.37") : TranslationProvider.getString("RegistrationContent.38");}); //$NON-NLS-1$ //$NON-NLS-2$
 		weighedInFilter.addValueChangeListener(e -> {
 			crudGrid.refreshGrid();
 		});
-		weighedInFilter.setWidth("10em");
+		weighedInFilter.setWidth("10em"); //$NON-NLS-1$
 		crudGrid.getCrudLayout().addFilterComponent(weighedInFilter);
 
 		Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
@@ -303,7 +304,7 @@ public class RegistrationContent extends VerticalLayout
 			groupFilter.clear();
 			weighedInFilter.clear();
 		});
-		lastNameFilter.setWidth("10em");
+		lastNameFilter.setWidth("10em"); //$NON-NLS-1$
 		crudGrid.getCrudLayout().addFilterComponent(clearFilters);
 	}
 
@@ -332,6 +333,6 @@ public class RegistrationContent extends VerticalLayout
 	 */
 	@Override
 	public String getPageTitle() {
-		return "Preparation - Registration";
+		return TranslationProvider.getString("RegistrationContent.39"); //$NON-NLS-1$
 	}
 }

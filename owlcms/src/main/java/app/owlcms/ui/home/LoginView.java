@@ -18,6 +18,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServletRequest;
 
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.ContentWrapping;
@@ -50,7 +51,7 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
 
     static Logger logger = (Logger) LoggerFactory.getLogger(LoginView.class);
 
-    public static final String LOGIN = "login";
+    public static final String LOGIN = "login"; //$NON-NLS-1$
     private PasswordField pinField = new PasswordField();
 
     private OwlcmsRouterLayout routerLayout;
@@ -58,12 +59,12 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
     public LoginView() {
         pinField.setClearButtonVisible(true);
         pinField.setRevealButtonVisible(true);
-        pinField.setLabel("Enter PIN");
+        pinField.setLabel(TranslationProvider.getTranslation("LoginView.1")); //$NON-NLS-1$
         pinField.setWidthFull();
         pinField.addValueChangeListener(event -> {
             String value = event.getValue();
             if (!checkAuthenticated(value)) {
-                pinField.setErrorMessage("Incorrect Access Information Provided.");
+                pinField.setErrorMessage(TranslationProvider.getTranslation("LoginView.0")); //$NON-NLS-1$
                 pinField.setInvalid(true);
             } else {
                 pinField.setInvalid(false);
@@ -77,19 +78,19 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
         });
 
         // brute-force the color because some display views use a white text color.
-        H3 h3 = new H3("Log in");
-        h3.getStyle().set("color", "var(--lumo-header-text-color)");
-        h3.getStyle().set("font-size", "var(--lumo-font-size-xl)");
+        H3 h3 = new H3(TranslationProvider.getTranslation("LoginView.2")); //$NON-NLS-1$
+        h3.getStyle().set("color", "var(--lumo-header-text-color)"); //$NON-NLS-1$ //$NON-NLS-2$
+        h3.getStyle().set("font-size", "var(--lumo-font-size-xl)"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        Button button = new Button("Login");
+        Button button = new Button(TranslationProvider.getTranslation("LoginView.3")); //$NON-NLS-1$
         button.addClickShortcut(Key.ENTER);
-        button.setWidth("10em");
-        button.getThemeNames().add("primary");
-        button.getThemeNames().add("icon");
+        button.setWidth("10em"); //$NON-NLS-1$
+        button.getThemeNames().add("primary"); //$NON-NLS-1$
+        button.getThemeNames().add("icon"); //$NON-NLS-1$
 
         VerticalLayout form = new VerticalLayout();
         form.add(h3, pinField, button);
-        form.setWidth("20em");
+        form.setWidth("20em"); //$NON-NLS-1$
         form.setAlignSelf(Alignment.CENTER, button);
 
         getContent().add(form);
@@ -103,7 +104,7 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
             boolean whiteListed = checkWhitelist();
 
             // check for PIN if one is specified
-            String pin = System.getenv("PIN");
+            String pin = System.getenv("PIN"); //$NON-NLS-1$
             if (whiteListed && (pin == null || pin.contentEquals(password))) {
                 OwlcmsSession.setAuthenticated(true);
                 return true;
@@ -116,20 +117,20 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
     }
 
     public static boolean checkWhitelist() {
-        String whiteList = System.getenv("IP");
+        String whiteList = System.getenv("IP"); //$NON-NLS-1$
         String clientIp = getClientIp();
-        if ("0:0:0:0:0:0:0:1".equals(clientIp)) {
+        if ("0:0:0:0:0:0:0:1".equals(clientIp)) { //$NON-NLS-1$
             // compensate for IPv6 returned in spite of IPv4-only configuration...
-            clientIp = "127.0.0.1";
+            clientIp = "127.0.0.1"; //$NON-NLS-1$
         }
         boolean whiteListed;
         if (whiteList != null) {
-            List<String> whiteListedList = Arrays.asList(whiteList.split(","));
-            logger.debug("checking client IP={} vs configured IP={}", clientIp, whiteList);
+            List<String> whiteListedList = Arrays.asList(whiteList.split(",")); //$NON-NLS-1$
+            logger.debug("checking client IP={} vs configured IP={}", clientIp, whiteList); //$NON-NLS-1$
             // must come from whitelisted address and have matching PIN
             whiteListed = whiteListedList.contains(clientIp);
             if (!whiteListed) {
-                logger.warn("login attempt from non-whitelisted host {} (whitelist={})", clientIp, whiteListedList);
+                logger.warn("login attempt from non-whitelisted host {} (whitelist={})", clientIp, whiteListedList); //$NON-NLS-1$
             }
         } else {
             // no white list, allow all IP addresses
@@ -152,11 +153,11 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
         HttpServletRequest request;
         request = VaadinServletRequest.getCurrent().getHttpServletRequest();
 
-        String remoteAddr = "";
+        String remoteAddr = ""; //$NON-NLS-1$
 
         if (request != null) {
-            remoteAddr = request.getHeader("X-FORWARDED-FOR");
-            if (remoteAddr == null || "".equals(remoteAddr)) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR"); //$NON-NLS-1$
+            if (remoteAddr == null || "".equals(remoteAddr)) { //$NON-NLS-1$
                 remoteAddr = request.getRemoteAddr();
             }
         }
