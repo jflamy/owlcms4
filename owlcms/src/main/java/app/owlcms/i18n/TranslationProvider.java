@@ -6,100 +6,141 @@
  */
 package app.owlcms.i18n;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.vaadin.flow.i18n.I18NProvider;
 
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class TranslationProvider implements I18NProvider {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(TranslationProvider.class.getName());
 
-	public static final String BUNDLE_PREFIX = "translate";
+    Logger logger = (Logger) LoggerFactory.getLogger(TranslationProvider.class.getName());
 
-	public final Locale LOCALE_FR = new Locale("fr");
-	public final Locale LOCALE_EN = new Locale("en");
-	public final Locale LOCALE_FR_CA = new Locale("fr", "CA");
+    private final static TranslationProvider helper = new TranslationProvider();
 
-	private List<Locale> locales = Collections.unmodifiableList(Arrays.asList(LOCALE_EN, LOCALE_FR, LOCALE_FR_CA));
+    public static final String BUNDLE_PREFIX = "i18n.messages";
 
-	private static final LoadingCache<Locale, ResourceBundle> bundleCache = CacheBuilder.newBuilder()
-		.expireAfterWrite(1, TimeUnit.DAYS).build(new CacheLoader<Locale, ResourceBundle>() {
+    public final Locale LOCALE_EN = new Locale("en");
+    public final Locale LOCALE_FR = new Locale("fr");
+    public final Locale LOCALE_DA = new Locale("da");
+    public final Locale LOCALE_ES = new Locale("es");
 
-			@Override
-			public ResourceBundle load(final Locale key) throws Exception {
-				return initializeBundle(key);
-			}
-		});
+    private List<Locale> locales = Collections
+            .unmodifiableList(Arrays.asList(LOCALE_EN, LOCALE_FR, LOCALE_DA, LOCALE_ES));
 
-	@Override
-	public List<Locale> getProvidedLocales() {
-		return locales;
-	}
-
-	/**
-	 * @see com.vaadin.flow.i18n.I18NProvider#getTranslation(java.lang.String, java.util.Locale, java.lang.Object[])
-	 */
-	@Override
-	public String getTranslation(String key, Locale locale, Object... params) {
-
-		if (key == null) {
-			logger.warn("Got lang request for key with null value!");
-			return "";
-		}
-
-		final ResourceBundle bundle = bundleCache.getUnchecked(locale);
-
-		String value;
-		try {
-			value = bundle.getString(key);
-		} catch (final MissingResourceException e) {
-			logger.warn("Missing resource", e);
-			return "!" + locale.getLanguage() + ": " + key;
-		}
-		if (params.length > 0) {
-			value = MessageFormat.format(value, params);
-		}
-		return value;
-	}
-
-	private static ResourceBundle initializeBundle(final Locale locale) {
-		return readProperties(locale);
-	}
-
-	protected static ResourceBundle readProperties(final Locale locale) {
-		final ClassLoader cl = TranslationProvider.class.getClassLoader();
-
-		ResourceBundle propertiesBundle = null;
-		try {
-			propertiesBundle = ResourceBundle.getBundle(BUNDLE_PREFIX, locale, cl);
-		} catch (final MissingResourceException e) {
-			LoggerFactory.getLogger(TranslationProvider.class.getName()).warn("Missing resource", e);
-		}
-		return propertiesBundle;
-	}
-
-    public static String getString(String string) {
-        // FIXME: use TransationProvider
-        return Messages.getString(string, Locale.ENGLISH);
+    @Override
+    public List<Locale> getProvidedLocales() {
+        return locales;
     }
 
-    public static String getTranslation(String string) {
-     // FIXME: use TransationProvider
-        return Messages.getString(string, Locale.ENGLISH);
+    /**
+     * @see com.vaadin.flow.i18n.I18NProvider#getTranslation(java.lang.String,
+     *      java.util.Locale, java.lang.Object[])
+     */
+    @Override
+    public String getTranslation(String key, Locale locale, Object... params) {
+
+        if (key == null) {
+            logger.warn("null translation key");
+            return "";
+        }
+
+        final ResourceBundle bundle = PropertyResourceBundle.getBundle(BUNDLE_PREFIX, locale);
+
+        String value;
+        try {
+            value = bundle.getString(key);
+        } catch (final MissingResourceException e) {
+            return "!" + locale.getLanguage() + ": " + key;
+        }
+        if (params.length > 0) {
+            value = MessageFormat.format(value, params);
+        }
+        return value;
+    }
+    
+    public String getTranslationOrNull(String key, Locale locale, Object... params) {
+
+        if (key == null) {
+            logger.warn("null translation key");
+            return "";
+        }
+
+        final PropertyResourceBundle bundle = (PropertyResourceBundle) PropertyResourceBundle.getBundle(BUNDLE_PREFIX, locale);
+        
+        String value;
+        try {
+            value = (String) bundle.handleGetObject(key);
+        } catch (final MissingResourceException e) {
+            return "!" + locale.getLanguage() + ": " + key;
+        }
+        if (params.length > 0) {
+            value = MessageFormat.format(value, params);
+        }
+        return value;
+    }
+
+    public static String translate(String string) {
+        return helper.getTranslation(string, OwlcmsSession.getLocale());
+    }
+    
+    public static String translate(String string, Locale locale) {
+        return helper.getTranslation(string, locale);
+    }
+
+    public static String translate(String string, Locale locale, Object... params) {
+        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
+    }
+    
+    public static void main(String[] args) {
+        try {
+            Writer out = new PrintWriter("translation.csv");//new OutputStreamWriter(System.out);
+
+            ResourceBundle masterBundle = ResourceBundle.getBundle(BUNDLE_PREFIX,Locale.ENGLISH);
+            for (Enumeration<String> masterKeys = masterBundle.getKeys(); masterKeys.hasMoreElements();) {
+                String key = masterKeys.nextElement();
+                escape(out, key);
+                for (Locale locale : helper.getProvidedLocales()) {
+                    String translation = null;
+                    try {
+                        if (locale.getLanguage().contentEquals("en")) {
+                            translation = helper.getTranslation(key, locale);
+                        } else {
+                            translation = helper.getTranslationOrNull(key, locale);
+                        }
+                    } catch (Exception e) {
+                    }
+                    out.write("\t");
+                    escape(out, translation);
+                }
+                out.write("\n");
+            }
+            out.flush();
+        } catch (Throwable e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    private static void escape(Writer out, String string) throws IOException {
+        out.write('"');
+        // csv requires doubling double quotes inside strings
+       if (string != null) out.write(string.replace("\"", "\"\""));
+        out.write('"');
     }
 }

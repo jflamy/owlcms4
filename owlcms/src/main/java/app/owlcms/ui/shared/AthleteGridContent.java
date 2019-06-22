@@ -49,7 +49,6 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.AthleteTimerElement;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
@@ -152,14 +151,14 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 		ThemeList themes = grid.getThemeNames();
 		themes.add("compact"); //$NON-NLS-1$
 		themes.add("row-stripes"); //$NON-NLS-1$
-		grid.addColumn(athlete -> athlete.getLastName().toUpperCase()).setHeader(TranslationProvider.getString("AthleteGridContent.0")); //$NON-NLS-1$
-		grid.addColumn("firstName").setHeader(TranslationProvider.getString("AthleteGridContent.1")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn("team").setHeader(TranslationProvider.getString("AthleteGridContent.2")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn("category").setHeader(TranslationProvider.getString("AthleteGridContent.3")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn("nextAttemptRequestedWeight").setHeader(TranslationProvider.getString("AthleteGridContent.4")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn(athlete -> athlete.getLastName().toUpperCase()).setHeader(getTranslation("AthleteGridContent.0")); //$NON-NLS-1$
+		grid.addColumn("firstName").setHeader(getTranslation("AthleteGridContent.1")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("team").setHeader(getTranslation("AthleteGridContent.2")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("category").setHeader(getTranslation("AthleteGridContent.3")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("nextAttemptRequestedWeight").setHeader(getTranslation("AthleteGridContent.4")); //$NON-NLS-1$ //$NON-NLS-2$
 		// format attempt
-		grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(TranslationProvider.getString("AthleteGridContent.5")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn("startNumber").setHeader(TranslationProvider.getString("AthleteGridContent.6")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("AthleteGridContent.5")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("startNumber").setHeader(getTranslation("AthleteGridContent.6")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class,
@@ -187,7 +186,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 
 	public void createGroupSelect() {
 		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder(TranslationProvider.getString("AthleteGridContent.7")); //$NON-NLS-1$
+		groupSelect.setPlaceholder(getTranslation("AthleteGridContent.7")); //$NON-NLS-1$
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
 		groupSelect.setWidth("7rem"); //$NON-NLS-1$
@@ -454,7 +453,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 		});
 		crud.getCrudLayout().addFilterComponent(lastNameFilter);
 		
-		groupFilter.setPlaceholder(TranslationProvider.getString("AthleteGridContent.8")); //$NON-NLS-1$
+		groupFilter.setPlaceholder(getTranslation("AthleteGridContent.8")); //$NON-NLS-1$
 		groupFilter.setItems(GroupRepository.findAll());
 		groupFilter.setItemLabelGenerator(Group::getName);
 		// hide because the top bar has it
@@ -491,7 +490,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 									+ "kg"); //$NON-NLS-1$
 				} else {
 					lastName.setText(
-							fop.getGroup() == null ? "\u2013" : MessageFormat.format(TranslationProvider.getString("AthleteGridContent.9"), fop.getGroup())); //$NON-NLS-1$ //$NON-NLS-2$
+							fop.getGroup() == null ? "\u2013" : MessageFormat.format(getTranslation("AthleteGridContent.9"), fop.getGroup())); //$NON-NLS-1$ //$NON-NLS-2$
 					firstName.setText(""); //$NON-NLS-1$
 					timeField.getElement().getStyle().set("visibility", "hidden"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -544,8 +543,8 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 		Integer attemptsDone = a.getAttemptsDone();
 		Integer attemptNumber = a.getAttemptNumber();
 		return (attemptsDone >= 3) ? 
-				((attemptsDone >= 6) ? "done" : MessageFormat.format(TranslationProvider.getString("AthleteGridContent.10"), attemptNumber)) //$NON-NLS-1$ //$NON-NLS-2$
-				: MessageFormat.format(TranslationProvider.getString("AthleteGridContent.11"), attemptNumber); //$NON-NLS-1$
+				((attemptsDone >= 6) ? "done" : MessageFormat.format(getTranslation("AthleteGridContent.10"), attemptNumber)) //$NON-NLS-1$ //$NON-NLS-2$
+				: MessageFormat.format(getTranslation("AthleteGridContent.11"), attemptNumber); //$NON-NLS-1$
 	}
 	
 	/**
@@ -562,7 +561,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 			Notification n = new Notification();
 			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
 			n.getElement().getThemeList().add("warning"); //$NON-NLS-1$
-			String text = MessageFormat.format(TranslationProvider.getString("AthleteGridContent.12"), //$NON-NLS-1$
+			String text = MessageFormat.format(getTranslation("AthleteGridContent.12"), //$NON-NLS-1$
 					curDisplayAthlete.getFullName());
 			n.setDuration(6000);
 			n.setPosition(Position.TOP_START);

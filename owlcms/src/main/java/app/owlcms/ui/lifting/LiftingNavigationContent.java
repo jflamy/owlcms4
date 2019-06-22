@@ -20,7 +20,6 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
@@ -45,25 +44,25 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		logger.trace("LiftingNavigationContent constructor start"); //$NON-NLS-1$
 		VerticalLayout intro = new VerticalLayout();
 		addP(intro,
-				TranslationProvider.getTranslation("LiftingNavigationContent.0") + //$NON-NLS-1$
-				TranslationProvider.getTranslation("LiftingNavigationContent.1")+ //$NON-NLS-1$
-				TranslationProvider.getTranslation("LiftingNavigationContent.2")); //$NON-NLS-1$
+				getTranslation("LiftingNavigationContent.0") + //$NON-NLS-1$
+				getTranslation("LiftingNavigationContent.1")+ //$NON-NLS-1$
+				getTranslation("LiftingNavigationContent.2")); //$NON-NLS-1$
 		intro.getElement().getStyle().set("margin-bottom", "0"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Button announcer = new Button(
-				TranslationProvider.getTranslation("LiftingNavigationContent.3"), //$NON-NLS-1$
+				getTranslation("LiftingNavigationContent.3"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AnnouncerContent.class)));
 		Button marshall = new Button(
-				TranslationProvider.getTranslation("LiftingNavigationContent.4"), //$NON-NLS-1$
+				getTranslation("LiftingNavigationContent.4"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(MarshallContent.class)));
 		Button timekeeper = new Button(
-				TranslationProvider.getTranslation("LiftingNavigationContent.5"), //$NON-NLS-1$
+				getTranslation("LiftingNavigationContent.5"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(TimekeeperContent.class)));
 		Button jury = new Button(
-			TranslationProvider.getTranslation("LiftingNavigationContent.6"), //$NON-NLS-1$
+			getTranslation("LiftingNavigationContent.6"), //$NON-NLS-1$
 			buttonClickEvent -> UI.getCurrent().getPage()
 				.executeJavaScript(getWindowOpener(JuryContent.class)));
 
@@ -75,14 +74,14 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 			timekeeper,
 			jury
 			);
-		doGroup(TranslationProvider.getTranslation("LiftingNavigationContent.7"), grid1, this); //$NON-NLS-1$
+		doGroup(getTranslation("LiftingNavigationContent.7"), grid1, this); //$NON-NLS-1$
 		
-		Button weighIn = new Button(TranslationProvider.getTranslation("LiftingNavigationContent.8"), //$NON-NLS-1$
+		Button weighIn = new Button(getTranslation("LiftingNavigationContent.8"), //$NON-NLS-1$
 			buttonClickEvent -> UI.getCurrent()
 				.navigate(WeighinContent.class));
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(
 			weighIn);
-		doGroup(TranslationProvider.getTranslation("LiftingNavigationContent.9"), grid3, this); //$NON-NLS-1$
+		doGroup(getTranslation("LiftingNavigationContent.9"), grid3, this); //$NON-NLS-1$
 		logger.trace("LiftingNavigationContent constructor stop"); //$NON-NLS-1$
 	}
 
@@ -111,12 +110,12 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 
 	@Override
 	protected String getTitle() {
-		return TranslationProvider.getTranslation("LiftingNavigationContent.10"); //$NON-NLS-1$
+		return getTranslation("LiftingNavigationContent.10"); //$NON-NLS-1$
 	}
 
 
 	@Override
 	public String getPageTitle() {
-		return TranslationProvider.getTranslation("LiftingNavigationContent.11"); //$NON-NLS-1$
+		return getTranslation("LiftingNavigationContent.11"); //$NON-NLS-1$
 	}
 }

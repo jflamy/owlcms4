@@ -17,7 +17,6 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
@@ -39,7 +38,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 
 	public MarshallContent() {
 		super();
-		setTopBarTitle(TranslationProvider.getTranslation("MarshallContent.0")); //$NON-NLS-1$
+		setTopBarTitle(getTranslation("MarshallContent.0")); //$NON-NLS-1$
 	}
 
 
@@ -83,6 +82,6 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	 */
 	@Override
 	public String getPageTitle() {
-		return TranslationProvider.getTranslation("MarshallContent.3"); //$NON-NLS-1$
+		return getTranslation("MarshallContent.3"); //$NON-NLS-1$
 	}
 }

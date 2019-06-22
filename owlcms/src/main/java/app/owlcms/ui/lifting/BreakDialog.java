@@ -34,7 +34,6 @@ import com.vaadin.flow.component.timepicker.TimePicker;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -160,15 +159,15 @@ public class BreakDialog extends Dialog {
 	private HorizontalLayout configureButtons(Dialog dialog) {
 		breakStart = new Button(AvIcons.PLAY_ARROW.create(), startBreak());
 		breakStart.getElement().setAttribute("theme", "primary"); //$NON-NLS-1$ //$NON-NLS-2$
-		breakStart.getElement().setAttribute("title", TranslationProvider.getTranslation("BreakDialog.4")); //$NON-NLS-1$ //$NON-NLS-2$
+		breakStart.getElement().setAttribute("title", getTranslation("BreakDialog.4")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		breakPause = new Button(AvIcons.PAUSE.create(), pauseBreak());
 		breakPause.getElement().setAttribute("theme", "primary"); //$NON-NLS-1$ //$NON-NLS-2$
-		breakPause.getElement().setAttribute("title", TranslationProvider.getTranslation("BreakDialog.3")); //$NON-NLS-1$ //$NON-NLS-2$
+		breakPause.getElement().setAttribute("title", getTranslation("BreakDialog.3")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		breakEnd = new Button(AvIcons.STOP.create(), stopBreak(dialog));
 		breakEnd.getElement().setAttribute("theme", "primary"); //$NON-NLS-1$ //$NON-NLS-2$
-		breakEnd.getElement().setAttribute("title", TranslationProvider.getTranslation("BreakDialog.0")); //$NON-NLS-1$ //$NON-NLS-2$
+		breakEnd.getElement().setAttribute("title", getTranslation("BreakDialog.0")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.add(breakStart, breakPause, breakEnd);
@@ -180,11 +179,11 @@ public class BreakDialog extends Dialog {
 	private void configureDuration() {
 		bt = new RadioButtonGroup<BreakType>();
 		bt.setItems(BreakType.values());
-		bt.setLabel(TranslationProvider.getTranslation("BreakDialog.1")); //$NON-NLS-1$
+		bt.setLabel(getTranslation("BreakDialog.1")); //$NON-NLS-1$
 
 		ct = new RadioButtonGroup<CountdownType>();
 		ct.setItems(CountdownType.values());
-		ct.setLabel(TranslationProvider.getTranslation("BreakDialog.2")); //$NON-NLS-1$
+		ct.setLabel(getTranslation("BreakDialog.2")); //$NON-NLS-1$
 
 		nf.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.DURATION, nf, tp, dp));
 		Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time //$NON-NLS-1$ //$NON-NLS-2$

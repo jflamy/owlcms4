@@ -68,6 +68,12 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 	private Behaviour variant;
 
 	private HasElement layoutComponentContent;
+	
+	String PREPARE_COMPETITION = TranslationProvider.translate("HomeNavigationContent.0"); //$NON-NLS-1$
+	String RUN_LIFTING_GROUP = TranslationProvider.translate("HomeNavigationContent.1"); //$NON-NLS-1$
+	String START_DISPLAYS = TranslationProvider.translate("HomeNavigationContent.2"); //$NON-NLS-1$
+	String RESULT_DOCUMENTS = TranslationProvider.translate("HomeNavigationContent.3"); //$NON-NLS-1$
+	String INFO = TranslationProvider.translate("HomeNavigationContent.4"); //$NON-NLS-1$
 
     public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));
@@ -99,13 +105,13 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 		}
 
 		LeftNavigationItem home = new LeftNavigationItem(
-				TranslationProvider.getString("OwlcmsRouterLayout.0"), //$NON-NLS-1$
+				getTranslation("OwlcmsRouterLayout.0"), //$NON-NLS-1$
 				VaadinIcon.HOME.create(),
 				HomeNavigationContent.class);
 
 		AppLayout appLayout = AppLayoutBuilder
 			.get(variant)
-			.withTitle(TranslationProvider.getString("OwlcmsRouterLayout.1")) //$NON-NLS-1$
+			.withTitle(getTranslation("OwlcmsRouterLayout.1")) //$NON-NLS-1$
 			.withIcon("/frontend/images/logo.png") //$NON-NLS-1$
 			.withAppBar(AppBarBuilder
 				.get()
@@ -115,23 +121,23 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 				.addToSection(new LeftHeaderItem(null, OwlcmsFactory.getVersion(), null), HEADER)
 				.add(home)
 				.add(new LeftNavigationItem(
-						HomeNavigationContent.PREPARE_COMPETITION,
+						PREPARE_COMPETITION,
 						new Icon("social", "group-add"), //$NON-NLS-1$ //$NON-NLS-2$
 						PreparationNavigationContent.class))
 				.add(new LeftNavigationItem(
-						HomeNavigationContent.RUN_LIFTING_GROUP,
+						RUN_LIFTING_GROUP,
 						new Icon("places", "fitness-center"), //$NON-NLS-1$ //$NON-NLS-2$
 						LiftingNavigationContent.class))
 				.add(new LeftNavigationItem(
-						HomeNavigationContent.START_DISPLAYS,
+						START_DISPLAYS,
 						new Icon("hardware", "desktop-windows"), //$NON-NLS-1$ //$NON-NLS-2$
 						DisplayNavigationContent.class))
 				.add(new LeftNavigationItem(
-						HomeNavigationContent.RESULT_DOCUMENTS,
+						RESULT_DOCUMENTS,
 						new Icon("maps", "local-printshop"), //$NON-NLS-1$ //$NON-NLS-2$
 						ResultsNavigationContent.class))
 				.add(new LeftNavigationItem(
-						HomeNavigationContent.INFO,
+						INFO,
 						new Icon("icons", "info-outline"), //$NON-NLS-1$ //$NON-NLS-2$
 						InfoNavigationContent.class))
 				.addToSection(new LeftClickableItem(

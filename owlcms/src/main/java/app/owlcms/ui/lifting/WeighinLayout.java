@@ -36,7 +36,6 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCards;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
@@ -107,14 +106,14 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 	protected void createTopBar(HorizontalLayout topBar) {
 
 		H3 title = new H3();
-		title.setText(TranslationProvider.getTranslation("WeighinLayout.0")); //$NON-NLS-1$
+		title.setText(getTranslation("WeighinLayout.0")); //$NON-NLS-1$
 		title.add();
 		title.getStyle()
 			.set("margin", "0px 0px 0px 0px") //$NON-NLS-1$ //$NON-NLS-2$
 			.set("font-weight", "normal"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder(TranslationProvider.getTranslation("WeighinLayout.1")); //$NON-NLS-1$
+		groupSelect.setPlaceholder(getTranslation("WeighinLayout.1")); //$NON-NLS-1$
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
 		OwlcmsSession.withFop((fop) -> {
@@ -127,17 +126,17 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 		});
 
 
-		Button start = new Button(TranslationProvider.getTranslation("WeighinLayout.2"), (e) -> { //$NON-NLS-1$
+		Button start = new Button(getTranslation("WeighinLayout.2"), (e) -> { //$NON-NLS-1$
 			generateStartNumbers();
 		});
-		Button clear = new Button(TranslationProvider.getTranslation("WeighinLayout.3"), (e) -> { //$NON-NLS-1$
+		Button clear = new Button(getTranslation("WeighinLayout.3"), (e) -> { //$NON-NLS-1$
 			clearStartNumbers();
 		});
 		
 		JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet(true);
 		StreamResource href = new StreamResource("startingWeights.xls", startingWeightsWriter); //$NON-NLS-1$
 		startingWeights = new Anchor(href, ""); //$NON-NLS-1$
-		startingWeightsButton = new Button(TranslationProvider.getTranslation("WeighinLayout.4"),new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
+		startingWeightsButton = new Button(getTranslation("WeighinLayout.4"),new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
 		startingWeightsButton.addClickListener((e) -> {
 			startingWeightsWriter.setGroup(group);
 		});
@@ -147,7 +146,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 		JXLSCards cardsWriter = new JXLSCards(true);
 		StreamResource href1 = new StreamResource("startingWeights.xls", cardsWriter); //$NON-NLS-1$
 		cards = new Anchor(href1, ""); //$NON-NLS-1$
-		cardsButton = new Button(TranslationProvider.getTranslation("WeighinLayout.5"),new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
+		cardsButton = new Button(getTranslation("WeighinLayout.5"),new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
 		cardsButton.addClickListener((e) -> {
 			cardsWriter.setGroup(group);
 		});
@@ -212,9 +211,9 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 
 	protected void errorNotification() {
 		Label content = new Label(
-		        TranslationProvider.getTranslation("WeighinLayout.6")); //$NON-NLS-1$
+		        getTranslation("WeighinLayout.6")); //$NON-NLS-1$
 		content.getElement().setAttribute("theme", "error"); //$NON-NLS-1$ //$NON-NLS-2$
-		Button buttonInside = new Button(TranslationProvider.getTranslation("WeighinLayout.7")); //$NON-NLS-1$
+		Button buttonInside = new Button(getTranslation("WeighinLayout.7")); //$NON-NLS-1$
 		buttonInside.getElement().setAttribute("theme","error primary"); //$NON-NLS-1$ //$NON-NLS-2$
 		VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
 		verticalLayout.setAlignItems(Alignment.CENTER);

@@ -14,7 +14,6 @@ import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.ThemableLayout;
 
-import app.owlcms.i18n.TranslationProvider;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -63,9 +62,9 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
         mainComponentLayout.setId("mainComponentLayout"); //$NON-NLS-1$
         mainLayout.setId("mainLayout"); //$NON-NLS-1$
 
-        setWindowCaption(CrudOperation.ADD, TranslationProvider.getTranslation("OwlcmsGridLayout.3")+ aClass.getSimpleName()); //$NON-NLS-1$
-        setWindowCaption(CrudOperation.UPDATE, TranslationProvider.getTranslation("OwlcmsGridLayout.4")+ aClass.getSimpleName()); //$NON-NLS-1$
-        setWindowCaption(CrudOperation.DELETE, TranslationProvider.getTranslation("OwlcmsGridLayout.5")); //$NON-NLS-1$
+        setWindowCaption(CrudOperation.ADD, getTranslation("OwlcmsGridLayout.3")+ aClass.getSimpleName()); //$NON-NLS-1$
+        setWindowCaption(CrudOperation.UPDATE, getTranslation("OwlcmsGridLayout.4")+ aClass.getSimpleName()); //$NON-NLS-1$
+        setWindowCaption(CrudOperation.DELETE, getTranslation("OwlcmsGridLayout.5")); //$NON-NLS-1$
         
     }
 

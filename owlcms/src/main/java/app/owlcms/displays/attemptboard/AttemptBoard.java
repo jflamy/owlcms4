@@ -33,7 +33,6 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.BreakStarted;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
@@ -226,7 +225,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 	private void doDone(Group g) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			getModel().setLastName(MessageFormat.format(TranslationProvider.getTranslation("AttemptBoard.0"), g.toString())); //$NON-NLS-1$
+			getModel().setLastName(MessageFormat.format(getTranslation("AttemptBoard.0"), g.toString())); //$NON-NLS-1$
 			this.getElement().callFunction("groupDone"); //$NON-NLS-1$
 		});			
 	}
@@ -326,7 +325,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 	}
 
 	private String formatAttempt(Integer attemptNo) {
-		return MessageFormat.format(TranslationProvider.getTranslation("AttemptBoard.1"), attemptNo); //$NON-NLS-1$
+		return MessageFormat.format(getTranslation("AttemptBoard.1"), attemptNo); //$NON-NLS-1$
 	}
 
 	private Object getOrigin() {
@@ -343,7 +342,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
 	@Override
 	public String getPageTitle() {
-		return TranslationProvider.getTranslation("AttemptBoard.2"); //$NON-NLS-1$
+		return getTranslation("AttemptBoard.2"); //$NON-NLS-1$
 	}
 
 }

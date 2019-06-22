@@ -19,7 +19,6 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
@@ -42,7 +41,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	
 	public TimekeeperContent() {
 		super();
-		setTopBarTitle(TranslationProvider.getTranslation("TimekeeperContent.0"));	 //$NON-NLS-1$
+		setTopBarTitle(getTranslation("TimekeeperContent.0"));	 //$NON-NLS-1$
 	}
 	
 	/* (non-Javadoc)
@@ -73,18 +72,18 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 				.post(new FOPEvent.ForceTime(60000,this.getOrigin())));
 		});
 		_1min.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
-		_1min.getElement().setAttribute("title", TranslationProvider.getTranslation("TimekeeperContent.1")); //$NON-NLS-1$ //$NON-NLS-2$
+		_1min.getElement().setAttribute("title", getTranslation("TimekeeperContent.1")); //$NON-NLS-1$ //$NON-NLS-2$
 		Button _2min = new Button("2:00", (e) -> { //$NON-NLS-1$
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.ForceTime(120000,this.getOrigin())));
 		});
 		_2min.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
-		_2min.getElement().setAttribute("title", TranslationProvider.getTranslation("TimekeeperContent.2")); //$NON-NLS-1$ //$NON-NLS-2$
+		_2min.getElement().setAttribute("title", getTranslation("TimekeeperContent.2")); //$NON-NLS-1$ //$NON-NLS-2$
 		Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
 			(new BreakDialog(this)).open();
 		});
 		breakButton.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
-		breakButton.getElement().setAttribute("title", TranslationProvider.getTranslation("TimekeeperContent.3")); //$NON-NLS-1$ //$NON-NLS-2$
+		breakButton.getElement().setAttribute("title", getTranslation("TimekeeperContent.3")); //$NON-NLS-1$ //$NON-NLS-2$
 		HorizontalLayout buttons = new HorizontalLayout(
 				start,
 				stop,
@@ -132,7 +131,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	 */
 	@Override
 	public String getPageTitle() {
-		return TranslationProvider.getTranslation("TimekeeperContent.4"); //$NON-NLS-1$
+		return getTranslation("TimekeeperContent.4"); //$NON-NLS-1$
 	}
 	
 }

@@ -19,10 +19,7 @@ import com.github.appreciated.css.grid.sizes.MinMax;
 import com.github.appreciated.css.grid.sizes.Repeat;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -31,10 +28,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -64,65 +59,35 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 
 	private VerticalLayout buildLicense() {
 		VerticalLayout license = new VerticalLayout();
-		license.add(new H3(TranslationProvider.getTranslation("InfoNavigationContent.0"))); //$NON-NLS-1$
+		license.add(new H3(getTranslation("InfoNavigationContent.0"))); //$NON-NLS-1$
 		addP(license,
-				TranslationProvider.getTranslation("InfoNavigationContent.1")+LocalDate.now().getYear()+TranslationProvider.getTranslation("InfoNavigationContent.2") //$NON-NLS-1$ //$NON-NLS-2$
+				getTranslation("InfoNavigationContent.1")+LocalDate.now().getYear()+getTranslation("InfoNavigationContent.2") //$NON-NLS-1$ //$NON-NLS-2$
 				);
 		addP(license,
-				TranslationProvider.getTranslation("InfoNavigationContent.3") //$NON-NLS-1$
+				getTranslation("InfoNavigationContent.3") //$NON-NLS-1$
 				);
-		license.add(new H3(TranslationProvider.getTranslation("InfoNavigationContent.4"))); //$NON-NLS-1$
+		license.add(new H3(getTranslation("InfoNavigationContent.4"))); //$NON-NLS-1$
 		addP(license,
-				TranslationProvider.getTranslation("InfoNavigationContent.5")+ //$NON-NLS-1$
-				TranslationProvider.getTranslation("InfoNavigationContent.6")+ //$NON-NLS-1$
-				TranslationProvider.getTranslation("InfoNavigationContent.7") //$NON-NLS-1$
-				);
-		
-		license.add(new H3(TranslationProvider.getTranslation("InfoNavigationContent.8"))); //$NON-NLS-1$
-		addP(license,
-				TranslationProvider.getTranslation("InfoNavigationContent.9")+ //$NON-NLS-1$
-				TranslationProvider.getTranslation("InfoNavigationContent.10")+ //$NON-NLS-1$
-				TranslationProvider.getTranslation("InfoNavigationContent.11") //$NON-NLS-1$
+				getTranslation("InfoNavigationContent.5")+ //$NON-NLS-1$
+				getTranslation("InfoNavigationContent.6")+ //$NON-NLS-1$
+				getTranslation("InfoNavigationContent.7") //$NON-NLS-1$
 				);
 		
-		license.add(new H3(TranslationProvider.getTranslation("InfoNavigationContent.12"))); //$NON-NLS-1$
+		license.add(new H3(getTranslation("InfoNavigationContent.8"))); //$NON-NLS-1$
 		addP(license,
-				TranslationProvider.getTranslation("InfoNavigationContent.13")+ //$NON-NLS-1$
-				TranslationProvider.getTranslation("InfoNavigationContent.14")+ //$NON-NLS-1$
-				TranslationProvider.getTranslation("InfoNavigationContent.15") //$NON-NLS-1$
+				getTranslation("InfoNavigationContent.9")+ //$NON-NLS-1$
+				getTranslation("InfoNavigationContent.10")+ //$NON-NLS-1$
+				getTranslation("InfoNavigationContent.11") //$NON-NLS-1$
+				);
+		
+		license.add(new H3(getTranslation("InfoNavigationContent.12"))); //$NON-NLS-1$
+		addP(license,
+				getTranslation("InfoNavigationContent.13")+ //$NON-NLS-1$
+				getTranslation("InfoNavigationContent.14")+ //$NON-NLS-1$
+				getTranslation("InfoNavigationContent.15") //$NON-NLS-1$
 				);
 		
 		return license;
-	}
-
-	public VerticalLayout buildIntro() {
-		VerticalLayout intro = new VerticalLayout();
-		URLUtils urlFinder = new URLUtils();
-		addP(intro, TranslationProvider.getTranslation("InfoNavigationContent.16")); //$NON-NLS-1$
-		for (String url : urlFinder.getRecommended()) {
-			intro.add(new Div(new Anchor(url, url)));
-		}
-		for (String url : urlFinder.getWired()) {
-			intro.add(new Div(new Anchor(url, url), new Label(TranslationProvider.getTranslation("InfoNavigationContent.17")))); //$NON-NLS-1$
-		}
-		for (String url : urlFinder.getWireless()) {
-			intro.add(new Div(new Anchor(url, url), new Label(TranslationProvider.getTranslation("InfoNavigationContent.18")))); //$NON-NLS-1$
-		}
-		for (String url : urlFinder.getLocalUrl()) {
-			intro.add(new Div(new Anchor(url, url), new Label(TranslationProvider.getTranslation("InfoNavigationContent.19")))); //$NON-NLS-1$
-		}
-		intro.add(new Div());
-		intro.add(new Hr());
-		addP(intro,
-			TranslationProvider.getTranslation("InfoNavigationContent.20") + //$NON-NLS-1$
-			TranslationProvider.getTranslation("InfoNavigationContent.21") + //$NON-NLS-1$
-			TranslationProvider.getTranslation("InfoNavigationContent.22") + //$NON-NLS-1$
-			TranslationProvider.getTranslation("InfoNavigationContent.23") + //$NON-NLS-1$
-			TranslationProvider.getTranslation("InfoNavigationContent.24")+ //$NON-NLS-1$
-			TranslationProvider.getTranslation("InfoNavigationContent.25") //$NON-NLS-1$
-		);
-		intro.getElement().getStyle().set("margin-bottom", "-1em"); //$NON-NLS-1$ //$NON-NLS-2$
-		return intro;
 	}
 
 	/**
@@ -192,7 +157,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	protected String getTitle() {
-		return TranslationProvider.getTranslation("InfoNavigationContent.34"); //$NON-NLS-1$
+		return getTranslation("InfoNavigationContent.34"); //$NON-NLS-1$
 	}
 
 	/**
@@ -200,7 +165,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	public String getPageTitle() {
-		return TranslationProvider.getTranslation("InfoNavigationContent.35"); //$NON-NLS-1$
+		return getTranslation("InfoNavigationContent.35"); //$NON-NLS-1$
 	}
 
 }

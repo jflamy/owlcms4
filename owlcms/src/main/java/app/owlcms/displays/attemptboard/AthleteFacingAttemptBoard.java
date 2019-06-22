@@ -13,8 +13,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
-import app.owlcms.i18n.TranslationProvider;
-
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
 @HtmlImport("frontend://components/AttemptBoard.html")
@@ -46,6 +44,6 @@ public class AthleteFacingAttemptBoard extends AttemptBoard {
 	
 	@Override
 	public String getPageTitle() {
-		return TranslationProvider.getTranslation("AthleteFacingAttemptBoard.0"); //$NON-NLS-1$
+		return getTranslation("AthleteFacingAttemptBoard.0"); //$NON-NLS-1$
 	}
 }

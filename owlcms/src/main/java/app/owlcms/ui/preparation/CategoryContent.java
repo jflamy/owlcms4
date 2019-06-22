@@ -26,7 +26,6 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -76,9 +75,9 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 	protected GridCrud<Category> createGrid(OwlcmsCrudFormFactory<Category> crudFormFactory) {
 		Grid<Category> grid = new Grid<>(Category.class, false);
 		grid.setColumns("name", "ageDivision", "gender", "minimumWeight", "maximumWeight", "active"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-		grid.getColumnByKey("name").setHeader(TranslationProvider.getString("CategoryContent.0")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.getColumnByKey("ageDivision").setHeader(TranslationProvider.getString("CategoryContent.1")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.getColumnByKey("gender").setHeader(TranslationProvider.getString("CategoryContent.2")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.getColumnByKey("name").setHeader(getTranslation("CategoryContent.0")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.getColumnByKey("ageDivision").setHeader(getTranslation("CategoryContent.1")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.getColumnByKey("gender").setHeader(getTranslation("CategoryContent.2")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		GridCrud<Category> crud = new OwlcmsCrudGrid<>(
 				Category.class,
@@ -114,13 +113,13 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 				"maximumWeight", //$NON-NLS-1$
 				"wr", //$NON-NLS-1$
 				"active"); //$NON-NLS-1$
-		crudFormFactory.setFieldCaptions(TranslationProvider.getString("CategoryContent.4"), //$NON-NLS-1$
-				TranslationProvider.getString("CategoryContent.3"), //$NON-NLS-1$
-				TranslationProvider.getString("CategoryContent.5"), //$NON-NLS-1$
-				TranslationProvider.getString("CategoryContent.6"), //$NON-NLS-1$
-				TranslationProvider.getString("CategoryContent.7"), //$NON-NLS-1$
-				TranslationProvider.getString("CategoryContent.8"), //$NON-NLS-1$
-				TranslationProvider.getString("CategoryContent.9")); //$NON-NLS-1$
+		crudFormFactory.setFieldCaptions(getTranslation("CategoryContent.4"), //$NON-NLS-1$
+				getTranslation("CategoryContent.3"), //$NON-NLS-1$
+				getTranslation("CategoryContent.5"), //$NON-NLS-1$
+				getTranslation("CategoryContent.6"), //$NON-NLS-1$
+				getTranslation("CategoryContent.7"), //$NON-NLS-1$
+				getTranslation("CategoryContent.8"), //$NON-NLS-1$
+				getTranslation("CategoryContent.9")); //$NON-NLS-1$
 	}
 
 	public Category add(Category domainObjectToAdd) {
@@ -152,7 +151,7 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Category> crud) {
-		nameFilter.setPlaceholder(TranslationProvider.getString("CategoryContent.10")); //$NON-NLS-1$
+		nameFilter.setPlaceholder(getTranslation("CategoryContent.10")); //$NON-NLS-1$
 		nameFilter.setClearButtonVisible(true);
 		nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
 		nameFilter.addValueChangeListener(e -> {
@@ -161,7 +160,7 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 		crud.getCrudLayout()
 		.addFilterComponent(nameFilter);
 
-		ageDivisionFilter.setPlaceholder(TranslationProvider.getString("CategoryContent.11")); //$NON-NLS-1$
+		ageDivisionFilter.setPlaceholder(getTranslation("CategoryContent.11")); //$NON-NLS-1$
 		ageDivisionFilter.setItems(AgeDivision.findAll());
 		ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
 		ageDivisionFilter.addValueChangeListener(e -> {
@@ -175,8 +174,8 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 		activeFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
-		activeFilter.setLabel(TranslationProvider.getString("CategoryContent.12")); //$NON-NLS-1$
-		activeFilter.setAriaLabel(TranslationProvider.getString("CategoryContent.13")); //$NON-NLS-1$
+		activeFilter.setLabel(getTranslation("CategoryContent.12")); //$NON-NLS-1$
+		activeFilter.setAriaLabel(getTranslation("CategoryContent.13")); //$NON-NLS-1$
 		crud.getCrudLayout()
 		.addFilterComponent(activeFilter);
 
@@ -203,6 +202,6 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 	 */
 	@Override
 	public String getPageTitle() {
-		return TranslationProvider.getString("CategoryContent.14"); //$NON-NLS-1$
+		return getTranslation("CategoryContent.14"); //$NON-NLS-1$
 	}
 }

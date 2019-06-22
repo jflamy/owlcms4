@@ -36,7 +36,6 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -90,18 +89,18 @@ public class WeighinContent extends VerticalLayout
 	 */
 	protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
-		grid.addColumn("startNumber").setHeader(TranslationProvider.getTranslation("WeighinContent.37")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn("lastName").setHeader(TranslationProvider.getTranslation("WeighinContent.36")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn("firstName").setHeader(TranslationProvider.getTranslation("WeighinContent.35")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn("team").setHeader(TranslationProvider.getTranslation("WeighinContent.34")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn("ageDivision").setHeader(TranslationProvider.getTranslation("WeighinContent.33")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn("category").setHeader(TranslationProvider.getTranslation("WeighinContent.32")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn("group").setHeader(TranslationProvider.getTranslation("WeighinContent.31")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale()),"bodyWeight").setHeader(TranslationProvider.getTranslation("WeighinContent.30")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		grid.addColumn("snatch1Declaration").setHeader(TranslationProvider.getTranslation("WeighinContent.29")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn("cleanJerk1Declaration").setHeader(TranslationProvider.getTranslation("WeighinContent.27")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("startNumber").setHeader(getTranslation("WeighinContent.37")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("lastName").setHeader(getTranslation("WeighinContent.36")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("firstName").setHeader(getTranslation("WeighinContent.35")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("team").setHeader(getTranslation("WeighinContent.34")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("ageDivision").setHeader(getTranslation("WeighinContent.33")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("category").setHeader(getTranslation("WeighinContent.32")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("group").setHeader(getTranslation("WeighinContent.31")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale()),"bodyWeight").setHeader(getTranslation("WeighinContent.30")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		grid.addColumn("snatch1Declaration").setHeader(getTranslation("WeighinContent.29")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("WeighinContent.27")); //$NON-NLS-1$ //$NON-NLS-2$
 
-		grid.addColumn("eligibleForIndividualRanking").setHeader(TranslationProvider.getTranslation("WeighinContent.28"));	 //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("WeighinContent.28"));	 //$NON-NLS-1$ //$NON-NLS-2$
 		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<Athlete>(Athlete.class,
 				new OwlcmsGridLayout(Athlete.class),
 				crudFormFactory,
@@ -143,28 +142,28 @@ public class WeighinContent extends VerticalLayout
 			"qualifyingTotal", //$NON-NLS-1$
 			"eligibleForIndividualRanking"); //$NON-NLS-1$
 		crudFormFactory.setFieldCaptions(
-			TranslationProvider.getTranslation("WeighinContent.26"), //$NON-NLS-1$
-			TranslationProvider.getTranslation("WeighinContent.25"), //$NON-NLS-1$
-			TranslationProvider.getTranslation("WeighinContent.24"), //$NON-NLS-1$
-			TranslationProvider.getTranslation("WeighinContent.23"), //$NON-NLS-1$
-			TranslationProvider.getTranslation("WeighinContent.22"), //$NON-NLS-1$
-			TranslationProvider.getTranslation("WeighinContent.21"), //$NON-NLS-1$
-			TranslationProvider.getTranslation("WeighinContent.20"), //$NON-NLS-1$
-			TranslationProvider.getTranslation("WeighinContent.19"), //$NON-NLS-1$
-			TranslationProvider.getTranslation("WeighinContent.18"), //$NON-NLS-1$
-			TranslationProvider.getTranslation("WeighinContent.17"), //$NON-NLS-1$
-			TranslationProvider.getTranslation("WeighinContent.16"), //$NON-NLS-1$
-			TranslationProvider.getTranslation("WeighinContent.15"), //$NON-NLS-1$
+			getTranslation("WeighinContent.26"), //$NON-NLS-1$
+			getTranslation("WeighinContent.25"), //$NON-NLS-1$
+			getTranslation("WeighinContent.24"), //$NON-NLS-1$
+			getTranslation("WeighinContent.23"), //$NON-NLS-1$
+			getTranslation("WeighinContent.22"), //$NON-NLS-1$
+			getTranslation("WeighinContent.21"), //$NON-NLS-1$
+			getTranslation("WeighinContent.20"), //$NON-NLS-1$
+			getTranslation("WeighinContent.19"), //$NON-NLS-1$
+			getTranslation("WeighinContent.18"), //$NON-NLS-1$
+			getTranslation("WeighinContent.17"), //$NON-NLS-1$
+			getTranslation("WeighinContent.16"), //$NON-NLS-1$
+			getTranslation("WeighinContent.15"), //$NON-NLS-1$
 
-			TranslationProvider.getTranslation("WeighinContent.14")); //$NON-NLS-1$
+			getTranslation("WeighinContent.14")); //$NON-NLS-1$
 		crudFormFactory.setFieldProvider("gender", //$NON-NLS-1$
-            new ComboBoxProvider<>(TranslationProvider.getTranslation("WeighinContent.13"), Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name)); //$NON-NLS-1$
+            new ComboBoxProvider<>(getTranslation("WeighinContent.13"), Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name)); //$NON-NLS-1$
 		crudFormFactory.setFieldProvider("group", //$NON-NLS-1$
-            new ComboBoxProvider<>(TranslationProvider.getTranslation("WeighinContent.12"), GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName)); //$NON-NLS-1$
+            new ComboBoxProvider<>(getTranslation("WeighinContent.12"), GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName)); //$NON-NLS-1$
 		crudFormFactory.setFieldProvider("category", //$NON-NLS-1$
-            new ComboBoxProvider<>(TranslationProvider.getTranslation("WeighinContent.11"), CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName)); //$NON-NLS-1$
+            new ComboBoxProvider<>(getTranslation("WeighinContent.11"), CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName)); //$NON-NLS-1$
 		crudFormFactory.setFieldProvider("ageDivision", //$NON-NLS-1$
-            new ComboBoxProvider<>(TranslationProvider.getTranslation("WeighinContent.10"), Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name), AgeDivision::name)); //$NON-NLS-1$
+            new ComboBoxProvider<>(getTranslation("WeighinContent.10"), Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name), AgeDivision::name)); //$NON-NLS-1$
 		
 		crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class); //$NON-NLS-1$
 		crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class); //$NON-NLS-1$
@@ -207,7 +206,7 @@ public class WeighinContent extends VerticalLayout
 	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Athlete> crud) {
-		lastNameFilter.setPlaceholder(TranslationProvider.getTranslation("WeighinContent.0")); //$NON-NLS-1$
+		lastNameFilter.setPlaceholder(getTranslation("WeighinContent.0")); //$NON-NLS-1$
 		lastNameFilter.setClearButtonVisible(true);
 		lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
 		lastNameFilter.addValueChangeListener(e -> {
@@ -216,7 +215,7 @@ public class WeighinContent extends VerticalLayout
 		crud.getCrudLayout()
 			.addFilterComponent(lastNameFilter);
 
-		ageDivisionFilter.setPlaceholder(TranslationProvider.getTranslation("WeighinContent.1")); //$NON-NLS-1$
+		ageDivisionFilter.setPlaceholder(getTranslation("WeighinContent.1")); //$NON-NLS-1$
 		ageDivisionFilter.setItems(AgeDivision.findAll());
 		ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
 		ageDivisionFilter.addValueChangeListener(e -> {
@@ -225,7 +224,7 @@ public class WeighinContent extends VerticalLayout
 		crud.getCrudLayout()
 			.addFilterComponent(ageDivisionFilter);
 
-		categoryFilter.setPlaceholder(TranslationProvider.getTranslation("WeighinContent.2")); //$NON-NLS-1$
+		categoryFilter.setPlaceholder(getTranslation("WeighinContent.2")); //$NON-NLS-1$
 		categoryFilter.setItems(CategoryRepository.findActive());
 		categoryFilter.setItemLabelGenerator(Category::getName);
 		categoryFilter.addValueChangeListener(e -> {
@@ -234,21 +233,21 @@ public class WeighinContent extends VerticalLayout
 		crud.getCrudLayout()
 			.addFilterComponent(categoryFilter);
 		
-		groupFilter.setPlaceholder(TranslationProvider.getTranslation("WeighinContent.3")); //$NON-NLS-1$
+		groupFilter.setPlaceholder(getTranslation("WeighinContent.3")); //$NON-NLS-1$
 		groupFilter.setItems(GroupRepository.findAll());
 		groupFilter.setItemLabelGenerator(Group::getName);
 		groupFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
 		// hide because the top bar has it
-		groupFilter.getStyle().set(TranslationProvider.getTranslation("WeighinContent.4"), TranslationProvider.getTranslation("WeighinContent.5")); //$NON-NLS-1$ //$NON-NLS-2$
+		groupFilter.getStyle().set(getTranslation("WeighinContent.4"), getTranslation("WeighinContent.5")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		crud.getCrudLayout()
 			.addFilterComponent(groupFilter);
 		
-		weighedInFilter.setPlaceholder(TranslationProvider.getTranslation("WeighinContent.6")); //$NON-NLS-1$
+		weighedInFilter.setPlaceholder(getTranslation("WeighinContent.6")); //$NON-NLS-1$
 		weighedInFilter.setItems(Boolean.TRUE,Boolean.FALSE);
-		weighedInFilter.setItemLabelGenerator((i) -> {return i ? TranslationProvider.getTranslation("WeighinContent.7") : TranslationProvider.getTranslation("WeighinContent.8");}); //$NON-NLS-1$ //$NON-NLS-2$
+		weighedInFilter.setItemLabelGenerator((i) -> {return i ? getTranslation("WeighinContent.7") : getTranslation("WeighinContent.8");}); //$NON-NLS-1$ //$NON-NLS-2$
 		weighedInFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
@@ -293,6 +292,6 @@ public class WeighinContent extends VerticalLayout
 	 */
 	@Override
 	public String getPageTitle() {
-		return TranslationProvider.getTranslation("WeighinContent.9"); //$NON-NLS-1$
+		return getTranslation("WeighinContent.9"); //$NON-NLS-1$
 	}
 }

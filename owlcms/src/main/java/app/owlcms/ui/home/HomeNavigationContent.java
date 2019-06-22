@@ -57,16 +57,19 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		logger.setLevel(Level.INFO);
 	}
 
-	public static final String PREPARE_COMPETITION = TranslationProvider.getTranslation("HomeNavigationContent.0"); //$NON-NLS-1$
-	public static final String RUN_LIFTING_GROUP = TranslationProvider.getTranslation("HomeNavigationContent.1"); //$NON-NLS-1$
-	public static final String START_DISPLAYS = TranslationProvider.getTranslation("HomeNavigationContent.2"); //$NON-NLS-1$
-	public static final String RESULT_DOCUMENTS = TranslationProvider.getTranslation("HomeNavigationContent.3"); //$NON-NLS-1$
-	public static final String INFO = TranslationProvider.getTranslation("HomeNavigationContent.4"); //$NON-NLS-1$
+	String PREPARE_COMPETITION = TranslationProvider.translate("HomeNavigationContent.0"); //$NON-NLS-1$
+	String RUN_LIFTING_GROUP = TranslationProvider.translate("HomeNavigationContent.1"); //$NON-NLS-1$
+	String START_DISPLAYS = TranslationProvider.translate("HomeNavigationContent.2"); //$NON-NLS-1$
+	String RESULT_DOCUMENTS = TranslationProvider.translate("HomeNavigationContent.3"); //$NON-NLS-1$
+	String INFO = TranslationProvider.translate("HomeNavigationContent.4"); //$NON-NLS-1$
 	
 	/**
 	 * Instantiates a new main navigation content.
 	 */
 	public HomeNavigationContent() {
+
+	    
+	    
 		VerticalLayout intro = buildIntro();
 
 		Button prepare = new Button(
@@ -95,31 +98,31 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		fillH(grid, this);
 	}
 
-	public VerticalLayout buildIntro() {
+	private VerticalLayout buildIntro() {
 		VerticalLayout intro = new VerticalLayout();
 		URLUtils urlFinder = new URLUtils();
-		addP(intro, TranslationProvider.getTranslation("HomeNavigationContent.5")); //$NON-NLS-1$
+		addP(intro, getTranslation("HomeNavigationContent.5")); //$NON-NLS-1$
 		for (String url : urlFinder.getRecommended()) {
 			intro.add(new Div(new Anchor(url, url)));
 		}
 		for (String url : urlFinder.getWired()) {
-			intro.add(new Div(new Anchor(url, url), new Label(TranslationProvider.getTranslation("HomeNavigationContent.6")))); //$NON-NLS-1$
+			intro.add(new Div(new Anchor(url, url), new Label(getTranslation("HomeNavigationContent.6")))); //$NON-NLS-1$
 		}
 		for (String url : urlFinder.getWireless()) {
-			intro.add(new Div(new Anchor(url, url), new Label(TranslationProvider.getTranslation("HomeNavigationContent.7")))); //$NON-NLS-1$
+			intro.add(new Div(new Anchor(url, url), new Label(getTranslation("HomeNavigationContent.7")))); //$NON-NLS-1$
 		}
 		for (String url : urlFinder.getLocalUrl()) {
-			intro.add(new Div(new Anchor(url, url), new Label(TranslationProvider.getTranslation("HomeNavigationContent.8")))); //$NON-NLS-1$
+			intro.add(new Div(new Anchor(url, url), new Label(getTranslation("HomeNavigationContent.8")))); //$NON-NLS-1$
 		}
 		intro.add(new Div());
 		intro.add(new Hr());
 		addP(intro,
-			TranslationProvider.getTranslation("HomeNavigationContent.9") + //$NON-NLS-1$
-			TranslationProvider.getTranslation("HomeNavigationContent.10") + //$NON-NLS-1$
-			TranslationProvider.getTranslation("HomeNavigationContent.11") + //$NON-NLS-1$
-			TranslationProvider.getTranslation("HomeNavigationContent.12") + //$NON-NLS-1$
-			TranslationProvider.getTranslation("HomeNavigationContent.13")+ //$NON-NLS-1$
-			TranslationProvider.getTranslation("HomeNavigationContent.14") //$NON-NLS-1$
+			getTranslation("HomeNavigationContent.9") + //$NON-NLS-1$
+			getTranslation("HomeNavigationContent.10") + //$NON-NLS-1$
+			getTranslation("HomeNavigationContent.11") + //$NON-NLS-1$
+			getTranslation("HomeNavigationContent.12") + //$NON-NLS-1$
+			getTranslation("HomeNavigationContent.13")+ //$NON-NLS-1$
+			getTranslation("HomeNavigationContent.14") //$NON-NLS-1$
 		);
 		intro.getElement().getStyle().set("margin-bottom", "-1em"); //$NON-NLS-1$ //$NON-NLS-2$
 		return intro;
@@ -192,7 +195,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	protected String getTitle() {
-		return TranslationProvider.getTranslation("HomeNavigationContent.23"); //$NON-NLS-1$
+		return getTranslation("HomeNavigationContent.23"); //$NON-NLS-1$
 	}
 
 	/**
@@ -200,7 +203,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	public String getPageTitle() {
-		return TranslationProvider.getTranslation("HomeNavigationContent.24"); //$NON-NLS-1$
+		return getTranslation("HomeNavigationContent.24"); //$NON-NLS-1$
 	}
 
 }

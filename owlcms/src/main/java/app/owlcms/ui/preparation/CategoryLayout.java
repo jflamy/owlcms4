@@ -10,7 +10,6 @@ import com.github.appreciated.app.layout.behaviour.AppLayout;
 import com.github.appreciated.app.layout.behaviour.Behaviour;
 import com.vaadin.flow.component.html.Label;
 
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 
 /**
@@ -27,7 +26,7 @@ public class CategoryLayout extends OwlcmsRouterLayout {
 		variant = Behaviour.LEFT;
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
 		appLayout.closeDrawer();
-		appLayout.setTitleComponent(new Label(TranslationProvider.getTranslation("CategoryLayout.0"))); //$NON-NLS-1$
+		appLayout.setTitleComponent(new Label(getTranslation("CategoryLayout.0"))); //$NON-NLS-1$
 		return appLayout;
 	}
 }

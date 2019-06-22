@@ -28,7 +28,6 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.spreadsheet.RAthlete;
 import app.owlcms.spreadsheet.RCompetition;
 import app.owlcms.utils.LoggerUtils;
@@ -57,7 +56,7 @@ public class UploadDialog extends Dialog {
 		Upload upload = new Upload(buffer);
 		upload.setWidth("40em"); //$NON-NLS-1$
 		
-		TextArea ta = new TextArea(TranslationProvider.getString("UploadDialog.0")); //$NON-NLS-1$
+		TextArea ta = new TextArea(getTranslation("UploadDialog.0")); //$NON-NLS-1$
 		ta.setHeight("20ex"); //$NON-NLS-1$
 		ta.setWidth("80em"); //$NON-NLS-1$
 		ta.setVisible(false);
@@ -71,7 +70,7 @@ public class UploadDialog extends Dialog {
 			ta.setVisible(false);
 		});
 		
-		H3 title = new H3(TranslationProvider.getString("UploadDialog.1")); //$NON-NLS-1$
+		H3 title = new H3(getTranslation("UploadDialog.1")); //$NON-NLS-1$
 		VerticalLayout vl = new VerticalLayout(title, upload, ta);
 		add(vl);
 	}
@@ -92,7 +91,7 @@ public class UploadDialog extends Dialog {
 				beans.put("competition", c); //$NON-NLS-1$
 				beans.put("athletes", athletes); //$NON-NLS-1$
 
-				logger.info(TranslationProvider.getString("UploadDialog.2")); //$NON-NLS-1$
+				logger.info(getTranslation("UploadDialog.2")); //$NON-NLS-1$
 				XLSReadStatus status = reader.read(inputStream, beans);
 				@SuppressWarnings("unchecked")
 				List<XLSReadMessage> errors = status.getReadMessages();
@@ -108,7 +107,7 @@ public class UploadDialog extends Dialog {
 					ta.setValue(sb.toString());
 					ta.setVisible(true);
 				}
-				logger.info(TranslationProvider.getString("UploadDialog.3") + athletes.size() + " athletes"); //$NON-NLS-1$ //$NON-NLS-2$
+				logger.info(getTranslation("UploadDialog.3") + athletes.size() + " athletes"); //$NON-NLS-1$ //$NON-NLS-2$
 
 				JPAService.runInTransaction(em -> {
 					
@@ -141,11 +140,11 @@ public class UploadDialog extends Dialog {
 	}
 
 	public String cleanMessage(String localizedMessage) {
-		localizedMessage = localizedMessage.replace(TranslationProvider.getString("UploadDialog.4"), ""); //$NON-NLS-1$ //$NON-NLS-2$
+		localizedMessage = localizedMessage.replace(getTranslation("UploadDialog.4"), ""); //$NON-NLS-1$ //$NON-NLS-2$
 		String cell = localizedMessage.substring(0,localizedMessage.indexOf(" ")); //$NON-NLS-1$
 		String ss = "spreadsheet"; //$NON-NLS-1$
 		int ix = localizedMessage.indexOf(ss)+ss.length();
-		String cleanMessage = TranslationProvider.getString("UploadDialog.5")+cell+": "+localizedMessage.substring(ix); //$NON-NLS-1$ //$NON-NLS-2$
+		String cleanMessage = getTranslation("UploadDialog.5")+cell+": "+localizedMessage.substring(ix); //$NON-NLS-1$ //$NON-NLS-2$
 		return cleanMessage;
 	}
 }

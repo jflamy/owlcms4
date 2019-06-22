@@ -89,7 +89,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     }
 
     private void init() {
-        setButtonCaption(CrudOperation.DELETE, TranslationProvider.getTranslation("OwlcmsCrudFormFactory.0")); //$NON-NLS-1$
+        setButtonCaption(CrudOperation.DELETE, TranslationProvider.translate("OwlcmsCrudFormFactory.0")); //$NON-NLS-1$
     }
 
     /**
@@ -329,7 +329,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         dialog.setCloseOnEsc(false);
         dialog.setCloseOnOutsideClick(false);
 
-        H3 messageLabel = new H3(TranslationProvider.getTranslation("OwlcmsCrudFormFactory.1") + domainObject.toString() + TranslationProvider.getTranslation("OwlcmsCrudFormFactory.3")); //$NON-NLS-1$ //$NON-NLS-2$
+        H3 messageLabel = new H3(TranslationProvider.translate("OwlcmsCrudFormFactory.1") + domainObject.toString() + TranslationProvider.translate("OwlcmsCrudFormFactory.3")); //$NON-NLS-1$ //$NON-NLS-2$
 
         // create a new delete button for the confirm dialog
         Button confirmButton = doBuildButton(operation);
@@ -341,7 +341,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
             }
             dialog.close();
         });
-        Button cancelButton = new Button(TranslationProvider.getTranslation("OwlcmsCrudFormFactory.2"), event -> { //$NON-NLS-1$
+        Button cancelButton = new Button(TranslationProvider.translate("OwlcmsCrudFormFactory.2"), event -> { //$NON-NLS-1$
             dialog.close();
         });
         dialog.add(new VerticalLayout(messageLabel, new HorizontalLayout(confirmButton, cancelButton)));
@@ -424,13 +424,13 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
             }
             if (sb.length() > 0)
                 sb.append("; "); //$NON-NLS-1$
-            String message = ve.getMessage().orElse(TranslationProvider.getTranslation("OwlcmsCrudFormFactory.4")); //$NON-NLS-1$
+            String message = ve.getMessage().orElse(TranslationProvider.translate("OwlcmsCrudFormFactory.4")); //$NON-NLS-1$
             sb.append(message);
         }
         for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
             showInLabel = true;
             if (sb.length() > 0)
-                sb.append(TranslationProvider.getTranslation("OwlcmsCrudFormFactory.5")); //$NON-NLS-1$
+                sb.append(TranslationProvider.translate("OwlcmsCrudFormFactory.5")); //$NON-NLS-1$
             String message = ve.getErrorMessage();
             sb.append(message);
         }

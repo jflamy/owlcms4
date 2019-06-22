@@ -30,7 +30,6 @@ import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -130,7 +129,7 @@ implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEven
 	protected void createTopBar(String title) {
 		configureTopBar();
 		configureTopBarTitle(title);
-		HorizontalLayout fopField = createTopBarFopField(TranslationProvider.getString("BaseNavigationContent.0"), TranslationProvider.getString("BaseNavigationContent.1")); //$NON-NLS-1$ //$NON-NLS-2$
+		HorizontalLayout fopField = createTopBarFopField(getTranslation("BaseNavigationContent.0"), getTranslation("BaseNavigationContent.1")); //$NON-NLS-1$ //$NON-NLS-2$
 		createAppBar(fopField, null); //, groupField
 	}
 

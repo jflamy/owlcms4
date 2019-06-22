@@ -21,7 +21,6 @@ import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
 import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.scoreboard.Scoreboard;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -43,29 +42,29 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	public DisplayNavigationContent() {
 		VerticalLayout intro = new VerticalLayout();
-		addP(intro, TranslationProvider.getTranslation("DisplayNavigationContent.0")); //$NON-NLS-1$
-		addP(intro, TranslationProvider.getTranslation("DisplayNavigationContent.1")); //$NON-NLS-1$
-		intro.getElement().getStyle().set(TranslationProvider.getTranslation("DisplayNavigationContent.2"), "0"); //$NON-NLS-1$ //$NON-NLS-2$
+		addP(intro, getTranslation("DisplayNavigationContent.0")); //$NON-NLS-1$
+		addP(intro, getTranslation("DisplayNavigationContent.1")); //$NON-NLS-1$
+		intro.getElement().getStyle().set(getTranslation("DisplayNavigationContent.2"), "0"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		Button attempt = new Button(
-				TranslationProvider.getTranslation("DisplayNavigationContent.4"), //$NON-NLS-1$
+				getTranslation("DisplayNavigationContent.4"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AttemptBoard.class)));
 		Button scoreboard = new Button(
-				TranslationProvider.getTranslation("DisplayNavigationContent.5"), //$NON-NLS-1$
+				getTranslation("DisplayNavigationContent.5"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 		Button referee = new Button(
-			TranslationProvider.getTranslation("DisplayNavigationContent.6"), //$NON-NLS-1$
+			getTranslation("DisplayNavigationContent.6"), //$NON-NLS-1$
 			buttonClickEvent -> UI.getCurrent().getPage()
 				.executeJavaScript(getWindowOpener(AthleteFacingDecisionBoard.class)));
 		Button athleteFacingAttempt = new Button(
-				TranslationProvider.getTranslation("DisplayNavigationContent.7"), //$NON-NLS-1$
+				getTranslation("DisplayNavigationContent.7"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AthleteFacingAttemptBoard.class)));
 
 		Button plates = new Button(
-				TranslationProvider.getTranslation("DisplayNavigationContent.8"), //$NON-NLS-1$
+				getTranslation("DisplayNavigationContent.8"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 
@@ -81,8 +80,8 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 		plates.setEnabled(false);
 
 		fillH(intro, this);
-		doGroup(TranslationProvider.getTranslation("DisplayNavigationContent.9"), grid1, this); //$NON-NLS-1$
-		doGroup(TranslationProvider.getTranslation("DisplayNavigationContent.10"), grid2, this); //$NON-NLS-1$
+		doGroup(getTranslation("DisplayNavigationContent.9"), grid1, this); //$NON-NLS-1$
+		doGroup(getTranslation("DisplayNavigationContent.10"), grid2, this); //$NON-NLS-1$
 	}
 
 	/**
@@ -98,7 +97,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	@Override
 	protected String getTitle() {
-		return TranslationProvider.getTranslation("DisplayNavigationContent.11"); //$NON-NLS-1$
+		return getTranslation("DisplayNavigationContent.11"); //$NON-NLS-1$
 	}
 
 	/**
@@ -106,7 +105,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	@Override
 	public String getPageTitle() {
-		return TranslationProvider.getTranslation("DisplayNavigationContent.12"); //$NON-NLS-1$
+		return getTranslation("DisplayNavigationContent.12"); //$NON-NLS-1$
 	}
 	
 }

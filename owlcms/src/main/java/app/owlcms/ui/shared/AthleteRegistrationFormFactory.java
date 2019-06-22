@@ -41,8 +41,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteRegistrationFormFactory.class);
 
 	private Athlete editedAthlete = null;
-	private boolean genderCatOk = false;
-	private boolean catGenderOk = false;
+
+    private boolean catGenderOk;
+
+    private boolean genderCatOk;
 
 	public AthleteRegistrationFormFactory(Class<Athlete> domainType) {
 		super(domainType);
@@ -172,7 +174,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				}
 			});
 			bindingBuilder.bind(property);
-		} else if (property.endsWith(TranslationProvider.getString("AthleteRegistrationFormFactory.0"))) { //$NON-NLS-1$
+		} else if (property.endsWith("Declaration")) { //$NON-NLS-1$
 			logger.debug(property);
 			TextField declField = (TextField) bindingBuilder.getField();
 			declField.setPattern("^(-?\\d+)|()$"); // optional minus and at least one digit, or empty. //$NON-NLS-1$
@@ -210,7 +212,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void validateBodyWeight(Binder.BindingBuilder bindingBuilder, boolean isRequired) {
-		Validator<Double> v1 = new DoubleRangeValidator(TranslationProvider.getString("AthleteRegistrationFormFactory.1"), 0.0D, 350.0D); //$NON-NLS-1$
+		Validator<Double> v1 = new DoubleRangeValidator(TranslationProvider.translate("AthleteRegistrationFormFactory.1"), 0.0D, 350.0D); //$NON-NLS-1$
 		// check wrt body category
 		Validator<Double> v2 = Validator.from((weight) -> {
 			if (!isRequired && weight == null)
@@ -220,7 +222,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get(); //$NON-NLS-1$
 			categoryBinding.validate(true);
 			return true;
-		}, TranslationProvider.getString("AthleteRegistrationFormFactory.2")); //$NON-NLS-1$
+		}, TranslationProvider.translate("AthleteRegistrationFormFactory.2")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v1);
 		bindingBuilder.withValidator(v2);
 	}
@@ -246,7 +248,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				logger.error(LoggerUtils.stackTrace(e));
 			}
 			return true;
-		}, TranslationProvider.getString("AthleteRegistrationFormFactory.3")); //$NON-NLS-1$
+		}, TranslationProvider.translate("AthleteRegistrationFormFactory.3")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v1);
 
 		// check that category is consistent with gender
@@ -276,7 +278,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				logger.error(LoggerUtils.stackTrace(e));
 			}
 			return true;
-		}, TranslationProvider.getString("AthleteRegistrationFormFactory.4")); //$NON-NLS-1$
+		}, TranslationProvider.translate("AthleteRegistrationFormFactory.4")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v2);
 	}
 
@@ -290,7 +292,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			if (ld == null)
 				return true;
 			return ld.compareTo(LocalDate.now()) <= 0;
-		}, TranslationProvider.getString("AthleteRegistrationFormFactory.5")); //$NON-NLS-1$
+		}, TranslationProvider.translate("AthleteRegistrationFormFactory.5")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v);
 	}
 
@@ -318,7 +320,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				logger.error(LoggerUtils.stackTrace(e));
 			}
 			return true;
-		}, TranslationProvider.getString("AthleteRegistrationFormFactory.6")); //$NON-NLS-1$
+		}, TranslationProvider.translate("AthleteRegistrationFormFactory.6")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v2);
 	}
 

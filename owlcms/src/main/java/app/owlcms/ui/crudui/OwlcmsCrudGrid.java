@@ -19,7 +19,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -137,19 +136,19 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	 */
 	protected void initToolbar() {
 		findAllButton = new Button(VaadinIcon.REFRESH.create(), e -> findAllButtonClicked());
-        findAllButton.getElement().setAttribute("title", TranslationProvider.getTranslation("OwlcmsCrudGrid.0")); //$NON-NLS-1$ //$NON-NLS-2$
+        findAllButton.getElement().setAttribute("title", getTranslation("OwlcmsCrudGrid.0")); //$NON-NLS-1$ //$NON-NLS-2$
         crudLayout.addToolbarComponent(findAllButton);
 
         addButton = new Button(VaadinIcon.PLUS.create(), e -> addButtonClicked());
-        addButton.getElement().setAttribute("title", TranslationProvider.getTranslation("OwlcmsCrudGrid.1")); //$NON-NLS-1$ //$NON-NLS-2$
+        addButton.getElement().setAttribute("title", getTranslation("OwlcmsCrudGrid.1")); //$NON-NLS-1$ //$NON-NLS-2$
         crudLayout.addToolbarComponent(addButton);
 
         updateButton = new Button(VaadinIcon.PENCIL.create(), e -> updateButtonClicked());
-        updateButton.getElement().setAttribute("title", TranslationProvider.getTranslation("OwlcmsCrudGrid.2")); //$NON-NLS-1$ //$NON-NLS-2$
+        updateButton.getElement().setAttribute("title", getTranslation("OwlcmsCrudGrid.2")); //$NON-NLS-1$ //$NON-NLS-2$
         crudLayout.addToolbarComponent(updateButton);
 
         deleteButton = new Button(VaadinIcon.TRASH.create(), e -> deleteButtonClicked());
-        deleteButton.getElement().setAttribute("title", TranslationProvider.getTranslation("OwlcmsCrudGrid.3")); //$NON-NLS-1$ //$NON-NLS-2$
+        deleteButton.getElement().setAttribute("title", getTranslation("OwlcmsCrudGrid.3")); //$NON-NLS-1$ //$NON-NLS-2$
         crudLayout.addToolbarComponent(deleteButton);
         
         updateButtons();

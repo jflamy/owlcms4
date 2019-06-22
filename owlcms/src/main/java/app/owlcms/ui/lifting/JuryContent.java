@@ -33,7 +33,6 @@ import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
-import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
@@ -92,7 +91,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	 */
 	@Override
 	public String getPageTitle() {
-		return TranslationProvider.getTranslation("JuryContent.0"); //$NON-NLS-1$
+		return getTranslation("JuryContent.0"); //$NON-NLS-1$
 	}
 
 	@Subscribe
@@ -189,7 +188,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	private void buildJuryBox(VerticalLayout juryContainer) {
 		HorizontalLayout topRow = new HorizontalLayout();
-		Label juryLabel = new Label(TranslationProvider.getTranslation("JuryContent.1")); //$NON-NLS-1$
+		Label juryLabel = new Label(getTranslation("JuryContent.1")); //$NON-NLS-1$
 		H3 labelWrapper = new H3(juryLabel);
 		labelWrapper.setWidth("15em"); //$NON-NLS-1$
 		Label spacer = new Label();
@@ -255,7 +254,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	private void buildRefereeBox(VerticalLayout container) {
-		Label label = new Label(TranslationProvider.getTranslation("JuryContent.2")); //$NON-NLS-1$
+		Label label = new Label(getTranslation("JuryContent.2")); //$NON-NLS-1$
 		H3 labelWrapper = new H3(label);
 		labelWrapper.setHeight("5%"); //$NON-NLS-1$
 
@@ -364,7 +363,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 
 	private HorizontalLayout juryDeliberationButtons() {
-		Button stopCompetition = new Button(TranslationProvider.getTranslation("JuryContent.3"), (e) -> { //$NON-NLS-1$
+		Button stopCompetition = new Button(getTranslation("JuryContent.3"), (e) -> { //$NON-NLS-1$
 			OwlcmsSession.withFop(
 					fop -> fop.getFopEventBus().post(new FOPEvent.BreakStarted(BreakType.JURY, 0, this.getOrigin())));
 		});
@@ -372,7 +371,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		stopCompetition.setWidth(BUTTON_WIDTH);
 		stopCompetition.setEnabled(false);
 
-		Button resumeCompetition = new Button(TranslationProvider.getTranslation("JuryContent.4"), (e) -> { //$NON-NLS-1$
+		Button resumeCompetition = new Button(getTranslation("JuryContent.4"), (e) -> { //$NON-NLS-1$
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin())));
 		});
 		resumeCompetition.getElement().setAttribute("theme", "secondary"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -383,7 +382,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			(new BreakDialog(this)).open();
 		});
 		breakButton.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
-		breakButton.getElement().setAttribute("title", TranslationProvider.getTranslation("JuryContent.5")); //$NON-NLS-1$ //$NON-NLS-2$
+		breakButton.getElement().setAttribute("title", getTranslation("JuryContent.5")); //$NON-NLS-1$ //$NON-NLS-2$
 //		HorizontalLayout buttons = new HorizontalLayout(stopCompetition, resumeCompetition);
 		HorizontalLayout buttons = new HorizontalLayout(breakButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
