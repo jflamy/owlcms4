@@ -44,8 +44,8 @@ public class TranslationProvider implements I18NProvider {
     private static final String BUNDLE_PACKAGE_SLASH = "/i18n/";
     public static final String BUNDLE_DOTTED_NAME = BUNDLE_PACKAGE_DOTS+BUNDLEBASE;
 
+    //TODO: get the locales from the CSV
     public static final Locale LOCALE_EN = new Locale("en");
-
     public static final Locale LOCALE_FR = new Locale("fr");
     public static final Locale LOCALE_DA = new Locale("da");
     public static final Locale LOCALE_ES = new Locale("es");
