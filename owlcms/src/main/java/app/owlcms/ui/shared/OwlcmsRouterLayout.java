@@ -69,11 +69,11 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 
 	private HasElement layoutComponentContent;
 	
-	String PREPARE_COMPETITION = TranslationProvider.translate("HomeNavigationContent.0"); //$NON-NLS-1$
-	String RUN_LIFTING_GROUP = TranslationProvider.translate("HomeNavigationContent.1"); //$NON-NLS-1$
-	String START_DISPLAYS = TranslationProvider.translate("HomeNavigationContent.2"); //$NON-NLS-1$
-	String RESULT_DOCUMENTS = TranslationProvider.translate("HomeNavigationContent.3"); //$NON-NLS-1$
-	String INFO = TranslationProvider.translate("HomeNavigationContent.4"); //$NON-NLS-1$
+	String PREPARE_COMPETITION = TranslationProvider.translate("PrepareCompetition"); //$NON-NLS-1$
+	String RUN_LIFTING_GROUP = TranslationProvider.translate("RunLiftingGroup"); //$NON-NLS-1$
+	String START_DISPLAYS = TranslationProvider.translate("Start Displays"); //$NON-NLS-1$
+	String RESULT_DOCUMENTS = TranslationProvider.translate("ResultDocuments"); //$NON-NLS-1$
+	String INFO = TranslationProvider.translate("About"); //$NON-NLS-1$
 
     public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));
@@ -105,13 +105,13 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 		}
 
 		LeftNavigationItem home = new LeftNavigationItem(
-				getTranslation("OwlcmsRouterLayout.0"), //$NON-NLS-1$
+				getTranslation("Home"), //$NON-NLS-1$
 				VaadinIcon.HOME.create(),
 				HomeNavigationContent.class);
 
 		AppLayout appLayout = AppLayoutBuilder
 			.get(variant)
-			.withTitle(getTranslation("OwlcmsRouterLayout.1")) //$NON-NLS-1$
+			.withTitle(getTranslation("OWLCMS_Top")) //$NON-NLS-1$
 			.withIcon("/frontend/images/logo.png") //$NON-NLS-1$
 			.withAppBar(AppBarBuilder
 				.get()

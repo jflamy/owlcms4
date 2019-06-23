@@ -44,25 +44,25 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		logger.trace("LiftingNavigationContent constructor start"); //$NON-NLS-1$
 		VerticalLayout intro = new VerticalLayout();
 		addP(intro,
-				getTranslation("LiftingNavigationContent.0") + //$NON-NLS-1$
-				getTranslation("LiftingNavigationContent.1")+ //$NON-NLS-1$
-				getTranslation("LiftingNavigationContent.2")); //$NON-NLS-1$
+				getTranslation("AnnouncerSelectsGroup") + //$NON-NLS-1$
+				getTranslation("ChangesGroupEverywhere")+ //$NON-NLS-1$
+				getTranslation("AnnouncerEtc")); //$NON-NLS-1$
 		intro.getElement().getStyle().set("margin-bottom", "0"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Button announcer = new Button(
-				getTranslation("LiftingNavigationContent.3"), //$NON-NLS-1$
+				getTranslation("Announcer"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AnnouncerContent.class)));
 		Button marshall = new Button(
-				getTranslation("LiftingNavigationContent.4"), //$NON-NLS-1$
+				getTranslation("Marshall"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(MarshallContent.class)));
 		Button timekeeper = new Button(
-				getTranslation("LiftingNavigationContent.5"), //$NON-NLS-1$
+				getTranslation("Timekeeper"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(TimekeeperContent.class)));
 		Button jury = new Button(
-			getTranslation("LiftingNavigationContent.6"), //$NON-NLS-1$
+			getTranslation("Jury"), //$NON-NLS-1$
 			buttonClickEvent -> UI.getCurrent().getPage()
 				.executeJavaScript(getWindowOpener(JuryContent.class)));
 
@@ -74,14 +74,14 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 			timekeeper,
 			jury
 			);
-		doGroup(getTranslation("LiftingNavigationContent.7"), grid1, this); //$NON-NLS-1$
+		doGroup(getTranslation("TOScreens"), grid1, this); //$NON-NLS-1$
 		
-		Button weighIn = new Button(getTranslation("LiftingNavigationContent.8"), //$NON-NLS-1$
+		Button weighIn = new Button(getTranslation("WeighIn_StartNumbers"), //$NON-NLS-1$
 			buttonClickEvent -> UI.getCurrent()
 				.navigate(WeighinContent.class));
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(
 			weighIn);
-		doGroup(getTranslation("LiftingNavigationContent.9"), grid3, this); //$NON-NLS-1$
+		doGroup(getTranslation("WeighIn"), grid3, this); //$NON-NLS-1$
 		logger.trace("LiftingNavigationContent constructor stop"); //$NON-NLS-1$
 	}
 
@@ -110,12 +110,12 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 
 	@Override
 	protected String getTitle() {
-		return getTranslation("LiftingNavigationContent.10"); //$NON-NLS-1$
+		return getTranslation("RunLiftingGroup"); //$NON-NLS-1$
 	}
 
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("LiftingNavigationContent.11"); //$NON-NLS-1$
+		return getTranslation("OWLCMS_Lifting"); //$NON-NLS-1$
 	}
 }

@@ -6,18 +6,26 @@
  */
 package app.owlcms.i18n;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import java.util.Scanner;
 
 import org.slf4j.LoggerFactory;
 
@@ -29,23 +37,143 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class TranslationProvider implements I18NProvider {
 
+    private final static TranslationProvider helper = new TranslationProvider();
+
+    public static final String BUNDLE_PREFIX = "i18n.translation4";
+
+    public static final Locale LOCALE_EN = new Locale("en");
+
+    public static final Locale LOCALE_FR = new Locale("fr");
+    public static final Locale LOCALE_DA = new Locale("da");
+    public static final Locale LOCALE_ES = new Locale("es");
+    private static List<Locale> locales = Collections
+            .unmodifiableList(Arrays.asList(LOCALE_EN, LOCALE_FR, LOCALE_DA, LOCALE_ES));
+
+    private static Locale forcedLocale;
+
+    private static HashMap<File, ClassLoader> processed = new HashMap<>();
+
+    public static List<Locale> getAvailableLocales() {
+        return helper.getProvidedLocales();
+    }
+
+    public static void main(String[] args) {
+        try {
+//            Writer out = createCSV();
+//            out.flush();
+            getBundle(new File("src/main/resources/i18n/translation4.csv"),new Locale("fr"));
+        } catch (Throwable e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    public static void setForcedLocale(Locale locale) {
+        if (locales.contains(locale)) {
+            TranslationProvider.forcedLocale = locale;
+        } else {
+            locale = null; // default behaviour, first forcedLocale in list will be used
+        }
+    }
+
+    public static String translate(String string) {
+        return helper.getTranslation(string, OwlcmsSession.getLocale());
+    }
+
+    public static String translate(String string, Locale locale) {
+        return helper.getTranslation(string, locale);
+    }
+
+    public static String translate(String string, Locale locale, Object... params) {
+        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
+    }
+
+    @SuppressWarnings("unused")
+    private static Writer createCSV() throws FileNotFoundException, IOException {
+        Writer out = new PrintWriter("translation.csv");// new OutputStreamWriter(System.out);
+
+        ResourceBundle masterBundle = ResourceBundle.getBundle(BUNDLE_PREFIX, Locale.ENGLISH);
+        for (Enumeration<String> masterKeys = masterBundle.getKeys(); masterKeys.hasMoreElements();) {
+            String key = masterKeys.nextElement();
+            escape(out, key);
+            for (Locale locale : helper.getProvidedLocales()) {
+                String translation = null;
+                try {
+                    if (locale.getLanguage().contentEquals("en")) {
+                        translation = helper.getTranslation(key, locale);
+                    } else {
+                        translation = helper.getTranslationOrNull(key, locale);
+                    }
+                } catch (Exception e) {
+                }
+                out.write("\t");
+                escape(out, translation);
+            }
+            out.write("\n");
+        }
+        return out;
+    }
+    
+    private static void escape(Writer out, String string) throws IOException {
+        out.write('"');
+        // csv requires doubling double quotes inside strings
+        if (string != null)
+            out.write(string.replace("\"", "\"\""));
+        out.write('"');
+    }
+
+    private synchronized static ResourceBundle getBundle(final File csv, final Locale local) {
+        final String csvname = csv.getName().replace(".csv", "");
+        ClassLoader i18nloader = TranslationProvider.processed.get(csv);
+        if (i18nloader == null) {
+            try (final Scanner in = new Scanner(csv)) {
+                // process header
+                final String[] header = in.nextLine().split(";");
+                final File[] outFiles = new File[header.length];
+                final Properties[] languageProperties = new Properties[header.length];
+                System.err.println("header.length"+header.length);
+                for (int i = 1; i < header.length; i++) {
+                    String language = header[i];
+                    System.err.println(""+i+" "+language);
+                    if (!language.isEmpty()) {
+                        language = "_" + language;
+                    }
+                    final File outfile = new File(csv.getParentFile(), csvname + language + ".properties");
+                    outFiles[i] = outfile;
+                    languageProperties[i] = new Properties();
+                }
+
+                // reading to properties
+                while (in.hasNextLine()) {
+                    String nextLine = in.nextLine();
+                    final String[] line = nextLine.split(";",header.length);
+                    System.err.println(nextLine);
+                    final String key = line[0];
+                    for (int i = 1; i < languageProperties.length; i++) {
+                        languageProperties[i].setProperty(key, line[i]);
+                    }
+                }
+
+                // writing
+                for (int i = 1; i < languageProperties.length; i++) {
+                    languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csv.getName());
+                }
+                final URL[] urls = { csv.getParentFile().toURI().toURL() };
+                i18nloader = new URLClassLoader(urls);
+                TranslationProvider.processed.put(csv, i18nloader);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return ResourceBundle.getBundle(csvname, local, i18nloader);
+    }
 
     Logger logger = (Logger) LoggerFactory.getLogger(TranslationProvider.class.getName());
 
-    private final static TranslationProvider helper = new TranslationProvider();
-
-    public static final String BUNDLE_PREFIX = "i18n.messages";
-
-    public final Locale LOCALE_EN = new Locale("en");
-    public final Locale LOCALE_FR = new Locale("fr");
-    public final Locale LOCALE_DA = new Locale("da");
-    public final Locale LOCALE_ES = new Locale("es");
-
-    private List<Locale> locales = Collections
-            .unmodifiableList(Arrays.asList(LOCALE_EN, LOCALE_FR, LOCALE_DA, LOCALE_ES));
-
     @Override
     public List<Locale> getProvidedLocales() {
+        if (forcedLocale != null) {
+            return Arrays.asList(forcedLocale);
+        }
         return locales;
     }
 
@@ -74,7 +202,7 @@ public class TranslationProvider implements I18NProvider {
         }
         return value;
     }
-    
+
     public String getTranslationOrNull(String key, Locale locale, Object... params) {
 
         if (key == null) {
@@ -82,8 +210,9 @@ public class TranslationProvider implements I18NProvider {
             return "";
         }
 
-        final PropertyResourceBundle bundle = (PropertyResourceBundle) PropertyResourceBundle.getBundle(BUNDLE_PREFIX, locale);
-        
+        final PropertyResourceBundle bundle = (PropertyResourceBundle) PropertyResourceBundle.getBundle(BUNDLE_PREFIX,
+                locale);
+
         String value;
         try {
             value = (String) bundle.handleGetObject(key);
@@ -94,53 +223,5 @@ public class TranslationProvider implements I18NProvider {
             value = MessageFormat.format(value, params);
         }
         return value;
-    }
-
-    public static String translate(String string) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale());
-    }
-    
-    public static String translate(String string, Locale locale) {
-        return helper.getTranslation(string, locale);
-    }
-
-    public static String translate(String string, Locale locale, Object... params) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
-    }
-    
-    public static void main(String[] args) {
-        try {
-            Writer out = new PrintWriter("translation.csv");//new OutputStreamWriter(System.out);
-
-            ResourceBundle masterBundle = ResourceBundle.getBundle(BUNDLE_PREFIX,Locale.ENGLISH);
-            for (Enumeration<String> masterKeys = masterBundle.getKeys(); masterKeys.hasMoreElements();) {
-                String key = masterKeys.nextElement();
-                escape(out, key);
-                for (Locale locale : helper.getProvidedLocales()) {
-                    String translation = null;
-                    try {
-                        if (locale.getLanguage().contentEquals("en")) {
-                            translation = helper.getTranslation(key, locale);
-                        } else {
-                            translation = helper.getTranslationOrNull(key, locale);
-                        }
-                    } catch (Exception e) {
-                    }
-                    out.write("\t");
-                    escape(out, translation);
-                }
-                out.write("\n");
-            }
-            out.flush();
-        } catch (Throwable e1) {
-            e1.printStackTrace();
-        }
-    }
-
-    private static void escape(Writer out, String string) throws IOException {
-        out.write('"');
-        // csv requires doubling double quotes inside strings
-       if (string != null) out.write(string.replace("\"", "\"\""));
-        out.write('"');
     }
 }

@@ -58,12 +58,12 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
     public LoginView() {
         pinField.setClearButtonVisible(true);
         pinField.setRevealButtonVisible(true);
-        pinField.setLabel(getTranslation("LoginView.1")); //$NON-NLS-1$
+        pinField.setLabel(getTranslation("EnterPin")); //$NON-NLS-1$
         pinField.setWidthFull();
         pinField.addValueChangeListener(event -> {
             String value = event.getValue();
             if (!checkAuthenticated(value)) {
-                pinField.setErrorMessage(getTranslation("LoginView.0")); //$NON-NLS-1$
+                pinField.setErrorMessage(getTranslation("LoginDenied")); //$NON-NLS-1$
                 pinField.setInvalid(true);
             } else {
                 pinField.setInvalid(false);
@@ -77,11 +77,11 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
         });
 
         // brute-force the color because some display views use a white text color.
-        H3 h3 = new H3(getTranslation("LoginView.2")); //$NON-NLS-1$
+        H3 h3 = new H3(getTranslation("Log_In")); //$NON-NLS-1$
         h3.getStyle().set("color", "var(--lumo-header-text-color)"); //$NON-NLS-1$ //$NON-NLS-2$
         h3.getStyle().set("font-size", "var(--lumo-font-size-xl)"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        Button button = new Button(getTranslation("LoginView.3")); //$NON-NLS-1$
+        Button button = new Button(getTranslation("Login")); //$NON-NLS-1$
         button.addClickShortcut(Key.ENTER);
         button.setWidth("10em"); //$NON-NLS-1$
         button.getThemeNames().add("primary"); //$NON-NLS-1$

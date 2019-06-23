@@ -57,11 +57,11 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		logger.setLevel(Level.INFO);
 	}
 
-	String PREPARE_COMPETITION = TranslationProvider.translate("HomeNavigationContent.0"); //$NON-NLS-1$
-	String RUN_LIFTING_GROUP = TranslationProvider.translate("HomeNavigationContent.1"); //$NON-NLS-1$
-	String START_DISPLAYS = TranslationProvider.translate("HomeNavigationContent.2"); //$NON-NLS-1$
-	String RESULT_DOCUMENTS = TranslationProvider.translate("HomeNavigationContent.3"); //$NON-NLS-1$
-	String INFO = TranslationProvider.translate("HomeNavigationContent.4"); //$NON-NLS-1$
+	String PREPARE_COMPETITION = TranslationProvider.translate("PrepareCompetition"); //$NON-NLS-1$
+	String RUN_LIFTING_GROUP = TranslationProvider.translate("RunLiftingGroup"); //$NON-NLS-1$
+	String START_DISPLAYS = TranslationProvider.translate("Start Displays"); //$NON-NLS-1$
+	String RESULT_DOCUMENTS = TranslationProvider.translate("ResultDocuments"); //$NON-NLS-1$
+	String INFO = TranslationProvider.translate("About"); //$NON-NLS-1$
 	
 	/**
 	 * Instantiates a new main navigation content.
@@ -101,28 +101,28 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	private VerticalLayout buildIntro() {
 		VerticalLayout intro = new VerticalLayout();
 		URLUtils urlFinder = new URLUtils();
-		addP(intro, getTranslation("HomeNavigationContent.5")); //$NON-NLS-1$
+		addP(intro, getTranslation("SystemURL")); //$NON-NLS-1$
 		for (String url : urlFinder.getRecommended()) {
 			intro.add(new Div(new Anchor(url, url)));
 		}
 		for (String url : urlFinder.getWired()) {
-			intro.add(new Div(new Anchor(url, url), new Label(getTranslation("HomeNavigationContent.6")))); //$NON-NLS-1$
+			intro.add(new Div(new Anchor(url, url), new Label(getTranslation("Wired")))); //$NON-NLS-1$
 		}
 		for (String url : urlFinder.getWireless()) {
-			intro.add(new Div(new Anchor(url, url), new Label(getTranslation("HomeNavigationContent.7")))); //$NON-NLS-1$
+			intro.add(new Div(new Anchor(url, url), new Label(getTranslation("Wireless")))); //$NON-NLS-1$
 		}
 		for (String url : urlFinder.getLocalUrl()) {
-			intro.add(new Div(new Anchor(url, url), new Label(getTranslation("HomeNavigationContent.8")))); //$NON-NLS-1$
+			intro.add(new Div(new Anchor(url, url), new Label(getTranslation("LocalComputer")))); //$NON-NLS-1$
 		}
 		intro.add(new Div());
 		intro.add(new Hr());
 		addP(intro,
-			getTranslation("HomeNavigationContent.9") + //$NON-NLS-1$
-			getTranslation("HomeNavigationContent.10") + //$NON-NLS-1$
-			getTranslation("HomeNavigationContent.11") + //$NON-NLS-1$
-			getTranslation("HomeNavigationContent.12") + //$NON-NLS-1$
-			getTranslation("HomeNavigationContent.13")+ //$NON-NLS-1$
-			getTranslation("HomeNavigationContent.14") //$NON-NLS-1$
+			getTranslation("LeftMenuNavigate") + //$NON-NLS-1$
+			getTranslation("PrepareCompatition_description") + //$NON-NLS-1$
+			getTranslation("RunLiftingGroup_description") + //$NON-NLS-1$
+			getTranslation("StartDisplays_description") + //$NON-NLS-1$
+			getTranslation("CompetitionDocuments_description")+ //$NON-NLS-1$
+			getTranslation("SeparateLaptops") //$NON-NLS-1$
 		);
 		intro.getElement().getStyle().set("margin-bottom", "-1em"); //$NON-NLS-1$ //$NON-NLS-2$
 		return intro;
@@ -195,7 +195,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	protected String getTitle() {
-		return getTranslation("HomeNavigationContent.23"); //$NON-NLS-1$
+		return getTranslation("OWLCMS_Top"); //$NON-NLS-1$
 	}
 
 	/**
@@ -203,7 +203,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("HomeNavigationContent.24"); //$NON-NLS-1$
+		return getTranslation("OWLCMS_Home"); //$NON-NLS-1$
 	}
 
 }

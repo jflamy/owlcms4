@@ -589,7 +589,7 @@ public class FieldOfPlay {
 					// no weight change.  this is most likely a declaration.
 					//TODO: post uiEvent to signal declaration
 					if (Athlete.zeroIfInvalid(changingAthlete.getCurrentDeclaration()) == newWeight) {
-						Notification.show(MessageFormat.format(TranslationProvider.translate("FieldOfPlay.0"), changingAthlete, newWeight),5000,Position.TOP_START); //$NON-NLS-1$
+						Notification.show(MessageFormat.format(TranslationProvider.translate("Declaration_Notification"), changingAthlete, newWeight),5000,Position.TOP_START); //$NON-NLS-1$
 					}
 					return;
 				}
@@ -713,8 +713,8 @@ public class FieldOfPlay {
 			// ignore
 			return;
 		}
-		String text = MessageFormat.format(TranslationProvider.translate("FieldOfPlay.1"),e.getClass().getSimpleName(),state); //$NON-NLS-1$
-		logger.warn(TranslationProvider.translate("FieldOfPlay.2"),e.getClass().getSimpleName(),state); //$NON-NLS-1$
+		String text = MessageFormat.format(TranslationProvider.translate("Unexpected_Notification"),e.getClass().getSimpleName(),state); //$NON-NLS-1$
+		logger.warn(TranslationProvider.translate("Unexpected_Logging"),e.getClass().getSimpleName(),state); //$NON-NLS-1$
 		Notification.show(text,5000,Position.BOTTOM_END);
 	}
 

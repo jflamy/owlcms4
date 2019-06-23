@@ -26,7 +26,7 @@ public class PlatformLayout extends OwlcmsRouterLayout {
 		variant = Behaviour.LEFT;
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
 		appLayout.closeDrawer();
-		appLayout.setTitleComponent(new Label(getTranslation("PlatformLayout.0"))); //$NON-NLS-1$
+		appLayout.setTitleComponent(new Label(getTranslation("EditPlatforms"))); //$NON-NLS-1$
 		return appLayout;
 	}
 }

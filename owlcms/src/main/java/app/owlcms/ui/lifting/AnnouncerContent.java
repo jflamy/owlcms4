@@ -51,7 +51,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	public AnnouncerContent() {
 		super();
 		defineFilters(crudGrid);
-		setTopBarTitle(getTranslation("AnnouncerContent.3")); //$NON-NLS-1$
+		setTopBarTitle(getTranslation("Announcer")); //$NON-NLS-1$
 	}
 	
 	/* (non-Javadoc)
@@ -83,7 +83,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 				logger.debug("resetting {} from database", group); //$NON-NLS-1$
 				fop.switchGroup(group,this);
 			}));
-		reset.getElement().setAttribute("title", getTranslation("AnnouncerContent.4")); //$NON-NLS-1$ //$NON-NLS-2$
+		reset.getElement().setAttribute("title", getTranslation("Reload_group")); //$NON-NLS-1$ //$NON-NLS-2$
 		reset.getElement().setAttribute("theme", "secondary contrast small icon"); //$NON-NLS-1$ //$NON-NLS-2$
 		return reset;
 	}
@@ -136,7 +136,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			(new BreakDialog(this)).open();
 		});
 		breakButton.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
-		breakButton.getElement().setAttribute("title", getTranslation("AnnouncerContent.2")); //$NON-NLS-1$ //$NON-NLS-2$
+		breakButton.getElement().setAttribute("title", getTranslation("Countdown_BreakTimer")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		HorizontalLayout buttons = new HorizontalLayout(
 			//				announce,
@@ -191,14 +191,14 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("AnnouncerContent.0"); //$NON-NLS-1$
+		return getTranslation("Announcer"); //$NON-NLS-1$
 	}
 	
 	@Subscribe
 	public void slaveRefereeDecision(UIEvent.Decision e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			int d = e.decision ? 1 : 0;
-			String text = MessageFormat.format(getTranslation("AnnouncerContent.1"), d, e.getAthlete().getFullName()); //$NON-NLS-1$
+			String text = MessageFormat.format(getTranslation("NoLift_GoodLift"), d, e.getAthlete().getFullName()); //$NON-NLS-1$
 			
 			Notification n = new Notification();
 			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html

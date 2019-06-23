@@ -65,7 +65,7 @@ public class PlatformContent extends VerticalLayout
 	 */
 	protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
 		Grid<Platform> grid = new Grid<Platform>(Platform.class, false);
-		grid.addColumn(Platform::getName).setHeader(getTranslation("PlatformContent.0")); //$NON-NLS-1$
+		grid.addColumn(Platform::getName).setHeader(getTranslation("Name")); //$NON-NLS-1$
 
 		GridCrud<Platform> crud = new OwlcmsCrudGrid<Platform>(Platform.class,
 				new OwlcmsGridLayout(Platform.class),
@@ -94,9 +94,9 @@ public class PlatformContent extends VerticalLayout
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
 		crudFormFactory.setVisibleProperties("name"); //$NON-NLS-1$
-		crudFormFactory.setFieldCaptions(getTranslation("PlatformContent.2")); //$NON-NLS-1$
+		crudFormFactory.setFieldCaptions(getTranslation("PlatformName")); //$NON-NLS-1$
 		crudFormFactory.setFieldProvider("platform", //$NON-NLS-1$
-				new ComboBoxProvider<>(getTranslation("PlatformContent.4"), PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName)); //$NON-NLS-1$
+				new ComboBoxProvider<>(getTranslation("Platform"), PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName)); //$NON-NLS-1$
 		crudFormFactory.setFieldType("weighInTime", LocalDateTimeField.class); //$NON-NLS-1$
 		crudFormFactory.setFieldType("competitionTime", LocalDateTimeField.class); //$NON-NLS-1$
 	}
@@ -179,6 +179,6 @@ public class PlatformContent extends VerticalLayout
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("PlatformContent.7"); //$NON-NLS-1$
+		return getTranslation("Preparation_Platforms"); //$NON-NLS-1$
 	}
 }

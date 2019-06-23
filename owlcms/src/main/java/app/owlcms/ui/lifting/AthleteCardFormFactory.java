@@ -539,20 +539,20 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 		gridLayout.setGap(new Length("0.8ex"), new Length("1.2ex")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// column headers
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AthleteCardFormFactory.0")), HEADER, SNATCH1, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AthleteCardFormFactory.1")), HEADER, SNATCH2, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AthleteCardFormFactory.2")), HEADER, SNATCH3, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AthleteCardFormFactory.3")), HEADER, CJ1, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AthleteCardFormFactory.4")), HEADER, CJ2, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AthleteCardFormFactory.5")), HEADER, CJ3, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
+		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Snatch1")), HEADER, SNATCH1, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
+		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Snatch2")), HEADER, SNATCH2, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
+		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Snatch3")), HEADER, SNATCH3, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
+		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("C_and_J_1")), HEADER, CJ1, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
+		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("C_and_J_2")), HEADER, CJ2, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
+		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("C_and_J_3")), HEADER, CJ3, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
 
 		// row headings
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AthleteCardFormFactory.6")), AUTOMATIC, LEFT, RowAlign.CENTER, //$NON-NLS-1$
+		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AutomaticProgression")), AUTOMATIC, LEFT, RowAlign.CENTER, //$NON-NLS-1$
 				ColumnAlign.END);
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AthleteCardFormFactory.7")), DECLARATION, LEFT, RowAlign.CENTER, ColumnAlign.END); //$NON-NLS-1$
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AthleteCardFormFactory.8")), CHANGE1, LEFT, RowAlign.CENTER, ColumnAlign.END); //$NON-NLS-1$
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AthleteCardFormFactory.9")), CHANGE2, LEFT, RowAlign.CENTER, ColumnAlign.END); //$NON-NLS-1$
-		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AthleteCardFormFactory.10")), ACTUAL, LEFT, RowAlign.CENTER, ColumnAlign.END); //$NON-NLS-1$
+		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Declaration")), DECLARATION, LEFT, RowAlign.CENTER, ColumnAlign.END); //$NON-NLS-1$
+		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Change_1")), CHANGE1, LEFT, RowAlign.CENTER, ColumnAlign.END); //$NON-NLS-1$
+		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Change_2")), CHANGE2, LEFT, RowAlign.CENTER, ColumnAlign.END); //$NON-NLS-1$
+		atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("WeightLifted")), ACTUAL, LEFT, RowAlign.CENTER, ColumnAlign.END); //$NON-NLS-1$
 
 		return gridLayout;
 	}
@@ -678,7 +678,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 			field.focus();
 			if (sb.length() > 0)
 				sb.append("; "); //$NON-NLS-1$
-			String message = ve.getMessage().orElse(field.getTranslation("AthleteCardFormFactory.11")); //$NON-NLS-1$
+			String message = ve.getMessage().orElse(field.getTranslation("Error")); //$NON-NLS-1$
 			sb.append(message);
 		}
 		for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {

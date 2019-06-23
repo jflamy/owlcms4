@@ -129,7 +129,7 @@ implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEven
 	protected void createTopBar(String title) {
 		configureTopBar();
 		configureTopBarTitle(title);
-		HorizontalLayout fopField = createTopBarFopField(getTranslation("BaseNavigationContent.0"), getTranslation("BaseNavigationContent.1")); //$NON-NLS-1$ //$NON-NLS-2$
+		HorizontalLayout fopField = createTopBarFopField(getTranslation("CompetitionPlatform"), getTranslation("SelectPlatform")); //$NON-NLS-1$ //$NON-NLS-2$
 		createAppBar(fopField, null); //, groupField
 	}
 

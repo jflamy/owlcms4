@@ -59,32 +59,32 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 
 	private VerticalLayout buildLicense() {
 		VerticalLayout license = new VerticalLayout();
-		license.add(new H3(getTranslation("InfoNavigationContent.0"))); //$NON-NLS-1$
+		license.add(new H3(getTranslation("CopyrightLicense"))); //$NON-NLS-1$
 		addP(license,
-				getTranslation("InfoNavigationContent.1")+LocalDate.now().getYear()+getTranslation("InfoNavigationContent.2") //$NON-NLS-1$ //$NON-NLS-2$
+				getTranslation("Copyright2009")+LocalDate.now().getYear()+getTranslation("JFL") //$NON-NLS-1$ //$NON-NLS-2$
 				);
 		addP(license,
-				getTranslation("InfoNavigationContent.3") //$NON-NLS-1$
+				getTranslation("LicenseUsed") //$NON-NLS-1$
 				);
-		license.add(new H3(getTranslation("InfoNavigationContent.4"))); //$NON-NLS-1$
+		license.add(new H3(getTranslation("SourceDocumentation"))); //$NON-NLS-1$
 		addP(license,
-				getTranslation("InfoNavigationContent.5")+ //$NON-NLS-1$
-				getTranslation("InfoNavigationContent.6")+ //$NON-NLS-1$
-				getTranslation("InfoNavigationContent.7") //$NON-NLS-1$
-				);
-		
-		license.add(new H3(getTranslation("InfoNavigationContent.8"))); //$NON-NLS-1$
-		addP(license,
-				getTranslation("InfoNavigationContent.9")+ //$NON-NLS-1$
-				getTranslation("InfoNavigationContent.10")+ //$NON-NLS-1$
-				getTranslation("InfoNavigationContent.11") //$NON-NLS-1$
+				getTranslation("ProjectRepository")+ //$NON-NLS-1$
+				getTranslation("Documentation")+ //$NON-NLS-1$
+				getTranslation("InstallationConfiguration") //$NON-NLS-1$
 				);
 		
-		license.add(new H3(getTranslation("InfoNavigationContent.12"))); //$NON-NLS-1$
+		license.add(new H3(getTranslation("Notes"))); //$NON-NLS-1$
 		addP(license,
-				getTranslation("InfoNavigationContent.13")+ //$NON-NLS-1$
-				getTranslation("InfoNavigationContent.14")+ //$NON-NLS-1$
-				getTranslation("InfoNavigationContent.15") //$NON-NLS-1$
+				getTranslation("TCRRCompliance")+ //$NON-NLS-1$
+				getTranslation("AtTimeOfRelease")+ //$NON-NLS-1$
+				getTranslation("UseAtYourOwnRisk") //$NON-NLS-1$
+				);
+		
+		license.add(new H3(getTranslation("Credits"))); //$NON-NLS-1$
+		addP(license,
+				getTranslation("WrittenJFL")+ //$NON-NLS-1$
+				getTranslation("ThanksToAll")+ //$NON-NLS-1$
+				getTranslation("ThanksToFHQ") //$NON-NLS-1$
 				);
 		
 		return license;
@@ -157,7 +157,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	protected String getTitle() {
-		return getTranslation("InfoNavigationContent.34"); //$NON-NLS-1$
+		return getTranslation("OWLCMS_Top"); //$NON-NLS-1$
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("InfoNavigationContent.35"); //$NON-NLS-1$
+		return getTranslation("OWLCMS_Info"); //$NON-NLS-1$
 	}
 
 }

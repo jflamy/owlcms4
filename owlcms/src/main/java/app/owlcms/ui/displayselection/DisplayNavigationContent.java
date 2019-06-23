@@ -42,29 +42,29 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	public DisplayNavigationContent() {
 		VerticalLayout intro = new VerticalLayout();
-		addP(intro, getTranslation("DisplayNavigationContent.0")); //$NON-NLS-1$
-		addP(intro, getTranslation("DisplayNavigationContent.1")); //$NON-NLS-1$
-		intro.getElement().getStyle().set(getTranslation("DisplayNavigationContent.2"), "0"); //$NON-NLS-1$ //$NON-NLS-2$
+		addP(intro, getTranslation("Dropdown_Select_Platform")); //$NON-NLS-1$
+		addP(intro, getTranslation("Button_Open_Display")); //$NON-NLS-1$
+		intro.getElement().getStyle().set(getTranslation("margin-bottom"), "0"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		Button attempt = new Button(
-				getTranslation("DisplayNavigationContent.4"), //$NON-NLS-1$
+				getTranslation("AttemptBoard"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AttemptBoard.class)));
 		Button scoreboard = new Button(
-				getTranslation("DisplayNavigationContent.5"), //$NON-NLS-1$
+				getTranslation("Scoreboard"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 		Button referee = new Button(
-			getTranslation("DisplayNavigationContent.6"), //$NON-NLS-1$
+			getTranslation("Athlete_Decisions"), //$NON-NLS-1$
 			buttonClickEvent -> UI.getCurrent().getPage()
 				.executeJavaScript(getWindowOpener(AthleteFacingDecisionBoard.class)));
 		Button athleteFacingAttempt = new Button(
-				getTranslation("DisplayNavigationContent.7"), //$NON-NLS-1$
+				getTranslation("Athlete_Attempt"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AthleteFacingAttemptBoard.class)));
 
 		Button plates = new Button(
-				getTranslation("DisplayNavigationContent.8"), //$NON-NLS-1$
+				getTranslation("PlatesDisplay"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 
@@ -80,8 +80,8 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 		plates.setEnabled(false);
 
 		fillH(intro, this);
-		doGroup(getTranslation("DisplayNavigationContent.9"), grid1, this); //$NON-NLS-1$
-		doGroup(getTranslation("DisplayNavigationContent.10"), grid2, this); //$NON-NLS-1$
+		doGroup(getTranslation("FieldOfPlayDisplays"), grid1, this); //$NON-NLS-1$
+		doGroup(getTranslation("Refereeing_Displays"), grid2, this); //$NON-NLS-1$
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	@Override
 	protected String getTitle() {
-		return getTranslation("DisplayNavigationContent.11"); //$NON-NLS-1$
+		return getTranslation("Start Displays"); //$NON-NLS-1$
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("DisplayNavigationContent.12"); //$NON-NLS-1$
+		return getTranslation("OWLCMS_Displays"); //$NON-NLS-1$
 	}
 	
 }

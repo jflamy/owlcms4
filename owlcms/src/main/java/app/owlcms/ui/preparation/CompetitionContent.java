@@ -91,7 +91,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
 			);
 		ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(Locale.US);
 		crudFormFactory.setFieldProvider("defaultLocale", //$NON-NLS-1$
-            new ComboBoxProvider<Locale>(getTranslation("CompetitionContent.1"), Arrays.asList(Locale.ENGLISH,Locale.FRENCH), new TextRenderer<>(nameGenerator),  //$NON-NLS-1$
+            new ComboBoxProvider<Locale>(getTranslation("Locale"), Arrays.asList(Locale.ENGLISH,Locale.FRENCH), new TextRenderer<>(nameGenerator),  //$NON-NLS-1$
             		nameGenerator));
 		crudFormFactory.setFieldType("competitionDate", LocalDateField.class); //$NON-NLS-1$
 	}
@@ -139,6 +139,6 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("CompetitionContent.0"); //$NON-NLS-1$
+		return getTranslation("Preparation_Competition"); //$NON-NLS-1$
 	}
 }

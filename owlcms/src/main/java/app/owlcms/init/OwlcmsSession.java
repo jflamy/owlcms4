@@ -6,17 +6,19 @@
  */
 package app.owlcms.init;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 
-import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.TranslationProvider;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -99,21 +101,41 @@ public class OwlcmsSession {
 		setAttribute(FOP, fop);
 	}
 	
-	public static Locale getLocale() {
-		UI u = UI.getCurrent();
-		if (u != null) {
-			return u.getLocale();
-		}
-		VaadinSession v = VaadinSession.getCurrent();
-		if (v != null) {
-			return v.getLocale();
-		} 
-		Competition c = Competition.getCurrent();
-		if (c != null) {
-			return c.getDefaultLocale();
-		}
-		return Locale.ENGLISH;
-	}
+//	public static Locale getLocale() {
+//		UI u = UI.getCurrent();
+//		if (u != null) {
+//			return u.getLocale();
+//		}
+//		VaadinSession v = VaadinSession.getCurrent();
+//		if (v != null) {
+//			return v.getLocale();
+//		} 
+//		Competition c = Competition.getCurrent();
+//		if (c != null) {
+//			return c.getDefaultLocale();
+//		}
+//		return Locale.ENGLISH;
+//	}
+	
+    /**
+     * Copied from {@link Component} to ensure consistent behavior.
+     * {@link TranslationProvider} will enforce a language if the competition screens must ignore browser settings
+     * 
+     * @return
+     */
+    public static Locale getLocale() {
+        UI currentUi = UI.getCurrent();
+        Locale locale = currentUi == null ? null : currentUi.getLocale();
+        if (locale == null) {
+            List<Locale> locales = TranslationProvider.getAvailableLocales();
+            if (locales != null && !locales.isEmpty()) {
+                locale = locales.get(0);
+            } else {
+                locale = Locale.getDefault();
+            }
+        }
+        return locale;
+    }
 
     public static boolean isAuthenticated() {
         return Boolean.TRUE.equals(getAttribute("authenticated")); //$NON-NLS-1$

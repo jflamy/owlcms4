@@ -86,43 +86,43 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
 	protected void createTopBar(HorizontalLayout topBar) {
 
 		H3 title = new H3();
-		title.setText(getTranslation("RegistrationLayout.0")); //$NON-NLS-1$
+		title.setText(getTranslation("EditRegisteredAthletes")); //$NON-NLS-1$
 		title.add();
 		title.getStyle()
 			.set("margin", "0px 0px 0px 0px") //$NON-NLS-1$ //$NON-NLS-2$
 			.set("font-weight", "normal"); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		Button drawLots = new Button(getTranslation("RegistrationLayout.1"), (e) -> { //$NON-NLS-1$
+		Button drawLots = new Button(getTranslation("DrawLotNumbers"), (e) -> { //$NON-NLS-1$
 			drawLots();
 		});
 
 		JXLSStartingList startingListWriter = new JXLSStartingList();
 		StreamResource href = new StreamResource("startingList.xls", startingListWriter); //$NON-NLS-1$
 		startingList = new Anchor(href, ""); //$NON-NLS-1$
-		startingListButton = new Button(getTranslation("RegistrationLayout.2"), new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
+		startingListButton = new Button(getTranslation("StartingList"), new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
 		startingList.add(startingListButton);
 		startingListButton.setEnabled(true);
 		
-		Button deleteAthletes = new Button(getTranslation("RegistrationLayout.3"), (e) -> { //$NON-NLS-1$
+		Button deleteAthletes = new Button(getTranslation("DeleteAthletes"), (e) -> { //$NON-NLS-1$
 			new ConfirmationDialog(
-				getTranslation("RegistrationLayout.4"),  //$NON-NLS-1$
-				getTranslation("RegistrationLayout.5"),  //$NON-NLS-1$
-				getTranslation("RegistrationLayout.6"), //$NON-NLS-1$
+				getTranslation("DeleteAthletes"),  //$NON-NLS-1$
+				getTranslation("Warning_DeleteAthletes"),  //$NON-NLS-1$
+				getTranslation("Done_period"), //$NON-NLS-1$
 				() -> {deleteAthletes();}
 				).open();
 			
 		});
-		deleteAthletes.getElement().setAttribute("title", getTranslation("RegistrationLayout.7")); //$NON-NLS-1$ //$NON-NLS-2$
+		deleteAthletes.getElement().setAttribute("title", getTranslation("DeleteAthletes_forListed")); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		Button clearLifts = new Button(getTranslation("RegistrationLayout.8"), (e) -> { //$NON-NLS-1$
+		Button clearLifts = new Button(getTranslation("ClearLifts"), (e) -> { //$NON-NLS-1$
 			new ConfirmationDialog(
-				getTranslation("RegistrationLayout.9"),  //$NON-NLS-1$
-				getTranslation("RegistrationLayout.10"),  //$NON-NLS-1$
-				getTranslation("RegistrationLayout.11"), //$NON-NLS-1$
+				getTranslation("ClearLifts"),  //$NON-NLS-1$
+				getTranslation("Warning_ClearAthleteLifts"),  //$NON-NLS-1$
+				getTranslation("LiftsCleared"), //$NON-NLS-1$
 				() -> {clearLifts();}
 				).open();
 		});
-		deleteAthletes.getElement().setAttribute("title", getTranslation("RegistrationLayout.12")); //$NON-NLS-1$ //$NON-NLS-2$
+		deleteAthletes.getElement().setAttribute("title", getTranslation("ClearLifts_forListed")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		HorizontalLayout buttons = new HorizontalLayout(
 				drawLots,

@@ -136,19 +136,19 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	 */
 	protected void initToolbar() {
 		findAllButton = new Button(VaadinIcon.REFRESH.create(), e -> findAllButtonClicked());
-        findAllButton.getElement().setAttribute("title", getTranslation("OwlcmsCrudGrid.0")); //$NON-NLS-1$ //$NON-NLS-2$
+        findAllButton.getElement().setAttribute("title", getTranslation("RefreshList")); //$NON-NLS-1$ //$NON-NLS-2$
         crudLayout.addToolbarComponent(findAllButton);
 
         addButton = new Button(VaadinIcon.PLUS.create(), e -> addButtonClicked());
-        addButton.getElement().setAttribute("title", getTranslation("OwlcmsCrudGrid.1")); //$NON-NLS-1$ //$NON-NLS-2$
+        addButton.getElement().setAttribute("title", getTranslation("Add")); //$NON-NLS-1$ //$NON-NLS-2$
         crudLayout.addToolbarComponent(addButton);
 
         updateButton = new Button(VaadinIcon.PENCIL.create(), e -> updateButtonClicked());
-        updateButton.getElement().setAttribute("title", getTranslation("OwlcmsCrudGrid.2")); //$NON-NLS-1$ //$NON-NLS-2$
+        updateButton.getElement().setAttribute("title", getTranslation("Update")); //$NON-NLS-1$ //$NON-NLS-2$
         crudLayout.addToolbarComponent(updateButton);
 
         deleteButton = new Button(VaadinIcon.TRASH.create(), e -> deleteButtonClicked());
-        deleteButton.getElement().setAttribute("title", getTranslation("OwlcmsCrudGrid.3")); //$NON-NLS-1$ //$NON-NLS-2$
+        deleteButton.getElement().setAttribute("title", getTranslation("Delete")); //$NON-NLS-1$ //$NON-NLS-2$
         crudLayout.addToolbarComponent(deleteButton);
         
         updateButtons();

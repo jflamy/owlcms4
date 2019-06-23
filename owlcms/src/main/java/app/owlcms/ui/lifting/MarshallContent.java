@@ -38,7 +38,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 
 	public MarshallContent() {
 		super();
-		setTopBarTitle(getTranslation("MarshallContent.0")); //$NON-NLS-1$
+		setTopBarTitle(getTranslation("Marshall")); //$NON-NLS-1$
 	}
 
 
@@ -82,6 +82,6 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("MarshallContent.3"); //$NON-NLS-1$
+		return getTranslation("Marshall"); //$NON-NLS-1$
 	}
 }

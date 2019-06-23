@@ -50,7 +50,7 @@ public class ProdData {
 	protected static Competition createDefaultCompetition() {
 		Competition competition = new Competition();
 
-		competition.setCompetitionName(TranslationProvider.translate("Competition.competitionName", getLocale()) + " ?");
+		competition.setCompetitionName(TranslationProvider.translate("Competition", getLocale()) + " ?");
 		competition.setCompetitionCity(TranslationProvider.translate("Competition.competitionCity", getLocale()) + " ?");
 		competition.setCompetitionDate(LocalDate.now());
 		competition
