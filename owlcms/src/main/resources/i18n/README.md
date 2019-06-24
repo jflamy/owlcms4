@@ -11,7 +11,6 @@
       4. add "semicolon" as delimiter on the second.
 4. Each column represents a language.  You may add your own language by adding a column at the end; use the ISO 639-1 two-letter code for your language -- see the list in https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes  (for example, da is Danish, fr is French, etc.)
 5. In order to test your translations:
-
   1. Add a column for your language in the .csv 
   2. Translate a few items by filling in the cells in the csv abd save it.
   3. Create a folder local\i18n next to the owlcms jar and copy the .csv in there
