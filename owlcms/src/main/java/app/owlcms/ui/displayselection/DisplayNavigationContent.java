@@ -97,7 +97,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	@Override
 	protected String getTitle() {
-		return getTranslation("Start Displays"); //$NON-NLS-1$
+		return getTranslation("StartDisplays"); //$NON-NLS-1$
 	}
 
 	/**

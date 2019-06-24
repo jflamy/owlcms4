@@ -102,7 +102,7 @@ public class RegistrationContent extends VerticalLayout
 		grid.addColumn("lastName").setHeader(getTranslation("LastName")); //$NON-NLS-1$ //$NON-NLS-2$
 		grid.addColumn("firstName").setHeader(getTranslation("FirstName")); //$NON-NLS-1$ //$NON-NLS-2$
 		grid.addColumn("team").setHeader(getTranslation("Team")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.addColumn("yearOfBirth").setHeader(getTranslation("Birth")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate")); //$NON-NLS-1$ //$NON-NLS-2$
 		grid.addColumn("gender").setHeader(getTranslation("Gender")); //$NON-NLS-1$ //$NON-NLS-2$
 		grid.addColumn("ageDivision").setHeader(getTranslation("AgeDivision")); //$NON-NLS-1$ //$NON-NLS-2$
 		if (Competition.getCurrent().isMasters()) {

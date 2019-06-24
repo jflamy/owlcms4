@@ -101,24 +101,8 @@ public class OwlcmsSession {
 		setAttribute(FOP, fop);
 	}
 	
-//	public static Locale getLocale() {
-//		UI u = UI.getCurrent();
-//		if (u != null) {
-//			return u.getLocale();
-//		}
-//		VaadinSession v = VaadinSession.getCurrent();
-//		if (v != null) {
-//			return v.getLocale();
-//		} 
-//		Competition c = Competition.getCurrent();
-//		if (c != null) {
-//			return c.getDefaultLocale();
-//		}
-//		return Locale.ENGLISH;
-//	}
-	
     /**
-     * Copied from {@link Component} to ensure consistent behavior.
+     * Copied from Vaadin {@link Component} to ensure consistent behavior.
      * {@link Translator} will enforce a language if the competition screens must ignore browser settings
      * 
      * @return
