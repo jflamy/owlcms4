@@ -126,7 +126,7 @@ public class Translator implements I18NProvider {
                     String nextLine = in.nextLine();
                     final String[] line = nextLine.split(CSV_DELIMITER, header.length);
                     final String key = line[0];
-                    logger.debug("{}", nextLine);
+                    logger.trace("{}", nextLine);
                     for (int i = 1; i < languageProperties.length; i++) {
                         // treat the CSV strings using same rules as Properties files.
                         // u0000 escapes are translated to Java characters
@@ -138,7 +138,7 @@ public class Translator implements I18NProvider {
 
                 // writing
                 for (int i = 1; i < languageProperties.length; i++) {
-                    logger.warn("writing to {}", outFiles[i].getAbsolutePath());
+                    logger.debug("writing to {}", outFiles[i].getAbsolutePath());
                     languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csvName);
                 }
                 final URL[] urls = { bundleDir.toURI().toURL() };
