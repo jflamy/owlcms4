@@ -6,7 +6,6 @@
  */
 package app.owlcms.ui.preparation;
 
-import java.util.Arrays;
 import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
@@ -24,6 +23,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.i18n.Translator;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
@@ -91,7 +91,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
 			);
 		ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(Locale.US);
 		crudFormFactory.setFieldProvider("defaultLocale", //$NON-NLS-1$
-            new ComboBoxProvider<Locale>(getTranslation("Locale"), Arrays.asList(Locale.ENGLISH,Locale.FRENCH), new TextRenderer<>(nameGenerator),  //$NON-NLS-1$
+            new ComboBoxProvider<Locale>(getTranslation("Locale"), Translator.getAvailableLocales(), new TextRenderer<>(nameGenerator),  //$NON-NLS-1$
             		nameGenerator));
 		crudFormFactory.setFieldType("competitionDate", LocalDateField.class); //$NON-NLS-1$
 	}

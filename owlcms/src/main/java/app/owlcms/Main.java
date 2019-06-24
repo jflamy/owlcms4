@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
 import javax.servlet.ServletContextEvent;
@@ -99,6 +100,7 @@ public class Main implements ServletContextListener {
 
         JPAService.init(demoMode || memoryMode, demoMode || resetMode);
         injectData(demoMode, devMode, testMode, masters);
+        overrideDisplayLanguage();
 
         // initializes the owlcms singleton
         OwlcmsFactory.getDefaultFOP();
@@ -106,6 +108,14 @@ public class Main implements ServletContextListener {
         return serverPort;
     }
 
+
+    private static void overrideDisplayLanguage() {
+        Locale l = Competition.getCurrent().getDefaultLocale();
+        if (l != null) {
+            Translator.setForcedLocale(l);
+            logger.info("forcing display language to {}",l);
+        }
+    }
 
     private static void injectData(boolean demoMode, boolean devMode, boolean testMode, boolean masters) {
         if (demoMode) {

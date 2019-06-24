@@ -24,6 +24,7 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
@@ -65,7 +66,7 @@ public class Translator implements I18NProvider {
     }
 
     public static void setForcedLocale(Locale locale) {
-        if (locales.contains(locale)) {
+        if (getAvailableLocales().contains(locale)) {
             Translator.forcedLocale = locale;
         } else {
             locale = null; // default behaviour, first forcedLocale in list will be used
@@ -118,7 +119,7 @@ public class Translator implements I18NProvider {
                     outFiles[i] = outfile;
                     languageProperties[i] = new Properties();
                 }
-                logger.warn("languages: {}",locales);
+                logger.debug("languages: {}",locales);
 
                 // reading to properties
                 while (in.hasNextLine()) {
@@ -127,13 +128,17 @@ public class Translator implements I18NProvider {
                     final String key = line[0];
                     logger.debug("{}", nextLine);
                     for (int i = 1; i < languageProperties.length; i++) {
-                        languageProperties[i].setProperty(key, line[i]);
+                        // treat the CSV strings using same rules as Properties files.
+                        // u0000 escapes are translated to Java characters
+                        String input = line[i];
+                        String unescapeJava = StringEscapeUtils.unescapeJava(input);
+                        languageProperties[i].setProperty(key, unescapeJava);
                     }
                 }
 
                 // writing
                 for (int i = 1; i < languageProperties.length; i++) {
-                    logger.debug("writing to {}", outFiles[i].getAbsolutePath());
+                    logger.warn("writing to {}", outFiles[i].getAbsolutePath());
                     languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csvName);
                 }
                 final URL[] urls = { bundleDir.toURI().toURL() };
@@ -210,7 +215,6 @@ public class Translator implements I18NProvider {
     }
 
     private Locale overrideLocale(Locale locale) {
-        forcedLocale = Locale.FRENCH;
         if (forcedLocale != null) {
             locale = forcedLocale;
         }
