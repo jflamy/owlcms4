@@ -11,7 +11,7 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.i18n.Messages;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
@@ -76,7 +76,7 @@ public class RuleViolationException extends RuntimeException {
     @Override
     public String getLocalizedMessage() {
         final Locale locale1 = (this.locale != null ? this.locale : OwlcmsSession.getLocale());
-        final String messageTemplate = Messages.getString(this.messageKey, locale1);
+        final String messageTemplate = Translator.translate(this.messageKey, locale1);
         return MessageFormat.format(messageTemplate, messageFormatData);
     }
 
@@ -87,7 +87,7 @@ public class RuleViolationException extends RuntimeException {
      * @return the localized message
      */
     public String getLocalizedMessage(Locale locale1) {
-        final String messageTemplate = Messages.getString(this.messageKey, locale1);
+        final String messageTemplate = Translator.translate(this.messageKey, locale1);
         return MessageFormat.format(messageTemplate, messageFormatData);
     }
 

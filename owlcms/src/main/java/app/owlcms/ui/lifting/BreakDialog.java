@@ -96,7 +96,7 @@ public class BreakDialog extends Dialog {
 			breakStart.setEnabled(false);
 			breakPause.setEnabled(true);
 			breakEnd.setEnabled(true);
-			timer.getStyle().set("visibility", "visible");
+			timer.getStyle().set("visibility", "visible"); //$NON-NLS-1$ //$NON-NLS-2$
 		};
 	}
 
@@ -133,7 +133,7 @@ public class BreakDialog extends Dialog {
 		dialog.add(ct);
 		dialog.add(new Hr());
 		dialog.add(timer);
-		timer.getStyle().set("visibility", "hidden");
+		timer.getStyle().set("visibility", "hidden"); //$NON-NLS-1$ //$NON-NLS-2$
 		dialog.add(buttons);
 	}
 
@@ -145,7 +145,7 @@ public class BreakDialog extends Dialog {
 		int nowHr = nowTime.getHour();
 		int previousStepMin = (nowMin / timeStep) * timeStep; // between 0 and 50
 		int nextStepMin = (previousStepMin + timeStep) % 60;
-		logger.trace("previousStepMin = {} nextStepMin = {}", previousStepMin, nextStepMin);
+		logger.trace("previousStepMin = {} nextStepMin = {}", previousStepMin, nextStepMin); //$NON-NLS-1$
 		int nextHr = (nextStepMin == 0 ? nowHr + 1 : nowHr);
 		LocalDate nextDate = LocalDate.now();
 		if (nextHr >= 24) {
@@ -158,20 +158,20 @@ public class BreakDialog extends Dialog {
 
 	private HorizontalLayout configureButtons(Dialog dialog) {
 		breakStart = new Button(AvIcons.PLAY_ARROW.create(), startBreak());
-		breakStart.getElement().setAttribute("theme", "primary");
-		breakStart.getElement().setAttribute("title", "Start Break Countdown Timer");
+		breakStart.getElement().setAttribute("theme", "primary"); //$NON-NLS-1$ //$NON-NLS-2$
+		breakStart.getElement().setAttribute("title", getTranslation("StartCountdown")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		breakPause = new Button(AvIcons.PAUSE.create(), pauseBreak());
-		breakPause.getElement().setAttribute("theme", "primary");
-		breakPause.getElement().setAttribute("title", "Pause Break Countdown Timer");
+		breakPause.getElement().setAttribute("theme", "primary"); //$NON-NLS-1$ //$NON-NLS-2$
+		breakPause.getElement().setAttribute("title", getTranslation("PauseCountdown")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		breakEnd = new Button(AvIcons.STOP.create(), stopBreak(dialog));
-		breakEnd.getElement().setAttribute("theme", "primary");
-		breakEnd.getElement().setAttribute("title", "End Break, Start Lifting");
+		breakEnd.getElement().setAttribute("theme", "primary"); //$NON-NLS-1$ //$NON-NLS-2$
+		breakEnd.getElement().setAttribute("title", getTranslation("EndBreak_StartLifting")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.add(breakStart, breakPause, breakEnd);
-		buttons.setWidth("100%");
+		buttons.setWidth("100%"); //$NON-NLS-1$
 		buttons.setJustifyContentMode(JustifyContentMode.AROUND);
 		return buttons;
 	}
@@ -179,32 +179,32 @@ public class BreakDialog extends Dialog {
 	private void configureDuration() {
 		bt = new RadioButtonGroup<BreakType>();
 		bt.setItems(BreakType.values());
-		bt.setLabel("Break Type");
+		bt.setLabel(getTranslation("BreakType")); //$NON-NLS-1$
 
 		ct = new RadioButtonGroup<CountdownType>();
 		ct.setItems(CountdownType.values());
-		ct.setLabel("Countdown Type");
+		ct.setLabel(getTranslation("CountdownType")); //$NON-NLS-1$
 
 		nf.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.DURATION, nf, tp, dp));
-		Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time
+		Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time //$NON-NLS-1$ //$NON-NLS-2$
 		tp.setLocale(locale);
 		tp.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET, nf, tp, dp));
 		dp.setLocale(locale);
 		tp.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET, nf, tp, dp));
-		minutes = new Label("minutes");
+		minutes = new Label("minutes"); //$NON-NLS-1$
 
-		ct.addComponents(CountdownType.DURATION, nf, new Label(" "), minutes, new Div());
-		ct.addComponents(CountdownType.TARGET, dp, new Label(" "), tp);
+		ct.addComponents(CountdownType.DURATION, nf, new Label(" "), minutes, new Div()); //$NON-NLS-1$
+		ct.addComponents(CountdownType.TARGET, dp, new Label(" "), tp); //$NON-NLS-1$
 	}
 
 	private void configureTimerDisplay() {
 		Div countdown = new Div(new BreakTimerElement());
-		countdown.getStyle().set("font-size", "x-large");
-		countdown.getStyle().set("font-weight", "bold");
+		countdown.getStyle().set("font-size", "x-large"); //$NON-NLS-1$ //$NON-NLS-2$
+		countdown.getStyle().set("font-weight", "bold"); //$NON-NLS-1$ //$NON-NLS-2$
 		timer = new HorizontalLayout(countdown);
-		timer.setWidth("100%");
+		timer.setWidth("100%"); //$NON-NLS-1$
 		timer.setJustifyContentMode(JustifyContentMode.CENTER);
-		timer.getStyle().set("margin-top", "0px");
+		timer.getStyle().set("margin-top", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private Object getOrigin() {

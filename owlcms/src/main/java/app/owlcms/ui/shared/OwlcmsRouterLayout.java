@@ -35,6 +35,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.PageConfigurator;
 
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
@@ -67,6 +68,12 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 	private Behaviour variant;
 
 	private HasElement layoutComponentContent;
+	
+	String PREPARE_COMPETITION = Translator.translate("PrepareCompetition"); //$NON-NLS-1$
+	String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup"); //$NON-NLS-1$
+	String START_DISPLAYS = Translator.translate("Start Displays"); //$NON-NLS-1$
+	String RESULT_DOCUMENTS = Translator.translate("ResultDocuments"); //$NON-NLS-1$
+	String INFO = Translator.translate("About"); //$NON-NLS-1$
 
     public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));
@@ -78,7 +85,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 	 */
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
-		logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName());
+		logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName()); //$NON-NLS-1$
 		((AppLayoutAware)content).setRouterLayout(this);
 		super.showRouterLayoutContent(content);
 		this.setLayoutComponentContent(content);
@@ -98,14 +105,14 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 		}
 
 		LeftNavigationItem home = new LeftNavigationItem(
-				"Home",
+				getTranslation("Home"), //$NON-NLS-1$
 				VaadinIcon.HOME.create(),
 				HomeNavigationContent.class);
 
 		AppLayout appLayout = AppLayoutBuilder
 			.get(variant)
-			.withTitle("OWLCMS - Olympic Weightlifting Competition Management System")
-			.withIcon("/frontend/images/logo.png")
+			.withTitle(getTranslation("OWLCMS_Top")) //$NON-NLS-1$
+			.withIcon("/frontend/images/logo.png") //$NON-NLS-1$
 			.withAppBar(AppBarBuilder
 				.get()
 				.build())
@@ -114,27 +121,27 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 				.addToSection(new LeftHeaderItem(null, OwlcmsFactory.getVersion(), null), HEADER)
 				.add(home)
 				.add(new LeftNavigationItem(
-						HomeNavigationContent.PREPARE_COMPETITION,
-						new Icon("social", "group-add"),
+						PREPARE_COMPETITION,
+						new Icon("social", "group-add"), //$NON-NLS-1$ //$NON-NLS-2$
 						PreparationNavigationContent.class))
 				.add(new LeftNavigationItem(
-						HomeNavigationContent.RUN_LIFTING_GROUP,
-						new Icon("places", "fitness-center"),
+						RUN_LIFTING_GROUP,
+						new Icon("places", "fitness-center"), //$NON-NLS-1$ //$NON-NLS-2$
 						LiftingNavigationContent.class))
 				.add(new LeftNavigationItem(
-						HomeNavigationContent.START_DISPLAYS,
-						new Icon("hardware", "desktop-windows"),
+						START_DISPLAYS,
+						new Icon("hardware", "desktop-windows"), //$NON-NLS-1$ //$NON-NLS-2$
 						DisplayNavigationContent.class))
 				.add(new LeftNavigationItem(
-						HomeNavigationContent.RESULT_DOCUMENTS,
-						new Icon("maps", "local-printshop"),
+						RESULT_DOCUMENTS,
+						new Icon("maps", "local-printshop"), //$NON-NLS-1$ //$NON-NLS-2$
 						ResultsNavigationContent.class))
 				.add(new LeftNavigationItem(
-						HomeNavigationContent.INFO,
-						new Icon("icons", "info-outline"),
+						INFO,
+						new Icon("icons", "info-outline"), //$NON-NLS-1$ //$NON-NLS-2$
 						InfoNavigationContent.class))
 				.addToSection(new LeftClickableItem(
-						"Preferences",
+						"Preferences", //$NON-NLS-1$
 						VaadinIcon.COG.create(),
 						clickEvent -> openModeSelector(this.variant)),
 					FOOTER)
@@ -174,11 +181,11 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 			group
 				.getElement()
 				.getStyle()
-				.set("display", "flex");
+				.set("display", "flex"); //$NON-NLS-1$ //$NON-NLS-2$
 			group
 				.getElement()
 				.getStyle()
-				.set("flexDirection", "column");
+				.set("flexDirection", "column"); //$NON-NLS-1$ //$NON-NLS-2$
 			group.setItems(Behaviour.LEFT,
 				Behaviour.LEFT_OVERLAY,
 				Behaviour.LEFT_RESPONSIVE,
@@ -205,7 +212,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 	
 	@Override
 	public void configurePage(InitialPageSettings settings) {
-		settings.addInlineWithContents("<link rel=\"icon\" href=\"./frontend/images/owlcms.ico\">",
+		settings.addInlineWithContents("<link rel=\"icon\" href=\"./frontend/images/owlcms.ico\">", //$NON-NLS-1$
 				InitialPageSettings.WrapMode.NONE);
 	}
 }

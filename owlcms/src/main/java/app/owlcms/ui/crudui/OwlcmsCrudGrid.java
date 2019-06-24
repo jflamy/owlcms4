@@ -92,24 +92,24 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 			ComponentEventListener<ClickEvent<Button>> unused) {
 		Component form = this.owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
 			cancelButtonClickEvent -> {
-				logger.debug("cancelButtonClickEvent");
+				logger.debug("cancelButtonClickEvent"); //$NON-NLS-1$
 				owlcmsGridLayout.hideForm();
 				grid.asSingleSelect().clear();
 			}, 
 			operationButtonClickEvent -> {
 				try {
-					logger.debug("postOperation");
+					logger.debug("postOperation"); //$NON-NLS-1$
 					grid.asSingleSelect().clear();
 					owlcmsGridLayout.hideForm();
 					refreshGrid();
 					Notification.show(successMessage);
-					logger.trace("operation performed");
+					logger.trace("operation performed"); //$NON-NLS-1$
 				} catch (Exception e) {
 					logger.error(LoggerUtils.stackTrace(e));
 				}
 			}, 
 			deleteButtonClickEvent -> {
-				logger.debug("preDelete");
+				logger.debug("preDelete"); //$NON-NLS-1$
 				owlcmsGridLayout.hideForm();
 				this.deleteButtonClicked();
 			});
@@ -136,19 +136,19 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	 */
 	protected void initToolbar() {
 		findAllButton = new Button(VaadinIcon.REFRESH.create(), e -> findAllButtonClicked());
-        findAllButton.getElement().setAttribute("title", "Refresh list");
+        findAllButton.getElement().setAttribute("title", getTranslation("RefreshList")); //$NON-NLS-1$ //$NON-NLS-2$
         crudLayout.addToolbarComponent(findAllButton);
 
         addButton = new Button(VaadinIcon.PLUS.create(), e -> addButtonClicked());
-        addButton.getElement().setAttribute("title", "Add");
+        addButton.getElement().setAttribute("title", getTranslation("Add")); //$NON-NLS-1$ //$NON-NLS-2$
         crudLayout.addToolbarComponent(addButton);
 
         updateButton = new Button(VaadinIcon.PENCIL.create(), e -> updateButtonClicked());
-        updateButton.getElement().setAttribute("title", "Update");
+        updateButton.getElement().setAttribute("title", getTranslation("Update")); //$NON-NLS-1$ //$NON-NLS-2$
         crudLayout.addToolbarComponent(updateButton);
 
         deleteButton = new Button(VaadinIcon.TRASH.create(), e -> deleteButtonClicked());
-        deleteButton.getElement().setAttribute("title", "Delete");
+        deleteButton.getElement().setAttribute("title", getTranslation("Delete")); //$NON-NLS-1$ //$NON-NLS-2$
         crudLayout.addToolbarComponent(deleteButton);
         
         updateButtons();

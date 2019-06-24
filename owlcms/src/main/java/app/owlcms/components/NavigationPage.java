@@ -29,13 +29,13 @@ public interface NavigationPage extends OwlcmsContent {
 
 	public default String getWindowOpener(Class<? extends Component> targetClass) {
 		FieldOfPlay fop = OwlcmsSession.getFop();
-		String name = fop == null ? "" : "_"+fop.getName();
-		return "window.open('"+
+		String name = fop == null ? "" : "_"+fop.getName(); //$NON-NLS-1$ //$NON-NLS-2$
+		return "window.open('"+ //$NON-NLS-1$
 				getUrlFromTarget(targetClass)+
-				"','"+
+				"','"+ //$NON-NLS-1$
 				targetClass.getSimpleName()+
 				name+
-				"')";
+				"')"; //$NON-NLS-1$
 	}
 
 	public default String getUrlFromTarget(Class<? extends Component> targetClass) {
@@ -54,8 +54,8 @@ public interface NavigationPage extends OwlcmsContent {
 	 */
 	public default Paragraph addP(HasComponents intro, String text) {
 		Paragraph paragraph = new Paragraph();
-		paragraph.getElement().setProperty("innerHTML", text);
-		paragraph.getElement().getStyle().set("margin-bottom", "0");
+		paragraph.getElement().setProperty("innerHTML", text); //$NON-NLS-1$
+		paragraph.getElement().getStyle().set("margin-bottom", "0"); //$NON-NLS-1$ //$NON-NLS-2$
 		intro.add(paragraph);
 		return paragraph;
 	}
@@ -63,7 +63,7 @@ public interface NavigationPage extends OwlcmsContent {
 	public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper) {
 		VerticalLayout content1 = new VerticalLayout();
 		content1.add(new Label(label));
-		content1.getStyle().set("margin-bottom", "-2ex");
+		content1.getStyle().set("margin-bottom", "-2ex"); //$NON-NLS-1$ //$NON-NLS-2$
 		fillH(content1, wrapper);
 		fillH(grid1, wrapper);
 	}
@@ -72,17 +72,17 @@ public interface NavigationPage extends OwlcmsContent {
 		int port = request.getServerPort();
 		StringBuilder result = new StringBuilder();
 		result.append(request.getScheme())
-			.append("://")
+			.append("://") //$NON-NLS-1$
 			.append(request.getServerName());
-		if ((request.getScheme().equals("http") && port != 80)
-				|| (request.getScheme().equals("https") && port != 443)) {
+		if ((request.getScheme().equals("http") && port != 80) //$NON-NLS-1$
+				|| (request.getScheme().equals("https") && port != 443)) { //$NON-NLS-1$
 			result.append(':')
 				.append(port);
 		}
 		result.append(request.getContextPath());
 		if (resourcePath != null && resourcePath.length() > 0) {
-			if (!resourcePath.startsWith("/")) {
-				result.append("/");
+			if (!resourcePath.startsWith("/")) { //$NON-NLS-1$
+				result.append("/"); //$NON-NLS-1$
 			}
 			result.append(resourcePath);
 		}

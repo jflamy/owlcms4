@@ -35,7 +35,7 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
 	
 	public AthleteGridLayout() {
 		super();
-		logger.debug("created AthleteGridLayout");
+		logger.debug("created AthleteGridLayout"); //$NON-NLS-1$
 	}
 
 	/**
@@ -44,21 +44,21 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
 	 */
 	@Override
 	protected AppLayout getLayoutConfiguration(Behaviour variant) {
-		logger.debug("AthleteGridLayout getLayoutConfiguration ");
+		logger.debug("AthleteGridLayout getLayoutConfiguration "); //$NON-NLS-1$
 		variant = Behaviour.LEFT;
 		AbstractLeftAppLayoutBase appLayout = (AbstractLeftAppLayoutBase) super.getLayoutConfiguration(variant);
 		// hide the title and icon
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()
-			.set("display", "none");
+			.set("display", "none"); //$NON-NLS-1$ //$NON-NLS-2$
 			//.set("flex", "0 1 0px");
 		return appLayout;
 	}
 
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
-		logger.debug("AthleteGridLayout setting bi-directional link");
+		logger.debug("AthleteGridLayout setting bi-directional link"); //$NON-NLS-1$
 		super.showRouterLayoutContent(content);
 	}
 }

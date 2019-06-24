@@ -72,17 +72,17 @@ public class GroupContent extends VerticalLayout
 	 */
 	protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
 		Grid<Group> grid = new Grid<Group>(Group.class, false);
-		grid.addColumn(Group::getName).setHeader("Name");
+		grid.addColumn(Group::getName).setHeader(getTranslation("Name")); //$NON-NLS-1$
 		grid.addColumn(
 			LocalDateTimeField.getRenderer(
 				Group::getWeighInTime,this.getLocale()))
-			.setHeader("Weigh-in Time");
+			.setHeader(getTranslation("WeighInTime")); //$NON-NLS-1$
 		grid.addColumn(
 			LocalDateTimeField.getRenderer(
 				Group::getCompetitionTime,this.getLocale()))
-			.setHeader("Start Time");
+			.setHeader(getTranslation("StartTime")); //$NON-NLS-1$
 		grid.addColumn(Group::getPlatform)
-			.setHeader("Platform");
+			.setHeader(getTranslation("Platform")); //$NON-NLS-1$
 
 		GridCrud<Group> crud = new OwlcmsCrudGrid<Group>(Group.class,
 				new OwlcmsGridLayout(Group.class),
@@ -110,42 +110,42 @@ public class GroupContent extends VerticalLayout
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<Group> crudFormFactory) {
-		crudFormFactory.setVisibleProperties("name",
-				"weighInTime",
-				"competitionTime",
-				"platform",
-				"announcer",
-				"marshall",
-				"technicalController",
-				"timeKeeper",
-				"referee1",
-				"referee2",
-				"referee3",
-				"jury1",
-				"jury2",
-				"jury3",
-				"jury4",
-				"jury5");
-		crudFormFactory.setFieldCaptions("Name",
-				"Weigh-in Time",
-				"Start Time",
-				"Platform",
-				"Announcer",
-				"Marshall",
-				"Technical Controller",
-				"Timekeeper",
-				"Referee 1",
-				"Referee 2",
-				"Referee 3",
-				"Jury 1",
-				"Jury 2",
-				"Jury 3",
-				"Jury 4",
-				"Jury 5");
-		crudFormFactory.setFieldProvider("platform",
-				new ComboBoxProvider<>("Platform", PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
-		crudFormFactory.setFieldType("weighInTime", LocalDateTimeField.class);
-		crudFormFactory.setFieldType("competitionTime", LocalDateTimeField.class);
+		crudFormFactory.setVisibleProperties("name", //$NON-NLS-1$
+				"weighInTime", //$NON-NLS-1$
+				"competitionTime", //$NON-NLS-1$
+				"platform", //$NON-NLS-1$
+				"announcer", //$NON-NLS-1$
+				"marshall", //$NON-NLS-1$
+				"technicalController", //$NON-NLS-1$
+				"timeKeeper", //$NON-NLS-1$
+				"referee1", //$NON-NLS-1$
+				"referee2", //$NON-NLS-1$
+				"referee3", //$NON-NLS-1$
+				"jury1", //$NON-NLS-1$
+				"jury2", //$NON-NLS-1$
+				"jury3", //$NON-NLS-1$
+				"jury4", //$NON-NLS-1$
+				"jury5"); //$NON-NLS-1$
+		crudFormFactory.setFieldCaptions(getTranslation("Name"), //$NON-NLS-1$
+				getTranslation("WeighInTime"), //$NON-NLS-1$
+				getTranslation("StartTime"), //$NON-NLS-1$
+				getTranslation("Platform"), //$NON-NLS-1$
+				getTranslation("Announcer"), //$NON-NLS-1$
+				getTranslation("Marshall"), //$NON-NLS-1$
+				getTranslation("TechnicalController"), //$NON-NLS-1$
+				getTranslation("Timekeeper"), //$NON-NLS-1$
+				getTranslation("Referee1"), //$NON-NLS-1$
+				getTranslation("Referee2"), //$NON-NLS-1$
+				getTranslation("Referee3"), //$NON-NLS-1$
+				getTranslation("Jury1"), //$NON-NLS-1$
+				getTranslation("Jury2"), //$NON-NLS-1$
+				getTranslation("Jury3"), //$NON-NLS-1$
+				getTranslation("Jury4"), //$NON-NLS-1$
+				getTranslation("Jury5")); //$NON-NLS-1$
+		crudFormFactory.setFieldProvider("platform", //$NON-NLS-1$
+				new ComboBoxProvider<>(getTranslation("Platform"), PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName)); //$NON-NLS-1$
+		crudFormFactory.setFieldType("weighInTime", LocalDateTimeField.class); //$NON-NLS-1$
+		crudFormFactory.setFieldType("competitionTime", LocalDateTimeField.class); //$NON-NLS-1$
 	}
 
 	/**
@@ -163,11 +163,11 @@ public class GroupContent extends VerticalLayout
 				Binder.BindingBuilder bindingBuilder = binder.forField(field);
 				Locale locale = OwlcmsSession.getLocale();
 				
-				if ("competitionTime".equals(property)) {
+				if ("competitionTime".equals(property)) { //$NON-NLS-1$
 					LocalDateTimeField ldtf = (LocalDateTimeField)field;
 					Validator<LocalDateTime> fv = ldtf.formatValidation(locale);
 					bindingBuilder.withValidator(fv).bind(property);
-				} else if ("weighInTime".equals(property)) {
+				} else if ("weighInTime".equals(property)) { //$NON-NLS-1$
 					LocalDateTimeField ldtf = (LocalDateTimeField)field;
 					Validator<LocalDateTime> fv = ldtf.formatValidation(locale);
 					bindingBuilder.withValidator(fv).bind(property);
@@ -239,6 +239,6 @@ public class GroupContent extends VerticalLayout
 	 */
 	@Override
 	public String getPageTitle() {
-		return "Preparation - Groups";
+		return getTranslation("Preparation_Groups"); //$NON-NLS-1$
 	}
 }

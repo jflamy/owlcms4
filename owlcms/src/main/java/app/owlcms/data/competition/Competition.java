@@ -66,7 +66,7 @@ public class Competition {
 	private String federationWebSite;
 
 	@Convert(converter = LocaleAttributeConverter.class)
-	private Locale defaultLocale = Locale.ENGLISH;
+	private Locale defaultLocale = null;
 	private String protocolFileName;
 	private String resultTemplateFileName;
 

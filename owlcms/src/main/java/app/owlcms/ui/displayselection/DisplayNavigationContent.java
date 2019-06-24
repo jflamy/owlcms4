@@ -42,29 +42,29 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	public DisplayNavigationContent() {
 		VerticalLayout intro = new VerticalLayout();
-		addP(intro, "Use the dropdown to select the platform where the display is located.");
-		addP(intro, "Use one of the buttons below to open a display.");
-		intro.getElement().getStyle().set("margin-bottom", "0");
+		addP(intro, getTranslation("Dropdown_Select_Platform")); //$NON-NLS-1$
+		addP(intro, getTranslation("Button_Open_Display")); //$NON-NLS-1$
+		intro.getElement().getStyle().set(getTranslation("margin-bottom"), "0"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		Button attempt = new Button(
-				"Attempt Board",
+				getTranslation("AttemptBoard"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AttemptBoard.class)));
 		Button scoreboard = new Button(
-				"Scoreboard",
+				getTranslation("Scoreboard"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 		Button referee = new Button(
-			"Athlete-facing Timer/Down/Decisions",
+			getTranslation("Athlete_Decisions"), //$NON-NLS-1$
 			buttonClickEvent -> UI.getCurrent().getPage()
 				.executeJavaScript(getWindowOpener(AthleteFacingDecisionBoard.class)));
 		Button athleteFacingAttempt = new Button(
-				"Athlete-facing Attempt Board Display",
+				getTranslation("Athlete_Attempt"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AthleteFacingAttemptBoard.class)));
 
 		Button plates = new Button(
-				"Plates Display",
+				getTranslation("PlatesDisplay"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 
@@ -80,8 +80,8 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 		plates.setEnabled(false);
 
 		fillH(intro, this);
-		doGroup("Field of Play Displays", grid1, this);
-		doGroup("Refereeing Displays (can accept keyboard input from refereeing devices)", grid2, this);
+		doGroup(getTranslation("FieldOfPlayDisplays"), grid1, this); //$NON-NLS-1$
+		doGroup(getTranslation("Refereeing_Displays"), grid2, this); //$NON-NLS-1$
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	@Override
 	protected String getTitle() {
-		return "Start Displays";
+		return getTranslation("Start Displays"); //$NON-NLS-1$
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 	 */
 	@Override
 	public String getPageTitle() {
-		return "OWLCMS - Displays";
+		return getTranslation("OWLCMS_Displays"); //$NON-NLS-1$
 	}
 	
 }

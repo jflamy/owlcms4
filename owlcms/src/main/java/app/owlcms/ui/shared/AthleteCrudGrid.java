@@ -49,7 +49,7 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 		OwlcmsSession.withFop((fop) -> {
 			Long id = sought.getId();
 			found: for (Athlete a : fop.getLiftingOrder()) {
-				logger.debug("checking for {} : {} {}", id, a, a.getId());
+				logger.debug("checking for {} : {} {}", id, a, a.getId()); //$NON-NLS-1$
 				if (a.getId().equals(id)) {
 					match = a;
 					break found;
@@ -57,7 +57,7 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 			}
 			;
 		});
-		logger.trace("domainObject = {} {}", (domainObject != match ? "!!!!" : ""), domainObject, match);
+		logger.trace("domainObject = {} {}", (domainObject != match ? "!!!!" : ""), domainObject, match); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		if (match != null)
 			domainObject = match;
 

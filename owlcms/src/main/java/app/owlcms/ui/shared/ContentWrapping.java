@@ -35,7 +35,7 @@ public interface ContentWrapping {
         hWrapper.setPadding(false);
         hWrapper.setSpacing(false);
         hWrapper.setFlexGrow(1, content);
-        hWrapper.getElement().getStyle().set("margin-bottom", "0");
+        hWrapper.getElement().getStyle().set("margin-bottom", "0"); //$NON-NLS-1$ //$NON-NLS-2$
         //hWrapper.setSizeFull();
         vWrapper.add(hWrapper);
         vWrapper.setMargin(false);

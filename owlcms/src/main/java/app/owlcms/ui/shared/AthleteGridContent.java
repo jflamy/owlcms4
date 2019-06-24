@@ -75,7 +75,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName()); //$NON-NLS-1$
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
@@ -149,16 +149,16 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 	public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
 		Grid<Athlete> grid = new Grid<>(Athlete.class, false);
 		ThemeList themes = grid.getThemeNames();
-		themes.add("compact");
-		themes.add("row-stripes");
-		grid.addColumn(athlete -> athlete.getLastName().toUpperCase()).setHeader("Last Name");
-		grid.addColumn("firstName").setHeader("First Name");
-		grid.addColumn("team").setHeader("Team");
-		grid.addColumn("category").setHeader("Category");
-		grid.addColumn("nextAttemptRequestedWeight").setHeader("Requested Weight");
+		themes.add("compact"); //$NON-NLS-1$
+		themes.add("row-stripes"); //$NON-NLS-1$
+		grid.addColumn(athlete -> athlete.getLastName().toUpperCase()).setHeader(getTranslation("LastName")); //$NON-NLS-1$
+		grid.addColumn("firstName").setHeader(getTranslation("FirstName")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("team").setHeader(getTranslation("Team")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("category").setHeader(getTranslation("Category")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("nextAttemptRequestedWeight").setHeader(getTranslation("Requested_weight")); //$NON-NLS-1$ //$NON-NLS-2$
 		// format attempt
-		grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader("Attempt");
-		grid.addColumn("startNumber").setHeader("Start Number");
+		grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("Attempt")); //$NON-NLS-1$ //$NON-NLS-2$
+		grid.addColumn("startNumber").setHeader(getTranslation("StartNumber")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class,
@@ -186,10 +186,10 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 
 	public void createGroupSelect() {
 		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder("Group");
+		groupSelect.setPlaceholder(getTranslation("Group")); //$NON-NLS-1$
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
-		groupSelect.setWidth("7rem");
+		groupSelect.setWidth("7rem"); //$NON-NLS-1$
 		groupSelect.setReadOnly(true);
 		// if groupSelect is made read-write, it needs to set values in groupFilter and call updateURLLocation
 		// see AnnouncerContent for an example.
@@ -217,7 +217,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 	public Collection<Athlete> findAll() {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
-			logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+			logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(), //$NON-NLS-1$
 					LoggerUtils.whereFrom());
 			final String filterValue;
 			if (lastNameFilter.getValue() != null) {
@@ -228,7 +228,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 					.collect(Collectors.toList());
 		} else {
 			// no field of play, no group, empty list
-			logger.debug("findAll fop==null");
+			logger.debug("findAll fop==null"); //$NON-NLS-1$
 			return ImmutableList.of();
 		}
 	}
@@ -259,7 +259,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 	 */
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		logger.debug("AthleteGridContent parsing URL");
+		logger.debug("AthleteGridContent parsing URL"); //$NON-NLS-1$
 		QueryParameterReader.super.setParameter(event, parameter);
 		location = event.getLocation();
 		locationUI = event.getUI();
@@ -276,7 +276,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 	
 	@Subscribe
 	public void slaveGroupDone(UIEvent.GroupDone e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
 				this.getOrigin(), e.getOrigin());
 		OwlcmsSession.withFop((fop) -> doUpdateTopBar(fop.getCurAthlete(), 0));
 		crudGrid.refreshGrid();
@@ -286,7 +286,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 	 * @param forceUpdate
 	 */
 	public void syncWithFOP(boolean forceUpdate) {
-		logger.debug("syncWithFOP {}",LoggerUtils.whereFrom());
+		logger.debug("syncWithFOP {}",LoggerUtils.whereFrom()); //$NON-NLS-1$
 		OwlcmsSession.withFop((fop) -> {
 			Group fopGroup = fop.getGroup();
 			Group displayedGroup = groupSelect.getValue();
@@ -346,7 +346,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 	 */
 	@Subscribe
 	public void updateGrid(UIEvent.LiftingOrderUpdated e) {
-		logger.debug("{} {}",e.getOrigin(),LoggerUtils.whereFrom());
+		logger.debug("{} {}",e.getOrigin(),LoggerUtils.whereFrom()); //$NON-NLS-1$
 		UIEventProcessor.uiAccess(crudGrid, uiEventBus, e, () -> {
 			crudGrid.refreshGrid();
 		});
@@ -362,11 +362,11 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 	public void updateURLLocation(UI ui, Location location, Group newGroup) {
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
-		params.put("fop",Arrays.asList(OwlcmsSession.getFop().getName()));
+		params.put("fop",Arrays.asList(OwlcmsSession.getFop().getName())); //$NON-NLS-1$
 		if (newGroup != null && !isIgnoreGroupFromURL()) {
-			params.put("group",Arrays.asList(newGroup.getName()));
+			params.put("group",Arrays.asList(newGroup.getName())); //$NON-NLS-1$
 		} else {
-			params.remove("group");
+			params.remove("group"); //$NON-NLS-1$
 		}
 		ui.getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
@@ -394,27 +394,27 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 	 * a single page app.
 	 */
 	protected void createTopBar() {
-		logger.debug("AthleteGridContent creating top bar");
+		logger.debug("AthleteGridContent creating top bar"); //$NON-NLS-1$
 		topBar = getAppLayout().getAppBarElementWrapper();
 
 		title = new H3();
 		title.setText(getTopBarTitle());
 		title.getStyle()
-			.set("margin", "0px 0px 0px 0px")
-			.set("font-weight", "normal");
+			.set("margin", "0px 0px 0px 0px") //$NON-NLS-1$ //$NON-NLS-2$
+			.set("font-weight", "normal"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		createGroupSelect();
 
 		lastName = new H1();
-		lastName.setText("\u2013");
-		lastName.getStyle().set("margin", "0px 0px 0px 0px");
-		firstName = new H2("");
-		firstName.getStyle().set("margin", "0px 0px 0px 0px");
+		lastName.setText("\u2013"); //$NON-NLS-1$
+		lastName.getStyle().set("margin", "0px 0px 0px 0px"); //$NON-NLS-1$ //$NON-NLS-2$
+		firstName = new H2(""); //$NON-NLS-1$
+		firstName.getStyle().set("margin", "0px 0px 0px 0px"); //$NON-NLS-1$ //$NON-NLS-2$
 		Div fullName = new Div(lastName,firstName);
 
 		attempt = new H2();
 		weight = new H2();
-		weight.setText("");
+		weight.setText(""); //$NON-NLS-1$
 
 		timeField = new AthleteTimerElement(this);
 		H1 time = new H1(timeField);
@@ -445,7 +445,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Athlete> crud) {
-		lastNameFilter.setPlaceholder("Last name");
+		lastNameFilter.setPlaceholder("Last name"); //$NON-NLS-1$
 		lastNameFilter.setClearButtonVisible(true);
 		lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
 		lastNameFilter.addValueChangeListener(e -> {
@@ -453,15 +453,15 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 		});
 		crud.getCrudLayout().addFilterComponent(lastNameFilter);
 		
-		groupFilter.setPlaceholder("Group");
+		groupFilter.setPlaceholder(getTranslation("Group")); //$NON-NLS-1$
 		groupFilter.setItems(GroupRepository.findAll());
 		groupFilter.setItemLabelGenerator(Group::getName);
 		// hide because the top bar has it
-		groupFilter.getStyle().set("display", "none");
+		groupFilter.getStyle().set("display", "none"); //$NON-NLS-1$ //$NON-NLS-2$
 		// we do not set the group filter value
 		groupFilter.addValueChangeListener(e -> {
 			Group newGroup = e.getValue();
-			logger.debug("filter switching group to {}",newGroup != null ? newGroup.getName() : null);
+			logger.debug("filter switching group to {}",newGroup != null ? newGroup.getName() : null); //$NON-NLS-1$
 			OwlcmsSession.withFop((fop) -> {
 				fop.switchGroup(newGroup, this.getOrigin());
 			});
@@ -474,28 +474,28 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
 		if (title == null) return; // createTopBar has not yet been called;
 		displayedAthlete = athlete;
-		logger.debug("doUpdateTopBar {}", LoggerUtils.whereFrom());
+		logger.debug("doUpdateTopBar {}", LoggerUtils.whereFrom()); //$NON-NLS-1$
 		OwlcmsSession.withFop(fop -> {
 			UIEventProcessor.uiAccess(topBar, uiEventBus, () -> {
 				groupSelect.setValue(fop.getGroup());
 				if (athlete != null && athlete.getAttemptsDone() < 6) {
 					String lastName2 = athlete.getLastName();
-					lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
+					lastName.setText(lastName2 != null ? lastName2.toUpperCase() : ""); //$NON-NLS-1$
 					firstName.setText(athlete.getFirstName());
-					timeField.getElement().getStyle().set("visibility", "visible");
+					timeField.getElement().getStyle().set("visibility", "visible"); //$NON-NLS-1$ //$NON-NLS-2$
 					attempt.setText(formatAttemptNumber(athlete));
 					Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
 					weight.setText(
-							(nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
-									+ "kg");
+							(nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013") //$NON-NLS-1$
+									+ "kg"); //$NON-NLS-1$
 				} else {
 					lastName.setText(
-							fop.getGroup() == null ? "\u2013" : MessageFormat.format("Group {0} done.", fop.getGroup()));
-					firstName.setText("");
-					timeField.getElement().getStyle().set("visibility", "hidden");
+							fop.getGroup() == null ? "\u2013" : MessageFormat.format(getTranslation("Group_number_done"), fop.getGroup())); //$NON-NLS-1$ //$NON-NLS-2$
+					firstName.setText(""); //$NON-NLS-1$
+					timeField.getElement().getStyle().set("visibility", "hidden"); //$NON-NLS-1$ //$NON-NLS-2$
 
-					attempt.setText("");
-					weight.setText("");
+					attempt.setText(""); //$NON-NLS-1$
+					weight.setText(""); //$NON-NLS-1$
 				}
 			});
 		});
@@ -543,8 +543,8 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 		Integer attemptsDone = a.getAttemptsDone();
 		Integer attemptNumber = a.getAttemptNumber();
 		return (attemptsDone >= 3) ? 
-				((attemptsDone >= 6) ? "done" : MessageFormat.format("C&J #{0}", attemptNumber))
-				: MessageFormat.format("Snatch #{0}", attemptNumber);
+				((attemptsDone >= 6) ? "done" : MessageFormat.format(getTranslation("C_and_J_number"), attemptNumber)) //$NON-NLS-1$ //$NON-NLS-2$
+				: MessageFormat.format(getTranslation("Snatch_number"), attemptNumber); //$NON-NLS-1$
 	}
 	
 	/**
@@ -560,16 +560,16 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 		if (curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete()) && e.getOrigin() instanceof MarshallContent) {
 			Notification n = new Notification();
 			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
-			n.getElement().getThemeList().add("warning");
-			String text = MessageFormat.format("Weight change for current athlete<br>{0}",
+			n.getElement().getThemeList().add("warning"); //$NON-NLS-1$
+			String text = MessageFormat.format(getTranslation("Weight_change_current_athlete"), //$NON-NLS-1$
 					curDisplayAthlete.getFullName());
 			n.setDuration(6000);
 			n.setPosition(Position.TOP_START);
 			Div label = new Div();
-			label.getElement().setProperty("innerHTML",text);
+			label.getElement().setProperty("innerHTML",text); //$NON-NLS-1$
 			label.addClickListener((event)-> n.close());
 			label.setSizeFull();
-			label.getStyle().set("font-size", "large");
+			label.getStyle().set("font-size", "large"); //$NON-NLS-1$ //$NON-NLS-2$
 			n.add(label);
 			n.open();
 		}

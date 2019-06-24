@@ -44,6 +44,6 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
 	
 	@Override
 	public String getPageTitle() {
-		return "Decision (AF)";
+		return getTranslation("Decision_AF_"); //$NON-NLS-1$
 	}
 }
