@@ -32,6 +32,13 @@ import com.vaadin.flow.i18n.I18NProvider;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
+/**
+ * This class creates a resource bundle from a CSV file containing the various translations, and
+ * provides translations according to the Vaadin translation spect.
+ * Static variations of the translation routines are provided for translations that do not take
+ * place inside Vaadin components (e.g. spreadsheets).
+ *
+ */
 @SuppressWarnings("serial")
 public class TranslationProvider implements I18NProvider {
     
@@ -79,88 +86,13 @@ public class TranslationProvider implements I18NProvider {
     public static String translate(String string, Locale locale, Object... params) {
         return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
     }
-
-//    @SuppressWarnings("unused")
-//    private static Writer createCSV() throws FileNotFoundException, IOException {
-//        Writer out = new PrintWriter("translation.csv");// new OutputStreamWriter(System.out);
-//
-//        ResourceBundle masterBundle = ResourceBundle.getBundle(BUNDLE_DOTTED_NAME, Locale.ENGLISH);
-//        for (Enumeration<String> masterKeys = masterBundle.getKeys(); masterKeys.hasMoreElements();) {
-//            String key = masterKeys.nextElement();
-//            escape(out, key);
-//            for (Locale locale : helper.getProvidedLocales()) {
-//                String translation = null;
-//                try {
-//                    if (locale.getLanguage().contentEquals("en")) {
-//                        translation = helper.getTranslation(key, locale);
-//                    } else {
-//                        translation = helper.getTranslationOrNull(key, locale);
-//                    }
-//                } catch (Exception e) {
-//                }
-//                out.write("\t");
-//                escape(out, translation);
-//            }
-//            out.write("\n");
-//        }
-//        return out;
-//    }
     
-//    private static void escape(Writer out, String string) throws IOException {
-//        out.write('"');
-//        // csv requires doubling double quotes inside strings
-//        if (string != null)
-//            out.write(string.replace("\"", "\"\""));
-//        out.write('"');
-//    }
-
-//    @SuppressWarnings("unused")
-//    private synchronized static ResourceBundle getBundle(final File csv, final Locale local) {
-//        final String csvname = csv.getName().replace(".csv", "");
-//        ClassLoader i18nloader = TranslationProvider.processed.get(csv.getName());
-//        if (i18nloader == null) {
-//            try (final Scanner in = new Scanner(csv)) {
-//                // process header
-//                final String[] header = in.nextLine().split(";");
-//                final File[] outFiles = new File[header.length];
-//                final Properties[] languageProperties = new Properties[header.length];
-//                System.err.println("header.length"+header.length);
-//                for (int i = 1; i < header.length; i++) {
-//                    String language = header[i];
-//                    System.err.println(""+i+" "+language);
-//                    if (!language.isEmpty()) {
-//                        language = "_" + language;
-//                    }
-//                    final File outfile = new File(csv.getParentFile(), csvname + language + ".properties");
-//                    outFiles[i] = outfile;
-//                    languageProperties[i] = new Properties();
-//                }
-//
-//                // reading to properties
-//                while (in.hasNextLine()) {
-//                    String nextLine = in.nextLine();
-//                    final String[] line = nextLine.split(";",header.length);
-//                    System.err.println(nextLine);
-//                    final String key = line[0];
-//                    for (int i = 1; i < languageProperties.length; i++) {
-//                        languageProperties[i].setProperty(key, line[i]);
-//                    }
-//                }
-//
-//                // writing
-//                for (int i = 1; i < languageProperties.length; i++) {
-//                    languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csv.getName());
-//                }
-//                final URL[] urls = { csv.getParentFile().toURI().toURL() };
-//                i18nloader = new URLClassLoader(urls);
-//                TranslationProvider.processed.put(csv.getName(), i18nloader);
-//            } catch (final IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//        return ResourceBundle.getBundle(csvname, local, i18nloader);
-//    }
-    
+    /**
+     * Adapted from https://hub.jmonkeyengine.org/t/i18n-from-csv-calc/31492
+     * @param baseName
+     * @param locale
+     * @return
+     */
     private synchronized static ResourceBundle getBundleFromCSV(String baseName, final Locale locale) {
         String csvName = BUNDLE_PACKAGE_SLASH+baseName+".csv";
         InputStream csvStream = helper.getClass().getResourceAsStream(csvName);
