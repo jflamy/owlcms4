@@ -42,8 +42,8 @@ import ch.qos.logback.classic.Logger;
 public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
 	
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationLayout.class);
-	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine"); //$NON-NLS-1$
+	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag"); //$NON-NLS-1$
 	static {
 		logger.setLevel(Level.INFO);
 		jexlLogger.setLevel(Level.ERROR);
@@ -70,7 +70,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()
-			.set("flex", "0 1 0px");
+			.set("flex", "0 1 0px"); //$NON-NLS-1$ //$NON-NLS-2$
 		return appLayout;
 	}
 
@@ -86,43 +86,43 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
 	protected void createTopBar(HorizontalLayout topBar) {
 
 		H3 title = new H3();
-		title.setText("Edit Registered Athletes");
+		title.setText(getTranslation("EditRegisteredAthletes")); //$NON-NLS-1$
 		title.add();
 		title.getStyle()
-			.set("margin", "0px 0px 0px 0px")
-			.set("font-weight", "normal");
+			.set("margin", "0px 0px 0px 0px") //$NON-NLS-1$ //$NON-NLS-2$
+			.set("font-weight", "normal"); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		Button drawLots = new Button("Draw Lot Numbers", (e) -> {
+		Button drawLots = new Button(getTranslation("DrawLotNumbers"), (e) -> { //$NON-NLS-1$
 			drawLots();
 		});
 
 		JXLSStartingList startingListWriter = new JXLSStartingList();
-		StreamResource href = new StreamResource("startingList.xls", startingListWriter);
-		startingList = new Anchor(href, "");
-		startingListButton = new Button("Starting List", new Icon(VaadinIcon.DOWNLOAD_ALT));
+		StreamResource href = new StreamResource("startingList.xls", startingListWriter); //$NON-NLS-1$
+		startingList = new Anchor(href, ""); //$NON-NLS-1$
+		startingListButton = new Button(getTranslation("StartingList"), new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
 		startingList.add(startingListButton);
 		startingListButton.setEnabled(true);
 		
-		Button deleteAthletes = new Button("Delete Athletes", (e) -> {
+		Button deleteAthletes = new Button(getTranslation("DeleteAthletes"), (e) -> { //$NON-NLS-1$
 			new ConfirmationDialog(
-				"Delete Athletes", 
-				"This will delete the athletes currently displayed from the database.<br>Are you sure?", 
-				"Done.",
+				getTranslation("DeleteAthletes"),  //$NON-NLS-1$
+				getTranslation("Warning_DeleteAthletes"),  //$NON-NLS-1$
+				getTranslation("Done_period"), //$NON-NLS-1$
 				() -> {deleteAthletes();}
 				).open();
 			
 		});
-		deleteAthletes.getElement().setAttribute("title", "Delete Athletes Currently Listed");
+		deleteAthletes.getElement().setAttribute("title", getTranslation("DeleteAthletes_forListed")); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		Button clearLifts = new Button("Clear Lifts", (e) -> {
+		Button clearLifts = new Button(getTranslation("ClearLifts"), (e) -> { //$NON-NLS-1$
 			new ConfirmationDialog(
-				"Clear Lifts", 
-				"This will clear all lifting data for the athletes currently displayed except for initial declarations.<br>Are you sure?", 
-				"Lifts cleared",
+				getTranslation("ClearLifts"),  //$NON-NLS-1$
+				getTranslation("Warning_ClearAthleteLifts"),  //$NON-NLS-1$
+				getTranslation("LiftsCleared"), //$NON-NLS-1$
 				() -> {clearLifts();}
 				).open();
 		});
-		deleteAthletes.getElement().setAttribute("title", "Clear Lifts for Athletes Currently Listed");
+		deleteAthletes.getElement().setAttribute("title", getTranslation("ClearLifts_forListed")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		HorizontalLayout buttons = new HorizontalLayout(
 				drawLots,
@@ -136,7 +136,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
 		topBar
 			.getElement()
 			.getStyle()
-			.set("flex", "100 1");
+			.set("flex", "100 1"); //$NON-NLS-1$ //$NON-NLS-2$
 		topBar.removeAll();
 		topBar.add(title, buttons);
 		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);

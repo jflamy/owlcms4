@@ -39,15 +39,15 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	 * Instantiates a new wrapup navigation content.
 	 */
 	public ResultsNavigationContent() {
-		Button groupResults = new Button("Group Results",
+		Button groupResults = new Button(getTranslation("GroupResults"), //$NON-NLS-1$
 			buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class));
 		
 		Div finalResultsButton = DownloadButtonFactory.createDynamicDownloadButton(
-			"finalResults",
-			"Final Results Package",
+			"finalResults", //$NON-NLS-1$
+			getTranslation("FinalResultsPackage"), //$NON-NLS-1$
 			new JXLSCompetitionBook(true));
 		
-		Button timingStats = new Button("Timing Statistics", 
+		Button timingStats = new Button(getTranslation("TimingStatistics"),  //$NON-NLS-1$
 			buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class));
 		
 		finalResultsButton.setEnabled(true);
@@ -60,15 +60,15 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 			timingStats
 			);
 		
-		doGroup("For each competition group", grid1, this);
-		doGroup("End of competition documents", grid2, this);
+		doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this); //$NON-NLS-1$
+		doGroup(getTranslation("EndOfCompetitionDocuments"), grid2, this); //$NON-NLS-1$
     }
 
 
 	
 	@Override
 	protected String getTitle() {
-		return "Produce Results";
+		return getTranslation("ProduceResults"); //$NON-NLS-1$
 	}
 	
 	@Override
@@ -83,7 +83,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 
 	@Override
 	public String getPageTitle() {
-		return "OWLCMS - Results";
+		return getTranslation("OWLCMS_Results"); //$NON-NLS-1$
 	}
 	
 }

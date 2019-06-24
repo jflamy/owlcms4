@@ -51,7 +51,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 	 * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int) */
 	@Override
 	public void setTimeRemaining(int timeRemaining) {
-		breakLogger.debug("break timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+		breakLogger.debug("break timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom()); //$NON-NLS-1$
 		this.timeRemaining = timeRemaining;
 		fop.getUiEventBus().post(new UIEvent.BreakSetTime(timeRemaining, this));
 	}
@@ -61,7 +61,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 	@Override
 	public void start() {
 		startMillis = System.currentTimeMillis();
-		breakLogger.debug("break start = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+		breakLogger.debug("break start = {} [{}]", timeRemaining, LoggerUtils.whereFrom()); //$NON-NLS-1$
 		timeRemainingAtLastStop = timeRemaining;
 		fop.getUiEventBus().post(new UIEvent.BreakStarted(timeRemaining, this));
 	}
@@ -74,7 +74,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 		long elapsed = stopMillis - startMillis;
 		timeRemaining = (int) (timeRemaining - elapsed);
 		timeRemainingAtLastStop = timeRemaining;
-		breakLogger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+		breakLogger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom()); //$NON-NLS-1$
 		fop.getUiEventBus().post(new UIEvent.BreakPaused(this));
 	}
 
@@ -90,7 +90,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 	 * @see app.owlcms.fieldofplay.IProxyTimer#timeOut(java.lang.Object) */
 	@Override
 	public void timeOut(Object origin) {
-		breakLogger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+		breakLogger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom()); //$NON-NLS-1$
 		fop.getUiEventBus().post(new UIEvent.BreakDone(origin));
 		fop.getFopEventBus().post(new FOPEvent.StartLifting(origin));
 

@@ -70,7 +70,7 @@ public class URLUtils {
 		String requestURL = request.getRequestURL().toString();
 		
 		local = isLocalAddress(server);
-		logger.trace("request {}", requestURL);
+		logger.trace("request {}", requestURL); //$NON-NLS-1$
 		
 		if (local) {
 			// if we don't find anything more meaningful
@@ -104,33 +104,33 @@ public class URLUtils {
 					boolean ipV4 = addr.getAddress().length == 4;
 
 					// filter out IPV6 and interfaces to virtual machines
-					if (!ipV4 || lowerCase.contains("virtual"))
+					if (!ipV4 || lowerCase.contains("virtual")) //$NON-NLS-1$
 						continue;
 
 					// try reaching the current IP address with the known protocol, port and site.
 					try {
 						// use a file inside the site to avoid triggering a loop if called on home page
-						String targetFile = "sounds/timeOver.mp3";
-						InputStream targetResource = this.getClass().getResourceAsStream("/"+targetFile);
+						String targetFile = "sounds/timeOver.mp3"; //$NON-NLS-1$
+						InputStream targetResource = this.getClass().getResourceAsStream("/"+targetFile); //$NON-NLS-1$
 						if (targetResource == null) {
-							throw new RuntimeException("test resource not found /"+targetFile);
+							throw new RuntimeException("test resource not found /"+targetFile); //$NON-NLS-1$
 						}
 						String testUrl = siteString + targetFile;
 						URL testURL = new URL(protocol, ip, requestPort, testUrl);
 						URL siteURL = new URL(protocol, ip, requestPort, siteString);
 
 						HttpURLConnection huc = (HttpURLConnection) testURL.openConnection();
-						huc.setRequestMethod("GET");
+						huc.setRequestMethod("GET"); //$NON-NLS-1$
 						huc.connect();
 						int response = huc.getResponseCode();
 
 						String siteExternalForm = siteURL.toExternalForm();
 						if (response != 200) {
 							String testExternalForm = testURL.toExternalForm();
-							logger.debug("{} not reachable: {}", testExternalForm, response);
+							logger.debug("{} not reachable: {}", testExternalForm, response); //$NON-NLS-1$
 						} else {
-							logger.debug("{} OK: {}", siteExternalForm, lowerCase);
-							if (lowerCase.contains("wireless")) {
+							logger.debug("{} OK: {}", siteExternalForm, lowerCase); //$NON-NLS-1$
+							if (lowerCase.contains("wireless")) { //$NON-NLS-1$
 								wireless.add(siteExternalForm);
 							} else {
 								wired.add(siteExternalForm);
@@ -145,8 +145,8 @@ public class URLUtils {
 		} catch (SocketException e) {
 			logger.error(LoggerUtils.stackTrace(e));
 		}
-		logger.trace("wired = {} {}", wired, wired.size());
-		logger.trace("wireless = {} {}", wireless, wireless.size());
+		logger.trace("wired = {} {}", wired, wired.size()); //$NON-NLS-1$
+		logger.trace("wireless = {} {}", wireless, wireless.size()); //$NON-NLS-1$
 	}
 	/**
 	 * @return the wired urls
@@ -172,11 +172,11 @@ public class URLUtils {
 
 	public boolean isLocalAddress(String serverString) {
 		boolean isLocal = false;
-		if (serverString.toLowerCase().startsWith("localhost") || serverString.startsWith("127.") || serverString.startsWith("10.") || serverString.startsWith("192.168")) {
+		if (serverString.toLowerCase().startsWith("localhost") || serverString.startsWith("127.") || serverString.startsWith("10.") || serverString.startsWith("192.168")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			isLocal = true;
-		} else if (serverString.startsWith("172.")) {
+		} else if (serverString.startsWith("172.")) { //$NON-NLS-1$
 			serverString = serverString.substring(4);
-			int sub = serverString.indexOf(".");
+			int sub = serverString.indexOf("."); //$NON-NLS-1$
 			if (sub == -1) {
 				isLocal = false;
 			} else {
@@ -198,15 +198,15 @@ public class URLUtils {
 
 		Map<String, String> result = new HashMap<>();
 		String remoteAddr = request.getRemoteAddr();
-		logger.debug("remoteAddr: {}", remoteAddr);
-		result.put("remoteAddr",remoteAddr);
+		logger.debug("remoteAddr: {}", remoteAddr); //$NON-NLS-1$
+		result.put("remoteAddr",remoteAddr); //$NON-NLS-1$
 		Enumeration<String> headerNames = request.getHeaderNames();
 		while (headerNames.hasMoreElements()) {
 			String key = headerNames.nextElement().toLowerCase();
-			if (key.equals("x-forwarded-for") || key.equals("host")) {
+			if (key.equals("x-forwarded-for") || key.equals("host")) { //$NON-NLS-1$ //$NON-NLS-2$
 				String value = request.getHeader(key);
 				result.put(key, value);
-				logger.debug(key+": "+value);
+				logger.debug(key+": "+value); //$NON-NLS-1$
 			}
 		}
 

@@ -7,6 +7,7 @@
 package app.owlcms.displays.scoreboard;
 
 import java.text.MessageFormat;
+import java.util.Enumeration;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.fieldofplay.UIEvent.Decision;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
@@ -359,10 +361,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 	private void updateBottom(ScoreboardModel model, String liftType) {
 		OwlcmsSession.withFop((fop) -> {
 			curGroup = fop.getGroup();
-			model.setGroupName(curGroup != null ? MessageFormat.format("Group {0} {1}", curGroup.getName(), liftType) : "");
+			model.setGroupName(curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType) : "");
 		});
-		model.setLiftsDone(MessageFormat.format("{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}",liftsDone));		
-		this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
+		model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone",liftsDone)); //$NON-NLS-1$
+		this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder)); //$NON-NLS-1$
 	}
 	
 	private void doUpdateBottomPart(Decision e) {
@@ -373,7 +375,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
 	private String computeLiftType(Athlete a) {
 		if (a == null) return "";
-		String liftType = a.getAttemptsDone() >= 3 ? "Clean&Jerk" : "Snatch";
+		String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk") : Translator.translate("Snatch");
 		return liftType;
 	}
 	/**
@@ -452,9 +454,13 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
 	protected void setTranslationMap() {
 		JsonObject translations = Json.createObject();
-		//TODO i18n t.key1 --> translation of key1 for getLocale()
-		translations.put("key1","value1");
-		translations.put("key2","value2");
+		Enumeration<String> keys = Translator.getKeys();
+		while (keys.hasMoreElements()) {
+		    String curKey = keys.nextElement();
+		    if (curKey.startsWith("Scoreboard.")) {
+		        translations.put(curKey.replace("Scoreboard.", ""),Translator.translate(curKey));
+		    }
+		}
 		this.getElement().setPropertyJson("t", translations);
 	}
 	

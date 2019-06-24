@@ -53,18 +53,18 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
         filterLayout.setSpacing(true);
         headerLayout.add(filterLayout);
 
-        mainComponentLayout.setWidth("100%");
+        mainComponentLayout.setWidth("100%"); //$NON-NLS-1$
         mainComponentLayout.setHeight(null);
         mainComponentLayout.setMargin(false);
         mainComponentLayout.setPadding(false);
         mainLayout.add(mainComponentLayout);
         mainLayout.expand(mainComponentLayout);
-        mainComponentLayout.setId("mainComponentLayout");
-        mainLayout.setId("mainLayout");
+        mainComponentLayout.setId("mainComponentLayout"); //$NON-NLS-1$
+        mainLayout.setId("mainLayout"); //$NON-NLS-1$
 
-        setWindowCaption(CrudOperation.ADD, "Add "+ aClass.getSimpleName());
-        setWindowCaption(CrudOperation.UPDATE, "Update "+ aClass.getSimpleName());
-        setWindowCaption(CrudOperation.DELETE, "Are you sure you want to delete this item?");
+        setWindowCaption(CrudOperation.ADD, getTranslation("Add_title", aClass.getSimpleName())); //$NON-NLS-1$
+        setWindowCaption(CrudOperation.UPDATE, getTranslation("Update_title", aClass.getSimpleName())); //$NON-NLS-1$
+        setWindowCaption(CrudOperation.DELETE, getTranslation("Delete_title", aClass.getSimpleName())); //$NON-NLS-1$
         
     }
 

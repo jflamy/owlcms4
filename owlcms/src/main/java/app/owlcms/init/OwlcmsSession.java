@@ -6,17 +6,19 @@
  */
 package app.owlcms.init;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 
-import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -33,7 +35,7 @@ public class OwlcmsSession {
 	private final static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsSession.class);
 	static {logger.setLevel(Level.INFO);}
 	
-	private static final String FOP = "fop";
+	private static final String FOP = "fop"; //$NON-NLS-1$
 
 	private OwlcmsSession() {
 	}
@@ -43,10 +45,10 @@ public class OwlcmsSession {
 	public static OwlcmsSession getCurrent() {
 		VaadinSession currentVaadinSession = VaadinSession.getCurrent();
 		if (currentVaadinSession != null) {
-			OwlcmsSession owlcmsSession = (OwlcmsSession) currentVaadinSession.getAttribute("owlcmsSession");
+			OwlcmsSession owlcmsSession = (OwlcmsSession) currentVaadinSession.getAttribute("owlcmsSession"); //$NON-NLS-1$
 			if (owlcmsSession == null) {
 				owlcmsSession = new OwlcmsSession();
-				currentVaadinSession.setAttribute("owlcmsSession", owlcmsSession);
+				currentVaadinSession.setAttribute("owlcmsSession", owlcmsSession); //$NON-NLS-1$
 			}
 			return owlcmsSession;
 		} else {
@@ -95,39 +97,43 @@ public class OwlcmsSession {
 	}
 	
 	public static void setFop(FieldOfPlay fop) {
-		logger.debug("setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom());
+		logger.debug("setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom()); //$NON-NLS-1$
 		setAttribute(FOP, fop);
 	}
 	
-	public static Locale getLocale() {
-		UI u = UI.getCurrent();
-		if (u != null) {
-			return u.getLocale();
-		}
-		VaadinSession v = VaadinSession.getCurrent();
-		if (v != null) {
-			return v.getLocale();
-		} 
-		Competition c = Competition.getCurrent();
-		if (c != null) {
-			return c.getDefaultLocale();
-		}
-		return Locale.ENGLISH;
-	}
+    /**
+     * Copied from Vaadin {@link Component} to ensure consistent behavior.
+     * {@link Translator} will enforce a language if the competition screens must ignore browser settings
+     * 
+     * @return
+     */
+    public static Locale getLocale() {
+        UI currentUi = UI.getCurrent();
+        Locale locale = currentUi == null ? null : currentUi.getLocale();
+        if (locale == null) {
+            List<Locale> locales = Translator.getAvailableLocales();
+            if (locales != null && !locales.isEmpty()) {
+                locale = locales.get(0);
+            } else {
+                locale = Locale.getDefault();
+            }
+        }
+        return locale;
+    }
 
     public static boolean isAuthenticated() {
-        return Boolean.TRUE.equals(getAttribute("authenticated"));
+        return Boolean.TRUE.equals(getAttribute("authenticated")); //$NON-NLS-1$
     }
     
     public static void setAuthenticated(boolean isAuthenticated) {
-        setAttribute("authenticated",isAuthenticated);
+        setAttribute("authenticated",isAuthenticated); //$NON-NLS-1$
     }
 
     public static void setRequestedUrl(String url) {
-        setAttribute("requestedURL", url);
+        setAttribute("requestedURL", url); //$NON-NLS-1$
     }
 
     public static String getRequestedUrl() {
-        return (String) getAttribute("requestedURL");
+        return (String) getAttribute("requestedURL"); //$NON-NLS-1$
     }
 }

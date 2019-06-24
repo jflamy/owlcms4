@@ -77,7 +77,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()
-			.set("flex", "0 1 0px");
+			.set("flex", "0 1 0px"); //$NON-NLS-1$ //$NON-NLS-2$
 		return appLayout;
 	}
 	
@@ -106,14 +106,14 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 	protected void createTopBar(HorizontalLayout topBar) {
 
 		H3 title = new H3();
-		title.setText("Weigh-In");
+		title.setText(getTranslation("WeighIn")); //$NON-NLS-1$
 		title.add();
 		title.getStyle()
-			.set("margin", "0px 0px 0px 0px")
-			.set("font-weight", "normal");
+			.set("margin", "0px 0px 0px 0px") //$NON-NLS-1$ //$NON-NLS-2$
+			.set("font-weight", "normal"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder("Group");
+		groupSelect.setPlaceholder(getTranslation("Group")); //$NON-NLS-1$
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
 		OwlcmsSession.withFop((fop) -> {
@@ -122,21 +122,21 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 		groupSelect.addValueChangeListener(e -> {
 			setContentGroup(e);
 			startingWeightsButton.setEnabled(e.getValue() != null);
-			startingWeights.getElement().setAttribute("startingWeightsButton", "startingWeights_"+group+".xls");
+			startingWeights.getElement().setAttribute("startingWeightsButton", "startingWeights_"+group+".xls"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		});
 
 
-		Button start = new Button("Generate Start Numbers", (e) -> {
+		Button start = new Button(getTranslation("GenerateStartNumbers"), (e) -> { //$NON-NLS-1$
 			generateStartNumbers();
 		});
-		Button clear = new Button("Clear Start Numbers", (e) -> {
+		Button clear = new Button(getTranslation("ClearStartNumbers"), (e) -> { //$NON-NLS-1$
 			clearStartNumbers();
 		});
 		
 		JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet(true);
-		StreamResource href = new StreamResource("startingWeights.xls", startingWeightsWriter);
-		startingWeights = new Anchor(href, "");
-		startingWeightsButton = new Button("Starting Weights Sheet",new Icon(VaadinIcon.DOWNLOAD_ALT));
+		StreamResource href = new StreamResource("startingWeights.xls", startingWeightsWriter); //$NON-NLS-1$
+		startingWeights = new Anchor(href, ""); //$NON-NLS-1$
+		startingWeightsButton = new Button(getTranslation("StartingWeightsSheet"),new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
 		startingWeightsButton.addClickListener((e) -> {
 			startingWeightsWriter.setGroup(group);
 		});
@@ -144,9 +144,9 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 		startingWeightsButton.setEnabled(false);
 		
 		JXLSCards cardsWriter = new JXLSCards(true);
-		StreamResource href1 = new StreamResource("startingWeights.xls", cardsWriter);
-		cards = new Anchor(href1, "");
-		cardsButton = new Button("Athlete Cards",new Icon(VaadinIcon.DOWNLOAD_ALT));
+		StreamResource href1 = new StreamResource("startingWeights.xls", cardsWriter); //$NON-NLS-1$
+		cards = new Anchor(href1, ""); //$NON-NLS-1$
+		cardsButton = new Button(getTranslation("AthleteCards"),new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
 		cardsButton.addClickListener((e) -> {
 			cardsWriter.setGroup(group);
 		});
@@ -166,7 +166,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 		topBar
 			.getElement()
 			.getStyle()
-			.set("flex", "100 1");
+			.set("flex", "100 1"); //$NON-NLS-1$ //$NON-NLS-2$
 		topBar.removeAll();
 		topBar.add(title, groupSelect, buttons);
 		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -211,10 +211,10 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 
 	protected void errorNotification() {
 		Label content = new Label(
-		        "Please select a group first.");
-		content.getElement().setAttribute("theme", "error");
-		Button buttonInside = new Button("Got it.");
-		buttonInside.getElement().setAttribute("theme","error primary");
+		        getTranslation("Select_group_first")); //$NON-NLS-1$
+		content.getElement().setAttribute("theme", "error"); //$NON-NLS-1$ //$NON-NLS-2$
+		Button buttonInside = new Button(getTranslation("GotIt")); //$NON-NLS-1$
+		buttonInside.getElement().setAttribute("theme","error primary"); //$NON-NLS-1$ //$NON-NLS-2$
 		VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
 		verticalLayout.setAlignItems(Alignment.CENTER);
 		Notification notification = new Notification(verticalLayout);

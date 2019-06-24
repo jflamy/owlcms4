@@ -100,7 +100,7 @@ public class FOPEvent {
 		
 		public JuryDecision(Athlete athlete, Object origin, boolean decision) {
 			super(athlete, origin);
-			logger.trace("jury decision for {}", athlete);
+			logger.trace("jury decision for {}", athlete); //$NON-NLS-1$
 			this.success = decision;
 		}
 
@@ -126,7 +126,7 @@ public class FOPEvent {
 		 */
 		public Decision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 			super(athlete, origin);
-			logger.trace("referee decision for {}", athlete);
+			logger.trace("referee decision for {}", athlete); //$NON-NLS-1$
 			this.success = decision;
 			this.ref1 = ref1;
 			this.ref2 = ref2;

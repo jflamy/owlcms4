@@ -1,7 +1,7 @@
-- See [README](https://github.com/jflamy/owlcms4#features) for feature set
+- See the [Web Site](https://jflamy.github.io/owlcms4/#!index.md#Features) for an overview of the feature set
 - Release Highlights:
-  - Added IP whitelisting and PIN support for cloud deployment. See [Setup Instructions](https://jflamy.github.io/owlcms4/#!index.md)
-  - Information about startup now visible when using command line.
-- [Change Log](https://github.com/jflamy/owlcms4/milestone/23?closed=1) for this release (enhancements and fixes)
-- [Installation](https://jflamy.github.io/owlcms4/#!index.md) instructions
-- [Live Demo](https://github.com/jflamy/owlcms4#installation-and-demo) instructions.
+  - Screens and displays now translated (French and English done, Danish and Spanish partially).  The browser default language is used by default. To force a given language for all screens and displays use the "Prepare Competition"/"Competition Information" screen, choose a language, and restart.
+  - Instructions performing and testing translations to other languages can be found at https://github.com/jflamy/owlcms4/tree/develop/owlcms/src/main/resources/i18n
+- [Change Log](https://github.com/jflamy/owlcms4/milestone/24?closed=1) for this release (enhancements and fixes)
+- [Installation](https://jflamy.github.io/owlcms4/#!index.md#Installation) instructions
+- [Live Demo](https://jflamy.github.io/owlcms4/#!index.md#Demo) instructions.

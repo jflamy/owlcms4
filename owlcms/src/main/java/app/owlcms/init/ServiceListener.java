@@ -41,7 +41,7 @@ public class ServiceListener implements VaadinServiceInitListener {
 	 */
 	@Override
 	public void serviceInit(ServiceInitEvent event) {	
-		logger.debug("Vaadin Service Startup Configuration. {} {}", event.toString(), LoggerUtils.whereFrom());
+		logger.debug("Vaadin Service Startup Configuration. {} {}", event.toString(), LoggerUtils.whereFrom()); //$NON-NLS-1$
 		event.getSource()
 			.addSessionInitListener(sessionInitEvent -> {
 				sessionInit(sessionInitEvent);
@@ -58,9 +58,9 @@ public class ServiceListener implements VaadinServiceInitListener {
 		// override noisy Jetty error handler.
 		session.setErrorHandler(new JettyErrorHandler());
 		
-		// ignore browser-specific settings based on configuration
-		session.setLocale(Locale.ENGLISH);
-		
+//		// ignore browser-specific settings based on configuration
+//		session.setLocale(Locale.ENGLISH);
+//		
 	}
 
 }
