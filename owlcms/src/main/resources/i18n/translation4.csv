@@ -77,7 +77,7 @@ Competition.protocolFileName;Protocol Sheet Template;Gabarit pour feuille de rés
 Competition.resultTemplateFileName;Competition Book Template;Gabarit pour cahier de compétition;;Competition Book Template;Plantilla de fichero de competición
 Competition.useBirthYear;Use Birth Year Only;Utiliser l'année de naissance seulement;;;
 CompetitionApplication.Display;CompetitionApplication.Display;CompetitionApplication.Displayment Display;;;Pantalla Principal
-CompetitionBook.C;;;;;
+CompetitionBook.C;Competition;Compétition;;Stævne;Competición
 CompetitionBook.C_LeftHeader;Competition Information;Informations sur la compétition;;Stævneinformation;Información de la competición
 CompetitionBook.C_RightHeader;;;;;
 CompetitionBook.M6;Men's Results;Hommes 6 essais;;Resultater Mænd;Resultados Masculino
