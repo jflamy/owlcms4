@@ -54,6 +54,7 @@ ClearLifts_forListed;Clear Lifts for Athletes Currently Listed;Effacer les lever
 ClearStartNumbers;Clear Start Numbers;Vider Nº départ;Ryd Start Nummer;Limpiar Nº inicio
 Collar;Collar;Collet;Lås;Mordaza
 Competition;Competition;Compétition;Stævne;Competición
+Competition.competitionName;Name;Nom;Navn;Nombre
 Competition.competitionCity;City;Ville;By;Ciudad
 Competition.competitionDate;Date;Date;Dato;Fecha
 Competition.competitionOrganizer;Organizer;Organisateur;Arrangør;Organizador
@@ -62,7 +63,7 @@ Competition.defaultFederation;Competition.defaultFederation;Fédération d'haltéro
 Competition.defaultFederationAddress;Competition.defaultFederationAddress;C.P. 1000, Succ. M, Montréal, QC, H1V 3R2;Idrættens Hus, Brøndby Stadion 20, 2605 Brøndby;C/ Francos Rodríguez, 70 
 Competition.defaultFederationEMail;Competition.defaultFederationEMail;admin@fedhaltero.qc.ca;kontor@danskvaegtloeftning.dk;fehalterofilia@hotmail.com
 Competition.defaultFederationWebSite;Competition.defaultFederationWebSite;www.fedhaltero.qc.ca;www.weightlifting.dk;www.fedehalter.org
-Competition.enforce15_20KgRule;Apply initial total weight rule (IWF §6.6.5/Masters §2.4)?;Appliquer la règle de poids total initial (IWF §6.6.5/Masters §2.4)?;Brug indledende totalvægtregel (IWF §6.6.5/Masters §2.4)?;Aplicar regla de peso total inicial (IWF §6.6.5/Masters §2.4)?
+Competition.enforce20kgRule;Apply initial total weight rule (IWF §6.6.5/Masters §2.4)?;Appliquer la règle de poids total initial (IWF §6.6.5/Masters §2.4)?;Brug indledende totalvægtregel (IWF §6.6.5/Masters §2.4)?;Aplicar regla de peso total inicial (IWF §6.6.5/Masters §2.4)?
 Competition.federation;Federation Name;Nom de la fédération;Forbundsnavn;Nombre de la federación
 Competition.federationAddress;Federation Address;Adresse de la fédération;Forbundsadresse;Dirección de la federación
 Competition.federationEMail;Federation e-mail;Courriel de la fédération;Forbunds e-mail;E-mail de la federación
@@ -72,6 +73,8 @@ Competition.logo;Logo;Logo;Logo;Logo
 Competition.masters;Masters;Maîtres;Masters;Masters
 Competition.protocolFileName;Protocol Sheet Template;Gabarit pour feuille de résultats;Protokol Template;Plantilla de protocolo
 Competition.resultTemplateFileName;Competition Book Template;Gabarit pour cahier de compétition;Competition Book Template;Plantilla de fichero de competición
+Competition.useBirthYear;Use Birth Year Only;Utiliser l'année de naissance seulement;;
+Competition.defaultLocale;Display and printout language (requires restart);Langue d'affichage et d'impression (redémarrage requis);;
 CompetitionApplication.Display;CompetitionApplication.Display;CompetitionApplication.Displayment Display;;Pantalla Principal
 CompetitionBook.C;;;;
 CompetitionBook.C_LeftHeader;Competition Information;Informations sur la compétition;Stævneinformation;Información de la competición
@@ -121,7 +124,7 @@ CompetitionPlatform;Competition Platform;Plateau de compétition;;
 Copyright2009;This software is Copyright © 2009-;Ce logiciel est sous droits d'auteurs - Copyright © 2009-;;
 CopyrightLicense;Copyright and License;Licence et droits d'auteur;;
 Countdown_BreakTimer;Countdown to start / Break Timer;Décompte avant début / Chrono de pause;;
-CountdownType;Countdown Type;Les essais ont été effacés;;
+CountdownType;Countdown Type;Type de décompte;;
 Credits;Credits;Remerciements;;
 DataRead;Read ;Lu;;
 Decision_AF_;Decision (AF);Decision (face à l'athlète);;
@@ -146,10 +149,10 @@ Dropdown_Select_Platform;Use the dropdown to select the platform where the displ
 Edit_Groups;Edit Groups;Éditer les groupes;;
 EditAthletes;Edit Athlete Entries;Éditer les athlètes;;
 EditAthletes_Groups;Edit Athlete Entries (adjust group assignments);Éditer les athlètes (ajuster l'assignation des groupes);;
-EditCategories;Edit Categories;Les essais ont été effacés;;
+EditCategories;Edit Categories;Éditer les catégories;;
 EditCompetitionInformation;Edit Competition Information;Éditer les données sur la compétition;;
 EditingResults_logging;Group {} lifting on {}, editing;Groupe {} lève sur plateau {}, édition;;
-EditPlatforms;Edit Platforms;Les essais ont été effacés;;
+EditPlatforms;Edit Platforms;Éditer les plateaux;;
 EditRegisteredAthletes;Edit Registered Athletes;Éditer les athlètes inscrits;;
 Eligible;Eligible;Éligible;;
 Eligible for Individual Ranking?;Eligible for individual ranking?;Éligible au classement individuel ?;;
@@ -196,7 +199,7 @@ LoginDenied;Incorrect Access Information Provided.;Information d'accès incorrect
 Lot;Lot;Tirage;Lodt.;Número
 margin-bottom;margin-bottom;margin-bottom;margin-bottom;margin-bottom
 Marshall;Marshall;Préposé aux changements;;
-MaximumWeight;Maximum Weight;Les essais ont été effacés;;
+MaximumWeight;Maximum Weight;Poids maximum;;
 MetalPlates;Metal Plates;Plaques de métal;Små skiver;Pesas de metal
 MinimumWeight;Minimum Weight;Poids minimum;Minimum vægt;Peso Mínimo
 Name;Name;Nom;Navn;Nombre
@@ -303,3 +306,6 @@ Wired;\u0020(wired);\u0020(cablé);;
 Wireless;\u0020(wireless);\u0020(sans fil);;
 WorldRecord;World Record;Record du monde;Verdensrekord;Récord mundial
 WrittenJFL;The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>;Le système a été écrit et est mis à jour par Jean-François Lamy, Officiel Technique IWF catégorie 1<br><br>;;
+Add_title;Add {0};Créer {0};;
+Update_title;Update {0};Modifier {0};;
+Delete_title;Delete {0};Effacer {0};;

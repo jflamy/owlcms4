@@ -60,6 +60,10 @@ public class Translator implements I18NProvider {
     private static Locale forcedLocale;
 
     private static HashMap<String, ClassLoader> processed = new HashMap<>();
+    
+    public static List<Locale> getAllAvailableLocales() {
+        return locales;
+    }
 
     public static List<Locale> getAvailableLocales() {
         return helper.getProvidedLocales();

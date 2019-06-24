@@ -89,9 +89,26 @@ public class CompetitionContent extends Composite<VerticalLayout>
 			"masters", //$NON-NLS-1$
 			"useBirthYear" //$NON-NLS-1$
 			);
-		ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(Locale.US);
+        crudFormFactory.setFieldCaptions(
+                Translator.translate("Competition.competitionName"), //$NON-NLS-1$
+                Translator.translate("Competition.competitionDate"), //$NON-NLS-1$
+                Translator.translate("Competition.competitionOrganizer"), //$NON-NLS-1$
+                Translator.translate("Competition.competitionSite"), //$NON-NLS-1$
+                Translator.translate("Competition.competitionCity"), //$NON-NLS-1$
+                Translator.translate("Competition.federation"), //$NON-NLS-1$
+                Translator.translate("Competition.federationAddress"), //$NON-NLS-1$
+                Translator.translate("Competition.federationEMail"), //$NON-NLS-1$
+                Translator.translate("Competition.federationWebSite"), //$NON-NLS-1$
+                Translator.translate("Competition.defaultLocale"), //$NON-NLS-1$
+                // Translator.translate(""protocolFileName"),
+                // Translator.translate(""finalPackageTemplateFileName"),
+                Translator.translate("Competition.enforce20kgRule"), //$NON-NLS-1$
+                Translator.translate("Competition.masters"), //$NON-NLS-1$
+                Translator.translate("Competition.useBirthYear") //$NON-NLS-1$
+        );
+		ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(locale);
 		crudFormFactory.setFieldProvider("defaultLocale", //$NON-NLS-1$
-            new ComboBoxProvider<Locale>(getTranslation("Locale"), Translator.getAvailableLocales(), new TextRenderer<>(nameGenerator),  //$NON-NLS-1$
+            new ComboBoxProvider<Locale>(getTranslation("Locale"), Translator.getAllAvailableLocales(), new TextRenderer<>(nameGenerator),  //$NON-NLS-1$
             		nameGenerator));
 		crudFormFactory.setFieldType("competitionDate", LocalDateField.class); //$NON-NLS-1$
 	}

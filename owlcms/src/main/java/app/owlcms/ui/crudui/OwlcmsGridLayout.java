@@ -62,9 +62,9 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
         mainComponentLayout.setId("mainComponentLayout"); //$NON-NLS-1$
         mainLayout.setId("mainLayout"); //$NON-NLS-1$
 
-        setWindowCaption(CrudOperation.ADD, getTranslation("OwlcmsGridLayout.3")+ aClass.getSimpleName()); //$NON-NLS-1$
-        setWindowCaption(CrudOperation.UPDATE, getTranslation("OwlcmsGridLayout.4")+ aClass.getSimpleName()); //$NON-NLS-1$
-        setWindowCaption(CrudOperation.DELETE, getTranslation("OwlcmsGridLayout.5")); //$NON-NLS-1$
+        setWindowCaption(CrudOperation.ADD, getTranslation("Add_title", aClass.getSimpleName())); //$NON-NLS-1$
+        setWindowCaption(CrudOperation.UPDATE, getTranslation("Update_title", aClass.getSimpleName())); //$NON-NLS-1$
+        setWindowCaption(CrudOperation.DELETE, getTranslation("Delete_title", aClass.getSimpleName())); //$NON-NLS-1$
         
     }
 

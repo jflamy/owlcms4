@@ -74,11 +74,12 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 	 */
 	protected GridCrud<Category> createGrid(OwlcmsCrudFormFactory<Category> crudFormFactory) {
 		Grid<Category> grid = new Grid<>(Category.class, false);
-		grid.setColumns("name", "ageDivision", "gender", "minimumWeight", "maximumWeight", "active"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-		grid.getColumnByKey("name").setHeader(getTranslation("Name")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.getColumnByKey("ageDivision").setHeader(getTranslation("AgeDivision")); //$NON-NLS-1$ //$NON-NLS-2$
-		grid.getColumnByKey("gender").setHeader(getTranslation("Gender")); //$NON-NLS-1$ //$NON-NLS-2$
-
+		grid.addColumn(Category::getName).setHeader(getTranslation("Name"));  //$NON-NLS-1$
+		grid.addColumn(Category::getAgeDivision).setHeader(getTranslation("AgeDivision")); //$NON-NLS-1$
+		grid.addColumn(Category::getGender).setHeader(getTranslation("Gender")); //$NON-NLS-1$
+		grid.addColumn(Category::getMinimumWeight).setHeader(getTranslation("MinimumWeight")); //$NON-NLS-1$
+		grid.addColumn(Category::getMaximumWeight).setHeader(getTranslation("MaximumWeight")); //$NON-NLS-1$
+		grid.addColumn(Category::isActive).setHeader(getTranslation("Active")); //$NON-NLS-1$
 		GridCrud<Category> crud = new OwlcmsCrudGrid<>(
 				Category.class,
 				new OwlcmsGridLayout(Category.class),
