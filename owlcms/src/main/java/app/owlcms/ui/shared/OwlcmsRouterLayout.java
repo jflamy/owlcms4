@@ -35,7 +35,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.PageConfigurator;
 
-import app.owlcms.i18n.TranslationProvider;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
@@ -69,11 +69,11 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 
 	private HasElement layoutComponentContent;
 	
-	String PREPARE_COMPETITION = TranslationProvider.translate("PrepareCompetition"); //$NON-NLS-1$
-	String RUN_LIFTING_GROUP = TranslationProvider.translate("RunLiftingGroup"); //$NON-NLS-1$
-	String START_DISPLAYS = TranslationProvider.translate("Start Displays"); //$NON-NLS-1$
-	String RESULT_DOCUMENTS = TranslationProvider.translate("ResultDocuments"); //$NON-NLS-1$
-	String INFO = TranslationProvider.translate("About"); //$NON-NLS-1$
+	String PREPARE_COMPETITION = Translator.translate("PrepareCompetition"); //$NON-NLS-1$
+	String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup"); //$NON-NLS-1$
+	String START_DISPLAYS = Translator.translate("Start Displays"); //$NON-NLS-1$
+	String RESULT_DOCUMENTS = Translator.translate("ResultDocuments"); //$NON-NLS-1$
+	String INFO = Translator.translate("About"); //$NON-NLS-1$
 
     public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));

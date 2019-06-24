@@ -42,7 +42,7 @@ import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
-import app.owlcms.i18n.TranslationProvider;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -589,7 +589,7 @@ public class FieldOfPlay {
 					// no weight change.  this is most likely a declaration.
 					//TODO: post uiEvent to signal declaration
 					if (Athlete.zeroIfInvalid(changingAthlete.getCurrentDeclaration()) == newWeight) {
-						Notification.show(MessageFormat.format(TranslationProvider.translate("Declaration_Notification"), changingAthlete, newWeight),5000,Position.TOP_START); //$NON-NLS-1$
+						Notification.show(MessageFormat.format(Translator.translate("Declaration_Notification"), changingAthlete, newWeight),5000,Position.TOP_START); //$NON-NLS-1$
 					}
 					return;
 				}
@@ -713,8 +713,8 @@ public class FieldOfPlay {
 			// ignore
 			return;
 		}
-		String text = MessageFormat.format(TranslationProvider.translate("Unexpected_Notification"),e.getClass().getSimpleName(),state); //$NON-NLS-1$
-		logger.warn(TranslationProvider.translate("Unexpected_Logging"),e.getClass().getSimpleName(),state); //$NON-NLS-1$
+		String text = MessageFormat.format(Translator.translate("Unexpected_Notification"),e.getClass().getSimpleName(),state); //$NON-NLS-1$
+		logger.warn(Translator.translate("Unexpected_Logging"),e.getClass().getSimpleName(),state); //$NON-NLS-1$
 		Notification.show(text,5000,Position.BOTTOM_END);
 	}
 

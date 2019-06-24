@@ -21,7 +21,7 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
-import app.owlcms.i18n.TranslationProvider;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -50,39 +50,39 @@ public class ProdData {
 	protected static Competition createDefaultCompetition() {
 		Competition competition = new Competition();
 
-		competition.setCompetitionName(TranslationProvider.translate("Competition", getLocale()) + " ?");
-		competition.setCompetitionCity(TranslationProvider.translate("Competition.competitionCity", getLocale()) + " ?");
+		competition.setCompetitionName(Translator.translate("Competition", getLocale()) + " ?");
+		competition.setCompetitionCity(Translator.translate("Competition.competitionCity", getLocale()) + " ?");
 		competition.setCompetitionDate(LocalDate.now());
 		competition
-			.setCompetitionOrganizer(TranslationProvider.translate("Competition.competitionOrganizer", getLocale()) + " ?");
-		competition.setCompetitionSite(TranslationProvider.translate("Competition.competitionSite", getLocale()) + " ?");
+			.setCompetitionOrganizer(Translator.translate("Competition.competitionOrganizer", getLocale()) + " ?");
+		competition.setCompetitionSite(Translator.translate("Competition.competitionSite", getLocale()) + " ?");
 
-		String federationLabel = TranslationProvider.translate("Competition.federation", getLocale()) + " ?";
+		String federationLabel = Translator.translate("Competition.federation", getLocale()) + " ?";
 		String defaultFederationKey = "Competition.defaultFederation";
-		String defaultFederation = TranslationProvider.translate(defaultFederationKey, getLocale());
+		String defaultFederation = Translator.translate(defaultFederationKey, getLocale());
 		// if string is not translated, we get its key back.
 		competition
 			.setFederation(defaultFederation.equals(defaultFederationKey) ? federationLabel : defaultFederation);
 
-		String federationAddressLabel = TranslationProvider.translate("Competition.federationAddress", getLocale()) + " ?";
+		String federationAddressLabel = Translator.translate("Competition.federationAddress", getLocale()) + " ?";
 		String defaultFederationAddressKey = "Competition.defaultFederationAddress";
-		String defaultFederationAddress = TranslationProvider.translate(defaultFederationAddressKey, getLocale());
+		String defaultFederationAddress = Translator.translate(defaultFederationAddressKey, getLocale());
 		// if string is not translated, we get its key back.
 		competition.setFederationAddress(
 			defaultFederationAddress.equals(defaultFederationAddressKey) ? federationAddressLabel
 					: defaultFederationAddress);
 
-		String federationEMailLabel = TranslationProvider.translate("Competition.federationEMail", getLocale()) + " ?";
+		String federationEMailLabel = Translator.translate("Competition.federationEMail", getLocale()) + " ?";
 		String defaultFederationEMailKey = "Competition.defaultFederationEMail";
-		String defaultFederationEMail = TranslationProvider.translate(defaultFederationEMailKey, getLocale());
+		String defaultFederationEMail = Translator.translate(defaultFederationEMailKey, getLocale());
 		// if string is not translated, we get its key back.
 		competition
 			.setFederationEMail(defaultFederationEMail.equals(defaultFederationEMailKey) ? federationEMailLabel
 					: defaultFederationEMail);
 
-		String federationWebSiteLabel = TranslationProvider.translate("Competition.federationWebSite", getLocale()) + " ?";
+		String federationWebSiteLabel = Translator.translate("Competition.federationWebSite", getLocale()) + " ?";
 		String defaultFederationWebSiteKey = "Competition.defaultFederationWebSite";
-		String defaultFederationWebSite = TranslationProvider.translate(defaultFederationWebSiteKey, getLocale());
+		String defaultFederationWebSite = Translator.translate(defaultFederationWebSiteKey, getLocale());
 		// if string is not translated, we get its key back.
 		competition.setFederationWebSite(
 			defaultFederationWebSite.equals(defaultFederationWebSiteKey) ? federationWebSiteLabel

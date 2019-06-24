@@ -39,7 +39,7 @@ import com.vaadin.flow.data.binder.BindingValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.dom.ClassList;
 
-import app.owlcms.i18n.TranslationProvider;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -89,7 +89,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     }
 
     private void init() {
-        setButtonCaption(CrudOperation.DELETE, TranslationProvider.translate("Delete")); //$NON-NLS-1$
+        setButtonCaption(CrudOperation.DELETE, Translator.translate("Delete")); //$NON-NLS-1$
     }
 
     /**
@@ -329,7 +329,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         dialog.setCloseOnEsc(false);
         dialog.setCloseOnOutsideClick(false);
 
-        H3 messageLabel = new H3(TranslationProvider.translate("Delete") + domainObject.toString() + TranslationProvider.translate("Question")); //$NON-NLS-1$ //$NON-NLS-2$
+        H3 messageLabel = new H3(Translator.translate("Delete") + domainObject.toString() + Translator.translate("Question")); //$NON-NLS-1$ //$NON-NLS-2$
 
         // create a new delete button for the confirm dialog
         Button confirmButton = doBuildButton(operation);
@@ -341,7 +341,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
             }
             dialog.close();
         });
-        Button cancelButton = new Button(TranslationProvider.translate("Cancel"), event -> { //$NON-NLS-1$
+        Button cancelButton = new Button(Translator.translate("Cancel"), event -> { //$NON-NLS-1$
             dialog.close();
         });
         dialog.add(new VerticalLayout(messageLabel, new HorizontalLayout(confirmButton, cancelButton)));
@@ -424,13 +424,13 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
             }
             if (sb.length() > 0)
                 sb.append("; "); //$NON-NLS-1$
-            String message = ve.getMessage().orElse(TranslationProvider.translate("Error")); //$NON-NLS-1$
+            String message = ve.getMessage().orElse(Translator.translate("Error")); //$NON-NLS-1$
             sb.append(message);
         }
         for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
             showInLabel = true;
             if (sb.length() > 0)
-                sb.append(TranslationProvider.translate("Semicolon")); //$NON-NLS-1$
+                sb.append(Translator.translate("Semicolon")); //$NON-NLS-1$
             String message = ve.getErrorMessage();
             sb.append(message);
         }

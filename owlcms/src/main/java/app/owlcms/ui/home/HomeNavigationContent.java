@@ -30,7 +30,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.i18n.TranslationProvider;
+import app.owlcms.i18n.Translator;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
 import app.owlcms.ui.lifting.LiftingNavigationContent;
 import app.owlcms.ui.preparation.PreparationNavigationContent;
@@ -57,11 +57,11 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		logger.setLevel(Level.INFO);
 	}
 
-	String PREPARE_COMPETITION = TranslationProvider.translate("PrepareCompetition"); //$NON-NLS-1$
-	String RUN_LIFTING_GROUP = TranslationProvider.translate("RunLiftingGroup"); //$NON-NLS-1$
-	String START_DISPLAYS = TranslationProvider.translate("Start Displays"); //$NON-NLS-1$
-	String RESULT_DOCUMENTS = TranslationProvider.translate("ResultDocuments"); //$NON-NLS-1$
-	String INFO = TranslationProvider.translate("About"); //$NON-NLS-1$
+	String PREPARE_COMPETITION = Translator.translate("PrepareCompetition"); //$NON-NLS-1$
+	String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup"); //$NON-NLS-1$
+	String START_DISPLAYS = Translator.translate("Start Displays"); //$NON-NLS-1$
+	String RESULT_DOCUMENTS = Translator.translate("ResultDocuments"); //$NON-NLS-1$
+	String INFO = Translator.translate("About"); //$NON-NLS-1$
 	
 	/**
 	 * Instantiates a new main navigation content.

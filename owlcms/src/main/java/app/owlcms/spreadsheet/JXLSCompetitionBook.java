@@ -25,7 +25,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
-import app.owlcms.i18n.Messages;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import net.sf.jxls.transformer.XLSTransformer;
 
@@ -224,30 +224,30 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         for (int sheetIndex = 0; sheetIndex < nbSheets; sheetIndex++) {
             Sheet curSheet = workbook.getSheetAt(sheetIndex);
             String sheetName = curSheet.getSheetName();
-            workbook.setSheetName(sheetIndex, Messages.getString("CompetitionBook." + sheetName, OwlcmsSession.getLocale()));
+            workbook.setSheetName(sheetIndex, Translator.translate("CompetitionBook." + sheetName, OwlcmsSession.getLocale()));
 
-            String leftHeader = Messages.getStringNullIfMissing("CompetitionBook." + sheetName + "_LeftHeader",
+            String leftHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_LeftHeader",
                     OwlcmsSession.getLocale());
             if (leftHeader != null)
                 curSheet.getHeader().setLeft(leftHeader);
-            String centerHeader = Messages.getStringNullIfMissing("CompetitionBook." + sheetName + "_CenterHeader",
+            String centerHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_CenterHeader",
                     OwlcmsSession.getLocale());
             if (centerHeader != null)
                 curSheet.getHeader().setCenter(centerHeader);
-            String rightHeader = Messages.getStringNullIfMissing("CompetitionBook." + sheetName + "_RightHeader",
+            String rightHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_RightHeader",
                     OwlcmsSession.getLocale());
             if (rightHeader != null)
                 curSheet.getHeader().setRight(rightHeader);
 
-            String leftFooter = Messages.getStringNullIfMissing("CompetitionBook." + sheetName + "_LeftFooter",
+            String leftFooter = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_LeftFooter",
                     OwlcmsSession.getLocale());
             if (leftFooter != null)
                 curSheet.getFooter().setLeft(leftFooter);
-            String centerFooter = Messages.getStringNullIfMissing("CompetitionBook." + sheetName + "_CenterFooter",
+            String centerFooter = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_CenterFooter",
                     OwlcmsSession.getLocale());
             if (centerFooter != null)
                 curSheet.getFooter().setCenter(centerFooter);
-            String rightFooter = Messages.getStringNullIfMissing("CompetitionBook." + sheetName + "_RightFooter",
+            String rightFooter = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_RightFooter",
                     OwlcmsSession.getLocale());
             if (rightFooter != null)
                 curSheet.getFooter().setRight(rightFooter);

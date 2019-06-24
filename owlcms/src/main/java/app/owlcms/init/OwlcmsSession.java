@@ -18,7 +18,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.TranslationProvider;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -119,7 +119,7 @@ public class OwlcmsSession {
 	
     /**
      * Copied from {@link Component} to ensure consistent behavior.
-     * {@link TranslationProvider} will enforce a language if the competition screens must ignore browser settings
+     * {@link Translator} will enforce a language if the competition screens must ignore browser settings
      * 
      * @return
      */
@@ -127,7 +127,7 @@ public class OwlcmsSession {
         UI currentUi = UI.getCurrent();
         Locale locale = currentUi == null ? null : currentUi.getLocale();
         if (locale == null) {
-            List<Locale> locales = TranslationProvider.getAvailableLocales();
+            List<Locale> locales = Translator.getAvailableLocales();
             if (locales != null && !locales.isEmpty()) {
                 locale = locales.get(0);
             } else {

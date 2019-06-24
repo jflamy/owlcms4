@@ -30,7 +30,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
-import app.owlcms.i18n.TranslationProvider;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.utils.LoggerUtils;
@@ -212,7 +212,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void validateBodyWeight(Binder.BindingBuilder bindingBuilder, boolean isRequired) {
-		Validator<Double> v1 = new DoubleRangeValidator(TranslationProvider.translate("Weight_under_350"), 0.0D, 350.0D); //$NON-NLS-1$
+		Validator<Double> v1 = new DoubleRangeValidator(Translator.translate("Weight_under_350"), 0.0D, 350.0D); //$NON-NLS-1$
 		// check wrt body category
 		Validator<Double> v2 = Validator.from((weight) -> {
 			if (!isRequired && weight == null)
@@ -222,7 +222,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get(); //$NON-NLS-1$
 			categoryBinding.validate(true);
 			return true;
-		}, TranslationProvider.translate("BodyWeight_no_match_category")); //$NON-NLS-1$
+		}, Translator.translate("BodyWeight_no_match_category")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v1);
 		bindingBuilder.withValidator(v2);
 	}
@@ -248,7 +248,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				logger.error(LoggerUtils.stackTrace(e));
 			}
 			return true;
-		}, TranslationProvider.translate("Category_no_match_body_weight")); //$NON-NLS-1$
+		}, Translator.translate("Category_no_match_body_weight")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v1);
 
 		// check that category is consistent with gender
@@ -278,7 +278,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				logger.error(LoggerUtils.stackTrace(e));
 			}
 			return true;
-		}, TranslationProvider.translate("Category_no_match_gender")); //$NON-NLS-1$
+		}, Translator.translate("Category_no_match_gender")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v2);
 	}
 
@@ -292,7 +292,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			if (ld == null)
 				return true;
 			return ld.compareTo(LocalDate.now()) <= 0;
-		}, TranslationProvider.translate("BirthDate_cannot_future")); //$NON-NLS-1$
+		}, Translator.translate("BirthDate_cannot_future")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v);
 	}
 
@@ -320,7 +320,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				logger.error(LoggerUtils.stackTrace(e));
 			}
 			return true;
-		}, TranslationProvider.translate("Category_no_match_gender")); //$NON-NLS-1$
+		}, Translator.translate("Category_no_match_gender")); //$NON-NLS-1$
 		bindingBuilder.withValidator(v2);
 	}
 

@@ -25,7 +25,7 @@ import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
-import app.owlcms.i18n.TranslationProvider;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.EmbeddedJetty;
 import app.owlcms.init.OwlcmsFactory;
 import ch.qos.logback.classic.Logger;
@@ -74,7 +74,7 @@ public class Main implements ServletContextListener {
         SLF4JBridgeHandler.install();
 
         // handle translation tasks
-        System.setProperty("vaadin.i18n.provider", TranslationProvider.class.getName());
+        System.setProperty("vaadin.i18n.provider", Translator.class.getName());
         System.setProperty("java.net.preferIPv4Stack", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 
         // misc initializations

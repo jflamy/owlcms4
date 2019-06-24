@@ -6,7 +6,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent.BreakStarted;
-import app.owlcms.i18n.TranslationProvider;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 
 public interface BreakDisplay {
@@ -33,19 +33,19 @@ public interface BreakDisplay {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		Group group = fop.getGroup();
 		String groupName = group != null ? group.getName() : ""; //$NON-NLS-1$
-		return MessageFormat.format(TranslationProvider.translate("Group_number"), groupName); //$NON-NLS-1$
+		return MessageFormat.format(Translator.translate("Group_number"), groupName); //$NON-NLS-1$
 	}
 
 	public default String inferMessage(BreakType bt) {
 		switch (bt) {
 		case FIRST_CJ:
-			return TranslationProvider.translate("TimeBeforeNextLift"); //$NON-NLS-1$
+			return Translator.translate("TimeBeforeNextLift"); //$NON-NLS-1$
 		case FIRST_SNATCH:
-			return TranslationProvider.translate("TimeBeforeFirstLift"); //$NON-NLS-1$
+			return Translator.translate("TimeBeforeFirstLift"); //$NON-NLS-1$
 		case INTRODUCTION:
-			return TranslationProvider.translate("TimeBeforeIntroduction"); //$NON-NLS-1$
+			return Translator.translate("TimeBeforeIntroduction"); //$NON-NLS-1$
 		case TECHNICAL:
-			return TranslationProvider.translate("CompetitionPaused"); //$NON-NLS-1$
+			return Translator.translate("CompetitionPaused"); //$NON-NLS-1$
 		default:
 			return ""; //$NON-NLS-1$
 		}
