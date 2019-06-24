@@ -13,8 +13,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -34,8 +34,10 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * This class creates a resource bundle from a CSV file containing the various
- * translations, and provides translations according to the Vaadin translation
- * spect. Static variations of the translation routines are provided for
+ * translations, and provides translations for Components according to the Vaadin translation
+ * spec. 
+ * 
+ * Static variations of the translation routines are also provided for
  * translations that do not take place inside Vaadin components (e.g.
  * spreadsheets).
  *
@@ -52,13 +54,7 @@ public class Translator implements I18NProvider {
     private static final String BUNDLE_BASE = "translation4";
     private static final String BUNDLE_PACKAGE_SLASH = "/i18n/";
 
-    // TODO: get the locales from the CSV
-    public static final Locale LOCALE_EN = new Locale("en");
-    public static final Locale LOCALE_FR = new Locale("fr");
-    public static final Locale LOCALE_DA = new Locale("da");
-    public static final Locale LOCALE_ES = new Locale("es");
-    private static List<Locale> locales = Collections
-            .unmodifiableList(Arrays.asList(LOCALE_EN, LOCALE_FR, LOCALE_DA, LOCALE_ES));
+    private static List<Locale> locales = null;
 
     private static Locale forcedLocale;
 
@@ -111,8 +107,10 @@ public class Translator implements I18NProvider {
                 final String[] header = in.nextLine().split(CSV_DELIMITER);
                 final File[] outFiles = new File[header.length];
                 final Properties[] languageProperties = new Properties[header.length];
+                locales = new ArrayList<>();
                 for (int i = 1; i < header.length; i++) {
                     String language = header[i];
+                    locales.add(createLocale(language));
                     if (!language.isEmpty()) {
                         language = "_" + language;
                     }
@@ -120,6 +118,7 @@ public class Translator implements I18NProvider {
                     outFiles[i] = outfile;
                     languageProperties[i] = new Properties();
                 }
+                logger.warn("languages: {}",locales);
 
                 // reading to properties
                 while (in.hasNextLine()) {
@@ -147,10 +146,38 @@ public class Translator implements I18NProvider {
         return ResourceBundle.getBundle(baseName, locale, i18nloader);
     }
 
+    private static Locale createLocale(String localeString) {
+        if (localeString == null) {
+            throwInvalidLocale(localeString);
+            return null;  // unreacheable
+        } else {
+            String[] parts = localeString.split("_");
+            if (parts.length == 1) {
+                return new Locale(parts[0]);
+            } else if (parts.length == 2) {
+                return new Locale(parts[0],parts[1]);
+            } else if (parts.length >= 3) {
+                return new Locale(parts[0],parts[1], parts[2]);
+            } else {
+                throwInvalidLocale(localeString);
+                return null;  // unreacheable
+            }
+        }
+    }
+
+    private static void throwInvalidLocale(String localeString) {
+        String message = MessageFormat.format("invalid locale: {0}",localeString);
+        logger.error(message);
+        throw new RuntimeException(message);
+    }
+
     @Override
     public List<Locale> getProvidedLocales() {
         if (forcedLocale != null) {
             return Arrays.asList(forcedLocale);
+        } else if (locales == null) {
+            // sets the available locales
+            getBundleFromCSV(BUNDLE_BASE, Locale.ENGLISH);
         }
         return locales;
     }
@@ -183,7 +210,7 @@ public class Translator implements I18NProvider {
     }
 
     private Locale overrideLocale(Locale locale) {
-        forcedLocale = LOCALE_FR;
+        forcedLocale = Locale.FRENCH;
         if (forcedLocale != null) {
             locale = forcedLocale;
         }
