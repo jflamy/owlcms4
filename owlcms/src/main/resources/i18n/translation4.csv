@@ -1,311 +1,324 @@
-key;en;fr;da;es
-About;About;À propos;Om;Acerca de
-Active;Active;Actif;Aktiv;Activo
-Active;Active;Actif;Aktiv;Activo
-ActiveCategoriesOnly;Active Categories Only;Catégories actives seulement;;
-Add;Add;Ajouter;Tilføj;Añadir
-AgeDivision;Age Division;Division;;
-AgeGroup;Age Group;Groupe d'âge;Aldesgruppe;Grupos per edades
-Announcer;Announcer;Annonceur;Speaker;Presentador
-AnnouncerEtc;(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.);(annonceur, chronométreur, changements, résultats, essai courant, jury, etc.);;
-AnnouncerSelectsGroup;The current group for the platform is selected on the <b><i>Announcer</i></b> screen<br> ;Le groupe courant pour la plateforme est déterminé par l'<b><i>annonceur</i></b.<br> ;;
-Athlete_Attempt;Athlete-facing Attempt Board Display;Essai courant (face à l'athlète);;
-Athlete_Decisions;Athlete-facing Timer/Down/Decisions;Chrono/Terre/Décisions (face à l'athlète);;
-AthleteCards;Athlete Cards;Cartons d'athlète;;
-Attempt;Attempt;Essai;;
-AttemptAF;Attempt (AF);Essai courant (face à l'athlète);;
-AttemptBoard;Attempt Board;Essai courant;;
-AttemptBoard_attempt_number;{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.;{0}<sup>{0,choice,1#er|2#e|3#e}</sup> essai;;
-AtTimeOfRelease; as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you;tels que disponibles au moment de la publication du logiciel. Tel que mentionné dans la licence, il n'y a aucune garantie et vous;;
-AutomaticProgression;Automatic Progression;Progression automatique;Automatisk Øgning;
-Bar;Bar;Barre;Stang;Barra
-Birth;Birth;Naiss.;Født;Nacimiento
-BirthDate;Birth Date;Date naissance;Født;Fecha de nacimiento
-BirthDate_cannot_future;Birth date cannot be in the future;La date de naissance ne peut pas être dans le futur.;;
-BirthDate_yyyy;Birth Date (yyyy-mm-dd);Date naissance (yyyy-mm-dd);Født (yyyy-mm-dd);Fecha de nacimiento (yyyy-mm-dd)
-BodyWeight;Body Weight;Poids;Vægt;Peso corporal
-BodyWeight_no_match_category;Body Weight is outside of selected category;Le poids ne correspond pas à la catégorie;;
-BreakTimer;Break Timer;Chronomètre de pause;;
-BreakType;Break Type;Type de pause;;
-BumperPlates;Grandes plaques;Grandes plaques;Store skiver;Pesas grandes
-Button_Open_Display;Use one of the buttons below to open a display.;Utilisez un bouton ci-dessous pour démarrer un affichage;;
-C_and_J_1;C.&J. 1;É.-J. 1;Stød 1;D.T. 1
-C_and_J_2;C.&J. 2;É.-J. 2;Stød 2;D.T. 2
-C_and_J_3;C.&J. 3;É.-J. 3;Stød 3;D.T. 3
-C_and_J_decl;C.&J. Decl.;Décl. É.-J.;;
-C_and_J_decl;C.&J. Decl.;Décl. É.-J.;;
-C_and_J_number;C.&J. #{0};É.-J. #{0};Stød #{0};D.T. #{0}
-Cancel;Cancel;Annuler;Annuller;Cancelar
-CannotEditResults;. You cannot edit the results.;. Vous ne pouvez pas éditer les résultats.;;
-CannotEditResults_logging;Group {} lifting on {}, cannot edit;Groupe {} lève sur plateau {}, impossible d'éditer;;
-CantReadCell;Can't read cell ;Cellule impossible à interpréter;;
-Category;Category;Catégorie;Vægtklasse;Categoría
-Category_no_match_body_weight;Category does not match body weight.;La catégorie ne correspond pas au poids corporel.;;
-Category_no_match_gender;Category does not match gender.;La catégorie ne correspond pas au genre.;;
-Cell;Cell ;Cellule;;
-Change_1;Change 1;Changement 1;;
-Change_2;Change 2;Changement 2;;
-ChangesGroupEverywhere;This changes the current group for all displays and screens associated with the platform ;Ceci change le groupe courant sur tous les écrans et affichages associés à ce plateau.;;
-Clean_and_Jerk;Clean&Jerk;Épaulé-jeté;Stød;Dos Tiempos
-Clean_and_Jerk_Declaration;Clean&Jerk Declaration;Déclaration É.-J.;;
-Clean_and_Jerk_Rank;Clean&Jerk Rank;Rang É.-J.;;
-ClearLifts;Clear Lifts;Effacer les levers;Ryd løft;Limpiar alzadas
-ClearLifts_forListed;Clear Lifts for Athletes Currently Listed;Effacer les levers des athlètes sélectionnés;;
-ClearStartNumbers;Clear Start Numbers;Vider Nº départ;Ryd Start Nummer;Limpiar Nº inicio
-Collar;Collar;Collet;Lås;Mordaza
-Competition;Competition;Compétition;Stævne;Competición
-Competition.competitionName;Name;Nom;Navn;Nombre
-Competition.competitionCity;City;Ville;By;Ciudad
-Competition.competitionDate;Date;Date;Dato;Fecha
-Competition.competitionOrganizer;Organizer;Organisateur;Arrangør;Organizador
-Competition.competitionSite;Site;Site;Lokalitet;Lugar
-Competition.defaultFederation;Competition.defaultFederation;Fédération d'haltérophilie du Québec;Dansk Vægtløftnings-Forbund;Federación Española de Halterofilia
-Competition.defaultFederationAddress;Competition.defaultFederationAddress;C.P. 1000, Succ. M, Montréal, QC, H1V 3R2;Idrættens Hus, Brøndby Stadion 20, 2605 Brøndby;C/ Francos Rodríguez, 70 
-Competition.defaultFederationEMail;Competition.defaultFederationEMail;admin@fedhaltero.qc.ca;kontor@danskvaegtloeftning.dk;fehalterofilia@hotmail.com
-Competition.defaultFederationWebSite;Competition.defaultFederationWebSite;www.fedhaltero.qc.ca;www.weightlifting.dk;www.fedehalter.org
-Competition.enforce20kgRule;Apply initial total weight rule (IWF §6.6.5/Masters §2.4)?;Appliquer la règle de poids total initial (IWF §6.6.5/Masters §2.4)?;Brug indledende totalvægtregel (IWF §6.6.5/Masters §2.4)?;Aplicar regla de peso total inicial (IWF §6.6.5/Masters §2.4)?
-Competition.federation;Federation Name;Nom de la fédération;Forbundsnavn;Nombre de la federación
-Competition.federationAddress;Federation Address;Adresse de la fédération;Forbundsadresse;Dirección de la federación
-Competition.federationEMail;Federation e-mail;Courriel de la fédération;Forbunds e-mail;E-mail de la federación
-Competition.federationWebSite;Federation Web Site;Site web de la fédération;Forbunds Web Site;Sitio Web de la federación
-Competition.invitedIfBornBefore;Invited if born before;Invité si né avant;For løftere født før;Invitado si es nacido antes de
-Competition.logo;Logo;Logo;Logo;Logo
-Competition.masters;Masters;Maîtres;Masters;Masters
-Competition.protocolFileName;Protocol Sheet Template;Gabarit pour feuille de résultats;Protokol Template;Plantilla de protocolo
-Competition.resultTemplateFileName;Competition Book Template;Gabarit pour cahier de compétition;Competition Book Template;Plantilla de fichero de competición
-Competition.useBirthYear;Use Birth Year Only;Utiliser l'année de naissance seulement;;
-Competition.defaultLocale;Display and printout language (requires restart);Langue d'affichage et d'impression (redémarrage requis);;
-CompetitionApplication.Display;CompetitionApplication.Display;CompetitionApplication.Displayment Display;;Pantalla Principal
-CompetitionBook.C;;;;
-CompetitionBook.C_LeftHeader;Competition Information;Informations sur la compétition;Stævneinformation;Información de la competición
-CompetitionBook.C_RightHeader;;;;
-CompetitionBook.M6;Men's Results;Hommes 6 essais;Resultater Mænd;Resultados Masculino
-CompetitionBook.M6_LeftHeader;Category Ranking;Classement par catégories - Category Ranking;Vægtklasse Placering;Clasificación por categorías
-CompetitionBook.M6_LeftHeader;Competition;Compétition;Stævne;Competición
-CompetitionBook.M6_RightHeader;Men;Hommes - Men;Mænd;Masculino
-CompetitionBook.MCT;Men - Combined Score;Hommes - Pointage Combiné;Mænd - Kombineret Score;
-CompetitionBook.MCT_LeftHeader;Team Ranking (Snatch+CJ+Total);Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Total);Hold Placering (Træk+Stød+Tokamp);Clasificación por equipos (Arr+DT+Total)
-CompetitionBook.MR;Men's Robi;Hommes Robi;Robi Mænd;Robi Masculino
-CompetitionBook.MR_LeftHeader;Robi Ranking;Classement Robi - Robi Ranking;Robi Placering;CLasificación Robi
-CompetitionBook.MS;Men's Sinclair;Hommes Sinclair;Sinclair Mænd;Sinclair Masculino
-CompetitionBook.MS_LeftHeader;Sinclair  Ranking;Classement Sinclair - Sinclair Ranking;Sinclair Placering;CLasificación Sinclair
-CompetitionBook.MT;Men's Total Score;Hommes Pointage Total;Total Score Mænd;Puntos Total Masculino
-CompetitionBook.MT_LeftHeader;Team Ranking (Total);Classement par équipes (Total) - Team Ranking (Total);Hold Placering (Total);Clasificación por equipos (Total)
-CompetitionBook.MT_RightHeader;Men;Hommes - Men;Mænd;Masculino
-CompetitionBook.MWCT;Men&Women - Combined Score;Hommes et Femmes - Pointage Combiné;Mænd&Kvinder - Kombineret Score;Masculino y Femenino - Puntuación Combinada
-CompetitionBook.MWCT_LeftHeader;Team Ranking (Snatch+CJ+Total);Classement par équipes (Arr.+É.J.+Total);Hold Placering (Træk+Stød+Tokamp);Clasificación por equipos (Arr+DT+Total)
-CompetitionBook.MWCT_RightHeader;Women;Femmes;Kvinder;Femenino
-CompetitionBook.MWT;M+W Total Score;M+F Pointage Total;M+K Total Score;M+F Puntuación Total
-CompetitionBook.MWT_LeftHeader;Team Ranking (Total);Classement par équipes (Total) - Team Ranking (Total);Hold Placering (Total);Clasificación por equipos (Total)
-CompetitionBook.MWT_RightHeader;Men and Women;Hommes et Femmes - Men and Women;Mænd og Kvinder;Masculino y Femenino
-CompetitionBook.MXT;Men's Custom Score;Hommes Pointage Spécial;Mænd Speciel Score;Puntuación Masculina Personalizada
-CompetitionBook.MXT_LeftHeader;Team  Ranking (Custom);Classement par équipes (Spécial) - Team Ranking (Custom);Hold Placering (Speciel);Clasificación por equipos (Personalizada)
-CompetitionBook.MXT_RightHeader;Men;Hommes - Men;Mænd;Masculino
-CompetitionBook.W6;Women's Results;Femmes 6 essais;Resultater Kvinder;Clasificación Femenina
-CompetitionBook.W6_RightHeader;Women;Femmes - Women;Kvinder;Femenino
-CompetitionBook.WCT;Women - Combined Score;Femmes - Pointage Combiné;Kvinder - Combined Score;Femenino - Puntuación Combinada
-CompetitionBook.WCT_LeftHeader;Team Ranking (Snatch+CJ+Total);Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Snatch+CJ+Total);Hold Placering (Træk+Stød+Tokamp);Clasificación por equipos (Arr+DT+Total)
-CompetitionBook.WCT_RightHeader;Women;Femmes - Women;Kvinder;Femenino
-CompetitionBook.WR;Women's Robi;Femmes Robi;Robi Kvinder;Robi Femenino
-CompetitionBook.WR_RightHeader;Women;Femmes - Women;Kvinder;Femenino
-CompetitionBook.WS;Women's Sinclair;Femmes Sinclair;Sinclair Kvinder;Sinclair Femenino
-CompetitionBook.WS_LeftHeader;Sinclair  Ranking;Classement Sinclair - Sinclair Ranking;Sinclair Placering;Clasificación Sinclair
-CompetitionBook.WS_RightHeader;Women;Femmes - Women;Kvinder;Femenino
-CompetitionBook.WT;Women - Total Score;Femmes - Pointage Total;Kvinder - Total Score;Femenino - Puntuación Total
-CompetitionBook.WT_LeftHeader;Team Ranking (Total);Classement par équipes (Total) - Team Ranking (Total);Hold Placering (Total);Clasificación por equipos (Total)
-CompetitionBook.WT_RightHeader;Women;Femmes - Women;Kvinder;Femenino
-CompetitionBook.WXT;Women - Custom Score;Femmes - Pointage Spécial;Kvinder - Speciel Score;Femenino - Puntuación Personalizada
-CompetitionBook.WXT_LeftHeader;Team  Ranking (Custom);Classement par équipes (Spécial) - Team Ranking (Custom);Hold Placering (Speciel);Puntuación por equipos (Personalizado)
-CompetitionBook.WXT_RightHeader;Women;Femmes - Women;Kvinder;Femenino
-CompetitionDocuments_description;<li><b>Competition documents</b>: Produce printable documents for each group and the final results package.</li>;<li><b>Documents de compétition</b>: Produire les résultats imprimables pour chaque groupe et le cahier de compétition .</li>;;
-CompetitionInformation;Competition Information;Informations sur la compétition;Stævneinformation;Información de la competición
-CompetitionPaused;Competition paused;Pause;;
-CompetitionPlatform;Competition Platform;Plateau de compétition;;
-Copyright2009;This software is Copyright © 2009-;Ce logiciel est sous droits d'auteurs - Copyright © 2009-;;
-CopyrightLicense;Copyright and License;Licence et droits d'auteur;;
-Countdown_BreakTimer;Countdown to start / Break Timer;Décompte avant début / Chrono de pause;;
-CountdownType;Countdown Type;Type de décompte;;
-Credits;Credits;Remerciements;;
-DataRead;Read ;Lu;;
-Decision_AF_;Decision (AF);Decision (face à l'athlète);;
-Declaration;Declaration;Déclaration;;
-Declaration;Declaration;Déclaration;;
-Declaration_Notification;Declaration for {0}: {1};Declaration pour {0}: {1};;
-DefineCategories;Define Categories;Définir les catégories;;
-DefineFOP;Define Fields of Play;Définir les plateaux;;
-DefineGroups;Define Groups;Définir les groupes;;
-Delete;Delete;Détruire;Slet;Eliminar
-Delete;Delete;Détruire;Slet;Eliminar
-Delete;Delete;Détruire;Slet;Eliminar
-DeleteAthletes;Delete Athletes;Détruire athlètes;Slet løftere;Borrar atletas
-DeleteAthletes;Delete Athletes;Détruire athlètes;Slet løftere;Borrar atletas
-DeleteAthletes_forListed;Delete Athletes Currently Listed;Détruire athlètes actuellement listés;;
-Display;Display;Afficher;Display;Marcador
-Documentation;<li>See also the <a href='https://jflamy.github.io/owlcms4/'>documentation</a> for ;<li>Voir aussi la <a href='https://jflamy.github.io/owlcms4/'>documentation</a> pour ;;
-Done_period;Done.;Terminé;Afsluttet;Hecho
-DownloadRegistrationTemplate;Download Empty Registration Spreadsheet;Obtenir une feuille d'inscription vide;;
-DrawLotNumbers;Draw Lot Numbers;Tirage au sort;Tildel lodt. numre;Números aleatorios
-Dropdown_Select_Platform;Use the dropdown to select the platform where the display is located.;Utilisez le menu déroulant pour choisir le plateau de compétition où se trouve l'affichage;;
-Edit_Groups;Edit Groups;Éditer les groupes;;
-EditAthletes;Edit Athlete Entries;Éditer les athlètes;;
-EditAthletes_Groups;Edit Athlete Entries (adjust group assignments);Éditer les athlètes (ajuster l'assignation des groupes);;
-EditCategories;Edit Categories;Éditer les catégories;;
-EditCompetitionInformation;Edit Competition Information;Éditer les données sur la compétition;;
-EditingResults_logging;Group {} lifting on {}, editing;Groupe {} lève sur plateau {}, édition;;
-EditPlatforms;Edit Platforms;Éditer les plateaux;;
-EditRegisteredAthletes;Edit Registered Athletes;Éditer les athlètes inscrits;;
-Eligible;Eligible;Éligible;;
-Eligible for Individual Ranking?;Eligible for individual ranking?;Éligible au classement individuel ?;;
-EndBreak_StartLifting;End Break, Start Lifting;Fin de la pause, débuter les levers;;
-EndOfCompetitionDocuments;End of competition documents;Documents de compétition;;
-EnterPin;Enter PIN;Enter PIN;;
-EntryTotal;Entry Total;Total déclaré;;
-Error;Error;Erreur;;
-Errors;Errors;Erreurs;;
-FieldOfPlayDisplays;Field of Play Displays;Affichages sur les plateaux;;
-FinalResultsPackage;Final Results Package;Compilation des résultats;;
-FirstName;First Name;Prénom;Fornavn;Nombre
-ForEachCompetitionGroup;For each competition group;Pour chaque groupe;;
-Gender;Gender;Genre;Køn;Genero
-GenerateStartNumbers;Generate Start Numbers;Générer les ? de départ;;
-GotIt;Got it.;Compris.;;
-Group;Group;Groupe;Gruppe;Sesión
-Group_number;Group {0};Groupe {0};Gruppe {0};Tanda {0} 
-Group_number_done;Group {0} done.;Groupe {0} terminé.;Gruppe {0} afsluttet.;Sesion {0} terminada.
-Group_number_done;Group {0} done.;Groupe {0} terminé.;Gruppe {0} afsluttet.;Sesion {0} terminada.
-GroupResults;Group Results;Résultats de groupe;;
-Home;Home;Accueil;;
-InstallationConfiguration;installation and configuration information.;instructions d'installation et de configuration;;
-JFL; Jean-François Lamy;Jean-François Lamy;;
-Jury;Jury;Jury;Jury;Jurado
-Jury1;Jury 1;Jury 1;;
-Jury2;Jury 2;Jury 2;;
-Jury3;Jury 3;Jury 3;;
-Jury4;Jury 4;Jury 4;;
-Jury5;Jury 5;Jury 5;;
-JuryDecisions;Jury Decisions;Décisions du jury;Jury Afgørelse;Decisiones del jurado
-LastName;Last Name;Nom;Efternavn;Apellido
-LeftMenuNavigate;Use the menu at the left to navigate to the various screens:<ul>;Utilisez le menu à gauche pour naviguer;;
-LicenseUsed;This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.;Ce logiciel est disponible selon les termes de la licence <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.;;
-LiftsCleared;Lifts cleared;Les essais ont été effacés;;
-LocalComputer;\u0020(on the computer running the owlcms program);\u0020(sur l'ordinateur où owlcms s'exécute);;
-Locale;Locale;Locale;;
-Locale.defaultCountry;US;US;US;US
-Locale.defaultLanguage;en;en;en;en
-Locale.languageCode;en;fr;da;es
-Log_In;Log in;Identification;;
-Login;Login;Identification;;
-LoginDenied;Incorrect Access Information Provided.;Information d'accès incorrecte;;
-Lot;Lot;Tirage;Lodt.;Número
-margin-bottom;margin-bottom;margin-bottom;margin-bottom;margin-bottom
-Marshall;Marshall;Préposé aux changements;;
-MaximumWeight;Maximum Weight;Poids maximum;;
-MetalPlates;Metal Plates;Plaques de métal;Små skiver;Pesas de metal
-MinimumWeight;Minimum Weight;Poids minimum;Minimum vægt;Peso Mínimo
-Name;Name;Nom;Navn;Nombre
-NoLift_GoodLift;{0,choice,0#No Lift|1#Good Lift} for {1};Essai {0,choice,0#refusé|1#réussi} pour {1};;
-none;none;aucun;;
-Not_weighed;Not weighed;Non pesé;;
-Notes;Notes;Notes;;
-OWLCMS_Displays;OWLCMS - Displays;OWLCMS - Affichages;;
-OWLCMS_Home;OWLCMS - Home;OWLCMS - Accueil;;
-OWLCMS_Info;OWLCMS - About;OWLCMS - Info;;
-OWLCMS_Lifting;OWLCMS - Lifting;OWLCMS - Groupe;;
-OWLCMS_Preparation;OWLCMS - Preparation;OWLCMS - Préparation;;
-OWLCMS_Results;OWLCMS - Results;OWLCMS - Résultats;;
-OWLCMS_Top;OWLCMS - Olympic Weightlifting Competition Management System;OWLCMS - Gestion de compétition d'haltérophilie;;
-PauseCountdown;Pause Break Countdown Timer;Stopper le chrono de pause;;
-Plates;Plates;Plaques;Skiver;Pesas
-PlatesDisplay;Plates Display;Plaques;;
-Platform;Platform;Plateau;Platform;Tarima
-PlatformName;Platform Name;Nom de la plateforme;Platform Navn;Nombre de la tarima
-PreCompetitionSetup;Pre-competition setup;Préparation de la compétition;;
-Preparation_Categories;Preparation - Categories;Préparation - Catégories;;
-Preparation_Competition;Preparation - Competition;Préparation - Compétition;;
-Preparation_Groups;Preparation - Groups;Préparation - Groupes;;
-Preparation_Platforms;Preparation - Platforms;Préparation - Plateformes;;
-Preparation_Registration;Preparation - Registration;Préparation - Inscriptions;;
-PrepareCompatition_description;<li><b>Prepare Competition</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>;<li><b>Préparer la compétition</b>: Entrer les coordonnées, inscrire les athlètes, définir les groupes, etc.<br></li>;;
-PrepareCompetition;Prepare Competition;Préparer la compétition;;
-ProduceResults;Produce Results;Produire les résultats;;
-ProjectRepository;<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.;<li>Voir le <a href='https://github.com/jflamy/owlcms4'>référentiel du projet</a> pour les packages d'installation et le code source.;;
-Question;?;\u0020?;;
-Rank;Rank;Rang;Placering;Posición
-ReadingData_;Reading the data;Lecture des données;;
-Referee1;Referee 1;Arbitre 1;Dommer 1;Juez 1
-Referee2;Referee 2;Arbitre 2;Dommer 2;Juez 2
-Referee3;Referee 3;Arbitre 3;Dommer 3;Juez 3
-RefereeDecisions;Referee Decisions;Décisions des officiels;Dommer Afgørelse;Decisiones de los jueces
-Refereeing_Displays;Refereeing Displays (can accept keyboard input from refereeing devices);Affichages d'arbitrage (acceptent les entrées des claviers d'arbitrage);;
-RefreshList;Refresh list;Rafraîchir;;
-Registration;Registration;Inscriptions;Registreringer;Inscripciones
-Reload_group;Reload group from database.;Recharger le groupe à partir de la base de données;;
-Requested_weight;Requested Weight;Poids demandé;;
-Reset1min;Reset to 1 min;Réinitialiser à 1 min.;;
-Reset2min;Reset to 2 min;Réinitialiser à 2 min.;;
-ResultDocuments;Result Documents;Documents de résultats;;
-Results;Results;Résultats;Resultater;Resultados
-ResumeCompetition;Resume Competition;Redémarrer la compétition;;
-RunLiftingGroup;Run Lifting Group;Groupe de compétition;;
-RunLiftingGroup_description;<li><b>Run lifting group</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>;<li><b>Groupe de compétition</b>: Lancer les écrans pour les officiels (annonceur, chrono, préposé aux changements). L'annonceur choisit le groupe en cours.</li>;;
-Scoreboard;Scoreboard;Tableau de résultats;;
-Select_group_first;Please select a group first.;Il faut d'abord choisir un groupe.;Vælg en gruppe først.;Por favor, selecciona primero una tanda.
-SelectPlatform;Select Platform;Choisir la plateforme;;
-Semicolon;\u003B;\u003B;\u003B;\u003B
-SeparateLaptops;</ul>Each of the various screens or displays uses a separate laptop or mini-pc.;</ul>Chacun des écrans ou affichages requiert un portable ou mini-pc.;;
-Snatch;Snatch;Arr.;Træk;Arr.
-Snatch_Declaration;Snatch Declaration;Déclaration Arraché;;
-Snatch_number;Snatch #{0};Arraché #{0};Træk  #{0};Arrancada #{0}
-Snatch1;snatch 1;Arraché 1;Træk  1;Arrancada 1
-Snatch2;snatch 2;Arraché 2;Træk  2;Arrancada 2
-Snatch3;snatch 3;Arraché 3;Træk  3;Arrancada 3
-SnatchDecl_;Snatch Decl.;Décl. Arr.;;
-SnatchDecl_;Snatch Decl.;Décl. Arr.;;
-SnatchRank;Snatch Rank;Rang Arr.;;
-SourceDocumentation;Source and Documentation;Code source et documentation;;
-Start Displays;Start Displays;Démarrer les affichages;;
-Start_;Start#;#Départ;;
-StartCountdown;Start Break Countdown Timer;Démarrer le chronomètre de pause;;
-StartDisplays_description;<li><b>Start displays</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>;<li><b>Démarrer les affichages</b>: Lancer les tableaux de résultats, l'affichage de l'essai courant, et l'affichage pour l'athlète.</li>;;
-StartingList;Starting List;Liste de départ;Startliste;Lista de inicio
-StartingWeightsSheet;Starting Weights Sheet;Barres de départ;Startvægte;Pesos iniciales
-StartNumber;Start Number;Numéro de départ;;
-StartTime;Start Time;Heure de début;Starttid;Hora de comienzo
-StopCompetition;Stop Competition;Arrêter la compétition;;
-SystemURL;The competition system is reachable using the following address(es): ;Le système est accessible en spécifiant:;;
-TCRRCompliance;This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules;Ce logiciel vise à se conformer aux règles techniques de compétition IWF (TCRR) en vigueur ainsi qu'aux règles de la fédération Masters Weightlifting.;;
-Team;Team;Équipe;Hold;Equipo
-TechnicalController;Technical Controller;Contrôleur Technique;Teknisk kontrollant;Controlador Técnico
-ThanksToAll;Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>;Merci à Anders Bendix Nielsen, Alexey Ruchev et Brock Pedersen pour leurs commentaires et leurs essais.<br>;;
-ThanksToFHQ;Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.;Merci à la Fédération d'haltérophilie du Québec d'avoir soutenu le développement initial du projet.;;
-TimeBeforeFirstLift;Time before first lift;Décompte avant le premier lever;;
-TimeBeforeIntroduction;Time before introduction;Décompte avant la présentation;;
-TimeBeforeNextLift;Time before next lift;Décompte avant le prochain lever;;
-Timekeeper;Timekeeper;Chronométreur;Tidtager;Cronometrador
-TimingStatistics;Timing Statistics;Statistiques de durée;;
-TOScreens;Technical Official Screens (select the correct platform above before clicking);Écrans des officiels (choisir le plateau ci-dessus avant de cliquer);;
-Total;Total;Total;Tokamp;Total
-Unexpected_Logging;Unexpected event: {} in state {};Événement inattendu: {} dans l'état {};;
-Unexpected_Notification;Unexpected event: {0} in state {1};Événement inattendu: {0} dans l'état {1};;
-Update;Update;Modifier;;
-UploadRegistrationFile;Upload Registration File;Charger le fichier d'inscription;;
-UploadRegistrations;Upload Completed Registration Spreadsheet;Charger un fichier d'inscription ;;
-UseAtYourOwnRisk; are responsible for performing whatever tests are need to establish that the sofware is fit for your circumstances.; êtes responsable d'effectuer les tests requis pour établir que le logiciel répond à vos besoins.;;
-Warning_ClearAthleteLifts;This will clear all lifting data for the athletes currently displayed except for initial declarations.<br>Are you sure?;Ceci va vider les essais pour les athlètes actuellement affichés<br>Êtes-vous certain?;;
-Warning_DeleteAthletes;This will delete the athletes currently displayed from the database.<br>Are you sure?;Ceci va effacer les athlètes actuellement affichés<br>Êtes-vous certain?;;
-Warning_GroupLifting;This group is currently lifting on platform ;Ce groupe est actuellement en compétition sur le plateau;;
-Weighed;Weighed;Pesés;;
-Weighed_in_p;Weighed-In?;Pesés ?;;
-WeighIn;Weigh-In;Pesée;Indvejning;Pesaje
-WeighIn_StartNumbers;Weigh-In and Start Numbers;Pesée et numéros de départ;;
-WeighInTime;Weigh-in Time;Heure de pesée;Indvejningstidspunkt;Hora de pesaje
-Weight_change_current_athlete;Weight change for current athlete<br>{0};Changement pour l'athlète courant<br>{0};;
-Weight_under_350;Weight should be between 0 and 350kg;Weight should be between 0 and 350kgment 350kg;;
-WeightLifted;Weight Lifted;Poids soulevé;;
-Wired;\u0020(wired);\u0020(cablé);;
-Wireless;\u0020(wireless);\u0020(sans fil);;
-WorldRecord;World Record;Record du monde;Verdensrekord;Récord mundial
-WrittenJFL;The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>;Le système a été écrit et est mis à jour par Jean-François Lamy, Officiel Technique IWF catégorie 1<br><br>;;
-Add_title;Add {0};Créer {0};;
-Update_title;Update {0};Modifier {0};;
-Delete_title;Delete {0};Effacer {0};;
+key;en;fr;fr_CA;da;es
+About;About;À propos;;Om;Acerca de
+Active;Active;Actif;;Aktiv;Activo
+Active;Active;Actif;;Aktiv;Activo
+ActiveCategoriesOnly;Active Categories Only;Catégories actives seulement;;;
+Add;Add;Ajouter;;Tilføj;Añadir
+Add_title;Add {0};Créer {0};;Tilføj {0];Añadir {0}
+AgeDivision;Age Division;Division;;;
+AgeGroup;Age Group;Groupe d'âge;;Aldesgruppe;Grupos per edades
+Announcer;Announcer;Annonceur;;Speaker;Presentador
+AnnouncerEtc;(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.);(annonceur, chronométreur, changements, résultats, essai courant, jury, etc.);;;
+AnnouncerSelectsGroup;The current group for the platform is selected on the <b><i>Announcer</i></b> screen<br> ;Le groupe courant pour la plateforme est déterminé par l'<b><i>annonceur</i></b.<br> ;;;
+Athlete_Attempt;Athlete-facing Attempt Board Display;Essai courant (face à l'athlète);;;
+Athlete_Decisions;Athlete-facing Timer/Down/Decisions;Chrono/Terre/Décisions (face à l'athlète);;;
+AthleteCards;Athlete Cards;Cartons d'athlète;;;
+Attempt;Attempt;Essai;;;
+AttemptAF;Attempt (AF);Essai courant (face à l'athlète);;;
+AttemptBoard;Attempt Board;Essai courant;;;
+AttemptBoard_attempt_number;{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.;{0}<sup>{0,choice,1#er|2#e|3#e}</sup> essai;;;
+AtTimeOfRelease; as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you;tels que disponibles au moment de la publication du logiciel. Tel que mentionné dans la licence, il n'y a aucune garantie et vous;;;
+AutomaticProgression;Automatic Progression;Progression automatique;;Automatisk Øgning;
+Bar;Bar;Barre;;Stang;Barra
+BirthDate;Birth Date;Date naissance;;Født;Fecha de nacimiento
+BirthDate_cannot_future;Birth date cannot be in the future;La date de naissance ne peut pas être dans le futur.;;;
+BirthDate_yyyy;Birth Date (yyyy-mm-dd);Date naissance (yyyy-mm-dd);;Født (yyyy-mm-dd);Fecha de nacimiento (yyyy-mm-dd)
+BodyWeight;Body Weight;Poids;;Vægt;Peso corporal
+BodyWeight_no_match_category;Body Weight is outside of selected category;Le poids ne correspond pas à la catégorie;;;
+BreakTimer;Break Timer;Chronomètre de pause;;;
+BreakType;Break Type;Type de pause;;;
+BumperPlates;Grandes plaques;Grandes plaques;;Store skiver;Pesas grandes
+Button_Open_Display;Use one of the buttons below to open a display.;Utilisez un bouton ci-dessous pour démarrer un affichage;;;
+C_and_J_1;C.&J. 1;É.-J. 1;;Stød 1;D.T. 1
+C_and_J_2;C.&J. 2;É.-J. 2;;Stød 2;D.T. 2
+C_and_J_3;C.&J. 3;É.-J. 3;;Stød 3;D.T. 3
+C_and_J_decl;C.&J. Decl.;Décl. É.-J.;;;
+C_and_J_decl;C.&J. Decl.;Décl. É.-J.;;;
+C_and_J_number;C.&J. #{0};É.-J. #{0};;Stød #{0};D.T. #{0}
+Cancel;Cancel;Annuler;;Annuller;Cancelar
+CannotEditResults;. You cannot edit the results.;. Vous ne pouvez pas éditer les résultats.;;;
+CannotEditResults_logging;Group {} currently lifting on platform {}, cannot edit;Groupe {} lève sur plateau {}, impossible d'éditer;;;
+CantReadCell;Can't read cell ;Cellule impossible à interpréter;;;
+Category;Category;Catégorie;;Vægtklasse;Categoría
+Category_no_match_body_weight;Category does not match body weight.;La catégorie ne correspond pas au poids corporel.;;;
+Category_no_match_gender;Category does not match gender.;La catégorie ne correspond pas au genre.;;;
+Cell;Cell ;Cellule;;;
+Change_1;Change 1;Changement 1;;;
+Change_2;Change 2;Changement 2;;;
+ChangesGroupEverywhere;This changes the current group for all displays and screens associated with the platform ;Ceci change le groupe courant sur tous les écrans et affichages associés à ce plateau.;;;
+Clean_and_Jerk;Clean&Jerk;Épaulé-jeté;;Stød;Dos Tiempos
+Clean_and_Jerk_short;C.&J.;É.-J.;;Stød;D.T.
+Clean_and_Jerk_Declaration;Clean&Jerk Declaration;Déclaration É.-J.;;;
+Clean_and_Jerk_Rank;Clean&Jerk Rank;Rang É.-J.;;;
+ClearLifts;Clear Lifts;Effacer les levers;;Ryd løft;Limpiar alzadas
+ClearLifts_forListed;Clear Lifts for Athletes Currently Listed;Effacer les levers des athlètes sélectionnés;;;
+ClearStartNumbers;Clear Start Numbers;Vider Nº départ;;Ryd Start Nummer;Limpiar Nº inicio
+Collar;Collar;Collet;;Lås;Mordaza
+Competition;Competition;Compétition;;Stævne;Competición
+Competition.competitionCity;City;Ville;;By;Ciudad
+Competition.competitionDate;Date;Date;;Dato;Fecha
+Competition.competitionName;Name;Nom;;Navn;Nombre
+Competition.competitionOrganizer;Organizer;Organisateur;;Arrangør;Organizador
+Competition.competitionSite;Site;Site;;Lokalitet;Lugar
+Competition.defaultFederation;Competition.defaultFederation;Fédération d'haltérophilie du Québec;;Dansk Vægtløftnings-Forbund;Federación Española de Halterofilia
+Competition.defaultFederationAddress;Competition.defaultFederationAddress;C.P. 1000, Succ. M, Montréal, QC, H1V 3R2;;Idrættens Hus, Brøndby Stadion 20, 2605 Brøndby;C/ Francos Rodríguez, 70 
+Competition.defaultFederationEMail;Competition.defaultFederationEMail;admin@fedhaltero.qc.ca;;kontor@danskvaegtloeftning.dk;fehalterofilia@hotmail.com
+Competition.defaultFederationWebSite;Competition.defaultFederationWebSite;www.fedhaltero.qc.ca;;www.weightlifting.dk;www.fedehalter.org
+Competition.defaultLocale;Display and printout language (requires restart);Langue d'affichage et d'impression (redémarrage requis);;;
+Competition.enforce20kgRule;Apply initial total weight rule (IWF §6.6.5/Masters §2.4)?;Appliquer la règle de poids total initial (IWF §6.6.5/Masters §2.4)?;;Brug indledende totalvægtregel (IWF §6.6.5/Masters §2.4)?;Aplicar regla de peso total inicial (IWF §6.6.5/Masters §2.4)?
+Competition.federation;Federation Name;Nom de la fédération;;Forbundsnavn;Nombre de la federación
+Competition.federationAddress;Federation Address;Adresse de la fédération;;Forbundsadresse;Dirección de la federación
+Competition.federationEMail;Federation e-mail;Courriel de la fédération;;Forbunds e-mail;E-mail de la federación
+Competition.federationWebSite;Federation Web Site;Site web de la fédération;;Forbunds Web Site;Sitio Web de la federación
+Competition.invitedIfBornBefore;Invited if born before;Invité si né avant;;For løftere født før;Invitado si es nacido antes de
+Competition.logo;Logo;Logo;;Logo;Logo
+Competition.masters;Masters;Maîtres;;Masters;Masters
+Competition.protocolFileName;Protocol Sheet Template;Gabarit pour feuille de résultats;;Protokol Template;Plantilla de protocolo
+Competition.resultTemplateFileName;Competition Book Template;Gabarit pour cahier de compétition;;Competition Book Template;Plantilla de fichero de competición
+Competition.useBirthYear;Use Birth Year Only;Utiliser l'année de naissance seulement;;;
+CompetitionApplication.Display;CompetitionApplication.Display;CompetitionApplication.Displayment Display;;;Pantalla Principal
+CompetitionBook.C;;;;;
+CompetitionBook.C_LeftHeader;Competition Information;Informations sur la compétition;;Stævneinformation;Información de la competición
+CompetitionBook.C_RightHeader;;;;;
+CompetitionBook.M6;Men's Results;Hommes 6 essais;;Resultater Mænd;Resultados Masculino
+CompetitionBook.M6_LeftHeader;Category Ranking;Classement par catégories - Category Ranking;;Vægtklasse Placering;Clasificación por categorías
+CompetitionBook.M6_LeftHeader;Competition;Compétition;;Stævne;Competición
+CompetitionBook.M6_RightHeader;Men;Hommes - Men;;Mænd;Masculino
+CompetitionBook.MCT;Men - Combined Score;Hommes - Pointage Combiné;;Mænd - Kombineret Score;
+CompetitionBook.MCT_LeftHeader;Team Ranking (Snatch+CJ+Total);Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Total);;Hold Placering (Træk+Stød+Tokamp);Clasificación por equipos (Arr+DT+Total)
+CompetitionBook.MR;Men's Robi;Hommes Robi;;Robi Mænd;Robi Masculino
+CompetitionBook.MR_LeftHeader;Robi Ranking;Classement Robi - Robi Ranking;;Robi Placering;CLasificación Robi
+CompetitionBook.MS;Men's Sinclair;Hommes Sinclair;;Sinclair Mænd;Sinclair Masculino
+CompetitionBook.MS_LeftHeader;Sinclair  Ranking;Classement Sinclair - Sinclair Ranking;;Sinclair Placering;CLasificación Sinclair
+CompetitionBook.MT;Men's Total Score;Hommes Pointage Total;;Total Score Mænd;Puntos Total Masculino
+CompetitionBook.MT_LeftHeader;Team Ranking (Total);Classement par équipes (Total) - Team Ranking (Total);;Hold Placering (Total);Clasificación por equipos (Total)
+CompetitionBook.MT_RightHeader;Men;Hommes - Men;;Mænd;Masculino
+CompetitionBook.MWCT;Men&Women - Combined Score;Hommes et Femmes - Pointage Combiné;;Mænd&Kvinder - Kombineret Score;Masculino y Femenino - Puntuación Combinada
+CompetitionBook.MWCT_LeftHeader;Team Ranking (Snatch+CJ+Total);Classement par équipes (Arr.+É.J.+Total);;Hold Placering (Træk+Stød+Tokamp);Clasificación por equipos (Arr+DT+Total)
+CompetitionBook.MWCT_RightHeader;Women;Femmes;;Kvinder;Femenino
+CompetitionBook.MWT;M+W Total Score;M+F Pointage Total;;M+K Total Score;M+F Puntuación Total
+CompetitionBook.MWT_LeftHeader;Team Ranking (Total);Classement par équipes (Total) - Team Ranking (Total);;Hold Placering (Total);Clasificación por equipos (Total)
+CompetitionBook.MWT_RightHeader;Men and Women;Hommes et Femmes - Men and Women;;Mænd og Kvinder;Masculino y Femenino
+CompetitionBook.MXT;Men's Custom Score;Hommes Pointage Spécial;;Mænd Speciel Score;Puntuación Masculina Personalizada
+CompetitionBook.MXT_LeftHeader;Team  Ranking (Custom);Classement par équipes (Spécial) - Team Ranking (Custom);;Hold Placering (Speciel);Clasificación por equipos (Personalizada)
+CompetitionBook.MXT_RightHeader;Men;Hommes - Men;;Mænd;Masculino
+CompetitionBook.W6;Women's Results;Femmes 6 essais;;Resultater Kvinder;Clasificación Femenina
+CompetitionBook.W6_RightHeader;Women;Femmes - Women;;Kvinder;Femenino
+CompetitionBook.WCT;Women - Combined Score;Femmes - Pointage Combiné;;Kvinder - Combined Score;Femenino - Puntuación Combinada
+CompetitionBook.WCT_LeftHeader;Team Ranking (Snatch+CJ+Total);Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Snatch+CJ+Total);;Hold Placering (Træk+Stød+Tokamp);Clasificación por equipos (Arr+DT+Total)
+CompetitionBook.WCT_RightHeader;Women;Femmes - Women;;Kvinder;Femenino
+CompetitionBook.WR;Women's Robi;Femmes Robi;;Robi Kvinder;Robi Femenino
+CompetitionBook.WR_RightHeader;Women;Femmes - Women;;Kvinder;Femenino
+CompetitionBook.WS;Women's Sinclair;Femmes Sinclair;;Sinclair Kvinder;Sinclair Femenino
+CompetitionBook.WS_LeftHeader;Sinclair  Ranking;Classement Sinclair - Sinclair Ranking;;Sinclair Placering;Clasificación Sinclair
+CompetitionBook.WS_RightHeader;Women;Femmes - Women;;Kvinder;Femenino
+CompetitionBook.WT;Women - Total Score;Femmes - Pointage Total;;Kvinder - Total Score;Femenino - Puntuación Total
+CompetitionBook.WT_LeftHeader;Team Ranking (Total);Classement par équipes (Total) - Team Ranking (Total);;Hold Placering (Total);Clasificación por equipos (Total)
+CompetitionBook.WT_RightHeader;Women;Femmes - Women;;Kvinder;Femenino
+CompetitionBook.WXT;Women - Custom Score;Femmes - Pointage Spécial;;Kvinder - Speciel Score;Femenino - Puntuación Personalizada
+CompetitionBook.WXT_LeftHeader;Team  Ranking (Custom);Classement par équipes (Spécial) - Team Ranking (Custom);;Hold Placering (Speciel);Puntuación por equipos (Personalizado)
+CompetitionBook.WXT_RightHeader;Women;Femmes - Women;;Kvinder;Femenino
+CompetitionDocuments_description;<li><b>Competition documents</b>: Produce printable documents for each group and the final results package.</li>;<li><b>Documents de compétition</b>: Produire les résultats imprimables pour chaque groupe et le cahier de compétition .</li>;;;
+CompetitionInformation;Competition Information;Informations sur la compétition;;Stævneinformation;Información de la competición
+CompetitionPaused;Competition paused;Pause;;;
+CompetitionPlatform;Competition Platform;Plateau de compétition;;;
+Copyright2009;This software is Copyright © 2009-;Ce logiciel est sous droits d'auteurs - Copyright © 2009-;;;
+CopyrightLicense;Copyright and License;Licence et droits d'auteur;;;
+Countdown_BreakTimer;Countdown to start / Break Timer;Décompte avant début / Chrono de pause;;;
+CountdownType;Countdown Type;Type de décompte;;;
+Credits;Credits;Remerciements;;;
+DataRead;Read ;Lu;;;
+Decision_AF_;Decision (AF);Decision (face à l'athlète);;;
+Declaration;Declaration;Déclaration;;;
+Declaration;Declaration;Déclaration;;;
+Declaration_Notification;Declaration for {0}: {1};Declaration pour {0}: {1};;;
+DefineCategories;Define Categories;Définir les catégories;;;
+DefineFOP;Define Fields of Play;Définir les plateaux;;;
+DefineGroups;Define Groups;Définir les groupes;;;
+Delete;Delete;Détruire;;Slet;Eliminar
+Delete;Delete;Détruire;;Slet;Eliminar
+Delete;Delete;Détruire;;Slet;Eliminar
+Delete_title;Delete {0};Effacer {0};;;
+DeleteAthletes;Delete Athletes;Détruire athlètes;;Slet løftere;Borrar atletas
+DeleteAthletes;Delete Athletes;Détruire athlètes;;Slet løftere;Borrar atletas
+DeleteAthletes_forListed;Delete Athletes Currently Listed;Détruire athlètes actuellement listés;;;
+Display;Display;Afficher;;Display;Marcador
+Documentation;<li>See also the <a href='https://jflamy.github.io/owlcms4/'>documentation</a> for ;<li>Voir aussi la <a href='https://jflamy.github.io/owlcms4/'>documentation</a> pour ;;;
+Done_period;Done.;Terminé;;Afsluttet;Hecho
+DownloadRegistrationTemplate;Download Empty Registration Spreadsheet;Obtenir une feuille d'inscription vide;;;
+DrawLotNumbers;Draw Lot Numbers;Tirage au sort;;Tildel lodt. numre;Números aleatorios
+Dropdown_Select_Platform;Use the dropdown to select the platform where the display is located.;Utilisez le menu déroulant pour choisir le plateau de compétition où se trouve l'affichage;;;
+Edit_Groups;Edit Groups;Éditer les groupes;;;
+EditAthletes;Edit Athlete Entries;Éditer les athlètes;;;
+EditAthletes_Groups;Edit Athlete Entries (adjust group assignments);Éditer les athlètes (ajuster l'assignation des groupes);;;
+EditCategories;Edit Categories;Éditer les catégories;;;
+EditCompetitionInformation;Edit Competition Information;Éditer les données sur la compétition;;;
+EditingResults_logging;Group {} lifting on {}, editing;Groupe {} lève sur plateau {}, édition;;;
+EditPlatforms;Edit Platforms;Éditer les plateaux;;;
+EditRegisteredAthletes;Edit Registered Athletes;Éditer les athlètes inscrits;;;
+Eligible;Eligible;Éligible;;;
+Eligible for Individual Ranking?;Eligible for individual ranking?;Éligible au classement individuel ?;;;
+EndBreak_StartLifting;End Break, Start Lifting;Fin de la pause, débuter les levers;;;
+EndOfCompetitionDocuments;End of competition documents;Documents de compétition;;;
+EnterPin;Enter PIN;Enter PIN;;;
+EntryTotal;Entry Total;Total déclaré;;;
+Error;Error;Erreur;;;
+Errors;Errors;Erreurs;;;
+FieldOfPlayDisplays;Field of Play Displays;Affichages sur les plateaux;;;
+FinalResultsPackage;Final Results Package;Compilation des résultats;;;
+FirstName;First Name;Prénom;;Fornavn;Nombre
+ForEachCompetitionGroup;For each competition group;Pour chaque groupe;;;
+Gender;Gender;Genre;;Køn;Genero
+GenerateStartNumbers;Generate Start Numbers;Générer les ? de départ;;;
+GotIt;Got it.;Compris.;;;
+Group;Group;Groupe;;Gruppe;Sesión
+Group_number;Group {0};Groupe {0};;Gruppe {0};Tanda {0} 
+Group_number_done;Group {0} done.;Groupe {0} terminé.;;Gruppe {0} afsluttet.;Sesion {0} terminada.
+Group_number_done;Group {0} done.;Groupe {0} terminé.;;Gruppe {0} afsluttet.;Sesion {0} terminada.
+GroupResults;Group Results;Résultats de groupe;;;
+Home;Home;Accueil;;;
+InstallationConfiguration;installation and configuration information.;instructions d'installation et de configuration;;;
+JFL; Jean-François Lamy;Jean-François Lamy;;;
+Jury;Jury;Jury;;Jury;Jurado
+Jury1;Jury 1;Jury 1;;;
+Jury2;Jury 2;Jury 2;;;
+Jury3;Jury 3;Jury 3;;;
+Jury4;Jury 4;Jury 4;;;
+Jury5;Jury 5;Jury 5;;;
+JuryDecisions;Jury Decisions;Décisions du jury;;Jury Afgørelse;Decisiones del jurado
+LastName;Last Name;Nom;;Efternavn;Apellido
+LeftMenuNavigate;Use the menu at the left to navigate to the various screens:<ul>;Utilisez le menu à gauche pour naviguer;;;
+LicenseUsed;This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.;Ce logiciel est disponible selon les termes de la licence <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.;;;
+LiftsCleared;Lifts cleared;Les essais ont été effacés;;;
+LocalComputer;\u0020(on the computer running the owlcms program);\u0020(sur l'ordinateur où owlcms s'exécute);;;
+Locale;Locale;Locale;;;
+Locale.defaultCountry;US;US;;US;US
+Locale.defaultLanguage;en;en;;en;en
+Locale.languageCode;en;fr;;da;es
+Log_In;Log in;Identification;;;
+Login;Login;Identification;;;
+LoginDenied;Incorrect Access Information Provided.;Information d'accès incorrecte;;;
+Lot;Lot;Tirage;;Lodt.;Número
+margin-bottom;margin-bottom;margin-bottom;;margin-bottom;margin-bottom
+Marshall;Marshall;Préposé aux changements;;;
+MaximumWeight;Maximum Weight;Poids maximum;;;
+MetalPlates;Metal Plates;Plaques de métal;;Små skiver;Pesas de metal
+MinimumWeight;Minimum Weight;Poids minimum;;Minimum vægt;Peso Mínimo
+Name;Name;Nom;;Navn;Nombre
+NoLift_GoodLift;{0,choice,0#No Lift|1#Good Lift} for {1};Essai {0,choice,0#refusé|1#réussi} pour {1};;;
+none;none;aucun;;;
+Not_weighed;Not weighed;Non pesé;;;
+Notes;Notes;Notes;;;
+OWLCMS_Displays;OWLCMS - Displays;OWLCMS - Affichages;;;
+OWLCMS_Home;OWLCMS - Home;OWLCMS - Accueil;;;
+OWLCMS_Info;OWLCMS - About;OWLCMS - Info;;;
+OWLCMS_Lifting;OWLCMS - Lifting;OWLCMS - Groupe;;;
+OWLCMS_Preparation;OWLCMS - Preparation;OWLCMS - Préparation;;;
+OWLCMS_Results;OWLCMS - Results;OWLCMS - Résultats;;;
+OWLCMS_Top;OWLCMS - Olympic Weightlifting Competition Management System;OWLCMS - Gestion de compétition d'haltérophilie;;;
+PauseCountdown;Pause Break Countdown Timer;Stopper le chrono de pause;;;
+Plates;Plates;Plaques;;Skiver;Pesas
+PlatesDisplay;Plates Display;Plaques;;;
+Platform;Platform;Plateau;;Platform;Tarima
+PlatformName;Platform Name;Nom de la plateforme;;Platform Navn;Nombre de la tarima
+PreCompetitionSetup;Pre-competition setup;Préparation de la compétition;;;
+Preparation_Categories;Preparation - Categories;Préparation - Catégories;;;
+Preparation_Competition;Preparation - Competition;Préparation - Compétition;;;
+Preparation_Groups;Preparation - Groups;Préparation - Groupes;;;
+Preparation_Platforms;Preparation - Platforms;Préparation - Plateformes;;;
+Preparation_Registration;Preparation - Registration;Préparation - Inscriptions;;;
+PrepareCompatition_description;<li><b>Prepare Competition</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>;<li><b>Préparer la compétition</b>: Entrer les coordonnées, inscrire les athlètes, définir les groupes, etc.<br></li>;;;
+PrepareCompetition;Prepare Competition;Préparer la compétition;;;
+ProduceResults;Produce Results;Produire les résultats;;;
+ProjectRepository;<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.;<li>Voir le <a href='https://github.com/jflamy/owlcms4'>référentiel du projet</a> pour les packages d'installation et le code source.;;;
+Question;?;\u0020?;;;
+Rank;Rank;Rang;;Placering;Posición
+ReadingData_;Reading the data;Lecture des données;;;
+Referee1;Referee 1;Arbitre 1;;Dommer 1;Juez 1
+Referee2;Referee 2;Arbitre 2;;Dommer 2;Juez 2
+Referee3;Referee 3;Arbitre 3;;Dommer 3;Juez 3
+RefereeDecisions;Referee Decisions;Décisions des officiels;;Dommer Afgørelse;Decisiones de los jueces
+Refereeing_Displays;Refereeing Displays (can accept keyboard input from refereeing devices);Affichages d'arbitrage (acceptent les entrées des claviers d'arbitrage);;;
+RefreshList;Refresh list;Rafraîchir;;;
+Registration;Registration;Inscriptions;;Registreringer;Inscripciones
+Reload_group;Reload group from database.;Recharger le groupe à partir de la base de données;;;
+Requested_weight;Requested Weight;Poids demandé;;;
+Reset1min;Reset to 1 min;Réinitialiser à 1 min.;;;
+Reset2min;Reset to 2 min;Réinitialiser à 2 min.;;;
+ResultDocuments;Result Documents;Documents de résultats;;;
+Results;Results;Résultats;;Resultater;Resultados
+ResumeCompetition;Resume Competition;Redémarrer la compétition;;;
+RunLiftingGroup;Run Lifting Group;Groupe de compétition;;;
+RunLiftingGroup_description;<li><b>Run lifting group</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>;<li><b>Groupe de compétition</b>: Lancer les écrans pour les officiels (annonceur, chrono, préposé aux changements). L'annonceur choisit le groupe en cours.</li>;;;
+Scoreboard;Scoreboard;Tableau de résultats;;;
+Scoreboard.Start;Start;Départ;Départ<div class='english'>Start</div>;;
+Scoreboard.Name;Name;Nom;Nom<div class='english'>Name</div>;Navn;Nombre
+Scoreboard.Team;Team;Équipe;Équipe<div class='english'>Team</div>;Hold;Equipo
+Scoreboard.Birth;Born;Naiss.;Naiss.<div class='english'>Born</div>;Født;Nacimiento
+Scoreboard.Snatch;Snatch;Arraché;Arraché<div class='english'>Snatch</div>;Træk;Arr.
+Scoreboard.AgeGroup;Age Gr.;Gr. Age.;<nobr>Gr. Age.</nobr><div class='english'><nobr>Age Gr.</nobr></div>;Aldesgruppe;Grupos per edades
+Scoreboard.Rank;Rank;Rang;Rang<div class='english'>Rank</div>;Placering;Posición
+Scoreboard.Clean_and_Jerk;Clean&Jerk;Épaulé-jeté;Épaulé-jeté<div class='english'>Clean&amp;Jerk</div>;Stød;Dos Tiempos
+Scoreboard.Total;Total;Total;Total;Tokamp;Total
+Scoreboard.Category;Cat.;Cat.;Cat.;Vægtklasse;Cat.
+Scoreboard.AttemptsDone;{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.};{0,choice,0#Aucun essai.|1#1 essai effectué.|1<{0} essais effectués.};;;
+Scoreboard.GroupLiftType;Group {0} {1};Groupe {0} {1};;;
+Select_group_first;Please select a group first.;Il faut d'abord choisir un groupe.;;Vælg en gruppe først.;Por favor, selecciona primero una tanda.
+SelectPlatform;Select Platform;Choisir la plateforme;;;
+Semicolon;\u003B;\u003B;;\u003B;\u003B
+SeparateLaptops;</ul>Each of the various screens or displays uses a separate laptop or mini-pc.;</ul>Chacun des écrans ou affichages requiert un portable ou mini-pc.;;;
+Snatch;Snatch;Arraché;;Træk;Arrancada
+Snatch_short;Sn.;Arr.;;Træk;Arr.
+Snatch_Declaration;Snatch Declaration;Déclaration Arraché;;;
+Snatch_number;Snatch #{0};Arraché #{0};;Træk  #{0};Arrancada #{0}
+Snatch1;snatch 1;Arraché 1;;Træk 1;Arrancada 1
+Snatch2;snatch 2;Arraché 2;;Træk 2;Arrancada 2
+Snatch3;snatch 3;Arraché 3;;Træk 3;Arrancada 3
+SnatchDecl_;Snatch Decl.;Décl. Arr.;;;
+SnatchRank;Snatch Rank;Rang Arr.;;;
+SourceDocumentation;Source and Documentation;Code source et documentation;;;
+StartDisplays;Start Displays;Démarrer les affichages;;;
+Start_;Start#;#Départ;;;
+StartCountdown;Start Break Countdown Timer;Démarrer le chronomètre de pause;;;
+StartDisplays_description;<li><b>Start displays</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>;<li><b>Démarrer les affichages</b>: Lancer les tableaux de résultats, l'affichage de l'essai courant, et l'affichage pour l'athlète.</li>;;;
+StartingList;Starting List;Liste de départ;;Startliste;Lista de inicio
+StartingWeightsSheet;Starting Weights Sheet;Barres de départ;;Startvægte;Pesos iniciales
+StartNumber;Start Number;Numéro de départ;;;
+StartTime;Start Time;Heure de début;;Starttid;Hora de comienzo
+StopCompetition;Stop Competition;Arrêter la compétition;;;
+SystemURL;The competition system is reachable using the following address(es): ;Le système est accessible en spécifiant:;;;
+TCRRCompliance;This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules;Ce logiciel vise à se conformer aux règles techniques de compétition IWF (TCRR) en vigueur ainsi qu'aux règles de la fédération Masters Weightlifting.;;;
+Team;Team;Équipe;;Hold;Equipo
+TechnicalController;Technical Controller;Contrôleur Technique;;Teknisk kontrollant;Controlador Técnico
+ThanksToAll;Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>;Merci à Anders Bendix Nielsen, Alexey Ruchev et Brock Pedersen pour leurs commentaires et leurs essais.<br>;;;
+ThanksToFHQ;Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.;Merci à la Fédération d'haltérophilie du Québec d'avoir soutenu le développement initial du projet.;;;
+TimeBeforeFirstLift;Time before first lift;Décompte avant le premier lever;;;
+TimeBeforeIntroduction;Time before introduction;Décompte avant la présentation;;;
+TimeBeforeNextLift;Time before next lift;Décompte avant le prochain lever;;;
+Timekeeper;Timekeeper;Chronométreur;;Tidtager;Cronometrador
+TimingStatistics;Timing Statistics;Statistiques de durée;;;
+TOScreens;Technical Official Screens (select the correct platform above before clicking);Écrans des officiels (choisir le plateau ci-dessus avant de cliquer);;;
+Total;Total;Total;;Tokamp;Total
+Unexpected_Logging;Unexpected event: {} in state {};Événement inattendu: {} dans l'état {};;;
+Unexpected_Notification;Unexpected event: {0} in state {1};Événement inattendu: {0} dans l'état {1};;;
+Update;Update;Modifier;;;
+Update_title;Update {0};Modifier {0};;;
+UploadRegistrationFile;Upload Registration File;Charger le fichier d'inscription;;;
+UploadRegistrations;Upload Completed Registration Spreadsheet;Charger un fichier d'inscription ;;;
+UseAtYourOwnRisk; are responsible for performing whatever tests are need to establish that the sofware is fit for your circumstances.; êtes responsable d'effectuer les tests requis pour établir que le logiciel répond à vos besoins.;;;
+Warning_ClearAthleteLifts;This will clear all lifting data for the athletes currently displayed except for initial declarations.<br>Are you sure?;Ceci va vider les essais pour les athlètes actuellement affichés<br>Êtes-vous certain?;;;
+Warning_DeleteAthletes;This will delete the athletes currently displayed from the database.<br>Are you sure?;Ceci va effacer les athlètes actuellement affichés<br>Êtes-vous certain?;;;
+Warning_GroupLifting;This group is currently lifting on platform ;Ce groupe est actuellement en compétition sur le plateau;;;
+Weighed;Weighed;Pesés;;;
+Weighed_in_p;Weighed-In?;Pesés ?;;;
+WeighIn;Weigh-In;Pesée;;Indvejning;Pesaje
+WeighIn_StartNumbers;Weigh-In and Start Numbers;Pesée et numéros de départ;;;
+WeighInTime;Weigh-in Time;Heure de pesée;;Indvejningstidspunkt;Hora de pesaje
+Weight_change_current_athlete;Weight change for current athlete<br>{0};Changement pour l'athlète courant<br>{0};;;
+Weight_under_350;Weight should be between 0 and 350kg;Weight should be between 0 and 350kgment 350kg;;;
+WeightLifted;Weight Lifted;Poids soulevé;;;
+Wired;\u0020(wired);\u0020(cablé);;;
+Wireless;\u0020(wireless);\u0020(sans fil);;;
+WorldRecord;World Record;Record du monde;;Verdensrekord;Récord mundial
+WrittenJFL;The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>;Le système a été écrit et est mis à jour par Jean-François Lamy, Officiel Technique IWF catégorie 1<br><br>;;;
+Preferences;Preferences;Préférences;;;
