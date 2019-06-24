@@ -1,4 +1,4 @@
-In order to edit the .csv file, proceed as follows
+If the CSV file does not open one column per language
 - Open Excel -- do not double-click on the file
 - Select the .csv file.  This  should start the conversion wizard
 - Select the "delimited" option on the first screen, and add "semicolon" as delimiter on the second.
