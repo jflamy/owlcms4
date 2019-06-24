@@ -71,9 +71,10 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 	
 	String PREPARE_COMPETITION = Translator.translate("PrepareCompetition"); //$NON-NLS-1$
 	String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup"); //$NON-NLS-1$
-	String START_DISPLAYS = Translator.translate("Start Displays"); //$NON-NLS-1$
+	String START_DISPLAYS = Translator.translate("StartDisplays"); //$NON-NLS-1$
 	String RESULT_DOCUMENTS = Translator.translate("ResultDocuments"); //$NON-NLS-1$
 	String INFO = Translator.translate("About"); //$NON-NLS-1$
+	String PREFERENCES = Translator.translate("Preferences"); //$NON-NLS-1$
 
     public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));
@@ -141,7 +142,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 						new Icon("icons", "info-outline"), //$NON-NLS-1$ //$NON-NLS-2$
 						InfoNavigationContent.class))
 				.addToSection(new LeftClickableItem(
-						"Preferences", //$NON-NLS-1$
+						PREFERENCES,
 						VaadinIcon.COG.create(),
 						clickEvent -> openModeSelector(this.variant)),
 					FOOTER)

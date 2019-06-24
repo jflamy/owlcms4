@@ -59,7 +59,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 	String PREPARE_COMPETITION = Translator.translate("PrepareCompetition"); //$NON-NLS-1$
 	String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup"); //$NON-NLS-1$
-	String START_DISPLAYS = Translator.translate("Start Displays"); //$NON-NLS-1$
+	String START_DISPLAYS = Translator.translate("StartDisplays"); //$NON-NLS-1$
 	String RESULT_DOCUMENTS = Translator.translate("ResultDocuments"); //$NON-NLS-1$
 	String INFO = Translator.translate("About"); //$NON-NLS-1$
 	
