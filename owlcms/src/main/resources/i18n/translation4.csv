@@ -1,405 +1,405 @@
-key	en	fr	da	es
-Announcer	Announcer	Annonceur	Speaker	Presentador
-NoLift_GoodLift	{0,choice,0#No Lift|1#Good Lift} for {1}	Essai {0,choice,0#refusÃ©|1#rÃ©ussi} pour {1}		
-Countdown_BreakTimer	Countdown to start / Break Timer	DÃ©compte avant dÃ©but / Chrono de pause		
-Announcer	Announcer	Annonceur	Speaker	Presentador
-Reload_group	Reload group from database.	Recharger le groupe Ã  partir de la base de donnÃ©es		
-Snatch1	snatch 1	ArrachÃ© 1	TrÃ¦k  1	Arrancada 1
-Snatch2	snatch 2	ArrachÃ© 2	TrÃ¦k  2	Arrancada 2
-WeightLifted	Weight Lifted	Poids soulevÃ©		
-Error	Error	Erreur		
-Snatch3	snatch 3	ArrachÃ© 3	TrÃ¦k  3	Arrancada 3
-C_and_J_1	C.&J. 1	Ã‰.-J. 1	StÃ¸d 1	D.T. 1
-C_and_J_2	C.&J. 2	Ã‰.-J. 2	StÃ¸d 2	D.T. 2
-C_and_J_3	C.&J. 3	Ã‰.-J. 3	StÃ¸d 3	D.T. 3
-AutomaticProgression	Automatic Progression	Progression automatique	Automatisk Ã˜gning	
-Declaration	Declaration	DÃ©claration		
-Change_1	Change 1	Changement 1		
-Change_2	Change 2	Changement 2		
-AttemptAF	Attempt (AF)	Essai courant (face Ã  l'athlÃ¨te)		
-Decision_AF_	Decision (AF)	Decision (AFment AF)		
-LastName	Last Name	Nom	Efternavn	Apellido
-FirstName	First Name	PrÃ©nom	Fornavn	Nombre
-C_and_J_number	C.&J. #{0}	Ã‰.-J. #{0}	StÃ¸d #{0}	D.T. #{0}
-Snatch_number	Snatch #{0}	ArrachÃ© #{0}	TrÃ¦k  #{0}	Arrancada #{0}
-Weight_change_current_athlete	Weight change for current athlete<br>{0}	Changement pour l'athlÃ¨te courant<br>{0}		
-Team	Team	Ã‰quipe	Hold	Equipo
-Category	Category	CatÃ©gorie	VÃ¦gtklasse	CategorÃ­a
-Requested_weight	Requested Weight	Poids demandÃ©		
-Attempt	Attempt	Essai		
-StartNumber	Start Number	NumÃ©ro de dÃ©part		
-Group	Group	Groupe	Gruppe	SesiÃ³n
-Group	Group	Groupe	Gruppe	SesiÃ³n
-Group_number_done	Group {0} done.	Groupe {0} terminÃ©.	Gruppe {0} afsluttet.	Sesion {0} terminada.
-Declaration	Declaration	DÃ©claration		
-Weight_under_350	Weight should be between 0 and 350kg	Weight should be between 0 and 350kgment 350kg		
-BodyWeight_no_match_category	Body Weight is outside of selected category	Le poids ne correspond pas Ã  la catÃ©gorie		
-Category_no_match_body_weight	Category does not match body weight.	La catÃ©gorie ne correspond pas au poids corporel.		
-Category_no_match_gender	Category does not match gender.	La catÃ©gorie ne correspond pas au genre.		
-BirthDate_cannot_future	Birth date cannot be in the future	La date de naissance ne peut pas Ãªtre dans le futur.		
-Category_no_match_gender	Category does not match gender.	La catÃ©gorie ne correspond pas au genre.		
-Group_number_done	Group {0} done.	Groupe {0} terminÃ©.	Gruppe {0} afsluttet.	Sesion {0} terminada.
-AttemptBoard_attempt_number	{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.	{0}<sup>{0,choice,1#er|2#e|3#e}</sup> essai		
-Attempt	Attempt	Essai		
-CompetitionPlatform	Competition Platform	Plateau de compÃ©tition		
-SelectPlatform	Select Platform	Choisir la plateforme		
-EndBreak_StartLifting	End Break, Start Lifting	Fin de la pause, dÃ©buter les levers		
-BreakType	Break Type	Type de pause		
-CountdownType	Countdown Type	Les essais ont Ã©tÃ© effacÃ©s		
-PauseCountdown	Pause Break Countdown Timer	Stopper le chrono de pause		
-StartCountdown	Start Break Countdown Timer	DÃ©marrer le chronomÃ¨tre de pause		
-Group_number	Group {0}	Groupe {0}	Gruppe {0}	Tanda {0} 
-TimeBeforeNextLift	Time before next lift	DÃ©compte avant le prochain lever		
-TimeBeforeFirstLift	Time before first lift	DÃ©compte avant le premier lever		
-TimeBeforeIntroduction	Time before introduction	DÃ©compte avant la prÃ©sentation		
-CompetitionPaused	Competition paused	Pause		
-Name	Name	Nom	Navn	Nombre
-AgeDivision	Age Division	Division		
-Name	Name	Nom	Navn	Nombre
-AgeDivision	Age Division	Division		
-Active	Active	Actif	Aktiv	Activo
-ActiveCategoriesOnly	Active Categories Only	CatÃ©gories actives seulement		
-Preparation_Categories	Preparation - Categories	PrÃ©paration - CatÃ©gories		
-Gender	Gender	Genre	KÃ¸n	Genero
-AgeDivision	Age Division	Division		
-Name	Name	Nom	Navn	Nombre
-Gender	Gender	Genre	KÃ¸n	Genero
-MinimumWeight	Minimum Weight	Poids minimum	Minimum vÃ¦gt	Peso MÃ­nimo
-MaximumWeight	Maximum Weight	Les essais ont Ã©tÃ© effacÃ©s		
-WorldRecord	World Record	Record du monde	Verdensrekord	RÃ©cord mundial
-Active	Active	Actif	Aktiv	Activo
-EditCategories	Edit Categories	Les essais ont Ã©tÃ© effacÃ©s		
-Competition.competitionCity	City	Ville	By	Ciudad
-Competition.competitionDate	Date	Date	Dato	Fecha
-Competition	Competition	CompÃ©tition	StÃ¦vne	CompeticiÃ³n
-Competition.competitionOrganizer	Organizer	Organisateur	ArrangÃ¸r	Organizador
-Competition.competitionSite	Site	Site	Lokalitet	Lugar
-Competition.defaultFederation	Competition.defaultFederation	FÃ©dÃ©ration d'haltÃ©rophilie du QuÃ©bec	Dansk VÃ¦gtlÃ¸ftnings-Forbund	FederaciÃ³n EspaÃ±ola de Halterofilia
-Competition.defaultFederationAddress	Competition.defaultFederationAddress	C.P. 1000, Succ. M, MontrÃ©al, QC, H1V 3R2	IdrÃ¦ttens Hus, BrÃ¸ndby Stadion 20, 2605 BrÃ¸ndby	C/ Francos RodrÃ­guez, 70 
-Competition.defaultFederationEMail	Competition.defaultFederationEMail	admin@fedhaltero.qc.ca	kontor@danskvaegtloeftning.dk	fehalterofilia@hotmail.com
-Competition.defaultFederationWebSite	Competition.defaultFederationWebSite	www.fedhaltero.qc.ca	www.weightlifting.dk	www.fedehalter.org
-Competition.enforce15_20KgRule	Apply initial total weight rule (IWF Â§6.6.5/Masters Â§2.4)?	Appliquer la rÃ¨gle de poids total initial (IWF Â§6.6.5/Masters Â§2.4)?	Brug indledende totalvÃ¦gtregel (IWF Â§6.6.5/Masters Â§2.4)?	Aplicar regla de peso total inicial (IWF Â§6.6.5/Masters Â§2.4)?
-Competition.federation	Federation Name	Nom de la fÃ©dÃ©ration	Forbundsnavn	Nombre de la federaciÃ³n
-Competition.federationAddress	Federation Address	Adresse de la fÃ©dÃ©ration	Forbundsadresse	DirecciÃ³n de la federaciÃ³n
-Competition.federationEMail	Federation e-mail	Courriel de la fÃ©dÃ©ration	Forbunds e-mail	E-mail de la federaciÃ³n
-Competition.federationWebSite	Federation Web Site	Site web de la fÃ©dÃ©ration	Forbunds Web Site	Sitio Web de la federaciÃ³n
-Competition.invitedIfBornBefore	Invited if born before	InvitÃ© si nÃ© avant	For lÃ¸ftere fÃ¸dt fÃ¸r	Invitado si es nacido antes de
-Competition.logo	Logo	Logo	Logo	Logo
-Competition.masters	Masters	MaÃ®tres	Masters	Masters
-Competition.protocolFileName	Protocol Sheet Template	Gabarit pour feuille de rÃ©sultats	Protokol Template	Plantilla de protocolo
-Competition.resultTemplateFileName	Competition Book Template	Gabarit pour cahier de compÃ©tition	Competition Book Template	Plantilla de fichero de competiciÃ³n
-CompetitionApplication.Display	CompetitionApplication.Display	CompetitionApplication.Displayment Display		Pantalla Principal
-CompetitionBook.C_LeftHeader	Competition Information	Informations sur la compÃ©tition	StÃ¦vneinformation	InformaciÃ³n de la competiciÃ³n
-CompetitionBook.C_RightHeader	CompetitionBook.C_RightHeader	CompetitionBook.C_RightHeaderment RightHeader		
-CompetitionBook.M6	Men's Results	Hommes 6 essais	Resultater MÃ¦nd	Resultados Masculino
-CompetitionBook.M6_LeftHeader	Category Ranking	Classement par catÃ©gories - Category Ranking	VÃ¦gtklasse Placering	ClasificaciÃ³n por categorÃ­as
-CompetitionBook.M6_LeftHeader	Competition	CompÃ©tition	StÃ¦vne	CompeticiÃ³n
-CompetitionBook.M6_RightHeader	Men	Hommes - Men	MÃ¦nd	Masculino
-CompetitionBook.MCT_LeftHeader	Team Ranking (Snatch+CJ+Total)	Classement par Ã©quipes (Arr.+Ã‰.J.+Total) - Team Ranking (Total)	Hold Placering (TrÃ¦k+StÃ¸d+Tokamp)	ClasificaciÃ³n por equipos (Arr+DT+Total)
-CompetitionBook.MR	Men's Robi	Hommes Robi	Robi MÃ¦nd	Robi Masculino
-CompetitionBook.MR_LeftHeader	Robi Ranking	Classement Robi - Robi Ranking	Robi Placering	CLasificaciÃ³n Robi
-CompetitionBook.MS	Men's Sinclair	Hommes Sinclair	Sinclair MÃ¦nd	Sinclair Masculino
-CompetitionBook.MS_LeftHeader	Sinclair  Ranking	Classement Sinclair - Sinclair Ranking	Sinclair Placering	CLasificaciÃ³n Sinclair
-CompetitionBook.MT	Men's Total Score	Hommes Pointage Total	Total Score MÃ¦nd	Puntos Total Masculino
-CompetitionBook.MT_LeftHeader	Team Ranking (Total)	Classement par Ã©quipes (Total) - Team Ranking (Total)	Hold Placering (Total)	ClasificaciÃ³n por equipos (Total)
-CompetitionBook.MT_RightHeader	Men	Hommes - Men	MÃ¦nd	Masculino
-CompetitionBook.MWCT	Men&Women - Combined Score	Hommes et Femmes - Pointage CombinÃ©	MÃ¦nd&Kvinder - Kombineret Score	Masculino y Femenino - PuntuaciÃ³n Combinada
-CompetitionBook.MWCT_LeftHeader	Team Ranking (Snatch+CJ+Total)	Classement par Ã©quipes (Arr.+Ã‰.J.+Total)	Hold Placering (TrÃ¦k+StÃ¸d+Tokamp)	ClasificaciÃ³n por equipos (Arr+DT+Total)
-CompetitionBook.MWCT_RightHeader	Women	Femmes	Kvinder	Femenino
-CompetitionBook.MWT	M+W Total Score	M+F Pointage Total	M+K Total Score	M+F PuntuaciÃ³n Total
-CompetitionBook.MWT_LeftHeader	Team Ranking (Total)	Classement par Ã©quipes (Total) - Team Ranking (Total)	Hold Placering (Total)	ClasificaciÃ³n por equipos (Total)
-CompetitionBook.MWT_RightHeader	Men and Women	Hommes et Femmes - Men and Women	MÃ¦nd og Kvinder	Masculino y Femenino
-CompetitionBook.MXT	Men's Custom Score	Hommes Pointage SpÃ©cial	MÃ¦nd Speciel Score	PuntuaciÃ³n Masculina Personalizada
-CompetitionBook.MXT_LeftHeader	Team  Ranking (Custom)	Classement par Ã©quipes (SpÃ©cial) - Team Ranking (Custom)	Hold Placering (Speciel)	ClasificaciÃ³n por equipos (Personalizada)
-CompetitionBook.MXT_RightHeader	Men	Hommes - Men	MÃ¦nd	Masculino
-CompetitionBook.MCT	Men - Combined Score	Hommes - Pointage CombinÃ©	MÃ¦nd - Kombineret Score	
-CompetitionBook.W6	Women's Results	Femmes 6 essais	Resultater Kvinder	ClasificaciÃ³n Femenina
-CompetitionBook.W6_RightHeader	Women	Femmes - Women	Kvinder	Femenino
-CompetitionBook.WCT	Women - Combined Score	Femmes - Pointage CombinÃ©	Kvinder - Combined Score	Femenino - PuntuaciÃ³n Combinada
-CompetitionBook.WCT_LeftHeader	Team Ranking (Snatch+CJ+Total)	Classement par Ã©quipes (Arr.+Ã‰.J.+Total) - Team Ranking (Snatch+CJ+Total)	Hold Placering (TrÃ¦k+StÃ¸d+Tokamp)	ClasificaciÃ³n por equipos (Arr+DT+Total)
-CompetitionBook.WCT_RightHeader	Women	Femmes - Women	Kvinder	Femenino
-CompetitionBook.WR	Women's Robi	Femmes Robi	Robi Kvinder	Robi Femenino
-CompetitionBook.WR_RightHeader	Women	Femmes - Women	Kvinder	Femenino
-CompetitionBook.WS	Women's Sinclair	Femmes Sinclair	Sinclair Kvinder	Sinclair Femenino
-CompetitionBook.WS_LeftHeader	Sinclair  Ranking	Classement Sinclair - Sinclair Ranking	Sinclair Placering	ClasificaciÃ³n Sinclair
-CompetitionBook.WS_RightHeader	Women	Femmes - Women	Kvinder	Femenino
-CompetitionBook.WT	Women - Total Score	Femmes - Pointage Total	Kvinder - Total Score	Femenino - PuntuaciÃ³n Total
-CompetitionBook.WT_LeftHeader	Team Ranking (Total)	Classement par Ã©quipes (Total) - Team Ranking (Total)	Hold Placering (Total)	ClasificaciÃ³n por equipos (Total)
-CompetitionBook.WT_RightHeader	Women	Femmes - Women	Kvinder	Femenino
-CompetitionBook.WXT	Women - Custom Score	Femmes - Pointage SpÃ©cial	Kvinder - Speciel Score	Femenino - PuntuaciÃ³n Personalizada
-CompetitionBook.WXT_LeftHeader	Team  Ranking (Custom)	Classement par Ã©quipes (SpÃ©cial) - Team Ranking (Custom)	Hold Placering (Speciel)	PuntuaciÃ³n por equipos (Personalizado)
-CompetitionBook.WXT_RightHeader	Women	Femmes - Women	Kvinder	Femenino
-Preparation_Competition	Preparation - Competition	PrÃ©paration - CompÃ©tition		
-Locale	Locale	Locale		
-EditCompetitionInformation	Edit Competition Information	Ã‰diter les donnÃ©es sur la compÃ©tition		
-Dropdown_Select_Platform	Use the dropdown to select the platform where the display is located.	Utilisez le menu dÃ©roulant pour choisir le plateau de compÃ©tition oÃ¹ se trouve l'affichage		
-Button_Open_Display	Use one of the buttons below to open a display.	Utilisez un bouton ci-dessous pour dÃ©marrer un affichage		
-Refereeing_Displays	Refereeing Displays (can accept keyboard input from refereeing devices)	Affichages d'arbitrage (acceptent les entrÃ©es des claviers d'arbitrage)		
-Start Displays	Start Displays	DÃ©marrer les affichages		
-OWLCMS_Displays	OWLCMS - Displays	OWLCMS - Affichages		
-margin-bottom	margin-bottom	margin-bottom	margin-bottom	margin-bottom
-AttemptBoard	Attempt Board	Essai courant		
-Scoreboard	Scoreboard	Tableau de rÃ©sultats		
-Athlete_Decisions	Athlete-facing Timer/Down/Decisions	Chrono/Terre/DÃ©cisions (face Ã  l'athlÃ¨te)		
-Athlete_Attempt	Athlete-facing Attempt Board Display	Essai courant (face Ã  l'athlÃ¨te)		
-PlatesDisplay	Plates Display	Plaques		
-FieldOfPlayDisplays	Field of Play Displays	Affichages sur les plateaux		
-Declaration_Notification	Declaration for {0}: {1}	Declaration forment 1}		
-Unexpected_Notification	Unexpected event: {0} in state {1}	Ã‰vÃ©nement inattendu: {0} dans l'Ã©tat {1}		
-Unexpected_Logging	Unexpected event: {} in state {}	Ã‰vÃ©nement inattendu: {} dans l'Ã©tat {}		
-Name	Name	Nom	Navn	Nombre
-WeighInTime	Weigh-in Time	Heure de pesÃ©e	Indvejningstidspunkt	Hora de pesaje
-StartTime	Start Time	Heure de dÃ©but	Starttid	Hora de comienzo
-Name	Name	Nom	Navn	Nombre
-WeighInTime	Weigh-in Time	Heure de pesÃ©e	Indvejningstidspunkt	Hora de pesaje
-StartTime	Start Time	Heure de dÃ©but	Starttid	Hora de comienzo
-Platform	Platform	Plateau	Platform	Tarima
-Announcer	Announcer	Annonceur	Speaker	Presentador
-Marshall	Marshall	Marshall		
-TechnicalController	Technical Controller	ContrÃ´leur Technique	Teknisk kontrollant	Controlador TÃ©cnico
-Timekeeper	Timekeeper	ChronomÃ©treur	Tidtager	Cronometrador
-Referee1	Referee 1	Arbitre 1	Dommer 1	Juez 1
-Referee2	Referee 2	Arbitre 2	Dommer 2	Juez 2
-Platform	Platform	Plateau	Platform	Tarima
-Referee3	Referee 3	Arbitre 3	Dommer 3	Juez 3
-Jury1	Jury 1	Jury 1		
-Jury2	Jury 2	Jury 2		
-Jury3	Jury 3	Jury 3		
-Jury4	Jury 4	Jury 4		
-Jury5	Jury 5	Jury 5		
-Platform	Platform	Plateau	Platform	Tarima
-Preparation_Groups	Preparation - Groups	PrÃ©paration - Groupes		
-Edit_Groups	Edit Groups	Ã‰diter les groupes		
-PrepareCompetition	Prepare Competition	PrÃ©parer la compÃ©tition		
-RunLiftingGroup	Run Lifting Group	Groupe de compÃ©tition		
-PrepareCompatition_description	<li><b>Prepare Competition</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>	<li><b>PrÃ©parer la compÃ©tition</b>: Entrer les coordonnÃ©es, inscrire les athlÃ¨tes, dÃ©finir les groupes, etc.<br></li>		
-RunLiftingGroup_description	<li><b>Run lifting group</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>	<li><b>Annoncer un groupe</b>: Lancer les Ã©crans pour les officiels (annonceur, chrono, prÃ©posÃ© aux changements). L'annonceur choisit le groupe en cours.</li>		
-StartDisplays_description	<li><b>Start displays</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>	<li><b>DÃ©marrer les affichages</b>: Lancer les tableaux de rÃ©sultats, l'affichage de l'essai courant, et l'affichage pour l'athlÃ¨te.</li>		
-CompetitionDocuments_description	<li><b>Competition documents</b>: Produce printable documents for each group and the final results package.</li>	<li><b>Documents de compÃ©tition</b>: Produire les rÃ©sultats imprimables pour chaque groupe et le cahier de compÃ©tition .</li>		
-SeparateLaptops	</ul>Each of the various screens or displays uses a separate laptop or mini-pc.	</ul>Chacun des Ã©crans ou affichages requiert un portable ou mini-pc.		
-Start Displays	Start Displays	DÃ©marrer les affichages		
-OWLCMS_Top	OWLCMS - Olympic Weightlifting Competition Management System	OWLCMS - Gestion de compÃ©tition d'haltÃ©rophilie		
-OWLCMS_Home	OWLCMS - Home	OWLCMS - Accueil		
-ResultDocuments	Result Documents	Documents de rÃ©sultats		
-About	About	Ã€ propos	Om	Acerca de
-SystemURL	The competition system is reachable using the following address(es): 	Le systÃ¨me est accessible en spÃ©cifiant:		
-Wired	 (wired)	(cablÃ©)		
-Wireless	 (wireless)	(sans fil)		
-LocalComputer	 (on the computer running the owlcms program)	(sur l'ordinateur oÃ¹ owlcms s'exÃ©cute)		
-LeftMenuNavigate	Use the menu at the left to navigate to the various screens:<ul>	Utilisez le menu Ã  gauche pour naviguer		
-CopyrightLicense	Copyright and License	Licence et droits d'auteur		
-Copyright2009	This software is Copyright Â© 2009-	Ce logiciel est sous droits d'auteurs - Copyright Â© 2009-		
-AtTimeOfRelease	 as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you	tels que publiÃ©s au moment de la publication. Tel que mentionnÃ© dans la licence, il n'y a aucune garantie et vous		
-UseAtYourOwnRisk	 are responsible for performing whatever tests are need to establish that the sofware is fit for your circumstances.	Ãªtes responsable d'effectuer les tests requis pour Ã©tablir que le logiciel rÃ©pond Ã  vos besoins.		
-Credits	Credits	Remerciements		
-WrittenJFL	The software is written and maintained by Jean-FranÃ§ois Lamy, IWF International Technical Official Category 1.<br><br>	Le systÃ¨me a Ã©tÃ© Ã©crit et est mis Ã  jour par Jean-FranÃ§ois Lamy, Officiel Technique IWF catÃ©gorie 1		
-ThanksToAll	Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>	Merci Ã  Anders Bendix Nielsen, Alexey Ruchev et Brock Pedersen pour leus commentaires et leurs essais.<br>		
-ThanksToFHQ	Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.	Merci Ã  la FÃ©dÃ©ration d'haltÃ©rophilie du QuÃ©bec d'avoir soutenu le dÃ©veloppement initial du projet.		
-JFL	 Jean-FranÃ§ois Lamy	Jean-FranÃ§ois Lamy		
-LicenseUsed	This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.	Ce logiciel est disponible selon les termes de la licence <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.		
-OWLCMS_Top	OWLCMS - Olympic Weightlifting Competition Management System	OWLCMS - Gestion de compÃ©tition d'haltÃ©rophilie		
-OWLCMS_Info	OWLCMS - About	OWLCMS - Info		
-SourceDocumentation	Source and Documentation	Code source et documentation		
-ProjectRepository	<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.	<li>Voir le <a href='https://github.com/jflamy/owlcms4'>rÃ©fÃ©rentiel du projet</a> pour les packages d'installation et le code source.		
-Documentation	<li>See also the <a href='https://jflamy.github.io/owlcms4/'>documentation</a> for 	<li>Voir aussi la <a href='https://jflamy.github.io/owlcms4/'>documentation</a> pour 		
-InstallationConfiguration	installation and configuration information.	instructions d'installation et de configuration		
-Notes	Notes	Notes		
-TCRRCompliance	This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules	This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rulesCe logiciel vise Ã  se conformer aux rÃ¨gles techniques de compÃ©tition IWF (TCRR) en vigueur ainsi qu'aux rÃ¨gles de la fÃ©dÃ©ration Masters Weightlifting.		
-Jury	Jury	Jury	Jury	Jurado
-JuryDecisions	Jury Decisions	DÃ©cisions du jury	Jury AfgÃ¸relse	Decisiones del jurado
-RefereeDecisions	Referee Decisions	DÃ©cisions des officiels	Dommer AfgÃ¸relse	Decisiones de los jueces
-StopCompetition	Stop Competition	ArrÃªter la compÃ©tition		
-ResumeCompetition	Resume Competition	RedÃ©marrer la compÃ©tition		
-BreakTimer	Break Timer	ChronomÃ¨tre de pause		
-AnnouncerSelectsGroup	The <b><i>Announcer</i></b> selects the current group for the platform.<br> 	L'<b><i>annonceur</i></b> choisit le groupe courant pour la plateforme.<br> 		
-ChangesGroupEverywhere	This changes the current group for all displays and screens associated with the platform 	Ceci change le groupe courant sur tous les Ã©crans et affichages associÃ©s Ã  ce plateau.		
-RunLiftingGroup	Run Lifting Group	Groupe de compÃ©tition		
-OWLCMS_Lifting	OWLCMS - Lifting	OWLCMS - Groupe		
-AnnouncerEtc	(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.)	(annonceur, chronomÃ©treur, changements, rÃ©sultats, essai courant, jury, etc.)		
-Announcer	Announcer	Annonceur	Speaker	Presentador
-Marshall	Marshall	Marshallment Marshall		
-Timekeeper	Timekeeper	ChronomÃ©treur	Tidtager	Cronometrador
-Jury	Jury	Jury	Jury	Jurado
-TOScreens	Technical Official Screens (select the correct platform above before clicking)	.Ã‰crans des officiels (choisir le plateau ci-dessus avant de cliquer)		
-WeighIn_StartNumbers	Weigh-In and Start Numbers	PesÃ©e et numÃ©ros de dÃ©part		
-WeighIn	Weigh-in	PesÃ©e	Indvejning	Pesaje
-Bar	Bar	Barre	Stang	Barra
-BumperPlates	Grandes plaques	Grandes plaques	Store skiver	Pesas grandes
-Collar	Collar	Collet	LÃ¥s	Mordaza
-MetalPlates	Metal Plates	Plaques de mÃ©tal	SmÃ¥ skiver	Pesas de metal
-Plates	Plates	Plaques	Skiver	Pesas
-Locale.defaultCountry	US			
-Locale.defaultLanguage	en	en	en	en
-Locale.languageCode	en	fr	da	es
-LoginDenied	Incorrect Access Information Provided.	Information d'accÃ¨s incorrecte		
-EnterPin	Enter PIN	Enter PIN		
-Log_In	Log in	Identification		
-Login	Login	Identification		
-Marshall	Marshall	Marshall		
-Marshall	Marshall	Marshall		
-Delete	Delete	DÃ©truire	Slet	Eliminar
-Delete	Delete	DÃ©truire	Slet	Eliminar
-Cancel	Cancel	Annuler	Annuller	Cancelar
-Question	 ?	?		
-Error	Error	Erreur		
-Semicolon	"; "	";"		
-RefreshList	Refresh list	RafraÃ®chir		
-Add	Add	Ajouter	TilfÃ¸j	AÃ±adir
-Update	Update	Modifier		
-Delete	Delete	DÃ©truire	Slet	Eliminar
-Home	Home	Accueil		
-OWLCMS_Top	OWLCMS - Olympic Weightlifting Competition Management System	OWLCMS - Gestion de compÃ©tition d'haltÃ©rophilie		
-Name	Name	Nom	Navn	Nombre
-PlatformName	Platform Name	Nom de la plateforme	Platform Navn	Nombre de la tarima
-Platform	Platform	Plateau	Platform	Tarima
-Preparation_Platforms	Preparation - Platforms	PrÃ©paration - Plateformes		
-EditPlatforms	Edit Platforms	Les essais ont Ã©tÃ© effacÃ©s		
-CompetitionInformation	Competition Information	Informations sur la compÃ©tition	StÃ¦vneinformation	InformaciÃ³n de la competiciÃ³n
-DefineCategories	Define Categories	DÃ©finir les catÃ©gories		
-UploadRegistrations	Upload Completed Registration Spreadsheet	Charger un fichier d'inscription 		
-EditAthletes	Edit Athlete Entries	Ã‰diter les athlÃ¨tes		
-PreCompetitionSetup	Pre-competition setup	PrÃ©paration de la compÃ©tition		
-Registration	Registration	Inscriptions	Registreringer	Inscripciones
-EditAthletes_Groups	Edit Athlete Entries (adjust group assignments)	Edit Athlete Entries (adjust group assignmentsment assignments)		
-OWLCMS_Preparation	OWLCMS - Preparation	OWLCMS - PrÃ©paration		
-PrepareCompetition	Prepare Competition	PrÃ©parer la compÃ©tition		
-DefineGroups	Define Groups	DÃ©finir les groupes		
-DefineFOP	Define Fields of Play	DÃ©finir les plateaux		
-DownloadRegistrationTemplate	Download Empty Registration Spreadsheet	Obtenir une feuille d'inscription vide		
-LastName	Last Name	Nom	Efternavn	Apellido
-Lot	Lot	Tirage	Lodt.	NÃºmero
-Group	Group	Groupe	Gruppe	SesiÃ³n
-Eligible	Eligible	Ã‰ligible		
-LastName	Last Name	Nom	Efternavn	Apellido
-FirstName	First Name	PrÃ©nom	Fornavn	Nombre
-Gender	Gender	Genre	KÃ¸n	Genero
-Team	Team	Ã‰quipe	Hold	Equipo
-BirthDate_yyyy	Birth Date (yyyy-mm-dd)	Date naissance (yyyy-mm-dd)	FÃ¸dt (yyyy-mm-dd)	Fecha de nacimiento (yyyy-mm-dd)
-AgeGroup	Age Group	Groupe d'Ã¢ge	Aldesgruppe	Grupos per edades
-AgeDivision	Age Division	Division		
-Category	Category	CatÃ©gorie	VÃ¦gtklasse	CategorÃ­a
-FirstName	First Name	PrÃ©nom	Fornavn	Nombre
-Group	Group	Groupe	Gruppe	SesiÃ³n
-EntryTotal	Entry Total	Total dÃ©clarÃ©		
-BodyWeight	Body Weight	Poids	VÃ¦gt	Peso corporal
-SnatchDecl_	Snatch Decl.	DÃ©cl. Arr.		
-C_and_J_decl	C.&J. Decl.	DÃ©cl. Ã‰.-J.		
-Eligible for Individual Ranking?	Eligible for Individual Ranking?	Ã‰ligible au classement individuel ?		
-Lot	Lot	Tirage	Lodt.	NÃºmero
-Gender	Gender	Genre	KÃ¸n	Genero
-Group	Group	Groupe	Gruppe	SesiÃ³n
-Category	Category	CatÃ©gorie	VÃ¦gtklasse	CategorÃ­a
-Team	Team	Ã‰quipe	Hold	Equipo
-AgeDivision	Age Division	Division		
-LastName	Last name	Nom	Efternavn	Apellido
-AgeDivision	Age Division	Division		
-AgeGroup	Age Group	Groupe d'Ã¢ge	Aldesgruppe	Grupos per edades
-Category	Category	CatÃ©gorie	VÃ¦gtklasse	CategorÃ­a
-Group	Group	Groupe	Gruppe	SesiÃ³n
-Weighed_in_p	Weighed-In?	PesÃ©s ?		
-Weighed	Weighed	PesÃ©s		
-Not_weighed	Not weighed	Non pesÃ©		
-Preparation_Registration	Preparation - Registration	PrÃ©paration - Inscriptions		
-Birth	Birth	Naiss.	FÃ¸dt	Nacimiento
-Gender	Gender	Genre	KÃ¸n	Genero
-AgeDivision	Age Division	Division		
-AgeGroup	Age Group	Groupe d'Ã¢ge	Aldesgruppe	Grupos per edades
-Category	Category	CatÃ©gorie	VÃ¦gtklasse	CategorÃ­a
-BodyWeight	Body Weight	Poids	VÃ¦gt	Peso corporal
-EditRegisteredAthletes	Edit Registered Athletes	Ã‰diter les athlÃ¨tes inscrits		
-DrawLotNumbers	Draw Lot Numbers	Tirage au sort	Tildel lodt. numre	NÃºmeros aleatorios
-Warning_ClearAthleteLifts	This will clear all lifting data for the athletes currently displayed except for initial declarations.<br>Are you sure?	Ceci va vider les essais pour les athlÃ¨tes actuellement affichÃ©s<br>ÃŠtes-vous certain?		
-LiftsCleared	Lifts cleared	Les essais ont Ã©tÃ© effacÃ©s		
-ClearLifts_forListed	Clear Lifts for Athletes Currently Listed	Effacer les levers des athlÃ¨tes sÃ©lectionnÃ©s		
-StartingList	Starting List	Liste de dÃ©part	Startliste	Lista de inicio
-DeleteAthletes	Delete Athletes	DÃ©truire athlÃ¨tes	Slet lÃ¸ftere	Borrar atletas
-DeleteAthletes	Delete Athletes	DÃ©truire athlÃ¨tes	Slet lÃ¸ftere	Borrar atletas
-Warning_DeleteAthletes	This will delete the athletes currently displayed from the database.<br>Are you sure?	Ceci va effacer les athlÃ¨tes actuellement affichÃ©s<br>ÃŠtes-vous certain?		
-Done_period	Done.	TerminÃ©	Afsluttet	Hecho
-DeleteAthletes_forListed	Delete Athletes Currently Listed	Deletee {} lÃ¨ve sur plateau {}, Ã©dition		
-ClearLifts	Clear Lifts	Effacer les levers	Ryd lÃ¸ft	Limpiar alzadas
-ClearLifts	Clear Lifts	Effacer les levers	Ryd lÃ¸ft	Limpiar alzadas
-GroupResults	Group Results	RÃ©sultats de groupe		
-GroupResults	Group Results	RÃ©sultats de groupe		
-Clean_and_Jerk	Clean&Jerk	Ã‰paulÃ©-jetÃ©	StÃ¸d	Dos Tiempos
-Clean_and_Jerk_Rank	Clean&Jerk Rank	Rang Ã‰.-J.		
-Total	Total	Total	Tokamp	Total
-Rank	Rank	Rang	Placering	PosiciÃ³n
-Group	Group	Groupe	Gruppe	SesiÃ³n
-Warning_GroupLifting	This group is currently lifting on platform 	Ce groupe est actuellement en compÃ©tition sur le plateau		
-CannotEditResults	. You cannot edit the results.	. Vous ne pouvez pas Ã©diter les rÃ©sultats.		
-CannotEditResults_logging	Group {} lifting on {}, cannot edit	Groupe {} lÃ¨ve sur plateau {}, impossible d'Ã©diter		
-EditingResults_logging	Group {} lifting on {}, editing	Groupe {} lÃ¨ve sur plateau {}, Ã©dition		
-Results	Results	RÃ©sultats	Resultater	Resultados
-Group	Group	Groupe	Gruppe	SesiÃ³n
-GroupResults	Group Results	RÃ©sultats de groupe		
-LastName	Last Name	Nom	Efternavn	Apellido
-FirstName	First Name	PrÃ©nom	Fornavn	Nombre
-Team	Team	Ã‰quipe	Hold	Equipo
-Category	Category	CatÃ©gorie	VÃ¦gtklasse	CategorÃ­a
-Snatch	Snatch	Arr.	TrÃ¦k	Arr.
-SnatchRank	Snatch Rank	Rang Arr.		
-GroupResults	Group Results	RÃ©sultats de groupe		
-FinalResultsPackage	Final Results Package	Compilation des rÃ©sultats		
-TimingStatistics	Timing Statistics	Statistiques de durÃ©e		
-ForEachCompetitionGroup	For each competition group	Pour chaque groupe		
-EndOfCompetitionDocuments	End of competition documents	Documents de compÃ©tition		
-ProduceResults	Produce Results	Produire les rÃ©sultats		
-OWLCMS_Results	OWLCMS - Results	OWLCMS - RÃ©sultats		
-Timekeeper	Timekeeper	ChronomÃ©treur	Tidtager	Cronometrador
-Reset1min	Reset to 1 min	RÃ©initialiser Ã  1 min.		
-Reset2min	Reset to 2 min	RÃ©initialiser Ã  2 min.		
-BreakTimer	Break Timer	ChronomÃ¨tre de pause		
-Timekeeper	Timekeeper	ChronomÃ©treur	Tidtager	Cronometrador
-Errors	Errors	Erreurs		
-UploadRegistrationFile	Upload Registration File	Charger le fichier d'inscription		
-ReadingData_	Reading the data...	Lecture des donnÃ©esâ€¦		
-DataRead	Read 	Lu.		
-CantReadCell	Can't read cell 	Cellule impossible Ã  interprÃ©ter		
-Cell	Cell 	Cellule		
-LastName	Last name	Nom	Efternavn	Apellido
-AgeDivision	Age Division	Division		
-AgeDivision	Age Division	Division		
-Category	Category	CatÃ©gorie	VÃ¦gtklasse	CategorÃ­a
-Group	Group	Groupe	Gruppe	SesiÃ³n
-Gender	Gender	Genre	KÃ¸n	Genero
-Eligible for Individual Ranking?	Eligible for individual ranking?	Ã‰ligible au classement individuel ?		
-EntryTotal	Entry Total	Total dÃ©clarÃ©		
-AgeDivision	Age Division	Division		
-BirthDate	Birth Date	Date naissance	FÃ¸dt	Fecha de nacimiento
-Team	Team	Ã‰quipe	Hold	Equipo
-FirstName	First Name	PrÃ©nom	Fornavn	Nombre
-Category	Category	CatÃ©gorie	VÃ¦gtklasse	CategorÃ­a
-LastName	Last Name	Nom	Efternavn	Apellido
-Group	Group	Groupe	Gruppe	SesiÃ³n
-Gender	Gender	Genre	KÃ¸n	Genero
-Clean_and_Jerk_Declaration	Clean&Jerk Declaration	DÃ©claration Ã‰.-J.		
-Snatch_Declaration	Snatch Declaration	DÃ©claration ArrachÃ©		
-Category	Category	CatÃ©gorie	VÃ¦gtklasse	CategorÃ­a
-BodyWeight	Body Weight	Poids	VÃ¦gt	Peso corporal
-C_and_J_decl	C.&J. Decl.	DÃ©cl. Ã‰.-J.		
-Eligible	Eligible	Ã‰ligible		
-SnatchDecl_	Snatch Decl.	DÃ©cl. Arr.		
-Group	Group	Groupe	Gruppe	SesiÃ³n
-BodyWeight	Body Weight	Poids	VÃ¦gt	Peso corporal
-Group	Group	Groupe	Gruppe	SesiÃ³n
-Category	Category	CatÃ©gorie	VÃ¦gtklasse	CategorÃ­a
-AgeDivision	Age Division	Division		
-Team	Team	Ã‰quipe	Hold	Equipo
-FirstName	First Name	PrÃ©nom	Fornavn	Nombre
-LastName	Last Name	Nom	Efternavn	Apellido
-Start_	Start#	#DÃ©part		
-Display	Display	Afficher	Display	Marcador
-none	none	none		
-Weighed_in_p	Weighed-In?	PesÃ©s ?		
-Weighed	Weighed	PesÃ©s		
-Not_weighed	Not weighed	Non pesÃ©		
-WeighIn	Weigh-in	PesÃ©e	Indvejning	Pesaje
-WeighIn	Weigh-In	PesÃ©e	Indvejning	Pesaje
-Group	Group	Groupe	Gruppe	SesiÃ³n
-GenerateStartNumbers	Generate Start Numbers	GÃ©nÃ©rer les ? de dÃ©part		
-ClearStartNumbers	Clear Start Numbers	Vider ? dÃ©part	Ryd Start Nummer	Limpiar NÂº inicio
-StartingWeightsSheet	Starting Weights Sheet	Barres de dÃ©part	StartvÃ¦gte	Pesos iniciales
-AthleteCards	Athlete Cards	Cartons d'athlÃ¨te		
-Select_group_first	Please select a group first.	Il faut d'abord choisir un groupe.	VÃ¦lg en gruppe fÃ¸rst.	Por favor, selecciona primero una tanda.
-GotIt	Got it.	Compris.		
+key;en;fr;da;es
+Announcer;Announcer;Annonceur;Speaker;Presentador
+NoLift_GoodLift;{0,choice,0#No Lift|1#Good Lift} for {1};Essai {0,choice,0#refusé|1#réussi} pour {1};;
+Countdown_BreakTimer;Countdown to start / Break Timer;Décompte avant début / Chrono de pause;;
+Announcer;Announcer;Annonceur;Speaker;Presentador
+Reload_group;Reload group from database.;Recharger le groupe à partir de la base de données;;
+Snatch1;snatch 1;Arraché 1;Træk  1;Arrancada 1
+Snatch2;snatch 2;Arraché 2;Træk  2;Arrancada 2
+WeightLifted;Weight Lifted;Poids soulevé;;
+Error;Error;Erreur;;
+Snatch3;snatch 3;Arraché 3;Træk  3;Arrancada 3
+C_and_J_1;C.&J. 1;É.-J. 1;Stød 1;D.T. 1
+C_and_J_2;C.&J. 2;É.-J. 2;Stød 2;D.T. 2
+C_and_J_3;C.&J. 3;É.-J. 3;Stød 3;D.T. 3
+AutomaticProgression;Automatic Progression;Progression automatique;Automatisk Øgning;
+Declaration;Declaration;Déclaration;;
+Change_1;Change 1;Changement 1;;
+Change_2;Change 2;Changement 2;;
+AttemptAF;Attempt (AF);Essai courant (face à l'athlète);;
+Decision_AF_;Decision (AF);Decision (AFment AF);;
+LastName;Last Name;Nom;Efternavn;Apellido
+FirstName;First Name;Prénom;Fornavn;Nombre
+C_and_J_number;C.&J. #{0};É.-J. #{0};Stød #{0};D.T. #{0}
+Snatch_number;Snatch #{0};Arraché #{0};Træk  #{0};Arrancada #{0}
+Weight_change_current_athlete;Weight change for current athlete<br>{0};Changement pour l'athlète courant<br>{0};;
+Team;Team;Équipe;Hold;Equipo
+Category;Category;Catégorie;Vægtklasse;Categoría
+Requested_weight;Requested Weight;Poids demandé;;
+Attempt;Attempt;Essai;;
+StartNumber;Start Number;Numéro de départ;;
+Group;Group;Groupe;Gruppe;Sesión
+Group;Group;Groupe;Gruppe;Sesión
+Group_number_done;Group {0} done.;Groupe {0} terminé.;Gruppe {0} afsluttet.;Sesion {0} terminada.
+Declaration;Declaration;Déclaration;;
+Weight_under_350;Weight should be between 0 and 350kg;Weight should be between 0 and 350kgment 350kg;;
+BodyWeight_no_match_category;Body Weight is outside of selected category;Le poids ne correspond pas à la catégorie;;
+Category_no_match_body_weight;Category does not match body weight.;La catégorie ne correspond pas au poids corporel.;;
+Category_no_match_gender;Category does not match gender.;La catégorie ne correspond pas au genre.;;
+BirthDate_cannot_future;Birth date cannot be in the future;La date de naissance ne peut pas être dans le futur.;;
+Category_no_match_gender;Category does not match gender.;La catégorie ne correspond pas au genre.;;
+Group_number_done;Group {0} done.;Groupe {0} terminé.;Gruppe {0} afsluttet.;Sesion {0} terminada.
+AttemptBoard_attempt_number;{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.;{0}<sup>{0,choice,1#er|2#e|3#e}</sup> essai;;
+Attempt;Attempt;Essai;;
+CompetitionPlatform;Competition Platform;Plateau de compétition;;
+SelectPlatform;Select Platform;Choisir la plateforme;;
+EndBreak_StartLifting;End Break, Start Lifting;Fin de la pause, débuter les levers;;
+BreakType;Break Type;Type de pause;;
+CountdownType;Countdown Type;Les essais ont été effacés;;
+PauseCountdown;Pause Break Countdown Timer;Stopper le chrono de pause;;
+StartCountdown;Start Break Countdown Timer;Démarrer le chronomètre de pause;;
+Group_number;Group {0};Groupe {0};Gruppe {0};Tanda {0} 
+TimeBeforeNextLift;Time before next lift;Décompte avant le prochain lever;;
+TimeBeforeFirstLift;Time before first lift;Décompte avant le premier lever;;
+TimeBeforeIntroduction;Time before introduction;Décompte avant la présentation;;
+CompetitionPaused;Competition paused;Pause;;
+Name;Name;Nom;Navn;Nombre
+AgeDivision;Age Division;Division;;
+Name;Name;Nom;Navn;Nombre
+AgeDivision;Age Division;Division;;
+Active;Active;Actif;Aktiv;Activo
+ActiveCategoriesOnly;Active Categories Only;Catégories actives seulement;;
+Preparation_Categories;Preparation - Categories;Préparation - Catégories;;
+Gender;Gender;Genre;Køn;Genero
+AgeDivision;Age Division;Division;;
+Name;Name;Nom;Navn;Nombre
+Gender;Gender;Genre;Køn;Genero
+MinimumWeight;Minimum Weight;Poids minimum;Minimum vægt;Peso Mínimo
+MaximumWeight;Maximum Weight;Les essais ont été effacés;;
+WorldRecord;World Record;Record du monde;Verdensrekord;Récord mundial
+Active;Active;Actif;Aktiv;Activo
+EditCategories;Edit Categories;Les essais ont été effacés;;
+Competition.competitionCity;City;Ville;By;Ciudad
+Competition.competitionDate;Date;Date;Dato;Fecha
+Competition;Competition;Compétition;Stævne;Competición
+Competition.competitionOrganizer;Organizer;Organisateur;Arrangør;Organizador
+Competition.competitionSite;Site;Site;Lokalitet;Lugar
+Competition.defaultFederation;Competition.defaultFederation;Fédération d'haltérophilie du Québec;Dansk Vægtløftnings-Forbund;Federación Española de Halterofilia
+Competition.defaultFederationAddress;Competition.defaultFederationAddress;C.P. 1000, Succ. M, Montréal, QC, H1V 3R2;Idrættens Hus, Brøndby Stadion 20, 2605 Brøndby;C/ Francos Rodríguez, 70 
+Competition.defaultFederationEMail;Competition.defaultFederationEMail;admin@fedhaltero.qc.ca;kontor@danskvaegtloeftning.dk;fehalterofilia@hotmail.com
+Competition.defaultFederationWebSite;Competition.defaultFederationWebSite;www.fedhaltero.qc.ca;www.weightlifting.dk;www.fedehalter.org
+Competition.enforce15_20KgRule;Apply initial total weight rule (IWF §6.6.5/Masters §2.4)?;Appliquer la règle de poids total initial (IWF §6.6.5/Masters §2.4)?;Brug indledende totalvægtregel (IWF §6.6.5/Masters §2.4)?;Aplicar regla de peso total inicial (IWF §6.6.5/Masters §2.4)?
+Competition.federation;Federation Name;Nom de la fédération;Forbundsnavn;Nombre de la federación
+Competition.federationAddress;Federation Address;Adresse de la fédération;Forbundsadresse;Dirección de la federación
+Competition.federationEMail;Federation e-mail;Courriel de la fédération;Forbunds e-mail;E-mail de la federación
+Competition.federationWebSite;Federation Web Site;Site web de la fédération;Forbunds Web Site;Sitio Web de la federación
+Competition.invitedIfBornBefore;Invited if born before;Invité si né avant;For løftere født før;Invitado si es nacido antes de
+Competition.logo;Logo;Logo;Logo;Logo
+Competition.masters;Masters;Maîtres;Masters;Masters
+Competition.protocolFileName;Protocol Sheet Template;Gabarit pour feuille de résultats;Protokol Template;Plantilla de protocolo
+Competition.resultTemplateFileName;Competition Book Template;Gabarit pour cahier de compétition;Competition Book Template;Plantilla de fichero de competición
+CompetitionApplication.Display;CompetitionApplication.Display;CompetitionApplication.Displayment Display;;Pantalla Principal
+CompetitionBook.C_LeftHeader;Competition Information;Informations sur la compétition;Stævneinformation;Información de la competición
+CompetitionBook.C_RightHeader;CompetitionBook.C_RightHeader;CompetitionBook.C_RightHeaderment RightHeader;;
+CompetitionBook.M6;Men's Results;Hommes 6 essais;Resultater Mænd;Resultados Masculino
+CompetitionBook.M6_LeftHeader;Category Ranking;Classement par catégories - Category Ranking;Vægtklasse Placering;Clasificación por categorías
+CompetitionBook.M6_LeftHeader;Competition;Compétition;Stævne;Competición
+CompetitionBook.M6_RightHeader;Men;Hommes - Men;Mænd;Masculino
+CompetitionBook.MCT_LeftHeader;Team Ranking (Snatch+CJ+Total);Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Total);Hold Placering (Træk+Stød+Tokamp);Clasificación por equipos (Arr+DT+Total)
+CompetitionBook.MR;Men's Robi;Hommes Robi;Robi Mænd;Robi Masculino
+CompetitionBook.MR_LeftHeader;Robi Ranking;Classement Robi - Robi Ranking;Robi Placering;CLasificación Robi
+CompetitionBook.MS;Men's Sinclair;Hommes Sinclair;Sinclair Mænd;Sinclair Masculino
+CompetitionBook.MS_LeftHeader;Sinclair  Ranking;Classement Sinclair - Sinclair Ranking;Sinclair Placering;CLasificación Sinclair
+CompetitionBook.MT;Men's Total Score;Hommes Pointage Total;Total Score Mænd;Puntos Total Masculino
+CompetitionBook.MT_LeftHeader;Team Ranking (Total);Classement par équipes (Total) - Team Ranking (Total);Hold Placering (Total);Clasificación por equipos (Total)
+CompetitionBook.MT_RightHeader;Men;Hommes - Men;Mænd;Masculino
+CompetitionBook.MWCT;Men&Women - Combined Score;Hommes et Femmes - Pointage Combiné;Mænd&Kvinder - Kombineret Score;Masculino y Femenino - Puntuación Combinada
+CompetitionBook.MWCT_LeftHeader;Team Ranking (Snatch+CJ+Total);Classement par équipes (Arr.+É.J.+Total);Hold Placering (Træk+Stød+Tokamp);Clasificación por equipos (Arr+DT+Total)
+CompetitionBook.MWCT_RightHeader;Women;Femmes;Kvinder;Femenino
+CompetitionBook.MWT;M+W Total Score;M+F Pointage Total;M+K Total Score;M+F Puntuación Total
+CompetitionBook.MWT_LeftHeader;Team Ranking (Total);Classement par équipes (Total) - Team Ranking (Total);Hold Placering (Total);Clasificación por equipos (Total)
+CompetitionBook.MWT_RightHeader;Men and Women;Hommes et Femmes - Men and Women;Mænd og Kvinder;Masculino y Femenino
+CompetitionBook.MXT;Men's Custom Score;Hommes Pointage Spécial;Mænd Speciel Score;Puntuación Masculina Personalizada
+CompetitionBook.MXT_LeftHeader;Team  Ranking (Custom);Classement par équipes (Spécial) - Team Ranking (Custom);Hold Placering (Speciel);Clasificación por equipos (Personalizada)
+CompetitionBook.MXT_RightHeader;Men;Hommes - Men;Mænd;Masculino
+CompetitionBook.MCT;Men - Combined Score;Hommes - Pointage Combiné;Mænd - Kombineret Score;
+CompetitionBook.W6;Women's Results;Femmes 6 essais;Resultater Kvinder;Clasificación Femenina
+CompetitionBook.W6_RightHeader;Women;Femmes - Women;Kvinder;Femenino
+CompetitionBook.WCT;Women - Combined Score;Femmes - Pointage Combiné;Kvinder - Combined Score;Femenino - Puntuación Combinada
+CompetitionBook.WCT_LeftHeader;Team Ranking (Snatch+CJ+Total);Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Snatch+CJ+Total);Hold Placering (Træk+Stød+Tokamp);Clasificación por equipos (Arr+DT+Total)
+CompetitionBook.WCT_RightHeader;Women;Femmes - Women;Kvinder;Femenino
+CompetitionBook.WR;Women's Robi;Femmes Robi;Robi Kvinder;Robi Femenino
+CompetitionBook.WR_RightHeader;Women;Femmes - Women;Kvinder;Femenino
+CompetitionBook.WS;Women's Sinclair;Femmes Sinclair;Sinclair Kvinder;Sinclair Femenino
+CompetitionBook.WS_LeftHeader;Sinclair  Ranking;Classement Sinclair - Sinclair Ranking;Sinclair Placering;Clasificación Sinclair
+CompetitionBook.WS_RightHeader;Women;Femmes - Women;Kvinder;Femenino
+CompetitionBook.WT;Women - Total Score;Femmes - Pointage Total;Kvinder - Total Score;Femenino - Puntuación Total
+CompetitionBook.WT_LeftHeader;Team Ranking (Total);Classement par équipes (Total) - Team Ranking (Total);Hold Placering (Total);Clasificación por equipos (Total)
+CompetitionBook.WT_RightHeader;Women;Femmes - Women;Kvinder;Femenino
+CompetitionBook.WXT;Women - Custom Score;Femmes - Pointage Spécial;Kvinder - Speciel Score;Femenino - Puntuación Personalizada
+CompetitionBook.WXT_LeftHeader;Team  Ranking (Custom);Classement par équipes (Spécial) - Team Ranking (Custom);Hold Placering (Speciel);Puntuación por equipos (Personalizado)
+CompetitionBook.WXT_RightHeader;Women;Femmes - Women;Kvinder;Femenino
+Preparation_Competition;Preparation - Competition;Préparation - Compétition;;
+Locale;Locale;Locale;;
+EditCompetitionInformation;Edit Competition Information;Éditer les données sur la compétition;;
+Dropdown_Select_Platform;Use the dropdown to select the platform where the display is located.;Utilisez le menu déroulant pour choisir le plateau de compétition où se trouve l'affichage;;
+Button_Open_Display;Use one of the buttons below to open a display.;Utilisez un bouton ci-dessous pour démarrer un affichage;;
+Refereeing_Displays;Refereeing Displays (can accept keyboard input from refereeing devices);Affichages d'arbitrage (acceptent les entrées des claviers d'arbitrage);;
+Start Displays;Start Displays;Démarrer les affichages;;
+OWLCMS_Displays;OWLCMS - Displays;OWLCMS - Affichages;;
+margin-bottom;margin-bottom;margin-bottom;margin-bottom;margin-bottom
+AttemptBoard;Attempt Board;Essai courant;;
+Scoreboard;Scoreboard;Tableau de résultats;;
+Athlete_Decisions;Athlete-facing Timer/Down/Decisions;Chrono/Terre/Décisions (face à l'athlète);;
+Athlete_Attempt;Athlete-facing Attempt Board Display;Essai courant (face à l'athlète);;
+PlatesDisplay;Plates Display;Plaques;;
+FieldOfPlayDisplays;Field of Play Displays;Affichages sur les plateaux;;
+Declaration_Notification;Declaration for {0}: {1};Declaration forment 1};;
+Unexpected_Notification;Unexpected event: {0} in state {1};Événement inattendu: {0} dans l'état {1};;
+Unexpected_Logging;Unexpected event: {} in state {};Événement inattendu: {} dans l'état {};;
+Name;Name;Nom;Navn;Nombre
+WeighInTime;Weigh-in Time;Heure de pesée;Indvejningstidspunkt;Hora de pesaje
+StartTime;Start Time;Heure de début;Starttid;Hora de comienzo
+Name;Name;Nom;Navn;Nombre
+WeighInTime;Weigh-in Time;Heure de pesée;Indvejningstidspunkt;Hora de pesaje
+StartTime;Start Time;Heure de début;Starttid;Hora de comienzo
+Platform;Platform;Plateau;Platform;Tarima
+Announcer;Announcer;Annonceur;Speaker;Presentador
+Marshall;Marshall;Marshall;;
+TechnicalController;Technical Controller;Contrôleur Technique;Teknisk kontrollant;Controlador Técnico
+Timekeeper;Timekeeper;Chronométreur;Tidtager;Cronometrador
+Referee1;Referee 1;Arbitre 1;Dommer 1;Juez 1
+Referee2;Referee 2;Arbitre 2;Dommer 2;Juez 2
+Platform;Platform;Plateau;Platform;Tarima
+Referee3;Referee 3;Arbitre 3;Dommer 3;Juez 3
+Jury1;Jury 1;Jury 1;;
+Jury2;Jury 2;Jury 2;;
+Jury3;Jury 3;Jury 3;;
+Jury4;Jury 4;Jury 4;;
+Jury5;Jury 5;Jury 5;;
+Platform;Platform;Plateau;Platform;Tarima
+Preparation_Groups;Preparation - Groups;Préparation - Groupes;;
+Edit_Groups;Edit Groups;Éditer les groupes;;
+PrepareCompetition;Prepare Competition;Préparer la compétition;;
+RunLiftingGroup;Run Lifting Group;Groupe de compétition;;
+PrepareCompatition_description;<li><b>Prepare Competition</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>;<li><b>Préparer la compétition</b>: Entrer les coordonnées, inscrire les athlètes, définir les groupes, etc.<br></li>;;
+RunLiftingGroup_description;<li><b>Run lifting group</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>;<li><b>Annoncer un groupe</b>: Lancer les écrans pour les officiels (annonceur, chrono, préposé aux changements). L'annonceur choisit le groupe en cours.</li>;;
+StartDisplays_description;<li><b>Start displays</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>;<li><b>Démarrer les affichages</b>: Lancer les tableaux de résultats, l'affichage de l'essai courant, et l'affichage pour l'athlète.</li>;;
+CompetitionDocuments_description;<li><b>Competition documents</b>: Produce printable documents for each group and the final results package.</li>;<li><b>Documents de compétition</b>: Produire les résultats imprimables pour chaque groupe et le cahier de compétition .</li>;;
+SeparateLaptops;</ul>Each of the various screens or displays uses a separate laptop or mini-pc.;</ul>Chacun des écrans ou affichages requiert un portable ou mini-pc.;;
+Start Displays;Start Displays;Démarrer les affichages;;
+OWLCMS_Top;OWLCMS - Olympic Weightlifting Competition Management System;OWLCMS - Gestion de compétition d'haltérophilie;;
+OWLCMS_Home;OWLCMS - Home;OWLCMS - Accueil;;
+ResultDocuments;Result Documents;Documents de résultats;;
+About;About;À propos;Om;Acerca de
+SystemURL;The competition system is reachable using the following address(es): ;Le système est accessible en spécifiant:;;
+Wired; (wired);(cablé);;
+Wireless; (wireless);(sans fil);;
+LocalComputer; (on the computer running the owlcms program);(sur l'ordinateur où owlcms s'exécute);;
+LeftMenuNavigate;Use the menu at the left to navigate to the various screens:<ul>;Utilisez le menu à gauche pour naviguer;;
+CopyrightLicense;Copyright and License;Licence et droits d'auteur;;
+Copyright2009;This software is Copyright © 2009-;Ce logiciel est sous droits d'auteurs - Copyright © 2009-;;
+AtTimeOfRelease; as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you;tels que publiés au moment de la publication. Tel que mentionné dans la licence, il n'y a aucune garantie et vous;;
+UseAtYourOwnRisk; are responsible for performing whatever tests are need to establish that the sofware is fit for your circumstances.; êtes responsable d'effectuer les tests requis pour établir que le logiciel répond à vos besoins.;;
+Credits;Credits;Remerciements;;
+WrittenJFL;The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>;Le système a été écrit et est mis à jour par Jean-François Lamy, Officiel Technique IWF catégorie 1<br><br>;;
+ThanksToAll;Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>;Merci à Anders Bendix Nielsen, Alexey Ruchev et Brock Pedersen pour leurs commentaires et leurs essais.<br>;;
+ThanksToFHQ;Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.;Merci à la Fédération d'haltérophilie du Québec d'avoir soutenu le développement initial du projet.;;
+JFL; Jean-François Lamy;Jean-François Lamy;;
+LicenseUsed;This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.;Ce logiciel est disponible selon les termes de la licence <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.;;
+OWLCMS_Top;OWLCMS - Olympic Weightlifting Competition Management System;OWLCMS - Gestion de compétition d'haltérophilie;;
+OWLCMS_Info;OWLCMS - About;OWLCMS - Info;;
+SourceDocumentation;Source and Documentation;Code source et documentation;;
+ProjectRepository;<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.;<li>Voir le <a href='https://github.com/jflamy/owlcms4'>référentiel du projet</a> pour les packages d'installation et le code source.;;
+Documentation;<li>See also the <a href='https://jflamy.github.io/owlcms4/'>documentation</a> for ;<li>Voir aussi la <a href='https://jflamy.github.io/owlcms4/'>documentation</a> pour ;;
+InstallationConfiguration;installation and configuration information.;instructions d'installation et de configuration;;
+Notes;Notes;Notes;;
+TCRRCompliance;This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules;Ce logiciel vise à se conformer aux règles techniques de compétition IWF (TCRR) en vigueur ainsi qu'aux règles de la fédération Masters Weightlifting.;;
+Jury;Jury;Jury;Jury;Jurado
+JuryDecisions;Jury Decisions;Décisions du jury;Jury Afgørelse;Decisiones del jurado
+RefereeDecisions;Referee Decisions;Décisions des officiels;Dommer Afgørelse;Decisiones de los jueces
+StopCompetition;Stop Competition;Arrêter la compétition;;
+ResumeCompetition;Resume Competition;Redémarrer la compétition;;
+BreakTimer;Break Timer;Chronomètre de pause;;
+AnnouncerSelectsGroup;The <b><i>Announcer</i></b> selects the current group for the platform.<br> ;L'<b><i>annonceur</i></b> choisit le groupe courant pour la plateforme.<br> ;;
+ChangesGroupEverywhere;This changes the current group for all displays and screens associated with the platform ;Ceci change le groupe courant sur tous les écrans et affichages associés à ce plateau.;;
+RunLiftingGroup;Run Lifting Group;Groupe de compétition;;
+OWLCMS_Lifting;OWLCMS - Lifting;OWLCMS - Groupe;;
+AnnouncerEtc;(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.);(annonceur, chronométreur, changements, résultats, essai courant, jury, etc.);;
+Announcer;Announcer;Annonceur;Speaker;Presentador
+Marshall;Marshall;Marshallment Marshall;;
+Timekeeper;Timekeeper;Chronométreur;Tidtager;Cronometrador
+Jury;Jury;Jury;Jury;Jurado
+TOScreens;Technical Official Screens (select the correct platform above before clicking);Écrans des officiels (choisir le plateau ci-dessus avant de cliquer);;
+WeighIn_StartNumbers;Weigh-In and Start Numbers;Pesée et numéros de départ;;
+WeighIn;Weigh-in;Pesée;Indvejning;Pesaje
+Bar;Bar;Barre;Stang;Barra
+BumperPlates;Grandes plaques;Grandes plaques;Store skiver;Pesas grandes
+Collar;Collar;Collet;Lås;Mordaza
+MetalPlates;Metal Plates;Plaques de métal;Små skiver;Pesas de metal
+Plates;Plates;Plaques;Skiver;Pesas
+Locale.defaultCountry;US;;;
+Locale.defaultLanguage;en;en;en;en
+Locale.languageCode;en;fr;da;es
+LoginDenied;Incorrect Access Information Provided.;Information d'accès incorrecte;;
+EnterPin;Enter PIN;Enter PIN;;
+Log_In;Log in;Identification;;
+Login;Login;Identification;;
+Marshall;Marshall;Marshall;;
+Marshall;Marshall;Marshall;;
+Delete;Delete;Détruire;Slet;Eliminar
+Delete;Delete;Détruire;Slet;Eliminar
+Cancel;Cancel;Annuler;Annuller;Cancelar
+Question; ?;?;;
+Error;Error;Erreur;;
+Semicolon;\u003B;\u003B;\u003B;\u003B
+RefreshList;Refresh list;Rafraîchir;;
+Add;Add;Ajouter;Tilføj;Añadir
+Update;Update;Modifier;;
+Delete;Delete;Détruire;Slet;Eliminar
+Home;Home;Accueil;;
+OWLCMS_Top;OWLCMS - Olympic Weightlifting Competition Management System;OWLCMS - Gestion de compétition d'haltérophilie;;
+Name;Name;Nom;Navn;Nombre
+PlatformName;Platform Name;Nom de la plateforme;Platform Navn;Nombre de la tarima
+Platform;Platform;Plateau;Platform;Tarima
+Preparation_Platforms;Preparation - Platforms;Préparation - Plateformes;;
+EditPlatforms;Edit Platforms;Les essais ont été effacés;;
+CompetitionInformation;Competition Information;Informations sur la compétition;Stævneinformation;Información de la competición
+DefineCategories;Define Categories;Définir les catégories;;
+UploadRegistrations;Upload Completed Registration Spreadsheet;Charger un fichier d'inscription ;;
+EditAthletes;Edit Athlete Entries;Éditer les athlètes;;
+PreCompetitionSetup;Pre-competition setup;Préparation de la compétition;;
+Registration;Registration;Inscriptions;Registreringer;Inscripciones
+EditAthletes_Groups;Edit Athlete Entries (adjust group assignments);Edit Athlete Entries (adjust group assignmentsment assignments);;
+OWLCMS_Preparation;OWLCMS - Preparation;OWLCMS - Préparation;;
+PrepareCompetition;Prepare Competition;Préparer la compétition;;
+DefineGroups;Define Groups;Définir les groupes;;
+DefineFOP;Define Fields of Play;Définir les plateaux;;
+DownloadRegistrationTemplate;Download Empty Registration Spreadsheet;Obtenir une feuille d'inscription vide;;
+LastName;Last Name;Nom;Efternavn;Apellido
+Lot;Lot;Tirage;Lodt.;Número
+Group;Group;Groupe;Gruppe;Sesión
+Eligible;Eligible;Éligible;;
+LastName;Last Name;Nom;Efternavn;Apellido
+FirstName;First Name;Prénom;Fornavn;Nombre
+Gender;Gender;Genre;Køn;Genero
+Team;Team;Équipe;Hold;Equipo
+BirthDate_yyyy;Birth Date (yyyy-mm-dd);Date naissance (yyyy-mm-dd);Født (yyyy-mm-dd);Fecha de nacimiento (yyyy-mm-dd)
+AgeGroup;Age Group;Groupe d'âge;Aldesgruppe;Grupos per edades
+AgeDivision;Age Division;Division;;
+Category;Category;Catégorie;Vægtklasse;Categoría
+FirstName;First Name;Prénom;Fornavn;Nombre
+Group;Group;Groupe;Gruppe;Sesión
+EntryTotal;Entry Total;Total déclaré;;
+BodyWeight;Body Weight;Poids;Vægt;Peso corporal
+SnatchDecl_;Snatch Decl.;Décl. Arr.;;
+C_and_J_decl;C.&J. Decl.;Décl. É.-J.;;
+Eligible for Individual Ranking?;Eligible for Individual Ranking?;Éligible au classement individuel ?;;
+Lot;Lot;Tirage;Lodt.;Número
+Gender;Gender;Genre;Køn;Genero
+Group;Group;Groupe;Gruppe;Sesión
+Category;Category;Catégorie;Vægtklasse;Categoría
+Team;Team;Équipe;Hold;Equipo
+AgeDivision;Age Division;Division;;
+LastName;Last name;Nom;Efternavn;Apellido
+AgeDivision;Age Division;Division;;
+AgeGroup;Age Group;Groupe d'âge;Aldesgruppe;Grupos per edades
+Category;Category;Catégorie;Vægtklasse;Categoría
+Group;Group;Groupe;Gruppe;Sesión
+Weighed_in_p;Weighed-In?;Pesés ?;;
+Weighed;Weighed;Pesés;;
+Not_weighed;Not weighed;Non pesé;;
+Preparation_Registration;Preparation - Registration;Préparation - Inscriptions;;
+Birth;Birth;Naiss.;Født;Nacimiento
+Gender;Gender;Genre;Køn;Genero
+AgeDivision;Age Division;Division;;
+AgeGroup;Age Group;Groupe d'âge;Aldesgruppe;Grupos per edades
+Category;Category;Catégorie;Vægtklasse;Categoría
+BodyWeight;Body Weight;Poids;Vægt;Peso corporal
+EditRegisteredAthletes;Edit Registered Athletes;Éditer les athlètes inscrits;;
+DrawLotNumbers;Draw Lot Numbers;Tirage au sort;Tildel lodt. numre;Números aleatorios
+Warning_ClearAthleteLifts;This will clear all lifting data for the athletes currently displayed except for initial declarations.<br>Are you sure?;Ceci va vider les essais pour les athlètes actuellement affichés<br>Êtes-vous certain?;;
+LiftsCleared;Lifts cleared;Les essais ont été effacés;;
+ClearLifts_forListed;Clear Lifts for Athletes Currently Listed;Effacer les levers des athlètes sélectionnés;;
+StartingList;Starting List;Liste de départ;Startliste;Lista de inicio
+DeleteAthletes;Delete Athletes;Détruire athlètes;Slet løftere;Borrar atletas
+DeleteAthletes;Delete Athletes;Détruire athlètes;Slet løftere;Borrar atletas
+Warning_DeleteAthletes;This will delete the athletes currently displayed from the database.<br>Are you sure?;Ceci va effacer les athlètes actuellement affichés<br>Êtes-vous certain?;;
+Done_period;Done.;Terminé;Afsluttet;Hecho
+DeleteAthletes_forListed;Delete Athletes Currently Listed;Deletee {} lève sur plateau {}, édition;;
+ClearLifts;Clear Lifts;Effacer les levers;Ryd løft;Limpiar alzadas
+ClearLifts;Clear Lifts;Effacer les levers;Ryd løft;Limpiar alzadas
+GroupResults;Group Results;Résultats de groupe;;
+GroupResults;Group Results;Résultats de groupe;;
+Clean_and_Jerk;Clean&Jerk;Épaulé-jeté;Stød;Dos Tiempos
+Clean_and_Jerk_Rank;Clean&Jerk Rank;Rang É.-J.;;
+Total;Total;Total;Tokamp;Total
+Rank;Rank;Rang;Placering;Posición
+Group;Group;Groupe;Gruppe;Sesión
+Warning_GroupLifting;This group is currently lifting on platform ;Ce groupe est actuellement en compétition sur le plateau;;
+CannotEditResults;. You cannot edit the results.;. Vous ne pouvez pas éditer les résultats.;;
+CannotEditResults_logging;Group {} lifting on {}, cannot edit;Groupe {} lève sur plateau {}, impossible d'éditer;;
+EditingResults_logging;Group {} lifting on {}, editing;Groupe {} lève sur plateau {}, édition;;
+Results;Results;Résultats;Resultater;Resultados
+Group;Group;Groupe;Gruppe;Sesión
+GroupResults;Group Results;Résultats de groupe;;
+LastName;Last Name;Nom;Efternavn;Apellido
+FirstName;First Name;Prénom;Fornavn;Nombre
+Team;Team;Équipe;Hold;Equipo
+Category;Category;Catégorie;Vægtklasse;Categoría
+Snatch;Snatch;Arr.;Træk;Arr.
+SnatchRank;Snatch Rank;Rang Arr.;;
+GroupResults;Group Results;Résultats de groupe;;
+FinalResultsPackage;Final Results Package;Compilation des résultats;;
+TimingStatistics;Timing Statistics;Statistiques de durée;;
+ForEachCompetitionGroup;For each competition group;Pour chaque groupe;;
+EndOfCompetitionDocuments;End of competition documents;Documents de compétition;;
+ProduceResults;Produce Results;Produire les résultats;;
+OWLCMS_Results;OWLCMS - Results;OWLCMS - Résultats;;
+Timekeeper;Timekeeper;Chronométreur;Tidtager;Cronometrador
+Reset1min;Reset to 1 min;Réinitialiser à 1 min.;;
+Reset2min;Reset to 2 min;Réinitialiser à 2 min.;;
+BreakTimer;Break Timer;Chronomètre de pause;;
+Timekeeper;Timekeeper;Chronométreur;Tidtager;Cronometrador
+Errors;Errors;Erreurs;;
+UploadRegistrationFile;Upload Registration File;Charger le fichier d'inscription;;
+DataRead;Read ;Lu.;;
+CantReadCell;Can't read cell ;Cellule impossible à interpréter;;
+Cell;Cell ;Cellule;;
+LastName;Last name;Nom;Efternavn;Apellido
+AgeDivision;Age Division;Division;;
+AgeDivision;Age Division;Division;;
+Category;Category;Catégorie;Vægtklasse;Categoría
+Group;Group;Groupe;Gruppe;Sesión
+Gender;Gender;Genre;Køn;Genero
+Eligible for Individual Ranking?;Eligible for individual ranking?;Éligible au classement individuel ?;;
+EntryTotal;Entry Total;Total déclaré;;
+AgeDivision;Age Division;Division;;
+BirthDate;Birth Date;Date naissance;Født;Fecha de nacimiento
+Team;Team;Équipe;Hold;Equipo
+FirstName;First Name;Prénom;Fornavn;Nombre
+Category;Category;Catégorie;Vægtklasse;Categoría
+LastName;Last Name;Nom;Efternavn;Apellido
+Group;Group;Groupe;Gruppe;Sesión
+Gender;Gender;Genre;Køn;Genero
+Clean_and_Jerk_Declaration;Clean&Jerk Declaration;Déclaration É.-J.;;
+Snatch_Declaration;Snatch Declaration;Déclaration Arraché;;
+Category;Category;Catégorie;Vægtklasse;Categoría
+BodyWeight;Body Weight;Poids;Vægt;Peso corporal
+C_and_J_decl;C.&J. Decl.;Décl. É.-J.;;
+Eligible;Eligible;Éligible;;
+SnatchDecl_;Snatch Decl.;Décl. Arr.;;
+Group;Group;Groupe;Gruppe;Sesión
+BodyWeight;Body Weight;Poids;Vægt;Peso corporal
+Group;Group;Groupe;Gruppe;Sesión
+Category;Category;Catégorie;Vægtklasse;Categoría
+AgeDivision;Age Division;Division;;
+Team;Team;Équipe;Hold;Equipo
+FirstName;First Name;Prénom;Fornavn;Nombre
+LastName;Last Name;Nom;Efternavn;Apellido
+Start_;Start#;#Départ;;
+Display;Display;Afficher;Display;Marcador
+none;none;none;;
+Weighed_in_p;Weighed-In?;Pesés ?;;
+Weighed;Weighed;Pesés;;
+Not_weighed;Not weighed;Non pesé;;
+WeighIn;Weigh-in;Pesée;Indvejning;Pesaje
+WeighIn;Weigh-In;Pesée;Indvejning;Pesaje
+Group;Group;Groupe;Gruppe;Sesión
+GenerateStartNumbers;Generate Start Numbers;Générer les ? de départ;;
+ClearStartNumbers;Clear Start Numbers;Vider ? départ;Ryd Start Nummer;Limpiar Nº inicio
+StartingWeightsSheet;Starting Weights Sheet;Barres de départ;Startvægte;Pesos iniciales
+AthleteCards;Athlete Cards;Cartons d'athlète;;
+Select_group_first;Please select a group first.;Il faut d'abord choisir un groupe.;Vælg en gruppe først.;Por favor, selecciona primero una tanda.
+GotIt;Got it.;Compris.;;
+ReadingData_;Reading the data;Lecture des données;;

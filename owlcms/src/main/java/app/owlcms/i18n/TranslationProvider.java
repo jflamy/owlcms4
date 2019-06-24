@@ -34,15 +34,15 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class TranslationProvider implements I18NProvider {
+    
+    final static Logger logger = (Logger)LoggerFactory.getLogger(TranslationProvider.class);
 
-    private static final String CSV_DELIMITER = "\t";
+    private static final String CSV_DELIMITER = ";";
 
     private final static TranslationProvider helper = new TranslationProvider();
 
-    private static final String BUNDLEBASE = "translation4";
-    private static final String BUNDLE_PACKAGE_DOTS = "i18n.";
+    private static final String BUNDLE_BASE = "translation4";
     private static final String BUNDLE_PACKAGE_SLASH = "/i18n/";
-    public static final String BUNDLE_DOTTED_NAME = BUNDLE_PACKAGE_DOTS+BUNDLEBASE;
 
     //TODO: get the locales from the CSV
     public static final Locale LOCALE_EN = new Locale("en");
@@ -59,19 +59,6 @@ public class TranslationProvider implements I18NProvider {
     public static List<Locale> getAvailableLocales() {
         return helper.getProvidedLocales();
     }
-
-//    public static void main(String[] args) {
-//        try {
-////            Writer out = createCSV();
-////            out.flush();
-//            
-////            getBundle(new File("src/main/resources/i18n/translation4.csv"),new Locale("fr"));
-//            PropertyResourceBundle prb = (PropertyResourceBundle) getBundleFromCSV("translation4", LOCALE_FR);
-//            
-//        } catch (Throwable e1) {
-//            e1.printStackTrace();
-//        }
-//    }
 
     public static void setForcedLocale(Locale locale) {
         if (locales.contains(locale)) {
@@ -180,12 +167,11 @@ public class TranslationProvider implements I18NProvider {
         ClassLoader i18nloader = TranslationProvider.processed.get(baseName);
         File bundleDir = Files.createTempDir();
         if (i18nloader == null) {
-//            System.out.println("creating "+baseName+" from "+csvName+" "+csvStream);
-            try (final Scanner in = new Scanner(csvStream)) {
+            logger.trace("creating {} from {} : {}",baseName, csvName, csvStream);
+            try (final Scanner in = new Scanner(csvStream, "ISO-8859-1")) {
                 // process header
                 final String[] header = in.nextLine().split(CSV_DELIMITER);
                 final File[] outFiles = new File[header.length];
-//                System.out.println("header.length"+header.length);
                 final Properties[] languageProperties = new Properties[header.length];
                 for (int i = 1; i < header.length; i++) {
                     String language = header[i];
@@ -202,6 +188,7 @@ public class TranslationProvider implements I18NProvider {
                     String nextLine = in.nextLine();
                     final String[] line = nextLine.split(CSV_DELIMITER,header.length);
                     final String key = line[0];
+                    logger.debug("{}",nextLine);
                     for (int i = 1; i < languageProperties.length; i++) {
                         languageProperties[i].setProperty(key, line[i]);
                     }
@@ -209,7 +196,7 @@ public class TranslationProvider implements I18NProvider {
 
                 // writing
                 for (int i = 1; i < languageProperties.length; i++) {
-//                    System.out.println("writing to "+outFiles[i].getAbsolutePath());
+                    logger.debug("writing to {}",outFiles[i].getAbsolutePath());
                     languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csvName);
                 }
                 final URL[] urls = { bundleDir.toURI().toURL() };
@@ -221,8 +208,6 @@ public class TranslationProvider implements I18NProvider {
         }
         return ResourceBundle.getBundle(baseName, locale, i18nloader);
     }
-
-    Logger logger = (Logger) LoggerFactory.getLogger(TranslationProvider.class.getName());
 
     @Override
     public List<Locale> getProvidedLocales() {
@@ -246,7 +231,7 @@ public class TranslationProvider implements I18NProvider {
         }
 
         //final ResourceBundle bundle = PropertyResourceBundle.getBundle(BUNDLE_DOTTED_NAME, locale);
-        final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(BUNDLEBASE, locale);
+        final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(BUNDLE_BASE, locale);
 
         String value;
         try {
@@ -277,7 +262,7 @@ public class TranslationProvider implements I18NProvider {
         }
 
 //        final PropertyResourceBundle bundle = (PropertyResourceBundle) PropertyResourceBundle.getBundle(BUNDLE_DOTTED_NAME, locale);
-        final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(BUNDLEBASE, locale);
+        final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(BUNDLE_BASE, locale);
 
         String value;
         try {
