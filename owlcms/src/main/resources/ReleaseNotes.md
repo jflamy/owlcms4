@@ -1,6 +1,7 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#!index.md#Features) for an overview of the feature set
 - Release Highlights:
-  - Screens and displays now translated (French and English done, Danish and Spanish partially).  The browser default language is used by default. To force a given language for all screens and displays use the "Prepare Competition"/"Competition Information" screen, choose a language, and restart.
+  - Danish translation completed (in addition to French and English).  Danish Excel templates corrected for A4 format.
+  - The browser default language is used by default. To force a given language for all screens and displays use the "Prepare Competition"/"Competition Information" screen, choose a language, and restart.
   - Instructions performing and testing translations to other languages can be found at https://github.com/jflamy/owlcms4/tree/develop/owlcms/src/main/resources/i18n
 - [Change Log](https://github.com/jflamy/owlcms4/milestone/24?closed=1) for this release (enhancements and fixes)
 - [Installation](https://jflamy.github.io/owlcms4/#!index.md#Installation) instructions
