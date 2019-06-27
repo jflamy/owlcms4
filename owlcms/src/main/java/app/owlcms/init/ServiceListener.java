@@ -6,8 +6,6 @@
  */
 package app.owlcms.init;
 
-import java.util.Locale;
-
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.ServiceInitEvent;
