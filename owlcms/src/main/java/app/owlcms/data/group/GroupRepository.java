@@ -11,6 +11,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.jpa.JPAService;
 
 /**
@@ -51,9 +52,19 @@ public class GroupRepository {
 	 *
 	 * @param Group the group
 	 */
-	public static void delete(Group Group) {
-		JPAService.runInTransaction(em -> {
-			em.remove(getById(Group.getId(), em));
+	public static void delete(Group groupe) {
+		JPAService.runInTransaction(em -> {	    
+			try {
+			    for (Athlete a: groupe.getAthletes()) {
+			        a.setGroup(null);
+			        em.merge(a);
+			    }
+			    em.flush();
+			    em.remove(em.contains(groupe) ? groupe : em.merge(groupe));
+			    em.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 			return null;
 		});
 	}
