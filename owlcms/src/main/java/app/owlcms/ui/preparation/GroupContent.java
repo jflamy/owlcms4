@@ -177,19 +177,20 @@ public class GroupContent extends VerticalLayout
 			}
 			
 			@Override
-			public Group add(Group Group) {
-				GroupRepository.save(Group);
-				return Group;
+			public Group add(Group group) {
+				GroupRepository.save(group);
+				return group;
 			}
 
 			@Override
-			public Group update(Group Group) {
-				return GroupRepository.save(Group);
+			public Group update(Group group) {
+				return GroupRepository.save(group);
 			}
 
 			@Override
-			public void delete(Group Group) {
-				GroupRepository.delete(Group);
+			public void delete(Group group) {
+			    logger.warn("deleting {}",group);
+				GroupRepository.delete(group);
 			}
 
 			@Override
