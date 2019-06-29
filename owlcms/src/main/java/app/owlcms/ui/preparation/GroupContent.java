@@ -189,7 +189,6 @@ public class GroupContent extends VerticalLayout
 
 			@Override
 			public void delete(Group group) {
-			    logger.warn("deleting {}",group);
 				GroupRepository.delete(group);
 			}
 
