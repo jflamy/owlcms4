@@ -60,16 +60,41 @@ public class AthleteTimerElement extends TimerElement {
 		return;
 	}
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.displays.attemptboard.TimerElement#clientTimeOver() */
+	/**
+	 * @see app.owlcms.components.elements.TimerElement#clientTimeOver()
+	 */
 	@Override
 	@ClientCallable
 	public void clientTimeOver() {
-		logger.info("Received time over from client."); //$NON-NLS-1$
+		logger.trace("Received time over."); //$NON-NLS-1$
 		OwlcmsSession.withFop(fop -> {
 			fop.getAthleteTimer().timeOut(this);
 		});
 	}
+	
+	/**
+     * @see app.owlcms.components.elements.TimerElement#clientTimeOver()
+     */
+    @Override
+    @ClientCallable
+    public void clientInitialWarning() {
+        logger.trace("Received initial warning."); //$NON-NLS-1$
+        OwlcmsSession.withFop(fop -> {
+            fop.getAthleteTimer().initialWarning(this);
+        });
+    }
+    
+    /**
+     * @see app.owlcms.components.elements.TimerElement#clientTimeOver()
+     */
+    @Override
+    @ClientCallable
+    public void clientFinalWarning() {
+        logger.trace("Received final warning."); //$NON-NLS-1$
+        OwlcmsSession.withFop(fop -> {
+            fop.getAthleteTimer().finalWarning(this);
+        });
+    }
 
 	/* (non-Javadoc)
 	 * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double) */

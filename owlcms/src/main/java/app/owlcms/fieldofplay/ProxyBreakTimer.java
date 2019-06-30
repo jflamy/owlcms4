@@ -96,4 +96,14 @@ public class ProxyBreakTimer implements IProxyTimer {
 
 	}
 
+    @Override
+    public void initialWarning(Object origin) {
+        // ignored        
+    }
+
+    @Override
+    public void finalWarning(Object origin) {
+        // ignored        
+    }
+
 }

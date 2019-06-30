@@ -7,12 +7,14 @@
 package app.owlcms.data.platform;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.sound.sampled.Mixer;
 
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +22,7 @@ import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.sound.Speakers;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -28,9 +31,11 @@ import ch.qos.logback.classic.Logger;
  * Groups are associated with a lifting platformName.
  * </p>
  * <p>
- * Projectors and officials are associated with a lifting platformName so there is no need to refresh their setup during a competition. The
- * name of the platformName is used as a key in the ServletContext so other sessions and other kinds of pages (such as JSP) can locate the
- * information about that platformName. See in particular the {@link LiftList#updateTable()} method
+ * Projectors and officials are associated with a lifting platformName so there
+ * is no need to refresh their setup during a competition. The name of the
+ * platformName is used as a key in the ServletContext so other sessions and
+ * other kinds of pages (such as JSP) can locate the information about that
+ * platformName. See in particular the {@link LiftList#updateTable()} method
  * </p>
  *
  * @author jflamy
@@ -40,25 +45,25 @@ import ch.qos.logback.classic.Logger;
 @Entity
 @Cacheable
 public class Platform implements Serializable {
-	
-    @SuppressWarnings("unused")
-	private static final Logger logger = (Logger) LoggerFactory.getLogger(Platform.class);
 
-	/**
-	 * Only used for unit testing when there is no session
-	 */
-	private static Platform testingPlatform;
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(Platform.class);
+
+    /**
+     * Only used for unit testing when there is no session
+     */
+    private static Platform testingPlatform;
 
     /** The id. */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
-    
+
     /** The name. */
     String name;
 
     /**
-     * true if the referee use this application to give decisions, and decision lights need to be shown on the attempt and result boards.
+     * true if the referee use this application to give decisions, and decision
+     * lights need to be shown on the attempt and result boards.
      */
     private Boolean showDecisionLights = false;
 
@@ -66,7 +71,13 @@ public class Platform implements Serializable {
      * true if the time should be displayed
      */
     private Boolean showTimer = false;
-    
+
+    /**
+     * If mixer is not null, emit sound on this device
+     */
+    transient private Mixer mixer = null;
+    private String soundMixerName;
+    transient private boolean mixerChecked;
 
     // collar
     private Integer nbC_2_5 = 0;
@@ -92,13 +103,11 @@ public class Platform implements Serializable {
     private Integer lightBar = 0;
 
 
-//    String mixerName = "";
-//    transient private Mixer mixer;
 
     /**
- * Instantiates a new platform.
- */
-public Platform() {
+     * Instantiates a new platform.
+     */
+    public Platform() {
     }
 
     /**
@@ -107,6 +116,7 @@ public Platform() {
      * @param name the name
      */
     public Platform(String name) {
+        this();
         this.setName(name);
     }
 
@@ -151,8 +161,6 @@ public Platform() {
             return 0;
         return lightBar;
     }
-
-
 
     /**
      * Gets the name.
@@ -361,7 +369,7 @@ public Platform() {
     /**
      * Sets the name.
      *
-     * @param name            the name to set
+     * @param name the name to set
      */
     public void setName(String name) {
         this.name = name;
@@ -502,90 +510,95 @@ public Platform() {
         this.showDecisionLights = showDecisionLights;
     }
 
-//    public Mixer getMixer() {
-//        if (mixer == null) {
-//            setMixerName(this.getMixerName());
-//        }
-//        return mixer;
-//    }
+    public Mixer getMixer() {
+        if (!mixerChecked && mixer == null) {
+            setSoundMixerName(this.getSoundMixerName());
+        }
+        return mixer;
+    }
 
-//    public void setMixer(Mixer mixer) {
-//        this.mixer = mixer;
-//    }
-
-//    /**
-//     * @return the mixerName
-//     */
-//    public String getMixerName() {
-//        return mixerName;
-//    }
-//
-//    /**
-//     * @param mixerName
-//     *            the mixerName to set
-//     */
-//    public void setMixerName(String mixerName) {
-//        this.mixerName = mixerName;
-//        setMixer(null);
-//        List<Mixer> mixers = Speakers.getOutputs();
-//        for (Mixer curMixer : mixers) {
-//            if (curMixer.getMixerInfo().getName().equals(mixerName)) {
-//                setMixer(curMixer);
-//                logger.info("Platform: {}: changing mixer to {}", this.name, curMixer.getMixerInfo().getName());
-//                //LoggerUtils.traceBack(logger);
-//                break;
-//            }
-//        }
-//        if (mixer == null) {
-//            logger.info("Platform: {}: changing mixer to {}", this.name, mixerName);
-//        }
-//    }
+    private void setMixer(Mixer soundMixer) {
+        this.mixer = soundMixer;
+    }
 
     /**
- * Sets the show timer.
- *
- * @param showTime the new show timer
- */
-public void setShowTimer(Boolean showTime) {
+     * @return the soundMixerName
+     */
+    public String getSoundMixerName() {
+        return soundMixerName;
+    }
+
+    /**
+     * @param soundMixerName
+     *            the soundMixerName to set
+     */
+    public void setSoundMixerName(String soundMixerName) {
+        logger.warn("setSoundMixerName{}",soundMixerName);
+        this.soundMixerName = soundMixerName;
+        if (soundMixerName == null) {
+            mixerChecked = true;
+            setMixer(null);
+            return;
+        }
+        
+        setMixer(null);
+        
+        List<Mixer> soundMixers = Speakers.getOutputs();
+        for (Mixer curMixer : soundMixers) {
+            if (curMixer.getMixerInfo().getName().equals(soundMixerName)) {
+                setMixer(curMixer);
+                logger.info("Platform {}: changing mixer to {}", this.name, curMixer.getMixerInfo().getName());
+                break;
+            }
+        }
+        if (mixer == null) {
+            logger.info("Platform: {}: changing mixer to {}", this.name, soundMixerName);
+        }
+        mixerChecked = true;
+    }
+
+    /**
+     * Sets the show timer.
+     *
+     * @param showTime the new show timer
+     */
+    public void setShowTimer(Boolean showTime) {
         this.showTimer = showTime;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
-        return name; //$NON-NLS-1$
+        return name; // $NON-NLS-1$
     }
 
-	/**
-	 * Gets the current platform
-	 *
-	 * @return the current
-	 */
-	public static Platform getCurrent() {
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (fop != null) {
-			Platform platform = fop.getPlatform();
-			return (platform != null ? platform : testingPlatform);
-		} else {
-			return testingPlatform;
-		}
-	}
-	
-	/**
-	 * Sets the current platform
-	 *
-	 * @param p the new current
-	 */
-	public static void setCurrent(Platform p) {
-		VaadinSession current = VaadinSession.getCurrent();
-		if (current != null) {
-			current.setAttribute("platform", p);
-		} else {
-			testingPlatform = p;
-		}
-	}
+    /**
+     * Gets the current platform
+     *
+     * @return the current
+     */
+    public static Platform getCurrent() {
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        if (fop != null) {
+            Platform platform = fop.getPlatform();
+            return (platform != null ? platform : testingPlatform);
+        } else {
+            return testingPlatform;
+        }
+    }
+
+    /**
+     * Sets the current platform
+     *
+     * @param p the new current
+     */
+    public static void setCurrent(Platform p) {
+        VaadinSession current = VaadinSession.getCurrent();
+        if (current != null) {
+            current.setAttribute("platform", p);
+        } else {
+            testingPlatform = p;
+        }
+    }
 
 
 }

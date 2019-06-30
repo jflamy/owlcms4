@@ -53,13 +53,12 @@ public class Group implements Comparable<Group> {
     
     /** The athletes. */
     // group is the property in Athlete that is the opposite of Group.athletes
-    @OneToMany(cascade={CascadeType.MERGE}, mappedBy = "group", fetch = FetchType.LAZY)
-    // ,fetch=FetchType.EAGER)
+    @OneToMany(cascade={CascadeType.MERGE}, mappedBy = "group", fetch = FetchType.EAGER)
     Set<Athlete> athletes;
    
     /** The categories. */
     @ManyToMany( cascade = { CascadeType.PERSIST, CascadeType.MERGE,
-			CascadeType.REFRESH }, fetch = FetchType.EAGER)
+            CascadeType.REFRESH }, fetch = FetchType.EAGER)
     Set<Category> categories;
 
     /** The platform. */

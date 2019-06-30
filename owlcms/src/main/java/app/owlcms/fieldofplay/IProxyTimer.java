@@ -47,6 +47,15 @@ public interface IProxyTimer {
 	 */
 	public int getTimeRemainingAtLastStop();
 
+	/**
+	 * 90 second warning (must declare before)
+	 */
+    public void initialWarning(Object origin);
+
+    /**
+     * 30-second warning (cannot change weights)
+     */
+    public void finalWarning(Object origin);
 	
 
 }

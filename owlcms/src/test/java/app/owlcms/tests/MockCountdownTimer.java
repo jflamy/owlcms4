@@ -15,77 +15,89 @@ import ch.qos.logback.classic.Logger;
 
 public class MockCountdownTimer implements IProxyTimer {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(MockCountdownTimer.class);
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(MockCountdownTimer.class);
 
-	private int timeRemaining;
+    private int timeRemaining;
 
-	private int timeRemainingAtLastStop;
+    private int timeRemainingAtLastStop;
 
-	public MockCountdownTimer() {
-		logger.setLevel(Level.INFO);
-	}
-
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see app.owlcms.tests.ICountDownTimer#start()
-	 */
-	@Override
-	public void start() {
-		logger.debug("starting Time -- timeRemaining = {} \t[{}]",timeRemaining, LoggerUtils.whereFrom());
-		timeRemaining = (getTimeRemaining() - 1000);
-		timeRemainingAtLastStop = timeRemaining;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see app.owlcms.tests.ICountDownTimer#stop()
-	 */
-	@Override
-	public void stop() {
-		logger.debug("stopping Time -- timeRemaining = {} \t[{}]",timeRemaining, LoggerUtils.whereFrom());
-		timeRemaining = (getTimeRemaining());
-		timeRemainingAtLastStop = timeRemaining;
-
-	}
-
-	/**
-	 * @return the timeRemainingAtLastStop
-	 */
-	@Override
-	public int getTimeRemainingAtLastStop() {
-		return timeRemainingAtLastStop;
-	}
+    public MockCountdownTimer() {
+        logger.setLevel(Level.INFO);
+    }
 
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.fieldofplay.IProxyTimer#getTimeRemaining()
-	 */
-	@Override
-	public int getTimeRemaining() {
-		return timeRemaining;
-	}
+    @Override
+    public void finalWarning(Object origin) {
+        // ignored
+    }
+
+    /* (non-Javadoc)
+     * @see app.owlcms.fieldofplay.IProxyTimer#getTimeRemaining()
+     */
+    @Override
+    public int getTimeRemaining() {
+        return timeRemaining;
+    }
+
+    /**
+     * @return the timeRemainingAtLastStop
+     */
+    @Override
+    public int getTimeRemainingAtLastStop() {
+        return timeRemainingAtLastStop;
+    }
 
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int)
-	 */
-	@Override
-	public void setTimeRemaining(int timeRemaining) {
-		logger.debug("setting Time -- timeRemaining = {}\t[{}]", timeRemaining, LoggerUtils.whereFrom());
-		this.timeRemaining = timeRemaining;
-	}
+    @Override
+    public void initialWarning(Object origin) {
+        // ignored
+    }
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.fieldofplay.IProxyTimer#timeOut(java.lang.Object)
-	 */
-	@Override
-	public void timeOut(Object origin) {
-		stop();
-		timeRemaining = 0;
-	}
+
+    /* (non-Javadoc)
+     * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int)
+     */
+    @Override
+    public void setTimeRemaining(int timeRemaining) {
+        logger.debug("setting Time -- timeRemaining = {}\t[{}]", timeRemaining, LoggerUtils.whereFrom());
+        this.timeRemaining = timeRemaining;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.tests.ICountDownTimer#start()
+     */
+    @Override
+    public void start() {
+        logger.debug("starting Time -- timeRemaining = {} \t[{}]",timeRemaining, LoggerUtils.whereFrom());
+        timeRemaining = (getTimeRemaining() - 1000);
+        timeRemainingAtLastStop = timeRemaining;
+    }
+
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.tests.ICountDownTimer#stop()
+     */
+    @Override
+    public void stop() {
+        logger.debug("stopping Time -- timeRemaining = {} \t[{}]",timeRemaining, LoggerUtils.whereFrom());
+        timeRemaining = (getTimeRemaining());
+        timeRemainingAtLastStop = timeRemaining;
+
+    }
+
+
+    /* (non-Javadoc)
+     * @see app.owlcms.fieldofplay.IProxyTimer#timeOut(java.lang.Object)
+     */
+    @Override
+    public void timeOut(Object origin) {
+        stop();
+        timeRemaining = 0;
+    }
 
 
 }
