@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -52,15 +53,16 @@ public class Group implements Comparable<Group> {
     
     /** The athletes. */
     // group is the property in Athlete that is the opposite of Group.athletes
-    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
+    @OneToMany(cascade={CascadeType.MERGE}, mappedBy = "group", fetch = FetchType.EAGER)
     Set<Athlete> athletes;
    
     /** The categories. */
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany( cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.REFRESH }, fetch = FetchType.EAGER)
     Set<Category> categories;
 
     /** The platform. */
-    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    @ManyToOne(cascade={CascadeType.PERSIST, CascadeType.MERGE}, optional = true, fetch = FetchType.EAGER)
     Platform platform;
     /** The competition short date time. */
     private LocalDateTime competitionTime;

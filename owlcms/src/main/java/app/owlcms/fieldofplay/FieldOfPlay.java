@@ -645,7 +645,8 @@ public class FieldOfPlay {
     }
 
     private Mixer getSoundMixer() {
-        return getPlatform().getMixer();
+        Platform platform2 = getPlatform();
+        return platform2 == null ? null : platform2.getMixer();
     }
 
     private synchronized boolean isDownEmitted() {
