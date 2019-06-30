@@ -11,9 +11,9 @@ For the current status, see
 
 - The following key features are present
   - The current release is able to run a **regular** or **masters** competition, with or without a **jury**.
-  - Ability to run in the **cloud**: Decisions, timers and sounds are now handled locally in the browser to provide better feedback.
+  - Ability to run in the **cloud**: Decisions, timers and sounds are handled locally in the browser to provide better feedback.
   - **Announcer, marshall and timekeeper** screens (updating athlete cards and recomputing lifting order).
-  - **Attempt board with timing and decisions** handled locally in the browser. 
+  - **Attempt board** showing current athlete information, remaining time and weight requested. 
   - **Support for refereeing devices** Any keypad that can be programmed to generate the digits 0 to 9 can be used to enter decisions (see the demo walkthrough below for the key mapping).  
   - **Athlete-facing decision display** (decision display reversed to match referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
   - **Scoreboard** for public or warm-up room display.  Shows timer, down and decision lights.
