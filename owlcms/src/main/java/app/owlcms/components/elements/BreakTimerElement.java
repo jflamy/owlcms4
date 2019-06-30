@@ -38,32 +38,15 @@ public class BreakTimerElement extends TimerElement {
 	public BreakTimerElement() {
 	}
 	
-	@Subscribe
-	public void slaveBreakSet(UIEvent.BreakSetTime e) {
-		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug("&&& break {} {} {}", e.getClass().getSimpleName(), milliseconds, e.getOrigin());
-		doSetTimer(milliseconds);
-	}
+	@Override
+    public void clientFinalWarning() {
+        // ignored 
+    }
 
-	@Subscribe
-	public void slaveBreakStart(UIEvent.BreakStarted e) {
-		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug("&&& break {} {} {}", e.getClass().getSimpleName(), milliseconds, e.getOrigin());
-		doSetTimer(milliseconds);
-		doStartTimer(milliseconds);
-	}
-
-	@Subscribe
-	public void slaveBreakPause(UIEvent.BreakPaused e) {
-		uiEventLogger.debug("&&& break {} {}",  e.getClass().getSimpleName(), e.getOrigin());
-		doStopTimer();
-	}
-
-	@Subscribe
-	public void slaveBreakDone(UIEvent.BreakDone e) {
-		uiEventLogger.debug("&&& break {} {}", e.getClass().getSimpleName(),	e.getOrigin());
-		doStopTimer();
-	}
+	@Override
+    public void clientInitialWarning() {
+        // ignored
+    }
 
 	/**
 	 * Set the remaining time when the timer element has been hidden for a long time.
@@ -86,7 +69,7 @@ public class BreakTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimeOver() {
-		logger.info("time over from client");
+		logger.info("break time over");
 		OwlcmsSession.withFop(fop -> {
 			fop.getBreakTimer().timeOut(this);
 		});
@@ -103,7 +86,34 @@ public class BreakTimerElement extends TimerElement {
 		logger.trace("timer stopped from client" + remainingTime);
 	}
 
-	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
+	@Subscribe
+	public void slaveBreakDone(UIEvent.BreakDone e) {
+		uiEventLogger.debug("&&& break {} {}", e.getClass().getSimpleName(),	e.getOrigin());
+		doStopTimer();
+	}
+
+	@Subscribe
+	public void slaveBreakPause(UIEvent.BreakPaused e) {
+		uiEventLogger.debug("&&& break {} {}",  e.getClass().getSimpleName(), e.getOrigin());
+		doStopTimer();
+	}
+
+	@Subscribe
+	public void slaveBreakSet(UIEvent.BreakSetTime e) {
+		Integer milliseconds = e.getTimeRemaining();
+		uiEventLogger.debug("&&& break {} {} {}", e.getClass().getSimpleName(), milliseconds, e.getOrigin());
+		doSetTimer(milliseconds);
+	}
+
+    @Subscribe
+	public void slaveBreakStart(UIEvent.BreakStarted e) {
+		Integer milliseconds = e.getTimeRemaining();
+		uiEventLogger.debug("&&& break {} {} {}", e.getClass().getSimpleName(), milliseconds, e.getOrigin());
+		doSetTimer(milliseconds);
+		doStartTimer(milliseconds);
+	}
+
+    /* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		init();

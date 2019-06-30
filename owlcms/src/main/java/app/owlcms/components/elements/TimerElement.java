@@ -98,18 +98,18 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 		void setRunning(boolean running);
 
 		/**
-		 * Sets the start time (the time to which the timer will reset)
-		 *
-		 * @param seconds the new start time
-		 */
-		void setStartTime(double seconds);
-
-		/**
 		 * Determine whether sounds are emitted at 90, 30 and 0 seconds
 		 * 
 		 * @param quiet true indicates no sound
 		 */
 		void setSilent(boolean quiet);
+
+		/**
+		 * Sets the start time (the time to which the timer will reset)
+		 *
+		 * @param seconds the new start time
+		 */
+		void setStartTime(double seconds);
 	}
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
@@ -128,6 +128,12 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 	 */
 	public TimerElement() {
 	}
+
+    @ClientCallable
+    abstract public void clientFinalWarning();
+
+    @ClientCallable
+    abstract public void clientInitialWarning();
 
 	/**
 	 * Client requests that the server send back the remaining time. Intended to be used after client
@@ -217,11 +223,11 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 		getTimerElement().callFunction("reset");
 	}
 
-	private void start() {
+    private void start() {
 		getTimerElement().callFunction("start");
 	}
 
-	private void stop() {
+    private void stop() {
 		getTimerElement().callFunction("pause");
 	}
 

@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.preparation;
@@ -16,12 +16,11 @@ import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.fields.LocalDateTimeField;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.sound.Speakers;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -32,153 +31,156 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Class CategoryContent.
- * 
+ *
  * Defines the toolbar and the table for editing data on categories.
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/platforms", layout = PlatformLayout.class)
-public class PlatformContent extends VerticalLayout
-		implements CrudListener<Platform>, OwlcmsContent {
-	
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(PlatformContent.class);
-	static {logger.setLevel(Level.INFO);}
+public class PlatformContent extends VerticalLayout implements CrudListener<Platform>, OwlcmsContent {
 
-	private OwlcmsRouterLayout routerLayout;
-	private OwlcmsCrudFormFactory<Platform> editingFormFactory;
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(PlatformContent.class);
+    static {
+        logger.setLevel(Level.INFO);
+    }
 
+    private OwlcmsRouterLayout routerLayout;
+    private OwlcmsCrudFormFactory<Platform> editingFormFactory;
 
-	/**
-	 * Instantiates the Platform crudGrid.
-	 */
-	public PlatformContent() {
-		OwlcmsCrudFormFactory<Platform> crudFormFactory = createFormFactory();
-		GridCrud<Platform> crud = createGrid(crudFormFactory);
-//		defineFilters(crudGrid);
-		fillHW(crud, this);
-	}
-	
-	/**
-	 * The columns of the crudGrid
-	 * 
-	 * @param crudFormFactory what to call to create the form for editing an athlete
-	 * @return
-	 */
-	protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-		Grid<Platform> grid = new Grid<Platform>(Platform.class, false);
-		grid.addColumn(Platform::getName).setHeader(getTranslation("Name")); //$NON-NLS-1$
+    /**
+     * Instantiates the Platform crudGrid.
+     */
+    public PlatformContent() {
+        OwlcmsCrudFormFactory<Platform> crudFormFactory = createFormFactory();
+        GridCrud<Platform> crud = createGrid(crudFormFactory);
+        //		defineFilters(crudGrid);
+        fillHW(crud, this);
+    }
 
-		GridCrud<Platform> crud = new OwlcmsCrudGrid<Platform>(Platform.class,
-				new OwlcmsGridLayout(Platform.class),
-				crudFormFactory,
-				grid);
-		crud.setCrudListener(this);
-		crud.setClickRowToUpdate(true);
-		return crud;
-	}
+    /**
+     * The columns of the crudGrid
+     *
+     * @param crudFormFactory what to call to create the form for editing an athlete
+     * @return
+     */
+    protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
+        Grid<Platform> grid = new Grid<>(Platform.class, false);
+        grid.addColumn(Platform::getName).setHeader(getTranslation("Name")); //$NON-NLS-1$
+        grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers")); //$NON-NLS-1$
+        
+        GridCrud<Platform> crud = new OwlcmsCrudGrid<>(Platform.class, new OwlcmsGridLayout(Platform.class),
+                crudFormFactory, grid);
+        crud.setCrudListener(this);
+        crud.setClickRowToUpdate(true);
+        return crud;
+    }
 
-	/**
-	 * Define the form used to edit a given Platform.
-	 * 
-	 * @return the form factory that will create the actual form on demand
-	 */
-	private OwlcmsCrudFormFactory<Platform> createFormFactory() {
-		editingFormFactory = createPlatformEditingFactory();
-		createFormLayout(editingFormFactory);
-		return editingFormFactory;
-	}
-	
-	/**
-	 * The content and ordering of the editing form.
-	 *
-	 * @param crudFormFactory the factory that will create the form using this information
-	 */
-	protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-		crudFormFactory.setVisibleProperties("name"); //$NON-NLS-1$
-		crudFormFactory.setFieldCaptions(getTranslation("PlatformName")); //$NON-NLS-1$
-		crudFormFactory.setFieldProvider("platform", //$NON-NLS-1$
-				new ComboBoxProvider<>(getTranslation("Platform"), PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName)); //$NON-NLS-1$
-		crudFormFactory.setFieldType("weighInTime", LocalDateTimeField.class); //$NON-NLS-1$
-		crudFormFactory.setFieldType("competitionTime", LocalDateTimeField.class); //$NON-NLS-1$
-	}
+    /**
+     * Define the form used to edit a given Platform.
+     *
+     * @return the form factory that will create the actual form on demand
+     */
+    private OwlcmsCrudFormFactory<Platform> createFormFactory() {
+        editingFormFactory = createPlatformEditingFactory();
+        createFormLayout(editingFormFactory);
+        return editingFormFactory;
+    }
 
-	/**
-	 * Create the actual form generator with all the conversions and validations required
-	 * 
-	 * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
-	 * 
-	 * @return the actual factory, with the additional mechanisms to do validation
-	 */
-	private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
-		return new OwlcmsCrudFormFactory<Platform>(Platform.class) {
-			@SuppressWarnings({ "rawtypes" })
-			@Override
-			protected void bindField(HasValue field, String property, Class<?> propertyType) {
-				super.bindField(field, property, propertyType);
-			}
-			
-			@Override
-			public Platform add(Platform Platform) {
-				PlatformRepository.save(Platform);
-				return Platform;
-			}
+    /**
+     * The content and ordering of the editing form.
+     *
+     * @param crudFormFactory the factory that will create the form using this
+     *                        information
+     */
+    protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
+        crudFormFactory.setVisibleProperties("name","soundMixerName"); //$NON-NLS-1$ //$NON-NLS-2$
+        crudFormFactory.setFieldCaptions(
+                getTranslation("PlatformName"), //$NON-NLS-1$
+                getTranslation("Speakers")); //$NON-NLS-1$
+        crudFormFactory.setFieldProvider("soundMixerName", //$NON-NLS-1$
+                new ComboBoxProvider<>(Speakers.getOutputNames()));
+    }
 
-			@Override
-			public Platform update(Platform Platform) {
-				return PlatformRepository.save(Platform);
-			}
+    /**
+     * Create the actual form generator with all the conversions and validations
+     * required
+     *
+     * {@link RegistrationContent#createAthleteEditingFormFactory} for example of
+     * redefinition of bindField
+     *
+     * @return the actual factory, with the additional mechanisms to do validation
+     */
+    private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
+        return new OwlcmsCrudFormFactory<Platform>(Platform.class) {
+            @SuppressWarnings({ "rawtypes" })
+            @Override
+            protected void bindField(HasValue field, String property, Class<?> propertyType) {
+                super.bindField(field, property, propertyType);
+            }
 
-			@Override
-			public void delete(Platform Platform) {
-				PlatformRepository.delete(Platform);
-			}
+            @Override
+            public Platform add(Platform Platform) {
+                PlatformRepository.save(Platform);
+                return Platform;
+            }
 
-			@Override
-			public Collection<Platform> findAll() {
-				// implemented on grid
-				return null;
-			}
-		};
-	}
+            @Override
+            public Platform update(Platform Platform) {
+                return PlatformRepository.save(Platform);
+            }
 
+            @Override
+            public void delete(Platform Platform) {
+                PlatformRepository.delete(Platform);
+            }
 
+            @Override
+            public Collection<Platform> findAll() {
+                // implemented on grid
+                return null;
+            }
+        };
+    }
 
-	public Platform add(Platform domainObjectToAdd) {
-		return editingFormFactory.add(domainObjectToAdd);
-	}
+    @Override
+    public Platform add(Platform domainObjectToAdd) {
+        return editingFormFactory.add(domainObjectToAdd);
+    }
 
-	public Platform update(Platform domainObjectToUpdate) {
-		return editingFormFactory.update(domainObjectToUpdate);
-	}
+    @Override
+    public Platform update(Platform domainObjectToUpdate) {
+        return editingFormFactory.update(domainObjectToUpdate);
+    }
 
-	public void delete(Platform domainObjectToDelete) {
-		editingFormFactory.delete(domainObjectToDelete);
-	}
+    @Override
+    public void delete(Platform domainObjectToDelete) {
+        editingFormFactory.delete(domainObjectToDelete);
+    }
 
-	/**
-	 * The refresh button on the toolbar
-	 * 
-	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
-	 */
-	@Override
-	public Collection<Platform> findAll() {
-		return PlatformRepository.findAll();
-	}
-	
-	@Override
-	public OwlcmsRouterLayout getRouterLayout() {
-		return routerLayout;
-	}
+    /**
+     * The refresh button on the toolbar
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     */
+    @Override
+    public Collection<Platform> findAll() {
+        return PlatformRepository.findAll();
+    }
 
-	@Override
-	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
-		this.routerLayout = routerLayout;
-	}
-	
-	/**
-	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-	 */
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Preparation_Platforms"); //$NON-NLS-1$
-	}
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
+
+    @Override
+    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Preparation_Platforms"); //$NON-NLS-1$
+    }
 }

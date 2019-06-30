@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.fieldofplay;
@@ -20,93 +20,104 @@ import ch.qos.logback.classic.Logger;
  */
 public class ProxyAthleteTimer implements IProxyTimer {
 
-	final private Logger logger = (Logger) LoggerFactory.getLogger(ProxyAthleteTimer.class);
-	{
-		logger.setLevel(Level.DEBUG);
-	}
+    final private Logger logger = (Logger) LoggerFactory.getLogger(ProxyAthleteTimer.class);
+    {
+        logger.setLevel(Level.DEBUG);
+    }
 
-	private int timeRemaining;
-	private FieldOfPlay fop;
-	private long startMillis;
-	private long stopMillis;
-	private boolean running = false;
-	private int timeRemainingAtLastStop;
+    private int timeRemaining;
+    private FieldOfPlay fop;
+    private long startMillis;
+    private long stopMillis;
+    private boolean running = false;
+    private int timeRemainingAtLastStop;
 
-	/**
-	 * Instantiates a new countdown timer.
-	 * 
-	 * @param fop
-	 */
-	public ProxyAthleteTimer(FieldOfPlay fop) {
-		this.fop = fop;
-	}
+    /**
+     * Instantiates a new countdown timer.
+     *
+     * @param fop
+     */
+    public ProxyAthleteTimer(FieldOfPlay fop) {
+        this.fop = fop;
+    }
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.tests.ICountDownTimer#getTimeRemaining() */
-	@Override
-	public int getTimeRemaining() {
-		return timeRemaining;
-	}
+    @Override
+    public void finalWarning(Object origin) {
+        fop.emitFinalWarning();
+    }
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int) */
-	@Override
-	public void setTimeRemaining(int timeRemaining) {
-		if (running) {
-			computeTimeRemaining();
-		}
-		logger.debug("setting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom()); //$NON-NLS-1$
-		this.timeRemaining = timeRemaining;
-		fop.getUiEventBus().post(new UIEvent.SetTime(timeRemaining, null));
-		running = false;
-	}
+    /* (non-Javadoc)
+     * @see app.owlcms.tests.ICountDownTimer#getTimeRemaining() */
+    @Override
+    public int getTimeRemaining() {
+        return timeRemaining;
+    }
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.tests.ICountDownTimer#start() */
-	@Override
-	public void start() {
-		if (!running) {
-			startMillis = System.currentTimeMillis();
-			logger.debug("starting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom()); //$NON-NLS-1$
-			timeRemainingAtLastStop = timeRemaining;
-		}
-		fop.getUiEventBus().post(new UIEvent.StartTime(timeRemaining, null));
-		running = true;
-	}
+    @Override
+    public int getTimeRemainingAtLastStop() {
+        return timeRemainingAtLastStop;
+    }
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.tests.ICountDownTimer#stop() */
-	@Override
-	public void stop() {
-		if (running) {
-			computeTimeRemaining();
-		}
-		logger.trace("***stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom()); //$NON-NLS-1$
-		timeRemainingAtLastStop = timeRemaining;
-		fop.getUiEventBus().post(new UIEvent.StopTime(timeRemaining, null));
-		running = false;
-	}
+    @Override
+    public void initialWarning(Object origin) {
+        fop.emitInitialWarning();
+    }
 
-	/**
-	 * Compute time elapsed since start and adjust time remaining accordingly.
-	 */
-	private void computeTimeRemaining() {
-		stopMillis = System.currentTimeMillis();
-		long elapsed = stopMillis - startMillis;
-		timeRemaining = (int) (timeRemaining - elapsed);
-	}
+    /* (non-Javadoc)
+     * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int) */
+    @Override
+    public void setTimeRemaining(int timeRemaining) {
+        if (running) {
+            computeTimeRemaining();
+        }
+        logger.debug("setting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom()); //$NON-NLS-1$
+        this.timeRemaining = timeRemaining;
+        fop.getUiEventBus().post(new UIEvent.SetTime(timeRemaining, null));
+        running = false;
+    }
 
-	@Override
-	public void timeOut(Object origin) {
-		if (running) {
-			this.stop();
-		}
-		fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
-	}
+    /* (non-Javadoc)
+     * @see app.owlcms.tests.ICountDownTimer#start() */
+    @Override
+    public void start() {
+        if (!running) {
+            startMillis = System.currentTimeMillis();
+            logger.debug("starting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom()); //$NON-NLS-1$
+            timeRemainingAtLastStop = timeRemaining;
+        }
+        fop.getUiEventBus().post(new UIEvent.StartTime(timeRemaining, null));
+        running = true;
+    }
 
-	@Override
-	public int getTimeRemainingAtLastStop() {
-		return timeRemainingAtLastStop;
-	}
+    /* (non-Javadoc)
+     * @see app.owlcms.tests.ICountDownTimer#stop() */
+    @Override
+    public void stop() {
+        if (running) {
+            computeTimeRemaining();
+        }
+        logger.trace("***stopping Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom()); //$NON-NLS-1$
+        timeRemainingAtLastStop = timeRemaining;
+        fop.getUiEventBus().post(new UIEvent.StopTime(timeRemaining, null));
+        running = false;
+    }
+
+    @Override
+    public void timeOut(Object origin) {
+        if (running) {
+            this.stop();
+        }
+        fop.emitTimeout();
+        fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
+    }
+
+    /**
+     * Compute time elapsed since start and adjust time remaining accordingly.
+     */
+    private void computeTimeRemaining() {
+        stopMillis = System.currentTimeMillis();
+        long elapsed = stopMillis - startMillis;
+        timeRemaining = (int) (timeRemaining - elapsed);
+    }
 
 }
