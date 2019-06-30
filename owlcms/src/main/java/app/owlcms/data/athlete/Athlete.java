@@ -172,7 +172,8 @@ public class Athlete {
 
 	private Double bodyWeight = null;
 	private String membership = ""; //$NON-NLS-1$
-	@ManyToOne(optional = true, fetch = FetchType.EAGER)
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "fk_group", nullable=true)
 	private Group group;
 
