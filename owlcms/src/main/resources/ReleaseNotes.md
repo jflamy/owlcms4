@@ -1,10 +1,6 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#!index.md#Features) for an overview of the feature set
 - Release Highlights:
-  - Added legacy server-side sound generation as in owlcms2.  
-    - This allows the local laptop on which owlcms runs to emit the sound -- this setup cannot be used for cloud-based services. The audio output is selected in the Competition Preparation/Field of Play page.
-    - In this legacy mode, wiring must come from the main laptop where owlcms is started. If multiple platforms are used, additional sound adapters must be used (one per platform).  It is recommended to use analog USB adapters (not digital or wireless, as these induce perceptible lag).
-    - This is for people who cannot reliably use sound on the browser that displays decisions. For example, Ubuntu Mate 16.04 on Raspberry Pi with Delcom Refereeing Devices with Firmware version 52 or older cannot emit sound reliably with neither Chromium nor Firefox.
-  - Improved [documentation site](https://jflamy.github.io/owlcms4/#!index.md)
+  - Better error messages for ill-formed translation formats
 - [Change Log](https://github.com/jflamy/owlcms4/milestone/25?closed=1) for this release (enhancements and fixes)
 - [Installation](https://jflamy.github.io/owlcms4/#!index.md#Installation) instructions
 - [Live Demo](https://jflamy.github.io/owlcms4/#!index.md#Demo) instructions.
