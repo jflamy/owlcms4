@@ -15,5 +15,8 @@
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="demoData" value="true"/>
 </mapAttribute>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+</listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${project_loc:owlcms}"/>
 </launchConfiguration>
