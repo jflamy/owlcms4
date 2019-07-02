@@ -477,7 +477,7 @@
 							<processTypes>
 								<!-- following must be a single command line, cdata used to prevent 
 									xml formatters from splitting it -->
-								<web><![CDATA[java -Dport=$PORT -DdemoMode=true -Dlogback.configurationFile=logback-console.xml -jar target/owlcms-${project.version}.jar]]></web>
+								<web><![CDATA[java -Dport=$PORT -DdevMode=true -DresetMode=true -DmemoryMode=false -Dlogback.configurationFile=logback-console.xml -jar target/owlcms-${project.version}.jar]]></web>
 							</processTypes>
 							<appName>${project.artifactId}4</appName>
 						</configuration>
