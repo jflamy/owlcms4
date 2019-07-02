@@ -224,9 +224,7 @@ public class Translator implements I18NProvider {
         } catch (final MissingResourceException e) {
             return "!" + locale.getLanguage() + ": " + key;
         }
-        if (params.length > 0) {
-            value = MessageFormat.format(value, params);
-        }
+        value = format(key, locale, value, params);
         return value;
     }
 
@@ -243,10 +241,19 @@ public class Translator implements I18NProvider {
         try {
             value = (String) bundle.handleGetObject(key);
         } catch (final MissingResourceException e) {
-            return "!" + locale.getLanguage() + ": " + key;
+            return null;
         }
+        value = format(key, locale, value, params);
+        return value;
+    }
+
+    private String format(String key, Locale locale, String value, Object... params) {
         if (params.length > 0) {
-            value = MessageFormat.format(value, params);
+            try {
+                value = MessageFormat.format(value, params);
+            } catch (Exception e) {
+                value = "!" + locale.getLanguage() + ": "+ e.getLocalizedMessage() + ": " + key + " " + params;
+            }
         }
         return value;
     }
