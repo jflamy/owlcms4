@@ -193,7 +193,8 @@ public class Group implements Comparable<Group> {
     public String getCompetitionShortDateTime() {
         String formatted = "";
         try {
-            formatted = DATE_TIME_FORMATTER.format(getCompetitionTime());
+            LocalDateTime competitionTime2 = getCompetitionTime();
+            formatted = competitionTime2 == null ? "" : DATE_TIME_FORMATTER.format(competitionTime2);
         } catch (Exception e) {
             logger.error(LoggerUtils.stackTrace(e));
         }
@@ -343,7 +344,8 @@ public class Group implements Comparable<Group> {
     public String getWeighInShortDateTime() {
         String formatted = "";
         try {
-            formatted = DATE_TIME_FORMATTER.format(getWeighInTime());
+            LocalDateTime weighInTime2 = getWeighInTime();
+            formatted = weighInTime2 == null ? "" : DATE_TIME_FORMATTER.format(weighInTime2);
         } catch (Exception e) {
             logger.error(LoggerUtils.stackTrace(e));
         }

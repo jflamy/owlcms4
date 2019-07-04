@@ -6,7 +6,6 @@
  */
 package app.owlcms.data.athlete;
 
-import java.text.MessageFormat;
 import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
@@ -76,8 +75,7 @@ public class RuleViolationException extends RuntimeException {
     @Override
     public String getLocalizedMessage() {
         final Locale locale1 = (this.locale != null ? this.locale : OwlcmsSession.getLocale());
-        final String messageTemplate = Translator.translate(this.messageKey, locale1);
-        return MessageFormat.format(messageTemplate, messageFormatData);
+        return Translator.translate(this.messageKey, locale1, messageFormatData);
     }
 
     /**
@@ -87,8 +85,7 @@ public class RuleViolationException extends RuntimeException {
      * @return the localized message
      */
     public String getLocalizedMessage(Locale locale1) {
-        final String messageTemplate = Translator.translate(this.messageKey, locale1);
-        return MessageFormat.format(messageTemplate, messageFormatData);
+        return Translator.translate(this.messageKey, locale1, messageFormatData);
     }
 
     /**
