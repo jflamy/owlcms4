@@ -116,13 +116,24 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 		groupSelect.setPlaceholder(getTranslation("Group")); //$NON-NLS-1$
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
+		
+		JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet(true);
+		StreamResource href = new StreamResource("startingWeights.xls", startingWeightsWriter); //$NON-NLS-1$
+		startingWeights = new Anchor(href, ""); //$NON-NLS-1$
+		
+		JXLSCards cardsWriter = new JXLSCards(true);
+		StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter); //$NON-NLS-1$
+		cards = new Anchor(href1, ""); //$NON-NLS-1$
 		OwlcmsSession.withFop((fop) -> {
 			groupSelect.setValue(null);
+	         startingWeights.getElement().setAttribute("download", "startingWeights"+(group != null ? "_"+group : "_all") +".xls"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+	         cards.getElement().setAttribute("download", "cards"+(group != null ? "_"+group : "_all") +".xls"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		});
 		groupSelect.addValueChangeListener(e -> {
 			setContentGroup(e);
 			startingWeightsButton.setEnabled(e.getValue() != null);
-			startingWeights.getElement().setAttribute("startingWeightsButton", "startingWeights_"+group+".xls"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			startingWeights.getElement().setAttribute("download", "startingWeights"+(group != null ? "_"+group : "_all") +".xls"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			cards.getElement().setAttribute("download", "cards"+(group != null ? "_"+group : "_all") +".xls"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		});
 
 
@@ -132,25 +143,18 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 		Button clear = new Button(getTranslation("ClearStartNumbers"), (e) -> { //$NON-NLS-1$
 			clearStartNumbers();
 		});
-		
-		JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet(true);
-		StreamResource href = new StreamResource("startingWeights.xls", startingWeightsWriter); //$NON-NLS-1$
-		startingWeights = new Anchor(href, ""); //$NON-NLS-1$
+
 		String startingWeightsSheetTranslation = getTranslation("StartingWeightsSheet");
         startingWeightsButton = new Button(startingWeightsSheetTranslation,new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
 		startingWeightsButton.addClickListener((e) -> {
 			startingWeightsWriter.setGroup(group);
-			cards.getElement().setAttribute("download", "startingWeights"+(group != null ? "_"+group : "_all") +".xls"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		});
 		startingWeights.add(startingWeightsButton);
 		
-		JXLSCards cardsWriter = new JXLSCards(true);
-		StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter); //$NON-NLS-1$
-		cards = new Anchor(href1, ""); //$NON-NLS-1$
 		cardsButton = new Button(getTranslation("AthleteCards"),new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
 		cardsButton.addClickListener((e) -> {
 			cardsWriter.setGroup(group);
-			cards.getElement().setAttribute("download", "cards"+(group != null ? "_"+group : "_all") +".xls"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			
 		});
 		cards.add(cardsButton);
 		cardsButton.setEnabled(true);
