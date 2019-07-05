@@ -126,21 +126,6 @@ public class Athlete {
 		}
 	}
 
-	/**
-	 * Zero if invalid.
-	 *
-	 * @param value the value
-	 * @return the int
-	 */
-	public static int throwIfInvalid(String value) throws RuleViolationException {
-		try {
-			Integer valueOf = Integer.valueOf(value);
-			return valueOf;
-		} catch (NumberFormatException nfe) {
-			throw new RuleViolationException(nfe.getLocalizedMessage());
-		}
-	}
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
@@ -283,18 +268,23 @@ public class Athlete {
 		if (qualTotal == 0) {
 			return true;
 		}
-		Integer snatchRequest = last(
-				zeroIfInvalid(snatch1Declaration),
+		int sn1Decl = zeroIfInvalid(snatch1Declaration);
+	    int cj1Decl = zeroIfInvalid(cleanJerk1Declaration);
+	    logger.warn("prior to checking {} {}",sn1Decl,cj1Decl);
+	    if (sn1Decl == 0 && cj1Decl == 0) {
+	        return true; // do not complain on registration form or empty weigh-in form.
+	    }
+	      
+        Integer snatch1Request = last(
+				sn1Decl,
 				zeroIfInvalid(snatch1Change1),
 				zeroIfInvalid(snatch1Change2));
-		Integer cleanJerkRequest = last(
-				zeroIfInvalid(cleanJerk1Declaration),
+
+        Integer cleanJerk1Request = last(
+				cj1Decl,
 				zeroIfInvalid(cleanJerk1Change1),
 				zeroIfInvalid(cleanJerk1Change2));
-//		if (!Competition.getCurrent().isMasters()) {
-			return validate20kgRule(this, snatchRequest, cleanJerkRequest, qualTotal);
-//		} else
-//			return validateMasters15_20Rule(qualTotal);
+        return validateStartingTotalsRule(this, snatch1Request, cleanJerk1Request, qualTotal);
 	}
 
 	/**
@@ -305,17 +295,21 @@ public class Athlete {
 	 * @return true if ok, exception if not
 	 * @throws RuleViolationException if rule violated, exception contails details.
 	 */
-	public static boolean validate20kgRule(Athlete a, Integer snatchRequest, Integer cleanJerkRequest, int qualTotal) {
+	public static boolean validateStartingTotalsRule(Athlete a, Integer snatch1Request, Integer cleanJerk1Request, int qualTotal) {
 
 		int curStartingTotal = 0;
 
-		curStartingTotal = snatchRequest + cleanJerkRequest;
+		curStartingTotal = snatch1Request + cleanJerk1Request;
 		int delta = qualTotal - curStartingTotal;
 		String message = null;
 		int _20kgRuleValue = a.get20kgRuleValue();
 		
-		logger.debug("{} validate20kgRule {} {} {}, {}, {}, {}", a, snatchRequest, cleanJerkRequest, curStartingTotal, qualTotal, delta, LoggerUtils.whereFrom());
-
+		logger.debug("{} validate20kgRule {} {} {}, {}, {}, {}", a, snatch1Request, cleanJerk1Request, curStartingTotal, qualTotal, delta, LoggerUtils.whereFrom());
+		
+		if (snatch1Request == 0 && cleanJerk1Request == 0) {
+		    logger.debug("not checking starting total - no declarations");
+		    return true;
+		}
 		RuleViolationException rule15_20Violated = null;
 		int missing = delta - _20kgRuleValue;
 		if (missing > 0) {
@@ -325,8 +319,8 @@ public class Athlete {
 				a.getLastName(),
 				a.getFirstName(),
 				(startNumber2 != null ? startNumber2 : "-"),
-				snatchRequest,
-				cleanJerkRequest,
+				snatch1Request,
+				cleanJerk1Request,
 				missing,
 				qualTotal);
 			message = rule15_20Violated.getLocalizedMessage(OwlcmsSession.getLocale());

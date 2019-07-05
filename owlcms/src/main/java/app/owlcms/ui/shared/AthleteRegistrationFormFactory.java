@@ -187,7 +187,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 //			});
 			
 			bindingBuilder.withValidator(ValidationUtils.<String>checkUsing(
-					(unused) -> Athlete.validate20kgRule(editedAthlete, getIntegerFieldValue("snatch1Declaration"), //$NON-NLS-1$
+					(unused) -> Athlete.validateStartingTotalsRule(editedAthlete, getIntegerFieldValue("snatch1Declaration"), //$NON-NLS-1$
 							getIntegerFieldValue("cleanJerk1Declaration"), getIntegerFieldValue("qualifyingTotal")), //$NON-NLS-1$ //$NON-NLS-2$
 					"")); //$NON-NLS-1$
 			bindingBuilder.bind(property);
@@ -306,9 +306,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				Binding<Athlete, ?> catBinding = binder.getBinding("category").get(); //$NON-NLS-1$
 				ComboBox<Category> categoryCombo = (ComboBox<Category>) catBinding.getField();
 				Category category = (Category) categoryCombo.getValue();
-				logger.debug("genderValidation: validating gender {} vs category {}: {}", g, category.getGender(), //$NON-NLS-1$
-						category.getGender() == g);
-				genderCatOk = category.getGender() == g;
+				Gender gender = category != null ? category.getGender() : null;
+                logger.debug("genderValidation: validating gender {} vs category {}: {}", g, gender, //$NON-NLS-1$
+						gender == g);
+				genderCatOk = gender == g;
 				if (genderCatOk && !catGenderOk) {
 					// turn off message if present.
 					logger.debug("resetting category"); //$NON-NLS-1$
