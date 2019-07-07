@@ -38,7 +38,7 @@ import app.owlcms.fieldofplay.FOPEvent.Decision;
 import app.owlcms.fieldofplay.FOPEvent.DecisionReset;
 import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
-import app.owlcms.fieldofplay.FOPEvent.RefereeUpdate;
+import app.owlcms.fieldofplay.FOPEvent.RefereeFullUpdate;
 import app.owlcms.fieldofplay.FOPEvent.StartLifting;
 import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
@@ -380,11 +380,11 @@ public class FieldOfPlay {
                 this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
                 this.setClockOwner(null);
                 decision(e);
-            } else if (e instanceof RefereeUpdate) {
+            } else if (e instanceof RefereeFullUpdate) {
                 // a referee entered a decision
                 // for now, this is only used for jury (in the future, may accomodate multiple
                 // devices such as phones.
-                uiShowUpdateOnJuryScreen((RefereeUpdate) e);
+                uiShowUpdateOnJuryScreen((RefereeFullUpdate) e);
             } else if (e instanceof TimeOver) {
                 // athleteTimer got down to 0
                 // getTimer() signals this, nothing else required for athleteTimer
@@ -411,11 +411,11 @@ public class FieldOfPlay {
                 this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
                 this.setClockOwner(null);
                 decision(e);
-            } else if (e instanceof RefereeUpdate) {
+            } else if (e instanceof RefereeFullUpdate) {
                 // a referee entered a decision
                 // for now, this is only used for jury (in the future, may accomodate multiple
                 // devices such as phones.
-                uiShowUpdateOnJuryScreen((RefereeUpdate) e);
+                uiShowUpdateOnJuryScreen((RefereeFullUpdate) e);
             } else if (e instanceof ForceTime) {
                 // need to set time
                 getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed);
@@ -433,9 +433,9 @@ public class FieldOfPlay {
             if (e instanceof Decision) {
                 getAthleteTimer().stop();
                 decision(e);
-            } else if (e instanceof RefereeUpdate) {
+            } else if (e instanceof RefereeFullUpdate) {
                 // a referee entered a decision.
-                uiShowUpdateOnJuryScreen((RefereeUpdate) e);
+                uiShowUpdateOnJuryScreen((RefereeFullUpdate) e);
             } else if (e instanceof WeightChange) {
                 weightChangeDoNotDisturb((WeightChange) e);
                 setState(DOWN_SIGNAL_VISIBLE);
@@ -448,9 +448,9 @@ public class FieldOfPlay {
             if (e instanceof Decision) {
                 // decision reversal
                 decision(e);
-            } else if (e instanceof RefereeUpdate) {
+            } else if (e instanceof RefereeFullUpdate) {
                 // a referee entered a decision
-                uiShowUpdateOnJuryScreen((RefereeUpdate) e);
+                uiShowUpdateOnJuryScreen((RefereeFullUpdate) e);
             } else if (e instanceof WeightChange) {
                 weightChangeDoNotDisturb((WeightChange) e);
                 setState(DECISION_VISIBLE);
@@ -790,14 +790,14 @@ public class FieldOfPlay {
         uiEventBus.post(new UIEvent.Decision(e.getAthlete(), e.success,e.ref1,e.ref2,e.ref3,e.origin));
     }
 
-    private void uiShowUpdateOnJuryScreen(RefereeUpdate e) {
+    private void uiShowUpdateOnJuryScreen(RefereeFullUpdate e) {
         uiEventLogger.trace("uiShowUpdateOnJuryScreen"); //$NON-NLS-1$
         uiEventBus.post(new UIEvent.RefereeUpdate(e.getAthlete(),e.ref1,e.ref2,e.ref3,e.ref1Time,e.ref2Time,e.ref3Time,e.origin));
     }
 
     private void unexpectedEventInState(FOPEvent e, FOPState state) {
         // events not worth signaling
-        if (e instanceof DecisionReset || e instanceof RefereeUpdate)
+        if (e instanceof DecisionReset || e instanceof RefereeFullUpdate)
             // ignore
             return;
         String text = MessageFormat.format(Translator.translate("Unexpected_Notification"),e.getClass().getSimpleName(),state); //$NON-NLS-1$

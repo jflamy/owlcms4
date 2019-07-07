@@ -72,7 +72,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		Object origin = this.getOrigin();
 		OwlcmsSession.withFop((fop) -> {
 			logger.debug("referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time, ref3Time);
-			fopEventBus.post(new FOPEvent.RefereeUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time, ref3Time));
+			fopEventBus.post(new FOPEvent.RefereeFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time, ref3Time));
 		});
 
 	}
