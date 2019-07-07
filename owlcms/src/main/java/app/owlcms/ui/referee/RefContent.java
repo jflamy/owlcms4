@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.dom.DomEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
@@ -27,6 +29,7 @@ import com.vaadin.flow.server.PageConfigurator;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
@@ -53,7 +56,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
     private VerticalLayout refVotingCenterHorizontally;
     private FieldOfPlay fop;
     private boolean redTouched;
-    private Object refIndex;
+    private Integer refIndex;
     private boolean whiteTouched;
     private Icon good;
     private Icon bad;
@@ -76,7 +79,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Referee")+(refIndex == null ? "" : refIndex); //$NON-NLS-1$
+        return getTranslation("Referee")+(refIndex == null ? "" : refIndex+1); //$NON-NLS-1$
     }
 
     @Subscribe
@@ -128,11 +131,24 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         H3 labelWrapper = new H3(juryLabel);
         labelWrapper.getStyle().set("margin-top", "0");
         labelWrapper.getStyle().set("margin-bottom", "0");
-        labelWrapper.setWidth("15em"); //$NON-NLS-1$
-        Label spacer = new Label();
-        spacer.setWidth("3em"); //$NON-NLS-1$
-        topRow.add(labelWrapper,spacer);
-        topRow.setMargin(true);
+        NumberField refField = new NumberField(null, null, (e) -> {
+            Double value = e.getValue();
+            refIndex = value == null ? null : ((int) Math.round(value));
+        });
+        
+        ComboBox<FieldOfPlay> pfSelector = createFopSelect();
+        pfSelector.setValue(OwlcmsSession.getFop());
+        pfSelector.addValueChangeListener((e) -> {
+            OwlcmsSession.setFop(e.getValue());
+        });
+        
+        refField.setMax(3.0D);
+        refField.setMin(1.0D);
+        refField.setPlaceholder("Referee Number");
+        refField.setHasControls(true);
+        topRow.add(labelWrapper,pfSelector, refField);
+        topRow.setMargin(false);
+        topRow.setAlignItems(Alignment.BASELINE);
 
         buildRefVoting();
         resetRefVote();
@@ -145,6 +161,15 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         refContainer.add(refVotingCenterHorizontally);
 
     }
+    
+    protected ComboBox<FieldOfPlay> createFopSelect() {
+        ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
+        fopSelect.setPlaceholder(getTranslation("SelectPlatform"));
+        fopSelect.setItems(OwlcmsFactory.getFOPs());
+        fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
+        fopSelect.setWidth("10rem"); //$NON-NLS-1$
+        return fopSelect;
+    }
 
     private void buildRefVoting() {
         // center buttons vertically, spread withing proper width
@@ -152,7 +177,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         refVotingButtons.setBoxSizing(BoxSizing.BORDER_BOX);
         refVotingButtons.setJustifyContentMode(JustifyContentMode.EVENLY);
         refVotingButtons.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-        refVotingButtons.setHeight("65vh"); //$NON-NLS-1$
+        refVotingButtons.setHeight("55vh"); //$NON-NLS-1$
         refVotingButtons.setWidth("90%"); //$NON-NLS-1$
         refVotingButtons.getStyle().set("background-color", "black"); //$NON-NLS-1$ //$NON-NLS-2$
         refVotingButtons.setPadding(false);
@@ -211,7 +236,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         bad = bigIcon(VaadinIcon.CLOSE_CIRCLE, "red"); //$NON-NLS-1$
         bad.getElement().addEventListener("touchstart", (e) -> redTouched(e));
         bad.getElement().addEventListener("click", (e) -> redClicked(e));
-        refVotingButtons.add(good, bad);
+        refVotingButtons.add(bad, good);
     }
 
 
