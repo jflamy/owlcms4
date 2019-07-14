@@ -311,7 +311,7 @@ public class TwoMinutesRuleTest {
 		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.TimeStarted(null));
 		fopBus.post(new FOPEvent.DownSignal(null));
-		fopBus.post(new FOPEvent.Decision(curLifter, null, false, false, false, false));
+		fopBus.post(new FOPEvent.DecisionReversalTimeOver(curLifter, null, false, false, false, false));
 		logger.debug("failed lift for {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.DecisionReset(null));
 	}
@@ -320,7 +320,7 @@ public class TwoMinutesRuleTest {
 		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.TimeStarted(null));
 		fopBus.post(new FOPEvent.DownSignal(null));
-		fopBus.post(new FOPEvent.Decision(curLifter, null, true, true, true, true));
+		fopBus.post(new FOPEvent.DecisionReversalTimeOver(curLifter, null, true, true, true, true));
 		logger.debug("successful lift for {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.DecisionReset(null));
 	}

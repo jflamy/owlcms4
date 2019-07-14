@@ -63,9 +63,9 @@ public class FOPEvent {
 
 
 	/**
-	 * The Class Decision.
+	 * The Class DecisionReversalTimeOver.
 	 */
-	static public class Decision extends FOPEvent {
+	static public class DecisionReversalTimeOver extends FOPEvent {
 		
 		/** The decision. */
 		public Boolean success = null;
@@ -80,7 +80,7 @@ public class FOPEvent {
 		 * @param ref2 
 		 * @param ref3 
 		 */
-		public Decision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
+		public DecisionReversalTimeOver(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 			super(athlete, origin);
 			logger.trace("referee decision for {}", athlete); //$NON-NLS-1$
 			this.success = decision;
@@ -135,9 +135,9 @@ public class FOPEvent {
 	/**
 	 * Report an individual decision.
 	 * 
-	 * No subclassing relationship with {@link Decision} because of different @Subscribe requirements
+	 * No subclassing relationship with {@link DecisionReversalTimeOver} because of different @Subscribe requirements
 	 */
-	public static class RefereeFullUpdate extends FOPEvent {
+	public static class DecisionFullUpdate extends FOPEvent {
 		public Boolean ref1;
 		public Boolean ref2;
 		public Boolean ref3;
@@ -145,25 +145,25 @@ public class FOPEvent {
 		public Integer ref2Time;
 		public Integer ref3Time;
 
-		public RefereeFullUpdate(Object origin, Athlete athlete, Boolean ref1, Boolean ref2, Boolean ref3,
-				Integer ref1Time, Integer ref2Time, Integer ref3Time) {
+		public DecisionFullUpdate(Object origin, Athlete athlete, Boolean ref1, Boolean ref2, Boolean ref3,
+		        Integer long1, Integer long2, Integer long3) {
 			super(athlete, origin);
 			this.ref1 = ref1;
 			this.ref2 = ref2;
 			this.ref3 = ref3;
-			this.ref1Time = ref1Time;
-			this.ref2Time = ref2Time;
-			this.ref3Time = ref3Time;
+			this.ref1Time = long1;
+			this.ref2Time = long2;
+			this.ref3Time = long3;
 		}
 
 	}
 
-	static public class RefereeIndividualUpdate extends FOPEvent {
+	static public class DecisionUpdate extends FOPEvent {
 
         public boolean decision;
-        public Object refIndex;
+        public int refIndex;
 
-        public RefereeIndividualUpdate(Object origin, Object refIndex, boolean decision) {
+        public DecisionUpdate(Object origin, int refIndex, boolean decision) {
             super(origin);
             this.refIndex = refIndex;
             this.decision = decision;

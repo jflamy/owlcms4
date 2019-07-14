@@ -166,7 +166,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
 		Button good = new Button(IronIcons.DONE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
-				fop.getFopEventBus().post(new FOPEvent.Decision(fop.getCurAthlete(), this.getOrigin(), true, true, true, true));
+				fop.getFopEventBus().post(new FOPEvent.DecisionReversalTimeOver(fop.getCurAthlete(), this.getOrigin(), true, true, true, true));
 				fop.getFopEventBus().post(new FOPEvent.DecisionReset(this.getOrigin()));
 			});
 		});
@@ -174,7 +174,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		
 		Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
-				fop.getFopEventBus().post(new FOPEvent.Decision(fop.getCurAthlete(), this.getOrigin(), false, false, false, false));
+				fop.getFopEventBus().post(new FOPEvent.DecisionReversalTimeOver(fop.getCurAthlete(), this.getOrigin(), false, false, false, false));
 				fop.getFopEventBus().post(new FOPEvent.DecisionReset(this.getOrigin()));
 			});
 		});

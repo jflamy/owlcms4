@@ -328,3 +328,4 @@ RuleViolation.declaredChangesNotOk;Lift {0} : Value {1} for changes must be grea
 RuleViolation.liftValueBelowProgression;Lift {0} : Value {1} for lift must be greater than or equal to the automatic progression ({2}).;Lever {0} : Le lever ({1}) doit être plus grand ou égal au poids de la progression automatique ({2}).;;Løft {0} : Værdi {1} for løft skal være større end eller lig den automatiske øgning ({2});Alzada {0} : El valor {1} para la alzada debe ser mayor o igual que la progresión automática ({2}).;
 RuleViolation.rule15_20Violated;Starting weight rule violation: Missing {5}kg.;Violation de la règle des poids initiaux: Il manque {5}kg.;;Overtrædelse af reglen om indledende vægte: Der mangler {5}kg.;;
 Referee;Referee;Arbitre;;Dommer;Juez;
+Number;Number;Nº;;Nummer;Nº;

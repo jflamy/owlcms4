@@ -121,11 +121,6 @@ public class Category implements Serializable, Comparable<Category> {
         return compare;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -140,19 +135,9 @@ public class Category implements Serializable, Comparable<Category> {
                 return false;
         } else if (!active.equals(other.active))
             return false;
-        if (ageDivision == null) {
-            if (other.ageDivision != null)
-                return false;
-        } else if (!ageDivision.equals(other.ageDivision))
-            return false;
         if (ageDivision != other.ageDivision)
             return false;
         if (gender != other.gender)
-            return false;
-        if (gender == null) {
-            if (other.gender != null)
-                return false;
-        } else if (!gender.equals(other.gender))
             return false;
         if (id == null) {
             if (other.id != null)
@@ -173,6 +158,16 @@ public class Category implements Serializable, Comparable<Category> {
             if (other.name != null)
                 return false;
         } else if (!name.equals(other.name))
+            return false;
+        if (robiA == null) {
+            if (other.robiA != null)
+                return false;
+        } else if (!robiA.equals(other.robiA))
+            return false;
+        if (wr == null) {
+            if (other.wr != null)
+                return false;
+        } else if (!wr.equals(other.wr))
             return false;
         return true;
     }
@@ -260,24 +255,19 @@ public class Category implements Serializable, Comparable<Category> {
         return wr;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((active == null) ? 0 : active.hashCode());
         result = prime * result + ((ageDivision == null) ? 0 : ageDivision.hashCode());
-        result = prime * result + ((ageDivision == null) ? 0 : ageDivision.hashCode());
-        result = prime * result + ((gender == null) ? 0 : gender.hashCode());
         result = prime * result + ((gender == null) ? 0 : gender.hashCode());
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((maximumWeight == null) ? 0 : maximumWeight.hashCode());
         result = prime * result + ((minimumWeight == null) ? 0 : minimumWeight.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((robiA == null) ? 0 : robiA.hashCode());
+        result = prime * result + ((wr == null) ? 0 : wr.hashCode());
         return result;
     }
 
