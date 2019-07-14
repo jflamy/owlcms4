@@ -129,7 +129,7 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
             // must come from whitelisted address and have matching PIN
             whiteListed = whiteListedList.contains(clientIp);
             if (!whiteListed) {
-                logger.warn("login attempt from non-whitelisted host {} (whitelist={})", clientIp, whiteListedList); //$NON-NLS-1$
+                logger.error("login attempt from non-whitelisted host {} (whitelist={})", clientIp, whiteListedList); //$NON-NLS-1$
             }
         } else {
             // no white list, allow all IP addresses

@@ -119,7 +119,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
      */
     @Subscribe
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
-        logger.warn("received decision reset {}",refIndex);
+        logger.debug("received decision reset {}",refIndex);
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             resetRefVote();
         });
@@ -347,7 +347,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
             num  = nums.get(0);
             try {
                 refIndex = Integer.parseInt(num);
-                logger.warn("parsed {} parameter = {}",REF_INDEX, num); //$NON-NLS-1$
+                logger.debug("parsed {} parameter = {}",REF_INDEX, num); //$NON-NLS-1$
                 refField.setValue(refIndex.doubleValue());
             } catch (NumberFormatException e) {
                 refIndex = null;
@@ -367,7 +367,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         // change the URL to reflect group
         Location location2 = new Location(location.getPath(),new QueryParameters(urlParams));
         locationUI.getPage().getHistory().replaceState(null, location2);
-        logger.warn("changed location to {}",location2.getPathWithQueryParameters());
+        logger.trace("changed location to {}",location2.getPathWithQueryParameters());
     }
     
     /**

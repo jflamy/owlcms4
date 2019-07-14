@@ -495,7 +495,7 @@ public class FieldOfPlay {
                 weightChangeDoNotDisturb((WeightChange) e);
                 setState(DECISION_VISIBLE);
             } else if (e instanceof DecisionReset) {
-                logger.warn("###### resetting decisions ######");
+                logger.debug("resetting decisions");
                 uiEventBus.post(new UIEvent.DecisionReset(e.origin));
                 setClockOwner(null);
                 displayOrBreakIfDone(e);
@@ -800,7 +800,7 @@ public class FieldOfPlay {
     }
 
     private void showDecisionAfterDelay(Object origin2) {
-        logger.warn("scheduling decision display");
+        logger.trace("scheduling decision display");
         new DelayTimer().schedule(() -> showDecisionNow(origin2), 3000);
     }
 
@@ -810,7 +810,7 @@ public class FieldOfPlay {
      */
     private void showDecisionNow(Object origin) {
         
-        logger.warn("requesting decision display");
+        logger.trace("requesting decision display");
         // we need to recompute majority, since they may have been reversal
         int nbWhite = 0;
         for (int i = 0; i < 3; i++) nbWhite = nbWhite + (Boolean.TRUE.equals(refereeDecision[i]) ? 1 : 0);

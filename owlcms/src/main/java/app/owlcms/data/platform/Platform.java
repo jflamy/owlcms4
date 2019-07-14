@@ -533,7 +533,7 @@ public class Platform implements Serializable {
      *            the soundMixerName to set
      */
     public void setSoundMixerName(String soundMixerName) {
-        logger.warn("setSoundMixerName{}",soundMixerName);
+        logger.debug("setSoundMixerName{}",soundMixerName);
         this.soundMixerName = soundMixerName;
         if (soundMixerName == null) {
             mixerChecked = true;

@@ -270,7 +270,7 @@ public class Athlete {
 		}
 		int sn1Decl = zeroIfInvalid(snatch1Declaration);
 	    int cj1Decl = zeroIfInvalid(cleanJerk1Declaration);
-	    logger.warn("prior to checking {} {}",sn1Decl,cj1Decl);
+	    logger.trace("prior to checking {} {}",sn1Decl,cj1Decl);
 	    if (sn1Decl == 0 && cj1Decl == 0) {
 	        return true; // do not complain on registration form or empty weigh-in form.
 	    }

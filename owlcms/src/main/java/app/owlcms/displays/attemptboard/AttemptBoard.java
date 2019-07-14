@@ -306,7 +306,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        logger.warn("onAttach {}", OwlcmsSession.getFop().getName());
+        logger.trace("onAttach {}", OwlcmsSession.getFop().getName());
         // fop obtained via QueryParameterReader interface default methods.
         OwlcmsSession.withFop(fop -> {
             init();

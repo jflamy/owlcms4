@@ -47,7 +47,7 @@ public class OwlcmsSession {
 		if (currentVaadinSession != null) {
 			OwlcmsSession owlcmsSession = (OwlcmsSession) currentVaadinSession.getAttribute("owlcmsSession"); //$NON-NLS-1$
 			if (owlcmsSession == null) {
-			    logger.warn("creating new OwlcmsSession {}",LoggerUtils.whereFrom());
+			    logger.trace("creating new OwlcmsSession {}",LoggerUtils.whereFrom());
 				owlcmsSession = new OwlcmsSession();
 				currentVaadinSession.setAttribute("owlcmsSession", owlcmsSession); //$NON-NLS-1$
 			}
@@ -98,7 +98,7 @@ public class OwlcmsSession {
 	}
 	
 	public static void setFop(FieldOfPlay fop) {
-		logger.warn("setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom()); //$NON-NLS-1$
+		logger.trace("setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom()); //$NON-NLS-1$
 		setAttribute(FOP, fop);
 	}
 	

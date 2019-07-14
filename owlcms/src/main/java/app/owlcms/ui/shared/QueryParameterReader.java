@@ -83,7 +83,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 			params.remove("group"); //$NON-NLS-1$
 		}
 		
-		logger.warn("URL parsing: {} OwlcmsSession: fop={} group={}",LoggerUtils.whereFrom(),(fop != null ? fop.getName() : null),(group != null ? group.getName() : null)); //$NON-NLS-1$
+		logger.debu("URL parsing: {} OwlcmsSession: fop={} group={}",LoggerUtils.whereFrom(),(fop != null ? fop.getName() : null),(group != null ? group.getName() : null)); //$NON-NLS-1$
         return params;
     }
 	
