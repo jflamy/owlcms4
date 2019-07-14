@@ -38,7 +38,7 @@ public class TwoMinutesRuleTest {
 	private static Group gA;
 	private static Group gB;
 	private static Group gC;
-	final static Logger logger = (Logger) LoggerFactory.getLogger(TwoMinutesRuleTest.class);
+	final Logger logger = (Logger) LoggerFactory.getLogger(TwoMinutesRuleTest.class);
 	private List<Athlete> athletes;
 
 	@BeforeClass
@@ -99,7 +99,7 @@ public class TwoMinutesRuleTest {
 		for (int i = 2; i < size; i++)
 			athletes.remove(2);
 
-		FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
+		FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
 		fopState.getLogger().setLevel(LoggerLevel);
 		EventBus fopBus = fopState.getFopEventBus();
 
@@ -197,7 +197,7 @@ public class TwoMinutesRuleTest {
 		final int size = athletes.size();
 		for (int i = 2; i < size; i++)
 			athletes.remove(2);
-		FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer());
+		FieldOfPlay fopState = new FieldOfPlay(athletes, new MockCountdownTimer(), new MockCountdownTimer(), true);
 		EventBus fopBus = fopState.getFopEventBus();
 
 		// competition start
@@ -311,7 +311,7 @@ public class TwoMinutesRuleTest {
 		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.TimeStarted(null));
 		fopBus.post(new FOPEvent.DownSignal(null));
-		fopBus.post(new FOPEvent.DecisionReversalTimeOver(curLifter, null, false, false, false, false));
+		fopBus.post(new FOPEvent.DecisionFullUpdate(this, curLifter, false, false, false, 0, 0, 0));
 		logger.debug("failed lift for {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.DecisionReset(null));
 	}
@@ -320,7 +320,7 @@ public class TwoMinutesRuleTest {
 		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.TimeStarted(null));
 		fopBus.post(new FOPEvent.DownSignal(null));
-		fopBus.post(new FOPEvent.DecisionReversalTimeOver(curLifter, null, true, true, true, true));
+		fopBus.post(new FOPEvent.DecisionFullUpdate(this, curLifter, true, true, true, 0, 0, 0));
 		logger.debug("successful lift for {}", curLifter); //$NON-NLS-1$
 		fopBus.post(new FOPEvent.DecisionReset(null));
 	}

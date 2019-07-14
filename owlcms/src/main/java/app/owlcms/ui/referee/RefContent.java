@@ -69,7 +69,6 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
 
     private HorizontalLayout refVotingButtons;
     private VerticalLayout refVotingCenterHorizontally;
-    private FieldOfPlay fop;
     private boolean redTouched;
     private Integer refIndex = null;  // 1 2 or 3
     private boolean whiteTouched;
@@ -149,7 +148,6 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
     protected void init() {
         this.setBoxSizing(BoxSizing.BORDER_BOX);
         this.setSizeFull();
-        fop = OwlcmsSession.getFop();
         createContent(this);
     }
 

@@ -72,13 +72,18 @@ public class FieldOfPlay {
         private final Timer t = new Timer();
 
         public TimerTask schedule(final Runnable r, long delay) {
-            final TimerTask task = new TimerTask() {
-                public void run() {
-                    r.run();
-                }
-            };
-            t.schedule(task, delay);
-            return task;
+            if (isTestingMode()) {
+                r.run();
+                return null;
+            } else {
+                final TimerTask task = new TimerTask() {
+                    public void run() {
+                        r.run();
+                    }
+                };
+                t.schedule(task, delay);
+                return task;
+            }
         }
     }
 
@@ -117,6 +122,7 @@ public class FieldOfPlay {
     private Integer[] refereeTime;
 
     private Boolean goodLift;
+    private boolean testingMode;
 
     /**
      * Instantiates a new field of play state. When using this constructor
@@ -143,10 +149,11 @@ public class FieldOfPlay {
      * @param athletes the athletes
      * @param timer1   the athleteTimer
      */
-    public FieldOfPlay(List<Athlete> athletes, IProxyTimer timer1, IProxyTimer breakTimer1) {
+    public FieldOfPlay(List<Athlete> athletes, IProxyTimer timer1, IProxyTimer breakTimer1, boolean testingMode) {
         this.name = "test"; //$NON-NLS-1$
         this.fopEventBus = new EventBus("FOP-" + this.name); //$NON-NLS-1$
         this.uiEventBus = new EventBus("UI-" + this.name); //$NON-NLS-1$
+        this.setTestingMode(testingMode);
         init(athletes, timer1, breakTimer1);
     }
 
@@ -277,7 +284,8 @@ public class FieldOfPlay {
 
         Athlete owner = getClockOwner();
         if (owner != null && owner.equals(a)) {
-            // the clock was started for us. we own the clock, clock is set to what time was left
+            // the clock was started for us. we own the clock, clock is set to what time was
+            // left
             timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
             logger.trace("timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a); //$NON-NLS-1$
         } else if (previousAthlete != null && previousAthlete.equals(a)) {
@@ -481,8 +489,7 @@ public class FieldOfPlay {
 
         case DECISION_VISIBLE:
             if (e instanceof DecisionReversalTimeOver) {
-                // decision reversal
-                // FIXME: no handling of decision reversal
+                // there may have been a change in decision, this recomputes.
                 showDecisionNow(((DecisionReversalTimeOver) e).origin);
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
@@ -804,17 +811,23 @@ public class FieldOfPlay {
         new DelayTimer().schedule(() -> showDecisionNow(origin2), 3000);
     }
 
+    public boolean isTestingMode() {
+        return testingMode;
+    }
+
     /**
-     * The decision is confirmed as official after the 3 second delay following majority.
-     * After this delay, manual announcer intervention is required to change and announce.
+     * The decision is confirmed as official after the 3 second delay following
+     * majority. After this delay, manual announcer intervention is required to
+     * change and announce.
      */
     private void showDecisionNow(Object origin) {
-        
+
         logger.trace("requesting decision display");
         // we need to recompute majority, since they may have been reversal
         int nbWhite = 0;
-        for (int i = 0; i < 3; i++) nbWhite = nbWhite + (Boolean.TRUE.equals(refereeDecision[i]) ? 1 : 0);
-        
+        for (int i = 0; i < 3; i++)
+            nbWhite = nbWhite + (Boolean.TRUE.equals(refereeDecision[i]) ? 1 : 0);
+
         if (nbWhite >= 2) {
             goodLift = true;
             curAthlete.successfulLift();
@@ -822,7 +835,7 @@ public class FieldOfPlay {
             goodLift = false;
             curAthlete.failedLift();
         }
-        AthleteRepository.save(curAthlete);     
+        AthleteRepository.save(curAthlete);
         uiShowRefereeDecisionOnSlaveDisplays(curAthlete, goodLift, refereeDecision, refereeTime, origin);
         recomputeLiftingOrder();
         setState(DECISION_VISIBLE);
@@ -830,7 +843,6 @@ public class FieldOfPlay {
         new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), 3000);
 
     }
-
 
     private void transitionToBreak(BreakStarted e) {
         this.setBreakType(e.getBreakType());
@@ -954,6 +966,13 @@ public class FieldOfPlay {
         AthleteSorter.liftingOrder(this.liftingOrder);
         this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
         uiDisplayCurrentAthleteAndTime(false, e);
+    }
+
+    /**
+     * @param testingMode true if we don't want wait delays during testing.
+     */
+    public void setTestingMode(boolean testingMode) {
+        this.testingMode = testingMode;
     }
 
 }
