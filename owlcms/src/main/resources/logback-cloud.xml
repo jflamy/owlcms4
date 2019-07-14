@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- production logback file, writes to logs/owlcms.log, creates new files daily -->
-<configuration scan="true" debug="true">
+<configuration scan="true" debug="false">
 
 	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>logs/owlcms.log</file>
@@ -37,13 +37,10 @@
 	<logger
 		name="com.vaadin.flow.server.DefaultDeploymentConfiguration"
 		level="ERROR" />
-		
-	<logger name="app.owlcms.Main" level="INFO">
-        <appender-ref ref="STDERR" />
-    </logger>
 
 	<root level="WARN">
 		<appender-ref ref="FILE" />
+		<appender-ref ref="STDERR" />
 	</root>
 
 </configuration>
