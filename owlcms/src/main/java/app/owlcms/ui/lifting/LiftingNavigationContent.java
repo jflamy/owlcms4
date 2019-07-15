@@ -71,7 +71,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         Button jury = new Button(getTranslation("Jury_Console"), //$NON-NLS-1$
                 buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(JuryContent.class)));
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, jury);
-        doGroup(getTranslation("Referees and Jury"), grid2, this); //$NON-NLS-1$
+        doGroup(getTranslation("Referees_Jury"), grid2, this); //$NON-NLS-1$
 
         Button weighIn = new Button(getTranslation("WeighIn_StartNumbers"), //$NON-NLS-1$
                 buttonClickEvent -> UI.getCurrent().navigate(WeighinContent.class));
