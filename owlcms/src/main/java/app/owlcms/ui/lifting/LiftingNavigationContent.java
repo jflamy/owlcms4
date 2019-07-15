@@ -22,6 +22,7 @@ import app.owlcms.components.NavigationPage;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.HomeNavigationContent;
+import app.owlcms.ui.referee.RefContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
@@ -34,88 +35,82 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "lifting", layout = OwlcmsRouterLayout.class)
 public class LiftingNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(LiftingNavigationContent.class);
-	static { logger.setLevel(Level.INFO);}
-	
-	/**
-	 * Instantiates a new lifting navigation content.
-	 */
-	public LiftingNavigationContent() {
-		logger.trace("LiftingNavigationContent constructor start"); //$NON-NLS-1$
-		VerticalLayout intro = new VerticalLayout();
-		addP(intro,
-				getTranslation("AnnouncerSelectsGroup") + //$NON-NLS-1$
-				getTranslation("ChangesGroupEverywhere")+ //$NON-NLS-1$
-				getTranslation("AnnouncerEtc")); //$NON-NLS-1$
-		intro.getElement().getStyle().set("margin-bottom", "0"); //$NON-NLS-1$ //$NON-NLS-2$
-		
-		Button announcer = new Button(
-				getTranslation("Announcer"), //$NON-NLS-1$
-				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(AnnouncerContent.class)));
-		Button marshall = new Button(
-				getTranslation("Marshall"), //$NON-NLS-1$
-				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(MarshallContent.class)));
-		Button timekeeper = new Button(
-				getTranslation("Timekeeper"), //$NON-NLS-1$
-				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(TimekeeperContent.class)));
-		Button jury = new Button(
-			getTranslation("Jury"), //$NON-NLS-1$
-			buttonClickEvent -> UI.getCurrent().getPage()
-				.executeJavaScript(getWindowOpener(JuryContent.class)));
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(LiftingNavigationContent.class);
+    static {
+        logger.setLevel(Level.INFO);
+    }
 
-		fillH(intro, this);
-		
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
-			announcer,
-			marshall,
-			timekeeper,
-			jury
-			);
-		doGroup(getTranslation("TOScreens"), grid1, this); //$NON-NLS-1$
-		
-		Button weighIn = new Button(getTranslation("WeighIn_StartNumbers"), //$NON-NLS-1$
-			buttonClickEvent -> UI.getCurrent()
-				.navigate(WeighinContent.class));
-		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(
-			weighIn);
-		doGroup(getTranslation("WeighIn"), grid3, this); //$NON-NLS-1$
-		logger.trace("LiftingNavigationContent constructor stop"); //$NON-NLS-1$
-	}
+    /**
+     * Instantiates a new lifting navigation content.
+     */
+    public LiftingNavigationContent() {
+        logger.trace("LiftingNavigationContent constructor start"); //$NON-NLS-1$
+        VerticalLayout intro = new VerticalLayout();
+        addP(intro, getTranslation("AnnouncerSelectsGroup") + //$NON-NLS-1$
+                getTranslation("ChangesGroupEverywhere") + //$NON-NLS-1$
+                getTranslation("AnnouncerEtc")); //$NON-NLS-1$
+        intro.getElement().getStyle().set("margin-bottom", "0"); //$NON-NLS-1$ //$NON-NLS-2$
 
+        Button announcer = new Button(getTranslation("Announcer"), //$NON-NLS-1$
+                buttonClickEvent -> UI.getCurrent().getPage()
+                        .executeJavaScript(getWindowOpener(AnnouncerContent.class)));
+        Button marshall = new Button(getTranslation("Marshall"), //$NON-NLS-1$
+                buttonClickEvent -> UI.getCurrent().getPage()
+                        .executeJavaScript(getWindowOpener(MarshallContent.class)));
+        Button timekeeper = new Button(getTranslation("Timekeeper"), //$NON-NLS-1$
+                buttonClickEvent -> UI.getCurrent().getPage()
+                        .executeJavaScript(getWindowOpener(TimekeeperContent.class)));
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.BaseNavigationContent#createTopBarFopField(java.lang.String, java.lang.String)
-	 */
-	@Override
-	protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
-		Label fopLabel = new Label(label);
-		formatLabel(fopLabel);
+        fillH(intro, this);
 
-		ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
-		OwlcmsSession.withFop((fop) -> {
-			fopSelect.setValue(fop);
-		});
-		fopSelect.addValueChangeListener(e -> {
-			OwlcmsSession.setFop(e.getValue());
-		});
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(announcer, marshall, timekeeper);
+        doGroup(getTranslation("TOScreens"), grid1, this); //$NON-NLS-1$
 
-		HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
-		fopField.setAlignItems(Alignment.CENTER);
-		return fopField;
-	}
+        Button referee = new Button(getTranslation("Referee_Mobile_Device"), //$NON-NLS-1$
+                buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(RefContent.class)));
+        Button jury = new Button(getTranslation("Jury_Console"), //$NON-NLS-1$
+                buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(JuryContent.class)));
+        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, jury);
+        doGroup(getTranslation("Referees and Jury"), grid2, this); //$NON-NLS-1$
 
+        Button weighIn = new Button(getTranslation("WeighIn_StartNumbers"), //$NON-NLS-1$
+                buttonClickEvent -> UI.getCurrent().navigate(WeighinContent.class));
+        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
+        doGroup(getTranslation("WeighIn"), grid3, this); //$NON-NLS-1$
+        logger.trace("LiftingNavigationContent constructor stop"); //$NON-NLS-1$
+    }
 
-	@Override
-	protected String getTitle() {
-		return getTranslation("RunLiftingGroup"); //$NON-NLS-1$
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see app.owlcms.ui.home.BaseNavigationContent#createTopBarFopField(java.lang.
+     * String, java.lang.String)
+     */
+    @Override
+    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+        Label fopLabel = new Label(label);
+        formatLabel(fopLabel);
 
+        ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
+        OwlcmsSession.withFop((fop) -> {
+            fopSelect.setValue(fop);
+        });
+        fopSelect.addValueChangeListener(e -> {
+            OwlcmsSession.setFop(e.getValue());
+        });
 
-	@Override
-	public String getPageTitle() {
-		return getTranslation("OWLCMS_Lifting"); //$NON-NLS-1$
-	}
+        HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
+        fopField.setAlignItems(Alignment.CENTER);
+        return fopField;
+    }
+
+    @Override
+    protected String getTitle() {
+        return getTranslation("RunLiftingGroup"); //$NON-NLS-1$
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("OWLCMS_Lifting"); //$NON-NLS-1$
+    }
 }

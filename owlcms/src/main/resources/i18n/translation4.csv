@@ -329,3 +329,6 @@ RuleViolation.liftValueBelowProgression;Lift {0} : Value {1} for lift must be gr
 RuleViolation.rule15_20Violated;Starting weight rule violation: Missing {5}kg.;Violation de la règle des poids initiaux: Il manque {5}kg.;;Overtrædelse af reglen om indledende vægte: Der mangler {5}kg.;;
 Referee;Referee;Arbitre;;Dommer;Juez;
 Number;Number;Nº;;Nummer;Nº;
+Jury_Console;Jury Console;Console du jury;;Jury;Jurado;
+Referee_Mobile_Device;Referee (for mobile devices);Arbitre (pour appareils mobile);;Dommer (til mobile enheder);Juez (para dispositivos móviles);
+Referees_Jury;Referees and Jury;Arbitres et Jury;;Dommere og jury;Jueces y jurado;
