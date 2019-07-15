@@ -255,7 +255,7 @@ public class UIEvent {
 	}
 
 	/**
-	 * Class Decision.
+	 * Class DecisionReversalTimeOver.
 	 */
 	static public class Decision extends UIEvent {
 
@@ -293,7 +293,7 @@ public class UIEvent {
 	/**
 	 * Individual referee decision.
 	 * 
-	 * No subclassing wrt Decision because @Subscribe must be distinct.
+	 * No subclassing wrt DecisionReversalTimeOver because @Subscribe must be distinct.
 	 * 
 	 * @author owlcms
 	 */
@@ -305,15 +305,15 @@ public class UIEvent {
 		public Integer ref2Time;
 		public Integer ref3Time;
 
-		public RefereeUpdate(Athlete a, Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time, 
-				Integer ref2Time, Integer ref3Time, Object origin) {
+		public RefereeUpdate(Athlete a, Boolean ref1, Boolean ref2, Boolean ref3, Integer refereeTime, 
+				Integer refereeTime2, Integer refereeTime3, Object origin) {
 			super(a, origin);
 			this.ref1 = ref1;
 			this.ref2 = ref2;
 			this.ref3 = ref3;
-			this.ref1Time = ref1Time;
-			this.ref2Time = ref2Time;
-			this.ref3Time = ref3Time;
+			this.ref1Time = refereeTime;
+			this.ref2Time = refereeTime2;
+			this.ref3Time = refereeTime3;
 		}
 	}
 

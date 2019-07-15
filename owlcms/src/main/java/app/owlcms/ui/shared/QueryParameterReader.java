@@ -24,6 +24,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -38,10 +39,16 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 	@Override
 	public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		logger.setLevel(Level.INFO);
-		
 		Location location = event.getLocation();
-		QueryParameters queryParameters = location.getQueryParameters();
-		Map<String, List<String>> parametersMap = queryParameters.getParameters();
+        QueryParameters queryParameters = location.getQueryParameters();
+        Map<String, List<String>> parametersMap = queryParameters.getParameters();
+        HashMap<String, List<String>> params = computeParams(location, parametersMap);
+		// change the URL to reflect retrieved parameters
+		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
+	}
+
+    public default HashMap<String, List<String>> computeParams(Location location, Map<String, List<String>> parametersMap) {
+
 		HashMap<String, List<String>> params = new HashMap<String, List<String>>(parametersMap);
 
 		// get the fop from the query parameters, set as default if not provided
@@ -76,10 +83,9 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 			params.remove("group"); //$NON-NLS-1$
 		}
 		
-		logger.debug("URL parsing: OwlcmsSession: fop={} group={}",(fop != null ? fop.getName() : null),(group != null ? group.getName() : null)); //$NON-NLS-1$
-		// change the URL to reflect fop and group
-		event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
-	}
+		logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}",LoggerUtils.whereFrom(),(fop != null ? fop.getName() : null),(group != null ? group.getName() : null)); //$NON-NLS-1$
+        return params;
+    }
 	
 	public default boolean isIgnoreGroupFromURL() {
 		return true;

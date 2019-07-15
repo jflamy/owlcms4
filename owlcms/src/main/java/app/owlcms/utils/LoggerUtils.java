@@ -38,7 +38,12 @@ public class LoggerUtils {
 		return sw.toString();
 	}
 	
+	/**
+	 * @param t
+	 * @return
+	 */
 	public static String stackTrace(Throwable t) {
+	    // TODO: skip from "at javax.servlet.http.HttpServlet.service" to line starting with "Caused by"
 		StringWriter sw = new StringWriter();
 		t.printStackTrace(new PrintWriter(sw));
 		return sw.toString();

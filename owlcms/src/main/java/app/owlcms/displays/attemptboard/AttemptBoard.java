@@ -51,298 +51,304 @@ import ch.qos.logback.classic.Logger;
 @Route("displays/attemptBoard")
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
-public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel>
-		implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
+public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements QueryParameterReader,
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName()); //$NON-NLS-1$
-	static {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
-	}
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName()); //$NON-NLS-1$
+    static {
+        logger.setLevel(Level.INFO);
+        uiEventLogger.setLevel(Level.INFO);
+    }
 
-	/**
-	 * AttemptBoardModel
-	 * 
-	 * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript
-	 * properties. When the JS properties are changed, a "propname-changed" event is triggered.
-	 * 
-	 * {@link Element.#addPropertyChangeListener(String, String,
-	 * com.vaadin.flow.dom.PropertyChangeListener)}
-	 */
-	public interface AttemptBoardModel extends TemplateModel {
-		String getAttempt();
+    /**
+     * AttemptBoardModel
+     * 
+     * Vaadin Flow propagates these variables to the corresponding Polymer template
+     * JavaScript properties. When the JS properties are changed, a
+     * "propname-changed" event is triggered.
+     * 
+     * {@link Element.#addPropertyChangeListener(String, String,
+     * com.vaadin.flow.dom.PropertyChangeListener)}
+     */
+    public interface AttemptBoardModel extends TemplateModel {
+        String getAttempt();
 
-		String getFirstName();
+        String getFirstName();
 
-		String getLastName();
+        String getLastName();
 
-		Integer getStartNumber();
+        Integer getStartNumber();
 
-		String getTeamName();
+        String getTeamName();
 
-		Integer getWeight();
+        Integer getWeight();
 
-		Boolean isPublicFacing();
+        Boolean isPublicFacing();
 
-		void setAttempt(String formattedAttempt);
+        void setAttempt(String formattedAttempt);
 
-		void setFirstName(String firstName);
+        void setFirstName(String firstName);
 
-		void setLastName(String lastName);
+        void setLastName(String lastName);
 
-		void setPublicFacing(Boolean publicFacing);
+        void setPublicFacing(Boolean publicFacing);
 
-		void setStartNumber(Integer integer);
+        void setStartNumber(Integer integer);
 
-		void setTeamName(String teamName);
+        void setTeamName(String teamName);
 
-		void setWeight(Integer weight);
-	}
+        void setWeight(Integer weight);
+    }
 
-	@Id("athleteTimer")
-	private AthleteTimerElement athleteTimer; // created by Flow during template instanciation
+    @Id("athleteTimer")
+    private AthleteTimerElement athleteTimer; // created by Flow during template instanciation
 
-	@Id("breakTimer")
-	private BreakTimerElement breakTimer; // created by Flow during template instanciation
+    @Id("breakTimer")
+    private BreakTimerElement breakTimer; // created by Flow during template instanciation
 
-	@Id("decisions")
-	protected DecisionElement decisions; // created by Flow during template instanciation
+    @Id("decisions")
+    protected DecisionElement decisions; // created by Flow during template instanciation
 
-	private EventBus uiEventBus;
+    private EventBus uiEventBus;
 
-	/**
-	 * Instantiates a new attempt board.
-	 */
-	public AttemptBoard() {
-		athleteTimer.setOrigin(this);
-	}
+    /**
+     * Instantiates a new attempt board.
+     */
+    public AttemptBoard() {
+        athleteTimer.setOrigin(this);
+    }
 
-	public void doReset() {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			this.getElement().callFunction("reset"); //$NON-NLS-1$
-		});
-	}
+    public void doReset() {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            this.getElement().callFunction("reset"); //$NON-NLS-1$
+        });
+    }
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.shared.QueryParameterReader#isIgnoreGroupFromURL() */
-	@Override
-	public boolean isIgnoreGroupFromURL() {
-		return true;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see app.owlcms.ui.shared.QueryParameterReader#isIgnoreGroupFromURL()
+     */
+    @Override
+    public boolean isIgnoreGroupFromURL() {
+        return true;
+    }
 
-	@Subscribe
-	public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
-			this.getOrigin(), e.getOrigin());
-		Athlete a = e.getAthlete();
-		doAthleteUpdate(a, e);
-	}
+    @Subscribe
+    public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+                this.getOrigin(), e.getOrigin());
+        Athlete a = e.getAthlete();
+        doAthleteUpdate(a, e);
+    }
 
-	/**
-	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to show down on the slave
-	 * devices -- the master device is the one where refereeing buttons are attached.
-	 * 
-	 * @param e
-	 */
-	@Subscribe
-	public void slaveDownSignal(UIEvent.DownSignal e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
-			this.getOrigin(), e.getOrigin());
-		// hide the athleteTimer except if the down signal came from this ui.
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-			this.getElement().callFunction("down"); //$NON-NLS-1$
-		});
-	}
+    /**
+     * Multiple attempt boards and athlete-facing boards can co-exist. We need to
+     * show down on the slave devices -- the master device is the one where
+     * refereeing buttons are attached.
+     * 
+     * @param e
+     */
+    @Subscribe
+    public void slaveDownSignal(UIEvent.DownSignal e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+                this.getOrigin(), e.getOrigin());
+        // hide the athleteTimer except if the down signal came from this ui.
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+            this.getElement().callFunction("down"); //$NON-NLS-1$
+        });
+    }
 
-	@Subscribe
-	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		uiEventLogger.debug("### {} {} stop={} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), e.isStopAthleteTimer(), //$NON-NLS-1$
-				this.getOrigin(), e.getOrigin());
-		OwlcmsSession.withFop(fop -> {
-			FOPState state = fop.getState();
-			if (state == FOPState.BREAK || state == FOPState.INACTIVE) {
-				return;
-			} else if (!e.isStopAthleteTimer()) {
-				// order change does not affect current lifter
-				return;
-			} else {
-				Athlete a = e.getAthlete();
-				doAthleteUpdate(a, e);
-			}
-		});
-	}
-	
-	@Subscribe
-	public void slaveDecisionReset(UIEvent.DecisionReset e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
-				this.getOrigin(), e.getOrigin());
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			this.getElement().callFunction("reset"); //$NON-NLS-1$
-		});
-	}
+    @Subscribe
+    public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+        uiEventLogger.debug("### {} {} stop={} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+                e.isStopAthleteTimer(), this.getOrigin(), e.getOrigin());
+        OwlcmsSession.withFop(fop -> {
+            FOPState state = fop.getState();
+            if (state == FOPState.BREAK || state == FOPState.INACTIVE) {
+                return;
+            } else if (!e.isStopAthleteTimer()) {
+                // order change does not affect current lifter
+                return;
+            } else {
+                Athlete a = e.getAthlete();
+                UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doAthleteUpdate(a, e));
+            }
+        });
+    }
 
-	/**
-	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to show decisions on the
-	 * slave devices -- the master device is the one where refereeing buttons are attached.
-	 * 
-	 * @param e
-	 */
-	@Subscribe
-	public void slaveRefereeDecision(UIEvent.Decision e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
-			this.getOrigin(), e.getOrigin());
-		// hide the athleteTimer except if the down signal came from this ui.
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-			this.getElement().callFunction("down"); //$NON-NLS-1$
-		});
-	}
+    @Subscribe
+    public void slaveDecisionReset(UIEvent.DecisionReset e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+                this.getOrigin(), e.getOrigin());
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            this.getElement().callFunction("reset"); //$NON-NLS-1$
+        });
+    }
 
-	@Subscribe
-	public void slaveStartBreak(UIEvent.BreakStarted e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
-			this.getOrigin(), e.getOrigin());
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-			doBreak(e);
-		});
-	}
+    /**
+     * Multiple attempt boards and athlete-facing boards can co-exist. We need to
+     * show decisions on the slave devices -- the master device is the one where
+     * refereeing buttons are attached.
+     * 
+     * @param e
+     */
+    @Subscribe
+    public void slaveRefereeDecision(UIEvent.Decision e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+                this.getOrigin(), e.getOrigin());
+        // hide the athleteTimer except if the down signal came from this ui.
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+            this.getElement().callFunction("down"); //$NON-NLS-1$
+        });
+    }
 
-	@Subscribe
-	public void slaveStopBreak(UIEvent.BreakDone e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
-			this.getOrigin(), e.getOrigin());
-		Athlete a = e.getAthlete();
-		doAthleteUpdate(a, e);
-	}
-	
-	@Subscribe
-	public void slaveGroupDone(UIEvent.GroupDone e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
-				this.getOrigin(), e.getOrigin());
-		Group g = e.getGroup();
-		doDone(g);
-	}
+    @Subscribe
+    public void slaveStartBreak(UIEvent.BreakStarted e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+                this.getOrigin(), e.getOrigin());
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+            doBreak(e);
+        });
+    }
 
-	private void doDone(Group g) {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			getModel().setLastName(MessageFormat.format(getTranslation("Group_number_done"), g.toString())); //$NON-NLS-1$
-			this.getElement().callFunction("groupDone"); //$NON-NLS-1$
-		});			
-	}
+    @Subscribe
+    public void slaveStopBreak(UIEvent.BreakDone e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+                this.getOrigin(), e.getOrigin());
+        Athlete a = e.getAthlete();
+        doAthleteUpdate(a, e);
+    }
 
-	protected void doAthleteUpdate(Athlete a, UIEvent e) {
-		if (a == null) {
-			doEmpty();
-			return;
-		} else if (a.getAttemptsDone() >= 6) {
-			OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
-			return;
-		}
+    @Subscribe
+    public void slaveGroupDone(UIEvent.GroupDone e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+                this.getOrigin(), e.getOrigin());
+        Group g = e.getGroup();
+        doDone(g);
+    }
 
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
-			doEmpty();
-			return;
-		}
-		String trace = null; LoggerUtils.stackTrace();
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			this.getElement().callFunction("reset"); //$NON-NLS-1$
-			uiEventLogger.debug("$$$ attemptBoard doUpdate from\n{}", trace); //$NON-NLS-1$
-			AttemptBoardModel model = getModel();
-			model.setLastName(a.getLastName());
-			model.setFirstName(a.getFirstName());
-			model.setTeamName(a.getTeam());
-			model.setStartNumber(a.getStartNumber());
-			String formattedAttempt = formatAttempt(a.getAttemptNumber());
-			model.setAttempt(formattedAttempt);
-			model.setWeight(a.getNextAttemptRequestedWeight());
-		});
-	}
+    private void doDone(Group g) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            getModel().setLastName(MessageFormat.format(getTranslation("Group_number_done"), g.toString())); //$NON-NLS-1$
+            this.getElement().callFunction("groupDone"); //$NON-NLS-1$
+        });
+    }
 
-	@Override
-	public void doBreak(BreakStarted e) {
-		uiEventLogger.debug("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom()); //$NON-NLS-1$
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			BreakType breakType = fop.getBreakType();
-			getModel().setLastName(inferGroupName());
-			getModel().setFirstName(inferMessage(breakType));
-			getModel().setTeamName(""); //$NON-NLS-1$
-			getModel().setAttempt(""); //$NON-NLS-1$
+    protected void doAthleteUpdate(Athlete a, UIEvent e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            if (a == null) {
+                doEmpty();
+                return;
+            } else if (a.getAttemptsDone() >= 6) {
+                OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+                return;
+            }
+            FieldOfPlay fop = OwlcmsSession.getFop();
+            if (fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
+                doEmpty();
+                return;
+            }
+            this.getElement().callFunction("reset"); //$NON-NLS-1$
+            AttemptBoardModel model = getModel();
+            model.setLastName(a.getLastName());
+            model.setFirstName(a.getFirstName());
+            model.setTeamName(a.getTeam());
+            model.setStartNumber(a.getStartNumber());
+            String formattedAttempt = formatAttempt(a.getAttemptNumber());
+            model.setAttempt(formattedAttempt);
+            model.setWeight(a.getNextAttemptRequestedWeight());
+        });
+    }
 
-			uiEventLogger.debug("$$$ attemptBoard calling doBreak()"); //$NON-NLS-1$
-			this.getElement().callFunction("doBreak"); //$NON-NLS-1$
-		}));
-	}
+    @Override
+    public void doBreak(BreakStarted e) {
+        uiEventLogger.debug("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom()); //$NON-NLS-1$
+        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            BreakType breakType = fop.getBreakType();
+            getModel().setLastName(inferGroupName());
+            getModel().setFirstName(inferMessage(breakType));
+            getModel().setTeamName(""); //$NON-NLS-1$
+            getModel().setAttempt(""); //$NON-NLS-1$
 
-	/**
-	 * Restoring the attempt board during a break. The information about how/why the break was started
-	 * is unavailable.
-	 * 
-	 * @param fop
-	 */
-	protected void doBreak(FieldOfPlay fop) {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			getModel().setLastName(inferGroupName());
-			getModel().setFirstName(inferMessage(inferBreakType(fop)));
-			getModel().setTeamName(""); //$NON-NLS-1$
-			getModel().setAttempt(""); //$NON-NLS-1$
-			this.getElement().callFunction("doBreak", 5 * 60); //$NON-NLS-1$
-			uiEventLogger.debug("$$$ attemptBoard doBreak(fop)"); //$NON-NLS-1$
-		});
-	}
+            uiEventLogger.debug("$$$ attemptBoard calling doBreak()"); //$NON-NLS-1$
+            this.getElement().callFunction("doBreak"); //$NON-NLS-1$
+        }));
+    }
 
-	protected void doEmpty() {
-		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			this.getElement().callFunction("clear"); //$NON-NLS-1$
-		});
-	}
+    /**
+     * Restoring the attempt board during a break. The information about how/why the
+     * break was started is unavailable.
+     * 
+     * @param fop
+     */
+    protected void doBreak(FieldOfPlay fop) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            getModel().setLastName(inferGroupName());
+            getModel().setFirstName(inferMessage(inferBreakType(fop)));
+            getModel().setTeamName(""); //$NON-NLS-1$
+            getModel().setAttempt(""); //$NON-NLS-1$
+            this.getElement().callFunction("doBreak", 5 * 60); //$NON-NLS-1$
+            uiEventLogger.debug("$$$ attemptBoard doBreak(fop)"); //$NON-NLS-1$
+        });
+    }
 
-	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		// fop obtained via QueryParameterReader interface default methods.
-		OwlcmsSession.withFop(fop -> {
-			init();
+    protected void doEmpty() {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            this.getElement().callFunction("clear"); //$NON-NLS-1$
+        });
+    }
 
-			// sync with current status of FOP
-			if (fop.getState() == FOPState.INACTIVE) {
-				doEmpty();
-			} else {
-				Athlete curAthlete = fop.getCurAthlete();
-				if (fop.getState() == FOPState.BREAK) {
-					if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {
-						doDone(fop.getGroup());
-					} else {
-						doBreak(fop);
-					}
-				} else {
-					doAthleteUpdate(curAthlete, null);
-				}
-			}
-			// we send on fopEventBus, listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
-		});
-	}
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+     * AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        logger.trace("onAttach {}", OwlcmsSession.getFop().getName());
+        // fop obtained via QueryParameterReader interface default methods.
+        OwlcmsSession.withFop(fop -> {
+            init();
 
-	private String formatAttempt(Integer attemptNo) {
-		return MessageFormat.format(getTranslation("AttemptBoard_attempt_number"), attemptNo); //$NON-NLS-1$
-	}
+            // sync with current status of FOP
+            if (fop.getState() == FOPState.INACTIVE) {
+                doEmpty();
+            } else {
+                Athlete curAthlete = fop.getCurAthlete();
+                if (fop.getState() == FOPState.BREAK) {
+                    if (curAthlete != null && curAthlete.getAttemptsDone() >= 6) {
+                        doDone(fop.getGroup());
+                    } else {
+                        doBreak(fop);
+                    }
+                } else {
+                    doAthleteUpdate(curAthlete, null);
+                }
+            }
+            // we send on fopEventBus, listen on uiEventBus.
+            uiEventBus = uiEventBusRegister(this, fop);
+        });
+    }
 
-	private Object getOrigin() {
-		return this;
-	}
+    private String formatAttempt(Integer attemptNo) {
+        return MessageFormat.format(getTranslation("AttemptBoard_attempt_number"), attemptNo); //$NON-NLS-1$
+    }
 
+    private Object getOrigin() {
+        return this;
+    }
 
-	private void init() {
-		OwlcmsSession.withFop(fop -> {
-			logger.trace("Starting attempt board on FOP {}", fop.getName()); //$NON-NLS-1$
-			setId("attempt-board-template"); //$NON-NLS-1$
-		});
-	}
+    private void init() {
+        OwlcmsSession.withFop(fop -> {
+            logger.trace("Starting attempt board on FOP {}", fop.getName()); //$NON-NLS-1$
+            setId("attempt-board-template"); //$NON-NLS-1$
+        });
+    }
 
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Attempt"); //$NON-NLS-1$
-	}
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Attempt"); //$NON-NLS-1$
+    }
 
 }

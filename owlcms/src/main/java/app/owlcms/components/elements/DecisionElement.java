@@ -27,7 +27,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Decision display element.
+ * DecisionReversalTimeOver display element.
  */
 @SuppressWarnings("serial")
 @Tag("decision-element")
@@ -72,7 +72,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		Object origin = this.getOrigin();
 		OwlcmsSession.withFop((fop) -> {
 			logger.debug("referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time, ref3Time);
-			fopEventBus.post(new FOPEvent.RefereeUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time, ref3Time));
+			fopEventBus.post(new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time, ref3Time));
 		});
 
 	}
@@ -88,7 +88,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 		Object origin = this.getOrigin();
 		OwlcmsSession.withFop((fop) -> {
 			logger.info("{} decision={} ({} {} {})", fop.getCurAthlete(), decision, ref1, ref2, ref3);
-			fopEventBus.post(new FOPEvent.Decision(fop.getCurAthlete(), origin, decision, ref1, ref2, ref3));
+			fopEventBus.post(new FOPEvent.DecisionReversalTimeOver(fop.getCurAthlete(), origin, decision, ref1, ref2, ref3));
 		});
 	}
 	
