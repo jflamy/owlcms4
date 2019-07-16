@@ -1,4 +1,4 @@
-Refereeing
+# Refereeing
 
 Refereeing can be performed in 3 different ways
 
@@ -14,7 +14,7 @@ The announcer announces the decision and uses the buttons at the top right of hi
 
  The referee console is started from the "run a lifting group" page, or by adding /ref to the URL for the competition site.  For example https://owlcms4.herokuapp/ref  leads to the referee application.  After starting the referee screen, it is necessary to select which referee is which (1, 2 or 3) using the numeric input at the top (use the + and - signs)
 
-![mobile_ref](C:\Users\owlcms\git\owlcms4\docs\img\equipment\mobile_ref.png)
+![mobile_ref](img\equipment\mobile_ref.png)
 
 The selection is confirmed by greying out the other key.  The refereeing display is reset when an athlete gets fresh clock.
 
@@ -25,7 +25,7 @@ In this approach, keypads are connected to the laptop or mini PC running the tim
 1. Many referees prefer having their finger rest on a button (which is not possible on a phone)
 2. The sound and down arrow are emitted directly by the browser, without any round-trip to the master computer.  This reduces delays and increases reliability if the networking is fragile (which is sometimes the case in gyms)
 
-![refereeingSetup](C:\Users\owlcms\git\owlcms4\docs\img\equipment\refereeingSetup.jpg)
+![refereeingSetup](img\equipment\refereeingSetup.jpg)
 
 The keys or buttons on the keypads are programmed to send key sequences.  The decision display is waiting for these keypresses.  
 
