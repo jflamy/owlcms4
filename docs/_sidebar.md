@@ -3,15 +3,15 @@
 * [Installation]()
 
   *	[Local Setup](LocalSetup)
-  *	[Cloud Setup](Heroku.md)
-  *	[Equipment Setup](EquipmentSetup.md)
+  *	[Cloud Setup](Heroku)
+  *	[Equipment Setup](EquipmentSetup)
 
 * [Competitition]()
 
-  *	[Preparation](Preparation.md)
-  *	[Scoreboards and Displays](Displays.md)
-  *	[Announcing, Marshalling and Timekeeping](Announcing.md)
-  *	[Refereeing](Refereeing.md)
+  *	[Preparation](Preparation)
+  *	[Scoreboards and Displays](Displays)
+  *	[Announcing, Marshalling and Timekeeping](Announcing)
+  *	[Refereeing](Refereeing)
 
 * [Downloads]()
 
