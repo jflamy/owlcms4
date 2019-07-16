@@ -1,19 +1,19 @@
-* [Home](index.md)
+* [Home](index)
 
-* [Installation]()
+* Installation
 
-  *	[Local Setup](LocalSetup.md)
-  *	[Cloud Setup](Heroku.md)
-  *	[Equipment Setup](EquipmentSetup.md)
+  *	[Local Setup](LocalSetup)
+  *	[Cloud Setup](Heroku)
+  *	[Equipment Setup](EquipmentSetup)
 
-* [Competitition]()
+* Competition
 
-  *	[Preparation](Preparation.md)
-  *	[Scoreboards and Displays](Displays.md)
-  *	[Announcing, Marshalling and Timekeeping](Announcing.md)
-  *	[Refereeing](Refereeing.md)
+  *	[Preparation](Preparation)
+  *	[Scoreboards and Displays](Displays)
+  *	[Announcing, Marshalling and Timekeeping](Announcing)
+  *	[Refereeing](Refereeing)
 
-* [Downloads]()
+* Downloads
 
   *	[Releases](https://github.com/jflamy/owlcms4/releases)
   *	[Source Repository](https://github.com/jflamy/owlcms4)
