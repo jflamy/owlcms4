@@ -2,7 +2,7 @@
 
 * [Installation]()
 
-  *	[Local Setup](LocalSetup.md)
+  *	[Local Setup](LocalSetup)
   *	[Cloud Setup](Heroku.md)
   *	[Equipment Setup](EquipmentSetup.md)
 
