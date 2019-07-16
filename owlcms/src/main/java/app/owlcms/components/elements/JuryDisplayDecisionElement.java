@@ -6,9 +6,9 @@ import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.UIEvent;
+import app.owlcms.fieldofplay.UIEvent.Decision;
 import app.owlcms.fieldofplay.UIEvent.DecisionReset;
 import app.owlcms.fieldofplay.UIEvent.DownSignal;
-import app.owlcms.fieldofplay.UIEvent.Decision;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import ch.qos.logback.classic.Level;

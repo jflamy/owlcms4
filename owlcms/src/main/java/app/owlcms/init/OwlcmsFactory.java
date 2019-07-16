@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyAthleteTimer;
+import app.owlcms.fieldofplay.ProxyBreakTimer;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
