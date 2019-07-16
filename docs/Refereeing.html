@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8' ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	</head>
+	<body>
+		<h1 id="refereeing">Refereeing</h1>
+		<p>Refereeing can be performed in 3 different ways</p>
+		<ul>
+			<li>With no technology.  Decisions are made using flags, colored cards, or hand signals.
+				<br/>
+			</li>
+			<li>With mobile devices (typically, a cellular phone or a tablet)</li>
+			<li>With buttons connected to the athlete-facing decision display (or an attempt board)</li>
+		</ul>
+		<h2 id="manual-refereeing">Manual Refereeing</h2>
+		<p>The announcer announces the decision and uses the buttons at the top right of his screen to register the decision.</p>
+		<h2 id="mobile-device-refereeing">Mobile Device Refereeing</h2>
+		<p> The referee console is started from the "run a lifting group" page, or by adding /ref to the URL for the competition site.  For example https://owlcms4.herokuapp/ref  leads to the referee application.  After starting the referee screen, it is necessary to select which referee is which (1, 2 or 3) using the numeric input at the top (use the + and - signs)</p>
+		<p>
+			<img alt="mobile_ref" border="0" src="img\equipment\mobile_ref.png"/>
+		</p>
+		<p>The selection is confirmed by greying out the other key.  The refereeing display is reset when an athlete gets fresh clock.</p>
+		<h2 id="usb-or-bluetooth-keypads">USB or Bluetooth Keypads</h2>
+		<p>In this approach, keypads are connected to the laptop or mini PC running the timer/decision display (or the attempt board, both work the same).   There are two advantages to this approach:</p>
+		<ol>
+			<li>Many referees prefer having their finger rest on a button (which is not possible on a phone)</li>
+			<li>The sound and down arrow are emitted directly by the browser, without any round-trip to the master computer.  This reduces delays and increases reliability if the networking is fragile (which is sometimes the case in gyms)</li>
+		</ol>
+		<p>
+			<img alt="refereeingSetup" border="0" src="img\equipment\refereeingSetup.jpg"/>
+		</p>
+		<p>The keys or buttons on the keypads are programmed to send key sequences.  The decision display is waiting for these keypresses.
+			<br/>
+		</p>
+		<ul>
+			<li>1 will be interpreted as a red from referee 1, and 2 will be interpreted as a white. </li>
+			<li>3 will be interpreted as a red from referee 2, and 4 will be interpreted as a white.
+				<br/>
+			</li>
+			<li>Finally, 5 will be interpreted as a red from referee 3, and 6 will be interpreted as a white.</li>
+		</ul>
+	</body>
+</html>
