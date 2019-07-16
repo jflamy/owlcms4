@@ -2,11 +2,6 @@
 
 This system is a full rewrite of [owlcms2](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity.
 
-For the current status, see
-
-- [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.
-- [Issues and enhancement requests](https://github.com/jflamy/owlcms4/issues) This is the complete log of requests and planned enhancements.
-
 ## Features
 
 - The following key features are present
@@ -14,7 +9,9 @@ For the current status, see
   - Ability to run in the **cloud**: Decisions, timers and sounds are handled locally in the browser to provide better feedback.
   - **Announcer, marshall and timekeeper** screens (updating athlete cards and recomputing lifting order).
   - **Attempt board** showing current athlete information, remaining time and weight requested. 
-  - **Support for refereeing devices** Any keypad that can be programmed to generate the digits 0 to 9 can be used to enter decisions (see the demo walkthrough below for the key mapping).  
+  - **Support for refereeing devices** (see this [page](Refereeing.md) for discussion) 
+    - Any keypad that can be programmed to generate the digits 0 to 9 can be used to enter decisions (see the demo walkthrough below for the key mapping).  
+    - Mobile phones or tablets can also be used.
   - **Athlete-facing decision display** (decision display reversed to match referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
   - **Scoreboard** for public or warm-up room display.  Shows timer, down and decision lights.
   - **Athlete Registration and Weigh-in screens**, including production of **weigh-in sheet** with starting weights and **athlete cards**.
@@ -32,7 +29,7 @@ The software is meant to comply with current IWF Technical Competition Rules and
 
 [Ready-to-run Releases](https://github.com/jflamy/owlcms4/releases) are available at [https://github.com/jflamy/owlcms4/releases](https://github.com/jflamy/owlcms4/releases) . The releases can be run either locally (on any machine where Java8 is available), or on the cloud.
 
-[Installation Instructions](index.html#!Installation.md) are available for both local installations and for running on the Heroku cloud service.
+Installation Instructions are available for both [local installations](LocalSetup.md) and for [running on the Heroku cloud service](Heroku.md).
 
 Until which time documentation for owlcms4 is fully updated, you may wish to refer to the [owlcms2](https://owlcms2.sourceforge.io/#!Running.md) documentation.  The general concepts are the same.
 
@@ -64,6 +61,13 @@ A [Live demo](https://owlcms4.herokuapp.com) of the current build is available o
 This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/jflamy/owlcms4/releases) page and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
 
 If however you wish to provide or host the software as a service to others, or if you create a modified version, the license *requires* you to make full sources and building instructions available for free, so that anyone who wants to compile or further modify your version can do so on their own (see the [License](https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt) for details.).  You may contact the author to seek alternative licensing agreements.
+
+### Contributing
+
+For the current status, see
+
+- [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.
+- [Issues and enhancement requests](https://github.com/jflamy/owlcms4/issues) This is the complete log of requests and planned enhancements.
 
 ## Credits
 
