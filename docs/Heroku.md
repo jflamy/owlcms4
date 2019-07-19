@@ -1,5 +1,3 @@
-# Running on Heroku Cloud
-
 Heroku is a cloud service provider that provides an attractive free platform for running programs like owlcms.
 When running on Heroku you only need a good Internet connection, and do not need to configure a master laptop.
 

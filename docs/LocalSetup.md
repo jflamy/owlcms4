@@ -1,5 +1,3 @@
-# Running stand-alone
-
 In a stand-alone setting, you do not need an Internet connection.  Everything runs locally at the competition site.  One laptop is used to run the software and acts as a *master*.  All the other screens connect to the master using a Web browser.
 
 See the [Equipment Setup](EquipmentSetup.md) page for details on how the various computers are setup, from the simplest case of a  club meet to the full setup for national championships.

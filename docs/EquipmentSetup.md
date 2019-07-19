@@ -1,5 +1,3 @@
-# Equipment Setup
-
 ## Physical Setup
 
 Each screen or display is attached to a laptop or miniPC (Windows, Linux, ChromeOS).  A setup for a regional competition without a jury might look as follows.  If [running on the cloud](Heroku.md), the router would be connected to the Internet, and the owlcms software would be accessed remotely.  If [running remotely](LocalSetup.md), the software runs on the master laptop, which is typically that used by the competition secretary.
