@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.0.33</version>
+		<version>4.0.34-SNAPSHOT</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -231,11 +231,6 @@
 			<artifactId>flow-push</artifactId>
 		</dependency>
 
-<!-- 		<dependency>
-			<groupId>com.ragedunicorn.tools.maven</groupId>
-			<artifactId>github-release-maven-plugin</artifactId>
-			<version>1.0.1</version>
-		</dependency> -->
 	</dependencies>
 
 	<build>
@@ -398,9 +393,49 @@
 							<icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
 							<jre>
 								<minVersion>1.8.0</minVersion>
+								<path>./bin/java.exe</path>
 								<!-- <opts> -->
 								<!-- <opt>-Djava.endorsed.dirs=./endorsed</opt> -->
 								<!-- </opts> -->
+							</jre>
+							<versionInfo>
+								<fileVersion>1.0.0.0</fileVersion>
+								<txtFileVersion>${project.version}</txtFileVersion>
+								<fileDescription>${project.name}</fileDescription>
+								<copyright>...</copyright>
+								<productVersion>1.0.0.0</productVersion>
+								<txtProductVersion>1.0.0.0</txtProductVersion>
+								<productName>${project.name}</productName>
+								<companyName>...</companyName>
+								<internalName>...</internalName>
+								<originalFilename>${executable.name}.exe</originalFilename>
+							</versionInfo>
+						</configuration>
+					</execution>
+					<execution>
+						<id>l4j-demo</id>
+						<phase>package</phase>
+						<goals>
+							<goal>launch4j</goal>
+						</goals>
+						<configuration>
+							<headerType>console</headerType>
+							<outfile>${project.build.directory}/demo-${project.artifactId}.exe</outfile>
+							<jar>${project.artifactId}-${project.version}.jar</jar>
+							<dontWrapJar>true</dontWrapJar>
+							<errTitle>owlcms</errTitle>
+							<classPath>
+								<mainClass>app.owlcms.Main</mainClass>
+								<addDependencies>false</addDependencies>
+								<postCp>${project.artifactId}-${project.version}.jar</postCp>
+							</classPath>
+							<icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
+							<jre>
+								<minVersion>1.8.0</minVersion>
+								<path>./bin/java.exe</path>
+								<opts>
+									<opt>-DdemoMode=true</opt>
+								</opts>
 							</jre>
 							<versionInfo>
 								<fileVersion>1.0.0.0</fileVersion>
@@ -422,7 +457,7 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>assembly</id>
+						<id>cloud</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
@@ -432,6 +467,42 @@
 								<descriptor>src/main/assembly/zip.xml</descriptor>
 							</descriptors>
 						</configuration>
+					</execution>
+					<execution>
+						<id>windows_jdk</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>${project.artifactId}-win64</finalName>
+							<descriptors>
+								<descriptor>src/main/assembly/win64.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.6.0</version>
+				<configuration>
+					<executable>${innosetup.exe}</executable>
+					<workingDirectory></workingDirectory>
+					<arguments>
+						<argument>src\main\install\owlcms.iss</argument>
+					</arguments>
+				</configuration>
+				<executions>
+					<execution>
+						<id>windows_jdk_package</id>
+						<!-- verify phase is used because contrary to documentation, pom.xml ordering is not respected
+						     and this execution does not run last if invoked in package phase -->
+						<phase>verify</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
