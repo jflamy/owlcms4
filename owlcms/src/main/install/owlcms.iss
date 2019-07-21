@@ -2,7 +2,6 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "owlcms4"
-#define MyAppVersion "4.1"
 #define MyAppPublisher "Jean-François Lamy"
 #define MyAppURL "https://jflamy.github.io/owlcms4"
 #define MyAppExeName "owlcms.exe"
@@ -12,7 +11,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{468BDCAA-2973-42CC-93FF-76EA762AF08E}
 AppName={#MyAppName}
-AppVersion={#MyAppVersion}
+AppVersion={#%versionNumber}
 ;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
@@ -37,8 +36,11 @@ UsePreviousAppDir=no
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkablealone
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{app}"
 
 [Files]
 Source: "target\owlcms-win64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
