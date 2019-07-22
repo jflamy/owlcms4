@@ -4,7 +4,7 @@ In a stand-alone setting, you do not need an Internet connection.  Everything ru
 
 This step is performed only on the master laptop.
 
-- Get the current installation file from <https://github.com/jflamy/owlcms4/releases> (see the "Assets" section)
+- Get the current installation file called `owlcms_setup.exe` from the <https://github.com/jflamy/owlcms4/releases> page (see the "Assets" section)
 
 ![zip](img\LocalInstall\010_zip.png)
 
@@ -51,17 +51,29 @@ When OWLCMS4 is started on a laptop, two windows are visible:  a black command-l
 
 ![040_starting](img\LocalInstall\040_starting.png)
 
-
-
 - The command-line window (typically with a black background) is the OWLCMS4 master web server.  All the other displays and screens will connect to this server.  You can stop the program by clicking on the x, but if you do so, every single screen and display will spin in wait mode until you restart the program.
 
 - The white window is a normal browser.  If you look at the top, you will see two or more lines that tell you how to open more browsers:
 
   ![060_urls](img\LocalInstall\060_urls.png)
 
-  In this example, the other laptops on the network will use the address `http://192.168.4.1:8080/` to communicate with the master server.  This example works on the author's development network and won't work for you -- use the address shown on *your* setup.
+  In this example the other laptops on the network would use the address `http://192.168.4.1:8080/` to communicate with the master server.  
 
-- Notes:
-  
-  - The database will be created in a directory named `database` 
-  - Log files will be created in a directory called `logs` . If you report bugs, you will be asked to send a copy of the files found in that directory (and possibly a copy of the files in the database folder as well).
+  The address <u>depends on your own specific networking setup</u> and you must use one of the addresses displayed **on your setup.**  If none of the addresses listed work, you will need to refer to the persons that set up the networking at your site and on your laptop.  A "proxy" or a "firewall", or some other technical configuration may be blocking access, or requiring a different address that the server can't discover.
+
+  ## Accessing the Program Files and Configuration
+
+  In order to uninstall owlcms4, to report problems, or to change some program configurations, you may need to access the program directory. In order to do so, right-click on the desktop shortcut and select "Open File Location"
+
+  ![070_openLocation](C:\Users\owlcms\git\owlcms4\docs\img\LocalInstall\070_openLocation.png)
+
+  If you do so, you will see the installation directory content:
+
+  ![080_files](C:\Users\owlcms\git\owlcms4\docs\img\LocalInstall\080_files.png)
+
+  - `owlcms.exe` starts the owlcms server.  `demo-owlcms.exe` does the same, but using fictitious data that is reset anew on every start; this makes it perfect for practicing.
+  - The database is created in the directory named `database` 
+  - Log files are be created in the directory called `logs` . If you report bugs, you will be asked to send a copy of the files found in that directory (and possibly a copy of the files in the database folder as well).
+  - `bin` and `lib` contain the files to execute Java
+  - the file ending in `.jar` is the owlcms server proper
+  - `unins000.exe` will cleanly uninstall everything (including the database and logs, so be careful)
