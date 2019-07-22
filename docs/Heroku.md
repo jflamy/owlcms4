@@ -9,7 +9,7 @@ You will need one laptop or minipc for each display.
 
 - Create a free account. Remember the login and password information.
 
-- Create an app -- this is the name under which your cloud copy of owlcms will be known. Pick an available name, typically the name of your club or federation.
+- Create an app -- this is the name under which your cloud copy of owlcms will be known. Pick an available name, typically the name of your club or federation. In the rest of this example, we will use a dummy name `myHerokuAppName`
 
   ![0-createNewApp](img\Heroku\0-createNewApp.png)
 
@@ -57,19 +57,19 @@ The following steps will allow you to download the owlcms application and update
 
 - Get the current installation file ending in `.zip` from the <https://github.com/jflamy/owlcms4/releases> page (see the "Assets" section)
   
-  ![010_zip](/img/LocalInstall/010_zip.png)
+  ![010_zip](/img/Heroku/9a_zip.png)
   
-- Download a release and unzip it release to a directory by double-clicking on it.   
+- Download the release and unzip it release to a directory by double-clicking on it.   
   
 - Start a command shell and go to the directory where you unzipped the files.
   ```bash
    cd *the_directory_where_you_unzipped_the_files*
   ```
 
-- Run the deploy command (replace X.Y and myHerokuAppName with the proper values)
+- Run the deploy command (replace 4.0.34 and myHerokuAppName with the proper values)
 
   ```bash
-   heroku deploy:jar owlcms-4.X.Y.jar --app myHerokuAppName  
+   heroku deploy:jar owlcms-4.0.34.jar --app myHerokuAppName  
   ```
   
 - Open the application using the following command (or go to ``https://myfederation.herokuapp.com``). This will start the application. Heroku provides the database names and database login information automatically.  See below for securing the application for actual competition usage.
@@ -83,14 +83,14 @@ The following steps will allow you to download the owlcms application and update
   ```bash
   cp Procfile prodProcfile
   cp demoProcfile Procfile
-  heroku deploy:jar owlcms-4.X.Y.jar --app myHerokuAppName
+  heroku deploy:jar owlcms-4.0.34.jar --app myHerokuAppName
   ```
 
 - If after running a demo you want to restore competition mode
   
   ```bash
   cp prodProcfile Procfile
-  heroku deploy:jar owlcms-4.X.Y.jar --app myHerokuAppName
+  heroku deploy:jar owlcms-4.0.34.jar --app myHerokuAppName
   ```
   
 

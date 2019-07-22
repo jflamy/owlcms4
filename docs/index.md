@@ -25,20 +25,6 @@ This system is a full rewrite of [owlcms2](https://owlcms2.sourceforge.io/#!inde
 
 The software is meant to comply with current IWF Technical Competition Rules and Regulations (TCRR) and with the current Masters Weightlifting rules.  TCRR Requirements regarding equipment are outside our scope (such as the presence of indicator lights and buzzers on refereeing devices, etc.)
 
-## Installation
-
-[Ready-to-run Releases](https://github.com/jflamy/owlcms4/releases) are available at [https://github.com/jflamy/owlcms4/releases](https://github.com/jflamy/owlcms4/releases) . The releases can be run either locally (on any machine where Java8 is available), or on the cloud.
-
-Installation Instructions are available for both [local installations](LocalSetup.md) and for [running on the Heroku cloud service](Heroku.md).
-
-Until which time documentation for owlcms4 is fully updated, you may wish to refer to the [owlcms2](https://owlcms2.sourceforge.io/#!Running.md) documentation.  The general concepts are the same.
-
-#### Requirements
-
-- The server software will run on any recent laptop acting as a server (or on a cloud) with Java8 installed.
-- For the user interface and displays, use a recent version of Chrome or Firefox on a laptop (Windows, Mac, Linux).  Apple iPads are not supported as I do not have access to a development Mac to iron out the glitches.
-- In order to drive the displays, you may use any laptop or miniPC (such as a [Raspberry Pi](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/)).  You need one laptop or miniPC for each display.
-
 ## Demo
 
 A [Live demo](https://owlcms4.herokuapp.com) of the current build is available on the Heroku cloud service.
