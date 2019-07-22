@@ -1,6 +1,6 @@
 # Olympic Weightlifting Competition Management System 
 
-This system is a full rewrite of [owlcms2](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity.
+This system is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity, and can optionally be run on the cloud without a local installation.
 
 ## Features
 
