@@ -6,15 +6,14 @@
  */
 package app.owlcms;
 
+import java.awt.Desktop;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
@@ -29,14 +28,16 @@ import app.owlcms.data.jpa.ProdData;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.EmbeddedJetty;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
  * Main.
  */
-public class Main implements ServletContextListener {
+public class Main {
 
     public final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
+    private static Integer serverPort;
 
     /**
      * The main method.
@@ -85,7 +86,7 @@ public class Main implements ServletContextListener {
         // read server.port parameter from -D"server.port"=9999 on java command line
         // this is required for running on Heroku which assigns us the port at run time.
         // default is 8080
-        Integer serverPort = Integer.getInteger("port", 8080); //$NON-NLS-1$
+        serverPort = Integer.getInteger("port", 8080); //$NON-NLS-1$
         logStart(serverPort);
 
         // reads system properties (-D on command line)
@@ -153,14 +154,19 @@ public class Main implements ServletContextListener {
         JPAService.close();
     }
 
-    @Override
-    public void contextInitialized(ServletContextEvent sce) {
+    public static void startBrowser() {
+        if (Desktop.isDesktopSupported()) {
+            logger.debug("starting browser");
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                desktop.browse(new URI("http://127.0.0.1"+(serverPort == 80 ? "" : ":"+serverPort.toString()+"/")));
+            } catch (Exception e) {
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+        } else {
+            logger.debug("no browser support");
+        }
     }
 
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
-        tearDown();
-        logger.info("owlcms end."); //$NON-NLS-1$
-    }
 
 }
