@@ -9,8 +9,6 @@ package app.owlcms.init;
 import java.net.URI;
 import java.net.URL;
 
-import javax.servlet.ServletContext;
-
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
