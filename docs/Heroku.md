@@ -15,7 +15,7 @@ You will need one laptop or minipc for each display.
 
   ![1-newApp](/img/Heroku/1-newApp.png)
 
-- On the application configuration page, click on the `Configure Add-ons` link and choose the Postgres plugin. 
+- On the application configuration page, click on the `Configure Add-ons` link, search for the `Postgres` plugin, and select it. 
 
   ![2-configureAddOns](img/Heroku/2-configureAddOns.png)
 
@@ -27,7 +27,7 @@ You will need one laptop or minipc for each display.
 
   ![7-papertrail](/img/Heroku/7-papertrail.png)
 
-- Click on `Papertrail`. In order to see the application logs, go to the bottom of the page and click on the Saved searches bullet list icon. You will be using the `Web app output` entry.
+- Click on `Papertrail`. In order to see the application logs, go to the bottom of the page and click on the Saved searches bullet list icon. You will be using the `Web app output` entry in the future to see the logs (on a new install, there is nothing to see)
 
   ![8-appLog](/img/Heroku/8-appLog.png)
 
@@ -69,13 +69,7 @@ The following steps will allow you to download the owlcms application and update
 - Run the deploy command (replace 4.0.34 and myHerokuAppName with the proper values)
 
   ```bash
-   heroku deploy:jar owlcms-4.0.34.jar --app myHerokuAppName  
-  ```
-  
-- Open the application using the following command (or go to ``https://myfederation.herokuapp.com``). This will start the application. Heroku provides the database names and database login information automatically.  See below for securing the application for actual competition usage.
-  
-  ```bash
-  heroku open --app myHerokuAppName 
+   heroku deploy:jar owlcms-4.0.34.jar --app=myHerokuAppName  
   ```
   
 - If you want to run in demo mode with fictitious athletes, run the following commands before doing the deployment. This adds the `-DdemoMode=true` flag to tell owlcms to reset on every start and recreate the fake data.
@@ -83,14 +77,14 @@ The following steps will allow you to download the owlcms application and update
   ```bash
   cp Procfile prodProcfile
   cp demoProcfile Procfile
-  heroku deploy:jar owlcms-4.0.34.jar --app myHerokuAppName
+  heroku deploy:jar owlcms-4.0.34.jar --app=myHerokuAppName
   ```
-
+  
 - If after running a demo you want to restore competition mode
   
   ```bash
   cp prodProcfile Procfile
-  heroku deploy:jar owlcms-4.0.34.jar --app myHerokuAppName
+  heroku deploy:jar owlcms-4.0.34.jar --app=myHerokuAppName
   ```
   
 
@@ -118,7 +112,7 @@ You have two options to start your Heroku cloud application.
 
 1. Use the Heroku CLI, and type the following (replacing of course`myHerokuApp` with the name of your own application)
 
-   ```
+   ```bash
    heroku open --app=myHerokuApp
    ```
 
