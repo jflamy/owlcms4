@@ -6,7 +6,7 @@ This step is performed only on the master laptop.
 
 - Get the current installation file called `owlcms_setup.exe` from the <https://github.com/jflamy/owlcms4/releases> page (see the "Assets" section)
 
-![zip](img\LocalInstall\010_zip.png)
+![zip](img\LocalInstall\010_setupexe.png)
 
 - Open the downloaded installer by double-clicking on it.
 
