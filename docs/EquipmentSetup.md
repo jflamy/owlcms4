@@ -1,9 +1,19 @@
 ## Physical Setup
 
-Each screen or display is attached to a laptop or miniPC (Windows, Linux, ChromeOS).  A setup for a regional competition without a jury might look as follows.  If [running on the cloud](Heroku.md), the router would be connected to the Internet, and the owlcms software would be accessed remotely.  If [running remotely](LocalSetup.md), the software runs on the master laptop, which is typically that used by the competition secretary.
+Each screen or display is attached to a laptop or miniPC (Windows, Linux, ChromeOS).  A setup for a regional competition without a jury might look as follows.  If [running on the cloud](Heroku.md), the router would be connected to the Internet, and the owlcms software is accessed remotely.  If [running locally](LocalSetup.md), the software runs on the master laptop, which is typically that used by the competition secretary.
 
 ![StateCompetition](img/equipment/StateCompetition.svg)
 
+## Hardware Requirements
+
+- The server software will run on any recent laptop acting as a server (or on a cloud) with Java8 installed, or on a cloud service. We test and support the Heroku cloud service, which has a free tier suitable for owlcms.
+
+- For the user interface and displays, 
+
+  - It is recommended to use a recent version of Chrome or Firefox on a laptop (Windows, Mac, Linux, ChromeOS)
+
+  - Apple iPads are only supported as [refereeing devices](Refereeing#mobile-refereeing-devices). Apple Safari does not comply with standards and unless someone donates a Mac development laptop, I have no intention of investigating further why what works everywhere else doesn't on the everlagging Safari.
+  - You can use any laptop or miniPC (such as a [Raspberry Pi](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/)) running Windows, Linux or ChromeOS. Be aware however that Raspberry Pi require a specific version of Linux to work with certain refereeing devices (Delcom USB keypads).
 
 ## Pre-requisite for sound : Chrome configuration
 

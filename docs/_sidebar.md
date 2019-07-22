@@ -1,9 +1,10 @@
 * [Home](index)
 
-* Installation
+* Getting Started
 
-  *	[Local Setup](LocalSetup)
-  *	[Cloud Setup](Heroku)
+  *	[Local Installation](LocalSetup)
+  *	[Cloud Installation](Heroku)
+  *	[Starting the Screens and Displays](Starting.md)
   *	[Equipment Setup](EquipmentSetup)
 
 * Competition

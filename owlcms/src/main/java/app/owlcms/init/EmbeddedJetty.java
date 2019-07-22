@@ -13,6 +13,7 @@ import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler.Context;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.FragmentConfiguration;
@@ -63,7 +64,8 @@ public class EmbeddedJetty {
                 new PlusConfiguration(),
                 new JettyWebXmlConfiguration()
         });
-        context.getServletContext().setExtendedListenerTypes(true);
+        Context servletContext = context.getServletContext();
+        servletContext.setExtendedListenerTypes(true);
         context.addEventListener(new ServletContextListeners());
 
         Server server = new Server(port);
@@ -71,6 +73,7 @@ public class EmbeddedJetty {
 
         server.start();
         startLogger.info("started on port {}", port); //$NON-NLS-1$
+        Main.startBrowser();
         server.join();
     }
 

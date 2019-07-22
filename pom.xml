@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>app.owlcms</groupId>
 	<artifactId>owlcms4top</artifactId>
-	<version>4.0.33</version>
+	<version>4.0.34</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>owlcms</module>
@@ -16,13 +16,20 @@
 	</organization>
 
 	<properties>
+		<!-- hard-coded paths -->
+		<!-- bundled windows jre location -->
+		<jre.directory>C:\Program Files\AdoptOpenJDK\jdk-8.0.222.10-hotspot\jre</jre.directory>
+		<!-- windows installer compiler -->
+		<innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
+		
+		<!-- maven configs -->
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
 
-		<!-- Libraries -->
+		<!-- Library versions -->
 		<vaadin.version>13.0.8</vaadin.version>
 		<logback.version>1.2.3</logback.version>
 		<slf4j.version>1.7.26</slf4j.version>

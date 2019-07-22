@@ -118,10 +118,10 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		intro.add(new Hr());
 		addP(intro,
 			getTranslation("LeftMenuNavigate") + //$NON-NLS-1$
-			getTranslation("PrepareCompatition_description") + //$NON-NLS-1$
-			getTranslation("RunLiftingGroup_description") + //$NON-NLS-1$
-			getTranslation("StartDisplays_description") + //$NON-NLS-1$
-			getTranslation("CompetitionDocuments_description")+ //$NON-NLS-1$
+			getTranslation("PrepareCompatition_description", PREPARE_COMPETITION) + //$NON-NLS-1$
+			getTranslation("RunLiftingGroup_description", RUN_LIFTING_GROUP) + //$NON-NLS-1$
+			getTranslation("StartDisplays_description", START_DISPLAYS) + //$NON-NLS-1$
+			getTranslation("CompetitionDocuments_description", RESULT_DOCUMENTS)+ //$NON-NLS-1$
 			getTranslation("SeparateLaptops") //$NON-NLS-1$
 		);
 		intro.getElement().getStyle().set("margin-bottom", "-1em"); //$NON-NLS-1$ //$NON-NLS-2$
