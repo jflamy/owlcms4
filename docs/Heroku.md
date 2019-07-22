@@ -108,7 +108,7 @@ In actual competition settings, malicious users may know the password to your Wi
 
 ### Securing a Heroku cloud installation
 
-The simplest way is to use the Heroku dashboard for the application and add the IP and PIN variables under the Settings tab, in the Config Vars section.
+The simplest way is to use the Heroku dashboard for the application and add the IP and PIN variables under the Settings tab, in the `Config Vars` section.  You must of course use your own IP as explained [above](#controlling-access-to-the-application).
 
 ![pin](img\Heroku\pin.png)
 
@@ -122,16 +122,10 @@ You have two options to start your Heroku cloud application.
    heroku open --app=myHerokuApp
    ```
 
-2. Open a browser with the address `https://myHerokuApp.herokuapp.com` (replacing of course`myHerokuApp` with the name of your own application) name
+2. Open a browser with the address `https://myHerokuApp.herokuapp.com` (replacing of course `myHerokuApp` with the name of your own application) name
 
-![040_starting](img/LocalInstall/040_starting.png)
+In both cases the browser will open. On the first line there will be a reminder of the web address (URL) to be used
 
-- The command-line window (typically with a black background) is the OWLCMS4 master web server.  All the other displays and screens will connect to this server.  You can stop the program by clicking on the x, but if you do so, every single screen and display will spin in wait mode until you restart the program.
+![9-url](img/Heroku/9-url.png)
 
-- The white window is a normal browser.  If you look at the top, you will see two or more lines that tell you how to open more browsers:
-
-  ![060_urls](img/LocalInstall/060_urls.png)
-
-  In this example the other laptops on the network would use the address `http://192.168.4.1:8080/` to communicate with the master server.  
-
-  The address <u>depends on your own specific networking setup</u> and you must use one of the addresses displayed **on your setup.**  If none of the addresses listed work, you will need to refer to the persons that set up the networking at your site and on your laptop.  A "proxy" or a "firewall", or some other technical configuration may be blocking access, or requiring a different address that the server can't discover.
+When using Heroku, we suggest always using https instead of http, no matter what is displayed.
