@@ -1,19 +1,34 @@
-Heroku is a cloud service provider that provides an attractive free platform for running programs like owlcms.
-When running on Heroku you only need a good Internet connection, and do not need to configure a master laptop.
+---
+typora-root-url: ./
+---
 
-Every screen or display you want to run will be through a browser that connects to the application running in the cloud.
+Heroku is a cloud service provider that provides an attractive free platform for running programs like owlcms.  When running on Heroku you only need a good Internet connection, and do not need to configure a master laptop.
+
+Every screen or display will be through a browser that connects to the application running in the cloud.
 You will need one laptop or minipc for each display.
 
-## First time setup
+## Setup an Heroku account
 
 - Go to page https://heroku.com
+
 - Create a free account. Remember the login and password information.
-- Create an app -- this is the name under which your cloud copy of owlcms will be known. Pick an available name, typically the name of your club or federation. For the rest of this example, the name we use will be "myfederation"
-- On the application configuration page, add the Postgres plugin.  This will automatically associate a free database with your application.
+
+- Create an app -- this is the name under which your cloud copy of owlcms will be known. Pick an available name, typically the name of your club or federation.![0-createNewApp](img\Heroku\0-createNewApp.png)
+
+- On the application configuration page, click on the `Configure Add-ons` link and choose the Postgres plugin. 
+
+  ![2-configureAddOns](img/Heroku/2-configureAddOns.png)
+
+  ![3-addPostgres](/img/Heroku/3-addPostgres.png)
+
+- Select the free database plan; the Provision button will connect a database to your application.![4-provisionPostgres](/img/Heroku/4-provisionPostgres.png)
+
 - Go to page https://devcenter.heroku.com/articles/heroku-cli#download-and-install
+
 - Get the Windows installer.  Ignore the note about installing Git, we don't need actually need it.
   
 - Run the installer to install the heroku CLI (command line interface)
+
 - Click on the Windows icon at the bottom left and type cmd
   Start the windows command prompt window which shows up in the results and perform the following commands
 
