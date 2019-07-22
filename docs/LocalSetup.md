@@ -33,15 +33,15 @@ This step is performed only on the master laptop.
   - For MacOS, install homebrew (see https://brew.sh/) and then run the following commands
 
     ```bash
-    brew tap caskroom/versions
-    brew cask install java8
+brew tap caskroom/versions
+brew cask install java8
     ```
 
 - To start the program, change directory to the location where you unzipped the files and launch java (replace 4.x.y with the actual version number you downloaded)
 
     ```bash
 cd ~/owlcms4
-	java -jar owlcms-4.x.y.jar
+java -jar owlcms-4.x.y.jar
 	```
 This will actually start the program and a browser. See [Initial Startup](#initial-startup) for how to proceed.
 
@@ -65,15 +65,15 @@ When OWLCMS4 is started on a laptop, two windows are visible:  a black command-l
 
   In order to uninstall owlcms4, to report problems, or to change some program configurations, you may need to access the program directory. In order to do so, right-click on the desktop shortcut and select "Open File Location"
 
-  ![070_openLocation](C:\Users\owlcms\git\owlcms4\docs\img\LocalInstall\070_openLocation.png)
+  ![070_openLocation](img\LocalInstall\070_openLocation.png)
 
   If you do so, you will see the installation directory content:
 
-  ![080_files](C:\Users\owlcms\git\owlcms4\docs\img\LocalInstall\080_files.png)
+  ![080_files](img\LocalInstall\080_files.png)
 
-  - `owlcms.exe` starts the owlcms server.  `demo-owlcms.exe` does the same, but using fictitious data that is reset anew on every start; this makes it perfect for practicing.
-  - The database is created in the directory named `database` 
-  - Log files are be created in the directory called `logs` . If you report bugs, you will be asked to send a copy of the files found in that directory (and possibly a copy of the files in the database folder as well).
-  - `bin` and `lib` contain the files to execute Java
-  - the file ending in `.jar` is the owlcms server proper
-  - `unins000.exe` will cleanly uninstall everything (including the database and logs, so be careful)
+- `owlcms.exe` starts the owlcms server.  `demo-owlcms.exe` does the same, but using fictitious data that is reset anew on every start; this makes it perfect for practicing.
+- The database is created in the directory named `database` 
+- Log files are be created in the directory called `logs` . If you report bugs, you will be asked to send a copy of the files found in that directory (and possibly a copy of the files in the database folder as well).
+- `bin` and `lib` contain the files to execute Java
+- the file ending in `.jar` is the owlcms server proper
+- `unins000.exe` will cleanly uninstall everything (including the database and logs, so be careful)
