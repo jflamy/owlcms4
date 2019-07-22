@@ -1,4 +1,4 @@
-- See the [Web Site](https://jflamy.github.io/owlcms4/#!index.md#Features) for an overview of the feature set.  [Instructions for walking through a Live Demo](https://jflamy.github.io/owlcms4/#/index?id=demo) are available.
+- See the [Web Site](https://jflamy.github.io/owlcms4/#/?id=features) for an overview of the feature set.  [Instructions for walking through a Live Demo](https://jflamy.github.io/owlcms4/#/index?id=demo) are available.
 
 - Release Highlights:
   - Windows installer (no need to install Java anymore)
