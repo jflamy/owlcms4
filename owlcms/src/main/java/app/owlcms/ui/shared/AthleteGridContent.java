@@ -281,9 +281,12 @@ public abstract class AthleteGridContent extends VerticalLayout
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
                 this.getOrigin(), e.getOrigin());
         OwlcmsSession.withFop((fop) -> {
-            UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> doUpdateTopBar(fop.getCurAthlete(), 0));
+            UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
+                doUpdateTopBar(fop.getCurAthlete(), 0);
+                crudGrid.refreshGrid();
+            });
         });
-        crudGrid.refreshGrid();
+
     }
 
     @Subscribe
