@@ -63,9 +63,9 @@ public class FOPEvent {
 
 
 	/**
-	 * The Class DecisionReversalTimeOver.
+	 * The Class ExplicitDecision.
 	 */
-	static public class DecisionReversalTimeOver extends FOPEvent {
+	static public class ExplicitDecision extends FOPEvent {
 		
 		/** The decision. */
 		public Boolean success = null;
@@ -80,7 +80,7 @@ public class FOPEvent {
 		 * @param ref2 
 		 * @param ref3 
 		 */
-		public DecisionReversalTimeOver(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
+		public ExplicitDecision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 			super(athlete, origin);
 			logger.trace("referee decision for {}", athlete); //$NON-NLS-1$
 			this.success = decision;
@@ -135,7 +135,7 @@ public class FOPEvent {
 	/**
 	 * Report an individual decision.
 	 * 
-	 * No subclassing relationship with {@link DecisionReversalTimeOver} because of different @Subscribe requirements
+	 * No subclassing relationship with {@link ExplicitDecision} because of different @Subscribe requirements
 	 */
 	public static class DecisionFullUpdate extends FOPEvent {
 		public Boolean ref1;

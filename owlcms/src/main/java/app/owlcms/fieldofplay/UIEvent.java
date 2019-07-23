@@ -255,7 +255,7 @@ public class UIEvent {
 	}
 
 	/**
-	 * Class DecisionReversalTimeOver.
+	 * Class ExplicitDecision.
 	 */
 	static public class Decision extends UIEvent {
 
@@ -293,7 +293,7 @@ public class UIEvent {
 	/**
 	 * Individual referee decision.
 	 * 
-	 * No subclassing wrt DecisionReversalTimeOver because @Subscribe must be distinct.
+	 * No subclassing wrt ExplicitDecision because @Subscribe must be distinct.
 	 * 
 	 * @author owlcms
 	 */
