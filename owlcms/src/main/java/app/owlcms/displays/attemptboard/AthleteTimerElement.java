@@ -68,7 +68,7 @@ public class AthleteTimerElement extends TimerElement {
 	public void clientTimeOver() {
 		logger.trace("Received time over."); //$NON-NLS-1$
 		OwlcmsSession.withFop(fop -> {
-			fop.getAthleteTimer().timeOut(this);
+			fop.getAthleteTimer().timeOver(this);
 		});
 	}
 	

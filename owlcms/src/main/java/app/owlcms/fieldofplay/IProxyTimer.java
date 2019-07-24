@@ -40,7 +40,7 @@ public interface IProxyTimer {
 	/**
 	 * Stop with no time left.
 	 */
-	void timeOut(Object origin);
+	void timeOver(Object origin);
 
 	/**
 	 * @return time remaining when the clock owner last stopped it.
