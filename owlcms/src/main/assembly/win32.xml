@@ -19,7 +19,7 @@
 		</fileSet>
 		<fileSet>
 			<directory>${jre.directory}</directory>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory>/jre</outputDirectory>
 			<includes>
 				<include>bin**/**</include>
 				<include>lib**/**</include>

@@ -247,25 +247,6 @@
 
 		<plugins>
 			<plugin>
-				<!-- support mvn exec:java -->
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.6.0</version>
-				<configuration>
-					<mainClass>app.owlcms.Main</mainClass>
-					<systemProperties>
-						<systemProperty>
-							<key>demoMode</key>
-							<value>true</value>
-						</systemProperty>
-						<systemProperty>
-							<key>memoryMode</key>
-							<value>true</value>
-						</systemProperty>
-					</systemProperties>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.1.1</version>
@@ -393,11 +374,9 @@
 							<icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
 							<jre>
 								<minVersion>1.8.0</minVersion>
-								<path>.</path>
+								<path>jre</path>
 								<bundledJreAsFallback>false</bundledJreAsFallback>
-								<!-- <opts> -->
-								<!-- <opt>-Djava.endorsed.dirs=./endorsed</opt> -->
-								<!-- </opts> -->
+								>
 							</jre>
 							<versionInfo>
 								<fileVersion>1.0.0.0</fileVersion>
@@ -433,7 +412,7 @@
 							<icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
 							<jre>
 								<minVersion>1.8.0</minVersion>
-								<path>.</path>
+								<path>jre</path>
 								<opts>
 									<opt>-DdemoMode=true</opt>
 								</opts>
@@ -476,9 +455,9 @@
 							<goal>single</goal>
 						</goals>
 						<configuration>
-							<finalName>${project.artifactId}-win64</finalName>
+							<finalName>${project.artifactId}-win32</finalName>
 							<descriptors>
-								<descriptor>src/main/assembly/win64.xml</descriptor>
+								<descriptor>src/main/assembly/win32.xml</descriptor>
 							</descriptors>
 						</configuration>
 					</execution>
@@ -487,20 +466,27 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
-				<configuration>
-					<executable>${innosetup.exe}</executable>
-					<workingDirectory></workingDirectory>
-					<arguments>
-						<argument>src\main\install\owlcms.iss</argument>
-					</arguments>
-					<environmentVariables>
-
-					</environmentVariables>
-				</configuration>
+				<version>1.6.0</version>
 				<executions>
 					<execution>
+						<id>default-cli</id>
+						<configuration>
+							<mainClass>app.owlcms.Main</mainClass>
+							<systemProperties>
+								<systemProperty>
+									<key>demoMode</key>
+									<value>true</value>
+								</systemProperty>
+								<systemProperty>
+									<key>memoryMode</key>
+									<value>true</value>
+								</systemProperty>
+							</systemProperties>
+						</configuration>
+					</execution>
+					<execution>
 						<id>windows_jdk_package</id>
-						<!-- verify phase is used because contrary to documentation, pom.xml 
+						<!-- verify phase is used because contrary to documentation, pom.xml
 							ordering is not respected and this execution does not run last if invoked 
 							in package phase -->
 						<phase>verify</phase>
@@ -508,6 +494,11 @@
 							<goal>exec</goal>
 						</goals>
 						<configuration>
+							<executable>${innosetup.exe}</executable>
+							<workingDirectory></workingDirectory>
+							<arguments>
+								<argument>src\main\install\owlcms.iss</argument>
+							</arguments>
 							<environmentVariables>
 								<versionNumber>${project.version}</versionNumber>
 							</environmentVariables>
