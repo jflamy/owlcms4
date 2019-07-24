@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>app.owlcms</groupId>
 	<artifactId>owlcms4top</artifactId>
-	<version>4.0.34</version>
+	<version>4.0.35</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>owlcms</module>
@@ -18,7 +18,7 @@
 	<properties>
 		<!-- hard-coded paths -->
 		<!-- bundled windows jre location -->
-		<jre.directory>C:\Program Files\AdoptOpenJDK\jdk-8.0.222.10-hotspot\jre</jre.directory>
+		<jre.directory>C:\Apps\jdk8u222-b10-jre</jre.directory>
 		<!-- windows installer compiler -->
 		<innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
 		

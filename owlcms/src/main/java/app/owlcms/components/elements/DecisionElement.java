@@ -27,7 +27,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * DecisionReversalTimeOver display element.
+ * ExplicitDecision display element.
  */
 @SuppressWarnings("serial")
 @Tag("decision-element")
@@ -85,10 +85,11 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	
 	@ClientCallable
 	public void masterShowDecisions(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
-		Object origin = this.getOrigin();
+//		Object origin = this.getOrigin();
 		OwlcmsSession.withFop((fop) -> {
 			logger.info("{} decision={} ({} {} {})", fop.getCurAthlete(), decision, ref1, ref2, ref3);
-			fopEventBus.post(new FOPEvent.DecisionReversalTimeOver(fop.getCurAthlete(), origin, decision, ref1, ref2, ref3));
+//	now handled in FOPEvent itself.
+//			fopEventBus.post(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), origin, decision, ref1, ref2, ref3));
 		});
 	}
 	

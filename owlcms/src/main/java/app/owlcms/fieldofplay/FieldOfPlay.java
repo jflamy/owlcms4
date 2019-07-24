@@ -38,7 +38,7 @@ import app.owlcms.fieldofplay.FOPEvent.BreakPaused;
 import app.owlcms.fieldofplay.FOPEvent.BreakStarted;
 import app.owlcms.fieldofplay.FOPEvent.DecisionFullUpdate;
 import app.owlcms.fieldofplay.FOPEvent.DecisionReset;
-import app.owlcms.fieldofplay.FOPEvent.DecisionReversalTimeOver;
+import app.owlcms.fieldofplay.FOPEvent.ExplicitDecision;
 import app.owlcms.fieldofplay.FOPEvent.DecisionUpdate;
 import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
@@ -416,12 +416,11 @@ public class FieldOfPlay {
                 uiShowUpdateOnJuryScreen();
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
-            } else if (e instanceof DecisionReversalTimeOver) {
-                // can't happen: should have received DownSignal and Referee*Update before
+            } else if (e instanceof ExplicitDecision) {
                 getAthleteTimer().stop();
                 this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
                 this.setClockOwner(null);
-                showDecisionNow(((DecisionReversalTimeOver) e).origin);
+                showExplicitDecision((ExplicitDecision) e, e.origin);
             } else if (e instanceof TimeOver) {
                 // athleteTimer got down to 0
                 // getTimer() signals this, nothing else required for athleteTimer
@@ -451,11 +450,11 @@ public class FieldOfPlay {
                 setState(TIME_RUNNING);
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
-            } else if (e instanceof DecisionReversalTimeOver) {
+            } else if (e instanceof ExplicitDecision) {
                 getAthleteTimer().stop();
                 this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
                 this.setClockOwner(null);
-                showDecisionNow(((DecisionReversalTimeOver) e).origin);
+                showExplicitDecision(((ExplicitDecision) e), e.origin);
             } else if (e instanceof ForceTime) {
                 getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed);
                 setState(CURRENT_ATHLETE_DISPLAYED);
@@ -469,9 +468,9 @@ public class FieldOfPlay {
         case DOWN_SIGNAL_VISIBLE:
             this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
             this.setClockOwner(null);
-            if (e instanceof DecisionReversalTimeOver) {
+            if (e instanceof ExplicitDecision) {
                 getAthleteTimer().stop();
-                showDecisionNow(((DecisionReversalTimeOver) e).origin);
+                showExplicitDecision(((ExplicitDecision) e), e.origin);
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);
@@ -488,9 +487,8 @@ public class FieldOfPlay {
             break;
 
         case DECISION_VISIBLE:
-            if (e instanceof DecisionReversalTimeOver) {
-                // there may have been a change in decision, this recomputes.
-                showDecisionNow(((DecisionReversalTimeOver) e).origin);
+            if (e instanceof ExplicitDecision) {
+                 showExplicitDecision(((ExplicitDecision) e), e.origin);
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);
@@ -821,7 +819,6 @@ public class FieldOfPlay {
      * change and announce.
      */
     private void showDecisionNow(Object origin) {
-
         logger.trace("requesting decision display");
         // we need to recompute majority, since they may have been reversal
         int nbWhite = 0;
@@ -841,7 +838,33 @@ public class FieldOfPlay {
         setState(DECISION_VISIBLE);
         // tell ourself to reset after 3 secs.
         new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), 3000);
-
+    }
+    
+    /**
+     * The decision is confirmed as official after the 3 second delay following
+     * majority. After this delay, manual announcer intervention is required to
+     * change and announce.
+     */
+    private void showExplicitDecision(ExplicitDecision e, Object origin) {
+        logger.trace("explicit decision display");
+        refereeDecision[0] = null;
+        refereeDecision[2] = null;
+        if (e.success) {
+            goodLift = true;
+            refereeDecision[1] = true;
+            curAthlete.successfulLift();
+        } else {
+            goodLift = false;
+            refereeDecision[1] = false;
+            curAthlete.failedLift();
+        }
+        AthleteRepository.save(curAthlete);
+        // TODO show something on the board
+        uiShowRefereeDecisionOnSlaveDisplays(curAthlete, goodLift, refereeDecision, refereeTime, origin);
+        recomputeLiftingOrder();
+        setState(DECISION_VISIBLE);
+        // tell ourself to reset after 3 secs.
+        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), 3000);
     }
 
     private void transitionToBreak(BreakStarted e) {
@@ -901,8 +924,10 @@ public class FieldOfPlay {
     }
 
     private void uiShowDownSignalOnSlaveDisplays(Object origin2) {
-        uiEventLogger.trace("showDownSignalOnSlaveDisplays"); //$NON-NLS-1$
-        if (isEmitSoundsOnServer() && !isDownEmitted()) {
+        boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
+        boolean downEmitted2 = isDownEmitted();
+        uiEventLogger.warn("showDownSignalOnSlaveDisplays server={} emitted={}",emitSoundsOnServer2,downEmitted2); //$NON-NLS-1$
+        if (emitSoundsOnServer2 && !downEmitted2) {
             downSignal.emit();
             setDownEmitted(true);
         }

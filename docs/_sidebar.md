@@ -4,9 +4,8 @@
 
   *	[Local Installation](LocalSetup)
   *	[Cloud Installation](Heroku)
-  *	[Starting the Screens and Displays](Starting.md)
   *	[Equipment Setup](EquipmentSetup)
-
+  
 * Competition
 
   *	[Preparation](Preparation)
