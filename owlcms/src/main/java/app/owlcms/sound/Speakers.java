@@ -36,7 +36,12 @@ public class Speakers {
      * @return
      */
     public static List<Mixer> getOutputs() {
-        List<Mixer> mixers = outputs(AudioSystem.getMixer(null), AudioSystem.getMixerInfo());
+        List<Mixer> mixers = null;
+        try {
+            mixers = outputs(AudioSystem.getMixer(null), AudioSystem.getMixerInfo());
+        } catch (Exception e) {
+            mixers = new ArrayList<>();
+        }
         return mixers;
     }
 
@@ -101,7 +106,8 @@ public class Speakers {
 
     public static List<String> getOutputNames() {
         ArrayList<String> outputNames = new ArrayList<>();
-        for (Mixer mixer : getOutputs()) {
+        List<Mixer> outputs = getOutputs();
+        for (Mixer mixer : outputs) {
             outputNames.add(mixer.getMixerInfo().getName());
         }
         return outputNames;
