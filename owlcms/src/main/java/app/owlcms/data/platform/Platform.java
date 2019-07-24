@@ -518,6 +518,7 @@ public class Platform implements Serializable {
     }
 
     private void setMixer(Mixer soundMixer) {
+        logger.warn("platform {}: soundMixer={}",this.getName(),soundMixer == null ? null : soundMixer.getLineInfo());
         this.mixer = soundMixer;
     }
 
