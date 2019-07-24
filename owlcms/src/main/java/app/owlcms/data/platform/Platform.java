@@ -628,7 +628,7 @@ public class Platform implements Serializable {
     }
 
     private void setMixer(Mixer soundMixer) {
-        logger.warn("SETTING platform {}: soundMixer={}", System.identityHashCode(this),soundMixer == null ? null : soundMixer.getLineInfo());
+        logger.debug("SETTING platform {}: soundMixer={}", System.identityHashCode(this),soundMixer == null ? null : soundMixer.getLineInfo());
         this.mixer = soundMixer;
     }
 
@@ -636,7 +636,7 @@ public class Platform implements Serializable {
      * @return the soundMixerName
      */
     public String getSoundMixerName() {
-        logger.warn("getSoundMixerName {} {}", System.identityHashCode(this),soundMixerName);
+        logger.debug("getSoundMixerName {} {}", System.identityHashCode(this),soundMixerName);
         return soundMixerName;
     }
 
@@ -645,7 +645,7 @@ public class Platform implements Serializable {
      *            the soundMixerName to set
      */
     public void setSoundMixerName(String soundMixerName) {
-        logger.warn("setSoundMixerName {} {} {}", System.identityHashCode(this),soundMixerName,  LoggerUtils.whereFrom());
+        logger.debug("setSoundMixerName {} {} {}", System.identityHashCode(this),soundMixerName,  LoggerUtils.whereFrom());
         this.soundMixerName = soundMixerName;
         if (soundMixerName == null) {
             mixerChecked = true;
