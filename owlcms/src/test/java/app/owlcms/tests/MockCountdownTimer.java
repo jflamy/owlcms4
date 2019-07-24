@@ -94,7 +94,7 @@ public class MockCountdownTimer implements IProxyTimer {
      * @see app.owlcms.fieldofplay.IProxyTimer#timeOut(java.lang.Object)
      */
     @Override
-    public void timeOut(Object origin) {
+    public void timeOver(Object origin) {
         stop();
         timeRemaining = 0;
     }

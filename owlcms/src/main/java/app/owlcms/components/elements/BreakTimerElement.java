@@ -71,7 +71,7 @@ public class BreakTimerElement extends TimerElement {
 	public void clientTimeOver() {
 		logger.info("break time over");
 		OwlcmsSession.withFop(fop -> {
-			fop.getBreakTimer().timeOut(this);
+			fop.getBreakTimer().timeOver(this);
 		});
 	}
 

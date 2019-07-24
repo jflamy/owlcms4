@@ -126,7 +126,7 @@ public class FieldOfPlay {
 
     /**
      * Instantiates a new field of play state. When using this constructor
-     * {@link #init(List, IProxyTimer)} must be used to provide the athletes and set
+     * {@link #init(List, IProxyTimer)} must later be used to provide the athletes and set
      * the athleteTimer
      *
      * @param group     the group (to get details such as name, and to reload
@@ -139,7 +139,7 @@ public class FieldOfPlay {
         this.uiEventBus = new EventBus("UI-" + name); //$NON-NLS-1$
         this.athleteTimer = null;
         this.breakTimer = new ProxyBreakTimer(this);
-        this.platform = platform2;
+        this.setPlatform(platform2);
     }
 
     /**
@@ -165,8 +165,18 @@ public class FieldOfPlay {
         return liftsDone;
     }
 
+    public void emitDown(FOPEvent e) {
+        getAthleteTimer().stop(); // paranoia
+        uiShowDownSignalOnSlaveDisplays(e.origin);
+        setState(DOWN_SIGNAL_VISIBLE);
+    }
+
     public void emitFinalWarning() {
-        if (isEmitSoundsOnServer() && !isFinalWarningEmitted()) {
+        boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
+        boolean emitted2 = isFinalWarningEmitted();
+        logger.warn("emitFinalWarning server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
+
+        if (emitSoundsOnServer2 && !emitted2) {
             // instead of finalWarning2.wav sounds too much like down
             new Sound(getSoundMixer(), "initialWarning2.wav").emit();
             setFinalWarningEmitted(true);
@@ -174,18 +184,22 @@ public class FieldOfPlay {
     }
 
     public void emitInitialWarning() {
-        if (isEmitSoundsOnServer() && !isInitialWarningEmitted()) {
+        boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
+        boolean emitted2 = isInitialWarningEmitted();
+        logger.warn("emitInitialWarning server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
+        
+        if (emitSoundsOnServer2 && !emitted2) {
             new Sound(getSoundMixer(), "initialWarning2.wav").emit();
             setInitialWarningEmitted(true);
         }
     }
 
-    private boolean isEmitSoundsOnServer() {
-        return getSoundMixer() != null;
-    }
-
-    public void emitTimeout() {
-        if (isEmitSoundsOnServer() && !isTimeoutEmitted()) {
+    public void emitTimeOver() {
+        boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
+        boolean emitted2 = isTimeoutEmitted();
+        logger.warn("emitTimeout server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
+        
+        if (emitSoundsOnServer2 && !emitted2) {
             new Sound(getSoundMixer(), "timeOver2.wav").emit();
             setTimeoutEmitted(true);
         }
@@ -458,8 +472,10 @@ public class FieldOfPlay {
             } else if (e instanceof ForceTime) {
                 getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed);
                 setState(CURRENT_ATHLETE_DISPLAYED);
-            } else if (e instanceof TimeStopped && isTimeoutEmitted()) {
-                // multiple timers can report time over, ignore duplicates
+            } else if (e instanceof TimeStopped) {
+                // ignore duplicate time stopped
+            } else if (e instanceof TimeOver) {
+                // ignore, already dealt by timer
             } else {
                 unexpectedEventInState(e, TIME_STOPPED);
             }
@@ -540,6 +556,10 @@ public class FieldOfPlay {
         }
     }
 
+    public boolean isTestingMode() {
+        return testingMode;
+    }
+
     /**
      * Sets the athleteTimer.
      *
@@ -583,6 +603,13 @@ public class FieldOfPlay {
      */
     public void setPlatform(Platform platform) {
         this.platform = platform;
+    }
+
+    /**
+     * @param testingMode true if we don't want wait delays during testing.
+     */
+    public void setTestingMode(boolean testingMode) {
+        this.testingMode = testingMode;
     }
 
     /**
@@ -675,12 +702,6 @@ public class FieldOfPlay {
         }
     }
 
-    private void emitDown(FOPEvent e) {
-        getAthleteTimer().stop(); // paranoia
-        uiShowDownSignalOnSlaveDisplays(e.origin);
-        setState(DOWN_SIGNAL_VISIBLE);
-    }
-
     private Athlete getClockOwner() {
         return clockOwner;
     }
@@ -692,6 +713,10 @@ public class FieldOfPlay {
 
     private synchronized boolean isDownEmitted() {
         return downEmitted;
+    }
+
+    private boolean isEmitSoundsOnServer() {
+        return getSoundMixer() != null;
     }
 
     private synchronized boolean isFinalWarningEmitted() {
@@ -808,11 +833,7 @@ public class FieldOfPlay {
         logger.trace("scheduling decision display");
         new DelayTimer().schedule(() -> showDecisionNow(origin2), 3000);
     }
-
-    public boolean isTestingMode() {
-        return testingMode;
-    }
-
+    
     /**
      * The decision is confirmed as official after the 3 second delay following
      * majority. After this delay, manual announcer intervention is required to
@@ -839,7 +860,7 @@ public class FieldOfPlay {
         // tell ourself to reset after 3 secs.
         new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), 3000);
     }
-    
+
     /**
      * The decision is confirmed as official after the 3 second delay following
      * majority. After this delay, manual announcer intervention is required to
@@ -991,13 +1012,6 @@ public class FieldOfPlay {
         AthleteSorter.liftingOrder(this.liftingOrder);
         this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
         uiDisplayCurrentAthleteAndTime(false, e);
-    }
-
-    /**
-     * @param testingMode true if we don't want wait delays during testing.
-     */
-    public void setTestingMode(boolean testingMode) {
-        this.testingMode = testingMode;
     }
 
 }

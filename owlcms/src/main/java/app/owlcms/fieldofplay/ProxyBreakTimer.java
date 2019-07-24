@@ -89,7 +89,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 	/* (non-Javadoc)
 	 * @see app.owlcms.fieldofplay.IProxyTimer#timeOut(java.lang.Object) */
 	@Override
-	public void timeOut(Object origin) {
+	public void timeOver(Object origin) {
 		breakLogger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom()); //$NON-NLS-1$
 		fop.getUiEventBus().post(new UIEvent.BreakDone(origin));
 		fop.getFopEventBus().post(new FOPEvent.StartLifting(origin));

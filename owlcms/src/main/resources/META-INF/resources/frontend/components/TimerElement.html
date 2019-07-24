@@ -166,10 +166,12 @@
 	          if (this.currentTime <= 30.1 && !this._finalWarningGiven) {
 	        	  //console.warn("currentTime "+this.currentTime);
 	        	  this.$.finalWarning.play();
+	        	  if (this.$server != null) this.$server.clientFinalWarning();
 	        	  this._finalWarningGiven = true;
 	          }
 	          if (this.currentTime <= 90.1 && !this._initialWarningGiven) {
 	        	  this.$.initialWarning.play();
+	        	  if (this.$server != null) this.$server.clientInitialWarning();
 	        	  this._initialWarningGiven = true;
 	          }
 	          if (this.currentTime <= 0.1 && !this._timeOverWarningGiven) {
