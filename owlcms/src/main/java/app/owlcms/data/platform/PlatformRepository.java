@@ -12,6 +12,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsFactory;
 
 /**
  * PlatformRepository.
@@ -39,12 +41,19 @@ public class PlatformRepository {
 
 	/**
 	 * Save.
+	 * The 1:1 relationship with FOP is managed manually since FOP is not persisted.
 	 *
-	 * @param Platform the platform
+	 * @param platform the platform
 	 * @return the platform
 	 */
-	public static Platform save(Platform Platform) {
-		return JPAService.runInTransaction(em -> em.merge(Platform));
+	public static Platform save(Platform platform) {
+		Platform nPlatform = JPAService.runInTransaction(em -> em.merge(platform));
+		String name = nPlatform.getName();
+		if (name != null) {
+		    FieldOfPlay fop = OwlcmsFactory.getFOPByName(name);
+		    if (fop != null) fop.setPlatform(nPlatform);
+		}
+		return nPlatform;
 	}
 
 	/**

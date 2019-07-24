@@ -118,19 +118,19 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
             }
 
             @Override
-            public Platform add(Platform Platform) {
-                PlatformRepository.save(Platform);
-                return Platform;
+            public Platform add(Platform platform) {
+                PlatformRepository.save(platform);
+                return platform;
             }
 
             @Override
-            public Platform update(Platform Platform) {
-                return PlatformRepository.save(Platform);
+            public Platform update(Platform platform) {
+                return PlatformRepository.save(platform);
             }
 
             @Override
-            public void delete(Platform Platform) {
-                PlatformRepository.delete(Platform);
+            public void delete(Platform platform) {
+                PlatformRepository.delete(platform);
             }
 
             @Override

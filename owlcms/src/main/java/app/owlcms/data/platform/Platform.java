@@ -14,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import javax.sound.sampled.Mixer;
 
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import com.vaadin.flow.server.VaadinSession;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Speakers;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -73,11 +75,13 @@ public class Platform implements Serializable {
     private Boolean showTimer = false;
 
     /**
-     * If mixer is not null, emit sound on this device
+     * If mixer is not null, emit sound on the associated device
      */
-    transient private Mixer mixer = null;
+    @Transient
+    private Mixer mixer = null;
     private String soundMixerName;
-    transient private boolean mixerChecked;
+    @Transient
+    private boolean mixerChecked;
 
     // collar
     private Integer nbC_2_5 = 0;
@@ -120,27 +124,6 @@ public class Platform implements Serializable {
         this.setName(name);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Platform other = (Platform) obj;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        return true;
-    }
 
     /**
      * Gets the id.
@@ -344,17 +327,144 @@ public class Platform implements Serializable {
         return b;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((lightBar == null) ? 0 : lightBar.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((nbC_2_5 == null) ? 0 : nbC_2_5.hashCode());
+        result = prime * result + ((nbL_10 == null) ? 0 : nbL_10.hashCode());
+        result = prime * result + ((nbL_15 == null) ? 0 : nbL_15.hashCode());
+        result = prime * result + ((nbL_20 == null) ? 0 : nbL_20.hashCode());
+        result = prime * result + ((nbL_25 == null) ? 0 : nbL_25.hashCode());
+        result = prime * result + ((nbL_2_5 == null) ? 0 : nbL_2_5.hashCode());
+        result = prime * result + ((nbL_5 == null) ? 0 : nbL_5.hashCode());
+        result = prime * result + ((nbS_0_5 == null) ? 0 : nbS_0_5.hashCode());
+        result = prime * result + ((nbS_1 == null) ? 0 : nbS_1.hashCode());
+        result = prime * result + ((nbS_1_5 == null) ? 0 : nbS_1_5.hashCode());
+        result = prime * result + ((nbS_2 == null) ? 0 : nbS_2.hashCode());
+        result = prime * result + ((nbS_2_5 == null) ? 0 : nbS_2_5.hashCode());
+        result = prime * result + ((nbS_5 == null) ? 0 : nbS_5.hashCode());
+        result = prime * result + ((officialBar == null) ? 0 : officialBar.hashCode());
+        result = prime * result + ((showDecisionLights == null) ? 0 : showDecisionLights.hashCode());
+        result = prime * result + ((showTimer == null) ? 0 : showTimer.hashCode());
+        result = prime * result + ((soundMixerName == null) ? 0 : soundMixerName.hashCode());
         return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Platform other = (Platform) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        if (lightBar == null) {
+            if (other.lightBar != null)
+                return false;
+        } else if (!lightBar.equals(other.lightBar))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (nbC_2_5 == null) {
+            if (other.nbC_2_5 != null)
+                return false;
+        } else if (!nbC_2_5.equals(other.nbC_2_5))
+            return false;
+        if (nbL_10 == null) {
+            if (other.nbL_10 != null)
+                return false;
+        } else if (!nbL_10.equals(other.nbL_10))
+            return false;
+        if (nbL_15 == null) {
+            if (other.nbL_15 != null)
+                return false;
+        } else if (!nbL_15.equals(other.nbL_15))
+            return false;
+        if (nbL_20 == null) {
+            if (other.nbL_20 != null)
+                return false;
+        } else if (!nbL_20.equals(other.nbL_20))
+            return false;
+        if (nbL_25 == null) {
+            if (other.nbL_25 != null)
+                return false;
+        } else if (!nbL_25.equals(other.nbL_25))
+            return false;
+        if (nbL_2_5 == null) {
+            if (other.nbL_2_5 != null)
+                return false;
+        } else if (!nbL_2_5.equals(other.nbL_2_5))
+            return false;
+        if (nbL_5 == null) {
+            if (other.nbL_5 != null)
+                return false;
+        } else if (!nbL_5.equals(other.nbL_5))
+            return false;
+        if (nbS_0_5 == null) {
+            if (other.nbS_0_5 != null)
+                return false;
+        } else if (!nbS_0_5.equals(other.nbS_0_5))
+            return false;
+        if (nbS_1 == null) {
+            if (other.nbS_1 != null)
+                return false;
+        } else if (!nbS_1.equals(other.nbS_1))
+            return false;
+        if (nbS_1_5 == null) {
+            if (other.nbS_1_5 != null)
+                return false;
+        } else if (!nbS_1_5.equals(other.nbS_1_5))
+            return false;
+        if (nbS_2 == null) {
+            if (other.nbS_2 != null)
+                return false;
+        } else if (!nbS_2.equals(other.nbS_2))
+            return false;
+        if (nbS_2_5 == null) {
+            if (other.nbS_2_5 != null)
+                return false;
+        } else if (!nbS_2_5.equals(other.nbS_2_5))
+            return false;
+        if (nbS_5 == null) {
+            if (other.nbS_5 != null)
+                return false;
+        } else if (!nbS_5.equals(other.nbS_5))
+            return false;
+        if (officialBar == null) {
+            if (other.officialBar != null)
+                return false;
+        } else if (!officialBar.equals(other.officialBar))
+            return false;
+        if (showDecisionLights == null) {
+            if (other.showDecisionLights != null)
+                return false;
+        } else if (!showDecisionLights.equals(other.showDecisionLights))
+            return false;
+        if (showTimer == null) {
+            if (other.showTimer != null)
+                return false;
+        } else if (!showTimer.equals(other.showTimer))
+            return false;
+        if (soundMixerName == null) {
+            if (other.soundMixerName != null)
+                return false;
+        } else if (!soundMixerName.equals(other.soundMixerName))
+            return false;
+        return true;
     }
 
     /**
@@ -518,7 +628,7 @@ public class Platform implements Serializable {
     }
 
     private void setMixer(Mixer soundMixer) {
-        logger.warn("platform {}: soundMixer={}",this.getName(),soundMixer == null ? null : soundMixer.getLineInfo());
+        logger.warn("SETTING platform {}: soundMixer={}", System.identityHashCode(this),soundMixer == null ? null : soundMixer.getLineInfo());
         this.mixer = soundMixer;
     }
 
@@ -526,6 +636,7 @@ public class Platform implements Serializable {
      * @return the soundMixerName
      */
     public String getSoundMixerName() {
+        logger.warn("getSoundMixerName {} {}", System.identityHashCode(this),soundMixerName);
         return soundMixerName;
     }
 
@@ -534,7 +645,7 @@ public class Platform implements Serializable {
      *            the soundMixerName to set
      */
     public void setSoundMixerName(String soundMixerName) {
-        logger.debug("setSoundMixerName{}",soundMixerName);
+        logger.warn("setSoundMixerName {} {} {}", System.identityHashCode(this),soundMixerName,  LoggerUtils.whereFrom());
         this.soundMixerName = soundMixerName;
         if (soundMixerName == null) {
             mixerChecked = true;
