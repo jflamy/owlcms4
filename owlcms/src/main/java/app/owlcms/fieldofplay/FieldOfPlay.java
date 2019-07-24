@@ -174,7 +174,7 @@ public class FieldOfPlay {
     public void emitFinalWarning() {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
         boolean emitted2 = isFinalWarningEmitted();
-        logger.warn("emitFinalWarning server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
+        logger.debug("emitFinalWarning server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
 
         if (emitSoundsOnServer2 && !emitted2) {
             // instead of finalWarning2.wav sounds too much like down
@@ -186,7 +186,7 @@ public class FieldOfPlay {
     public void emitInitialWarning() {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
         boolean emitted2 = isInitialWarningEmitted();
-        logger.warn("emitInitialWarning server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
+        logger.debug("emitInitialWarning server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
         
         if (emitSoundsOnServer2 && !emitted2) {
             new Sound(getSoundMixer(), "initialWarning2.wav").emit();
@@ -197,7 +197,7 @@ public class FieldOfPlay {
     public void emitTimeOver() {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
         boolean emitted2 = isTimeoutEmitted();
-        logger.warn("emitTimeout server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
+        logger.debug("emitTimeout server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
         
         if (emitSoundsOnServer2 && !emitted2) {
             new Sound(getSoundMixer(), "timeOver2.wav").emit();
