@@ -393,7 +393,8 @@
 							<icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
 							<jre>
 								<minVersion>1.8.0</minVersion>
-								<path>./bin/java.exe</path>
+								<path>.</path>
+								<bundledJreAsFallback>false</bundledJreAsFallback>
 								<!-- <opts> -->
 								<!-- <opt>-Djava.endorsed.dirs=./endorsed</opt> -->
 								<!-- </opts> -->
@@ -432,7 +433,7 @@
 							<icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
 							<jre>
 								<minVersion>1.8.0</minVersion>
-								<path>./bin/java.exe</path>
+								<path>.</path>
 								<opts>
 									<opt>-DdemoMode=true</opt>
 								</opts>
