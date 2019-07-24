@@ -103,11 +103,11 @@ public class ProxyAthleteTimer implements IProxyTimer {
     }
 
     @Override
-    public void timeOut(Object origin) {
+    public void timeOver(Object origin) {
         if (running) {
             this.stop();
         }
-        fop.emitTimeout();
+        fop.emitTimeOver();
         fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
     }
 
