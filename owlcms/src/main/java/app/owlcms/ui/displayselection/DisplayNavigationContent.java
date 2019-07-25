@@ -20,6 +20,7 @@ import app.owlcms.components.NavigationPage;
 import app.owlcms.displays.attemptboard.AthleteFacingAttemptBoard;
 import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
+import app.owlcms.displays.liftingorder.LiftingOrder;
 import app.owlcms.displays.scoreboard.Scoreboard;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
@@ -54,6 +55,11 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 				getTranslation("Scoreboard"), //$NON-NLS-1$
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(Scoreboard.class)));
+	     Button liftingOrder = new Button(
+	                getTranslation("LiftingOrder"), //$NON-NLS-1$
+	                buttonClickEvent -> UI.getCurrent().getPage()
+	                    .executeJavaScript(getWindowOpener(LiftingOrder.class)));
+		
 		Button referee = new Button(
 			getTranslation("Athlete_Decisions"), //$NON-NLS-1$
 			buttonClickEvent -> UI.getCurrent().getPage()
@@ -63,21 +69,21 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AthleteFacingAttemptBoard.class)));
 
-		Button plates = new Button(
-				getTranslation("PlatesDisplay"), //$NON-NLS-1$
-				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(Scoreboard.class)));
+//		Button plates = new Button(
+//				getTranslation("PlatesDisplay"), //$NON-NLS-1$
+//				buttonClickEvent -> UI.getCurrent().getPage()
+//					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			attempt,
 			scoreboard,
-			plates
+			liftingOrder
 			);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
 			referee,
 			athleteFacingAttempt	
 			);
-		plates.setEnabled(false);
+//		plates.setEnabled(false);
 
 		fillH(intro, this);
 		doGroup(getTranslation("FieldOfPlayDisplays"), grid1, this); //$NON-NLS-1$

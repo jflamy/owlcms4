@@ -162,8 +162,7 @@ public class Athlete {
 	@JoinColumn(name = "fk_group", nullable=true)
 	private Group group;
 
-	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
-			CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
+	@ManyToOne(optional = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "fk_categ", nullable=true)
 	private Category category = null;
 	private String snatch1Declaration;
