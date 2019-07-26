@@ -56,7 +56,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 	     Button liftingOrder = new Button(
-	                getTranslation("LiftingOrder"), //$NON-NLS-1$
+	                getTranslation("Scoreboard.LiftingOrder"), //$NON-NLS-1$
 	                buttonClickEvent -> UI.getCurrent().getPage()
 	                    .executeJavaScript(getWindowOpener(LiftingOrder.class)));
 		
