@@ -6,7 +6,6 @@
  */
 package app.owlcms.displays.liftingorder;
 
-import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.List;
 
