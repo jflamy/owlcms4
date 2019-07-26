@@ -174,7 +174,6 @@ GotIt;Got it.;Compris.;;Forstået;;
 Group;Group;Groupe;;Gruppe;Sesión;
 Group_number;Group {0};Groupe {0};;Gruppe {0};Tanda {0} ;
 Group_number_done;Group {0} done.;Groupe {0} terminé.;;Gruppe {0} afsluttet.;Sesion {0} terminada.;
-Group_number_done;Group {0} done.;Groupe {0} terminé.;;Gruppe {0} afsluttet.;Sesion {0} terminada.;
 GroupResults;Group Results;Résultats de groupe;;Gruppe resultater;;
 Home;Home;Accueil;;Hjem;;
 InstallationConfiguration;installation and configuration information.;instructions d'installation et de configuration;;installation and configuration information.;;

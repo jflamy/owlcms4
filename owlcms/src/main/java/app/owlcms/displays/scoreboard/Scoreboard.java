@@ -246,7 +246,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 	private void doDone(Group g) {
 		if (g == null) return;
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			getModel().setFullName(MessageFormat.format("Group {0} Results", g.toString()));
+			getModel().setFullName(getTranslation("Group_number_done", g.toString()));
 			this.getElement().callFunction("groupDone");
 		});
 	}

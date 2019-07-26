@@ -368,7 +368,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
     private void doDone(Group g) {
         if (g == null) return;
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setFullName(MessageFormat.format("Group {0} done.", g.toString()));
+            getModel().setFullName(getTranslation("Group_number_done", g.toString()));
             this.getElement().callFunction("groupDone");
         });
     }
