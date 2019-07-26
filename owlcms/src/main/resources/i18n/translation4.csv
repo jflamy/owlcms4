@@ -174,7 +174,6 @@ GotIt;Got it.;Compris.;;Forstået;;
 Group;Group;Groupe;;Gruppe;Sesión;
 Group_number;Group {0};Groupe {0};;Gruppe {0};Tanda {0} ;
 Group_number_done;Group {0} done.;Groupe {0} terminé.;;Gruppe {0} afsluttet.;Sesion {0} terminada.;
-Group_number_done;Group {0} done.;Groupe {0} terminé.;;Gruppe {0} afsluttet.;Sesion {0} terminada.;
 GroupResults;Group Results;Résultats de groupe;;Gruppe resultater;;
 Home;Home;Accueil;;Hjem;;
 InstallationConfiguration;installation and configuration information.;instructions d'installation et de configuration;;installation and configuration information.;;
@@ -333,3 +332,6 @@ Jury_Console;Jury Console;Console du jury;;Jury;Jurado;
 Referee_Mobile_Device;Referee (for mobile devices);Arbitre (pour appareils mobile);;Dommer (til mobile enheder);Juez (para dispositivos móviles);
 Referees_Jury;Referees and Jury;Arbitres et Jury;;Dommere og jury;Jueces y jurado;
 Speakers;Audio Output;Sortie audio;;Lydudgang;Salida de audio
+Scoreboard.LiftingOrder;Lifting Order;Ordre de passage;;Konkurrenceordre;Orden en competencia
+Scoreboard.NextAttempt;Next Attempt;Prochain essai;;Next Attempt;Next Attempt
+Scoreboard.RequestedWeight;Requested Weight;Poids Demandé;;Ønsket vægt;Peso solicitado

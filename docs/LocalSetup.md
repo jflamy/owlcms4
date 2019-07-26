@@ -20,7 +20,11 @@ This step is performed only on the master laptop.
 
 - Double-clicking on the icon will start the server and a browser. See [Initial Startup](#initial-startup) for how to proceed.
 
+- If you just want to use dummy data to practice (which will not touch the actual database), right-click on the icon, double-click on "Open File Location" and then double-click on the `demo-owlcms.exe` file.
+
 ## Installing on MacOS or Linux
+
+This step is performed only on the master laptop.
 
 - Go to the releases location (https://github.com/jflamy/owlcms4/releases) and get the current `zip` file.
 
@@ -28,22 +32,24 @@ This step is performed only on the master laptop.
 
 - Make sure you have Java 8 installed. 
 
-  -  For Linux, refer to https://openjdk.java.net/install/ depending on the Linux type you run
-
-  - For MacOS, install homebrew (see https://brew.sh/) and then run the following commands
-
-    ```bash
-brew tap caskroom/versions
-brew cask install java8
-    ```
+  -  For Linux, refer to https://adoptopenjdk.net/releases.html depending on the Linux type you run
+  -  For MacOS, see https://adoptopenjdk.net/releases.html#x64_mac
 
 - To start the program, change directory to the location where you unzipped the files and launch java (replace 4.x.y with the actual version number you downloaded)
 
-    ```bash
-cd ~/owlcms4
-java -jar owlcms-4.x.y.jar
-	```
-This will actually start the program and a browser. See [Initial Startup](#initial-startup) for how to proceed.
+  ```bash
+  cd ~/owlcms4
+  java -jar owlcms-4.x.y.jar
+  ```
+  This will actually start the program and a browser. See [Initial Startup](#initial-startup) for how to proceed.
+
+  If you just want to use dummy data to practice (which will not touch the actual database), use instead:
+
+  ```
+  java -DdemoMode=true -jar owlcms-4.x.y.jar
+  ```
+
+  
 
 ## Initial Startup
 
@@ -57,7 +63,7 @@ When OWLCMS4 is started on a laptop, two windows are visible:  a black command-l
 
   ![060_urls](img\LocalInstall\060_urls.png)
 
-  In this example the other laptops on the network would use the address `http://192.168.4.1:8080/` to communicate with the master server.  
+  In this example the other laptops on the network would use the address `http://192.168.4.1:8080/` to communicate with the master server.  "wired" refers to the fact that the laptop is connected via an Ethernet wire to a router.  When available, a wired connection is preferred.
 
   The address <u>depends on your own specific networking setup</u> and you must use one of the addresses displayed **on your setup.**  If none of the addresses listed work, you will need to refer to the persons that set up the networking at your site and on your laptop.  A "proxy" or a "firewall", or some other technical configuration may be blocking access, or requiring a different address that the server can't discover.
 

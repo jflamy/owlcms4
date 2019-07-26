@@ -306,10 +306,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				Binding<Athlete, ?> catBinding = binder.getBinding("category").get(); //$NON-NLS-1$
 				ComboBox<Category> categoryCombo = (ComboBox<Category>) catBinding.getField();
 				Category category = (Category) categoryCombo.getValue();
-				Gender gender = category != null ? category.getGender() : null;
-                logger.debug("genderValidation: validating gender {} vs category {}: {}", g, gender, //$NON-NLS-1$
-						gender == g);
-				genderCatOk = gender == g;
+				Gender catGender = category != null ? category.getGender() : null;
+                logger.debug("genderValidation: validating gender {} vs category {}: {}", g, catGender, //$NON-NLS-1$
+						catGender == g);
+				genderCatOk = catGender == null || catGender == g;
 				if (genderCatOk && !catGenderOk) {
 					// turn off message if present.
 					logger.debug("resetting category"); //$NON-NLS-1$

@@ -7,6 +7,7 @@
 package app.owlcms.data.category;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
@@ -121,55 +122,20 @@ public class Category implements Serializable, Comparable<Category> {
         return compare;
     }
 
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
+        if (!(obj instanceof Category))
             return false;
         Category other = (Category) obj;
-        if (active == null) {
-            if (other.active != null)
-                return false;
-        } else if (!active.equals(other.active))
-            return false;
-        if (ageDivision != other.ageDivision)
-            return false;
-        if (gender != other.gender)
-            return false;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        if (maximumWeight == null) {
-            if (other.maximumWeight != null)
-                return false;
-        } else if (!maximumWeight.equals(other.maximumWeight))
-            return false;
-        if (minimumWeight == null) {
-            if (other.minimumWeight != null)
-                return false;
-        } else if (!minimumWeight.equals(other.minimumWeight))
-            return false;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        if (robiA == null) {
-            if (other.robiA != null)
-                return false;
-        } else if (!robiA.equals(other.robiA))
-            return false;
-        if (wr == null) {
-            if (other.wr != null)
-                return false;
-        } else if (!wr.equals(other.wr))
-            return false;
-        return true;
+        return Objects.equals(active, other.active) && ageDivision == other.ageDivision && gender == other.gender
+                && Objects.equals(id, other.id) && Objects.equals(maximumWeight, other.maximumWeight)
+                && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
+                && Objects.equals(robiA, other.robiA) && Objects.equals(wr, other.wr);
     }
 
     /**
@@ -255,20 +221,12 @@ public class Category implements Serializable, Comparable<Category> {
         return wr;
     }
 
+    /**
+     * @see java.lang.Object#hashCode()
+     */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((active == null) ? 0 : active.hashCode());
-        result = prime * result + ((ageDivision == null) ? 0 : ageDivision.hashCode());
-        result = prime * result + ((gender == null) ? 0 : gender.hashCode());
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((maximumWeight == null) ? 0 : maximumWeight.hashCode());
-        result = prime * result + ((minimumWeight == null) ? 0 : minimumWeight.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((robiA == null) ? 0 : robiA.hashCode());
-        result = prime * result + ((wr == null) ? 0 : wr.hashCode());
-        return result;
+        return Objects.hash(active, ageDivision, gender, id, maximumWeight, minimumWeight, name, robiA, wr);
     }
 
     /**

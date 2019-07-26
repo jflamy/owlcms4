@@ -49,6 +49,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.AthleteTimerElement;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
@@ -554,12 +555,12 @@ public abstract class AthleteGridContent extends VerticalLayout
         this.topBarTitle = title;
     }
 
-    private String formatAttemptNumber(Athlete a) {
+    public static String formatAttemptNumber(Athlete a) {
         Integer attemptsDone = a.getAttemptsDone();
         Integer attemptNumber = a.getAttemptNumber();
         return (attemptsDone >= 3)
-                ? ((attemptsDone >= 6) ? "done" : MessageFormat.format(getTranslation("C_and_J_number"), attemptNumber)) //$NON-NLS-1$ //$NON-NLS-2$
-                : MessageFormat.format(getTranslation("Snatch_number"), attemptNumber); //$NON-NLS-1$
+                ? ((attemptsDone >= 6) ? "done" : MessageFormat.format(Translator.translate("C_and_J_number"), attemptNumber)) //$NON-NLS-1$ //$NON-NLS-2$
+                : MessageFormat.format(Translator.translate("Snatch_number"), attemptNumber); //$NON-NLS-1$
     }
 
     /**
