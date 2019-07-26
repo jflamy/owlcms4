@@ -27,19 +27,19 @@ In this approach, keypads are connected to the laptop or mini PC running the tim
 
 ![refereeingSetup](img\equipment\refereeingSetup.jpg)
 
-The keys or buttons on the keypads are programmed to send key sequences.  The decision display is waiting for these keypresses.  
+The keys or buttons on the keypads are programmed to send key sequences.  The decision display is waiting for these keypresses.  You must click in the black area to make sure that the keypresses are seen by the browser.
 
-- 1 will be interpreted as a red from referee 1, and 2 will be interpreted as a white. 
+- 1 will be interpreted as a white from referee 1, and 2 will be interpreted as a red. 
 
-- 3 will be interpreted as a red from referee 2, and 4 will be interpreted as a white.  
+- 3 will be interpreted as a white from referee 2, and 4 will be interpreted as a red.  
 
-- Finally, 5 will be interpreted as a red from referee 3, and 6 will be interpreted as a white.
+- Finally, 5 will be interpreted as a white from referee 3, and 6 will be interpreted as a red.
 
   ### Notes for Raspbery Pi users with Delcom keypads
 
   If you bought industrial-strength Delcom keypads (shown in the picture above) **and** are connecting them to a Raspberry Pi,  be aware that Delcom has unfortunately [introduced a bug in its device drivers](http://www.delcomproducts.com/webnote.asp?id=3) that prevents the operating system from recognizing their devices on *Raspberry Pi* (and likely other Linux distributions).
 
-  To emphasize, there is **no** **issue** with using the Delcom keypads on Windows or ChromeOS laptops or machines.  Indeed, the picture above shows a Windows miniPC.
+  To emphasize, there is **no** **issue** with using the Delcom keypads on Windows or ChromeOS laptops.  Indeed, the picture above shows a Windows miniPC.
 
   Unfortunately, the workarounds proposed by Delcom by only work for newer devices.  If you have Delcom keypads with firmware older than version 52,
 
