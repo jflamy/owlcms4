@@ -234,40 +234,23 @@ th, td {
 <div class="wrapper" id="resultBoardDiv" style$="[[_computeHidden(hidden)]]">
 <div class="attemptBar">
 	<div class="athleteInfo" id="athleteInfoDiv">
-	<span class="fullName">[[t.LiftingOrder]]</span>
-<!-- 		<div class="startNumber" id="startNumberDiv"><span>[[startNumber]]</span></div>
-		<div class="fullName" id="fullNameDiv">[[fullName]]</div>
-		<div class="clubName" id="teamNameDiv">[[teamName]]</div>
-		<div class="attempt" id="attemptDiv" inner-h-t-m-l="[[attempt]]"></div>
-		<div class="weight" id="weightDiv">
-			[[weight]]<span style="font-size: 75%">kg</span>
-		</div>
-		<div class="timer athleteTimer" id="timerDiv">
-			<timer-element id="timer"></timer-element>
-		</div>
-		<div class="timer breakTime" id="breakTimerDiv">
-			<timer-element id="breakTimer"></timer-element>
-		</div>		
-		<div class="decisionBox" id="decisionDiv">
-			<decision-element style="width: 100%" id="decisions"></decision-element>
-		</div> -->
+		<span class="fullName" id="fullNameDiv">[[fullName]]</span>
 	</div>
 </div>
 <div class="group" id="groupDiv">
-<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
+	<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
 </div>
-<table class="results">
+<table class="results" id="orderDiv">
 	<thead>
 		<tr>
 			<!--  [[t.x]] is loaded with the translation for key Scoreboard.x in the translation4.csv file -->
 			<th class="narrow" style="text-align: center;" inner-h-t-m-l="[[t.Start]]"></th>
-			<th inner-h-t-m-l="[[t.Name]]" style="width: 40%;"></th><!-- kludge to have preformatted html -->
+			<th inner-h-t-m-l="[[t.Name]]" style="width: 50%;"></th><!-- kludge to have preformatted html -->
 			<th class="narrow" inner-h-t-m-l="[[t.RequestedWeight]]"></th>
 			<th class="narrow" inner-h-t-m-l="[[t.NextAttempt]]"></th>
 			<th class$="[[_computeMasters(masters)]]" inner-h-t-m-l="[[t.AgeGroup]]"></th>
 			<th class="narrow" inner-h-t-m-l="[[t.Category]]"></th>
 			<th class='club' inner-h-t-m-l="[[t.Team]]"></th>
-
 		</tr>
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
@@ -297,77 +280,44 @@ class Scoreboard extends Polymer.Element {
        
 	ready() {
 		super.ready();
-// 		this.$.groupDiv.style.display="block";
-// 		this.$.startNumberDiv.style.display="block";
-// 		this.$.teamNameDiv.style.display="block";
-// 		this.$.attemptDiv.style.display="block";
-// 		this.$.weightDiv.style.display="block";
-// 		this.$.timerDiv.style.display="block";
-// 		this.$.breakTimerDiv.style.display="none";
-// 		this.$.decisionDiv.style.display="none";
+		this.$.groupDiv.style.visibility="visible"
+	    this.$.fullNameDiv.style.display="block";
+    	this.$.orderDiv.style.display="block";
 	}
          
 	start() {
-// 		this.$.timer.start();
+		this.$.groupDiv.style.visibility="visible"
+	    this.$.fullNameDiv.style.display="block";
+    	this.$.orderDiv.style.display="block";
 	}
 	         
 	reset() {
 		console.warn("reset");
-// 		this.$.timer.reset();
-// 		this.$.groupDiv.style.visibility="visible";
-// 		this.$.startNumberDiv.style.display="block";
-// 		this.$.teamNameDiv.style.display="block";
-// 		this.$.attemptDiv.style.display="block";
-// 		this.$.weightDiv.style.display="block";
-// 		this.$.timerDiv.style.display="block";
-// 		this.$.breakTimerDiv.style.display="none";
-// 		this.$.decisionDiv.style.display="none";
+		this.$.groupDiv.style.visibility="visible"
+	    this.$.fullNameDiv.style.display="block";
+    	this.$.orderDiv.style.display="block";
 	}
 	
 	down() {
-		console.warn("refereeDecision");
-// 		this.$.groupDiv.style.visibility="visible";
-// 		this.$.startNumberDiv.style.display="block";
-// 		this.$.teamNameDiv.style.display="block";
-// 		this.$.attemptDiv.style.display="block";
-// 		this.$.weightDiv.style.display="block";
-// 		this.$.timerDiv.style.display="block";
-// 		this.$.breakTimerDiv.style.display="none";
-// 		this.$.decisionDiv.style.display="flex";
+		console.warn("down");
 	}
 	
     doBreak() {
     	console.warn("break");
-//     	this.$.groupDiv.style.visibility="hidden";
-// 		this.$.startNumberDiv.style.display="none";
-// 		this.$.teamNameDiv.style.display="none";
-// 		this.$.attemptDiv.style.display="none";
-// 		this.$.weightDiv.style.display="none";
-// 		this.$.timerDiv.style.display="none";
-//     	this.$.breakTimerDiv.style.display="block";
-//        	this.$.decisionDiv.style.display="none";
+		this.$.groupDiv.style.visibility="visible"
+	    this.$.fullNameDiv.style.display="block";
+    	this.$.orderDiv.style.display="block";
     }
     
     groupDone() {
     	console.warn("done");
-//     	this.$.groupDiv.style.visibility="hidden";
-//     	this.$.fullNameDiv.style.display="block";
-// 		this.$.startNumberDiv.style.display="none";
-// 		this.$.teamNameDiv.style.display="none";
-// 		this.$.attemptDiv.style.display="none";
-// 		this.$.weightDiv.style.display="none";
-// 		this.$.timerDiv.style.display="none";
-// 		this.$.breakTimerDiv.style.display="none";
-// 		this.$.decisionDiv.style.display="none";
+    	this.$.groupDiv.style.visibility="hidden";
+    	this.$.fullNameDiv.style.display="block";
+    	this.$.orderDiv.style.display="none";
     }
 	
 	refereeDecision() {
 		console.warn("refereeDecision");
-// 		this.$.groupDiv.style.visibility="visible";
-// 		this.$.decisionDiv.style.display="flex";
-// 		this.$.weightDiv.style.display="block";
-//     	this.$.timerDiv.style.display="block";
-//     	this.$.breakTimerDiv.style.display="none";
 	}
 	         
 	_isEqualTo(title, string) {

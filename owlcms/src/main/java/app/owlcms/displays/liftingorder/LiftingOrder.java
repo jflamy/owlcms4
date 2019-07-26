@@ -113,18 +113,9 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
 
     static {
         logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.INFO);
+        uiEventLogger.setLevel(Level.DEBUG);
     }
 
-
-//    @Id("timer")
-//    private AthleteTimerElement timer; // Flow creates it
-//
-//    @Id("breakTimer")
-//    private BreakTimerElement breakTimer; // Flow creates it
-//
-//    @Id("decisions")
-//    private DecisionElement decisions; // Flow creates it
 
     private EventBus uiEventBus;
     private List<Athlete> liftingOrder;
@@ -196,7 +187,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             doUpdateBottomPart(e);
-            this.getElement().callFunction("refereeDecision");
+//            this.getElement().callFunction("refereeDecision");
         });
     }
 
@@ -211,26 +202,17 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
 
 
     @Subscribe
-    public void slaveDownSignal(UIEvent.DownSignal e) {
-        uiLog(e);
-        // ignore if the down signal was initiated by this result board.
-        // (the timer element on the result board will actually process the keyboard codes if devices are attached)
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-            this.getElement().callFunction("down");
-        });
-    }
-
-    @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        doDone(e.getGroup());
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doDone(e.getGroup()));
     }
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            this.getElement().callFunction("reset");
             Athlete a = e.getAthlete();
             liftingOrder = e.getLiftingOrder();
             liftsDone = AthleteSorter.countLiftsDone(liftingOrder);
@@ -242,9 +224,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-            doBreak(e);
-        });
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () ->  doBreak(e));
     }
 
     @Subscribe
@@ -272,6 +252,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
             model.setHidden(a == null);
 //            boolean leaveTopAlone = e instanceof UIEvent.LiftingOrderUpdated && !((UIEvent.LiftingOrderUpdated)e).isStopAthleteTimer();
             if (a != null) {
+                model.setFullName(getTranslation("Scoreboard.LiftingOrder"));
 //                if (!leaveTopAlone) {
 //                    this.getElement().callFunction("reset");
 //                    model.setFullName(a.getFullName());
@@ -387,7 +368,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
     private void doDone(Group g) {
         if (g == null) return;
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setFullName(MessageFormat.format("Group {0} Results", g.toString()));
+            getModel().setFullName(MessageFormat.format("Group {0} done.", g.toString()));
             this.getElement().callFunction("groupDone");
         });
     }
