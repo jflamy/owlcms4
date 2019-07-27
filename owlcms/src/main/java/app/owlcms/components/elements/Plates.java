@@ -18,32 +18,32 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import ch.qos.logback.classic.Logger;
 
-public class LoadImage extends FlexLayout {
+public class Plates extends FlexLayout {
 
     @SuppressWarnings("unused")
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(LoadImage.class);
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(Plates.class);
     private static final long serialVersionUID = 8340222363211435843L;
 
     private int weight;
     
-    public LoadImage() {
+    public Plates() {
         this.getClassNames().add("loadChart");
     }
 
 
-    public void computeImageArea(FieldOfPlay masterData, boolean showCaption) {
-        if (masterData == null)
+    public void computeImageArea(FieldOfPlay fop, boolean showCaption) {
+        if (fop == null)
             return;
 
-        final Athlete currentAthlete = masterData.getCurAthlete();
-        final Integer barWeight = computeBarWeight(masterData);
+        final Athlete currentAthlete = fop.getCurAthlete();
+        final Integer barWeight = computeBarWeight(fop);
         if (currentAthlete == null) {
             return;
         }
         weight = currentAthlete.getNextAttemptRequestedWeight();
         final String caption = weight + "kg";
 
-        createImageArea(masterData, barWeight, (showCaption ? caption : ""));
+        createImageArea(fop, barWeight, (showCaption ? caption : ""));
     }
 
     /**
@@ -51,9 +51,9 @@ public class LoadImage extends FlexLayout {
      * @param barWeight
      * @param caption
      */
-    private void createImageArea(FieldOfPlay masterData, final Integer barWeight, final String caption) {
+    private void createImageArea(FieldOfPlay fop, final Integer barWeight, final String caption) {
         this.removeAll();
-        Platform platform = masterData.getPlatform();
+        Platform platform = fop.getPlatform();
 
         if (weight == 0)
             return;
@@ -140,25 +140,25 @@ public class LoadImage extends FlexLayout {
         return subtractedWeight;
     }
 
-    private Integer computeBarWeight(FieldOfPlay masterData) {
-        if (masterData == null)
+    private Integer computeBarWeight(FieldOfPlay fop) {
+        if (fop == null)
             return 0;
-        Platform platform = masterData.getPlatform();
+        Platform platform = fop.getPlatform();
         if (platform.getLightBar() > 0) {
             return platform.getLightBar();
         } else {
-            return computeOfficialBarWeight(masterData, platform);
+            return computeOfficialBarWeight(fop, platform);
         }
     }
 
     /**
      * @return
      */
-    private Integer computeOfficialBarWeight(FieldOfPlay masterData, Platform platform) {
-        if (masterData == null || platform == null)
+    private Integer computeOfficialBarWeight(FieldOfPlay fop, Platform platform) {
+        if (fop == null || platform == null)
             return 0;
 
-        final Athlete currentAthlete = masterData.getCurAthlete();
+        final Athlete currentAthlete = fop.getCurAthlete();
         Gender gender = Gender.M;
         if (currentAthlete != null) {
             gender = currentAthlete.getGender();

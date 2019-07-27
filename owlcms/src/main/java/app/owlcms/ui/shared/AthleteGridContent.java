@@ -310,6 +310,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     @Subscribe
     public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
+        if (crudGrid == null) return;
         logger.debug("{} {}", e.getOrigin(), LoggerUtils.whereFrom()); //$NON-NLS-1$
         UIEventProcessor.uiAccess(crudGrid, uiEventBus, e, () -> {
             crudGrid.refreshGrid();
