@@ -12,19 +12,25 @@ import org.slf4j.LoggerFactory;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
+import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.elements.Plates;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
@@ -67,30 +73,121 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
             platform = fop.getPlatform();
         });
         plates.getStyle().set("font-size", "150%");
-        FormLayout largePlates = new FormLayout();
-        FormLayout smallPlates = new FormLayout();
+        
+        FormLayout largePlates =  new FormLayout();
+        FormLayout smallPlates =  new FormLayout();
+        FormLayout collar =  new FormLayout();
+        FormLayout lightBar =  new FormLayout();
+        StringToIntegerConverter converter = new StringToIntegerConverter(getTranslation("MustEnterNumber"));
 
         Binder<Platform> binder = new Binder<>();
-
+        
         TextField nbL25 = new TextField();
-        TextField nbS2_5 = new TextField();
-
-        largePlates.addFormItem(nbL25, "25kg");
-        binder.forField(nbL25).withConverter(new StringToIntegerConverter("Must enter a number"))
+        largePlates.addFormItem(nbL25,  getTranslation("Kg",25));
+        binder.forField(nbL25).withConverter(converter)
                 .bind(Platform::getNbL_25, Platform::setNbL_25);
-
-        smallPlates.addFormItem(nbS2_5, "2.5kg"); // TODO localized format
-        binder.forField(nbS2_5).withConverter(new StringToIntegerConverter("Must enter a number"))
+        TextField nbL20 = new TextField();
+        largePlates.addFormItem(nbL20,  getTranslation("Kg",20));
+        binder.forField(nbL20).withConverter(converter)
+                .bind(Platform::getNbL_20, Platform::setNbL_20);
+        TextField nbL15 = new TextField();
+        largePlates.addFormItem(nbL15,  getTranslation("Kg",15));
+        binder.forField(nbL15).withConverter(converter)
+                .bind(Platform::getNbL_15, Platform::setNbL_15);
+        TextField nbL10 = new TextField();
+        largePlates.addFormItem(nbL10,  getTranslation("Kg",10));
+        binder.forField(nbL10).withConverter(converter)
+                .bind(Platform::getNbL_10, Platform::setNbL_10);
+        TextField nbL5 = new TextField();
+        largePlates.addFormItem(nbL5,  getTranslation("Kg",5));
+        binder.forField(nbL5).withConverter(converter)
+                .bind(Platform::getNbL_10, Platform::setNbL_5);
+        TextField nbL2_5 = new TextField();
+        largePlates.addFormItem(nbL2_5,  getTranslation("Kg",2.5));
+        binder.forField(nbL2_5).withConverter(converter)
+                .bind(Platform::getNbL_2_5, Platform::setNbL_2_5);
+        
+        TextField nbS5 = new TextField();
+        smallPlates.addFormItem(nbS5, getTranslation("Kg",5));
+        binder.forField(nbS5).withConverter(converter)
+                .bind(Platform::getNbS_5, Platform::setNbS_5);
+        TextField nbS2_5 = new TextField();
+        smallPlates.addFormItem(nbS2_5,  getTranslation("Kg",2.5));
+        binder.forField(nbS2_5).withConverter(converter)
                 .bind(Platform::getNbS_2_5, Platform::setNbS_2_5);
+        TextField nbS2 = new TextField();
+        smallPlates.addFormItem(nbS2, getTranslation("Kg",2));
+        binder.forField(nbS2).withConverter(converter)
+                .bind(Platform::getNbS_2, Platform::setNbS_2);
+        TextField nbS1_5 = new TextField();
+        smallPlates.addFormItem(nbS1_5, getTranslation("Kg",1.5));
+        binder.forField(nbS1_5).withConverter(converter)
+                .bind(Platform::getNbS_1_5, Platform::setNbS_1_5);
+        TextField nbS1 = new TextField();
+        smallPlates.addFormItem(nbS1, getTranslation("Kg",1));
+        binder.forField(nbS1).withConverter(converter)
+                .bind(Platform::getNbS_1, Platform::setNbS_1);
+        TextField nbS0_5 = new TextField();
+        smallPlates.addFormItem(nbS0_5, getTranslation("Kg",0.5));
+        binder.forField(nbS0_5).withConverter(converter)
+                .bind(Platform::getNbS_0_5, Platform::setNbS_0_5);
+        
+        TextField nbC2_5 = new TextField();
+        collar.addFormItem(nbC2_5, getTranslation("Kg",2.5));
+        binder.forField(nbC2_5).withConverter(converter)
+                .bind(Platform::getNbC_2_5, Platform::setNbC_2_5);
+        
+        
+        Checkbox useOtherBar = new Checkbox();
+        TextField barWeight = new TextField();
+        lightBar.addFormItem(useOtherBar, getTranslation("NonStandardBar"));
+        useOtherBar.addValueChangeListener((e) -> {
+            barWeight.setEnabled(Boolean.TRUE.equals(e.getValue()));
+        });
+        binder.forField(useOtherBar)
+                .bind(Platform::isNonStandardBar, Platform::setNonStandardBar);
+
+        barWeight.setEnabled(platform.isNonStandardBar());
+        lightBar.addFormItem(barWeight,  getTranslation("BarWeight"));
+        int min = 1;
+        int max = 20;
+        binder.forField(barWeight).withConverter(converter)
+                .withValidator(new IntegerRangeValidator(getTranslation("BetweenValues",min,max),min,max))
+                .bind(Platform::getLightBar, Platform::setLightBar);
         
         VerticalLayout platesDisplay = new VerticalLayout(plates);
         platesDisplay.setAlignItems(Alignment.CENTER);
-        VerticalLayout platesEdit = new VerticalLayout(largePlates,smallPlates);
+        Button applyButton = new Button("Apply");
+        applyButton.addClickListener((e) -> {
+           try {
+            binder.writeBean(platform);
+            PlatformRepository.save(platform);
+            OwlcmsSession.withFop((fop) -> {
+                platesDisplay.removeAll();
+                plates.computeImageArea(fop, false);
+                platesDisplay.add(plates);
+            });
+        } catch (ValidationException e1) {
+        }
+
+        });
+        FlexLayout platesEdit = new FlexLayout(
+                new H3(getTranslation("BumperPlates")),
+                largePlates,
+                new H3(getTranslation("MetalPlates")),
+                smallPlates,
+                new H3(getTranslation("Collar")),
+                collar,
+                new H3(getTranslation("Bar")),
+                lightBar, applyButton);
+        platesEdit.getStyle().set("flex-direction","column");
         HorizontalLayout leftRight = new HorizontalLayout(platesDisplay, platesEdit);
         leftRight.setFlexGrow(1.0D, platesDisplay, platesEdit);
         leftRight.setSizeFull();
-
+        leftRight.setAlignItems(Alignment.CENTER);
+        
         fillHW(leftRight, this);
+        binder.readBean(platform);
     }
 
     /*

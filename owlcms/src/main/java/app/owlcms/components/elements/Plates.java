@@ -144,7 +144,7 @@ public class Plates extends FlexLayout {
         if (fop == null)
             return 0;
         Platform platform = fop.getPlatform();
-        if (platform.getLightBar() > 0) {
+        if (platform.isNonStandardBar() && platform.getLightBar() > 0) {
             return platform.getLightBar();
         } else {
             return computeOfficialBarWeight(fop, platform);

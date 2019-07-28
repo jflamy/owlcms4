@@ -335,3 +335,7 @@ Speakers;Audio Output;Sortie audio;;Lydudgang;Salida de audio
 Scoreboard.LiftingOrder;Lifting Order;Ordre de passage;;Konkurrenceordre;Orden en competencia
 Scoreboard.NextAttempt;Next Attempt;Prochain essai;;Next Attempt;Next Attempt
 Scoreboard.RequestedWeight;Requested Weight;Poids Demandé;;Ønsket vægt;Peso solicitado
+Kg;{0,number,#.#}kg;{0,number,#.#}kg;;{0,number,#.#}kg;{0,number,#.#}kg;
+NonStandardBar;Non-Standard Bar?;Barre non-standard?;;Ikke-standard Stang?;Non-standard bar?;
+BarWeight;Bar Weight;Poids de la barre;;;Stangvægt;Peso de la barra;
+Apply;Apply;Appliquer;;Anvend;Aplicar;
