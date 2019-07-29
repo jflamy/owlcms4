@@ -1,5 +1,9 @@
 # Refereeing
 
+OWLCMS supports using refereeing devices, and also supports 3 and 5-person [Jury](#Jury). Refereeing and Jury screens are started from the lifting page as shown below.  However, the decisions are displayed to the public and athletes on the displays started on the [Start Displays](Displays) page.
+
+![010_Ref](img/Refereeing/010_Ref.png)
+
 Refereeing can be performed in 3 different ways
 
 - With no technology.  Decisions are made using flags, colored cards, or hand signals.  
@@ -41,7 +45,22 @@ The keys or buttons on the keypads are programmed to send key sequences.  The de
 
   To emphasize, there is **no** **issue** with using the Delcom keypads on Windows or ChromeOS laptops.  Indeed, the picture above shows a Windows miniPC.
 
-  Unfortunately, the workarounds proposed by Delcom by only work for newer devices.  If you have Delcom keypads with firmware older than version 52,
+  Unfortunately, the workarounds proposed by Delcom by only work for newer devices.  If you have Delcom keypads with firmware older than version 52, and need to use them with a Raspberry
 
-  - Please see https://github.com/jflamy/rpi-delcom-legacy for an alternate operating system image that solves the problem of recognizing the devices. 
-  - You will however need to use the "Define Fields of Play" button in the "Preparation" section to select an audio output on the master laptop **OR** plug your speakers in a non-raspberry attempt board.  The alternate OS is unfortunately very bad for sound.
+  - Please see https://github.com/jflamy/rpi-delcom-legacy for an alternate operating system image that solves the problem of recognizing the devices.  This image does not support Raspberry 4.
+  
+  - The alternate OS is unfortunately very bad for sound, so
+  
+    - You will however need to use the "Define Fields of Play" button in the "Preparation" section to select an audio output on the master laptop **OR**
+    - Plug your speakers in a non-raspberry attempt board.  
+  
+## Jury
+
+In order to use a jury, in the current version, you need 3 or 5 refereeing devices connected to the computer with the Jury console.
+
+The devices are programmed just like for the referees, except that jury 4 uses keys 7 and 8, and jury 5 uses the keys 9 and 0.  As for the referees, even-numbered keys mean "red".
+
+The jury console operates according to IWF rules: the referee decisions are shown as soon as they are made, in the bottom part of the screen.  In the top part of the screen, the decisions circle for a jury member shows that he or she has made a decision, but the individual decisions are only shown in red or white after they have all been given.
+
+![070_Jury](img/Refereeing/070_Jury.png)
+
