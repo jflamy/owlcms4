@@ -9,6 +9,7 @@
 * Competition
 
   *	[Preparation](Preparation)
+  *	[Athlete Registration](Registration)
   *	[Scoreboards and Displays](Displays)
   *	[Announcing, Marshalling and Timekeeping](Announcing)
   *	[Refereeing](Refereeing)
