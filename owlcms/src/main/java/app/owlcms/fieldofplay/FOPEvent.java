@@ -30,6 +30,17 @@ public class FOPEvent {
 	}
 
 
+	/**
+     * Class BarbellOrPlatesChanged
+     */
+    static public class BarbellOrPlatesChanged extends FOPEvent {
+
+        public BarbellOrPlatesChanged(Object origin) {
+            super(origin);
+        }
+    }
+
+	
     /**
 	 * Class BreakStarted.
 	 */

@@ -45,7 +45,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Class AttemptBoard.
+ * Attempt board.
  */
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
@@ -144,9 +144,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
                 this.getOrigin(), e.getOrigin());
         Athlete a = e.getAthlete();
-        doAthleteUpdate(a, e);
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doAthleteUpdate(a, e));
     }
 
+    @Subscribe
+    public void slaveBarbellOrPlatesChanged(UIEvent.BarbellOrPlatesChanged e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> showPlates());
+    }
+    
     /**
      * Multiple attempt boards and athlete-facing boards can co-exist. We need to
      * show down on the slave devices -- the master device is the one where

@@ -31,6 +31,7 @@ import app.owlcms.components.elements.Plates;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
@@ -167,6 +168,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
                 platesDisplay.removeAll();
                 plates.computeImageArea(fop, false);
                 platesDisplay.add(plates);
+                fop.getFopEventBus().post(new FOPEvent.BarbellOrPlatesChanged(this));
             });
         } catch (ValidationException e1) {
         }
