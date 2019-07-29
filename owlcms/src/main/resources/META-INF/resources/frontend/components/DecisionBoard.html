@@ -111,6 +111,7 @@
 				super.ready();
 				this.doBreak(); 
 				this.$.athleteTimerDiv.style.display="none";
+				this.$.barbellDiv.style.display="none";
 			}
             
             start() {
@@ -123,7 +124,7 @@
             	this.$.athleteTimer.reset();
             	this.$.athleteTimerDiv.style.display="block";
             	this.$.breakTimerDiv.style.display="none";
-            	this.$.barbellDiv.style.display="block";
+            	this.$.barbellDiv.style.display="none";
             	this.$.decisionDiv.style.display="none";
             }
             
