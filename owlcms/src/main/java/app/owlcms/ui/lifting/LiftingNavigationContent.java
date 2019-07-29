@@ -60,10 +60,13 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         Button timekeeper = new Button(getTranslation("Timekeeper"), //$NON-NLS-1$
                 buttonClickEvent -> UI.getCurrent().getPage()
                         .executeJavaScript(getWindowOpener(TimekeeperContent.class)));
+        Button technical = new Button(getTranslation("TechicalController"), //$NON-NLS-1$
+                buttonClickEvent -> UI.getCurrent().getPage()
+                        .executeJavaScript(getWindowOpener(TCContent.class)));
 
         fillH(intro, this);
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(announcer, marshall, timekeeper);
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(announcer, marshall, timekeeper, technical);
         doGroup(getTranslation("TOScreens"), grid1, this); //$NON-NLS-1$
 
         Button referee = new Button(getTranslation("Referee_Mobile_Device"), //$NON-NLS-1$

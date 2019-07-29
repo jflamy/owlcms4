@@ -105,6 +105,7 @@ public class Platform implements Serializable {
     // bar
     private Integer officialBar = 0;
     private Integer lightBar = 0;
+    private boolean nonStandardBar;
 
 
 
@@ -710,6 +711,15 @@ public class Platform implements Serializable {
         } else {
             testingPlatform = p;
         }
+    }
+    
+    
+    public boolean isNonStandardBar() {
+        return nonStandardBar;
+    }
+
+    public void setNonStandardBar(boolean nonStandardBar) {
+        this.nonStandardBar = nonStandardBar;
     }
 
 
