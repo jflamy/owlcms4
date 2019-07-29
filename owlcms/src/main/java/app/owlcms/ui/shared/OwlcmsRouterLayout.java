@@ -119,7 +119,8 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 				.build())
 			.withAppMenu(LeftAppMenuBuilder
 				.get()
-				.addToSection(new LeftHeaderItem(null, OwlcmsFactory.getVersion(), null), HEADER)
+//				.addToSection(new LeftHeaderItem(null, OwlcmsFactory.getVersion(), null), HEADER)
+				.addToSection(new LeftHeaderItem(null, "", null), HEADER)
 				.add(home)
 				.add(new LeftNavigationItem(
 						PREPARE_COMPETITION,

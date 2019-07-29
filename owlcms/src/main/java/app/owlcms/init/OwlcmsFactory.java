@@ -43,6 +43,7 @@ public class OwlcmsFactory {
 	/** The fop by name. */
 	static Map<String, FieldOfPlay> fopByName = null;
 	private static String version;
+    private static String buildTimestamp;
 	
 
 	/**
@@ -111,4 +112,12 @@ public class OwlcmsFactory {
 	public static String getVersion() {
 		return version;
 	}
+
+    public static void setBuildTimestamp(String sBuildTimestamp) {
+        buildTimestamp = sBuildTimestamp;
+    }
+
+    public static String getBuildTimestamp() {
+        return buildTimestamp;
+    }
 }

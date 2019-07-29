@@ -6,6 +6,7 @@
  */
 package app.owlcms.ui.home;
 
+import java.text.MessageFormat;
 import java.time.LocalDate;
 
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
@@ -59,6 +61,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 
 	private VerticalLayout buildLicense() {
 		VerticalLayout license = new VerticalLayout();
+	    license.add(new H3(MessageFormat.format("OWLCMS v{0} ({1})", OwlcmsFactory.getVersion(), OwlcmsFactory.getBuildTimestamp())));
 		license.add(new H3(getTranslation("CopyrightLicense"))); //$NON-NLS-1$
 		addP(license,
 				getTranslation("Copyright2009")+LocalDate.now().getYear()+getTranslation("JFL") //$NON-NLS-1$ //$NON-NLS-2$
