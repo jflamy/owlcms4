@@ -27,7 +27,6 @@ BodyWeight;Body Weight;Poids;;Vægt;Peso corporal;
 BodyWeight_no_match_category;Body Weight is outside of selected category;Le poids ne correspond pas à la catégorie;;Kropsvægt passer ikke med den valgte klasse;;
 BreakTimer;Break Timer;Chronomètre de pause;;Pause Timer;;
 BreakType;Break Type;Type de pause;;Pause Type;;
-BumperPlates;Grandes plaques;Grandes plaques;;Store skiver;Pesas grandes;
 Button_Open_Display;Use one of the buttons below to open a display.;Utilisez un bouton ci-dessous pour démarrer un affichage;;Brug en af knapperne nedenfor for at åbne et display.;;
 C_and_J_1;C.&J. 1;É.-J. 1;;Stød 1;D.T. 1;
 C_and_J_2;C.&J. 2;É.-J. 2;;Stød 2;D.T. 2;
@@ -201,7 +200,6 @@ Lot;Lot;Tirage;;Lodt.;Número;
 margin-bottom;margin-bottom;margin-bottom;;margin-bottom;margin-bottom;
 Marshall;Marshall;Préposé aux changements;;Marshall;;
 MaximumWeight;Maximum Weight;Poids maximum;;Maximum vægt;;
-MetalPlates;Metal Plates;Plaques de métal;;Små skiver;Pesas de metal;
 MinimumWeight;Minimum Weight;Poids minimum;;Minimum vægt;Peso Mínimo;
 Name;Name;Nom;;Navn;Nombre;
 NoLift_GoodLift;{0,choice,0#No Lift|1#Good Lift} for {1};Essai {0,choice,0#refusé|1#réussi} pour {1};;{0,choice,0#Underkendt|1#Godkendt} for {1};;
@@ -335,3 +333,10 @@ Speakers;Audio Output;Sortie audio;;Lydudgang;Salida de audio
 Scoreboard.LiftingOrder;Lifting Order;Ordre de passage;;Konkurrenceordre;Orden en competencia
 Scoreboard.NextAttempt;Next Attempt;Prochain essai;;Next Attempt;Next Attempt
 Scoreboard.RequestedWeight;Requested Weight;Poids Demandé;;Ønsket vægt;Peso solicitado
+Kg;{0,number,#.#}kg;{0,number,#.#}kg;;{0,number,#.#}kg;{0,number,#.#}kg;
+NonStandardBar;Non-Standard Bar?;Barre non-standard?;;Ikke-standard Stang?;Non-standard bar?;
+BarWeight;Bar Weight;Poids de la barre;;;Stangvægt;Peso de la barra;
+Apply;Apply;Appliquer;;Anvend;Aplicar;
+BumperPlates;Bumper Plates;Grandes plaques;;Store skiver;Pesas grandes;
+MetalPlates;Metal Plates;Plaques de métal;;Små skiver;Pesas de metal;
+BetweenValues;Value must be between {0} and {1} inclusively.;La valeur doit être comprise entre {0} et {1} inclusivement.;;El valor debe estar entre {0} y {1} inclusive.;

@@ -34,13 +34,14 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
 import app.owlcms.fieldofplay.FOPEvent.BreakPaused;
 import app.owlcms.fieldofplay.FOPEvent.BreakStarted;
 import app.owlcms.fieldofplay.FOPEvent.DecisionFullUpdate;
 import app.owlcms.fieldofplay.FOPEvent.DecisionReset;
-import app.owlcms.fieldofplay.FOPEvent.ExplicitDecision;
 import app.owlcms.fieldofplay.FOPEvent.DecisionUpdate;
 import app.owlcms.fieldofplay.FOPEvent.DownSignal;
+import app.owlcms.fieldofplay.FOPEvent.ExplicitDecision;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
 import app.owlcms.fieldofplay.FOPEvent.StartLifting;
 import app.owlcms.fieldofplay.FOPEvent.TimeOver;
@@ -356,6 +357,9 @@ public class FieldOfPlay {
             return;
         } else if (e instanceof StartLifting) {
             transitionToLifting(e, true);
+        } else if (e instanceof BarbellOrPlatesChanged) {
+            uiShowPlates((BarbellOrPlatesChanged)e);
+            return;
         }
 
         switch (this.getState()) {
@@ -833,7 +837,7 @@ public class FieldOfPlay {
         logger.trace("scheduling decision display");
         new DelayTimer().schedule(() -> showDecisionNow(origin2), 3000);
     }
-    
+
     /**
      * The decision is confirmed as official after the 3 second delay following
      * majority. After this delay, manual announcer intervention is required to
@@ -860,7 +864,7 @@ public class FieldOfPlay {
         // tell ourself to reset after 3 secs.
         new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), 3000);
     }
-
+    
     /**
      * The decision is confirmed as official after the 3 second delay following
      * majority. After this delay, manual announcer intervention is required to
@@ -880,7 +884,6 @@ public class FieldOfPlay {
             curAthlete.failedLift();
         }
         AthleteRepository.save(curAthlete);
-        // TODO show something on the board
         uiShowRefereeDecisionOnSlaveDisplays(curAthlete, goodLift, refereeDecision, refereeTime, origin);
         recomputeLiftingOrder();
         setState(DECISION_VISIBLE);
@@ -911,7 +914,6 @@ public class FieldOfPlay {
         prepareDownSignal();
 
         // enable master to listening for decision
-        unlockReferees();
         setState(TIME_RUNNING);
     }
 
@@ -955,6 +957,10 @@ public class FieldOfPlay {
         uiEventBus.post(new UIEvent.DownSignal(origin2));
     }
 
+    private void uiShowPlates(BarbellOrPlatesChanged e) {
+        uiEventBus.post(new UIEvent.BarbellOrPlatesChanged(e.getOrigin()));
+    }
+
     private void uiShowRefereeDecisionOnSlaveDisplays(Athlete athlete2, Boolean goodLift2, Boolean[] refereeDecision2,
             Integer[] shownTimes, Object origin2) {
         uiEventLogger.trace("showRefereeDecisionOnSlaveDisplays"); //$NON-NLS-1$
@@ -977,11 +983,6 @@ public class FieldOfPlay {
                 e.getClass().getSimpleName(), state);
         logger.warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state); //$NON-NLS-1$
         Notification.show(text, 5000, Position.BOTTOM_END);
-    }
-
-    private void unlockReferees() {
-        // TODO: unlock referee devices
-        uiEventLogger.trace("unlockReferees"); //$NON-NLS-1$
     }
 
     private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {

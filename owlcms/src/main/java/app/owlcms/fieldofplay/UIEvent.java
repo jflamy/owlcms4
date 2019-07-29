@@ -38,6 +38,12 @@ public class UIEvent {
 		}
 	}
 
+    static public class BarbellOrPlatesChanged extends UIEvent {
+        public BarbellOrPlatesChanged (Object object) {
+            super(object);
+        }
+    }
+
 	/**
 	 * Class BreakDone.
 	 */
@@ -102,6 +108,42 @@ public class UIEvent {
 		public Integer getTimeRemaining() {
 			return timeRemaining;
 		}
+	}
+
+	/**
+	 * Class ExplicitDecision.
+	 */
+	static public class Decision extends UIEvent {
+
+		/** decision. */
+		public Boolean decision = null;
+
+		/** ref 1. */
+		public Boolean ref1;
+
+		/** ref 2. */
+		public Boolean ref2;
+
+		/** ref 3. */
+		public Boolean ref3;
+
+		/**
+		 * Instantiates a new referee decision.
+		 *
+		 * @param decision the decision
+		 * @param ref1     the ref 1
+		 * @param ref2     the ref 2
+		 * @param ref3     the ref 3
+		 * @param origin   the origin
+		 */
+		public Decision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, Object origin) {
+			super(a, origin);
+			this.decision = decision;
+			this.ref1 = ref1;
+			this.ref2 = ref2;
+			this.ref3 = ref3;
+		}
+
 	}
 
 	/**
@@ -250,42 +292,6 @@ public class UIEvent {
 		 */
 		public boolean isStopAthleteTimer() {
 			return stopAthleteTimer;
-		}
-
-	}
-
-	/**
-	 * Class ExplicitDecision.
-	 */
-	static public class Decision extends UIEvent {
-
-		/** decision. */
-		public Boolean decision = null;
-
-		/** ref 1. */
-		public Boolean ref1;
-
-		/** ref 2. */
-		public Boolean ref2;
-
-		/** ref 3. */
-		public Boolean ref3;
-
-		/**
-		 * Instantiates a new referee decision.
-		 *
-		 * @param decision the decision
-		 * @param ref1     the ref 1
-		 * @param ref2     the ref 2
-		 * @param ref3     the ref 3
-		 * @param origin   the origin
-		 */
-		public Decision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, Object origin) {
-			super(a, origin);
-			this.decision = decision;
-			this.ref1 = ref1;
-			this.ref2 = ref2;
-			this.ref3 = ref3;
 		}
 
 	}
