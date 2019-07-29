@@ -4,7 +4,6 @@
   <style>
 /** global css definitions go here */
 /* note that vaadin components are styled using dom-modules below */
-
 .errorMessage {
 	color: red;
 	font-weight: bold;
@@ -12,11 +11,11 @@
 }
 
 .loadChart .plate {
-	border-color: black;
+	border-color: var(--lumo-contrast);
 	border-width: 1px;
 	border-style: solid;
 	vertical-align: middle;
-	margin: 1px;
+	margin: 2px;
 	-moz-border-radius: 0.5em;
 	-webkit-border-radius: 0.5em;
 	border-radius: 0.5em;
@@ -26,19 +25,22 @@
 .bar {
 	height: 1.5ex;
 	width: 2.5em;
-	background-color: gray;
+	background-color: grey;
 }
 
 .barInner {
 	height: 4.5ex;
 	width: 1em;
-	background-color: gray;
+	background-color: grey;
+	-moz-border-radius: 0.2em;
+	-webkit-border-radius: 0.2em;
+	border-radius: 0.2em;
 }
 
 .barOuter {
 	height: 2.5ex;
 	width: 1.5em;
-	background-color: gray;
+	background-color: grey;
 }
 
 .L_25 {
@@ -81,6 +83,12 @@
 	height: 5ex;
 	width: 1.5em;
 	background-color: black;
+	border-color: var(--lumo-contrast);
+	border-width: 2px;
+	border-style: solid;
+	-moz-border-radius: 0.1em;
+	-webkit-border-radius: 0.1em;
+	border-radius: 0.1em;
 }
 
 .S_5 {
@@ -118,8 +126,7 @@
 	width: 0.65em;
 	background-color: white;
 }
-	
-  </style>
+</style>
 </custom-style>
 
 <dom-module id="my-text-field-theme" theme-for="vaadin-text-field">

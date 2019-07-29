@@ -880,7 +880,6 @@ public class FieldOfPlay {
             curAthlete.failedLift();
         }
         AthleteRepository.save(curAthlete);
-        // TODO show something on the board
         uiShowRefereeDecisionOnSlaveDisplays(curAthlete, goodLift, refereeDecision, refereeTime, origin);
         recomputeLiftingOrder();
         setState(DECISION_VISIBLE);
@@ -911,7 +910,6 @@ public class FieldOfPlay {
         prepareDownSignal();
 
         // enable master to listening for decision
-        unlockReferees();
         setState(TIME_RUNNING);
     }
 
@@ -977,11 +975,6 @@ public class FieldOfPlay {
                 e.getClass().getSimpleName(), state);
         logger.warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state); //$NON-NLS-1$
         Notification.show(text, 5000, Position.BOTTOM_END);
-    }
-
-    private void unlockReferees() {
-        // TODO: unlock referee devices
-        uiEventLogger.trace("unlockReferees"); //$NON-NLS-1$
     }
 
     private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {

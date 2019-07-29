@@ -158,6 +158,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         VerticalLayout platesDisplay = new VerticalLayout(plates);
         platesDisplay.setAlignItems(Alignment.CENTER);
         Button applyButton = new Button("Apply");
+        applyButton.setThemeName("primary");
         applyButton.addClickListener((e) -> {
            try {
             binder.writeBean(platform);
@@ -179,7 +180,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
                 new H3(getTranslation("Collar")),
                 collar,
                 new H3(getTranslation("Bar")),
-                lightBar, applyButton);
+                lightBar, new H3(""), applyButton);
         platesEdit.getStyle().set("flex-direction","column");
         HorizontalLayout leftRight = new HorizontalLayout(platesDisplay, platesEdit);
         leftRight.setFlexGrow(1.0D, platesDisplay, platesEdit);

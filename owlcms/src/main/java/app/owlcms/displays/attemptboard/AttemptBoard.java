@@ -18,6 +18,7 @@ import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
@@ -26,6 +27,7 @@ import com.vaadin.flow.theme.material.Material;
 
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
+import app.owlcms.components.elements.Plates;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.BreakType;
@@ -48,6 +50,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
 @HtmlImport("frontend://components/AttemptBoard.html")
+@HtmlImport("frontend://styles/shared-styles.html")
 @Route("displays/attemptBoard")
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
@@ -111,6 +114,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     protected DecisionElement decisions; // created by Flow during template instanciation
 
     private EventBus uiEventBus;
+    private Plates plates;
 
     /**
      * Instantiates a new attempt board.
@@ -233,6 +237,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setLastName(MessageFormat.format(getTranslation("Group_number_done"), g.toString())); //$NON-NLS-1$
             this.getElement().callFunction("groupDone"); //$NON-NLS-1$
+            hidePlates();
         });
     }
 
@@ -259,9 +264,36 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             String formattedAttempt = formatAttempt(a.getAttemptNumber());
             model.setAttempt(formattedAttempt);
             model.setWeight(a.getNextAttemptRequestedWeight());
+            showPlates();
         });
     }
 
+    private void hidePlates() {
+        if (plates != null) {
+            this.getElement().removeChild(plates.getElement());
+        }
+        plates = null;
+    }
+
+    private void showPlates() {
+        AttemptBoard attemptBoard = this;
+        if (plates != null) {
+            attemptBoard.getElement().removeChild(plates.getElement());
+        }
+        plates = new Plates();
+
+        OwlcmsSession.withFop((fop) -> {
+            UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+                plates.computeImageArea(fop, false);
+                Element platesElement = plates.getElement();
+                // tell polymer that the plates belong in the slot named barbell of the template
+                platesElement.setAttribute("slot", "barbell");
+                platesElement.getStyle().set("font-size", "20pt");
+                attemptBoard.getElement().appendChild(platesElement);
+            });
+        });
+    }
+    
     @Override
     public void doBreak(BreakStarted e) {
         uiEventLogger.debug("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom()); //$NON-NLS-1$
@@ -296,6 +328,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     protected void doEmpty() {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            hidePlates();
             this.getElement().callFunction("clear"); //$NON-NLS-1$
         });
     }

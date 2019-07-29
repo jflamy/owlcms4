@@ -127,7 +127,7 @@ public class Plates extends FlexLayout {
             Label plate = new Label();
             plate.setSizeUndefined();
             plate.getElement().getClassList().add(style);
-            if (!style.startsWith("bar")) {
+            if (!style.startsWith("bar") && !style.startsWith("C")) {
                 plate.getElement().getClassList().add("plate");
             }
             this.add(plate);
