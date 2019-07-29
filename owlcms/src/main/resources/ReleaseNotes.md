@@ -1,9 +1,8 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#/?id=features) for an overview of the feature set.  [Instructions for walking through a Live Demo](https://jflamy.github.io/owlcms4/#/index?id=demo) are available.
 - Release Highlights:
-  - Lifting Order display is back.
-  - Local startup on the main laptop automatically opens a browser on home page
-  - Installation documentation fix for macOS
-- [Change Log](https://github.com/jflamy/owlcms4/milestone/32?closed=1) for this release (enhancements and fixes)
+  - Loading information (which plates) is shown on the attempt board
+  - New Technical Controller screen allows changing plates and barbell weights during competition
+- [Change Log](https://github.com/jflamy/owlcms4/milestone/33?closed=1) for this release (enhancements and fixes)
 - Installation Instructions are available for both [local setups without internet access](https://jflamy.github.io/owlcms4/#/LocalSetup.md) and for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
   - For Windows, download owlcms_setup.exe
   - For Linux, macOS and Heroku, download the .zip file.
