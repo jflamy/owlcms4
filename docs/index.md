@@ -70,12 +70,12 @@ This is free, as-is, no warranty *whatsoever* software. If you just want to run 
 
 If however you wish to provide or host the software as a service to others, or if you create a modified version, the license *requires* you to make full sources and building instructions available for free, so that anyone who wants to compile or further modify your version can do so on their own (see the [License](https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt) for details.).  You may contact the author to seek alternative licensing agreements.
 
-### Contributing
+## Current Status
 
 For the current status, see
 
 - [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.
-- [Issues and enhancement requests](https://github.com/jflamy/owlcms4/issues) This is the complete log of requests and planned enhancements.
+- [Issues and enhancement requests](https://github.com/jflamy/owlcms4/issues) This is the complete log of requests and planned enhancements. Use this page to report problems or ask questions.
 
 ## Credits
 
@@ -83,4 +83,4 @@ The software is written and maintained by Jean-François Lamy, IWF International
 
 Thanks to Anders Bendix Nielsen (Denmark), Alexey Ruchev (Russia) and Brock Pedersen (Canada) for their support, feedback and help testing the software.
 
-See the file [pom.xml](pom.xml) for the list of Open Source software used in the project.# owlcms4 Setup Instructions
+The software was built using the open source version of the [Vaadin Flow](https://vaadin.com/flow) framework and several open source libraries. See [this file](https://github.com/jflamy/owlcms4/blob/master/owlcms/pom.xml) for the list of Open Source software used in the project.
