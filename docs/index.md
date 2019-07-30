@@ -4,7 +4,7 @@ OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md)
 
 ## Features
 
-- The following list is a sampling of the many features available.  Refer to the various sections of the documentation (see the sidebar at left) to get a better sense.
+- The following list is a sampling of the many features available.  Refer to the various sections of the documentation (see the sidebar menu at the left) to get a better sense.
   - The current release is able to run a **regular** or **masters** competition, with or without a **jury**.
   
   - Ability to run in the **cloud**: Decisions, timers and sounds are handled locally in the browser to provide better feedback.
@@ -56,22 +56,13 @@ OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md)
 
 The software is meant to comply with current IWF Technical Competition Rules and Regulations (TCRR) and with the current Masters Weightlifting rules.  TCRR Requirements regarding equipment are outside our scope (such as the presence of indicator lights and buzzers on refereeing devices, etc.)
 
+### Installation
+
+Download and Installation Instructions are available for both [local setups without internet access](https://jflamy.github.io/owlcms4/#/LocalSetup.md) and for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
+
 ## Demo
 
-A [Live demo](https://owlcms4.herokuapp.com) of the current build is available on the Heroku cloud service.
-
-- Note that the cloud demo application is not pre-loaded and uses a zero-cost service, so the first load can take a minute. This is *not* indicative of subsequent cloud loads neither is it indicative of local performance (both of which start in a few seconds)
-- There is a single demo database, which resets itself periodically when the Heroku application times out. So if someone else is playing around, you may see surprising things.
-- Suggested steps for a walkthrough:
-  - Click on "Lifting Group" in the menu
-  - Click on "Announcer". A new tab opens.  Select a group ("M1" or "M2") in the top bar.
-  - You can start and stop the clock with the "play" and "pause" buttons.
-  - Start time for the athlete and stop the clock after a few seconds.
-  - The announcer can enter manual flag/thumbs-up/down decisions using the buttons at the right.
-  - Go back to the first home tab you opened and go to "Setup Displays" in the menu
-  - Start an Attempt Board and click on the black area. You can then use the keyboard keys 1 3 5 to enter white and 2 4 6 to enter red decisions.  Down signal will appear after two identical.
-  - You can also start a Result Board.
-  - If you go back to the main screen and change the group, you should see all the screens change to the new group.
+- See [this page](Demo) for how to access and a simple walkthrough
 
 ## Licensing and Notes
 

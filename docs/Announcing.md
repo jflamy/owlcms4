@@ -78,7 +78,7 @@ In larger competitions, a separate Marshall desk is set up in the warm-up area. 
 
 Useful tip: you can use the filtering box to quickly locate an athlete (here we have three lifters with Jackson as the last name)
 
-As explained in the ""
+As explained in the [Weight Change for Current Athlete](#weight-change-for-current-athlete) section, a notification is shown on the announcer screen if a change is made for the current athlete.
 
 ![040_Marshall](img/Lifting/040_Marshall.png)
 
