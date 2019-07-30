@@ -112,7 +112,7 @@ public class AthleteRepository {
 			Boolean weighedIn,
 			int offset, int limit) {
 		String qlString = "select a from Athlete a" + filteringSelection(lastName, group, category, ageDivision, weighedIn);
-		logger.trace("find query = {}",qlString);		
+		logger.debug("find query = {}",qlString);		
 		Query query = em.createQuery(qlString);
 		setFilteringParameters(lastName, group, category, ageDivision, query);
 		if (offset >= 0)

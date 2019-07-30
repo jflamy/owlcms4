@@ -36,7 +36,6 @@ import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.PageConfigurator;
 
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.home.InfoNavigationContent;
@@ -119,7 +118,8 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 				.build())
 			.withAppMenu(LeftAppMenuBuilder
 				.get()
-				.addToSection(new LeftHeaderItem(null, OwlcmsFactory.getVersion(), null), HEADER)
+//				.addToSection(new LeftHeaderItem(null, OwlcmsFactory.getVersion(), null), HEADER)
+				.addToSection(new LeftHeaderItem(null, "", null), HEADER)
 				.add(home)
 				.add(new LeftNavigationItem(
 						PREPARE_COMPETITION,

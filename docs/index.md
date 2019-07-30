@@ -1,27 +1,58 @@
 # Olympic Weightlifting Competition Management System 
 
-This system is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity, and can optionally be run on the cloud without a local installation.
+OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity, and can optionally be run on the cloud without a local installation.
 
 ## Features
 
-- The following key features are present
+- The following list is a sampling of the many features available.  Refer to the various sections of the documentation (see the sidebar at left) to get a better sense.
   - The current release is able to run a **regular** or **masters** competition, with or without a **jury**.
+  
   - Ability to run in the **cloud**: Decisions, timers and sounds are handled locally in the browser to provide better feedback.
+  
   - **Announcer, marshall and timekeeper** screens (updating athlete cards and recomputing lifting order).
-  - **Attempt board** showing current athlete information, remaining time and weight requested. 
+  
+    ![020_EditLifterCard](img/Lifting/020_EditLifterCard.png  ':size=350')
+  
+  - **Attempt board** showing current athlete information, remaining time and weight requested.
+  
+    ![032_Attempt_Running](img/Displays/032_Attempt_Running.png ':size=350' )  ![038_Attempt_Decision](img/Displays/038_Attempt_Decision.png ':size=350') 
+  
   - **Support for refereeing devices** (see this [page](Refereeing.md) for discussion) 
-    - Any keypad that can be programmed to generate the digits 0 to 9 can be used to enter decisions (see the demo walkthrough below for the key mapping).  
+    - Any keypad that can be programmed to generate the digits 0 to 9 can be used to enter decisions
+    
+      ![refereeingSetup](img/equipment/refereeingSetup.jpg ':size=350') 
+    
     - Mobile phones or tablets can also be used.
-  - **Athlete-facing decision display** (decision display reversed to match referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
+    
+      ![mobile_ref](img/Refereeing/mobile_ref.png  ':size=350')
+    
+  - **Athlete-facing display** (decision display reversed to match referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
+  
+    ![044_AF_Down](img/Displays/044_AF_Down.png ':size=350') ![048_AF_Decision](img/Displays/048_AF_Decision.png ':size=350')
+  
+    
+  
   - **Scoreboard** for public or warm-up room display.  Shows timer, down and decision lights.
+  
+     ![020_Scoreboard](img/Displays/020_Scoreboard.png ':size=350')
+  
+  - **3 and 5-person jury**.  Jury members see referee decisions as they happen. Jury members see their vote outcome once all jurors have voted. 
+  
+    ![070_Jury](img/Refereeing/070_Jury.png  ':size=350')
+  
   - **Athlete Registration and Weigh-in screens**, including production of **weigh-in sheet** with starting weights and **athlete cards**.
+  
   - Working entry screens for defining a competition (general info, groups, categories, etc.)
+  
   - **Multiple fields of play** (platforms)
+  
   - **Upload of registration sheet** (same format as owlcms2, in either xls or xlsx format)
+  
   - **Countdown timer for breaks** (before introduction, before first snatch, break before clean and jerk, technical break)
+  
   - Production of **group results/protocol sheets**
+  
   - Option to treat the competition as a **Masters competition** with proper processing of age groups.
-  - **3 and 5-person jury**.  Jury members see referee decisions as they happen. Jury members see their vote outcome once all jurors have voted.
 
 The software is meant to comply with current IWF Technical Competition Rules and Regulations (TCRR) and with the current Masters Weightlifting rules.  TCRR Requirements regarding equipment are outside our scope (such as the presence of indicator lights and buzzers on refereeing devices, etc.)
 

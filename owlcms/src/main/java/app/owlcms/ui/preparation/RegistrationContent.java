@@ -72,7 +72,7 @@ public class RegistrationContent extends VerticalLayout
 	private TextField lastNameFilter = new TextField();
 	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
 	private ComboBox<Category> categoryFilter = new ComboBox<>();
-	private ComboBox<Group> groupFilter = new ComboBox<>();
+	public ComboBox<Group> groupFilter = new ComboBox<>();
 	private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
 	private ComboBox<String> ageGroupFilter = new ComboBox<>();
 	private OwlcmsRouterLayout routerLayout;

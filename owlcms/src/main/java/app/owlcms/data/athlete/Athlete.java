@@ -7,6 +7,7 @@
 package app.owlcms.data.athlete;
 
 import java.sql.Date;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -646,6 +647,12 @@ public class Athlete {
 	 */
 	public Double getBodyWeight() {
 		return bodyWeight;
+	}
+	
+	DecimalFormat df = null;
+	public String getRoundedBodyWeight() {
+        if (df == null) df = new DecimalFormat("#.##");
+        return df.format(getBodyWeight());
 	}
 
 	/**

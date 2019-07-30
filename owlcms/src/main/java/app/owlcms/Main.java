@@ -146,6 +146,7 @@ public class Main {
         String version = props.getProperty("version"); //$NON-NLS-1$
         OwlcmsFactory.setVersion(version);
         String buildTimestamp = props.getProperty("buildTimestamp"); //$NON-NLS-1$
+        OwlcmsFactory.setBuildTimestamp(buildTimestamp);
         String buildZone = props.getProperty("buildZone"); //$NON-NLS-1$
         logger.info("owlcms {} built {} ({})", version, buildTimestamp, buildZone); //$NON-NLS-1$
     }

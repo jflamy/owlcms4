@@ -8,6 +8,7 @@ package app.owlcms.ui.lifting;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -31,6 +32,7 @@ import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -195,9 +197,11 @@ public class WeighinContent extends VerticalLayout
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		return AthleteRepository
+		List<Athlete> findFiltered = AthleteRepository
 				.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(), categoryFilter.getValue(),
 					ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
+        AthleteSorter.registrationOrder(findFiltered);
+        return findFiltered;
 	}
 	
 	/**

@@ -25,9 +25,15 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
 	public AthleteFacingDecisionBoard() {
 		super();
 		setPublicFacing(false);
+		setShowBarbell(false);
 	}
 	
-	public void setPublicFacing(boolean publicFacing) {
+	private void setShowBarbell(boolean b) {
+	    // unused - web component currently always hides barbell
+	    getModel().setShowBarbell(b);
+    }
+
+    public void setPublicFacing(boolean publicFacing) {
 		getModel().setPublicFacing(publicFacing);
 	}
 	

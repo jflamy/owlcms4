@@ -88,6 +88,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         Integer getWeight();
 
         Boolean isPublicFacing();
+        
+        Boolean isShowBarbell();
 
         void setAttempt(String formattedAttempt);
 
@@ -96,6 +98,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         void setLastName(String lastName);
 
         void setPublicFacing(Boolean publicFacing);
+        
+        void setShowBarbell(Boolean showBarbell);
 
         void setStartNumber(Integer integer);
 

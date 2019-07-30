@@ -51,11 +51,15 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
     @Override
     protected List<Athlete> getSortedAthletes() {
     	if (getGroup() != null) {
-    		return AthleteSorter
-    				.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), false));
+    		List<Athlete> registrationOrderCopy = AthleteSorter
+    				.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), null));
+//    		logger.warn(registrationOrderCopy.toString());
+            return registrationOrderCopy;
     	} else {
-    		return AthleteSorter
-    				.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, false));
+    		List<Athlete> registrationOrderCopy = AthleteSorter
+    				.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, null));
+//    		logger.warn(registrationOrderCopy.toString());
+            return registrationOrderCopy;
     	}
     }
 
