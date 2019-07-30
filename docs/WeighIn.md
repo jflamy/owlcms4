@@ -10,13 +10,13 @@ The first step is to select the group being weighed-in.
 
 ## Athlete Cards
 
-Athlete Cards are the cards that will be used by the Marshall to record changes.  In many federations, they are printed out in advance, because the athletes will be asked to write down their starting weights and counter-sign their body weight.  If athlete cards are printed in advance of the weigh-in, it will also be necessary to write down the start numbers on the cards.  This is usually done by the competition secretary, comparing the [Starting Weight List](#starting-weight-list) as a reference and cross-check.
+Athlete Cards are the cards that will be used by the Marshall to record changes.  If a printer is available on site, you may wish to wait until before the weigh-in to print them out.
 
 ![040_AthleteCards](img/WeighIn/040_AthleteCards.png)
 
 Athlete cards are produced as an Excel document which can be printed.
 
-![LifterCards](img/Documents/LifterCards.png)
+![042_AthleteCards](img/WeighIn/042_AthleteCards.png)
 
 ## Entering information
 

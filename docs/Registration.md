@@ -4,6 +4,7 @@ The next step in preparing a competition is registering the athletes.  This invo
 - Drawing lots
 - Assigning athletes to groups
 - Producing a start list
+- Producing Athlete cards
 
 These steps are performed from the `Prepare Competition` page
 
@@ -53,3 +54,9 @@ After all athletes have been entered, you should draw the lot numbers.  You can 
 The start list shows all the athletes that will compete, in which group, and the order in which the athletes will be weighed-in.  The button for producing the starting list is at the top of the page.
 
 ![092_starting](img/Preparation/092_starting.png)
+
+## Athlete Cards
+
+Athlete Cards are the cards that will be used by the Marshall to record changes.  In many federations, they are printed out in advance, because the athletes will be asked to write down their starting weights and counter-sign their body weight.  If athlete cards are printed in advance of the weigh-in, it will also be necessary to write down the start numbers on the cards.  This is usually done by the competition secretary, comparing the [Starting Weight List](#starting-weight-list) as a reference and cross-check.
+
+In the current version of OWLCMS, Athlete Cards are printed from the Weigh-In screen, accessible from the `Run Lifting Group` page.  
