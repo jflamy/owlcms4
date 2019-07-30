@@ -154,7 +154,6 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 		cardsButton = new Button(getTranslation("AthleteCards"),new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
 		cardsButton.addClickListener((e) -> {
 			cardsWriter.setGroup(group);
-			
 		});
 		cards.add(cardsButton);
 		cardsButton.setEnabled(true);
