@@ -57,6 +57,10 @@ The start list shows all the athletes that will compete, in which group, and the
 
 ## Athlete Cards
 
-Athlete Cards are the cards that will be used by the Marshall to record changes.  In many federations, they are printed out in advance, because the athletes will be asked to write down their starting weights and counter-sign their body weight.  If athlete cards are printed in advance of the weigh-in, it will also be necessary to write down the start numbers on the cards.  This is usually done by the competition secretary, comparing the [Starting Weight List](#starting-weight-list) as a reference and cross-check.
+Athlete Cards are the cards that will be used by the Marshall to record changes.  In many federations, they are printed out in advance, because the athletes will be asked to write down their starting weights and counter-sign their body weight at weigh-in.  
 
-In the current version of OWLCMS, Athlete Cards are printed from the Weigh-In screen, accessible from the `Run Lifting Group` page.  
+If athlete cards are printed in advance of the weigh-in, it is necessary to write down the start numbers on the cards after they have been assigned at weigh-in.  This is usually done by the competition secretary, comparing the [Starting Weight List](#starting-weight-list) as a reference and cross-check.
+
+ The button for producing the athlete cards is at the top of the page.  You can restrict the printing to a group by selecting it in the drop-down.
+
+![94_cards](img/Preparation/94_cards.png)
