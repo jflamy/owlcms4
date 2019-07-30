@@ -22,6 +22,7 @@ Also used for certain cloud services (e.g. Heroku)
 	<logger name="org.eclipse.jetty.server.HttpChannel" level="ERROR" />
 	<logger name="com.vaadin.flow.server.communication" level="ERROR" />
 	<logger name="com.vaadin.flow.server.DefaultDeploymentConfiguration" level="ERROR" />
+	<logger name="h2database" level="WARN" />
 
 	<root level="WARN">
 		<appender-ref ref="STDERR" />

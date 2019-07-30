@@ -142,7 +142,7 @@ public class JPAService {
 		props.putAll(vals);
 		
 		// keep the database even if all the connections have timed out
-		props.put(JPA_JDBC_URL, "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
+		props.put(JPA_JDBC_URL, "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
 		props.put(JPA_JDBC_USER, "sa");
 		props.put(JPA_JDBC_PASSWORD, "");
 		
