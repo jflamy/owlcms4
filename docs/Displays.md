@@ -78,4 +78,4 @@ Three-second waiting period after all three decisions have been entered.
 
 Final decision.
 
-![2019-07-29 16_47_12-Greenshot](img/Displays/2019-07-29 16_47_12-Greenshot.png)
+![048_AF_Decision](img/Displays/048_AF_Decision.png)
