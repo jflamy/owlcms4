@@ -20,7 +20,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -30,7 +29,6 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.category.Category;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -38,60 +36,62 @@ import ch.qos.logback.classic.Logger;
 /**
  * The Class Group.
  */
-@Entity(name="CompetitionGroup")
+@Entity(name = "CompetitionGroup")
 @Cacheable
 public class Group implements Comparable<Group> {
-	
-	final private Logger logger = (Logger)LoggerFactory.getLogger(Group.class);
-    
+
+    final private Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
+
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
-	private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient().appendPattern(DATE_FORMAT).toFormatter();
-    
+    private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient()
+            .appendPattern(DATE_FORMAT).toFormatter();
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
+
     /** The athletes. */
     // group is the property in Athlete that is the opposite of Group.athletes
-    @OneToMany(cascade={CascadeType.MERGE}, mappedBy = "group", fetch = FetchType.EAGER)
+    @OneToMany(cascade = { CascadeType.MERGE }, mappedBy = "group", fetch = FetchType.EAGER)
     Set<Athlete> athletes;
-   
-    /** The categories. */
-    @ManyToMany( cascade = { CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.REFRESH }, fetch = FetchType.EAGER)
-    Set<Category> categories;
+
+//    /** The categories. */
+//    @ManyToMany( cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+//            CascadeType.REFRESH }, fetch = FetchType.EAGER)
+//    Set<Category> categories;
 
     /** The platform. */
-    @ManyToOne(cascade={CascadeType.PERSIST, CascadeType.MERGE}, optional = true, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, optional = true, fetch = FetchType.EAGER)
     Platform platform;
+
     /** The competition short date time. */
     private LocalDateTime competitionTime;
     private LocalDateTime weighInTime;
-    
+
     private String name;
-    
+
     private String announcer;
     private String marshall;
     private String technicalController;
     private String timeKeeper;
-    
+
     private String referee1;
     private String referee2;
     private String referee3;
 
-	private String jury1;
-	private String jury2;
-	private String jury3;
-	private String jury4;
-	private String jury5;
+    private String jury1;
+    private String jury2;
+    private String jury3;
+    private String jury4;
+    private String jury5;
 
-	/**
+    /**
      * Instantiates a new group.
      */
     public Group() {
     }
 
-	/**
+    /**
      * Instantiates a new group.
      *
      * @param groupName the group name
@@ -103,11 +103,11 @@ public class Group implements Comparable<Group> {
         this.setCompetitionTime(now);
     }
 
-	/**
+    /**
      * Instantiates a new group.
      *
-     * @param groupName the group name
-     * @param weighin the weighin
+     * @param groupName   the group name
+     * @param weighin     the weighin
      * @param competition the competition
      */
     public Group(String groupName, LocalDateTime weighin, LocalDateTime competition) {
@@ -116,11 +116,13 @@ public class Group implements Comparable<Group> {
         this.setCompetitionTime(competition);
     }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	@Override
-	public int compareTo(Group obj) {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(Group obj) {
         if (this == obj)
             return 0;
         if (obj == null)
@@ -130,16 +132,16 @@ public class Group implements Comparable<Group> {
             if (other.name != null)
                 return 1;
             else
-            	return 0;
+                return 0;
         } else {
             if (other.name != null)
                 return name.compareTo(other.name);
             else // this != null other.name == null
-            	return -1;
+                return -1;
         }
-	}
+    }
 
-	/*
+    /*
      * (non-Javadoc)
      *
      * @see java.lang.Object#equals(java.lang.Object)
@@ -160,7 +162,7 @@ public class Group implements Comparable<Group> {
             return false;
         return true;
     }
-    
+
     /**
      * Gets the announcer.
      *
@@ -169,6 +171,7 @@ public class Group implements Comparable<Group> {
     public String getAnnouncer() {
         return announcer;
     }
+
     /**
      * Gets the athletes.
      *
@@ -177,14 +180,16 @@ public class Group implements Comparable<Group> {
     public Set<Athlete> getAthletes() {
         return athletes;
     }
-    /**
-     * Gets the categories.
-     *
-     * @return the set of categories for the Group
-     */
-    public Set<Category> getCategories() {
-        return categories;
-    }
+
+//    /**
+//     * Gets the categories.
+//     *
+//     * @return the set of categories for the Group
+//     */
+//    public Set<Category> getCategories() {
+//        return categories;
+//    }
+    
     /**
      * Gets the competition short date time.
      *
@@ -200,6 +205,7 @@ public class Group implements Comparable<Group> {
         }
         return formatted;
     }
+
     /**
      * Gets the competition time.
      *
@@ -224,45 +230,45 @@ public class Group implements Comparable<Group> {
      * @return the jury
      */
     public String getJury() {
-    	List<String> jurors = Arrays.asList(jury1, jury2, jury3, jury4, jury5);
-    	Iterables.removeIf(jurors, Predicates.isNull());
-    	return String.join(", ", jurors);
+        List<String> jurors = Arrays.asList(jury1, jury2, jury3, jury4, jury5);
+        Iterables.removeIf(jurors, Predicates.isNull());
+        return String.join(", ", jurors);
     }
 
     /**
-	 * @return the jury1
-	 */
-	public String getJury1() {
-		return jury1;
-	}
+     * @return the jury1
+     */
+    public String getJury1() {
+        return jury1;
+    }
 
     /**
-	 * @return the jury2
-	 */
-	public String getJury2() {
-		return jury2;
-	}
+     * @return the jury2
+     */
+    public String getJury2() {
+        return jury2;
+    }
 
     /**
-	 * @return the jury3
-	 */
-	public String getJury3() {
-		return jury3;
-	}
-
-	/**
-	 * @return the jury4
-	 */
-	public String getJury4() {
-		return jury4;
-	}
+     * @return the jury3
+     */
+    public String getJury3() {
+        return jury3;
+    }
 
     /**
-	 * @return the jury5
-	 */
-	public String getJury5() {
-		return jury5;
-	}
+     * @return the jury4
+     */
+    public String getJury4() {
+        return jury4;
+    }
+
+    /**
+     * @return the jury5
+     */
+    public String getJury5() {
+        return jury5;
+    }
 
     /**
      * Gets the marshall.
@@ -392,58 +398,58 @@ public class Group implements Comparable<Group> {
         this.athletes = athletes;
     }
 
-    /**
-     * Sets the categories.
-     *
-     * @param categories the new categories
-     */
-    public void setCategories(Set<Category> categories) {
-        this.categories = categories;
-    }
+//    /**
+//     * Sets the categories.
+//     *
+//     * @param categories the new categories
+//     */
+//    public void setCategories(Set<Category> categories) {
+//        this.categories = categories;
+//    }
 
     /**
      * Sets the competition time.
      *
-     * @param c            the competition time to set
+     * @param c the competition time to set
      */
     public void setCompetitionTime(LocalDateTime c) {
         this.competitionTime = c;
     }
 
     /**
-	 * @param jury1 the jury1 to set
-	 */
-	public void setJury1(String jury1) {
-		this.jury1 = jury1;
-	}
+     * @param jury1 the jury1 to set
+     */
+    public void setJury1(String jury1) {
+        this.jury1 = jury1;
+    }
 
     /**
-	 * @param jury2 the jury2 to set
-	 */
-	public void setJury2(String jury2) {
-		this.jury2 = jury2;
-	}
+     * @param jury2 the jury2 to set
+     */
+    public void setJury2(String jury2) {
+        this.jury2 = jury2;
+    }
 
     /**
-	 * @param jury3 the jury3 to set
-	 */
-	public void setJury3(String jury3) {
-		this.jury3 = jury3;
-	}
+     * @param jury3 the jury3 to set
+     */
+    public void setJury3(String jury3) {
+        this.jury3 = jury3;
+    }
 
     /**
-	 * @param jury4 the jury4 to set
-	 */
-	public void setJury4(String jury4) {
-		this.jury4 = jury4;
-	}
+     * @param jury4 the jury4 to set
+     */
+    public void setJury4(String jury4) {
+        this.jury4 = jury4;
+    }
 
     /**
-	 * @param jury5 the jury5 to set
-	 */
-	public void setJury5(String jury5) {
-		this.jury5 = jury5;
-	}
+     * @param jury5 the jury5 to set
+     */
+    public void setJury5(String jury5) {
+        this.jury5 = jury5;
+    }
 
     /**
      * Sets the marshall.
@@ -457,7 +463,7 @@ public class Group implements Comparable<Group> {
     /**
      * Sets the name.
      *
-     * @param name            the name to set
+     * @param name the name to set
      */
     public void setName(String name) {
         this.name = name;
@@ -520,17 +526,15 @@ public class Group implements Comparable<Group> {
     /**
      * Sets the weigh in time.
      *
-     * @param w            the weigh-in time to set
+     * @param w the weigh-in time to set
      */
     public void setWeighInTime(LocalDateTime w) {
         this.weighInTime = w;
     }
 
     @Override
-	public String toString() {
-    	return getName();
+    public String toString() {
+        return getName();
     }
-
-
 
 }
