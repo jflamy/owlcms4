@@ -123,6 +123,17 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
 				).open();
 		});
 		deleteAthletes.getElement().setAttribute("title", getTranslation("ClearLifts_forListed")); //$NON-NLS-1$ //$NON-NLS-2$
+		
+//		JXLSCards cardsWriter = new JXLSCards(true);
+//		StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter); //$NON-NLS-1$
+//		Button cardsButton = new Button(getTranslation("AthleteCards"),new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
+//		Anchor cards = new Anchor(href1, ""); //$NON-NLS-1$
+//		cardsButton.addClickListener((e) -> {
+//		    RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+//		    cardsWriter.setGroup(content.groupFilter.getValue());
+//		});
+//		cards.add(cardsButton);
+//		cardsButton.setEnabled(true);
 
 		HorizontalLayout buttons = new HorizontalLayout(
 				drawLots,
