@@ -5,15 +5,15 @@ OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md)
 ## Features
 
 - The following list is a sampling of the many features available.  Refer to the various sections of the documentation (see the sidebar menu at the left) to get a better sense.
-  - The current release is able to run a **regular** or **masters** competition, with or without a **jury**.
+  - Run a **regular** or **masters** competition, with or without a **jury**.
   
   - Ability to run in the **cloud**: Decisions, timers and sounds are handled locally in the browser to provide better feedback.
   
-  - **Announcer, marshall and timekeeper** screens (updating athlete cards and recomputing lifting order).
+  - **Announcer, Marshall and Timekeeper** screens (updating athlete cards and recalculation of lifting order).
   
     ![020_EditLifterCard](img/Lifting/020_EditLifterCard.png  ':size=350')
   
-  - **Attempt board** showing current athlete information, remaining time and weight requested.
+  - **Attempt Board** showing current athlete information, remaining time, weight requested, down signal and decision.
   
     ![032_Attempt_Running](img/Displays/032_Attempt_Running.png ':size=350' )  ![038_Attempt_Decision](img/Displays/038_Attempt_Decision.png ':size=350') 
   
@@ -26,13 +26,13 @@ OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md)
     
       ![mobile_ref](img/Refereeing/mobile_ref.png  ':size=350')
     
-  - **Athlete-facing display** (decision display reversed to match referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
+  - **Athlete-facing display** (the decision display matches the referee positions as seen from platform). Refereeing keypads are typically connected to this laptop.
   
     ![044_AF_Down](img/Displays/044_AF_Down.png ':size=350') ![048_AF_Decision](img/Displays/048_AF_Decision.png ':size=350')
   
     
   
-  - **Scoreboard** for public or warm-up room display.  Shows timer, down and decision lights.
+  - **Scoreboard** for public or warm-up room display.  Shows athlete information, timer and decision lights. Current and next lifters are highlighted. Responsive design to accomodate old 4:3 projectors as well as 16:9 wide screens.
   
      ![020_Scoreboard](img/Displays/020_Scoreboard.png ':size=350')
   
@@ -53,6 +53,8 @@ OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md)
   - Production of **group results/protocol sheets**
   
   - Option to treat the competition as a **Masters competition** with proper processing of age groups.
+  
+  - Multiple languages. Currently English, French, Danish, and a partial translation to Spanish.
 
 The software is meant to comply with current IWF Technical Competition Rules and Regulations (TCRR) and with the current Masters Weightlifting rules.  TCRR Requirements regarding equipment are outside our scope (such as the presence of indicator lights and buzzers on refereeing devices, etc.)
 
@@ -77,6 +79,7 @@ For the current work status, see the following links
 
 - [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.  Check here first, we may actually be working on it...
 - [Issues and enhancement requests](https://github.com/jflamy/owlcms4/issues) This is the complete log of requests and planned enhancements. Use this page to report problems or ask questions.
+- [Translations](https://github.com/jflamy/owlcms4/tree/develop/owlcms/src/main/resources/i18n) Refer to this link if you wish to translate the screens to your own language, or fix a translation.
 
 ## Credits
 
