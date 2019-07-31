@@ -11,7 +11,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -21,14 +20,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
-import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -50,10 +47,10 @@ public class Group implements Comparable<Group> {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    /** The athletes. */
-    // group is the property in Athlete that is the opposite of Group.athletes
-    @OneToMany(cascade = { CascadeType.MERGE }, mappedBy = "group", fetch = FetchType.EAGER)
-    Set<Athlete> athletes;
+//    /** The athletes. */
+//    // group is the property in Athlete that is the opposite of Group.athletes
+//    @OneToMany(cascade = { CascadeType.MERGE }, mappedBy = "group", fetch = FetchType.EAGER)
+//    Set<Athlete> athletes;
 
 //    /** The categories. */
 //    @ManyToMany( cascade = { CascadeType.PERSIST, CascadeType.MERGE,
@@ -172,14 +169,14 @@ public class Group implements Comparable<Group> {
         return announcer;
     }
 
-    /**
-     * Gets the athletes.
-     *
-     * @return the athletes
-     */
-    public Set<Athlete> getAthletes() {
-        return athletes;
-    }
+//    /**
+//     * Gets the athletes.
+//     *
+//     * @return the athletes
+//     */
+//    public Set<Athlete> getAthletes() {
+//        return athletes;
+//    }
 
 //    /**
 //     * Gets the categories.
@@ -389,14 +386,14 @@ public class Group implements Comparable<Group> {
         this.announcer = announcer;
     }
 
-    /**
-     * Sets the athletes.
-     *
-     * @param athletes the new athletes
-     */
-    public void setAthletes(Set<Athlete> athletes) {
-        this.athletes = athletes;
-    }
+//    /**
+//     * Sets the athletes.
+//     *
+//     * @param athletes the new athletes
+//     */
+//    public void setAthletes(Set<Athlete> athletes) {
+//        this.athletes = athletes;
+//    }
 
 //    /**
 //     * Sets the categories.
