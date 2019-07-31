@@ -56,13 +56,14 @@ OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md)
 
 The software is meant to comply with current IWF Technical Competition Rules and Regulations (TCRR) and with the current Masters Weightlifting rules.  TCRR Requirements regarding equipment are outside our scope (such as the presence of indicator lights and buzzers on refereeing devices, etc.)
 
-### Installation
+## Installation
 
 Download and Installation Instructions are available for both [local setups without internet access](https://jflamy.github.io/owlcms4/#/LocalSetup.md) and for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
 
 ## Demo
 
-- See [this page](Demo) for how to access and a simple walkthrough
+- See [this page](Demo) for how to access  the [demo site](https://owlcms4.herokuapp.com) and a perform a simple walkthrough
+- All the screenshots for the documentation on this site come from the demo. You may therefore use the [demo site](https://owlcms4.herokuapp.com) to perform a full walkthrough.
 
 ## Licensing and Notes
 
@@ -70,11 +71,11 @@ This is free, as-is, no warranty *whatsoever* software. If you just want to run 
 
 If however you wish to provide or host the software as a service to others, or if you create a modified version, the license *requires* you to make full sources and building instructions available for free, so that anyone who wants to compile or further modify your version can do so on their own (see the [License](https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt) for details.).  You may contact the author to seek alternative licensing agreements.
 
-## Current Status
+## Reporting Issues and Suggesting Enhancements
 
-For the current status, see
+For the current work status, see the following links
 
-- [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.
+- [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.  Check here first, we may actually be working on it...
 - [Issues and enhancement requests](https://github.com/jflamy/owlcms4/issues) This is the complete log of requests and planned enhancements. Use this page to report problems or ask questions.
 
 ## Credits

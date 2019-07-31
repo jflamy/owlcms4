@@ -52,12 +52,18 @@ public class GroupRepository {
 	 *
 	 * @param Group the group
 	 */
-	public static void delete(Group groupe) {
+	
+    public static void delete(Group groupe) {
 		JPAService.runInTransaction(em -> {	    
 			try {
-			    for (Athlete a: groupe.getAthletes()) {
+			    // this is the only case where group needs to know its athletes, so we do a query
+			    // instead of adding a relationship.
+			    Query aQ = em.createQuery("select a from Athlete a join a.group g where g.id = :groupId");
+			    aQ.setParameter("groupId", groupe.getId());
+			    @SuppressWarnings("unchecked")
+			    List<Athlete> aL = aQ.getResultList();
+			    for (Athlete a: aL) {
 			        a.setGroup(null);
-			        em.merge(a);
 			    }
 			    em.flush();
 			    em.remove(em.contains(groupe) ? groupe : em.merge(groupe));
