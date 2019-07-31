@@ -17,6 +17,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 import org.slf4j.LoggerFactory;
 
@@ -67,8 +68,14 @@ public class Competition {
 
 	@Convert(converter = LocaleAttributeConverter.class)
 	private Locale defaultLocale = null;
+	
 	private String protocolFileName;
+	@Lob
+	private byte[] protocolTemplate;
+	
 	private String resultTemplateFileName;
+	@Lob
+	private byte[] finalPackageTemplate;
 
 	private boolean enforce20kgRule;
 	private boolean masters;
@@ -177,20 +184,11 @@ public class Competition {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public String getFinalPackageTemplateFileName() throws IOException {
-		logger.debug("competitionBookFileName = {}", resultTemplateFileName);
-		String str = File.separator + "competitionBook";
-		if (resultTemplateFileName == null) return "defaultResults.xls";
-
-		int protocolPos = resultTemplateFileName.indexOf(str);
-		if (protocolPos != -1) {
-			// make file relative
-			String substring = resultTemplateFileName.substring(protocolPos + 1);
-			logger.debug("relative competitionBookFileName = {}", substring);
-			return "not implemented";
+		if (resultTemplateFileName == null) {
+		    return "defaultResults.xls";
 		} else {
-			logger.debug("could not find {}", str);
+		    return resultTemplateFileName;
 		}
-		return "not implemented";
 	}
 
 	/**
@@ -453,6 +451,22 @@ public class Competition {
 	public void setMasters(boolean masters) {
 		this.masters = masters;
 	}
+
+    public byte[] getFinalPackageTemplate() {
+        return finalPackageTemplate;
+    }
+
+    public void setFinalPackageTemplate(byte[] finalPackageTemplate) {
+        this.finalPackageTemplate = finalPackageTemplate;
+    }
+
+    public byte[] getProtocolTemplate() {
+        return protocolTemplate;
+    }
+
+    public void setProtocolTemplate(byte[] protocolTemplate) {
+        this.protocolTemplate = protocolTemplate;
+    }
 
 
 }
