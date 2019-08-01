@@ -113,7 +113,7 @@ public class DemoData {
 				"/templates/competitionBook/CompetitionBook_Total_" + defaultLanguage + ".xls");
 		try {
 			templateFile = new File(templateUrl.toURI());
-			competition.setResultTemplateFileName(templateFile.getCanonicalPath());
+			competition.setFinalPackageTemplateFileName(templateFile.getCanonicalPath());
 		} catch (URISyntaxException e) {
 			templateFile = new File(templateUrl.getPath());
 		} catch (IOException e) {

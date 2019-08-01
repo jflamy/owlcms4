@@ -50,7 +50,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.spreadsheet.JXLSResultSheet;
+import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteCrudGrid;
@@ -66,10 +66,10 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-@Route(value = "results/results", layout = AthleteGridLayout.class)
-public class ResultsContent extends AthleteGridContent implements HasDynamicTitle {
+@Route(value = "results/finalpackage", layout = AthleteGridLayout.class)
+public class PackageContent extends AthleteGridContent implements HasDynamicTitle {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(ResultsContent.class);
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(PackageContent.class);
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine"); //$NON-NLS-1$
     static {
         logger.setLevel(Level.INFO);
@@ -77,19 +77,19 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     private Button download;
-    private Anchor groupResults;
+    private Anchor finalPackage;
     private Group currentGroup;
-    private JXLSResultSheet xlsWriter;
+    private JXLSCompetitionBook xlsWriter;
     private ComboBox<Resource> templateSelect;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
      * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
      */
-    public ResultsContent() {
+    public PackageContent() {
         super();
         defineFilters(crudGrid);
-        setTopBarTitle(getTranslation("GroupResults")); //$NON-NLS-1$
+        setTopBarTitle(getTranslation("FinalResultsPackage")); //$NON-NLS-1$
     }
 
     /**
@@ -122,7 +122,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         topBar = getAppLayout().getAppBarElementWrapper();
 
         H3 title = new H3();
-        title.setText(getTranslation("GroupResults")); //$NON-NLS-1$
+        title.setText(getTranslation("FinalResultsPackage")); //$NON-NLS-1$
         title.add();
         title.getStyle().set("margin", "0px 0px 0px 0px") //$NON-NLS-1$ //$NON-NLS-2$
                 .set("font-weight", "normal"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -135,22 +135,22 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         groupSelect.setWidth("8em"); //$NON-NLS-1$
         setGroupSelectionListener();
 
-        xlsWriter = new JXLSResultSheet();
-        StreamResource href = new StreamResource("resultSheet.xls", xlsWriter); //$NON-NLS-1$
-        groupResults = new Anchor(href, ""); //$NON-NLS-1$
-        download = new Button(getTranslation("GroupResults"), new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
-        groupResults.add(download);
+        xlsWriter = new JXLSCompetitionBook(true);
+        StreamResource href = new StreamResource("finalResults.xls", xlsWriter); //$NON-NLS-1$
+        finalPackage = new Anchor(href, ""); //$NON-NLS-1$
+        download = new Button(getTranslation("FinalResultsPackage"), new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
+        finalPackage.add(download);
 
         templateSelect = new ComboBox<Resource>();
-        templateSelect.setPlaceholder(getTranslation("PreDefinedTemplates"));
-        List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/protocol",
+        templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
+        List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/competitionBook",
                 ResourceWalker::relativeName);
         templateSelect.setItems(resourceList);
         templateSelect.setValue(null);
         templateSelect.setWidth("15em"); //$NON-NLS-1$
         setTemplateSelectionListener(resourceList);
 
-        HorizontalLayout buttons = new HorizontalLayout(groupResults);
+        HorizontalLayout buttons = new HorizontalLayout(finalPackage);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         topBar.getElement().getStyle().set("flex", "100 1"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -164,12 +164,12 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
     private void setTemplateSelectionListener(List<Resource> resourceList) {
         try {
-            String curTemplateName = Competition.getCurrent().getProtocolFileName();
+            String curTemplateName = Competition.getCurrent().getFinalPackageTemplateFileName();
             Resource found = searchMatch(resourceList, curTemplateName);
             templateSelect.addValueChangeListener((e) -> {
-                Competition.getCurrent().setProtocolFileName(e.getValue().getFileName());
+                Competition.getCurrent().setFinalPackageTemplateFileName(e.getValue().getFileName());
                 try {
-                    Competition.getCurrent().setProtocolTemplate(e.getValue().getByteArray());
+                    Competition.getCurrent().setFinalPackageTemplate(e.getValue().getByteArray());
                 } catch (IOException e1) {
                     throw new RuntimeException(e1);
                 }
@@ -180,7 +180,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             throw new RuntimeException(e);
         }
     }
-    
+
     private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
         Resource found = null;
         for (Resource curResource : resourceList) {
@@ -193,7 +193,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         return found;
     }
 
-
     protected void setGroupSelectionListener() {
         groupSelect.setValue(getGridGroup());
         groupSelect.addValueChangeListener(e -> {
@@ -203,7 +202,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             // surrounds
             // the download button.
             xlsWriter.setGroup(currentGroup);
-            groupResults.getElement().setAttribute("download", //$NON-NLS-1$
+            finalPackage.getElement().setAttribute("download", //$NON-NLS-1$
                     "results" + (currentGroup != null ? "_" + currentGroup : "_all") + ".xls"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         });
     }

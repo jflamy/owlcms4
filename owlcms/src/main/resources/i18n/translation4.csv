@@ -340,3 +340,4 @@ Apply;Apply;Appliquer;;Anvend;Aplicar;
 BumperPlates;Bumper Plates;Grandes plaques;;Store skiver;Pesas grandes;
 MetalPlates;Metal Plates;Plaques de métal;;Små skiver;Pesas de metal;
 BetweenValues;Value must be between {0} and {1} inclusively.;La valeur doit être comprise entre {0} et {1} inclusivement.;;El valor debe estar entre {0} y {1} inclusive.;
+AvailableTemplates;Available Templates;Formats disponibles;;Available Templates;Available Templates;
