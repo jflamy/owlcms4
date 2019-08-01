@@ -685,7 +685,6 @@ public class FieldOfPlay {
                 } else {
                     logger.trace("&&3.A.B declaration for clock owner: leave clock running"); //$NON-NLS-1$
                     // no weight change. this is most likely a declaration.
-                    // TODO: post uiEvent to signal declaration
                     if (Athlete.zeroIfInvalid(changingAthlete.getCurrentDeclaration()) == newWeight) {
                         Notification.show(MessageFormat.format(Translator.translate("Declaration_Notification"), //$NON-NLS-1$
                                 changingAthlete, newWeight), 5000, Position.TOP_START);
