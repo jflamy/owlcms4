@@ -156,9 +156,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         editedAthlete.setValidation(false); // turn off validation in the setters; vaadin will call validation routines
         // explicitly
 
-        logger.debug("aFromDb = {} {}", System.identityHashCode(aFromDb), LoggerUtils.whereFrom()); //$NON-NLS-1$
-        logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete), LoggerUtils.whereFrom()); //$NON-NLS-1$
-        logger.trace("editedAthlete = {}", System.identityHashCode(editedAthlete)); //$NON-NLS-1$
+        logger.trace("aFromDb = {} {}", System.identityHashCode(aFromDb), aFromDb); //$NON-NLS-1$
+        logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete), originalAthlete); //$NON-NLS-1$
+        logger.trace("editedAthlete = {} {}", System.identityHashCode(editedAthlete), editedAthlete); //$NON-NLS-1$
 
         bindGridFields(operation);
 

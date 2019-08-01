@@ -221,7 +221,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         ThemeList themes = grid.getThemeNames();
         themes.add("compact"); //$NON-NLS-1$
         themes.add("row-stripes"); //$NON-NLS-1$
-        grid.setColumns("lastName", "firstName", "team", "category", "bestSnatch", "snatchRank", "bestCleanJerk", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+        grid.setColumns("lastName", "firstName", "group", "team", "category", "bestSnatch", "snatchRank", "bestCleanJerk", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
                 "cleanJerkRank", "total", "totalRank"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         grid.getColumnByKey("lastName") //$NON-NLS-1$
                 .setHeader(getTranslation("LastName")); //$NON-NLS-1$
@@ -229,6 +229,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                 .setHeader(getTranslation("FirstName")); //$NON-NLS-1$
         grid.getColumnByKey("team") //$NON-NLS-1$
                 .setHeader(getTranslation("Team")); //$NON-NLS-1$
+        grid.getColumnByKey("group") //$NON-NLS-1$
+            .setHeader(getTranslation("Group")); //$NON-NLS-1$
         grid.getColumnByKey("category") //$NON-NLS-1$
                 .setHeader(getTranslation("Category")); //$NON-NLS-1$
         grid.getColumnByKey("bestSnatch") //$NON-NLS-1$
@@ -300,8 +302,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     public Collection<Athlete> findAll() {
-        List<Athlete> athletes = AthleteSorter.resultsOrderCopy(
-                AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(), true), Ranking.TOTAL);
+        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(), true);
+        AthleteSorter.resultsOrder(athletes, Ranking.TOTAL);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
         AthleteSorter.resultsOrder(athletes, Ranking.SNATCH);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
