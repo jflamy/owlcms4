@@ -6,6 +6,7 @@
  */
 package app.owlcms.spreadsheet;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -14,12 +15,15 @@ import java.util.Locale;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.ByteStreams;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.jpa.JPAService;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -39,29 +43,38 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 		tagLogger.setLevel(Level.ERROR);
 	}
 
+    private byte[] protocolTemplate;
+
     public JXLSResultSheet() {
         super();
     }
 
 	@Override
     public InputStream getTemplate(Locale locale) throws IOException {
-        String protocolTemplateFileName = Competition.getCurrent().getProtocolFileName();
-        
-        protocolTemplateFileName = "/templates/protocol/ProtocolSheetTemplate_" + locale.getLanguage() + ".xls";
-//        if (protocolTemplateFileName != null) {
-//            File templateFile = new File(protocolTemplateFileName);
-//            if (templateFile.exists()) {
-//                FileInputStream resourceAsStream = new FileInputStream(templateFile);
-//                return resourceAsStream;
-//            }
-        	InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
-            // can't happen unless system is misconfigured.
-            if (stream == null) throw new IOException("resource not found: " + protocolTemplateFileName); //$NON-NLS-1$
-            else return stream;
-//        } 
-//        else {
-//            throw new RuntimeException("Protocol sheet template not defined.");
-//        }
+        Competition current = Competition.getCurrent();
+        protocolTemplate = current.getProtocolTemplate();
+        if (protocolTemplate == null) {
+            protocolTemplate = loadDefaultProtocolTemplate(locale, current);
+        }
+        InputStream stream = new ByteArrayInputStream(protocolTemplate);
+        return stream;
+    }
+
+    private byte[] loadDefaultProtocolTemplate(Locale locale, Competition current) {
+        JPAService.runInTransaction((em) -> {
+            String protocolTemplateFileName = "/templates/protocol/ProtocolSheetTemplate_" + locale.getLanguage() + ".xls";
+            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);  
+            try {
+                protocolTemplate = ByteStreams.toByteArray(stream);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            current.setProtocolTemplate(protocolTemplate);
+            Competition merge = em.merge(current);
+            Competition.setCurrent(merge);
+            return merge;
+        });
+        return protocolTemplate;
     }
 
     @Override

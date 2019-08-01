@@ -8,7 +8,6 @@ package app.owlcms.data.athleteSort;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -342,10 +341,10 @@ public class AbstractLifterComparator {
      * @return the int
      */
     int comparePreviousLiftOrder(Athlete lifter1, Athlete lifter2) {
-        Date lifter1Value = lifter1.getPreviousLiftTime();
-        Date lifter2Value = lifter2.getPreviousLiftTime();
+        LocalDateTime lifter1Value = lifter1.getPreviousLiftTime();
+        LocalDateTime lifter2Value = lifter2.getPreviousLiftTime();
 
-        final Date longAgo = new Date(0L);
+        final LocalDateTime longAgo = LocalDateTime.MIN;
         if (lifter1Value == null)
             lifter1Value = longAgo;
         if (lifter2Value == null)
@@ -362,10 +361,10 @@ public class AbstractLifterComparator {
      * @return the int
      */
     int comparePreviousLiftOrderExceptAtEnd(Athlete lifter1, Athlete lifter2) {
-        Date lifter1Value = lifter1.getPreviousLiftTime();
-        Date lifter2Value = lifter2.getPreviousLiftTime();
+        LocalDateTime lifter1Value = lifter1.getPreviousLiftTime();
+        LocalDateTime lifter2Value = lifter2.getPreviousLiftTime();
 
-        final Date longAgo = new Date(0L);
+        final LocalDateTime longAgo = LocalDateTime.MIN;
         if (lifter1Value == null)
             lifter1Value = longAgo;
         if (lifter2Value == null)
@@ -561,8 +560,8 @@ public class AbstractLifterComparator {
      * @return the int
      */
     int compareLastSuccessfulLiftTime(Athlete lifter1, Athlete lifter2) {
-        Date lifter1Value = lifter1.getLastSuccessfulLiftTime();
-        Date lifter2Value = lifter2.getLastSuccessfulLiftTime();
+        LocalDateTime lifter1Value = lifter1.getLastSuccessfulLiftTime();
+        LocalDateTime lifter2Value = lifter2.getLastSuccessfulLiftTime();
         // safe to compare, no nulls.
         return lifter1Value.compareTo(lifter2Value);
     }

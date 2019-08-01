@@ -685,7 +685,6 @@ public class FieldOfPlay {
                 } else {
                     logger.trace("&&3.A.B declaration for clock owner: leave clock running"); //$NON-NLS-1$
                     // no weight change. this is most likely a declaration.
-                    // TODO: post uiEvent to signal declaration
                     if (Athlete.zeroIfInvalid(changingAthlete.getCurrentDeclaration()) == newWeight) {
                         Notification.show(MessageFormat.format(Translator.translate("Declaration_Notification"), //$NON-NLS-1$
                                 changingAthlete, newWeight), 5000, Position.TOP_START);
@@ -949,7 +948,7 @@ public class FieldOfPlay {
     private void uiShowDownSignalOnSlaveDisplays(Object origin2) {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
         boolean downEmitted2 = isDownEmitted();
-        uiEventLogger.warn("showDownSignalOnSlaveDisplays server={} emitted={}",emitSoundsOnServer2,downEmitted2); //$NON-NLS-1$
+        uiEventLogger.trace("showDownSignalOnSlaveDisplays server={} emitted={}",emitSoundsOnServer2,downEmitted2); //$NON-NLS-1$
         if (emitSoundsOnServer2 && !downEmitted2) {
             downSignal.emit();
             setDownEmitted(true);

@@ -17,7 +17,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.spreadsheet.JXLSCompetitionBook;
+import app.owlcms.spreadsheet.JXLSTimingStats;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.DownloadButtonFactory;
@@ -42,21 +42,21 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		Button groupResults = new Button(getTranslation("GroupResults"), //$NON-NLS-1$
 			buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class));
 		
-		Div finalResultsButton = DownloadButtonFactory.createDynamicDownloadButton(
-			"finalResults", //$NON-NLS-1$
-			getTranslation("FinalResultsPackage"), //$NON-NLS-1$
-			new JXLSCompetitionBook(true));
+        Button finalPackage = new Button(getTranslation("FinalResultsPackage"), //$NON-NLS-1$
+                buttonClickEvent -> UI.getCurrent().navigate(PackageContent.class));
 		
-		Button timingStats = new Button(getTranslation("TimingStatistics"),  //$NON-NLS-1$
-			buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class));
+        Div timingStats = DownloadButtonFactory.createDynamicDownloadButton(
+                "timingStats", //$NON-NLS-1$
+                getTranslation("TimingStatistics"), //$NON-NLS-1$
+                new JXLSTimingStats());
 		
-		finalResultsButton.setEnabled(true);
-		timingStats.setEnabled(false);
+		finalPackage.setEnabled(true);
+		timingStats.setEnabled(true);
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			groupResults
 			);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
-			finalResultsButton,
+			finalPackage,
 			timingStats
 			);
 		
@@ -68,7 +68,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	
 	@Override
 	protected String getTitle() {
-		return getTranslation("ProduceResults"); //$NON-NLS-1$
+		return getTranslation("ResultDocuments"); //$NON-NLS-1$
 	}
 	
 	@Override

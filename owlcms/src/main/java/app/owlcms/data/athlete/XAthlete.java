@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.slf4j.LoggerFactory;
 
@@ -303,7 +304,7 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#getCleanJerk1LiftTime()
 	 */
 	@Override
-	public Date getCleanJerk1LiftTime() {
+	public LocalDateTime getCleanJerk1LiftTime() {
 		return a.getCleanJerk1LiftTime();
 	}
 
@@ -367,7 +368,7 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#getCleanJerk2LiftTime()
 	 */
 	@Override
-	public Date getCleanJerk2LiftTime() {
+	public LocalDateTime getCleanJerk2LiftTime() {
 		return a.getCleanJerk2LiftTime();
 	}
 
@@ -430,7 +431,7 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#getCleanJerk3LiftTime()
 	 */
 	@Override
-	public Date getCleanJerk3LiftTime() {
+	public LocalDateTime getCleanJerk3LiftTime() {
 		return a.getCleanJerk3LiftTime();
 	}
 
@@ -560,7 +561,7 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#getFirstAttemptedLiftTime()
 	 */
 	@Override
-	public Date getFirstAttemptedLiftTime() {
+	public LocalDateTime getFirstAttemptedLiftTime() {
 		return a.getFirstAttemptedLiftTime();
 	}
 
@@ -641,7 +642,7 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#getLastAttemptedLiftTime()
 	 */
 	@Override
-	public Date getLastAttemptedLiftTime() {
+	public LocalDateTime getLastAttemptedLiftTime() {
 		return a.getLastAttemptedLiftTime();
 	}
 
@@ -659,7 +660,7 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#getLastSuccessfulLiftTime()
 	 */
 	@Override
-	public Date getLastSuccessfulLiftTime() {
+	public LocalDateTime getLastSuccessfulLiftTime() {
 		return a.getLastSuccessfulLiftTime();
 	}
 
@@ -771,7 +772,7 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#getPreviousLiftTime()
 	 */
 	@Override
-	public Date getPreviousLiftTime() {
+	public LocalDateTime getPreviousLiftTime() {
 		return a.getPreviousLiftTime();
 	}
 
@@ -1017,7 +1018,7 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#getSnatch1LiftTime()
 	 */
 	@Override
-	public Date getSnatch1LiftTime() {
+	public LocalDateTime getSnatch1LiftTime() {
 		return a.getSnatch1LiftTime();
 	}
 
@@ -1080,7 +1081,7 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#getSnatch2LiftTime()
 	 */
 	@Override
-	public Date getSnatch2LiftTime() {
+	public LocalDateTime getSnatch2LiftTime() {
 		return a.getSnatch2LiftTime();
 	}
 
@@ -1143,7 +1144,7 @@ public class XAthlete extends Athlete {
 	 * @see app.owlcms.data.athlete.Athlete#getSnatch3LiftTime()
 	 */
 	@Override
-	public Date getSnatch3LiftTime() {
+	public LocalDateTime getSnatch3LiftTime() {
 		return a.getSnatch3LiftTime();
 	}
 

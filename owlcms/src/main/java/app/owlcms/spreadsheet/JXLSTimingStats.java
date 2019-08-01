@@ -1,14 +1,16 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,24 +30,15 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public class JXLSTimingStats extends JXLSWorkbookStreamSource {
-	
-    Logger logger = (Logger) LoggerFactory.getLogger(JXLSTimingStats.class);
 
     public class SessionStats {
 
-        @Override
-        public String toString() {
-            double hours = (maxTime.getTime()-minTime.getTime())/1000.0/60.0/60.0;
-            return "SessionStats [groupName=" + getGroupName() + ", nbAthletes=" + nbAthletes + ", minTime=" + minTime + ", maxTime=" + maxTime //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                    + ", nbAttemptedLifts=" + nbAttemptedLifts + " Hours=" + hours+ " AthletesPerHour=" + nbAthletes/hours+ "]" ; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        }
-
         String groupName = null;
-        int nbAthletes;
-        Date maxTime = new Date(0L); // forever ago
-        Date minTime = new Date(); // now
-        int nbAttemptedLifts;
 
+        int nbAthletes;
+        LocalDateTime maxTime = LocalDateTime.MIN; // forever ago
+        LocalDateTime minTime = LocalDateTime.MAX; // long time in the future
+        int nbAttemptedLifts;
         public SessionStats() {
         }
 
@@ -53,62 +46,128 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             this.setGroupName(groupName);
         }
 
-        public Date getMaxTime() {
+        public String getGroupName() {
+            return groupName;
+        }
+
+        public LocalDateTime getMaxTime() {
             return maxTime;
         }
 
-        public Date getMinTime() {
+        public LocalDateTime getMinTime() {
             return minTime;
-        }
-
-        public int getNbAttemptedLifts() {
-            return nbAttemptedLifts;
         }
 
         public int getNbAthletes() {
             return nbAthletes;
         }
 
-        public void setMaxTime(Date maxTime) {
+        public int getNbAttemptedLifts() {
+            return nbAttemptedLifts;
+        }
+
+        public String getSDuration() {
+            Duration delta = Duration.between(minTime, maxTime);
+            if (delta.isNegative()) {
+                delta = Duration.ZERO;
+            }
+            return formatDuration(delta);
+        }
+        
+        /**
+         * @return duration as a fraction of day, for Excel
+         */
+        public Double getDayDuration() {
+            Duration delta = Duration.between(minTime, maxTime);
+            if (delta.isNegative()) {
+                delta = Duration.ZERO;
+                return null;
+            }
+            return  ((double)delta.getSeconds()/(24*3600));
+        }
+
+
+        public String getSMaxTime() {
+            if (maxTime.isEqual(LocalDateTime.MIN)) return "-";
+            return maxTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
+        }
+
+        public String getSMinTime() {
+            if (minTime.isEqual(LocalDateTime.MAX)) return "-";
+            return minTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
+        }
+
+        public void setGroupName(String groupName) {
+            this.groupName = groupName;
+        }
+
+        public void setMaxTime(LocalDateTime maxTime) {
             this.maxTime = maxTime;
         }
 
-        public void setMinTime(Date minTime) {
+        public void setMinTime(LocalDateTime minTime) {
             this.minTime = minTime;
-        };
-
-        public void setNbAttemptedLifts(int nbAttemptedLifts) {
-            this.nbAttemptedLifts = nbAttemptedLifts;
         }
 
         public void setNbAthletes(int nbAthletes) {
             this.nbAthletes = nbAthletes;
         }
 
-        public void updateMaxTime(Date newTime) {
-            if (this.maxTime.compareTo(newTime) < 0) {
+        public void setNbAttemptedLifts(int nbAttemptedLifts) {
+            this.nbAttemptedLifts = nbAttemptedLifts;
+        }
+
+        @Override
+        public String toString() {
+            return "SessionStats [groupName=" + getGroupName() + ", nbAthletes=" + nbAthletes + ", minTime=" + minTime //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    + ", maxTime=" + maxTime //$NON-NLS-1$
+                    + ", nbAttemptedLifts=" + nbAttemptedLifts + " Hours=" + getDayDuration() + " AthletesPerHour=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    + getAthletesPerHour() + "]"; //$NON-NLS-1$
+        }
+
+        private Double getHours() {
+            Duration delta = Duration.between(minTime, maxTime);
+            if (delta.isNegative()) {
+                delta = Duration.ZERO;
+            }
+            Double hours = delta.getSeconds()/3600.0D;
+            return hours;
+        }
+        
+        public Double getAthletesPerHour() {
+            Double hours = getHours();
+            return hours > 0 ? (nbAthletes/ hours) : null;
+        }
+
+        public void updateMaxTime(LocalDateTime newTime) {
+            if (newTime.isAfter(this.maxTime)) {
                 this.maxTime = newTime;
             } else {
             }
 
         }
 
-        public void updateMinTime(Date newTime) {
-            if (this.minTime.compareTo(newTime) > 0) {
+        public void updateMinTime(LocalDateTime newTime) {
+            if (newTime.isBefore(this.minTime)) {
                 this.minTime = newTime;
             } else {
             }
 
         }
-
-        public String getGroupName() {
-            return groupName;
-        }
-
-        public void setGroupName(String groupName) {
-            this.groupName = groupName;
-        }
     }
+
+    public static String formatDuration(Duration duration) {
+        long seconds = duration.getSeconds();
+        long absSeconds = Math.abs(seconds);
+        String positive = String.format(
+                "%d:%02d:%02d",
+                absSeconds / 3600,
+                (absSeconds % 3600) / 60,
+                absSeconds % 60);
+        return seconds < 0 ? "-" + positive : positive;
+    }
+
+    Logger logger = (Logger) LoggerFactory.getLogger(JXLSTimingStats.class);
 
     public JXLSTimingStats() {
         super();
@@ -119,26 +178,35 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
     }
 
     @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        String templateName = "/templates/timing/TimingStats_" + locale.getLanguage() + ".xls"; //$NON-NLS-1$ //$NON-NLS-2$
+        final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName);
+        if (resourceAsStream == null)
+            throw new IOException("resource not found: " + templateName); //$NON-NLS-1$
+        return resourceAsStream;
+    }
+
+    @Override
     protected List<Athlete> getSortedAthletes() {
         HashMap<String, Object> reportingBeans = getReportingBeans();
 
-        List<Athlete> athletes = AthleteSorter.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null,isExcludeNotWeighed()));
-        if (athletes.isEmpty()) {
+        List<Athlete> athletes = AthleteSorter
+                .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
+        if (athletes.isEmpty())
             // prevent outputting silliness.
             throw new RuntimeException(""); //$NON-NLS-1$
-        }
 
         // extract group stats
         Group curGroup = null;
         Group prevGroup = null;
 
-        List<SessionStats> sessions = new LinkedList<SessionStats>();
+        List<SessionStats> sessions = new LinkedList<>();
 
         SessionStats curStat = null;
         for (Athlete curAthlete : athletes) {
             curGroup = curAthlete.getGroup();
             if (curGroup == null) {
-                continue;  // we simply skip over athletes with no groups
+                continue; // we simply skip over athletes with no groups
             }
             if (curGroup != prevGroup) {
                 processGroup(sessions, curStat);
@@ -148,15 +216,15 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             }
             // update stats, min, max.
             curStat.setNbAthletes(curStat.getNbAthletes() + 1);
-            Date minTime = curAthlete.getFirstAttemptedLiftTime();
+            LocalDateTime minTime = curAthlete.getFirstAttemptedLiftTime();
             curStat.updateMinTime(minTime);
 
-            Date maxTime = curAthlete.getLastAttemptedLiftTime();
+            LocalDateTime maxTime = curAthlete.getLastAttemptedLiftTime();
             curStat.updateMaxTime(maxTime);
 
             int nbAttemptedLifts = curAthlete.getAttemptedLifts();
             curStat.setNbAttemptedLifts(curStat.getNbAttemptedLifts() + nbAttemptedLifts);
-
+            logger.debug(curStat.toString());
             prevGroup = curGroup;
         }
         if (curStat.getNbAthletes() > 0) {
@@ -166,18 +234,9 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         return athletes;
     }
 
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        String templateName = "/timing/TimingStatsTemplate_" + locale.getLanguage() + ".xls"; //$NON-NLS-1$ //$NON-NLS-2$
-        final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName);
-        if (resourceAsStream == null) {
-            throw new IOException("resource not found: " + templateName);} //$NON-NLS-1$
-        return resourceAsStream;
-    }
-
     private void processGroup(List<SessionStats> sessions, SessionStats curStat) {
-        if (curStat == null) return;
+        if (curStat == null)
+            return;
         sessions.add(curStat);
     }
-
 }

@@ -310,7 +310,8 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     @Subscribe
     public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
-        if (crudGrid == null) return;
+        if (crudGrid == null)
+            return;
         logger.debug("{} {}", e.getOrigin(), LoggerUtils.whereFrom()); //$NON-NLS-1$
         UIEventProcessor.uiAccess(crudGrid, uiEventBus, e, () -> {
             crudGrid.refreshGrid();
@@ -560,7 +561,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         Integer attemptsDone = a.getAttemptsDone();
         Integer attemptNumber = a.getAttemptNumber();
         return (attemptsDone >= 3)
-                ? ((attemptsDone >= 6) ? "done" : MessageFormat.format(Translator.translate("C_and_J_number"), attemptNumber)) //$NON-NLS-1$ //$NON-NLS-2$
+                ? ((attemptsDone >= 6) ? "done" //$NON-NLS-1$
+                        : MessageFormat.format(Translator.translate("C_and_J_number"), attemptNumber)) //$NON-NLS-1$
                 : MessageFormat.format(Translator.translate("Snatch_number"), attemptNumber); //$NON-NLS-1$
     }
 
@@ -582,8 +584,18 @@ public abstract class AthleteGridContent extends VerticalLayout
             // Notification theme styling is done in
             // META-INF/resources/frontend/styles/shared-styles.html
             n.getElement().getThemeList().add("warning"); //$NON-NLS-1$
-            String text = MessageFormat.format(getTranslation("Weight_change_current_athlete"), //$NON-NLS-1$
-                    curDisplayAthlete.getFullName());
+            String text;
+            int declaring = curDisplayAthlete.isDeclaring();
+            if (declaring > 0) {
+                text = MessageFormat.format(getTranslation("Declaration_current_athlete_with_change"), //$NON-NLS-1$
+                        curDisplayAthlete.getFullName());
+            } else if (declaring == 0) {
+                text = MessageFormat.format(getTranslation("Declaration_current_athlete"), //$NON-NLS-1$
+                        curDisplayAthlete.getFullName());
+            } else {
+                text = MessageFormat.format(getTranslation("Weight_change_current_athlete"), //$NON-NLS-1$
+                        curDisplayAthlete.getFullName());
+            }
             n.setDuration(6000);
             n.setPosition(Position.TOP_START);
             Div label = new Div();

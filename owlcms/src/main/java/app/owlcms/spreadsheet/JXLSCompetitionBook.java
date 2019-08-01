@@ -6,6 +6,7 @@
  */
 package app.owlcms.spreadsheet;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -20,11 +21,15 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.ByteStreams;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
+import app.owlcms.data.competition.Competition;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import net.sf.jxls.transformer.XLSTransformer;
@@ -38,10 +43,10 @@ import net.sf.jxls.transformer.XLSTransformer;
 public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
     private static final long serialVersionUID = 1L;
-    // final private static int TEAMSHEET_FIRST_ROW = 5;
 
     @SuppressWarnings("unused")
     private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
+    private byte[] finalPackageTemplate;
 
     public JXLSCompetitionBook() {
         // by default, we exclude athletes who did not weigh in.
@@ -51,14 +56,33 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     public JXLSCompetitionBook(boolean excludeNotWeighed) {
         super();
     }
-
+    
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
-    	String packageTemplateFileName = "/templates/competitionBook/CompetitionBook_Total_" + locale.getLanguage() + ".xls";
-    	InputStream stream = this.getClass().getResourceAsStream(packageTemplateFileName);
-        // can't happen unless system is misconfigured.
-        if (stream == null) throw new IOException("resource not found: " + packageTemplateFileName); //$NON-NLS-1$
-        else return stream;
+        Competition current = Competition.getCurrent();
+        finalPackageTemplate = current.getFinalPackageTemplate();
+        if (finalPackageTemplate == null) {
+            finalPackageTemplate = loadDefaultPackageTemplate(locale, current);
+        }
+        InputStream stream = new ByteArrayInputStream(finalPackageTemplate);
+        return stream;
+    }
+
+    private byte[] loadDefaultPackageTemplate(Locale locale, Competition current) {
+        JPAService.runInTransaction((em) -> {
+            String protocolTemplateFileName = "/templates/competitionBook/CompetitionBook_Total_"  + locale.getLanguage() + ".xls";
+            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);  
+            try {
+                finalPackageTemplate = ByteStreams.toByteArray(stream);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            current.setFinalPackageTemplate(finalPackageTemplate);
+            Competition merge = em.merge(current);
+            Competition.setCurrent(merge);
+            return merge;
+        });
+        return finalPackageTemplate;
     }
 
     @Override
