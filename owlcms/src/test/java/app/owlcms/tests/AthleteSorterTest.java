@@ -117,7 +117,7 @@ public class AthleteSorterTest {
 		// failure so we can test "earlier lifter"
 		failedLift(athletes);
 		assertTrue("earlier lifter has precedence", //$NON-NLS-1$
-			athletes.get(2).getPreviousLiftTime().before(athletes.get(3).getPreviousLiftTime()));
+			athletes.get(2).getPreviousLiftTime().isBefore(athletes.get(3).getPreviousLiftTime()));
 		assertTrue("lift order not considered", (athletes.get(2).getLotNumber()) > (athletes.get(3).getLotNumber())); //$NON-NLS-1$
 		assertEqualsToReferenceFile("/seq1_lift4.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
 
@@ -126,11 +126,11 @@ public class AthleteSorterTest {
 		assertTrue(
 			"time stamp precedence failed 0 vs 1 " + athletes.get(0).getPreviousLiftTime() + ">=" //$NON-NLS-1$ //$NON-NLS-2$
 					+ athletes.get(1).getPreviousLiftTime(),
-			athletes.get(0).getPreviousLiftTime().before(athletes.get(1).getPreviousLiftTime()));
+			athletes.get(0).getPreviousLiftTime().isBefore(athletes.get(1).getPreviousLiftTime()));
 		assertTrue(
 			"time stamp precedence failed 1 vs 2 " + athletes.get(1).getPreviousLiftTime() + ">=" //$NON-NLS-1$ //$NON-NLS-2$
 					+ athletes.get(2).getPreviousLiftTime(),
-			athletes.get(1).getPreviousLiftTime().before(athletes.get(2).getPreviousLiftTime()));
+			athletes.get(1).getPreviousLiftTime().isBefore(athletes.get(2).getPreviousLiftTime()));
 		assertEqualsToReferenceFile("/seq1_lift5.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
 
 		// get second try done

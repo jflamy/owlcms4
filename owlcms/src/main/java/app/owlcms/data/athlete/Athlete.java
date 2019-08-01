@@ -171,36 +171,36 @@ public class Athlete {
 	private String snatch1Change2;
 	private String snatch1ActualLift;
 
-	private Date snatch1LiftTime;
+	private LocalDateTime snatch1LiftTime;
 	private String snatch2Declaration;
 	private String snatch2Change1;
 	private String snatch2Change2;
 	private String snatch2ActualLift;
 
-	private Date snatch2LiftTime;
+	private LocalDateTime snatch2LiftTime;
 	private String snatch3Declaration;
 	private String snatch3Change1;
 	private String snatch3Change2;
 	private String snatch3ActualLift;
 
-	private Date snatch3LiftTime;
+	private LocalDateTime snatch3LiftTime;
 	private String cleanJerk1Declaration;
 	private String cleanJerk1Change1;
 	private String cleanJerk1Change2;
 	private String cleanJerk1ActualLift;
 
-	private Date cleanJerk1LiftTime;
+	private LocalDateTime cleanJerk1LiftTime;
 	private String cleanJerk2Declaration;
 	private String cleanJerk2Change1;
 	private String cleanJerk2Change2;
 	private String cleanJerk2ActualLift;
 
-	private Date cleanJerk2LiftTime;
+	private LocalDateTime cleanJerk2LiftTime;
 	private String cleanJerk3Declaration;
 	private String cleanJerk3Change1;
 	private String cleanJerk3Change2;
 	private String cleanJerk3ActualLift;
-	private Date cleanJerk3LiftTime;
+	private LocalDateTime cleanJerk3LiftTime;
 
 	private Integer snatchRank;
 	private Integer cleanJerkRank;
@@ -754,7 +754,7 @@ public class Athlete {
 	 *
 	 * @return the clean jerk 1 lift time
 	 */
-	public Date getCleanJerk1LiftTime() {
+	public LocalDateTime getCleanJerk1LiftTime() {
 		return cleanJerk1LiftTime;
 	};
 
@@ -818,7 +818,7 @@ public class Athlete {
 	 *
 	 * @return the clean jerk 2 lift time
 	 */
-	public Date getCleanJerk2LiftTime() {
+	public LocalDateTime getCleanJerk2LiftTime() {
 		return cleanJerk2LiftTime;
 	}
 
@@ -882,7 +882,7 @@ public class Athlete {
 	 *
 	 * @return the clean jerk 3 lift time
 	 */
-	public Date getCleanJerk3LiftTime() {
+	public LocalDateTime getCleanJerk3LiftTime() {
 		return cleanJerk3LiftTime;
 	}
 
@@ -1080,7 +1080,7 @@ public class Athlete {
 	 *
 	 * @return the first attempted lift time
 	 */
-	public Date getFirstAttemptedLiftTime() {
+	public LocalDateTime getFirstAttemptedLiftTime() {
 		if (zeroIfInvalid(snatch1ActualLift) != 0)
 			return getSnatch1LiftTime();
 		if (zeroIfInvalid(snatch2ActualLift) != 0)
@@ -1093,7 +1093,7 @@ public class Athlete {
 			return getCleanJerk2LiftTime();
 		if (zeroIfInvalid(cleanJerk3ActualLift) != 0)
 			return getCleanJerk3LiftTime();
-		return new Date(Long.MAX_VALUE); // forever in the future
+		return LocalDateTime.MAX; // forever in the future
 	}
 
 	/**
@@ -1155,7 +1155,7 @@ public class Athlete {
 	 *
 	 * @return the last attempted lift time
 	 */
-	public Date getLastAttemptedLiftTime() {
+	public LocalDateTime getLastAttemptedLiftTime() {
 		if (zeroIfInvalid(cleanJerk3ActualLift) != 0)
 			return getCleanJerk3LiftTime();
 		if (zeroIfInvalid(cleanJerk2ActualLift) != 0)
@@ -1168,7 +1168,7 @@ public class Athlete {
 			return getSnatch2LiftTime();
 		if (zeroIfInvalid(snatch1ActualLift) != 0)
 			return getSnatch1LiftTime();
-		return new Date(0L); // long ago
+		return LocalDateTime.MIN; // long ago
 	}
 
 	/**
@@ -1185,7 +1185,7 @@ public class Athlete {
 	 *
 	 * @return the last successful lift time
 	 */
-	public Date getLastSuccessfulLiftTime() {
+	public LocalDateTime getLastSuccessfulLiftTime() {
 		if (zeroIfInvalid(cleanJerk3ActualLift) > 0)
 			return getCleanJerk3LiftTime();
 		if (zeroIfInvalid(cleanJerk2ActualLift) > 0)
@@ -1198,7 +1198,7 @@ public class Athlete {
 			return getSnatch2LiftTime();
 		if (zeroIfInvalid(snatch1ActualLift) > 0)
 			return getSnatch1LiftTime();
-		return new Date(0L); // long ago
+		return LocalDateTime.MIN; // long ago
 	}
 
 	/**
@@ -1352,44 +1352,44 @@ public class Athlete {
 	 *
 	 * @return null if Athlete has not lifted
 	 */
-	public Date getPreviousLiftTime() {
-		Date max = null; // long ago
+	public LocalDateTime getPreviousLiftTime() {
+		LocalDateTime max = null; // long ago
 
 		if (getAttemptsDone() <= 3) {
-			final Date sn1 = snatch1LiftTime;
+			final LocalDateTime sn1 = snatch1LiftTime;
 			if (sn1 != null) {
 				max = sn1;
 			} else {
 				return max;
 			}
-			final Date sn2 = snatch2LiftTime;
+			final LocalDateTime sn2 = snatch2LiftTime;
 			if (sn2 != null) {
-				max = (max.after(sn2) ? max : sn2);
+				max = (max.isAfter(sn2) ? max : sn2);
 			} else {
 				return max;
 			}
-			final Date sn3 = snatch3LiftTime;
+			final LocalDateTime sn3 = snatch3LiftTime;
 			if (sn3 != null) {
-				max = (max.after(sn3) ? max : sn3);
+				max = (max.isAfter(sn3) ? max : sn3);
 			} else {
 				return max;
 			}
 		} else {
-			final Date cj1 = cleanJerk1LiftTime;
+			final LocalDateTime cj1 = cleanJerk1LiftTime;
 			if (cj1 != null) {
 				max = cj1;
 			} else {
 				return max;
 			}
-			final Date cj2 = cleanJerk2LiftTime;
+			final LocalDateTime cj2 = cleanJerk2LiftTime;
 			if (cj2 != null) {
-				max = (max.after(cj2) ? max : cj2);
+				max = (max.isAfter(cj2) ? max : cj2);
 			} else {
 				return max;
 			}
-			final Date cj3 = cleanJerk3LiftTime;
+			final LocalDateTime cj3 = cleanJerk3LiftTime;
 			if (cj3 != null) {
-				max = (max.after(cj3) ? max : cj3);
+				max = (max.isAfter(cj3) ? max : cj3);
 			} else {
 				return max;
 			}
@@ -1701,7 +1701,7 @@ public class Athlete {
 	 *
 	 * @return the snatch 1 lift time
 	 */
-	public Date getSnatch1LiftTime() {
+	public LocalDateTime getSnatch1LiftTime() {
 		return snatch1LiftTime;
 	}
 
@@ -1765,7 +1765,7 @@ public class Athlete {
 	 *
 	 * @return the snatch 2 lift time
 	 */
-	public Date getSnatch2LiftTime() {
+	public LocalDateTime getSnatch2LiftTime() {
 		return snatch2LiftTime;
 	}
 
@@ -1829,7 +1829,7 @@ public class Athlete {
 	 *
 	 * @return the snatch 3 lift time
 	 */
-	public Date getSnatch3LiftTime() {
+	public LocalDateTime getSnatch3LiftTime() {
 		return snatch3LiftTime;
 	}
 
@@ -3573,11 +3573,8 @@ public class Athlete {
 		}
 	}
 
-	private Date sqlNow() {
-		return new Date(
-				Calendar.getInstance()
-					.getTime()
-					.getTime());
+	private LocalDateTime sqlNow() {
+		return LocalDateTime.now();
 	}
 
 	/**
@@ -3621,7 +3618,6 @@ public class Athlete {
 //		boolean declarationEmpty = declaration == null || declaration.trim().isEmpty();
 //		if (declarationEmpty) {
 //			if (actualLiftEmpty)
-//				return; // allow reset of field.
 //			else
 //				throw RuleViolation.declarationValueRequired(curLift);
 //		}
