@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.1.0-SNAPSHOT</version>
+		<version>4.1.0</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -520,7 +520,7 @@
 							<tagName>${project.version}</tagName>
 							<name>${project.version} (release candidate)</name>
 							<targetCommitish>master</targetCommitish>
-							<body>${project.version} (release candidate)</body>
+							<body>${project.version}</body>
 							<releaseNotes>src/main/resources/ReleaseNotes.md</releaseNotes>
 							<assets>
 								<asset>target/owlcms-${project.version}.zip</asset>
