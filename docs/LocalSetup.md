@@ -53,7 +53,7 @@ This step is performed only on the master laptop.
 
 ## Initial Startup
 
-When OWLCMS4 is started on a laptop, two windows are visible:  a black command-line window, and a white internet browser
+When OWLCMS4 is started on a laptop, two windows are visible:  a command-line window, and an internet browser
 
 ![040_starting](img\LocalInstall\040_starting.png)
 
