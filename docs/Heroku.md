@@ -33,7 +33,7 @@ You will need one laptop or minipc for each display.
 
 ## Installing the deployment tools
 
-The following steps will allow you to download the owlcms application and update it on the cloud.
+The following tools are required to install or update OWLCMS4 on the cloud.
 
 -  Go to page https://devcenter.heroku.com/articles/heroku-cli#download-and-install
 
@@ -47,11 +47,13 @@ The following steps will allow you to download the owlcms application and update
   
 - Run the following commands
   
-```bash
+  ```bash
   heroku login
   heroku plugins:install java 
-```
-  These commands are only needed once.
+  ```
+These commands are only needed once.  The `login` command will open a browser window and ask you to login on your Heroku account.
+
+- Install a Java version.  Go to https://adoptopenjdk.net/ .  Download the JDK8 version for your environment and install it -- the default options are fine.  The plugin we just downloaded above requires this to operate -- you won't be running Java on your computer otherwise.
 
 ## Deploying a version of owlcms to Heroku
 
@@ -59,17 +61,19 @@ The following steps will allow you to download the owlcms application and update
   
   ![010_zip](/img/Heroku/9a_zip.png)
   
-- Download the release and unzip it release to a directory by double-clicking on it.   
+- Download the release and unzip it release to a directory by double-clicking on it.   The location does not matter.
   
-- Start a command shell and go to the directory where you unzipped the files.
+- Start a command shell and go to the directory where you just unzipped the files.
   ```bash
    cd *the_directory_where_you_unzipped_the_files*
   ```
 
-- Run the deploy command (replace 4.0.34 and myHerokuAppName with the proper values)
+  Check that the `.jar` file is present in the directory using `dir` (Windows) or `ls` (Mac, Linux)
+  
+- Run the deploy command (replace 4.1.0 and myHerokuAppName with the proper values)
 
   ```bash
-   heroku deploy:jar owlcms-4.0.34.jar --app=myHerokuAppName  
+   heroku deploy:jar owlcms-4.1.0.jar --app=myHerokuAppName  
   ```
   
 - If you want to run in demo mode with fictitious athletes, run the following commands before doing the deployment. This adds the `-DdemoMode=true` flag to tell owlcms to reset on every start and recreate the fake data.
@@ -77,7 +81,7 @@ The following steps will allow you to download the owlcms application and update
   ```bash
   cp Procfile prodProcfile
   cp demoProcfile Procfile
-  heroku deploy:jar owlcms-4.0.34.jar --app=myHerokuAppName
+  heroku deploy:jar owlcms-4.1.0.jar --app=myHerokuAppName
   ```
   
 - If after running a demo you want to restore competition mode
