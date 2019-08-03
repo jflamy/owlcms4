@@ -12,7 +12,7 @@
 			<directory>${project.build.directory}</directory>
 			<outputDirectory>/</outputDirectory>
 			<includes>
-				<include>${project.artifactId}-${project.version}.jar</include>
+				<include>${project.artifactId}.jar</include>
 			</includes>
 		</fileSet>
 	</fileSets>
