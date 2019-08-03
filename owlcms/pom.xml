@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.1.1-SNAPSHOT</version>
+		<version>4.1.1</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -289,6 +289,7 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<finalName>${project.artifactId}</finalName>
 							<createDependencyReducedPom>false</createDependencyReducedPom>
 							<artifactSet>
 								<includes>
@@ -363,13 +364,13 @@
 						<configuration>
 							<headerType>console</headerType>
 							<outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
-							<jar>${project.artifactId}-${project.version}.jar</jar>
+							<jar>${project.artifactId}.jar</jar>
 							<dontWrapJar>true</dontWrapJar>
 							<errTitle>owlcms</errTitle>
 							<classPath>
 								<mainClass>app.owlcms.Main</mainClass>
 								<addDependencies>false</addDependencies>
-								<postCp>${project.artifactId}-${project.version}.jar</postCp>
+								<postCp>${project.artifactId}.jar</postCp>
 							</classPath>
 							<icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
 							<jre>
@@ -401,13 +402,13 @@
 						<configuration>
 							<headerType>console</headerType>
 							<outfile>${project.build.directory}/demo-${project.artifactId}.exe</outfile>
-							<jar>${project.artifactId}-${project.version}.jar</jar>
+							<jar>${project.artifactId}.jar</jar>
 							<dontWrapJar>true</dontWrapJar>
 							<errTitle>owlcms</errTitle>
 							<classPath>
 								<mainClass>app.owlcms.Main</mainClass>
 								<addDependencies>false</addDependencies>
-								<postCp>${project.artifactId}-${project.version}.jar</postCp>
+								<postCp>${project.artifactId}.jar</postCp>
 							</classPath>
 							<icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
 							<jre>
@@ -437,12 +438,13 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>cloud</id>
+						<id>zip</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
 						<configuration>
+							<finalName>${project.artifactId}</finalName>
 							<descriptors>
 								<descriptor>src/main/assembly/zip.xml</descriptor>
 							</descriptors>
@@ -544,12 +546,12 @@
 						<configuration>
 							<includeTarget>false</includeTarget>
 							<includes>
-								<include>target/owlcms-${project.version}.jar</include>
+								<include>target/owlcms.jar</include>
 							</includes>
 							<processTypes>
 								<!-- following must be a single command line, cdata used to prevent 
 									xml formatters from splitting it -->
-								<web><![CDATA[java -Dport=$PORT -DdevMode=true -DresetMode=true -DmemoryMode=false -Dlogback.configurationFile=logback-cloud.xml -jar target/owlcms-${project.version}.jar]]></web>
+								<web><![CDATA[java -Dport=$PORT -DdevMode=true -DresetMode=true -DmemoryMode=false -Dlogback.configurationFile=logback-cloud.xml -jar target/owlcms.jar]]></web>
 							</processTypes>
 							<appName>${project.artifactId}4</appName>
 						</configuration>

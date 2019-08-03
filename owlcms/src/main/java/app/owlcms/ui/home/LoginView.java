@@ -103,7 +103,7 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
             boolean whiteListed = checkWhitelist();
 
             // check for PIN if one is specified
-            String pin = System.getenv("PIN"); //$NON-NLS-1$
+            String pin = getPin();
             if (whiteListed && (pin == null || pin.contentEquals(password))) {
                 OwlcmsSession.setAuthenticated(true);
                 return true;
@@ -115,8 +115,14 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
         return true;
     }
 
+    public static String getPin() {
+        String pin = System.getenv("PIN"); //$NON-NLS-1$
+        if (pin == null) pin = System.getProperty("PIN");
+        return pin;
+    }
+
     public static boolean checkWhitelist() {
-        String whiteList = System.getenv("IP"); //$NON-NLS-1$
+        String whiteList = getWhitelist();
         String clientIp = getClientIp();
         if ("0:0:0:0:0:0:0:1".equals(clientIp)) { //$NON-NLS-1$
             // compensate for IPv6 returned in spite of IPv4-only configuration...
@@ -136,6 +142,12 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
             whiteListed = true;
         }
         return whiteListed;
+    }
+
+    public static String getWhitelist() {
+        String whiteList = System.getenv("IP"); //$NON-NLS-1$
+        if (whiteList == null) whiteList = System.getProperty("IP");
+        return whiteList;
     }
 
     @Override

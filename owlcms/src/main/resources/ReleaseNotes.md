@@ -1,7 +1,9 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#/?id=features) for an overview of the feature set.  [Instructions for walking through a Live Demo](https://jflamy.github.io/owlcms4/#/index?id=demo) are available.
 - Release Highlights:
-  - First official release of OWLCMS4
-- [Change Log](https://github.com/jflamy/owlcms4/milestone/4?closed=1) for this release (enhancements and fixes)
+  - Fixed issues with Group Results and Final Packages
+  - Updated documentation for Heroku Time zone setup and for securing the application with a PIN
+  - Simplified instructions for installation on MacOS, Linux and Cloud (removed the need to use the version number)
+- [Change Log](https://github.com/jflamy/owlcms4/milestone/38?closed=1) for this release (enhancements and fixes)
 - Installation Instructions are available for both [local setups without internet access](https://jflamy.github.io/owlcms4/#/LocalSetup.md) and for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
   - For Windows, download owlcms_setup.exe
   - For Linux, macOS and Heroku, download the .zip file.

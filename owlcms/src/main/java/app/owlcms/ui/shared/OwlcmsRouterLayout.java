@@ -142,6 +142,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         init(getLayoutConfiguration(variant));
     }
 
+    @SuppressWarnings("unused")
     private void openModeSelector(Behaviour variant) {
         new BehaviourSelector(variant, this::setDrawerVariant).open();
     }

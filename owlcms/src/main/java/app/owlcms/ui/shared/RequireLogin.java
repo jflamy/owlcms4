@@ -18,15 +18,16 @@ public interface RequireLogin extends BeforeEnterObserver {
     public default void beforeEnter(BeforeEnterEvent event) {
 
         String path = event.getLocation().getPath();
-        String ipAddress = System.getenv("IP"); //$NON-NLS-1$
-        String pin = System.getenv("PIN"); //$NON-NLS-1$
 
+        String whiteList = LoginView.getWhitelist();
+        String pin = LoginView.getPin();
+        
         boolean isAuthenticated = OwlcmsSession.isAuthenticated();
-        if (isAuthenticated || (pin == null && ipAddress == null)) {
+        if (isAuthenticated || (pin == null && whiteList == null)) {
             // no check required
             OwlcmsSession.setAuthenticated(true);
             return;
-        } else if (pin == null && ipAddress != null && LoginView.checkWhitelist()) {
+        } else if (pin == null && whiteList != null && LoginView.checkWhitelist()) {
             // no pin required, proper origin, no need to challenge
             OwlcmsSession.setAuthenticated(true);
             return;

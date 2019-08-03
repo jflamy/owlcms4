@@ -72,7 +72,7 @@ public class JPAService {
 	 * Close.
 	 */
 	public static void close() {
-		factory.close();
+		if (factory != null) factory.close();
 		factory = null;
 	}
 

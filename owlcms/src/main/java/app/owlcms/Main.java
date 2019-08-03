@@ -29,6 +29,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.EmbeddedJetty;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -37,7 +38,14 @@ import ch.qos.logback.classic.Logger;
 public class Main {
 
     public final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
+    
     private static Integer serverPort;
+    private static boolean demoMode;
+    private static boolean memoryMode;
+    private static boolean resetMode;
+    private static boolean devMode;
+    private static boolean testMode;
+    private static boolean masters;
 
     /**
      * The main method.
@@ -47,8 +55,8 @@ public class Main {
      */
     public static void main(String... args) throws Exception {
 
-        int serverPort = init();
         try {
+            init();
             new EmbeddedJetty().run(serverPort, "/"); //$NON-NLS-1$
         } finally {
             tearDown();
@@ -70,43 +78,53 @@ public class Main {
      * @throws IOException
      * @throws ParseException
      */
-    protected static int init() throws IOException, ParseException {
+    protected static void init() throws IOException, ParseException {
+        // Configure logging -- must take place before anything else
         // Redirect java.util.logging logs to SLF4J
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
+        
+        // read command-line and environment variable parameters
+        parseConfig();
+        logStart();
+        
+        // open resource subdirectories as filesystems
+        ResourceWalker.openTemplatesFileSystem("/templates");
 
-        // handle translation tasks
+        // translation
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
-        System.setProperty("java.net.preferIPv4Stack", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        // misc initializations
+        // technical initializations
+        System.setProperty("java.net.preferIPv4Stack", "true"); //$NON-NLS-1$ //$NON-NLS-2$
         ConvertUtils.register(new DateConverter(null), java.util.Date.class);
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 
+        // setup database
+        JPAService.init(demoMode || memoryMode, demoMode || resetMode);
+        injectData(demoMode, devMode, testMode, masters);
+
+        // read application parameters from database
+        overrideDisplayLanguage();
+        OwlcmsFactory.getDefaultFOP();
+
+        return;
+    }
+
+    private static void parseConfig() {
         // read server.port parameter from -D"server.port"=9999 on java command line
         // this is required for running on Heroku which assigns us the port at run time.
         // default is 8080
         serverPort = Integer.getInteger("port", 8080); //$NON-NLS-1$
-        logStart(serverPort);
 
         // reads system properties (-D on command line)
-        boolean demoMode = Boolean.getBoolean("demoMode"); // same as devMode + resetMode + memoryMode //$NON-NLS-1$
-        boolean memoryMode = Boolean.getBoolean("memoryMode"); // run in memory //$NON-NLS-1$
-        boolean resetMode = Boolean.getBoolean("resetMode"); // drop the schema first //$NON-NLS-1$
-        boolean devMode = Boolean.getBoolean("devMode"); // load large demo data if empty, do not reset //$NON-NLS-1$
+        demoMode = Boolean.getBoolean("demoMode"); // same as devMode + resetMode + memoryMode //$NON-NLS-1$
+        memoryMode = Boolean.getBoolean("memoryMode"); // run in memory //$NON-NLS-1$
+        resetMode = Boolean.getBoolean("resetMode"); // drop the schema first //$NON-NLS-1$
+        devMode = Boolean.getBoolean("devMode"); // load large demo data if empty, do not reset //$NON-NLS-1$
                                                          // unless resetMode, persistent unless memoryMode also
-        boolean testMode = Boolean.getBoolean("testMode"); // load small dummy data if empty, do not reset //$NON-NLS-1$
+        testMode = Boolean.getBoolean("testMode"); // load small dummy data if empty, do not reset //$NON-NLS-1$
                                                            // unless resetMode, persistent unless memoryMode
-        boolean masters = Boolean.getBoolean("masters"); //$NON-NLS-1$
-
-        JPAService.init(demoMode || memoryMode, demoMode || resetMode);
-        injectData(demoMode, devMode, testMode, masters);
-        overrideDisplayLanguage();
-
-        // initializes the owlcms singleton
-        OwlcmsFactory.getDefaultFOP();
-
-        return serverPort;
+        masters = Boolean.getBoolean("masters"); //$NON-NLS-1$
     }
 
 
@@ -139,7 +157,7 @@ public class Main {
         }
     }
 
-    protected static void logStart(Integer serverPort) throws IOException, ParseException {
+    protected static void logStart() throws IOException, ParseException {
         InputStream in = Main.class.getResourceAsStream("/build.properties"); //$NON-NLS-1$
         Properties props = new Properties();
         props.load(in);

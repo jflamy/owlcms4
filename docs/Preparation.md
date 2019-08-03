@@ -6,19 +6,26 @@ This gives  you access to the the `Prepare Competition` page.  You may go to any
 
 ![020_Preparation](img/Preparation/020_Preparation.png)
 
-## Competition Information and Display Language
+## Competition Information
 
 The `Edit Competition Information` button leads to a page where the information used on the various competition documents is defined.  It also allows options to be set that define the competition behavior.
 
 - The `Apply initial total weight rule` determines whether the 20kg rule (20/15 for Masters) will be enforced.  Some local or regional meets do not enforce this rule.
-- The `Masters` checkbox determines whether there is an automatic classification of athletes according to the masters age groups, and whether Sinclair-Malone-Meltzer coefficients (SMM) are used for overall rankings.  *Note that the Masters setting currently applies to all groups -- it is a global setting for a meet.*
 - The `Use Birth Year Only` allows the use of only the 4-digit birth year for athletes, instead of a full date as required by IWF.
 
 ![030_Competition](img/Preparation/030_Competition.png)
 
+## Masters
+
+The `Masters` checkbox determines whether there is an automatic classification of athletes according to the masters age groups, and whether Sinclair-Malone-Meltzer coefficients (SMM) are used for overall rankings.  *Note that the Masters setting currently applies to all groups -- it is a global setting for a meet.*
+
+## Display Language
+
 In countries where more than one language is spoken, the various computers used in a competition may be configured with different languages.  It is possible to force a single language to be used on all displays (owlcms will ignore the individual language preferences sent by each browser)
 
 ![032_Language](img/Preparation/032_Language.png)
+
+
 
 ## Defining Age Divisions and Categories
 
