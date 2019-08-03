@@ -19,7 +19,7 @@ OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md)
   
   - **Support for refereeing devices**
     
-    - Any [**keypad**]((Refereeing#usb-or-bluetooth-keypads)) that can be programmed to generate the digits 0 to 9 can be used to enter decisions
+    - Any [**keypad**](Refereeing#usb-or-bluetooth-keypads) that can be programmed to generate the digits 0 to 9 can be used to enter decisions
     
       ![refereeingSetup](img/equipment/refereeingSetup.jpg ':size=350') 
     
