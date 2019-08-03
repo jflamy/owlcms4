@@ -5,7 +5,7 @@ OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md)
 ## Features
 
 - The following list is a sampling of the many features available.  Refer to the various sections of the documentation (see the sidebar menu at the left) to get a better sense.
-  - Run a **regular** or **masters** competition, with or without a **jury**.
+  - Run a **regular** or **masters** competition, with or without a jury.
   
   - Ability to run in the [**cloud**](EquipmentSetup#cloud-access-over-the-internet): Decisions, timers and sounds are handled locally in the browser to provide better feedback.
   
@@ -19,7 +19,7 @@ OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md)
   
   - **Support for refereeing devices**
     
-    - Any [**keypad**]((Refereeing?#usb-or-bluetooth-keypads)) that can be programmed to generate the digits 0 to 9 can be used to enter decisions
+    - Any [**keypad**]((Refereeing#usb-or-bluetooth-keypads)) that can be programmed to generate the digits 0 to 9 can be used to enter decisions
     
       ![refereeingSetup](img/equipment/refereeingSetup.jpg ':size=350') 
     

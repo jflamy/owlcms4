@@ -525,7 +525,7 @@
 							<body>${project.version}</body>
 							<releaseNotes>src/main/resources/ReleaseNotes.md</releaseNotes>
 							<assets>
-								<asset>target/owlcms-${project.version}.zip</asset>
+								<asset>target/owlcms.zip</asset>
 								<asset>target/owlcms_setup/owlcms_setup.exe</asset>
 							</assets>
 						</configuration>
