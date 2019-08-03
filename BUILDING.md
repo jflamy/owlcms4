@@ -8,14 +8,19 @@ This is a standard Maven project.  If you so wish, you can build the binaries fr
 
 You are welcome to make improvements and correct issues.  If you do, please clone this repository and create a pull request.
 
-### Design notes:
+### Packaging and Releasing
 
-Local timer and decision is done using [Web Components](https://www.webcomponents.org/introduction)
+This will be further automated. This list assumes that you are running Eclipse.
 
-[Vaadin Flow](https://vaadin.com/flow) is used for programming because it integrates natively with Web Components and enables the use of robust libraries
-
-- The overall navigation and layout is done using [vaadin-app-layout](https://github.com/appreciated/vaadin-app-layout)
-- Administrative and technical official screens are built using [crudui](https://github.com/alejandro-du/crudui)
-- Event-based design, strict separation between the presentation, the field-of-play business layer, and the back-end data
-- JPA is used to ensure datababse independence (H2 locally, Postgres on Heroku cloud, etc.)
-- Why is it called owlcms4? First there was owlcms. Did a major cleanup, and moved the code to sourceforge, owlcms2 was born. A few years back I started an owlcms3 rewrite, but it was too tedious to implement the off-line features I wanted, so I gave up until Vaadin Flow came out to rekindle my interest.
+1. Using the GitFlow plugin
+   1. Start a new release
+   2. Push to upstream
+2. Use the `Versions_set` launch configuration to set the release number
+3. Run the `package exe` launch configuration to build the uberjar, the zip and the owlcms_setup.exe installer
+4. Test the installer
+   1. Uninstall previous version
+   2. Refresh the `/owlcms/target` folder.  
+   3. Run `/owlcms/target/owlcms_setup/owlcms_setup.exe` to test the installer
+5. Cleanup github
+   1. Make sure that all closed issues are closed on github and assigned to the proper milestone
+   2. Check that the link to the issues log is correct.
