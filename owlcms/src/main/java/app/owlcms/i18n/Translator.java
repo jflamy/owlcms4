@@ -96,7 +96,7 @@ public class Translator implements I18NProvider {
         return helper.getTranslationOrElseNull(string, locale);
     }
 
-    private static Locale createLocale(String localeString) {
+    public static Locale createLocale(String localeString) {
         if (localeString == null) {
             throwInvalidLocale(localeString);
             return null; // unreacheable
