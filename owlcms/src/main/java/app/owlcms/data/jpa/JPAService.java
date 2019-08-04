@@ -120,7 +120,7 @@ public class JPAService {
 
 		props.put(JPA_JDBC_URL,
 			(dbUrl != null ? dbUrl : "jdbc:h2:file:./database/owlcms") + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
-		startLogger.info("Starting in directory {}",System.getProperty("user.dir"));
+		startLogger.debug("Starting in directory {}",System.getProperty("user.dir"));
 		props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
 		props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
 
