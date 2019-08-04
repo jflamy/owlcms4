@@ -1,1 +1,1 @@
-web: java -Dport=$PORT -Dlogback.configurationFile=logback-console.xml -jar ${project.artifactId}-${project.version}.jar
+web: java -Dport=$PORT -Dlogback.configurationFile=logback-console.xml -jar ${project.artifactId}.jar
