@@ -1,6 +1,6 @@
 After a group has been weighed-in, the actual process of running the competition takes place from the various Technical Officials screens which are started from the `Run Lifting Group` page.
 
-The first thing to do is to check that the correct field of play (platform) is displayed at the top of the page (and if not, to select the correct one.
+The first thing to do is to check that the correct field of play (platform) is displayed at the top of the page (and if not, to select the correct one.)
 
 ![010_Lifting](img/Lifting/010_Lifting.png)
 

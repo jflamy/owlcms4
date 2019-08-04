@@ -41,19 +41,22 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
     }
 
     /**
-     * Instantiates a new lifting navigation content.
+     * Competition Group Navigation
      */
     public LiftingNavigationContent() {
         logger.trace("LiftingNavigationContent constructor start"); //$NON-NLS-1$
-        VerticalLayout intro = new VerticalLayout();
-        addP(intro, getTranslation("AnnouncerSelectsGroup") + //$NON-NLS-1$
-                getTranslation("ChangesGroupEverywhere") + //$NON-NLS-1$
-                getTranslation("AnnouncerEtc")); //$NON-NLS-1$
-        intro.getElement().getStyle().set("margin-bottom", "0"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        
+        Button weighIn = new Button(getTranslation("WeighIn_StartNumbers"), //$NON-NLS-1$
+                buttonClickEvent -> UI.getCurrent().navigate(WeighinContent.class));
+        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
+        doGroup(getTranslation("WeighIn"), grid3, this); //$NON-NLS-1$
 
         Button announcer = new Button(getTranslation("Announcer"), //$NON-NLS-1$
                 buttonClickEvent -> UI.getCurrent().getPage()
                         .executeJavaScript(getWindowOpener(AnnouncerContent.class)));
+        announcer.setAutofocus(true);
+
         Button marshall = new Button(getTranslation("Marshall"), //$NON-NLS-1$
                 buttonClickEvent -> UI.getCurrent().getPage()
                         .executeJavaScript(getWindowOpener(MarshallContent.class)));
@@ -64,10 +67,14 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
                 buttonClickEvent -> UI.getCurrent().getPage()
                         .executeJavaScript(getWindowOpener(TCContent.class)));
 
-        fillH(intro, this);
-
+        VerticalLayout intro = new VerticalLayout();
+        addP(intro, getTranslation("AnnouncerSelectsGroup") + //$NON-NLS-1$
+                getTranslation("ChangesGroupEverywhere") + //$NON-NLS-1$
+                getTranslation("AnnouncerEtc")); //$NON-NLS-1$
+        intro.getElement().getStyle().set("margin-bottom", "0"); //$NON-NLS-1$ //$NON-NLS-2$
+        
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(announcer, marshall, timekeeper, technical);
-        doGroup(getTranslation("TOScreens"), grid1, this); //$NON-NLS-1$
+        doGroup(getTranslation("Scoreboard.LiftingOrder"), intro, grid1, this); //$NON-NLS-1$
 
         Button referee = new Button(getTranslation("Referee_Mobile_Device"), //$NON-NLS-1$
                 buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(RefContent.class)));
@@ -76,10 +83,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, jury);
         doGroup(getTranslation("Referees_Jury"), grid2, this); //$NON-NLS-1$
 
-        Button weighIn = new Button(getTranslation("WeighIn_StartNumbers"), //$NON-NLS-1$
-                buttonClickEvent -> UI.getCurrent().navigate(WeighinContent.class));
-        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
-        doGroup(getTranslation("WeighIn"), grid3, this); //$NON-NLS-1$
+
         logger.trace("LiftingNavigationContent constructor stop"); //$NON-NLS-1$
     }
 

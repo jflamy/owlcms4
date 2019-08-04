@@ -495,7 +495,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         OwlcmsSession.withFop(fop -> {
             UIEventProcessor.uiAccess(topBar, uiEventBus, () -> {
                 groupSelect.setValue(fop.getGroup());
-                if (athlete != null && athlete.getAttemptsDone() < 6) {
+                Integer attemptsDone = (athlete != null ? athlete.getAttemptsDone() : 0);
+                if (athlete != null && attemptsDone < 6) {
                     String lastName2 = athlete.getLastName();
                     lastName.setText(lastName2 != null ? lastName2.toUpperCase() : ""); //$NON-NLS-1$
                     firstName.setText(athlete.getFirstName());
@@ -506,9 +507,15 @@ public abstract class AthleteGridContent extends VerticalLayout
                             (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013") //$NON-NLS-1$
                                     + "kg"); //$NON-NLS-1$
                 } else {
-                    lastName.setText(fop.getGroup() == null ? "\u2013" //$NON-NLS-1$
-                            : MessageFormat.format(getTranslation("Group_number_done"), fop.getGroup())); //$NON-NLS-1$
-                    firstName.setText(""); //$NON-NLS-1$
+                    if (attemptsDone >= 6) {
+                        lastName.setText(fop.getGroup() == null ? "\u2013" //$NON-NLS-1$
+                                : MessageFormat.format(getTranslation("Group_number_done"), fop.getGroup())); //$NON-NLS-1$
+                        firstName.setText(""); //$NON-NLS-1$
+                    } else {
+                        lastName.setText(fop.getGroup() == null ? "\u2013" //$NON-NLS-1$
+                                : MessageFormat.format(getTranslation("No_weighed_in_athletes"), fop.getGroup())); //$NON-NLS-1$
+                        firstName.setText(""); //$NON-NLS-1$
+                    }
                     timeField.getElement().getStyle().set("visibility", "hidden"); //$NON-NLS-1$ //$NON-NLS-2$
 
                     attempt.setText(""); //$NON-NLS-1$

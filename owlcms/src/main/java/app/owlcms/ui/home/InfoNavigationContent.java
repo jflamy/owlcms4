@@ -64,7 +64,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	    license.add(new H3(MessageFormat.format("OWLCMS v{0} ({1})", OwlcmsFactory.getVersion(), OwlcmsFactory.getBuildTimestamp())));
 		license.add(new H3(getTranslation("CopyrightLicense"))); //$NON-NLS-1$
 		addP(license,
-				getTranslation("Copyright2009")+LocalDate.now().getYear()+getTranslation("JFL") //$NON-NLS-1$ //$NON-NLS-2$
+				getTranslation("Copyright2009")+LocalDate.now().getYear()+" "+getTranslation("JFL") //$NON-NLS-1$ //$NON-NLS-2$
 				);
 		addP(license,
 				getTranslation("LicenseUsed") //$NON-NLS-1$

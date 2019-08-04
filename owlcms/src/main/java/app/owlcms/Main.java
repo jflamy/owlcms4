@@ -132,13 +132,13 @@ public class Main {
         // read override value from database
         Locale l = Competition.getCurrent().getDefaultLocale();
         
-        // if JVM started explicitly with user.language, use the JVM default (which relies on these properties)
-        String localeProperty = System.getProperty("user.language");
-        if (localeProperty != null) l = Locale.getDefault();
-        
         // if LOCALE defined, ignore previous values and use LOCALE
         String localeEnvStr = System.getenv("LOCALE");
         if (localeEnvStr != null) l = Translator.createLocale(localeEnvStr);
+        
+        // Obey -Dlocale
+        String localeProperty = System.getProperty("locale");
+        if (localeProperty != null) l = Locale.getDefault();
         
         if (l != null) {
             Translator.setForcedLocale(l);

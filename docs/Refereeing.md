@@ -12,7 +12,9 @@ Refereeing can be performed in 3 different ways
 
 ## Manual Refereeing
 
-The announcer announces the decision and uses the buttons at the top right of his screen to register the decision.
+The referees give their decisions using flags/cards/hand signals; the announcer announces the decision and uses the buttons at the top right of his screen to register the decision.  A single red or white indicator is shown to the public on the current attempt and scoreboard displays.
+
+![020_Announcer](img/Refereeing/020_Announcer.png)
 
 ## Mobile Device Refereeing
 

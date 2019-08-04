@@ -71,6 +71,15 @@ public interface NavigationPage extends OwlcmsContent {
 		fillH(grid1, wrapper);
 	}
 	
+	public default void doGroup(String label, VerticalLayout intro, FlexibleGridLayout grid1, VerticalLayout wrapper) {
+	    VerticalLayout content1 = new VerticalLayout();
+	    content1.add(new Label(label));
+	    content1.add(intro);
+	    content1.getStyle().set("margin-bottom", "-2ex"); //$NON-NLS-1$ //$NON-NLS-2$
+	    fillH(content1, wrapper);
+	    fillH(grid1, wrapper);
+	}
+
 	public default String buildAbsoluteURL(VaadinServletRequest vRequest, String resourcePath) {
 	    HttpServletRequest request = vRequest.getHttpServletRequest();
 		int port = URLUtils.getServerPort(request);

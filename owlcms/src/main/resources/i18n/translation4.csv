@@ -8,7 +8,7 @@ Add_title;Add {0};Créer {0};;Tilføj {0};Añadir {0};
 AgeDivision;Age Division;Division;;Aldersinddelt;;
 AgeGroup;Age Group;Groupe d'âge;;Aldersgruppe;Grupos per edades;
 Announcer;Announcer;Annonceur;;Speaker;Presentador;
-AnnouncerEtc;(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.);(annonceur, chronométreur, changements, résultats, essai courant, jury, etc.);;(speaker, timekeeper, marshall, result boards, attempt board, jury, osv.);;
+AnnouncerEtc;\ (announcer, timekeeper, marshall, result boards, attempt board, jury, etc.);\ (annonceur, chronométreur, changements, résultats, essai courant, jury, etc.);;\ (speaker, timekeeper, marshall, result boards, attempt board, jury, osv.);;
 AnnouncerSelectsGroup;The current group for the platform is selected on the <b><i>Announcer</i></b> screen<br> ;Le groupe courant pour la plateforme est déterminé par l'<b><i>annonceur</i></b><br> ;;Nuværende gruppe for platformen vælges på <b><i>Speaker</i></b> skærm<br> ;;
 Athlete_Attempt;Athlete-facing Attempt Board Display;Essai courant (face à l'athlète);;Atlet-vendt Attempt Board Display;;
 Athlete_Decisions;Athlete-facing Timer/Down/Decisions;Chrono/Terre/Décisions (face à l'athlète);;Atlet-vendt Timer/Nedsignal/Afgørelse;;
@@ -44,7 +44,7 @@ Category_no_match_gender;Category does not match gender.;La catégorie ne corresp
 Cell;Cell ;Cellule;;Celle;;
 Change_1;Change 1;Changement 1;;1. ændring;;
 Change_2;Change 2;Changement 2;;2. ændring;;
-ChangesGroupEverywhere;This changes the current group for all displays and screens associated with the platform ;Ceci change le groupe courant sur tous les écrans et affichages associés à ce plateau.;;Dette ændrer nuværende gruppe for alle displays og skærme tilknyttet platformen;;
+ChangesGroupEverywhere;This changes the current group for all displays and screens associated with the platform ;Ceci change le groupe courant sur tous les écrans et affichages associés à ce plateau;;Dette ændrer nuværende gruppe for alle displays og skærme tilknyttet platformen;;
 Clean_and_Jerk;Clean&Jerk;Épaulé-jeté;;Stød;Dos Tiempos;
 Clean_and_Jerk_short;C.&J.;É.-J.;;Stød;D.T.;
 Clean_and_Jerk_Declaration;Clean&Jerk Declaration;Déclaration É.-J.;;Stød deklareret;;
@@ -121,7 +121,7 @@ CompetitionDocuments_description;<li><b>{0}</b>: Produce printable documents for
 CompetitionInformation;Competition Information;Informations sur la compétition;;Stævneinformation;Información de la competición;
 CompetitionPaused;Competition paused;Pause;;Konkurrencen er pauset;;
 CompetitionPlatform;Competition Platform;Plateau de compétition;;Stævne platform;;
-Copyright2009;This software is Copyright © 2009-;Ce logiciel est sous droits d'auteurs - Copyright © 2009-;;This software is Copyright © 2009-;;
+Copyright2009;This software is Copyright © 2009-;Ce logiciel est sous droit d'auteur - Copyright © 2009-;;This software is Copyright © 2009-;;
 CopyrightLicense;Copyright and License;Licence et droits d'auteur;;Copyright and License;;
 Countdown_BreakTimer;Countdown to start / Break Timer;Décompte avant début / Chrono de pause;;Nedtælling til start / Break Timer;;
 CountdownType;Countdown Type;Type de décompte;;Nedtællingstype;;
@@ -167,7 +167,7 @@ FinalResultsPackage;Final Results Package;Compilation des résultats;;Final Resul
 FirstName;First Name;Prénom;;Fornavn;Nombre;
 ForEachCompetitionGroup;For each competition group;Pour chaque groupe;;For hver gruppe;;
 Gender;Gender;Genre;;Køn;Genero;
-GenerateStartNumbers;Generate Start Numbers;Générer les ? de départ;;Generér Startnumre;;
+GenerateStartNumbers;Generate Start Numbers;Générer les Nº de départ;;Generér Startnumre;;
 GotIt;Got it.;Compris.;;Forstået;;
 Group;Group;Groupe;;Gruppe;Sesión;
 Group_number;Group {0};Groupe {0};;Gruppe {0};Tanda {0} ;
@@ -245,7 +245,7 @@ ResultDocuments;Result Documents;Documents de résultats;;Resultatdokumenter;;
 Results;Results;Résultats;;Resultater;Resultados;
 ResumeCompetition;Resume Competition;Redémarrer la compétition;;Genoptag konkurrence;;
 RunLiftingGroup;Run Lifting Group;Groupe de compétition;;Kør gruppe;;
-RunLiftingGroup_description;<li><b>{0}</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>;<li><b>{0}</b>: Lancer les écrans pour les officiels (annonceur, chrono, préposé aux changements). L'annonceur choisit le groupe en cours.</li>;;<li><b>{0}</b>: Start skærmbillede for speaker, marshall, timekeeper. Speakeren styrer hvilken gruppen der vises på displays og skærme.</li>;;
+RunLiftingGroup_description;<li><b>{0}</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>;<li><b>{0}</b>: Lancer les écrans pour les officiels (annonceur, chrono, préposé aux changements). L''annonceur choisit le groupe en cours.</li>;;<li><b>{0}</b>: Start skærmbillede for speaker, marshall, timekeeper. Speakeren styrer hvilken gruppen der vises på displays og skærme.</li>;;
 Scoreboard;Scoreboard;Tableau de résultats;;Scoreboard;;
 Scoreboard.Start;Start;Départ;Départ<div class='english'>Start</div>;Start;;
 Scoreboard.Name;Name;Nom;Nom<div class='english'>Name</div>;Navn;Nombre;
@@ -276,14 +276,14 @@ SourceDocumentation;Source and Documentation;Code source et documentation;;Sourc
 StartDisplays;Start Displays;Démarrer les affichages;;Start Displays;;
 Start_;Start#;#Départ;;Startnr.;;
 StartCountdown;Start Break Countdown Timer;Démarrer le chronomètre de pause;;Start Break Countdown Timer;;
-StartDisplays_description;<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>;<li><b>{0}</b>: Lancer les tableaux de résultats, l''affichage de l'essai courant, et l'affichage pour l'athlète.</li>;;<li><b>{0}</b>: Bruges til at starte Attempt board, Athlete-facing skærm og Scoreboard.</li>;;
+StartDisplays_description;<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>;<li><b>{0}</b>: Lancer les tableaux de résultats, l''affichage de l'essai courant, et l''affichage pour l''athlète.</li>;;<li><b>{0}</b>: Bruges til at starte Attempt board, Athlete-facing skærm og Scoreboard.</li>;;
 StartingList;Starting List;Liste de départ;;Startliste;Lista de inicio;
 StartingWeightsSheet;Starting Weights Sheet;Barres de départ;;Startvægte;Pesos iniciales;
 StartNumber;Start Number;Numéro de départ;;Startnummer;;
 StartTime;Start Time;Heure de début;;Starttid;Hora de comienzo;
 StopCompetition;Stop Competition;Arrêter la compétition;;Stop konkurrencen;;
 SystemURL;The competition system is reachable using the following address(es): ;Le système est accessible en spécifiant:;;The competition system is reachable using the following address(es): ;;
-TCRRCompliance;This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules;Ce logiciel vise à se conformer aux règles techniques de compétition IWF (TCRR) en vigueur ainsi qu'aux règles de la fédération Masters Weightlifting.;;This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules;;
+TCRRCompliance;This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules;Ce logiciel respecte les règles techniques de compétition IWF (TCRR) en vigueur à sa publication, ainsi que les règles de la fédération Masters Weightlifting.;;This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules;;
 Team;Team;Équipe;;Klub;Equipo;
 TechnicalController;Technical Controller;Contrôleur Technique;;Teknisk kontrollant;Controlador Técnico;
 ThanksToAll;Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>;Merci à Anders Bendix Nielsen, Alexey Ruchev et Brock Pedersen pour leurs commentaires et leurs essais.<br>;;Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>;;
@@ -326,7 +326,7 @@ RuleViolation.rule15_20Violated;Starting weight rule violation: Missing {5}kg.;V
 Referee;Referee;Arbitre;;Dommer;Juez;
 Number;Number;Nº;;Nummer;Nº;
 Jury_Console;Jury Console;Console du jury;;Jury;Jurado;
-Referee_Mobile_Device;Referee (for mobile devices);Arbitre (pour appareils mobile);;Dommer (til mobile enheder);Juez (para dispositivos móviles);
+Referee_Mobile_Device;Referee (on mobile devices);Arbitre (sur appareils mobiles);;Dommer (til mobile enheder);Juez (para dispositivos móviles);
 Referees_Jury;Referees and Jury;Arbitres et Jury;;Dommere og jury;Jueces y jurado;
 Speakers;Audio Output;Sortie audio;;Lydudgang;Salida de audio
 Scoreboard.LiftingOrder;Lifting Order;Ordre de passage;;Konkurrenceordre;Orden en competencia
@@ -344,3 +344,4 @@ Withdrawal;Withdrawal;Retrait;;Withdrawal;Withdrawal;
 Declaration_current_athlete;Declaration for current athlete<br>{0};Déclaration pour l'athlète courant<br>{0};;Deklareret for nuværende atlet<br>{0};;
 Declaration_current_athlete_with_change;Declaration (with weight change) for current athlete<br>{0};Déclaration (avec changement de poids) pour l'athlète courant<br>{0};;Deklareret (with weight change) for nuværende atlet<br>{0};;
 Documentation_Menu;Documentation;Documentation;;Dokumentation;Documentación;
+No_weighed_in_athletes;No weighed-in athletes;Pas d'athlètes pesés;;Ingen atlet vejes;Ningún atleta pesó;
