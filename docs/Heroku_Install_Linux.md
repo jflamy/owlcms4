@@ -2,7 +2,7 @@
 
 The following tools are required to install or update OWLCMS4 on the cloud.  <u>This process is only required once</u>.
 
-##### Install the Heroku Command-Line Interface
+### Install the Heroku Command-Line Interface
 
 -  Go to page https://devcenter.heroku.com/articles/heroku-cli#download-and-install
 
@@ -18,14 +18,14 @@ The following tools are required to install or update OWLCMS4 on the cloud.  <u>
   ```
 These commands are only needed once.  The `login` command will open a browser window and ask you to login on your Heroku account.
 
-##### Install Java
+### Install Java
 
-The plugin we just downloaded above requires this to operate -- you won't be running Java on your computer otherwise.
+The plugin we just downloaded above requires Java to operate.
 
 - Go to https://adoptopenjdk.net/ .  
 - Download the JDK8 version for your environment and install it -- the default options are fine. 
 
-##### Define your application name
+### Define your application name
 
 - Time-saving tip: if you want to avoid typing `--app myHerokuAppName` on all the commands, you can define an environment variable called `HEROKU_APP` with your application name.  You only need to do this <u>once</u>.
 
@@ -35,8 +35,8 @@ The plugin we just downloaded above requires this to operate -- you won't be run
   ```
     touch ~/.bash_profile
     open ~/.bash_profile
-    ```
-    
+  ```
+  
   - Add the following line:  
     ```export HEROKU_APP=owlcms4```
   

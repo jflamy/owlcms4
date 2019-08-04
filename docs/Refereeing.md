@@ -31,29 +31,22 @@ In this approach, keypads are connected to the laptop or mini PC running the tim
 
 ![refereeingSetup](img\equipment\refereeingSetup.jpg)
 
-The keys or buttons on the keypads are programmed to send key sequences.  The decision display is waiting for these keypresses.  You must click in the black area to make sure that the keypresses are seen by the browser.
+The keys or buttons on the keypads are programmed to send key sequences.  The decision display is waiting for these keypresses.  You must click in the black area of the screen to make sure that the keypresses are seen by the browser.
 
-- 1 will be interpreted as a white from referee 1, and 2 will be interpreted as a red. 
+OWLCMS4 interprets Even digits as red, and Odd digits as white.  The same devices can be used for referees and for the jury. 
 
-- 3 will be interpreted as a white from referee 2, and 4 will be interpreted as a red.  
+| Referee# | Jury# | Good | Bad  |
+| -------- | ----- | ---- | ---- |
+| 1        | 1     | 1    | 2    |
+| 2        | 2     | 3    | 4    |
+| 3        | 3     | 5    | 6    |
+|          | 4     | 7    | 8    |
+|          | 5     | 9    | 0    |
 
-- Finally, 5 will be interpreted as a white from referee 3, and 6 will be interpreted as a red.
+### Keypad configuration notes
 
-  ### Notes for Raspbery Pi users with Delcom keypads
+- Specific notes for [Delcom USB keypads](http://www.delcomproducts.com/productdetails.asp?PartNumber=706502-5M) can be found [here](Delcom)
 
-  If you bought industrial-strength Delcom keypads (shown in the picture above) **and** are connecting them to a Raspberry Pi,  be aware that Delcom has unfortunately [introduced a bug in its device drivers](http://www.delcomproducts.com/webnote.asp?id=3) that prevents the operating system from recognizing their devices on *Raspberry Pi* (and likely other Linux distributions).
-
-  To emphasize, there is **no** **issue** with using the Delcom keypads on Windows or ChromeOS laptops.  Indeed, the picture above shows a Windows miniPC.
-
-  Unfortunately, the workarounds proposed by Delcom by only work for newer devices.  If you have Delcom keypads with firmware older than version 52, and need to use them with a Raspberry
-
-  - Please see https://github.com/jflamy/rpi-delcom-legacy for an alternate operating system image that solves the problem of recognizing the devices.  This image does not support Raspberry 4.
-  
-  - The alternate OS is unfortunately very bad for sound, so
-  
-    - You will however need to use the "Define Fields of Play" button in the "Preparation" section to select an audio output on the master laptop **OR**
-    - Plug your speakers in a non-raspberry attempt board.  
-  
 ## Jury
 
 In order to use a jury, in the current version, you need 3 or 5 refereeing devices connected to the computer with the Jury console.

@@ -13,12 +13,12 @@ If you are not familiar with computer networking, read on to the [Networking Req
 ## Computer Requirements
 
 - The server software will run either 
-  - on any recent laptop acting as a server (or on a cloud) with Java8 installed.
-  - or on a cloud service. We test and support the Heroku cloud service, which has a free tier suitable for owlcms.
+  - on any reasonably recent laptop (this laptop will act as a master in a local networking setup, see [below](#local-access-over-a-local-network) for details.
+  - or on a cloud service. We test and support the Heroku cloud service, which has a free tier suitable for owlcms. See [below](#cloud-access-over-the-internet) for more info.
 - For the user interface and displays,  It is recommended to use a recent version of **Chrome** or **Firefox** on a **laptop** or **miniPC** (Windows, Mac Linux, ChromeOS). 
 
   - You can use just about any laptop.  Refurbished Chromebooks or Windows laptops work well.
-  - Even [75$ full-kit Raspberry Pi 3B](https://www.canakit.com/raspberry-pi-3-model-b-plus-starter-kit.html) work well for displays [^1] .
+  - You can even use [Raspberry Pi 3B](https://www.canakit.com/raspberry-pi-3-model-b-plus-starter-kit.html) that cost less than 75$ each fully configured including cables and storage.  Refer to this [section](RaspberryPi) for tips .
   - Apple iPhones and iPads are currently only supported as [mobile refereeing devices](Refereeing#mobile-device-refereeing). The author does not own a Mac to fully debug the quirky Safari browser.
 
 ## Sound Requirements

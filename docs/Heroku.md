@@ -2,13 +2,13 @@ Heroku is a cloud service provider that provides an attractive free platform for
 
 ## Read this first!
 
-The instructions on this page may look a little bit daunting, but please don't go away. They are only needed once, and take about 10 minutes.  Once you have gone through that, the process will simply be
+The instructions on this page may look a little bit daunting, but please don't go away. They are only needed once, and take about 15 minutes.  Once you have gone through that, the process will simply be
 
 1. Download the current release when an interesting one is announced
 2. Unzip the files somewhere
 3. Go to the unzipped files and type a single command `heroku deploy:jar`
 
-All of which takes a couple minutes, so take heart.
+All of which will then take a few minutes, so take heart.
 
 
 
@@ -72,7 +72,7 @@ The process is slightly different depending on your environment
 
 ## Deploy OWLCMS4 to Heroku
 
-> The rest of this section assumes that you have been successful in the [Installation and configuration](#install-and-configure-the-deployment-tools) step above and that a `HEROKU_APP` environment variable exists.  If it doesn't exist, or if you have several applications, you can always explicitly add  ` --app myHerokuAppName` at the end of the `heroku` commands (notice that there is a space before and after `--app`)
+> The rest of this section assumes that you have been successful in the [Install and configure the deployment tools](#install-and-configure-the-deployment-tools) step above and that a `HEROKU_APP` environment variable exists.  If it doesn't exist, or if you have several applications, you can always explicitly add  ` --app myHerokuAppName` at the end of the `heroku` commands (notice that there is a space before and after `--app`)
 
 
 
