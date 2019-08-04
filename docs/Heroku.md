@@ -102,8 +102,8 @@ Reference: https://devcenter.heroku.com/articles/deploying-executable-jar-files
 
 ## Initial Cloud Startup
 
-2. Open a browser with the address `https://myHerokuApp.herokuapp.com` (replacing of course `myHerokuApp` with the name of your own application) name
-2.  On the first line there will be a reminder of the web address (URL) to be used for the other screens
+- Open a browser with the address `https://myHerokuApp.herokuapp.com` (replacing of course `myHerokuApp` with the name of your own application) name
+- On the first line there will be a reminder of the web address (URL) to be used for the other screens
 
 ![9-url](img/Heroku/9-url.png)
 
