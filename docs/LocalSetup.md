@@ -119,4 +119,12 @@ Mischevious users can probably figure out your WiFi network password, and gain a
   PIN=5612 java -jar owlcms.jar
   ```
 
-  
+## Defining the language
+
+You can use the same technique as for the PIN to force a language to be used on all the screens.  By default, OWLCMS4 will respect the browser settings.  To force a locale (say Canadian French, whose code is `fr_CA`)-- a locale is a language with possible per-country variations --  you can
+
+-  define the Java system property `locale` (small letters) using the syntax 
+  `java -Dlocale=fr_CA` (on Windows, add `-Dlocale=fr_CA` to the `owlcms.l4j.ini` file).  
+- Alternately, define the environment variable `LOCALE` with the value `fr_CA` 
+
+If neither `-Dlocale` or `LOCALE` are defined, the [language setting](Preparation#display-language) from the competition information page is used.

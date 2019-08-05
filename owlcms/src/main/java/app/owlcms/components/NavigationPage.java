@@ -6,6 +6,8 @@
  */
 package app.owlcms.components;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
@@ -18,6 +20,7 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.OwlcmsContent;
+import app.owlcms.utils.URLUtils;
 
 /**
  * Utility methods for creating the texts and buttons on navigation pages.
@@ -68,13 +71,24 @@ public interface NavigationPage extends OwlcmsContent {
 		fillH(grid1, wrapper);
 	}
 	
-	public default String buildAbsoluteURL(VaadinServletRequest request, String resourcePath) {
-		int port = request.getServerPort();
+	public default void doGroup(String label, VerticalLayout intro, FlexibleGridLayout grid1, VerticalLayout wrapper) {
+	    VerticalLayout content1 = new VerticalLayout();
+	    content1.add(new Label(label));
+	    content1.add(intro);
+	    content1.getStyle().set("margin-bottom", "-2ex"); //$NON-NLS-1$ //$NON-NLS-2$
+	    fillH(content1, wrapper);
+	    fillH(grid1, wrapper);
+	}
+
+	public default String buildAbsoluteURL(VaadinServletRequest vRequest, String resourcePath) {
+	    HttpServletRequest request = vRequest.getHttpServletRequest();
+		int port = URLUtils.getServerPort(request);
+		String scheme = URLUtils.getScheme(request);
 		StringBuilder result = new StringBuilder();
-		result.append(request.getScheme())
+		result.append(scheme)
 			.append("://") //$NON-NLS-1$
-			.append(request.getServerName());
-		if ((request.getScheme().equals("http") && port != 80) //$NON-NLS-1$
+			.append(URLUtils.getServerName(request));
+		if ((scheme.equals("http") && port != 80) //$NON-NLS-1$
 				|| (request.getScheme().equals("https") && port != 443)) { //$NON-NLS-1$
 			result.append(':')
 				.append(port);
@@ -88,5 +102,7 @@ public interface NavigationPage extends OwlcmsContent {
 		}
 		return result.toString();
 	}
+
+
 
 }

@@ -21,11 +21,9 @@ The `Masters` checkbox determines whether there is an automatic classification o
 
 ## Display Language
 
-In countries where more than one language is spoken, the various computers used in a competition may be configured with different languages.  It is possible to force a single language to be used on all displays (owlcms will ignore the individual language preferences sent by each browser)
+In countries where more than one language is spoken, the various computers used in a competition may be configured with different languages.  It is possible to force a single language to be used on all displays (owlcms will ignore the individual language preferences sent by each browser).  The display language can be set via a technical configuration (see [here](Heroku#configure-your-time-zone-and-locale) and [here](LocalSetup#id=defining-the-language)), or via the user interface as follows.  If you change the setting via the web interface, you will need to restart the application.
 
 ![032_Language](img/Preparation/032_Language.png)
-
-
 
 ## Defining Age Divisions and Categories
 

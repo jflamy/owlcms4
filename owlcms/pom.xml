@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.1.1</version>
+		<version>4.1.2</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -536,7 +536,7 @@
 	</build>
 	<profiles>
 		<profile>
-			<id>heroku</id>
+			<id>demo</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -544,6 +544,7 @@
 						<artifactId>heroku-maven-plugin</artifactId>
 						<version>2.0.6</version>
 						<configuration>
+							<appName>owlcms4</appName>
 							<includeTarget>false</includeTarget>
 							<includes>
 								<include>target/owlcms.jar</include>
@@ -551,13 +552,38 @@
 							<processTypes>
 								<!-- following must be a single command line, cdata used to prevent 
 									xml formatters from splitting it -->
+									<!-- populate data after reset, *reset data on every restart*, run on postgres database -->
 								<web><![CDATA[java -Dport=$PORT -DdevMode=true -DresetMode=true -DmemoryMode=false -Dlogback.configurationFile=logback-cloud.xml -jar target/owlcms.jar]]></web>
 							</processTypes>
-							<appName>${project.artifactId}4</appName>
+
 						</configuration>
 					</plugin>
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>fhq</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.heroku.sdk</groupId>
+						<artifactId>heroku-maven-plugin</artifactId>
+						<version>2.0.6</version>
+						<configuration>
+							<appName>fhq</appName>
+							<includeTarget>false</includeTarget>
+							<includes>
+								<include>target/owlcms.jar</include>
+							</includes>
+							<processTypes>
+								<!-- populate data after reset (devMode), do not wipe on restart (resetMode), run on postgres database -->
+								<web><![CDATA[java -Dport=$PORT -DdevMode=true -DresetMode=false -DmemoryMode=false -Dlogback.configurationFile=logback-cloud.xml -jar target/owlcms.jar]]></web>
+							</processTypes>
+
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>		
 	</profiles>
 </project>

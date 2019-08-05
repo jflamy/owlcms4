@@ -37,7 +37,7 @@ import app.owlcms.ui.preparation.PreparationNavigationContent;
 import app.owlcms.ui.results.ResultsNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
-import app.owlcms.utils.URLUtils;
+import app.owlcms.utils.IPInterfaceUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -100,7 +100,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 	private VerticalLayout buildIntro() {
 		VerticalLayout intro = new VerticalLayout();
-		URLUtils urlFinder = new URLUtils();
+		IPInterfaceUtils urlFinder = new IPInterfaceUtils();
 		addP(intro, getTranslation("SystemURL")); //$NON-NLS-1$
 		for (String url : urlFinder.getRecommended()) {
 			intro.add(new Div(new Anchor(url, url)));

@@ -38,8 +38,19 @@ All of which will then take a few minutes, so take heart.
 
 - Select the free database plan; the Provision button will connect a database to your application.![4-provisionPostgres](/img/Heroku/4-provisionPostgres.png)
 
+#### Configure your time zone and locale
+
+By default, Heroku will use Universal Time (UTC/Greenwich) so you need to tell Heroku what time zone you are in, so that OWLCMS4 produces meaningful time stamps.
+
+- Go to the Settings screen, and select `Reveal Config Vars`
+- Use the `Add` button to create a variable called `TZ` (for Time Zone).  To find the appropriate value for your location, see this [list of time zone codes](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+
+![A_TZ](img/Heroku/A_TZ.png)
+
+You may also define a `LOCALE` configuration variable to force all displays to be in a given language.  This will take precedence over the [language setting](Preparation#display-language) defined on the Competition information screen.
 
 #### Add logging
+
 Logging is useful is problems arise, in order to allow the application maintainer to figure out what is going on.
 
 - Add a second add-on called `PaperTrail` using the `Find more add-ons` button.  This will allow you to see the logs for the application and download them.  Use the free plan.
@@ -50,15 +61,7 @@ Logging is useful is problems arise, in order to allow the application maintaine
 
   ![8-appLog](img/Heroku/8-appLog.png)
   
-#### Configure your time zone
-
- Heroku runs on Amazon Web Services (AWS) data centers in the Eastern US and in Western Europe.  If you don't live in these time zones, you need to tell Heroku what time zone you are in, so that OWLCMS4 produces meaningful time stamps.
-
-  - Go to the Settings screen, and select `Reveal Config Vars`
-  - Use the `Add` button to create a variable called `TZ` (for Time Zone).  To find the appropriate value for your location, see this [list of time zone codes](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
-
-![A_TZ](img/Heroku/A_TZ.png)
-
+- You also need configure your Time Zone on PaperTrail.  Use the Settings link at the top of the page, and then access your Profile.
 
 
 ## Install and configure the deployment tools
@@ -102,8 +105,8 @@ Reference: https://devcenter.heroku.com/articles/deploying-executable-jar-files
 
 ## Initial Cloud Startup
 
-2. Open a browser with the address `https://myHerokuApp.herokuapp.com` (replacing of course `myHerokuApp` with the name of your own application) name
-2.  On the first line there will be a reminder of the web address (URL) to be used for the other screens
+- Open a browser with the address `https://myHerokuApp.herokuapp.com` (replacing of course `myHerokuApp` with the name of your own application) name
+- On the first line there will be a reminder of the web address (URL) to be used for the other screens
 
 ![9-url](img/Heroku/9-url.png)
 

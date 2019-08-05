@@ -129,7 +129,17 @@ public class Main {
 
 
     private static void overrideDisplayLanguage() {
+        // read override value from database
         Locale l = Competition.getCurrent().getDefaultLocale();
+        
+        // if LOCALE defined, ignore previous values and use LOCALE
+        String localeEnvStr = System.getenv("LOCALE");
+        if (localeEnvStr != null) l = Translator.createLocale(localeEnvStr);
+        
+        // Obey -Dlocale
+        String localeProperty = System.getProperty("locale");
+        if (localeProperty != null) l = Locale.getDefault();
+        
         if (l != null) {
             Translator.setForcedLocale(l);
             logger.info("forcing display language to {}",l);

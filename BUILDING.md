@@ -12,13 +12,12 @@ You are welcome to make improvements and correct issues.  If you do, please clon
 
 This will be further automated. This list assumes that you are running Eclipse.
 
-1. Using the GitFlow plugin
+1. Using the GitFlow Eclipse plugin
    1. Start a new release
    2. Push to upstream
 2. Use the `Versions_set` launch configuration to set the release numbe
 3. Cleanup github
    1. Make sure that all closed issues are closed on github and assigned to the proper milestone
-   2. Check that the link to the issues log is correct.
 4. Update Release Notes
    1. Descriptive text
    2. Update link to closed issues log
