@@ -78,9 +78,10 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 	}
 
 	@ClientCallable
-	public void masterReset() {
-		logger.debug("master reset");
-		fopEventBus.post(new FOPEvent.DecisionReset(this.getOrigin()));
+	public void masterReset() {    
+//	  // now handled in FOPEvent itself.
+//		logger.debug("master reset");
+//		fopEventBus.post(new FOPEvent.DecisionReset(this.getOrigin()));
 	}
 	
 	@ClientCallable

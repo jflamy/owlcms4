@@ -98,7 +98,7 @@ public class Athlete {
     }
 
     /**
-     * Last.
+     * Return the last non-zero item
      *
      * @param items the items
      * @return the integer
@@ -296,7 +296,10 @@ public class Athlete {
      */
     public static boolean validateStartingTotalsRule(Athlete a, Integer snatch1Request, Integer cleanJerk1Request,
             int qualTotal) {
-
+        boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
+        if (!enforce20kg)
+            return true;
+        
         int curStartingTotal = 0;
 
         curStartingTotal = snatch1Request + cleanJerk1Request;
@@ -425,9 +428,13 @@ public class Athlete {
      * Failed lift.
      */
     public void failedLift() {
-        logger.info("no lift for {}", this); //$NON-NLS-1$
-        final String weight = Integer.toString(-getNextAttemptRequestedWeight());
-        doLift(weight);
+        try {
+            logger.info("no lift for {}", this); //$NON-NLS-1$
+            final String weight = Integer.toString(-getNextAttemptRequestedWeight());
+            doLift(weight);
+        } catch (Exception e) {
+            logger.error(e.getLocalizedMessage());
+        }
     }
 
     /**
@@ -3057,9 +3064,13 @@ public class Athlete {
      * Successful lift.
      */
     public void successfulLift() {
-        logger.info("good lift for {}", this); //$NON-NLS-1$
-        final String weight = Integer.toString(getNextAttemptRequestedWeight());
-        doLift(weight);
+        try {
+            logger.info("good lift for {}", this); //$NON-NLS-1$
+            final String weight = Integer.toString(getNextAttemptRequestedWeight());
+            doLift(weight);
+        } catch (Exception e) {
+            logger.error(e.getLocalizedMessage());
+        }
     }
 
     /*
@@ -3094,8 +3105,8 @@ public class Athlete {
         final int iAutomaticProgression = zeroIfInvalid(automaticProgression);
         final int liftedWeight = zeroIfInvalid(actualLift);
 
-        logger.trace("declaredChanges={} automaticProgression={} liftedWeight={}", declaredChanges,
-                automaticProgression, liftedWeight);
+        logger.trace("declaredChanges={} automaticProgression={} declaration={} change1={} change2={} liftedWeight={}", declaredChanges,
+                automaticProgression, declaration, change1, change2, liftedWeight);
         if (liftedWeight == 0) {
             // Athlete is not taking try; always ok no matter what was declared.
             return;
@@ -3118,11 +3129,13 @@ public class Athlete {
         if (liftedWeightOk && declaredChangesOk) {
             return;
         } else {
-            if (!declaredChangesOk)
+            if (!declaredChangesOk) {
                 throw RuleViolation.declaredChangesNotOk(curLift, declaredChanges, iAutomaticProgression,
                         iAutomaticProgression + 1);
-            if (!liftedWeightOk)
+            }
+            if (!liftedWeightOk) {
                 throw RuleViolation.liftValueNotWhatWasRequested(curLift, actualLift, declaredChanges, liftedWeight);
+            }
             return;
         }
 //		}
@@ -3201,7 +3214,7 @@ public class Athlete {
 
     public boolean validateCleanJerk3Declaration(String cleanJerk3Declaration) throws RuleViolationException {
         validateDeclaration(3, getCleanJerk3AutomaticProgression(), cleanJerk3Declaration, cleanJerk3Change1,
-                cleanJerk3Declaration, cleanJerk3ActualLift);
+                cleanJerk3Change2, cleanJerk3ActualLift);
         return true;
     }
 
@@ -3234,7 +3247,7 @@ public class Athlete {
     }
 
     public boolean validateSnatch2ActualLift(String snatch2ActualLift) throws RuleViolationException {
-        validateActualLift(3, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change2, snatch2Change2,
+        validateActualLift(3, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change1, snatch2Change2,
                 snatch2ActualLift);
         return true;
     }

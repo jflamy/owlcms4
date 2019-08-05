@@ -10,24 +10,26 @@ You are welcome to make improvements and correct issues.  If you do, please clon
 
 ### Packaging and Releasing
 
-This will be further automated. This list assumes that you are running Eclipse.
+This will be further automated using a gitflow plugin to handle commits and version numbers. 
+This list assumes that you are running Eclipse with gitflow support enabled.
 
 1. Using the GitFlow Eclipse plugin
    1. Start a new release
    2. Push to upstream
-2. Use the `Versions_set` launch configuration to set the release numbe
+2. Use the `Versions_set` launch configuration to set the release number
 3. Cleanup github
    1. Make sure that all closed issues are closed on github and assigned to the proper milestone
 4. Update Release Notes
    1. Descriptive text
    2. Update link to closed issues log
-5. Close all Typora instances, save, commit
-6. Run the `package exe` launch configuration to build the uberjar, the zip and the owlcms_setup.exe installer
-7. Test the installer
+5. Close all Typora instances, 
+6. Refresh owlcms4top, commit and pushsave, commit
+7. Run the `package exe` launch configuration to build the uberjar, the zip and the owlcms_setup.exe installer
+8. Test the installer
    1. Uninstall previous version
    2. Refresh the `/owlcms/target` folder.  
    3. Run `/owlcms/target/owlcms_setup/owlcms_setup.exe` to test the installer
-8. Refresh owlcms4top, commit and push
 9. GitFlow Finish Release  + Push
 10. run `release` launch configuration
 11. run `heroku` launch configuration.
+12. Versions_set to next release-SNAPSHOT number
