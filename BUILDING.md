@@ -10,12 +10,13 @@ You are welcome to make improvements and correct issues.  If you do, please clon
 
 ### Packaging and Releasing
 
-This will be further automated. This list assumes that you are running Eclipse.
+This will be further automated using a gitflow plugin to handle commits and version numbers. 
+This list assumes that you are running Eclipse with gitflow support enabled.
 
 1. Using the GitFlow Eclipse plugin
    1. Start a new release
    2. Push to upstream
-2. Use the `Versions_set` launch configuration to set the release numbe
+2. Use the `Versions_set` launch configuration to set the release number
 3. Cleanup github
    1. Make sure that all closed issues are closed on github and assigned to the proper milestone
 4. Update Release Notes
