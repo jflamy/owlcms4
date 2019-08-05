@@ -98,7 +98,7 @@ public class Athlete {
     }
 
     /**
-     * Last.
+     * Return the last non-zero item
      *
      * @param items the items
      * @return the integer
@@ -3105,8 +3105,8 @@ public class Athlete {
         final int iAutomaticProgression = zeroIfInvalid(automaticProgression);
         final int liftedWeight = zeroIfInvalid(actualLift);
 
-        logger.trace("declaredChanges={} automaticProgression={} liftedWeight={}", declaredChanges,
-                automaticProgression, liftedWeight);
+        logger.trace("declaredChanges={} automaticProgression={} declaration={} change1={} change2={} liftedWeight={}", declaredChanges,
+                automaticProgression, declaration, change1, change2, liftedWeight);
         if (liftedWeight == 0) {
             // Athlete is not taking try; always ok no matter what was declared.
             return;
@@ -3129,11 +3129,13 @@ public class Athlete {
         if (liftedWeightOk && declaredChangesOk) {
             return;
         } else {
-            if (!declaredChangesOk)
+            if (!declaredChangesOk) {
                 throw RuleViolation.declaredChangesNotOk(curLift, declaredChanges, iAutomaticProgression,
                         iAutomaticProgression + 1);
-            if (!liftedWeightOk)
+            }
+            if (!liftedWeightOk) {
                 throw RuleViolation.liftValueNotWhatWasRequested(curLift, actualLift, declaredChanges, liftedWeight);
+            }
             return;
         }
 //		}
@@ -3212,7 +3214,7 @@ public class Athlete {
 
     public boolean validateCleanJerk3Declaration(String cleanJerk3Declaration) throws RuleViolationException {
         validateDeclaration(3, getCleanJerk3AutomaticProgression(), cleanJerk3Declaration, cleanJerk3Change1,
-                cleanJerk3Declaration, cleanJerk3ActualLift);
+                cleanJerk3Change2, cleanJerk3ActualLift);
         return true;
     }
 
@@ -3245,7 +3247,7 @@ public class Athlete {
     }
 
     public boolean validateSnatch2ActualLift(String snatch2ActualLift) throws RuleViolationException {
-        validateActualLift(3, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change2, snatch2Change2,
+        validateActualLift(3, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change1, snatch2Change2,
                 snatch2ActualLift);
         return true;
     }
