@@ -31,3 +31,4 @@ This will be further automated. This list assumes that you are running Eclipse.
 9. GitFlow Finish Release  + Push
 10. run `release` launch configuration
 11. run `heroku` launch configuration.
+12. Versions_set to next release-SNAPSHOT number
