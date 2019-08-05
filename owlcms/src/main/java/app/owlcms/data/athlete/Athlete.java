@@ -296,7 +296,10 @@ public class Athlete {
      */
     public static boolean validateStartingTotalsRule(Athlete a, Integer snatch1Request, Integer cleanJerk1Request,
             int qualTotal) {
-
+        boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
+        if (!enforce20kg)
+            return true;
+        
         int curStartingTotal = 0;
 
         curStartingTotal = snatch1Request + cleanJerk1Request;
@@ -425,9 +428,13 @@ public class Athlete {
      * Failed lift.
      */
     public void failedLift() {
-        logger.info("no lift for {}", this); //$NON-NLS-1$
-        final String weight = Integer.toString(-getNextAttemptRequestedWeight());
-        doLift(weight);
+        try {
+            logger.info("no lift for {}", this); //$NON-NLS-1$
+            final String weight = Integer.toString(-getNextAttemptRequestedWeight());
+            doLift(weight);
+        } catch (Exception e) {
+            logger.error(e.getLocalizedMessage());
+        }
     }
 
     /**
@@ -3057,9 +3064,13 @@ public class Athlete {
      * Successful lift.
      */
     public void successfulLift() {
-        logger.info("good lift for {}", this); //$NON-NLS-1$
-        final String weight = Integer.toString(getNextAttemptRequestedWeight());
-        doLift(weight);
+        try {
+            logger.info("good lift for {}", this); //$NON-NLS-1$
+            final String weight = Integer.toString(getNextAttemptRequestedWeight());
+            doLift(weight);
+        } catch (Exception e) {
+            logger.error(e.getLocalizedMessage());
+        }
     }
 
     /*
