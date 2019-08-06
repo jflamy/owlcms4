@@ -26,6 +26,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -543,6 +544,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         }
         Button deleteButton = buildDeleteButton(CrudOperation.DELETE, originalAthlete, null);
         Button withdrawButton = buildWithdrawButton();
+        Checkbox forcedCurrentCheckbox = buildForcedCurrentCheckbox();
         Button cancelButton = buildCancelButton(cancelButtonClickListener);
 
         HorizontalLayout footerLayout = new HorizontalLayout();
@@ -555,6 +557,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         }
         if (withdrawButton != null && operation != CrudOperation.ADD) {
             footerLayout.add(withdrawButton);
+        }
+        if (forcedCurrentCheckbox != null && operation != CrudOperation.ADD) {
+            footerLayout.add(forcedCurrentCheckbox);
         }
 
         Label spacer = new Label();
@@ -718,6 +723,13 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         });
         withdrawalButton.getElement().setAttribute("theme", "error");
         return withdrawalButton;
+    }
+    
+    private Checkbox buildForcedCurrentCheckbox() {
+        Checkbox checkbox = new Checkbox(Translator.translate("ForcedAsCurrent"));
+        checkbox.getElement().getStyle().set("margin-left", "3em");
+        binder.forField(checkbox).bind(Athlete::isForcedAsCurrent, Athlete::setForcedAsCurrent);
+        return checkbox;
     }
 
     /**

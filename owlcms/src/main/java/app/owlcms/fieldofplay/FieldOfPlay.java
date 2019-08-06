@@ -856,6 +856,7 @@ public class FieldOfPlay {
             goodLift = false;
             curAthlete.failedLift();
         }
+        curAthlete.resetForcedAsCurrent();
         AthleteRepository.save(curAthlete);
         uiShowRefereeDecisionOnSlaveDisplays(curAthlete, goodLift, refereeDecision, refereeTime, origin);
         recomputeLiftingOrder();
@@ -882,6 +883,7 @@ public class FieldOfPlay {
             refereeDecision[1] = false;
             curAthlete.failedLift();
         }
+        curAthlete.resetForcedAsCurrent();
         AthleteRepository.save(curAthlete);
         uiShowRefereeDecisionOnSlaveDisplays(curAthlete, goodLift, refereeDecision, refereeTime, origin);
         recomputeLiftingOrder();

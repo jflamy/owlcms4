@@ -2100,12 +2100,6 @@ public class Athlete {
     /**
      * Reset forced as current.
      */
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.vaadin.event.MethodEventSource#removeListener(java.lang.Class,
-     * java.lang.Object)
-     */
     public void resetForcedAsCurrent() {
         this.forcedAsCurrent = false;
     }
@@ -3608,6 +3602,8 @@ public class Athlete {
             dest.setCleanJerk3Change1(src.getCleanJerk3Change1());
             dest.setCleanJerk3Change2(src.getCleanJerk3Change2());
             dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
+            
+            dest.setForcedAsCurrent(src.getForcedAsCurrent());
         } finally {
             dest.setValidation(validation);
             dest.resetLoggerLevel();

@@ -1377,6 +1377,22 @@ public class XAthlete extends Athlete {
 	}
 
 	/**
+     * @return
+     * @see app.owlcms.data.athlete.Athlete#getRoundedBodyWeight()
+     */
+    public String getRoundedBodyWeight() {
+        return a.getRoundedBodyWeight();
+    }
+
+    /**
+     * @return
+     * @see app.owlcms.data.athlete.Athlete#isDeclaring()
+     */
+    public int isDeclaring() {
+        return a.isDeclaring();
+    }
+
+    /**
 	 * @param ageDivision
 	 * @see app.owlcms.data.athlete.Athlete#setAgeDivision(app.owlcms.data.category.AgeDivision)
 	 */
