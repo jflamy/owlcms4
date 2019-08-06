@@ -189,7 +189,6 @@ public class Translator implements I18NProvider {
                 i18nloader = new URLClassLoader(urls);
 
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } finally {
                 if (listReader != null) {
