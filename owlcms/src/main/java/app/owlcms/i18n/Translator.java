@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
@@ -22,10 +23,12 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import java.util.Scanner;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.LoggerFactory;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.io.ICsvListReader;
+import org.supercsv.prefs.CsvPreference;
 
 import com.google.common.io.Files;
 import com.vaadin.flow.i18n.I18NProvider;
@@ -47,7 +50,6 @@ import ch.qos.logback.classic.Logger;
 public class Translator implements I18NProvider {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Translator.class);
-    private static String csv_delimiter = ",";
     private static final Translator helper = new Translator();
     private static final String BUNDLE_BASE = "translation4";
     private static final String BUNDLE_PACKAGE_SLASH = "/i18n/";
@@ -129,35 +131,29 @@ public class Translator implements I18NProvider {
      * 
      * @return
      */
-    private synchronized static ResourceBundle getBundleFromCSV(final Locale locale) {
+    private static ResourceBundle getBundleFromCSV(Locale locale) {
         String baseName = BUNDLE_BASE;
         String csvName = BUNDLE_PACKAGE_SLASH + baseName + ".csv";
-
-        InputStream csvStream = helper.getClass().getResourceAsStream(csvName);
         File bundleDir = Files.createTempDir();
-        if (i18nloader == null) {
-            logger.trace("creating {} from {} : {}", baseName, csvName, csvStream);
-            try (final Scanner in = new Scanner(csvStream, "UTF-8")) {
-                // process header, try to guess delimiter
-                String[] header;
-                String headerLine = in.nextLine();
-                header = headerLine.split(csv_delimiter);
-                if (header.length <= 1) {
-                    csv_delimiter = ";";
-                    header = headerLine.split(csv_delimiter);
-                    if (header.length <= 1) {
-                        csv_delimiter = "\t";
-                        header = headerLine.split(csv_delimiter);
-                    } else {
-                        logger.error("Cannot parse translation file header={}",headerLine);
-                    }
-                }
 
-                final File[] outFiles = new File[header.length];
-                final Properties[] languageProperties = new Properties[header.length];
+        if (i18nloader == null) {
+
+            InputStream csvStream = helper.getClass().getResourceAsStream(csvName);
+            ICsvListReader listReader = null;
+            try {
+                listReader = new CsvListReader(new InputStreamReader(csvStream), CsvPreference.STANDARD_PREFERENCE);
+
+                List<String> stringList;
+                if ((stringList = listReader.read()) == null) {
+                    throw new RuntimeException("file is empty");
+                }
+                logger.debug(stringList.toString());
+
+                final File[] outFiles = new File[stringList.size()];
+                final Properties[] languageProperties = new Properties[outFiles.length];
                 locales = new ArrayList<>();
-                for (int i = 1; i < header.length; i++) {
-                    String language = header[i];
+                for (int i = 1; i < outFiles.length; i++) {
+                    String language = stringList.get(i);
                     locales.add(createLocale(language));
                     if (!language.isEmpty()) {
                         language = "_" + language;
@@ -166,37 +162,53 @@ public class Translator implements I18NProvider {
                     outFiles[i] = outfile;
                     languageProperties[i] = new Properties();
                 }
-                logger.debug("languages: {}", locales);
 
                 // reading to properties
-                while (in.hasNextLine()) {
-                    String nextLine = in.nextLine();
-                    final String[] line = nextLine.split(csv_delimiter, header.length);
-                    final String key = line[0];
-                    logger.trace("{}", nextLine);
+                while ((stringList = listReader.read()) != null) {
+                    final String key = stringList.get(0);
+                    logger.debug(stringList.toString());
                     for (int i = 1; i < languageProperties.length; i++) {
                         // treat the CSV strings using same rules as Properties files.
                         // u0000 escapes are translated to Java characters
-                        String input = line[i];
-                        String unescapeJava = StringEscapeUtils.unescapeJava(input);
-                        if (!input.trim().isEmpty()) {
-                            languageProperties[i].setProperty(key, unescapeJava);
+                        String input = stringList.get(i);
+                        if (input != null) {
+                            String unescapeJava = StringEscapeUtils.unescapeJava(input);
+                            if (!unescapeJava.trim().isEmpty()) {
+                                languageProperties[i].setProperty(key, unescapeJava);
+                            }
                         }
                     }
                 }
 
                 // writing
                 for (int i = 1; i < languageProperties.length; i++) {
-                    logger.debug("writing to {}", outFiles[i].getAbsolutePath());
+                    logger.debug("writing to " + outFiles[i].getAbsolutePath());
                     languageProperties[i].store(new FileOutputStream(outFiles[i]), "generated from " + csvName);
                 }
                 final URL[] urls = { bundleDir.toURI().toURL() };
                 i18nloader = new URLClassLoader(urls);
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
+
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } finally {
+                if (listReader != null) {
+                    try {
+                        listReader.close();
+                    } catch (IOException e) {
+                    }
+                }
             }
         }
         return ResourceBundle.getBundle(baseName, locale, i18nloader);
+    }
+
+    public static void main(String[] args) {
+        try {
+            getBundleFromCSV(new Locale("ru"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void throwInvalidLocale(String localeString) {
@@ -265,7 +277,7 @@ public class Translator implements I18NProvider {
             try {
                 value = MessageFormat.format(value, params);
             } catch (Exception e) {
-                value = "!" + locale.getLanguage() + ": "+ e.getLocalizedMessage() + ": " + key + " " + params;
+                value = "!" + locale.getLanguage() + ": " + e.getLocalizedMessage() + ": " + key + " " + params;
             }
         }
         return value;
