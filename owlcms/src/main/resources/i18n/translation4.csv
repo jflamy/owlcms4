@@ -345,3 +345,4 @@ Declaration_current_athlete,Declaration for current athlete<br>{0},Déclaration 
 Declaration_current_athlete_with_change,Declaration (with weight change) for current athlete<br>{0},Déclaration (avec changement de poids) pour l'athlète courant<br>{0},,Deklareret (with weight change) for nuværende atlet<br>{0},,
 Documentation_Menu,Documentation,Documentation,,Dokumentation,Documentación,
 No_weighed_in_athletes,No weighed-in athletes,Pas d'athlètes pesés,,Ingen atlet vejes,Ningún atleta pesó,
+ForcedAsCurrent,Forced as Current Athlete,Forcé comme athlète courant,,Tvinges som en nuværende atlet,Forzando como un atleta actual,
