@@ -47,7 +47,7 @@ When a decision is entered (whether manually by the announcer, or automatically 
 
 ## Declarations and Weight Changes
 
-The announcer may act as marshall and be told of declarations and changes.  Weight changes are entered by clicking ONCE on the the athlete's name.  The athlete's card then pops up. Hitting "Enter" is the same as clicking "Update".
+The announcer may act as marshall and handle declarations and changes herself.  Weight changes are entered by clicking ONCE on the the athlete's name.  The athlete's card then pops up. Hitting "Enter" is the same as clicking "Update".
 
 Notes:
 
@@ -61,6 +61,12 @@ Notes:
 If a [marshall](#marshall) is present, it is possible that a weight change occurs for the athlete currently announced. If that is the case, a notification is shown on the announcer screen.
 
 ![022_CurrentAthlete](img/Lifting/022_CurrentAthlete.png)
+
+## Forcing the current athlete
+
+In some small competitions, the official lifting order is not followed.  For example, all athletes may take their first attempts before their second, or the official two-minute rules for lifting order are not followed strictly. It is possible to force an athlete to become the current athlete using a checkbox on the athlete card.  In the example below, using the checkbox means that Jackson is lifting even though Brown has a lower requested weight.
+
+![021_ForcedAsCurrent-](img/Lifting/021_ForcedAsCurrent-.png)
 
 ## Breaks
 
