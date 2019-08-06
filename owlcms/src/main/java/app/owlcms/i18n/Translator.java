@@ -47,7 +47,7 @@ import ch.qos.logback.classic.Logger;
 public class Translator implements I18NProvider {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Translator.class);
-    private static final String CSV_DELIMITER = ";";
+    private static String csv_delimiter = ",";
     private static final Translator helper = new Translator();
     private static final String BUNDLE_BASE = "translation4";
     private static final String BUNDLE_PACKAGE_SLASH = "/i18n/";
@@ -137,9 +137,22 @@ public class Translator implements I18NProvider {
         File bundleDir = Files.createTempDir();
         if (i18nloader == null) {
             logger.trace("creating {} from {} : {}", baseName, csvName, csvStream);
-            try (final Scanner in = new Scanner(csvStream, "ISO-8859-1")) {
-                // process header
-                final String[] header = in.nextLine().split(CSV_DELIMITER);
+            try (final Scanner in = new Scanner(csvStream, "UTF-8")) {
+                // process header, try to guess delimiter
+                String[] header;
+                String headerLine = in.nextLine();
+                header = headerLine.split(csv_delimiter);
+                if (header.length <= 1) {
+                    csv_delimiter = ";";
+                    header = headerLine.split(csv_delimiter);
+                    if (header.length <= 1) {
+                        csv_delimiter = "\t";
+                        header = headerLine.split(csv_delimiter);
+                    } else {
+                        logger.error("Cannot parse translation file header={}",headerLine);
+                    }
+                }
+
                 final File[] outFiles = new File[header.length];
                 final Properties[] languageProperties = new Properties[header.length];
                 locales = new ArrayList<>();
@@ -158,7 +171,7 @@ public class Translator implements I18NProvider {
                 // reading to properties
                 while (in.hasNextLine()) {
                     String nextLine = in.nextLine();
-                    final String[] line = nextLine.split(CSV_DELIMITER, header.length);
+                    final String[] line = nextLine.split(csv_delimiter, header.length);
                     final String key = line[0];
                     logger.trace("{}", nextLine);
                     for (int i = 1; i < languageProperties.length; i++) {
