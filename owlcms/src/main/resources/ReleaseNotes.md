@@ -1,8 +1,8 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#/?id=features) for an overview of the feature set.  [Instructions for walking through a Live Demo](https://jflamy.github.io/owlcms4/#/index?id=demo) are available.
 - Release Highlights:
-  - The lifting order could get stuck on an athlete if there was no declaration entered but a weight change was given increasing the amount from the automatic progression.
-  - The 20kg rule was always being applied even if the configuration checkbox was unchecked.
-- [Change Log](https://github.com/jflamy/owlcms4/milestone/40?closed=1) for this release (enhancements and fixes)
+  - Translation file can now accommodate languages not using the Latin alphabet.  Updated the [translation notes](https://github.com/jflamy/owlcms4/tree/develop/owlcms/src/main/resources/i18n) accordingly.
+  - Now possible to force a lifter to be the current lifter for small meets that do not strictly follow IWF rules.
+- [Change Log](https://github.com/jflamy/owlcms4/milestone/41?closed=1) for this release (enhancements and fixes)
 - Installation Instructions are available for both [local setups without internet access](https://jflamy.github.io/owlcms4/#/LocalSetup.md) and for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
   - For Windows, download owlcms_setup.exe
   - For Linux, macOS and Heroku, download the .zip file.
