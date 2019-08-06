@@ -6,7 +6,7 @@
    1. the file opens correctly, in several columns, and you see French, Danish, Russian characters. If so, proceed to step 4  OR
    2. the CSV file does not open with one column per language: everything is in column A.  See the instructions at the bottom of the page.
 3. Critical: When SAVING you will need to make sure to use the "UTF-8 CSV" option
-   ![60_CSV_Save As](../../../../../docs/img/Translation/60_CSV_Save As.png)
+   ![60_CSV_Save As](../../../../../docs/img/Translation/60_CSV_SaveAs.png)
 4. Each column represents a language.  You may add your own language by adding a column at the end; use the ISO 639-1 two-letter code for your language -- see the list in https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes  (for example, da is Danish, fr is French, etc.)
 
 ## Testing your translations:
@@ -48,4 +48,4 @@
 5. Go to the Design menu and select `Convert to Range` to go back to normal Excel style.  You may close the Queries and Connections panel at the right by clicking X
    ![50_Range](../../../../../docs/img/Translation/50_Range.png)
 6. Critical: When SAVING make sure to use "Save As" and use the "UTF-8 CSV" option
-   ![60_CSV_Save As](../../../../../docs/img/Translation/60_CSV_Save As.png)
+   ![60_CSV_Save As](../../../../../docs/img/Translation/60_CSV_SaveAs.png)
