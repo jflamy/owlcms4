@@ -199,6 +199,8 @@ public class Translator implements I18NProvider {
                 }
             }
         }
+        
+        // this method manages a cache.
         return ResourceBundle.getBundle(baseName, locale, i18nloader);
     }
 
@@ -227,6 +229,14 @@ public class Translator implements I18NProvider {
         return locales;
     }
 
+    /**
+     * Force a reload of the translation files
+     */
+    public static void reset() {
+        locales = null;
+        i18nloader = null;
+    }
+    
     /**
      * @see com.vaadin.flow.i18n.I18NProvider#getTranslation(java.lang.String,
      *      java.util.Locale, java.lang.Object[])
