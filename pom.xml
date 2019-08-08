@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>app.owlcms</groupId>
 	<artifactId>owlcms4top</artifactId>
-	<version>4.1.7</version>
+	<version>4.1.8</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>owlcms</module>
@@ -179,7 +179,7 @@
 						<phase>verify</phase>
 						<configuration>
 							<owner>jflamy</owner>
-							<repository>owlcms-experimental</repository>
+							<repository>owlcms4</repository>
 							<server>github-oauth</server>
 							<tagName>${project.version}</tagName>
 							<name>${project.version}</name>
