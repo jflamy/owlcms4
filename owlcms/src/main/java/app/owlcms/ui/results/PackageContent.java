@@ -158,7 +158,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         topBar.add(title, groupSelect, templateSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setFlexGrow(0.2, title);
-        topBar.setSpacing(true);
+//        topBar.setSpacing(true);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 

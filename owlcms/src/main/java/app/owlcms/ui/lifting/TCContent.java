@@ -206,7 +206,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     @Override
-    protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
+    protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
 
         Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
             (new BreakDialog(this)).open();
@@ -219,7 +219,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     @Override
-    protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
+    protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
         HorizontalLayout decisions = new HorizontalLayout();
         return decisions;
     }

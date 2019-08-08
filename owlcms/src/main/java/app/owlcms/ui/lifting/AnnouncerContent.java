@@ -20,6 +20,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
@@ -103,7 +104,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	@Override
-	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
+	protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
 		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				fop.getFopEventBus()
@@ -163,7 +164,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
 	 */
 	@Override
-	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
+	protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
 		Button good = new Button(IronIcons.DONE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				fop.getFopEventBus().post(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true, true));

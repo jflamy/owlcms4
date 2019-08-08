@@ -1,8 +1,11 @@
-- See the [Web Site](https://jflamy.github.io/owlcms4/#/?id=features) for an overview of the feature set.  [Instructions for walking through a Live Demo](https://jflamy.github.io/owlcms4/#/index?id=demo) are available.
+- See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview  and instructions for [live demo](https://jflamy.github.io/owlcms4/#/?id=demo)
 - Release Highlights:
-  - No new features.  Testing automation of build and release process.
-  - Identical to previous release, release number change is mechanical and not significant
-- [Change Log](https://github.com/jflamy/owlcms4/milestone/42?closed=1) for this release (enhancements and fixes)
+  - First cut at iPad / iPhone issues
+    - Selection grids are now shown correctly. 
+    - but some elements come out with unexpected size or spacing (dialog boxes, navigation button grid) and require scrolling to be seen in full.
+    - Scoreboard/attempt board/lifting order work 
+      - but require enabling pop-ups in Safari / Security settings
+- [Change Log](https://github.com/jflamy/owlcms4/milestone/43?closed=1) for this release (enhancements and fixes)
 - Installation Instructions are available for both [local setups without internet access](https://jflamy.github.io/owlcms4/#/LocalSetup.md) and for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
   - For Windows, download owlcms_setup.exe
   - For Linux, macOS and Heroku, download the .zip file.

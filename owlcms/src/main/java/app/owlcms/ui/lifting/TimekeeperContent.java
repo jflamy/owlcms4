@@ -13,6 +13,7 @@ import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
@@ -55,7 +56,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	}
 	
 	@Override
-	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
+	protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
 
 		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
@@ -95,7 +96,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	}
 
 	@Override
-	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
+	protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
 		HorizontalLayout decisions = new HorizontalLayout();
 		return decisions;
 	}

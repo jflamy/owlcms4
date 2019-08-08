@@ -20,6 +20,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
@@ -134,7 +135,7 @@ implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEven
 	}
 
 	public void configureTopBar() {
-		HorizontalLayout topBar = getAppLayout().getAppBarElementWrapper();
+		FlexLayout topBar = getAppLayout().getAppBarElementWrapper();
 		topBar.setSizeFull();
 		topBar.setJustifyContentMode(JustifyContentMode.START);
 	}
