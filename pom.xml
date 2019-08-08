@@ -177,7 +177,6 @@
 				<executions>
 					<execution>
 						<id>default-cli</id>
-						<phase>verify</phase>
 						<configuration>
 							<owner>jflamy</owner>
 							<repository>owlcms4</repository>

@@ -508,6 +508,32 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.ragedunicorn.tools.maven</groupId>
+				<artifactId>github-release-maven-plugin</artifactId>
+				<version>1.0.1</version>
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<id>default-cli</id>
+						<phase/>
+						<configuration>
+							<owner>jflamy</owner>
+							<repository>owlcms4</repository>
+							<server>github-oauth</server>
+							<tagName>${project.version}</tagName>
+							<name>${project.version}</name>
+							<targetCommitish>master</targetCommitish>
+							<body>${project.version}</body>
+							<releaseNotes>owlcms/src/main/resources/ReleaseNotes.md</releaseNotes>
+							<assets>
+								<asset>owlcms/target/owlcms.zip</asset>
+								<asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
+							</assets>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>				
 		</plugins>
 	</build>
 	<profiles>
