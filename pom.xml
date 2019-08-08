@@ -179,7 +179,7 @@
 						<phase>verify</phase>
 						<configuration>
 							<owner>jflamy</owner>
-							<repository>owlcms-experimental</repository>
+							<repository>owlcms4</repository>
 							<server>github-oauth</server>
 							<tagName>${project.version}</tagName>
 							<name>${project.version}</name>
