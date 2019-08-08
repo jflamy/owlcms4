@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>app.owlcms</groupId>
 	<artifactId>owlcms4top</artifactId>
-	<version>4.1.5</version>
+	<version>4.1.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>owlcms</module>
@@ -155,6 +155,45 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>com.amashchenko.maven.plugin</groupId>
+				<artifactId>gitflow-maven-plugin</artifactId>
+				<version>1.12.0</version>
+				<configuration>
+					<allowSnapshots>true</allowSnapshots>
+					<postReleaseGoals>verify</postReleaseGoals>
+					<postReleaseGoals>github-release:github-release</postReleaseGoals>
+					<skipTag>true</skipTag>
+					<skipTestProject>true</skipTestProject>
+					<commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
+					<verbose>true</verbose>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.ragedunicorn.tools.maven</groupId>
+				<artifactId>github-release-maven-plugin</artifactId>
+				<version>1.0.1</version>
+				<executions>
+					<execution>
+						<id>default-cli</id>
+						<phase>verify</phase>
+						<configuration>
+							<owner>jflamy</owner>
+							<repository>owlcms-experimental</repository>
+							<server>github-oauth</server>
+							<tagName>${project.version}</tagName>
+							<name>${project.version}</name>
+							<targetCommitish>master</targetCommitish>
+							<body>${project.version}</body>
+							<releaseNotes>owlcms/src/main/resources/ReleaseNotes.md</releaseNotes>
+							<assets>
+								<asset>owlcms/target/owlcms.zip</asset>
+								<asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
+							</assets>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>				
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
