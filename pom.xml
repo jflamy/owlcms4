@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>app.owlcms</groupId>
 	<artifactId>owlcms4top</artifactId>
-	<version>4.1.9</version>
+	<version>4.1.10-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>owlcms</module>
@@ -173,6 +173,7 @@
 				<groupId>com.ragedunicorn.tools.maven</groupId>
 				<artifactId>github-release-maven-plugin</artifactId>
 				<version>1.0.1</version>
+				<inherited>false</inherited>
 				<executions>
 					<execution>
 						<id>default-cli</id>
