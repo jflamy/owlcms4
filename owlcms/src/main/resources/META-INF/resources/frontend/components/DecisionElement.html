@@ -118,7 +118,13 @@
 					notify: true,
 					reflectToAttribute: true,
 					value: false
+	           },
+	           audio: {
+					type: Boolean,
+					reflectToAttribute: false,
+					value: true
 	           }
+	           
     	  }
       }
       
@@ -146,15 +152,20 @@
       }
       
       _setupAudio() {
-			// setup audio -- an oscillator cannot be reused.
-			this.context = new AudioContext;
-			this.oscillator = this.context.createOscillator();
-			this.gain = this.context.createGain();
-			this.gain.gain.value = 1;
-			this.oscillator.frequency.value = 1000;  // maximum perceived loudness
-			this.oscillator.connect(this.gain);
-			this.gain.connect(this.context.destination);
-      }
+			if('webkitAudioContext' in window) {
+			    this.audio = false;
+			}
+			if (this.audio) {
+				// setup audio -- an oscillator cannot be reused.
+				this.context = new AudioContext();
+				this.oscillator = this.context.createOscillator();
+				this.gain = this.context.createGain();
+				this.gain.gain.value = 1;
+				this.oscillator.frequency.value = 1000;  // maximum perceived loudness
+				this.oscillator.connect(this.gain);
+				this.gain.connect(this.context.destination);
+			}
+		}
       
       _readRef(e) {
 			var key = e.key;
@@ -282,9 +293,11 @@
     	  console.warn("showDown");
     	  this.downShown = true;
     	  this.$.downDiv.style.display = "flex";
-    	  this.oscillator.start(0);
-    	  this.oscillator.stop(this.context.currentTime + 2);
-    	  this._setupAudio();
+    	  if (this.audio) {
+	    	  this.oscillator.start(0);
+	    	  this.oscillator.stop(this.context.currentTime + 2);
+	    	  this._setupAudio();
+    	  }
     	  //this.$.downAudio.play();
 		  this.dispatchEvent(new CustomEvent('down', {bubbles: true, composed: true}))
 		  // if we are the master, tell the server
