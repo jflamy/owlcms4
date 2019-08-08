@@ -161,7 +161,7 @@
 				<version>1.12.0</version>
 				<configuration>
 					<allowSnapshots>true</allowSnapshots>
-					<postReleaseGoals>verify</postReleaseGoals>
+					<preReleaseGoals>clean verify</preReleaseGoals>
 					<postReleaseGoals>github-release:github-release</postReleaseGoals>
 					<skipTag>true</skipTag>
 					<skipTestProject>true</skipTestProject>
