@@ -10,9 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.layout.impl.WindowBasedCrudLayout;
 
-import com.vaadin.flow.component.HasComponents;
+import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.ThemableLayout;
 
 import ch.qos.logback.classic.Logger;
 
@@ -31,9 +30,13 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 	 * @param aClass the a class
 	 */
 	public OwlcmsGridLayout(Class<?> aClass) {
-        getContent().setPadding(false);
-        ((ThemableLayout) getContent()).setMargin(false);
-        ((HasComponents) getContent()).add(mainLayout);
+	    mainLayout = getContent();
+	    mainLayout.removeAll();
+	    mainLayout.setBoxSizing(BoxSizing.BORDER_BOX);
+	    
+//        getContent().setPadding(false);
+//        ((ThemableLayout) getContent()).setMargin(false);
+//        ((HasComponents) getContent()).add(mainLayout);
 
         mainLayout.setSizeFull();
         mainLayout.setMargin(false);
@@ -44,6 +47,7 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
         headerLayout.setVisible(false);
         headerLayout.setSpacing(true);
         headerLayout.setMargin(true);
+        headerLayout.setId("headerLayout");
 
         toolbarLayout.setVisible(false);
         headerLayout.add(toolbarLayout);
@@ -54,9 +58,10 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
         headerLayout.add(filterLayout);
 
         mainComponentLayout.setWidth("100%"); //$NON-NLS-1$
-        mainComponentLayout.setHeight(null);
+        mainComponentLayout.setHeight("100%");
         mainComponentLayout.setMargin(false);
         mainComponentLayout.setPadding(false);
+        mainComponentLayout.setBoxSizing(BoxSizing.BORDER_BOX);
         mainLayout.add(mainComponentLayout);
         mainLayout.expand(mainComponentLayout);
         mainComponentLayout.setId("mainComponentLayout"); //$NON-NLS-1$
