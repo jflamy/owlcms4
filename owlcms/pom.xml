@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.1.12-SNAPSHOT</version>
+		<version>4.1.6-SNAPSHOT</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -525,15 +525,15 @@
 							<name>${project.version}</name>
 							<targetCommitish>master</targetCommitish>
 							<body>${project.version}</body>
-							<releaseNotes>owlcms/src/main/resources/ReleaseNotes.md</releaseNotes>
+							<releaseNotes>src/main/resources/ReleaseNotes.md</releaseNotes>
 							<assets>
-								<asset>owlcms/target/owlcms.zip</asset>
-								<asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
+								<asset>target/owlcms.zip</asset>
+								<asset>target/owlcms_setup/owlcms_setup.exe</asset>
 							</assets>
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>				
+			</plugin>			
 		</plugins>
 	</build>
 	<profiles>
