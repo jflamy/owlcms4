@@ -22,6 +22,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -141,7 +142,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
      * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
      */
     @Override
-    protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
+    protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
         // moved down to the jury section
         return new HorizontalLayout(); // juryDeliberationButtons();
     }
@@ -161,7 +162,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
      * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
      */
     @Override
-    protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
+    protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
         // moved down to the jury section
         return new HorizontalLayout(); // juryDecisionButtons();
     }

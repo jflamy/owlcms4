@@ -26,6 +26,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
@@ -53,7 +54,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 	private final static Logger logger = (Logger)LoggerFactory.getLogger(WeighinLayout.class);
 	static {logger.setLevel(Level.INFO);}
 	
-	private HorizontalLayout topBar;
+	private FlexLayout topBar;
 	private ComboBox<Group> gridGroupFilter;
 	private AppLayout appLayout;
 	private ComboBox<Group> groupSelect;
@@ -103,7 +104,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 	 * 
 	 * @param topBar
 	 */
-	protected void createTopBar(HorizontalLayout topBar) {
+	protected void createTopBar(FlexLayout topBar) {
 
 		H3 title = new H3();
 		title.setText(getTranslation("WeighIn")); //$NON-NLS-1$

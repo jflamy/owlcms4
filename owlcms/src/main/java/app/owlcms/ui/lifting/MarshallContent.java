@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
@@ -46,7 +47,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	 * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
 	 */
 	@Override
-	protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar) {
+	protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.TimeStopped(this.getOrigin())));
@@ -72,7 +73,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	 * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
 	 */
 	@Override
-	protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar) {
+	protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
 		HorizontalLayout decisions = new HorizontalLayout();
 		return decisions;
 	}

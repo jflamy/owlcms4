@@ -33,6 +33,7 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -93,7 +94,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected H2 attempt;
     protected H2 weight;
     protected AthleteTimerElement timeField;
-    protected HorizontalLayout topBar;
+    protected FlexLayout topBar;
     protected ComboBox<Group> groupSelect;
 
     /**
@@ -386,7 +387,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 
-    protected HorizontalLayout announcerButtons(HorizontalLayout announcerBar2) {
+    protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
         return null;
     }
 
@@ -451,7 +452,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         topBar.setFlexGrow(0.5, fullName);
     }
 
-    protected HorizontalLayout decisionButtons(HorizontalLayout announcerBar2) {
+    protected HorizontalLayout decisionButtons(FlexLayout topBar2) {
         return null;
     }
 
