@@ -69,11 +69,6 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 				buttonClickEvent -> UI.getCurrent().getPage()
 					.executeJavaScript(getWindowOpener(AthleteFacingAttemptBoard.class)));
 
-//		Button plates = new Button(
-//				getTranslation("PlatesDisplay"), //$NON-NLS-1$
-//				buttonClickEvent -> UI.getCurrent().getPage()
-//					.executeJavaScript(getWindowOpener(Scoreboard.class)));
-
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			scoreboard,
 			attempt,
