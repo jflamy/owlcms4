@@ -75,8 +75,8 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
 //					.executeJavaScript(getWindowOpener(Scoreboard.class)));
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
-			attempt,
 			scoreboard,
+			attempt,
 			liftingOrder
 			);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
