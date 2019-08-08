@@ -3164,7 +3164,7 @@ public class Athlete {
     }
 
     public boolean validateCleanJerk2ActualLift(String cleanJerk2ActualLift) throws RuleViolationException {
-        validateActualLift(2, getCleanJerk2AutomaticProgression(), cleanJerk2Declaration, cleanJerk2Change2,
+        validateActualLift(2, getCleanJerk2AutomaticProgression(), cleanJerk2Declaration, cleanJerk2Change1,
                 cleanJerk2Change2, cleanJerk2ActualLift);
         return true;
     }
@@ -3241,7 +3241,7 @@ public class Athlete {
     }
 
     public boolean validateSnatch2ActualLift(String snatch2ActualLift) throws RuleViolationException {
-        validateActualLift(3, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change1, snatch2Change2,
+        validateActualLift(2, getSnatch2AutomaticProgression(), snatch2Declaration, snatch2Change1, snatch2Change2,
                 snatch2ActualLift);
         return true;
     }
