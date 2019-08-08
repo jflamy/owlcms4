@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -141,7 +142,7 @@ public class Translator implements I18NProvider {
             InputStream csvStream = helper.getClass().getResourceAsStream(csvName);
             ICsvListReader listReader = null;
             try {
-                listReader = new CsvListReader(new InputStreamReader(csvStream), CsvPreference.STANDARD_PREFERENCE);
+                listReader = new CsvListReader(new InputStreamReader(csvStream, StandardCharsets.UTF_8), CsvPreference.STANDARD_PREFERENCE);
 
                 List<String> stringList;
                 if ((stringList = listReader.read()) == null) {
