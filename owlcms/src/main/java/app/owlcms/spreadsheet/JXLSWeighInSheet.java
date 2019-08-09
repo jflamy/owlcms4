@@ -39,14 +39,10 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
     public JXLSWeighInSheet(boolean excludeNotWeighed) {
         super();
     }
-
+    
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
-        String templateName = "/templates/weighin/WeighInSheetTemplate_" + locale.getLanguage() + ".xls";
-        final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName);
-        if (resourceAsStream == null) {
-            throw new IOException("resource not found: " + templateName);} //$NON-NLS-1$
-        return resourceAsStream;
+        return getLocalizedTemplate("/templates/weighin/WeighInSheetTemplate", ".xls", locale);
     }
 
     @Override
