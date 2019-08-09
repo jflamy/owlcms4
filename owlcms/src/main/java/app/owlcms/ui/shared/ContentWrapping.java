@@ -6,18 +6,14 @@
  */
 package app.owlcms.ui.shared;
 
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-import app.owlcms.utils.LoggerUtils;
-
 public interface ContentWrapping {
 
     public default void fillHW(Component content, VerticalLayout vWrapper) {
-        LoggerFactory.getLogger(ContentWrapping.class).warn("fillHW from {}",LoggerUtils.whereFrom());
+//        LoggerFactory.getLogger(ContentWrapping.class).warn("fillHW from {}",LoggerUtils.whereFrom());
         vWrapper.setBoxSizing(BoxSizing.BORDER_BOX);
         vWrapper.setSizeFull();
         vWrapper.add(content);
