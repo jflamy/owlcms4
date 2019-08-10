@@ -1,9 +1,8 @@
-/*
- * Copyright 2009-2012, Jean-François Lamy
- * 
- * This Source Code Form is subject to the terms of the Mozilla Public License,
- * v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at
- * http://mozilla.org/MPL/2.0/.
+/***
+ * Copyright (c) 2009-2019 Jean-François Lamy
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.elements;
 
@@ -25,7 +24,7 @@ public class Plates extends FlexLayout {
     private static final long serialVersionUID = 8340222363211435843L;
 
     private int weight;
-    
+
     public Plates() {
         this.getClassNames().add("loadChart");
     }
@@ -37,13 +36,63 @@ public class Plates extends FlexLayout {
 
         final Athlete currentAthlete = fop.getCurAthlete();
         final Integer barWeight = computeBarWeight(fop);
-        if (currentAthlete == null) {
+        if (currentAthlete == null)
             return;
-        }
         weight = currentAthlete.getNextAttemptRequestedWeight();
         final String caption = weight + "kg";
 
         createImageArea(fop, barWeight, (showCaption ? caption : ""));
+    }
+
+    /**
+     * @param availablePlates
+     * @param style
+     * @param plateWeight
+     * @return
+     */
+    private int addPlates(Integer availablePlates, String style, double plateWeight) {
+        int subtractedWeight = 0;
+        while (availablePlates > 0 && weight >= plateWeight) {
+            Label plate = new Label();
+            plate.setSizeUndefined();
+            plate.getElement().getClassList().add(style);
+            if (!style.startsWith("bar") && !style.startsWith("C")) {
+                plate.getElement().getClassList().add("plate");
+            }
+            this.add(plate);
+            this.setAlignSelf(Alignment.CENTER, plate);
+            final long delta = Math.round(plateWeight);
+            weight -= delta;
+            subtractedWeight += delta;
+            availablePlates--;
+        }
+        return subtractedWeight;
+    }
+
+    private Integer computeBarWeight(FieldOfPlay fop) {
+        if (fop == null)
+            return 0;
+        Platform platform = fop.getPlatform();
+        if (platform.isNonStandardBar() && platform.getLightBar() > 0)
+            return platform.getLightBar();
+        else
+            return computeOfficialBarWeight(fop, platform);
+    }
+
+    /**
+     * @return
+     */
+    private Integer computeOfficialBarWeight(FieldOfPlay fop, Platform platform) {
+        if (fop == null || platform == null)
+            return 0;
+
+        final Athlete currentAthlete = fop.getCurAthlete();
+        Gender gender = Gender.M;
+        if (currentAthlete != null) {
+            gender = currentAthlete.getGender();
+        }
+        final int expectedBarWeight = Gender.M.equals(gender) ? 20 : 15;
+        return expectedBarWeight;
     }
 
     /**
@@ -113,58 +162,6 @@ public class Plates extends FlexLayout {
         addPlates(platform.getNbS_1(), "S_1", 2 * 1);
         addPlates(platform.getNbS_0_5(), "S_0_5", 2 * 0.5);
         addPlates(1, "barOuter", 0);
-    }
-
-    /**
-     * @param availablePlates
-     * @param style
-     * @param plateWeight
-     * @return
-     */
-    private int addPlates(Integer availablePlates, String style, double plateWeight) {
-        int subtractedWeight = 0;
-        while (availablePlates > 0 && weight >= plateWeight) {
-            Label plate = new Label();
-            plate.setSizeUndefined();
-            plate.getElement().getClassList().add(style);
-            if (!style.startsWith("bar") && !style.startsWith("C")) {
-                plate.getElement().getClassList().add("plate");
-            }
-            this.add(plate);
-            this.setAlignSelf(Alignment.CENTER, plate);
-            final long delta = Math.round(plateWeight);
-            weight -= delta;
-            subtractedWeight += delta;
-            availablePlates--;
-        }
-        return subtractedWeight;
-    }
-
-    private Integer computeBarWeight(FieldOfPlay fop) {
-        if (fop == null)
-            return 0;
-        Platform platform = fop.getPlatform();
-        if (platform.isNonStandardBar() && platform.getLightBar() > 0) {
-            return platform.getLightBar();
-        } else {
-            return computeOfficialBarWeight(fop, platform);
-        }
-    }
-
-    /**
-     * @return
-     */
-    private Integer computeOfficialBarWeight(FieldOfPlay fop, Platform platform) {
-        if (fop == null || platform == null)
-            return 0;
-
-        final Athlete currentAthlete = fop.getCurAthlete();
-        Gender gender = Gender.M;
-        if (currentAthlete != null) {
-            gender = currentAthlete.getGender();
-        }
-        final int expectedBarWeight = Gender.M.equals(gender) ? 20 : 15;
-        return expectedBarWeight;
     }
 
 
