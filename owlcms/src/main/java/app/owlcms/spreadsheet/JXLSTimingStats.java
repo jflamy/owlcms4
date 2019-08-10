@@ -119,10 +119,10 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
         @Override
         public String toString() {
-            return "SessionStats [groupName=" + getGroupName() + ", nbAthletes=" + nbAthletes + ", minTime=" + minTime //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    + ", maxTime=" + maxTime //$NON-NLS-1$
-                    + ", nbAttemptedLifts=" + nbAttemptedLifts + " Hours=" + getDayDuration() + " AthletesPerHour=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    + getAthletesPerHour() + "]"; //$NON-NLS-1$
+            return "SessionStats [groupName=" + getGroupName() + ", nbAthletes=" + nbAthletes + ", minTime=" + minTime
+                    + ", maxTime=" + maxTime
+                    + ", nbAttemptedLifts=" + nbAttemptedLifts + " Hours=" + getDayDuration() + " AthletesPerHour="
+                    + getAthletesPerHour() + "]";
         }
 
         private Double getHours() {
@@ -190,7 +190,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
                 .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
         if (athletes.isEmpty())
             // prevent outputting silliness.
-            throw new RuntimeException(""); //$NON-NLS-1$
+            throw new RuntimeException("");
 
         // extract group stats
         Group curGroup = null;
@@ -226,7 +226,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         if (curStat.getNbAthletes() > 0) {
             processGroup(sessions, curStat);
         }
-        reportingBeans.put("groups", sessions); //$NON-NLS-1$
+        reportingBeans.put("groups", sessions);
         return athletes;
     }
 

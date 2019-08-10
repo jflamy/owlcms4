@@ -21,12 +21,12 @@ public class RuleViolation {
 
     // public static RuleViolationException change1ValueTooSmall(Object... objs)
     // {
-    //		return new RuleViolationException(("RuleViolation.change1ValueTooSmall"), objs);   //$NON-NLS-1$
+    //		return new RuleViolationException(("RuleViolation.change1ValueTooSmall"), objs);  
     // }
     //
     // public static RuleViolationException change2ValueTooSmall(Object... objs)
     // {
-    //		return new RuleViolationException(("RuleViolation.change2ValueTooSmall"), objs);   //$NON-NLS-1$
+    //		return new RuleViolationException(("RuleViolation.change2ValueTooSmall"), objs);  
     // }
     /**
      * Declaration value too small.
@@ -36,12 +36,12 @@ public class RuleViolation {
      */
     //
     public static RuleViolationException declarationValueTooSmall(Object... objs) {
-        return new RuleViolationException(("RuleViolation.declarationValueTooSmall"), objs); //$NON-NLS-1$
+        return new RuleViolationException(("RuleViolation.declarationValueTooSmall"), objs);
     }
 
     //
     // public static RuleViolationException liftValueTooSmall(Object... objs) {
-    //		return new RuleViolationException(("RuleViolation.liftValueTooSmall"), objs);   //$NON-NLS-1$
+    //		return new RuleViolationException(("RuleViolation.liftValueTooSmall"), objs);  
     // }
 
     /**
@@ -51,7 +51,7 @@ public class RuleViolation {
      * @return the rule violation exception
      */
     public static RuleViolationException liftValueNotWhatWasRequested(Object... objs) {
-        return new RuleViolationException(("RuleViolation.liftValueNotWhatWasRequested"), objs); //$NON-NLS-1$
+        return new RuleViolationException(("RuleViolation.liftValueNotWhatWasRequested"), objs);
     }
 
     /**
@@ -61,7 +61,7 @@ public class RuleViolation {
      * @return the rule violation exception
      */
     public static RuleViolationException declaredChangesNotOk(Object... objs) {
-        return new RuleViolationException(("RuleViolation.declaredChangesNotOk"), objs); //$NON-NLS-1$
+        return new RuleViolationException(("RuleViolation.declaredChangesNotOk"), objs);
     }
 
     /**
@@ -75,7 +75,7 @@ public class RuleViolation {
     public static RuleViolationException liftValueBelowProgression(int curLift, String actualLift,
             int automaticProgression) {
         return new RuleViolationException(
-                ("RuleViolation.liftValueBelowProgression"), curLift, actualLift, automaticProgression); //$NON-NLS-1$
+                ("RuleViolation.liftValueBelowProgression"), curLift, actualLift, automaticProgression);
     }
 
     /**
@@ -85,11 +85,11 @@ public class RuleViolation {
      * @return the rule violation exception
      */
     public static RuleViolationException rule15_20Violated(Object... objs) {
-        return new RuleViolationException("RuleViolation.rule15_20Violated", objs); //$NON-NLS-1$
+        return new RuleViolationException("RuleViolation.rule15_20Violated", objs);
     }
 
 //	public static RuleViolationException declarationValueRequired(int curLift) {
-//		 return new RuleViolationException("RuleViolation.declarationRequired"); //$NON-NLS-1$
+//		 return new RuleViolationException("RuleViolation.declarationRequired");
 //	}
 
 }

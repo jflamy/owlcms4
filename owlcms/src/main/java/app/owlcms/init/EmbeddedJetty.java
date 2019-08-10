@@ -45,14 +45,14 @@ public class EmbeddedJetty {
 	 * @throws Exception the exception
 	 */
 	public void run(int port, String contextPath) throws Exception {
-		startLogger.info("starting web server"); //$NON-NLS-1$
-        URL webRootLocation = this.getClass().getResource("/META-INF/resources/"); //$NON-NLS-1$
+		startLogger.info("starting web server");
+        URL webRootLocation = this.getClass().getResource("/META-INF/resources/");
         URI webRootUri = webRootLocation.toURI();
 
         WebAppContext context = new WebAppContext();
         context.setBaseResource(Resource.newResource(webRootUri));
         context.setContextPath(contextPath);
-        context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*"); //$NON-NLS-1$ //$NON-NLS-2$
+        context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*");
         context.setConfigurationDiscovered(true);
         context.setConfigurations(new Configuration[]{
                 new AnnotationConfiguration(),
@@ -72,7 +72,7 @@ public class EmbeddedJetty {
         server.setHandler(context);
 
         server.start();
-        startLogger.info("started on port {}", port); //$NON-NLS-1$
+        startLogger.info("started on port {}", port);
         Main.startBrowser();
         server.join();
     }

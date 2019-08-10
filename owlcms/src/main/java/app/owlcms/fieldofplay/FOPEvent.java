@@ -93,7 +93,7 @@ public class FOPEvent {
 		 */
 		public ExplicitDecision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 			super(athlete, origin);
-			logger.trace("referee decision for {}", athlete); //$NON-NLS-1$
+			logger.trace("referee decision for {}", athlete);
 			this.success = decision;
 			this.ref1 = ref1;
 			this.ref2 = ref2;
@@ -137,7 +137,7 @@ public class FOPEvent {
 		
 		public JuryDecision(Athlete athlete, Object origin, boolean decision) {
 			super(athlete, origin);
-			logger.trace("jury decision for {}", athlete); //$NON-NLS-1$
+			logger.trace("jury decision for {}", athlete);
 			this.success = decision;
 		}
 

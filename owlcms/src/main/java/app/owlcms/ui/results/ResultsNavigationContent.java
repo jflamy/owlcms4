@@ -39,15 +39,15 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	 * Instantiates a new wrapup navigation content.
 	 */
 	public ResultsNavigationContent() {
-		Button groupResults = new Button(getTranslation("GroupResults"), //$NON-NLS-1$
+		Button groupResults = new Button(getTranslation("GroupResults"),
 			buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class));
 		
-        Button finalPackage = new Button(getTranslation("FinalResultsPackage"), //$NON-NLS-1$
+        Button finalPackage = new Button(getTranslation("FinalResultsPackage"),
                 buttonClickEvent -> UI.getCurrent().navigate(PackageContent.class));
 		
         Div timingStats = DownloadButtonFactory.createDynamicDownloadButton(
-                "timingStats", //$NON-NLS-1$
-                getTranslation("TimingStatistics"), //$NON-NLS-1$
+                "timingStats",
+                getTranslation("TimingStatistics"),
                 new JXLSTimingStats());
 		
 		finalPackage.setEnabled(true);
@@ -60,15 +60,15 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 			timingStats
 			);
 		
-		doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this); //$NON-NLS-1$
-		doGroup(getTranslation("EndOfCompetitionDocuments"), grid2, this); //$NON-NLS-1$
+		doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this);
+		doGroup(getTranslation("EndOfCompetitionDocuments"), grid2, this);
     }
 
 
 	
 	@Override
 	protected String getTitle() {
-		return getTranslation("ResultDocuments"); //$NON-NLS-1$
+		return getTranslation("ResultDocuments");
 	}
 	
 	@Override
@@ -83,7 +83,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("OWLCMS_Results"); //$NON-NLS-1$
+		return getTranslation("OWLCMS_Results");
 	}
 	
 }

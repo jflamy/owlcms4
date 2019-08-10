@@ -138,9 +138,9 @@ public class Athlete {
 
     private Integer startNumber = null;
 
-    private String firstName = ""; //$NON-NLS-1$
+    private String firstName = "";
 
-    private String lastName = ""; //$NON-NLS-1$
+    private String lastName = "";
 
     // This is brute force, but having embedded classes does not bring much
     // and we don't want joins or other such logic for the Athlete card.
@@ -152,13 +152,13 @@ public class Athlete {
     // people want to type
     // "-" or other things in the cells, so Strings are actually easier.
 
-    private String team = ""; //$NON-NLS-1$
+    private String team = "";
     private Gender gender = null; // $NON-NLS-1$
     private LocalDate fullBirthDate = null;
     private AgeDivision ageDivision = null;
 
     private Double bodyWeight = null;
-    private String membership = ""; //$NON-NLS-1$
+    private String membership = "";
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_group", nullable = true)
@@ -429,7 +429,7 @@ public class Athlete {
      */
     public void failedLift() {
         try {
-            logger.info("no lift for {}", this); //$NON-NLS-1$
+            logger.info("no lift for {}", this);
             final String weight = Integer.toString(-getNextAttemptRequestedWeight());
             doLift(weight);
         } catch (Exception e) {
@@ -724,7 +724,7 @@ public class Athlete {
      * @return the clean jerk 1 automatic progression
      */
     public String getCleanJerk1AutomaticProgression() {
-        return "-"; // there is no such thing. //$NON-NLS-1$
+        return "-"; // there is no such thing.
     };
 
     /**
@@ -1654,7 +1654,7 @@ public class Athlete {
      * @return the snatch 1 automatic progression
      */
     public String getSnatch1AutomaticProgression() {
-        return "-"; // no such thing. //$NON-NLS-1$
+        return "-"; // no such thing.
     }
 
     /**
@@ -2072,28 +2072,28 @@ public class Athlete {
     public String longDump() {
         final Category category = this.getCategory();
         final Group group = this.getGroup();
-        return (new StringBuilder()).append(" lastName=" + this.getLastName()) //$NON-NLS-1$
-                .append(" firstName=" + this.getFirstName()) //$NON-NLS-1$
-                .append(" membership=" + this.getMembership()) //$NON-NLS-1$
-                .append(" lotNumber=" + this.getLotNumber()) //$NON-NLS-1$
-                .append(" group=" + (group != null ? group.getName() : null)) //$NON-NLS-1$
-                .append(" team=" + this.getTeam()) //$NON-NLS-1$
-                .append(" gender=" + this.getGender()) //$NON-NLS-1$
-                .append(" bodyWeight=" + this.getBodyWeight()) //$NON-NLS-1$
-                .append(" birthDate=" + this.getYearOfBirth()) //$NON-NLS-1$
-                .append(" category=" + (category != null ? category.getName() //$NON-NLS-1$
+        return (new StringBuilder()).append(" lastName=" + this.getLastName())
+                .append(" firstName=" + this.getFirstName())
+                .append(" membership=" + this.getMembership())
+                .append(" lotNumber=" + this.getLotNumber())
+                .append(" group=" + (group != null ? group.getName() : null))
+                .append(" team=" + this.getTeam())
+                .append(" gender=" + this.getGender())
+                .append(" bodyWeight=" + this.getBodyWeight())
+                .append(" birthDate=" + this.getYearOfBirth())
+                .append(" category=" + (category != null ? category.getName()
                         .toLowerCase() : null))
-                .append(" actualCategory=" + this.getLongCategory() //$NON-NLS-1$
+                .append(" actualCategory=" + this.getLongCategory()
                         .toString().toLowerCase())
-                .append(" snatch1ActualLift=" + this.getSnatch1ActualLift()) //$NON-NLS-1$
-                .append(" snatch2=" + this.getSnatch2ActualLift()) //$NON-NLS-1$
-                .append(" snatch3=" + this.getSnatch3ActualLift()) //$NON-NLS-1$
-                .append(" bestSnatch=" + this.getBestSnatch()) //$NON-NLS-1$
-                .append(" cleanJerk1ActualLift=" + this.getCleanJerk1ActualLift()) //$NON-NLS-1$
-                .append(" cleanJerk2=" + this.getCleanJerk2ActualLift()) //$NON-NLS-1$
-                .append(" cleanJerk3=" + this.getCleanJerk3ActualLift()) //$NON-NLS-1$
-                .append(" total=" + this.getTotal()) //$NON-NLS-1$
-                .append(" totalRank=" + this.getRank()) //$NON-NLS-1$
+                .append(" snatch1ActualLift=" + this.getSnatch1ActualLift())
+                .append(" snatch2=" + this.getSnatch2ActualLift())
+                .append(" snatch3=" + this.getSnatch3ActualLift())
+                .append(" bestSnatch=" + this.getBestSnatch())
+                .append(" cleanJerk1ActualLift=" + this.getCleanJerk1ActualLift())
+                .append(" cleanJerk2=" + this.getCleanJerk2ActualLift())
+                .append(" cleanJerk3=" + this.getCleanJerk3ActualLift())
+                .append(" total=" + this.getTotal())
+                .append(" totalRank=" + this.getRank())
                 .append(" teamMember=" + this.getTeamMember()).toString();
     }
 
@@ -2507,7 +2507,7 @@ public class Athlete {
      * @param forcedAsCurrent the new forced as current
      */
     public void setForcedAsCurrent(boolean forcedAsCurrent) {
-        logger.trace("setForcedAsCurrent({})", forcedAsCurrent); //$NON-NLS-1$
+        logger.trace("setForcedAsCurrent({})", forcedAsCurrent);
         this.forcedAsCurrent = forcedAsCurrent;
     }
 
@@ -3059,7 +3059,7 @@ public class Athlete {
      */
     public void successfulLift() {
         try {
-            logger.info("good lift for {}", this); //$NON-NLS-1$
+            logger.info("good lift for {}", this);
             final String weight = Integer.toString(getNextAttemptRequestedWeight());
             doLift(weight);
         } catch (Exception e) {
@@ -3078,7 +3078,7 @@ public class Athlete {
         String prefix = getGroup() + "." + (startNumber2 != null ? startNumber2.toString() : "");
         String suffix = "_" + System.identityHashCode(this);
         if (getLastName() != null) {
-            return prefix + "_" + getLastName() + "_" + getFirstName() + suffix; //$NON-NLS-1$ //$NON-NLS-2$
+            return prefix + "_" + getLastName() + "_" + getFirstName() + suffix;
         } else {
             return prefix + suffix;
         }
@@ -3353,7 +3353,7 @@ public class Athlete {
     }
 
     private String emptyIfNull(String value) {
-        return (value == null ? "" : value); //$NON-NLS-1$
+        return (value == null ? "" : value);
     }
 
     @SuppressWarnings("unused")

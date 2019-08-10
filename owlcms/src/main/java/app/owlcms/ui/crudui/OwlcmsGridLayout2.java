@@ -77,17 +77,17 @@ public class OwlcmsGridLayout2 extends Composite<VerticalLayout> implements Crud
         filterLayout.setSpacing(true);
         headerLayout.add(filterLayout);
 
-        bottomLayout.setWidth("100%"); //$NON-NLS-1$
+        bottomLayout.setWidth("100%");
         bottomLayout.getElement().getStyle().set("flex-direction", "column");
-        bottomLayout.setId("mainComponentLayout"); //$NON-NLS-1$
+        bottomLayout.setId("mainComponentLayout");
 
         setMainComponent(bottomLayout);
         stackLayout.add(new Paragraph("testTop"));
         bottomLayout.add(new Paragraph("testInner"));
         
-        setWindowCaption(CrudOperation.ADD, getTranslation("Add_title", aClass.getSimpleName())); //$NON-NLS-1$
-        setWindowCaption(CrudOperation.UPDATE, getTranslation("Update_title", aClass.getSimpleName())); //$NON-NLS-1$
-        setWindowCaption(CrudOperation.DELETE, getTranslation("Delete_title", aClass.getSimpleName())); //$NON-NLS-1$
+        setWindowCaption(CrudOperation.ADD, getTranslation("Add_title", aClass.getSimpleName()));
+        setWindowCaption(CrudOperation.UPDATE, getTranslation("Update_title", aClass.getSimpleName()));
+        setWindowCaption(CrudOperation.DELETE, getTranslation("Delete_title", aClass.getSimpleName()));
         
     }
 

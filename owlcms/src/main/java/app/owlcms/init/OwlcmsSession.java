@@ -35,7 +35,7 @@ public class OwlcmsSession {
 	private final static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsSession.class);
 	static {logger.setLevel(Level.INFO);}
 	
-	private static final String FOP = "fop"; //$NON-NLS-1$
+	private static final String FOP = "fop";
 
 	private OwlcmsSession() {
 	}
@@ -45,11 +45,11 @@ public class OwlcmsSession {
 	public static OwlcmsSession getCurrent() {
 		VaadinSession currentVaadinSession = VaadinSession.getCurrent();
 		if (currentVaadinSession != null) {
-			OwlcmsSession owlcmsSession = (OwlcmsSession) currentVaadinSession.getAttribute("owlcmsSession"); //$NON-NLS-1$
+			OwlcmsSession owlcmsSession = (OwlcmsSession) currentVaadinSession.getAttribute("owlcmsSession");
 			if (owlcmsSession == null) {
 			    logger.trace("creating new OwlcmsSession {}",LoggerUtils.whereFrom());
 				owlcmsSession = new OwlcmsSession();
-				currentVaadinSession.setAttribute("owlcmsSession", owlcmsSession); //$NON-NLS-1$
+				currentVaadinSession.setAttribute("owlcmsSession", owlcmsSession);
 			}
 			return owlcmsSession;
 		} else {
@@ -98,7 +98,7 @@ public class OwlcmsSession {
 	}
 	
 	public static void setFop(FieldOfPlay fop) {
-		logger.trace("setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom()); //$NON-NLS-1$
+		logger.trace("setFop {} from {}", (fop != null ? fop.getName() : null), LoggerUtils.whereFrom());
 		setAttribute(FOP, fop);
 	}
 	
@@ -123,18 +123,18 @@ public class OwlcmsSession {
     }
 
     public static boolean isAuthenticated() {
-        return Boolean.TRUE.equals(getAttribute("authenticated")); //$NON-NLS-1$
+        return Boolean.TRUE.equals(getAttribute("authenticated"));
     }
     
     public static void setAuthenticated(boolean isAuthenticated) {
-        setAttribute("authenticated",isAuthenticated); //$NON-NLS-1$
+        setAttribute("authenticated",isAuthenticated);
     }
 
     public static void setRequestedUrl(String url) {
-        setAttribute("requestedURL", url); //$NON-NLS-1$
+        setAttribute("requestedURL", url);
     }
 
     public static String getRequestedUrl() {
-        return (String) getAttribute("requestedURL"); //$NON-NLS-1$
+        return (String) getAttribute("requestedURL");
     }
 }

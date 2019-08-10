@@ -44,10 +44,10 @@ public class AllTests {
             String expected = getContents(is);
             assertEquals(referenceFilePath, expected, actual);
         } else {
-            System.out.println("------ if ok, copy following to " + referenceFilePath); //$NON-NLS-1$
+            System.out.println("------ if ok, copy following to " + referenceFilePath);
             System.out.println(actual);
-            System.out.println("------"); //$NON-NLS-1$
-            fail(referenceFilePath + " not found"); //$NON-NLS-1$
+            System.out.println("------");
+            fail(referenceFilePath + " not found");
         }
     }
 
@@ -68,7 +68,7 @@ public class AllTests {
                  */
                 while ((line = input.readLine()) != null) {
                     contents.append(line);
-                    contents.append(System.getProperty("line.separator")); //$NON-NLS-1$
+                    contents.append(System.getProperty("line.separator"));
                 }
             } finally {
                 input.close();

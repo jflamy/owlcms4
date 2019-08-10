@@ -62,32 +62,32 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	private VerticalLayout buildLicense() {
 		VerticalLayout license = new VerticalLayout();
 	    license.add(new H3(MessageFormat.format("OWLCMS v{0} ({1})", OwlcmsFactory.getVersion(), OwlcmsFactory.getBuildTimestamp())));
-		license.add(new H3(getTranslation("CopyrightLicense"))); //$NON-NLS-1$
+		license.add(new H3(getTranslation("CopyrightLicense")));
 		addP(license,
-				getTranslation("Copyright2009")+LocalDate.now().getYear()+" "+getTranslation("JFL") //$NON-NLS-1$ //$NON-NLS-2$
+				getTranslation("Copyright2009")+LocalDate.now().getYear()+" "+getTranslation("JFL")
 				);
 		addP(license,
-				getTranslation("LicenseUsed") //$NON-NLS-1$
+				getTranslation("LicenseUsed")
 				);
-		license.add(new H3(getTranslation("SourceDocumentation"))); //$NON-NLS-1$
+		license.add(new H3(getTranslation("SourceDocumentation")));
 		addP(license,
-				getTranslation("ProjectRepository")+ //$NON-NLS-1$
-				getTranslation("Documentation")+ //$NON-NLS-1$
-				getTranslation("InstallationConfiguration") //$NON-NLS-1$
-				);
-		
-		license.add(new H3(getTranslation("Notes"))); //$NON-NLS-1$
-		addP(license,
-				getTranslation("TCRRCompliance")+ //$NON-NLS-1$
-				getTranslation("AtTimeOfRelease")+ //$NON-NLS-1$
-				getTranslation("UseAtYourOwnRisk") //$NON-NLS-1$
+				getTranslation("ProjectRepository")+
+				getTranslation("Documentation")+
+				getTranslation("InstallationConfiguration")
 				);
 		
-		license.add(new H3(getTranslation("Credits"))); //$NON-NLS-1$
+		license.add(new H3(getTranslation("Notes")));
 		addP(license,
-				getTranslation("WrittenJFL")+ //$NON-NLS-1$
-				getTranslation("ThanksToAll")+ //$NON-NLS-1$
-				getTranslation("ThanksToFHQ") //$NON-NLS-1$
+				getTranslation("TCRRCompliance")+
+				getTranslation("AtTimeOfRelease")+
+				getTranslation("UseAtYourOwnRisk")
+				);
+		
+		license.add(new H3(getTranslation("Credits")));
+		addP(license,
+				getTranslation("WrittenJFL")+
+				getTranslation("ThanksToAll")+
+				getTranslation("ThanksToFHQ")
 				);
 		
 		return license;
@@ -101,17 +101,17 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	public static FlexibleGridLayout navigationGrid(Component... items) {
 		FlexibleGridLayout layout = new FlexibleGridLayout();
-		layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1))) //$NON-NLS-1$
-			.withAutoRows(new Length("1fr")) //$NON-NLS-1$
+		layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1)))
+			.withAutoRows(new Length("1fr"))
 			.withItems(items)
-			.withGap(new Length("2vmin")) //$NON-NLS-1$
+			.withGap(new Length("2vmin"))
 			.withOverflow(Overflow.AUTO)
 			.withAutoFlow(AutoFlow.ROW)
 			.withMargin(false)
 			.withPadding(true)
 			.withSpacing(false);
 		layout.setSizeUndefined();
-		layout.setWidth("80%"); //$NON-NLS-1$
+		layout.setWidth("80%");
 		layout.setBoxSizing(BoxSizing.BORDER_BOX);
 		return layout;
 	}
@@ -126,7 +126,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 		appLayout.getTitleWrapper()
 			.getElement()
 			.getStyle()
-			.set("flex", "0 1 40em"); //$NON-NLS-1$ //$NON-NLS-2$
+			.set("flex", "0 1 40em");
 		Label label = new Label(getTitle());
 		appLayout.setTitleComponent(label);
 	}
@@ -160,7 +160,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	protected String getTitle() {
-		return getTranslation("OWLCMS_Top"); //$NON-NLS-1$
+		return getTranslation("OWLCMS_Top");
 	}
 
 	/**
@@ -168,7 +168,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("OWLCMS_Info"); //$NON-NLS-1$
+		return getTranslation("OWLCMS_Info");
 	}
 
 }

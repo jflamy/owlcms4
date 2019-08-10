@@ -48,8 +48,8 @@ import ch.qos.logback.classic.Logger;
 public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(JuryContent.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName()); //$NON-NLS-1$
-    private static final String BUTTON_WIDTH = "5em"; //$NON-NLS-1$
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    private static final String BUTTON_WIDTH = "5em";
     static {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
@@ -92,7 +92,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Jury"); //$NON-NLS-1$
+        return getTranslation("Jury");
     }
 
     @Subscribe
@@ -106,7 +106,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     @Override
     @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         OwlcmsSession.withFop((fop) -> doUpdateTopBar(fop.getCurAthlete(), 0));
     }
@@ -176,7 +176,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     protected void init(int nbj) {
         this.setBoxSizing(BoxSizing.BORDER_BOX);
         this.setSizeFull();
-        setTopBarTitle("Jury"); //$NON-NLS-1$
+        setTopBarTitle("Jury");
         nbJurors = nbj;
         buildJuryBox(this);
         buildRefereeBox(this);
@@ -185,18 +185,18 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     private Icon bigIcon(VaadinIcon iconDef, String color) {
         Icon icon = iconDef.create();
-        icon.setSize("80%"); //$NON-NLS-1$
-        icon.getStyle().set("color", color); //$NON-NLS-1$
+        icon.setSize("80%");
+        icon.getStyle().set("color", color);
         return icon;
     }
 
     private void buildJuryBox(VerticalLayout juryContainer) {
         HorizontalLayout topRow = new HorizontalLayout();
-        Label juryLabel = new Label(getTranslation("JuryDecisions")); //$NON-NLS-1$
+        Label juryLabel = new Label(getTranslation("JuryDecisions"));
         H3 labelWrapper = new H3(juryLabel);
-        labelWrapper.setWidth("15em"); //$NON-NLS-1$
+        labelWrapper.setWidth("15em");
         Label spacer = new Label();
-        spacer.setWidth("3em"); //$NON-NLS-1$
+        spacer.setWidth("3em");
         topRow.add(labelWrapper, juryDeliberationButtons(), juryDecisionButtons(), spacer, jurySelectionButtons());
         topRow.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 
@@ -218,9 +218,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         juryVotingButtons.setBoxSizing(BoxSizing.BORDER_BOX);
         juryVotingButtons.setJustifyContentMode(JustifyContentMode.EVENLY);
         juryVotingButtons.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-        juryVotingButtons.setHeight("35vh"); //$NON-NLS-1$
-        juryVotingButtons.setWidth(getNbJurors() == 3 ? "50%" : "85%"); //$NON-NLS-1$ //$NON-NLS-2$
-        juryVotingButtons.getStyle().set("background-color", "black"); //$NON-NLS-1$ //$NON-NLS-2$
+        juryVotingButtons.setHeight("35vh");
+        juryVotingButtons.setWidth(getNbJurors() == 3 ? "50%" : "85%");
+        juryVotingButtons.getStyle().set("background-color", "black");
         juryVotingButtons.setPadding(false);
         juryVotingButtons.setMargin(false);
 
@@ -231,7 +231,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         juryVotingCenterHorizontally.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         juryVotingCenterHorizontally.setPadding(true);
         juryVotingCenterHorizontally.setMargin(true);
-        juryVotingCenterHorizontally.getStyle().set("background-color", "black"); //$NON-NLS-1$ //$NON-NLS-2$
+        juryVotingCenterHorizontally.getStyle().set("background-color", "black");
 
         juryVotingCenterHorizontally.add(juryVotingButtons);
         return;
@@ -239,20 +239,20 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 
     private void buildRefereeBox(VerticalLayout container) {
-        Label label = new Label(getTranslation("RefereeDecisions")); //$NON-NLS-1$
+        Label label = new Label(getTranslation("RefereeDecisions"));
         H3 labelWrapper = new H3(label);
-        labelWrapper.setHeight("5%"); //$NON-NLS-1$
+        labelWrapper.setHeight("5%");
 
         decisions = new JuryDisplayDecisionElement();
         Div decisionWrapper = new Div(decisions);
-        decisionWrapper.getStyle().set("width", "50%"); //$NON-NLS-1$ //$NON-NLS-2$
-        decisionWrapper.getStyle().set("height", "30vh"); //$NON-NLS-1$ //$NON-NLS-2$
+        decisionWrapper.getStyle().set("width", "50%");
+        decisionWrapper.getStyle().set("height", "30vh");
 
         HorizontalLayout refContainer = new HorizontalLayout(decisionWrapper);
         refContainer.setBoxSizing(BoxSizing.BORDER_BOX);
         refContainer.setJustifyContentMode(JustifyContentMode.CENTER);
-        refContainer.getStyle().set("background-color", "black"); //$NON-NLS-1$ //$NON-NLS-2$
-        refContainer.setHeight("35vh"); //$NON-NLS-1$
+        refContainer.getStyle().set("background-color", "black");
+        refContainer.setHeight("35vh");
         refContainer.setWidthFull();
         refContainer.setPadding(true);
         refContainer.setMargin(true);
@@ -278,9 +278,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                 for (int i = 0; i < juryVotes.length; i++) {
                     Icon fullSizeIcon;
                     if (juryVotes[i]) {
-                        fullSizeIcon = bigIcon(VaadinIcon.CHECK_CIRCLE, "white"); //$NON-NLS-1$
+                        fullSizeIcon = bigIcon(VaadinIcon.CHECK_CIRCLE, "white");
                     } else {
-                        fullSizeIcon = bigIcon(VaadinIcon.CLOSE_CIRCLE, "red"); //$NON-NLS-1$
+                        fullSizeIcon = bigIcon(VaadinIcon.CLOSE_CIRCLE, "red");
                     }
                     juryVotingButtons.add(fullSizeIcon);
                     juryIcons[i] = fullSizeIcon;
@@ -333,7 +333,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                 fop.getFopEventBus().post(new FOPEvent.JuryDecision(fop.getCurAthlete(), this.getOrigin(), true));
             });
         });
-        good.getElement().setAttribute("theme", "success"); //$NON-NLS-1$ //$NON-NLS-2$
+        good.getElement().setAttribute("theme", "success");
         good.setWidth(BUTTON_WIDTH);
         good.setEnabled(false);
 
@@ -342,7 +342,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
                 fop.getFopEventBus().post(new FOPEvent.JuryDecision(fop.getCurAthlete(), this.getOrigin(), false));
             });
         });
-        bad.getElement().setAttribute("theme", "error"); //$NON-NLS-1$ //$NON-NLS-2$
+        bad.getElement().setAttribute("theme", "error");
         bad.setWidth(BUTTON_WIDTH);
         bad.setEnabled(false);
 
@@ -352,26 +352,26 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 
     private HorizontalLayout juryDeliberationButtons() {
-        Button stopCompetition = new Button(getTranslation("StopCompetition"), (e) -> { //$NON-NLS-1$
+        Button stopCompetition = new Button(getTranslation("StopCompetition"), (e) -> {
             OwlcmsSession.withFop(
                     fop -> fop.getFopEventBus().post(new FOPEvent.BreakStarted(BreakType.JURY, 0, this.getOrigin())));
         });
-        stopCompetition.getElement().setAttribute("theme", "secondary"); //$NON-NLS-1$ //$NON-NLS-2$
+        stopCompetition.getElement().setAttribute("theme", "secondary");
         stopCompetition.setWidth(BUTTON_WIDTH);
         stopCompetition.setEnabled(false);
 
-        Button resumeCompetition = new Button(getTranslation("ResumeCompetition"), (e) -> { //$NON-NLS-1$
+        Button resumeCompetition = new Button(getTranslation("ResumeCompetition"), (e) -> {
             OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin())));
         });
-        resumeCompetition.getElement().setAttribute("theme", "secondary"); //$NON-NLS-1$ //$NON-NLS-2$
+        resumeCompetition.getElement().setAttribute("theme", "secondary");
         resumeCompetition.setWidth(BUTTON_WIDTH);
         resumeCompetition.setEnabled(false);
 
         Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
             (new BreakDialog(this)).open();
         });
-        breakButton.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
-        breakButton.getElement().setAttribute("title", getTranslation("BreakTimer")); //$NON-NLS-1$ //$NON-NLS-2$
+        breakButton.getElement().setAttribute("theme", "icon");
+        breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
         //		HorizontalLayout buttons = new HorizontalLayout(stopCompetition, resumeCompetition);
         HorizontalLayout buttons = new HorizontalLayout(breakButton);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -379,19 +379,19 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private Component jurySelectionButtons() {
-        Button three = new Button("3", (e) -> { //$NON-NLS-1$
+        Button three = new Button("3", (e) -> {
             OwlcmsSession.withFop(fop -> {
                 this.setNbJurors(3);
             });
         });
-        three.setWidth("4em"); //$NON-NLS-1$
+        three.setWidth("4em");
 
-        Button five = new Button("5", (e) -> { //$NON-NLS-1$
+        Button five = new Button("5", (e) -> {
             OwlcmsSession.withFop(fop -> {
                 this.setNbJurors(5);
             });
         });
-        five.setWidth("4em"); //$NON-NLS-1$
+        five.setWidth("4em");
 
         HorizontalLayout selection = new HorizontalLayout(three, five);
         return selection;
@@ -404,19 +404,19 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             juryVotes = new Boolean[getNbJurors()];
             for (int i = 0; i < getNbJurors(); i++) {
                 final int ix = i;
-                Icon nonVotedIcon = bigIcon(VaadinIcon.CIRCLE_THIN, "gray"); //$NON-NLS-1$
+                Icon nonVotedIcon = bigIcon(VaadinIcon.CIRCLE_THIN, "gray");
                 juryIcons[ix] = nonVotedIcon;
                 juryVotes[ix] = null;
                 juryVotingButtons.add(juryIcons[ix], nonVotedIcon);
                 UI.getCurrent().addShortcutListener(() -> {
-                    Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray"); //$NON-NLS-1$
+                    Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
                     juryVotingButtons.replace(juryIcons[ix], votedIcon);
                     juryIcons[ix] = votedIcon;
                     juryVotes[ix] = true;
                     checkAllVoted();
                 }, getGoodKey(i));
                 UI.getCurrent().addShortcutListener(() -> {
-                    Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray"); //$NON-NLS-1$
+                    Icon votedIcon = bigIcon(VaadinIcon.CIRCLE, "gray");
                     juryVotingButtons.replace(juryIcons[ix], votedIcon);
                     juryIcons[ix] = votedIcon;
                     juryVotes[ix] = false;

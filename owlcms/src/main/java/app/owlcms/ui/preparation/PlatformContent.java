@@ -64,8 +64,8 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
      */
     protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
         Grid<Platform> grid = new Grid<>(Platform.class, false);
-        grid.addColumn(Platform::getName).setHeader(getTranslation("Name")); //$NON-NLS-1$
-        grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers")); //$NON-NLS-1$
+        grid.addColumn(Platform::getName).setHeader(getTranslation("Name"));
+        grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers"));
         
         GridCrud<Platform> crud = new OwlcmsCrudGrid<>(Platform.class, new OwlcmsGridLayout(Platform.class),
                 crudFormFactory, grid);
@@ -92,11 +92,11 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
      *                        information
      */
     protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-        crudFormFactory.setVisibleProperties("name","soundMixerName"); //$NON-NLS-1$ //$NON-NLS-2$
+        crudFormFactory.setVisibleProperties("name","soundMixerName");
         crudFormFactory.setFieldCaptions(
-                getTranslation("PlatformName"), //$NON-NLS-1$
-                getTranslation("Speakers")); //$NON-NLS-1$
-        crudFormFactory.setFieldProvider("soundMixerName", //$NON-NLS-1$
+                getTranslation("PlatformName"),
+                getTranslation("Speakers"));
+        crudFormFactory.setFieldProvider("soundMixerName",
                 new ComboBoxProvider<>(Speakers.getOutputNames()));
     }
 
@@ -181,6 +181,6 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Preparation_Platforms"); //$NON-NLS-1$
+        return getTranslation("Preparation_Platforms");
     }
 }

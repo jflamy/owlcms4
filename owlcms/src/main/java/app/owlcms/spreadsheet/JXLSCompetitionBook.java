@@ -93,7 +93,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null,true);
         if (athletes.isEmpty()) {
             // prevent outputting silliness.
-            throw new RuntimeException("No athletes."); //$NON-NLS-1$
+            throw new RuntimeException("No athletes.");
         }
         // extract club lists
         TreeSet<String> clubs = new TreeSet<String>();

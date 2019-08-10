@@ -31,7 +31,7 @@ class CompetitionEditingFormFactory extends OwlcmsCrudFormFactory<Competition> {
 	@SuppressWarnings({ "rawtypes" })
 	@Override
 	protected void bindField(HasValue field, String property, Class<?> propertyType) {
-		if ("competitionDate".equals(property)) { //$NON-NLS-1$
+		if ("competitionDate".equals(property)) {
 			LocalDateField f = ((LocalDateField)field);
 			Validator<LocalDate> v = f.formatValidation(OwlcmsSession.getLocale());
 			binder.forField(f).withValidator(v).bind(property);		

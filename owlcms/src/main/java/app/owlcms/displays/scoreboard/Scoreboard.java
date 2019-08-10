@@ -363,8 +363,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 			curGroup = fop.getGroup();
 			model.setGroupName(curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType) : "");
 		});
-		model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone",liftsDone)); //$NON-NLS-1$
-		this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder)); //$NON-NLS-1$
+		model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone",liftsDone));
+		this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
 	}
 	
 	private void doUpdateBottomPart(Decision e) {

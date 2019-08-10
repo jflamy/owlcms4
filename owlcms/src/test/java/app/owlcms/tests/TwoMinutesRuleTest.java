@@ -69,7 +69,7 @@ public class TwoMinutesRuleTest {
 
 	@Test
 	public void initialCheck() {
-		final String resName = "/initialCheck.txt"; //$NON-NLS-1$
+		final String resName = "/initialCheck.txt";
 		AthleteSorter.assignLotNumbers(athletes);
 		AthleteSorter.assignStartNumbers(athletes);
 
@@ -124,8 +124,8 @@ public class TwoMinutesRuleTest {
 
 		// ... but simpsonR changes to 62 before being called by announcer (time not
 		// restarted)
-		declaration(curLifter, "62", fopBus); //$NON-NLS-1$
-		logger.info("declaration by {}: {}", curLifter, "62"); //$NON-NLS-1$ //$NON-NLS-2$
+		declaration(curLifter, "62", fopBus);
+		logger.info("declaration by {}: {}", curLifter, "62");
 		logger.debug("\n{}", DebugUtils.shortDump(fopState.getLiftingOrder()));
 
 		// so now schneider should be back on top at 61, with two minutes because
@@ -149,25 +149,25 @@ public class TwoMinutesRuleTest {
 		assertEquals(simpsonR, curLifter);
 		assertEquals(120000, fopState.getTimeAllowed());
 		// simpson is called again with two minutes
-		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
+		logger.info("calling lifter: {}", curLifter);
 		fopBus.post(new FOPEvent.TimeStarted(null)); // this starts logical time
 		assertEquals(FOPState.TIME_RUNNING, fopState.getState());
 		
 		// but simpson now asks for more; weight change should stop clock.
-		declaration(curLifter, "67", fopBus); //$NON-NLS-1$
+		declaration(curLifter, "67", fopBus);
 		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, fopState.getState());
-		logger.info("declaration by {}: {}", curLifter, "67"); //$NON-NLS-1$ //$NON-NLS-2$
+		logger.info("declaration by {}: {}", curLifter, "67");
 
 		// schneider does not get 2 minutes.
 		curLifter = fopState.getCurAthlete();
 		assertEquals(schneiderF, curLifter);
 		assertEquals(60000, fopState.getTimeAllowed());
 		// schneider is called
-		logger.info("calling lifter: {}", curLifter); //$NON-NLS-1$
+		logger.info("calling lifter: {}", curLifter);
 		fopBus.post(new FOPEvent.TimeStarted(null)); // this starts logical time
 		assertEquals(FOPState.TIME_RUNNING, fopState.getState());
 		// but asks for more weight -- the following stops time.
-		declaration(curLifter, "65", fopBus); //$NON-NLS-1$
+		declaration(curLifter, "65", fopBus);
 		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, fopState.getState());
 		int remainingTime = fopState.getAthleteTimer()
 			.getTimeRemaining();
@@ -308,20 +308,20 @@ public class TwoMinutesRuleTest {
 
 
 	private void failedLift(EventBus fopBus, Athlete curLifter) {
-		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
+		logger.debug("calling lifter: {}", curLifter);
 		fopBus.post(new FOPEvent.TimeStarted(null));
 		fopBus.post(new FOPEvent.DownSignal(null));
 		fopBus.post(new FOPEvent.DecisionFullUpdate(this, curLifter, false, false, false, 0, 0, 0));
-		logger.debug("failed lift for {}", curLifter); //$NON-NLS-1$
+		logger.debug("failed lift for {}", curLifter);
 		fopBus.post(new FOPEvent.DecisionReset(null));
 	}
 
 	private void successfulLift(EventBus fopBus, Athlete curLifter) {
-		logger.debug("calling lifter: {}", curLifter); //$NON-NLS-1$
+		logger.debug("calling lifter: {}", curLifter);
 		fopBus.post(new FOPEvent.TimeStarted(null));
 		fopBus.post(new FOPEvent.DownSignal(null));
 		fopBus.post(new FOPEvent.DecisionFullUpdate(this, curLifter, true, true, true, 0, 0, 0));
-		logger.debug("successful lift for {}", curLifter); //$NON-NLS-1$
+		logger.debug("successful lift for {}", curLifter);
 		fopBus.post(new FOPEvent.DecisionReset(null));
 	}
 

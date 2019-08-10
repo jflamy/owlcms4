@@ -169,24 +169,24 @@ public class DemoData {
 		LocalDateTime w = LocalDateTime.now();
 		LocalDateTime c = w.plusHours((long) 2.0);
 
-		Platform platform1 = new Platform("A"); //$NON-NLS-1$
+		Platform platform1 = new Platform("A");
 		defaultPlates(platform1);
-		Platform platform2 = new Platform("B"); //$NON-NLS-1$
+		Platform platform2 = new Platform("B");
 		defaultPlates(platform2);
 
-		Group groupM1 = new Group("M1", w, c); //$NON-NLS-1$
+		Group groupM1 = new Group("M1", w, c);
 		groupM1.setPlatform(platform1);
 
-		Group groupM2 = new Group("M2", w, c); //$NON-NLS-1$
+		Group groupM2 = new Group("M2", w, c);
 		groupM2.setPlatform(platform2);
 
 		em.persist(groupM1);
 		em.persist(groupM2);
-		em.persist(new Group("M3", null, null)); //$NON-NLS-1$
-		em.persist(new Group("M4", null, null)); //$NON-NLS-1$
-		em.persist(new Group("F1", null, null)); //$NON-NLS-1$
-		em.persist(new Group("F2", null, null)); //$NON-NLS-1$
-		em.persist(new Group("F3", null, null)); //$NON-NLS-1$
+		em.persist(new Group("M3", null, null));
+		em.persist(new Group("M4", null, null));
+		em.persist(new Group("F1", null, null));
+		em.persist(new Group("F2", null, null));
+		em.persist(new Group("F3", null, null));
 
 		em.persist(platform1);
 		em.persist(platform2);

@@ -89,7 +89,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     }
 
     private void init() {
-        setButtonCaption(CrudOperation.DELETE, Translator.translate("Delete")); //$NON-NLS-1$
+        setButtonCaption(CrudOperation.DELETE, Translator.translate("Delete"));
     }
 
     /**
@@ -136,7 +136,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 
         errorLabel = new Label();
         HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
-        labelWrapper.addClassName("errorMessage"); //$NON-NLS-1$
+        labelWrapper.addClassName("errorMessage");
         labelWrapper.setWidthFull();
         labelWrapper.setJustifyContentMode(JustifyContentMode.CENTER);
 
@@ -191,7 +191,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         Button cancelButton = buildCancelButton(cancelButtonClickListener);
 
         HorizontalLayout footerLayout = new HorizontalLayout();
-        footerLayout.setWidth("100%"); //$NON-NLS-1$
+        footerLayout.setWidth("100%");
         footerLayout.setSpacing(true);
         footerLayout.setPadding(false);
 
@@ -243,7 +243,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         });
         // field must visible and added to the layout for focus() to work, so we hide it
         // brutally
-        updateTrigger.getStyle().set("z-index", "-10"); //$NON-NLS-1$ //$NON-NLS-2$
+        updateTrigger.getStyle().set("z-index", "-10");
         return updateTrigger;
     }
 
@@ -252,20 +252,20 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         valid = binder.writeBeanIfValid(domainObject);
         if (valid) {
             if (operation == CrudOperation.ADD) {
-                logger.debug("adding 	{}", domainObject); //$NON-NLS-1$
+                logger.debug("adding 	{}", domainObject);
                 this.add(domainObject);
                 gridCallback.onComponentEvent(operationTriggerEvent);
             } else if (operation == CrudOperation.UPDATE) {
-                logger.debug("updating 	{}", domainObject); //$NON-NLS-1$
+                logger.debug("updating 	{}", domainObject);
                 this.update(domainObject);
                 gridCallback.onComponentEvent(operationTriggerEvent);
             } else if (operation == CrudOperation.DELETE) {
-                logger.debug("deleting 	{}", domainObject); //$NON-NLS-1$
+                logger.debug("deleting 	{}", domainObject);
                 this.delete(domainObject);
                 gridCallback.onComponentEvent(operationTriggerEvent);
             }
         } else {
-            logger.debug("not valid {}", domainObject); //$NON-NLS-1$
+            logger.debug("not valid {}", domainObject);
         }
     }
 
@@ -288,7 +288,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         // trigger callback. The trigger then calls the gridCallBackAction
         operationTrigger = defineOperationTrigger(operation, domainObject, gridCallBackAction);
         ComponentEventListener<ClickEvent<Button>> listener = event -> {
-            logger.debug("{} clicked", operation); //$NON-NLS-1$
+            logger.debug("{} clicked", operation);
             operationTriggerEvent = event;
             operationTrigger.focus();
         };
@@ -329,7 +329,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         dialog.setCloseOnEsc(false);
         dialog.setCloseOnOutsideClick(false);
 
-        H3 messageLabel = new H3(Translator.translate("Delete") + domainObject.toString() + Translator.translate("Question")); //$NON-NLS-1$ //$NON-NLS-2$
+        H3 messageLabel = new H3(Translator.translate("Delete") + domainObject.toString() + Translator.translate("Question"));
 
         // create a new delete button for the confirm dialog
         Button confirmButton = doBuildButton(operation);
@@ -341,7 +341,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
             }
             dialog.close();
         });
-        Button cancelButton = new Button(Translator.translate("Cancel"), event -> { //$NON-NLS-1$
+        Button cancelButton = new Button(Translator.translate("Cancel"), event -> {
             dialog.close();
         });
         dialog.add(new VerticalLayout(messageLabel, new HorizontalLayout(confirmButton, cancelButton)));
@@ -357,7 +357,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
                     .forEach(styleName -> button.addClassName(styleName));
         }
         if (buttonThemes.containsKey(operation)) {
-            button.getElement().setAttribute("theme", buttonThemes.get(operation)); //$NON-NLS-1$
+            button.getElement().setAttribute("theme", buttonThemes.get(operation));
         }
         return button;
     }
@@ -381,7 +381,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
             if (showErrorsOnFields)
                 s.notifyBindingValidationStatusHandlers();
             if (!valid) {
-                logger.debug("validationStatusHandler updateFieldErrors={} {}", showErrorsOnFields, //$NON-NLS-1$
+                logger.debug("validationStatusHandler updateFieldErrors={} {}", showErrorsOnFields,
                         LoggerUtils.whereFrom());
                 if (errorLabel != null) {
                     setErrorLabel(s, showErrorsOnFields);
@@ -403,7 +403,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
      * @return
      */
     protected boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
-        logger.debug("{} validations", this.getClass().getSimpleName()); //$NON-NLS-1$
+        logger.debug("{} validations", this.getClass().getSimpleName());
         boolean hasErrors = validationStatus.getFieldValidationErrors().size() > 0;
         boolean showInLabel = !showErrorOnFields;
 
@@ -414,7 +414,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
                 // error message is only shown on label, we highlight the classes ourselves
                 ClassList fieldClasses = ((Component) field).getElement().getClassList();
                 fieldClasses.clear();
-                fieldClasses.set("error", true); //$NON-NLS-1$
+                fieldClasses.set("error", true);
             }
             if (field instanceof TextField) {
                 ((TextField) field).setAutoselect(true);
@@ -423,22 +423,22 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
                 ((Focusable<?>) field).focus();
             }
             if (sb.length() > 0)
-                sb.append("; "); //$NON-NLS-1$
-            String message = ve.getMessage().orElse(Translator.translate("Error")); //$NON-NLS-1$
+                sb.append("; ");
+            String message = ve.getMessage().orElse(Translator.translate("Error"));
             sb.append(message);
         }
         for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
             showInLabel = true;
             if (sb.length() > 0)
-                sb.append(Translator.translate("Semicolon")); //$NON-NLS-1$
+                sb.append(Translator.translate("Semicolon"));
             String message = ve.getErrorMessage();
             sb.append(message);
         }
         if (showInLabel) {
             String message = sb.toString();
             errorLabel.setVisible(true);
-            errorLabel.getElement().setProperty("innerHTML", message); //$NON-NLS-1$
-            errorLabel.getClassNames().set("errorMessage", true); //$NON-NLS-1$
+            errorLabel.getElement().setProperty("innerHTML", message);
+            errorLabel.getClassNames().set("errorMessage", true);
         } else {
             errorLabel.setVisible(false);
         }

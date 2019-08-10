@@ -54,7 +54,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 		// get the fop from the query parameters, set as default if not provided
 		FieldOfPlay fop = null;
 		if (!isIgnoreFopFromURL()) {
-			List<String> fopNames = parametersMap.get("fop"); //$NON-NLS-1$
+			List<String> fopNames = parametersMap.get("fop");
 			if (fopNames != null && fopNames.get(0) == null) {
 				fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
 			} else if (OwlcmsSession.getFop() != null) {
@@ -62,28 +62,28 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
 			} else {
 				fop = OwlcmsFactory.getDefaultFOP();
 			}
-			params.put("fop",Arrays.asList(fop.getName())); //$NON-NLS-1$
+			params.put("fop",Arrays.asList(fop.getName()));
 			OwlcmsSession.setFop(fop);
 		} else {
-			params.remove("fop"); //$NON-NLS-1$
+			params.remove("fop");
 		}
 	
 		// get the group from query parameters, do not add value if group is not defined
 		Group group = null;
 		if (!isIgnoreGroupFromURL()) {
-			List<String> groupNames = parametersMap.get("group"); //$NON-NLS-1$
+			List<String> groupNames = parametersMap.get("group");
 			if (groupNames != null  && groupNames.get(0) != null) {
 				group = GroupRepository.findByName(groupNames.get(0));
 				fop.setGroup(group);
 			} else {
 				group = (fop != null ? fop.getGroup() : null);
 			}
-			if (group != null) params.put("group",Arrays.asList(group.getName())); //$NON-NLS-1$
+			if (group != null) params.put("group",Arrays.asList(group.getName()));
 		} else {
-			params.remove("group"); //$NON-NLS-1$
+			params.remove("group");
 		}
 		
-		logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}",LoggerUtils.whereFrom(),(fop != null ? fop.getName() : null),(group != null ? group.getName() : null)); //$NON-NLS-1$
+		logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}",LoggerUtils.whereFrom(),(fop != null ? fop.getName() : null),(group != null ? group.getName() : null));
         return params;
     }
 	

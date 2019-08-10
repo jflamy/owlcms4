@@ -75,7 +75,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName()); //$NON-NLS-1$
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
@@ -152,16 +152,16 @@ public abstract class AthleteGridContent extends VerticalLayout
     public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
         ThemeList themes = grid.getThemeNames();
-        themes.add("compact"); //$NON-NLS-1$
-        themes.add("row-stripes"); //$NON-NLS-1$
-        grid.addColumn(athlete -> athlete.getLastName().toUpperCase()).setHeader(getTranslation("LastName")); //$NON-NLS-1$
-        grid.addColumn("firstName").setHeader(getTranslation("FirstName")); //$NON-NLS-1$ //$NON-NLS-2$
-        grid.addColumn("team").setHeader(getTranslation("Team")); //$NON-NLS-1$ //$NON-NLS-2$
-        grid.addColumn("category").setHeader(getTranslation("Category")); //$NON-NLS-1$ //$NON-NLS-2$
-        grid.addColumn("nextAttemptRequestedWeight").setHeader(getTranslation("Requested_weight")); //$NON-NLS-1$ //$NON-NLS-2$
+        themes.add("compact");
+        themes.add("row-stripes");
+        grid.addColumn(athlete -> athlete.getLastName().toUpperCase()).setHeader(getTranslation("LastName"));
+        grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
+        grid.addColumn("team").setHeader(getTranslation("Team"));
+        grid.addColumn("category").setHeader(getTranslation("Category"));
+        grid.addColumn("nextAttemptRequestedWeight").setHeader(getTranslation("Requested_weight"));
         // format attempt
-        grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("Attempt")); //$NON-NLS-1$ //$NON-NLS-2$
-        grid.addColumn("startNumber").setHeader(getTranslation("StartNumber")); //$NON-NLS-1$ //$NON-NLS-2$
+        grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("Attempt"));
+        grid.addColumn("startNumber").setHeader(getTranslation("StartNumber"));
 
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
         AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
@@ -187,10 +187,10 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     public void createGroupSelect() {
         groupSelect = new ComboBox<>();
-        groupSelect.setPlaceholder(getTranslation("Group")); //$NON-NLS-1$
+        groupSelect.setPlaceholder(getTranslation("Group"));
         groupSelect.setItems(GroupRepository.findAll());
         groupSelect.setItemLabelGenerator(Group::getName);
-        groupSelect.setWidth("7rem"); //$NON-NLS-1$
+        groupSelect.setWidth("7rem");
         groupSelect.setReadOnly(true);
         // if groupSelect is made read-write, it needs to set values in groupFilter and
         // call updateURLLocation
@@ -220,7 +220,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     public Collection<Athlete> findAll() {
         FieldOfPlay fop = OwlcmsSession.getFop();
         if (fop != null) {
-            logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(), //$NON-NLS-1$
+            logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
                     LoggerUtils.whereFrom());
             final String filterValue;
             if (lastNameFilter.getValue() != null) {
@@ -231,7 +231,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                     .collect(Collectors.toList());
         } else {
             // no field of play, no group, empty list
-            logger.debug("findAll fop==null"); //$NON-NLS-1$
+            logger.debug("findAll fop==null");
             return ImmutableList.of();
         }
     }
@@ -263,7 +263,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        logger.debug("AthleteGridContent parsing URL"); //$NON-NLS-1$
+        logger.debug("AthleteGridContent parsing URL");
         QueryParameterReader.super.setParameter(event, parameter);
         location = event.getLocation();
         locationUI = event.getUI();
@@ -280,7 +280,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         OwlcmsSession.withFop((fop) -> {
             UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
@@ -313,7 +313,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
         if (crudGrid == null)
             return;
-        logger.debug("{} {}", e.getOrigin(), LoggerUtils.whereFrom()); //$NON-NLS-1$
+        logger.debug("{} {}", e.getOrigin(), LoggerUtils.whereFrom());
         UIEventProcessor.uiAccess(crudGrid, uiEventBus, e, () -> {
             crudGrid.refreshGrid();
         });
@@ -323,7 +323,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      * @param forceUpdate
      */
     public void syncWithFOP(boolean forceUpdate) {
-        logger.debug("syncWithFOP {}", LoggerUtils.whereFrom()); //$NON-NLS-1$
+        logger.debug("syncWithFOP {}", LoggerUtils.whereFrom());
         OwlcmsSession.withFop((fop) -> {
             Group fopGroup = fop.getGroup();
             Group displayedGroup = groupSelect.getValue();
@@ -378,11 +378,11 @@ public abstract class AthleteGridContent extends VerticalLayout
     public void updateURLLocation(UI ui, Location location, Group newGroup) {
         // change the URL to reflect fop group
         HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
-        params.put("fop", Arrays.asList(OwlcmsSession.getFop().getName())); //$NON-NLS-1$
+        params.put("fop", Arrays.asList(OwlcmsSession.getFop().getName()));
         if (newGroup != null && !isIgnoreGroupFromURL()) {
-            params.put("group", Arrays.asList(newGroup.getName())); //$NON-NLS-1$
+            params.put("group", Arrays.asList(newGroup.getName()));
         } else {
-            params.remove("group"); //$NON-NLS-1$
+            params.remove("group");
         }
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
@@ -410,26 +410,26 @@ public abstract class AthleteGridContent extends VerticalLayout
      * breaks the idea of a single page app.
      */
     protected void createTopBar() {
-        logger.debug("AthleteGridContent creating top bar"); //$NON-NLS-1$
+        logger.debug("AthleteGridContent creating top bar");
         topBar = getAppLayout().getAppBarElementWrapper();
 
         title = new H3();
         title.setText(getTopBarTitle());
-        title.getStyle().set("margin", "0px 0px 0px 0px") //$NON-NLS-1$ //$NON-NLS-2$
-                .set("font-weight", "normal"); //$NON-NLS-1$ //$NON-NLS-2$
+        title.getStyle().set("margin", "0px 0px 0px 0px")
+                .set("font-weight", "normal");
 
         createGroupSelect();
 
         lastName = new H1();
-        lastName.setText("\u2013"); //$NON-NLS-1$
-        lastName.getStyle().set("margin", "0px 0px 0px 0px"); //$NON-NLS-1$ //$NON-NLS-2$
-        firstName = new H2(""); //$NON-NLS-1$
-        firstName.getStyle().set("margin", "0px 0px 0px 0px"); //$NON-NLS-1$ //$NON-NLS-2$
+        lastName.setText("\u2013");
+        lastName.getStyle().set("margin", "0px 0px 0px 0px");
+        firstName = new H2("");
+        firstName.getStyle().set("margin", "0px 0px 0px 0px");
         Div fullName = new Div(lastName, firstName);
 
         attempt = new H2();
         weight = new H2();
-        weight.setText(""); //$NON-NLS-1$
+        weight.setText("");
 
         timeField = new AthleteTimerElement(this);
         H1 time = new H1(timeField);
@@ -462,7 +462,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      * @param crudGrid the crudGrid that will be filtered.
      */
     protected void defineFilters(GridCrud<Athlete> crud) {
-        lastNameFilter.setPlaceholder("Last name"); //$NON-NLS-1$
+        lastNameFilter.setPlaceholder("Last name");
         lastNameFilter.setClearButtonVisible(true);
         lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
         lastNameFilter.addValueChangeListener(e -> {
@@ -470,15 +470,15 @@ public abstract class AthleteGridContent extends VerticalLayout
         });
         crud.getCrudLayout().addFilterComponent(lastNameFilter);
 
-        groupFilter.setPlaceholder(getTranslation("Group")); //$NON-NLS-1$
+        groupFilter.setPlaceholder(getTranslation("Group"));
         groupFilter.setItems(GroupRepository.findAll());
         groupFilter.setItemLabelGenerator(Group::getName);
         // hide because the top bar has it
-        groupFilter.getStyle().set("display", "none"); //$NON-NLS-1$ //$NON-NLS-2$
+        groupFilter.getStyle().set("display", "none");
         // we do not set the group filter value
         groupFilter.addValueChangeListener(e -> {
             Group newGroup = e.getValue();
-            logger.debug("filter switching group to {}", newGroup != null ? newGroup.getName() : null); //$NON-NLS-1$
+            logger.debug("filter switching group to {}", newGroup != null ? newGroup.getName() : null);
             OwlcmsSession.withFop((fop) -> {
                 fop.switchGroup(newGroup, this.getOrigin());
             });
@@ -492,35 +492,35 @@ public abstract class AthleteGridContent extends VerticalLayout
         if (title == null)
             return; // createTopBar has not yet been called;
         displayedAthlete = athlete;
-        logger.debug("doUpdateTopBar {}", LoggerUtils.whereFrom()); //$NON-NLS-1$
+        logger.debug("doUpdateTopBar {}", LoggerUtils.whereFrom());
         OwlcmsSession.withFop(fop -> {
             UIEventProcessor.uiAccess(topBar, uiEventBus, () -> {
                 groupSelect.setValue(fop.getGroup());
                 Integer attemptsDone = (athlete != null ? athlete.getAttemptsDone() : 0);
                 if (athlete != null && attemptsDone < 6) {
                     String lastName2 = athlete.getLastName();
-                    lastName.setText(lastName2 != null ? lastName2.toUpperCase() : ""); //$NON-NLS-1$
+                    lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
                     firstName.setText(athlete.getFirstName());
-                    timeField.getElement().getStyle().set("visibility", "visible"); //$NON-NLS-1$ //$NON-NLS-2$
+                    timeField.getElement().getStyle().set("visibility", "visible");
                     attempt.setText(formatAttemptNumber(athlete));
                     Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
                     weight.setText(
-                            (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013") //$NON-NLS-1$
-                                    + "kg"); //$NON-NLS-1$
+                            (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
+                                    + "kg");
                 } else {
                     if (attemptsDone >= 6) {
-                        lastName.setText(fop.getGroup() == null ? "\u2013" //$NON-NLS-1$
-                                : MessageFormat.format(getTranslation("Group_number_done"), fop.getGroup())); //$NON-NLS-1$
-                        firstName.setText(""); //$NON-NLS-1$
+                        lastName.setText(fop.getGroup() == null ? "\u2013"
+                                : MessageFormat.format(getTranslation("Group_number_done"), fop.getGroup()));
+                        firstName.setText("");
                     } else {
-                        lastName.setText(fop.getGroup() == null ? "\u2013" //$NON-NLS-1$
-                                : MessageFormat.format(getTranslation("No_weighed_in_athletes"), fop.getGroup())); //$NON-NLS-1$
-                        firstName.setText(""); //$NON-NLS-1$
+                        lastName.setText(fop.getGroup() == null ? "\u2013"
+                                : MessageFormat.format(getTranslation("No_weighed_in_athletes"), fop.getGroup()));
+                        firstName.setText("");
                     }
-                    timeField.getElement().getStyle().set("visibility", "hidden"); //$NON-NLS-1$ //$NON-NLS-2$
+                    timeField.getElement().getStyle().set("visibility", "hidden");
 
-                    attempt.setText(""); //$NON-NLS-1$
-                    weight.setText(""); //$NON-NLS-1$
+                    attempt.setText("");
+                    weight.setText("");
                 }
             });
         });
@@ -569,9 +569,9 @@ public abstract class AthleteGridContent extends VerticalLayout
         Integer attemptsDone = a.getAttemptsDone();
         Integer attemptNumber = a.getAttemptNumber();
         return (attemptsDone >= 3)
-                ? ((attemptsDone >= 6) ? "done" //$NON-NLS-1$
-                        : MessageFormat.format(Translator.translate("C_and_J_number"), attemptNumber)) //$NON-NLS-1$
-                : MessageFormat.format(Translator.translate("Snatch_number"), attemptNumber); //$NON-NLS-1$
+                ? ((attemptsDone >= 6) ? "done"
+                        : MessageFormat.format(Translator.translate("C_and_J_number"), attemptNumber))
+                : MessageFormat.format(Translator.translate("Snatch_number"), attemptNumber);
     }
 
     /**
@@ -591,26 +591,26 @@ public abstract class AthleteGridContent extends VerticalLayout
             Notification n = new Notification();
             // Notification theme styling is done in
             // META-INF/resources/frontend/styles/shared-styles.html
-            n.getElement().getThemeList().add("warning"); //$NON-NLS-1$
+            n.getElement().getThemeList().add("warning");
             String text;
             int declaring = curDisplayAthlete.isDeclaring();
             if (declaring > 0) {
-                text = MessageFormat.format(getTranslation("Declaration_current_athlete_with_change"), //$NON-NLS-1$
+                text = MessageFormat.format(getTranslation("Declaration_current_athlete_with_change"),
                         curDisplayAthlete.getFullName());
             } else if (declaring == 0) {
-                text = MessageFormat.format(getTranslation("Declaration_current_athlete"), //$NON-NLS-1$
+                text = MessageFormat.format(getTranslation("Declaration_current_athlete"),
                         curDisplayAthlete.getFullName());
             } else {
-                text = MessageFormat.format(getTranslation("Weight_change_current_athlete"), //$NON-NLS-1$
+                text = MessageFormat.format(getTranslation("Weight_change_current_athlete"),
                         curDisplayAthlete.getFullName());
             }
             n.setDuration(6000);
             n.setPosition(Position.TOP_START);
             Div label = new Div();
-            label.getElement().setProperty("innerHTML", text); //$NON-NLS-1$
+            label.getElement().setProperty("innerHTML", text);
             label.addClickListener((event) -> n.close());
             label.setSizeFull();
-            label.getStyle().set("font-size", "large"); //$NON-NLS-1$ //$NON-NLS-2$
+            label.getStyle().set("font-size", "large");
             n.add(label);
             n.open();
         }

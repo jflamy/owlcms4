@@ -45,28 +45,28 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
      */
     public PreparationNavigationContent() {
 
-        Button competition = new Button(getTranslation("CompetitionInformation"), //$NON-NLS-1$
+        Button competition = new Button(getTranslation("CompetitionInformation"),
                 buttonClickEvent -> UI.getCurrent().navigate(CompetitionContent.class));
-        Button categories = new Button(getTranslation("DefineCategories"), //$NON-NLS-1$
+        Button categories = new Button(getTranslation("DefineCategories"),
                 buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class));
-        Button groups = new Button(getTranslation("DefineGroups"), buttonClickEvent -> UI.getCurrent().navigate(GroupContent.class)); //$NON-NLS-1$
-        Button platforms = new Button(getTranslation("DefineFOP"), //$NON-NLS-1$
+        Button groups = new Button(getTranslation("DefineGroups"), buttonClickEvent -> UI.getCurrent().navigate(GroupContent.class));
+        Button platforms = new Button(getTranslation("DefineFOP"),
                 buttonClickEvent -> UI.getCurrent().navigate(PlatformContent.class));
 
-        StreamResource href = new StreamResource("registration.xls", //$NON-NLS-1$
-                () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls")); //$NON-NLS-1$
-        Anchor download = new Anchor(href, ""); //$NON-NLS-1$
-        Button downloadButton = new Button(getTranslation("DownloadRegistrationTemplate"), //$NON-NLS-1$
+        StreamResource href = new StreamResource("registration.xls",
+                () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
+        Anchor download = new Anchor(href, "");
+        Button downloadButton = new Button(getTranslation("DownloadRegistrationTemplate"),
                 new Icon(VaadinIcon.DOWNLOAD_ALT));
-        downloadButton.setWidth("93%"); // don't ask. this is a kludge. //$NON-NLS-1$
+        downloadButton.setWidth("93%"); // don't ask. this is a kludge.
         download.add(downloadButton);
-        download.setWidth("100%"); //$NON-NLS-1$
+        download.setWidth("100%");
         Div downloadDiv = new Div(download);
         downloadDiv.setWidthFull();
 
-        Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT), //$NON-NLS-1$
+        Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
                 buttonClickEvent -> new UploadDialog().open());
-        Button athletes = new Button(getTranslation("EditAthletes"), //$NON-NLS-1$
+        Button athletes = new Button(getTranslation("EditAthletes"),
                 buttonClickEvent -> UI.getCurrent().navigate(RegistrationContent.class));
 
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, categories, groups, platforms,
@@ -74,9 +74,9 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes);
 
-        doGroup(getTranslation("PreCompetitionSetup"), grid1, this); //$NON-NLS-1$
-        doGroup(getTranslation("Registration"), grid2, this); //$NON-NLS-1$
-        doGroup(getTranslation("EditAthletes_Groups"), grid3, this); //$NON-NLS-1$
+        doGroup(getTranslation("PreCompetitionSetup"), grid1, this);
+        doGroup(getTranslation("Registration"), grid2, this);
+        doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
 
     }
 
@@ -85,7 +85,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("OWLCMS_Preparation"); //$NON-NLS-1$
+        return getTranslation("OWLCMS_Preparation");
     }
 
     @Override
@@ -100,6 +100,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
     @Override
     protected String getTitle() {
-        return getTranslation("PrepareCompetition"); //$NON-NLS-1$
+        return getTranslation("PrepareCompetition");
     }
 }

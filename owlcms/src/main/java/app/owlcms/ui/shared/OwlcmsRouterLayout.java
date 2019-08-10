@@ -71,13 +71,13 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 
     private HasElement layoutComponentContent;
 
-    String PREPARE_COMPETITION = Translator.translate("PrepareCompetition"); //$NON-NLS-1$
-    String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup"); //$NON-NLS-1$
-    String START_DISPLAYS = Translator.translate("StartDisplays"); //$NON-NLS-1$
-    String RESULT_DOCUMENTS = Translator.translate("ResultDocuments"); //$NON-NLS-1$
-    String INFO = Translator.translate("About"); //$NON-NLS-1$
-    String PREFERENCES = Translator.translate("Preferences"); //$NON-NLS-1$
-    String DOCUMENTATION = Translator.translate("Documentation_Menu"); //$NON-NLS-1$
+    String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
+    String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
+    String START_DISPLAYS = Translator.translate("StartDisplays");
+    String RESULT_DOCUMENTS = Translator.translate("ResultDocuments");
+    String INFO = Translator.translate("About");
+    String PREFERENCES = Translator.translate("Preferences");
+    String DOCUMENTATION = Translator.translate("Documentation_Menu");
 
     public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));
@@ -91,7 +91,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
      */
     @Override
     public void showRouterLayoutContent(HasElement content) {
-        logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName()); //$NON-NLS-1$
+        logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName());
         ((AppLayoutAware) content).setRouterLayout(this);
         super.showRouterLayoutContent(content);
         this.setLayoutComponentContent(content);
@@ -109,25 +109,25 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
             variant = Behaviour.LEFT_RESPONSIVE;
         }
 
-        LeftNavigationItem home = new LeftNavigationItem(getTranslation("Home"), //$NON-NLS-1$
+        LeftNavigationItem home = new LeftNavigationItem(getTranslation("Home"),
                 VaadinIcon.HOME.create(), HomeNavigationContent.class);
 
-        AppLayout appLayout = AppLayoutBuilder.get(variant).withTitle(getTranslation("OWLCMS_Top")) //$NON-NLS-1$
-                .withIcon("/frontend/images/logo.png") //$NON-NLS-1$
+        AppLayout appLayout = AppLayoutBuilder.get(variant).withTitle(getTranslation("OWLCMS_Top"))
+                .withIcon("/frontend/images/logo.png")
                 .withAppBar(AppBarBuilder.get().build()).withAppMenu(LeftAppMenuBuilder.get()
 //				.addToSection(new LeftHeaderItem(null, OwlcmsFactory.getVersion(), null), HEADER)
                         .addToSection(new LeftHeaderItem(null, "", null), HEADER).add(home)
-                        .add(new LeftNavigationItem(PREPARE_COMPETITION, new Icon("social", "group-add"), //$NON-NLS-1$ //$NON-NLS-2$
+                        .add(new LeftNavigationItem(PREPARE_COMPETITION, new Icon("social", "group-add"),
                                 PreparationNavigationContent.class))
-                        .add(new LeftNavigationItem(RUN_LIFTING_GROUP, new Icon("places", "fitness-center"), //$NON-NLS-1$ //$NON-NLS-2$
+                        .add(new LeftNavigationItem(RUN_LIFTING_GROUP, new Icon("places", "fitness-center"),
                                 LiftingNavigationContent.class))
-                        .add(new LeftNavigationItem(START_DISPLAYS, new Icon("hardware", "desktop-windows"), //$NON-NLS-1$ //$NON-NLS-2$
+                        .add(new LeftNavigationItem(START_DISPLAYS, new Icon("hardware", "desktop-windows"),
                                 DisplayNavigationContent.class))
-                        .add(new LeftNavigationItem(RESULT_DOCUMENTS, new Icon("maps", "local-printshop"), //$NON-NLS-1$ //$NON-NLS-2$
+                        .add(new LeftNavigationItem(RESULT_DOCUMENTS, new Icon("maps", "local-printshop"),
                                 ResultsNavigationContent.class))
                         .add(new LeftClickableItem(DOCUMENTATION, new Icon("icons", "help"),
                                 clickEvent -> UI.getCurrent().getPage().executeJavaScript("window.open('https://jflamy.github.io/owlcms4/#/','_blank')")))
-                        .addToSection(new LeftNavigationItem(INFO, new Icon("icons", "info-outline"), //$NON-NLS-1$ //$NON-NLS-2$
+                        .addToSection(new LeftNavigationItem(INFO, new Icon("icons", "info-outline"),
                                 InfoNavigationContent.class), FOOTER)
                         .build())
                 .build();
@@ -165,8 +165,8 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
             VerticalLayout layout = new VerticalLayout();
             add(layout);
             RadioButtonGroup<Behaviour> group = new RadioButtonGroup<>();
-            group.getElement().getStyle().set("display", "flex"); //$NON-NLS-1$ //$NON-NLS-2$
-            group.getElement().getStyle().set("flexDirection", "column"); //$NON-NLS-1$ //$NON-NLS-2$
+            group.getElement().getStyle().set("display", "flex");
+            group.getElement().getStyle().set("flexDirection", "column");
             group.setItems(Behaviour.LEFT, Behaviour.LEFT_OVERLAY, Behaviour.LEFT_RESPONSIVE, Behaviour.LEFT_HYBRID,
                     Behaviour.LEFT_HYBRID_SMALL, Behaviour.LEFT_RESPONSIVE_HYBRID,
 //				Behaviour.LEFT_RESPONSIVE_HYBRID_NO_APP_BAR,
@@ -189,7 +189,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 
     @Override
     public void configurePage(InitialPageSettings settings) {
-        settings.addInlineWithContents("<link rel=\"icon\" href=\"./frontend/images/owlcms.ico\">", //$NON-NLS-1$
+        settings.addInlineWithContents("<link rel=\"icon\" href=\"./frontend/images/owlcms.ico\">",
                 InitialPageSettings.WrapMode.NONE);
     }
 }

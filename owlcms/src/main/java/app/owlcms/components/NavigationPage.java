@@ -39,10 +39,10 @@ public interface NavigationPage extends OwlcmsContent {
     
     public default String getWindowOpenerFromClass(Class<? extends Component> targetClass) {
         FieldOfPlay fop = OwlcmsSession.getFop();
-        String name = fop == null ? "" : "_" + fop.getName(); //$NON-NLS-1$ //$NON-NLS-2$
-        return "window.open('" + //$NON-NLS-1$
-                getUrlFromTargetClass(targetClass) + "','" + //$NON-NLS-1$
-                targetClass.getSimpleName() + name + "')"; //$NON-NLS-1$
+        String name = fop == null ? "" : "_" + fop.getName();
+        return "window.open('" +
+                getUrlFromTargetClass(targetClass) + "','" +
+                targetClass.getSimpleName() + name + "')";
     }
 
     public default String getUrlFromTargetClass(Class<? extends Component> targetClass) {
@@ -61,8 +61,8 @@ public interface NavigationPage extends OwlcmsContent {
      */
     public default Paragraph addP(HasComponents intro, String text) {
         Paragraph paragraph = new Paragraph();
-        paragraph.getElement().setProperty("innerHTML", text); //$NON-NLS-1$
-        paragraph.getElement().getStyle().set("margin-bottom", "0"); //$NON-NLS-1$ //$NON-NLS-2$
+        paragraph.getElement().setProperty("innerHTML", text);
+        paragraph.getElement().getStyle().set("margin-bottom", "0");
         intro.add(paragraph);
         return paragraph;
     }
@@ -70,7 +70,7 @@ public interface NavigationPage extends OwlcmsContent {
     public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper) {
         VerticalLayout content1 = new VerticalLayout();
         content1.add(new Label(label));
-        content1.getStyle().set("margin-bottom", "-2ex"); //$NON-NLS-1$ //$NON-NLS-2$
+        content1.getStyle().set("margin-bottom", "-2ex");
         fillH(content1, wrapper);
         fillH(grid1, wrapper);
     }
@@ -79,7 +79,7 @@ public interface NavigationPage extends OwlcmsContent {
         VerticalLayout content1 = new VerticalLayout();
         content1.add(new Label(label));
         content1.add(intro);
-        content1.getStyle().set("margin-bottom", "-2ex"); //$NON-NLS-1$ //$NON-NLS-2$
+        content1.getStyle().set("margin-bottom", "-2ex");
         fillH(content1, wrapper);
         fillH(grid1, wrapper);
     }
@@ -89,16 +89,16 @@ public interface NavigationPage extends OwlcmsContent {
         int port = URLUtils.getServerPort(request);
         String scheme = URLUtils.getScheme(request);
         StringBuilder result = new StringBuilder();
-        result.append(scheme).append("://") //$NON-NLS-1$
+        result.append(scheme).append("://")
                 .append(URLUtils.getServerName(request));
-        if ((scheme.equals("http") && port != 80) //$NON-NLS-1$
-                || (request.getScheme().equals("https") && port != 443)) { //$NON-NLS-1$
+        if ((scheme.equals("http") && port != 80)
+                || (request.getScheme().equals("https") && port != 443)) {
             result.append(':').append(port);
         }
         result.append(request.getContextPath());
         if (resourcePath != null && resourcePath.length() > 0) {
-            if (!resourcePath.startsWith("/")) { //$NON-NLS-1$
-                result.append("/"); //$NON-NLS-1$
+            if (!resourcePath.startsWith("/")) {
+                result.append("/");
             }
             result.append(resourcePath);
         }

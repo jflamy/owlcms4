@@ -44,22 +44,22 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
      */
     public DisplayNavigationContent() {
         VerticalLayout intro = new VerticalLayout();
-        addP(intro, getTranslation("Dropdown_Select_Platform")); //$NON-NLS-1$
-        addP(intro, getTranslation("Button_Open_Display")); //$NON-NLS-1$
-        intro.getElement().getStyle().set(getTranslation("margin-bottom"), "0"); //$NON-NLS-1$ //$NON-NLS-2$
+        addP(intro, getTranslation("Dropdown_Select_Platform"));
+        addP(intro, getTranslation("Button_Open_Display"));
+        intro.getElement().getStyle().set(getTranslation("margin-bottom"), "0");
 
-        Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard")); //$NON-NLS-1$
-        Button scoreboard = openInNewTab(Scoreboard.class, getTranslation("Scoreboard")); //$NON-NLS-1$
-        Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder")); //$NON-NLS-1$
-        Button referee = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions")); //$NON-NLS-1$
-        Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoard.class, getTranslation("Athlete_Attempt")); //$NON-NLS-1$
+        Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"));
+        Button scoreboard = openInNewTab(Scoreboard.class, getTranslation("Scoreboard"));
+        Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
+        Button referee = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
+        Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoard.class, getTranslation("Athlete_Attempt"));
 
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, attempt, liftingOrder);
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, athleteFacingAttempt);
 
         fillH(intro, this);
-        doGroup(getTranslation("FieldOfPlayDisplays"), grid1, this); //$NON-NLS-1$
-        doGroup(getTranslation("Refereeing_Displays"), grid2, this); //$NON-NLS-1$
+        doGroup(getTranslation("FieldOfPlayDisplays"), grid1, this);
+        doGroup(getTranslation("Refereeing_Displays"), grid2, this);
     }
 
     /**
@@ -76,7 +76,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
      */
     @Override
     protected String getTitle() {
-        return getTranslation("StartDisplays"); //$NON-NLS-1$
+        return getTranslation("StartDisplays");
     }
 
     /**
@@ -84,7 +84,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("OWLCMS_Displays"); //$NON-NLS-1$
+        return getTranslation("OWLCMS_Displays");
     }
 
 }

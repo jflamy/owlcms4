@@ -19,28 +19,28 @@ public class ConfirmationDialog extends Dialog {
 
 		VerticalLayout content = new VerticalLayout();
 		H3 title1 = new H3(title);
-		title1.getStyle().set("margin-top", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
-		title1.getStyle().set("padding-top", "0px"); //$NON-NLS-1$ //$NON-NLS-2$
+		title1.getStyle().set("margin-top", "0px");
+		title1.getStyle().set("padding-top", "0px");
 		
 		Paragraph paragraph = new Paragraph();
-		paragraph.getElement().setProperty("innerHTML", question); //$NON-NLS-1$
+		paragraph.getElement().setProperty("innerHTML", question);
 		content.add(
 			title1,
 			paragraph
 			);
 		
 		HorizontalLayout buttons = new HorizontalLayout();
-		Button confirmButton = new Button("Confirm", event -> { //$NON-NLS-1$
+		Button confirmButton = new Button("Confirm", event -> {
 			action.run();
 			Notification.show(confirmation);
 			dialog.close();
 		});
-		confirmButton.getElement().setAttribute("theme", "primary"); //$NON-NLS-1$ //$NON-NLS-2$
+		confirmButton.getElement().setAttribute("theme", "primary");
 		
-		Button cancelButton = new Button("Cancel", event -> { //$NON-NLS-1$
+		Button cancelButton = new Button("Cancel", event -> {
 		    dialog.close();
 		});
-		cancelButton.getElement().setAttribute("theme", "primary error"); //$NON-NLS-1$ //$NON-NLS-2$
+		cancelButton.getElement().setAttribute("theme", "primary error");
 		cancelButton.focus();
 		buttons.add(confirmButton, cancelButton);
 		buttons.setWidthFull();

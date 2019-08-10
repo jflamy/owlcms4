@@ -73,44 +73,44 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	 */
 	private void createFormLayout(DefaultCrudFormFactory<Competition> crudFormFactory) {
 		crudFormFactory.setVisibleProperties(
-			"competitionName", //$NON-NLS-1$
-			"competitionDate", //$NON-NLS-1$
-			"competitionOrganizer", //$NON-NLS-1$
-			"competitionSite", //$NON-NLS-1$
-			"competitionCity", //$NON-NLS-1$
-			"federation", //$NON-NLS-1$
-			"federationAddress", //$NON-NLS-1$
-			"federationEMail", //$NON-NLS-1$
-			"federationWebSite", //$NON-NLS-1$
-			"defaultLocale", //$NON-NLS-1$
+			"competitionName",
+			"competitionDate",
+			"competitionOrganizer",
+			"competitionSite",
+			"competitionCity",
+			"federation",
+			"federationAddress",
+			"federationEMail",
+			"federationWebSite",
+			"defaultLocale",
 //			"protocolFileName",
 //			"finalPackageTemplateFileName",
-			"enforce20kgRule", //$NON-NLS-1$
-			"masters", //$NON-NLS-1$
-			"useBirthYear" //$NON-NLS-1$
+			"enforce20kgRule",
+			"masters",
+			"useBirthYear"
 			);
         crudFormFactory.setFieldCaptions(
-                Translator.translate("Competition.competitionName"), //$NON-NLS-1$
-                Translator.translate("Competition.competitionDate"), //$NON-NLS-1$
-                Translator.translate("Competition.competitionOrganizer"), //$NON-NLS-1$
-                Translator.translate("Competition.competitionSite"), //$NON-NLS-1$
-                Translator.translate("Competition.competitionCity"), //$NON-NLS-1$
-                Translator.translate("Competition.federation"), //$NON-NLS-1$
-                Translator.translate("Competition.federationAddress"), //$NON-NLS-1$
-                Translator.translate("Competition.federationEMail"), //$NON-NLS-1$
-                Translator.translate("Competition.federationWebSite"), //$NON-NLS-1$
-                Translator.translate("Competition.defaultLocale"), //$NON-NLS-1$
+                Translator.translate("Competition.competitionName"),
+                Translator.translate("Competition.competitionDate"),
+                Translator.translate("Competition.competitionOrganizer"),
+                Translator.translate("Competition.competitionSite"),
+                Translator.translate("Competition.competitionCity"),
+                Translator.translate("Competition.federation"),
+                Translator.translate("Competition.federationAddress"),
+                Translator.translate("Competition.federationEMail"),
+                Translator.translate("Competition.federationWebSite"),
+                Translator.translate("Competition.defaultLocale"),
                 // Translator.translate(""protocolFileName"),
                 // Translator.translate(""finalPackageTemplateFileName"),
-                Translator.translate("Competition.enforce20kgRule"), //$NON-NLS-1$
-                Translator.translate("Competition.masters"), //$NON-NLS-1$
-                Translator.translate("Competition.useBirthYear") //$NON-NLS-1$
+                Translator.translate("Competition.enforce20kgRule"),
+                Translator.translate("Competition.masters"),
+                Translator.translate("Competition.useBirthYear")
         );
 		ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(locale);
-		crudFormFactory.setFieldProvider("defaultLocale", //$NON-NLS-1$
-            new ComboBoxProvider<Locale>(getTranslation("Locale"), Translator.getAllAvailableLocales(), new TextRenderer<>(nameGenerator),  //$NON-NLS-1$
+		crudFormFactory.setFieldProvider("defaultLocale",
+            new ComboBoxProvider<Locale>(getTranslation("Locale"), Translator.getAllAvailableLocales(), new TextRenderer<>(nameGenerator), 
             		nameGenerator));
-		crudFormFactory.setFieldType("competitionDate", LocalDateField.class); //$NON-NLS-1$
+		crudFormFactory.setFieldType("competitionDate", LocalDateField.class);
 	}
 	
 	@Override
@@ -156,6 +156,6 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Preparation_Competition"); //$NON-NLS-1$
+		return getTranslation("Preparation_Competition");
 	}
 }

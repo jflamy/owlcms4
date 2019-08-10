@@ -41,10 +41,10 @@ public class DownloadButtonFactory {
 	public static Div createStaticDownloadButton(String prefix, String label, String templateNamePrefix) {
 		String templateFileName = templateNamePrefix +
 				OwlcmsSession.getLocale().getLanguage() +
-				".xls"; //$NON-NLS-1$
-		logger.debug("templateFileName = {} href={}",templateFileName); //$NON-NLS-1$
+				".xls";
+		logger.debug("templateFileName = {} href={}",templateFileName);
 		StreamResource href = new StreamResource(
-				prefix + ".xls", //$NON-NLS-1$
+				prefix + ".xls",
 				() -> OwlcmsSession.class.getResourceAsStream(templateFileName));
 		return buildButton(prefix, label, href);
 	}
@@ -58,22 +58,22 @@ public class DownloadButtonFactory {
 	 * @return the div
 	 */
 	public static Div createDynamicDownloadButton(String prefix, String label, JXLSWorkbookStreamSource xlsSource) {
-		StreamResource href = new StreamResource(prefix + ".xls", xlsSource); //$NON-NLS-1$
+		StreamResource href = new StreamResource(prefix + ".xls", xlsSource);
 		return buildButton(prefix, label, href);
 	}
 
 	private static Div buildButton(String prefix, String label, StreamResource href) {
-		Anchor finalResults = new Anchor(href, ""); //$NON-NLS-1$
+		Anchor finalResults = new Anchor(href, "");
 		Button finalResultsButton = new Button(label, new Icon(VaadinIcon.DOWNLOAD_ALT));
 		finalResultsButton.addFocusListener(e -> {
-			String dlName = prefix + "_" + //$NON-NLS-1$
+			String dlName = prefix + "_" +
 					LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE) +
-					".xls"; //$NON-NLS-1$
-			finalResults.getElement().setAttribute("download", dlName); //$NON-NLS-1$
+					".xls";
+			finalResults.getElement().setAttribute("download", dlName);
 		});
-		finalResultsButton.setWidth("93%"); // don't ask. this is a kludge. //$NON-NLS-1$
+		finalResultsButton.setWidth("93%"); // don't ask. this is a kludge.
 		finalResults.add(finalResultsButton);
-		finalResults.setWidth("100%"); //$NON-NLS-1$
+		finalResults.setWidth("100%");
 		Div finalResultsDiv = new Div(finalResults);
 		finalResultsDiv.setWidthFull();
 		return finalResultsDiv;

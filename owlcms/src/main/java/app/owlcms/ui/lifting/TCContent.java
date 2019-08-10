@@ -50,7 +50,7 @@ import ch.qos.logback.classic.Logger;
 public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TCContent.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName()); //$NON-NLS-1$
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
@@ -62,7 +62,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
     public TCContent() {
         super();
-        setTopBarTitle(getTranslation("TechnicalController")); //$NON-NLS-1$
+        setTopBarTitle(getTranslation("TechnicalController"));
     }
 
     protected void init() {
@@ -211,8 +211,8 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
             (new BreakDialog(this)).open();
         });
-        breakButton.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
-        breakButton.getElement().setAttribute("title", getTranslation("BreakTimer")); //$NON-NLS-1$ //$NON-NLS-2$
+        breakButton.getElement().setAttribute("theme", "icon");
+        breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
         HorizontalLayout buttons = new HorizontalLayout(breakButton);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
@@ -247,7 +247,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("TechnicalController"); //$NON-NLS-1$
+        return getTranslation("TechnicalController");
     }
 
     public OwlcmsCrudFormFactory<Athlete> getCrudFormFactory() {

@@ -47,9 +47,9 @@ public class FullIronIcon extends Icon {
      */
     public Icon setRotation(Integer angle) {
         if (angle == null) {
-            getStyle().remove("transformation"); //$NON-NLS-1$
+            getStyle().remove("transformation");
         } else {
-            getStyle().set("transformation", "rotate("+angle+"deg)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            getStyle().set("transformation", "rotate("+angle+"deg)");
         }
         return this;
     }
@@ -60,6 +60,6 @@ public class FullIronIcon extends Icon {
      * @return the rotation
      */
     public String getRotation() {
-    	return getStyle().get("transformation"); //$NON-NLS-1$
+    	return getStyle().get("transformation");
     }
 }

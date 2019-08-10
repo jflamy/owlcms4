@@ -34,7 +34,7 @@ import ch.qos.logback.classic.Logger;
 public class TimekeeperContent extends AthleteGridContent implements HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName()); //$NON-NLS-1$
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
@@ -42,7 +42,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	
 	public TimekeeperContent() {
 		super();
-		setTopBarTitle(getTranslation("Timekeeper"));	 //$NON-NLS-1$
+		setTopBarTitle(getTranslation("Timekeeper"));	
 	}
 	
 	/* (non-Javadoc)
@@ -62,29 +62,29 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.TimeStarted(this.getOrigin())));
 		});
-		start.getElement().setAttribute("theme", "primary"); //$NON-NLS-1$ //$NON-NLS-2$
+		start.getElement().setAttribute("theme", "primary");
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.TimeStopped(this.getOrigin())));
 		});
-		stop.getElement().setAttribute("theme", "primary"); //$NON-NLS-1$ //$NON-NLS-2$
-		Button _1min = new Button("1:00", (e) -> { //$NON-NLS-1$
+		stop.getElement().setAttribute("theme", "primary");
+		Button _1min = new Button("1:00", (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.ForceTime(60000,this.getOrigin())));
 		});
-		_1min.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
-		_1min.getElement().setAttribute("title", getTranslation("Reset1min")); //$NON-NLS-1$ //$NON-NLS-2$
-		Button _2min = new Button("2:00", (e) -> { //$NON-NLS-1$
+		_1min.getElement().setAttribute("theme", "icon");
+		_1min.getElement().setAttribute("title", getTranslation("Reset1min"));
+		Button _2min = new Button("2:00", (e) -> {
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.ForceTime(120000,this.getOrigin())));
 		});
-		_2min.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
-		_2min.getElement().setAttribute("title", getTranslation("Reset2min")); //$NON-NLS-1$ //$NON-NLS-2$
+		_2min.getElement().setAttribute("theme", "icon");
+		_2min.getElement().setAttribute("title", getTranslation("Reset2min"));
 		Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
 			(new BreakDialog(this)).open();
 		});
-		breakButton.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
-		breakButton.getElement().setAttribute("title", getTranslation("BreakTimer")); //$NON-NLS-1$ //$NON-NLS-2$
+		breakButton.getElement().setAttribute("theme", "icon");
+		breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
 		HorizontalLayout buttons = new HorizontalLayout(
 				start,
 				stop,
@@ -132,7 +132,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Timekeeper"); //$NON-NLS-1$
+		return getTranslation("Timekeeper");
 	}
 	
 }

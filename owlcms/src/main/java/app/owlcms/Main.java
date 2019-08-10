@@ -57,7 +57,7 @@ public class Main {
 
         try {
             init();
-            new EmbeddedJetty().run(serverPort, "/"); //$NON-NLS-1$
+            new EmbeddedJetty().run(serverPort, "/");
         } finally {
             tearDown();
         }
@@ -95,7 +95,7 @@ public class Main {
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
 
         // technical initializations
-        System.setProperty("java.net.preferIPv4Stack", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+        System.setProperty("java.net.preferIPv4Stack", "true");
         ConvertUtils.register(new DateConverter(null), java.util.Date.class);
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 
@@ -114,17 +114,17 @@ public class Main {
         // read server.port parameter from -D"server.port"=9999 on java command line
         // this is required for running on Heroku which assigns us the port at run time.
         // default is 8080
-        serverPort = Integer.getInteger("port", 8080); //$NON-NLS-1$
+        serverPort = Integer.getInteger("port", 8080);
 
         // reads system properties (-D on command line)
-        demoMode = Boolean.getBoolean("demoMode"); // same as devMode + resetMode + memoryMode //$NON-NLS-1$
-        memoryMode = Boolean.getBoolean("memoryMode"); // run in memory //$NON-NLS-1$
-        resetMode = Boolean.getBoolean("resetMode"); // drop the schema first //$NON-NLS-1$
-        devMode = Boolean.getBoolean("devMode"); // load large demo data if empty, do not reset //$NON-NLS-1$
+        demoMode = Boolean.getBoolean("demoMode"); // same as devMode + resetMode + memoryMode
+        memoryMode = Boolean.getBoolean("memoryMode"); // run in memory
+        resetMode = Boolean.getBoolean("resetMode"); // drop the schema first
+        devMode = Boolean.getBoolean("devMode"); // load large demo data if empty, do not reset
                                                          // unless resetMode, persistent unless memoryMode also
-        testMode = Boolean.getBoolean("testMode"); // load small dummy data if empty, do not reset //$NON-NLS-1$
+        testMode = Boolean.getBoolean("testMode"); // load small dummy data if empty, do not reset
                                                            // unless resetMode, persistent unless memoryMode
-        masters = Boolean.getBoolean("masters"); //$NON-NLS-1$
+        masters = Boolean.getBoolean("masters");
     }
 
 
@@ -162,21 +162,21 @@ public class Main {
                     ProdData.insertInitialData(0);
                 }
             } else {
-                logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName()); //$NON-NLS-1$
+                logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
             }
         }
     }
 
     protected static void logStart() throws IOException, ParseException {
-        InputStream in = Main.class.getResourceAsStream("/build.properties"); //$NON-NLS-1$
+        InputStream in = Main.class.getResourceAsStream("/build.properties");
         Properties props = new Properties();
         props.load(in);
-        String version = props.getProperty("version"); //$NON-NLS-1$
+        String version = props.getProperty("version");
         OwlcmsFactory.setVersion(version);
-        String buildTimestamp = props.getProperty("buildTimestamp"); //$NON-NLS-1$
+        String buildTimestamp = props.getProperty("buildTimestamp");
         OwlcmsFactory.setBuildTimestamp(buildTimestamp);
-        String buildZone = props.getProperty("buildZone"); //$NON-NLS-1$
-        logger.info("owlcms {} built {} ({})", version, buildTimestamp, buildZone); //$NON-NLS-1$
+        String buildZone = props.getProperty("buildZone");
+        logger.info("owlcms {} built {} ({})", version, buildTimestamp, buildZone);
     }
 
     protected static void tearDown() {
