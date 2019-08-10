@@ -41,30 +41,28 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
 
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
-        String templateName = "/templates/cards/CardTemplate_" + locale.getLanguage() + ".xls";
-        final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName);
-        if (resourceAsStream == null) {
-            throw new IOException("resource not found: " + templateName);} //$NON-NLS-1$
-        return resourceAsStream;
+        return getLocalizedTemplate("/templates/cards/CardTemplate", ".xls", locale);
     }
 
     @Override
     protected List<Athlete> getSortedAthletes() {
-    	if (getGroup() != null) {
-    		List<Athlete> registrationOrderCopy = AthleteSorter
-    				.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), null));
+        if (getGroup() != null) {
+            List<Athlete> registrationOrderCopy = AthleteSorter
+                    .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), null));
             return registrationOrderCopy;
-    	} else {
-    		List<Athlete> registrationOrderCopy = AthleteSorter
-    				.registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, null));
+        } else {
+            List<Athlete> registrationOrderCopy = AthleteSorter
+                    .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, null));
             return registrationOrderCopy;
-    	}
+        }
     }
 
     /*
      * (non-Javadoc)
      *
-     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#postProcess(org.apache.poi.ss.usermodel.Workbook)
+     * @see
+     * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+     * postProcess(org.apache.poi.ss.usermodel.Workbook)
      */
     @Override
     protected void postProcess(Workbook workbook) {

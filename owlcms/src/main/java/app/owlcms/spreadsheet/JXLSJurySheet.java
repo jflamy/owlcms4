@@ -30,11 +30,7 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
-        String templateName = "/jury/JurySheetTemplate_" + locale.getLanguage() + ".xls";
-        final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName);
-        if (resourceAsStream == null) {
-            throw new IOException("resource not found: " + templateName);} //$NON-NLS-1$
-        return resourceAsStream;
+        return getLocalizedTemplate("/templates/jury/JurySheetTemplate", ".xls", locale);
     }
 
     @Override

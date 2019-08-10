@@ -176,14 +176,10 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
     public JXLSTimingStats(Group group, boolean excludeNotWeighed) {
         super();
     }
-
+    
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {
-        String templateName = "/templates/timing/TimingStats_" + locale.getLanguage() + ".xls"; //$NON-NLS-1$ //$NON-NLS-2$
-        final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName);
-        if (resourceAsStream == null)
-            throw new IOException("resource not found: " + templateName); //$NON-NLS-1$
-        return resourceAsStream;
+        return getLocalizedTemplate("/templates/timing/TimingStats", ".xls", locale);
     }
 
     @Override

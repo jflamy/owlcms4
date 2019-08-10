@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.1.6</version>
+		<version>4.1.7</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -364,12 +364,17 @@
 						<configuration>
 							<headerType>console</headerType>
 							<outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
-							<jar>${project.artifactId}.jar</jar>
+							<!-- fake jar; the one we run in postCp below; we want "local" to be 
+							     before the jar we run from, but the plugin puts the value of jar
+							     at the beginning of classpath, which is not what we want.  So
+							     we put a dummy jar at the front... -->
+							<jar>jre/lib/charsets.jar</jar>
 							<dontWrapJar>true</dontWrapJar>
 							<errTitle>owlcms</errTitle>
 							<classPath>
 								<mainClass>app.owlcms.Main</mainClass>
 								<addDependencies>false</addDependencies>
+								<preCp>local</preCp>
 								<postCp>${project.artifactId}.jar</postCp>
 							</classPath>
 							<icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
@@ -377,7 +382,6 @@
 								<minVersion>1.8.0</minVersion>
 								<path>jre</path>
 								<bundledJreAsFallback>false</bundledJreAsFallback>
-								>
 							</jre>
 							<versionInfo>
 								<fileVersion>1.0.0.0</fileVersion>
@@ -525,7 +529,7 @@
 <!-- 							<name>${project.version}</name> -->
 <!-- 							<targetCommitish>master</targetCommitish> -->
 <!-- 							<body>${project.version}</body> -->
-<!-- 							<releaseNotes>src/main/resources/ReleaseNotes.md</releaseNotes> -->
+<!-- 							<releaseNotes>../../ReleaseNotes.md</releaseNotes> -->
 <!-- 							<assets> -->
 <!-- 								<asset>target/owlcms.zip</asset> -->
 <!-- 								<asset>target/owlcms_setup/owlcms_setup.exe</asset> -->

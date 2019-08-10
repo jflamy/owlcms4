@@ -9,6 +9,7 @@ package app.owlcms.spreadsheet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -144,6 +145,39 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     protected void postProcess(Workbook workbook) {
         // do nothing, to be overridden as needed,
+    }
+    
+    /**
+     * Try the possible variations of a template based on locale.
+     * For "/templates/start/startList", ".xls", and a locale of fr_CA, the following names will be tried
+     * /templates/start/startList_fr_CA.xls
+     * /templates/start/startList_fr.xls
+     * /templates/start/startList_en.xls
+     * 
+     * @param templateName
+     * @param extension
+     * @param locale
+     * @return
+     * @throws IOException 
+     */
+    protected InputStream getLocalizedTemplate(String templateName, String extension, Locale locale) throws IOException {
+        List<String> tryList = getSuffixes(locale);
+        for (String suffix : tryList) {
+            final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName+suffix+extension);
+            if (resourceAsStream != null) return resourceAsStream;
+        }
+        throw new IOException("no template found for : " + templateName + extension + " tried with suffix "+tryList);
+    }
+
+    public List<String> getSuffixes(Locale locale) {
+        List<String> tryList = new ArrayList<>();
+        if (!locale.getVariant().isEmpty()) { tryList.add( "_"+locale.getLanguage()+"_"+locale.getCountry()+"_"+locale.getVariant()); }
+        if (!locale.getCountry().isEmpty()) { tryList.add( "_"+locale.getLanguage()+"_"+locale.getCountry()); }
+        if (!locale.getLanguage().isEmpty()) { tryList.add( "_"+locale.getLanguage()); }
+        // always add English as last resort.
+        if (!locale.getLanguage().equals("en")) { tryList.add("_"+"en"); };
+        if (!locale.getLanguage().equals("en")) { tryList.add(""); };
+        return tryList;
     }
 
     /**

@@ -1,33 +1,39 @@
-### Building from source
+### Building and Packaging
 
-This is a standard Maven project.  If you so wish, you can build the binaries from this source.
-You are welcome to make improvements and correct issues.  If you do, please clone this repository and create a pull request.
+This is a standard Maven project.  If you wish, you can build the binaries from this source.
+In order to do so.
 
 - Install Java 8 and the support for Maven and Git in your favorite development environment. 
   - Eclipse Java IDE includes the M2E and EGit plugins and works fine -- the project includes the settings file for that configuration.
-  - Eclipse also has a GitFlow plugin at https://marketplace.eclipse.org/content/gitflow-nightly which is useful
+  - The project uses [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) to manage its versions; there is a GitFlow Eclipse plugin at https://marketplace.eclipse.org/content/gitflow-nightly .  You may prefer using something like [](https://www.sourcetreeapp.com/).
 - Clone this repository.
-- Running ``mvn package`` inside the owlcms subdirectory should give you a working .jar and .zip in the target directory.
-- Running `mvn verify` will give you an executable .exe; for this the build has to be on Windows, and you need innosetup to be installed.
-  - if you are not running on Windows, you will need to remove the corresponding target in owlcms/pom.xml by setting the execution phase to "none" (or empty).
+- Running ``mvn package`` inside the owlcms subdirectory should give you 
+  - `target/owlcms.jar` working  uberjar (a .jar file that contains all the dependencies)
+  -  `target/owlcms.zip`
+- Running `mvn verify` will also give you an executable .exe; for this to work the build has to be on Windows, and you need [Innosetup](http://www.jrsoftware.org/isinfo.php) to be installed.
+  - if you are not running on Windows, you will need to disable the `windows_jdk_package` target in owlcms/pom.xml by setting the execution phase to "none" (or empty).
 
 
-### Packaging and Releasing
+### Releasing
 
-My notes for packaging and releasing
+Releases are created on [GitHub](https://help.github.com/en/articles/creating-releases).  The process used for managing versions is [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow).  A GitFllow Maven plug-in is used to reduce the number of manual steps.
 
-1. Cleanup GitHub issue management
-   - Make sure that all closed issues are closed on GitHub and assigned to the proper milestone
-   - Go to "Issues/Milestones", close obsolete milestones, take note of the *milestone id* for the current release
-4. Update Release Notes
-   - Descriptive text
-   - Update link to closed issues log to refer to the *milestone id*
+1. Run `mvn gitflow:release-start` to create the new release.
+   - You should be in the `develop`  branch before starting, and have merged all the features you wish so include.
+   - This will create the new release branch, and immediately change the version numbers on `develop` to the next SNAPSHOT number.
+2. Cleanup GitHub issue management
+   - Make sure that all closed issues are closed on GitHub and assigned to the a milestone that matches the release number.
+   - Go to "[Issues/Milestones](Issues/Milestones)"
+     -  close obsolete milestones,
+     -  click on the current milestone, click on the link for `closed` issues.  Copy the URL
+3. Update Release Notes
+   - The file is located in `owlcms4top/ReleaseNotes.md`
+   - Update link to the  `Change Log` to refer to the URL for the close issues copied in step 2.
    - Close all Typora instances, 
-6. Refresh owlcms4top, commit and push
-4. Run the `gitflow:release-start` goal (`mvn gitflow:release-start`)
-5. Run the `gitflow:release-finish` goal (`mvn gitflow:release-finish`)
-   - This does a `clean verify` to create the uberjar, the zip for cloud/linux/mac and the .exe for windows
-   - Then it does the merges of the release to master and develop
+4. Refresh the `owlcms4top`  project, commit and push
+5. Run`mvn gitflow:release-finish`
+   - First, this does a `clean verify` to create the uberjar, the zip for Heroku/Linux/Mac and the .exe for Windows
+   - Then it does the merges of the release branch to master and back to develop
    - Then it creates the GitHub release
 6. The GitHub release portion will fail due to a bug in the plugin, but all the real work has been done.
    - The repository is left on master:  `git push` (Eclipse: Teams / Push to upstream)
