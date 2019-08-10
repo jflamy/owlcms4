@@ -4,7 +4,7 @@ Starting the displays is performed from the `Start Displays`  page.
 
 Notes 
 
-- Each display will open in a new tab (or window, depending on your browser preferences).  Some browsers (Firefox) will signal this as being a pop-up, and ask for permission to open. This is intentional.  It allows the announcer to have several displays open in addition to the announcer's  -- for example, to have the scoreboard open in a second tab.
+- Each display will open in a new tab (or window, depending on your browser preferences).  This allows the announcer to have several displays open in addition to the announcer's own -- for example, to have the scoreboard open in a second tab.
 - Displays meant for the public should be maximized.  Use the F11 key or right-click to go to full-screen mode.
 - each display manages its own timer. If a display is hidden because it is in a tab that is not shown, the display refreshes don't take place, and the time will lag.  Obviously, a display meant for the public or the athletes will not be hidden, so this behavior has no real consequences.
 

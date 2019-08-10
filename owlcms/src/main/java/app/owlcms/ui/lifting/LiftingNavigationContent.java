@@ -52,20 +52,12 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
         doGroup(getTranslation("WeighIn"), grid3, this); //$NON-NLS-1$
 
-        Button announcer = new Button(getTranslation("Announcer"), //$NON-NLS-1$
-                buttonClickEvent -> UI.getCurrent().getPage()
-                        .executeJavaScript(getWindowOpener(AnnouncerContent.class)));
+        Button announcer = openInNewTab(AnnouncerContent.class, getTranslation("Announcer")); //$NON-NLS-1$
         announcer.setAutofocus(true);
 
-        Button marshall = new Button(getTranslation("Marshall"), //$NON-NLS-1$
-                buttonClickEvent -> UI.getCurrent().getPage()
-                        .executeJavaScript(getWindowOpener(MarshallContent.class)));
-        Button timekeeper = new Button(getTranslation("Timekeeper"), //$NON-NLS-1$
-                buttonClickEvent -> UI.getCurrent().getPage()
-                        .executeJavaScript(getWindowOpener(TimekeeperContent.class)));
-        Button technical = new Button(getTranslation("TechnicalController"), //$NON-NLS-1$
-                buttonClickEvent -> UI.getCurrent().getPage()
-                        .executeJavaScript(getWindowOpener(TCContent.class)));
+        Button marshall = openInNewTab(MarshallContent.class, getTranslation("Marshall")); //$NON-NLS-1$
+        Button timekeeper = openInNewTab(TimekeeperContent.class, getTranslation("Timekeeper")); //$NON-NLS-1$
+        Button technical = openInNewTab(TCContent.class, getTranslation("TechnicalController")); //$NON-NLS-1$
 
         VerticalLayout intro = new VerticalLayout();
         addP(intro, getTranslation("AnnouncerSelectsGroup") + //$NON-NLS-1$
@@ -76,10 +68,8 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(announcer, marshall, timekeeper, technical);
         doGroup(getTranslation("Scoreboard.LiftingOrder"), intro, grid1, this); //$NON-NLS-1$
 
-        Button referee = new Button(getTranslation("Referee_Mobile_Device"), //$NON-NLS-1$
-                buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(RefContent.class)));
-        Button jury = new Button(getTranslation("Jury_Console"), //$NON-NLS-1$
-                buttonClickEvent -> UI.getCurrent().getPage().executeJavaScript(getWindowOpener(JuryContent.class)));
+        Button referee = openInNewTab(RefContent.class, getTranslation("Referee_Mobile_Device")); //$NON-NLS-1$
+        Button jury = openInNewTab(JuryContent.class, getTranslation("Jury_Console")); //$NON-NLS-1$
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, jury);
         doGroup(getTranslation("Referees_Jury"), grid2, this); //$NON-NLS-1$
 
