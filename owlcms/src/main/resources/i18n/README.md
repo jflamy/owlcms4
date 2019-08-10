@@ -35,11 +35,12 @@
 
    3. Start the program as usual for your local setup
 
-         - The files that you have in your `local` directory will have precedence over the files shipped with OWLCMSS4, so your translation4.csv will be used instead of the official one
-- By default, OWLCMS4 obeys your browser settings.  So if your browser is set to have xx as the preferred language, and there are translations available for language xx, you will see the xx text you provided.  If you don't get the right language (for example, my browser is in English, which does not help when translating to French), see the [instructions for forcing the language](https://jflamy.github.io/owlcms4/#/LocalSetup?id=defining-the-language)
-         - Any string you have not translated will come out as `!xx: SomeCode`
-  This means that there is no value in the row `SomeCode` for the language `xx`
+         - The files that you have in your `local` directory will have precedence over the files shipped with OWLCMS4, so your translation4.csv will be used instead of the official one
+         - Any string you have not translated will come out as `!xx: SomeCode`. This means that there is no value in the row `SomeCode` for the language `xx`.
          - If you change the translation file, you have to restart the program to see the changes (at present, this may change in the future)
+- By default, OWLCMS4 obeys your browser settings.  So if your browser is set to have xx as the preferred language, and there are translations available for language xx, you will see the xx text you provided.  I
+- f you don't get the right language (for example, my browser is in English, which does not help when translating to French), see the [instructions for forcing the language](https://jflamy.github.io/owlcms4/#/LocalSetup?id=defining-the-language)
+  
 
 ## Translating the Excel files
 - Under the `local\templates` directory you will find the various Excel templates, in separate subdirectories
@@ -50,6 +51,10 @@
 
 - For the protocol and final package files where several formats are possible, the files are loaded when they are selected on the results and package pages.  To reload your file if you make changes, select another language, and then switch back to your own.
 - For the other files (athlete cards, start list, etc.) there is only one choice per language, and there is no selection menu.  These files are read every time the document is produced.
+
+## Reminder
+
+If you are using the Windows installer, uninstalling will also delete the local directory.  **Make a copy before updating **
 
 ## Sending your translations back
 
