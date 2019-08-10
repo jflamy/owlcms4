@@ -28,7 +28,7 @@ Releases are created on [GitHub](https://help.github.com/en/articles/creating-re
      -  click on the current milestone, click on the link for `closed` issues.  Copy the URL
 3. Update Release Notes
    - The file is located in `owlcms4top/ReleaseNotes.md`
-   - Update link to the  `Enhancement and issues` log to refer to the URL for the close issues copied in step 2.
+   - Update link to the  `Change Log` to refer to the URL for the close issues copied in step 2.
    - Close all Typora instances, 
 4. Refresh the `owlcms4top`  project, commit and push
 5. Run`mvn gitflow:release-finish`
