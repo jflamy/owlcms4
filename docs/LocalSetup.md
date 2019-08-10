@@ -81,15 +81,19 @@ When OWLCMS4 is started on a laptop, two windows are visible:  a command-line wi
 
 - `owlcms.exe` starts the owlcms server.  `demo-owlcms.exe` does the same, but using fictitious data that is reset anew on every start; this makes it perfect for practicing.
 
-- The database is created in the directory named `database` 
+- `unins000.exe` is the unistaller.  It will cleanly uninstall everything (including the database and logs, so be careful)
 
-- Log files are be created in the directory called `logs` . If you report bugs, you will be asked to send a copy of the files found in that directory (and possibly a copy of the files in the database folder as well).
+- `database` contains a file ending in `.db` which contains competition data and is managed using the [H2 database engine](https://www.h2database.com/html/main.html). 
 
-- `jre`  contains the Java Runtime Enviroment
+- `logs` contains the execution journal of the program where the full details of what happened are written. If you report bugs, you will be asked to send a copy of the files found in that directory (and possibly a copy of the files in the database folder as well).
+
+- `local` is a directory that is used for translating the screens and documents to other languages, or to add alternate formats for results documents.
+
+- `jre`  contains the Java Runtime Environment
 
 - the file ending in `.jar` is the OWLCMS4 application in executable format
 
-- `unins000.exe` will cleanly uninstall everything (including the database and logs, so be careful)
+- the `owlcms.l4j.ini` file is used to override application settings (for example, to force the display language) or technical settings
 
 ## Control Access to the Application
 
