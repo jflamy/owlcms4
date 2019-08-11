@@ -87,9 +87,9 @@ CompetitionBook.M6_RightHeader,Men,Hommes - Men,,Mænd,Masculino,
 CompetitionBook.MCT,Men - Combined Score,Hommes - Pointage Combiné,,Mænd - Kombineret Score,,
 CompetitionBook.MCT_LeftHeader,Team Ranking (Snatch+CJ+Total),Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Total),,Hold Placering (Træk+Stød+Tokamp),Clasificación por equipos (Arr+DT+Total),
 CompetitionBook.MR,Men's Robi,Hommes Robi,,Robi Mænd,Robi Masculino,
-CompetitionBook.MR_LeftHeader,Robi Ranking,Classement Robi - Robi Ranking,,Robi Placering,CLasificación Robi,
+CompetitionBook.MR_LeftHeader,Robi Ranking,Classement Robi - Robi Ranking,,Robi Placering,Clasificación Robi,
 CompetitionBook.MS,Men's Sinclair,Hommes Sinclair,,Sinclair Mænd,Sinclair Masculino,
-CompetitionBook.MS_LeftHeader,Sinclair  Ranking,Classement Sinclair - Sinclair Ranking,,Sinclair Placering,CLasificación Sinclair,
+CompetitionBook.MS_LeftHeader,Sinclair  Ranking,Classement Sinclair - Sinclair Ranking,,Sinclair Placering,Clasificación Sinclair,
 CompetitionBook.MT,Men's Total Score,Hommes Pointage Total,,Total Score Mænd,Puntos Total Masculino,
 CompetitionBook.MT_LeftHeader,Team Ranking (Total),Classement par équipes (Total) - Team Ranking (Total),,Hold Placering (Total),Clasificación por equipos (Total),
 CompetitionBook.MT_RightHeader,Men,Hommes - Men,,Mænd,Masculino,
@@ -346,3 +346,10 @@ Declaration_current_athlete_with_change,Declaration (with weight change) for cur
 Documentation_Menu,Documentation,Documentation,,Dokumentation,Documentación,
 No_weighed_in_athletes,No weighed-in athletes,Pas d'athlètes pesés,,Ingen atlet vejes,Ningún atleta pesó,
 ForcedAsCurrent,Forced as Current Athlete,Forcé comme athlète courant,,Tvinges som en nuværende atlet,Forzando como un atleta actual,
+robi,Robi,Robi,,Robi,Robi,
+sinclair,Sinclair,Sinclair,,Sinclair,Sinclair,
+smm,SMM,SMM,,SMM,SMM,
+Translation,Translation,Traduction,,Oversættelse,Traducción,перевод
+reloadTranslationInfo,"Click to reload the translation file, then refresh your pages (F5).","Cliquer pour recharger le fichier de traduction, puis raffraîchir les pages.",,"Click to reload the translation file, then refresh your pages (F5).","Click to reload the translation file, then refresh your pages (F5).","Click to reload the translation file, then refresh your pages (F5)."
+reloadTranslation,Reload translation file,Recharger le fichier de traduction,,Reload translation file,Reload translation file,Reload translation file
+TranslationDocumentation,<li>Contribute by translating the application to your own language: see the <a href='https://github.com/jflamy/owlcms4/tree/master/owlcms/src/main/resources/i18n'>translation documentation</a>. ,<li>Traduire l'application dans votre propre langue: voir la  <a href='https://github.com/jflamy/owlcms4/tree/master/owlcms/src/main/resources/i18n'>documentation de traduction</a>. ,,<li>Translate the application to your own language: see the <a href='https://github.com/jflamy/owlcms4/tree/master/owlcms/src/main/resources/i18n'>translation documentation</a>. ,<li>Translate the application to your own language: see the <a href='https://github.com/jflamy/owlcms4/tree/master/owlcms/src/main/resources/i18n'>translation documentation</a>. ,<li>Translate the application to your own language: see the <a href='https://github.com/jflamy/owlcms4/tree/master/owlcms/src/main/resources/i18n'>translation documentation</a>. 

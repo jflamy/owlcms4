@@ -223,30 +223,30 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         ThemeList themes = grid.getThemeNames();
         themes.add("compact");
         themes.add("row-stripes");
-        grid.setColumns("lastName", "firstName", "group", "team", "category", "bestSnatch", "snatchRank", "bestCleanJerk",
-                "cleanJerkRank", "total", "totalRank");
-        grid.getColumnByKey("lastName")
-                .setHeader(getTranslation("LastName"));
-        grid.getColumnByKey("firstName")
-                .setHeader(getTranslation("FirstName"));
-        grid.getColumnByKey("team")
-                .setHeader(getTranslation("Team"));
-        grid.getColumnByKey("group")
-            .setHeader(getTranslation("Group"));
-        grid.getColumnByKey("category")
-                .setHeader(getTranslation("Category"));
-        grid.getColumnByKey("bestSnatch")
-                .setHeader(getTranslation("Snatch"));
-        grid.getColumnByKey("snatchRank")
-                .setHeader(getTranslation("SnatchRank"));
-        grid.getColumnByKey("bestCleanJerk")
-                .setHeader(getTranslation("Clean_and_Jerk"));
-        grid.getColumnByKey("cleanJerkRank")
-                .setHeader(getTranslation("Clean_and_Jerk_Rank"));
-        grid.getColumnByKey("total")
-                .setHeader(getTranslation("Total"));
-        grid.getColumnByKey("totalRank")
-                .setHeader(getTranslation("Rank"));
+
+        grid.addColumn("lastName").setHeader(getTranslation("LastName"));
+        grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
+        grid.addColumn("team").setHeader(getTranslation("Team"));
+        grid.addColumn("group").setHeader(getTranslation("Group"));
+        grid.addColumn("category").setHeader(getTranslation("Category"));
+        grid.addColumn("bestSnatch").setHeader(getTranslation("Snatch"));
+        grid.addColumn("snatchRank").setHeader(getTranslation("SnatchRank"));
+        grid.addColumn("bestCleanJerk").setHeader(getTranslation("Clean_and_Jerk"));
+        grid.addColumn("cleanJerkRank").setHeader(getTranslation("Clean_and_Jerk_Rank"));
+        grid.addColumn("total").setHeader(getTranslation("Total"));
+        grid.addColumn("totalRank").setHeader(getTranslation("Rank"));
+        grid.addColumn("robi").setHeader(getTranslation("robi"));
+        try {
+            String protocolFileName = Competition.getCurrent().getProtocolFileName();
+            if (protocolFileName != null && protocolFileName.toLowerCase().contains("qc")) {
+                // historical
+                grid.addColumn(Athlete::getCategorySinclair, "categorySinclair").setHeader("Cat. Sinclair.");
+            }
+        } catch (IOException e) {
+        }
+        grid.addColumn("sinclair").setHeader(getTranslation("sinclair"));
+        grid.addColumn("smm").setHeader(getTranslation("smm"));
+
 
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
         AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {

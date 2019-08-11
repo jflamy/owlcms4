@@ -138,6 +138,7 @@ public class Translator implements I18NProvider {
         File bundleDir = Files.createTempDir();
 
         if (i18nloader == null) {
+            logger.debug("reloading translation bundles");
 
             InputStream csvStream = helper.getClass().getResourceAsStream(csvName);
             ICsvListReader listReader = null;
@@ -201,7 +202,8 @@ public class Translator implements I18NProvider {
             }
         }
         
-        // this method manages a cache.
+        // reload the files
+        ResourceBundle.clearCache();
         return ResourceBundle.getBundle(baseName, locale, i18nloader);
     }
 
@@ -236,6 +238,7 @@ public class Translator implements I18NProvider {
     public static void reset() {
         locales = null;
         i18nloader = null;
+        logger.debug("cleared translation class loader");
     }
     
     /**

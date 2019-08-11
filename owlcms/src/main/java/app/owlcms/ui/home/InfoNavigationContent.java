@@ -20,6 +20,9 @@ import com.github.appreciated.css.grid.sizes.MinMax;
 import com.github.appreciated.css.grid.sizes.Repeat;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
@@ -29,8 +32,12 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.spreadsheet.JXLSTimingStats;
+import app.owlcms.ui.results.PackageContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
+import app.owlcms.ui.shared.DownloadButtonFactory;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -89,6 +96,16 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 				getTranslation("ThanksToAll")+
 				getTranslation("ThanksToFHQ")
 				);
+		
+		Button resetTranslation = new Button(getTranslation("reloadTranslation"),
+		        buttonClickEvent -> Translator.reset());
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
+		        resetTranslation
+		        );
+
+		license.add(new H3(getTranslation("Translation")));
+		addP(license, getTranslation("TranslationDocumentation"));
+		doGroup(getTranslation("reloadTranslationInfo"), grid1, license);
 		
 		return license;
 	}
