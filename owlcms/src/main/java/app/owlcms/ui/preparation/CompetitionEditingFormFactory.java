@@ -6,20 +6,14 @@
  */
 package app.owlcms.ui.preparation;
 
-import java.time.LocalDate;
 import java.util.Collection;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.HasValue;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.data.binder.Validator;
 
-import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import ch.qos.logback.classic.Logger;
 
