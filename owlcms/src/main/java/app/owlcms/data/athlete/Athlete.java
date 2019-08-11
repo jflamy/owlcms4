@@ -3532,7 +3532,10 @@ public class Athlete {
     public String getFullId() {
 //		Integer startNumber2 = this.getStartNumber();
         Category category2 = this.getCategory();
-        return this.getLastName() + ", " + this.getFirstName() + " " + (category2 != null ? category2 : "");
+        String lastName2 = this.getLastName();
+        String firstName2 = this.getFirstName();
+        if (lastName2 == null && firstName2 == null) return "";
+        return lastName2 + ", " + firstName2 + " " + (category2 != null ? category2 : "");
 //				+(startNumber2 != null && startNumber2 >0 ? " ["+startNumber2+"]" : "");
     }
 

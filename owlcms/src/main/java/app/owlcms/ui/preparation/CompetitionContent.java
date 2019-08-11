@@ -17,11 +17,11 @@ import org.vaadin.crudui.layout.CrudLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.ItemLabelGenerator;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.ui.shared.OwlcmsContent;
@@ -110,7 +110,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
 		crudFormFactory.setFieldProvider("defaultLocale",
             new ComboBoxProvider<Locale>(getTranslation("Locale"), Translator.getAllAvailableLocales(), new TextRenderer<>(nameGenerator), 
             		nameGenerator));
-		crudFormFactory.setFieldType("competitionDate", LocalDateField.class);
+		crudFormFactory.setFieldType("competitionDate", DatePicker.class);
 	}
 	
 	@Override
