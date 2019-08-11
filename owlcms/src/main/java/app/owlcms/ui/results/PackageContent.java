@@ -138,6 +138,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         xlsWriter = new JXLSCompetitionBook(true);
         StreamResource href = new StreamResource("finalResults.xls", xlsWriter);
         finalPackage = new Anchor(href, "");
+        finalPackage.getStyle().set("margin-left", "1em");
         download = new Button(getTranslation("FinalResultsPackage"), new Icon(VaadinIcon.DOWNLOAD_ALT));
         finalPackage.add(download);
 
@@ -148,6 +149,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         templateSelect.setItems(resourceList);
         templateSelect.setValue(null);
         templateSelect.setWidth("15em");
+        templateSelect.getStyle().set("margin-left", "1em");
         setTemplateSelectionListener(resourceList);
 
         HorizontalLayout buttons = new HorizontalLayout(finalPackage);

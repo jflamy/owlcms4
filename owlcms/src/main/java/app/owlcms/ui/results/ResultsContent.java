@@ -138,6 +138,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         xlsWriter = new JXLSResultSheet();
         StreamResource href = new StreamResource("resultSheet.xls", xlsWriter);
         groupResults = new Anchor(href, "");
+        groupResults.getStyle().set("margin-left", "1em");
         download = new Button(getTranslation("GroupResults"), new Icon(VaadinIcon.DOWNLOAD_ALT));
         groupResults.add(download);
 
@@ -148,6 +149,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         templateSelect.setItems(resourceList);
         templateSelect.setValue(null);
         templateSelect.setWidth("15em");
+        templateSelect.getStyle().set("margin-left", "1em");
         setTemplateSelectionListener(resourceList);
 
         HorizontalLayout buttons = new HorizontalLayout(groupResults);
