@@ -36,9 +36,11 @@ Releases are created on [GitHub](https://help.github.com/en/articles/creating-re
    - Then it does the merges of the release branch to master and back to develop
    - Then it creates the GitHub release
 6. The GitHub release portion will fail due to a bug in the plugin, but all the real work has been done.
-   - The repository is left on master:  `git push` (Eclipse: Teams / Push to upstream)
-   - Switch to develop: `git checkout develop` (Eclipse: Teams / Switch to master)
+   - The repository is left on master:  switch to develop: `git checkout develop` (Eclipse: Teams / Switch to master)
+   - Merge the local master branch back into develop
+   - Push all branches upstream `git push` (Eclipse: Teams / Push to upstream)
    - Delete the local release branch that is left over : `git branch -D release/4.x.y`  (Eclipse: Teams / Advanced / Delete Branch)
+   
 7. (optional) Double-check the installer
    1. Uninstall previous version
    2. Refresh the `/owlcms/target` folder.  
