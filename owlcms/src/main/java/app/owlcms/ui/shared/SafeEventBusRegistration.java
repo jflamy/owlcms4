@@ -30,11 +30,11 @@ public interface SafeEventBusRegistration {
 		EventBus uiEventBus = fop.getUiEventBus();
 		uiEventBus.register(c);
 		ui.addBeforeLeaveListener((e) -> {
-			logger.debug("leaving : unregister {} from {}", e.getSource(), uiEventBus.identifier()); //$NON-NLS-1$
+			logger.debug("leaving : unregister {} from {}", e.getSource(), uiEventBus.identifier());
 			try {uiEventBus.unregister(c);} catch (Exception ex) {}
 		});
 		ui.addDetachListener((e) -> {
-			logger.debug("detaching: unregister {} from {}", e.getSource(), uiEventBus.identifier()); //$NON-NLS-1$
+			logger.debug("detaching: unregister {} from {}", e.getSource(), uiEventBus.identifier());
 			try {uiEventBus.unregister(c);} catch (Exception ex) {}
 		});
 		return uiEventBus;
@@ -48,11 +48,11 @@ public interface SafeEventBusRegistration {
 		EventBus fopEventBus = fop.getFopEventBus();
 		fopEventBus.register(c);
 		ui.addBeforeLeaveListener((e) -> {
-			logger.debug("leaving : unregister {} from {}", e.getSource(), fopEventBus.identifier()); //$NON-NLS-1$
+			logger.debug("leaving : unregister {} from {}", e.getSource(), fopEventBus.identifier());
 			try {fopEventBus.unregister(c);} catch (Exception ex) {}
 		});
 		ui.addDetachListener((e) -> {
-			logger.debug("detaching: unregister {} from {}", e.getSource(), fopEventBus.identifier()); //$NON-NLS-1$
+			logger.debug("detaching: unregister {} from {}", e.getSource(), fopEventBus.identifier());
 			try {fopEventBus.unregister(c);} catch (Exception ex) {}
 		});
 		return fopEventBus;

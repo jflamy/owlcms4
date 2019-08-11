@@ -39,7 +39,7 @@ public class ServiceListener implements VaadinServiceInitListener {
 	 */
 	@Override
 	public void serviceInit(ServiceInitEvent event) {	
-		logger.debug("Vaadin Service Startup Configuration. {} {}", event.toString(), LoggerUtils.whereFrom()); //$NON-NLS-1$
+		logger.debug("Vaadin Service Startup Configuration. {} {}", event.toString(), LoggerUtils.whereFrom());
 		event.getSource()
 			.addSessionInitListener(sessionInitEvent -> {
 				sessionInit(sessionInitEvent);

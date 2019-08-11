@@ -43,7 +43,7 @@ import ch.qos.logback.classic.Logger;
 public class AnnouncerContent extends AthleteGridContent implements HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName()); //$NON-NLS-1$
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
@@ -52,7 +52,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	public AnnouncerContent() {
 		super();
 		defineFilters(crudGrid);
-		setTopBarTitle(getTranslation("Announcer")); //$NON-NLS-1$
+		setTopBarTitle(getTranslation("Announcer"));
 	}
 	
 	/* (non-Javadoc)
@@ -63,7 +63,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		groupSelect.setReadOnly(false);
 		OwlcmsSession.withFop((fop) -> {
 			Group group = fop.getGroup();
-			logger.debug("select setting group to {}", group); //$NON-NLS-1$
+			logger.debug("select setting group to {}", group);
 			groupSelect.setValue(group);
 			getGroupFilter().setValue(group);
 		});
@@ -71,7 +71,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			// the group management logic and filtering is attached to a
 			// hidden field in the crudGrid part of the page
 			Group group = e.getValue();
-			logger.debug("select setting filter group to {}", group); //$NON-NLS-1$
+			logger.debug("select setting filter group to {}", group);
 			getGroupFilter().setValue(group);
 		});
 	}
@@ -81,11 +81,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		reset = new Button(IronIcons.REFRESH.create(), (e) ->
 			OwlcmsSession.withFop((fop) -> {
 				Group group = fop.getGroup();
-				logger.debug("resetting {} from database", group); //$NON-NLS-1$
+				logger.debug("resetting {} from database", group);
 				fop.switchGroup(group,this);
 			}));
-		reset.getElement().setAttribute("title", getTranslation("Reload_group")); //$NON-NLS-1$ //$NON-NLS-2$
-		reset.getElement().setAttribute("theme", "secondary contrast small icon"); //$NON-NLS-1$ //$NON-NLS-2$
+		reset.getElement().setAttribute("title", getTranslation("Reload_group"));
+		reset.getElement().setAttribute("theme", "secondary contrast small icon");
 		return reset;
 	}
 
@@ -111,33 +111,33 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 				.post(new FOPEvent.TimeStarted(this.getOrigin()));
 			});
 		});
-		start.getElement().setAttribute("theme", "primary icon"); //$NON-NLS-1$ //$NON-NLS-2$
+		start.getElement().setAttribute("theme", "primary icon");
 		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				fop.getFopEventBus()
 				.post(new FOPEvent.TimeStopped(this.getOrigin()));
 			});
 		});
-		stop.getElement().setAttribute("theme", "primary icon"); //$NON-NLS-1$ //$NON-NLS-2$
-		Button _1min = new Button("1:00", (e) -> { //$NON-NLS-1$
+		stop.getElement().setAttribute("theme", "primary icon");
+		Button _1min = new Button("1:00", (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				fop.getFopEventBus()
 				.post(new FOPEvent.ForceTime(60000, this.getOrigin()));
 			});
 		});
-		_1min.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
-		Button _2min = new Button("2:00", (e) -> { //$NON-NLS-1$
+		_1min.getElement().setAttribute("theme", "icon");
+		Button _2min = new Button("2:00", (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				fop.getFopEventBus()
 				.post(new FOPEvent.ForceTime(120000, this.getOrigin()));
 			});
 		});
-		_2min.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
+		_2min.getElement().setAttribute("theme", "icon");
 		Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
 			(new BreakDialog(this)).open();
 		});
-		breakButton.getElement().setAttribute("theme", "icon"); //$NON-NLS-1$ //$NON-NLS-2$
-		breakButton.getElement().setAttribute("title", getTranslation("Countdown_BreakTimer")); //$NON-NLS-1$ //$NON-NLS-2$
+		breakButton.getElement().setAttribute("theme", "icon");
+		breakButton.getElement().setAttribute("title", getTranslation("Countdown_BreakTimer"));
 
 		HorizontalLayout buttons = new HorizontalLayout(
 			//				announce,
@@ -170,14 +170,14 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 				fop.getFopEventBus().post(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true, true, true));
 			});
 		});
-		good.getElement().setAttribute("theme", "success icon"); //$NON-NLS-1$ //$NON-NLS-2$
+		good.getElement().setAttribute("theme", "success icon");
 		
 		Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				fop.getFopEventBus().post(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false, false, false, false));
 			});
 		});
-		bad.getElement().setAttribute("theme", "error icon"); //$NON-NLS-1$ //$NON-NLS-2$
+		bad.getElement().setAttribute("theme", "error icon");
 		
 		HorizontalLayout decisions = new HorizontalLayout(
 			good,
@@ -190,25 +190,25 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Announcer"); //$NON-NLS-1$
+		return getTranslation("Announcer");
 	}
 	
 	@Subscribe
 	public void slaveRefereeDecision(UIEvent.Decision e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			int d = e.decision ? 1 : 0;
-			String text = MessageFormat.format(getTranslation("NoLift_GoodLift"), d, e.getAthlete().getFullName()); //$NON-NLS-1$
+			String text = MessageFormat.format(getTranslation("NoLift_GoodLift"), d, e.getAthlete().getFullName());
 			
 			Notification n = new Notification();
 			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
-			String themeName = e.decision?"success":"error"; //$NON-NLS-1$ //$NON-NLS-2$
+			String themeName = e.decision?"success":"error";
 			n.getElement().getThemeList().add(themeName);
 
 			Div label = new Div();
 			label.add(text);
 			label.addClickListener((event)-> n.close());
 			label.setSizeFull();
-			label.getStyle().set("font-size", "large"); //$NON-NLS-1$ //$NON-NLS-2$
+			label.getStyle().set("font-size", "large");
 			n.add(label);
 			n.setPosition(Position.TOP_START);
 			n.setDuration(5000);

@@ -61,7 +61,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
 
     private static final String REF_INDEX = "num";
     final private static Logger logger = (Logger) LoggerFactory.getLogger(RefContent.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName()); //$NON-NLS-1$
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
@@ -99,7 +99,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Referee"); //$NON-NLS-1$
+        return getTranslation("Referee");
     }
 
     @Subscribe
@@ -141,7 +141,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         fopSelect.setPlaceholder(getTranslation("SelectPlatform"));
         fopSelect.setItems(OwlcmsFactory.getFOPs());
         fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
-        fopSelect.setWidth("10rem"); //$NON-NLS-1$
+        fopSelect.setWidth("10rem");
         return fopSelect;
     }
 
@@ -153,14 +153,14 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
 
     private Icon bigIcon(VaadinIcon iconDef, String color) {
         Icon icon = iconDef.create();
-        icon.setSize("100%"); //$NON-NLS-1$
-        icon.getStyle().set("color", color); //$NON-NLS-1$
+        icon.setSize("100%");
+        icon.getStyle().set("color", color);
         return icon;
     }
     
     private void createContent(VerticalLayout refContainer) {
         HorizontalLayout topRow = new HorizontalLayout();
-        Label juryLabel = new Label(getTranslation("Referee")); //$NON-NLS-1$
+        Label juryLabel = new Label(getTranslation("Referee"));
         H3 labelWrapper = new H3(juryLabel);
         labelWrapper.getStyle().set("margin-top", "0");
         labelWrapper.getStyle().set("margin-bottom", "0");
@@ -206,9 +206,9 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         refVotingButtons.setBoxSizing(BoxSizing.BORDER_BOX);
         refVotingButtons.setJustifyContentMode(JustifyContentMode.EVENLY);
         refVotingButtons.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-        refVotingButtons.setHeight("60vh"); //$NON-NLS-1$
-        refVotingButtons.setWidth("90%"); //$NON-NLS-1$
-        refVotingButtons.getStyle().set("background-color", "black"); //$NON-NLS-1$ //$NON-NLS-2$
+        refVotingButtons.setHeight("60vh");
+        refVotingButtons.setWidth("90%");
+        refVotingButtons.getStyle().set("background-color", "black");
         refVotingButtons.setPadding(false);
         refVotingButtons.setMargin(false);
 
@@ -219,7 +219,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         refVotingCenterHorizontally.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         refVotingCenterHorizontally.setPadding(true);
         refVotingCenterHorizontally.setMargin(true);
-        refVotingCenterHorizontally.getStyle().set("background-color", "black"); //$NON-NLS-1$ //$NON-NLS-2$
+        refVotingCenterHorizontally.getStyle().set("background-color", "black");
 
         refVotingCenterHorizontally.add(refVotingButtons);
         return;
@@ -259,10 +259,10 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
 
     private void resetRefVote() {
         refVotingButtons.removeAll();
-        good = bigIcon(VaadinIcon.CHECK_CIRCLE, "white"); //$NON-NLS-1$
+        good = bigIcon(VaadinIcon.CHECK_CIRCLE, "white");
         good.getElement().addEventListener("touchstart", (e) -> whiteTouched(e));
         good.getElement().addEventListener("click", (e) -> whiteClicked(e));
-        bad = bigIcon(VaadinIcon.CLOSE_CIRCLE, "red"); //$NON-NLS-1$
+        bad = bigIcon(VaadinIcon.CLOSE_CIRCLE, "red");
         bad.getElement().addEventListener("touchstart", (e) -> redTouched(e));
         bad.getElement().addEventListener("click", (e) -> redClicked(e));
         refVotingButtons.add(bad, good);
@@ -339,13 +339,13 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         urlParams = computeParams(location, parametersMap);
         
         // get the referee number from query parameters, do not add value if num is not defined
-        List<String> nums = parametersMap.get(REF_INDEX); //$NON-NLS-1$
+        List<String> nums = parametersMap.get(REF_INDEX);
         String num = null;
         if (nums != null) {
             num  = nums.get(0);
             try {
                 refIndex = Integer.parseInt(num);
-                logger.debug("parsed {} parameter = {}",REF_INDEX, num); //$NON-NLS-1$
+                logger.debug("parsed {} parameter = {}",REF_INDEX, num);
                 refField.setValue(refIndex.doubleValue());
             } catch (NumberFormatException e) {
                 refIndex = null;

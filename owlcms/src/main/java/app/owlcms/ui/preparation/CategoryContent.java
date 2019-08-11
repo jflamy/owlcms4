@@ -74,12 +74,12 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 	 */
 	protected GridCrud<Category> createGrid(OwlcmsCrudFormFactory<Category> crudFormFactory) {
 		Grid<Category> grid = new Grid<>(Category.class, false);
-		grid.addColumn(Category::getName).setHeader(getTranslation("Name"));  //$NON-NLS-1$
-		grid.addColumn(Category::getAgeDivision).setHeader(getTranslation("AgeDivision")); //$NON-NLS-1$
-		grid.addColumn(Category::getGender).setHeader(getTranslation("Gender")); //$NON-NLS-1$
-		grid.addColumn(Category::getMinimumWeight).setHeader(getTranslation("MinimumWeight")); //$NON-NLS-1$
-		grid.addColumn(Category::getMaximumWeight).setHeader(getTranslation("MaximumWeight")); //$NON-NLS-1$
-		grid.addColumn(Category::isActive).setHeader(getTranslation("Active")); //$NON-NLS-1$
+		grid.addColumn(Category::getName).setHeader(getTranslation("Name")); 
+		grid.addColumn(Category::getAgeDivision).setHeader(getTranslation("AgeDivision"));
+		grid.addColumn(Category::getGender).setHeader(getTranslation("Gender"));
+		grid.addColumn(Category::getMinimumWeight).setHeader(getTranslation("MinimumWeight"));
+		grid.addColumn(Category::getMaximumWeight).setHeader(getTranslation("MaximumWeight"));
+		grid.addColumn(Category::isActive).setHeader(getTranslation("Active"));
 		GridCrud<Category> crud = new OwlcmsCrudGrid<>(
 				Category.class,
 				new OwlcmsGridLayout(Category.class),
@@ -107,20 +107,20 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<Category> crudFormFactory) {
-		crudFormFactory.setVisibleProperties("name", //$NON-NLS-1$
-				"ageDivision", //$NON-NLS-1$
-				"gender", //$NON-NLS-1$
-				"minimumWeight", //$NON-NLS-1$
-				"maximumWeight", //$NON-NLS-1$
-				"wr", //$NON-NLS-1$
-				"active"); //$NON-NLS-1$
-		crudFormFactory.setFieldCaptions(getTranslation("Name"), //$NON-NLS-1$
-				getTranslation("AgeDivision"), //$NON-NLS-1$
-				getTranslation("Gender"), //$NON-NLS-1$
-				getTranslation("MinimumWeight"), //$NON-NLS-1$
-				getTranslation("MaximumWeight"), //$NON-NLS-1$
-				getTranslation("WorldRecord"), //$NON-NLS-1$
-				getTranslation("Active")); //$NON-NLS-1$
+		crudFormFactory.setVisibleProperties("name",
+				"ageDivision",
+				"gender",
+				"minimumWeight",
+				"maximumWeight",
+				"wr",
+				"active");
+		crudFormFactory.setFieldCaptions(getTranslation("Name"),
+				getTranslation("AgeDivision"),
+				getTranslation("Gender"),
+				getTranslation("MinimumWeight"),
+				getTranslation("MaximumWeight"),
+				getTranslation("WorldRecord"),
+				getTranslation("Active"));
 	}
 
 	public Category add(Category domainObjectToAdd) {
@@ -152,7 +152,7 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 	 * @param crudGrid the crudGrid that will be filtered.
 	 */
 	protected void defineFilters(GridCrud<Category> crud) {
-		nameFilter.setPlaceholder(getTranslation("Name")); //$NON-NLS-1$
+		nameFilter.setPlaceholder(getTranslation("Name"));
 		nameFilter.setClearButtonVisible(true);
 		nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
 		nameFilter.addValueChangeListener(e -> {
@@ -161,7 +161,7 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 		crud.getCrudLayout()
 		.addFilterComponent(nameFilter);
 
-		ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision")); //$NON-NLS-1$
+		ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
 		ageDivisionFilter.setItems(AgeDivision.findAll());
 		ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
 		ageDivisionFilter.addValueChangeListener(e -> {
@@ -170,13 +170,13 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 		crud.getCrudLayout()
 		.addFilterComponent(ageDivisionFilter);
 		crud.getCrudLayout()
-		.addToolbarComponent(new Label("")); //$NON-NLS-1$
+		.addToolbarComponent(new Label(""));
 
 		activeFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
-		activeFilter.setLabel(getTranslation("Active")); //$NON-NLS-1$
-		activeFilter.setAriaLabel(getTranslation("ActiveCategoriesOnly")); //$NON-NLS-1$
+		activeFilter.setLabel(getTranslation("Active"));
+		activeFilter.setAriaLabel(getTranslation("ActiveCategoriesOnly"));
 		crud.getCrudLayout()
 		.addFilterComponent(activeFilter);
 
@@ -203,6 +203,6 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Preparation_Categories"); //$NON-NLS-1$
+		return getTranslation("Preparation_Categories");
 	}
 }

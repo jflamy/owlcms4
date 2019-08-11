@@ -26,7 +26,7 @@ public class CategoryLayout extends OwlcmsRouterLayout {
 		variant = Behaviour.LEFT;
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
 		appLayout.closeDrawer();
-		appLayout.setTitleComponent(new Label(getTranslation("EditCategories"))); //$NON-NLS-1$
+		appLayout.setTitleComponent(new Label(getTranslation("EditCategories")));
 		return appLayout;
 	}
 }

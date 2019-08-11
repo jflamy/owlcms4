@@ -34,7 +34,7 @@ public class LoggerUtils {
 	 */
 	public static String stackTrace() {
 		StringWriter sw = new StringWriter();
-		new Exception("").printStackTrace(new PrintWriter(sw)); //$NON-NLS-1$
+		new Exception("").printStackTrace(new PrintWriter(sw));
 		return sw.toString();
 	}
 	
@@ -50,7 +50,7 @@ public class LoggerUtils {
 	}
 	
 	public static void setWhere(String where) {
-		MDC.put("page", where); //$NON-NLS-1$
-		OwlcmsSession.withFop(fop -> MDC.put("currentGroup",fop.getGroup() != null ? fop.getGroup() : "-")); //$NON-NLS-1$ //$NON-NLS-2$
+		MDC.put("page", where);
+		OwlcmsSession.withFop(fop -> MDC.put("currentGroup",fop.getGroup() != null ? fop.getGroup() : "-"));
 	}
 }

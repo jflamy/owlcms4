@@ -133,7 +133,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
-        logger.trace("building athlete card form {}", LoggerUtils.whereFrom()); //$NON-NLS-1$
+        logger.trace("building athlete card form {}", LoggerUtils.whereFrom());
         FormLayout formLayout = new FormLayout();
         formLayout.setSizeFull();
         if (this.responsiveSteps != null) {
@@ -143,7 +143,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         gridLayout = setupGrid();
         errorLabel = new Label();
         HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
-        labelWrapper.addClassName("errorMessage"); //$NON-NLS-1$
+        labelWrapper.addClassName("errorMessage");
         labelWrapper.setWidthFull();
         labelWrapper.setJustifyContentMode(JustifyContentMode.CENTER);
 
@@ -157,9 +157,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         editedAthlete.setValidation(false); // turn off validation in the setters; vaadin will call validation routines
         // explicitly
 
-        logger.trace("aFromDb = {} {}", System.identityHashCode(aFromDb), aFromDb); //$NON-NLS-1$
-        logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete), originalAthlete); //$NON-NLS-1$
-        logger.trace("editedAthlete = {} {}", System.identityHashCode(editedAthlete), editedAthlete); //$NON-NLS-1$
+        logger.trace("aFromDb = {} {}", System.identityHashCode(aFromDb), aFromDb);
+        logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete), originalAthlete);
+        logger.trace("editedAthlete = {} {}", System.identityHashCode(editedAthlete), editedAthlete);
 
         bindGridFields(operation);
 
@@ -182,7 +182,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
     public TextField createActualWeightField(int row, int col) {
         TextField tf = new TextField();
-        tf.setPattern("^[-]{0,1}\\d*$"); //$NON-NLS-1$
+        tf.setPattern("^[-]{0,1}\\d*$");
         tf.setPreventInvalidInput(true);
         tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
         return tf;
@@ -190,7 +190,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
     public TextField createPositiveWeightField(int row, int col) {
         TextField tf = new TextField();
-        tf.setPattern("^\\d*$"); //$NON-NLS-1$
+        tf.setPattern("^\\d*$");
         tf.setPreventInvalidInput(true);
         tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
         return tf;
@@ -220,16 +220,16 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         operationTrigger.setTabIndex(-1);
         operationTrigger.addFocusListener((f) -> {
             if (valid) {
-                logger.debug("updating"); //$NON-NLS-1$
+                logger.debug("updating");
                 doUpdate();
             } else {
-                logger.debug("not updating"); //$NON-NLS-1$
+                logger.debug("not updating");
             }
         });
         // field must visible and added to the layout for focus() to work, so we hide it
         // brutally
         atRowAndColumn(gridLayout, operationTrigger, AUTOMATIC, SNATCH1);
-        operationTrigger.getStyle().set("z-index", "-10"); //$NON-NLS-1$ //$NON-NLS-2$
+        operationTrigger.getStyle().set("z-index", "-10");
         return operationTrigger;
     }
 
@@ -260,22 +260,22 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
     public void setActualLiftStyle(BindingValidationStatus<?> status) throws NumberFormatException {
         TextField field = (TextField) status.getField();
         if (status.isError()) {
-            field.getElement().getClassList().set("error", true); //$NON-NLS-1$
-            field.getElement().getClassList().set("good", false); //$NON-NLS-1$
-            field.getElement().getClassList().set("bad", false); //$NON-NLS-1$
+            field.getElement().getClassList().set("error", true);
+            field.getElement().getClassList().set("good", false);
+            field.getElement().getClassList().set("bad", false);
             field.focus();
         } else {
             String value = field.getValue();
             boolean empty = value == null || value.trim().isEmpty();
             if (empty) {
                 field.getElement().getClassList().clear();
-            } else if (value.equals("-")) { //$NON-NLS-1$
+            } else if (value.equals("-")) {
                 field.getElement().getClassList().clear();
-                field.getElement().getClassList().set("bad", true); //$NON-NLS-1$
+                field.getElement().getClassList().set("bad", true);
             } else {
                 int intValue = Integer.parseInt(value);
                 field.getElement().getClassList().clear();
-                field.getElement().getClassList().set((intValue <= 0 ? "bad" : "good"), true); //$NON-NLS-1$ //$NON-NLS-2$
+                field.getElement().getClassList().set((intValue <= 0 ? "bad" : "good"), true);
             }
         }
     }
@@ -519,7 +519,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         // we use editedAthlete, which this form retrieves from the underlying data
         // source
         binder = super.buildBinder(operation, editedAthlete);
-        logger.trace("athlete from grid={} edited={}", doNotUse, editedAthlete); //$NON-NLS-1$
+        logger.trace("athlete from grid={} edited={}", doNotUse, editedAthlete);
         setValidationStatusHandler(true);
         return binder;
 
@@ -548,7 +548,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         Button cancelButton = buildCancelButton(cancelButtonClickListener);
 
         HorizontalLayout footerLayout = new HorizontalLayout();
-        footerLayout.setWidth("100%"); //$NON-NLS-1$
+        footerLayout.setWidth("100%");
         footerLayout.setSpacing(true);
         footerLayout.setPadding(false);
 
@@ -614,13 +614,13 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
     @Override
     protected boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean updateFieldStatus) {
         String simpleName = this.getClass().getSimpleName();
-        logger.debug("{} validations", simpleName); //$NON-NLS-1$
+        logger.debug("{} validations", simpleName);
         StringBuilder sb = new StringBuilder();
 
         boolean hasErrors = validationStatus.getFieldValidationErrors().size() > 0;
         validationStatus.getBinder().getFields().forEach(f -> {
             ClassList fieldClasses = ((Component) f).getElement().getClassList();
-            fieldClasses.set("error", false); //$NON-NLS-1$
+            fieldClasses.set("error", false);
             f.setReadOnly(hasErrors);
         });
         TextField field = null;
@@ -628,21 +628,21 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
             field = (TextField) ve.getField();
             ClassList fieldClasses = field.getElement().getClassList();
             fieldClasses.clear();
-            fieldClasses.set("error", true); //$NON-NLS-1$
+            fieldClasses.set("error", true);
             field.setReadOnly(false);
             field.setAutoselect(true);
             field.focus();
             if (sb.length() > 0)
             {
-                sb.append("; "); //$NON-NLS-1$
+                sb.append("; ");
             }
-            String message = ve.getMessage().orElse(field.getTranslation("Error")); //$NON-NLS-1$
+            String message = ve.getMessage().orElse(field.getTranslation("Error"));
             sb.append(message);
         }
         for (ValidationResult ve : validationStatus.getBeanValidationErrors()) {
             if (sb.length() > 0)
             {
-                sb.append("; "); //$NON-NLS-1$
+                sb.append("; ");
             }
             String message = ve.getErrorMessage();
             // logger.debug("bean message: {}",message);
@@ -650,14 +650,14 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         }
         if (sb.length() > 0) {
             String message = sb.toString();
-            logger.debug("{} setting message {}", simpleName, message); //$NON-NLS-1$
+            logger.debug("{} setting message {}", simpleName, message);
             errorLabel.setVisible(true);
-            errorLabel.getElement().setProperty("innerHTML", message); //$NON-NLS-1$
-            errorLabel.getClassNames().set("errorMessage", true); //$NON-NLS-1$
+            errorLabel.getElement().setProperty("innerHTML", message);
+            errorLabel.getClassNames().set("errorMessage", true);
         } else {
-            logger.debug("{} setting EMPTY", simpleName); //$NON-NLS-1$
+            logger.debug("{} setting EMPTY", simpleName);
             errorLabel.setVisible(true);
-            errorLabel.getElement().setProperty("innerHTML", "&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
+            errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
             errorLabel.getClassNames().clear();
         }
         if (!hasErrors) {
@@ -672,23 +672,23 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         GridLayout gridLayout = new GridLayout();
         gridLayout.setTemplateRows(new Repeat(ACTUAL, new Flex(1)));
         gridLayout.setTemplateColumns(new Repeat(CJ3, new Flex(1)));
-        gridLayout.setGap(new Length("0.8ex"), new Length("1.2ex")); //$NON-NLS-1$ //$NON-NLS-2$
+        gridLayout.setGap(new Length("0.8ex"), new Length("1.2ex"));
 
         // column headers
-        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Snatch1")), HEADER, SNATCH1, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
-        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Snatch2")), HEADER, SNATCH2, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
-        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Snatch3")), HEADER, SNATCH3, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
-        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("C_and_J_1")), HEADER, CJ1, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
-        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("C_and_J_2")), HEADER, CJ2, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
-        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("C_and_J_3")), HEADER, CJ3, RowAlign.CENTER, ColumnAlign.CENTER); //$NON-NLS-1$
+        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Snatch1")), HEADER, SNATCH1, RowAlign.CENTER, ColumnAlign.CENTER);
+        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Snatch2")), HEADER, SNATCH2, RowAlign.CENTER, ColumnAlign.CENTER);
+        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Snatch3")), HEADER, SNATCH3, RowAlign.CENTER, ColumnAlign.CENTER);
+        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("C_and_J_1")), HEADER, CJ1, RowAlign.CENTER, ColumnAlign.CENTER);
+        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("C_and_J_2")), HEADER, CJ2, RowAlign.CENTER, ColumnAlign.CENTER);
+        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("C_and_J_3")), HEADER, CJ3, RowAlign.CENTER, ColumnAlign.CENTER);
 
         // row headings
-        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AutomaticProgression")), AUTOMATIC, LEFT, RowAlign.CENTER, //$NON-NLS-1$
+        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("AutomaticProgression")), AUTOMATIC, LEFT, RowAlign.CENTER,
                 ColumnAlign.END);
-        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Declaration")), DECLARATION, LEFT, RowAlign.CENTER, ColumnAlign.END); //$NON-NLS-1$
-        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Change_1")), CHANGE1, LEFT, RowAlign.CENTER, ColumnAlign.END); //$NON-NLS-1$
-        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Change_2")), CHANGE2, LEFT, RowAlign.CENTER, ColumnAlign.END); //$NON-NLS-1$
-        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("WeightLifted")), ACTUAL, LEFT, RowAlign.CENTER, ColumnAlign.END); //$NON-NLS-1$
+        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Declaration")), DECLARATION, LEFT, RowAlign.CENTER, ColumnAlign.END);
+        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Change_1")), CHANGE1, LEFT, RowAlign.CENTER, ColumnAlign.END);
+        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Change_2")), CHANGE2, LEFT, RowAlign.CENTER, ColumnAlign.END);
+        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("WeightLifted")), ACTUAL, LEFT, RowAlign.CENTER, ColumnAlign.END);
 
         return gridLayout;
     }
@@ -703,7 +703,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         gridLayout.setRowAndColumn(component, new Int(row), new Int(column), new Int(row), new Int(column));
         gridLayout.setRowAlign(component, ra);
         gridLayout.setColumnAlign(component, ca);
-        component.getElement().getStyle().set("width", "6em"); //$NON-NLS-1$ //$NON-NLS-2$
+        component.getElement().getStyle().set("width", "6em");
         if (component instanceof TextField) {
             TextField textField = (TextField) component;
             textfields[row - 1][column - 1] = textField;

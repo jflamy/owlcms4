@@ -32,10 +32,10 @@ public class DebugUtils {
 	public static String shortDump(List<? extends Athlete> lifterList) {
 	    StringBuffer sb = new StringBuffer();
 	    for (Athlete lifter : lifterList) {
-	        sb.append(lifter.getLastName() + " " + lifter.getFirstName() //$NON-NLS-1$
-	            + " " + lifter.getNextAttemptRequestedWeight() //$NON-NLS-1$
-	            + " " + (lifter.getAttemptsDone() + 1) //$NON-NLS-1$
-	            + " " + lifter.getLotNumber()); //$NON-NLS-1$
+	        sb.append(lifter.getLastName() + " " + lifter.getFirstName()
+	            + " " + lifter.getNextAttemptRequestedWeight()
+	            + " " + (lifter.getAttemptsDone() + 1)
+	            + " " + lifter.getLotNumber());
 	        sb.append(LINESEPARATOR);
 	    }
 	    return sb.toString();
@@ -54,6 +54,6 @@ public class DebugUtils {
 	    return sb.toString();
 	}
 
-	final static String LINESEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+	final static String LINESEPARATOR = System.getProperty("line.separator");
 
 }

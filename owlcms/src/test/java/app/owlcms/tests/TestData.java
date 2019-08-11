@@ -64,16 +64,16 @@ public class TestData {
 		LocalDateTime w = LocalDateTime.now();
 		LocalDateTime c = w.plusHours((long) 2.0);
 
-		Platform platform1 = new Platform("Gym 1"); //$NON-NLS-1$
-		Platform platform2 = new Platform("Gym 2"); //$NON-NLS-1$
+		Platform platform1 = new Platform("Gym 1");
+		Platform platform2 = new Platform("Gym 2");
 
-		Group groupA = new Group("A", w, c); //$NON-NLS-1$
+		Group groupA = new Group("A", w, c);
 		groupA.setPlatform(platform1);
 
-		Group groupB = new Group("B", w, c); //$NON-NLS-1$
+		Group groupB = new Group("B", w, c);
 		groupB.setPlatform(platform2);
 
-		Group groupC = new Group("C", w, c); //$NON-NLS-1$
+		Group groupC = new Group("C", w, c);
 		groupC.setPlatform(platform1);
 
 		insertSampleLifters(em, liftersToLoad, groupA, groupB, groupC);
@@ -89,12 +89,12 @@ public class TestData {
 	public static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
 			Group groupB,
 			Group groupC) {
-		final String[] fnames = { "Peter", "Albert", "Joshua", "Mike", "Oliver", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-				"Paul", "Alex", "Richard", "Dan", "Umberto", "Henrik", "Rene", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
-				"Fred", "Donald" }; //$NON-NLS-1$ //$NON-NLS-2$
-		final String[] lnames = { "Smith", "Gordon", "Simpson", "Brown", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				"Clavel", "Simons", "Verne", "Scott", "Allison", "Gates", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-				"Rowling", "Barks", "Ross", "Schneider", "Tate" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		final String[] fnames = { "Peter", "Albert", "Joshua", "Mike", "Oliver",
+				"Paul", "Alex", "Richard", "Dan", "Umberto", "Henrik", "Rene",
+				"Fred", "Donald" };
+		final String[] lnames = { "Smith", "Gordon", "Simpson", "Brown",
+				"Clavel", "Simons", "Verne", "Scott", "Allison", "Gates",
+				"Rowling", "Barks", "Ross", "Schneider", "Tate" };
 
 		Random r = new Random(0);
 

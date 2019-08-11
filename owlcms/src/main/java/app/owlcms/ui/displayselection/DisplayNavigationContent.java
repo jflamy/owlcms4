@@ -9,7 +9,6 @@ package app.owlcms.ui.displayselection;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -35,78 +34,57 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "displays", layout = OwlcmsRouterLayout.class)
 public class DisplayNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
 
-	final static Logger logger = (Logger)LoggerFactory.getLogger(DisplayNavigationContent.class);
-	static { logger.setLevel(Level.INFO); }
+    final static Logger logger = (Logger) LoggerFactory.getLogger(DisplayNavigationContent.class);
+    static {
+        logger.setLevel(Level.INFO);
+    }
 
-	/**
-	 * Instantiates a new display navigation content.
-	 */
-	public DisplayNavigationContent() {
-		VerticalLayout intro = new VerticalLayout();
-		addP(intro, getTranslation("Dropdown_Select_Platform")); //$NON-NLS-1$
-		addP(intro, getTranslation("Button_Open_Display")); //$NON-NLS-1$
-		intro.getElement().getStyle().set(getTranslation("margin-bottom"), "0"); //$NON-NLS-1$ //$NON-NLS-2$
+    /**
+     * Instantiates a new display navigation content.
+     */
+    public DisplayNavigationContent() {
+        VerticalLayout intro = new VerticalLayout();
+        addP(intro, getTranslation("Dropdown_Select_Platform"));
+        addP(intro, getTranslation("Button_Open_Display"));
+        intro.getElement().getStyle().set(getTranslation("margin-bottom"), "0");
 
-		Button attempt = new Button(
-				getTranslation("AttemptBoard"), //$NON-NLS-1$
-				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(AttemptBoard.class)));
-		Button scoreboard = new Button(
-				getTranslation("Scoreboard"), //$NON-NLS-1$
-				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(Scoreboard.class)));
-	     Button liftingOrder = new Button(
-	                getTranslation("Scoreboard.LiftingOrder"), //$NON-NLS-1$
-	                buttonClickEvent -> UI.getCurrent().getPage()
-	                    .executeJavaScript(getWindowOpener(LiftingOrder.class)));
-		
-		Button referee = new Button(
-			getTranslation("Athlete_Decisions"), //$NON-NLS-1$
-			buttonClickEvent -> UI.getCurrent().getPage()
-				.executeJavaScript(getWindowOpener(AthleteFacingDecisionBoard.class)));
-		Button athleteFacingAttempt = new Button(
-				getTranslation("Athlete_Attempt"), //$NON-NLS-1$
-				buttonClickEvent -> UI.getCurrent().getPage()
-					.executeJavaScript(getWindowOpener(AthleteFacingAttemptBoard.class)));
+        Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"));
+        Button scoreboard = openInNewTab(Scoreboard.class, getTranslation("Scoreboard"));
+        Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
+        Button referee = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
+        Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoard.class, getTranslation("Athlete_Attempt"));
 
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
-			scoreboard,
-			attempt,
-			liftingOrder
-			);
-		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(
-			referee,
-			athleteFacingAttempt	
-			);
-//		plates.setEnabled(false);
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, attempt, liftingOrder);
+        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, athleteFacingAttempt);
 
-		fillH(intro, this);
-		doGroup(getTranslation("FieldOfPlayDisplays"), grid1, this); //$NON-NLS-1$
-		doGroup(getTranslation("Refereeing_Displays"), grid2, this); //$NON-NLS-1$
-	}
+        fillH(intro, this);
+        doGroup(getTranslation("FieldOfPlayDisplays"), grid1, this);
+        doGroup(getTranslation("Refereeing_Displays"), grid2, this);
+    }
 
-	/**
-	 * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String, java.lang.String)
-	 */
-	@Override
-	protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-		return null;
-	}
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String,
+     *      java.lang.String)
+     */
+    @Override
+    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
+        return null;
+    }
 
-	/**
-	 * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
-	 */
-	@Override
-	protected String getTitle() {
-		return getTranslation("StartDisplays"); //$NON-NLS-1$
-	}
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
+     */
+    @Override
+    protected String getTitle() {
+        return getTranslation("StartDisplays");
+    }
 
-	/**
-	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-	 */
-	@Override
-	public String getPageTitle() {
-		return getTranslation("OWLCMS_Displays"); //$NON-NLS-1$
-	}
-	
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("OWLCMS_Displays");
+    }
+
 }

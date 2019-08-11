@@ -67,7 +67,7 @@ public class LiftDefinitionTest {
 
 	@Ignore
 	public void initialCheck() {
-		final String resName = "/initialCheck.txt"; //$NON-NLS-1$
+		final String resName = "/initialCheck.txt";
 		AthleteSorter.assignLotNumbers(athletes);
 		AthleteSorter.assignStartNumbers(athletes);
 
@@ -106,7 +106,7 @@ public class LiftDefinitionTest {
 
 		// check initial lift order -- this checks the "lot number" rule
 		AthleteSorter.liftingOrder(athletes);
-		assertEqualsToReferenceFile("/seq1_lift0.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		assertEqualsToReferenceFile("/seq1_lift0.txt", DebugUtils.shortDump(athletes));
 		// hide non-athletes
 		final int size = athletes.size();
 		for (int i = 4; i < size; i++)
@@ -114,50 +114,50 @@ public class LiftDefinitionTest {
 
 		// competition start
 		successfulLift(athletes);
-		assertEqualsToReferenceFile("/seq1_lift1.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		assertEqualsToReferenceFile("/seq1_lift1.txt", DebugUtils.shortDump(athletes));
 		successfulLift(athletes);
-		assertEqualsToReferenceFile("/seq1_lift2.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		assertEqualsToReferenceFile("/seq1_lift2.txt", DebugUtils.shortDump(athletes));
 
 		// change weights to have all athletes are the same at 60
-		declaration(verneU, athletes, "58"); //$NON-NLS-1$
-		declaration(allisonA, athletes, "60"); //$NON-NLS-1$
-		change1(verneU, athletes, "59"); //$NON-NLS-1$
-		change2(verneU, athletes, "60"); //$NON-NLS-1$
-		assertEqualsToReferenceFile("/seq1_lift3.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		declaration(verneU, athletes, "58");
+		declaration(allisonA, athletes, "60");
+		change1(verneU, athletes, "59");
+		change2(verneU, athletes, "60");
+		assertEqualsToReferenceFile("/seq1_lift3.txt", DebugUtils.shortDump(athletes));
 
 		// failure so we can test "earlier lifter"
 		failedLift(athletes);
-		assertTrue("earlier lifter has precedence", //$NON-NLS-1$
+		assertTrue("earlier lifter has precedence",
 			athletes.get(2).getPreviousLiftTime().isBefore(athletes.get(3).getPreviousLiftTime()));
-		assertTrue("lift order not considered", (athletes.get(2).getLotNumber()) > (athletes.get(3).getLotNumber())); //$NON-NLS-1$
-		assertEqualsToReferenceFile("/seq1_lift4.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		assertTrue("lift order not considered", (athletes.get(2).getLotNumber()) > (athletes.get(3).getLotNumber()));
+		assertEqualsToReferenceFile("/seq1_lift4.txt", DebugUtils.shortDump(athletes));
 
 		// one more failure -- we now have 3 athletes at second try, 60kg.
 		failedLift(athletes);
 		assertTrue(
-			"time stamp precedence failed 0 vs 1 " + athletes.get(0).getPreviousLiftTime() + ">=" //$NON-NLS-1$ //$NON-NLS-2$
+			"time stamp precedence failed 0 vs 1 " + athletes.get(0).getPreviousLiftTime() + ">="
 					+ athletes.get(1).getPreviousLiftTime(),
 			athletes.get(0).getPreviousLiftTime().isBefore(athletes.get(1).getPreviousLiftTime()));
 		assertTrue(
-			"time stamp precedence failed 1 vs 2 " + athletes.get(1).getPreviousLiftTime() + ">=" //$NON-NLS-1$ //$NON-NLS-2$
+			"time stamp precedence failed 1 vs 2 " + athletes.get(1).getPreviousLiftTime() + ">="
 					+ athletes.get(2).getPreviousLiftTime(),
 			athletes.get(1).getPreviousLiftTime().isBefore(athletes.get(2).getPreviousLiftTime()));
-		assertEqualsToReferenceFile("/seq1_lift5.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		assertEqualsToReferenceFile("/seq1_lift5.txt", DebugUtils.shortDump(athletes));
 
 		// get second try done
 		failedLift(athletes);
 		successfulLift(athletes);
 		successfulLift(athletes);
 		successfulLift(athletes);
-		assertEqualsToReferenceFile("/seq1_lift6.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		assertEqualsToReferenceFile("/seq1_lift6.txt", DebugUtils.shortDump(athletes));
 
 		// get third try done
 		successfulLift(athletes);
-		assertEqualsToReferenceFile("/seq1_lift7.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		assertEqualsToReferenceFile("/seq1_lift7.txt", DebugUtils.shortDump(athletes));
 		successfulLift(athletes);
 		successfulLift(athletes);
 		successfulLift(athletes);
-		assertEqualsToReferenceFile("/seq1_lift8.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		assertEqualsToReferenceFile("/seq1_lift8.txt", DebugUtils.shortDump(athletes));
 
 		// end of snatch
 
@@ -183,7 +183,7 @@ public class LiftDefinitionTest {
 		}
 		// in this sequence, one lifter is already done, check that others are
 		// listed below
-		assertEqualsToReferenceFile("/seq1_lift9.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		assertEqualsToReferenceFile("/seq1_lift9.txt", DebugUtils.shortDump(athletes));
 
 		// proceed with competition
 		successfulLift(athletes);
@@ -191,7 +191,7 @@ public class LiftDefinitionTest {
 		successfulLift(athletes);
 		failedLift(athletes);
 		// two athletes are now done
-		assertEqualsToReferenceFile("/seq1_lift10.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		assertEqualsToReferenceFile("/seq1_lift10.txt", DebugUtils.shortDump(athletes));
 		successfulLift(athletes);
 		successfulLift(athletes);
 
@@ -204,7 +204,7 @@ public class LiftDefinitionTest {
 		// wins because of earlier lift.
 		Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
 		AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-		assertEqualsToReferenceFile("/seq1_medals_timeStamp.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		assertEqualsToReferenceFile("/seq1_medals_timeStamp.txt", DebugUtils.shortDump(athletes));
 
 		// now we give the first two athletes different body weights (second is
 		// lighter)
@@ -218,9 +218,9 @@ public class LiftDefinitionTest {
 		// and we sort again for medals.
 		Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
 		AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-		assertEqualsToReferenceFile("/seq1_medals_bodyWeight.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+		assertEqualsToReferenceFile("/seq1_medals_bodyWeight.txt", DebugUtils.shortDump(athletes));
 		// assertEqualsToReferenceFile("/seq1_medals_weighInCategories.txt",
-		// DebugUtils.longDump(athletes,false)); //$NON-NLS-1$
+		// DebugUtils.longDump(athletes,false));
 
 		// now we force the athletes to be in different registration categories and check that
 		// useRegistrationCategories works)
@@ -238,7 +238,7 @@ public class LiftDefinitionTest {
 			// and we sort again for medals. order should now be schneider allison simpson verne
 			Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
 			AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-			assertEqualsToReferenceFile("/seq1_medals_registrationCategories.txt", DebugUtils.shortDump(athletes)); //$NON-NLS-1$
+			assertEqualsToReferenceFile("/seq1_medals_registrationCategories.txt", DebugUtils.shortDump(athletes));
 			Competition.getCurrent().setUseRegistrationCategory(true);
 		} finally {
 			Competition.getCurrent().setUseRegistrationCategory(reset);
@@ -268,7 +268,7 @@ public class LiftDefinitionTest {
 
 			Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
 			AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-			assertEqualsToReferenceFile("/seq1_medals_earlierTotal.txt", DebugUtils.longDump(athletes)); //$NON-NLS-1$
+			assertEqualsToReferenceFile("/seq1_medals_earlierTotal.txt", DebugUtils.longDump(athletes));
 			Competition.getCurrent().setUseRegistrationCategory(true);
 		} finally {
 			Competition.getCurrent().setUseRegistrationCategory(reset);
@@ -299,7 +299,7 @@ public class LiftDefinitionTest {
 
 			Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
 			AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-			assertEqualsToReferenceFile("/seq1_medals_earlierTotal2.txt", DebugUtils.longDump(athletes)); //$NON-NLS-1$
+			assertEqualsToReferenceFile("/seq1_medals_earlierTotal2.txt", DebugUtils.longDump(athletes));
 			Competition.getCurrent().setUseRegistrationCategory(true);
 		} finally {
 			Competition.getCurrent().setUseRegistrationCategory(reset);
@@ -355,7 +355,7 @@ public class LiftDefinitionTest {
 
 			Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
 			AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-			assertEqualsToReferenceFile("/seq1_medals_earlierTotal3.txt", DebugUtils.longDump(athletes)); //$NON-NLS-1$
+			assertEqualsToReferenceFile("/seq1_medals_earlierTotal3.txt", DebugUtils.longDump(athletes));
 			Competition.getCurrent().setUseRegistrationCategory(true);
 		} finally {
 			Competition.getCurrent().setUseRegistrationCategory(reset);
@@ -424,7 +424,7 @@ public class LiftDefinitionTest {
 		doLift(lifter, lifters1, weight);
 		if (lifter.getAttemptsDone() < 5)
 			assertEquals(
-				"next requested weight should be equal after failed lift", nextAttemptRequestedWeight, //$NON-NLS-1$
+				"next requested weight should be equal after failed lift", nextAttemptRequestedWeight,
 				lifter.getNextAttemptRequestedWeight());
 	}
 

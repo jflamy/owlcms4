@@ -4,7 +4,7 @@ OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md)
 
 ## Features
 
-- The following list is a sampling of the many features available.  Refer to the various sections of the documentation (see the sidebar menu at the left) to get a better sense.
+- The following list is a sampling of the many features available.  Refer to the various sections of the documentation (see the sidebar menu at the left) to get a better sense.  Right-click on the images if you wish to see them full-sized.
   - Run a **regular** or **masters** competition, with or without a jury.
   
   - Ability to run in the [**cloud**](EquipmentSetup#cloud-access-over-the-internet): Decisions, timers and sounds are handled locally in the browser to provide better feedback.
@@ -67,25 +67,41 @@ OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md)
 
 Download and Installation Instructions are available for both [local setups without internet access](https://jflamy.github.io/owlcms4/#/LocalSetup.md) and for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
 
+
+
 ## Demo
 
 - See [this page](Demo) for how to access  the [demo site](https://owlcms4.herokuapp.com) and a perform a simple walkthrough
+
 - All the screenshots for the documentation on this site come from the demo. You may therefore use the [demo site](https://owlcms4.herokuapp.com) to perform a full walkthrough.
+
+  
 
 ## Reporting Issues and Suggesting Enhancements
 
 For the current work status, see the following links
 
 - [Project board](https://github.com/jflamy/owlcms4/projects/1) This shows what we are working on, and our work priorities.  Check here first, we may actually already be working on it...
+
 - [Issues and enhancement requests](https://github.com/jflamy/owlcms4/issues) This is the complete log of requests and planned enhancements. Use this page to report problems or suggest enhancements.
+
 - [Discussion list](https://groups.google.com/forum/#!forum/owlcms)  If you wish to discuss the program or ask questions, please add yourself to this discussion [group](https://groups.google.com/forum/#!forum/owlcms).  You can withdraw at any time.
-- [Translations](https://github.com/jflamy/owlcms4/tree/develop/owlcms/src/main/resources/i18n) Refer to this link if you wish to translate the screens to your own language, or fix a translation.
+
+  
+
+## Translation to Other Languages
+
+- You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](Translation) if you wish to contribute. 
+
+  
 
 ## Licensing and Notes
 
 This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/jflamy/owlcms4/releases) page and go ahead.  The software is meant to comply with current IWF Technical Competition Rules and Regulations (TCRR) and with the current Masters Weightlifting rules.  TCRR Requirements regarding equipment are outside our scope (such as the presence of indicator lights and buzzers on refereeing devices, etc.)You should perform your own tests to see if the software is fit for your own purposes and circumstances.
 
 If you wish to provide or host the software as a service to others (whether you charge a fee for that service or not), the license *requires* you to make full sources building instructions available for free.  If you host the software as is, the information in the About page is sufficient to meet the requirement.  If however you modify the code, you are **required** to make the code to your modified version and the building instructions available for free to the users of your service.  The intent of the [License](https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt) is that anyone who wants to compile or further modify your version can do so on their own, for free, and not be tied to your services unless they choose to.  You may contact the author to seek alternative licensing agreements.
+
+
 
 ## Credits
 

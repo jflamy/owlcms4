@@ -64,7 +64,7 @@ public class OwlcmsFactory {
 		for (Platform platform : PlatformRepository.findAll()) {
 			String name = platform.getName();
 			FieldOfPlay fop = new FieldOfPlay(null, platform);
-			logger.trace("fop {}",fop.getName()); //$NON-NLS-1$
+			logger.trace("fop {}",fop.getName());
 			// no group selected, no athletes, announcer will need to pick a group.
 			fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop));
 			fopByName.put(name, fop);
@@ -83,7 +83,7 @@ public class OwlcmsFactory {
 			.sorted(Comparator.comparing(x -> x.getKey()))
 			.map(x -> x.getValue())
 			.findFirst();
-		return fop.orElseThrow(() -> new RuntimeException("no default platform")); //$NON-NLS-1$
+		return fop.orElseThrow(() -> new RuntimeException("no default platform"));
 	}
 
 	public static FieldOfPlay getFOPByGroupName(String name) {

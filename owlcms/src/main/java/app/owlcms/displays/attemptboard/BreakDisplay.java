@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2019 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.displays.attemptboard;
 
 import java.text.MessageFormat;
@@ -32,22 +38,22 @@ public interface BreakDisplay {
 	public default String inferGroupName() {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		Group group = fop.getGroup();
-		String groupName = group != null ? group.getName() : ""; //$NON-NLS-1$
-		return MessageFormat.format(Translator.translate("Group_number"), groupName); //$NON-NLS-1$
+		String groupName = group != null ? group.getName() : "";
+		return MessageFormat.format(Translator.translate("Group_number"), groupName);
 	}
 
 	public default String inferMessage(BreakType bt) {
 		switch (bt) {
 		case FIRST_CJ:
-			return Translator.translate("TimeBeforeNextLift"); //$NON-NLS-1$
+			return Translator.translate("TimeBeforeNextLift");
 		case FIRST_SNATCH:
-			return Translator.translate("TimeBeforeFirstLift"); //$NON-NLS-1$
+			return Translator.translate("TimeBeforeFirstLift");
 		case INTRODUCTION:
-			return Translator.translate("TimeBeforeIntroduction"); //$NON-NLS-1$
+			return Translator.translate("TimeBeforeIntroduction");
 		case TECHNICAL:
-			return Translator.translate("CompetitionPaused"); //$NON-NLS-1$
+			return Translator.translate("CompetitionPaused");
 		default:
-			return ""; //$NON-NLS-1$
+			return "";
 		}
 	}
 

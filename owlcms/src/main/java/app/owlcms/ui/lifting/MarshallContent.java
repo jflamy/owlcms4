@@ -39,7 +39,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 
 	public MarshallContent() {
 		super();
-		setTopBarTitle(getTranslation("Marshall")); //$NON-NLS-1$
+		setTopBarTitle(getTranslation("Marshall"));
 	}
 
 
@@ -52,7 +52,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
 				.post(new FOPEvent.TimeStopped(this.getOrigin())));
 		});
-		stop.getElement().setAttribute("theme", "primary icon"); //$NON-NLS-1$ //$NON-NLS-2$
+		stop.getElement().setAttribute("theme", "primary icon");
 		HorizontalLayout buttons = new HorizontalLayout(
 			stop);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -83,6 +83,6 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("Marshall"); //$NON-NLS-1$
+		return getTranslation("Marshall");
 	}
 }

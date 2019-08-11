@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2019 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.ui.shared;
 
 import org.slf4j.LoggerFactory;
@@ -49,7 +55,7 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 		OwlcmsSession.withFop((fop) -> {
 			Long id = sought.getId();
 			found: for (Athlete a : fop.getLiftingOrder()) {
-				logger.debug("checking for {} : {} {}", id, a, a.getId()); //$NON-NLS-1$
+				logger.debug("checking for {} : {} {}", id, a, a.getId());
 				if (a.getId().equals(id)) {
 					match = a;
 					break found;
@@ -57,7 +63,7 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 			}
 			;
 		});
-		logger.trace("domainObject = {} {}", (domainObject != match ? "!!!!" : ""), domainObject, match); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		logger.trace("domainObject = {} {}", (domainObject != match ? "!!!!" : ""), domainObject, match);
 		if (match != null)
 			domainObject = match;
 

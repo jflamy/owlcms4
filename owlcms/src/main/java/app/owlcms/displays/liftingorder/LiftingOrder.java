@@ -461,7 +461,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
             curGroup = fop.getGroup();
             model.setGroupName(curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType) : "");
         });
-        model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone",liftsDone)); //$NON-NLS-1$
-        this.getElement().setPropertyJson("athletes", getAthletesJson(liftingOrder)); //$NON-NLS-1$
+        model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone",liftsDone));
+        this.getElement().setPropertyJson("athletes", getAthletesJson(liftingOrder));
     }
 }

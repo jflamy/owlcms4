@@ -58,7 +58,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName()); //$NON-NLS-1$
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
@@ -129,7 +129,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     public void doReset() {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            this.getElement().callFunction("reset"); //$NON-NLS-1$
+            this.getElement().callFunction("reset");
         });
     }
 
@@ -145,7 +145,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Subscribe
     public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         Athlete a = e.getAthlete();
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doAthleteUpdate(a, e));
@@ -165,17 +165,17 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      */
     @Subscribe
     public void slaveDownSignal(UIEvent.DownSignal e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         // hide the athleteTimer except if the down signal came from this ui.
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-            this.getElement().callFunction("down"); //$NON-NLS-1$
+            this.getElement().callFunction("down");
         });
     }
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-        uiEventLogger.debug("### {} {} stop={} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+        uiEventLogger.debug("### {} {} stop={} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 e.isStopAthleteTimer(), this.getOrigin(), e.getOrigin());
         OwlcmsSession.withFop(fop -> {
             FOPState state = fop.getState();
@@ -193,10 +193,10 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Subscribe
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            this.getElement().callFunction("reset"); //$NON-NLS-1$
+            this.getElement().callFunction("reset");
         });
     }
 
@@ -209,17 +209,17 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      */
     @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         // hide the athleteTimer except if the down signal came from this ui.
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-            this.getElement().callFunction("down"); //$NON-NLS-1$
+            this.getElement().callFunction("down");
         });
     }
 
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
             doBreak(e);
@@ -228,7 +228,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Subscribe
     public void slaveStopBreak(UIEvent.BreakDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         Athlete a = e.getAthlete();
         doAthleteUpdate(a, e);
@@ -236,7 +236,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         Group g = e.getGroup();
         doDone(g);
@@ -244,8 +244,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     private void doDone(Group g) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setLastName(MessageFormat.format(getTranslation("Group_number_done"), g.toString())); //$NON-NLS-1$
-            this.getElement().callFunction("groupDone"); //$NON-NLS-1$
+            getModel().setLastName(MessageFormat.format(getTranslation("Group_number_done"), g.toString()));
+            this.getElement().callFunction("groupDone");
             hidePlates();
         });
     }
@@ -264,7 +264,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 doEmpty();
                 return;
             }
-            this.getElement().callFunction("reset"); //$NON-NLS-1$
+            this.getElement().callFunction("reset");
             AttemptBoardModel model = getModel();
             model.setLastName(a.getLastName());
             model.setFirstName(a.getFirstName());
@@ -305,16 +305,16 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     
     @Override
     public void doBreak(BreakStarted e) {
-        uiEventLogger.debug("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom()); //$NON-NLS-1$
+        uiEventLogger.debug("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom());
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             BreakType breakType = fop.getBreakType();
             getModel().setLastName(inferGroupName());
             getModel().setFirstName(inferMessage(breakType));
-            getModel().setTeamName(""); //$NON-NLS-1$
-            getModel().setAttempt(""); //$NON-NLS-1$
+            getModel().setTeamName("");
+            getModel().setAttempt("");
 
-            uiEventLogger.debug("$$$ attemptBoard calling doBreak()"); //$NON-NLS-1$
-            this.getElement().callFunction("doBreak"); //$NON-NLS-1$
+            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
+            this.getElement().callFunction("doBreak");
         }));
     }
 
@@ -328,17 +328,17 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setLastName(inferGroupName());
             getModel().setFirstName(inferMessage(inferBreakType(fop)));
-            getModel().setTeamName(""); //$NON-NLS-1$
-            getModel().setAttempt(""); //$NON-NLS-1$
-            this.getElement().callFunction("doBreak", 5 * 60); //$NON-NLS-1$
-            uiEventLogger.debug("$$$ attemptBoard doBreak(fop)"); //$NON-NLS-1$
+            getModel().setTeamName("");
+            getModel().setAttempt("");
+            this.getElement().callFunction("doBreak", 5 * 60);
+            uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
         });
     }
 
     protected void doEmpty() {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             hidePlates();
-            this.getElement().callFunction("clear"); //$NON-NLS-1$
+            this.getElement().callFunction("clear");
         });
     }
 
@@ -374,7 +374,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     private String formatAttempt(Integer attemptNo) {
-        return MessageFormat.format(getTranslation("AttemptBoard_attempt_number"), attemptNo); //$NON-NLS-1$
+        return MessageFormat.format(getTranslation("AttemptBoard_attempt_number"), attemptNo);
     }
 
     private Object getOrigin() {
@@ -383,14 +383,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     private void init() {
         OwlcmsSession.withFop(fop -> {
-            logger.trace("Starting attempt board on FOP {}", fop.getName()); //$NON-NLS-1$
-            setId("attempt-board-template"); //$NON-NLS-1$
+            logger.trace("Starting attempt board on FOP {}", fop.getName());
+            setId("attempt-board-template");
         });
     }
 
     @Override
     public String getPageTitle() {
-        return getTranslation("Attempt"); //$NON-NLS-1$
+        return getTranslation("Attempt");
     }
 
 }

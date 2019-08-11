@@ -26,7 +26,7 @@ public class CompetitionLayout extends OwlcmsRouterLayout {
 		variant = Behaviour.LEFT;
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
 		appLayout.closeDrawer();
-		appLayout.setTitleComponent(new Label(getTranslation("EditCompetitionInformation"))); //$NON-NLS-1$
+		appLayout.setTitleComponent(new Label(getTranslation("EditCompetitionInformation")));
 		return appLayout;
 	}
 }

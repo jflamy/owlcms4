@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.1.7</version>
+		<version>4.1.8</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>com.github.appreciated</groupId>
 			<artifactId>app-layout-addon</artifactId>
-			<version>3.0.0-SNAPSHOT</version>
+			<version>3.0.0.beta5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.appreciated</groupId>
@@ -94,23 +94,6 @@
 			<artifactId>ehcache</artifactId>
 			<version>3.7.0</version>
 		</dependency>
-
-
-		<!-- <dependency> -->
-		<!-- <groupId>javax.validation</groupId> -->
-		<!-- <artifactId>validation-api</artifactId> -->
-		<!-- <version>2.0.1.Final</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.hibernate</groupId> -->
-		<!-- <artifactId>hibernate-validator</artifactId> -->
-		<!-- <version>6.0.14.Final</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.glassfish</groupId> -->
-		<!-- <artifactId>javax.el</artifactId> -->
-		<!-- <version>3.0.1-b08</version> -->
-		<!-- </dependency> -->
 
 		<!-- spreadsheets -->
 		<dependency>
@@ -512,32 +495,6 @@
 					</execution>
 				</executions>
 			</plugin>
-<!-- 			<plugin> -->
-<!-- 				<groupId>com.ragedunicorn.tools.maven</groupId> -->
-<!-- 				<artifactId>github-release-maven-plugin</artifactId> -->
-<!-- 				<version>1.0.1</version> -->
-<!-- 				<inherited>false</inherited> -->
-<!-- 				<executions> -->
-<!-- 					<execution> -->
-<!-- 						<id>default-cli</id> -->
-<!-- 						<phase/> -->
-<!-- 						<configuration> -->
-<!-- 							<owner>jflamy</owner> -->
-<!-- 							<repository>owlcms4</repository> -->
-<!-- 							<server>github-oauth</server> -->
-<!-- 							<tagName>${project.version}</tagName> -->
-<!-- 							<name>${project.version}</name> -->
-<!-- 							<targetCommitish>master</targetCommitish> -->
-<!-- 							<body>${project.version}</body> -->
-<!-- 							<releaseNotes>../../ReleaseNotes.md</releaseNotes> -->
-<!-- 							<assets> -->
-<!-- 								<asset>target/owlcms.zip</asset> -->
-<!-- 								<asset>target/owlcms_setup/owlcms_setup.exe</asset> -->
-<!-- 							</assets> -->
-<!-- 						</configuration> -->
-<!-- 					</execution> -->
-<!-- 				</executions> -->
-<!-- 			</plugin>			 -->
 		</plugins>
 	</build>
 	<profiles>

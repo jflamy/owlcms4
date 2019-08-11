@@ -19,7 +19,7 @@ If you are not familiar with computer networking, read on to the [Networking Req
 
   - You can use just about any laptop.  Refurbished Chromebooks or Windows laptops work well.
   - You can even use [Raspberry Pi 3B](https://www.canakit.com/raspberry-pi-3-model-b-plus-starter-kit.html) that cost less than 75$ each fully configured including cables and storage.  Refer to this [section](RaspberryPi) for tips .
-  - Apple iPhones and iPads are supported as [mobile refereeing devices](Refereeing#mobile-device-refereeing).  Display features such as the Scoreboard do work, but currently require to enable pop-ups in the Safari settings.
+  - Apple iPhones and iPads are supported as [mobile refereeing devices](Refereeing#mobile-device-refereeing).  Display features such as the Scoreboard do work.
 
 ## Sound Requirements
 

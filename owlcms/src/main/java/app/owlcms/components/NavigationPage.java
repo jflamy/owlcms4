@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -30,79 +31,78 @@ import app.owlcms.utils.URLUtils;
  */
 public interface NavigationPage extends OwlcmsContent {
 
-	public default String getWindowOpener(Class<? extends Component> targetClass) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		String name = fop == null ? "" : "_"+fop.getName(); //$NON-NLS-1$ //$NON-NLS-2$
-		return "window.open('"+ //$NON-NLS-1$
-				getUrlFromTarget(targetClass)+
-				"','"+ //$NON-NLS-1$
-				targetClass.getSimpleName()+
-				name+
-				"')"; //$NON-NLS-1$
-	}
+    public default Button openInNewTab(Class<? extends Component> targetClass, String label) {
+        Button button = new Button(label);
+        button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass));
+        return button;
+    }
+    
+    public default String getWindowOpenerFromClass(Class<? extends Component> targetClass) {
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        String name = fop == null ? "" : "_" + fop.getName();
+        return "window.open('" +
+                getUrlFromTargetClass(targetClass) + "','" +
+                targetClass.getSimpleName() + name + "')";
+    }
 
-	public default String getUrlFromTarget(Class<? extends Component> targetClass) {
-		RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
-		String relativeURL = routeResolver.getUrl(targetClass);
-		String absoluteURL = buildAbsoluteURL(VaadinServletRequest.getCurrent(),relativeURL);
-		return absoluteURL;
-	}
+    public default String getUrlFromTargetClass(Class<? extends Component> targetClass) {
+        RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
+        String relativeURL = routeResolver.getUrl(targetClass);
+        String absoluteURL = buildAbsoluteURL(VaadinServletRequest.getCurrent(), relativeURL);
+        return absoluteURL;
+    }
 
-	/**
-	 * Create a paragraph with HTML inside.
-	 * 
-	 * @param intro
-	 * @param text
-	 * @return the formatted paragraph
-	 */
-	public default Paragraph addP(HasComponents intro, String text) {
-		Paragraph paragraph = new Paragraph();
-		paragraph.getElement().setProperty("innerHTML", text); //$NON-NLS-1$
-		paragraph.getElement().getStyle().set("margin-bottom", "0"); //$NON-NLS-1$ //$NON-NLS-2$
-		intro.add(paragraph);
-		return paragraph;
-	}
-	
-	public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper) {
-		VerticalLayout content1 = new VerticalLayout();
-		content1.add(new Label(label));
-		content1.getStyle().set("margin-bottom", "-2ex"); //$NON-NLS-1$ //$NON-NLS-2$
-		fillH(content1, wrapper);
-		fillH(grid1, wrapper);
-	}
-	
-	public default void doGroup(String label, VerticalLayout intro, FlexibleGridLayout grid1, VerticalLayout wrapper) {
-	    VerticalLayout content1 = new VerticalLayout();
-	    content1.add(new Label(label));
-	    content1.add(intro);
-	    content1.getStyle().set("margin-bottom", "-2ex"); //$NON-NLS-1$ //$NON-NLS-2$
-	    fillH(content1, wrapper);
-	    fillH(grid1, wrapper);
-	}
+    /**
+     * Create a paragraph with HTML inside.
+     * 
+     * @param intro
+     * @param text
+     * @return the formatted paragraph
+     */
+    public default Paragraph addP(HasComponents intro, String text) {
+        Paragraph paragraph = new Paragraph();
+        paragraph.getElement().setProperty("innerHTML", text);
+        paragraph.getElement().getStyle().set("margin-bottom", "0");
+        intro.add(paragraph);
+        return paragraph;
+    }
 
-	public default String buildAbsoluteURL(VaadinServletRequest vRequest, String resourcePath) {
-	    HttpServletRequest request = vRequest.getHttpServletRequest();
-		int port = URLUtils.getServerPort(request);
-		String scheme = URLUtils.getScheme(request);
-		StringBuilder result = new StringBuilder();
-		result.append(scheme)
-			.append("://") //$NON-NLS-1$
-			.append(URLUtils.getServerName(request));
-		if ((scheme.equals("http") && port != 80) //$NON-NLS-1$
-				|| (request.getScheme().equals("https") && port != 443)) { //$NON-NLS-1$
-			result.append(':')
-				.append(port);
-		}
-		result.append(request.getContextPath());
-		if (resourcePath != null && resourcePath.length() > 0) {
-			if (!resourcePath.startsWith("/")) { //$NON-NLS-1$
-				result.append("/"); //$NON-NLS-1$
-			}
-			result.append(resourcePath);
-		}
-		return result.toString();
-	}
+    public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper) {
+        VerticalLayout content1 = new VerticalLayout();
+        content1.add(new Label(label));
+        content1.getStyle().set("margin-bottom", "-2ex");
+        fillH(content1, wrapper);
+        fillH(grid1, wrapper);
+    }
 
+    public default void doGroup(String label, VerticalLayout intro, FlexibleGridLayout grid1, VerticalLayout wrapper) {
+        VerticalLayout content1 = new VerticalLayout();
+        content1.add(new Label(label));
+        content1.add(intro);
+        content1.getStyle().set("margin-bottom", "-2ex");
+        fillH(content1, wrapper);
+        fillH(grid1, wrapper);
+    }
 
+    public default String buildAbsoluteURL(VaadinServletRequest vRequest, String resourcePath) {
+        HttpServletRequest request = vRequest.getHttpServletRequest();
+        int port = URLUtils.getServerPort(request);
+        String scheme = URLUtils.getScheme(request);
+        StringBuilder result = new StringBuilder();
+        result.append(scheme).append("://")
+                .append(URLUtils.getServerName(request));
+        if ((scheme.equals("http") && port != 80)
+                || (request.getScheme().equals("https") && port != 443)) {
+            result.append(':').append(port);
+        }
+        result.append(request.getContextPath());
+        if (resourcePath != null && resourcePath.length() > 0) {
+            if (!resourcePath.startsWith("/")) {
+                result.append("/");
+            }
+            result.append(resourcePath);
+        }
+        return result.toString();
+    }
 
 }

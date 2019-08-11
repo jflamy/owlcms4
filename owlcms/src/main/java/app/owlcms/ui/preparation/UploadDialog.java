@@ -42,10 +42,10 @@ import net.sf.jxls.reader.XLSReader;
 @SuppressWarnings("serial")
 public class UploadDialog extends Dialog {
 
-	private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml"; //$NON-NLS-1$
+	private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(UploadDialog.class);
-	final static Logger jxlsLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.reader.SimpleBlockReaderImpl"); //$NON-NLS-1$
+	final static Logger jxlsLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.reader.SimpleBlockReaderImpl");
 	static {
 		jxlsLogger.setLevel(Level.OFF);
 	}
@@ -54,11 +54,11 @@ public class UploadDialog extends Dialog {
 
 		MemoryBuffer buffer = new MemoryBuffer();
 		Upload upload = new Upload(buffer);
-		upload.setWidth("40em"); //$NON-NLS-1$
+		upload.setWidth("40em");
 		
-		TextArea ta = new TextArea(getTranslation("Errors")); //$NON-NLS-1$
-		ta.setHeight("20ex"); //$NON-NLS-1$
-		ta.setWidth("80em"); //$NON-NLS-1$
+		TextArea ta = new TextArea(getTranslation("Errors"));
+		ta.setHeight("20ex");
+		ta.setWidth("80em");
 		ta.setVisible(false);
 
 		upload.addSucceededListener(event -> {
@@ -70,7 +70,7 @@ public class UploadDialog extends Dialog {
 			ta.setVisible(false);
 		});
 		
-		H3 title = new H3(getTranslation("UploadRegistrationFile")); //$NON-NLS-1$
+		H3 title = new H3(getTranslation("UploadRegistrationFile"));
 		VerticalLayout vl = new VerticalLayout(title, upload, ta);
 		add(vl);
 	}
@@ -88,10 +88,10 @@ public class UploadDialog extends Dialog {
 				List<RAthlete> athletes = new ArrayList<RAthlete>();
 
 				Map<String, Object> beans = new HashMap<>();
-				beans.put("competition", c); //$NON-NLS-1$
-				beans.put("athletes", athletes); //$NON-NLS-1$
+				beans.put("competition", c);
+				beans.put("athletes", athletes);
 
-				logger.info(getTranslation("ReadingData_")); //$NON-NLS-1$
+				logger.info(getTranslation("ReadingData_"));
 				XLSReadStatus status = reader.read(inputStream, beans);
 				@SuppressWarnings("unchecked")
 				List<XLSReadMessage> errors = status.getReadMessages();
@@ -107,7 +107,7 @@ public class UploadDialog extends Dialog {
 					ta.setValue(sb.toString());
 					ta.setVisible(true);
 				}
-				logger.info(getTranslation("DataRead") + athletes.size() + " athletes"); //$NON-NLS-1$ //$NON-NLS-2$
+				logger.info(getTranslation("DataRead") + athletes.size() + " athletes");
 
 				JPAService.runInTransaction(em -> {
 					
@@ -140,11 +140,11 @@ public class UploadDialog extends Dialog {
 	}
 
 	public String cleanMessage(String localizedMessage) {
-		localizedMessage = localizedMessage.replace(getTranslation("CantReadCell"), ""); //$NON-NLS-1$ //$NON-NLS-2$
-		String cell = localizedMessage.substring(0,localizedMessage.indexOf(" ")); //$NON-NLS-1$
-		String ss = "spreadsheet"; //$NON-NLS-1$
+		localizedMessage = localizedMessage.replace(getTranslation("CantReadCell"), "");
+		String cell = localizedMessage.substring(0,localizedMessage.indexOf(" "));
+		String ss = "spreadsheet";
 		int ix = localizedMessage.indexOf(ss)+ss.length();
-		String cleanMessage = getTranslation("Cell")+cell+": "+localizedMessage.substring(ix); //$NON-NLS-1$ //$NON-NLS-2$
+		String cleanMessage = getTranslation("Cell")+cell+": "+localizedMessage.substring(ix);
 		return cleanMessage;
 	}
 }

@@ -80,7 +80,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         appLayout.closeDrawer();
         this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
         createTopBar(topBar);
-        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 0px"); //$NON-NLS-1$ //$NON-NLS-2$
+        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 0px");
         return appLayout;
     }
 
@@ -112,60 +112,60 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     protected void createTopBar(FlexLayout topBar) {
 
         H3 title = new H3();
-        title.setText(getTranslation("EditRegisteredAthletes")); //$NON-NLS-1$
+        title.setText(getTranslation("EditRegisteredAthletes"));
         title.add();
-        title.getStyle().set("margin", "0px 0px 0px 0px") //$NON-NLS-1$ //$NON-NLS-2$
-                .set("font-weight", "normal"); //$NON-NLS-1$ //$NON-NLS-2$
+        title.getStyle().set("margin", "0px 0px 0px 0px")
+                .set("font-weight", "normal");
 
         groupSelect = new ComboBox<>();
-        groupSelect.setPlaceholder(getTranslation("Group")); //$NON-NLS-1$
+        groupSelect.setPlaceholder(getTranslation("Group"));
         groupSelect.setItems(GroupRepository.findAll());
         groupSelect.setItemLabelGenerator(Group::getName);
 
         JXLSCards cardsWriter = new JXLSCards(true);
-        StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter); //$NON-NLS-1$
-        cards = new Anchor(href1, ""); //$NON-NLS-1$
+        StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter);
+        cards = new Anchor(href1, "");
 
         groupSelect.setValue(null);   
-        cards.getElement().setAttribute("download", "cards" + (group != null ? "_" + group : "_all") + ".xls"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+        cards.getElement().setAttribute("download", "cards" + (group != null ? "_" + group : "_all") + ".xls");
         groupSelect.addValueChangeListener(e -> {
             setContentGroup(e);
-            cards.getElement().setAttribute("download", "cards" + (group != null ? "_" + group : "_all") + ".xls"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+            cards.getElement().setAttribute("download", "cards" + (group != null ? "_" + group : "_all") + ".xls");
         });
 
         JXLSStartingList startingListWriter = new JXLSStartingList();
-        StreamResource href2 = new StreamResource("startingList.xls", startingListWriter); //$NON-NLS-1$
-        startingList = new Anchor(href2, ""); //$NON-NLS-1$
-        startingListButton = new Button(getTranslation("StartingList"), new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
+        StreamResource href2 = new StreamResource("startingList.xls", startingListWriter);
+        startingList = new Anchor(href2, "");
+        startingListButton = new Button(getTranslation("StartingList"), new Icon(VaadinIcon.DOWNLOAD_ALT));
         startingList.add(startingListButton);
         startingListButton.setEnabled(true);
 
-        Button drawLots = new Button(getTranslation("DrawLotNumbers"), (e) -> { //$NON-NLS-1$
+        Button drawLots = new Button(getTranslation("DrawLotNumbers"), (e) -> {
             drawLots();
         });
 
-        Button deleteAthletes = new Button(getTranslation("DeleteAthletes"), (e) -> { //$NON-NLS-1$
-            new ConfirmationDialog(getTranslation("DeleteAthletes"), //$NON-NLS-1$
-                    getTranslation("Warning_DeleteAthletes"), //$NON-NLS-1$
-                    getTranslation("Done_period"), //$NON-NLS-1$
+        Button deleteAthletes = new Button(getTranslation("DeleteAthletes"), (e) -> {
+            new ConfirmationDialog(getTranslation("DeleteAthletes"),
+                    getTranslation("Warning_DeleteAthletes"),
+                    getTranslation("Done_period"),
                     () -> {
                         deleteAthletes();
                     }).open();
 
         });
-        deleteAthletes.getElement().setAttribute("title", getTranslation("DeleteAthletes_forListed")); //$NON-NLS-1$ //$NON-NLS-2$
+        deleteAthletes.getElement().setAttribute("title", getTranslation("DeleteAthletes_forListed"));
 
-        Button clearLifts = new Button(getTranslation("ClearLifts"), (e) -> { //$NON-NLS-1$
-            new ConfirmationDialog(getTranslation("ClearLifts"), //$NON-NLS-1$
-                    getTranslation("Warning_ClearAthleteLifts"), //$NON-NLS-1$
-                    getTranslation("LiftsCleared"), //$NON-NLS-1$
+        Button clearLifts = new Button(getTranslation("ClearLifts"), (e) -> {
+            new ConfirmationDialog(getTranslation("ClearLifts"),
+                    getTranslation("Warning_ClearAthleteLifts"),
+                    getTranslation("LiftsCleared"),
                     () -> {
                         clearLifts();
                     }).open();
         });
-        deleteAthletes.getElement().setAttribute("title", getTranslation("ClearLifts_forListed")); //$NON-NLS-1$ //$NON-NLS-2$
+        deleteAthletes.getElement().setAttribute("title", getTranslation("ClearLifts_forListed"));
 
-        cardsButton = new Button(getTranslation("AthleteCards"), new Icon(VaadinIcon.DOWNLOAD_ALT)); //$NON-NLS-1$
+        cardsButton = new Button(getTranslation("AthleteCards"), new Icon(VaadinIcon.DOWNLOAD_ALT));
         cardsButton.addClickListener((e) -> {
             cardsWriter.setGroup(group);
         });
@@ -177,7 +177,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
-        topBar.getElement().getStyle().set("flex", "100 1"); //$NON-NLS-1$ //$NON-NLS-2$
+        topBar.getElement().getStyle().set("flex", "100 1");
         topBar.removeAll();
         topBar.add(title, groupSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -190,10 +190,10 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     }
 
     protected void errorNotification() {
-        Label content = new Label(getTranslation("Select_group_first")); //$NON-NLS-1$
-        content.getElement().setAttribute("theme", "error"); //$NON-NLS-1$ //$NON-NLS-2$
-        Button buttonInside = new Button(getTranslation("GotIt")); //$NON-NLS-1$
-        buttonInside.getElement().setAttribute("theme", "error primary"); //$NON-NLS-1$ //$NON-NLS-2$
+        Label content = new Label(getTranslation("Select_group_first"));
+        content.getElement().setAttribute("theme", "error");
+        Button buttonInside = new Button(getTranslation("GotIt"));
+        buttonInside.getElement().setAttribute("theme", "error primary");
         VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
         verticalLayout.setAlignItems(Alignment.CENTER);
         Notification notification = new Notification(verticalLayout);

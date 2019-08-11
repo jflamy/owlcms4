@@ -27,7 +27,7 @@ import ch.qos.logback.classic.Logger;
 public class AthleteTimerElement extends TimerElement {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteTimerElement.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName()); //$NON-NLS-1$
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
@@ -54,7 +54,7 @@ public class AthleteTimerElement extends TimerElement {
 	public void clientSyncTime() {
 		OwlcmsSession.withFop(fop -> {
 			int timeRemaining = fop.getAthleteTimer().getTimeRemaining();		
-			logger.trace("Fetched time = {} for {}",timeRemaining, fop.getCurAthlete()); //$NON-NLS-1$
+			logger.trace("Fetched time = {} for {}",timeRemaining, fop.getCurAthlete());
 			doSetTimer(timeRemaining);
 		});
 		return;
@@ -66,7 +66,7 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimeOver() {
-		logger.trace("Received time over."); //$NON-NLS-1$
+		logger.trace("Received time over.");
 		OwlcmsSession.withFop(fop -> {
 			fop.getAthleteTimer().timeOver(this);
 		});
@@ -78,7 +78,7 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientInitialWarning() {
-        logger.trace("Received initial warning."); //$NON-NLS-1$
+        logger.trace("Received initial warning.");
         OwlcmsSession.withFop(fop -> {
             fop.getAthleteTimer().initialWarning(this);
         });
@@ -90,7 +90,7 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientFinalWarning() {
-        logger.trace("Received final warning."); //$NON-NLS-1$
+        logger.trace("Received final warning.");
         OwlcmsSession.withFop(fop -> {
             fop.getAthleteTimer().finalWarning(this);
         });
@@ -101,7 +101,7 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	@ClientCallable
 	public void clientTimerStopped(double remainingTime) {
-		logger.trace("timer stopped from client: " + remainingTime); //$NON-NLS-1$
+		logger.trace("timer stopped from client: " + remainingTime);
 		// do not stop the server-side timer, this is getting called as a result of the
 		// server-side timer issuing a command.  Otherwise we create an infinite loop.
 	}
@@ -115,14 +115,14 @@ public class AthleteTimerElement extends TimerElement {
 
 	@Subscribe
 	public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
 		clientSyncTime();
 	}
 	
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), (e.isStopAthleteTimer()?"stop_timer":"leave_asis"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), (e.isStopAthleteTimer()?"stop_timer":"leave_asis"),
 			this.getOrigin(), e.getOrigin());
 		if (e.isStopAthleteTimer()) {
 			clientSyncTime();
@@ -135,23 +135,23 @@ public class AthleteTimerElement extends TimerElement {
 	@Subscribe
 	public void slaveSetTimer(UIEvent.SetTime e) {
 		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
 		doSetTimer(milliseconds);
 	}
 
 	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
 		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug(">>> start received {} {}", e, milliseconds); //$NON-NLS-1$
+		uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
 		doStartTimer(milliseconds);
 	}
 
 	@Subscribe
 	public void slaveStopTimer(UIEvent.StopTime e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), //$NON-NLS-1$
+		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
 		doStopTimer();
 	}
@@ -168,7 +168,7 @@ public class AthleteTimerElement extends TimerElement {
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		logger.debug("attaching to {}",this.getOrigin()); //$NON-NLS-1$
+		logger.debug("attaching to {}",this.getOrigin());
 		init();
 		OwlcmsSession.withFop(fop -> {
 			// sync with current status of FOP

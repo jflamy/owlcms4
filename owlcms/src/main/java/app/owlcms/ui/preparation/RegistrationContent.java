@@ -132,7 +132,7 @@ implements CrudListener<Athlete>, OwlcmsContent {
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Preparation_Registration"); //$NON-NLS-1$
+        return getTranslation("Preparation_Registration");
     }
 
     @Override
@@ -167,22 +167,22 @@ implements CrudListener<Athlete>, OwlcmsContent {
      */
     protected OwlcmsCrudGrid<Athlete> createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
         Grid<Athlete> grid = new Grid<>(Athlete.class, false);
-        grid.addColumn("lotNumber").setHeader(getTranslation("Lot")); //$NON-NLS-1$ //$NON-NLS-2$
-        grid.addColumn("lastName").setHeader(getTranslation("LastName")); //$NON-NLS-1$ //$NON-NLS-2$
-        grid.addColumn("firstName").setHeader(getTranslation("FirstName")); //$NON-NLS-1$ //$NON-NLS-2$
-        grid.addColumn("team").setHeader(getTranslation("Team")); //$NON-NLS-1$ //$NON-NLS-2$
-        grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate")); //$NON-NLS-1$ //$NON-NLS-2$
-        grid.addColumn("gender").setHeader(getTranslation("Gender")); //$NON-NLS-1$ //$NON-NLS-2$
-        grid.addColumn("ageDivision").setHeader(getTranslation("AgeDivision")); //$NON-NLS-1$ //$NON-NLS-2$
+        grid.addColumn("lotNumber").setHeader(getTranslation("Lot"));
+        grid.addColumn("lastName").setHeader(getTranslation("LastName"));
+        grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
+        grid.addColumn("team").setHeader(getTranslation("Team"));
+        grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate"));
+        grid.addColumn("gender").setHeader(getTranslation("Gender"));
+        grid.addColumn("ageDivision").setHeader(getTranslation("AgeDivision"));
         if (Competition.getCurrent().isMasters()) {
-            grid.addColumn("mastersAgeGroup").setHeader(getTranslation("AgeGroup")); //$NON-NLS-1$ //$NON-NLS-2$
+            grid.addColumn("mastersAgeGroup").setHeader(getTranslation("AgeGroup"));
         }
-        grid.addColumn("category").setHeader(getTranslation("Category")); //$NON-NLS-1$ //$NON-NLS-2$
+        grid.addColumn("category").setHeader(getTranslation("Category"));
         grid.addColumn(
-                new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()),"bodyWeight") //$NON-NLS-1$ //$NON-NLS-2$
-        .setHeader(getTranslation("BodyWeight")); //$NON-NLS-1$
-        grid.addColumn("group").setHeader(getTranslation("Group")); //$NON-NLS-1$ //$NON-NLS-2$
-        grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible")); //$NON-NLS-1$ //$NON-NLS-2$
+                new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()),"bodyWeight")
+        .setHeader(getTranslation("BodyWeight"));
+        grid.addColumn("group").setHeader(getTranslation("Group"));
+        grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
         OwlcmsCrudGrid<Athlete> crud = new OwlcmsCrudGrid<>(
                 Athlete.class,
                 new OwlcmsGridLayout(Athlete.class),
@@ -210,61 +210,61 @@ implements CrudListener<Athlete>, OwlcmsContent {
      * @param crudGrid the crudGrid that will be filtered.
      */
     protected void defineFilters(OwlcmsCrudGrid<Athlete> crudGrid) {
-        lastNameFilter.setPlaceholder(getTranslation("LastName")); //$NON-NLS-1$
+        lastNameFilter.setPlaceholder(getTranslation("LastName"));
         lastNameFilter.setClearButtonVisible(true);
         lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
         lastNameFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
         });
-        lastNameFilter.setWidth("10em"); //$NON-NLS-1$
+        lastNameFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(lastNameFilter);
 
-        ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision")); //$NON-NLS-1$
+        ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
         ageDivisionFilter.setItems(AgeDivision.findAll());
         ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
         ageDivisionFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
         });
-        lastNameFilter.setWidth("10em"); //$NON-NLS-1$
+        lastNameFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(ageDivisionFilter);
 
         if (Competition.getCurrent().isMasters()) {
-            ageGroupFilter.setPlaceholder(getTranslation("AgeGroup")); //$NON-NLS-1$
+            ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
             ageGroupFilter.setItems(MastersAgeGroup.findAllStrings());
             //		ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
             ageGroupFilter.addValueChangeListener(e -> {
                 crudGrid.refreshGrid();
             });
-            ageGroupFilter.setWidth("10em"); //$NON-NLS-1$
+            ageGroupFilter.setWidth("10em");
             crudGrid.getCrudLayout().addFilterComponent(ageGroupFilter);
         }
 
-        categoryFilter.setPlaceholder(getTranslation("Category")); //$NON-NLS-1$
+        categoryFilter.setPlaceholder(getTranslation("Category"));
         categoryFilter.setItems(CategoryRepository.findActive());
         categoryFilter.setItemLabelGenerator(Category::getName);
         categoryFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
         });
-        categoryFilter.setWidth("10em"); //$NON-NLS-1$
+        categoryFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(categoryFilter);
 
-        groupFilter.setPlaceholder(getTranslation("Group")); //$NON-NLS-1$
+        groupFilter.setPlaceholder(getTranslation("Group"));
         groupFilter.setItems(GroupRepository.findAll());
         groupFilter.setItemLabelGenerator(Group::getName);
         groupFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
         });
-        groupFilter.setWidth("10em"); //$NON-NLS-1$
+        groupFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(groupFilter);
         groupFilter.getElement().getStyle().set("display", "none");
 
-        weighedInFilter.setPlaceholder(getTranslation("Weighed_in_p")); //$NON-NLS-1$
+        weighedInFilter.setPlaceholder(getTranslation("Weighed_in_p"));
         weighedInFilter.setItems(Boolean.TRUE,Boolean.FALSE);
-        weighedInFilter.setItemLabelGenerator((i) -> {return i ? getTranslation("Weighed") : getTranslation("Not_weighed");}); //$NON-NLS-1$ //$NON-NLS-2$
+        weighedInFilter.setItemLabelGenerator((i) -> {return i ? getTranslation("Weighed") : getTranslation("Not_weighed");});
         weighedInFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
         });
-        weighedInFilter.setWidth("10em"); //$NON-NLS-1$
+        weighedInFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(weighedInFilter);
 
         Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
@@ -275,7 +275,7 @@ implements CrudListener<Athlete>, OwlcmsContent {
             groupFilter.clear();
             weighedInFilter.clear();
         });
-        lastNameFilter.setWidth("10em"); //$NON-NLS-1$
+        lastNameFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(clearFilters);
     }
 
@@ -294,45 +294,45 @@ implements CrudListener<Athlete>, OwlcmsContent {
         List<String> props = new LinkedList<>();
         List<String> captions = new LinkedList<>();
 
-        props.add("lastName"); captions.add(getTranslation("LastName")); //$NON-NLS-1$ //$NON-NLS-2$
-        props.add("firstName"); captions.add(getTranslation("FirstName")); //$NON-NLS-1$ //$NON-NLS-2$
-        props.add("gender"); captions.add(getTranslation("Gender")); //$NON-NLS-1$ //$NON-NLS-2$
+        props.add("lastName"); captions.add(getTranslation("LastName"));
+        props.add("firstName"); captions.add(getTranslation("FirstName"));
+        props.add("gender"); captions.add(getTranslation("Gender"));
 
-        props.add("team"); captions.add(getTranslation("Team")); //$NON-NLS-1$ //$NON-NLS-2$
-        props.add("fullBirthDate"); captions.add(getTranslation("BirthDate_yyyy")); //$NON-NLS-1$ //$NON-NLS-2$
+        props.add("team"); captions.add(getTranslation("Team"));
+        props.add("fullBirthDate"); captions.add(getTranslation("BirthDate_yyyy"));
         if (Competition.getCurrent().isMasters()) {
-            props.add("mastersAgeGroup"); captions.add(getTranslation("AgeGroup")); //$NON-NLS-1$ //$NON-NLS-2$
+            props.add("mastersAgeGroup"); captions.add(getTranslation("AgeGroup"));
         } else {
-            props.add("ageDivision"); captions.add(getTranslation("AgeDivision")); //$NON-NLS-1$ //$NON-NLS-2$
+            props.add("ageDivision"); captions.add(getTranslation("AgeDivision"));
         }
-        props.add("category"); captions.add(getTranslation("Category")); //$NON-NLS-1$ //$NON-NLS-2$
-        props.add("group"); captions.add(getTranslation("Group")); //$NON-NLS-1$ //$NON-NLS-2$
-        props.add("qualifyingTotal"); captions.add(getTranslation("EntryTotal")); //$NON-NLS-1$ //$NON-NLS-2$
-        props.add("bodyWeight"); captions.add(getTranslation("BodyWeight")); //$NON-NLS-1$ //$NON-NLS-2$
-        props.add("snatch1Declaration"); captions.add(getTranslation("SnatchDecl_")); //$NON-NLS-1$ //$NON-NLS-2$
-        props.add("cleanJerk1Declaration"); captions.add(getTranslation("C_and_J_decl")); //$NON-NLS-1$ //$NON-NLS-2$
-        props.add("eligibleForIndividualRanking"); captions.add(getTranslation("Eligible for Individual Ranking?"));  //$NON-NLS-1$ //$NON-NLS-2$
-        props.add("lotNumber"); captions.add(getTranslation("Lot")); //$NON-NLS-1$ //$NON-NLS-2$
+        props.add("category"); captions.add(getTranslation("Category"));
+        props.add("group"); captions.add(getTranslation("Group"));
+        props.add("qualifyingTotal"); captions.add(getTranslation("EntryTotal"));
+        props.add("bodyWeight"); captions.add(getTranslation("BodyWeight"));
+        props.add("snatch1Declaration"); captions.add(getTranslation("SnatchDecl_"));
+        props.add("cleanJerk1Declaration"); captions.add(getTranslation("C_and_J_decl"));
+        props.add("eligibleForIndividualRanking"); captions.add(getTranslation("Eligible for Individual Ranking?")); 
+        props.add("lotNumber"); captions.add(getTranslation("Lot"));
         crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
         crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
 
-        crudFormFactory.setFieldProvider("gender", //$NON-NLS-1$
+        crudFormFactory.setFieldProvider("gender",
                 new ComboBoxProvider<>(
-                        getTranslation("Gender"), Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name)); //$NON-NLS-1$
-        crudFormFactory.setFieldProvider("group", //$NON-NLS-1$
+                        getTranslation("Gender"), Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
+        crudFormFactory.setFieldProvider("group",
                 new ComboBoxProvider<>(
-                        getTranslation("Group"), GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName)); //$NON-NLS-1$
-        crudFormFactory.setFieldProvider("category", //$NON-NLS-1$
+                        getTranslation("Group"), GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
+        crudFormFactory.setFieldProvider("category",
                 new ComboBoxProvider<>(
-                        getTranslation("Category"), CategoryRepository.findActive(), new TextRenderer<>(Category::getName), //$NON-NLS-1$
+                        getTranslation("Category"), CategoryRepository.findActive(), new TextRenderer<>(Category::getName),
                         Category::getName));
-        crudFormFactory.setFieldProvider("ageDivision", //$NON-NLS-1$
+        crudFormFactory.setFieldProvider("ageDivision",
                 new ComboBoxProvider<>(
-                        getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name), //$NON-NLS-1$
+                        getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name),
                         AgeDivision::name));
 
-        crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class); //$NON-NLS-1$
-        crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class); //$NON-NLS-1$
+        crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
+        crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
     }
 
     private Collection<Athlete> doExtraFiltering(List<Athlete> all) {

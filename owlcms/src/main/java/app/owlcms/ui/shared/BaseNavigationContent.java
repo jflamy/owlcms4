@@ -47,7 +47,7 @@ implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEven
 
 	// @SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(BaseNavigationContent.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName()); //$NON-NLS-1$
+	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
@@ -92,11 +92,11 @@ implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEven
 	public void updateURLLocation(UI ui, Location location, Group newGroup) {
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
-		params.put("fop",Arrays.asList(OwlcmsSession.getFop().getName())); //$NON-NLS-1$
+		params.put("fop",Arrays.asList(OwlcmsSession.getFop().getName()));
 		if (newGroup != null && !isIgnoreGroupFromURL()) {
-			params.put("group",Arrays.asList(newGroup.getName())); //$NON-NLS-1$
+			params.put("group",Arrays.asList(newGroup.getName()));
 		} else {
-			params.remove("group"); //$NON-NLS-1$
+			params.remove("group");
 		}
 		ui.getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
 	}
@@ -109,7 +109,7 @@ implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEven
 		OwlcmsSession.withFop(fop -> {
 			// create the top bar, now that we know the group and fop
 			String title = getTitle();
-			logger.debug("createTopBar {}",title); //$NON-NLS-1$
+			logger.debug("createTopBar {}",title);
 			createTopBar(title);
 			// we listen on uiEventBus.
 			uiEventBus = uiEventBusRegister(this, fop);
@@ -130,7 +130,7 @@ implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEven
 	protected void createTopBar(String title) {
 		configureTopBar();
 		configureTopBarTitle(title);
-		HorizontalLayout fopField = createTopBarFopField(getTranslation("CompetitionPlatform"), getTranslation("SelectPlatform")); //$NON-NLS-1$ //$NON-NLS-2$
+		HorizontalLayout fopField = createTopBarFopField(getTranslation("CompetitionPlatform"), getTranslation("SelectPlatform"));
 		createAppBar(fopField, null); //, groupField
 	}
 
@@ -149,7 +149,7 @@ implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEven
 		AbstractLeftAppLayoutBase appLayout = (AbstractLeftAppLayoutBase) getRouterLayout().getAppLayout();
 		appLayout.getTitleWrapper().getElement()
 		.getStyle()
-		.set("flex", "0 1 20em"); //$NON-NLS-1$ //$NON-NLS-2$
+		.set("flex", "0 1 20em");
 		Label label = new Label(topBarTitle);
 		appLayout.setTitleComponent(label);
 	}
@@ -196,7 +196,7 @@ implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEven
 		fopSelect.setPlaceholder(placeHolder);
 		fopSelect.setItems(OwlcmsFactory.getFOPs());
 		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
-		fopSelect.setWidth("10rem"); //$NON-NLS-1$
+		fopSelect.setWidth("10rem");
 		return fopSelect;
 	}
 
@@ -224,14 +224,14 @@ implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEven
 		groupSelect.setPlaceholder(placeHolder);
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
-		groupSelect.setWidth("10rem"); //$NON-NLS-1$
+		groupSelect.setWidth("10rem");
 		return groupSelect;
 	}
 
 	protected void formatLabel(Label label) {
-		label.getStyle().set("font-size", "small"); //$NON-NLS-1$ //$NON-NLS-2$
-		label.getStyle().set("text-align", "right"); //$NON-NLS-1$ //$NON-NLS-2$
-		label.getStyle().set("width", "12em"); //$NON-NLS-1$ //$NON-NLS-2$
+		label.getStyle().set("font-size", "small");
+		label.getStyle().set("text-align", "right");
+		label.getStyle().set("width", "12em");
 	}
 
 	protected void switchGroup(Group group2,FieldOfPlay fop) {
