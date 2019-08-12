@@ -25,6 +25,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -41,7 +42,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class BreakDialog extends Dialog {
 	public enum CountdownType {
-		DURATION, TARGET
+		DURATION, TARGET, INDEFINITE
 	}
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakDialog.class);;
@@ -63,16 +64,24 @@ public class BreakDialog extends Dialog {
 	DatePicker dp = new DatePicker();
 
 	BreakDialog(Object origin) {
-		this.setOrigin(origin);
-		Dialog dialog = this;
+	    this(origin, null, CountdownType.DURATION);
+	    syncWithFop();
+	}
+	
+	BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
+	    this.setOrigin(origin);
+	    Dialog dialog = this;
 
-		configureDuration();
-		HorizontalLayout buttons = configureButtons(dialog);
-		configureTimerDisplay();
-		assembleDialog(dialog, buttons);
-		syncWithFop();
-		ct.setValue(CountdownType.DURATION);
-		nf.setValue(10.0D);
+	    configureDuration();
+	    HorizontalLayout buttons = configureButtons(dialog);
+	    configureTimerDisplay();
+	    assembleDialog(dialog, buttons);
+	    
+	    bt.setValue(brt);
+	    ct.prependComponents(CountdownType.DURATION, new Paragraph("") );
+	    ct.prependComponents(CountdownType.INDEFINITE, new Paragraph("") );
+	    ct.setValue(cdt);
+	    nf.setValue(10.0D);
 	}
 
 	public ComponentEventListener<ClickEvent<Button>> pauseBreak() {
@@ -212,11 +221,11 @@ public class BreakDialog extends Dialog {
 	}
 
 	private long setBreakTimeRemaining(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
-		LocalDateTime target;
+		LocalDateTime target = LocalDateTime.now();
 		if (cType == CountdownType.DURATION) {
 			Double value = nf.getValue();
 			target = LocalDateTime.now().plusMinutes(value != null ? value.intValue() : 0);
-		} else {
+		} else if (cType == CountdownType.TARGET) {
 			LocalDate date = dp.getValue();
 			LocalTime time = tp.getValue();
 			target = LocalDateTime.of(date, time);
@@ -237,7 +246,7 @@ public class BreakDialog extends Dialog {
 			LocalDateTime target = now.plusMinutes(value != null ? value.intValue() : 0);
 			dp.setValue(target.toLocalDate());
 			tp.setValue(target.toLocalTime());
-		} else {
+		} else if (cType == CountdownType.TARGET) {
 			computeRoundedTargetValues(tp, dp);
 		}
 	}
@@ -263,13 +272,19 @@ public class BreakDialog extends Dialog {
 		OwlcmsSession.withFop(fop -> {
 			switch (fop.getState()) {
 			case BREAK:
-				bt.setValue(BreakType.FIRST_CJ);
+			    if (fop.getCurAthlete().getAttemptsDone() == 3) {
+			        bt.setValue(BreakType.FIRST_CJ);
+			    } else if (fop.getCurAthlete().getAttemptsDone() == 0) {
+			        bt.setValue(BreakType.FIRST_SNATCH);
+			    } else {
+			        bt.setValue(BreakType.TECHNICAL);
+			    }
 				break;
 			case INACTIVE:
 				bt.setValue(BreakType.INTRODUCTION);
 				break;
 			default:
-				bt.setValue(BreakType.FIRST_SNATCH);
+				bt.setValue(BreakType.TECHNICAL);
 				break;
 			}
 		});

@@ -66,6 +66,14 @@
         	   value: false
            },
            /**
+            * Set to true to state that timer is indefinite (--:--)
+            * @default false
+            */
+           indefinite: {
+        	   type: Boolean,
+        	   value: false
+           },
+           /**
            * Time the timer has spent running since it was started
            */
            _elapsedTime: {
@@ -97,6 +105,7 @@
       }
 
       start() {
+    	  if (this.indefinite) return;
     	  console.warn("timer start "+this.startTime);
           if ((this.currentTime <= 0 && !this.countUp) 
               || (this.currentTime >= this.startTime && this.countUp) ) {
@@ -139,7 +148,10 @@
 
       _init() {
           this.running = false;
-          if (this.countUp) {
+          if (this.indefinite) {
+              this.set('currentTime', this.startTime);
+              this.set('_formattedTime', "--:--");
+          } else if (this.countUp) {
               this.set('currentTime', 0);
               this.set('_formattedTime', '0:00');
           } else {

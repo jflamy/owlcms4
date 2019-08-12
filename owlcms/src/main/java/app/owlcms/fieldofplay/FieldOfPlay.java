@@ -389,11 +389,6 @@ public class FieldOfPlay {
                 transitionToBreak((BreakStarted) e);
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
-//                if (curAthlete.getAttemptsDone() == 0) {
-//                    // the group has not started lifting, override the change to
-//                    // lifting state from weightChange and stay in BREAK mode
-//                    setState(BREAK);
-//                }
             } else {
                 unexpectedEventInState(e, BREAK);
             }

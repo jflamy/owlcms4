@@ -35,6 +35,7 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.lifting.BreakDialog.CountdownType;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
@@ -368,7 +369,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         resumeCompetition.setEnabled(false);
 
         Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
-            (new BreakDialog(this)).open();
+            (new BreakDialog(this, BreakType.JURY, CountdownType.INDEFINITE)).open();
         });
         breakButton.getElement().setAttribute("theme", "icon");
         breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
