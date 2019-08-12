@@ -41,253 +41,277 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class BreakDialog extends Dialog {
-	public enum CountdownType {
-		DURATION, TARGET, INDEFINITE
-	}
+    public enum CountdownType {
+        DURATION, TARGET, INDEFINITE
+    }
 
-	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakDialog.class);;
-	{
-		logger.setLevel(Level.INFO);
-	};
+    final private Logger logger = (Logger) LoggerFactory.getLogger(BreakDialog.class);;
+    {
+        logger.setLevel(Level.INFO);
+    };
 
-	private Button breakStart = null;
-	private Button breakPause = null;
-	private Button breakEnd = null;
-	private Object origin;
-	private Label minutes;
-	private HorizontalLayout timer;
+    private Button breakStart = null;
+    private Button breakPause = null;
+    private Button breakEnd = null;
+    private Object origin;
+    private Label minutes;
+    private HorizontalLayout timer;
 
-	RadioButtonGroup<CountdownType> ct;
-	RadioButtonGroup<BreakType> bt;
-	NumberField nf = new NumberField();
-	TimePicker tp = new TimePicker();
-	DatePicker dp = new DatePicker();
+    RadioButtonGroup<CountdownType> ct;
+    RadioButtonGroup<BreakType> bt;
+    NumberField nf = new NumberField();
+    TimePicker tp = new TimePicker();
+    DatePicker dp = new DatePicker();
 
-	BreakDialog(Object origin) {
-	    this(origin, null, CountdownType.DURATION);
-	    syncWithFop();
-	}
-	
-	BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
-	    this.setOrigin(origin);
-	    Dialog dialog = this;
+    /**
+     * Used by the announcer -- tries to guess what type of break is pertinent based
+     * on field of play.
+     *
+     * @param origin the origin
+     */
+    BreakDialog(Object origin) {
+        this(origin, null, CountdownType.DURATION);
+        syncWithFop();
+    }
 
-	    configureDuration();
-	    HorizontalLayout buttons = configureButtons(dialog);
-	    configureTimerDisplay();
-	    assembleDialog(dialog, buttons);
-	    
-	    bt.setValue(brt);
-	    ct.prependComponents(CountdownType.DURATION, new Paragraph("") );
-	    ct.prependComponents(CountdownType.INDEFINITE, new Paragraph("") );
-	    ct.setValue(cdt);
-	    nf.setValue(10.0D);
-	}
+    /**
+     * @param origin
+     * @param brt
+     * @param cdt
+     */
+    BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
+        this.setOrigin(origin);
+        Dialog dialog = this;
 
-	public ComponentEventListener<ClickEvent<Button>> pauseBreak() {
-		return (e) -> {
-			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
-				.post(new FOPEvent.BreakPaused(this.getOrigin())));
-			breakStart.setEnabled(true);
-			breakPause.setEnabled(false);
-			breakEnd.setEnabled(true);
-		};
-	}
+        configureDuration();
+        HorizontalLayout buttons = configureButtons(dialog);
+        configureTimerDisplay();
+        assembleDialog(dialog, buttons);
 
-	public ComponentEventListener<ClickEvent<Button>> startBreak() {
-		return (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				long breakDuration = setBreakTimeRemaining(ct.getValue(), nf, tp, dp);
-				fop.getFopEventBus()
-					.post(new FOPEvent.BreakStarted(bt.getValue(), (int) breakDuration, this.getOrigin()));
-			});
-			e.getSource().setEnabled(false);
-			breakStart.setEnabled(false);
-			breakPause.setEnabled(true);
-			breakEnd.setEnabled(true);
-			timer.getStyle().set("visibility", "visible");
-		};
-	}
+        bt.setValue(brt);
+        ct.prependComponents(CountdownType.DURATION, new Paragraph(""));
+        ct.prependComponents(CountdownType.INDEFINITE, new Paragraph(""));
+        ct.setValue(cdt);
+        nf.setValue(10.0D);
+    }
 
-	public ComponentEventListener<ClickEvent<Button>> stopBreak(Dialog dialog) {
-		return (e) -> {
-			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
-				.post(new FOPEvent.StartLifting(this.getOrigin())));
-			breakStart.setEnabled(true);
-			breakPause.setEnabled(false);
-			breakEnd.setEnabled(false);
-			dialog.close();
-		};
-	}
+    public ComponentEventListener<ClickEvent<Button>> pauseBreak() {
+        return (e) -> {
+            OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.BreakPaused(this.getOrigin())));
+            breakStart.setEnabled(true);
+            breakPause.setEnabled(false);
+            breakEnd.setEnabled(true);
+        };
+    }
 
-	/* (non-Javadoc)
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
-		ct.addValueChangeListener(e -> {
-			CountdownType cType = e.getValue();
-			setValues(cType, nf, tp, dp);
-			if (cType != CountdownType.TARGET) {
-				switchToDuration(cType, nf, tp, dp);
-			} else {
-				switchToTarget(cType, nf, tp, dp);
-			}
-		});
-	}
+    public ComponentEventListener<ClickEvent<Button>> startBreak() {
+        return (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                long breakDuration = setBreakTimeRemaining(ct.getValue(), nf, tp, dp);
+                fop.getFopEventBus()
+                        .post(new FOPEvent.BreakStarted(bt.getValue(), (int) breakDuration, this.getOrigin()));
+            });
+            e.getSource().setEnabled(false);
+            breakStart.setEnabled(false);
+            breakPause.setEnabled(true);
+            breakEnd.setEnabled(true);
+            timer.getStyle().set("visibility", "visible");
+        };
+    }
 
-	private void assembleDialog(Dialog dialog, HorizontalLayout buttons) {
-		dialog.add(bt);
-		dialog.add(new Hr());
-		dialog.add(ct);
-		dialog.add(new Hr());
-		dialog.add(timer);
-		timer.getStyle().set("visibility", "hidden");
-		dialog.add(buttons);
-	}
+    public ComponentEventListener<ClickEvent<Button>> stopBreak(Dialog dialog) {
+        return (e) -> {
+            OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin())));
+            breakStart.setEnabled(true);
+            breakPause.setEnabled(false);
+            breakEnd.setEnabled(false);
+            dialog.close();
+        };
+    }
 
-	private void computeRoundedTargetValues(TimePicker tp, DatePicker dp) {
-		int timeStep = 30;
-		tp.setStep(Duration.ofMinutes(timeStep));
-		LocalTime nowTime = LocalTime.now();
-		int nowMin = nowTime.getMinute();
-		int nowHr = nowTime.getHour();
-		int previousStepMin = (nowMin / timeStep) * timeStep; // between 0 and 50
-		int nextStepMin = (previousStepMin + timeStep) % 60;
-		logger.trace("previousStepMin = {} nextStepMin = {}", previousStepMin, nextStepMin);
-		int nextHr = (nextStepMin == 0 ? nowHr + 1 : nowHr);
-		LocalDate nextDate = LocalDate.now();
-		if (nextHr >= 24) {
-			nextDate.plusDays(1);
-			nextHr = nextHr % 24;
-		}
-		dp.setValue(nextDate);
-		tp.setValue(LocalTime.of(nextHr, nextStepMin));
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+     * AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        ct.addValueChangeListener(e -> {
+            CountdownType cType = e.getValue();
+            setValues(cType, nf, tp, dp);
+            if (cType != CountdownType.TARGET) {
+                switchToDuration(cType, nf, tp, dp);
+            } else {
+                switchToTarget(cType, nf, tp, dp);
+            }
+        });
+    }
 
-	private HorizontalLayout configureButtons(Dialog dialog) {
-		breakStart = new Button(AvIcons.PLAY_ARROW.create(), startBreak());
-		breakStart.getElement().setAttribute("theme", "primary");
-		breakStart.getElement().setAttribute("title", getTranslation("StartCountdown"));
+    private void assembleDialog(Dialog dialog, HorizontalLayout buttons) {
+        dialog.add(bt);
+        dialog.add(new Hr());
+        dialog.add(ct);
+        dialog.add(new Hr());
+        dialog.add(timer);
+        timer.getStyle().set("visibility", "hidden");
+        dialog.add(buttons);
+    }
 
-		breakPause = new Button(AvIcons.PAUSE.create(), pauseBreak());
-		breakPause.getElement().setAttribute("theme", "primary");
-		breakPause.getElement().setAttribute("title", getTranslation("PauseCountdown"));
+    private void computeRoundedTargetValues(TimePicker tp, DatePicker dp) {
+        int timeStep = 30;
+        tp.setStep(Duration.ofMinutes(timeStep));
+        LocalTime nowTime = LocalTime.now();
+        int nowMin = nowTime.getMinute();
+        int nowHr = nowTime.getHour();
+        int previousStepMin = (nowMin / timeStep) * timeStep; // between 0 and 50
+        int nextStepMin = (previousStepMin + timeStep) % 60;
+        logger.trace("previousStepMin = {} nextStepMin = {}", previousStepMin, nextStepMin);
+        int nextHr = (nextStepMin == 0 ? nowHr + 1 : nowHr);
+        LocalDate nextDate = LocalDate.now();
+        if (nextHr >= 24) {
+            nextDate.plusDays(1);
+            nextHr = nextHr % 24;
+        }
+        dp.setValue(nextDate);
+        tp.setValue(LocalTime.of(nextHr, nextStepMin));
+    }
 
-		breakEnd = new Button(AvIcons.STOP.create(), stopBreak(dialog));
-		breakEnd.getElement().setAttribute("theme", "primary");
-		breakEnd.getElement().setAttribute("title", getTranslation("EndBreak_StartLifting"));
+    private HorizontalLayout configureButtons(Dialog dialog) {
+        breakStart = new Button(AvIcons.PLAY_ARROW.create(), startBreak());
+        breakStart.getElement().setAttribute("theme", "primary");
+        breakStart.getElement().setAttribute("title", getTranslation("StartCountdown"));
 
-		HorizontalLayout buttons = new HorizontalLayout();
-		buttons.add(breakStart, breakPause, breakEnd);
-		buttons.setWidth("100%");
-		buttons.setJustifyContentMode(JustifyContentMode.AROUND);
-		return buttons;
-	}
+        breakPause = new Button(AvIcons.PAUSE.create(), pauseBreak());
+        breakPause.getElement().setAttribute("theme", "primary");
+        breakPause.getElement().setAttribute("title", getTranslation("PauseCountdown"));
 
-	private void configureDuration() {
-		bt = new RadioButtonGroup<BreakType>();
-		bt.setItems(BreakType.values());
-		bt.setLabel(getTranslation("BreakType"));
+        breakEnd = new Button(AvIcons.STOP.create(), stopBreak(dialog));
+        breakEnd.getElement().setAttribute("theme", "primary");
+        breakEnd.getElement().setAttribute("title", getTranslation("EndBreak_StartLifting"));
 
-		ct = new RadioButtonGroup<CountdownType>();
-		ct.setItems(CountdownType.values());
-		ct.setLabel(getTranslation("CountdownType"));
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.add(breakStart, breakPause, breakEnd);
+        buttons.setWidth("100%");
+        buttons.setJustifyContentMode(JustifyContentMode.AROUND);
+        return buttons;
+    }
 
-		nf.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.DURATION, nf, tp, dp));
-		Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time
-		tp.setLocale(locale);
-		tp.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET, nf, tp, dp));
-		dp.setLocale(locale);
-		tp.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET, nf, tp, dp));
-		minutes = new Label("minutes");
+    private void configureDuration() {
+        bt = new RadioButtonGroup<BreakType>();
+        bt.setItems(BreakType.values());
+        bt.setLabel(getTranslation("BreakType"));
 
-		ct.addComponents(CountdownType.DURATION, nf, new Label(" "), minutes, new Div());
-		ct.addComponents(CountdownType.TARGET, dp, new Label(" "), tp);
-	}
+        ct = new RadioButtonGroup<CountdownType>();
+        ct.setItems(CountdownType.values());
+        ct.setLabel(getTranslation("CountdownType"));
 
-	private void configureTimerDisplay() {
-		Div countdown = new Div(new BreakTimerElement());
-		countdown.getStyle().set("font-size", "x-large");
-		countdown.getStyle().set("font-weight", "bold");
-		timer = new HorizontalLayout(countdown);
-		timer.setWidth("100%");
-		timer.setJustifyContentMode(JustifyContentMode.CENTER);
-		timer.getStyle().set("margin-top", "0px");
-	}
+        nf.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.DURATION, nf, tp, dp));
+        Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time
+        tp.setLocale(locale);
+        tp.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET, nf, tp, dp));
+        dp.setLocale(locale);
+        tp.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET, nf, tp, dp));
+        minutes = new Label("minutes");
 
-	private Object getOrigin() {
-		return origin;
-	}
+        ct.addComponents(CountdownType.DURATION, nf, new Label(" "), minutes, new Div());
+        ct.addComponents(CountdownType.TARGET, dp, new Label(" "), tp);
+    }
 
-	private long setBreakTimeRemaining(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
-		LocalDateTime target = LocalDateTime.now();
-		if (cType == CountdownType.DURATION) {
-			Double value = nf.getValue();
-			target = LocalDateTime.now().plusMinutes(value != null ? value.intValue() : 0);
-		} else if (cType == CountdownType.TARGET) {
-			LocalDate date = dp.getValue();
-			LocalTime time = tp.getValue();
-			target = LocalDateTime.of(date, time);
-		}
-		long timeRemaining = LocalDateTime.now().until(target, ChronoUnit.MILLIS);
-		OwlcmsSession.withFop(fop -> fop.getBreakTimer().setTimeRemaining((int) timeRemaining));
-		return timeRemaining;
-	}
+    private void configureTimerDisplay() {
+        Div countdown = new Div(new BreakTimerElement());
+        countdown.getStyle().set("font-size", "x-large");
+        countdown.getStyle().set("font-weight", "bold");
+        timer = new HorizontalLayout(countdown);
+        timer.setWidth("100%");
+        timer.setJustifyContentMode(JustifyContentMode.CENTER);
+        timer.getStyle().set("margin-top", "0px");
+    }
 
-	private void setOrigin(Object origin) {
-		this.origin = origin;
-	}
+    private Object getOrigin() {
+        return origin;
+    }
 
-	private void setValues(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
-		LocalDateTime now = LocalDateTime.now();
-		if (cType == CountdownType.DURATION) {
-			Double value = nf.getValue();
-			LocalDateTime target = now.plusMinutes(value != null ? value.intValue() : 0);
-			dp.setValue(target.toLocalDate());
-			tp.setValue(target.toLocalTime());
-		} else if (cType == CountdownType.TARGET) {
-			computeRoundedTargetValues(tp, dp);
-		}
-	}
+    private long setBreakTimeRemaining(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
+        LocalDateTime target = LocalDateTime.now();
+        BreakType bType = bt.getValue();
+        if (bType == BreakType.INTRODUCTION || bType == BreakType.FIRST_CJ || bType == BreakType.FIRST_SNATCH) {
+            cType = CountdownType.DURATION;
+        } else if (bType == BreakType.GROUP_DONE) {
+            cType = CountdownType.TARGET;
+        } else {
+            cType = CountdownType.INDEFINITE;
+        }
+        if (cType == CountdownType.DURATION) {
+            Double value = nf.getValue();
+            target = LocalDateTime.now().plusMinutes(value != null ? value.intValue() : 0);
+        } else if (cType == CountdownType.TARGET) {
+            LocalDate date = dp.getValue();
+            LocalTime time = tp.getValue();
+            target = LocalDateTime.of(date, time);
+        }
+        long timeRemaining = LocalDateTime.now().until(target, ChronoUnit.MILLIS);
+        OwlcmsSession.withFop(fop -> fop.getBreakTimer().setTimeRemaining((int) timeRemaining));
+        return timeRemaining;
+    }
 
-	private void switchToDuration(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
-		nf.setEnabled(true);
-		minutes.setEnabled(true);
-		dp.setEnabled(false);
-		tp.setEnabled(false);
-		nf.focus();
-		nf.setAutoselect(true);
-	}
+    private void setOrigin(Object origin) {
+        this.origin = origin;
+    }
 
-	private void switchToTarget(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
-		nf.setEnabled(false);
-		minutes.setEnabled(false);
-		dp.setEnabled(true);
-		tp.setEnabled(true);
-		tp.focus();
-	}
+    private void setValues(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
+        LocalDateTime now = LocalDateTime.now();
+        if (cType == CountdownType.DURATION) {
+            Double value = nf.getValue();
+            LocalDateTime target = now.plusMinutes(value != null ? value.intValue() : 0);
+            dp.setValue(target.toLocalDate());
+            tp.setValue(target.toLocalTime());
+        } else if (cType == CountdownType.TARGET) {
+            computeRoundedTargetValues(tp, dp);
+        }
+    }
 
-	private void syncWithFop() {
-		OwlcmsSession.withFop(fop -> {
-			switch (fop.getState()) {
-			case BREAK:
-			    if (fop.getCurAthlete().getAttemptsDone() == 3) {
-			        bt.setValue(BreakType.FIRST_CJ);
-			    } else if (fop.getCurAthlete().getAttemptsDone() == 0) {
-			        bt.setValue(BreakType.FIRST_SNATCH);
-			    } else {
-			        bt.setValue(BreakType.TECHNICAL);
-			    }
-				break;
-			case INACTIVE:
-				bt.setValue(BreakType.INTRODUCTION);
-				break;
-			default:
-				bt.setValue(BreakType.TECHNICAL);
-				break;
-			}
-		});
-	}
+    private void switchToDuration(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
+        nf.setEnabled(true);
+        minutes.setEnabled(true);
+        dp.setEnabled(false);
+        tp.setEnabled(false);
+        nf.focus();
+        nf.setAutoselect(true);
+    }
+
+    private void switchToTarget(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
+        nf.setEnabled(false);
+        minutes.setEnabled(false);
+        dp.setEnabled(true);
+        tp.setEnabled(true);
+        tp.focus();
+    }
+
+    private void syncWithFop() {
+        OwlcmsSession.withFop(fop -> {
+            switch (fop.getState()) {
+            case CURRENT_ATHLETE_DISPLAYED:
+            case BREAK:
+                if (fop.getCurAthlete() == null) {
+                    bt.setValue(BreakType.INTRODUCTION);
+                } else if (fop.getCurAthlete().getAttemptsDone() == 3) {
+                    bt.setValue(BreakType.FIRST_CJ);
+                } else if (fop.getCurAthlete().getAttemptsDone() == 0) {
+                    bt.setValue(BreakType.FIRST_SNATCH);
+                } else {
+                    bt.setValue(BreakType.TECHNICAL);
+                }
+                break;
+            case INACTIVE:
+                bt.setValue(BreakType.INTRODUCTION);
+                break;
+            default:
+                bt.setValue(BreakType.TECHNICAL);
+                break;
+            }
+        });
+    }
 
 }
