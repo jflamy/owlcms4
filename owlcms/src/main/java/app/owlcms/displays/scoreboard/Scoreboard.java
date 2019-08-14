@@ -6,7 +6,6 @@
  */
 package app.owlcms.displays.scoreboard;
 
-import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -256,7 +255,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 	}
 
 	private String formatAttempt(Integer attemptNo) {
-		return MessageFormat.format("{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.",(attemptNo%3)+1);
+		return Translator.translate("{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.",(attemptNo%3)+1);
 	}
 
 

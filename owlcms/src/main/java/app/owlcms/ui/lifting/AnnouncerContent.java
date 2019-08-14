@@ -7,8 +7,6 @@
 
 package app.owlcms.ui.lifting;
 
-import java.text.MessageFormat;
-
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
@@ -197,7 +195,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	public void slaveRefereeDecision(UIEvent.Decision e) {
 		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 			int d = e.decision ? 1 : 0;
-			String text = MessageFormat.format(getTranslation("NoLift_GoodLift"), d, e.getAthlete().getFullName());
+			String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
 			
 			Notification n = new Notification();
 			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html

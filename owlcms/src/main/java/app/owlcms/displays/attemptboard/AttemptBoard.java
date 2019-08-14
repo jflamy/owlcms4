@@ -6,8 +6,6 @@
  */
 package app.owlcms.displays.attemptboard;
 
-import java.text.MessageFormat;
-
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -244,7 +242,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     private void doDone(Group g) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setLastName(MessageFormat.format(getTranslation("Group_number_done"), g.toString()));
+            getModel().setLastName(getTranslation("Group_number_done", g.toString()));
             this.getElement().callFunction("groupDone");
             hidePlates();
         });
@@ -374,7 +372,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     private String formatAttempt(Integer attemptNo) {
-        return MessageFormat.format(getTranslation("AttemptBoard_attempt_number"), attemptNo);
+        return getTranslation("AttemptBoard_attempt_number", attemptNo);
     }
 
     private Object getOrigin() {

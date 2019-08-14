@@ -378,19 +378,6 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
         updateBottom(model,computeLiftType(a));
     }
 
-//    private String formatAttempt(Integer attemptNo) {
-//        return MessageFormat.format("{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.",(attemptNo%3)+1);
-//    }
-
-//    private String formatInt(Integer total) {
-//        if (total == -1) return "inv.";//invited lifter, not eligible.
-//        return (total == null || total == 0) ? "-" : (total < 0 ? "("+Math.abs(total)+")" : total.toString());
-//    }
-    
-//    private String formatKg(String total) {
-//        return (total == null || total.trim().isEmpty()) ? "-" : (total.startsWith("-") ? "("+total.substring(1)+")" : total);
-//    }
-
     private JsonValue getAthletesJson(List<Athlete> list2) {
         JsonArray jath = Json.createArray();
         int athx = 0;

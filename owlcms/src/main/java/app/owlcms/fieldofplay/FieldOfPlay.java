@@ -14,7 +14,6 @@ import static app.owlcms.fieldofplay.FOPState.INACTIVE;
 import static app.owlcms.fieldofplay.FOPState.TIME_RUNNING;
 import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -681,7 +680,7 @@ public class FieldOfPlay {
                     logger.trace("&&3.A.B declaration for clock owner: leave clock running");
                     // no weight change. this is most likely a declaration.
                     if (Athlete.zeroIfInvalid(changingAthlete.getCurrentDeclaration()) == newWeight) {
-                        Notification.show(MessageFormat.format(Translator.translate("Declaration_Notification"),
+                        Notification.show(Translator.translate("Declaration_Notification",
                                 changingAthlete, newWeight), 5000, Position.TOP_START);
                     }
                     return;
@@ -975,7 +974,7 @@ public class FieldOfPlay {
         if (e instanceof DecisionReset || e instanceof DecisionFullUpdate)
             // ignore
             return;
-        String text = MessageFormat.format(Translator.translate("Unexpected_Notification"),
+        String text = Translator.translate("Unexpected_Notification",
                 e.getClass().getSimpleName(), state);
         logger.warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
         Notification.show(text, 5000, Position.BOTTOM_END);

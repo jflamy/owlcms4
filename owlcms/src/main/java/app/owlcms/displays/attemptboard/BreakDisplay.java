@@ -6,8 +6,6 @@
  */
 package app.owlcms.displays.attemptboard;
 
-import java.text.MessageFormat;
-
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -39,7 +37,7 @@ public interface BreakDisplay {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		Group group = fop.getGroup();
 		String groupName = group != null ? group.getName() : "";
-		return MessageFormat.format(Translator.translate("Group_number"), groupName);
+		return Translator.translate("Group_number", groupName);
 	}
 
 	public default String inferMessage(BreakType bt) {

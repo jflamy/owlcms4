@@ -7,7 +7,6 @@
 
 package app.owlcms.ui.shared;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -343,21 +342,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         });
     }
 
-    /*
-     * Old kludge code to create HTML. Should recheck whether
-     * getElement().setProperty("innerHTML", "...") works now.
-     * 
-     * // String attemptHtml = MessageFormat.
-     * format("<h2>{0} {1}<sup>{1,choice,1#st|2#nd|3#rd}</sup> att.</h2>", // String
-     * attemptHtml = MessageFormat.format("<h2>{0} #{1}</h2>", //
-     * athlete.getAttemptsDone() > 2 ? "C & J" : "Snatch", //
-     * athlete.getAttemptNumber()); // Html newAttempt = new Html(attemptHtml); //
-     * topBar.replace(attempt, newAttempt); // attempt = newAttempt;
-     * 
-     * // Html newAttempt = new Html("<h2><span></span></h2>"); //
-     * topBar.replace(attempt, newAttempt); // attempt = newAttempt;
-     */
-
     /**
      * Update button and validation logic is in form factory
      * 
@@ -510,11 +494,11 @@ public abstract class AthleteGridContent extends VerticalLayout
                 } else {
                     if (attemptsDone >= 6) {
                         lastName.setText(fop.getGroup() == null ? "\u2013"
-                                : MessageFormat.format(getTranslation("Group_number_done"), fop.getGroup()));
+                                : getTranslation("Group_number_done", fop.getGroup()));
                         firstName.setText("");
                     } else {
                         lastName.setText(fop.getGroup() == null ? "\u2013"
-                                : MessageFormat.format(getTranslation("No_weighed_in_athletes"), fop.getGroup()));
+                                : getTranslation("No_weighed_in_athletes"));
                         firstName.setText("");
                     }
                     timeField.getElement().getStyle().set("visibility", "hidden");
@@ -570,8 +554,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         Integer attemptNumber = a.getAttemptNumber();
         return (attemptsDone >= 3)
                 ? ((attemptsDone >= 6) ? "done"
-                        : MessageFormat.format(Translator.translate("C_and_J_number"), attemptNumber))
-                : MessageFormat.format(Translator.translate("Snatch_number"), attemptNumber);
+                        : Translator.translate("C_and_J_number", attemptNumber))
+                : Translator.translate("Snatch_number", attemptNumber);
     }
 
     /**
@@ -595,13 +579,13 @@ public abstract class AthleteGridContent extends VerticalLayout
             String text;
             int declaring = curDisplayAthlete.isDeclaring();
             if (declaring > 0) {
-                text = MessageFormat.format(getTranslation("Declaration_current_athlete_with_change"),
+                text = getTranslation("Declaration_current_athlete_with_change",
                         curDisplayAthlete.getFullName());
             } else if (declaring == 0) {
-                text = MessageFormat.format(getTranslation("Declaration_current_athlete"),
+                text = getTranslation("Declaration_current_athlete",
                         curDisplayAthlete.getFullName());
             } else {
-                text = MessageFormat.format(getTranslation("Weight_change_current_athlete"),
+                text = getTranslation("Weight_change_current_athlete",
                         curDisplayAthlete.getFullName());
             }
             n.setDuration(6000);
