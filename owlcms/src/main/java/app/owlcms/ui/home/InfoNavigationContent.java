@@ -62,7 +62,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 
 	private VerticalLayout buildLicense() {
 		VerticalLayout license = new VerticalLayout();
-	    license.add(new H3(getTranslation("OWLCMS v{0} ({1})", OwlcmsFactory.getVersion(), OwlcmsFactory.getBuildTimestamp())));
+	    license.add(new H3(getTranslation("OwlcmsBuild", OwlcmsFactory.getVersion(), OwlcmsFactory.getBuildTimestamp())));
 		license.add(new H3(getTranslation("CopyrightLicense")));
 		addP(license,
 				getTranslation("Copyright2009")+LocalDate.now().getYear()+" "+getTranslation("JFL")

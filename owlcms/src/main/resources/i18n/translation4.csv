@@ -367,3 +367,4 @@ BreakType.GROUPE_DONE,End,Fin,,,,
 DisplayType.Title,Attempt Board Information,Information sur l'écran d'essai courant,,,,
 DisplayType.COUNTDOWN,Countdown clock,Horloge de décompte,,,,
 DisplayType.ATHLETE,Attempt Info,Information sur l'essai,,,,
+OwlcmsBuild,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),OWLCMS v{0} ({1})
