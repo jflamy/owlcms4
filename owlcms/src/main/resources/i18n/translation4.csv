@@ -353,3 +353,17 @@ Translation,Translation,Traduction,,Oversættelse,Traducción,перевод
 reloadTranslationInfo,"Click to reload the translation file, then refresh your pages (F5).","Cliquer pour recharger le fichier de traduction, puis raffraîchir les pages.",,"Click to reload the translation file, then refresh your pages (F5).","Click to reload the translation file, then refresh your pages (F5).","Click to reload the translation file, then refresh your pages (F5)."
 reloadTranslation,Reload translation file,Recharger le fichier de traduction,,Reload translation file,Reload translation file,Reload translation file
 TranslationDocumentation,<li>Contribute by translating the application to your own language: see the <a href='https://jflamy.github.io/owlcms4/#/index?id=translation-to-other-languages'>translation documentation</a>. ,<li>Traduire l'application dans votre propre langue: voir la  <a href='https://jflamy.github.io/owlcms4/#/index?id=translation-to-other-languages'>documentation de traduction</a>. ,,<li>Contribute by translating the application to your own language: see the <a href='https://jflamy.github.io/owlcms4/#/index?id=translation-to-other-languages'>translation documentation</a>. ,<li>Contribute by translating the application to your own language: see the <a href='https://jflamy.github.io/owlcms4/#/index?id=translation-to-other-languages'>translation documentation</a>. ,<li>Contribute by translating the application to your own language: see the <a href='https://jflamy.github.io/owlcms4/#/index?id=translation-to-other-languages'>translation documentation</a>. 
+CountdownType.Title,Countdown Type,Type de décompte,,Nedtællingstype,Tipo de cuenta regresiva,
+CountdownType.DURATION,Duration,Durée,,,duración,
+CountdownType.TARGET,Start at,Débuter à,,,,
+CountdownType.INDEFINITE,Wait,Attente,,,,
+BreakType.Title,Waiting for…,En attente de…,,,,
+BreakType.INTRODUCTION,Introduction,Présentation,,,,
+BreakType.FIRST_SNATCH,First Snatch,Premier arraché,,,,
+BreakType.FIRST_CJ,First Clean&Jerk,Premier épaulé-jeté,,,,
+BreakType.JURY,Jury Decision,Décision du jury,,,,
+BreakType.TECHNICAL,Technical Issue,Problème technique,,,,
+BreakType.GROUPE_DONE,End,Fin,,,,
+DisplayType.Title,Attempt Board Information,Information sur l'écran d'essai courant,,,,
+DisplayType.COUNTDOWN,Countdown clock,Horloge de décompte,,,,
+DisplayType.ATHLETE,Attempt Info,Information sur l'essai,,,,
