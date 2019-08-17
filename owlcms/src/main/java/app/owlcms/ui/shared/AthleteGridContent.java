@@ -22,6 +22,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -44,7 +45,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.AthleteTimerElement;
@@ -380,9 +380,11 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         attempt = new H2();
         weight = new H2();
         weight.setText("");
-
         timeField = new AthleteTimerElement(this);
         H1 time = new H1(timeField);
+        clearVerticalMargins(attempt);
+        clearVerticalMargins(time);
+        clearVerticalMargins(weight);
 
         HorizontalLayout buttons = announcerButtons(topBar);
         HorizontalLayout decisions = decisionButtons(topBar);
@@ -400,8 +402,13 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
         topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
-        topBar.setFlexGrow(1.0, fullName);
+        topBar.setFlexGrow(0.5, fullName);
         topBar.setFlexGrow(0.0, topBarLeft);
+    }
+
+
+    public void clearVerticalMargins(HasStyle styleable) {
+        styleable.getStyle().set("margin-top", "0").set("margin-bottom", "0");
     }
 
 
@@ -564,7 +571,9 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             }
 
             Athlete curAthlete2 = fop.getCurAthlete();
-            if (fop.getState() == FOPState.INACTIVE || AthleteSorter.countLiftsDone(fop.getLiftingOrder()) == 0) {
+            if (fop.getState() == FOPState.INACTIVE 
+//                    || AthleteSorter.countLiftsDone(fop.getLiftingOrder()) == 0
+                    ) {
                 logger.warn("initial: {}", fop.getState());
                 createInitialBar();
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6) {
@@ -619,8 +628,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         } else if (attemptsDone >= 6) {
             warn(group, getTranslation("Group_number_done", group.getName()));
         } else {
-//            warn(group, getTranslation("No_weighed_in_athletes for group {0}", group));
-            warn(group, getTranslation(group.toString(), group));
+            warn(group, getTranslation("No_weighed_in_athletes", group));
         }
     }
 
