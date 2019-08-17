@@ -526,6 +526,7 @@ public class FieldOfPlay {
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer) {
+        logger.warn("start of init state="+state);
         this.athleteTimer = timer;
         this.breakTimer = breakTimer;
         this.fopEventBus = getFopEventBus();
@@ -540,9 +541,10 @@ public class FieldOfPlay {
         if (state == null) {
             this.setState(INACTIVE);
         }
+        logger.warn("end of init state="+state);
     }
 
-    public void initGroup(Group group, Object origin) {
+    public void loadGroup(Group group, Object origin) {
         this.group = group;
         if (group != null) {
             logger.debug("{} loading data for group {} [{}]", this.getName(), (group != null ? group.getName() : group),
@@ -615,9 +617,9 @@ public class FieldOfPlay {
      *
      * @param group the group
      */
-    public void switchGroup(Group group, Object origin) {
+    public void startLifting(Group group, Object origin) {
         logger.trace("switchGroup {}", LoggerUtils.stackTrace());
-        initGroup(group, origin);
+        loadGroup(group, origin);
         logger.trace("{} start lifting for group {} origin={}", this.getName(),
                 (group != null ? group.getName() : group), origin);
         getFopEventBus().post(new StartLifting(origin));

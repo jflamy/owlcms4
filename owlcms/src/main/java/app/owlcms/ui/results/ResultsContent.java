@@ -127,12 +127,12 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         title.getStyle().set("margin", "0px 0px 0px 0px")
                 .set("font-weight", "normal");
 
-        groupSelect = new ComboBox<Group>();
-        groupSelect.setPlaceholder(getTranslation("Group"));
-        groupSelect.setItems(GroupRepository.findAll());
-        groupSelect.setItemLabelGenerator(Group::getName);
-        groupSelect.setValue(null);
-        groupSelect.setWidth("8em");
+        topBarGroupSelect = new ComboBox<Group>();
+        topBarGroupSelect.setPlaceholder(getTranslation("Group"));
+        topBarGroupSelect.setItems(GroupRepository.findAll());
+        topBarGroupSelect.setItemLabelGenerator(Group::getName);
+        topBarGroupSelect.setValue(null);
+        topBarGroupSelect.setWidth("8em");
         setGroupSelectionListener();
 
         xlsWriter = new JXLSResultSheet();
@@ -157,7 +157,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
         topBar.getElement().getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(title, groupSelect, templateSelect, buttons);
+        topBar.add(title, topBarGroupSelect, templateSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setFlexGrow(0.2, title);
 //        topBar.setSpacing(true);
@@ -197,8 +197,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
 
     protected void setGroupSelectionListener() {
-        groupSelect.setValue(getGridGroup());
-        groupSelect.addValueChangeListener(e -> {
+        topBarGroupSelect.setValue(getGridGroup());
+        topBarGroupSelect.addValueChangeListener(e -> {
             setGridGroup(e.getValue());
             currentGroup = e.getValue();
             // the name of the resulting file is set as an attribute on the <a href tag that

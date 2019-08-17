@@ -238,12 +238,12 @@ implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEven
 		Group group = group2;
 		Group currentGroup = fop.getGroup();
 		if (group == null) {
-			fop.switchGroup(null, this.getOrigin());
+			fop.startLifting(null, this.getOrigin());
 			if (groupSelect != null) {
 				groupSelect.setValue(null);
 			}
 		} else if (!group.equals(currentGroup)) {
-			fop.switchGroup(group, this.getOrigin());
+			fop.startLifting(group, this.getOrigin());
 			if (groupSelect != null) {
 				groupSelect.setValue(group);
 			}

@@ -44,9 +44,11 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.AthleteTimerElement;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.i18n.Translator;
@@ -54,7 +56,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
-import app.owlcms.ui.lifting.AnnouncerContent;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
 import app.owlcms.ui.lifting.MarshallContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -80,6 +81,14 @@ public abstract class AthleteGridContent extends VerticalLayout
         uiEventLogger.setLevel(Level.INFO);
     }
 
+    public static String formatAttemptNumber(Athlete a) {
+        Integer attemptsDone = a.getAttemptsDone();
+        Integer attemptNumber = a.getAttemptNumber();
+        return (attemptsDone >= 3)
+                ? ((attemptsDone >= 6) ? "done" : Translator.translate("C_and_J_number", attemptNumber))
+                : Translator.translate("Snatch_number", attemptNumber);
+    }
+
     protected Location location;
     protected UI locationUI;
     protected EventBus uiEventBus;
@@ -94,7 +103,9 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected H2 weight;
     protected AthleteTimerElement timeField;
     protected FlexLayout topBar;
-    protected ComboBox<Group> groupSelect;
+    protected ComboBox<Group> topBarGroupSelect;
+    private Athlete displayedAthlete;
+    protected boolean topBarPresent;
 
     /**
      * groupFilter points to a hidden field on the crudGrid filtering row, which is
@@ -116,7 +127,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected OwlcmsCrudGrid<Athlete> crudGrid;
     private AthleteCardFormFactory athleteEditingFormFactory;
     protected Component reset;
-    private Athlete displayedAthlete;
+    private Group oldGroup = null;
 
     /**
      * Instantiates a new announcer content. Content is created in
@@ -184,20 +195,21 @@ public abstract class AthleteGridContent extends VerticalLayout
         return crudGrid;
     }
 
-    public void createGroupSelect() {
-        groupSelect = new ComboBox<>();
-        groupSelect.setPlaceholder(getTranslation("Group"));
-        groupSelect.setItems(GroupRepository.findAll());
-        groupSelect.setItemLabelGenerator(Group::getName);
-        groupSelect.setWidth("7rem");
-        groupSelect.setReadOnly(true);
-        // if groupSelect is made read-write, it needs to set values in groupFilter and
-        // call updateURLLocation
-        // see AnnouncerContent for an example.
-    }
-
     public Component createReset() {
         return null;
+    }
+
+    public void createTopBarGroupSelect() {
+        topBarGroupSelect = new ComboBox<>();
+        topBarGroupSelect.setPlaceholder(getTranslation("Group"));
+        topBarGroupSelect.setItems(GroupRepository.findAll());
+        topBarGroupSelect.setItemLabelGenerator(Group::getName);
+        topBarGroupSelect.setWidth("7rem");
+        topBarGroupSelect.setReadOnly(true);
+        // if topBarGroupSelect is made read-write, it needs to set values in
+        // groupFilter and
+        // call updateURLLocation
+        // see AnnouncerContent for an example.
     }
 
     /**
@@ -266,10 +278,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         QueryParameterReader.super.setParameter(event, parameter);
         location = event.getLocation();
         locationUI = event.getUI();
-        // super.setParameter sets the group, but does not reload.
-        if (this instanceof AnnouncerContent) {
-            OwlcmsSession.withFop(fop -> fop.initGroup(fop.getGroup(), this));
-        }
     }
 
     @Override
@@ -319,26 +327,30 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     /**
-     * @param forceUpdate
      */
-    public void syncWithFOP(boolean forceUpdate) {
-        logger.debug("syncWithFOP {}", LoggerUtils.whereFrom());
+    public void syncWithFOP() {
         OwlcmsSession.withFop((fop) -> {
             Group fopGroup = fop.getGroup();
-            Group displayedGroup = groupSelect.getValue();
-            if (fopGroup == null && displayedGroup == null)
-                return;
-            if (fopGroup != null && (forceUpdate || !fopGroup.equals(displayedGroup))) {
-                groupSelect.setValue(fopGroup);
-                if (forceUpdate) {
-                    fop.switchGroup(fop.getGroup(), this);
-                }
-            } else if (fopGroup == null) {
-                groupSelect.setValue(null);
+            logger.warn("syncing FOP, group = {}",fopGroup);
+            createTopBarGroupSelect();
+            
+            if (fopGroup == null) {
+                topBarGroupSelect.setValue(null);
+            } else  {
+                topBarGroupSelect.setValue(fopGroup);
+                crudGrid.refreshGrid();
             }
-            Athlete curAthlete = fop.getCurAthlete();
-            int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
-            doUpdateTopBar(curAthlete, timeRemaining);
+            
+            if (fop.getState() == FOPState.INACTIVE || AthleteSorter.countLiftsDone(fop.getLiftingOrder()) == 0) {
+                logger.warn("initial: {}",fop.getState());
+                createInitialBar();
+            } else {
+                logger.warn("ready to lift: {}",fop.getState());
+                createTopBar();
+                Athlete curAthlete = fop.getCurAthlete();
+                int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
+                doUpdateTopBar(curAthlete, timeRemaining);
+            }
         });
     }
 
@@ -385,6 +397,20 @@ public abstract class AthleteGridContent extends VerticalLayout
         return athleteEditingFormFactory;
     }
 
+    protected void createInitialBar() {
+        logger.debug("AthleteGridContent creating top bar");
+        topBar = getAppLayout().getAppBarElementWrapper();
+        topBarPresent = false;
+
+        topBar.removeAll();
+        topBar.setSizeFull();
+        topBar.setAlignItems(Alignment.START);
+
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+
+    }
+
     /**
      * The top bar is logically is the master part of a master-detail In the current
      * implementation, the most convenient place to put it is in the top bar which
@@ -396,13 +422,12 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected void createTopBar() {
         logger.debug("AthleteGridContent creating top bar");
         topBar = getAppLayout().getAppBarElementWrapper();
+        topBar.removeAll();
+        topBarPresent = true;
 
         title = new H3();
         title.setText(getTopBarTitle());
-        title.getStyle().set("margin", "0px 0px 0px 0px")
-                .set("font-weight", "normal");
-
-        createGroupSelect();
+        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
         lastName = new H1();
         lastName.setText("\u2013");
@@ -422,9 +447,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         HorizontalLayout decisions = decisionButtons(topBar);
         decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
 
-        topBar.removeAll();
         topBar.setSizeFull();
-        topBar.add(title, groupSelect, fullName, attempt, weight, time);
+        topBar.add(title, topBarGroupSelect, fullName, attempt, weight, time);
         if (buttons != null)
             topBar.add(buttons);
         if (decisions != null)
@@ -462,52 +486,66 @@ public abstract class AthleteGridContent extends VerticalLayout
         // we do not set the group filter value
         groupFilter.addValueChangeListener(e -> {
             Group newGroup = e.getValue();
-            logger.debug("filter switching group to {}", newGroup != null ? newGroup.getName() : null);
             OwlcmsSession.withFop((fop) -> {
-                fop.switchGroup(newGroup, this.getOrigin());
+                if (newGroup == null && oldGroup == null) return;
+                if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
+                    logger.warn("filter switching group from {} to {} {}", oldGroup != null ? oldGroup.getName() : null,
+                            newGroup != null ? newGroup.getName() : null, LoggerUtils.stackTrace());
+                    fop.loadGroup(newGroup,this);
+                    oldGroup = newGroup;
+//                    syncWithFOP();
+                    crud.refreshGrid();
+                    updateURLLocation(locationUI, location, newGroup);
+                }
             });
-            crud.refreshGrid();
-            updateURLLocation(locationUI, location, newGroup);
         });
         crud.getCrudLayout().addFilterComponent(groupFilter);
     }
 
     protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
         if (title == null)
-            return; // createTopBar has not yet been called;
+            return;
         displayedAthlete = athlete;
         logger.debug("doUpdateTopBar {}", LoggerUtils.whereFrom());
         OwlcmsSession.withFop(fop -> {
             UIEventProcessor.uiAccess(topBar, uiEventBus, () -> {
-                groupSelect.setValue(fop.getGroup());
+                Group group = fop.getGroup();
+                topBarGroupSelect.setValue(group);
                 Integer attemptsDone = (athlete != null ? athlete.getAttemptsDone() : 0);
                 if (athlete != null && attemptsDone < 6) {
-                    String lastName2 = athlete.getLastName();
-                    lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
-                    firstName.setText(athlete.getFirstName());
-                    timeField.getElement().getStyle().set("visibility", "visible");
-                    attempt.setText(formatAttemptNumber(athlete));
-                    Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
-                    weight.setText(
-                            (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
-                                    + "kg");
+                    if (topBarPresent) {
+                        String lastName2 = athlete.getLastName();
+                        lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
+                        firstName.setText(athlete.getFirstName());
+                        timeField.getElement().getStyle().set("visibility", "visible");
+                        attempt.setText(formatAttemptNumber(athlete));
+                        Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
+                        weight.setText(
+                                (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
+                                        + "kg");
+                    }
                 } else {
                     if (attemptsDone >= 6) {
-                        lastName.setText(fop.getGroup() == null ? "\u2013"
-                                : getTranslation("Group_number_done", fop.getGroup()));
-                        firstName.setText("");
+                        warn(group, getTranslation("Group_number_done", group.getName()));
                     } else {
-                        lastName.setText(fop.getGroup() == null ? "\u2013"
-                                : getTranslation("No_weighed_in_athletes"));
-                        firstName.setText("");
+                        warn(group, getTranslation("No_weighed_in_athletes"));
                     }
-                    timeField.getElement().getStyle().set("visibility", "hidden");
 
-                    attempt.setText("");
-                    weight.setText("");
                 }
             });
         });
+    }
+
+    protected void warn(Group group, String string) {
+        String text = group == null ? "\u2013" : string;
+        if (topBarPresent) {
+            lastName.setText(text);
+            firstName.setText("");
+            timeField.getElement().getStyle().set("visibility", "hidden");
+            attempt.setText("");
+            weight.setText("");
+        } else {
+        }
     }
 
     protected Object getOrigin() {
@@ -533,10 +571,10 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        logger.warn("attaching {} initial={}",System.identityHashCode(attachEvent.getSource()), attachEvent.isInitialAttach());
         OwlcmsSession.withFop(fop -> {
             // create the top bar.
-            createTopBar();
-            syncWithFOP(this instanceof AnnouncerContent);
+            syncWithFOP();
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
@@ -547,15 +585,6 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected void setTopBarTitle(String title) {
         this.topBarTitle = title;
-    }
-
-    public static String formatAttemptNumber(Athlete a) {
-        Integer attemptsDone = a.getAttemptsDone();
-        Integer attemptNumber = a.getAttemptNumber();
-        return (attemptsDone >= 3)
-                ? ((attemptsDone >= 6) ? "done"
-                        : Translator.translate("C_and_J_number", attemptNumber))
-                : Translator.translate("Snatch_number", attemptNumber);
     }
 
     /**
@@ -579,14 +608,11 @@ public abstract class AthleteGridContent extends VerticalLayout
             String text;
             int declaring = curDisplayAthlete.isDeclaring();
             if (declaring > 0) {
-                text = getTranslation("Declaration_current_athlete_with_change",
-                        curDisplayAthlete.getFullName());
+                text = getTranslation("Declaration_current_athlete_with_change", curDisplayAthlete.getFullName());
             } else if (declaring == 0) {
-                text = getTranslation("Declaration_current_athlete",
-                        curDisplayAthlete.getFullName());
+                text = getTranslation("Declaration_current_athlete", curDisplayAthlete.getFullName());
             } else {
-                text = getTranslation("Weight_change_current_athlete",
-                        curDisplayAthlete.getFullName());
+                text = getTranslation("Weight_change_current_athlete", curDisplayAthlete.getFullName());
             }
             n.setDuration(6000);
             n.setPosition(Position.TOP_START);

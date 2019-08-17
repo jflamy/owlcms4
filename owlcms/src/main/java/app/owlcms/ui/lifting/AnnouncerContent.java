@@ -15,6 +15,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -29,6 +30,7 @@ import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -47,6 +49,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
+    private Button introCountdownButton;
+    private Button startLiftingButton;
+    private H3 warning;
+
 	public AnnouncerContent() {
 		super();
 		defineFilters(crudGrid);
@@ -56,20 +62,20 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	/* (non-Javadoc)
 	 * @see app.owlcms.ui.group.AthleteGridContent#createGroupSelect() */
 	@Override
-	public void createGroupSelect() {
-		super.createGroupSelect();
-		groupSelect.setReadOnly(false);
+	public void createTopBarGroupSelect() {
+		super.createTopBarGroupSelect();
+		topBarGroupSelect.setReadOnly(false);
 		OwlcmsSession.withFop((fop) -> {
 			Group group = fop.getGroup();
-			logger.debug("select setting group to {}", group);
-			groupSelect.setValue(group);
+			logger.warn("initial setting group to {} {}", group, LoggerUtils.whereFrom());
+			topBarGroupSelect.setValue(group);
 			getGroupFilter().setValue(group);
 		});
-		groupSelect.addValueChangeListener(e -> {
+		topBarGroupSelect.addValueChangeListener(e -> {
 			// the group management logic and filtering is attached to a
 			// hidden field in the crudGrid part of the page
 			Group group = e.getValue();
-			logger.debug("select setting filter group to {}", group);
+			logger.warn("select setting filter group to {}", group);
 			getGroupFilter().setValue(group);
 		});
 	}
@@ -80,7 +86,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			OwlcmsSession.withFop((fop) -> {
 				Group group = fop.getGroup();
 				logger.debug("resetting {} from database", group);
-				fop.switchGroup(group,this);
+		        fop.loadGroup(group, this);
+		        syncWithFOP();
 			}));
 		reset.getElement().setAttribute("title", getTranslation("Reload_group"));
 		reset.getElement().setAttribute("theme", "secondary contrast small icon");
@@ -156,6 +163,35 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		// this hides the back arrow
 		getAppLayout().setMenuVisible(false);
 	}
+	
+	@Override
+    protected void createInitialBar() {
+        logger.debug("AthleteGridContent creating top bar");
+        topBar = getAppLayout().getAppBarElementWrapper();
+        topBar.removeAll();
+
+        title = new H3();
+        title.setText(getTopBarTitle());
+        title.getStyle().set("margin", "0px 0px 0px 0px")
+                .set("font-weight", "normal");
+
+        createTopBarGroupSelect();
+
+        introCountdownButton = new Button(getTranslation("introCountdownButton"),(e) -> {
+            Notification.show("show countdown timer");
+        });
+        startLiftingButton = new Button(getTranslation("startLiftingButton"),(e) -> {
+            Notification.show("show athlete info");
+        });
+        warning = new H3();
+        
+        topBar.removeAll();
+        topBar.setSizeFull();
+        topBar.add(title, topBarGroupSelect, introCountdownButton, startLiftingButton, warning);
+
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+    }
 
 
 	/**
@@ -213,5 +249,21 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			n.open();
 		});
 	}
+	
+	@Override
+    public void warn(Group group, String string) {
+        String text = group == null ? "\u2013" : string;
+        if (topBarPresent) {
+            lastName.setText(text);
+            firstName.setText("");
+            timeField.getElement().getStyle().set("visibility", "hidden");
+            attempt.setText("");
+            weight.setText("");
+        } else {
+            introCountdownButton.getElement().getStyle().set("display", "none");
+            startLiftingButton.getElement().getStyle().set("display", "none");
+            warning.setText(string);
+        }
+    }
 
 }
