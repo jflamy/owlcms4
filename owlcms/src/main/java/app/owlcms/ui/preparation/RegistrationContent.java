@@ -256,7 +256,7 @@ implements CrudListener<Athlete>, OwlcmsContent {
         });
         groupFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(groupFilter);
-        groupFilter.getElement().getStyle().set("display", "none");
+        groupFilter.getStyle().set("display", "none");
 
         weighedInFilter.setPlaceholder(getTranslation("Weighed_in_p"));
         weighedInFilter.setItems(Boolean.TRUE,Boolean.FALSE);

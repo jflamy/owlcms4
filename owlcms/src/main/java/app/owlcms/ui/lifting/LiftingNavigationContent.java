@@ -63,7 +63,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         addP(intro, getTranslation("AnnouncerSelectsGroup") +
                 getTranslation("ChangesGroupEverywhere") +
                 getTranslation("AnnouncerEtc"));
-        intro.getElement().getStyle().set("margin-bottom", "0");
+        intro.getStyle().set("margin-bottom", "0");
         
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(announcer, marshall, timekeeper, technical);
         doGroup(getTranslation("Scoreboard.LiftingOrder"), intro, grid1, this);

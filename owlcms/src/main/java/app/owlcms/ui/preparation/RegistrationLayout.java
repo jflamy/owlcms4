@@ -80,7 +80,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         appLayout.closeDrawer();
         this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
         createTopBar(topBar);
-        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 0px");
+        appLayout.getTitleWrapper().getStyle().set("flex", "0 1 0px");
         return appLayout;
     }
 
@@ -177,7 +177,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
-        topBar.getElement().getStyle().set("flex", "100 1");
+        topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
         topBar.add(title, groupSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);

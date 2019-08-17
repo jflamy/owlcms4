@@ -62,7 +62,7 @@ public interface NavigationPage extends OwlcmsContent {
     public default Paragraph addP(HasComponents intro, String text) {
         Paragraph paragraph = new Paragraph();
         paragraph.getElement().setProperty("innerHTML", text);
-        paragraph.getElement().getStyle().set("margin-bottom", "0");
+        paragraph.getStyle().set("margin-bottom", "0");
         intro.add(paragraph);
         return paragraph;
     }

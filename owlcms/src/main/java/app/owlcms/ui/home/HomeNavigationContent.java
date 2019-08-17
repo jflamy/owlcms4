@@ -124,7 +124,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			getTranslation("CompetitionDocuments_description", RESULT_DOCUMENTS)+
 			getTranslation("SeparateLaptops")
 		);
-		intro.getElement().getStyle().set("margin-bottom", "-1em");
+		intro.getStyle().set("margin-bottom", "-1em");
 		return intro;
 	}
 
