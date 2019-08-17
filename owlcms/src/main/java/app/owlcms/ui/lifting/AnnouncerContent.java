@@ -51,7 +51,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     private Button introCountdownButton;
     private Button startLiftingButton;
-    private H3 warning;
 
 	public AnnouncerContent() {
 		super();
@@ -59,39 +58,52 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		setTopBarTitle(getTranslation("Announcer"));
 	}
 	
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.group.AthleteGridContent#createGroupSelect() */
+	/**
+	 * @see app.owlcms.ui.shared.AthleteGridContent#createReset()
+	 */
 	@Override
-	public void createTopBarGroupSelect() {
-		super.createTopBarGroupSelect();
-		topBarGroupSelect.setReadOnly(false);
-		OwlcmsSession.withFop((fop) -> {
-			Group group = fop.getGroup();
-			logger.warn("initial setting group to {} {}", group, LoggerUtils.whereFrom());
-			topBarGroupSelect.setValue(group);
-			getGroupFilter().setValue(group);
-		});
-		topBarGroupSelect.addValueChangeListener(e -> {
-			// the group management logic and filtering is attached to a
-			// hidden field in the crudGrid part of the page
-			Group group = e.getValue();
-			logger.warn("select setting filter group to {}", group);
-			getGroupFilter().setValue(group);
-		});
-	}
-	
-	@Override
-	public Component createReset() {
+	protected Component createReset() {
 		reset = new Button(IronIcons.REFRESH.create(), (e) ->
 			OwlcmsSession.withFop((fop) -> {
 				Group group = fop.getGroup();
 				logger.debug("resetting {} from database", group);
 		        fop.loadGroup(group, this);
-		        syncWithFOP();
+		        syncWithFOP(false); // no need to reload grid, we just loaded.
 			}));
 		reset.getElement().setAttribute("title", getTranslation("Reload_group"));
 		reset.getElement().setAttribute("theme", "secondary contrast small icon");
 		return reset;
+	}
+	
+	/**
+	 * @see app.owlcms.ui.shared.AthleteGridContent#createTopBarGroupSelect()
+	 */
+	@Override
+	protected void createTopBarGroupSelect() {
+        // there is already all the SQL filtering logic for the group attached
+        // hidden field in the crudGrid part of the page so we just set that
+	    // filter.
+		super.createTopBarGroupSelect();
+		topBarGroupSelect.setReadOnly(false);
+		OwlcmsSession.withFop((fop) -> {
+			Group group = fop.getGroup();
+			logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
+			topBarGroupSelect.setValue(group);
+			getGroupFilter().setValue(group);
+		});
+		topBarGroupSelect.addValueChangeListener(e -> {
+			Group group = e.getValue();
+			logger.trace("select setting filter group to {}", group);
+			getGroupFilter().setValue(group);
+		});
+	}
+
+	/**
+	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+	 */
+	@Override
+	public String getPageTitle() {
+		return getTranslation("Announcer");
 	}
 
 	/**
@@ -108,6 +120,32 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		return false;
 	}
 
+	@Subscribe
+	public void slaveRefereeDecision(UIEvent.Decision e) {
+		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+			int d = e.decision ? 1 : 0;
+			String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
+			
+			Notification n = new Notification();
+			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
+			String themeName = e.decision?"success":"error";
+			n.getElement().getThemeList().add(themeName);
+
+			Div label = new Div();
+			label.add(text);
+			label.addClickListener((event)-> n.close());
+			label.setSizeFull();
+			label.getStyle().set("font-size", "large");
+			n.add(label);
+			n.setPosition(Position.TOP_START);
+			n.setDuration(5000);
+			n.open();
+		});
+	}
+	
+	/**
+	 * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
+	 */
 	@Override
 	protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
 		Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
@@ -155,27 +193,18 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		return buttons;
 	}
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar() */
-	@Override
-	protected void createTopBar() {
-		super.createTopBar();
-		// this hides the back arrow
-		getAppLayout().setMenuVisible(false);
-	}
-	
+
+	/**
+	 * @see app.owlcms.ui.shared.AthleteGridContent#createInitialBar()
+	 */
 	@Override
     protected void createInitialBar() {
-        logger.debug("AthleteGridContent creating top bar");
+        logger.debug("AnnouncerContent creating top bar");
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
 
-        title = new H3();
-        title.setText(getTopBarTitle());
-        title.getStyle().set("margin", "0px 0px 0px 0px")
-                .set("font-weight", "normal");
-
         createTopBarGroupSelect();
+        HorizontalLayout topBarLeft = createTopBarLeft();
 
         introCountdownButton = new Button(getTranslation("introCountdownButton"),(e) -> {
             Notification.show("show countdown timer");
@@ -184,16 +213,33 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             Notification.show("show athlete info");
         });
         warning = new H3();
+        warning.getStyle().set("margin-top","0").set("margin-bottom", "0");
+        HorizontalLayout topBarRight = new HorizontalLayout();
+        topBarRight.add(warning, introCountdownButton, startLiftingButton);
+        topBarRight.setSpacing(true);
+        topBarRight.setPadding(true);
+        topBarRight.setAlignItems(FlexComponent.Alignment.CENTER);
         
         topBar.removeAll();
         topBar.setSizeFull();
-        topBar.add(title, topBarGroupSelect, introCountdownButton, startLiftingButton, warning);
+        topBar.add(topBarLeft, topBarRight);
 
-        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        topBar.setFlexGrow(0.0, topBarLeft);
+        topBar.setFlexGrow(1.0, topBarRight);
     }
 
-
+	/**
+	 * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
+	 */
+	@Override
+	protected void createTopBar() {
+		super.createTopBar();
+		// this hides the back arrow
+		getAppLayout().setMenuVisible(false);
+	}
+	
 	/**
 	 * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
 	 */
@@ -218,40 +264,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			bad);
 		return decisions;
 	}
-
-	/**
-	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-	 */
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Announcer");
-	}
-	
-	@Subscribe
-	public void slaveRefereeDecision(UIEvent.Decision e) {
-		UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-			int d = e.decision ? 1 : 0;
-			String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
-			
-			Notification n = new Notification();
-			// Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
-			String themeName = e.decision?"success":"error";
-			n.getElement().getThemeList().add(themeName);
-
-			Div label = new Div();
-			label.add(text);
-			label.addClickListener((event)-> n.close());
-			label.setSizeFull();
-			label.getStyle().set("font-size", "large");
-			n.add(label);
-			n.setPosition(Position.TOP_START);
-			n.setDuration(5000);
-			n.open();
-		});
-	}
 	
 	@Override
-    public void warn(Group group, String string) {
+    protected void warn(Group group, String string) {
         String text = group == null ? "\u2013" : string;
         if (topBarPresent) {
             lastName.setText(text);
@@ -260,8 +275,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             attempt.setText("");
             weight.setText("");
         } else {
-            introCountdownButton.getElement().getStyle().set("display", "none");
-            startLiftingButton.getElement().getStyle().set("display", "none");
+            introCountdownButton.setEnabled(false);
+            startLiftingButton.setEnabled(false);
             warning.setText(string);
         }
     }

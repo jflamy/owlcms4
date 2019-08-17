@@ -155,7 +155,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         HorizontalLayout buttons = new HorizontalLayout(finalPackage);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
-        topBar.getElement().getStyle().set("flex", "100 1");
+        topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
         topBar.add(title, topBarGroupSelect, templateSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
@@ -217,7 +217,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      * @see app.owlcms.ui.shared.AthleteGridContent#createCrudGrid(app.owlcms.ui.crudui.OwlcmsCrudFormFactory)
      */
     @Override
-    public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+    protected AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
         Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
         ThemeList themes = grid.getThemeNames();
         themes.add("compact");
