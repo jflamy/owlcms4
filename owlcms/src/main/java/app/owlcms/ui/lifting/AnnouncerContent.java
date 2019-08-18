@@ -25,9 +25,11 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.lifting.BreakManagement.CountdownType;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.utils.LoggerUtils;
@@ -198,7 +200,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         HorizontalLayout topBarLeft = createTopBarLeft();
 
         introCountdownButton = new Button(getTranslation("introCountdown"), (e) -> {
-            Notification.show("countdown dialog");
+            BreakDialog dialog = new BreakDialog(this, BreakType.INTRODUCTION, CountdownType.TARGET);
+            dialog.open();
         });
         startLiftingButton = new Button(getTranslation("startLifting"), (e) -> {
             OwlcmsSession.withFop(fop -> {

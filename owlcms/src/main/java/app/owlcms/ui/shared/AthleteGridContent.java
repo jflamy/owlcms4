@@ -271,7 +271,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     public void slaveUpdateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
         Athlete athlete = e.getAthlete();
         OwlcmsSession.withFop(fop -> {
-            uiEventLogger.warn("slaveUpdateAnnouncerBar in {}  origin {}", this, e.getOrigin());
+            uiEventLogger.trace("slaveUpdateAnnouncerBar in {}  origin {}", this, e.getOrigin());
             // do not send weight change notification if we are the source of the weight
             // change
             UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBar, uiEventBus, e, e.getOrigin(), this.getOrigin(),
@@ -487,7 +487,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                     if (newGroup == null && oldGroup == null)
                         return;
                     if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
-                        logger.warn("filter switching group from {} to {}",
+                        logger.debug("filter switching group from {} to {}",
                                 oldGroup != null ? oldGroup.getName() : null,
                                         newGroup != null ? newGroup.getName() : null);
                         fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
@@ -513,7 +513,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                 Group group = fop.getGroup();
                 topBarGroupSelect.setValue(group); // does nothing if already correct
                 Integer attemptsDone = (athlete != null ? athlete.getAttemptsDone() : 0);
-                logger.warn("doUpdateTopBar {} {} {}", LoggerUtils.whereFrom(), athlete, attemptsDone);
+                logger.debug("doUpdateTopBar {} {} {}", LoggerUtils.whereFrom(), athlete, attemptsDone);
                 if (athlete != null && attemptsDone < 6) {
                     if (topBarPresent) {
                         String lastName2 = athlete.getLastName();
@@ -556,7 +556,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        logger.warn("attaching {} initial={}", System.identityHashCode(attachEvent.getSource()),
+        logger.trace("attaching {} initial={}", System.identityHashCode(attachEvent.getSource()),
                 attachEvent.isInitialAttach());
         OwlcmsSession.withFop(fop -> {
             // create the top bar.
@@ -578,7 +578,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     protected void syncWithFOP(boolean refreshGrid) {
         OwlcmsSession.withFop((fop) -> {
             Group fopGroup = fop.getGroup();
-            logger.warn("syncing FOP, group = {}", fopGroup);
+            logger.debug("syncing FOP, group = {}", fopGroup);
             createTopBarGroupSelect();
 
             if (refreshGrid) {
@@ -591,16 +591,14 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             }
 
             Athlete curAthlete2 = fop.getCurAthlete();
-            if (fop.getState() == FOPState.INACTIVE
-                    //                    || AthleteSorter.countLiftsDone(fop.getLiftingOrder()) == 0
-                    ) {
-                logger.warn("initial: {} {} {} {}", fop.getState(), fop.getGroup(), curAthlete2, curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
+            if (fop.getState() == FOPState.INACTIVE) {
+                logger.trace("initial: {} {} {} {}", fop.getState(), fop.getGroup(), curAthlete2, curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 createInitialBar();
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6) {
                     warnAnnouncer(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 }
             } else {
-                logger.warn("ready to lift: {}", fop.getState());
+                logger.trace("ready to lift: {}", fop.getState());
                 createTopBar();
                 Athlete curAthlete = curAthlete2;
                 int timeRemaining = fop.getAthleteTimer().getTimeRemaining();

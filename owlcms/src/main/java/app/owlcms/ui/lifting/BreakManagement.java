@@ -89,6 +89,7 @@ public class BreakManagement extends VerticalLayout {
         configureDuration();
         FlexLayout buttons = configureButtons(this);
         configureTimerDisplay();
+        computeRoundedTargetValues(tp, dp);
         assembleDialog(this, buttons);
 
         bt.setValue(brt);

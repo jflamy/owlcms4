@@ -533,7 +533,7 @@ public class FieldOfPlay {
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer) {
-        logger.warn("start of init state="+state);
+        logger.trace("start of init state="+state);
         this.athleteTimer = timer;
         this.breakTimer = breakTimer;
         this.fopEventBus = getFopEventBus();
@@ -548,7 +548,7 @@ public class FieldOfPlay {
         if (state == null) {
             this.setState(INACTIVE);
         }
-        logger.warn("end of init state="+state);
+        logger.trace("end of init state="+state);
     }
 
     public void loadGroup(Group group, Object origin) {
@@ -990,7 +990,7 @@ public class FieldOfPlay {
             return;
         String text = Translator.translate("Unexpected_Notification",
                 e.getClass().getSimpleName(), state);
-        logger.warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
+        logger/**/.warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
         Notification.show(text, 5000, Position.BOTTOM_END);
     }
 

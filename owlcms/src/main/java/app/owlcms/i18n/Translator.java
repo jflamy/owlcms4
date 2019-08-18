@@ -250,7 +250,7 @@ public class Translator implements I18NProvider {
         locale = overrideLocale(locale);
 
         if (key == null) {
-            logger.warn("null translation key");
+            nullTranslationKey();
             return "";
         }
 
@@ -270,7 +270,7 @@ public class Translator implements I18NProvider {
         locale = overrideLocale(locale);
 
         if (key == null) {
-            logger.warn("null translation key");
+            nullTranslationKey();
             return "";
         }
         final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(locale);
@@ -283,6 +283,10 @@ public class Translator implements I18NProvider {
         }
         value = format(key, locale, value, params);
         return value;
+    }
+
+    public void nullTranslationKey() {
+        logger/**/.warn("null translation key");
     }
 
     private String format(String key, Locale locale, String value, Object... params) {
