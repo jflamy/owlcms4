@@ -9,6 +9,7 @@ package app.owlcms.fieldofplay;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -19,7 +20,22 @@ import ch.qos.logback.classic.Logger;
  */
 public class FOPEvent {
 
-	/**
+	public static class SwitchGroup extends FOPEvent {
+
+        private Group group;
+
+        public SwitchGroup(Group g, Object origin) {
+            super(origin);
+            this.group = g;
+        }
+        
+        public Group getGroup() {
+            return group;
+        }
+    }
+
+
+    /**
 	 * Class BreakPaused.
 	 */
 	static public class BreakPaused extends FOPEvent {

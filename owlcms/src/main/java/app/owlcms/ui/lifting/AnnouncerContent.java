@@ -202,6 +202,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         });
         startLiftingButton = new Button(getTranslation("startLifting"), (e) -> {
             OwlcmsSession.withFop(fop -> {
+                createTopBar();
                 fop.getFopEventBus().post(new FOPEvent.StartLifting(this));
             });
         });

@@ -43,6 +43,7 @@ import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.ExplicitDecision;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
 import app.owlcms.fieldofplay.FOPEvent.StartLifting;
+import app.owlcms.fieldofplay.FOPEvent.SwitchGroup;
 import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
@@ -358,6 +359,12 @@ public class FieldOfPlay {
             transitionToLifting(e, true);
         } else if (e instanceof BarbellOrPlatesChanged) {
             uiShowPlates((BarbellOrPlatesChanged)e);
+            return;
+        } else if (e instanceof SwitchGroup) {
+            setState(INACTIVE);
+            athleteTimer.stop();
+            loadGroup(((SwitchGroup)e).getGroup(), this);
+            getUiEventBus().post(new UIEvent.SwitchGroup(((SwitchGroup)e).getGroup(), e.getOrigin()));
             return;
         }
 
@@ -902,7 +909,12 @@ public class FieldOfPlay {
         if (stopBreakTimer) {
             getBreakTimer().stop();
         }
+        uiStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e);
+    }
+
+    private void uiStartLifting(Group group2, Object origin) {
+        getUiEventBus().post(new UIEvent.StartLifting(group2, origin));
     }
 
     private void transitionToTimeRunning() {

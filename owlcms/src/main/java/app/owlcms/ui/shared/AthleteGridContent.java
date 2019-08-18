@@ -48,6 +48,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.attemptboard.AthleteTimerElement;
+import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
@@ -138,7 +139,6 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         init();
     }
 
-
     /**
      * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
      */
@@ -147,9 +147,25 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         return getAthleteEditingFormFactory().add(athlete);
     }
 
+    public void clearVerticalMargins(HasStyle styleable) {
+        styleable.getStyle().set("margin-top", "0").set("margin-bottom", "0");
+    }
+
     public void closeDialog() {
         crudGrid.getCrudLayout().hideForm();
         crudGrid.getGrid().asSingleSelect().clear();
+    }
+
+    public HorizontalLayout createTopBarLeft() {
+        HorizontalLayout topBarLeft = new HorizontalLayout();
+        title = new H3();
+        title.setText(getTopBarTitle());
+        title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
+        topBarLeft.add(title, topBarGroupSelect);
+        topBarLeft.setAlignItems(Alignment.CENTER);
+        topBarLeft.setPadding(true);
+        topBarLeft.setId("topBarLeft");
+        return topBarLeft;
     }
 
     /**
@@ -227,17 +243,35 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                 this.getOrigin(), e.getOrigin());
         OwlcmsSession.withFop((fop) -> {
             UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
-                doUpdateTopBar(fop.getCurAthlete(), 0);
-                crudGrid.refreshGrid();
+                //                doUpdateTopBar(fop.getCurAthlete(), 0);
+                createInitialBar();
+                syncWithFOP(true);
             });
         });
 
     }
 
     @Subscribe
+    public void slaveStartLifting(UIEvent.StartLifting e) {
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBarGroupSelect, uiEventBus, e, this, e.getOrigin(), () -> {
+            createTopBar();
+            syncWithFOP(true);
+        });
+    }
+
+    @Subscribe
+    public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBarGroupSelect, uiEventBus, e, this, e.getOrigin(), () -> {
+            syncWithFOP(true);
+            updateURLLocation(locationUI, location, e.getGroup());
+        });
+    }
+
+    @Subscribe
     public void slaveUpdateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
         Athlete athlete = e.getAthlete();
         OwlcmsSession.withFop(fop -> {
+            uiEventLogger.warn("slaveUpdateAnnouncerBar in {}  origin {}", this, e.getOrigin());
             // do not send weight change notification if we are the source of the weight
             // change
             UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBar, uiEventBus, e, e.getOrigin(), this.getOrigin(),
@@ -340,7 +374,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         warning = new H3();
         warning.getStyle().set("margin-top", "0");
         warning.getStyle().set("margin-bottom", "0");
-        
+
         topBar.removeAll();
         topBar.setSizeFull();
         topBar.add(topBarLeft, warning);
@@ -367,9 +401,9 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
         topBarPresent = true;
-        
+
         HorizontalLayout topBarLeft = createTopBarLeft();
-        
+
         lastName = new H1();
         lastName.setText("\u2013");
         lastName.getStyle().set("margin", "0px 0px 0px 0px");
@@ -404,24 +438,6 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         topBar.setAlignSelf(Alignment.CENTER, attempt, weight, time);
         topBar.setFlexGrow(0.5, fullName);
         topBar.setFlexGrow(0.0, topBarLeft);
-    }
-
-
-    public void clearVerticalMargins(HasStyle styleable) {
-        styleable.getStyle().set("margin-top", "0").set("margin-bottom", "0");
-    }
-
-
-    public HorizontalLayout createTopBarLeft() {
-        HorizontalLayout topBarLeft = new HorizontalLayout();
-        title = new H3();
-        title.setText(getTopBarTitle());
-        title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
-        topBarLeft.add(title, topBarGroupSelect);
-        topBarLeft.setAlignItems(Alignment.CENTER);
-        topBarLeft.setPadding(true);
-        topBarLeft.setId("topBarLeft");
-        return topBarLeft;
     }
 
     protected void createTopBarGroupSelect() {
@@ -472,10 +488,11 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                         logger.warn("filter switching group from {} to {}",
                                 oldGroup != null ? oldGroup.getName() : null,
                                         newGroup != null ? newGroup.getName() : null);
-                        fop.loadGroup(newGroup, this);
+                        fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
                         oldGroup = newGroup;
+                        // this assumes that SwitchGroup post is synchronous and has loaded.
+                        // otherwise we should listen for UI SwitchGroup event.
                         syncWithFOP(true);
-                        //                        crud.refreshGrid();
                         updateURLLocation(locationUI, location, newGroup);
                     }
                 });
@@ -488,12 +505,13 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         if (title == null)
             return;
         displayedAthlete = athlete;
-        logger.debug("doUpdateTopBar {}", LoggerUtils.whereFrom());
+
         OwlcmsSession.withFop(fop -> {
             UIEventProcessor.uiAccess(topBar, uiEventBus, () -> {
                 Group group = fop.getGroup();
                 topBarGroupSelect.setValue(group); // does nothing if already correct
                 Integer attemptsDone = (athlete != null ? athlete.getAttemptsDone() : 0);
+                logger.warn("doUpdateTopBar {} {} {}", LoggerUtils.whereFrom(), athlete, attemptsDone);
                 if (athlete != null && attemptsDone < 6) {
                     if (topBarPresent) {
                         String lastName2 = athlete.getLastName();
@@ -571,10 +589,10 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             }
 
             Athlete curAthlete2 = fop.getCurAthlete();
-            if (fop.getState() == FOPState.INACTIVE 
-//                    || AthleteSorter.countLiftsDone(fop.getLiftingOrder()) == 0
+            if (fop.getState() == FOPState.INACTIVE
+                    //                    || AthleteSorter.countLiftsDone(fop.getLiftingOrder()) == 0
                     ) {
-                logger.warn("initial: {}", fop.getState());
+                logger.warn("initial: {} {} {} {}", fop.getState(), fop.getGroup(), curAthlete2, curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 createInitialBar();
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6) {
                     warnAnnouncer(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
@@ -609,15 +627,14 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     }
 
     protected void warn(Group group, String string) {
-//        String text = group == null ? "\u2013" : string;
-//        String text = group == null ? getTranslation("NoGroupSelected") : string;
+        //        String text = group == null ? "\u2013" : string;
+        //        String text = group == null ? getTranslation("NoGroupSelected") : string;
         if (topBarPresent) {
             lastName.setText(string);
             firstName.setText("");
             timeField.getElement().getStyle().set("visibility", "hidden");
             attempt.setText("");
             weight.setText("");
-        } else {
             warning.setText(string);
         }
     }
@@ -628,7 +645,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         } else if (attemptsDone >= 6) {
             warn(group, getTranslation("Group_number_done", group.getName()));
         } else {
-            warn(group, getTranslation("No_weighed_in_athletes", group));
+            warn(group, getTranslation("No_weighed_in_athletes"));
         }
     }
 

@@ -364,5 +364,6 @@ DisplayType.Title,Attempt Board Information,Information sur l'écran d'essai cou
 DisplayType.COUNTDOWN,Countdown clock,Horloge de décompte,,,,
 DisplayType.ATHLETE,Attempt Info,Information sur l'essai,,,,
 OwlcmsBuild,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),OWLCMS v{0} ({1})
-introCountdown,Countdown to Introduction,Décompte avant présentation,,,,
-startLifting,Start Lifting,Débuter les levers,,,,
+introCountdown,Countdown to Introduction,Décompte avant présentation,,Countdown to Introduction,Countdown to Introduction,
+startLifting,Start Lifting,Débuter les levers,,Start Lifting,Start Lifting,
+NoGroupSelected,No group selected,Pas de groupe sélectionné,,No group selected,No group selected,

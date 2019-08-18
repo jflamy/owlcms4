@@ -22,7 +22,41 @@ import app.owlcms.data.group.Group;
  */
 public class UIEvent {
 
-	/**
+    public static class StartLifting extends UIEvent {
+        private Group group;
+
+        public StartLifting(Group group, Object object) {
+            super(object);
+            this.setGroup(group);
+        }
+
+        public Group getGroup() {
+            return group;
+        }
+
+        public void setGroup(Group group) {
+            this.group = group;
+        }
+    }
+    
+	public static class SwitchGroup extends UIEvent {
+        private Group group;
+
+        public SwitchGroup(Group group, Object object) {
+            super(object);
+            this.setGroup(group);
+        }
+
+        public Group getGroup() {
+            return group;
+        }
+
+        public void setGroup(Group group) {
+            this.group = group;
+        }
+    }
+
+    /**
 	 * Class AthleteAnnounced.
 	 */
 	static public class AthleteAnnounced extends UIEvent {
