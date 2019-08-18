@@ -38,6 +38,7 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.fields.DurationField;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -94,7 +95,15 @@ public class BreakManagement extends VerticalLayout {
 
         bt.setValue(brt);
         ct.setValue(cdt);
-        nf.setValue(Duration.ofMinutes(10));
+        
+        OwlcmsSession.withFop(fop -> {
+            IProxyTimer breakTimer = fop.getBreakTimer();
+            if (!breakTimer.isRunning()) {
+                nf.setValue(Duration.ofMinutes(10));
+            }
+            
+        });
+        
     }
 
     /**

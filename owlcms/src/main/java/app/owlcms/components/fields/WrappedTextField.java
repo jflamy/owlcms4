@@ -44,7 +44,7 @@ import ch.qos.logback.classic.Logger;
 public abstract class WrappedTextField<T> extends AbstractCompositeField<TextField, WrappedTextField<T>, T>
 		implements HasValidation {
 
-	protected Logger logger;
+	private Logger logger;
 
 	protected boolean validFormat;
 	
@@ -148,7 +148,7 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 	protected abstract void initLoggers();
 
 	protected void logConversionError(String e) {
-		logger.error(e);
+		getLogger().error(e);
 	}
 
 	/**
@@ -164,7 +164,7 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 	 * @param locale
 	 */
 	protected void setFormatValidationStatus(boolean valid, Locale locale) {
-		logger.trace("format valid = {} ",valid);
+		getLogger().trace("format valid = {} ",valid);
 		this.validFormat = valid;
 		this.setInvalid(!valid);
 		if (!valid) {
@@ -189,7 +189,7 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 			if (!this.isRequired() && value == null) {
 				return true;
 			}
-			logger.debug("format validation {} {}",value,this.validFormat);
+			getLogger().debug("format validation {} {}",value,this.validFormat);
 			return this.validFormat;
 		}, this.invalidFormatErrorMessage(locale));
 	}
@@ -201,5 +201,13 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 	public void setAutoselect(boolean autoselect) {
 	    getWrappedTextField().setAutoselect(autoselect);
 	}
+
+    protected Logger getLogger() {
+        return logger;
+    }
+
+    protected void setLogger(Logger logger) {
+        this.logger = logger;
+    }
 
 }
