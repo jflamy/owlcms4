@@ -367,3 +367,4 @@ OwlcmsBuild,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),,OWLCMS v{0} ({1}),OWLCMS v{0} (
 introCountdown,Countdown to Introduction,Décompte avant présentation,,Countdown to Introduction,Countdown to Introduction,
 startLifting,Start Lifting,Débuter les levers,,Start Lifting,Start Lifting,
 NoGroupSelected,No group selected,Pas de groupe sélectionné,,No group selected,No group selected,
+InvalidDurationFormat,Duration must be in format {0} -- Type {1} to say {2} minutes and {3} seconds.,La durée doit être dans le format {0} -- Écrire {1} pour dire {2} minutes et {3} secondes.,,Duration must be in format {0} -- Type {1} to say {2} minutes and {3} seconds.,Duration must be in format {0} -- Type {1} to say {2} minutes and {3} seconds.,Duration must be in format {0} -- Type {1} to say {2} minutes and {3} seconds.

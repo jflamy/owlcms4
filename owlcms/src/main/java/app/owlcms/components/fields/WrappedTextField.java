@@ -193,5 +193,13 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 			return this.validFormat;
 		}, this.invalidFormatErrorMessage(locale));
 	}
+	
+	public void focus() {
+	    getWrappedTextField().focus();
+	}
+	
+	public void setAutoselect(boolean autoselect) {
+	    getWrappedTextField().setAutoselect(autoselect);
+	}
 
 }

@@ -31,11 +31,11 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.renderer.TextRenderer;
 
 import app.owlcms.components.elements.BreakTimerElement;
+import app.owlcms.components.fields.DurationField;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.init.OwlcmsSession;
@@ -67,7 +67,7 @@ public class BreakManagement extends VerticalLayout {
     RadioButtonGroup<DisplayType> dt;
     RadioButtonGroup<CountdownType> ct;
     RadioButtonGroup<BreakType> bt;
-    NumberField nf = new NumberField();
+    DurationField nf = new DurationField();
     TimePicker tp = new TimePicker();
     DatePicker dp = new DatePicker();
     private Dialog parentDialog;
@@ -94,7 +94,7 @@ public class BreakManagement extends VerticalLayout {
 
         bt.setValue(brt);
         ct.setValue(cdt);
-        nf.setValue(10.0D);
+        nf.setValue(Duration.ofMinutes(10));
     }
 
     /**
@@ -280,13 +280,13 @@ public class BreakManagement extends VerticalLayout {
         return origin;
     }
 
-    private long setBreakTimeRemaining(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
+    private long setBreakTimeRemaining(CountdownType cType, DurationField nf, TimePicker tp, DatePicker dp) {
         LocalDateTime target = LocalDateTime.now();
         BreakType bType = bt.getValue();
         cType = guessCountdownFromBreak(bType);
         if (cType == CountdownType.DURATION) {
-            Double value = nf.getValue();
-            target = LocalDateTime.now().plusMinutes(value != null ? value.intValue() : 0);
+            Duration value = nf.getValue();
+            target = LocalDateTime.now().plus(value != null ? value : Duration.ZERO);
         } else if (cType == CountdownType.TARGET) {
             LocalDate date = dp.getValue();
             LocalTime time = tp.getValue();
@@ -313,11 +313,11 @@ public class BreakManagement extends VerticalLayout {
         this.origin = origin;
     }
 
-    private void setValues(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
+    private void setValues(CountdownType cType, DurationField nf, TimePicker tp, DatePicker dp) {
         LocalDateTime now = LocalDateTime.now();
         if (cType == CountdownType.DURATION) {
-            Double value = nf.getValue();
-            LocalDateTime target = now.plusMinutes(value != null ? value.intValue() : 0);
+            Duration value = nf.getValue();
+            LocalDateTime target = now.plus(value != null ? value : Duration.ZERO);
             dp.setValue(target.toLocalDate());
             tp.setValue(target.toLocalTime());
         } else if (cType == CountdownType.TARGET) {
@@ -325,7 +325,7 @@ public class BreakManagement extends VerticalLayout {
         }
     }
 
-    private void switchToDuration(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
+    private void switchToDuration(CountdownType cType, DurationField nf, TimePicker tp, DatePicker dp) {
         nf.setEnabled(true);
         minutes.setEnabled(true);
         dp.setEnabled(false);
@@ -334,7 +334,7 @@ public class BreakManagement extends VerticalLayout {
         nf.setAutoselect(true);
     }
 
-    private void switchToTarget(CountdownType cType, NumberField nf, TimePicker tp, DatePicker dp) {
+    private void switchToTarget(CountdownType cType, DurationField nf, TimePicker tp, DatePicker dp) {
         nf.setEnabled(false);
         minutes.setEnabled(false);
         dp.setEnabled(true);

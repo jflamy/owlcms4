@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
+import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -174,7 +175,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             });
         });
         _2min.getElement().setAttribute("theme", "icon");
-        Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
+        Button breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
             (new BreakDialog(this)).open();
         });
         breakButton.getElement().setAttribute("theme", "icon");
@@ -199,11 +200,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         createTopBarGroupSelect();
         HorizontalLayout topBarLeft = createTopBarLeft();
 
-        introCountdownButton = new Button(getTranslation("introCountdown"), (e) -> {
+        introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create() , (e) -> {
             BreakDialog dialog = new BreakDialog(this, BreakType.INTRODUCTION, CountdownType.TARGET);
             dialog.open();
         });
-        startLiftingButton = new Button(getTranslation("startLifting"), (e) -> {
+        startLiftingButton = new Button(getTranslation("startLifting"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
                 createTopBar();
                 fop.getFopEventBus().post(new FOPEvent.StartLifting(this));
