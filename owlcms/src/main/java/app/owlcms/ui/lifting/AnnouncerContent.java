@@ -268,6 +268,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             timeField.getElement().getStyle().set("visibility", "hidden");
             attempt.setText("");
             weight.setText("");
+            warning.setText(string);
         } else {
             introCountdownButton.setEnabled(false);
             startLiftingButton.setEnabled(false);

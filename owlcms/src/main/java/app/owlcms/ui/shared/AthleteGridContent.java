@@ -448,6 +448,8 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         topBarGroupSelect.setWidth("7rem");
         topBarGroupSelect.getStyle().set("margin-left", "1em");
         topBarGroupSelect.setReadOnly(true);
+        OwlcmsSession.withFop(fop -> topBarGroupSelect.setValue(fop.getGroup()));
+        
         // if topBarGroupSelect is made read-write, it needs to set values in
         // groupFilter and
         // call updateURLLocation
@@ -580,12 +582,12 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             createTopBarGroupSelect();
 
             if (refreshGrid) {
-                if (fopGroup == null) {
-                    topBarGroupSelect.setValue(null);
-                } else {
+//                if (fopGroup == null) {
+//                    topBarGroupSelect.setValue(null);
+//                } else {
                     topBarGroupSelect.setValue(fopGroup);
                     crudGrid.refreshGrid();
-                }
+//                }
             }
 
             Athlete curAthlete2 = fop.getCurAthlete();
@@ -635,6 +637,8 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             timeField.getElement().getStyle().set("visibility", "hidden");
             attempt.setText("");
             weight.setText("");
+            warning.setText(string);
+        } else {
             warning.setText(string);
         }
     }
