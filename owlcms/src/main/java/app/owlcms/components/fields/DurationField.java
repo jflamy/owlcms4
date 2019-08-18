@@ -1,13 +1,12 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.fields;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -29,71 +28,60 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Duration field with conversion, validation and rendering.
- * 
+ *
  * @author Jean-François Lamy
  *
  */
 @SuppressWarnings("serial")
 public class DurationField extends WrappedTextField<Duration> implements HasValidation {
 
-    @Override
-    protected void initLoggers() {
-        logger = (Logger) LoggerFactory.getLogger(DurationField.class);
-        logger.setLevel(Level.INFO);
-    }
+    private static DurationField helper = new DurationField();
 
     private static final String HHMMSS_FORMAT = "HH:mm:ss";
-    private final static DateTimeFormatter HHMMSS_FORMATTER = DateTimeFormatter.ofPattern(HHMMSS_FORMAT);
+    private static final DateTimeFormatter HHMMSS_FORMATTER = DateTimeFormatter.ofPattern(HHMMSS_FORMAT);
 
     private static final String MMSS_FORMAT = "mm:ss";
-    private final static DateTimeFormatter MMSS_FORMATTER = DateTimeFormatter.ofPattern(MMSS_FORMAT);
+    private static final DateTimeFormatter MMSS_FORMATTER = DateTimeFormatter.ofPattern(MMSS_FORMAT);
 
     private static final String MM_FORMAT = "mm";
-    private final static DateTimeFormatter MM_FORMATTER  = DateTimeFormatter.ofPattern(MM_FORMAT);
+    private final static DateTimeFormatter MM_FORMATTER = DateTimeFormatter.ofPattern(MM_FORMAT);
 
+    public static <S> Renderer<S> getRenderer(ValueProvider<String, S> v, Locale locale) {
+        return new TextRenderer<>(
+                d -> helper.getConverter().convertToPresentation((Duration) d, new ValueContext(locale)));
+    }
 
     @Override
     public Converter<String, Duration> getConverter() {
         return new Converter<String, Duration>() {
 
             @Override
-            public String convertToPresentation(Duration value, ValueContext context) {
+            public Result<Duration> convertToModel(String string, ValueContext context) {
                 Locale locale = context.getLocale().orElse(Locale.ENGLISH);
-                if (!value.minusHours(1L).isNegative()) {
-                    // over 1h
-                    return (value != null ? HHMMSS_FORMATTER.withLocale(locale).format(getValueAsLocalTime()) : "");
-                } else {
-                    // always show seconds for readability
-                    return (value != null ? MMSS_FORMATTER.withLocale(locale).format(getValueAsLocalTime()) : "");
-                }
+                if (string.length() <= 2)
+                    // assume minutes
+                    return doParse(string, locale, MM_FORMATTER);
+                else if (string.length() <= 5)
+                    // assume minutes seconds
+                    return doParse(string, locale, MMSS_FORMATTER);
+                else
+                    // assume hours
+                    return doParse(string, locale, HHMMSS_FORMATTER);
 
             }
 
             @Override
-            public Result<Duration> convertToModel(String string, ValueContext context) {
+            public String convertToPresentation(Duration value, ValueContext context) {
                 Locale locale = context.getLocale().orElse(Locale.ENGLISH);
-                if (string.length() <= 2) {
-                    // assume minutes
-                    return doParse(string, locale, MM_FORMATTER);
-                } else if (string.length() <= 5) {
-                    // assume minutes seconds
-                    return doParse(string, locale, MMSS_FORMATTER);
-                } else {
-                    // assume hours
-                    return doParse(string, locale, HHMMSS_FORMATTER);
-                }
+                if (!value.minusHours(1L).isNegative())
+                    // over 1h
+                    return (value != null ? HHMMSS_FORMATTER.withLocale(locale).format(getValueAsLocalTime()) : "");
+                else
+                    // show seconds for readability
+                    return (value != null ? MMSS_FORMATTER.withLocale(locale).format(getValueAsLocalTime()) : "");
 
             }
         };
-    }
-
-    protected LocalTime getValueAsLocalTime() {
-        return LocalTime.MIN.plus(getValue());
-    }
-
-    protected void setValueFromLocalDateTime(LocalDateTime hhmmss) {
-        LocalDateTime min = LocalDateTime.MIN;
-        setValue(Duration.between(min, hhmmss));
     }
 
     @Override
@@ -101,9 +89,27 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
         return getConverter().convertToPresentation(getValue(), new ValueContext(getLocale()));
     }
 
-    public <S> Renderer<S> getRenderer(ValueProvider<String, S> v, Locale locale) {
-        return new TextRenderer<S>(
-                d -> getConverter().convertToPresentation((Duration) d, new ValueContext(getLocale())));
+    protected LocalTime getValueAsLocalTime() {
+        return LocalTime.MIN.plus(getValue());
+    }
+
+    @Override
+    protected void initLoggers() {
+        logger = (Logger) LoggerFactory.getLogger(DurationField.class);
+        logger.setLevel(Level.INFO);
+    }
+
+    @Override
+    protected String invalidFormatErrorMessage(Locale locale) {
+        int minute = 10;
+        int second = 20;
+        LocalTime date = LocalTime.of(0, minute, second);
+        return Translator.translate("InvalidDurationFormat", MMSS_FORMAT, MMSS_FORMATTER.format(date), minute, second);
+    }
+
+    protected void setValueFromLocalTime(LocalTime hhmmss) {
+        LocalTime min = LocalTime.MIN;
+        setValue(Duration.between(min, hhmmss));
     }
 
     private Result<Duration> doParse(String string, Locale locale, DateTimeFormatter formatter) {
@@ -114,7 +120,7 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
                 setFormatValidationStatus(true, locale);
                 return Result.ok(null);
             }
-            parsedTime = LocalTime.parse(string,formatter.withLocale(locale));
+            parsedTime = LocalTime.parse(string, formatter.withLocale(locale));
             setFormatValidationStatus(true, locale);
             Duration between = Duration.between(LocalTime.MIN, parsedTime);
             logger.warn("duration = {}", between);
@@ -124,14 +130,6 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
             setFormatValidationStatus(false, locale);
             return Result.error(invalidFormatErrorMessage(locale));
         }
-    }
-
-    @Override
-    protected String invalidFormatErrorMessage(Locale locale) {
-        int minute = 10;
-        int second = 20;
-        LocalDateTime date = LocalDateTime.of(2000, 12, 30, 22, minute, second);
-        return Translator.translate("InvalidDurationFormat", MMSS_FORMAT, MMSS_FORMATTER.format(date), minute, second);
     }
 
 }
