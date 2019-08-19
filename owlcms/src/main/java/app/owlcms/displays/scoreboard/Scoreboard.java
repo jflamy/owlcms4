@@ -255,7 +255,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 	}
 
 	private String formatAttempt(Integer attemptNo) {
-		return Translator.translate("{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.",(attemptNo%3)+1);
+		return Translator.translate("AttemptBoard_attempt_number",(attemptNo%3)+1);
 	}
 
 
