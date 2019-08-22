@@ -163,7 +163,6 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 	abstract public void clientTimerStopped(double remainingTime);
 
 	protected final void doSetTimer(Integer milliseconds) {
-	    logger.warn("{} {}",LoggerUtils.stackTrace());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			stop();
 			setTimeRemaining(milliseconds);
@@ -218,7 +217,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 	}
 
 	private void setTimeRemaining(Integer milliseconds) {
-		logger.warn("=== time remaining = {} from {} ", milliseconds, LoggerUtils.whereFrom());
+		logger.trace("=== time remaining = {} from {} ", milliseconds, LoggerUtils.whereFrom());
 	    TimerModel model = getModel();
 	    boolean indefinite = milliseconds == null;
         model.setIndefinite(indefinite);

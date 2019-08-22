@@ -105,7 +105,11 @@
       }
 
       start() {
-    	  if (this.indefinite) return;
+          if (this.indefinite) {
+              this.set('_formattedTime', "--:--");
+              return;
+          }
+          
     	  console.warn("timer start "+this.startTime);
           if ((this.currentTime <= 0 && !this.countUp) 
               || (this.currentTime >= this.startTime && this.countUp) ) {
@@ -130,7 +134,10 @@
       }
 
       pause() {
-    	  if (this.indefinite) return;
+          if (this.indefinite) {
+              this.set('_formattedTime', "--:--");
+              return;
+          } 
     	  console.warn("timer pause");
           this.running = false;
           if (this.$server != null) {
@@ -145,7 +152,6 @@
     	  this.pause();
     	  this._init();
       }
-      
 
       _init() {
           this.running = false;
