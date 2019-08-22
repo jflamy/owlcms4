@@ -9,13 +9,12 @@ package app.owlcms.displays.attemptboard;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 
 public interface BreakDisplay {
 	
-	public void doBreak(BreakStarted e);
+	public void doBreak();
 	
 	public default BreakType inferBreakType(FieldOfPlay fop) {
 		BreakType bt;

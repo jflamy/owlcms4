@@ -115,15 +115,24 @@ public class UIEvent {
 	static public class BreakSetTime extends UIEvent {
 
 		private Integer timeRemaining;
+        private boolean indefinite;
 
-		public BreakSetTime(Integer timeRemaining, Object origin) {
+		public BreakSetTime(Integer timeRemaining, boolean indefinite, Object origin) {
 			super(origin);
 			this.timeRemaining = timeRemaining;
+			this.indefinite = indefinite;
 		}
 
 		public Integer getTimeRemaining() {
 			return timeRemaining;
 		}
+
+        /**
+         * @return true if break lasts indefinitely and timeRemaining should be ignored
+         */
+        public boolean isIndefinite() {
+            return indefinite;
+        }
 	}
 
 	/**

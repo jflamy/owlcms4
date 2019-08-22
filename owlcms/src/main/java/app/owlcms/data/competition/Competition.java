@@ -85,7 +85,6 @@ public class Competition {
     private boolean useBirthYear;
 
     private boolean useCategorySinclair = false;
-    private boolean useOld20_15Rule = false;
     private boolean useOldBodyWeightTieBreak = false;
     private boolean useRegistrationCategory = true;
 
@@ -284,15 +283,6 @@ public class Competition {
      */
     public boolean isUseCategorySinclair() {
         return useCategorySinclair;
-    }
-
-    /**
-     * Checks if is use old 20 15 rule.
-     *
-     * @return true, if is use old 20 15 rule
-     */
-    public boolean isUseOld20_15rule() {
-        return useOld20_15Rule;
     }
 
     /**

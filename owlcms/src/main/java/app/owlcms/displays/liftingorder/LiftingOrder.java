@@ -33,7 +33,6 @@ import app.owlcms.data.group.Group;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.UIEvent;
-import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.fieldofplay.UIEvent.Decision;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -42,7 +41,6 @@ import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -142,8 +140,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
     }
 
     @Override
-    public void doBreak(BreakStarted e) {
-        uiEventLogger.debug("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom());
+    public void doBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             BreakType breakType = fop.getBreakType();
             getModel().setFullName(inferGroupName()+" "+inferMessage(breakType));
@@ -223,7 +220,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () ->  doBreak(e));
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () ->  doBreak());
     }
 
     @Subscribe

@@ -26,7 +26,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(ProxyBreakTimer.class);
     {
-        logger.setLevel(Level.INFO);
+        logger.setLevel(Level.DEBUG);
     }
 
     private int timeRemaining;
@@ -35,6 +35,7 @@ public class ProxyBreakTimer implements IProxyTimer {
     private long stopMillis;
     private boolean running = false;
     private int timeRemainingAtLastStop;
+    private boolean indefinite;
 
     /**
      * Instantiates a new break timer proxy.
@@ -87,12 +88,13 @@ public class ProxyBreakTimer implements IProxyTimer {
      */
     @Override
     public void setTimeRemaining(int timeRemaining) {
+        indefinite = false;
         if (running) {
             computeTimeRemaining();
         }
         logger.debug("setting break timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
-        fop.getUiEventBus().post(new UIEvent.BreakSetTime(timeRemaining, this));
+        fop.getUiEventBus().post(new UIEvent.BreakSetTime(timeRemaining, indefinite, this));
         running = false;
     }
 
@@ -145,6 +147,17 @@ public class ProxyBreakTimer implements IProxyTimer {
         stopMillis = System.currentTimeMillis();
         long elapsed = stopMillis - startMillis;
         timeRemaining = (int) (timeRemaining - elapsed);
+    }
+
+    public void setIndefinite() {
+       this.indefinite = true;
+    }
+
+    /**
+     * @return the indefinite
+     */
+    public boolean isIndefinite() {
+        return indefinite;
     }
 
 }

@@ -26,6 +26,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
+import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.data.athlete.Athlete;
@@ -36,11 +37,9 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.attemptboard.AthleteTimerElement;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.UIEvent;
-import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.fieldofplay.UIEvent.Decision;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -74,8 +73,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(Scoreboard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
 	static {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		logger.setLevel(Level.DEBUG);
+		uiEventLogger.setLevel(Level.DEBUG);
 	}
 	
 	/**
@@ -222,7 +221,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-			doBreak(e);
+			doBreak();
 		});
 	}
 
@@ -251,7 +250,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 	}
 	
 	public void uiLog(UIEvent e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
 	}
 
 	private String formatAttempt(Integer attemptNo) {
@@ -464,8 +463,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 	}
 	
 	@Override
-	public void doBreak(BreakStarted e) {
-		uiEventLogger.debug("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom());
+	public void doBreak() {
 		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			BreakType breakType = fop.getBreakType();
 			getModel().setFullName(inferGroupName()+" "+inferMessage(breakType));

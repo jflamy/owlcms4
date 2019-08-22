@@ -12,6 +12,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
@@ -23,6 +24,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
+import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.components.elements.Plates;
@@ -32,13 +34,11 @@ import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
-import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -58,8 +58,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
-        logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.INFO);
+        logger.setLevel(Level.DEBUG);
+        uiEventLogger.setLevel(Level.DEBUG);
     }
 
     /**
@@ -146,7 +146,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         Athlete a = e.getAthlete();
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doAthleteUpdate(a, e));
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doAthleteUpdate(a));
     }
 
     @Subscribe
@@ -184,7 +184,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 return;
             } else {
                 Athlete a = e.getAthlete();
-                UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doAthleteUpdate(a, e));
+                UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doAthleteUpdate(a));
             }
         });
     }
@@ -220,16 +220,39 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-            doBreak(e);
+            doBreak();
         });
     }
 
     @Subscribe
+    public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin());
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+            OwlcmsSession.withFop(fop -> {
+                switch (fop.getState()) {
+                case INACTIVE:
+                    doEmpty();
+                    break;
+                case BREAK:
+                    doBreak();
+                    break;
+                default:
+                    doAthleteUpdate(fop.getCurAthlete());
+                }
+            });
+            
+        });
+    }
+    
+    @Subscribe
     public void slaveStopBreak(UIEvent.BreakDone e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        Athlete a = e.getAthlete();
-        doAthleteUpdate(a, e);
+        UIEventProcessor.uiAccess(UI.getCurrent(), uiEventBus, () -> {
+            Athlete a = e.getAthlete();
+            doAthleteUpdate(a);
+        });
     }
 
     @Subscribe
@@ -248,8 +271,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         });
     }
 
-    protected void doAthleteUpdate(Athlete a, UIEvent e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+    protected void doAthleteUpdate(Athlete a) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             if (a == null) {
                 doEmpty();
                 return;
@@ -302,8 +325,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
     
     @Override
-    public void doBreak(BreakStarted e) {
-        uiEventLogger.debug("$$$ {} [{}]", e.getClass().getSimpleName(), LoggerUtils.whereFrom());
+    public void doBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             BreakType breakType = fop.getBreakType();
             getModel().setLastName(inferGroupName());
@@ -363,7 +385,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                         doBreak(fop);
                     }
                 } else {
-                    doAthleteUpdate(curAthlete, null);
+                    doAthleteUpdate(curAthlete);
                 }
             }
             // we send on fopEventBus, listen on uiEventBus.

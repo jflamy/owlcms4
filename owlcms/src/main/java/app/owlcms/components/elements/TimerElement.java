@@ -110,6 +110,12 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 		 * @param seconds the new start time
 		 */
 		void setStartTime(double seconds);
+
+        /**
+         * If indefinite, the timer doesn't start or stop, it just stays there with --:--
+         * @param b
+         */
+        void setIndefinite(boolean b);
 	}
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
@@ -157,9 +163,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 	abstract public void clientTimerStopped(double remainingTime);
 
 	protected final void doSetTimer(Integer milliseconds) {
-		if (milliseconds == null) {
-			logger.error(LoggerUtils.stackTrace());
-		}
+	    logger.warn("{} {}",LoggerUtils.stackTrace());
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			stop();
 			setTimeRemaining(milliseconds);
@@ -213,12 +217,16 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 		this.timerElement = timerElement;
 	}
 
-	private void setTimeRemaining(int milliseconds) {
-		logger.debug("=== time remaining = {} from {} ", milliseconds, LoggerUtils.whereFrom());
-		double seconds = milliseconds / 1000.0D;
-		TimerModel model = getModel();
-		model.setCurrentTime(seconds);
-		model.setStartTime(seconds);
+	private void setTimeRemaining(Integer milliseconds) {
+		logger.warn("=== time remaining = {} from {} ", milliseconds, LoggerUtils.whereFrom());
+	    TimerModel model = getModel();
+	    boolean indefinite = milliseconds == null;
+        model.setIndefinite(indefinite);
+        if (!indefinite) {
+    		double seconds = milliseconds / 1000.0D;
+    		model.setCurrentTime(seconds);
+    		model.setStartTime(seconds);
+        }
 		// should not be necessary
 		getTimerElement().callFunction("reset");
 	}

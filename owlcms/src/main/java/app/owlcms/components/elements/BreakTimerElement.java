@@ -12,6 +12,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 
+import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
@@ -29,7 +30,7 @@ public class BreakTimerElement extends TimerElement {
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
+		uiEventLogger.setLevel(Level.TRACE);
 	}
 
 	/**
@@ -56,7 +57,8 @@ public class BreakTimerElement extends TimerElement {
 	public void clientSyncTime() {
 		logger.info("timer element fetching time");
 		OwlcmsSession.withFop(fop -> {
-			doSetTimer(fop.getBreakTimer().getTimeRemaining());
+			ProxyBreakTimer breakTimer = (ProxyBreakTimer) fop.getBreakTimer();
+            doSetTimer(breakTimer.isIndefinite() ? null : breakTimer.getTimeRemaining());
 		});
 		return;
 	}
@@ -100,17 +102,15 @@ public class BreakTimerElement extends TimerElement {
 
 	@Subscribe
 	public void slaveBreakSet(UIEvent.BreakSetTime e) {
-		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug("&&& break {} {} {}", e.getClass().getSimpleName(), milliseconds, e.getOrigin());
+		Integer milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
+		uiEventLogger.debug("&&& break {} {} {} {}", e.getClass().getSimpleName(), milliseconds, e.isIndefinite(), e.getOrigin());
 		doSetTimer(milliseconds);
 	}
 
     @Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
-		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug("&&& break {} {} {}", e.getClass().getSimpleName(), milliseconds, e.getOrigin());
-		doSetTimer(milliseconds);
-		doStartTimer(milliseconds);
+		uiEventLogger.debug("&&& break {} {} {}", e.getClass().getSimpleName(), null, e.getOrigin());
+		doStartTimer(null);
 	}
 
     /* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */

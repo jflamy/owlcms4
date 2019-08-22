@@ -361,8 +361,10 @@ public class FieldOfPlay {
             uiShowPlates((BarbellOrPlatesChanged)e);
             return;
         } else if (e instanceof SwitchGroup) {
-            setState(INACTIVE);
-            athleteTimer.stop();
+            if (state != BREAK && state != INACTIVE) {
+                setState(INACTIVE);
+                athleteTimer.stop();
+            }
             loadGroup(((SwitchGroup)e).getGroup(), this);
             getUiEventBus().post(new UIEvent.SwitchGroup(((SwitchGroup)e).getGroup(), e.getOrigin()));
             return;

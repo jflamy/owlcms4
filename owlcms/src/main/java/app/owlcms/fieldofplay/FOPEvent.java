@@ -48,24 +48,14 @@ public class FOPEvent {
     static public class BreakStarted extends FOPEvent {
 
         private BreakType breakType;
-        private int breakDuration;
 
-        public BreakStarted(BreakType breakType, int timeRemaining, Object origin) {
+        public BreakStarted(BreakType breakType, Object origin) {
             super(origin);
             this.setBreakType(breakType);
-            this.setBreakDuration(timeRemaining);
-        }
-
-        public int getBreakDuration() {
-            return breakDuration;
         }
 
         public BreakType getBreakType() {
             return breakType;
-        }
-
-        public void setBreakDuration(int breakDuration) {
-            this.breakDuration = breakDuration;
         }
 
         public void setBreakType(BreakType breakType) {

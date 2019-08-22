@@ -355,7 +355,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private HorizontalLayout juryDeliberationButtons() {
         Button stopCompetition = new Button(getTranslation("StopCompetition"), (e) -> {
             OwlcmsSession.withFop(
-                    fop -> fop.getFopEventBus().post(new FOPEvent.BreakStarted(BreakType.JURY, 0, this.getOrigin())));
+                    fop -> fop.getFopEventBus().post(new FOPEvent.BreakStarted(BreakType.JURY, this.getOrigin())));
         });
         stopCompetition.getElement().setAttribute("theme", "secondary");
         stopCompetition.setWidth(BUTTON_WIDTH);

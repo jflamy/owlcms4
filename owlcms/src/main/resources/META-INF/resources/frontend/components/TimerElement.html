@@ -130,6 +130,7 @@
       }
 
       pause() {
+    	  if (this.indefinite) return;
     	  console.warn("timer pause");
           this.running = false;
           if (this.$server != null) {
