@@ -449,12 +449,6 @@ public class Athlete {
             } else {
                 return 10;
             }
-        } else if (Competition.getCurrent().isUseOld20_15rule()) {
-            if (Gender.M.equals(this.getGender())) {
-                return 20;
-            } else {
-                return 15;
-            }
         } else {
             return 20;
         }
