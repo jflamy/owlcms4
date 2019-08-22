@@ -253,7 +253,7 @@ public class FOPEvent {
 
     final Logger logger = (Logger)LoggerFactory.getLogger(FOPEvent.class);
 
-    {logger.setLevel(Level.DEBUG);}
+    {logger.setLevel(Level./**/DEBUG);}
 
     /**
      * When a FOPEvent (for example stopping the clock) is handled, it is often reflected

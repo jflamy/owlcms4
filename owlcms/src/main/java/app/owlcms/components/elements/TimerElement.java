@@ -116,6 +116,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
          * @param b
          */
         void setIndefinite(boolean b);
+        
+        boolean isIndefinite();
 	}
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
@@ -220,11 +222,16 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 		logger.trace("=== time remaining = {} from {} ", milliseconds, LoggerUtils.whereFrom());
 	    TimerModel model = getModel();
 	    boolean indefinite = milliseconds == null;
-        model.setIndefinite(indefinite);
+        
         if (!indefinite) {
+            logger.trace("not indefinite");
     		double seconds = milliseconds / 1000.0D;
     		model.setCurrentTime(seconds);
     		model.setStartTime(seconds);
+    		model.setIndefinite(false);
+        } else {
+            logger.trace("indefinite");
+            model.setIndefinite(true);
         }
 		// should not be necessary
 		getTimerElement().callFunction("reset");

@@ -36,7 +36,7 @@ import ch.qos.logback.classic.Logger;
 public class DurationField extends WrappedTextField<Duration> implements HasValidation {
     
     Logger overrideLogger = (Logger) LoggerFactory.getLogger(DurationField.class);
-    Level overrideLoggerLevel = Level.DEBUG;
+    Level overrideLoggerLevel = Level.INFO;
 
     private static DurationField helper = new DurationField();
 

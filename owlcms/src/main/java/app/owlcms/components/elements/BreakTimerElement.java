@@ -30,7 +30,7 @@ public class BreakTimerElement extends TimerElement {
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	static {
 		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.TRACE);
+		uiEventLogger.setLevel(Level.INFO);
 	}
 
 	/**
@@ -96,20 +96,20 @@ public class BreakTimerElement extends TimerElement {
 
 	@Subscribe
 	public void slaveBreakPause(UIEvent.BreakPaused e) {
-		uiEventLogger.debug("&&& break {} {}",  e.getClass().getSimpleName(), e.getOrigin());
+		uiEventLogger.debug("&&& breakTimer pause {} {}",  e.getClass().getSimpleName(), e.getOrigin());
 		doStopTimer();
 	}
 
 	@Subscribe
 	public void slaveBreakSet(UIEvent.BreakSetTime e) {
 		Integer milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-		uiEventLogger.debug("&&& break {} {} {} {}", e.getClass().getSimpleName(), milliseconds, e.isIndefinite(), e.getOrigin());
+		uiEventLogger.debug("&&& breakTimer set {} {} {} {}", e.getClass().getSimpleName(), milliseconds, e.isIndefinite(), e.getOrigin());
 		doSetTimer(milliseconds);
 	}
 
     @Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
-		uiEventLogger.debug("&&& break {} {} {}", e.getClass().getSimpleName(), null, e.getOrigin());
+		uiEventLogger.debug("&&& breakTimer start {} {} {}", e.getClass().getSimpleName(), null, e.getOrigin());
 		doStartTimer(null);
 	}
 

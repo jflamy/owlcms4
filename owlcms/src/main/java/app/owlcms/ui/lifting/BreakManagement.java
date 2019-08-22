@@ -59,7 +59,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakManagement.class);
     {
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
     }
 
     private Button breakStart = null;
@@ -163,7 +163,15 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public ComponentEventListener<ClickEvent<Button>> startBreak() {
         return (e) -> {
             OwlcmsSession.withFop(fop -> {
-                fop.getBreakTimer().setTimeRemaining(timeRemaining.intValue());
+                ProxyBreakTimer breakTimer = (ProxyBreakTimer) fop.getBreakTimer();
+                System.err.println("***** "+breakTimer);
+                boolean indefinite = (timeRemaining == null);
+                if (indefinite) {
+                    breakTimer.setIndefinite();
+                } else {
+                    breakTimer.setTimeRemaining(timeRemaining.intValue());
+                }
+                
                 fop.getFopEventBus()
                         .post(new FOPEvent.BreakStarted(bt.getValue(), this.getOrigin()));
             });
@@ -182,7 +190,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        logger.warn("defining change listeners");
         super.onAttach(attachEvent);
         ct.addValueChangeListener(e -> {
             CountdownType cType = e.getValue();
@@ -333,7 +340,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 breakTimerElement.slaveBreakSet(new BreakSetTime(0,true,this));
             } else if (target.isBefore(now) || target.isEqual(now)) {
                 logger.debug("duration 0 or target in the past, indefinite");
-                ((ProxyBreakTimer) fop.getBreakTimer()).setIndefinite();
                 timeRemaining = null;
                 breakTimerElement.slaveBreakSet(new BreakSetTime(0,true,this));
             } else {

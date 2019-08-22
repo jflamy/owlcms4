@@ -26,7 +26,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(ProxyBreakTimer.class);
     {
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
     }
 
     private int timeRemaining;
@@ -150,7 +150,11 @@ public class ProxyBreakTimer implements IProxyTimer {
     }
 
     public void setIndefinite() {
-       this.indefinite = true;
+        indefinite = true;
+        logger.debug("setting break indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
+        this.timeRemaining = 0;
+        fop.getUiEventBus().post(new UIEvent.BreakSetTime(timeRemaining, indefinite, this));
+        running = false;
     }
 
     /**

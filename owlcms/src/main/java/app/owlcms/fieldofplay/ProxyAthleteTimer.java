@@ -22,7 +22,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(ProxyAthleteTimer.class);
     {
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
     }
 
     private int timeRemaining;

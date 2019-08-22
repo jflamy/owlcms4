@@ -58,8 +58,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     static {
-        logger.setLevel(Level.DEBUG);
-        uiEventLogger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
+        uiEventLogger.setLevel(Level.INFO);
     }
 
     /**

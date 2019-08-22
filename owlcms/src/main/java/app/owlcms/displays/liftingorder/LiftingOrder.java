@@ -110,7 +110,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
 
     static {
         logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.DEBUG);
+        uiEventLogger.setLevel(Level.INFO);
     }
 
 
