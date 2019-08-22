@@ -164,7 +164,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         return (e) -> {
             OwlcmsSession.withFop(fop -> {
                 ProxyBreakTimer breakTimer = (ProxyBreakTimer) fop.getBreakTimer();
-                System.err.println("***** "+breakTimer);
                 boolean indefinite = (timeRemaining == null);
                 if (indefinite) {
                     breakTimer.setIndefinite();

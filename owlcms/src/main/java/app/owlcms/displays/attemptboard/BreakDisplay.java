@@ -49,6 +49,8 @@ public interface BreakDisplay {
 			return Translator.translate("TimeBeforeIntroduction");
 		case TECHNICAL:
 			return Translator.translate("CompetitionPaused");
+	     case JURY:
+	            return Translator.translate("JuryDeliberation");
 		default:
 			return "";
 		}

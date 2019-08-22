@@ -106,12 +106,12 @@
 
       start() {
           if (this.indefinite) {
-        	  console.warn("timer indefinite "+this.startTime);
-              this.set('_formattedTime', '--:--');
+        	  //console.warn("timer indefinite "+this.startTime);
+              this._indefinite()
               return;
           }
           
-    	  console.warn("timer start "+this.startTime);
+    	  //console.warn("timer start "+this.startTime);
           if ((this.currentTime <= 0 && !this.countUp) 
               || (this.currentTime >= this.startTime && this.countUp) ) {
             // timer is over
@@ -130,16 +130,16 @@
 
           this._elapsed = performance.now()/1000;
           this.running = true;
-          console.warn("timer running "+this.currentTime);
+          //console.warn("timer running "+this.currentTime);
           window.requestAnimationFrame(this._decreaseTimer.bind(this));
       }
 
       pause() {
           if (this.indefinite) {
-              this.set('_formattedTime', '--:--');
+              this._indefinite()
               return;
           } 
-    	  console.warn("timer pause");
+    	  //console.warn("timer pause");
           this.running = false;
           if (this.$server != null) {
 			  this.$server.clientTimerStopped(this.currentTime);      
@@ -149,17 +149,21 @@
       }
       
       reset() {
-    	  console.warn("timer reset");
+    	  //console.warn("timer reset");
     	  this.pause();
     	  this._init();
+      }
+      
+      _indefinite() {
+    	  this.set('_formattedTime', '--:--');
       }
 
       _init() {
           this.running = false;
-          console.warn("init timer "+this.indefinite);
+          //console.warn("init timer "+this.indefinite);
           if (this.indefinite) {
               this.set('currentTime', this.startTime);
-              this.set('_formattedTime', '--:--');
+              this._indefinite()
           } else if (this.countUp) {
               this.set('currentTime', 0);
               this.set('_formattedTime', '0:00');
