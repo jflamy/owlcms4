@@ -22,7 +22,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(ProxyAthleteTimer.class);
     {
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
     }
 
     private int timeRemaining;
@@ -46,25 +46,41 @@ public class ProxyAthleteTimer implements IProxyTimer {
         fop.emitFinalWarning();
     }
 
-    /* (non-Javadoc)
-     * @see app.owlcms.tests.ICountDownTimer#getTimeRemaining() */
+    /**
+     * @see app.owlcms.fieldofplay.IProxyTimer#getTimeRemaining()
+     */
     @Override
     public int getTimeRemaining() {
         return timeRemaining;
     }
 
+    /**
+     * @see app.owlcms.fieldofplay.IProxyTimer#getTimeRemainingAtLastStop()
+     */
     @Override
     public int getTimeRemainingAtLastStop() {
         return timeRemainingAtLastStop;
     }
 
+    /**
+     * @see app.owlcms.fieldofplay.IProxyTimer#initialWarning(java.lang.Object)
+     */
     @Override
     public void initialWarning(Object origin) {
         fop.emitInitialWarning();
     }
 
-    /* (non-Javadoc)
-     * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int) */
+    /**
+     * @see app.owlcms.fieldofplay.IProxyTimer#isRunning()
+     */
+    @Override
+    public boolean isRunning() {
+        return running;
+    }
+
+    /**
+     * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int)
+     */
     @Override
     public void setTimeRemaining(int timeRemaining) {
         if (running) {
@@ -76,8 +92,9 @@ public class ProxyAthleteTimer implements IProxyTimer {
         running = false;
     }
 
-    /* (non-Javadoc)
-     * @see app.owlcms.tests.ICountDownTimer#start() */
+    /**
+     * @see app.owlcms.fieldofplay.IProxyTimer#start()
+     */
     @Override
     public void start() {
         if (!running) {
@@ -89,8 +106,9 @@ public class ProxyAthleteTimer implements IProxyTimer {
         running = true;
     }
 
-    /* (non-Javadoc)
-     * @see app.owlcms.tests.ICountDownTimer#stop() */
+    /**
+     * @see app.owlcms.fieldofplay.IProxyTimer#stop()
+     */
     @Override
     public void stop() {
         if (running) {

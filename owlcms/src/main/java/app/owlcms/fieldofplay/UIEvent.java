@@ -22,7 +22,41 @@ import app.owlcms.data.group.Group;
  */
 public class UIEvent {
 
-	/**
+    public static class StartLifting extends UIEvent {
+        private Group group;
+
+        public StartLifting(Group group, Object object) {
+            super(object);
+            this.setGroup(group);
+        }
+
+        public Group getGroup() {
+            return group;
+        }
+
+        public void setGroup(Group group) {
+            this.group = group;
+        }
+    }
+    
+	public static class SwitchGroup extends UIEvent {
+        private Group group;
+
+        public SwitchGroup(Group group, Object object) {
+            super(object);
+            this.setGroup(group);
+        }
+
+        public Group getGroup() {
+            return group;
+        }
+
+        public void setGroup(Group group) {
+            this.group = group;
+        }
+    }
+
+    /**
 	 * Class AthleteAnnounced.
 	 */
 	static public class AthleteAnnounced extends UIEvent {
@@ -81,15 +115,24 @@ public class UIEvent {
 	static public class BreakSetTime extends UIEvent {
 
 		private Integer timeRemaining;
+        private boolean indefinite;
 
-		public BreakSetTime(Integer timeRemaining, Object origin) {
+		public BreakSetTime(Integer timeRemaining, boolean indefinite, Object origin) {
 			super(origin);
 			this.timeRemaining = timeRemaining;
+			this.indefinite = indefinite;
 		}
 
 		public Integer getTimeRemaining() {
 			return timeRemaining;
 		}
+
+        /**
+         * @return true if break lasts indefinitely and timeRemaining should be ignored
+         */
+        public boolean isIndefinite() {
+            return indefinite;
+        }
 	}
 
 	/**

@@ -727,7 +727,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
     
     private Checkbox buildForcedCurrentCheckbox() {
         Checkbox checkbox = new Checkbox(Translator.translate("ForcedAsCurrent"));
-        checkbox.getElement().getStyle().set("margin-left", "3em");
+        checkbox.getStyle().set("margin-left", "3em");
         binder.forField(checkbox).bind(Athlete::isForcedAsCurrent, Athlete::setForcedAsCurrent);
         return checkbox;
     }

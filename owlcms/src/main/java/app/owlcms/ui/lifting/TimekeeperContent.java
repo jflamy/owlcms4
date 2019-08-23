@@ -19,8 +19,10 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.lifting.BreakManagement.CountdownType;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
@@ -81,7 +83,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		_2min.getElement().setAttribute("theme", "icon");
 		_2min.getElement().setAttribute("title", getTranslation("Reset2min"));
 		Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
-			(new BreakDialog(this)).open();
+			(new BreakDialog(this, BreakType.TECHNICAL, CountdownType.INDEFINITE)).open();
 		});
 		breakButton.getElement().setAttribute("theme", "icon");
 		breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));

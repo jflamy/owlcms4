@@ -14,7 +14,6 @@ import static app.owlcms.fieldofplay.FOPState.INACTIVE;
 import static app.owlcms.fieldofplay.FOPState.TIME_RUNNING;
 import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -44,6 +43,7 @@ import app.owlcms.fieldofplay.FOPEvent.DownSignal;
 import app.owlcms.fieldofplay.FOPEvent.ExplicitDecision;
 import app.owlcms.fieldofplay.FOPEvent.ForceTime;
 import app.owlcms.fieldofplay.FOPEvent.StartLifting;
+import app.owlcms.fieldofplay.FOPEvent.SwitchGroup;
 import app.owlcms.fieldofplay.FOPEvent.TimeOver;
 import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
@@ -92,7 +92,7 @@ public class FieldOfPlay {
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     {
-        logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level./**/DEBUG);
         uiEventLogger.setLevel(Level.INFO);
     }
 
@@ -360,6 +360,14 @@ public class FieldOfPlay {
         } else if (e instanceof BarbellOrPlatesChanged) {
             uiShowPlates((BarbellOrPlatesChanged)e);
             return;
+        } else if (e instanceof SwitchGroup) {
+            if (state != BREAK && state != INACTIVE) {
+                setState(INACTIVE);
+                athleteTimer.stop();
+            }
+            loadGroup(((SwitchGroup)e).getGroup(), this);
+            getUiEventBus().post(new UIEvent.SwitchGroup(((SwitchGroup)e).getGroup(), e.getOrigin()));
+            return;
         }
 
         switch (this.getState()) {
@@ -389,11 +397,6 @@ public class FieldOfPlay {
                 transitionToBreak((BreakStarted) e);
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
-//                if (curAthlete.getAttemptsDone() == 0) {
-//                    // the group has not started lifting, override the change to
-//                    // lifting state from weightChange and stay in BREAK mode
-//                    setState(BREAK);
-//                }
             } else {
                 unexpectedEventInState(e, BREAK);
             }
@@ -532,6 +535,7 @@ public class FieldOfPlay {
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer) {
+        logger.trace("start of init state="+state);
         this.athleteTimer = timer;
         this.breakTimer = breakTimer;
         this.fopEventBus = getFopEventBus();
@@ -546,9 +550,10 @@ public class FieldOfPlay {
         if (state == null) {
             this.setState(INACTIVE);
         }
+        logger.trace("end of init state="+state);
     }
 
-    public void initGroup(Group group, Object origin) {
+    public void loadGroup(Group group, Object origin) {
         this.group = group;
         if (group != null) {
             logger.debug("{} loading data for group {} [{}]", this.getName(), (group != null ? group.getName() : group),
@@ -621,9 +626,9 @@ public class FieldOfPlay {
      *
      * @param group the group
      */
-    public void switchGroup(Group group, Object origin) {
+    public void startLifting(Group group, Object origin) {
         logger.trace("switchGroup {}", LoggerUtils.stackTrace());
-        initGroup(group, origin);
+        loadGroup(group, origin);
         logger.trace("{} start lifting for group {} origin={}", this.getName(),
                 (group != null ? group.getName() : group), origin);
         getFopEventBus().post(new StartLifting(origin));
@@ -686,7 +691,7 @@ public class FieldOfPlay {
                     logger.trace("&&3.A.B declaration for clock owner: leave clock running");
                     // no weight change. this is most likely a declaration.
                     if (Athlete.zeroIfInvalid(changingAthlete.getCurrentDeclaration()) == newWeight) {
-                        Notification.show(MessageFormat.format(Translator.translate("Declaration_Notification"),
+                        Notification.show(Translator.translate("Declaration_Notification",
                                 changingAthlete, newWeight), 5000, Position.TOP_START);
                     }
                     return;
@@ -906,7 +911,12 @@ public class FieldOfPlay {
         if (stopBreakTimer) {
             getBreakTimer().stop();
         }
+        uiStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e);
+    }
+
+    private void uiStartLifting(Group group2, Object origin) {
+        getUiEventBus().post(new UIEvent.StartLifting(group2, origin));
     }
 
     private void transitionToTimeRunning() {
@@ -980,9 +990,9 @@ public class FieldOfPlay {
         if (e instanceof DecisionReset || e instanceof DecisionFullUpdate)
             // ignore
             return;
-        String text = MessageFormat.format(Translator.translate("Unexpected_Notification"),
+        String text = Translator.translate("Unexpected_Notification",
                 e.getClass().getSimpleName(), state);
-        logger.warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
+        logger/**/.warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
         Notification.show(text, 5000, Position.BOTTOM_END);
     }
 

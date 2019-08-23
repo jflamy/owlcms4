@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.displays.attemptboard;
+package app.owlcms.components.elements;
 
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +12,6 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 
-import app.owlcms.components.elements.TimerElement;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;

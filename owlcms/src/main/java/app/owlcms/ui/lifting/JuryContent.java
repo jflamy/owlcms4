@@ -35,6 +35,7 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.lifting.BreakManagement.CountdownType;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
@@ -354,7 +355,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private HorizontalLayout juryDeliberationButtons() {
         Button stopCompetition = new Button(getTranslation("StopCompetition"), (e) -> {
             OwlcmsSession.withFop(
-                    fop -> fop.getFopEventBus().post(new FOPEvent.BreakStarted(BreakType.JURY, 0, this.getOrigin())));
+                    fop -> fop.getFopEventBus().post(new FOPEvent.BreakStarted(BreakType.JURY, this.getOrigin())));
         });
         stopCompetition.getElement().setAttribute("theme", "secondary");
         stopCompetition.setWidth(BUTTON_WIDTH);
@@ -368,7 +369,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         resumeCompetition.setEnabled(false);
 
         Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
-            (new BreakDialog(this)).open();
+            (new BreakDialog(this, BreakType.JURY, CountdownType.INDEFINITE)).open();
         });
         breakButton.getElement().setAttribute("theme", "icon");
         breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));

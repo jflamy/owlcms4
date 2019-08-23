@@ -165,8 +165,8 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
             VerticalLayout layout = new VerticalLayout();
             add(layout);
             RadioButtonGroup<Behaviour> group = new RadioButtonGroup<>();
-            group.getElement().getStyle().set("display", "flex");
-            group.getElement().getStyle().set("flexDirection", "column");
+            group.getStyle().set("display", "flex");
+            group.getStyle().set("flexDirection", "column");
             group.setItems(Behaviour.LEFT, Behaviour.LEFT_OVERLAY, Behaviour.LEFT_RESPONSIVE, Behaviour.LEFT_HYBRID,
                     Behaviour.LEFT_HYBRID_SMALL, Behaviour.LEFT_RESPONSIVE_HYBRID,
 //				Behaviour.LEFT_RESPONSIVE_HYBRID_NO_APP_BAR,
