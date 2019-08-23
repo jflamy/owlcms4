@@ -51,7 +51,7 @@ import elemental.json.JsonValue;
 /**
  * Class LiftingOrder
  *
- * Show athlete 6-attempt results
+ * Show athlete lifting order
  *
  */
 @SuppressWarnings("serial")
@@ -60,14 +60,15 @@ import elemental.json.JsonValue;
 @Route("displays/liftingorder")
 @Theme(value = Material.class, variant = Material.DARK)
 @Push
-public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel>
-implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
+public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel> implements QueryParameterReader,
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
      * LiftingOrderModel
      *
-     * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript
-     * properties. When the JS properties are changed, a "propname-changed" event is triggered.
+     * Vaadin Flow propagates these variables to the corresponding Polymer template
+     * JavaScript properties. When the JS properties are changed, a
+     * "propname-changed" event is triggered.
      * {@link Element.#addPropertyChangeListener(String, String,
      * com.vaadin.flow.dom.PropertyChangeListener)}
      *
@@ -105,14 +106,14 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
 
         void setWeight(Integer weight);
     }
+
     final private static Logger logger = (Logger) LoggerFactory.getLogger(LiftingOrder.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
-
 
     private EventBus uiEventBus;
     private List<Athlete> liftingOrder;
@@ -129,21 +130,11 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
 //        timer.setOrigin(this);
     }
 
-    @Subscribe
-    public void breakDone(UIEvent.BreakDone e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            Athlete a = e.getAthlete();
-            liftsDone = AthleteSorter.countLiftsDone(liftingOrder);
-            doUpdate(a, e);
-        });
-    }
-
     @Override
     public void doBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             BreakType breakType = fop.getBreakType();
-            getModel().setFullName(inferGroupName()+" "+inferMessage(breakType));
+            getModel().setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             getModel().setTeamName("");
             getModel().setAttempt("");
 
@@ -154,7 +145,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
 
     @Override
     public String getPageTitle() {
-        return "LiftingOrder";
+        return getTranslation("Scoreboard.LiftingOrder");
     }
 
     @Override
@@ -179,6 +170,16 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
     }
 
     @Subscribe
+    public void slaveBreakDone(UIEvent.BreakDone e) {
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            Athlete a = e.getAthlete();
+            liftsDone = AthleteSorter.countLiftsDone(liftingOrder);
+            doUpdate(a, e);
+        });
+    }
+
+    @Subscribe
     public void slaveDecision(UIEvent.Decision e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
@@ -187,7 +188,6 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
         });
     }
 
-
     @Subscribe
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
         uiLog(e);
@@ -195,7 +195,6 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
             this.getElement().callFunction("reset");
         });
     }
-
 
     @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
@@ -220,29 +219,58 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () ->  doBreak());
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            getModel().setHidden(false);
+            doBreak();
+        });
     }
 
     @Subscribe
     public void slaveStopBreak(UIEvent.BreakDone e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        Athlete a = e.getAthlete();
-        this.getElement().callFunction("reset");
-        doUpdate(a, e);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            Athlete a = e.getAthlete();
+            this.getElement().callFunction("reset");
+            doUpdate(a, e);
+        });
+    }
+
+    @Subscribe
+    public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin());
+        syncWithFOP(e);
+    }
+
+    public void syncWithFOP(UIEvent.SwitchGroup e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            OwlcmsSession.withFop(fop -> {
+                switch (fop.getState()) {
+                case INACTIVE:
+                    doEmpty();
+                    break;
+                case BREAK:
+                    doBreak();
+                    break;
+                default:
+                    doUpdate(fop.getCurAthlete(), e);
+                }
+            });
+        });
     }
 
     public void uiLog(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), this.getOrigin(), e.getOrigin());
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin());
     }
 
-
-    protected void doHide() {
+    protected void doEmpty() {
         this.getModel().setHidden(true);
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
-        logger.debug("doUpdate {} {}",a, a != null ? a.getAttemptsDone() : null);
+        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             LiftingOrderModel model = getModel();
             model.setHidden(a == null);
@@ -258,7 +286,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
 //                    model.setAttempt(formattedAttempt);
 //                    model.setWeight(a.getNextAttemptRequestedWeight());
 //                }
-                updateBottom(model,computeLiftType(a));
+                updateBottom(model, computeLiftType(a));
             }
         });
         if (a == null || a.getAttemptsDone() >= 6) {
@@ -328,7 +356,10 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
 //        }
 //    }
 
-    /* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+     * AttachEvent)
+     */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         // fop obtained via QueryParameterReader interface default methods.
@@ -337,7 +368,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
             // sync with current status of FOP
             liftingOrder = fop.getLiftingOrder();
             liftsDone = AthleteSorter.countLiftsDone(liftingOrder);
-            doUpdate(fop.getCurAthlete(), null);
+            syncWithFOP(null);
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
@@ -349,20 +380,23 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
         while (keys.hasMoreElements()) {
             String curKey = keys.nextElement();
             if (curKey.startsWith("Scoreboard.")) {
-                translations.put(curKey.replace("Scoreboard.", ""),Translator.translate(curKey));
+                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
             }
         }
         this.getElement().setPropertyJson("t", translations);
     }
 
     private String computeLiftType(Athlete a) {
-        if (a == null) return "";
-        String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk") : Translator.translate("Snatch");
+        if (a == null)
+            return "";
+        String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+                : Translator.translate("Snatch");
         return liftType;
     }
 
     private void doDone(Group g) {
-        if (g == null) return;
+        if (g == null)
+            return;
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setFullName(getTranslation("Group_number_done", g.toString()));
             this.getElement().callFunction("groupDone");
@@ -372,14 +406,14 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
     private void doUpdateBottomPart(Decision e) {
         LiftingOrderModel model = getModel();
         Athlete a = e.getAthlete();
-        updateBottom(model,computeLiftType(a));
+        updateBottom(model, computeLiftType(a));
     }
 
     private JsonValue getAthletesJson(List<Athlete> list2) {
         JsonArray jath = Json.createArray();
         int athx = 0;
 //        Category prevCat = null;
-        for (Athlete a: list2) {
+        for (Athlete a : list2) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
 //            if (curCat != null && !curCat.equals(prevCat)) {
@@ -415,9 +449,9 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
             ja.put("requestedWeight", nextAttemptRequestedWeight == 0 ? "-" : nextAttemptRequestedWeight.toString());
             Integer liftOrderRank = a.getLiftOrderRank();
             boolean notDone = a.getAttemptsDone() < 6;
-            String blink =  (notDone ? " blink" : "");
+            String blink = (notDone ? " blink" : "");
             if (notDone) {
-                ja.put("classname", (liftOrderRank == 1 ? "current"+blink : (liftOrderRank == 2) ? "next" : ""));
+                ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
             }
             jath.set(athx, ja);
             athx++;
@@ -432,7 +466,7 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
     private void init() {
         OwlcmsSession.withFop(fop -> {
             logger.trace("Starting result board on FOP {}", fop.getName());
-            setId("scoreboard-"+fop.getName());
+            setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
             getModel().setMasters(Competition.getCurrent().isMasters());
         });
@@ -443,9 +477,11 @@ implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, Bre
     private void updateBottom(LiftingOrderModel model, String liftType) {
         OwlcmsSession.withFop((fop) -> {
             curGroup = fop.getGroup();
-            model.setGroupName(curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType) : "");
+            model.setGroupName(
+                    curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
+                            : "");
         });
-        model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone",liftsDone));
+        model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         this.getElement().setPropertyJson("athletes", getAthletesJson(liftingOrder));
     }
 }

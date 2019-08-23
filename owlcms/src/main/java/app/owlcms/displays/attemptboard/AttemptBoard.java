@@ -318,7 +318,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     protected void doBreak(FieldOfPlay fop) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setLastName(inferGroupName());
-            getModel().setFirstName(inferMessage(inferBreakType(fop)));
+            getModel().setFirstName(inferMessage(fop.getBreakType()));
             getModel().setTeamName("");
             getModel().setAttempt("");
             this.getElement().callFunction("doBreak", 5 * 60);

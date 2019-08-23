@@ -113,6 +113,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
         void setWeight(Integer weight);
     }
+
     final private static Logger logger = (Logger) LoggerFactory.getLogger(Scoreboard.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
@@ -160,7 +161,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
     @Override
     public String getPageTitle() {
-        return "Scoreboard";
+        return getTranslation("Scoreboard");
     }
 
     @Override
@@ -261,13 +262,16 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             this.getElement().callFunction("reset");
             doUpdate(a, e);
         });
-
     }
 
     @Subscribe
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
+        syncWithFOP(e);
+    }
+
+    public void syncWithFOP(UIEvent.SwitchGroup e) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             OwlcmsSession.withFop(fop -> {
                 switch (fop.getState()) {
@@ -278,13 +282,12 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
                     doBreak();
                     break;
                 default:
-                    doUpdate(fop.getCurAthlete(),e);
+                    doUpdate(fop.getCurAthlete(), e);
                 }
             });
-            
         });
     }
-    
+
     public void uiLog(UIEvent e) {
         uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
@@ -297,7 +300,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     protected void doUpdate(Athlete a, UIEvent e) {
         logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         ScoreboardModel model = getModel();
-        model.setHidden(a == null);
         boolean leaveTopAlone = e instanceof UIEvent.LiftingOrderUpdated
                 && !((UIEvent.LiftingOrderUpdated) e).isStopAthleteTimer();
         if (a != null) {
@@ -391,7 +393,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             // sync with current status of FOP
             displayOrder = fop.getDisplayOrder();
             liftsDone = AthleteSorter.countLiftsDone(displayOrder);
-            doUpdate(fop.getCurAthlete(), null);
+            syncWithFOP(null);
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
