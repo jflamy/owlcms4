@@ -24,6 +24,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -108,6 +109,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     private Athlete displayedAthlete;
     protected boolean topBarPresent;
     protected H3 warning;
+    protected Button breakButton;
 
     /**
      * groupFilter points to a hidden field on the crudGrid filtering row, which is
@@ -130,6 +132,9 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     private AthleteCardFormFactory athleteEditingFormFactory;
     protected Component reset;
     private Group oldGroup = null;
+    private HorizontalLayout buttons;
+    private HorizontalLayout decisions;
+    private HorizontalLayout breaks;
 
     /**
      * Instantiates a new announcer content. Content is created in
@@ -238,6 +243,22 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     }
 
     @Subscribe
+    public void slaveBreakDone(UIEvent.BreakDone e) {
+        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
+            logger.trace("stopping break");
+            syncWithFOP(true);
+        });
+    }
+
+    @Subscribe
+    public void slaveBreakStart(UIEvent.BreakStarted e) {
+        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
+            logger.trace("starting break");
+            syncWithFOP(true);
+        });
+    }
+    
+    @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
@@ -250,11 +271,11 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         });
 
     }
-
+    
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBarGroupSelect, uiEventBus, e, this, e.getOrigin(), () -> {
-            createTopBar();
+        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, () -> {
+            logger.trace("starting lifting");
             syncWithFOP(true);
         });
     }
@@ -420,14 +441,18 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         clearVerticalMargins(time);
         clearVerticalMargins(weight);
 
-        HorizontalLayout buttons = announcerButtons(topBar);
-        HorizontalLayout decisions = decisionButtons(topBar);
+        buttons = announcerButtons(topBar);
+        breaks = breakButtons(topBar);
+        decisions = decisionButtons(topBar);
         decisions.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         topBar.setSizeFull();
         topBar.add(topBarLeft, fullName, attempt, weight, time);
         if (buttons != null) {
             topBar.add(buttons);
+        }
+        if (breaks != null) {
+            topBar.add(breaks);
         }
         if (decisions != null) {
             topBar.add(decisions);
@@ -591,15 +616,26 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             }
 
             Athlete curAthlete2 = fop.getCurAthlete();
-            if (fop.getState() == FOPState.INACTIVE) {
-                logger.trace("initial: {} {} {} {}", fop.getState(), fop.getGroup(), curAthlete2, curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
+            FOPState state = fop.getState();
+            if (state == FOPState.INACTIVE) {
+                logger.trace("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2, curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 createInitialBar();
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6) {
                     warnAnnouncer(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 }
             } else {
-                logger.trace("ready to lift: {}", fop.getState());
+                logger.trace("active: {}", state);
                 createTopBar();
+                if (state == FOPState.BREAK) {
+                    if (buttons != null) buttons.setEnabled(false);
+                    if (decisions != null) decisions.setEnabled(false);
+                } else {
+                    if (buttons != null) buttons.setEnabled(true);
+                    if (decisions != null) decisions.setEnabled(true);
+                }
+                breakButton.setEnabled(true);
+                breakButton.getStyle().set("background-color", "SkyBlue").set("color","black");
+                
                 Athlete curAthlete = curAthlete2;
                 int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
                 doUpdateTopBar(curAthlete, timeRemaining);
@@ -695,6 +731,15 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             n.add(label);
             n.open();
         }
+    }
+
+    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+        breakButton.getElement().setAttribute("theme", "icon");
+        breakButton.getElement().setAttribute("title", getTranslation("Countdown_BreakTimer"));
+
+        HorizontalLayout buttons = new HorizontalLayout(breakButton);
+        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+        return buttons;
     }
 
 }

@@ -246,10 +246,12 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private FlexLayout createButtons(BreakManagement breakManagement) {
         breakStart = new Button(AvIcons.PLAY_ARROW.create(), startBreak());
         breakStart.getElement().setAttribute("theme", "primary");
+        breakStart.getStyle().set("background-color", "SkyBlue").set("color","black");
         breakStart.getElement().setAttribute("title", getTranslation("StartCountdown"));
 
         breakPause = new Button(AvIcons.PAUSE.create(), pauseBreak());
         breakPause.getElement().setAttribute("theme", "primary");
+        breakPause.getStyle().set("background-color", "SkyBlue").set("color","black");
         breakPause.getElement().setAttribute("title", getTranslation("PauseCountdown"));
 
         breakEnd = new Button(PlacesIcons.FITNESS_CENTER.create(), endBreak(parentDialog));

@@ -55,49 +55,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     private Button introCountdownButton;
     private Button startLiftingButton;
 
+
     public AnnouncerContent() {
         super();
         defineFilters(crudGrid);
         setTopBarTitle(getTranslation("Announcer"));
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.AthleteGridContent#createReset()
-     */
-    @Override
-    protected Component createReset() {
-        reset = new Button(IronIcons.REFRESH.create(), (e) -> OwlcmsSession.withFop((fop) -> {
-            Group group = fop.getGroup();
-            logger.debug("resetting {} from database", group);
-            fop.loadGroup(group, this);
-            syncWithFOP(false); // no need to reload grid, we just loaded.
-        }));
-        reset.getElement().setAttribute("title", getTranslation("Reload_group"));
-        reset.getElement().setAttribute("theme", "secondary contrast small icon");
-        return reset;
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.AthleteGridContent#createTopBarGroupSelect()
-     */
-    @Override
-    protected void createTopBarGroupSelect() {
-        // there is already all the SQL filtering logic for the group attached
-        // hidden field in the crudGrid part of the page so we just set that
-        // filter.
-        super.createTopBarGroupSelect();
-        topBarGroupSelect.setReadOnly(false);
-        OwlcmsSession.withFop((fop) -> {
-            Group group = fop.getGroup();
-            logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
-            topBarGroupSelect.setValue(group);
-            getGroupFilter().setValue(group);
-        });
-        topBarGroupSelect.addValueChangeListener(e -> {
-            Group group = e.getValue();
-            logger.trace("select setting filter group to {}", group);
-            getGroupFilter().setValue(group);
-        });
     }
 
     /**
@@ -175,7 +137,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             });
         });
         _2min.getElement().setAttribute("theme", "icon");
-        Button breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
             (new BreakDialog(this)).open();
         });
         breakButton.getElement().setAttribute("theme", "icon");
@@ -204,12 +166,15 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             BreakDialog dialog = new BreakDialog(this, BreakType.INTRODUCTION, CountdownType.TARGET);
             dialog.open();
         });
+        introCountdownButton.getStyle().set("background-color", "SkyBlue").set("color","black");
         startLiftingButton = new Button(getTranslation("startLifting"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
                 createTopBar();
                 fop.getFopEventBus().post(new FOPEvent.StartLifting(this));
             });
         });
+        startLiftingButton.getThemeNames().add("success primary");
+        
         warning = new H3();
         warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
         HorizontalLayout topBarRight = new HorizontalLayout();
@@ -229,6 +194,24 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     }
 
     /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#createReset()
+     */
+    @Override
+    protected Component createReset() {
+        reset = new Button(IronIcons.REFRESH.create(), (e) -> OwlcmsSession.withFop((fop) -> {
+            Group group = fop.getGroup();
+            logger.debug("resetting {} from database", group);
+            fop.loadGroup(group, this);
+            syncWithFOP(false); // no need to reload grid, we just loaded.
+        }));
+        reset.getElement().setAttribute("title", getTranslation("Reload_group"));
+        reset.getElement().setAttribute("theme", "secondary contrast small icon");
+        return reset;
+    }
+    
+
+
+    /**
      * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
      */
     @Override
@@ -236,6 +219,29 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         super.createTopBar();
         // this hides the back arrow
         getAppLayout().setMenuVisible(false);
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#createTopBarGroupSelect()
+     */
+    @Override
+    protected void createTopBarGroupSelect() {
+        // there is already all the SQL filtering logic for the group attached
+        // hidden field in the crudGrid part of the page so we just set that
+        // filter.
+        super.createTopBarGroupSelect();
+        topBarGroupSelect.setReadOnly(false);
+        OwlcmsSession.withFop((fop) -> {
+            Group group = fop.getGroup();
+            logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
+            topBarGroupSelect.setValue(group);
+            getGroupFilter().setValue(group);
+        });
+        topBarGroupSelect.addValueChangeListener(e -> {
+            Group group = e.getValue();
+            logger.trace("select setting filter group to {}", group);
+            getGroupFilter().setValue(group);
+        });
     }
 
     /**
