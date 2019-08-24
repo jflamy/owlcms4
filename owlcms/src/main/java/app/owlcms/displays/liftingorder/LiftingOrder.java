@@ -132,15 +132,16 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
 
     @Override
     public void doBreak() {
-        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            BreakType breakType = fop.getBreakType();
-            getModel().setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
-            getModel().setTeamName("");
-            getModel().setAttempt("");
-
-            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-            this.getElement().callFunction("doBreak");
-        }));
+        return;
+//        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+//            BreakType breakType = fop.getBreakType();
+//            getModel().setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
+//            getModel().setTeamName("");
+//            getModel().setAttempt("");
+//
+//            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
+//            this.getElement().callFunction("doBreak");
+//        }));
     }
 
     @Override
