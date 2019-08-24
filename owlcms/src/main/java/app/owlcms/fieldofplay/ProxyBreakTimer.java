@@ -94,7 +94,7 @@ public class ProxyBreakTimer implements IProxyTimer {
         }
         logger.debug("setting break timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
-        fop.getUiEventBus().post(new UIEvent.BreakSetTime(timeRemaining, indefinite, this));
+        fop.getUiEventBus().post(new UIEvent.BreakSetTime(timeRemaining, this.indefinite, this));
         running = false;
     }
 
@@ -108,7 +108,7 @@ public class ProxyBreakTimer implements IProxyTimer {
             logger.debug("starting Break -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
             timeRemainingAtLastStop = timeRemaining;
         }
-        fop.getUiEventBus().post(new UIEvent.BreakStarted(timeRemaining, this, false));
+        fop.getUiEventBus().post(new UIEvent.BreakStarted(timeRemaining, null, this.indefinite));
         running = true;
     }
 
@@ -120,7 +120,7 @@ public class ProxyBreakTimer implements IProxyTimer {
         if (running) {
             computeTimeRemaining();
         }
-        logger.trace("***stopping Break -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+        logger.debug("***stopping Break -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
         timeRemainingAtLastStop = timeRemaining;
         logger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
         fop.getUiEventBus().post(new UIEvent.BreakPaused(this));
@@ -143,10 +143,11 @@ public class ProxyBreakTimer implements IProxyTimer {
     /**
      * Compute time elapsed since start and adjust time remaining accordingly.
      */
-    private void computeTimeRemaining() {
+    public int computeTimeRemaining() {
         stopMillis = System.currentTimeMillis();
         long elapsed = stopMillis - startMillis;
         timeRemaining = (int) (timeRemaining - elapsed);
+        return timeRemaining;
     }
 
     public void setIndefinite() {

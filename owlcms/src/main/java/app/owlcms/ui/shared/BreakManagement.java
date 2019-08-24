@@ -39,10 +39,11 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.fields.DurationField;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.fieldofplay.IProxyTimer;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.BreakSetTime;
+import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -141,17 +142,18 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         FlexLayout buttons = createButtons(this);
         createTimerDisplay();
         computeDefaultValues();
-
         assembleDialog(this, buttons);
     }
 
     public ComponentEventListener<ClickEvent<Button>> pauseBreak() {
         return (e) -> {
             OwlcmsSession.withFop(fop -> {
-                IProxyTimer breakTimer = fop.getBreakTimer();
+                ProxyBreakTimer breakTimer = fop.getBreakTimer();
                 breakTimer.stop();
-                if (ct.getValue() != CountdownType.INDEFINITE) {
-                    durationField.setValue(Duration.ofSeconds(breakTimer.getTimeRemainingAtLastStop() / 1000));
+                if (breakTimer.isIndefinite()) {
+                    ct.setValue(CountdownType.INDEFINITE);
+                } else if (ct.getValue() != CountdownType.INDEFINITE) {
+                    durationField.setValue(Duration.ofSeconds(breakTimer.computeTimeRemaining() / 1000));
                     ct.setValue(CountdownType.DURATION);
                 }
                 fop.getFopEventBus().post(new FOPEvent.BreakPaused(this.getOrigin()));
@@ -248,14 +250,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private FlexLayout createButtons(BreakManagement breakManagement) {
         breakStart = new Button(AvIcons.PLAY_ARROW.create(), startBreak());
         breakStart.getElement().setAttribute("theme", "primary contrast");
-        // breakStart.getStyle().set("background-color",
-        // "SkyBlue").set("color","black");
         breakStart.getElement().setAttribute("title", getTranslation("StartCountdown"));
 
         breakPause = new Button(AvIcons.PAUSE.create(), pauseBreak());
         breakPause.getElement().setAttribute("theme", "primary contrast");
-        // breakPause.getStyle().set("background-color",
-        // "SkyBlue").set("color","black");
         breakPause.getElement().setAttribute("title", getTranslation("PauseCountdown"));
 
         breakEnd = new Button(getTranslation("EndBreak"), PlacesIcons.FITNESS_CENTER.create(), endBreak(parentDialog));
@@ -365,6 +363,18 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 timeRemaining = now.until(target, ChronoUnit.MILLIS);
                 breakTimerElement.slaveBreakSet(new BreakSetTime(timeRemaining.intValue(), false, this));
             }
+            
+            ProxyBreakTimer breakTimer = fop.getBreakTimer();
+            if (breakTimer.isRunning()) {
+                breakStart.setEnabled(false);
+                if (breakTimer.isIndefinite()) {
+                    ct.setValue(CountdownType.INDEFINITE);
+                    breakTimerElement.slaveBreakStart(new BreakStarted(0, this, true));
+                } else {
+                    breakTimerElement.slaveBreakStart(new BreakStarted(timeRemaining.intValue(), this, false));
+                }
+                
+            }
         });
 
         return;
@@ -403,27 +413,40 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private void syncWithFop() {
         OwlcmsSession.withFop(fop -> {
-            switch (fop.getState()) {
-            case CURRENT_ATHLETE_DISPLAYED:
-            case BREAK:
-                if (fop.getCurAthlete() == null) {
+            ProxyBreakTimer breakTimer = fop.getBreakTimer();
+            computeDefaultValues();
+            if (breakTimer.isRunning()) {
+                readFromRunningTimer(fop, breakTimer);
+            } else {
+                switch (fop.getState()) {
+                case CURRENT_ATHLETE_DISPLAYED:
+                case BREAK:
+                    if (fop.getCurAthlete() == null) {
+                        bt.setValue(BreakType.INTRODUCTION);
+                    } else if (fop.getCurAthlete().getAttemptsDone() == 3) {
+                        bt.setValue(BreakType.FIRST_CJ);
+                    } else if (fop.getCurAthlete().getAttemptsDone() == 0) {
+                        bt.setValue(BreakType.FIRST_SNATCH);
+                    } else {
+                        bt.setValue(BreakType.TECHNICAL);
+                    }
+                    break;
+                case INACTIVE:
                     bt.setValue(BreakType.INTRODUCTION);
-                } else if (fop.getCurAthlete().getAttemptsDone() == 3) {
-                    bt.setValue(BreakType.FIRST_CJ);
-                } else if (fop.getCurAthlete().getAttemptsDone() == 0) {
-                    bt.setValue(BreakType.FIRST_SNATCH);
-                } else {
+                    break;
+                default:
                     bt.setValue(BreakType.TECHNICAL);
+                    break;
                 }
-                break;
-            case INACTIVE:
-                bt.setValue(BreakType.INTRODUCTION);
-                break;
-            default:
-                bt.setValue(BreakType.TECHNICAL);
-                break;
             }
         });
+    }
+
+    public void readFromRunningTimer(FieldOfPlay fop, ProxyBreakTimer breakTimer) {
+        int milliseconds = breakTimer.computeTimeRemaining();
+        durationField.setValue(Duration.ofMillis(milliseconds));
+        ct.setValue(CountdownType.DURATION);
+        bt.setValue(fop.getBreakType());
     }
 
 }

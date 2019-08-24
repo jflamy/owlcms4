@@ -120,10 +120,10 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         boolean isIndefinite();
 	}
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
-	static {
+	{
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
@@ -173,9 +173,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 
 	protected void doStartTimer(Integer milliseconds) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-			if (milliseconds != null) {
-				setTimeRemaining(milliseconds);
-			}
+			setTimeRemaining(milliseconds);
 			start();
 		});
 	}

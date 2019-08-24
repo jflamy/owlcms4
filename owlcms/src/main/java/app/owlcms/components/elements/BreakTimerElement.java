@@ -15,6 +15,7 @@ import com.vaadin.flow.component.ClientCallable;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -26,9 +27,9 @@ import ch.qos.logback.classic.Logger;
 //@HtmlImport("frontend://components/TimerElement.html")
 public class BreakTimerElement extends TimerElement {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-	static {
+	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	{
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
@@ -103,7 +104,7 @@ public class BreakTimerElement extends TimerElement {
 	@Subscribe
 	public void slaveBreakSet(UIEvent.BreakSetTime e) {
 		Integer milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-		uiEventLogger.debug("&&& breakTimer set {} {} {} {}", e.getClass().getSimpleName(), milliseconds, e.isIndefinite(), e.getOrigin());
+		uiEventLogger.debug("&&& breakTimer set {} {} {} {}", e.getClass().getSimpleName(), milliseconds, e.isIndefinite(), LoggerUtils.whereFrom());
 		doSetTimer(milliseconds);
 	}
 
@@ -111,7 +112,7 @@ public class BreakTimerElement extends TimerElement {
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
         if (e.isDisplayToggle()) return;
 		uiEventLogger.debug("&&& breakTimer start {} {} {}", e.getClass().getSimpleName(), null, e.getOrigin());
-		doStartTimer(null);
+		doStartTimer(e.getTimeRemaining());
 	}
 
     /* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
@@ -120,7 +121,24 @@ public class BreakTimerElement extends TimerElement {
 		init();
 		OwlcmsSession.withFop(fop -> {
 			// sync with current status of FOP
-			doSetTimer(fop.getBreakTimer().getTimeRemaining());
+			ProxyBreakTimer breakTimer = fop.getBreakTimer();
+            if (breakTimer.isRunning()) {
+                if (breakTimer.isIndefinite()) {
+                    logger.warn("R_I");
+                    doStartTimer(null);
+                } else {
+                    logger.warn("R_T");
+                    doStartTimer(breakTimer.computeTimeRemaining());
+                }
+            } else {
+                if (breakTimer.isIndefinite()) {
+                    logger.warn("S_I");
+                    doSetTimer(null);
+                } else {
+                    logger.warn("S_T");
+                    doSetTimer(breakTimer.getTimeRemainingAtLastStop());
+                }
+            }
 			// we listen on uiEventBus; this method ensures we stop when detached.
 			uiEventBusRegister(this, fop);
 		});

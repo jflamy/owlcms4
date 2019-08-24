@@ -131,8 +131,11 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
 
     @Override
     public void doBreak() {
-        return;
-//        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            // just update the display
+            liftingOrder = fop.getLiftingOrder();
+            doUpdate(fop.getCurAthlete(), null);
+            
 //            BreakType breakType = fop.getBreakType();
 //            getModel().setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
 //            getModel().setTeamName("");
@@ -140,7 +143,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
 //
 //            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
 //            this.getElement().callFunction("doBreak");
-//        }));
+        }));
     }
 
     @Override

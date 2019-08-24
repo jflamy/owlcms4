@@ -119,8 +119,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
-        logger.setLevel(Level.DEBUG);
-        uiEventLogger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
+        uiEventLogger.setLevel(Level.INFO);
     }
 
     @Id("timer")
@@ -154,7 +154,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             getModel().setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             getModel().setTeamName("");
             getModel().setAttempt("");
-
+            
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
             this.getElement().callFunction("doBreak");
         }));
@@ -281,6 +281,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
                     doEmpty();
                     break;
                 case BREAK:
+                    doUpdate(fop.getCurAthlete(), e);
                     doBreak();
                     break;
                 default:
@@ -523,8 +524,12 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             model.setGroupName(
                     curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
                             : "");
+            if (displayOrder == null) {
+                displayOrder = fop.getDisplayOrder();
+            }
+            model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+            this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
         });
-        model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
-        this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
+
     }
 }

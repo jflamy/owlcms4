@@ -213,10 +213,10 @@ public class FieldOfPlay {
         return this.athleteTimer;
     }
 
-    public IProxyTimer getBreakTimer() {
+    public ProxyBreakTimer getBreakTimer() {
         // if (!(this.breakTimer.getClass().isAssignableFrom(ProxyBreakTimer.class)))
         // throw new RuntimeException("wrong athleteTimer setup");
-        return this.breakTimer;
+        return (ProxyBreakTimer) this.breakTimer;
     }
 
     public BreakType getBreakType() {
