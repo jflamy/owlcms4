@@ -31,7 +31,6 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.attemptboard.BreakDisplay;
-import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.Decision;
 import app.owlcms.i18n.Translator;
