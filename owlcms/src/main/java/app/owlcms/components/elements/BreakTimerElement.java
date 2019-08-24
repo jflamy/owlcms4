@@ -12,8 +12,10 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 
+import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -25,9 +27,9 @@ import ch.qos.logback.classic.Logger;
 //@HtmlImport("frontend://components/TimerElement.html")
 public class BreakTimerElement extends TimerElement {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-	static {
+	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
+	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	{
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
@@ -56,7 +58,8 @@ public class BreakTimerElement extends TimerElement {
 	public void clientSyncTime() {
 		logger.info("timer element fetching time");
 		OwlcmsSession.withFop(fop -> {
-			doSetTimer(fop.getBreakTimer().getTimeRemaining());
+			ProxyBreakTimer breakTimer = (ProxyBreakTimer) fop.getBreakTimer();
+            doSetTimer(breakTimer.isIndefinite() ? null : breakTimer.getTimeRemaining());
 		});
 		return;
 	}
@@ -94,23 +97,22 @@ public class BreakTimerElement extends TimerElement {
 
 	@Subscribe
 	public void slaveBreakPause(UIEvent.BreakPaused e) {
-		uiEventLogger.debug("&&& break {} {}",  e.getClass().getSimpleName(), e.getOrigin());
+		uiEventLogger.debug("&&& breakTimer pause {} {}",  e.getClass().getSimpleName(), e.getOrigin());
 		doStopTimer();
 	}
 
 	@Subscribe
 	public void slaveBreakSet(UIEvent.BreakSetTime e) {
-		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug("&&& break {} {} {}", e.getClass().getSimpleName(), milliseconds, e.getOrigin());
+		Integer milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
+		uiEventLogger.debug("&&& breakTimer set {} {} {} {}", e.getClass().getSimpleName(), milliseconds, e.isIndefinite(), LoggerUtils.whereFrom());
 		doSetTimer(milliseconds);
 	}
 
     @Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
-		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug("&&& break {} {} {}", e.getClass().getSimpleName(), milliseconds, e.getOrigin());
-		doSetTimer(milliseconds);
-		doStartTimer(milliseconds);
+        if (e.isDisplayToggle()) return;
+		uiEventLogger.debug("&&& breakTimer start {} {} {}", e.getClass().getSimpleName(), null, e.getOrigin());
+		doStartTimer(e.getTimeRemaining());
 	}
 
     /* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
@@ -119,7 +121,20 @@ public class BreakTimerElement extends TimerElement {
 		init();
 		OwlcmsSession.withFop(fop -> {
 			// sync with current status of FOP
-			doSetTimer(fop.getBreakTimer().getTimeRemaining());
+			ProxyBreakTimer breakTimer = fop.getBreakTimer();
+            if (breakTimer.isRunning()) {
+                if (breakTimer.isIndefinite()) {
+                    doStartTimer(null);
+                } else {
+                    doStartTimer(breakTimer.computeTimeRemaining());
+                }
+            } else {
+                if (breakTimer.isIndefinite()) {
+                    doSetTimer(null);
+                } else {
+                    doSetTimer(breakTimer.getTimeRemainingAtLastStop());
+                }
+            }
 			// we listen on uiEventBus; this method ensures we stop when detached.
 			uiEventBusRegister(this, fop);
 		});

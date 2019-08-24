@@ -100,4 +100,12 @@ public class MockCountdownTimer implements IProxyTimer {
     }
 
 
+    @Override
+    public boolean isRunning() {
+        return timeRemaining != 0;
+    }
+    
+    
+
+
 }

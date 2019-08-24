@@ -6,7 +6,6 @@
  */
 package app.owlcms.ui.home;
 
-import java.text.MessageFormat;
 import java.time.LocalDate;
 
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 
 	private VerticalLayout buildLicense() {
 		VerticalLayout license = new VerticalLayout();
-	    license.add(new H3(MessageFormat.format("OWLCMS v{0} ({1})", OwlcmsFactory.getVersion(), OwlcmsFactory.getBuildTimestamp())));
+	    license.add(new H3(getTranslation("OwlcmsBuild", OwlcmsFactory.getVersion(), OwlcmsFactory.getBuildTimestamp())));
 		license.add(new H3(getTranslation("CopyrightLicense")));
 		addP(license,
 				getTranslation("Copyright2009")+LocalDate.now().getYear()+" "+getTranslation("JFL")

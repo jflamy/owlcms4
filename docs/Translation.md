@@ -18,14 +18,14 @@
 3. Each column of `translation4.csv`represents a language.  
     - Add your own language by adding a column at the end; use the ISO 639-1 two-letter code for your language -- see the list in https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes  (for example, da is Danish, fr is French, ru is Russian, etc.) 
     - You may  have variations per country. For example `fr_CA` is the code for French in Canada, where different words are used and some of the displays are bilingual.
-4. For an initial test, translate the first line in the file, which is shown on the home page.
+4. For an initial test, translate the first line in the file, which is the title on the home page.
 
-5. **Critical**: When SAVING you will need to make sure to use the "UTF-8 CSV" option
+5. **Critical**: When SAVING you will need to make sure to use the "UTF-8 CSV" option. UTF-8 is a way to encode characters so that all world languages can be used together in the same file.  CSV is a simple text format that makes it easier to compare different versions of the file.
 
 - For Excel, if you do a Save As you should see the CSV UTF-8 option
 ![60_CSV_Save As](img/Translation/60_CSV_SaveAs.png)
 
-- For OpenOffice/LibreOffice, you will have to [select specific options when saving(https://csvimproved.com/support/questions-and-answers/916-save-a-csv-file-as-utf-8)
+- For OpenOffice/LibreOffice, you will need to set some parameters when saving.  See the following [instructions for saving in UTF-8 CSV](https://rolandd.com/documentation/ro-csvi/save-a-csv-file-as-utf-8)
 
 
 ## Testing your screen and display translations
@@ -58,7 +58,7 @@ If you are using the Windows installer, uninstalling will also delete the local 
 
 ## Sending your translations back
 
-Once you are happy with your `local` directory, and either
+Once you are happy with your `local` directory, either
 
 - Open an issue on github and attach your translation as an enhancement request.
 

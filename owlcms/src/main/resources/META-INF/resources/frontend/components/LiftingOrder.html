@@ -229,12 +229,16 @@ th, td {
 .athleteTimer {
 	color: yellow;
 }
+
+.v-system-error {
+	display: none;
+}
 </style>
 
 <div class="wrapper" id="resultBoardDiv" style$="[[_computeHidden(hidden)]]">
 <div class="attemptBar">
 	<div class="athleteInfo" id="athleteInfoDiv">
-		<span class="fullName" id="fullNameDiv">[[fullName]]</span>
+		<div class="fullName" id="fullNameDiv" inner-h-t-m-l="[[fullName]]"></div>
 	</div>
 </div>
 <div class="group" id="groupDiv">

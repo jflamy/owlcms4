@@ -9,13 +9,11 @@ package app.owlcms.ui.lifting;
 
 import org.slf4j.LoggerFactory;
 
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -207,15 +205,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
     @Override
     protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
-
-        Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
-            (new BreakDialog(this)).open();
-        });
-        breakButton.getElement().setAttribute("theme", "icon");
-        breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
-        HorizontalLayout buttons = new HorizontalLayout(breakButton);
-        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-        return buttons;
+        return null;
     }
 
     @Override

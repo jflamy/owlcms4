@@ -56,6 +56,11 @@ public interface IProxyTimer {
      * 30-second warning (cannot change weights)
      */
     public void finalWarning(Object origin);
-	
+
+    /**
+     * @return true if actively running (not paused)
+     */
+    public boolean isRunning();
+    
 
 }
