@@ -104,7 +104,6 @@ public class UIEvent {
          * Instantiates a new break paused.
          *
          * @param origin      the origin
-         * @param fromConsole TODO
          */
         public BreakPaused(Object origin) {
             super(origin);
@@ -288,7 +287,7 @@ public class UIEvent {
          * @param liftingOrder    the lifting order
          * @param displayOrder    the display order
          * @param timeAllowed     the time allowed
-         * @param displayToggle TODO
+         * @param displayToggle   if true, just update display according to lifting order.
          * @param origin          the origin
          */
         public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete,
