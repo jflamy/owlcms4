@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.shared;
 
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +12,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import app.owlcms.fieldofplay.BreakType;
-import app.owlcms.ui.lifting.BreakManagement.CountdownType;
+import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -29,7 +29,7 @@ public class BreakDialog extends Dialog {
      *
      * @param origin the origin
      */
-    BreakDialog(Object origin) {
+    public BreakDialog(Object origin) {
         VerticalLayout content = new BreakManagement(origin, this);
         this.add(content);
     }
@@ -39,7 +39,7 @@ public class BreakDialog extends Dialog {
      * @param brt
      * @param cdt
      */
-    BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
+    public BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
         VerticalLayout content = new BreakManagement(origin, brt, cdt, this);
         this.add(content);
     }

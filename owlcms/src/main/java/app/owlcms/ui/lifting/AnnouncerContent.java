@@ -30,9 +30,10 @@ import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.lifting.BreakManagement.CountdownType;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
+import app.owlcms.ui.shared.BreakDialog;
+import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -137,15 +138,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             });
         });
         _2min.getElement().setAttribute("theme", "icon");
-        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            (new BreakDialog(this)).open();
-        });
-        breakButton.getElement().setAttribute("theme", "icon");
-        breakButton.getElement().setAttribute("title", getTranslation("Countdown_BreakTimer"));
 
         HorizontalLayout buttons = new HorizontalLayout(
                 // announce,
-                start, stop, _1min, _2min, breakButton);
+                start, stop, _1min, _2min);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
     }
@@ -166,7 +162,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             BreakDialog dialog = new BreakDialog(this, BreakType.INTRODUCTION, CountdownType.TARGET);
             dialog.open();
         });
-        introCountdownButton.getStyle().set("background-color", "SkyBlue").set("color","black");
+        //introCountdownButton.getStyle().set("background-color", "SkyBlue").set("color","black");
+        introCountdownButton.getElement().setAttribute("theme", "primary contrast");
         startLiftingButton = new Button(getTranslation("startLifting"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
                 createTopBar();

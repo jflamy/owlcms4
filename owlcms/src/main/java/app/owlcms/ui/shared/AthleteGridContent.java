@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -74,7 +75,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public abstract class AthleteGridContent extends VerticalLayout
-implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor {
+        implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -88,7 +89,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         Integer attemptNumber = a.getAttemptNumber();
         return (attemptsDone >= 3)
                 ? ((attemptsDone >= 6) ? "done" : Translator.translate("C_and_J_number", attemptNumber))
-                        : Translator.translate("Snatch_number", attemptNumber);
+                : Translator.translate("Snatch_number", attemptNumber);
     }
 
     protected Location location;
@@ -254,7 +255,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     public void slaveBreakStart(UIEvent.BreakStarted e) {
         UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
             if (e.isDisplayToggle()) {
-                logger.warn("{} ignoring switch to break",this.getClass().getSimpleName());
+                logger.warn("{} ignoring switch to break", this.getClass().getSimpleName());
                 return;
             }
 
@@ -262,21 +263,21 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             syncWithFOP(true);
         });
     }
-    
+
     @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         OwlcmsSession.withFop((fop) -> {
             UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
-                //                doUpdateTopBar(fop.getCurAthlete(), 0);
+                // doUpdateTopBar(fop.getCurAthlete(), 0);
                 createInitialBar();
                 syncWithFOP(true);
             });
         });
 
     }
-    
+
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
         UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, () -> {
@@ -479,7 +480,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         topBarGroupSelect.getStyle().set("margin-left", "1em");
         topBarGroupSelect.setReadOnly(true);
         OwlcmsSession.withFop(fop -> topBarGroupSelect.setValue(fop.getGroup()));
-        
+
         // if topBarGroupSelect is made read-write, it needs to set values in
         // groupFilter and
         // call updateURLLocation
@@ -519,7 +520,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                     if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
                         logger.debug("filter switching group from {} to {}",
                                 oldGroup != null ? oldGroup.getName() : null,
-                                        newGroup != null ? newGroup.getName() : null);
+                                newGroup != null ? newGroup.getName() : null);
                         fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
                         oldGroup = newGroup;
                         // this assumes that SwitchGroup post is synchronous and has loaded.
@@ -554,10 +555,10 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                         Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
                         weight.setText(
                                 (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
-                                + "kg");
+                                        + "kg");
                     }
                 } else {
-                    warnAnnouncer(group, attemptsDone);
+                    warnAnnouncer(group, attemptsDone, fop.getState(), fop.getLiftingOrder());
                 }
             });
         });
@@ -612,35 +613,38 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             createTopBarGroupSelect();
 
             if (refreshGrid) {
-//                if (fopGroup == null) {
-//                    topBarGroupSelect.setValue(null);
-//                } else {
-                    topBarGroupSelect.setValue(fopGroup);
-                    crudGrid.refreshGrid();
-//                }
+                topBarGroupSelect.setValue(fopGroup);
+                crudGrid.refreshGrid();
             }
 
             Athlete curAthlete2 = fop.getCurAthlete();
             FOPState state = fop.getState();
             if (state == FOPState.INACTIVE) {
-                logger.trace("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2, curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
+                logger.trace("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2,
+                        curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 createInitialBar();
-                if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6) {
-                    warnAnnouncer(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
+                warning.setText(getTranslation("IdlePlatform"));
+                if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
+                    warnAnnouncer(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(), fop.getState(), fop.getLiftingOrder());
                 }
             } else {
                 logger.trace("active: {}", state);
                 createTopBar();
                 if (state == FOPState.BREAK) {
-                    if (buttons != null) buttons.setEnabled(false);
-                    if (decisions != null) decisions.setEnabled(false);
+                    if (buttons != null)
+                        buttons.setEnabled(false);
+                    if (decisions != null)
+                        decisions.setEnabled(false);
+                    breakButton.getElement().setAttribute("theme", "primary contrast icon");
                 } else {
-                    if (buttons != null) buttons.setEnabled(true);
-                    if (decisions != null) decisions.setEnabled(true);
+                    if (buttons != null)
+                        buttons.setEnabled(true);
+                    if (decisions != null)
+                        decisions.setEnabled(true);
+                    breakButton.getElement().setAttribute("theme", "secondary contrast icon");
                 }
                 breakButton.setEnabled(true);
-                breakButton.getStyle().set("background-color", "SkyBlue").set("color","black");
-                
+
                 Athlete curAthlete = curAthlete2;
                 int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
                 doUpdateTopBar(curAthlete, timeRemaining);
@@ -668,8 +672,8 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     }
 
     protected void warn(Group group, String string) {
-        //        String text = group == null ? "\u2013" : string;
-        //        String text = group == null ? getTranslation("NoGroupSelected") : string;
+        // String text = group == null ? "\u2013" : string;
+        // String text = group == null ? getTranslation("NoGroupSelected") : string;
         if (topBarPresent) {
             lastName.setText(string);
             firstName.setText("");
@@ -682,12 +686,12 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         }
     }
 
-    protected void warnAnnouncer(Group group, Integer attemptsDone) {
+    protected void warnAnnouncer(Group group, Integer attemptsDone, FOPState state, List<Athlete> liftingOrder) {
         if (group == null) {
             warn(group, getTranslation("NoGroupSelected"));
         } else if (attemptsDone >= 6) {
             warn(group, getTranslation("Group_number_done", group.getName()));
-        } else {
+        } else if (liftingOrder.size() == 0) {
             warn(group, getTranslation("No_weighed_in_athletes"));
         }
     }
@@ -739,7 +743,10 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     }
 
     protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-        breakButton.getElement().setAttribute("theme", "icon");
+        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+            (new BreakDialog(this)).open();
+        });
+        breakButton.getElement().setAttribute("theme", "secondary contrast icon");
         breakButton.getElement().setAttribute("title", getTranslation("Countdown_BreakTimer"));
 
         HorizontalLayout buttons = new HorizontalLayout(breakButton);

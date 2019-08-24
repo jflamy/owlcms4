@@ -36,9 +36,10 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.ui.lifting.BreakManagement.CountdownType;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
+import app.owlcms.ui.shared.BreakDialog;
+import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 

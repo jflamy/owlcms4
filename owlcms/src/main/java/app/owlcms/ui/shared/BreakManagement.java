@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.ui.lifting;
+package app.owlcms.ui.shared;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -44,7 +44,6 @@ import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.BreakSetTime;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -70,16 +69,18 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private Label minutes;
     private HorizontalLayout timer;
 
-    RadioButtonGroup<DisplayType> dt;
-    RadioButtonGroup<CountdownType> ct;
-    RadioButtonGroup<BreakType> bt;
-    DurationField durationField = new DurationField();
-    TimePicker timePicker = new TimePicker();
-    DatePicker datePicker = new DatePicker();
+    private HorizontalLayout dt;
+    private RadioButtonGroup<CountdownType> ct;
+    private RadioButtonGroup<BreakType> bt;
+    private DurationField durationField = new DurationField();
+    private TimePicker timePicker = new TimePicker();
+    private DatePicker datePicker = new DatePicker();
     private Dialog parentDialog;
 
     Long timeRemaining = null;
     private BreakTimerElement breakTimerElement;
+    private Button athleteButton;
+    private Button countdownButton;
 
     /**
      * Persona-specific calls (e.g. for the jury, the technical controller, etc.)
@@ -171,9 +172,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 } else {
                     breakTimer.setTimeRemaining(timeRemaining.intValue());
                 }
-                
-                fop.getFopEventBus()
-                        .post(new FOPEvent.BreakStarted(bt.getValue(), this.getOrigin()));
+
+                fop.getFopEventBus().post(new FOPEvent.BreakStarted(bt.getValue(), this.getOrigin()));
             });
             e.getSource().setEnabled(false);
             breakStart.setEnabled(false);
@@ -183,8 +183,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     /**
-     * Everything has been created and has meaningful values, add value change listeners now
-     * to avoid spuriuous triggering during interface build-up.
+     * Everything has been created and has meaningful values, add value change
+     * listeners now to avoid spuriuous triggering during interface build-up.
      * 
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
      */
@@ -205,21 +205,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             BreakType bType = event.getValue();
             ct.setValue(guessCountdownFromBreak(bType));
         });
-        dt.addValueChangeListener((event) -> {
-            DisplayType dType = event.getValue();
-            switch (dType) {
-            case ATHLETE:
-                OwlcmsSession.withFop(fop -> {
-                    fop.recomputeLiftingOrder();
-                    fop.uiDisplayCurrentAthleteAndTime(false,new FOPEvent(null,this), true);
-                });
-                break;
-
-            case COUNTDOWN:
-                OwlcmsSession.getFop().getUiEventBus().post(new UIEvent.BreakStarted(0, this, true));
-                break;
-            };
-        });
         durationField.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.DURATION));
         timePicker.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET));
         timePicker.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET));
@@ -231,6 +216,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         dialog.add(new Hr());
         dialog.add(ct);
         dialog.add(new Hr());
+        dialog.add(new Label(getTranslation("DisplayType.Title")));
         dialog.add(dt);
         dialog.add(new Hr());
         dialog.add(timer);
@@ -261,18 +247,20 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private FlexLayout createButtons(BreakManagement breakManagement) {
         breakStart = new Button(AvIcons.PLAY_ARROW.create(), startBreak());
-        breakStart.getElement().setAttribute("theme", "primary");
-        breakStart.getStyle().set("background-color", "SkyBlue").set("color","black");
+        breakStart.getElement().setAttribute("theme", "primary contrast");
+        // breakStart.getStyle().set("background-color",
+        // "SkyBlue").set("color","black");
         breakStart.getElement().setAttribute("title", getTranslation("StartCountdown"));
 
         breakPause = new Button(AvIcons.PAUSE.create(), pauseBreak());
-        breakPause.getElement().setAttribute("theme", "primary");
-        breakPause.getStyle().set("background-color", "SkyBlue").set("color","black");
+        breakPause.getElement().setAttribute("theme", "primary contrast");
+        // breakPause.getStyle().set("background-color",
+        // "SkyBlue").set("color","black");
         breakPause.getElement().setAttribute("title", getTranslation("PauseCountdown"));
 
-        breakEnd = new Button(PlacesIcons.FITNESS_CENTER.create(), endBreak(parentDialog));
+        breakEnd = new Button(getTranslation("EndBreak"), PlacesIcons.FITNESS_CENTER.create(), endBreak(parentDialog));
         breakEnd.getElement().setAttribute("theme", "success primary");
-        breakEnd.getElement().setAttribute("title", getTranslation("EndBreak_StartLifting"));
+        breakEnd.getElement().setAttribute("title", getTranslation("EndBreak"));
 
         FlexLayout buttons = new FlexLayout();
         buttons.add(breakStart, breakPause, breakEnd);
@@ -282,12 +270,25 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void createDisplayType() {
-        dt = new RadioButtonGroup<>();
-        dt.setRenderer(new TextRenderer<DisplayType>(
-                (item) -> getTranslation(DisplayType.class.getSimpleName() + "." + item.name())));
-        dt.setItems(DisplayType.values());
-        dt.setLabel(getTranslation("DisplayType.Title"));
-        dt.setValue(DisplayType.COUNTDOWN);
+        
+        dt = new HorizontalLayout();
+        athleteButton = new Button(getTranslation(DisplayType.class.getSimpleName() + "." + DisplayType.ATHLETE.name()),
+                (e) -> {
+                    OwlcmsSession.withFop(fop -> {
+                        fop.recomputeLiftingOrder();
+                        fop.uiDisplayCurrentAthleteAndTime(false, new FOPEvent(null, this), true);
+                    });
+                });
+        countdownButton = new Button(
+                getTranslation(DisplayType.class.getSimpleName() + "." + DisplayType.COUNTDOWN.name()), (e) -> {
+                    OwlcmsSession.withFop(fop -> {
+                        fop.recomputeLiftingOrder();
+                        OwlcmsSession.getFop().getUiEventBus().post(new UIEvent.BreakStarted(0, this, true));
+                    });
+                });
+        athleteButton.getThemeNames().add("secondary contrast");
+        countdownButton.getThemeNames().add("secondary contrast");
+        dt.add(countdownButton, athleteButton);
     }
 
     private void createDuration() {
@@ -354,18 +355,18 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             if (cType == CountdownType.TARGET) {
                 logger.debug("target, indefinite");
                 timeRemaining = now.until(target, ChronoUnit.MILLIS);
-                breakTimerElement.slaveBreakSet(new BreakSetTime(0,true,this));
+                breakTimerElement.slaveBreakSet(new BreakSetTime(0, true, this));
             } else if (target.isBefore(now) || target.isEqual(now)) {
                 logger.debug("duration 0 or target in the past, indefinite");
                 timeRemaining = null;
-                breakTimerElement.slaveBreakSet(new BreakSetTime(0,true,this));
+                breakTimerElement.slaveBreakSet(new BreakSetTime(0, true, this));
             } else {
                 logger.debug("duration ok or target in future");
                 timeRemaining = now.until(target, ChronoUnit.MILLIS);
-                breakTimerElement.slaveBreakSet(new BreakSetTime(timeRemaining.intValue(),false,this));
+                breakTimerElement.slaveBreakSet(new BreakSetTime(timeRemaining.intValue(), false, this));
             }
         });
-        
+
         return;
     }
 

@@ -10,8 +10,8 @@ package app.owlcms.ui.lifting;
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -22,9 +22,10 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.lifting.BreakManagement.CountdownType;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
+import app.owlcms.ui.shared.BreakDialog;
+import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -41,6 +42,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
+
+    private Button introCountdownButton;
 	
 	public TimekeeperContent() {
 		super();
@@ -82,11 +85,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		});
 		_2min.getElement().setAttribute("theme", "icon");
 		_2min.getElement().setAttribute("title", getTranslation("Reset2min"));
-		Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
-			(new BreakDialog(this, BreakType.TECHNICAL, CountdownType.INDEFINITE)).open();
-		});
-		breakButton.getElement().setAttribute("theme", "icon");
-		breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
 		HorizontalLayout buttons = new HorizontalLayout(
 				start,
 				stop,
@@ -136,5 +134,42 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	public String getPageTitle() {
 		return getTranslation("Timekeeper");
 	}
+	
+    /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#createInitialBar()
+     */
+    @Override
+    protected void createInitialBar() {
+        logger.debug("AnnouncerContent creating top bar");
+        topBar = getAppLayout().getAppBarElementWrapper();
+        topBar.removeAll();
+
+        createTopBarGroupSelect();
+        HorizontalLayout topBarLeft = createTopBarLeft();
+
+        introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create() , (e) -> {
+            BreakDialog dialog = new BreakDialog(this, BreakType.INTRODUCTION, CountdownType.TARGET);
+            dialog.open();
+        });
+        //introCountdownButton.getStyle().set("background-color", "SkyBlue").set("color","black");
+        introCountdownButton.getElement().setAttribute("theme", "primary contrast");
+        
+        warning = new H3();
+        warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
+        HorizontalLayout topBarRight = new HorizontalLayout();
+        topBarRight.add(warning, introCountdownButton);
+        topBarRight.setSpacing(true);
+        topBarRight.setPadding(true);
+        topBarRight.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        topBar.removeAll();
+        topBar.setSizeFull();
+        topBar.add(topBarLeft, topBarRight);
+
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        topBar.setFlexGrow(0.0, topBarLeft);
+        topBar.setFlexGrow(1.0, topBarRight);
+    }
 	
 }
