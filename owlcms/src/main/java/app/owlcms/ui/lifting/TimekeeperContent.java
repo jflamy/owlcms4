@@ -122,8 +122,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
      */
     @Override
     protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+        breakDialog = new BreakDialog(this);
         breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            (new BreakDialog(this)).open();
+            breakDialog.open();
         });
         return layoutBreakButtons();
     }

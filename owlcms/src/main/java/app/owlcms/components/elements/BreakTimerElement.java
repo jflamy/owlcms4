@@ -124,18 +124,14 @@ public class BreakTimerElement extends TimerElement {
 			ProxyBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
                 if (breakTimer.isIndefinite()) {
-                    logger.warn("R_I");
                     doStartTimer(null);
                 } else {
-                    logger.warn("R_T");
                     doStartTimer(breakTimer.computeTimeRemaining());
                 }
             } else {
                 if (breakTimer.isIndefinite()) {
-                    logger.warn("S_I");
                     doSetTimer(null);
                 } else {
-                    logger.warn("S_T");
                     doSetTimer(breakTimer.getTimeRemainingAtLastStop());
                 }
             }

@@ -122,6 +122,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
             // referee decisions handle reset on their own, nothing to do.
         });
     }
+    
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#updateGrid(app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated)
@@ -156,10 +157,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
      */
     @Override
     protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            (new BreakDialog(this,BreakType.JURY,CountdownType.INDEFINITE)).open();
-        });
-        return layoutBreakButtons();
+        // moved down to the jury section
+        return new HorizontalLayout(); // juryDeliberationButtons();
     }
 
     /**
@@ -366,26 +365,32 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     private HorizontalLayout juryDeliberationButtons() {
-        Button stopCompetition = new Button(getTranslation("StopCompetition"), (e) -> {
-            OwlcmsSession.withFop(
-                    fop -> fop.getFopEventBus().post(new FOPEvent.BreakStarted(BreakType.JURY, this.getOrigin())));
-        });
-        stopCompetition.getElement().setAttribute("theme", "secondary");
-        stopCompetition.setWidth(BUTTON_WIDTH);
-        stopCompetition.setEnabled(false);
+//        Button stopCompetition = new Button(getTranslation("StopCompetition"), (e) -> {
+//            OwlcmsSession.withFop(
+//                    fop -> {
+//                        fop.getFopEventBus().post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, this.getOrigin()));
+//                    });
+//        });
+//        stopCompetition.getElement().setAttribute("theme", "icon secondary contrast");
+//        stopCompetition.setWidth(BUTTON_WIDTH);
+//        stopCompetition.setEnabled(false);
+        
 
-        Button resumeCompetition = new Button(getTranslation("ResumeCompetition"), (e) -> {
-            OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin())));
-        });
-        resumeCompetition.getElement().setAttribute("theme", "secondary");
-        resumeCompetition.setWidth(BUTTON_WIDTH);
-        resumeCompetition.setEnabled(false);
 
-        Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
-            (new BreakDialog(this, BreakType.JURY, CountdownType.INDEFINITE)).open();
+//        Button resumeCompetition = new Button(getTranslation("ResumeCompetition"), (e) -> {
+//            OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin())));
+//        });
+//        resumeCompetition.getElement().setAttribute("theme", "secondary");
+//        resumeCompetition.setWidth(BUTTON_WIDTH);
+//        resumeCompetition.setEnabled(false);
+        
+        breakDialog = new BreakDialog(this,BreakType.JURY,CountdownType.INDEFINITE);
+        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+            breakDialog.open();
         });
-        breakButton.getElement().setAttribute("theme", "icon");
+        breakButton.getElement().setAttribute("theme", "secondary contrast");
         breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
+        
         //		HorizontalLayout buttons = new HorizontalLayout(stopCompetition, resumeCompetition);
         HorizontalLayout buttons = new HorizontalLayout(breakButton);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);

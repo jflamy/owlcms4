@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
+import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -48,10 +49,16 @@ public class FOPEvent {
     static public class BreakStarted extends FOPEvent {
 
         private BreakType breakType;
+        private CountdownType countdownType;
 
-        public BreakStarted(BreakType breakType, Object origin) {
+        public BreakStarted(BreakType bType, Object origin) {
+            this(bType, null, origin);
+        }
+
+        public BreakStarted(BreakType bType, CountdownType cType, Object origin) {
             super(origin);
-            this.setBreakType(breakType);
+            this.setBreakType(bType);
+            this.setCountdownType(cType);
         }
 
         public BreakType getBreakType() {
@@ -60,6 +67,14 @@ public class FOPEvent {
 
         public void setBreakType(BreakType breakType) {
             this.breakType = breakType;
+        }
+
+        public CountdownType getCountdownType() {
+            return countdownType;
+        }
+
+        public void setCountdownType(CountdownType countdownType) {
+            this.countdownType = countdownType;
         }
     }
 

@@ -150,8 +150,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
      */
     @Override
     protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+        breakDialog = new BreakDialog(this);
         breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            (new BreakDialog(this)).open();
+            breakDialog.open();
         });
         return layoutBreakButtons();
     }

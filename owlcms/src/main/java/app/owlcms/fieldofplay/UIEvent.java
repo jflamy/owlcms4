@@ -276,7 +276,7 @@ public class UIEvent {
         private boolean displayToggle;
 
         /**
-         * Instantiates a new lifting order updated.
+         * Instantiates a new lifting order updated command.
          *
          * @param athlete         the current athlete after recalculation
          * @param nextAthlete     the next athlete that will lift (cannot be the same as

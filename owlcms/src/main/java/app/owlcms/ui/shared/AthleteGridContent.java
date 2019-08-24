@@ -138,6 +138,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     private HorizontalLayout buttons;
     private HorizontalLayout decisions;
     private HorizontalLayout breaks;
+    protected BreakDialog breakDialog;
 
     /**
      * Instantiates a new announcer content. Content is created in
@@ -266,7 +267,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     public void slaveBreakStart(UIEvent.BreakStarted e) {
         UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
             if (e.isDisplayToggle()) {
-                logger.warn("{} ignoring switch to break", this.getClass().getSimpleName());
+                logger.debug("{} ignoring switch to break", this.getClass().getSimpleName());
                 return;
             }
 
@@ -349,8 +350,9 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     }
 
     protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+        breakDialog = new BreakDialog(this,BreakType.TECHNICAL,CountdownType.INDEFINITE);
         breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            (new BreakDialog(this,BreakType.TECHNICAL,CountdownType.INDEFINITE)).open();
+            breakDialog.open();
         });
         return layoutBreakButtons();
     }
@@ -578,6 +580,9 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                     }
                 } else {
                     warnAnnouncer(group, attemptsDone, fop.getState(), fop.getLiftingOrder());
+                }
+                if (fop.getState() != FOPState.BREAK && breakDialog != null && breakDialog.isOpened()) {
+                    breakDialog.close();
                 }
             });
         });
