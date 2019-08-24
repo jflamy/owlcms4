@@ -56,7 +56,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     private Button introCountdownButton;
     private Button startLiftingButton;
 
-
     public AnnouncerContent() {
         super();
         defineFilters(crudGrid);
@@ -147,6 +146,17 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     }
 
     /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
+     */
+    @Override
+    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+            (new BreakDialog(this)).open();
+        });
+        return layoutBreakButtons();
+    }
+
+    /**
      * @see app.owlcms.ui.shared.AthleteGridContent#createInitialBar()
      */
     @Override
@@ -154,15 +164,15 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         logger.debug("AnnouncerContent creating top bar");
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
+        topBarPresent = false;
 
         createTopBarGroupSelect();
         HorizontalLayout topBarLeft = createTopBarLeft();
 
-        introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create() , (e) -> {
+        introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(), (e) -> {
             BreakDialog dialog = new BreakDialog(this, BreakType.INTRODUCTION, CountdownType.TARGET);
             dialog.open();
         });
-        //introCountdownButton.getStyle().set("background-color", "SkyBlue").set("color","black");
         introCountdownButton.getElement().setAttribute("theme", "primary contrast");
         startLiftingButton = new Button(getTranslation("startLifting"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
@@ -171,7 +181,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             });
         });
         startLiftingButton.getThemeNames().add("success primary");
-        
+
         warning = new H3();
         warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
         HorizontalLayout topBarRight = new HorizontalLayout();
@@ -205,8 +215,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         reset.getElement().setAttribute("theme", "secondary contrast small icon");
         return reset;
     }
-    
-
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()

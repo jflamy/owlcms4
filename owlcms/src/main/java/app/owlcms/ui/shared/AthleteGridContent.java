@@ -50,6 +50,7 @@ import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -62,6 +63,7 @@ import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
 import app.owlcms.ui.lifting.MarshallContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
+import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -75,7 +77,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public abstract class AthleteGridContent extends VerticalLayout
-        implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor {
+implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -89,7 +91,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         Integer attemptNumber = a.getAttemptNumber();
         return (attemptsDone >= 3)
                 ? ((attemptsDone >= 6) ? "done" : Translator.translate("C_and_J_number", attemptNumber))
-                : Translator.translate("Snatch_number", attemptNumber);
+                        : Translator.translate("Snatch_number", attemptNumber);
     }
 
     protected Location location;
@@ -221,6 +223,15 @@ public abstract class AthleteGridContent extends VerticalLayout
         return routerLayout;
     }
 
+    public HorizontalLayout layoutBreakButtons() {
+        breakButton.getElement().setAttribute("theme", "secondary contrast icon");
+        breakButton.getElement().setAttribute("title", getTranslation("Countdown_BreakTimer"));
+
+        HorizontalLayout buttons = new HorizontalLayout(breakButton);
+        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+        return buttons;
+    }
+
     /**
      * Process URL parameters, including query parameters
      *
@@ -337,6 +348,13 @@ public abstract class AthleteGridContent extends VerticalLayout
         return null;
     }
 
+    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+            (new BreakDialog(this,BreakType.TECHNICAL,CountdownType.INDEFINITE)).open();
+        });
+        return layoutBreakButtons();
+    }
+
     /**
      * Gets the crudGrid.
      *
@@ -394,6 +412,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         logger.debug("AthleteGridContent creating top bar");
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
+        topBarPresent = false;
 
         createTopBarGroupSelect();
         HorizontalLayout topBarLeft = createTopBarLeft();
@@ -520,7 +539,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                     if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
                         logger.debug("filter switching group from {} to {}",
                                 oldGroup != null ? oldGroup.getName() : null,
-                                newGroup != null ? newGroup.getName() : null);
+                                        newGroup != null ? newGroup.getName() : null);
                         fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
                         oldGroup = newGroup;
                         // this assumes that SwitchGroup post is synchronous and has loaded.
@@ -555,7 +574,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                         Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
                         weight.setText(
                                 (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
-                                        + "kg");
+                                + "kg");
                     }
                 } else {
                     warnAnnouncer(group, attemptsDone, fop.getState(), fop.getLiftingOrder());
@@ -614,7 +633,9 @@ public abstract class AthleteGridContent extends VerticalLayout
 
             if (refreshGrid) {
                 topBarGroupSelect.setValue(fopGroup);
-                crudGrid.refreshGrid();
+                if (crudGrid != null) {
+                    crudGrid.refreshGrid();
+                }
             }
 
             Athlete curAthlete2 = fop.getCurAthlete();
@@ -631,16 +652,20 @@ public abstract class AthleteGridContent extends VerticalLayout
                 logger.trace("active: {}", state);
                 createTopBar();
                 if (state == FOPState.BREAK) {
-                    if (buttons != null)
+                    if (buttons != null) {
                         buttons.setEnabled(false);
-                    if (decisions != null)
+                    }
+                    if (decisions != null) {
                         decisions.setEnabled(false);
+                    }
                     breakButton.getElement().setAttribute("theme", "primary contrast icon");
                 } else {
-                    if (buttons != null)
+                    if (buttons != null) {
                         buttons.setEnabled(true);
-                    if (decisions != null)
+                    }
+                    if (decisions != null) {
                         decisions.setEnabled(true);
+                    }
                     breakButton.getElement().setAttribute("theme", "secondary contrast icon");
                 }
                 breakButton.setEnabled(true);
@@ -740,18 +765,6 @@ public abstract class AthleteGridContent extends VerticalLayout
             n.add(label);
             n.open();
         }
-    }
-
-    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            (new BreakDialog(this)).open();
-        });
-        breakButton.getElement().setAttribute("theme", "secondary contrast icon");
-        breakButton.getElement().setAttribute("title", getTranslation("Countdown_BreakTimer"));
-
-        HorizontalLayout buttons = new HorizontalLayout(breakButton);
-        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-        return buttons;
     }
 
 }

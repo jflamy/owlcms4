@@ -9,13 +9,11 @@ package app.owlcms.ui.lifting;
 
 import org.slf4j.LoggerFactory;
 
-import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -31,15 +29,12 @@ import app.owlcms.components.elements.Plates;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
-import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
-import app.owlcms.ui.shared.BreakDialog;
-import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -210,15 +205,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
     @Override
     protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
-
-        Button breakButton = new Button(IronIcons.ALARM.create(), (e) -> {
-            (new BreakDialog(this, BreakType.TECHNICAL, CountdownType.INDEFINITE)).open();
-        });
-        breakButton.getElement().setAttribute("theme", "icon");
-        breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
-        HorizontalLayout buttons = new HorizontalLayout(breakButton);
-        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-        return buttons;
+        return null;
     }
 
     @Override

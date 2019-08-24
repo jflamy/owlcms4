@@ -9,6 +9,7 @@ package app.owlcms.ui.lifting;
 
 import org.slf4j.LoggerFactory;
 
+import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
@@ -151,6 +152,17 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 
     /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
+     */
+    @Override
+    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+            (new BreakDialog(this,BreakType.JURY,CountdownType.INDEFINITE)).open();
+        });
+        return layoutBreakButtons();
+    }
+
+    /**
      * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
      */
     @Override
@@ -159,6 +171,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         // this hides the back arrow
         getAppLayout().setMenuVisible(false);
     }
+
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
@@ -169,11 +182,11 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         return new HorizontalLayout(); // juryDecisionButtons();
     }
 
-
     @Override
     protected void init() {
         init(3);
     }
+
 
     protected void init(int nbj) {
         this.setBoxSizing(BoxSizing.BORDER_BOX);
@@ -183,7 +196,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         buildJuryBox(this);
         buildRefereeBox(this);
     }
-
 
     private Icon bigIcon(VaadinIcon iconDef, String color) {
         Icon icon = iconDef.create();
@@ -214,6 +226,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
     }
 
+
     private void buildJuryVoting() {
         // center buttons vertically, spread withing proper width
         juryVotingButtons = new HorizontalLayout();
@@ -238,7 +251,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         juryVotingCenterHorizontally.add(juryVotingButtons);
         return;
     }
-
 
     private void buildRefereeBox(VerticalLayout container) {
         Label label = new Label(getTranslation("RefereeDecisions"));
@@ -329,6 +341,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         return nbJurors;
     }
 
+
     private HorizontalLayout juryDecisionButtons() {
         Button good = new Button(IronIcons.DONE.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
@@ -351,7 +364,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         HorizontalLayout decisions = new HorizontalLayout(good, bad);
         return decisions;
     }
-
 
     private HorizontalLayout juryDeliberationButtons() {
         Button stopCompetition = new Button(getTranslation("StopCompetition"), (e) -> {
@@ -380,6 +392,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         return buttons;
     }
 
+
     private Component jurySelectionButtons() {
         Button three = new Button("3", (e) -> {
             OwlcmsSession.withFop(fop -> {
@@ -398,7 +411,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         HorizontalLayout selection = new HorizontalLayout(three, five);
         return selection;
     }
-
 
     private void resetJuryVoting() {
         UIEventProcessor.uiAccess(UI.getCurrent(), uiEventBus, () -> {
