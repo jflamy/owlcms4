@@ -49,6 +49,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
     @Subscribe
     public void slaveBreakStarted(UIEvent.BreakStarted e) {
+        if (e.isDisplayToggle()) return;
         OwlcmsSession.withFop((fop) -> {
             if (fop.getBreakType() != BreakType.JURY) {
                 // don't reset on a break we just created !

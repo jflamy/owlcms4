@@ -41,6 +41,7 @@ import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.Decision;
+import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -118,8 +119,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
-        logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.INFO);
+        logger.setLevel(Level.DEBUG);
+        uiEventLogger.setLevel(Level.DEBUG);
     }
 
     @Id("timer")
@@ -234,7 +235,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-        uiLog(e);
+//        uiLog(e);
+        uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
             displayOrder = e.getDisplayOrder();
@@ -300,8 +302,13 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     protected void doUpdate(Athlete a, UIEvent e) {
         logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         ScoreboardModel model = getModel();
-        boolean leaveTopAlone = e instanceof UIEvent.LiftingOrderUpdated
-                && !((UIEvent.LiftingOrderUpdated) e).isStopAthleteTimer();
+        boolean leaveTopAlone = false;
+        if (e instanceof UIEvent.LiftingOrderUpdated) {
+            LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
+            leaveTopAlone = e2.isDisplayToggle() ? false : !e2.isStopAthleteTimer();
+            logger.debug("doUpdate leaveTopAlone={} displayToggle={}", leaveTopAlone, e2.isDisplayToggle() );
+        }
+                
         if (a != null) {
             if (!leaveTopAlone) {
                 this.getElement().callFunction("reset");

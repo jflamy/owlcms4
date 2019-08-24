@@ -41,6 +41,7 @@ import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
+import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.BreakSetTime;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
@@ -203,6 +204,21 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         bt.addValueChangeListener((event) -> {
             BreakType bType = event.getValue();
             ct.setValue(guessCountdownFromBreak(bType));
+        });
+        dt.addValueChangeListener((event) -> {
+            DisplayType dType = event.getValue();
+            switch (dType) {
+            case ATHLETE:
+                OwlcmsSession.withFop(fop -> {
+                    fop.recomputeLiftingOrder();
+                    fop.uiDisplayCurrentAthleteAndTime(false,new FOPEvent(null,this), true);
+                });
+                break;
+
+            case COUNTDOWN:
+                OwlcmsSession.getFop().getUiEventBus().post(new UIEvent.BreakStarted(0, this, true));
+                break;
+            };
         });
         durationField.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.DURATION));
         timePicker.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET));

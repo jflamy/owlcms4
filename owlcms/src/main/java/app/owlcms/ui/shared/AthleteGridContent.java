@@ -253,6 +253,11 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     @Subscribe
     public void slaveBreakStart(UIEvent.BreakStarted e) {
         UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
+            if (e.isDisplayToggle()) {
+                logger.warn("{} ignoring switch to break",this.getClass().getSimpleName());
+                return;
+            }
+
             logger.trace("starting break");
             syncWithFOP(true);
         });

@@ -108,7 +108,7 @@ public class ProxyBreakTimer implements IProxyTimer {
             logger.debug("starting Break -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
             timeRemainingAtLastStop = timeRemaining;
         }
-        fop.getUiEventBus().post(new UIEvent.BreakStarted(timeRemaining, this));
+        fop.getUiEventBus().post(new UIEvent.BreakStarted(timeRemaining, this, false));
         running = true;
     }
 

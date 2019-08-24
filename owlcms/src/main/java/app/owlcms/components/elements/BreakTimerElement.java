@@ -109,6 +109,7 @@ public class BreakTimerElement extends TimerElement {
 
     @Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
+        if (e.isDisplayToggle()) return;
 		uiEventLogger.debug("&&& breakTimer start {} {} {}", e.getClass().getSimpleName(), null, e.getOrigin());
 		doStartTimer(null);
 	}

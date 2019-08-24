@@ -553,6 +553,10 @@ public class FieldOfPlay {
         logger.trace("end of init state="+state);
     }
 
+    public boolean isTestingMode() {
+        return testingMode;
+    }
+
     public void loadGroup(Group group, Object origin) {
         this.group = group;
         if (group != null) {
@@ -565,8 +569,15 @@ public class FieldOfPlay {
         }
     }
 
-    public boolean isTestingMode() {
-        return testingMode;
+    public synchronized void recomputeLiftingOrder() {
+        AthleteSorter.liftingOrder(this.liftingOrder);
+        setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
+        this.setCurAthlete(this.liftingOrder.isEmpty() ? null : this.liftingOrder.get(0));
+        int timeAllowed = getTimeAllowed();
+        logger.debug("recomputed lifting order curAthlete={} prevlifter={} time={} [{}]",
+                curAthlete != null ? curAthlete.getFullName() : "",
+                previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed, LoggerUtils.whereFrom());
+        getAthleteTimer().setTimeRemaining(timeAllowed);
     }
 
     /**
@@ -634,6 +645,28 @@ public class FieldOfPlay {
         getFopEventBus().post(new StartLifting(origin));
     }
 
+    public void uiDisplayCurrentAthleteAndTime(boolean stopTimer, FOPEvent e, boolean displayToggle) {
+        Integer clock = getAthleteTimer().getTimeRemaining();
+
+        curWeight = 0;
+        if (curAthlete != null) {
+            curWeight = curAthlete.getNextAttemptRequestedWeight();
+        }
+        // if only one athlete, no next athlete
+        Athlete nextAthlete = liftingOrder.size() > 1 ? liftingOrder.get(1) : null;
+
+        Athlete changingAthlete = null;
+        if (e instanceof WeightChange) {
+            changingAthlete = e.getAthlete();
+        }
+        uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, changingAthlete,
+                liftingOrder, getDisplayOrder(), clock, stopTimer, displayToggle, e.getOrigin()));
+
+        logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
+                curAthlete, curAthlete != null ? curAthlete.getAttemptedLifts() + 1 : 0, curWeight, clock,
+                getAthleteTimer().getTimeRemainingAtLastStop());
+    }
+
     /**
      * Sets the state.
      *
@@ -646,7 +679,7 @@ public class FieldOfPlay {
 
     private void displayOrBreakIfDone(FOPEvent e) {
         if (curAthlete != null && curAthlete.getAttemptsDone() < 6) {
-            uiDisplayCurrentAthleteAndTime(true, e);
+            uiDisplayCurrentAthleteAndTime(true, e, false);
             setState(CURRENT_ATHLETE_DISPLAYED);
         } else {
             UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
@@ -686,7 +719,7 @@ public class FieldOfPlay {
                     if (stopBreakTimer) {
                         getBreakTimer().stop();
                     }
-                    uiDisplayCurrentAthleteAndTime(stopAthleteTimer, wc);
+                    uiDisplayCurrentAthleteAndTime(stopAthleteTimer, wc, false);
                 } else {
                     logger.trace("&&3.A.B declaration for clock owner: leave clock running");
                     // no weight change. this is most likely a declaration.
@@ -706,7 +739,7 @@ public class FieldOfPlay {
             // time is not running
             // changing athlete is not current athlete
             recomputeLiftingOrder();
-            uiDisplayCurrentAthleteAndTime(true, wc);
+            uiDisplayCurrentAthleteAndTime(true, wc, false);
         }
     }
 
@@ -775,17 +808,6 @@ public class FieldOfPlay {
         }
     }
 
-    private synchronized void recomputeLiftingOrder() {
-        AthleteSorter.liftingOrder(this.liftingOrder);
-        setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
-        this.setCurAthlete(this.liftingOrder.isEmpty() ? null : this.liftingOrder.get(0));
-        int timeAllowed = getTimeAllowed();
-        logger.debug("recomputed lifting order curAthlete={} prevlifter={} time={} [{}]",
-                curAthlete != null ? curAthlete.getFullName() : "",
-                previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed, LoggerUtils.whereFrom());
-        getAthleteTimer().setTimeRemaining(timeAllowed);
-    }
-
     /**
      * Reset decisions. Invoked when recomputing lifting order when a fresh clock is
      * given.
@@ -841,7 +863,7 @@ public class FieldOfPlay {
         logger.trace("scheduling decision display");
         new DelayTimer().schedule(() -> showDecisionNow(origin2), 3000);
     }
-
+    
     /**
      * The decision is confirmed as official after the 3 second delay following
      * majority. After this delay, manual announcer intervention is required to
@@ -869,7 +891,7 @@ public class FieldOfPlay {
         // tell ourself to reset after 3 secs.
         new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), 3000);
     }
-    
+
     /**
      * The decision is confirmed as official after the 3 second delay following
      * majority. After this delay, manual announcer intervention is required to
@@ -912,11 +934,7 @@ public class FieldOfPlay {
             getBreakTimer().stop();
         }
         uiStartLifting(getGroup(), e.getOrigin());
-        uiDisplayCurrentAthleteAndTime(true, e);
-    }
-
-    private void uiStartLifting(Group group2, Object origin) {
-        getUiEventBus().post(new UIEvent.StartLifting(group2, origin));
+        uiDisplayCurrentAthleteAndTime(true, e, false);
     }
 
     private void transitionToTimeRunning() {
@@ -926,28 +944,6 @@ public class FieldOfPlay {
 
         // enable master to listening for decision
         setState(TIME_RUNNING);
-    }
-
-    private void uiDisplayCurrentAthleteAndTime(boolean stopTimer, FOPEvent e) {
-        Integer clock = getAthleteTimer().getTimeRemaining();
-
-        curWeight = 0;
-        if (curAthlete != null) {
-            curWeight = curAthlete.getNextAttemptRequestedWeight();
-        }
-        // if only one athlete, no next athlete
-        Athlete nextAthlete = liftingOrder.size() > 1 ? liftingOrder.get(1) : null;
-
-        Athlete changingAthlete = null;
-        if (e instanceof WeightChange) {
-            changingAthlete = e.getAthlete();
-        }
-        uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, changingAthlete,
-                liftingOrder, getDisplayOrder(), clock, stopTimer, e.getOrigin()));
-
-        logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
-                curAthlete, curAthlete != null ? curAthlete.getAttemptedLifts() + 1 : 0, curWeight, clock,
-                getAthleteTimer().getTimeRemainingAtLastStop());
     }
 
     @SuppressWarnings("unused")
@@ -983,6 +979,10 @@ public class FieldOfPlay {
         uiEventLogger.trace("uiShowUpdateOnJuryScreen");
         uiEventBus.post(new UIEvent.RefereeUpdate(curAthlete, refereeDecision[0], refereeDecision[1],
                 refereeDecision[2], refereeTime[0], refereeTime[1], refereeTime[2], this));
+    }
+
+    private void uiStartLifting(Group group2, Object origin) {
+        getUiEventBus().post(new UIEvent.StartLifting(group2, origin));
     }
 
     private void unexpectedEventInState(FOPEvent e, FOPState state) {
@@ -1023,7 +1023,7 @@ public class FieldOfPlay {
     private void weightChangeDoNotDisturb(WeightChange e) {
         AthleteSorter.liftingOrder(this.liftingOrder);
         this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
-        uiDisplayCurrentAthleteAndTime(false, e);
+        uiDisplayCurrentAthleteAndTime(false, e, false);
     }
 
 }

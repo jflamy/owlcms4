@@ -12,7 +12,6 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
@@ -34,6 +33,7 @@ import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
+import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
@@ -79,7 +79,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         Integer getWeight();
 
         Boolean isPublicFacing();
-        
+
         Boolean isShowBarbell();
 
         void setAttempt(String formattedAttempt);
@@ -89,7 +89,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         void setLastName(String lastName);
 
         void setPublicFacing(Boolean publicFacing);
-        
+
         void setShowBarbell(Boolean showBarbell);
 
         void setStartNumber(Integer integer);
@@ -98,12 +98,13 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
         void setWeight(Integer weight);
     }
+
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
         logger.setLevel(Level.INFO);
-        uiEventLogger.setLevel(Level.INFO);
+        uiEventLogger.setLevel(Level.DEBUG);
     }
 
     @Id("athleteTimer")
@@ -159,7 +160,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     public boolean isIgnoreGroupFromURL() {
         return true;
     }
-    
+
     @Subscribe
     public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
@@ -209,11 +210,16 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-        uiEventLogger.debug("### {} {} stop={} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                e.isStopAthleteTimer(), this.getOrigin(), e.getOrigin());
+        uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
         OwlcmsSession.withFop(fop -> {
             FOPState state = fop.getState();
-            if (state == FOPState.BREAK || state == FOPState.INACTIVE) {
+            if (state == FOPState.BREAK) {
+                if (e.isDisplayToggle()) {
+                    Athlete a = e.getAthlete();
+                    UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doAthleteUpdate(a));
+                }
+                return;
+            } else if (state == FOPState.INACTIVE) {
                 return;
             } else if (!e.isStopAthleteTimer()) {
                 // order change does not affect current lifter
@@ -224,7 +230,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             }
         });
     }
-    
+
     /**
      * Multiple attempt boards and athlete-facing boards can co-exist. We need to
      * show decisions on the slave devices -- the master device is the one where
@@ -246,7 +252,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             doBreak();
         });
     }
@@ -255,7 +261,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     public void slaveStopBreak(UIEvent.BreakDone e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        UIEventProcessor.uiAccess(UI.getCurrent(), uiEventBus, () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             Athlete a = e.getAthlete();
             doAthleteUpdate(a);
         });
@@ -265,7 +271,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             OwlcmsSession.withFop(fop -> {
                 switch (fop.getState()) {
                 case INACTIVE:
@@ -278,7 +284,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                     doAthleteUpdate(fop.getCurAthlete());
                 }
             });
-            
+
         });
     }
 
@@ -292,7 +298,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 return;
             }
             FieldOfPlay fop = OwlcmsSession.getFop();
-            if (fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
+            if (fop.getState() == FOPState.INACTIVE) {
                 doEmpty();
                 return;
             }
@@ -325,7 +331,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
         });
     }
-    
+
     protected void doEmpty() {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             hidePlates();
