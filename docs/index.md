@@ -1,13 +1,16 @@
 # Olympic Weightlifting Competition Management System 
 
-OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity, and can optionally be run on the cloud without a local installation.
+OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity, and can be [run on the cloud](EquipmentSetup#cloud-access-over-the-internet).
 
 ## Features
 
-- The following list is a sampling of the many features available.  Refer to the various sections of the documentation (see the sidebar menu at the left) to get a better sense.  Right-click on the images if you wish to see them full-sized.
+- The following list is a sampling of the many features available.  
+  
+  *Click on the images if you wish to see them full-sized*.
+  
   - Run a **regular** or **masters** competition, with or without a jury.
   
-  - Ability to run in the [**cloud**](EquipmentSetup#cloud-access-over-the-internet): Decisions, timers and sounds are handled locally in the browser to provide better feedback.
+  - Ability to run in the [** Decisions, timers and sounds are handled locally in the browser to provide better feedback.
   
   - [**Announcer, Marshall and Timekeeper**](Announcing) screens (updating athlete cards and recalculation of lifting order).
   
