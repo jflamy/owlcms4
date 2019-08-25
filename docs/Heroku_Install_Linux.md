@@ -1,4 +1,4 @@
-# Install and configure the deployment tools (Mac OS / Linux)
+# Install the Heroku deployment tools (Mac OS / Linux)
 
 The following tools are required to install or update OWLCMS4 on the cloud.  <u>This process is only required once</u>.
 
@@ -29,7 +29,7 @@ The plugin we just downloaded above requires Java to operate.
 
 - Time-saving tip: if you want to avoid typing `--app myHerokuAppName` on all the commands, you can define an environment variable called `HEROKU_APP` with your application name.  You only need to do this <u>once</u>.
 
-  - Start a terminal shell **Applications → Utilities → Terminal**
+  - Start a terminal shell **Applications → Utilities → Terminal** on Mac OS
 
   - Type
   ```
