@@ -1,14 +1,14 @@
-Heroku is a cloud service provider that provides an attractive free platform for running programs like OWLCMS4.  When running on Heroku you only need a good Internet connection, and do not need to configure a master laptop.
+Heroku is a cloud service provider that provides an attractive free (0$) pricing plan for running programs like OWLCMS4.  When running on Heroku you only need a good Internet connection, and do not need to configure a master laptop.
 
 ## Read this first!
 
-The instructions on this page may look a little bit daunting, but please don't go away. They are only needed once, and take about 15 minutes.  Once you have gone through that, the process will simply be
+The instructions in this section may look a little bit daunting, but please don't go away. They are only needed once, and take about 15 minutes.  Once you have gone through that, the process will simply be
 
 1. Download the current release when an interesting one is announced
 2. Unzip the files somewhere
-3. Go to the unzipped files and type a single command `heroku deploy:jar`
+3. Go to the unzipped files and type a single command `heroku deploy:jar` to install the file on your account.
 
-All of which will then take a few minutes, so take heart.
+The process will then take a couple minutes (basically the time needed to transfer the files).
 
 
 
@@ -20,13 +20,11 @@ All of which will then take a few minutes, so take heart.
 
 #### Create your app
 
-- Create an app -- this is the name under which your cloud copy of owlcms will be known. Pick an available name, typically the name of your club or federation. I
+- Create an app -- this is the name under which your cloud copy of owlcms will be known. Pick an available name, typically the name of your club or federation.
 
-  In the rest of this example, we will use a dummy name `myHerokuAppName`
+  ![0-createNewApp](img/Heroku/0-createNewApp.png)
 
-  ![0-createNewApp](img\Heroku\0-createNewApp.png)
-  
-  ![1-newApp](/img/Heroku/1-newApp.png)
+  ![1-newApp](img/Heroku/1-newApp.png)
 
 #### Add a database
 
@@ -34,7 +32,7 @@ All of which will then take a few minutes, so take heart.
 
   ![2-configureAddOns](img/Heroku/2-configureAddOns.png)
 
-  ![3-addPostgres](/img/Heroku/3-addPostgres.png)
+  ![3-addPostgres](img/Heroku/3-addPostgres.png)
 
 - Select the free database plan; the Provision button will connect a database to your application.![4-provisionPostgres](/img/Heroku/4-provisionPostgres.png)
 
@@ -42,14 +40,14 @@ All of which will then take a few minutes, so take heart.
 
 By default, Heroku will use Universal Time (UTC/Greenwich) so you need to tell Heroku what time zone you are in, so that OWLCMS4 produces meaningful time stamps.
 
-- Go to the Settings screen, and select `Reveal Config Vars`
+- Go to the Settings screen, and select the **`Reveal Config Vars`** button at the right of the `Config Vars`section.
 - Use the `Add` button to create a variable called `TZ` (for Time Zone).  To find the appropriate value for your location, see this [list of time zone codes](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
 
 ![A_TZ](img/Heroku/A_TZ.png)
 
 You may also define a `LOCALE` configuration variable to force all displays to be in a given language.  This will take precedence over the [language setting](Preparation#display-language) defined on the Competition information screen.
 
-#### Add logging
+#### Add logging (recommended)
 
 Logging is useful is problems arise, in order to allow the application maintainer to figure out what is going on.
 
@@ -57,7 +55,7 @@ Logging is useful is problems arise, in order to allow the application maintaine
 
   ![7-papertrail](img/Heroku/7-papertrail.png)
 
-- Click on `Papertrail`. In order to see the application logs, go to the bottom of the page and click on the Saved searches bullet list icon. You will be using the `Web app output` entry in the future to see the logs (on a new install, there is nothing to see)
+- Click on `Papertrail`. In order to see the application logs, go to the bottom of the page and click on the Saved searches bullet list icon. You will be using the `Web app output` entry in the future to see the logs 
 
   ![8-appLog](img/Heroku/8-appLog.png)
   
@@ -66,12 +64,13 @@ Logging is useful is problems arise, in order to allow the application maintaine
 
 ## Install and configure the deployment tools
 
-The process is slightly different depending on your environment
+The process is slightly different depending on your environment.  Click on the link for your environment to get the instructions.
 
 - [Windows instructions](Heroku_Install_Windows) for installing the deployment tools
+
 - [Mac OS and Linux instructions](Heroku_Install_Linux) for installing the deployment tools
 
-
+  
 
 ## Deploy OWLCMS4 to Heroku
 
@@ -103,9 +102,10 @@ Reference: https://devcenter.heroku.com/articles/deploying-executable-jar-files
 
 
 
-## Initial Cloud Startup
+## Accessing the application
 
 - Open a browser with the address `https://myHerokuApp.herokuapp.com` (replacing of course `myHerokuApp` with the name of your own application) name
+- If the application is not running, it will a take a few seconds for Heroku to start it.  This is because the no-cost plan shuts down applications that have been idle for a few hours.  The data is still in the database, and nothing is lost.  For the price of 0$, that's a good deal.
 - On the first line there will be a reminder of the web address (URL) to be used for the other screens
 
 ![9-url](img/Heroku/9-url.png)
@@ -116,7 +116,7 @@ Reference: https://devcenter.heroku.com/articles/deploying-executable-jar-files
 
   In a cloud setup, the application address will be visible to attendees on some screens, and mischievous users could access it.  It is therefore recommended to limit access to the application.  This is done by setting two environment variables:
 
-- `PIN` is an arbitrary strings of characters that will be requested when starting the first screen whenever you start a new session (typically, once per browser, or when the system is restarted). 
+- `PIN` is an arbitrary strings of characters that will be requested when starting the first screen whenever you start a new session (typically, once per browser, or when the system is restarted).  If you configure a PIN, the first time someone opens the application, a login screen will appear.
 
   ![B_PIN](img/Heroku/B_PIN.png)
 
@@ -137,7 +137,7 @@ Reference: https://devcenter.heroku.com/articles/deploying-executable-jar-files
 
 ## Demonstration mode
 
-- If you want to run in demo mode with fictitious athletes, run the following commands before doing the deployment. This adds the `-DdemoMode=true` flag to tell owlcms to reset on every start and recreate the fake data.
+- If you want to run in demo mode with fictitious athletes, run the following commands before doing the deployment. This adds the `-DdemoMode=true` flag to tell owlcms to reset on every start and recreate the fake data.  Demo mode runs in memory so your permanent database is not touched.
 
   ```bash
   cp Procfile prodProcfile
@@ -145,7 +145,7 @@ Reference: https://devcenter.heroku.com/articles/deploying-executable-jar-files
   heroku deploy:jar owlcms.jar
   ```
 
-- If after running a demo you want to restore competition mode with real data
+- To run again with your database and host a competition:
 
   ```bash
   cp prodProcfile Procfile

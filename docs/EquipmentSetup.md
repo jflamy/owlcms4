@@ -1,14 +1,14 @@
 ## Physical Setup
 
-Each screen or display is attached to a laptop or miniPC (Windows, Linux, ChromeOS).  A setup for a state competition using refereeing devices might look as follows.
+OWLCMS4 is a web-based application. This means that each screen or display is attached to a laptop or miniPC (Windows, Linux, ChromeOS)., and that a browser such as Chrome or Firefox runs on each computer.
+
+A setup for a state competition using refereeing devices might look as follows.
 
 ![StateCompetition](img/equipment/StateCompetition.png)
 
 You can use any subset of this setup.  In fact, many club meets use only one laptop or two (see below for [examples](#local-access-over-a-local-network).) 
 
-Alternately, you can scale up and replicate the full setup on multiple platforms (but you only need a single master laptop or a single cloud service no matter how many platforms you have). You can even have 5-person juries on each platform if you so wish.
-
-If you are not familiar with computer networking, read on to the [Networking Requirements](#networking-requirements) section below.
+On the opposite, you can also scale up and replicate the full setup on multiple platforms.  In all cases however there is always only one OWLCMS4 server (there is a single master laptop, or a single cloud program, no matter how many platforms). You can even have 5-person juries on each platform if you so wish.
 
 ## Computer Requirements
 
@@ -52,20 +52,19 @@ If there is no Internet access where you hold your meet, or if you prefer not ha
 
 ![020_local](img/equipment/020_local.PNG)
 
-It is perhaps surprising to use a laptop as a server, but as the picture shows, in both cases the display browsers query OWLCMS4 which pushes back its updates.  The differences are minor:
+It is perhaps surprising to use a laptop as a server, but as the picture shows, it's really the same thing: the display computer runs a browser and asks another computer to provide a web page.  In the local setup, the  Internet is the small router, and the server is the master laptop.  The differences are minor:
 
-- in a simple local network, the router assigns numerical addresses when it first sees a device, and the easiest way they can refer to each other is using the numerical addresses 
-- there is no need for the Internet, all the networking takes place in the router.  As long as the browser provides the numerical address of the master, the router will route back and forth and things will work.
-
-In order to simplify matters, at startup OWLCMS4 digs the addresses that have been assigned to the master laptop.  It then opens a browser window which tells you [what address the other laptops should use](LocalSetup#initial-startup) to connect to OWLCMS4.
+- in a simple local network, there are no names.  You have to use the numerical addresses that the router gives out to the computers. 
+- there is no need for the Internet, all the networking takes place in the router.  All that matters is that you use the numerical address for the master laptop.  When OWLCMS4 starts up, it opens a window which tells you [what address the other laptops should use](LocalSetup#initial-startup) to connect to OWLCMS4.
 
 ### Single-computer setup
 
-When preparing for a competition that will use a local setup, or when hosting a club meet where there is no networking, you can actually do all the work on the master laptop itself.  
+You can also use the master laptop by itself.  This is useful to prepare for a competition that will run on that laptop.  You can even run a competition with just an announcer, just to announce athletes, keep time and record decisions. 
 
-The laptop will then be running two programs: OWLCMS4 (pictured in red, which will display its messages in a black window), and Chrome (pictured in blue, which will display its output in a white window).   When a browser is trying to reach a program running on the very same computer, it can always use an address that starts with http://localhost or http://127.0.0.1 .   
+The situation is the same as before: the display is done via a browser that asks OWLCMS4 for its information.  The only difference is that the two programs are running on the same computer.
 
-Using a phone network analogy again, we're making an intercom call.
+-  OWLCMS4 runs on the laptop (pictured in red). It displays its status in a black command-line window.
+- A browser Chrome (pictured in blue), which will display its output in a browser window.   There is no need for a router because the two programs are on the same machine.   In such a case, there is are magic addresses http://localhost or http://127.0.0.1 that allow the connection to be made locally.
 
 ![030_solo](img/equipment/030_solo.PNG)
 

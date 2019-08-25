@@ -1,4 +1,4 @@
-# Install and configure the deployment tools (Windows)
+# Install the Heroku deployment tools (Windows)
 
 The following tools are required to install or update OWLCMS4 on the cloud.  <u>This process is only required once</u>.
 
