@@ -135,13 +135,13 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             getModel().setAttempt("");
 
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-            this.getElement().callFunction("doBreak");
+            this.getElement().callJsFunction("doBreak");
         }));
     }
 
     public void doReset() {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            this.getElement().callFunction("reset");
+            this.getElement().callJsFunction("reset");
         });
     }
 
@@ -178,7 +178,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            this.getElement().callFunction("reset");
+            this.getElement().callJsFunction("reset");
         });
     }
 
@@ -195,7 +195,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 this.getOrigin(), e.getOrigin());
         // hide the athleteTimer except if the down signal came from this ui.
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-            this.getElement().callFunction("down");
+            this.getElement().callJsFunction("down");
         });
     }
 
@@ -243,7 +243,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 this.getOrigin(), e.getOrigin());
         // hide the athleteTimer except if the down signal came from this ui.
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-            this.getElement().callFunction("down");
+            this.getElement().callJsFunction("down");
         });
     }
 
@@ -301,7 +301,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 doEmpty();
                 return;
             }
-            this.getElement().callFunction("reset");
+            this.getElement().callJsFunction("reset");
             AttemptBoardModel model = getModel();
             model.setLastName(a.getLastName());
             model.setFirstName(a.getFirstName());
@@ -326,7 +326,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             getModel().setFirstName(inferMessage(fop.getBreakType()));
             getModel().setTeamName("");
             getModel().setAttempt("");
-            this.getElement().callFunction("doBreak", 5 * 60);
+            this.getElement().callJsFunction("doBreak", 5 * 60);
             uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
         });
     }
@@ -334,7 +334,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     protected void doEmpty() {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             hidePlates();
-            this.getElement().callFunction("clear");
+            this.getElement().callJsFunction("clear");
         });
     }
 
@@ -372,7 +372,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     private void doDone(Group g) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setLastName(getTranslation("Group_number_done", g.toString()));
-            this.getElement().callFunction("groupDone");
+            this.getElement().callJsFunction("groupDone");
             hidePlates();
         });
     }

@@ -142,7 +142,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
 //            getModel().setAttempt("");
 //
 //            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-//            this.getElement().callFunction("doBreak");
+//            this.getElement().callJsFunction("doBreak");
         }));
     }
 
@@ -187,7 +187,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             doUpdateBottomPart(e);
-//            this.getElement().callFunction("refereeDecision");
+//            this.getElement().callJsFunction("refereeDecision");
         });
     }
 
@@ -195,7 +195,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            this.getElement().callFunction("reset");
+            this.getElement().callJsFunction("reset");
         });
     }
 
@@ -210,7 +210,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            this.getElement().callFunction("reset");
+            this.getElement().callJsFunction("reset");
             Athlete a = e.getAthlete();
             liftingOrder = e.getLiftingOrder();
             liftsDone = AthleteSorter.countLiftsDone(liftingOrder);
@@ -234,7 +234,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             Athlete a = e.getAthlete();
-            this.getElement().callFunction("reset");
+            this.getElement().callJsFunction("reset");
             doUpdate(a, e);
         });
     }
@@ -281,7 +281,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             if (a != null) {
                 model.setFullName(getTranslation("Scoreboard.LiftingOrder"));
 //                if (!leaveTopAlone) {
-//                    this.getElement().callFunction("reset");
+//                    this.getElement().callJsFunction("reset");
 //                    model.setFullName(a.getFullName());
 //                    model.setTeamName(a.getTeam());
 //                    model.setStartNumber(a.getStartNumber());
@@ -402,7 +402,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             return;
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setFullName(getTranslation("Group_number_done", g.toString()));
-            this.getElement().callFunction("groupDone");
+            this.getElement().callJsFunction("groupDone");
         });
     }
 
