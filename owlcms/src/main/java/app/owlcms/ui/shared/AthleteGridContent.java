@@ -369,7 +369,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         ThemeList themes = grid.getThemeNames();
         themes.add("compact");
         themes.add("row-stripes");
-        grid.addColumn(athlete -> athlete.getLastName().toUpperCase()).setHeader(getTranslation("LastName"));
+        grid.addColumn(athlete -> athlete.getLastName().toUpperCase(),"lastName").setHeader(getTranslation("LastName"));
         grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
         grid.addColumn("team").setHeader(getTranslation("Team"));
         grid.addColumn("category").setHeader(getTranslation("Category"));
