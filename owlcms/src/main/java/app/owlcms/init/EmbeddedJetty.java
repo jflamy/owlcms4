@@ -64,9 +64,11 @@ public class EmbeddedJetty {
                 new PlusConfiguration(),
                 new JettyWebXmlConfiguration()
         });
+        context.setInitParameter("vaadin.compatibilityMode", "true");
         Context servletContext = context.getServletContext();
         servletContext.setExtendedListenerTypes(true);
         context.addEventListener(new ServletContextListeners());
+        
 
         Server server = new Server(port);
         server.setHandler(context);
