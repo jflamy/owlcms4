@@ -494,6 +494,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
 
     protected void createTopBarGroupSelect() {
         topBarGroupSelect = new ComboBox<>();
+        topBarGroupSelect.setClearButtonVisible(true);
         topBarGroupSelect.setPlaceholder(getTranslation("Group"));
         topBarGroupSelect.setItems(GroupRepository.findAll());
         topBarGroupSelect.setItemLabelGenerator(Group::getName);
