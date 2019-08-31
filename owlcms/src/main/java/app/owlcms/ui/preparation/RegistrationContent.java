@@ -16,7 +16,6 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
-import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
@@ -43,6 +42,7 @@ import app.owlcms.data.category.MastersAgeGroup;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -222,6 +222,7 @@ implements CrudListener<Athlete>, OwlcmsContent {
         ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
         ageDivisionFilter.setItems(AgeDivision.findAll());
         ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
+        ageDivisionFilter.setClearButtonVisible(true);
         ageDivisionFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
         });
@@ -232,6 +233,7 @@ implements CrudListener<Athlete>, OwlcmsContent {
             ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
             ageGroupFilter.setItems(MastersAgeGroup.findAllStrings());
             //		ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
+            ageGroupFilter.setClearButtonVisible(true);
             ageGroupFilter.addValueChangeListener(e -> {
                 crudGrid.refreshGrid();
             });
@@ -242,6 +244,7 @@ implements CrudListener<Athlete>, OwlcmsContent {
         categoryFilter.setPlaceholder(getTranslation("Category"));
         categoryFilter.setItems(CategoryRepository.findActive());
         categoryFilter.setItemLabelGenerator(Category::getName);
+        categoryFilter.setClearButtonVisible(true);
         categoryFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
         });
@@ -261,6 +264,7 @@ implements CrudListener<Athlete>, OwlcmsContent {
         weighedInFilter.setPlaceholder(getTranslation("Weighed_in_p"));
         weighedInFilter.setItems(Boolean.TRUE,Boolean.FALSE);
         weighedInFilter.setItemLabelGenerator((i) -> {return i ? getTranslation("Weighed") : getTranslation("Not_weighed");});
+        categoryFilter.setClearButtonVisible(true);
         weighedInFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
         });
@@ -317,17 +321,17 @@ implements CrudListener<Athlete>, OwlcmsContent {
         crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
 
         crudFormFactory.setFieldProvider("gender",
-                new ComboBoxProvider<>(
+                new OwlcmsComboBoxProvider<>(
                         getTranslation("Gender"), Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
         crudFormFactory.setFieldProvider("group",
-                new ComboBoxProvider<>(
+                new OwlcmsComboBoxProvider<>(
                         getTranslation("Group"), GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category",
-                new ComboBoxProvider<>(
+                new OwlcmsComboBoxProvider<>(
                         getTranslation("Category"), CategoryRepository.findActive(), new TextRenderer<>(Category::getName),
                         Category::getName));
         crudFormFactory.setFieldProvider("ageDivision",
-                new ComboBoxProvider<>(
+                new OwlcmsComboBoxProvider<>(
                         getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name),
                         AgeDivision::name));
 

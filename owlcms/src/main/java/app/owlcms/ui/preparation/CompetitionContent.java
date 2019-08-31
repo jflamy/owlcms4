@@ -10,7 +10,6 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
-import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 import org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory;
 import org.vaadin.crudui.layout.CrudLayout;
 
@@ -24,6 +23,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
+import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import ch.qos.logback.classic.Level;
@@ -108,7 +108,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
         );
 		ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(locale);
 		crudFormFactory.setFieldProvider("defaultLocale",
-            new ComboBoxProvider<Locale>(getTranslation("Locale"), Translator.getAllAvailableLocales(), new TextRenderer<>(nameGenerator), 
+            new OwlcmsComboBoxProvider<Locale>(getTranslation("Locale"), Translator.getAllAvailableLocales(), new TextRenderer<>(nameGenerator), 
             		nameGenerator));
 		crudFormFactory.setFieldType("competitionDate", DatePicker.class);
 	}

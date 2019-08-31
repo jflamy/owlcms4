@@ -1,7 +1,7 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and for directions to [live demo](https://jflamy.github.io/owlcms4/#/?id=demo)
 - Release Highlights:
+  - Fixed looping issue that made 4.1.9 unusable
   - Reworked management of pauses and countdowns for better usability
-  - Jury and Technical breaks are now indefinite in length 
   - It is now possible to toggle the attempt board information between pause countdown and current athlete information.
 - [Change Log](https://github.com/jflamy/owlcms4/milestone/46?closed=1) for this release (enhancements and fixes)
 - Installation Instructions :

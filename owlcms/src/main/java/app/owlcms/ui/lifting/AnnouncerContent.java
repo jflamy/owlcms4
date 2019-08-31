@@ -236,6 +236,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         // filter.
         super.createTopBarGroupSelect();
         topBarGroupSelect.setReadOnly(false);
+        topBarGroupSelect.setClearButtonVisible(true);
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
             logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());

@@ -388,7 +388,11 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     private void hidePlates() {
         if (plates != null) {
-            this.getElement().removeChild(plates.getElement());
+            try {
+                this.getElement().removeChild(plates.getElement());
+            } catch (IllegalArgumentException e) {
+                // ignore
+            }
         }
         plates = null;
     }
