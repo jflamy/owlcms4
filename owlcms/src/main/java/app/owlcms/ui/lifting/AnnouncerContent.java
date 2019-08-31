@@ -53,8 +53,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         uiEventLogger.setLevel(Level.INFO);
     }
 
-    private Button introCountdownButton;
-    private Button startLiftingButton;
+
 
     public AnnouncerContent() {
         super();
@@ -165,7 +164,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         logger.debug("AnnouncerContent creating top bar");
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
-        topBarPresent = false;
+        initialBar = true;
 
         createTopBarGroupSelect();
         HorizontalLayout topBarLeft = createTopBarLeft();
@@ -237,6 +236,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         // filter.
         super.createTopBarGroupSelect();
         topBarGroupSelect.setReadOnly(false);
+        topBarGroupSelect.setClearButtonVisible(true);
         OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
             logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
@@ -275,21 +275,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         return decisions;
     }
 
-    @Override
-    protected void warn(Group group, String string) {
-        String text = group == null ? "\u2013" : string;
-        if (topBarPresent) {
-            lastName.setText(text);
-            firstName.setText("");
-            timeField.getElement().getStyle().set("visibility", "hidden");
-            attempt.setText("");
-            weight.setText("");
-            warning.setText(string);
-        } else {
-            introCountdownButton.setEnabled(false);
-            startLiftingButton.setEnabled(false);
-            warning.setText(string);
-        }
-    }
+
 
 }

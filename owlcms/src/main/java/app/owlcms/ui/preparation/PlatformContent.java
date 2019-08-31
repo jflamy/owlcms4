@@ -11,7 +11,6 @@ import java.util.Collection;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
-import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.grid.Grid;
@@ -21,6 +20,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.sound.Speakers;
+import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -97,7 +97,7 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
                 getTranslation("PlatformName"),
                 getTranslation("Speakers"));
         crudFormFactory.setFieldProvider("soundMixerName",
-                new ComboBoxProvider<>(Speakers.getOutputNames()));
+                new OwlcmsComboBoxProvider<>(Speakers.getOutputNames()));
     }
 
     /**

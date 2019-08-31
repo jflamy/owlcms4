@@ -366,6 +366,7 @@ public class FieldOfPlay {
                 athleteTimer.stop();
             }
             loadGroup(((SwitchGroup)e).getGroup(), this);
+            recomputeLiftingOrder();
             getUiEventBus().post(new UIEvent.SwitchGroup(((SwitchGroup)e).getGroup(), e.getOrigin()));
             return;
         }
@@ -638,7 +639,7 @@ public class FieldOfPlay {
      * @param group the group
      */
     public void startLifting(Group group, Object origin) {
-        logger.trace("switchGroup {}", LoggerUtils.stackTrace());
+        logger.trace("startLifting {}", LoggerUtils.stackTrace());
         loadGroup(group, origin);
         logger.trace("{} start lifting for group {} origin={}", this.getName(),
                 (group != null ? group.getName() : group), origin);
@@ -920,9 +921,13 @@ public class FieldOfPlay {
     }
 
     private void transitionToBreak(BreakStarted e) {
-        this.setBreakType(e.getBreakType());
-        getBreakTimer().start();
-        setState(BREAK);
+        if (state == BREAK && (this.breakType != BreakType.GROUP_DONE && getBreakTimer().isRunning())) {
+            logger.error("break already started {}",LoggerUtils.stackTrace());
+        } else {
+            this.setBreakType(e.getBreakType());
+            getBreakTimer().start();
+            setState(BREAK);
+        }
     }
 
     private void transitionToLifting(FOPEvent e, boolean stopBreakTimer) {

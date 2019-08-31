@@ -117,6 +117,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 		groupSelect.setPlaceholder(getTranslation("Group"));
 		groupSelect.setItems(GroupRepository.findAll());
 		groupSelect.setItemLabelGenerator(Group::getName);
+		groupSelect.setClearButtonVisible(true);
 		
 		JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet(true);
 		StreamResource href = new StreamResource("startingWeights.xls", startingWeightsWriter);

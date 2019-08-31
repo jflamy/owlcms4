@@ -305,7 +305,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
 
 
     private void vibrate() {
-        UI.getCurrent().getPage().executeJavaScript("window.navigator.vibrate",200);
+        UI.getCurrent().getPage().executeJs("window.navigator.vibrate",200);
     }
 
     private void whiteClicked(DomEvent e) {

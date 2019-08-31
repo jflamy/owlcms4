@@ -23,56 +23,6 @@ import app.owlcms.data.group.Group;
  */
 public class UIEvent {
 
-    public static class StartLifting extends UIEvent {
-        private Group group;
-
-        public StartLifting(Group group, Object object) {
-            super(object);
-            this.setGroup(group);
-        }
-
-        public Group getGroup() {
-            return group;
-        }
-
-        public void setGroup(Group group) {
-            this.group = group;
-        }
-    }
-
-    public static class SwitchGroup extends UIEvent {
-        private Group group;
-
-        public SwitchGroup(Group group, Object object) {
-            super(object);
-            this.setGroup(group);
-        }
-
-        public Group getGroup() {
-            return group;
-        }
-
-        public void setGroup(Group group) {
-            this.group = group;
-        }
-    }
-
-    /**
-     * Class AthleteAnnounced.
-     */
-    static public class AthleteAnnounced extends UIEvent {
-
-        /**
-         * Instantiates a new athlete announced.
-         *
-         * @param athlete the athlete
-         * @param ui      the ui
-         */
-        public AthleteAnnounced(Athlete athlete, UI ui) {
-            super(athlete, ui);
-        }
-    }
-
     static public class BarbellOrPlatesChanged extends UIEvent {
         public BarbellOrPlatesChanged(Object object) {
             super(object);
@@ -145,6 +95,16 @@ public class UIEvent {
         private Integer timeRemaining;
         private boolean displayToggle;
 
+        public BreakStarted(Integer timeRemaining, Object origin, boolean displayToggle) {
+            super(origin);
+            this.timeRemaining = timeRemaining;
+            this.setDisplayToggle(displayToggle);
+        }
+
+        public Integer getTimeRemaining() {
+            return timeRemaining;
+        }
+
         /**
          * @return true if is a request for toggling display (and not an actual break
          *         start)
@@ -158,16 +118,6 @@ public class UIEvent {
          */
         public void setDisplayToggle(boolean displayToggle) {
             this.displayToggle = displayToggle;
-        }
-
-        public BreakStarted(Integer timeRemaining, Object origin, boolean displayToggle) {
-            super(origin);
-            this.timeRemaining = timeRemaining;
-            this.setDisplayToggle(displayToggle);
-        }
-
-        public Integer getTimeRemaining() {
-            return timeRemaining;
         }
     }
 
@@ -353,15 +303,15 @@ public class UIEvent {
             return timeAllowed;
         }
 
+        public boolean isDisplayToggle() {
+            return displayToggle;
+        }
+        
         /**
          * @return true if the current event requires to stop the timer
          */
         public boolean isStopAthleteTimer() {
             return stopAthleteTimer;
-        }
-        
-        public boolean isDisplayToggle() {
-            return displayToggle;
         }
 
         public void setDisplayToggle(boolean displayToggle) {
@@ -426,6 +376,23 @@ public class UIEvent {
 
     }
 
+    public static class StartLifting extends UIEvent {
+        private Group group;
+
+        public StartLifting(Group group, Object object) {
+            super(object);
+            this.setGroup(group);
+        }
+
+        public Group getGroup() {
+            return group;
+        }
+
+        public void setGroup(Group group) {
+            this.group = group;
+        }
+    }
+
     /**
      * Class StartTime.
      */
@@ -480,6 +447,23 @@ public class UIEvent {
          */
         public Integer getTimeRemaining() {
             return timeRemaining;
+        }
+    }
+
+    public static class SwitchGroup extends UIEvent {
+        private Group group;
+
+        public SwitchGroup(Group group, Object object) {
+            super(object);
+            this.setGroup(group);
+        }
+
+        public Group getGroup() {
+            return group;
+        }
+
+        public void setGroup(Group group) {
+            this.group = group;
         }
     }
 

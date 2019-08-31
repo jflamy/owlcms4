@@ -126,7 +126,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
                         .add(new LeftNavigationItem(RESULT_DOCUMENTS, new Icon("maps", "local-printshop"),
                                 ResultsNavigationContent.class))
                         .add(new LeftClickableItem(DOCUMENTATION, new Icon("icons", "help"),
-                                clickEvent -> UI.getCurrent().getPage().executeJavaScript("window.open('https://jflamy.github.io/owlcms4/#/','_blank')")))
+                                clickEvent -> UI.getCurrent().getPage().executeJs("window.open('https://jflamy.github.io/owlcms4/#/','_blank')")))
                         .addToSection(new LeftNavigationItem(INFO, new Icon("icons", "info-outline"),
                                 InfoNavigationContent.class), FOOTER)
                         .build())

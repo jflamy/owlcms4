@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.impl.GridCrud;
-import org.vaadin.crudui.form.impl.field.provider.ComboBoxProvider;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -25,6 +24,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -139,7 +139,7 @@ public class GroupContent extends VerticalLayout
 				getTranslation("Jury4"),
 				getTranslation("Jury5"));
 		crudFormFactory.setFieldProvider("platform",
-				new ComboBoxProvider<>(getTranslation("Platform"), PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
+				new OwlcmsComboBoxProvider<>(getTranslation("Platform"), PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
 		crudFormFactory.setFieldType("weighInTime", LocalDateTimePicker.class);
 		crudFormFactory.setFieldType("competitionTime", LocalDateTimePicker.class);
 	}

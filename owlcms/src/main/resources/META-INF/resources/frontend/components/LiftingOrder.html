@@ -96,7 +96,7 @@ th, td {
 	font-weight: normal;
 }
 
-@media screen and (min-width: 1025px) {
+@media screen and (min-width: 1030px) {
 	.showThRank {
 		border-collapse: collapse;
 		border: solid 1px DarkGray;
@@ -110,7 +110,7 @@ th, td {
 	}
 }
 
-@media screen and (max-width: 1024px) {
+@media screen and (max-width: 1029px) {
 	.showThRank {
 		display: none;
 		width: 0px;
@@ -235,16 +235,16 @@ th, td {
 }
 </style>
 
-<div class="wrapper" id="resultBoardDiv" style$="[[_computeHidden(hidden)]]">
-<div class="attemptBar">
-	<div class="athleteInfo" id="athleteInfoDiv">
+<div class="wrapper" id="resultBoardDiv">
+<div class="attemptBar" style$="[[_computeHidden(hidden)]]">
+	<div class="athleteInfo" id="athleteInfoDiv" style$="[[_computeHidden(hidden)]]">
 		<div class="fullName" id="fullNameDiv" inner-h-t-m-l="[[fullName]]"></div>
 	</div>
 </div>
-<div class="group" id="groupDiv">
+<div class="group" id="groupDiv" style$="[[_computeHidden(hidden)]]">
 	<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
 </div>
-<table class="results" id="orderDiv">
+<table class="results" id="orderDiv" style$="[[_computeHidden(hidden)]]">
 	<thead>
 		<tr>
 			<!--  [[t.x]] is loaded with the translation for key Scoreboard.x in the translation4.csv file -->
@@ -286,20 +286,20 @@ class Scoreboard extends Polymer.Element {
 		super.ready();
 		this.$.groupDiv.style.visibility="visible"
 	    this.$.fullNameDiv.style.display="block";
-    	this.$.orderDiv.style.display="block";
+    	this.$.orderDiv.style.visibility="visible"
 	}
          
 	start() {
 		this.$.groupDiv.style.visibility="visible"
 	    this.$.fullNameDiv.style.display="block";
-    	this.$.orderDiv.style.display="block";
+    	this.$.orderDiv.style.visibility="visible"
 	}
 	         
 	reset() {
 		console.warn("reset");
 		this.$.groupDiv.style.visibility="visible"
 	    this.$.fullNameDiv.style.display="block";
-    	this.$.orderDiv.style.display="block";
+    	this.$.orderDiv.style.visibility="visible"
 	}
 	
 	down() {
@@ -317,7 +317,7 @@ class Scoreboard extends Polymer.Element {
     	console.warn("done");
     	this.$.groupDiv.style.visibility="hidden";
     	this.$.fullNameDiv.style.display="block";
-    	this.$.orderDiv.style.display="none";
+    	this.$.orderDiv.style.visibility="hidden";
     }
 	
 	refereeDecision() {

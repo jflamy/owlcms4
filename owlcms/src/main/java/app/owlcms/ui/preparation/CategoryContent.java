@@ -164,6 +164,7 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 		ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
 		ageDivisionFilter.setItems(AgeDivision.findAll());
 		ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
+		ageDivisionFilter.setClearButtonVisible(true);
 		ageDivisionFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
@@ -177,8 +178,7 @@ implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 		});
 		activeFilter.setLabel(getTranslation("Active"));
 		activeFilter.setAriaLabel(getTranslation("ActiveCategoriesOnly"));
-		crud.getCrudLayout()
-		.addFilterComponent(activeFilter);
+		crud.getCrudLayout().addFilterComponent(activeFilter);
 
 		Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
 		clearFilters.addClickListener(event -> {
