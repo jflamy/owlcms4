@@ -42,17 +42,8 @@ Releases are created on [GitHub](https://help.github.com/en/articles/creating-re
    - Then it does the merge of the release branch into`master`
    - Finally it creates the GitHub release
 6. The GitHub release portion will fail due to a bug in the plugin, but all the real work has been done.
-   - The local repository is left on master with changes unpushed; changes that occurred in the release branch are also not merged back into `develop`
-     - Push all branches upstream (Eclipse: Teams / Push to upstream)
-     - Switch to develop (Eclipse: Teams / Switch to master)
-     - Merge the local master branch back into develop
-     - Push all again
-   - Delete the local release branch that is left over (Eclipse: Teams / Advanced / Delete Branch)
- ```bash
- git push --all
- git checkout develop
- git merge master
- git push --all
- git branch -D release/4.x.y
- ```
+   - go to the target directory
+   - start the "git bash" shell
+   - run cleanup-release.sh
+
 
