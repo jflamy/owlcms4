@@ -45,7 +45,6 @@ import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.BreakSetTime;
 import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.ui.lifting.JuryContent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -202,6 +201,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public void startIndefiniteBreakImmediately() {
         timeRemaining = null;
         ct.setValue(CountdownType.INDEFINITE);
+        bt.setValue(requestedBreakType != null ? requestedBreakType : BreakType.TECHNICAL);
         startBreak(OwlcmsSession.getFop());
         breakTimerElement.slaveBreakStart(new BreakStarted(null, this, false));
     }
@@ -396,13 +396,18 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             ProxyBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
                 breakStart.setEnabled(false);
+                breakPause.setEnabled(true);
+                breakEnd.setEnabled(true);
                 if (breakTimer.isIndefinite()) {
                     ct.setValue(CountdownType.INDEFINITE);
                     breakTimerElement.slaveBreakStart(new BreakStarted(null, this, false));
                 } else {
                     breakTimerElement.slaveBreakStart(new BreakStarted(timeRemaining == null ? null : timeRemaining.intValue(), this, false));
                 }
-
+            } else {
+                breakStart.setEnabled(true);
+                breakPause.setEnabled(false);
+                breakEnd.setEnabled(true);
             }
         });
 

@@ -110,10 +110,16 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     protected FlexLayout topBar;
     protected ComboBox<Group> topBarGroupSelect;
     private Athlete displayedAthlete;
-    protected boolean topBarPresent;
+    protected boolean initialBar;
     protected H3 warning;
     protected Button breakButton;
-
+    
+    /*
+     * Initial Bar
+     */
+    protected Button introCountdownButton;
+    protected Button startLiftingButton;
+    
     /**
      * groupFilter points to a hidden field on the crudGrid filtering row, which is
      * slave to the group selection process. this allows us to use the filtering
@@ -414,7 +420,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         logger.debug("AthleteGridContent creating top bar");
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
-        topBarPresent = false;
+        initialBar = true;
 
         createTopBarGroupSelect();
         HorizontalLayout topBarLeft = createTopBarLeft();
@@ -448,7 +454,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         logger.debug("AthleteGridContent creating top bar");
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
-        topBarPresent = true;
+        initialBar = false;
 
         HorizontalLayout topBarLeft = createTopBarLeft();
 
@@ -568,7 +574,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                 Integer attemptsDone = (athlete != null ? athlete.getAttemptsDone() : 0);
                 logger.debug("doUpdateTopBar {} {} {}", LoggerUtils.whereFrom(), athlete, attemptsDone);
                 if (athlete != null && attemptsDone < 6) {
-                    if (topBarPresent) {
+                    if (!initialBar) {
                         String lastName2 = athlete.getLastName();
                         lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
                         firstName.setText(athlete.getFirstName());
@@ -702,29 +708,50 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 
-    protected void warn(Group group, String string) {
-        // String text = group == null ? "\u2013" : string;
-        // String text = group == null ? getTranslation("NoGroupSelected") : string;
-        if (topBarPresent) {
-            lastName.setText(string);
-            firstName.setText("");
-            timeField.getElement().getStyle().set("visibility", "hidden");
-            attempt.setText("");
-            weight.setText("");
-            warning.setText(string);
-        } else {
-            warning.setText(string);
+    protected void warnAnnouncer(Group group, Integer attemptsDone, FOPState state, List<Athlete> liftingOrder) {
+        if (group == null) {
+            String string = getTranslation("NoGroupSelected");
+            String text = group == null ? "\u2013" : string;
+            if (!initialBar) {
+                topBarMessage(string, text);
+            } else {
+                if (introCountdownButton != null) introCountdownButton.setEnabled(false);
+                if (startLiftingButton != null) startLiftingButton.setEnabled(false);
+                warning.setText(string);
+            }
+        } else if (attemptsDone >= 6) {
+            String string = getTranslation("Group_number_done", group.getName());
+            String text = group == null ? "\u2013" : string;
+            if (!initialBar) {
+                topBarMessage(string, text);
+            } else {
+                if (introCountdownButton != null) introCountdownButton.setVisible(false);
+                if (startLiftingButton != null) {
+                    startLiftingButton.setEnabled(true);
+                    startLiftingButton.setText(getTranslation("ShowResults"));
+                }
+                warning.setText(string);
+            }
+        } else if (liftingOrder.size() == 0) {
+            String string = getTranslation("No_weighed_in_athletes");
+            String text = group == null ? "\u2013" : string;
+            if (!initialBar) {
+                topBarMessage(string, text);
+            } else {
+                if (introCountdownButton != null) introCountdownButton.setVisible(false);
+                if (startLiftingButton != null) startLiftingButton.setVisible(false);
+                warning.setText(string);
+            }
         }
     }
 
-    protected void warnAnnouncer(Group group, Integer attemptsDone, FOPState state, List<Athlete> liftingOrder) {
-        if (group == null) {
-            warn(group, getTranslation("NoGroupSelected"));
-        } else if (attemptsDone >= 6) {
-            warn(group, getTranslation("Group_number_done", group.getName()));
-        } else if (liftingOrder.size() == 0) {
-            warn(group, getTranslation("No_weighed_in_athletes"));
-        }
+    private void topBarMessage(String string, String text) {
+        lastName.setText(text);
+        firstName.setText("");
+        timeField.getElement().getStyle().set("visibility", "hidden");
+        attempt.setText("");
+        weight.setText("");
+        warning.setText(string);
     }
 
     /**

@@ -303,7 +303,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
-        logger.warn("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+        logger.trace("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         ScoreboardModel model = getModel();
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
@@ -322,11 +322,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
                 model.setAttempt(formattedAttempt);
                 model.setWeight(a.getNextAttemptRequestedWeight());
             }
-            logger.warn("updating bottom");
+            logger.trace("updating bottom");
             updateBottom(model, computeLiftType(a));
         }
         if (a == null || a.getAttemptsDone() >= 6) {
-            logger.warn("doUpdate calls doDone");
+            logger.trace("doUpdate calls doDone");
             OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
             return;
         }
@@ -433,7 +433,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     }
 
     private void doDone(Group g) {
-        logger.warn("doDone {}", g == null ? null : g.getName());
+        logger.trace("doDone {}", g == null ? null : g.getName());
         if (g == null) {
             doEmpty();
         } else {
