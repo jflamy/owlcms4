@@ -60,7 +60,9 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
+import app.owlcms.ui.lifting.AnnouncerContent;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
+import app.owlcms.ui.lifting.JuryContent;
 import app.owlcms.ui.lifting.MarshallContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
@@ -264,7 +266,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
         UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
-            logger.trace("stopping break");
+            logger.debug("stopping break");
             syncWithFOP(true);
         });
     }
@@ -277,7 +279,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                 return;
             }
 
-            logger.trace("starting break");
+            if (this instanceof AnnouncerContent)logger.debug ("starting break {}", LoggerUtils.stackTrace());
             syncWithFOP(true);
         });
     }
@@ -661,24 +663,44 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                     topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(), fop.getState(), fop.getLiftingOrder());
                 }
             } else {
-                logger.trace("active: {}", state);
+                logger.debug("active: {}", state);
                 createTopBar();
                 if (state == FOPState.BREAK) {
                     if (buttons != null) {
-                        buttons.setEnabled(false);
+                        buttons.setVisible(false);
                     }
                     if (decisions != null) {
-                        decisions.setEnabled(false);
+                        decisions.setVisible(false);
                     }
-                    breakButton.getElement().setAttribute("theme", "primary contrast icon");
+                    if (this instanceof JuryContent) {
+                        breakButton.getElement().setAttribute("theme", "primary error");
+                        breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
+                        breakButton.setText(getTranslation("Paused"));
+                        breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
+                    }
+                    else 
+                    {
+                        breakButton.getElement().setAttribute("theme", "primary error");
+                        breakButton.setText(getTranslation("Paused"));
+                    }
+
                 } else {
                     if (buttons != null) {
-                        buttons.setEnabled(true);
+                        buttons.setVisible(true);
                     }
                     if (decisions != null) {
-                        decisions.setEnabled(true);
+                        decisions.setVisible(true);
                     }
-                    breakButton.getElement().setAttribute("theme", "secondary contrast icon");
+                    breakButton.setText("");
+                    if (this instanceof JuryContent) {
+                        breakButton.getElement().setAttribute("theme", "secondary error");
+                        breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
+                        breakButton.setText(getTranslation("JuryDeliberation"));
+                        breakButton.getElement().setAttribute("title", getTranslation("JuryDeliberation"));
+                    }
+                    else {
+                        breakButton.getElement().setAttribute("theme", "secondary contrast icon");
+                    }
                 }
                 breakButton.setEnabled(true);
 
@@ -715,8 +737,8 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             if (!initialBar) {
                 topBarMessage(string, text);
             } else {
-                if (introCountdownButton != null) introCountdownButton.setEnabled(false);
-                if (startLiftingButton != null) startLiftingButton.setEnabled(false);
+                if (introCountdownButton != null) introCountdownButton.setVisible(false);
+                if (startLiftingButton != null) startLiftingButton.setVisible(false);
                 warning.setText(string);
             }
         } else if (attemptsDone >= 6) {

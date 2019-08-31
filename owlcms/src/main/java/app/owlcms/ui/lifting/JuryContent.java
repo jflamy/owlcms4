@@ -349,7 +349,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         });
         good.getElement().setAttribute("theme", "success");
         good.setWidth(BUTTON_WIDTH);
-        good.setEnabled(false);
+        good.setVisible(false);
 
         Button bad = new Button(IronIcons.CLOSE.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
@@ -358,7 +358,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         });
         bad.getElement().setAttribute("theme", "error");
         bad.setWidth(BUTTON_WIDTH);
-        bad.setEnabled(false);
+        bad.setVisible(false);
 
         HorizontalLayout decisions = new HorizontalLayout(good, bad);
         return decisions;

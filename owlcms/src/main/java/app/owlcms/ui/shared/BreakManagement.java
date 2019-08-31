@@ -195,7 +195,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             breakTimer.setTimeRemaining(timeRemaining.intValue());
         }
 
-        fop.getFopEventBus().post(new FOPEvent.BreakStarted(bt.getValue(), this.getOrigin()));
+        fop.getFopEventBus().post(new FOPEvent.BreakStarted(bt.getValue(), null));
     }
 
     public void startIndefiniteBreakImmediately() {
@@ -236,6 +236,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         
         syncWithFop();
         if (requestedBreakType != null && (requestedBreakType == BreakType.JURY || requestedBreakType == BreakType.TECHNICAL)) {
+            logger.debug("starting break immediately");
             startIndefiniteBreakImmediately();
         } else {
             setBreakTimeRemaining(ct.getValue());
@@ -470,6 +471,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         bt.setValue(BreakType.FIRST_SNATCH);
                     } else {
                         bt.setValue(BreakType.TECHNICAL);
+                        requestedBreakType = BreakType.TECHNICAL;
                     }
                     break;
                 case INACTIVE:
@@ -477,6 +479,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     break;
                 default:
                     bt.setValue(BreakType.TECHNICAL);
+                    requestedBreakType = BreakType.TECHNICAL;
                     break;
                 }
             }
