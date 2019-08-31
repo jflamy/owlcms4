@@ -91,8 +91,10 @@ public class Main {
         // open resource subdirectories as filesystems
         ResourceWalker.openTemplatesFileSystem("/templates");
 
-        // translation
+        // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
+        // force bower compatibility mode until we move to npm
+        System.setProperty("vaadin.compatibilityMode", "true");
 
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");

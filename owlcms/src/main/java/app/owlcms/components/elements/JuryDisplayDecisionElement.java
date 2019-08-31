@@ -41,7 +41,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
         OwlcmsSession.withFop((fop) -> {
             UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
                 uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
-                this.getElement().callFunction("reset", false);
+                this.getElement().callJsFunction("reset", false);
             });
         });
     }
@@ -55,7 +55,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
                 // don't reset on a break we just created !
                 UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
                     uiEventLogger.debug("*** {} break start -> reset",this.getOrigin());
-                    this.getElement().callFunction("reset", false);
+                    this.getElement().callJsFunction("reset", false);
                 });
             }
         });
@@ -76,7 +76,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
     public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
             uiEventLogger.debug("*** {} referee update ({} {} {})",this.getOrigin(), e.ref1, e.ref2, e.ref3);
-            this.getElement().callFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3, e.ref1Time, e.ref2Time, e.ref3Time);
+            this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3, e.ref1Time, e.ref2Time, e.ref3Time);
         });
     }
 
@@ -89,7 +89,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
     public void slaveStartTime(UIEvent.StartTime e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
             uiEventLogger.debug("*** {} startTime -> reset",this.getOrigin());
-            this.getElement().callFunction("reset", false);
+            this.getElement().callJsFunction("reset", false);
         });
     }
 

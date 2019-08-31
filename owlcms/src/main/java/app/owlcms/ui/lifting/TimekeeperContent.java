@@ -19,7 +19,6 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.init.OwlcmsSession;
@@ -43,8 +42,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
-
-    private Button introCountdownButton;
 
     public TimekeeperContent() {
         super();
@@ -137,7 +134,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         logger.debug("AnnouncerContent creating top bar");
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
-        topBarPresent = false;
+        initialBar = true;
 
         createTopBarGroupSelect();
         HorizontalLayout topBarLeft = createTopBarLeft();
@@ -180,22 +177,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
     protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
         HorizontalLayout decisions = new HorizontalLayout();
         return decisions;
-    }
-
-    @Override
-    protected void warn(Group group, String string) {
-        String text = group == null ? "\u2013" : string;
-        if (topBarPresent) {
-            lastName.setText(text);
-            firstName.setText("");
-            timeField.getElement().getStyle().set("visibility", "hidden");
-            attempt.setText("");
-            weight.setText("");
-            warning.setText(string);
-        } else {
-            introCountdownButton.setEnabled(false);
-            warning.setText(string);
-        }
     }
 
 }

@@ -82,6 +82,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private BreakTimerElement breakTimerElement;
     private Button athleteButton;
     private Button countdownButton;
+    private BreakType requestedBreakType;
 
     /**
      * Persona-specific calls (e.g. for the jury, the technical controller, etc.)
@@ -93,7 +94,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     BreakManagement(Object origin, BreakType brt, CountdownType cdt, Dialog parentDialog) {
         init(origin, brt, cdt, parentDialog);
         if (brt == BreakType.JURY || brt == BreakType.TECHNICAL) {
-            startIndefiniteBreakImmediately();
+            requestedBreakType = brt;
         }
     }
 
@@ -105,7 +106,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
      */
     BreakManagement(Object origin, Dialog parentDialog) {
         init(origin, null, CountdownType.DURATION, parentDialog);
-        syncWithFop();
     }
 
     public ComponentEventListener<ClickEvent<Button>> endBreak(Dialog dialog) {
@@ -199,9 +199,9 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     public void startIndefiniteBreakImmediately() {
-        // FIXME: starting jury/technical break via FOPEvent during init
         timeRemaining = null;
         ct.setValue(CountdownType.INDEFINITE);
+        bt.setValue(requestedBreakType != null ? requestedBreakType : BreakType.TECHNICAL);
         startBreak(OwlcmsSession.getFop());
         breakTimerElement.slaveBreakStart(new BreakStarted(null, this, false));
     }
@@ -215,6 +215,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
+
         ct.addValueChangeListener(e -> {
             CountdownType cType = e.getValue();
             if (cType == CountdownType.DURATION) {
@@ -232,7 +233,13 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         durationField.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.DURATION));
         timePicker.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET));
         timePicker.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET));
-        setBreakTimeRemaining(ct.getValue());
+        
+        syncWithFop();
+        if (requestedBreakType != null && (requestedBreakType == BreakType.JURY || requestedBreakType == BreakType.TECHNICAL)) {
+            startIndefiniteBreakImmediately();
+        } else {
+            setBreakTimeRemaining(ct.getValue());
+        }
     }
 
     private void assembleDialog(VerticalLayout dialog, FlexLayout buttons) {
@@ -389,13 +396,18 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             ProxyBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
                 breakStart.setEnabled(false);
+                breakPause.setEnabled(true);
+                breakEnd.setEnabled(true);
                 if (breakTimer.isIndefinite()) {
                     ct.setValue(CountdownType.INDEFINITE);
                     breakTimerElement.slaveBreakStart(new BreakStarted(null, this, false));
                 } else {
                     breakTimerElement.slaveBreakStart(new BreakStarted(timeRemaining == null ? null : timeRemaining.intValue(), this, false));
                 }
-
+            } else {
+                breakStart.setEnabled(true);
+                breakPause.setEnabled(false);
+                breakEnd.setEnabled(true);
             }
         });
 

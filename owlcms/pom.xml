@@ -17,6 +17,10 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>flow-server-compatibility-mode</artifactId>
+		</dependency> 		
 
 		<!-- user interface -->
 		<dependency>

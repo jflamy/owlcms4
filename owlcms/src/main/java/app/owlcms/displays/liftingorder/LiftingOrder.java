@@ -115,7 +115,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     }
 
     private EventBus uiEventBus;
-    private List<Athlete> liftingOrder;
+    private List<Athlete> order;
     private Group curGroup;
     private int liftsDone;
 
@@ -126,23 +126,14 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
      * Instantiates a new results board.
      */
     public LiftingOrder() {
-//        timer.setOrigin(this);
     }
 
     @Override
     public void doBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             // just update the display
-            liftingOrder = fop.getLiftingOrder();
+            order = fop.getLiftingOrder();
             doUpdate(fop.getCurAthlete(), null);
-            
-//            BreakType breakType = fop.getBreakType();
-//            getModel().setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
-//            getModel().setTeamName("");
-//            getModel().setAttempt("");
-//
-//            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-//            this.getElement().callFunction("doBreak");
         }));
     }
 
@@ -160,16 +151,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
      * Reset.
      */
     public void reset() {
-        liftingOrder = ImmutableList.of();
-    }
-
-    @Subscribe
-    public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            Athlete a = e.getAthlete();
-            doUpdate(a, e);
-        });
+        order = ImmutableList.of();
     }
 
     @Subscribe
@@ -177,7 +159,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
-            liftsDone = AthleteSorter.countLiftsDone(liftingOrder);
+            liftsDone = AthleteSorter.countLiftsDone(order);
             doUpdate(a, e);
         });
     }
@@ -187,7 +169,6 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             doUpdateBottomPart(e);
-//            this.getElement().callFunction("refereeDecision");
         });
     }
 
@@ -195,7 +176,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            this.getElement().callFunction("reset");
+            this.getElement().callJsFunction("reset");
         });
     }
 
@@ -210,10 +191,10 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            this.getElement().callFunction("reset");
+            this.getElement().callJsFunction("reset");
             Athlete a = e.getAthlete();
-            liftingOrder = e.getLiftingOrder();
-            liftsDone = AthleteSorter.countLiftsDone(liftingOrder);
+            order = e.getLiftingOrder();
+            liftsDone = AthleteSorter.countLiftsDone(order);
             doUpdate(a, e);
         });
     }
@@ -229,12 +210,21 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     }
 
     @Subscribe
+    public void slaveStartLifting(UIEvent.StartLifting e) {
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            getModel().setHidden(false);
+            this.getElement().callJsFunction("reset");
+        });
+    }
+
+    @Subscribe
     public void slaveStopBreak(UIEvent.BreakDone e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             Athlete a = e.getAthlete();
-            this.getElement().callFunction("reset");
+            this.getElement().callJsFunction("reset");
             doUpdate(a, e);
         });
     }
@@ -276,19 +266,9 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             LiftingOrderModel model = getModel();
-            model.setHidden(a == null);
-//            boolean leaveTopAlone = e instanceof UIEvent.LiftingOrderUpdated && !((UIEvent.LiftingOrderUpdated)e).isStopAthleteTimer();
+//            model.setHidden(a == null);
             if (a != null) {
                 model.setFullName(getTranslation("Scoreboard.LiftingOrder"));
-//                if (!leaveTopAlone) {
-//                    this.getElement().callFunction("reset");
-//                    model.setFullName(a.getFullName());
-//                    model.setTeamName(a.getTeam());
-//                    model.setStartNumber(a.getStartNumber());
-//                    String formattedAttempt = formatAttempt(a.getAttemptsDone());
-//                    model.setAttempt(formattedAttempt);
-//                    model.setWeight(a.getNextAttemptRequestedWeight());
-//                }
                 updateBottom(model, computeLiftType(a));
             }
         });
@@ -297,67 +277,6 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             return;
         }
     }
-
-//    /**
-//     * Compute Json string ready to be used by web component template
-//     *
-//     * CSS classes are pre-computed and passed along with the values; weights are formatted.
-//     *
-//     * @param a
-//     * @return json string with nested attempts values
-//     */
-//    protected void getAttemptsJson(Athlete a) {
-//        sattempts = Json.createArray(); // snatch
-//        cattempts = Json.createArray(); // clean-and-jerk
-//        XAthlete x = new XAthlete(a);
-//        Integer liftOrderRank = x.getLiftOrderRank();
-//        Integer curLift = x.getAttemptsDone();
-//        int ix = 0;
-//        for (LiftInfo i : x.getRequestInfoArray()) {
-//            JsonObject jri = Json.createObject();
-//            String stringValue = i.getStringValue();
-//            boolean notDone = x.getAttemptsDone() < 6;
-//            String blink = (notDone ? " blink" : "");
-//
-//            jri.put("goodBadClassName", "narrow empty");
-//            jri.put("stringValue", "");
-//            if (i.getChangeNo() >= 0) {
-//                String trim = stringValue != null ? stringValue.trim() : "";
-//                switch (Changes.values()[i.getChangeNo()]) {
-//                case ACTUAL:
-//                    if (!trim.isEmpty()) {
-//                        if (trim.contentEquals("-") || trim.contentEquals("0")) {
-//                            jri.put("goodBadClassName", "narrow fail");
-//                            jri.put("stringValue", "-");
-//                        } else {
-//                            boolean failed = stringValue.startsWith("-");
-//                            jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
-//                            jri.put("stringValue", formatKg(stringValue));
-//                        }
-//                    }
-//                    break;
-//                default:
-//                    if (stringValue != null && !trim.isEmpty()) {
-//                        String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
-//                                : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
-//                        jri.put("goodBadClassName","narrow request");
-//                        if (notDone) {
-//                            jri.put("className", highlight);
-//                        }
-//                        jri.put("stringValue", stringValue);
-//                    }
-//                    break;
-//                }
-//            }
-//
-//            if (ix < 3) {
-//                sattempts.set(ix, jri);
-//            } else {
-//                cattempts.set(ix % 3, jri);
-//            }
-//            ix++;
-//        }
-//    }
 
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
@@ -369,8 +288,8 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         OwlcmsSession.withFop(fop -> {
             init();
             // sync with current status of FOP
-            liftingOrder = fop.getLiftingOrder();
-            liftsDone = AthleteSorter.countLiftsDone(liftingOrder);
+            order = fop.getLiftingOrder();
+            liftsDone = AthleteSorter.countLiftsDone(order);
             syncWithFOP(null);
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
@@ -402,7 +321,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             return;
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setFullName(getTranslation("Group_number_done", g.toString()));
-            this.getElement().callFunction("groupDone");
+            this.getElement().callJsFunction("groupDone");
         });
     }
 
@@ -415,18 +334,9 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     private JsonValue getAthletesJson(List<Athlete> list2) {
         JsonArray jath = Json.createArray();
         int athx = 0;
-//        Category prevCat = null;
         for (Athlete a : list2) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
-//            if (curCat != null && !curCat.equals(prevCat)) {
-//                // changing categories, put marker before athlete
-//                ja.put("isSpacer", true);
-//                jath.set(athx, ja);
-//                ja = Json.createObject();
-//                prevCat = curCat;
-//                athx++;
-//            }
             String category;
             if (Competition.getCurrent().isMasters()) {
                 category = a.getShortCategory();
@@ -440,13 +350,6 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
             ja.put("mastersAgeGroup", a.getMastersAgeGroup());
             ja.put("category", category);
-//            getAttemptsJson(a);
-//            ja.put("sattempts", sattempts);
-//            ja.put("cattempts", cattempts);
-//            ja.put("total", formatInt(a.getTotal()));
-//            ja.put("snatchRank", formatInt(a.getSnatchRank()));
-//            ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-//            ja.put("totalRank", formatInt(a.getTotalRank()));
             ja.put("nextAttemptNo", AthleteGridContent.formatAttemptNumber(a));
             Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
             ja.put("requestedWeight", nextAttemptRequestedWeight == 0 ? "-" : nextAttemptRequestedWeight.toString());
@@ -474,7 +377,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             getModel().setMasters(Competition.getCurrent().isMasters());
         });
         setTranslationMap();
-        liftingOrder = ImmutableList.of();
+        order = ImmutableList.of();
     }
 
     private void updateBottom(LiftingOrderModel model, String liftType) {
@@ -485,6 +388,6 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
                             : "");
         });
         model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
-        this.getElement().setPropertyJson("athletes", getAthletesJson(liftingOrder));
+        this.getElement().setPropertyJson("athletes", getAthletesJson(order));
     }
 }
