@@ -586,7 +586,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                                 + "kg");
                     }
                 } else {
-                    warnAnnouncer(group, attemptsDone, fop.getState(), fop.getLiftingOrder());
+                    topBarWarning(group, attemptsDone, fop.getState(), fop.getLiftingOrder());
                 }
                 if (fop.getState() != FOPState.BREAK && breakDialog != null && breakDialog.isOpened()) {
                     breakDialog.close();
@@ -658,7 +658,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                 createInitialBar();
                 warning.setText(getTranslation("IdlePlatform"));
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
-                    warnAnnouncer(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(), fop.getState(), fop.getLiftingOrder());
+                    topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(), fop.getState(), fop.getLiftingOrder());
                 }
             } else {
                 logger.trace("active: {}", state);
@@ -708,7 +708,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 
-    protected void warnAnnouncer(Group group, Integer attemptsDone, FOPState state, List<Athlete> liftingOrder) {
+    protected void topBarWarning(Group group, Integer attemptsDone, FOPState state, List<Athlete> liftingOrder) {
         if (group == null) {
             String string = getTranslation("NoGroupSelected");
             String text = group == null ? "\u2013" : string;
