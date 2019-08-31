@@ -366,7 +366,7 @@ public class FieldOfPlay {
                 athleteTimer.stop();
             }
             loadGroup(((SwitchGroup)e).getGroup(), this);
-            recomputeLiftingOrder();
+//            recomputeLiftingOrder();
             getUiEventBus().post(new UIEvent.SwitchGroup(((SwitchGroup)e).getGroup(), e.getOrigin()));
             return;
         }
@@ -545,9 +545,9 @@ public class FieldOfPlay {
         this.setClockOwner(null);
         this.previousAthlete = null;
         this.liftingOrder = athletes;
-        if (athletes != null && athletes.size() > 0) {
+//        if (athletes != null && athletes.size() > 0) {
             recomputeLiftingOrder();
-        }
+//        }
         if (state == null) {
             this.setState(INACTIVE);
         }
