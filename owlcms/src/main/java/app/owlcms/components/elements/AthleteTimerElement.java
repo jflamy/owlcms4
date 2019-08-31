@@ -111,13 +111,6 @@ public class AthleteTimerElement extends TimerElement {
 	public Object getOrigin() {
 		return origin;
 	}
-
-	@Subscribe
-	public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-			this.getOrigin(), e.getOrigin());
-		clientSyncTime();
-	}
 	
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {

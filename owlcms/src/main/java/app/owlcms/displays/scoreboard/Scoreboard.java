@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.displays.scoreboard;
@@ -58,9 +58,9 @@ import elemental.json.JsonValue;
 
 /**
  * Class Scoreboard
- * 
+ *
  * Show athlete 6-attempt results
- * 
+ *
  */
 @SuppressWarnings("serial")
 @Tag("scoreboard-template")
@@ -73,7 +73,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
     /**
      * ScoreboardModel
-     * 
+     *
      * Vaadin Flow propagates these variables to the corresponding Polymer template
      * JavaScript properties. When the JS properties are changed, a
      * "propname-changed" event is triggered.
@@ -133,7 +133,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     private DecisionElement decisions; // Flow creates it
 
     private EventBus uiEventBus;
-    private List<Athlete> displayOrder;
+    private List<Athlete> order;
     private Group curGroup;
     private int liftsDone;
 
@@ -155,6 +155,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             getModel().setTeamName("");
             getModel().setAttempt("");
             
+            ScoreboardModel model = getModel();
+            updateBottom(model, computeLiftType(fop.getCurAthlete()));
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
             this.getElement().callJsFunction("doBreak");
         }));
@@ -174,16 +176,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
      * Reset.
      */
     public void reset() {
-        displayOrder = ImmutableList.of();
-    }
-
-    @Subscribe
-    public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            Athlete a = e.getAthlete();
-            doUpdate(a, e);
-        });
+        order = ImmutableList.of();
     }
 
     @Subscribe
@@ -191,7 +184,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
-            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+            liftsDone = AthleteSorter.countLiftsDone(order);
             doUpdate(a, e);
         });
     }
@@ -235,12 +228,12 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-//        uiLog(e);
+        // uiLog(e);
         uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
-            displayOrder = e.getDisplayOrder();
-            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+            order = e.getDisplayOrder();
+            liftsDone = AthleteSorter.countLiftsDone(order);
             doUpdate(a, e);
         });
     }
@@ -252,6 +245,15 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
             doBreak();
+        });
+    }
+
+    @Subscribe
+    public void slaveStartLifting(UIEvent.StartLifting e) {
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            getModel().setHidden(false);
+            this.getElement().callJsFunction("reset");
         });
     }
 
@@ -301,15 +303,15 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
-        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+        logger.warn("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         ScoreboardModel model = getModel();
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
             LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
             leaveTopAlone = e2.isDisplayToggle() ? false : !e2.isStopAthleteTimer();
-            logger.debug("doUpdate leaveTopAlone={} displayToggle={}", leaveTopAlone, e2.isDisplayToggle() );
+            logger.debug("doUpdate leaveTopAlone={} displayToggle={}", leaveTopAlone, e2.isDisplayToggle());
         }
-                
+
         if (a != null) {
             if (!leaveTopAlone) {
                 this.getElement().callJsFunction("reset");
@@ -320,9 +322,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
                 model.setAttempt(formattedAttempt);
                 model.setWeight(a.getNextAttemptRequestedWeight());
             }
+            logger.warn("updating bottom");
             updateBottom(model, computeLiftType(a));
         }
         if (a == null || a.getAttemptsDone() >= 6) {
+            logger.warn("doUpdate calls doDone");
             OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
             return;
         }
@@ -330,10 +334,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
     /**
      * Compute Json string ready to be used by web component template
-     * 
+     *
      * CSS classes are pre-computed and passed along with the values; weights are
      * formatted.
-     * 
+     *
      * @param a
      * @return json string with nested attempts values
      */
@@ -372,8 +376,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
                         String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
                                 : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
                         jri.put("goodBadClassName", "narrow request");
-                        if (notDone)
+                        if (notDone) {
                             jri.put("className", highlight);
+                        }
                         jri.put("stringValue", stringValue);
                     }
                     break;
@@ -399,8 +404,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
         OwlcmsSession.withFop(fop -> {
             init();
             // sync with current status of FOP
-            displayOrder = fop.getDisplayOrder();
-            liftsDone = AthleteSorter.countLiftsDone(displayOrder);
+            order = fop.getDisplayOrder();
+            liftsDone = AthleteSorter.countLiftsDone(order);
             syncWithFOP(null);
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
@@ -428,12 +433,18 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     }
 
     private void doDone(Group g) {
-        if (g == null)
-            return;
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setFullName(getTranslation("Group_number_done", g.toString()));
-            this.getElement().callJsFunction("groupDone");
-        });
+        logger.warn("doDone {}", g == null ? null : g.getName());
+        if (g == null) {
+            doEmpty();
+        } else {
+            UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+                OwlcmsSession.withFop(fop -> {
+                    updateBottom(getModel(), computeLiftType(fop.getCurAthlete()));
+                    getModel().setFullName(getTranslation("Group_number_done", g.toString()));
+                    this.getElement().callJsFunction("groupDone");
+                });
+            });
+        }
     }
 
     private void doUpdateBottomPart(Decision e) {
@@ -495,8 +506,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             Integer liftOrderRank = a.getLiftOrderRank();
             boolean notDone = a.getAttemptsDone() < 6;
             String blink = (notDone ? " blink" : "");
-            if (notDone)
+            if (notDone) {
                 ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
+            }
             jath.set(athx, ja);
             athx++;
         }
@@ -515,7 +527,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             getModel().setMasters(Competition.getCurrent().isMasters());
         });
         setTranslationMap();
-        displayOrder = ImmutableList.of();
+        order = ImmutableList.of();
     }
 
     private void updateBottom(ScoreboardModel model, String liftType) {
@@ -524,11 +536,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             model.setGroupName(
                     curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
                             : "");
-            if (displayOrder == null) {
-                displayOrder = fop.getDisplayOrder();
-            }
+            order = fop.getDisplayOrder();
             model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
-            this.getElement().setPropertyJson("athletes", getAthletesJson(displayOrder));
+            this.getElement().setPropertyJson("athletes", getAthletesJson(order));
         });
 
     }

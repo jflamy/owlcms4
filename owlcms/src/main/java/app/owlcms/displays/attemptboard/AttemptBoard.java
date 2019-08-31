@@ -159,13 +159,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     public boolean isIgnoreGroupFromURL() {
         return true;
     }
-
+    
     @Subscribe
-    public void slaveAthleteAnnounced(UIEvent.AthleteAnnounced e) {
+    public void slaveStartLifting(UIEvent.StartLifting e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        Athlete a = e.getAthlete();
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doAthleteUpdate(a));
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            this.getElement().callJsFunction("reset");
+        });
     }
 
     @Subscribe
