@@ -259,6 +259,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     }
 
     protected void doEmpty() {
+        logger.trace("doEmpty");
         this.getModel().setHidden(true);
     }
 
