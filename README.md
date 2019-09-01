@@ -3,13 +3,9 @@
 
 This software is a new generation of `owlcms` which has been used to manage Olympic Weightlifting competitions since 2009. 
 
-Main incentives for this rewrite:
-- Ability to run in the cloud: Decisions, timers and sounds are now handled locally in the browser to provide better feedback.
-- Simplicity and robustness: The new version is much simpler due to the evolution of Web browsers and Web programming frameworks.
+### Features and Demo
 
-### Features
-
-See the application [Web Site](https://jflamy.github.io/owlcms4/) for a full overview
+See the application [Web Site](https://jflamy.github.io/owlcms4/) for a full overview.  See [this page](https://jflamy.github.io/owlcms4/#/Demo) for accessing a live demo.
 
 ### Installation
 [Ready-to-run Releases](https://github.com/jflamy/owlcms4/releases) are available at [https://github.com/jflamy/owlcms4/releases](https://github.com/jflamy/owlcms4/releases) . The releases can be run either locally (on any machine where Java8 is available), or on the cloud.

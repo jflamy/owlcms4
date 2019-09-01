@@ -42,7 +42,7 @@ There are three ways to use OWLCMS4: cloud-based, local, and solo.  Which one yo
 
 ### Cloud access over the Internet
 
-In this setup, OWLCMS4 executes on an external cloud service (we provide instructions for [Heroku](Heroku), which is physically hosted on Amazon AWS).  Nothing is installed locally: all the laptops and miniPCs simply run a browser, which connects to the remote site.  The address that all the browsers need to use is determined when configuring the cloud service -- in the following example, our demo site https://owlcms4.herokuapp.com is used.
+In this setup, OWLCMS4 executes on an external cloud service (we provide [instructions for Heroku](Heroku), which is physically hosted on Amazon AWS).  Nothing is installed locally: all the laptops and miniPCs simply run a browser, which connects to the remote site.  The address that all the browsers need to use is determined when configuring the cloud service -- in the following example, our demo site https://owlcms4.herokuapp.com is used.
 
 ![010_Cloud](img/equipment/010_Cloud.PNG)
 
@@ -64,7 +64,7 @@ You can also use the master laptop by itself.  This is useful to prepare for a c
 The situation is the same as before: the display is done via a browser that asks OWLCMS4 for its information.  The only difference is that the two programs are running on the same computer.
 
 -  OWLCMS4 runs on the laptop (pictured in red). It displays its status in a black command-line window.
-- A browser Chrome (pictured in blue), which will display its output in a browser window.   There is no need for a router because the two programs are on the same machine.   In such a case, there is are magic addresses http://localhost or http://127.0.0.1 that allow the connection to be made locally.
+- A browser (Chrome or Firefox, pictured in blue), which will display its output in a browser window.   There is no need for a router because the two programs are on the same machine.   In such a case, there are magic addresses http://localhost or http://127.0.0.1 that allow the connection to be made locally.
 
 ![030_solo](img/equipment/030_solo.PNG)
 
