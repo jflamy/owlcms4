@@ -678,6 +678,9 @@ public class FieldOfPlay {
      */
     void setState(FOPState state) {
         logger.trace("entering {} {}", state, LoggerUtils.whereFrom());
+//        if (state == INACTIVE) {
+//            logger.debug("entering inactive {}",LoggerUtils.stackTrace());
+//        }
         this.state = state;
     }
 
@@ -931,6 +934,7 @@ public class FieldOfPlay {
             logger.debug("transition to break {}", breakType2);
             setState(BREAK);
             this.setBreakType(breakType2);
+            getAthleteTimer().stop();
             getBreakTimer().start();
         }
     }

@@ -545,6 +545,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             UIEventProcessor.uiAccess(groupFilter, uiEventBus, () -> {
                 Group newGroup = e.getValue();
                 OwlcmsSession.withFop((fop) -> {
+                    oldGroup = fop.getGroup();
                     if (newGroup == null && oldGroup == null)
                         return;
                     if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
@@ -557,6 +558,9 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                         // otherwise we should listen for UI SwitchGroup event.
                         syncWithFOP(true);
                         updateURLLocation(locationUI, location, newGroup);
+                    } else {
+                        fop.loadGroup(newGroup, this);
+                        syncWithFOP(true);
                     }
                 });
             });
@@ -655,7 +659,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             Athlete curAthlete2 = fop.getCurAthlete();
             FOPState state = fop.getState();
             if (state == FOPState.INACTIVE) {
-                logger.trace("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2,
+                logger.debug("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2,
                         curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 createInitialBar();
                 warning.setText(getTranslation("IdlePlatform"));
