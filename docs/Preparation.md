@@ -10,7 +10,7 @@ This gives  you access to the the `Prepare Competition` page.  You may go to any
 
 The `Edit Competition Information` button leads to a page where the information used on the various competition documents is defined.  It also allows options to be set that define the competition behavior.
 
-- The `Apply initial total weight rule` determines whether the 20kg rule (20/15 for Masters) will be enforced.  Some local or regional meets do not enforce this rule.
+- The `Apply initial total weight rule` determines whether the 20kg rule (15/10 for Masters) will be enforced.  Some local or regional meets do not enforce this rule.
 - The `Use Birth Year Only` allows the use of only the 4-digit birth year for athletes, instead of a full date as required by IWF.
 
 ![030_Competition](img/Preparation/030_Competition.png)

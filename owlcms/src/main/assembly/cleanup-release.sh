@@ -1,5 +1,5 @@
 #!/bin/bash
-cd ${project.basedir}
+cd "${project.basedir}"
 git push --all
 git checkout develop
 git merge master

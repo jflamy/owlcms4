@@ -440,7 +440,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             UIEventProcessor.uiAccess(this, uiEventBus, () -> {
                 OwlcmsSession.withFop(fop -> {
                     updateBottom(getModel(), computeLiftType(fop.getCurAthlete()));
-                    getModel().setFullName(getTranslation("Group_number_done", g.toString()));
+                    getModel().setFullName(getTranslation("Group_number_results", g.toString()));
                     this.getElement().callJsFunction("groupDone");
                 });
             });

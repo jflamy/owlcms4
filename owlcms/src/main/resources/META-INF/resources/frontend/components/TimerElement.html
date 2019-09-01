@@ -11,7 +11,7 @@
 <audio id="initialWarning" preload="auto"><source src="../sounds/initialWarning.mp3"></source></audio>
 <audio id="finalWarning" preload="auto"><source src="../sounds/finalWarning.mp3"></source></audio>
 <audio id="timeOver" preload="auto"><source src="../sounds/timeOver.mp3"></source></audio>
-<div>{{_formattedTime}}</div>
+<div inner-h-t-m-l="[[_formattedTime]]"></div>
 </template>
 <script>
   class TimerElement extends Polymer.Element {
@@ -155,7 +155,7 @@
       }
       
       _indefinite() {
-    	  this.set('_formattedTime', '--:--');
+    	  this.set('_formattedTime', '&nbsp;');
       }
 
       _init() {

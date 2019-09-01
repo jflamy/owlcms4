@@ -1,12 +1,21 @@
 ### Building and Packaging
 
 This is a standard Maven project.  If you wish, you can build the binaries from this source.
-In order to do so.
+
+## Pre-requisites
 
 - Install Java 8 and the support for Maven and Git in your favorite development environment. 
   - Eclipse Java IDE includes the M2E and EGit plugins and works fine -- the project includes the settings file for that configuration.
-  - The project uses [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) to manage its versions; there is a GitFlow Eclipse plugin at https://marketplace.eclipse.org/content/gitflow-nightly .  You may prefer using something like [](https://www.sourcetreeapp.com/).
+  - The project uses the [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) version management process 
+    - There is a [GitFlow Eclipse plugin](https://marketplace.eclipse.org/content/gitflow-nightly) that works well.
+    - You may prefer using something like [SourceTree](https://www.sourcetreeapp.com/).
+  - The build process uses Git commands and the ability to run them in a shell script; installing [GitHub Desktop](https://desktop.github.com/) is the easiest way. Select the options to add the programs to the execution path.
+- In order to build the Windows installer, you need to run on Windows and [Innosetup](http://www.jrsoftware.org/isinfo.php) needs to be installed.
 - Clone this repository.
+
+
+## Building and testing
+
 - Running ``mvn package`` inside the owlcms subdirectory should give you 
   - `target/owlcms.jar` working  uberjar (a .jar file that contains all the dependencies)
   -  `target/owlcms.zip`
@@ -32,7 +41,9 @@ In order to do so.
 
 ### Automated Releasing
 
-Releases are created on [GitHub](https://help.github.com/en/articles/creating-releases).  The process used for managing versions is [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow).  A [GitFllow Maven plug-in](https://github.com/aleksandr-m/gitflow-maven-plugin) is used to reduce the number of manual steps.
+Releases are created on [GitHub](https://help.github.com/en/articles/creating-releases).  
+The process used for managing versions is [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow).  
+A [GitFllow Maven plug-in](https://github.com/aleksandr-m/gitflow-maven-plugin) is used to reduce the number of manual steps.
 
 1. Run `mvn gitflow:release-start` to create the new release.
    - You should be in the `develop`  branch before starting, and have merged all the features you wish so include.
@@ -42,17 +53,8 @@ Releases are created on [GitHub](https://help.github.com/en/articles/creating-re
    - Then it does the merge of the release branch into`master`
    - Finally it creates the GitHub release
 6. The GitHub release portion will fail due to a bug in the plugin, but all the real work has been done.
-   - The local repository is left on master with changes unpushed; changes that occurred in the release branch are also not merged back into `develop`
-     - Push all branches upstream (Eclipse: Teams / Push to upstream)
-     - Switch to develop (Eclipse: Teams / Switch to master)
-     - Merge the local master branch back into develop
-     - Push all again
-   - Delete the local release branch that is left over (Eclipse: Teams / Advanced / Delete Branch)
- ```bash
- git push --all
- git checkout develop
- git merge master
- git push --all
- git branch -D release/4.x.y
- ```
+   - go to the target directory
+   - start the "git bash" shell
+   - run cleanup-release.sh
+
 

@@ -546,6 +546,9 @@ public class FieldOfPlay {
         this.previousAthlete = null;
         this.liftingOrder = athletes;
         if (athletes != null && athletes.size() > 0) {
+            // we skip recomputation so that we can detect that we are on an empty group
+            // and clear the displays. SwitchGroup processing will recompute. 
+            // recomputing twice is innocuous in this case and is simpler than keeping state.
             recomputeLiftingOrder();
         }
         if (state == null) {
@@ -675,6 +678,9 @@ public class FieldOfPlay {
      */
     void setState(FOPState state) {
         logger.trace("entering {} {}", state, LoggerUtils.whereFrom());
+//        if (state == INACTIVE) {
+//            logger.debug("entering inactive {}",LoggerUtils.stackTrace());
+//        }
         this.state = state;
     }
 
@@ -924,9 +930,12 @@ public class FieldOfPlay {
         if (state == BREAK && (this.breakType != BreakType.GROUP_DONE && getBreakTimer().isRunning())) {
             logger.error("break already started {}",LoggerUtils.stackTrace());
         } else {
-            this.setBreakType(e.getBreakType());
-            getBreakTimer().start();
+            BreakType breakType2 = e.getBreakType();
+            logger.debug("transition to break {}", breakType2);
             setState(BREAK);
+            this.setBreakType(breakType2);
+            getAthleteTimer().stop();
+            getBreakTimer().start();
         }
     }
 

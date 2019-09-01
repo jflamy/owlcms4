@@ -111,6 +111,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public ComponentEventListener<ClickEvent<Button>> endBreak(Dialog dialog) {
         return (e) -> {
             OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin())));
+            logger.debug("endbreak enabiling start");
             breakStart.setEnabled(true);
             breakPause.setEnabled(false);
             breakEnd.setEnabled(false);
@@ -148,23 +149,22 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         assembleDialog(this, buttons);
     }
 
-    public ComponentEventListener<ClickEvent<Button>> pauseBreak() {
-        return (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                ProxyBreakTimer breakTimer = fop.getBreakTimer();
-                breakTimer.stop();
-                if (breakTimer.isIndefinite()) {
-                    ct.setValue(CountdownType.INDEFINITE);
-                } else if (ct.getValue() != CountdownType.INDEFINITE) {
-                    durationField.setValue(Duration.ofSeconds(breakTimer.computeTimeRemaining() / 1000));
-                    ct.setValue(CountdownType.DURATION);
-                }
-                fop.getFopEventBus().post(new FOPEvent.BreakPaused(this.getOrigin()));
-            });
-            breakStart.setEnabled(true);
-            breakPause.setEnabled(false);
-            breakEnd.setEnabled(true);
-        };
+    public void pauseBreak() {
+        OwlcmsSession.withFop(fop -> {
+            ProxyBreakTimer breakTimer = fop.getBreakTimer();
+            breakTimer.stop();
+            if (breakTimer.isIndefinite()) {
+//                ct.setValue(CountdownType.INDEFINITE);
+            } else 
+//                if (ct.getValue() != CountdownType.INDEFINITE) 
+                {
+                durationField.setValue(Duration.ofSeconds(breakTimer.computeTimeRemaining() / 1000));
+                ct.setValue(CountdownType.DURATION);
+            }
+            fop.getFopEventBus().post(new FOPEvent.BreakPaused(this.getOrigin()));
+        });
+        logger.debug("pause break enable start");
+        startEnabled();
     }
 
     public void readFromRunningTimer(FieldOfPlay fop, ProxyBreakTimer breakTimer) {
@@ -172,18 +172,17 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         durationField.setValue(Duration.ofMillis(milliseconds));
         ct.setValue(CountdownType.DURATION);
         bt.setValue(fop.getBreakType());
+        startDisabled();
     }
 
-    public ComponentEventListener<ClickEvent<Button>> startBreak() {
-        return (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                startBreak(fop);
-            });
-            e.getSource().setEnabled(false);
-            breakStart.setEnabled(false);
-            breakPause.setEnabled(true);
-            breakEnd.setEnabled(true);
-        };
+    public void startBreak() {
+        OwlcmsSession.withFop(fop -> {
+            startBreak(fop);
+        });
+        //            e.getSource().setEnabled(false);
+        logger.debug("start break disable start");
+        startDisabled();
+        return;
     }
 
     public void startBreak(FieldOfPlay fop) {
@@ -194,15 +193,26 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         } else {
             breakTimer.setTimeRemaining(timeRemaining.intValue());
         }
+        fop.getFopEventBus().post(new FOPEvent.BreakStarted(bt.getValue(), null));
+    }
 
-        fop.getFopEventBus().post(new FOPEvent.BreakStarted(bt.getValue(), this.getOrigin()));
+    public void startDisabled() {
+        breakStart.setEnabled(false);
+        breakPause.setEnabled(true);
+        breakEnd.setEnabled(true);
+    }
+
+    public void startEnabled() {
+        breakStart.setEnabled(true);
+        breakPause.setEnabled(false);
+        breakEnd.setEnabled(true);
     }
 
     public void startIndefiniteBreakImmediately() {
         timeRemaining = null;
         ct.setValue(CountdownType.INDEFINITE);
         bt.setValue(requestedBreakType != null ? requestedBreakType : BreakType.TECHNICAL);
-        startBreak(OwlcmsSession.getFop());
+        startBreak();
         breakTimerElement.slaveBreakStart(new BreakStarted(null, this, false));
     }
 
@@ -233,9 +243,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         durationField.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.DURATION));
         timePicker.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET));
         timePicker.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET));
-        
+
         syncWithFop();
-        if (requestedBreakType != null && (requestedBreakType == BreakType.JURY || requestedBreakType == BreakType.TECHNICAL)) {
+        if (requestedBreakType != null
+                && (requestedBreakType == BreakType.JURY || requestedBreakType == BreakType.TECHNICAL)) {
+            logger.debug("starting break immediately");
             startIndefiniteBreakImmediately();
         } else {
             setBreakTimeRemaining(ct.getValue());
@@ -277,16 +289,16 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private FlexLayout createButtons(BreakManagement breakManagement) {
-        breakStart = new Button(AvIcons.PLAY_ARROW.create(), startBreak());
+        breakStart = new Button(AvIcons.PLAY_ARROW.create(), (e) -> startBreak());
         breakStart.getElement().setAttribute("theme", "primary contrast");
         breakStart.getElement().setAttribute("title", getTranslation("StartCountdown"));
 
-        breakPause = new Button(AvIcons.PAUSE.create(), pauseBreak());
+        breakPause = new Button(AvIcons.PAUSE.create(), (e) -> pauseBreak());
         breakPause.getElement().setAttribute("theme", "primary contrast");
         breakPause.getElement().setAttribute("title", getTranslation("PauseCountdown"));
 
         breakEnd = new Button(getTranslation("EndBreak"), PlacesIcons.FITNESS_CENTER.create(), endBreak(parentDialog));
-        breakEnd.getElement().setAttribute("theme", "success primary");
+        breakEnd.getElement().setAttribute("theme", "primary success");
         breakEnd.getElement().setAttribute("title", getTranslation("EndBreak"));
 
         FlexLayout buttons = new FlexLayout();
@@ -393,22 +405,26 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 breakTimerElement.slaveBreakSet(new BreakSetTime(timeRemaining.intValue(), false, this));
             }
 
-            ProxyBreakTimer breakTimer = fop.getBreakTimer();
-            if (breakTimer.isRunning()) {
-                breakStart.setEnabled(false);
-                breakPause.setEnabled(true);
-                breakEnd.setEnabled(true);
-                if (breakTimer.isIndefinite()) {
-                    ct.setValue(CountdownType.INDEFINITE);
-                    breakTimerElement.slaveBreakStart(new BreakStarted(null, this, false));
-                } else {
-                    breakTimerElement.slaveBreakStart(new BreakStarted(timeRemaining == null ? null : timeRemaining.intValue(), this, false));
-                }
-            } else {
-                breakStart.setEnabled(true);
-                breakPause.setEnabled(false);
-                breakEnd.setEnabled(true);
-            }
+            fop.getBreakTimer();
+
+            //            if (breakTimer.isRunning()) {
+            //                logger.debug("setTime disabling start");
+            //                breakStart.setEnabled(false);
+            //                breakPause.setEnabled(true);
+            //                breakEnd.setEnabled(true);
+            //                if (breakTimer.isIndefinite()) {
+            //                    ct.setValue(CountdownType.INDEFINITE);
+            //                    breakTimerElement.slaveBreakStart(new BreakStarted(null, this, false));
+            //                } else {
+            //                    breakTimerElement.slaveBreakStart(
+            //                            new BreakStarted(timeRemaining == null ? null : timeRemaining.intValue(), this, false));
+            //                }
+            //            } else {
+            //                logger.debug("setTime enabling start");
+            //                breakStart.setEnabled(true);
+            //                breakPause.setEnabled(false);
+            //                breakEnd.setEnabled(true);
+            //            }
         });
 
         return;
@@ -452,6 +468,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             if (breakTimer.isRunning()) {
                 readFromRunningTimer(fop, breakTimer);
             } else {
+                startEnabled();
                 switch (fop.getState()) {
                 case BREAK:
                     BreakType breakType = fop.getBreakType();
@@ -470,6 +487,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         bt.setValue(BreakType.FIRST_SNATCH);
                     } else {
                         bt.setValue(BreakType.TECHNICAL);
+                        requestedBreakType = BreakType.TECHNICAL;
                     }
                     break;
                 case INACTIVE:
@@ -477,6 +495,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     break;
                 default:
                     bt.setValue(BreakType.TECHNICAL);
+                    requestedBreakType = BreakType.TECHNICAL;
                     break;
                 }
             }
