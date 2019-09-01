@@ -79,7 +79,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public abstract class AthleteGridContent extends VerticalLayout
-implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor {
+        implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -93,7 +93,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         Integer attemptNumber = a.getAttemptNumber();
         return (attemptsDone >= 3)
                 ? ((attemptsDone >= 6) ? "done" : Translator.translate("C_and_J_number", attemptNumber))
-                        : Translator.translate("Snatch_number", attemptNumber);
+                : Translator.translate("Snatch_number", attemptNumber);
     }
 
     protected Location location;
@@ -115,13 +115,13 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     protected boolean initialBar;
     protected H3 warning;
     protected Button breakButton;
-    
+
     /*
      * Initial Bar
      */
     protected Button introCountdownButton;
     protected Button startLiftingButton;
-    
+
     /**
      * groupFilter points to a hidden field on the crudGrid filtering row, which is
      * slave to the group selection process. this allows us to use the filtering
@@ -279,7 +279,8 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                 return;
             }
 
-            if (this instanceof AnnouncerContent)logger.debug ("starting break {}", LoggerUtils.stackTrace());
+            if (this instanceof AnnouncerContent)
+                logger.debug("starting break {}", LoggerUtils.stackTrace());
             syncWithFOP(true);
         });
     }
@@ -358,7 +359,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
     }
 
     protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-        breakDialog = new BreakDialog(this,BreakType.TECHNICAL,CountdownType.INDEFINITE);
+        breakDialog = new BreakDialog(this, BreakType.TECHNICAL, CountdownType.INDEFINITE);
         breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
             breakDialog.open();
         });
@@ -377,7 +378,8 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
         ThemeList themes = grid.getThemeNames();
         themes.add("compact");
         themes.add("row-stripes");
-        grid.addColumn(athlete -> athlete.getLastName().toUpperCase(),"lastName").setHeader(getTranslation("LastName"));
+        grid.addColumn(athlete -> athlete.getLastName().toUpperCase(), "lastName")
+                .setHeader(getTranslation("LastName"));
         grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
         grid.addColumn("team").setHeader(getTranslation("Team"));
         grid.addColumn("category").setHeader(getTranslation("Category"));
@@ -551,7 +553,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                     if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
                         logger.debug("filter switching group from {} to {}",
                                 oldGroup != null ? oldGroup.getName() : null,
-                                        newGroup != null ? newGroup.getName() : null);
+                                newGroup != null ? newGroup.getName() : null);
                         fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
                         oldGroup = newGroup;
                         // this assumes that SwitchGroup post is synchronous and has loaded.
@@ -589,7 +591,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                         Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
                         weight.setText(
                                 (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
-                                + "kg");
+                                        + "kg");
                     }
                 } else {
                     topBarWarning(group, attemptsDone, fop.getState(), fop.getLiftingOrder());
@@ -664,7 +666,8 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                 createInitialBar();
                 warning.setText(getTranslation("IdlePlatform"));
                 if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
-                    topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(), fop.getState(), fop.getLiftingOrder());
+                    topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
+                            fop.getState(), fop.getLiftingOrder());
                 }
             } else {
                 logger.debug("active: {}", state);
@@ -681,9 +684,7 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                         breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
                         breakButton.setText(getTranslation("Paused"));
                         breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
-                    }
-                    else 
-                    {
+                    } else {
                         breakButton.getElement().setAttribute("theme", "primary error");
                         breakButton.setText(getTranslation("Paused"));
                     }
@@ -701,9 +702,9 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
                         breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
                         breakButton.setText(getTranslation("JuryDeliberation"));
                         breakButton.getElement().setAttribute("title", getTranslation("JuryDeliberation"));
-                    }
-                    else {
-                        breakButton.getElement().setAttribute("theme", "secondary contrast icon");
+                    } else {
+                        breakButton.getElement().setAttribute("theme", "secondary error icon");
+                        breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
                     }
                 }
                 breakButton.setEnabled(true);
@@ -741,8 +742,10 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             if (!initialBar) {
                 topBarMessage(string, text);
             } else {
-                if (introCountdownButton != null) introCountdownButton.setVisible(false);
-                if (startLiftingButton != null) startLiftingButton.setVisible(false);
+                if (introCountdownButton != null)
+                    introCountdownButton.setVisible(false);
+                if (startLiftingButton != null)
+                    startLiftingButton.setVisible(false);
                 warning.setText(string);
             }
         } else if (attemptsDone >= 6) {
@@ -751,7 +754,8 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             if (!initialBar) {
                 topBarMessage(string, text);
             } else {
-                if (introCountdownButton != null) introCountdownButton.setVisible(false);
+                if (introCountdownButton != null)
+                    introCountdownButton.setVisible(false);
                 if (startLiftingButton != null) {
                     startLiftingButton.setEnabled(true);
                     startLiftingButton.setText(getTranslation("ShowResults"));
@@ -764,8 +768,10 @@ implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventPr
             if (!initialBar) {
                 topBarMessage(string, text);
             } else {
-                if (introCountdownButton != null) introCountdownButton.setVisible(false);
-                if (startLiftingButton != null) startLiftingButton.setVisible(false);
+                if (introCountdownButton != null)
+                    introCountdownButton.setVisible(false);
+                if (startLiftingButton != null)
+                    startLiftingButton.setVisible(false);
                 warning.setText(string);
             }
         }
