@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>org.vaadin.crudui</groupId>
 			<artifactId>crudui</artifactId>
-			<version>3.9.1-SNAPSHOT</version>
+			<version>3.9.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
