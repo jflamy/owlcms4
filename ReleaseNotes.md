@@ -1,7 +1,9 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and for directions to [live demo](https://jflamy.github.io/owlcms4/#/?id=demo)
 - Release Highlights:
-  - Improvements to break management (easier to notice that another official has started a break, more intuitive behaviour of timer)
-- [Change Log](https://github.com/jflamy/owlcms4/milestone/49?closed=1) for this release (enhancements and fixes)
+  - Russian translation
+  - Top five male/female athletes by Sinclair Ranking (new scoreboard), including kg needed to be best lifter by bodyweight
+  - Lists now accept double-clicks to select items and open dialog boxes
+- [Change Log](https://github.com/jflamy/owlcms4/milestone/50?closed=1) for this release (enhancements and fixes)
 - Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` below and follow [Local Instructions](https://jflamy.github.io/owlcms4/#/LocalSetup.md) 
   - For **Linux** and **Mac OS**, download the `owlcms.zip` file below and follow [Local Instructions](https://jflamy.github.io/owlcms4/#/LocalSetup.md) 
