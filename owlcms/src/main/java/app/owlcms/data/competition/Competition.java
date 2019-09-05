@@ -479,7 +479,7 @@ public class Competition {
 
     @SuppressWarnings("unchecked")
     public List<Athlete> getGlobalSinclairRanking(Gender gender) {
-        return (List<Athlete>) reportingBeans.get(gender == Gender.F ? "fSinclair" : "mSinclair");
+        return (List<Athlete>) reportingBeans.get(gender == Gender.F ? "wSinclair" : "mSinclair");
     }
 
     public void computeGlobalRankings(HashMap<String, Object> reportingBeans2) {
@@ -489,11 +489,12 @@ public class Competition {
             throw new RuntimeException("No athletes.");
         }
         // extract club lists
-        TreeSet<String> clubs = new TreeSet<String>();
+        TreeSet<String> teams = new TreeSet<String>();
         for (Athlete curAthlete : athletes) {
-            clubs.add(curAthlete.getClub());
+            teams.add(curAthlete.getTeam());
         }
-        reportingBeans2.put("clubs", new ArrayList<String>(clubs));
+        reportingBeans2.put("clubs", new ArrayList<String>(teams));
+        logger.debug("teams {}", teams);
 
         List<Athlete> sortedAthletes;
         List<Athlete> sortedMen = null;
@@ -511,14 +512,14 @@ public class Competition {
         reportingBeans2.put("nbMen", sortedMen.size());
         reportingBeans2.put("nbWomen", sortedWomen.size());
         reportingBeans2.put("nbAthletes", sortedAthletes.size());
-        reportingBeans2.put("nbClubs", clubs.size());
+        reportingBeans2.put("nbClubs", teams.size());
         if (sortedMen.size() > 0) {
-            reportingBeans2.put("mClubs", clubs);
+            reportingBeans2.put("mClubs", teams);
         } else {
             reportingBeans2.put("mClubs", new ArrayList<String>());
         }
         if (sortedWomen.size() > 0) {
-            reportingBeans2.put("wClubs", clubs);
+            reportingBeans2.put("wClubs", teams);
         } else {
             reportingBeans2.put("wClubs", new ArrayList<String>());
         }
@@ -546,6 +547,8 @@ public class Competition {
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
         reportingBeans2.put("mSinclair", sortedMen);
         reportingBeans2.put("wSinclair", sortedWomen);
+        logger.debug("mSinclair {}",sortedMen);
+        logger.debug("wSinclair {}", sortedWomen);
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.ROBI);
         AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.ROBI);

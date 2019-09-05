@@ -250,7 +250,7 @@ Scoreboard.Birth,Born,Naiss.,Naiss.<div class='english'>Born</div>,Født,Nacimie
 Scoreboard.Snatch,Snatch,Arraché,Arraché<div class='english'>Snatch</div>,Træk,Arr.,
 Scoreboard.AgeGroup,Age Gr.,Gr. Age.,<nobr>Gr. Age.</nobr><div class='english'><nobr>Age Gr.</nobr></div>,Aldesgruppe,Grupos per edades,
 Scoreboard.Rank,Rank,Rang,Rang<div class='english'>Rank</div>,Placering,Posición,
-Scoreboard.Clean_and_Jerk,Clean&Jerk,Épaulé-jeté,Épaulé-jeté<div class='english'>Clean&amp,Stød,Stød,
+Scoreboard.Clean_and_Jerk,Clean&amp;Jerk,Épaulé-jeté,Épaulé-jeté<div class='english'>Clean&amp;Jerk</dif>,Stød,Stød,
 Scoreboard.Total,Total,Total,Total,Tokamp,Total,
 Scoreboard.Category,Cat.,Cat.,Cat.,Vægtklasse,Cat.,
 Scoreboard.AttemptsDone,"{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}","{0,choice,0#Aucun essai.|1#1 essai effectué.|1<{0} essais effectués.}",,"{0,choice,0#Ingen løft afviklet.|1#1 løft afviklet.|1<{0} løft afviklet.}",,
@@ -374,3 +374,9 @@ IdlePlatform,Idle Platform (no countdown displayed),Plateau inactif (pas de déc
 ShowResults,Show Results,Afficher les résultats,,Vis resultater,Mostrar resultados,
 Group_number_results,Group {0} &ndash; Results,Groupe {0} &ndash; Résultats.,,Gruppe {0} &ndash; resultater.,Sesion {0} &ndash; resultados.,
 Paused,Paused,En pause,,Paused,Paused,
+Scoreboard.TopSinclairMen,Top Sinclair &ndash; Men,Meilleurs Sinclair &ndash; Hommes,,Top Sinclair &ndash; Men,Top Sinclair &ndash; Men,
+Scoreboard.TopSinclairWomen,Top Sinclair &ndash; Women,Meilleurs Sinclair &ndash; Women,,Top Sinclair &ndash; Women,Top Sinclair &ndash; Women,
+Scoreboard.TopSinclair,Top Sinclair,Meilleurs Sinclair,,Top Sinclair,Top Sinclair,
+Scoreboard.Needed,Kg Needed,Kg Requis,,Kg Needed,Kg Needed,
+Scoreboard.Sinclair,Sinclair,Sinclair,,Sinclair,Sinclair,Sinclair
+Scoreboard.BodyWeight,B.W.,Poids,,Vægt,P.C.,

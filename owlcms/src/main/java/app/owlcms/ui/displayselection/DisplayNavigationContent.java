@@ -53,12 +53,11 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button scoreboard = openInNewTab(Scoreboard.class, getTranslation("Scoreboard"));
         Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
         Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
-        topSinclair.setEnabled(false);
         Button referee = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
         Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoard.class, getTranslation("Athlete_Attempt"));
 
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, attempt, liftingOrder 
-                //,topSinclair
+                ,topSinclair
                 );
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, athleteFacingAttempt);
 

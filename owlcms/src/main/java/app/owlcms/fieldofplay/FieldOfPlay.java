@@ -729,6 +729,7 @@ public class FieldOfPlay {
                         getBreakTimer().stop();
                     }
                     uiDisplayCurrentAthleteAndTime(stopAthleteTimer, wc, false);
+                    updateGlobalRankings();
                 } else {
                     logger.trace("&&3.A.B declaration for clock owner: leave clock running");
                     // no weight change. this is most likely a declaration.
@@ -749,6 +750,7 @@ public class FieldOfPlay {
             // changing athlete is not current athlete
             recomputeLiftingOrder();
             uiDisplayCurrentAthleteAndTime(true, wc, false);
+            updateGlobalRankings();
         }
     }
 
@@ -955,6 +957,7 @@ public class FieldOfPlay {
         }
         uiStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e, false);
+        updateGlobalRankings();
     }
 
     private void transitionToTimeRunning() {
@@ -1020,7 +1023,8 @@ public class FieldOfPlay {
         Notification.show(text, 5000, Position.BOTTOM_END);
     }
 
-    private void updateGlobalRankings() {
+    public void updateGlobalRankings() {
+        logger.warn("update rankings {}",LoggerUtils.whereFrom());
         Competition competition = Competition.getCurrent();
         if (competition.isGlobalRankingRecompute()) {
             competition.computeGlobalRankings();

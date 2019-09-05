@@ -167,7 +167,7 @@ th, td {
 }
 
 .veryNarrow {
-	width: 4vw;
+	width: 6vw;
 	text-align: center;
 }
 
@@ -233,84 +233,119 @@ th, td {
 .v-system-error {
 	display: none;
 }
+
+.sinclair {
+	font-weight: bold;
+}
 </style>
 
 <div class="wrapper" id="resultBoardDiv">
-<div class="attemptBar" style$="[[_computeHidden(hidden)]]">
-	<div class="athleteInfo" id="athleteInfoDiv" style$="[[_computeHidden(hidden)]]">
-		<div class="fullName" id="fullNameDiv" inner-h-t-m-l="[[fullName]]"></div>
-	</div>
-</div>
-<div class="group" id="groupDiv" style$="[[_computeHidden(hidden)]]">
-	<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
-</div>
-<table class="results" style$="[[_computeHidden(hidden)]]">
-	<thead>
-		<tr>
-			<!--  [[t.x]] references the translation for key Scoreboard.x in the translation4.csv file -->
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Start]]"></th>
-			<th inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
-			<th class$="[[_computeMasters(masters)]]" inner-h-t-m-l="[[t.AgeGroup]]"></th>
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Category]]"></th>
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-			<th class='club' inner-h-t-m-l="[[t.Team]]"></th>
-			<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
-			<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
-			<th class="narrow" inner-h-t-m-l="[[t.Sinclair]]"></th>
-			<th class="narrow" inner-h-t-m-l="[[t.Needed]]"></th>
-		</tr>
-	</thead>
-	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
-		<template is="dom-if" if="[[l.isSpacer]]">
-			<tr><td colspan="0" style="height:0.1ex; border:none"></td></tr>
-		</template>
-		<template is="dom-if" if="[[!l.isSpacer]]">
-			<tr>
-				<td class$="veryNarrow"><div class$="[[l.classname]]">[[l.startNumber]]</div></td>
-				<td><div class$="[[l.classname]]">[[l.fullName]]</div></td>
-				<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
-				<td class="veryNarrow">[[l.category]]</td>
-				<td class="veryNarrow">[[l.yearOfBirth]]</td>
-				<td class="club">[[l.teamName]]</td>
-				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]]"><div class$="[[attempt.className]]">[[attempt.stringValue]]</div></td>
-				</template>
-				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]]"><div class$="[[attempt.className]]">[[attempt.stringValue]]</div></td>
-				</template>	
-				<td class="veryNarrow">[[l.total]]</td>
-				<td class="veryNarrow">[[l.needed]]</td>
-			</tr>
-		</template>
+	<template is="dom-if" if="[[topSinclairWomen]]">
+		<h2 class="fullName" id="fullNameDiv" inner-h-t-m-l="[[topSinclairWomen]]"></h2>
+		<table class="results" id="orderDiv" style$="">
+			<thead>
+				<tr>
+					<th inner-h-t-m-l="[[t.Name]]"></th>
+					<th class$="[[_computeMasters(masters)]]" inner-h-t-m-l="[[t.AgeGroup]]"></th>
+					<th class="veryNarrow" inner-h-t-m-l="[[t.Category]]"></th>
+					<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
+					<th class='club' inner-h-t-m-l="[[t.Team]]"></th>
+					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
+					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
+					<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
+					<th class="veryNarrow" inner-h-t-m-l="[[t.BodyWeight]]"></th>
+					<th class="narrow" inner-h-t-m-l="[[t.Sinclair]]"></th>
+					<th class="narrow" inner-h-t-m-l="[[t.Needed]]"></th>
+				</tr>
+			</thead>
+			<template is="dom-repeat" id="result-table" items="[[sortedWomen]]" as="l">
+				<tr>
+					<td><div class$="[[l.classname]]">[[l.fullName]]</div></td>
+					<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
+					<td class="veryNarrow">[[l.category]]</td>
+					<td class="veryNarrow">[[l.yearOfBirth]]</td>
+					<td class="club">[[l.teamName]]</td>
+					<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
+						<td class$="[[attempt.goodBadClassName]]"><div
+							class$="[[attempt.className]]">[[attempt.stringValue]]</div></td>
+					</template>
+					<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
+						<td class$="[[attempt.goodBadClassName]]"><div
+							class$="[[attempt.className]]">[[attempt.stringValue]]</div></td>
+					</template>
+					<td class="veryNarrow">[[l.total]]</td>
+					<td class="veryNarrow">[[l.bw]]</td>
+					<td class="veryNarrow sinclair">[[l.sinclair]]</td>
+					<td class="veryNarrow">y[[l.needed]]</td>
+				</tr>
+			</template>
+		</table>
+		<h2>&nbsp;</h2>
 	</template>
-</table>
+	<template is="dom-if" if="[[topSinclairMen]]">
+		<h2 class="fullName" id="fullNameDiv" inner-h-t-m-l="[[topSinclairMen]]"></h2>
+		<table class="results" id="orderDiv" style$="">
+			<thead>
+				<tr>
+					<th inner-h-t-m-l="[[t.Name]]"></th>
+					<th class$="[[_computeMasters(masters)]]" inner-h-t-m-l="[[t.AgeGroup]]"></th>
+					<th class="veryNarrow" inner-h-t-m-l="[[t.Category]]"></th>
+					<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
+					<th class='club' inner-h-t-m-l="[[t.Team]]"></th>
+					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
+					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
+					<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
+					<th class="veryNarrow" inner-h-t-m-l="[[t.BodyWeight]]"></th>
+					<th class="narrow" inner-h-t-m-l="[[t.Sinclair]]"></th>
+					<th class="narrow" inner-h-t-m-l="[[t.Needed]]"></th>
+				</tr>
+			</thead>
+			<template is="dom-repeat" id="result-table" items="[[sortedMen]]" as="l">
+				<tr>
+					<td><div class$="[[l.classname]]">[[l.fullName]]</div></td>
+					<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
+					<td class="veryNarrow">[[l.category]]</td>
+					<td class="veryNarrow">[[l.yearOfBirth]]</td>
+					<td class="club">[[l.teamName]]</td>
+					<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
+						<td class$="[[attempt.goodBadClassName]]">
+							<div class$="[[attempt.className]]">[[attempt.stringValue]]</div>
+						</td>
+					</template>
+					<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
+					<td class$="[[attempt.goodBadClassName]]">
+						<div class$="[[attempt.className]]">[[attempt.stringValue]]</div>
+					</td>
+					</template>
+					<td class="veryNarrow">[[l.total]]</td>
+					<td class="veryNarrow">[[l.bw]]</td>
+					<td class="veryNarrow sinclair">[[l.sinclair]]</td>
+					<td class="veryNarrow">[[l.needed]]</td>
+				</tr>
+			</template>
+		</table>
+	</template>
 </div>
+
 </template>
 <script>
-class Scoreboard extends Polymer.Element {
+class TopSinclair extends Polymer.Element {
 	static get is() {
 		return 'topsinclair-template'
 	}
        
 	ready() {
 		super.ready();
-		this.$.groupDiv.style.visibility="visible"
-	    this.$.fullNameDiv.style.display="block";
-    	this.$.orderDiv.style.visibility="visible"
+	    this.$.resultBoardDiv.style.display="block";
 	}
          
 	start() {
-		this.$.groupDiv.style.visibility="visible"
-	    this.$.fullNameDiv.style.display="block";
-    	this.$.orderDiv.style.visibility="visible"
+	    this.$.resultBoardDiv.style.display="block";
 	}
 	         
 	reset() {
 		console.warn("reset");
-		this.$.groupDiv.style.visibility="visible"
-	    this.$.fullNameDiv.style.display="block";
-    	this.$.orderDiv.style.visibility="visible"
+	    this.$.resultBoardDiv.style.display="block";
 	}
 	
 	down() {
@@ -319,16 +354,12 @@ class Scoreboard extends Polymer.Element {
 	
     doBreak() {
     	console.warn("break");
-		this.$.groupDiv.style.visibility="visible"
-	    this.$.fullNameDiv.style.display="block";
-    	this.$.orderDiv.style.display="block";
+	    this.$.resultBoardDiv.style.display="block";
     }
     
     groupDone() {
     	console.warn("done");
-    	this.$.groupDiv.style.visibility="hidden";
-    	this.$.fullNameDiv.style.display="block";
-    	this.$.orderDiv.style.visibility="hidden";
+	    this.$.resultBoardDiv.style.display="block";
     }
 	
 	refereeDecision() {
@@ -353,6 +384,6 @@ class Scoreboard extends Polymer.Element {
 }
 
 
-customElements.define(Scoreboard.is, Scoreboard);
+customElements.define(TopSinclair.is, TopSinclair);
  </script>
  </dom-module>
