@@ -21,6 +21,7 @@ import app.owlcms.displays.attemptboard.AthleteFacingDecisionBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.liftingorder.LiftingOrder;
 import app.owlcms.displays.scoreboard.Scoreboard;
+import app.owlcms.displays.topathletes.TopSinclair;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -51,10 +52,13 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"));
         Button scoreboard = openInNewTab(Scoreboard.class, getTranslation("Scoreboard"));
         Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
+        Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
         Button referee = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
         Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoard.class, getTranslation("Athlete_Attempt"));
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, attempt, liftingOrder);
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, attempt, liftingOrder 
+                ,topSinclair
+                );
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, athleteFacingAttempt);
 
         fillH(intro, this);

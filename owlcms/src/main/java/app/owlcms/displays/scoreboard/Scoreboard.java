@@ -468,6 +468,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
     }
 
+    /**
+     * @param list2
+     * @return
+     */
     private JsonValue getAthletesJson(List<Athlete> list2) {
         JsonArray jath = Json.createArray();
         int athx = 0;
@@ -483,36 +487,40 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
                 prevCat = curCat;
                 athx++;
             }
-            String category;
-            if (Competition.getCurrent().isMasters()) {
-                category = a.getShortCategory();
-            } else {
-                category = curCat != null ? curCat.getName() : "";
-            }
-            ja.put("fullName", a.getFullName());
-            ja.put("teamName", a.getTeam());
-            ja.put("yearOfBirth", a.getYearOfBirth());
-            Integer startNumber = a.getStartNumber();
-            ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-            ja.put("mastersAgeGroup", a.getMastersAgeGroup());
-            ja.put("category", category);
-            getAttemptsJson(a);
-            ja.put("sattempts", sattempts);
-            ja.put("cattempts", cattempts);
-            ja.put("total", formatInt(a.getTotal()));
-            ja.put("snatchRank", formatInt(a.getSnatchRank()));
-            ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-            ja.put("totalRank", formatInt(a.getTotalRank()));
-            Integer liftOrderRank = a.getLiftOrderRank();
-            boolean notDone = a.getAttemptsDone() < 6;
-            String blink = (notDone ? " blink" : "");
-            if (notDone) {
-                ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
-            }
+            getAthleteJson(a, ja, curCat);
             jath.set(athx, ja);
             athx++;
         }
         return jath;
+    }
+
+    public void getAthleteJson(Athlete a, JsonObject ja, Category curCat) {
+        String category;
+        if (Competition.getCurrent().isMasters()) {
+            category = a.getShortCategory();
+        } else {
+            category = curCat != null ? curCat.getName() : "";
+        }
+        ja.put("fullName", a.getFullName());
+        ja.put("teamName", a.getTeam());
+        ja.put("yearOfBirth", a.getYearOfBirth());
+        Integer startNumber = a.getStartNumber();
+        ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
+        ja.put("mastersAgeGroup", a.getMastersAgeGroup());
+        ja.put("category", category);
+        getAttemptsJson(a);
+        ja.put("sattempts", sattempts);
+        ja.put("cattempts", cattempts);
+        ja.put("total", formatInt(a.getTotal()));
+        ja.put("snatchRank", formatInt(a.getSnatchRank()));
+        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
+        ja.put("totalRank", formatInt(a.getTotalRank()));
+        Integer liftOrderRank = a.getLiftOrderRank();
+        boolean notDone = a.getAttemptsDone() < 6;
+        String blink = (notDone ? " blink" : "");
+        if (notDone) {
+            ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
+        }
     }
 
     private Object getOrigin() {

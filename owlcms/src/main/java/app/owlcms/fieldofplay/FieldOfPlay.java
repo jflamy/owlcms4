@@ -31,6 +31,7 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
@@ -78,6 +79,7 @@ public class FieldOfPlay {
                 return null;
             } else {
                 final TimerTask task = new TimerTask() {
+                    @Override
                     public void run() {
                         r.run();
                     }
@@ -188,7 +190,7 @@ public class FieldOfPlay {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
         boolean emitted2 = isInitialWarningEmitted();
         logger.debug("emitInitialWarning server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
-        
+
         if (emitSoundsOnServer2 && !emitted2) {
             new Sound(getSoundMixer(), "initialWarning2.wav").emit();
             setInitialWarningEmitted(true);
@@ -199,7 +201,7 @@ public class FieldOfPlay {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
         boolean emitted2 = isTimeoutEmitted();
         logger.debug("emitTimeout server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
-        
+
         if (emitSoundsOnServer2 && !emitted2) {
             new Sound(getSoundMixer(), "timeOver2.wav").emit();
             setTimeoutEmitted(true);
@@ -512,7 +514,7 @@ public class FieldOfPlay {
 
         case DECISION_VISIBLE:
             if (e instanceof ExplicitDecision) {
-                 showExplicitDecision(((ExplicitDecision) e), e.origin);
+                showExplicitDecision(((ExplicitDecision) e), e.origin);
             } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);
@@ -547,7 +549,7 @@ public class FieldOfPlay {
         this.liftingOrder = athletes;
         if (athletes != null && athletes.size() > 0) {
             // we skip recomputation so that we can detect that we are on an empty group
-            // and clear the displays. SwitchGroup processing will recompute. 
+            // and clear the displays. SwitchGroup processing will recompute.
             // recomputing twice is innocuous in this case and is simpler than keeping state.
             recomputeLiftingOrder();
         }
@@ -580,7 +582,7 @@ public class FieldOfPlay {
         int timeAllowed = getTimeAllowed();
         logger.debug("recomputed lifting order curAthlete={} prevlifter={} time={} [{}]",
                 curAthlete != null ? curAthlete.getFullName() : "",
-                previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed, LoggerUtils.whereFrom());
+                        previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed, LoggerUtils.whereFrom());
         getAthleteTimer().setTimeRemaining(timeAllowed);
     }
 
@@ -668,7 +670,7 @@ public class FieldOfPlay {
 
         logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
                 curAthlete, curAthlete != null ? curAthlete.getAttemptedLifts() + 1 : 0, curWeight, clock,
-                getAthleteTimer().getTimeRemainingAtLastStop());
+                        getAthleteTimer().getTimeRemainingAtLastStop());
     }
 
     /**
@@ -678,9 +680,9 @@ public class FieldOfPlay {
      */
     void setState(FOPState state) {
         logger.trace("entering {} {}", state, LoggerUtils.whereFrom());
-//        if (state == INACTIVE) {
-//            logger.debug("entering inactive {}",LoggerUtils.stackTrace());
-//        }
+        //        if (state == INACTIVE) {
+        //            logger.debug("entering inactive {}",LoggerUtils.stackTrace());
+        //        }
         this.state = state;
     }
 
@@ -727,6 +729,7 @@ public class FieldOfPlay {
                         getBreakTimer().stop();
                     }
                     uiDisplayCurrentAthleteAndTime(stopAthleteTimer, wc, false);
+                    updateGlobalRankings();
                 } else {
                     logger.trace("&&3.A.B declaration for clock owner: leave clock running");
                     // no weight change. this is most likely a declaration.
@@ -747,6 +750,7 @@ public class FieldOfPlay {
             // changing athlete is not current athlete
             recomputeLiftingOrder();
             uiDisplayCurrentAthleteAndTime(true, wc, false);
+            updateGlobalRankings();
         }
     }
 
@@ -795,10 +799,11 @@ public class FieldOfPlay {
         int nbDecisions = 0;
         for (int i = 0; i < 3; i++) {
             if (refereeDecision[i] != null) {
-                if (refereeDecision[i])
+                if (refereeDecision[i]) {
                     nbWhite++;
-                else
+                } else {
                     nbRed++;
+                }
                 nbDecisions++;
             }
         }
@@ -870,7 +875,7 @@ public class FieldOfPlay {
         logger.trace("scheduling decision display");
         new DelayTimer().schedule(() -> showDecisionNow(origin2), 3000);
     }
-    
+
     /**
      * The decision is confirmed as official after the 3 second delay following
      * majority. After this delay, manual announcer intervention is required to
@@ -880,8 +885,9 @@ public class FieldOfPlay {
         logger.trace("requesting decision display");
         // we need to recompute majority, since they may have been reversal
         int nbWhite = 0;
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++) {
             nbWhite = nbWhite + (Boolean.TRUE.equals(refereeDecision[i]) ? 1 : 0);
+        }
 
         if (nbWhite >= 2) {
             goodLift = true;
@@ -894,6 +900,7 @@ public class FieldOfPlay {
         AthleteRepository.save(curAthlete);
         uiShowRefereeDecisionOnSlaveDisplays(curAthlete, goodLift, refereeDecision, refereeTime, origin);
         recomputeLiftingOrder();
+        updateGlobalRankings();
         setState(DECISION_VISIBLE);
         // tell ourself to reset after 3 secs.
         new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), 3000);
@@ -921,6 +928,7 @@ public class FieldOfPlay {
         AthleteRepository.save(curAthlete);
         uiShowRefereeDecisionOnSlaveDisplays(curAthlete, goodLift, refereeDecision, refereeTime, origin);
         recomputeLiftingOrder();
+        updateGlobalRankings();
         setState(DECISION_VISIBLE);
         // tell ourself to reset after 3 secs.
         new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), 3000);
@@ -949,6 +957,7 @@ public class FieldOfPlay {
         }
         uiStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e, false);
+        updateGlobalRankings();
     }
 
     private void transitionToTimeRunning() {
@@ -989,6 +998,10 @@ public class FieldOfPlay {
                 refereeDecision2[2], origin2));
     }
 
+    private void uiShowUpdatedRankings() {
+        uiEventBus.post(new UIEvent.GlobalRankingUpdated(this));
+    }
+
     private void uiShowUpdateOnJuryScreen() {
         uiEventLogger.trace("uiShowUpdateOnJuryScreen");
         uiEventBus.post(new UIEvent.RefereeUpdate(curAthlete, refereeDecision[0], refereeDecision[1],
@@ -1008,6 +1021,16 @@ public class FieldOfPlay {
                 e.getClass().getSimpleName(), state);
         logger/**/.warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
         Notification.show(text, 5000, Position.BOTTOM_END);
+    }
+
+    public void updateGlobalRankings() {
+        logger.debug("update rankings {}",LoggerUtils.whereFrom());
+        Competition competition = Competition.getCurrent();
+        if (competition.isGlobalRankingRecompute()) {
+            competition.computeGlobalRankings();
+            uiShowUpdatedRankings();
+        }
+        
     }
 
     private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
@@ -1030,7 +1053,7 @@ public class FieldOfPlay {
      * weight change while a lift is being performed (bar lifted above knees)
      * Lifting order is recomputed, so the app.owlcms.ui.displayselection can get
      * it, but not the attempt board state.
-     * 
+     *
      * @param e
      * @param curAthlete
      */

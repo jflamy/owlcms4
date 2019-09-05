@@ -1584,7 +1584,7 @@ public class Athlete {
     /**
      * Gets the sinclair for delta.
      *
-     * @return a Sinclair value even if snatch has not started
+     * @return a Sinclair value even if c&j has not started
      */
     public Double getSinclairForDelta() {
         final Double bodyWeight1 = getBodyWeight();

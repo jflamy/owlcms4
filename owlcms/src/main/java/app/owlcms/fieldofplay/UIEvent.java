@@ -23,6 +23,12 @@ import app.owlcms.data.group.Group;
  */
 public class UIEvent {
 
+    static public class GlobalRankingUpdated extends UIEvent {
+        public GlobalRankingUpdated(Object object) {
+            super(object);
+        }
+    }
+
     static public class BarbellOrPlatesChanged extends UIEvent {
         public BarbellOrPlatesChanged(Object object) {
             super(object);

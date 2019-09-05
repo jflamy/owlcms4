@@ -1,6 +1,6 @@
 # Olympic Weightlifting Competition Management System 
 
-OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity, and can be [run on the cloud](EquipmentSetup#cloud-access-over-the-internet).
+OWLCMS version 4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity, and can be [run on the cloud](EquipmentSetup#cloud-access-over-the-internet).
 
 ## Features and Demo
 
@@ -8,11 +8,9 @@ OWLCMS4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md)
   
   - All the screenshots for the documentation on this site come from the demo. You may therefore use the [demo site](https://owlcms4.herokuapp.com) to perform a full walkthrough.
   
-- The following list is a sampling of the many features available.  
+- The following list is a sampling of the many features available.  <u>*Click on the images if you wish to view them full-sized*</u>.
   
-  *Click on an image if you wish to view it full-sized*.
-  
-  - Run a **regular** or **masters** competition, with or without a jury.
+  - Run a **regular** or **masters** competition, with or without a **jury**.
   
   - Ability to run in the [**cloud**](EquipmentSetup#cloud-access-over-the-internet).  Decisions, timers and sounds are handled locally in the browser to provide better feedback.
   
@@ -86,13 +84,19 @@ For the current work status, see the following links
 
 - [Discussion list](https://groups.google.com/forum/#!forum/owlcms)  If you wish to discuss the program or ask questions, please add yourself to this discussion [group](https://groups.google.com/forum/#!forum/owlcms).  You can withdraw at any time.
 
-  
+
 
 ## Translation to Other Languages
 
 - You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](Translation) if you wish to contribute. 
 
   
+
+## Project Repository
+
+The [project source](https://github.com/jflamy/owlcms4), [binary releases](https://github.com/jflamy/owlcms4/releases), [issue page](https://github.com/jflamy/owlcms4/issues), [project board](https://github.com/jflamy/owlcms4/projects/1) and [documentation](https://jflamy.github.io/owlcms4/#/index) are hosted on [GitHub](https://github.com/).
+
+
 
 ## Licensing and Notes
 
