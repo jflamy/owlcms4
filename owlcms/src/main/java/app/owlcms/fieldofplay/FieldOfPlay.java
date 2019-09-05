@@ -1024,7 +1024,7 @@ public class FieldOfPlay {
     }
 
     public void updateGlobalRankings() {
-        logger.warn("update rankings {}",LoggerUtils.whereFrom());
+        logger.debug("update rankings {}",LoggerUtils.whereFrom());
         Competition competition = Competition.getCurrent();
         if (competition.isGlobalRankingRecompute()) {
             competition.computeGlobalRankings();

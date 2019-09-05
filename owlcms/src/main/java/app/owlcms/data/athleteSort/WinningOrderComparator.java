@@ -39,7 +39,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         this.rankingType = rankingType;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @Override
@@ -67,8 +69,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
                     return compareSinclairResultOrder(lifter1, lifter2);
                 }
             }
-		default:
-			break;
+        default:
+            break;
 
         }
 
@@ -76,7 +78,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     }
 
     /**
-     * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
+     * Determine who ranks first. If the body weights are the same, the Athlete who
+     * reached total first is ranked first.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2
@@ -142,7 +145,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         if (compare != 0)
             return -compare; // smaller snatch is less good
 
-        compare = compareCompetitionSessionTime(lifter1,lifter2);
+        compare = compareCompetitionSessionTime(lifter1, lifter2);
         traceComparison("compareCompetitionSessionTime", lifter1, lifter2, compare);
         if (compare != 0) {
             return compare; // earlier group time wins
@@ -218,11 +221,17 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      */
     public int compareSinclairResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
-
-        compare = compareSinclair(lifter1, lifter2);
-        if (compare != 0)
-            return compare;
-
+        if ((lifter1 != null && lifter1.getAttemptsDone() <= 3)
+                && (lifter2 != null && lifter2.getAttemptsDone() <= 3)) {
+            // compare tentative sinclair
+            compare = compareSinclairForDelta(lifter1, lifter2);
+            if (compare != 0)
+                return compare;
+        } else {
+            compare = compareSinclair(lifter1, lifter2);
+            if (compare != 0)
+                return compare;
+        }
         // for sinclair, lighter Athlete that achieves same sinclair is better
         return tieBreak(lifter1, lifter2, true);
     }
@@ -246,7 +255,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     }
 
     /**
-     * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
+     * Determine who ranks first. If the body weights are the same, the Athlete who
+     * reached total first is ranked first.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2
@@ -263,7 +273,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     }
 
     /**
-     * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
+     * Determine who ranks first. If the body weights are the same, the Athlete who
+     * reached total first is ranked first.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2
@@ -289,7 +300,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     private int tieBreak(Athlete lifter1, Athlete lifter2, boolean bodyWeightTieBreak) {
         int compare;
 
-        compare = compareCompetitionSessionTime(lifter1,lifter2);
+        compare = compareCompetitionSessionTime(lifter1, lifter2);
         traceComparison("compareCompetitionSessionTime", lifter1, lifter2, compare);
         if (compare != 0) {
             return compare; // earlier group time wins
@@ -304,7 +315,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
         // for total, must compare best clean and jerk value and smaller is better
         // because the total was reached earlier.
-        // if this routine called to tiebreak cj ranking, the result will be 0 so this test is harmless
+        // if this routine called to tiebreak cj ranking, the result will be 0 so this
+        // test is harmless
         compare = compareBestCleanJerk(lifter1, lifter2);
         traceComparison("compareBestCleanJerk", lifter1, lifter2, compare);
         if (compare != 0)
@@ -322,33 +334,27 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         if (compare != 0)
             return compare; // compare attempted weights (prior to best attempt), smaller first
 
-        // if equality within a group, smallest lot number wins (same session, same category, same weight, same attempt) -- smaller lot lifted first.
+        // if equality within a group, smallest lot number wins (same session, same
+        // category, same weight, same attempt) -- smaller lot lifted first.
         compare = compareLotNumber(lifter1, lifter2);
         return compare;
-
 
     }
 
     private void traceComparison(String where, Athlete lifter1, Athlete lifter2, int compare) {
         if (logger.isTraceEnabled()) {
-            logger.trace("{} {} {} {}",
-                    where,
-                    lifter1,
-                    (compare < 0
-                            ? "<"
-                            :(compare == 0
-                                 ? "="
-                                 : ">")),
-                    lifter2);
+            logger.trace("{} {} {} {}", where, lifter1, (compare < 0 ? "<" : (compare == 0 ? "=" : ">")), lifter2);
         }
     }
 
     /**
-     * Compare competition session start times for two athletes.
-     * A null session time is considered to be at the beginning of time, earlier than any non-null time.
+     * Compare competition session start times for two athletes. A null session time
+     * is considered to be at the beginning of time, earlier than any non-null time.
+     * 
      * @param lifter1
      * @param lifter2
-     * @return -1 if lifter1 was part of earlier group, 0 if same group, 1 if lifter1 lifted in later group
+     * @return -1 if lifter1 was part of earlier group, 0 if same group, 1 if
+     *         lifter1 lifted in later group
      */
     private int compareCompetitionSessionTime(Athlete lifter1, Athlete lifter2) {
         Group group1 = lifter1.getGroup();
@@ -371,10 +377,11 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     }
 
     /**
-     * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
+     * Determine who ranks first. If the body weights are the same, the Athlete who
+     * reached total first is ranked first.
      * 
-     * This variant allows judges to award a score based on a formula, with bonuses or penalties, manually. Used for the under-12
-     * championship in Quebec.
+     * This variant allows judges to award a score based on a formula, with bonuses
+     * or penalties, manually. Used for the under-12 championship in Quebec.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2

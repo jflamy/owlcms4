@@ -21,6 +21,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
@@ -96,6 +97,8 @@ public class Competition {
     private boolean useCategorySinclair = false;
     private boolean useOldBodyWeightTieBreak = false;
     private boolean useRegistrationCategory = true;
+    
+    @Transient
     private HashMap<String, Object> reportingBeans;
 
 
