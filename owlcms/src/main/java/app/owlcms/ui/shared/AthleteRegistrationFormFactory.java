@@ -102,10 +102,13 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 		ComboBox<Category> categoryField = (ComboBox<Category>) categoryBindingBuilder.getField();
 		Binding<Athlete, ?> genderBinding = binder.getBinding("gender").get();
 		ComboBox<Gender> genderField = (ComboBox<Gender>) genderBinding.getField();
-		ListDataProvider<Category> listDataProvider = new ListDataProvider<Category>(
-				CategoryRepository.findActive(genderField.getValue()));
+        ListDataProvider<Category> listDataProvider = new ListDataProvider<Category>(
+                CategoryRepository.findActive(genderField.getValue()));
+		categoryField.setDataProvider(listDataProvider);
 		genderField.addValueChangeListener((vc) -> {
-			categoryField.setDataProvider(listDataProvider);
+		    ListDataProvider<Category> listDataProvider2 = new ListDataProvider<Category>(
+		                CategoryRepository.findActive(genderField.getValue()));
+			categoryField.setDataProvider(listDataProvider2);
 		});
 	}
 
@@ -157,8 +160,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 			});
 			bindingBuilder.bind(property);
 		} else if ("category".equals(property)) {
+	        filterCategories(bindingBuilder);
 			validateCategory(bindingBuilder);
-			// filterCategories(bindingBuilder);
 			bindingBuilder.bind(property);
 		} else if ("gender".equals(property)) {
 			validateGender(bindingBuilder);
@@ -266,7 +269,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				ComboBox<Gender> genderCombo = (ComboBox<Gender>) genderBinding.getField();
 				Gender g = (Gender) genderCombo.getValue();
 				Gender catGender = category != null ? category.getGender() : null;
-				logger.debug("categoryValidation: validating gender {} vs category {}: {}", g, catGender,
+				logger.debug("categoryValidation: validating gender {} vs category {}: {} {}", g, catGender,
 						catGender == g);
 				if (g == null) {
 					// no gender - no contradiction
@@ -275,9 +278,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				catGenderOk = catGender == g;
 				if (catGenderOk && !genderCatOk) {
 					// validate() does not validate if no change, ugly workaround
-					logger.debug("resetting gender");
-					genderCombo.setValue(null);
-					genderCombo.setValue(g); // turn off message if present.
+					logger.warn("checking gender");
+					genderBinding.validate();
 				}
 				return catGender == g;
 			} catch (Exception e) {
@@ -318,9 +320,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 				genderCatOk = catGender == null || catGender == g;
 				if (genderCatOk && !catGenderOk) {
 					// turn off message if present.
-					logger.debug("resetting category");
-					categoryCombo.setValue(null);
-					categoryCombo.setValue(category);
+					logger.warn("checking category");
+					catBinding.validate();
 				}
 				return genderCatOk;
 			} catch (Exception e) {
