@@ -7,6 +7,9 @@
 package app.owlcms.ui.preparation;
 
 import java.util.Collection;
+import java.util.List;
+
+import javax.sound.sampled.Mixer;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -111,9 +114,21 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
      */
     private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
         return new OwlcmsCrudFormFactory<Platform>(Platform.class) {
-            @SuppressWarnings({ "rawtypes" })
+            @SuppressWarnings({ "rawtypes", "unchecked" })
             @Override
             protected void bindField(HasValue field, String property, Class<?> propertyType) {
+                if (property.equals("soundMixerName")) {
+                    field.addValueChangeListener(e -> {
+                        List<Mixer> soundMixers = Speakers.getOutputs();
+                        for (Mixer curMixer : soundMixers) {
+                            if (curMixer.getMixerInfo().getName().equals(e.getValue())) {
+                                Speakers.testSound(curMixer);
+                                logger.info("testing mixer {}",curMixer.getMixerInfo().getName());
+                                break;
+                            }
+                        }
+                    });
+                }
                 super.bindField(field, property, propertyType);
             }
 

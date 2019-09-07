@@ -17,6 +17,9 @@ import javax.sound.sampled.Mixer;
 
 import org.slf4j.LoggerFactory;
 
+import com.sun.media.sound.WaveFileReader;
+
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -24,6 +27,7 @@ import ch.qos.logback.classic.Logger;
  *
  * @author jflamy
  */
+@SuppressWarnings("restriction")
 public class Sound {
     static final String SOUND_PREFIX = "/META-INF/resources/sounds/";
 
@@ -44,7 +48,10 @@ public class Sound {
             if (mixer == null)
                 return;
 
-            final AudioInputStream inputStream = AudioSystem.getAudioInputStream(resource);
+            // since we are reading from the jar, we need to avoid the mark/reset trial and error from AudioSystem.getAudioInputStream
+            // so we force WaveFileReader.
+            WaveFileReader wfr = new WaveFileReader();
+            final AudioInputStream inputStream = wfr.getAudioInputStream(resource);
             final Clip clip = AudioSystem.getClip(mixer.getMixerInfo());
             clip.open(inputStream);
 
@@ -62,7 +69,7 @@ public class Sound {
             clip.start();
 
         } catch (Exception e) {
-            logger.error("could not emit {}", soundURL);
+            logger.error("could not emit {} {}", soundURL, LoggerUtils.stackTrace(e));
         }
     }
 
