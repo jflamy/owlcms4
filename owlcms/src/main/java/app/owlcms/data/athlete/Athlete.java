@@ -10,6 +10,8 @@ import java.sql.Date;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1118,6 +1120,14 @@ public class Athlete {
      */
     public LocalDate getFullBirthDate() {
         return fullBirthDate;
+    }
+    
+    public String getFormattedBirth() {
+        if (Competition.getCurrent().isUseBirthYear()) {
+            return getYearOfBirth().toString();
+        } else {
+            return getFullBirthDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT));
+        }
     }
 
     /**
