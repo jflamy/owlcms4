@@ -38,7 +38,7 @@ import ch.qos.logback.classic.Logger;
 public class Main {
 
     public final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
-    
+
     private static Integer serverPort;
     private static boolean demoMode;
     private static boolean memoryMode;
@@ -83,11 +83,11 @@ public class Main {
         // Redirect java.util.logging logs to SLF4J
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
-        
+
         // read command-line and environment variable parameters
         parseConfig();
         logStart();
-        
+
         // open resource subdirectories as filesystems
         ResourceWalker.openTemplatesFileSystem("/templates");
 
@@ -112,39 +112,91 @@ public class Main {
         return;
     }
 
+    /**
+     * get configuration from environment variables and if not found, from system properties.
+     */
     private static void parseConfig() {
         // read server.port parameter from -D"server.port"=9999 on java command line
         // this is required for running on Heroku which assigns us the port at run time.
         // default is 8080
-        serverPort = Integer.getInteger("port", 8080);
+        serverPort = getIntegerParam("port", 8080);
 
-        // reads system properties (-D on command line)
-        demoMode = Boolean.getBoolean("demoMode"); // same as devMode + resetMode + memoryMode
-        memoryMode = Boolean.getBoolean("memoryMode"); // run in memory
-        resetMode = Boolean.getBoolean("resetMode"); // drop the schema first
-        devMode = Boolean.getBoolean("devMode"); // load large demo data if empty, do not reset
-                                                         // unless resetMode, persistent unless memoryMode also
-        testMode = Boolean.getBoolean("testMode"); // load small dummy data if empty, do not reset
-                                                           // unless resetMode, persistent unless memoryMode
-        masters = Boolean.getBoolean("masters");
+        // same as devMode + resetMode + memoryMode
+        demoMode = getBooleanParam("demoMode");
+
+        // run in memory
+        memoryMode = getBooleanParam("memoryMode");
+        
+        // drop the schema first
+        resetMode = getBooleanParam("resetMode");
+        
+        // load large demo data if empty
+        devMode = getBooleanParam("devMode");
+        
+        // load small dummy data if empty
+        testMode = getBooleanParam("testMode"); 
+        
+        masters = getBooleanParam("masters");
     }
 
+    /**
+     * return true if OWLCMS_KEY = true as an environment variable,
+     * and if not, if -Dkey=true as a system property.
+     * 
+     * Environment variables are upperCased, system properties are case-sensitive.
+     * <ul>
+     * <li>OWMCMS_PORT=80 is the same as -Dport=80
+     * </ul>
+     * @param key
+     * @return true if value is found and exactly "true"
+     */
+    public static boolean getBooleanParam(String key) {
+        String envVar = "OWLCMS_"+key.toUpperCase();
+        String val = System.getenv(envVar);
+        if (val != null) {
+            return val.equals("true");
+        } else {
+            return Boolean.getBoolean(key);
+        }
+    }
+    
+    public static String getStringParam(String key) {
+        String envVar = "OWLCMS_"+key.toUpperCase();
+        String val = System.getenv(envVar);
+        if (val != null) {
+            return val;
+        } else {
+            return System.getProperty(key);
+        }
+    }
+
+    public static Integer getIntegerParam(String key, Integer defaultValue) {
+        String envVar = "OWLCMS_"+key.toUpperCase();
+        String val = System.getenv(envVar);
+        if (val != null) {
+            return Integer.parseInt(val);
+        } else {
+            return Integer.getInteger(key,defaultValue);
+        }
+    }
 
     private static void overrideDisplayLanguage() {
         // read override value from database
         Locale l = Competition.getCurrent().getDefaultLocale();
-        
-        // if LOCALE defined, ignore previous values and use LOCALE
-        String localeEnvStr = System.getenv("LOCALE");
-        if (localeEnvStr != null) l = Translator.createLocale(localeEnvStr);
-        
-        // Obey -Dlocale
-        String localeProperty = System.getProperty("locale");
-        if (localeProperty != null) l = Locale.getDefault();
-        
+
+        // check OWLCMS_LOCALE, then -Dlocale, then LOCALE
+        String localeEnvStr = getStringParam("locale");
+        if (localeEnvStr != null)
+            l = Translator.createLocale(localeEnvStr);
+        else {
+            localeEnvStr = System.getenv("LOCALE");
+            if (localeEnvStr != null)
+            l = Translator.createLocale(localeEnvStr);
+        }
+
         if (l != null) {
             Translator.setForcedLocale(l);
-            logger.info("forcing display language to {}",l);
+            logger.info("forcing display language to {}", l);
         }
     }
 
@@ -190,7 +242,8 @@ public class Main {
             logger.debug("starting browser");
             Desktop desktop = Desktop.getDesktop();
             try {
-                desktop.browse(new URI("http://127.0.0.1"+(serverPort == 80 ? "" : ":"+serverPort.toString()+"/")));
+                desktop.browse(
+                        new URI("http://127.0.0.1" + (serverPort == 80 ? "" : ":" + serverPort.toString() + "/")));
             } catch (Exception e) {
                 logger.error(LoggerUtils.stackTrace(e));
             }
@@ -198,6 +251,5 @@ public class Main {
             logger.debug("no browser support");
         }
     }
-
 
 }

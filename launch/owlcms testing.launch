@@ -7,7 +7,8 @@
 <listEntry value="1"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="LOCALE" value="fr_CA"/>
+<mapEntry key="OWLCMS_LOCALE" value="fr_CA"/>
+<mapEntry key="OWLCMS_PORT" value="80"/>
 <mapEntry key="_IP" value="127.0.0.1,10.0.2.2"/>
 <mapEntry key="_PIN" value="0000"/>
 </mapAttribute>

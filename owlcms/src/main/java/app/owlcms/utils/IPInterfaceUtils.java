@@ -82,6 +82,9 @@ public class IPInterfaceUtils {
         if (!local) {
             // we are logged on using a proper non-local URL, tell the users to use that.
             // return the URL we got, do not ask a cloud server for its interfaces
+            if (requestURL.endsWith("/")) {
+                requestURL = requestURL.substring(0, requestURL.length()-1);
+            }
             recommended.add(requestURL);
             return;
         }
@@ -146,6 +149,17 @@ public class IPInterfaceUtils {
             huc.setRequestMethod("GET");
             huc.connect();
             int response = huc.getResponseCode();
+            
+            if (siteURL.getProtocol().equals("http")) {
+                siteExternalForm = siteExternalForm.replace(":80", "0");
+            } else if (siteURL.getProtocol().equals("https")) {
+                siteExternalForm = siteExternalForm.replace(":443", "0");
+            }
+            logger.warn("{}",siteExternalForm);
+            if (siteExternalForm.endsWith("/")) {
+                siteExternalForm = siteExternalForm.substring(0, siteExternalForm.length()-2);
+            }
+              
 
             if (response != 200) {
                 logger.debug("{} not reachable: {}", testingExternalForm, response);

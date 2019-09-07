@@ -35,6 +35,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
@@ -130,13 +131,16 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
      *                        information
      */
     private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+        boolean useBirthYear = Competition.getCurrent().isUseBirthYear();
         crudFormFactory.setVisibleProperties("bodyWeight", "category", "snatch1Declaration", "cleanJerk1Declaration",
-                "gender", "group", "lastName", "firstName", "team", "fullBirthDate", "ageDivision", "qualifyingTotal",
-                "eligibleForIndividualRanking");
+                "gender", "group", "lastName", "firstName", "team",
+                useBirthYear ? "yearOfBirth" : "fullBirthDate", "ageDivision",
+                "qualifyingTotal", "eligibleForIndividualRanking");
         crudFormFactory.setFieldCaptions(getTranslation("BodyWeight"), getTranslation("Category"),
                 getTranslation("Snatch_Declaration"), getTranslation("Clean_and_Jerk_Declaration"),
                 getTranslation("Gender"), getTranslation("Group"), getTranslation("LastName"),
-                getTranslation("FirstName"), getTranslation("Team"), getTranslation("BirthDate"),
+                getTranslation("FirstName"), getTranslation("Team"),
+                useBirthYear ? getTranslation("YearOfBirth"):getTranslation("BirthDate_yyyy"),
                 getTranslation("AgeDivision"), getTranslation("EntryTotal"),
 
                 getTranslation("Eligible for Individual Ranking?"));
@@ -150,8 +154,12 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                 Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name), AgeDivision::name));
 
         crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
-        crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
-
+        if (useBirthYear) {
+            crudFormFactory.setFieldType("yearOfBirth", TextField.class);
+        } else {
+            crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
+        }
+        
         crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {
             ((BodyWeightField) e).focus();
         });

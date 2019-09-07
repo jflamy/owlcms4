@@ -303,8 +303,14 @@ implements CrudListener<Athlete>, OwlcmsContent {
         props.add("gender"); captions.add(getTranslation("Gender"));
 
         props.add("team"); captions.add(getTranslation("Team"));
-        props.add("fullBirthDate"); captions.add(getTranslation("BirthDate_yyyy"));
-        if (Competition.getCurrent().isMasters()) {
+
+        Competition competition = Competition.getCurrent();
+        if (competition.isUseBirthYear()) {
+            props.add("yearOfBirth"); captions.add(getTranslation("YearOfBirth"));
+        } else {
+            props.add("fullBirthDate"); captions.add(getTranslation("BirthDate_yyyy"));
+        }
+        if (competition.isMasters()) {
             props.add("mastersAgeGroup"); captions.add(getTranslation("AgeGroup"));
         } else {
             props.add("ageDivision"); captions.add(getTranslation("AgeDivision"));
@@ -337,6 +343,7 @@ implements CrudListener<Athlete>, OwlcmsContent {
 
         crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
         crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
+        //crudFormFactory.setFieldType("yearOfBirth", IntegerField.class);
     }
 
     private Collection<Athlete> doExtraFiltering(List<Athlete> all) {
