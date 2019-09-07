@@ -8,9 +8,9 @@
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="OWLCMS_LOCALE" value="fr_CA"/>
-<mapEntry key="OWLCMS_PORT" value="80"/>
+<mapEntry key="PIN" value="0000"/>
 <mapEntry key="_IP" value="127.0.0.1,10.0.2.2"/>
-<mapEntry key="_PIN" value="0000"/>
+<mapEntry key="_OWLCMS_PORT" value="8080"/>
 </mapAttribute>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>

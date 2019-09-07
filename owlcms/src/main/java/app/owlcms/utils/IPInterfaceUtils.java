@@ -151,13 +151,15 @@ public class IPInterfaceUtils {
             int response = huc.getResponseCode();
             
             if (siteURL.getProtocol().equals("http")) {
-                siteExternalForm = siteExternalForm.replace(":80", "0");
+                siteExternalForm = siteExternalForm.replaceFirst(":80/", "");
+                siteExternalForm = siteExternalForm.replaceFirst(":80$", "");
             } else if (siteURL.getProtocol().equals("https")) {
-                siteExternalForm = siteExternalForm.replace(":443", "0");
+                siteExternalForm = siteExternalForm.replaceFirst(":443/", "");
+                siteExternalForm = siteExternalForm.replaceFirst(":443$", "");
             }
-            logger.warn("{}",siteExternalForm);
+            logger.debug("{}",siteExternalForm);
             if (siteExternalForm.endsWith("/")) {
-                siteExternalForm = siteExternalForm.substring(0, siteExternalForm.length()-2);
+                siteExternalForm = siteExternalForm.substring(0, siteExternalForm.length()-1);
             }
               
 
