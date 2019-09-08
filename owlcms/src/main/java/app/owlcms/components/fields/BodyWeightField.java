@@ -33,7 +33,11 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class BodyWeightField extends WrappedTextField<Double> {
 	
-	@Override
+	@SuppressWarnings("unused")
+    private Logger logger = (Logger) LoggerFactory.getLogger(BodyWeightField.class);
+
+
+    @Override
 	protected void initLoggers() {
 		setLogger((Logger)LoggerFactory.getLogger(BodyWeightField.class));
 		getLogger().setLevel(Level.INFO);
@@ -79,25 +83,32 @@ public class BodyWeightField extends WrappedTextField<Double> {
 		}
 		// we ignore the provided formatter, and we try both "," and "." as decimal separator, as per ISO 30-1
 		DecimalFormatSymbols dc = new DecimalFormatSymbols(locale);
-		char alternateSeparator = (dc.getDecimalSeparator() == '.' ? ',' : '.');
+		char decimalSeparator = dc.getDecimalSeparator();
+        char alternateSeparator = (decimalSeparator == '.' ? ',' : '.');
 
 		// first try with locale decimal separator
-		Result<Double> r = parseWithSeparator(content, locale, dc.getDecimalSeparator());
+		Result<Double> r = parseWithSeparator(content, locale, decimalSeparator);
 		if (!r.isError()) return r;
 		// then try with alternate
-		return parseWithSeparator(content, locale, alternateSeparator);
+		r = parseWithSeparator(content, locale, alternateSeparator);
+		if (!r.isError()) return r;
+        setFormatValidationStatus(false, locale);
+        return r;
 	}
 
 
-	public Result<Double> parseWithSeparator(String content, Locale locale, char alternateSeparator) {
+	public Result<Double> parseWithSeparator(String content, Locale locale, char separator) {
 		DecimalFormat formatter2 = new DecimalFormat("0.00");
-		formatter2.getDecimalFormatSymbols().setDecimalSeparator(alternateSeparator);
+		DecimalFormatSymbols symbols = formatter2.getDecimalFormatSymbols();
+		symbols.setDecimalSeparator(separator);
+		formatter2.setDecimalFormatSymbols(symbols);
+		
 		ParsePosition pp2 = new ParsePosition(0);
 		Number parse2 = formatter2.parse(content, pp2);
 		Result<Double> r2;
-		if (pp2.getIndex() < content.length()-1) {
+		int index = pp2.getIndex();
+        if (index < content.length()-1) {
 			String m = invalidFormatErrorMessage(locale);
-			setFormatValidationStatus(false, locale);
 			r2 = Result.error(m);
 		} else {
 			setFormatValidationStatus(true, locale);
