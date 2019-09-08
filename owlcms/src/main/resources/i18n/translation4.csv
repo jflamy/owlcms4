@@ -65,7 +65,7 @@ Competition.defaultFederationAddress,Competition.defaultFederationAddress,"C.P. 
 Competition.defaultFederationEMail,Competition.defaultFederationEMail,admin@fedhaltero.qc.ca,,kontor@danskvaegtloeftning.dk,fehalterofilia@hotmail.com,info@rfwf.ru
 Competition.defaultFederationWebSite,Competition.defaultFederationWebSite,www.fedhaltero.qc.ca,,www.weightlifting.dk,www.fedehalter.org,rfwf.ru
 Competition.defaultLocale,Display and printout language (requires restart),Langue d'affichage et d'impression (redémarrage requis),,Display og printout sprog (kræver genstart),,Язык отображения и печати (требуется перезагрузка)
-Competition.enforce20kgRule,Apply initial total weight rule (IWF §6.6.5/Masters §2.4)?,Appliquer la règle de poids total initial (IWF §6.6.5/Masters §2.4)?,,Anvend indledende tokampsvægtregel (IWF §6.6.5/Masters §2.4)?,Aplicar regla de peso total inicial (IWF §6.6.5/Masters §2.4)?,"Применить правило ""20 кг"" (IWF §6.6.5/Masters §2.4)?"
+Competition.enforce20kgRule,Apply initial total weight rule (IWF §6.6.5/Masters §2.4)?,Appliquer la règle de poids total initial (IWF §6.6.5/Masters §2.4)?,,Anvend indledende tokampsvægtregel (IWF §6.6.5/Masters §2.4)?,Aplicar regla de peso total inicial (IWF §6.6.5/Masters §2.4)?,"Применить правило ""20 кг (IWF §6.6.5/Masters §2.4)?"""
 Competition.federation,Federation Name,Nom de la fédération,,Forbundsnavn,Nombre de la federación,Название федерации
 Competition.federationAddress,Federation Address,Adresse de la fédération,,Forbundsadresse,Dirección de la federación,Адрес федерации
 Competition.federationEMail,Federation e-mail,Courriel de la fédération,,Forbunds e-mail,E-mail de la federación,Электронная почта федерации
@@ -220,7 +220,7 @@ Preparation_Groups,Preparation - Groups,Préparation - Groupes,,Forbered - Grupp
 Preparation_Platforms,Preparation - Platforms,Préparation - Plateformes,,Forbered - Platforme,,Подготовка - Помосты
 Preparation_Registration,Preparation - Registration,Préparation - Inscriptions,,Forbered - Registrering,, Подготовка - Регистрация
 PrepareCompatition_description,"<li><b>{0}</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>","<li><b>{0}</b>: Entrer les coordonnées, inscrire les athlètes, définir les groupes, etc.<br></li>",,"<li><b>{0}</b>: Indtast konkurrence oplysninger, registrer atleter, definér grupper, osv.<br></li>",,"<li><b>{0}</b>: Введие место проведения соревнований, зарегистрируйте спортсменов, определите потоки и т.д.<br></li>"
-PrepareCompetition,Prepare Competition,Préparer la compétition,,Forbered konkurrence,,Подготовка
+PrepareCompetition,Prepare Competition,Préparer la compétition,,Forbered konkurrence,,Подготовка соревнований
 ProduceResults,Produce Results,Produire les résultats,,Udskriv resultater,,Подготовить результаты
 ProjectRepository,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.,<li>Voir le <a href='https://github.com/jflamy/owlcms4'>référentiel du projet</a> pour les packages d'installation et le code source.,,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.,,См. <a href='https://github.com/jflamy/owlcms4'>репозиторий проекта</a> для бинарных релизов и полных исходных кодов.<br>
 Question,?,\u0020?,,?,,?
@@ -240,7 +240,7 @@ Reset2min,Reset to 2 min,Réinitialiser à 2 min.,,Reset til 2 min,,Сброси
 ResultDocuments,Result Documents,Documents de résultats,,Resultatdokumenter,,Результаты и документы
 Results,Results,Résultats,,Resultater,Resultados,Результаты
 ResumeCompetition,Resume Competition,Redémarrer la compétition,,Genoptag konkurrence,,Продолжить соревнования
-RunLiftingGroup,Run Lifting Group,Groupe de compétition,,Kør gruppe,,Запуск потока
+RunLiftingGroup,Run Lifting Group,Groupe de compétition,,Kør gruppe,,Выбор тех. служб
 RunLiftingGroup_description,"<li><b>{0}</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>","<li><b>{0}</b>: Lancer les écrans pour les officiels (annonceur, chrono, préposé aux changements). L''annonceur choisit le groupe en cours.</li>",,"<li><b>{0}</b>: Start skærmbillede for speaker, marshall, timekeeper. Speakeren styrer hvilken gruppen der vises på displays og skærme.</li>",,"<li><b>{0}</b>: Запустите экраны для судьи-информатора, судьи на перезаявках и судьи-хронометриста. Судья-хронометрист контролирует какой поток отображается на экранах.</li>"
 Scoreboard,Scoreboard,Tableau de résultats,,Scoreboard,,Таблица результатов
 Scoreboard.Start,Start,Départ,Départ<div class='english'>Start</div>,Start,,Номер
@@ -269,7 +269,7 @@ Snatch3,snatch 3,Arraché 3,,Træk 3,Arrancada 3,Р3
 SnatchDecl_,Snatch Decl.,Décl. Arr.,,Træk dekl.,,Рывок
 SnatchRank,Snatch Rank,Rang Arr.,,Træk rang,,Место (Р)
 SourceDocumentation,Source and Documentation,Code source et documentation,,Source og dokumentation,,Исходные коды и документация
-StartDisplays,Start Displays,Démarrer les affichages,,Start Displays,,Запуск экранов
+StartDisplays,Start Displays,Démarrer les affichages,,Start Displays,,Выбор Экранов
 Start_,Start#,#Départ,,Startnr.,,Стартовый №
 StartCountdown,Start Break Countdown Timer,Démarrer le chronomètre de pause,,Start Break Countdown Timer,,Запустить таймер
 StartDisplays_description,"<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>","<li><b>{0}</b>: Lancer les tableaux de résultats, l''affichage de l''essai courant, et l''affichage pour l''athlète.</li>",,"<li><b>{0}</b>: Bruges til at starte Attempt board, Athlete-facing skærm og Scoreboard.</li>",,"<li><b>{0}</b>: Используется для запуска экрана попытки, экрана атлета и таблицы результатов.</li>"
@@ -312,7 +312,7 @@ WeightLifted,Weight Lifted,Poids soulevé,,Vægt løftet,,Засчитанный
 Wired,\u0020(wired),\u0020(cablé),,\u0020(kablet),,\u0020(кабель)
 Wireless,\u0020(wireless),\u0020(sans fil),,\u0020(wireless),,\u0020(беспроводной)
 WorldRecord,World Record,Record du monde,,Verdensrekord,Récord mundial,Мировой рекорд
-WrittenJFL,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>","Le système a été écrit et est mis à jour par Jean-François Lamy, Officiel Technique IWF catégorie 1<br><br>",,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>",,Данная система разработана и поддерживается Жан-Франсуа Леми. IWF International Technical Official Category 1.<br><br>
+WrittenJFL,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>","Le système a été écrit et est mis à jour par Jean-François Lamy, Officiel Technique IWF catégorie 1<br><br>",,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>",,Данная система разработана и поддерживается Жан-Франсуа Лами. IWF International Technical Official Category 1.<br><br>
 Preferences,Preferences,Préférences,,Præferencer,,Предпочтения
 RuleViolation.declarationValueTooSmall,Lift {0} : Value {1} for declaration must be greater than or equal to the automatic progression ({2}).,Lever {0} : Le poids {1} déclaré doit être plus grand ou égal au poids de la progression automatique ({2}),,Løft {0} : Værdi {1} skal være større end eller lig den automatiske øgning ({2}).,Alzada {0} : El valor {1} declarado debe ser mayor o igual que la progresión automática ({2}),Попытка {0} : Значение {1} для заявки должно быть больше или равно автоматической надбавке({2}).
 RuleViolation.liftValueNotWhatWasRequested,Lift {0} : Value {1} for lift must match requested amount ({2}).,Lever {0} : Le poids {1} du lever doit correspondre au poids demandé ({2}).,,Løft {0} : Værdi {1} for løft skal matche det opgivede ({2}).,Alzada {0} : El valor {1} para la alzada debe coincidir con el valor solicitado ({2}).,Попытка {0} : Значение {1} для попытки должно соответсвовать зявленому({2}).
