@@ -65,7 +65,7 @@ Competition.defaultFederationAddress,Competition.defaultFederationAddress,"C.P. 
 Competition.defaultFederationEMail,Competition.defaultFederationEMail,admin@fedhaltero.qc.ca,,kontor@danskvaegtloeftning.dk,fehalterofilia@hotmail.com,info@rfwf.ru
 Competition.defaultFederationWebSite,Competition.defaultFederationWebSite,www.fedhaltero.qc.ca,,www.weightlifting.dk,www.fedehalter.org,rfwf.ru
 Competition.defaultLocale,Display and printout language (requires restart),Langue d'affichage et d'impression (redémarrage requis),,Display og printout sprog (kræver genstart),,Язык отображения и печати (требуется перезагрузка)
-Competition.enforce20kgRule,Apply initial total weight rule (IWF §6.6.5/Masters §2.4)?,Appliquer la règle de poids total initial (IWF §6.6.5/Masters §2.4)?,,Anvend indledende tokampsvægtregel (IWF §6.6.5/Masters §2.4)?,Aplicar regla de peso total inicial (IWF §6.6.5/Masters §2.4)?,"Применить правило ""20 кг (IWF §6.6.5/Masters §2.4)?"""
+Competition.enforce20kgRule,Apply initial total weight rule (IWF §6.6.5/Masters §2.4)?,Appliquer la règle de poids total initial (IWF §6.6.5/Masters §2.4)?,,Anvend indledende tokampsvægtregel (IWF §6.6.5/Masters §2.4)?,Aplicar regla de peso total inicial (IWF §6.6.5/Masters §2.4)?,Применить правило ""20 кг"" (IWF §6.6.5/Masters §2.4)?
 Competition.federation,Federation Name,Nom de la fédération,,Forbundsnavn,Nombre de la federación,Название федерации
 Competition.federationAddress,Federation Address,Adresse de la fédération,,Forbundsadresse,Dirección de la federación,Адрес федерации
 Competition.federationEMail,Federation e-mail,Courriel de la fédération,,Forbunds e-mail,E-mail de la federación,Электронная почта федерации
@@ -131,6 +131,7 @@ Decision_AF_,Decision (AF),Decision (face à l'athlète),,Afgørelse (AV),,Ре�
 Declaration,Declaration,Déclaration,,Deklareret,,Заявленный вес
 Declaration_Notification,Declaration for {0}: {1},Déclaration pour {0}: {1},,Ønsket vægt for {0}: {1},,Заявленный вес для {0}: {1} кг
 DefineCategories,Define Categories,Définir les catégories,,Definér Kategorier,,Категории
+,,,,,,
 DefineGroups,Define Groups,Définir les groupes,,Definér grupper,,Потоки
 Delete,Delete,Détruire,,Slet,Eliminar,Удалить
 Delete_title,Delete {0},Effacer {0},,Slet {0},Eliminar {0},Удалить {0}
@@ -311,7 +312,7 @@ WeightLifted,Weight Lifted,Poids soulevé,,Vægt løftet,,Засчитанный
 Wired,\u0020(wired),\u0020(cablé),,\u0020(kablet),,\u0020(кабель)
 Wireless,\u0020(wireless),\u0020(sans fil),,\u0020(wireless),,\u0020(беспроводной)
 WorldRecord,World Record,Record du monde,,Verdensrekord,Récord mundial,Мировой рекорд
-WrittenJFL,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>","Le système a été écrit et est mis à jour par Jean-François Lamy, Officiel Technique IWF catégorie 1<br><br>",,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>",,Данная система разработана и поддерживается Жан-Франсуа Лами. IWF International Technical Official Category 1.<br><br>
+WrittenJFL,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>","Le système a été écrit et est mis à jour par Jean-François Lamy, Officiel Technique IWF catégorie 1<br><br>",,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>",,Данная система разработана и поддерживается Жан-Франсуа Леми. IWF International Technical Official Category 1.<br><br>
 Preferences,Preferences,Préférences,,Præferencer,,Предпочтения
 RuleViolation.declarationValueTooSmall,Lift {0} : Value {1} for declaration must be greater than or equal to the automatic progression ({2}).,Lever {0} : Le poids {1} déclaré doit être plus grand ou égal au poids de la progression automatique ({2}),,Løft {0} : Værdi {1} skal være større end eller lig den automatiske øgning ({2}).,Alzada {0} : El valor {1} declarado debe ser mayor o igual que la progresión automática ({2}),Попытка {0} : Значение {1} для заявки должно быть больше или равно автоматической надбавке({2}).
 RuleViolation.liftValueNotWhatWasRequested,Lift {0} : Value {1} for lift must match requested amount ({2}).,Lever {0} : Le poids {1} du lever doit correspondre au poids demandé ({2}).,,Løft {0} : Værdi {1} for løft skal matche det opgivede ({2}).,Alzada {0} : El valor {1} para la alzada debe coincidir con el valor solicitado ({2}).,Попытка {0} : Значение {1} для попытки должно соответсвовать зявленому({2}).
@@ -366,7 +367,7 @@ DisplayType.ATHLETE,Attempt Info,Information sur l'essai,,Nuværende forsøg,,И
 introCountdown,Countdown to Introduction,Décompte avant présentation,,Nedtælling til præsentation,,Таймер до представления спортсменов
 startLifting,Start Lifting,Débuter les levers,,Begynd konkurrencen,,Начать соревнования
 NoGroupSelected,No group selected,Pas de groupe sélectionné,,Ingen gruppe valgt,,Поток не выбран
-InvalidDurationFormat,Duration must be in format {0} -- Type {1} to get {2} minutes and {3} seconds.,"La durée doit être dans le format {0} -- Écrire {1} pour dire ""{2} minutes et {3} secondes"".",,Varighed skal være i format {0} -- Tast {1} for at angive {2} minutter og {3} sekunder,,Длительность должна быть в формате {0} -- Введите {1} чтобы получить {2} минут и {3} секунд.
+InvalidDurationFormat,Duration must be in format {0} -- Type {1} to get {2} minutes and {3} seconds.,La durée doit être dans le format {0} -- Écrire {1} pour dire ""{2} minutes et {3} secondes"".,,Varighed skal være i format {0} -- Tast {1} for at angive {2} minutter og {3} sekunder,,Длительность должна быть в формате {0} -- Введите {1} чтобы получить {2} минут и {3} секунд.
 JuryDeliberation,Jury Deliberation,Délibération du jury,,Jury overvejelser,,Обсуждение жюри
 EndBreak,End Break,Fin de la pause.,,Afslut pause,,Завершить паузу
 IdlePlatform,Idle Platform (no countdown displayed),Plateau inactif (pas de décompte affiché),,Inaktiv Platform (nedtælling vises ikke),,Платформа не активна (нет обратного отсчета)
