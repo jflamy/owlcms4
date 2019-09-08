@@ -131,7 +131,7 @@ Decision_AF_,Decision (AF),Decision (face à l'athlète),,Afgørelse (AV),,Ре�
 Declaration,Declaration,Déclaration,,Deklareret,,Заявленный вес
 Declaration_Notification,Declaration for {0}: {1},Déclaration pour {0}: {1},,Ønsket vægt for {0}: {1},,Заявленный вес для {0}: {1} кг
 DefineCategories,Define Categories,Définir les catégories,,Definér Kategorier,,Категории
-DefineFOP,Define Fields of Play,Définir les plateaux,,Opret platform,,Помосты
+,,,,,,
 DefineGroups,Define Groups,Définir les groupes,,Definér grupper,,Потоки
 Delete,Delete,Détruire,,Slet,Eliminar,Удалить
 Delete_title,Delete {0},Effacer {0},,Slet {0},Eliminar {0},Удалить {0}
@@ -381,3 +381,5 @@ Scoreboard.Needed,Kg Needed,Kg Requis,,Kg Needed,Kg Needed,Kg Needed
 Scoreboard.Sinclair,Sinclair,Sinclair,,Sinclair,Sinclair,Sinclair
 Scoreboard.BodyWeight,B.W.,Poids,,Vægt,B.W.,B.W.
 YearOfBirth,Year of Birth,Année de naissance,,Year of Birth,Year of Birth,Year of Birth
+DefineFOP,Define Fields of Play and Sound Output,Définir les plateaux et les sorties sonores,,Opret platform,,Помосты
+UseBrowserSound,Use Browser Sound,Utiliser le son des navigateurs,,,Use Browser Sound,Use Browser Sound
