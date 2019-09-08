@@ -75,9 +75,6 @@ public class CategoriesListIT extends AbstractViewTest {
 
     private static class CategoryDialog extends DialogElement {
 
-        public CategoryDialog() {
-        }
-
         @Override
         protected void init() {
             List<ButtonElement> buttons = $(ButtonElement.class).all();

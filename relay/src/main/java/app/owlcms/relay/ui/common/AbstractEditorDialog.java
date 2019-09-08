@@ -20,7 +20,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -210,6 +209,7 @@ public abstract class AbstractEditorDialog<T extends Serializable>
             itemSaver.accept(currentItem, operation);
             close();
         } else {
+            @SuppressWarnings("unused")
             BinderValidationStatus<T> status = binder.validate();
         }
     }
