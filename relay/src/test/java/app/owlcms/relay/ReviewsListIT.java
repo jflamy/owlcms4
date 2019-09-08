@@ -121,9 +121,6 @@ public class ReviewsListIT extends AbstractViewTest {
 
     private static class ReviewDialog extends DialogElement {
 
-        public ReviewDialog() {
-        }
-
         @Override
         protected void init() {
             List<ButtonElement> buttons = $(ButtonElement.class).all();
