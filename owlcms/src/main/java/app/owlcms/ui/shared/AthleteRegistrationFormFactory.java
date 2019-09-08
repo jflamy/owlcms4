@@ -326,7 +326,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 catGenderOk = catGender == g;
                 if (catGenderOk && !genderCatOk) {
                     // validate() does not validate if no change, ugly workaround
-                    logger.warn("checking gender");
+                    logger.debug("checking gender");
                     genderBinding.validate();
                 }
                 return catGender == g;
@@ -383,7 +383,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 genderCatOk = catGender == null || catGender == g;
                 if (genderCatOk && !catGenderOk) {
                     // turn off message if present.
-                    logger.warn("checking category");
+                    logger.debug("checking category");
                     catBinding.validate();
                 }
                 return genderCatOk;
