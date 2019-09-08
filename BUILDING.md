@@ -43,7 +43,7 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
 
 Releases are created on [GitHub](https://help.github.com/en/articles/creating-releases).  
 The process used for managing versions is [GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow).  
-A [GitFllow Maven plug-in](https://github.com/aleksandr-m/gitflow-maven-plugin) is used to reduce the number of manual steps.
+A [GitFlow Maven plug-in](https://github.com/aleksandr-m/gitflow-maven-plugin) is used to reduce the number of manual steps.
 
 1. Run `mvn gitflow:release-start` to create the new release.
    - You should be in the `develop`  branch before starting, and have merged all the features you wish so include.

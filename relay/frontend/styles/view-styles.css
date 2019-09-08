@@ -1,0 +1,20 @@
+ /* Stretch to fill the entire browser viewport while keeping the content constrained to parent element max-width */
+.view-toolbar {
+    display: flex;
+    background-color: var(--lumo-base-color);
+    box-shadow: 0 1px 0 0 var(--lumo-contrast-10pct);
+    margin: 0 calc(-50vw + 50%);
+    padding: 8px calc(50vw - 50% + 16px);
+    position: relative;
+    z-index: 1;
+    flex: none;
+}
+
+.view-toolbar__search-field {
+    flex: auto;
+    min-width: 0;
+    margin-right: 16px;
+}
+.view-container {
+    flex: auto;
+}
