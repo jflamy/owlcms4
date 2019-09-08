@@ -88,6 +88,9 @@ public class ProdData {
 			defaultFederationWebSite.equals(defaultFederationWebSiteKey) ? federationWebSiteLabel
 					: defaultFederationWebSite);
 		
+		competition.setUseBirthYear(true);
+		competition.setEnforce20kgRule(true);
+		
 		// needed because some classes such as Athlete refer to the current competition
 		Competition.setCurrent(competition);
 		

@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.sound.Speakers;
 import app.owlcms.utils.LoggerUtils;
@@ -638,6 +639,9 @@ public class Platform implements Serializable {
      */
     public String getSoundMixerName() {
         logger.debug("getSoundMixerName {} {}", System.identityHashCode(this),soundMixerName);
+        if (soundMixerName == null) {
+            return Translator.translate("UseBrowserSound");
+        }
         return soundMixerName;
     }
 
@@ -660,12 +664,12 @@ public class Platform implements Serializable {
         for (Mixer curMixer : soundMixers) {
             if (curMixer.getMixerInfo().getName().equals(soundMixerName)) {
                 setMixer(curMixer);
-                logger.info("Platform {}: changing mixer to {}", this.name, curMixer.getMixerInfo().getName());
+                logger.debug("Platform {}: changing mixer to {}", this.name, curMixer.getMixerInfo().getName());
                 break;
             }
         }
         if (mixer == null) {
-            logger.info("Platform: {}: changing mixer to {}", this.name, soundMixerName);
+            logger.debug("Platform: {}: changing mixer to {}", this.name, soundMixerName);
         }
         mixerChecked = true;
     }

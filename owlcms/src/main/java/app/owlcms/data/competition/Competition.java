@@ -42,7 +42,6 @@ public class Competition {
     public static final String DEFAULT_PROTOCOL_NAME = "Protocol_en.xls";
     public static final String DEFAULT_PACKAGE_NAME = "Total_en.xls";
 
-    @SuppressWarnings("unused")
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
 
     private static Competition competition;

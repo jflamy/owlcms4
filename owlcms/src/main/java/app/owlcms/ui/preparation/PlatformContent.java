@@ -7,6 +7,9 @@
 package app.owlcms.ui.preparation;
 
 import java.util.Collection;
+import java.util.List;
+
+import javax.sound.sampled.Mixer;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -26,6 +29,7 @@ import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -96,8 +100,10 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
         crudFormFactory.setFieldCaptions(
                 getTranslation("PlatformName"),
                 getTranslation("Speakers"));
+        List<String> outputNames = Speakers.getOutputNames();
+        outputNames.add(0,getTranslation("UseBrowserSound"));
         crudFormFactory.setFieldProvider("soundMixerName",
-                new OwlcmsComboBoxProvider<>(Speakers.getOutputNames()));
+                new OwlcmsComboBoxProvider<>(outputNames));
     }
 
     /**
@@ -111,9 +117,21 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
      */
     private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
         return new OwlcmsCrudFormFactory<Platform>(Platform.class) {
-            @SuppressWarnings({ "rawtypes" })
+            @SuppressWarnings({ "rawtypes", "unchecked" })
             @Override
             protected void bindField(HasValue field, String property, Class<?> propertyType) {
+                if (property.equals("soundMixerName")) {
+                    field.addValueChangeListener(e -> {
+                        List<Mixer> soundMixers = Speakers.getOutputs();
+                        for (Mixer curMixer : soundMixers) {
+                            if (curMixer.getMixerInfo().getName().equals(e.getValue())) {
+                                if (e.getOldValue() != null && ! e.getValue().equals(e.getOldValue())) Speakers.testSound(curMixer);
+                                logger.debug("testing mixer {}",curMixer.getMixerInfo().getName()); // LoggerUtils.stackTrace());
+                                break;
+                            }
+                        }
+                    });
+                }
                 super.bindField(field, property, propertyType);
             }
 

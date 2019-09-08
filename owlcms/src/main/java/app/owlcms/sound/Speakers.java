@@ -22,13 +22,13 @@ import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public class Speakers {
-    final Logger logger = (Logger) LoggerFactory.getLogger(Speakers.class);
+    final static Logger logger = (Logger) LoggerFactory.getLogger(Speakers.class);
 
     public static void main(String[] args) throws Exception {
         List<Mixer> mixers = getOutputs();
         for (Mixer mixer : mixers) {
             System.out.println(mixer.getMixerInfo().getName());
-            new Speakers().testSound(mixer);
+            testSound(mixer);
         }
     }
 
@@ -71,7 +71,7 @@ public class Speakers {
     /**
      * @param mixer
      */
-    public synchronized void testSound(Mixer mixer) {
+    public static synchronized void testSound(Mixer mixer) {
         try {
             if (mixer == null)
                 return;
@@ -79,7 +79,7 @@ public class Speakers {
             new Sound(mixer, "initialWarning2.wav").emit();
             new Tone(mixer, 1100, 1200, 1.0).emit();
         } catch (Exception e) {
-            logger/**/.warn("failed sound test\n", LoggerUtils.stackTrace(e));
+            System.err.println("failed sound test\n"+LoggerUtils.stackTrace(e));
         }
     }
 
@@ -95,9 +95,7 @@ public class Speakers {
                 port.open();
                 if (port.isControlSupported(FloatControl.Type.VOLUME)) {
                     FloatControl volume = (FloatControl) port.getControl(FloatControl.Type.VOLUME);
-                    System.out.println(info);
-                    System.out.println("- " + Port.Info.SPEAKER);
-                    System.out.println("  - " + volume);
+                    logger.info("{} - {} - {}"+info, Port.Info.SPEAKER, volume);
                 }
                 port.close();
             }

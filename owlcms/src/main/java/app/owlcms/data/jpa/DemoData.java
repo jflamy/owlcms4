@@ -77,6 +77,7 @@ public class DemoData {
 		
 		competition.setEnforce20kgRule(true);
 		competition.setMasters(masters);
+		competition.setUseBirthYear(true);
 		
 		// needed because some classes such as Athlete refer to the current competition
 		Competition.setCurrent(competition);
