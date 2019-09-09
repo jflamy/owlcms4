@@ -58,6 +58,7 @@ public class Translator implements I18NProvider {
     private static List<Locale> locales = null;
     private static Locale forcedLocale = null;
     private static ClassLoader i18nloader = null;
+    private static int line;
 
     public static List<Locale> getAllAvailableLocales() {
         return locales;
@@ -136,7 +137,8 @@ public class Translator implements I18NProvider {
         String baseName = BUNDLE_BASE;
         String csvName = BUNDLE_PACKAGE_SLASH + baseName + ".csv";
         File bundleDir = Files.createTempDir();
-
+        line = 0;
+        
         if (i18nloader == null) {
             logger.debug("reloading translation bundles");
 
@@ -144,10 +146,11 @@ public class Translator implements I18NProvider {
             ICsvListReader listReader = null;
             try {
                 listReader = new CsvListReader(new InputStreamReader(csvStream, StandardCharsets.UTF_8), CsvPreference.STANDARD_PREFERENCE);
+                
 
                 List<String> stringList;
-                if ((stringList = listReader.read()) == null) {
-                    throw new RuntimeException("file is empty");
+                if ((stringList = readLine(listReader)) == null) {
+                    throw new RuntimeException(csvName+" file is empty");
                 }
                 logger.debug(stringList.toString());
 
@@ -157,7 +160,7 @@ public class Translator implements I18NProvider {
                 for (int i = 1; i < outFiles.length; i++) {
                     String language = stringList.get(i);
                     locales.add(createLocale(language));
-                    if (!language.isEmpty()) {
+                    if (language != null && !language.isEmpty()) {
                         language = "_" + language;
                     }
                     final File outfile = new File(bundleDir, baseName + language + ".properties");
@@ -166,8 +169,13 @@ public class Translator implements I18NProvider {
                 }
 
                 // reading to properties
-                while ((stringList = listReader.read()) != null) {
+                while ((stringList = readLine(listReader)) != null) {
                     final String key = stringList.get(0);
+                    if (key == null) {
+                        String message = MessageFormat.format("{0} line {1}: key is null", csvName, line);
+                        logger.error(message);
+                        throw new RuntimeException(message);
+                    }
                     logger.debug(stringList.toString());
                     for (int i = 1; i < languageProperties.length; i++) {
                         // treat the CSV strings using same rules as Properties files.
@@ -176,7 +184,13 @@ public class Translator implements I18NProvider {
                         if (input != null) {
                             String unescapeJava = StringEscapeUtils.unescapeJava(input);
                             if (!unescapeJava.trim().isEmpty()) {
-                                languageProperties[i].setProperty(key, unescapeJava);
+                                Properties properties = languageProperties[i];
+                                if (properties == null) {
+                                    String message = MessageFormat.format("{0} line {1}: languageProperties[{2}] is null", csvName, line, i);
+                                    logger.error(message);
+                                    throw new RuntimeException(message);
+                                }
+                                properties.setProperty(key, unescapeJava);
                             }
                         }
                     }
@@ -205,6 +219,11 @@ public class Translator implements I18NProvider {
         // reload the files
         ResourceBundle.clearCache();
         return ResourceBundle.getBundle(baseName, locale, i18nloader);
+    }
+
+    public static List<String> readLine(ICsvListReader listReader) throws IOException {
+        line++;
+        return listReader.read();
     }
 
     public static void main(String[] args) {
