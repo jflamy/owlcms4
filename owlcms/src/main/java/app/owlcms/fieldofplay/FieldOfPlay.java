@@ -939,7 +939,7 @@ public class FieldOfPlay {
             logger.error("break already started {}",LoggerUtils.stackTrace());
         } else {
             BreakType breakType2 = e.getBreakType();
-            logger.debug("transition to break {}", breakType2);
+            logger.warn("transition to break {}", breakType2);
             setState(BREAK);
             this.setBreakType(breakType2);
             getAthleteTimer().stop();
@@ -954,6 +954,7 @@ public class FieldOfPlay {
         setState(CURRENT_ATHLETE_DISPLAYED);
         if (stopBreakTimer) {
             getBreakTimer().stop();
+            setBreakType(null);
         }
         uiStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e, false);

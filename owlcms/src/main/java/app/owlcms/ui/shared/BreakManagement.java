@@ -45,6 +45,7 @@ import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.BreakSetTime;
 import app.owlcms.fieldofplay.UIEvent.BreakStarted;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -94,7 +95,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     BreakManagement(Object origin, BreakType brt, CountdownType cdt, Dialog parentDialog) {
         init(origin, brt, cdt, parentDialog);
         if (brt == BreakType.JURY || brt == BreakType.TECHNICAL) {
-            requestedBreakType = brt;
+            setRequestedBreakType(brt);
         }
     }
 
@@ -211,7 +212,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public void startIndefiniteBreakImmediately() {
         timeRemaining = null;
         ct.setValue(CountdownType.INDEFINITE);
-        bt.setValue(requestedBreakType != null ? requestedBreakType : BreakType.TECHNICAL);
+        bt.setValue(getRequestedBreakType() != null ? getRequestedBreakType() : BreakType.TECHNICAL);
         startBreak();
         breakTimerElement.slaveBreakStart(new BreakStarted(null, this, false));
     }
@@ -245,9 +246,9 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         timePicker.addValueChangeListener(e -> setBreakTimeRemaining(CountdownType.TARGET));
 
         syncWithFop();
-        if (requestedBreakType != null
-                && (requestedBreakType == BreakType.JURY || requestedBreakType == BreakType.TECHNICAL)) {
-            logger.debug("starting break immediately");
+        if (getRequestedBreakType() != null
+                && (getRequestedBreakType() == BreakType.JURY || getRequestedBreakType() == BreakType.TECHNICAL)) {
+            logger.warn("starting break immediately {}", getRequestedBreakType());
             startIndefiniteBreakImmediately();
         } else {
             setBreakTimeRemaining(ct.getValue());
@@ -487,7 +488,9 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                         bt.setValue(BreakType.FIRST_SNATCH);
                     } else {
                         bt.setValue(BreakType.TECHNICAL);
-                        requestedBreakType = BreakType.TECHNICAL;
+                        if (getRequestedBreakType() == null) {
+                            setRequestedBreakType(BreakType.TECHNICAL);
+                        }
                     }
                     break;
                 case INACTIVE:
@@ -495,11 +498,22 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     break;
                 default:
                     bt.setValue(BreakType.TECHNICAL);
-                    requestedBreakType = BreakType.TECHNICAL;
+                    if (getRequestedBreakType() == null) {
+                        setRequestedBreakType(BreakType.TECHNICAL);
+                    }
                     break;
                 }
             }
         });
+    }
+
+    private BreakType getRequestedBreakType() {
+        return requestedBreakType;
+    }
+
+    private void setRequestedBreakType(BreakType requestedBreakType) {
+        logger.warn("requestedBreakType={} {}",requestedBreakType,LoggerUtils.whereFrom());
+        this.requestedBreakType = requestedBreakType;
     }
 
 }
