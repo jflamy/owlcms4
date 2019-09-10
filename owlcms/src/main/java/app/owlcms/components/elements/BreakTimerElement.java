@@ -115,6 +115,15 @@ public class BreakTimerElement extends TimerElement {
 		doStartTimer(e.getTimeRemaining());
 	}
 
+    /* (non-Javadoc)
+     * @see app.owlcms.displays.attemptboard.TimerElement#init()
+     */
+    @Override
+    protected void init() {
+        super.init();
+        getModel().setSilent(true); // do not emit sounds
+    }
+    
     /* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {

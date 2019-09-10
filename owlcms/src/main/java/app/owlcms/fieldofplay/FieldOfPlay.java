@@ -939,7 +939,7 @@ public class FieldOfPlay {
             logger.error("break already started {}",LoggerUtils.stackTrace());
         } else {
             BreakType breakType2 = e.getBreakType();
-            logger.warn("transition to break {}", breakType2);
+            logger.trace("transition to break {}", breakType2);
             setState(BREAK);
             this.setBreakType(breakType2);
             getAthleteTimer().stop();

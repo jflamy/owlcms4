@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -211,6 +212,12 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 			uiEventBus = uiEventBusRegister(this, fop);
 		});
 	}
+	
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+	    // tell the javascript to stay quiet
+	    getModel().setSilent(true);
+	}
 
 	protected void setTimerElement(Element timerElement) {
 		this.timerElement = timerElement;
@@ -230,6 +237,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         } else {
             logger.trace("indefinite");
             model.setIndefinite(true);
+            model.setSilent(true);
         }
 		// should not be necessary
 		getTimerElement().callJsFunction("reset");

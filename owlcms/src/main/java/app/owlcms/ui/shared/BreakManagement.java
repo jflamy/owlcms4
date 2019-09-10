@@ -248,7 +248,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         syncWithFop();
         if (getRequestedBreakType() != null
                 && (getRequestedBreakType() == BreakType.JURY || getRequestedBreakType() == BreakType.TECHNICAL)) {
-            logger.warn("starting break immediately {}", getRequestedBreakType());
+            logger.debug("starting break immediately {}", getRequestedBreakType());
             startIndefiniteBreakImmediately();
         } else {
             setBreakTimeRemaining(ct.getValue());
@@ -512,7 +512,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void setRequestedBreakType(BreakType requestedBreakType) {
-        logger.warn("requestedBreakType={} {}",requestedBreakType,LoggerUtils.whereFrom());
+        logger.trace("requestedBreakType={} {}",requestedBreakType,LoggerUtils.whereFrom());
         this.requestedBreakType = requestedBreakType;
     }
 
