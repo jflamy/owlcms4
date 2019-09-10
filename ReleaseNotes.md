@@ -1,11 +1,12 @@
-- See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and for directions to [live demo](https://jflamy.github.io/owlcms4/#/?id=demo)
+- See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and for  [live demo](https://jflamy.github.io/owlcms4/#/?id=demo)
 - Release Highlights:
-  - Year of birth now the default for registration and printouts.  Full Birth Date can be selected on the competition information page if desired.
-  - All sounds now emitted correctly when using the master laptop sound adapter for a platform.  Indication on platform configuration screen as to whether sound is generated on master laptop or via browser.
-  - On registration and weigh-in screen, the list of categories is filtered based on the athlete's gender
-- [Change Log](https://github.com/jflamy/owlcms4/milestone/51?closed=1) for this release (enhancements and fixes)
+  - The year-only setting is now the default for registrations; if a full registration date is needed, the option is available on the competition information page
+  - The final results package is now produced correctly
+  - Jury-initiated breaks now correctly indicate "Jury Deliberation"
+  - Improved error-handling when parsing translation files
+- [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed)
 - Installation Instructions :
-  - For **Windows**, download `owlcms_setup.exe` below and follow [Local Instructions](https://jflamy.github.io/owlcms4/#/LocalSetup.md) 
-  - For **Linux** and **Mac OS**, download the `owlcms.zip` file below and follow [Local Instructions](https://jflamy.github.io/owlcms4/#/LocalSetup.md) 
-  - For **Heroku** cloud, download the `owlcms.zip` file below and follow [Cloud Instructions](https://jflamy.github.io/owlcms4/#/Heroku.md)
+  - For **Windows**, download `owlcms_setup.exe` below and follow [Local installation instructions](https://jflamy.github.io/owlcms4/#/LocalSetup.md) 
+  - For **Linux** and **Mac OS**, download the `owlcms.zip` file below and follow [Local installation instructions](https://jflamy.github.io/owlcms4/#/LocalSetup.md) 
+  - For **Heroku** cloud, download the `owlcms.zip` file below and follow [Cloud installation instructions](https://jflamy.github.io/owlcms4/#/Heroku.md)
 
