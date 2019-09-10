@@ -6,7 +6,7 @@ Active,Active,Actif,,Aktiv,Activo,Активная
 ActiveCategoriesOnly,Active Categories Only,Catégories actives seulement,,Kun aktive vægtklasser,,Только активные категории
 Add,Add,Ajouter,,Tilføj,Añadir,Добавить
 Add_title,Add {0},Créer {0},,Tilføj {0},Añadir {0},Добавить {0}
-AgeDivision,Age Division,Division,,Aldersinddelt,,Возрастная группа
+AgeDivision,Age Division,Division,,Aldersinddelt,,Возрастная кат.
 AgeGroup,Age Group,Groupe d'âge,,Aldersgruppe,Grupos per edades,Возрастная категория
 Announcer,Announcer,Annonceur,,Speaker,Presentador,Судья-информатор
 AnnouncerEtc,"\ (announcer, timekeeper, marshall, result boards, attempt board, jury, etc.)","\ (annonceur, chronométreur, changements, résultats, essai courant, jury, etc.)",,"\ (speaker, timekeeper, marshall, result boards, attempt board, jury, osv.)",,"\ (судьи-информатора, судьи-хронометриста, судьи на перезаявках, таблицы результатов, экрана попыток, жюри и т.д.)"
@@ -140,7 +140,7 @@ Display,Display,Afficher,,Display,Marcador,Экран
 Documentation,<li>See also the <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> for ,<li>Voir aussi la <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> pour ,,<li>Se endvidere dokumentation på <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> for ,,См. также<a href='https://jflamy.github.io/owlcms4/#/index'> документацию</a> для 
 Done_period,Done.,Terminé,,Afsluttet.,Hecho,Завершено.
 DownloadRegistrationTemplate,Download Empty Registration Spreadsheet,Obtenir une feuille d'inscription vide,,Download Tomt Registreringsark,,Скачать шаблон таблицы регистрации
-DrawLotNumbers,Draw Lot Numbers,Tirage au sort,,Tildel lodt. numre,Números aleatorios,Бросить жребий
+DrawLotNumbers,Draw Lot Numbers,Tirage au sort,,Tildel lodt. numre,Números aleatorios,Жеребьёвка
 Dropdown_Select_Platform,Use the dropdown to select the platform where the display is located.,Utilisez le menu déroulant pour choisir le plateau de compétition où se trouve l'affichage,,Brug dropdown for at vælge den platform som displayet er tilknyttet.,,Используйте выпадающее меню для выбора помоста на котором находится экран.
 Edit_Groups,Edit Groups,Éditer les groupes,,Ret grupper,,Редактирование потоков
 EditAthletes,Edit Athlete Entries,Éditer les athlètes,,Ret tilmeldingsdata for Atleter,,Редактировать спортсменов
@@ -170,7 +170,7 @@ Group_number,Group {0},Groupe {0},,Gruppe {0},Tanda {0} , Поток {0}
 Group_number_done,Group {0} done.,Groupe {0} terminé.,,Gruppe {0} afsluttet.,Sesion {0} terminada., Поток {0} завершен.
 GroupResults,Group Results,Résultats de groupe,,Gruppe resultater,,Результаты потока
 Home,Home,Accueil,,Hjem,,Главная
-InstallationConfiguration,installation and configuration information.,instructions d'installation et de configuration,,installation and configuration information.,,инструкций по установке и настройке.
+InstallationConfiguration,installation and configuration information.,instructions d'installation et de configuration,,installation and configuration information.,,инструкция по установке и настройке.
 JFL, Jean-François Lamy,Jean-François Lamy,, Jean-François Lamy,, Жан-Франсуа Лами
 Jury,Jury,Jury,,Jury,Jurado,Жюри
 Jury1,Jury 1,Jury 1,,Jury 1,,Жюри 1
@@ -197,7 +197,7 @@ Marshall,Marshall,Préposé aux changements,,Marshall,,Судья на пере�
 MaximumWeight,Maximum Weight,Poids maximum,,Maximum vægt,,Максимальный вес
 MinimumWeight,Minimum Weight,Poids minimum,,Minimum vægt,Peso Mínimo,Минимальный вес
 Name,Name,Nom,,Navn,Nombre,Название
-NoLift_GoodLift,"{0,choice,0#No Lift|1#Good Lift} for {1}","Essai {0,choice,0#refusé|1#réussi} pour {1}",,"{0,choice,0#Underkendt|1#Godkendt} for {1}",,"{0,choice,0#Подъем не защитан|1#Подъем защитан} для {1}"
+NoLift_GoodLift,"{0,choice,0#No Lift|1#Good Lift} for {1}","Essai {0,choice,0#refusé|1#réussi} pour {1}",,"{0,choice,0#Underkendt|1#Godkendt} for {1}",,"{0,choice,0#Подъём не засчитан|1#Подъём засчитан} для {1}"
 none,none,aucun,,ingen,,ни один
 Not_weighed,Not weighed,Non pesé,,Ikke indvejet,,Не прошел взвешивание
 Notes,Notes,Notes,,Notater,,Заметки
@@ -219,7 +219,7 @@ Preparation_Groups,Preparation - Groups,Préparation - Groupes,,Forbered - Grupp
 Preparation_Platforms,Preparation - Platforms,Préparation - Plateformes,,Forbered - Platforme,,Подготовка - Помосты
 Preparation_Registration,Preparation - Registration,Préparation - Inscriptions,,Forbered - Registrering,, Подготовка - Регистрация
 PrepareCompatition_description,"<li><b>{0}</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>","<li><b>{0}</b>: Entrer les coordonnées, inscrire les athlètes, définir les groupes, etc.<br></li>",,"<li><b>{0}</b>: Indtast konkurrence oplysninger, registrer atleter, definér grupper, osv.<br></li>",,"<li><b>{0}</b>: Введие место проведения соревнований, зарегистрируйте спортсменов, определите потоки и т.д.<br></li>"
-PrepareCompetition,Prepare Competition,Préparer la compétition,,Forbered konkurrence,,Подготовка соревнований
+PrepareCompetition,Prepare Competition,Préparer la compétition,,Forbered konkurrence,,Подготовка
 ProduceResults,Produce Results,Produire les résultats,,Udskriv resultater,,Подготовить результаты
 ProjectRepository,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.,<li>Voir le <a href='https://github.com/jflamy/owlcms4'>référentiel du projet</a> pour les packages d'installation et le code source.,,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.,,См. <a href='https://github.com/jflamy/owlcms4'>репозиторий проекта</a> для бинарных релизов и полных исходных кодов.<br>
 Question,?,\u0020?,,?,,?
@@ -239,18 +239,18 @@ Reset2min,Reset to 2 min,Réinitialiser à 2 min.,,Reset til 2 min,,Сброси
 ResultDocuments,Result Documents,Documents de résultats,,Resultatdokumenter,,Результаты и документы
 Results,Results,Résultats,,Resultater,Resultados,Результаты
 ResumeCompetition,Resume Competition,Redémarrer la compétition,,Genoptag konkurrence,,Продолжить соревнования
-RunLiftingGroup,Run Lifting Group,Groupe de compétition,,Kør gruppe,,Выбор тех. служб
+RunLiftingGroup,Run Lifting Group,Groupe de compétition,,Kør gruppe,,Запуск потока
 RunLiftingGroup_description,"<li><b>{0}</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>","<li><b>{0}</b>: Lancer les écrans pour les officiels (annonceur, chrono, préposé aux changements). L''annonceur choisit le groupe en cours.</li>",,"<li><b>{0}</b>: Start skærmbillede for speaker, marshall, timekeeper. Speakeren styrer hvilken gruppen der vises på displays og skærme.</li>",,"<li><b>{0}</b>: Запустите экраны для судьи-информатора, судьи на перезаявках и судьи-хронометриста. Судья-хронометрист контролирует какой поток отображается на экранах.</li>"
 Scoreboard,Scoreboard,Tableau de résultats,,Scoreboard,,Таблица результатов
 Scoreboard.Start,Start,Départ,Départ<div class='english'>Start</div>,Start,,Номер
 Scoreboard.Name,Name,Nom,Nom<div class='english'>Name</div>,Navn,Nombre,"Фамилия, Имя"
 Scoreboard.Team,Team,Équipe,Équipe<div class='english'>Team</div>,Hold,Equipo,Команда
-Scoreboard.Birth,Born,Naiss.,Naiss.<div class='english'>Born</div>,Født,Nacimiento,Дата рождения
+Scoreboard.Birth,Born,Naiss.,Naiss.<div class='english'>Born</div>,Født,Nacimiento,Год
 Scoreboard.Snatch,Snatch,Arraché,Arraché<div class='english'>Snatch</div>,Træk,Arr.,Рывок
 Scoreboard.AgeGroup,Age Gr.,Gr. Age.,<nobr>Gr. Age.</nobr><div class='english'><nobr>Age Gr.</nobr></div>,Aldesgruppe,Grupos per edades,Возрастная категория
 Scoreboard.Rank,Rank,Rang,Rang<div class='english'>Rank</div>,Placering,Posición,Место
 Scoreboard.Clean_and_Jerk,Clean&amp;Jerk,Épaulé-jeté,Épaulé-jeté<div class='english'>Clean&amp;Jerk</dif>,Stød,Stød,Толчок
-Scoreboard.Total,Total,Total,Total,Tokamp,Total,Итого
+Scoreboard.Total,Total,Total,Total,Tokamp,Total,Сумма
 Scoreboard.Category,Cat.,Cat.,Cat.,Vægtklasse,Cat.,Кат.
 Scoreboard.AttemptsDone,"{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}","{0,choice,0#Aucun essai.|1#1 essai effectué.|1<{0} essais effectués.}",,"{0,choice,0#Ingen løft afviklet.|1#1 løft afviklet.|1<{0} løft afviklet.}",,Всего попыток выполнено: {0}
 Scoreboard.GroupLiftType,Group {0} {1},Groupe {0} {1},,Gruppe {0} {1},,Поток {0}. {1}
@@ -268,7 +268,7 @@ Snatch3,snatch 3,Arraché 3,,Træk 3,Arrancada 3,Р3
 SnatchDecl_,Snatch Decl.,Décl. Arr.,,Træk dekl.,,Рывок
 SnatchRank,Snatch Rank,Rang Arr.,,Træk rang,,Место (Р)
 SourceDocumentation,Source and Documentation,Code source et documentation,,Source og dokumentation,,Исходные коды и документация
-StartDisplays,Start Displays,Démarrer les affichages,,Start Displays,,Выбор Экранов
+StartDisplays,Start Displays,Démarrer les affichages,,Start Displays,,Запуск экранов
 Start_,Start#,#Départ,,Startnr.,,Стартовый №
 StartCountdown,Start Break Countdown Timer,Démarrer le chronomètre de pause,,Start Break Countdown Timer,,Запустить таймер
 StartDisplays_description,"<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>","<li><b>{0}</b>: Lancer les tableaux de résultats, l''affichage de l''essai courant, et l''affichage pour l''athlète.</li>",,"<li><b>{0}</b>: Bruges til at starte Attempt board, Athlete-facing skærm og Scoreboard.</li>",,"<li><b>{0}</b>: Используется для запуска экрана попытки, экрана атлета и таблицы результатов.</li>"
@@ -369,16 +369,16 @@ NoGroupSelected,No group selected,Pas de groupe sélectionné,,Ingen gruppe valg
 InvalidDurationFormat,Duration must be in format {0} -- Type {1} to get {2} minutes and {3} seconds.,La durée doit être dans le format {0} -- Écrire {1} pour dire ""{2} minutes et {3} secondes"".,,Varighed skal være i format {0} -- Tast {1} for at angive {2} minutter og {3} sekunder,,Длительность должна быть в формате {0} -- Введите {1} чтобы получить {2} минут и {3} секунд.
 JuryDeliberation,Jury Deliberation,Délibération du jury,,Jury overvejelser,,Обсуждение жюри
 EndBreak,End Break,Fin de la pause.,,Afslut pause,,Завершить паузу
-IdlePlatform,Idle Platform (no countdown displayed),Plateau inactif (pas de décompte affiché),,Inaktiv Platform (nedtælling vises ikke),,Платформа не активна (нет обратного отсчета)
-ShowResults,Show Results,Afficher les résultats,,Vis resultater,Mostrar resultados,Show Results
+IdlePlatform,Idle Platform (no countdown displayed),Plateau inactif (pas de décompte affiché),,Inaktiv Platform (nedtælling vises ikke),,Помост не активен (нет обратного отсчета)
+ShowResults,Show Results,Afficher les résultats,,Vis resultater,Mostrar resultados,Показать результаты
 Group_number_results,Group {0} &ndash; Results,Groupe {0} &ndash; Résultats.,,Gruppe {0} &ndash; resultater.,Sesion {0} &ndash; resultados.,Результаты потока {0}
 Paused,Paused,En pause,,Paused,Paused,Пауза
-Scoreboard.TopSinclairMen,Top Sinclair &ndash; Men,Meilleurs Sinclair &ndash; Hommes,,Top Sinclair &ndash; Men,Top Sinclair &ndash; Men,Top Sinclair &ndash; Men
-Scoreboard.TopSinclairWomen,Top Sinclair &ndash; Women,Meilleurs Sinclair &ndash; Women,,Top Sinclair &ndash; Women,Top Sinclair &ndash; Women,Top Sinclair &ndash; Women
-Scoreboard.TopSinclair,Top Sinclair,Meilleurs Sinclair,,Top Sinclair,Top Sinclair,Top Sinclair
-Scoreboard.Needed,Kg Needed,Kg Requis,,Kg Needed,Kg Needed,Kg Needed
-Scoreboard.Sinclair,Sinclair,Sinclair,,Sinclair,Sinclair,Sinclair
-Scoreboard.BodyWeight,B.W.,Poids,,Vægt,B.W.,B.W.
-YearOfBirth,Year of Birth,Année de naissance,,Year of Birth,Year of Birth,Year of Birth
+Scoreboard.TopSinclairMen,Top Sinclair &ndash; Men,Meilleurs Sinclair &ndash; Hommes,,Top Sinclair &ndash; Men,Top Sinclair &ndash; Men,Синклер &ndash; Мужчины
+Scoreboard.TopSinclairWomen,Top Sinclair &ndash; Women,Meilleurs Sinclair &ndash; Women,,Top Sinclair &ndash; Women,Top Sinclair &ndash; Women,Синклер &ndash; Женщины
+Scoreboard.TopSinclair,Top Sinclair,Meilleurs Sinclair,,Top Sinclair,Top Sinclair,Результаты (Синклер)
+Scoreboard.Needed,Kg Needed,Kg Requis,,Kg Needed,Kg Needed,Кг Необходимо
+Scoreboard.Sinclair,Sinclair,Sinclair,,Sinclair,Sinclair,Синклер
+Scoreboard.BodyWeight,B.W.,Poids,,Vægt,B.W.,С.В.
+YearOfBirth,Year of Birth,Année de naissance,,Year of Birth,Year of Birth,Год рождения
 DefineFOP,Define Fields of Play and Sound Output,Définir les plateaux et les sorties sonores,,Opret platform,,Помосты
-UseBrowserSound,Use Browser Sound,Utiliser le son des navigateurs,,,Use Browser Sound,Use Browser Sound
+UseBrowserSound,Use Browser Sound,Utiliser le son des navigateurs,,,Use Browser Sound,Использовать звук браузера
