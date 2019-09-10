@@ -1,7 +1,6 @@
-- See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and for  [live demo](https://jflamy.github.io/owlcms4/#/?id=demo)
+- See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and the [live demo](https://jflamy.github.io/owlcms4/#/?id=demo) site
 - Release Highlights:
-  - The year-only setting is now the default for registrations; if a full registration date is needed, the option is available on the competition information page
-  - The final results package is now produced correctly
+  - The final results package is again produced correctly
   - Jury-initiated breaks now correctly indicate "Jury Deliberation"
   - Improved error-handling when parsing translation files
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed)
