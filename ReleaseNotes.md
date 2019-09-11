@@ -1,6 +1,7 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and the [live demo](https://jflamy.github.io/owlcms4/#/?id=demo) site
 - Release Highlights:
-  - The final results package is again produced correctly
+  - The final results package has been fixed
+  - If the sounds are generated on the server for a given platform, then the browsers on that platform will not emit sound.
   - Jury-initiated breaks now correctly indicate "Jury Deliberation"
   - Improved error-handling when parsing translation files
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed)
