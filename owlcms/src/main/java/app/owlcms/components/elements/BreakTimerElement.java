@@ -112,9 +112,18 @@ public class BreakTimerElement extends TimerElement {
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
         if (e.isDisplayToggle()) return;
 		uiEventLogger.debug("&&& breakTimer start {} {} {}", e.getClass().getSimpleName(), null, e.getOrigin());
-		doStartTimer(e.getTimeRemaining());
+		doStartTimer(e.getTimeRemaining(), true); // true means "silent".
 	}
 
+    /* (non-Javadoc)
+     * @see app.owlcms.displays.attemptboard.TimerElement#init()
+     */
+    @Override
+    protected void init() {
+        super.init();
+        getModel().setSilent(true); // do not emit sounds
+    }
+    
     /* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
@@ -124,9 +133,9 @@ public class BreakTimerElement extends TimerElement {
 			ProxyBreakTimer breakTimer = fop.getBreakTimer();
             if (breakTimer.isRunning()) {
                 if (breakTimer.isIndefinite()) {
-                    doStartTimer(null);
+                    doStartTimer(null, fop.isEmitSoundsOnServer());
                 } else {
-                    doStartTimer(breakTimer.computeTimeRemaining());
+                    doStartTimer(breakTimer.computeTimeRemaining(), fop.isEmitSoundsOnServer());
                 }
             } else {
                 if (breakTimer.isIndefinite()) {

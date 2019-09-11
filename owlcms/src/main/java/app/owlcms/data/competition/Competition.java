@@ -495,7 +495,7 @@ public class Competition {
         for (Athlete curAthlete : athletes) {
             teams.add(curAthlete.getTeam());
         }
-        reportingBeans2.put("clubs", new ArrayList<String>(teams));
+        reportingBeans2.put("clubs", teams);
         logger.debug("teams {}", teams);
 
         List<Athlete> sortedAthletes;

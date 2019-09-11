@@ -131,26 +131,13 @@ Reference: https://devcenter.heroku.com/articles/deploying-executable-jar-files
 
 #### Configuring the security settings
 
-  The simplest way is to use the Heroku dashboard for the application and add the IP and PIN variables under the Settings tab, in the `Config Vars` section.  You must of course use the IP address or your own network as explained above.
+The simplest way is to use the Heroku dashboard for the application and add the IP and PIN variables under the Settings tab, in the `Config Vars` section.  You must of course use the IP address or your own network as explained above.
 
   ![pin](img\Heroku\pin.png)
 
 ## Demonstration mode
 
-- If you want to run in demo mode with fictitious athletes, run the following commands before doing the deployment. This adds the `-DdemoMode=true` flag to tell owlcms to reset on every start and recreate the fake data.  Demo mode runs in memory so your permanent database is not touched.
-
-  ```bash
-  cp Procfile prodProcfile
-  cp demoProcfile Procfile
-  heroku deploy:jar owlcms.jar
-  ```
-
-- To run again with your database and host a competition:
-
-  ```bash
-  cp prodProcfile Procfile
-  heroku deploy:jar owlcms.jar
-  ```
-
-
+- If you want to run in demo mode with fictitious athletes, add a configuration variable `OWLCMS_DEMOMODE` with the value `true` (small letters). See [above](#configuring-the-security-settings) for an example of setting config vars.
+  If you do so, the database will be kept in memory, and will not affect the data in your real database.  The fake data will be regenerated every time the application is restarted. In particular, if you are using the free tier on Heroku, the application is restarted after 1h of idle time.
+- To run again with your real database and host a competition, just delete the `OWLCMS_DEMOMODE` config var.
 

@@ -363,33 +363,15 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         HorizontalLayout decisions = new HorizontalLayout(good, bad);
         return decisions;
     }
+    
+
 
     private HorizontalLayout juryDeliberationButtons() {
-//        Button stopCompetition = new Button(getTranslation("StopCompetition"), (e) -> {
-//            OwlcmsSession.withFop(
-//                    fop -> {
-//                        fop.getFopEventBus().post(new FOPEvent.BreakStarted(BreakType.JURY, CountdownType.INDEFINITE, this.getOrigin()));
-//                    });
-//        });
-//        stopCompetition.getElement().setAttribute("theme", "icon secondary contrast");
-//        stopCompetition.setWidth(BUTTON_WIDTH);
-//        stopCompetition.setEnabled(false);
-        
-
-
-//        Button resumeCompetition = new Button(getTranslation("ResumeCompetition"), (e) -> {
-//            OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin())));
-//        });
-//        resumeCompetition.getElement().setAttribute("theme", "secondary");
-//        resumeCompetition.setWidth(BUTTON_WIDTH);
-//        resumeCompetition.setEnabled(false);
-        
         breakDialog = new BreakDialog(this,BreakType.JURY,CountdownType.INDEFINITE);
         breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
             breakDialog.open();
         });
-        breakButton.getElement().setAttribute("theme", "secondary contrast");
-        breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
+        quietBreakButton(true);
         
         //		HorizontalLayout buttons = new HorizontalLayout(stopCompetition, resumeCompetition);
         HorizontalLayout buttons = new HorizontalLayout(breakButton);

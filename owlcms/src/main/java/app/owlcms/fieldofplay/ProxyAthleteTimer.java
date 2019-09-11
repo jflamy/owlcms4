@@ -102,7 +102,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
             logger.debug("starting Time -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
             timeRemainingAtLastStop = timeRemaining;
         }
-        fop.getUiEventBus().post(new UIEvent.StartTime(timeRemaining, null));
+        fop.getUiEventBus().post(new UIEvent.StartTime(timeRemaining, null, fop.isEmitSoundsOnServer()));
         running = true;
     }
 

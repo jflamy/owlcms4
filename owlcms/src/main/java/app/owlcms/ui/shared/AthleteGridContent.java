@@ -232,8 +232,10 @@ public abstract class AthleteGridContent extends VerticalLayout
         return routerLayout;
     }
 
-    public HorizontalLayout layoutBreakButtons() {
-        breakButton.getElement().setAttribute("theme", "secondary contrast icon");
+    protected HorizontalLayout layoutBreakButtons() {
+        breakButton.getElement().setAttribute("theme", "secondary error");
+        breakButton.getStyle().set("color", "var(--lumo-error-color)");
+        breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
         breakButton.getElement().setAttribute("title", getTranslation("Countdown_BreakTimer"));
 
         HorizontalLayout buttons = new HorizontalLayout(breakButton);
@@ -680,13 +682,9 @@ public abstract class AthleteGridContent extends VerticalLayout
                         decisions.setVisible(false);
                     }
                     if (this instanceof JuryContent) {
-                        breakButton.getElement().setAttribute("theme", "primary error");
-                        breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
-                        breakButton.setText(getTranslation("Paused"));
-                        breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
+                        busyBreakButton();
                     } else {
-                        breakButton.getElement().setAttribute("theme", "primary error");
-                        breakButton.setText(getTranslation("Paused"));
+                        busyBreakButton();
                     }
 
                 } else {
@@ -697,15 +695,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                         decisions.setVisible(true);
                     }
                     breakButton.setText("");
-                    if (this instanceof JuryContent) {
-                        breakButton.getElement().setAttribute("theme", "secondary error");
-                        breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
-                        breakButton.setText(getTranslation("JuryDeliberation"));
-                        breakButton.getElement().setAttribute("title", getTranslation("JuryDeliberation"));
-                    } else {
-                        breakButton.getElement().setAttribute("theme", "secondary error icon");
-                        breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
-                    }
+                    quietBreakButton(this instanceof JuryContent);
                 }
                 breakButton.setEnabled(true);
 
@@ -714,6 +704,28 @@ public abstract class AthleteGridContent extends VerticalLayout
                 doUpdateTopBar(curAthlete, timeRemaining);
             }
         });
+    }
+
+    public void busyBreakButton() {
+        breakButton.getElement().setAttribute("theme", "primary error");
+        breakButton.getStyle().set("color", "white");
+        breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
+        breakButton.setText(getTranslation("Paused"));
+        breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
+    }
+
+    public void quietBreakButton(boolean b) {
+        breakButton.getStyle().set("color", "var(--lumo-error-color)");
+        breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
+        if (b) {
+            breakButton.getElement().setAttribute("theme", "secondary error");
+            breakButton.setText(getTranslation("JuryDeliberation"));
+            breakButton.getElement().setAttribute("title", getTranslation("JuryDeliberation"));
+        } else {
+            breakButton.getElement().setAttribute("theme", "secondary error icon");
+            breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
+        }
+  
     }
 
     /**

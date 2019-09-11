@@ -186,24 +186,23 @@
           var progress = now - this._elapsed;
           this.currentTime = this.countUp ? this.currentTime + progress : this.currentTime - progress;
           
-          if (! this.silent) {
-	          // we anticipate by 0.1 sec because .play() has a perceptible delay
-	          if (this.currentTime <= 30.1 && !this._finalWarningGiven) {
-	        	  //console.warn("currentTime "+this.currentTime);
-	        	  this.$.finalWarning.play();
-	        	  if (this.$server != null) this.$server.clientFinalWarning();
-	        	  this._finalWarningGiven = true;
-	          }
-	          if (this.currentTime <= 90.1 && !this._initialWarningGiven) {
-	        	  this.$.initialWarning.play();
-	        	  if (this.$server != null) this.$server.clientInitialWarning();
-	        	  this._initialWarningGiven = true;
-	          }
-	          if (this.currentTime <= 0.1 && !this._timeOverWarningGiven) {
-	        	  //console.warn("calling play "+this.currentTime);
-	              this.$.timeOver.play();
-	              this._timeOverWarningGiven = true;
-	          }
+
+          // we anticipate by 0.1 sec because .play() has a perceptible delay
+          if (this.currentTime <= 30.1 && !this._finalWarningGiven) {
+        	  //console.warn("currentTime "+this.currentTime);
+        	  if (!this.silent) this.$.finalWarning.play();
+        	  if (this.$server != null) this.$server.clientFinalWarning();
+        	  this._finalWarningGiven = true;
+          }
+          if (this.currentTime <= 90.1 && !this._initialWarningGiven) {
+        	  if (!this.silent) this.$.initialWarning.play();
+        	  if (this.$server != null) this.$server.clientInitialWarning();
+        	  this._initialWarningGiven = true;
+          }
+          if (this.currentTime <= 0.1 && !this._timeOverWarningGiven) {
+        	  //console.warn("calling play "+this.currentTime);
+              if (!this.silent) this.$.timeOver.play();
+              this._timeOverWarningGiven = true;
           }
           
           if ((this.currentTime <= 0 && !this.countUp) 
