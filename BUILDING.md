@@ -32,10 +32,9 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
    - Make sure that all closed issues are closed on GitHub and assigned to the a milestone that matches the release number.
    - Go to "[Issues/Milestones](Issues/Milestones)"
      - close obsolete milestones,
-     - click on the current milestone, click on the link for `closed` issues.  Copy the URL
+     - click on the current milestone, click on the link for `closed` issues, check titles.
 2. Update Release Notes
    - The file is located in `owlcms4top/ReleaseNotes.md`
-   - Update link to the  `Change Log` to refer to the URL for the close issues copied in step 2.
    - Close all Typora instances
 3. Refresh the `owlcms4top`  project, commit and push
 
