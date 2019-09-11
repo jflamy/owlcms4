@@ -138,7 +138,7 @@ public class AthleteTimerElement extends TimerElement {
 			this.getOrigin(), e.getOrigin());
 		Integer milliseconds = e.getTimeRemaining();
 		uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
-		doStartTimer(milliseconds);
+		doStartTimer(milliseconds, e.isSilent());
 	}
 
 	@Subscribe

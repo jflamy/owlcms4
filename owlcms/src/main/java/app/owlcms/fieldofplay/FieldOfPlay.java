@@ -70,7 +70,7 @@ import ch.qos.logback.classic.Logger;
  */
 public class FieldOfPlay {
 
-    public class DelayTimer {
+    private class DelayTimer {
         private final Timer t = new Timer();
 
         public TimerTask schedule(final Runnable r, long delay) {
@@ -91,13 +91,13 @@ public class FieldOfPlay {
     }
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
+
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     {
         logger.setLevel(Level./**/DEBUG);
         uiEventLogger.setLevel(Level.INFO);
     }
-
     /**
      * the clock owner is the last athlete for whom the clock has actually started.
      */
@@ -122,15 +122,16 @@ public class FieldOfPlay {
     private boolean timeoutEmitted;
     private boolean downEmitted;
     private Boolean[] refereeDecision;
-    private Integer[] refereeTime;
 
+    private Integer[] refereeTime;
     private Boolean goodLift;
+
     private boolean testingMode;
 
     /**
      * Instantiates a new field of play state. When using this constructor
-     * {@link #init(List, IProxyTimer)} must later be used to provide the athletes and set
-     * the athleteTimer
+     * {@link #init(List, IProxyTimer)} must later be used to provide the athletes
+     * and set the athleteTimer
      *
      * @param group     the group (to get details such as name, and to reload
      *                  athletes)
@@ -177,7 +178,7 @@ public class FieldOfPlay {
     public void emitFinalWarning() {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
         boolean emitted2 = isFinalWarningEmitted();
-        logger.debug("emitFinalWarning server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
+        logger.debug("emitFinalWarning server={} emitted={}", emitSoundsOnServer2, emitted2); // $NON-NLS-1
 
         if (emitSoundsOnServer2 && !emitted2) {
             // instead of finalWarning2.wav sounds too much like down
@@ -189,7 +190,7 @@ public class FieldOfPlay {
     public void emitInitialWarning() {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
         boolean emitted2 = isInitialWarningEmitted();
-        logger.debug("emitInitialWarning server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
+        logger.debug("emitInitialWarning server={} emitted={}", emitSoundsOnServer2, emitted2); // $NON-NLS-1
 
         if (emitSoundsOnServer2 && !emitted2) {
             new Sound(getSoundMixer(), "initialWarning2.wav").emit();
@@ -200,7 +201,7 @@ public class FieldOfPlay {
     public void emitTimeOver() {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
         boolean emitted2 = isTimeoutEmitted();
-        logger.debug("emitTimeout server={} emitted={}",emitSoundsOnServer2,emitted2); //$NON-NLS-1
+        logger.debug("emitTimeout server={} emitted={}", emitSoundsOnServer2, emitted2); // $NON-NLS-1
 
         if (emitSoundsOnServer2 && !emitted2) {
             new Sound(getSoundMixer(), "timeOver2.wav").emit();
@@ -360,16 +361,16 @@ public class FieldOfPlay {
         } else if (e instanceof StartLifting) {
             transitionToLifting(e, true);
         } else if (e instanceof BarbellOrPlatesChanged) {
-            uiShowPlates((BarbellOrPlatesChanged)e);
+            uiShowPlates((BarbellOrPlatesChanged) e);
             return;
         } else if (e instanceof SwitchGroup) {
             if (state != BREAK && state != INACTIVE) {
                 setState(INACTIVE);
                 athleteTimer.stop();
             }
-            loadGroup(((SwitchGroup)e).getGroup(), this);
+            loadGroup(((SwitchGroup) e).getGroup(), this);
             recomputeLiftingOrder();
-            getUiEventBus().post(new UIEvent.SwitchGroup(((SwitchGroup)e).getGroup(), e.getOrigin()));
+            getUiEventBus().post(new UIEvent.SwitchGroup(((SwitchGroup) e).getGroup(), e.getOrigin()));
             return;
         }
 
@@ -538,7 +539,7 @@ public class FieldOfPlay {
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer) {
-        logger.trace("start of init state="+state);
+        logger.trace("start of init state=" + state);
         this.athleteTimer = timer;
         this.breakTimer = breakTimer;
         this.fopEventBus = getFopEventBus();
@@ -550,13 +551,18 @@ public class FieldOfPlay {
         if (athletes != null && athletes.size() > 0) {
             // we skip recomputation so that we can detect that we are on an empty group
             // and clear the displays. SwitchGroup processing will recompute.
-            // recomputing twice is innocuous in this case and is simpler than keeping state.
+            // recomputing twice is innocuous in this case and is simpler than keeping
+            // state.
             recomputeLiftingOrder();
         }
         if (state == null) {
             this.setState(INACTIVE);
         }
-        logger.trace("end of init state="+state);
+        logger.trace("end of init state=" + state);
+    }
+
+    public boolean isEmitSoundsOnServer() {
+        return getSoundMixer() != null;
     }
 
     public boolean isTestingMode() {
@@ -582,7 +588,7 @@ public class FieldOfPlay {
         int timeAllowed = getTimeAllowed();
         logger.debug("recomputed lifting order curAthlete={} prevlifter={} time={} [{}]",
                 curAthlete != null ? curAthlete.getFullName() : "",
-                        previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed, LoggerUtils.whereFrom());
+                previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed, LoggerUtils.whereFrom());
         getAthleteTimer().setTimeRemaining(timeAllowed);
     }
 
@@ -670,7 +676,17 @@ public class FieldOfPlay {
 
         logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
                 curAthlete, curAthlete != null ? curAthlete.getAttemptedLifts() + 1 : 0, curWeight, clock,
-                        getAthleteTimer().getTimeRemainingAtLastStop());
+                getAthleteTimer().getTimeRemainingAtLastStop());
+    }
+
+    public void updateGlobalRankings() {
+        logger.debug("update rankings {}", LoggerUtils.whereFrom());
+        Competition competition = Competition.getCurrent();
+        if (competition.isGlobalRankingRecompute()) {
+            competition.computeGlobalRankings();
+            uiShowUpdatedRankings();
+        }
+
     }
 
     /**
@@ -680,9 +696,9 @@ public class FieldOfPlay {
      */
     void setState(FOPState state) {
         logger.trace("entering {} {}", state, LoggerUtils.whereFrom());
-        //        if (state == INACTIVE) {
-        //            logger.debug("entering inactive {}",LoggerUtils.stackTrace());
-        //        }
+        // if (state == INACTIVE) {
+        // logger.debug("entering inactive {}",LoggerUtils.stackTrace());
+        // }
         this.state = state;
     }
 
@@ -734,8 +750,8 @@ public class FieldOfPlay {
                     logger.trace("&&3.A.B declaration for clock owner: leave clock running");
                     // no weight change. this is most likely a declaration.
                     if (Athlete.zeroIfInvalid(changingAthlete.getCurrentDeclaration()) == newWeight) {
-                        Notification.show(Translator.translate("Declaration_Notification",
-                                changingAthlete, newWeight), 5000, Position.TOP_START);
+                        Notification.show(Translator.translate("Declaration_Notification", changingAthlete, newWeight),
+                                5000, Position.TOP_START);
                     }
                     return;
                 }
@@ -765,10 +781,6 @@ public class FieldOfPlay {
 
     private synchronized boolean isDownEmitted() {
         return downEmitted;
-    }
-
-    private boolean isEmitSoundsOnServer() {
-        return getSoundMixer() != null;
     }
 
     private synchronized boolean isFinalWarningEmitted() {
@@ -936,7 +948,7 @@ public class FieldOfPlay {
 
     private void transitionToBreak(BreakStarted e) {
         if (state == BREAK && (this.breakType != BreakType.GROUP_DONE && getBreakTimer().isRunning())) {
-            logger.error("break already started {}",LoggerUtils.stackTrace());
+            logger.error("break already started {}", LoggerUtils.stackTrace());
         } else {
             BreakType breakType2 = e.getBreakType();
             logger.trace("transition to break {}", breakType2);
@@ -973,14 +985,13 @@ public class FieldOfPlay {
     @SuppressWarnings("unused")
     private void uiDisplayCurrentWeight() {
         Integer nextAttemptRequestedWeight = curAthlete.getNextAttemptRequestedWeight();
-        uiEventLogger.info("requested weight: {} (from curAthlete {})",
-                nextAttemptRequestedWeight, getCurAthlete());
+        uiEventLogger.info("requested weight: {} (from curAthlete {})", nextAttemptRequestedWeight, getCurAthlete());
     }
 
     private void uiShowDownSignalOnSlaveDisplays(Object origin2) {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
         boolean downEmitted2 = isDownEmitted();
-        uiEventLogger.trace("showDownSignalOnSlaveDisplays server={} emitted={}",emitSoundsOnServer2,downEmitted2);
+        uiEventLogger.debug("showDownSignalOnSlaveDisplays server={} emitted={}", emitSoundsOnServer2, downEmitted2);
         if (emitSoundsOnServer2 && !downEmitted2) {
             downSignal.emit();
             setDownEmitted(true);
@@ -1018,20 +1029,9 @@ public class FieldOfPlay {
         if (e instanceof DecisionReset || e instanceof DecisionFullUpdate)
             // ignore
             return;
-        String text = Translator.translate("Unexpected_Notification",
-                e.getClass().getSimpleName(), state);
+        String text = Translator.translate("Unexpected_Notification", e.getClass().getSimpleName(), state);
         logger/**/.warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
         Notification.show(text, 5000, Position.BOTTOM_END);
-    }
-
-    public void updateGlobalRankings() {
-        logger.debug("update rankings {}",LoggerUtils.whereFrom());
-        Competition competition = Competition.getCurrent();
-        if (competition.isGlobalRankingRecompute()) {
-            competition.computeGlobalRankings();
-            uiShowUpdatedRankings();
-        }
-        
     }
 
     private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {

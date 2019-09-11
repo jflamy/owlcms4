@@ -172,9 +172,10 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 		});
 	}
 
-	protected void doStartTimer(Integer milliseconds) {
+	protected void doStartTimer(Integer milliseconds, boolean silent) {
 		UIEventProcessor.uiAccess(this, uiEventBus, () -> {
 			setTimeRemaining(milliseconds);
+			getModel().setSilent(silent);
 			start();
 		});
 	}
