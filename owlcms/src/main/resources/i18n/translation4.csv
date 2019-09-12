@@ -382,3 +382,5 @@ Scoreboard.BodyWeight,B.W.,Poids,,Vægt,B.W.,С.В.
 YearOfBirth,Year of Birth,Année de naissance,,Year of Birth,Year of Birth,Год рождения
 DefineFOP,Define Fields of Play and Sound Output,Définir les plateaux et les sorties sonores,,Opret platform,,Помосты
 UseBrowserSound,Use Browser Sound,Utiliser le son des navigateurs,,,Use Browser Sound,Использовать звук браузера
+Done,done,terminé,,afsluttet,terminada,завершена
+KgSymbol,kg,kg,,kg,kg,\ кг
