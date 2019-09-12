@@ -352,7 +352,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     protected void onAttach(AttachEvent attachEvent) {
         // fop obtained via QueryParameterReader interface default methods.
         OwlcmsSession.withFop(fop -> {
-            logger.warn("onAttach {} {}", fop.getName(), fop.getState());
+            logger.debug("onAttach {} {}", fop.getName(), fop.getState());
             init();
 
             // sync with current status of FOP
