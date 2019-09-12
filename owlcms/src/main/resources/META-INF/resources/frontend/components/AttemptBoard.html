@@ -121,7 +121,7 @@
 @media screen and (max-width: 1300px) {
 	.attemptBoard .weight {
 		font-size: 12vw;
-		line-height: 12vw;
+		line-height: 7vw;
 	}
 }
 
@@ -188,7 +188,7 @@
 	</div>
 	<div class="attempt" id="attemptDiv" inner-h-t-m-l="[[attempt]]"></div><!-- kludge to have preformatted html -->
 	<div class="weight" id="weightDiv">
-		[[weight]]<span style="font-size: 75%">[[kgSymbol]]</span>
+		<nobr>[[weight]]<span style="font-size: 75%">[[kgSymbol]]</span></nobr>
 	</div>
 	<div class="barbell" id="barbellDiv">
 		<slot name="barbell"></slot>

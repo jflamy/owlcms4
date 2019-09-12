@@ -422,7 +422,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 Element platesElement = plates.getElement();
                 // tell polymer that the plates belong in the slot named barbell of the template
                 platesElement.setAttribute("slot", "barbell");
-                platesElement.getStyle().set("font-size", "20pt");
+                platesElement.getStyle().set("font-size", "3.3vh");
                 attemptBoard.getElement().appendChild(platesElement);
             });
         });
