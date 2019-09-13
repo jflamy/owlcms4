@@ -1,9 +1,7 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and the [live demo](https://jflamy.github.io/owlcms4/#/?id=demo) site
-- Release Highlights:
-  - The final results package has been fixed
-  - If the sounds are generated on the server for a given platform, then the browsers on that platform will not emit sound.
-  - Jury-initiated breaks now correctly indicate "Jury Deliberation"
-  - Improved error-handling when parsing translation files
+- Release Highlights: Minor bug fix release
+  - Fix for attempt board switching from pause display to weight display if marshall made a change to current athlete during a break
+  - Missing translation of a few words on technical official screens
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed)
 - Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` below and follow [Local installation instructions](https://jflamy.github.io/owlcms4/#/LocalSetup.md) 

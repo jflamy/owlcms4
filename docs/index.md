@@ -2,13 +2,17 @@
 
 OWLCMS version 4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity, and can be [run on the cloud](EquipmentSetup#cloud-access-over-the-internet).
 
+## Downloads and Setup
+
+Setup packages and Installation Instructions are available for [stand-alone setups (no internet access needed)](https://jflamy.github.io/owlcms4/#/LocalSetup.md) on Windows, Mac OS and Linux, as well as for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
+
+You can [switch the language](Preparation#display-language) of the program between French, English, Danish or Russian.  [Translators](#translation-to-other-languages) are welcome.
+
 ## Features and Demo
 
 - See [this page](Demo) for how to access a [demo site](https://owlcms4.herokuapp.com) and a perform a simple walkthrough
   
-  - All the screenshots for the documentation on this site come from the demo. You may therefore use the [demo site](https://owlcms4.herokuapp.com) to perform a full walkthrough.
-  
-- The following list is a sampling of the many features available.  <u>*Click on the images if you wish to view them full-sized*</u>.
+- The following list is a sampling of the many features available.  <u>*Click on the images if you wish to view them full-sized*</u>.  The images are taken from the demo site.
   
   - Run a **regular** or **masters** competition, with or without a **jury**.
   
@@ -65,12 +69,6 @@ OWLCMS version 4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!
   - [**Multiple languages**](Preparation#display-language). Currently English, French, Danish, and a partial translation to Spanish.
   
   - Etc.  Refer to the side menu for the full list of topics.
-
-
-
-## Installation
-
-Download and Installation Instructions are available for both [local setups without internet access](https://jflamy.github.io/owlcms4/#/LocalSetup.md) and for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
 
 
 
