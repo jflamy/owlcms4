@@ -735,15 +735,17 @@ public class FieldOfPlay {
                     stopAthleteTimer = true; // make sure we broacast to clients
                     logger.trace("&&4.1 stop, recompute, state");
                     recomputeLiftingOrder();
-
-                    // if in a break, we don't stop break timer on a weight change.
-                    // unless we are at the end of a group (ex: on a loading error, we go back to lifting)
-                    boolean stopBreakTimer = (state == BREAK && getBreakType() == BreakType.GROUP_DONE);
-                    if (stopBreakTimer) {
-                        // set the state now, otherwise attempt board will ignore request to display if
-                        // in a break
+                    if (state == BREAK) {
+                        // if in a break, we don't stop break timer on a weight change.
+                        // unless we are at the end of a group (ex: on a loading error, we go back to lifting)
+                        if (getBreakType() == BreakType.GROUP_DONE) {
+                            // set the state now, otherwise attempt board will ignore request to display if
+                            // in a break
+                            setState(CURRENT_ATHLETE_DISPLAYED);
+                            getBreakTimer().stop();
+                        }
+                    } else {
                         setState(CURRENT_ATHLETE_DISPLAYED);
-                        getBreakTimer().stop();
                     }
                     uiDisplayCurrentAthleteAndTime(stopAthleteTimer, wc, false);
                     updateGlobalRankings();
