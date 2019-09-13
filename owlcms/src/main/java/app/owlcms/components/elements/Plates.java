@@ -39,7 +39,7 @@ public class Plates extends FlexLayout {
         if (currentAthlete == null)
             return;
         weight = currentAthlete.getNextAttemptRequestedWeight();
-        final String caption = weight + "kg";
+        final String caption = getTranslation("Kg", weight);
 
         createImageArea(fop, barWeight, (showCaption ? caption : ""));
     }

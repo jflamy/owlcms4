@@ -80,6 +80,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         Boolean isPublicFacing();
 
         Boolean isShowBarbell();
+        
+        String getKgSymbol();
 
         void setAttempt(String formattedAttempt);
 
@@ -96,6 +98,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         void setTeamName(String teamName);
 
         void setWeight(Integer weight);
+        
+        void setKgSymbol(String kgSymbol);
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
@@ -123,6 +127,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      */
     public AttemptBoard() {
         athleteTimer.setOrigin(this);
+        getModel().setKgSymbol(getTranslation("KgSymbol"));
     }
 
     @Override
@@ -209,10 +214,10 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     @Subscribe
-    public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-        uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
+    public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {        
         OwlcmsSession.withFop(fop -> {
             FOPState state = fop.getState();
+            uiEventLogger.debug("### {} {} isDisplayToggle={}", state, this.getClass().getSimpleName(), e.isDisplayToggle());
             if (state == FOPState.BREAK) {
                 if (e.isDisplayToggle()) {
                     Athlete a = e.getAthlete();
@@ -250,7 +255,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             doBreak();
@@ -259,7 +264,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Subscribe
     public void slaveStopBreak(UIEvent.BreakDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             Athlete a = e.getAthlete();
@@ -345,9 +350,9 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        logger.trace("onAttach {}", OwlcmsSession.getFop().getName());
         // fop obtained via QueryParameterReader interface default methods.
         OwlcmsSession.withFop(fop -> {
+            logger.debug("onAttach {} {}", fop.getName(), fop.getState());
             init();
 
             // sync with current status of FOP
@@ -417,7 +422,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 Element platesElement = plates.getElement();
                 // tell polymer that the plates belong in the slot named barbell of the template
                 platesElement.setAttribute("slot", "barbell");
-                platesElement.getStyle().set("font-size", "20pt");
+                platesElement.getStyle().set("font-size", "3.3vh");
                 attemptBoard.getElement().appendChild(platesElement);
             });
         });

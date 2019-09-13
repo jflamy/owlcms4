@@ -92,7 +92,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         Integer attemptsDone = a.getAttemptsDone();
         Integer attemptNumber = a.getAttemptNumber();
         return (attemptsDone >= 3)
-                ? ((attemptsDone >= 6) ? "done" : Translator.translate("C_and_J_number", attemptNumber))
+                ? ((attemptsDone >= 6) ? Translator.translate("Done") : Translator.translate("C_and_J_number", attemptNumber))
                 : Translator.translate("Snatch_number", attemptNumber);
     }
 
@@ -531,7 +531,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      * @param crudGrid the crudGrid that will be filtered.
      */
     protected void defineFilters(GridCrud<Athlete> crud) {
-        lastNameFilter.setPlaceholder("Last name");
+        lastNameFilter.setPlaceholder(getTranslation("LastName"));
         lastNameFilter.setClearButtonVisible(true);
         lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
         lastNameFilter.addValueChangeListener(e -> {
@@ -593,7 +593,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                         Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
                         weight.setText(
                                 (nextAttemptRequestedWeight != null ? nextAttemptRequestedWeight.toString() : "\u2013")
-                                        + "kg");
+                                        + getTranslation("KgSymbol"));
                     }
                 } else {
                     topBarWarning(group, attemptsDone, fop.getState(), fop.getLiftingOrder());

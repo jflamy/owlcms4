@@ -718,7 +718,7 @@ public class FieldOfPlay {
         Athlete changingAthlete = wc.getAthlete();
         Integer newWeight = changingAthlete.getNextAttemptRequestedWeight();
         logger.trace("&&1 cur={} curWeight={} new={} newWeight={}", curAthlete, curWeight, changingAthlete, newWeight);
-        logger.trace("&&2 clockOwner={} clockLastStopped={} state={}", clockOwner,
+        logger.warn("&&2 clockOwner={} clockLastStopped={} state={}", clockOwner,
                 getAthleteTimer().getTimeRemainingAtLastStop(), state);
 
         boolean stopAthleteTimer = false;
@@ -735,15 +735,7 @@ public class FieldOfPlay {
                     stopAthleteTimer = true; // make sure we broacast to clients
                     logger.trace("&&4.1 stop, recompute, state");
                     recomputeLiftingOrder();
-                    // set the state now, otherwise attempt board will ignore request to display if
-                    // in a break
-                    setState(CURRENT_ATHLETE_DISPLAYED);
-                    // if in a break, we don't stop break timer on a weight change.
-                    // unless we are at the end of a group (a loading error may have occurred)
-                    boolean stopBreakTimer = (state == BREAK && getBreakType() == BreakType.GROUP_DONE);
-                    if (stopBreakTimer) {
-                        getBreakTimer().stop();
-                    }
+                    changeStateUnlessInBreak();
                     uiDisplayCurrentAthleteAndTime(stopAthleteTimer, wc, false);
                     updateGlobalRankings();
                 } else {
@@ -765,8 +757,34 @@ public class FieldOfPlay {
             // time is not running
             // changing athlete is not current athlete
             recomputeLiftingOrder();
+            changeStateUnlessInBreak();
             uiDisplayCurrentAthleteAndTime(true, wc, false);
             updateGlobalRankings();
+        }
+    }
+
+    /**
+     * Don't interrupt break if official-induced break.
+     * Interrupt break if it is simply "group done".
+     */
+    public void changeStateUnlessInBreak() {
+        if (state == BREAK) {
+            logger.warn("{} {}",state, getBreakType());
+            // if in a break, we don't stop break timer on a weight change.
+            if (getBreakType() == BreakType.GROUP_DONE) {
+                // weight change in state GROUP_DONE can happen if there is a loading error
+                // and there is no jury deliberation break -- the weight change is entered directly
+                // in this case, we need to go back to lifting.
+                // set the state now, otherwise attempt board will ignore request to display if
+                // in a break
+                setState(CURRENT_ATHLETE_DISPLAYED);
+                getBreakTimer().stop();
+            } else {
+                // remain in break state
+                setState(BREAK);
+            }
+        } else {
+            setState(CURRENT_ATHLETE_DISPLAYED);
         }
     }
 
