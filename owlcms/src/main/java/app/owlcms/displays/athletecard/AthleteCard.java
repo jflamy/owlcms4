@@ -205,13 +205,13 @@ implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, Requ
             model.setCategory("");
         }
         String snatch1Declaration = athlete.getSnatch1Declaration();
-        if (snatch1Declaration != null && Integer.parseInt(snatch1Declaration) > 0) {
+        if (snatch1Declaration != null && zeroIfInvalid(snatch1Declaration) > 0) {
             model.setSnatch1Declaration(snatch1Declaration);
         } else {
             model.setSnatch1Declaration("");
         }
         String cleanJerk1Declaration = athlete.getCleanJerk1Declaration();
-        if (cleanJerk1Declaration != null && Integer.parseInt(cleanJerk1Declaration) > 0) {
+        if (cleanJerk1Declaration != null && zeroIfInvalid(cleanJerk1Declaration) > 0) {
             model.setCleanJerk1Declaration(cleanJerk1Declaration);
         } else {
             model.setCleanJerk1Declaration("");
@@ -221,6 +221,14 @@ implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, Requ
             model.setEntryTotal(qualifyingTotal.toString());
         } else {
             model.setEntryTotal("");
+        }
+    }
+
+    public int zeroIfInvalid(String v) {
+        try {
+            return Integer.parseInt(v);
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
     
