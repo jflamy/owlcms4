@@ -146,8 +146,10 @@ implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, Requ
      */
     @Override
     public void setParameter(BeforeEvent event, String parameter) {
-        this.athlete = AthleteRepository.findById(Long.parseLong(parameter));
+        long id = Long.parseLong(parameter);
+        this.athlete = AthleteRepository.findById(id);
     }
+
 
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.

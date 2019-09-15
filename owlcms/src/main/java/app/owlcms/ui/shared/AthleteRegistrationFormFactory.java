@@ -23,6 +23,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
+import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -59,6 +60,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private Button printButton;
 
+    private Button hiddenButton;
+
     public AthleteRegistrationFormFactory(Class<Athlete> domainType) {
         super(domainType);
     }
@@ -69,11 +72,24 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
         printButton = new Button(Translator.translate("AthleteCard"));
+
+        hiddenButton = new Button("doit");
+        hiddenButton.getStyle().set("visibility", "hidden");
         enablePrint(domainObject);
-        Button printCardButton = printButton;
-        printCardButton.setThemeName("secondary success");
+        printButton.setThemeName("secondary success");
+
+        // ensure that writeBean() is called; this horror is due to the fact that we
+        // must open a new window from the client side, and cannot save on click.
+        printButton.addClickListener(click -> {
+            boolean ok = binder.writeBeanIfValid(domainObject);
+            if (ok) {
+                this.update(domainObject);
+                hiddenButton.clickInClient();
+            }
+        });
+
         Component form = super.buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener,
-                operationButtonClickListener, deleteButtonClickListener, printCardButton);
+                operationButtonClickListener, deleteButtonClickListener, printButton, hiddenButton);
         filterCategories(domainObject.getCategory());
         return form;
     }
@@ -82,7 +98,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         if (domainObject.getId() == null) {
             printButton.setEnabled(false);
         } else {
-            printButton.getElement().setAttribute("onClick",
+            printButton.setEnabled(true);
+            hiddenButton.getElement().setAttribute("onClick",
                     getWindowOpenerFromClass(AthleteCard.class, domainObject.getId().toString()));
         }
     }
@@ -147,6 +164,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @Override
     public Athlete update(Athlete athlete) {
         AthleteRepository.save(athlete);
+//        logger.warn("saved id={} {} {} {}", athlete.getId(), athlete.getSnatch1Declaration(),
+//                athlete.getCleanJerk1Declaration());
+//        logger.warn("merged id={} {} {}", merged.getId(), merged.getSnatch1Declaration(),
+//                merged.getCleanJerk1Declaration());
         return athlete;
     }
 

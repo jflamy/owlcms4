@@ -104,9 +104,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
      * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
      */
     @Override
-    public Athlete add(Athlete Athlete) {
-        AthleteRepository.save(Athlete);
-        return Athlete;
+    public Athlete add(Athlete athlete) {
+        AthleteRepository.save(athlete);
+        return athlete;
     }
 
     /**

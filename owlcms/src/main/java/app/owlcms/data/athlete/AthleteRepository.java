@@ -56,8 +56,7 @@ public class AthleteRepository {
 	 * @return the athlete
 	 */
 	public static Athlete save(Athlete athlete) {
-		//REVIEW: we should be returning the merged athlete (erroneous check on == somewhere)
-		return JPAService.runInTransaction((em) -> {em.merge(athlete); return athlete;});
+		return JPAService.runInTransaction((em) -> {return em.merge(athlete);});
 	}
 
 	/**
