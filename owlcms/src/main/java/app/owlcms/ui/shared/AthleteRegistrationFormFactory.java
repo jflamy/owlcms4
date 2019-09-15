@@ -14,6 +14,7 @@ import java.util.Optional;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 
+import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -71,7 +72,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
-        printButton = new Button(Translator.translate("AthleteCard"));
+        printButton = new Button(Translator.translate("AthleteCard"), IronIcons.PRINT.create());
 
         hiddenButton = new Button("doit");
         hiddenButton.getStyle().set("visibility", "hidden");
@@ -81,15 +82,18 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         // ensure that writeBean() is called; this horror is due to the fact that we
         // must open a new window from the client side, and cannot save on click.
         printButton.addClickListener(click -> {
-            boolean ok = binder.writeBeanIfValid(domainObject);
-            if (ok) {
+            try {
+                binder.writeBean(domainObject);
                 this.update(domainObject);
                 hiddenButton.clickInClient();
+            } catch (ValidationException e) {
+                binder.validate();
             }
+
         });
 
         Component form = super.buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener,
-                operationButtonClickListener, deleteButtonClickListener, printButton, hiddenButton);
+                operationButtonClickListener, deleteButtonClickListener, hiddenButton, printButton);
         filterCategories(domainObject.getCategory());
         return form;
     }

@@ -200,14 +200,14 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         if (deleteButton != null && operation != CrudOperation.ADD) {
             footerLayout.add(deleteButton);
         }
-        
-        if (buttons != null) {
-            for (Button b : buttons) footerLayout.add(b);
-        }
 
         Label spacer = new Label();
 
         footerLayout.add(spacer, operationTrigger);
+        
+        if (buttons != null) {
+            for (Button b : buttons) footerLayout.add(b);
+        }
 
         if (cancelButton != null) {
             footerLayout.add(cancelButton);
