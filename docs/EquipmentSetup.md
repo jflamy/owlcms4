@@ -2,13 +2,13 @@
 
 OWLCMS4 is a web-based application. This means that each screen or display is attached to a laptop or miniPC (Windows, Linux, ChromeOS)., and that a browser such as Chrome or Firefox runs on each computer.
 
-A setup for a state competition using refereeing devices might look as follows.
+The program is extremely scalable.  You can start by using a single laptop to run a club meet (see below for [examples](#local-access-over-a-local-network).) 
+
+At the opposite end, a setup for a state competition using refereeing devices might look as follows:
 
 ![StateCompetition](img/equipment/StateCompetition.png)
 
-You can use any subset of this setup.  In fact, many club meets use only one laptop or two (see below for [examples](#local-access-over-a-local-network).) 
-
-On the opposite, you can also scale up and replicate the full setup on multiple platforms.  In all cases however there is always only one OWLCMS4 server (there is a single master laptop, or a single cloud program, no matter how many platforms). You can even have 5-person juries on each platform if you so wish.
+You can also add a jury laptop with 5 refereeing devices, or add additional results displays, as many as you want.  You can replicate the full setup on multiple platforms, all running at once.  In all cases, there is only one OWLCMS master server (either a laptop running locally, or a cloud application) 
 
 ## Computer Requirements
 
@@ -54,8 +54,9 @@ If there is no Internet access where you hold your meet, or if you prefer not ha
 
 It is perhaps surprising to use a laptop as a server, but as the picture shows, it's really the same thing: the display computer runs a browser and asks another computer to provide a web page.  In the local setup, the  Internet is the small router, and the server is the master laptop.  The differences are minor:
 
-- in a simple local network, there are no names.  You have to use the numerical addresses that the router gives out to the computers. 
-- there is no need for the Internet, all the networking takes place in the router.  All that matters is that you use the numerical address for the master laptop.  When OWLCMS4 starts up, it opens a window which tells you [what address the other laptops should use](LocalSetup#initial-startup) to connect to OWLCMS4.
+- there is no need for the Internet, all the networking takes place in the router.
+- in a simple local network, the simplest thing is often to use the numerical addresses that the router assigns to each machine.  This is what is illustrated above.
+- when OWLCMS4 starts up, it opens a browser window which tells you [what address the other laptops should use](LocalSetup#initial-startup) to connect to OWLCMS4.  In the illustration, the laptop at the right is the master, and it can be reached from the laptop at the left using https://192.168.1.100 .  The white browser window on the master laptop will show this information at startup.
 
 ### Single-computer setup
 
