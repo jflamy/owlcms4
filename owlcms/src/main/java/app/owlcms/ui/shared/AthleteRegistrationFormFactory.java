@@ -30,6 +30,7 @@ import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
+import app.owlcms.components.NavigationPage;
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.ValidationUtils;
@@ -39,6 +40,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.displays.athletecard.AthleteCard;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
@@ -46,7 +48,7 @@ import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<Athlete> {
+public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<Athlete> implements NavigationPage {
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteRegistrationFormFactory.class);
 
     private Athlete editedAthlete = null;
@@ -63,9 +65,14 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     public Component buildNewForm(CrudOperation operation, Athlete domainObject, boolean readOnly,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
+        Button button = new Button(Translator.translate("AthleteCard"));
+        button.getElement().setAttribute("onClick",
+                getWindowOpenerFromClass(AthleteCard.class, domainObject.getId().toString()));
+        Button printCardButton = button;
+        printCardButton.setThemeName("secondary success");
         Component form = super.buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener,
-                operationButtonClickListener, deleteButtonClickListener);
+                operationButtonClickListener, deleteButtonClickListener, printCardButton);
         filterCategories(domainObject.getCategory());
         return form;
     }
@@ -101,7 +108,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         AthleteRepository.delete(athlete);
     }
 
-    @SuppressWarnings({ "unchecked"})
+    @SuppressWarnings({ "unchecked" })
     private void filterCategories(Category category) {
         Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
         ComboBox<Category> categoryField = (ComboBox<Category>) categoryBinding.getField();
@@ -401,4 +408,22 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         HasValue<?, String> field = (HasValue<?, String>) binding.get().getField();
         return Athlete.zeroIfInvalid(field.getValue());
     }
+
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        // not used
+        return null;
+    }
+
+    @Override
+    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        // not used
+    }
+
+    @Override
+    public String getPageTitle() {
+        // not used
+        return null;
+    }
+
 }

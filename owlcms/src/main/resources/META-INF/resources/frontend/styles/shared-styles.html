@@ -4,6 +4,19 @@
   <style>
 /** global css definitions go here */
 /* note that vaadin components are styled using dom-modules below */
+
+@media print {
+	#Header, #Footer, #printing {
+		display: none !important;
+		visibility: hidden  !important;
+	}
+	
+	.printing {
+		display: none !important;
+		visibility: hidden  !important;
+	}
+}
+
 .errorMessage {
 	color: red;
 	font-weight: bold;

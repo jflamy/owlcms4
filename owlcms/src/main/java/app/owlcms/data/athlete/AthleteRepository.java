@@ -225,4 +225,10 @@ public class AthleteRepository {
 		return doFindFiltered(em, (String) null, group, (Category) null, (AgeDivision) null, weighedIn, -1, -1);
 	}
 
+    public static Athlete findById(long id) {
+        return JPAService.runInTransaction(em -> {
+            return getById(id, em);
+        });
+    }
+
 }

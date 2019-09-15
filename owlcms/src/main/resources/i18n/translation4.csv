@@ -128,7 +128,7 @@ CountdownType,Countdown Type,Type de décompte,,Nedtællingstype,,Тип тай�
 Credits,Credits,Remerciements,,Credits,,Создатели
 DataRead,Read ,Lu,,Læs,,Чтение
 Decision_AF_,Decision (AF),Decision (face à l'athlète),,Afgørelse (AV),,Решение (лицом к спортсмену)
-Declaration,Declaration,Déclaration,,Deklareret,,Заявленный вес
+Declaration,Declaration,Déclaration,,Deklareret,Declaration,Заявленный вес
 Declaration_Notification,Declaration for {0}: {1},Déclaration pour {0}: {1},,Ønsket vægt for {0}: {1},,Заявленный вес для {0}: {1} кг
 DefineCategories,Define Categories,Définir les catégories,,Definér Kategorier,,Категории
 DefineGroups,Define Groups,Définir les groupes,,Definér grupper,,Потоки
@@ -249,7 +249,7 @@ Scoreboard.Birth,Born,Naiss.,Naiss.<div class='english'>Born</div>,Født,Nacimie
 Scoreboard.Snatch,Snatch,Arraché,Arraché<div class='english'>Snatch</div>,Træk,Arr.,Рывок
 Scoreboard.AgeGroup,Age Gr.,Gr. Age.,<nobr>Gr. Age.</nobr><div class='english'><nobr>Age Gr.</nobr></div>,Aldesgruppe,Grupos per edades,Возрастная категория
 Scoreboard.Rank,Rank,Rang,Rang<div class='english'>Rank</div>,Placering,Posición,Место
-Scoreboard.Clean_and_Jerk,Clean&amp;Jerk,Épaulé-jeté,Épaulé-jeté<div class='english'>Clean&amp;Jerk</dif>,Stød,Stød,Толчок
+Scoreboard.Clean_and_Jerk,Clean&amp;Jerk,Épaulé-jeté,Épaulé-jeté<div class='english'>Clean&amp;Jerk</div>,Stød,Stød,Толчок
 Scoreboard.Total,Total,Total,Total,Tokamp,Total,Сумма
 Scoreboard.Category,Cat.,Cat.,Cat.,Vægtklasse,Cat.,Кат.
 Scoreboard.AttemptsDone,"{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}","{0,choice,0#Aucun essai.|1#1 essai effectué.|1<{0} essais effectués.}",,"{0,choice,0#Ingen løft afviklet.|1#1 løft afviklet.|1<{0} løft afviklet.}",,Всего попыток выполнено: {0}
@@ -274,7 +274,7 @@ StartCountdown,Start Break Countdown Timer,Démarrer le chronomètre de pause,,S
 StartDisplays_description,"<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>","<li><b>{0}</b>: Lancer les tableaux de résultats, l''affichage de l''essai courant, et l''affichage pour l''athlète.</li>",,"<li><b>{0}</b>: Bruges til at starte Attempt board, Athlete-facing skærm og Scoreboard.</li>",,"<li><b>{0}</b>: Используется для запуска экрана попытки, экрана атлета и таблицы результатов.</li>"
 StartingList,Starting List,Liste de départ,,Startliste,Lista de inicio,Стартовый протокол
 StartingWeightsSheet,Starting Weights Sheet,Barres de départ,,Startvægte,Pesos iniciales,Таблица стартовых весов
-StartNumber,Start Number,Numéro de départ,,Startnummer,,Стартовый номер
+StartNumber,Start Number,Numéro de départ,,Startnummer,Nº inicio,Стартовый номер
 StartTime,Start Time,Heure de début,,Starttid,Hora de comienzo,Время начала
 StopCompetition,Stop Competition,Arrêter la compétition,,Stop konkurrencen,,Остановить соревнования
 SystemURL,The competition system is reachable using the following address(es): ,Le système est accessible en spécifiant:,,The competition system is reachable using the following address(es): ,,Система управления соревнованиями доступна по следующим адресам:
@@ -384,3 +384,22 @@ DefineFOP,Define Fields of Play and Sound Output,Définir les plateaux et les so
 UseBrowserSound,Use Browser Sound,Utiliser le son des navigateurs,,,Use Browser Sound,Использовать звук браузера
 Done,done,terminé,,afsluttet,terminada,завершена
 KgSymbol,kg,kg,,kg,kg,\ кг
+Card.name,Name,Nom,,Navn,Nombre,"Фамилия, Имя"
+Card.bodyWeight,BodyWeight,Poids Corporel,,Kropsvægt,Peso corporal,Собственный вес
+Card.group,Group,Groupe,,Session,Grupo,Поток
+Card.startNumber,Start #,# Départ,,Startnummer,Nº inicio,Стартовыйномер
+Card.lotNumber,Lot,Tirage,,Lodt.Nummer,Nº aleatorio,Жребий
+Card.category,Category,Catégorie,,Kategori,Categoría,Категория
+Card.ageDivision,Division,Division,,Aldersinddelt,Age Division,Возрастная кат.
+Card.ageGroup,Age Group,Groupe d'âge,,Aldersgruppe,Grupos per edades,Возрастная категория
+Card.birthDate,Birth Date,Naissance,,Født,Fecha denacimiento,Дата рождения
+Card.entryTotal,Entry Total,Total décl.,,Start Total,Entry Total,Начальный весобъявлен
+Card.automaticProgression,Automatic Progression,Progression automatique,,Automatisk Øgning,AutomaticProgression,Автоматическая надбавка
+Card.declaration,Declaration,Déclaration,,Deklareret,Declaration,Заявленный вес
+Card.change1,Change 1,Changement 1,,Ændring #1,Change 1,Перезаявка 1
+Card.change2,Change 2,Changement 2,,Ændring #2,Change 2,Перезаявка 2
+Card.snatch,Snatch,Arraché,,Træk,Arr.,Рывок
+Card.cleanJerk,Clean&amp;Jerk,Épaulé-jeté,,Stød,Dos Tiempos,Толчок
+Card.total,Total,Total,Total,Tokamp,Total,Сумма
+AthleteCard,Athlete Card,Carton d'athlète,,Atletkort,Athlete Card,Карточка
+Print,Print,Imprimer,,Print,Imprimir,печатать
