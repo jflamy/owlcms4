@@ -28,7 +28,9 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.AgeDivision;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
@@ -170,43 +172,51 @@ implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, Requ
         } else {
             model.setAgeGroup(null);
         }
-        if (athlete.getYearOfBirth() > 1900) {
-            model.setBirth(athlete.getYearOfBirth().toString());
+        Integer yearOfBirth = athlete.getYearOfBirth();
+        if (yearOfBirth != null && yearOfBirth > 1900) {
+            model.setBirth(yearOfBirth.toString());
         } else {
             model.setBirth("");
         }
-        if (athlete.getLotNumber() > 0) {
-            model.setLotNumber(athlete.getLotNumber().toString());
+        Integer lotNumber = athlete.getLotNumber();
+        if (lotNumber != null && lotNumber > 0) {
+            model.setLotNumber(lotNumber.toString());
         } else {
             model.setLotNumber("");
         }
-        if (athlete.getStartNumber() > 0) {
-            model.setStartNumber(athlete.getStartNumber().toString());
+        Integer startNumber = athlete.getStartNumber();
+        if (startNumber != null && startNumber > 0) {
+            model.setStartNumber(startNumber.toString());
         } else {
             model.setStartNumber("");
         }
-        if (athlete.getGroup() != null) {
-            model.setGroup(athlete.getGroup().getName());
+        Group group = athlete.getGroup();
+        if (group != null && group != null) {
+            model.setGroup(group.getName());
         } else {
             model.setGroup("");
         }
-        if (athlete.getCategory() != null) {
-            model.setCategory(athlete.getCategory().getName());
+        Category category = athlete.getCategory();
+        if (category != null) {
+            model.setCategory(category.getName());
         } else {
             model.setCategory("");
         }
-        if (athlete.getSnatch1Declaration() != null) {
-            model.setSnatch1Declaration(athlete.getSnatch1Declaration());
+        String snatch1Declaration = athlete.getSnatch1Declaration();
+        if (snatch1Declaration != null && Integer.parseInt(snatch1Declaration) > 0) {
+            model.setSnatch1Declaration(snatch1Declaration);
         } else {
             model.setSnatch1Declaration("");
         }
-        if (athlete.getCleanJerk1Declaration() != null) {
-            model.setCleanJerk1Declaration(athlete.getCleanJerk1Declaration());
+        String cleanJerk1Declaration = athlete.getCleanJerk1Declaration();
+        if (cleanJerk1Declaration != null && Integer.parseInt(cleanJerk1Declaration) > 0) {
+            model.setCleanJerk1Declaration(cleanJerk1Declaration);
         } else {
             model.setCleanJerk1Declaration("");
         }
-        if (athlete.getQualifyingTotal() != null) {
-            model.setEntryTotal(athlete.getQualifyingTotal().toString());
+        Integer qualifyingTotal = athlete.getQualifyingTotal();
+        if (qualifyingTotal != null && qualifyingTotal > 0) {
+            model.setEntryTotal(qualifyingTotal.toString());
         } else {
             model.setEntryTotal("");
         }

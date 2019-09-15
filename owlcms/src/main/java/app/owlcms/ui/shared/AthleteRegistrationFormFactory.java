@@ -57,6 +57,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private boolean genderCatOk;
 
+    private Button printButton;
+
     public AthleteRegistrationFormFactory(Class<Athlete> domainType) {
         super(domainType);
     }
@@ -66,15 +68,23 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
-        Button button = new Button(Translator.translate("AthleteCard"));
-        button.getElement().setAttribute("onClick",
-                getWindowOpenerFromClass(AthleteCard.class, domainObject.getId().toString()));
-        Button printCardButton = button;
+        printButton = new Button(Translator.translate("AthleteCard"));
+        enablePrint(domainObject);
+        Button printCardButton = printButton;
         printCardButton.setThemeName("secondary success");
         Component form = super.buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener,
                 operationButtonClickListener, deleteButtonClickListener, printCardButton);
         filterCategories(domainObject.getCategory());
         return form;
+    }
+
+    public void enablePrint(Athlete domainObject) {
+        if (domainObject.getId() == null) {
+            printButton.setEnabled(false);
+        } else {
+            printButton.getElement().setAttribute("onClick",
+                    getWindowOpenerFromClass(AthleteCard.class, domainObject.getId().toString()));
+        }
     }
 
     /**
@@ -83,6 +93,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @Override
     public Athlete add(Athlete athlete) {
         AthleteRepository.save(athlete);
+        enablePrint(athlete);
         return athlete;
     }
 
