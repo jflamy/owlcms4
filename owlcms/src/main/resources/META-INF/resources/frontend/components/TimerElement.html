@@ -139,7 +139,7 @@
               this._indefinite()
               return;
           } 
-    	  //console.warn("timer pause");
+    	  console.warn("timer pause");
           this.running = false;
           if (this.$server != null) {
 			  this.$server.clientTimerStopped(this.currentTime);      
@@ -149,7 +149,7 @@
       }
       
       reset() {
-    	  //console.warn("timer reset");
+    	  console.warn("timer reset");
     	  this.pause();
     	  this._init();
       }

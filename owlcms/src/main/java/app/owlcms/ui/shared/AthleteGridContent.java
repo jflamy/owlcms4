@@ -474,7 +474,9 @@ public abstract class AthleteGridContent extends VerticalLayout
         attempt = new H2();
         weight = new H2();
         weight.setText("");
-        timeField = new AthleteTimerElement(this);
+        if (timeField == null) {
+            timeField = new AthleteTimerElement(this);
+        }
         H1 time = new H1(timeField);
         clearVerticalMargins(attempt);
         clearVerticalMargins(time);

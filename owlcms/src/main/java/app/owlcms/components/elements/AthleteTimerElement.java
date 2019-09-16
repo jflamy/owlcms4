@@ -14,6 +14,7 @@ import com.vaadin.flow.component.ClientCallable;
 
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -39,10 +40,12 @@ public class AthleteTimerElement extends TimerElement {
 	 */
 	public AthleteTimerElement() {
 		this.setOrigin(null); // force exception
+		logger.warn("### AthleteTimerElement new {}",origin);
 	}
 	
 	public AthleteTimerElement(Object origin) {
 		this.setOrigin(origin);
+	    logger.warn("### AthleteTimerElement new {} {}",origin, LoggerUtils.whereFrom());
 	}
 
 	/* (non-Javadoc)
@@ -127,14 +130,14 @@ public class AthleteTimerElement extends TimerElement {
 	@Subscribe
 	public void slaveSetTimer(UIEvent.SetTime e) {
 		Integer milliseconds = e.getTimeRemaining();
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
 		doSetTimer(milliseconds);
 	}
 
 	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
 		Integer milliseconds = e.getTimeRemaining();
 		uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
@@ -143,7 +146,7 @@ public class AthleteTimerElement extends TimerElement {
 
 	@Subscribe
 	public void slaveStopTimer(UIEvent.StopTime e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+		uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 			this.getOrigin(), e.getOrigin());
 		doStopTimer();
 	}
@@ -160,7 +163,7 @@ public class AthleteTimerElement extends TimerElement {
 	/* @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		logger.debug("attaching to {}",this.getOrigin());
+		logger.warn("attaching to {}",this.getOrigin());
 		init();
 		OwlcmsSession.withFop(fop -> {
 			// sync with current status of FOP

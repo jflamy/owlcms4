@@ -38,6 +38,7 @@ import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -126,6 +127,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      * Instantiates a new attempt board.
      */
     public AttemptBoard() {
+        logger.warn("*** AttemptBoard new {}",LoggerUtils.whereFrom());
         athleteTimer.setOrigin(this);
         getModel().setKgSymbol(getTranslation("KgSymbol"));
     }
