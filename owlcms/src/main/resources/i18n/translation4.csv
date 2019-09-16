@@ -181,7 +181,7 @@ Jury5,Jury 5,Jury 5,,Jury 5,,Жюри 5
 JuryDecisions,Jury Decisions,Décisions du jury,,Jury Afgørelse,Decisiones del jurado,Решение жюри
 LastName,Last Name,Nom,,Efternavn,Apellido,Фамилия
 LeftMenuNavigate,Use the menu at the left to navigate to the various screens:<ul>,Utilisez le menu à gauche pour naviguer,,Brug menuen til venstre for at navigere til de forskellige skærme:<ul>,,Используйте меню слева для навигации:<ul>
-LicenseUsed,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Ce logiciel est disponible selon les termes de la licence <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,,,,Это программное обеспечение доступно под лицензией <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.
+LicenseUsed,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Ce logiciel est disponible selon les termes de la licence <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,,Это программное обеспечение доступно под лицензией <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.
 LiftsCleared,Lifts cleared,Les essais ont été effacés,,Løft slettet,,Попытки сброшены
 LocalComputer,\u0020(on the computer running the owlcms program),\u0020(sur l'ordinateur où owlcms s'exécute),,\u0020(på computeren der afvikler owlcms programmet),,\u0020(на компьютере на котором запущена система owlcms)
 Locale,Locale,Locale,,Locale,,Локаль
@@ -367,28 +367,28 @@ introCountdown,Countdown to Introduction,Décompte avant présentation,,Nedtæll
 startLifting,Start Lifting,Débuter les levers,,Begynd konkurrencen,,Начать соревнования
 NoGroupSelected,No group selected,Pas de groupe sélectionné,,Ingen gruppe valgt,,Поток не выбран
 InvalidDurationFormat,Duration must be in format {0} -- Type {1} to get {2} minutes and {3} seconds.,La durée doit être dans le format {0} -- Écrire {1} pour dire ""{2} minutes et {3} secondes"".,,Varighed skal være i format {0} -- Tast {1} for at angive {2} minutter og {3} sekunder,,Длительность должна быть в формате {0} -- Введите {1} чтобы получить {2} минут и {3} секунд.
-JuryDeliberation,Jury Deliberation,Délibération du jury,,Jury overvejelser,,Обсуждение жюри
+JuryDeliberation,Jury Deliberation,Délibération du jury,,Jury stop,,Обсуждение жюри
 EndBreak,End Break,Fin de la pause.,,Afslut pause,,Завершить паузу
 IdlePlatform,Idle Platform (no countdown displayed),Plateau inactif (pas de décompte affiché),,Inaktiv Platform (nedtælling vises ikke),,Помост не активен (нет обратного отсчета)
 ShowResults,Show Results,Afficher les résultats,,Vis resultater,Mostrar resultados,Показать результаты
 Group_number_results,Group {0} &ndash; Results,Groupe {0} &ndash; Résultats.,,Gruppe {0} &ndash; resultater.,Sesion {0} &ndash; resultados.,Результаты потока {0}
-Paused,Paused,En pause,,Paused,Paused,Пауза
-Scoreboard.TopSinclairMen,Top Sinclair &ndash; Men,Meilleurs Sinclair &ndash; Hommes,,Top Sinclair &ndash; Men,Top Sinclair &ndash; Men,Синклер &ndash; Мужчины
-Scoreboard.TopSinclairWomen,Top Sinclair &ndash; Women,Meilleurs Sinclair &ndash; Women,,Top Sinclair &ndash; Women,Top Sinclair &ndash; Women,Синклер &ndash; Женщины
+Paused,Paused,En pause,,Pause,Paused,Пауза
+Scoreboard.TopSinclairMen,Top Sinclair &ndash; Men,Meilleurs Sinclair &ndash; Hommes,,Top Sinclair &ndash; Mænd,Top Sinclair &ndash; Men,Синклер &ndash; Мужчины
+Scoreboard.TopSinclairWomen,Top Sinclair &ndash; Women,Meilleurs Sinclair &ndash; Women,,Top Sinclair &ndash; Kvinder,Top Sinclair &ndash; Women,Синклер &ndash; Женщины
 Scoreboard.TopSinclair,Top Sinclair,Meilleurs Sinclair,,Top Sinclair,Top Sinclair,Результаты (Синклер)
-Scoreboard.Needed,Kg Needed,Kg Requis,,Kg Needed,Kg Needed,Кг Необходимо
+Scoreboard.Needed,Kg Needed,Kg Requis,,Kg fra 1. plads,Kg Needed,Кг Необходимо
 Scoreboard.Sinclair,Sinclair,Sinclair,,Sinclair,Sinclair,Синклер
 Scoreboard.BodyWeight,B.W.,Poids,,Vægt,B.W.,С.В.
-YearOfBirth,Year of Birth,Année de naissance,,Year of Birth,Year of Birth,Год рождения
+YearOfBirth,Year of Birth,Année de naissance,,Fødselsår,Year of Birth,Год рождения
 DefineFOP,Define Fields of Play and Sound Output,Définir les plateaux et les sorties sonores,,Opret platform,,Помосты
-UseBrowserSound,Use Browser Sound,Utiliser le son des navigateurs,,,Use Browser Sound,Использовать звук браузера
+UseBrowserSound,Use Browser Sound,Utiliser le son des navigateurs,,Anvend browser lyd,Use Browser Sound,Использовать звук браузера
 Done,done,terminé,,afsluttet,terminada,завершена
 KgSymbol,kg,kg,,kg,kg,\ кг
 Card.name,Name,Nom,,Navn,Nombre,"Фамилия, Имя"
 Card.bodyWeight,BodyWeight,Poids Corporel,,Kropsvægt,Peso corporal,Собственный вес
-Card.group,Group,Groupe,,Session,Grupo,Поток
+Card.group,Group,Groupe,,Gruppe,Grupo,Поток
 Card.startNumber,Start #,# Départ,,Startnummer,Nº inicio,Стартовыйномер
-Card.lotNumber,Lot,Tirage,,Lodt.Nummer,Nº aleatorio,Жребий
+Card.lotNumber,Lot,Tirage,,Lodt. Nummer,Nº aleatorio,Жребий
 Card.category,Category,Catégorie,,Kategori,Categoría,Категория
 Card.ageDivision,Division,Division,,Aldersinddelt,Age Division,Возрастная кат.
 Card.ageGroup,Age Group,Groupe d'âge,,Aldersgruppe,Grupos per edades,Возрастная категория
@@ -396,12 +396,12 @@ Card.birthDate,Birth Date,Naissance,,Født,Fecha denacimiento,Дата рожд�
 Card.entryTotal,Entry Total,Total décl.,,Start Total,Entry Total,Начальный весобъявлен
 Card.automaticProgression,Automatic Progression,Progression automatique,,Automatisk Øgning,AutomaticProgression,Автоматическая надбавка
 Card.declaration,Declaration,Déclaration,,Deklareret,Declaration,Заявленный вес
-Card.change1,Change 1,Changement 1,,Ændring #1,Change 1,Перезаявка 1
-Card.change2,Change 2,Changement 2,,Ændring #2,Change 2,Перезаявка 2
+Card.change1,Change 1,Changement 1,,Ændring 1,Change 1,Перезаявка 1
+Card.change2,Change 2,Changement 2,,Ændring 2,Change 2,Перезаявка 2
 Card.snatch,Snatch,Arraché,,Træk,Arr.,Рывок
 Card.cleanJerk,Clean&amp;Jerk,Épaulé-jeté,,Stød,Dos Tiempos,Толчок
 Card.total,Total,Total,Total,Tokamp,Total,Сумма
 Card.startingWeight,Starting Weight,Poids de départ,,Startvægt,Peso inicial,стартовый вес
 AthleteCard,Athlete Card,Carton d'athlète,,Atletkort,Athlete Card,Карточка
 Print,Print,Imprimer,,Print,Imprimir,печатать
-PleaseFix,Please fix the errors and try again.,Veuillez corriger les erreurs et réessayer.,,Rett venligst fejlene, og prøv igen,Por favor corrija los errores e intente nuevamente,Пожалуйста, исправьте ошибки и попробуйте снова.
+PleaseFix,Please fix the errors and try again.,Veuillez corriger les erreurs et réessayer.,,Ret venligst fejlene og prøv igen,Por favor corrija los errores e intente nuevamente,Пожалуйста, исправьте ошибки и попробуйте снова.
