@@ -9,7 +9,7 @@ Add_title,Add {0},Créer {0},,Tilføj {0},Añadir {0},Добавить {0}
 AgeDivision,Age Division,Division,,Aldersinddelt,,Возрастная кат.
 AgeGroup,Age Group,Groupe d'âge,,Aldersgruppe,Grupos per edades,Возрастная категория
 Announcer,Announcer,Annonceur,,Speaker,Presentador,Судья-информатор
-AnnouncerEtc,"\ (announcer, timekeeper, marshall, result boards, attempt board, jury, etc.)","\ (annonceur, chronométreur, changements, résultats, essai courant, jury, etc.)",,"\ (speaker, timekeeper, marshall, result boards, attempt board, jury, osv.)",,"\ (судьи-информатора, судьи-хронометриста, судьи на перезаявках, таблицы результатов, экрана попыток, жюри и т.д.)"
+AnnouncerEtc,"\u0020(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.)","\u0020(annonceur, chronométreur, changements, résultats, essai courant, jury, etc.)",,"\u0020(speaker, timekeeper, marshall, result boards, attempt board, jury, osv.)",,"\u0020(судьи-информатора, судьи-хронометриста, судьи на перезаявках, таблицы результатов, экрана попыток, жюри и т.д.)"
 AnnouncerSelectsGroup,The current group for the platform is selected on the <b><i>Announcer</i></b> screen<br> ,Le groupe courant pour la plateforme est déterminé par l'<b><i>annonceur</i></b><br> ,,Nuværende gruppe for platformen vælges på <b><i>Speaker</i></b> skærm<br> ,,Поток выбирается на экране <b><i>судьи-информатора</i></b><br> 
 Athlete_Attempt,Athlete-facing Attempt Board Display,Essai courant (face à l'athlète),,Atlet-vendt Attempt Board Display,,Экран попытки для спортсмена
 Athlete_Decisions,Athlete-facing Timer/Down/Decisions,Chrono/Terre/Décisions (face à l'athlète),,Atlet-vendt Timer/Nedsignal/Afgørelse,,Экран решения для спортсмена
@@ -60,10 +60,10 @@ Competition.competitionDate,Date,Date,,Dato,Fecha,Дата проведения 
 Competition.competitionName,Name,Nom,,Navn,Nombre,Название соревнования
 Competition.competitionOrganizer,Organizer,Organisateur,,Arrangør,Organizador,Организатор соревнования
 Competition.competitionSite,Site,Site,,Lokalitet,Lugar,Место проведения соревнования
-Competition.defaultFederation,\ ,\ ,Fédération d'haltérophilie du Québec,Dansk Vægtløftnings-Forbund,Federación Española de Halterofilia,\ 
-Competition.defaultFederationAddress,\ ,\ ,"C.P. 1000, Succ. M, Montréal, QC, H1V 3R2","Idrættens Hus, Brøndby Stadion 20, 2605 Brøndby","C/ Francos Rodríguez, 70 ",\ 
-Competition.defaultFederationEMail,\ ,\ ,admin@fedhaltero.qc.ca,kontor@danskvaegtloeftning.dk,fehalterofilia@hotmail.com,\ 
-Competition.defaultFederationWebSite,\ ,\ ,www.fedhaltero.qc.ca,www.weightlifting.dk,www.fedehalter.org,\ 
+Competition.defaultFederation,\u0020,\u0020,Fédération d'haltérophilie du Québec,Dansk Vægtløftnings-Forbund,Federación Española de Halterofilia,\u0020
+Competition.defaultFederationAddress,\u0020,\u0020,"C.P. 1000, Succ. M, Montréal, QC, H1V 3R2","Idrættens Hus, Brøndby Stadion 20, 2605 Brøndby","C/ Francos Rodríguez, 70 ",\u0020
+Competition.defaultFederationEMail,\u0020,\u0020,admin@fedhaltero.qc.ca,kontor@danskvaegtloeftning.dk,fehalterofilia@hotmail.com,\u0020
+Competition.defaultFederationWebSite,\u0020,\u0020,www.fedhaltero.qc.ca,www.weightlifting.dk,www.fedehalter.org,\u0020
 Competition.defaultLocale,Display and printout language (requires restart),Langue d'affichage et d'impression (redémarrage requis),,Display og printout sprog (kræver genstart),,Язык отображения и печати (требуется перезагрузка)
 Competition.enforce20kgRule,Apply initial total weight rule (IWF §6.6.5/Masters §2.4)?,Appliquer la règle de poids total initial (IWF §6.6.5/Masters §2.4)?,,Anvend indledende tokampsvægtregel (IWF §6.6.5/Masters §2.4)?,Aplicar regla de peso total inicial (IWF §6.6.5/Masters §2.4)?,Применить «правило 20 кг» (IWF §6.6.5/Masters §2.4)?
 Competition.federation,Federation Name,Nom de la fédération,,Forbundsnavn,Nombre de la federación,Название федерации
@@ -78,7 +78,7 @@ Competition.resultTemplateFileName,Competition Book Template,Gabarit pour cahier
 Competition.useBirthYear,Use Birth Year Only,Utiliser l'année de naissance seulement,,Anvend kun fødselsår,,Использовать только год рождения
 CompetitionBook.C,Competition,Compétition,,Stævne,Competición,Итоговый протокол
 CompetitionBook.C_LeftHeader,Competition Information,Informations sur la compétition,,Stævneinformation,Información de la competición,Информация о соревнованиях
-CompetitionBook.C_RightHeader,,,,,,
+CompetitionBook.C_RightHeader,\u0020,\u0020,,\u0020,\u0020,\u0020
 CompetitionBook.M6,Men's Results,Hommes 6 essais,,Resultater Mænd,Resultados Masculino,"Результаты, мужчины"
 CompetitionBook.M6_LeftHeader,Category Ranking,Classement par catégories - Category Ranking,,Vægtklasse Placering,Clasificación por categorías,Место в категории
 CompetitionBook.M6_LeftHeader,Competition,Compétition,,Stævne,Competición,Соревнования
@@ -181,7 +181,7 @@ Jury5,Jury 5,Jury 5,,Jury 5,,Жюри 5
 JuryDecisions,Jury Decisions,Décisions du jury,,Jury Afgørelse,Decisiones del jurado,Решение жюри
 LastName,Last Name,Nom,,Efternavn,Apellido,Фамилия
 LeftMenuNavigate,Use the menu at the left to navigate to the various screens:<ul>,Utilisez le menu à gauche pour naviguer,,Brug menuen til venstre for at navigere til de forskellige skærme:<ul>,,Используйте меню слева для навигации:<ul>
-LicenseUsed,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Ce logiciel est disponible selon les termes de la licence <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,,Это программное обеспечение доступно под лицензией <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.
+LicenseUsed,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Ce logiciel est disponible selon les termes de la licence <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Это программное обеспечение доступно под лицензией <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.
 LiftsCleared,Lifts cleared,Les essais ont été effacés,,Løft slettet,,Попытки сброшены
 LocalComputer,\u0020(on the computer running the owlcms program),\u0020(sur l'ordinateur où owlcms s'exécute),,\u0020(på computeren der afvikler owlcms programmet),,\u0020(на компьютере на котором запущена система owlcms)
 Locale,Locale,Locale,,Locale,,Локаль
@@ -254,6 +254,7 @@ Scoreboard.Total,Total,Total,Total,Tokamp,Total,Сумма
 Scoreboard.Category,Cat.,Cat.,Cat.,Vægtklasse,Cat.,Кат.
 Scoreboard.AttemptsDone,"{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}","{0,choice,0#Aucun essai.|1#1 essai effectué.|1<{0} essais effectués.}",,"{0,choice,0#Ingen løft afviklet.|1#1 løft afviklet.|1<{0} løft afviklet.}",,Всего попыток выполнено: {0}
 Scoreboard.GroupLiftType,Group {0} {1},Groupe {0} {1},,Gruppe {0} {1},,Поток {0}. {1}
+Scoreboard.KgSymbol,kg,kg,,kg,kg,\u0020кг
 Select_group_first,Please select a group first.,Il faut d'abord choisir un groupe.,,Vælg en gruppe først.,"Por favor, selecciona primero una tanda.",Выберите поток.
 SelectPlatform,Select Platform,Choisir la plateforme,,Vælg platform,,Выберите помост
 Semicolon,\u003B,\u003B,,\u003B,\u003B,\u003B
@@ -383,7 +384,7 @@ YearOfBirth,Year of Birth,Année de naissance,,Fødselsår,Year of Birth,Год 
 DefineFOP,Define Fields of Play and Sound Output,Définir les plateaux et les sorties sonores,,Opret platform,,Помосты
 UseBrowserSound,Use Browser Sound,Utiliser le son des navigateurs,,Anvend browser lyd,Use Browser Sound,Использовать звук браузера
 Done,done,terminé,,afsluttet,terminada,завершена
-KgSymbol,kg,kg,,kg,kg,\ кг
+KgSymbol,kg,kg,,kg,kg,\u0020кг
 Card.name,Name,Nom,,Navn,Nombre,"Фамилия, Имя"
 Card.bodyWeight,BodyWeight,Poids Corporel,,Kropsvægt,Peso corporal,Собственный вес
 Card.group,Group,Groupe,,Gruppe,Grupo,Поток
@@ -400,7 +401,7 @@ Card.change1,Change 1,Changement 1,,Ændring 1,Change 1,Перезаявка 1
 Card.change2,Change 2,Changement 2,,Ændring 2,Change 2,Перезаявка 2
 Card.snatch,Snatch,Arraché,,Træk,Arr.,Рывок
 Card.cleanJerk,Clean&amp;Jerk,Épaulé-jeté,,Stød,Dos Tiempos,Толчок
-Card.total,Total,Total,Total,Tokamp,Total,Сумма
+Card.total,Total,Total,,Tokamp,Total,Сумма
 Card.startingWeight,Starting Weight,Poids de départ,,Startvægt,Peso inicial,Стартовый вес
 AthleteCard,Athlete Card,Carton d'athlète,,Atletkort,Athlete Card,Карточка
 Print,Print,Imprimer,,Print,Imprimir,печатать

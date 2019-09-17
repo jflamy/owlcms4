@@ -73,10 +73,10 @@ public class Translator implements I18NProvider {
     }
 
     public static void setForcedLocale(Locale locale) {
-        if (getAvailableLocales().contains(locale)) {
+        if (locale != null && getAvailableLocales().contains(locale)) {
             Translator.forcedLocale = locale;
         } else {
-            locale = null; // default behaviour, first forcedLocale in list will be used
+            Translator.forcedLocale = null; // default behaviour, first forcedLocale in list will be used
         }
     }
 
@@ -182,8 +182,9 @@ public class Translator implements I18NProvider {
                         // u0000 escapes are translated to Java characters
                         String input = stringList.get(i);
                         if (input != null) {
-                            String unescapeJava = StringEscapeUtils.unescapeJava(input);
-                            if (!unescapeJava.trim().isEmpty()) {
+                            // "\ " is not valid, \u0020 is needed.
+                            String unescapeJava = StringEscapeUtils.unescapeJava(input.trim());
+                            if (!unescapeJava.isEmpty()) {
                                 Properties properties = languageProperties[i];
                                 if (properties == null) {
                                     String message = MessageFormat.format("{0} line {1}: languageProperties[{2}] is null", csvName, line, i);
@@ -224,14 +225,6 @@ public class Translator implements I18NProvider {
     public static List<String> readLine(ICsvListReader listReader) throws IOException {
         line++;
         return listReader.read();
-    }
-
-    public static void main(String[] args) {
-        try {
-            getBundleFromCSV(new Locale("ru"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private static void throwInvalidLocale(String localeString) {
