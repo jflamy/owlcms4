@@ -103,12 +103,12 @@ public class Main {
 
         // setup database
         JPAService.init(demoMode || memoryMode, demoMode || resetMode);
-        injectData(demoMode, devMode, testMode, masters);
+        
+        // read locale from database and overrrde if needed
+        Locale l = overrideDisplayLanguage();
+        injectData(demoMode, devMode, testMode, masters, l);
 
-        // read application parameters from database
-        overrideDisplayLanguage();
         OwlcmsFactory.getDefaultFOP();
-
         return;
     }
 
@@ -180,9 +180,13 @@ public class Main {
         }
     }
 
-    private static void overrideDisplayLanguage() {
+    private static Locale overrideDisplayLanguage() {
         // read override value from database
-        Locale l = Competition.getCurrent().getDefaultLocale();
+        Locale l = null;
+        try {
+            l = Competition.getCurrent().getDefaultLocale();
+        } catch (Exception e) {
+        }
 
         // check OWLCMS_LOCALE, then -Dlocale, then LOCALE
         String localeEnvStr = getStringParam("locale");
@@ -198,26 +202,34 @@ public class Main {
             Translator.setForcedLocale(l);
             logger.info("forcing display language to {}", l);
         }
+        return l;
     }
 
-    private static void injectData(boolean demoMode, boolean devMode, boolean testMode, boolean masters) {
-        if (demoMode) {
-            // demoMode forces JPAService to reset.
-            DemoData.insertInitialData(20, masters);
-        } else {
-            // the other modes require explicit resetMode. We don't want multiple inserts.
-            List<Competition> allCompetitions = CompetitionRepository.findAll();
-            if (allCompetitions.isEmpty()) {
-                if (testMode) {
-                    DemoData.insertInitialData(1, masters);
-                } else if (devMode) {
-                    DemoData.insertInitialData(20, masters);
-                } else {
-                    ProdData.insertInitialData(0);
-                }
+    private static void injectData(boolean demoMode, boolean devMode, boolean testMode, boolean masters, Locale locale) {
+        Locale l = (locale == null ? Locale.ENGLISH : locale);
+
+        try {
+            Translator.setForcedLocale(l);
+            if (demoMode) {
+                // demoMode forces JPAService to reset.
+                DemoData.insertInitialData(20, masters);
             } else {
-                logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
+                // the other modes require explicit resetMode. We don't want multiple inserts.
+                List<Competition> allCompetitions = CompetitionRepository.findAll();
+                if (allCompetitions.isEmpty()) {
+                    if (testMode) {
+                        DemoData.insertInitialData(1, masters);
+                    } else if (devMode) {
+                        DemoData.insertInitialData(20, masters);
+                    } else {
+                        ProdData.insertInitialData(0);
+                    }
+                } else {
+                    logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
+                }
             }
+        } finally {
+            Translator.setForcedLocale(locale);
         }
     }
 

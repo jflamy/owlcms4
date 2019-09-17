@@ -6,7 +6,7 @@ OWLCMS version 4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!
 
 Setup packages and Installation Instructions are available for [stand-alone setups (no internet access needed)](https://jflamy.github.io/owlcms4/#/LocalSetup.md) on Windows, Mac OS and Linux, as well as for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
 
-You can [switch the language](Preparation#display-language) of the program between French, English, Danish or Russian.  [Translators](#translation-to-other-languages) are welcome.
+With the same setup you can [change the language](Preparation#display-language) of the program between French, English, Danish or Russian. Volunteers to [translate](#translation-to-other-languages) to other languages  are welcome.
 
 ## Features and Demo
 
