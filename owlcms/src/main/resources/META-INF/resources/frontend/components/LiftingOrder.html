@@ -296,32 +296,32 @@ class Scoreboard extends Polymer.Element {
 	}
 	         
 	reset() {
-		console.warn("reset");
+		console.debug("reset");
 		this.$.groupDiv.style.visibility="visible"
 	    this.$.fullNameDiv.style.display="block";
     	this.$.orderDiv.style.visibility="visible"
 	}
 	
 	down() {
-		console.warn("down");
+		console.debug("down");
 	}
 	
     doBreak() {
-    	console.warn("break");
+    	console.debug("break");
 		this.$.groupDiv.style.visibility="visible"
 	    this.$.fullNameDiv.style.display="block";
     	this.$.orderDiv.style.display="block";
     }
     
     groupDone() {
-    	console.warn("done");
+    	console.debug("done");
     	this.$.groupDiv.style.visibility="hidden";
     	this.$.fullNameDiv.style.display="block";
     	this.$.orderDiv.style.visibility="hidden";
     }
 	
 	refereeDecision() {
-		console.warn("refereeDecision");
+		console.debug("refereeDecision");
 	}
 	         
 	_isEqualTo(title, string) {

@@ -6,6 +6,8 @@
  */
 package app.owlcms.displays.attemptboard;
 
+import java.util.List;
+
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -83,6 +85,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         Boolean isShowBarbell();
         
         String getKgSymbol();
+        
+        String getJavaComponentId();
 
         void setAttempt(String formattedAttempt);
 
@@ -101,6 +105,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         void setWeight(Integer weight);
         
         void setKgSymbol(String kgSymbol);
+        
+        void setJavaComponentId(String id);
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AttemptBoard.class);
@@ -127,8 +133,9 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      * Instantiates a new attempt board.
      */
     public AttemptBoard() {
-        logger.warn("*** AttemptBoard new {}",LoggerUtils.whereFrom());
+        logger.debug("*** AttemptBoard new {}",LoggerUtils.whereFrom());
         athleteTimer.setOrigin(this);
+        getModel().setJavaComponentId(this.toString());
         getModel().setKgSymbol(getTranslation("KgSymbol"));
     }
 
@@ -257,7 +264,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
-        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             doBreak();
@@ -266,11 +273,19 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Subscribe
     public void slaveStopBreak(UIEvent.BreakDone e) {
-        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             Athlete a = e.getAthlete();
-            doAthleteUpdate(a);
+            if (a == null) {
+                OwlcmsSession.withFop(fop -> {
+                    List<Athlete> order = fop.getLiftingOrder();
+                    Athlete athlete = order.size() > 0 ? order.get(0) : null;
+                    doAthleteUpdate(athlete);
+                });
+            } else {
+                doAthleteUpdate(a);
+            }
         });
     }
 
@@ -297,6 +312,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     protected void doAthleteUpdate(Athlete a) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            logger.debug("$$$ a {}  ",a);
             if (a == null) {
                 doEmpty();
                 return;
@@ -305,11 +321,12 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 return;
             }
             FieldOfPlay fop = OwlcmsSession.getFop();
+            logger.debug("$$$ state {}", fop.getState());
             if (fop.getState() == FOPState.INACTIVE) {
                 doEmpty();
                 return;
             }
-            this.getElement().callJsFunction("reset");
+
             AttemptBoardModel model = getModel();
             model.setLastName(a.getLastName());
             model.setFirstName(a.getFirstName());
@@ -319,6 +336,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             model.setAttempt(formattedAttempt);
             model.setWeight(a.getNextAttemptRequestedWeight());
             showPlates();
+            this.getElement().callJsFunction("reset");
         });
     }
 
@@ -340,6 +358,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     protected void doEmpty() {
+        logger.debug("doEmpty {}",LoggerUtils.whereFrom());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             hidePlates();
             this.getElement().callJsFunction("clear");
@@ -413,19 +432,22 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     private void showPlates() {
         AttemptBoard attemptBoard = this;
-        if (plates != null) {
-            attemptBoard.getElement().removeChild(plates.getElement());
-        }
-        plates = new Plates();
-
         OwlcmsSession.withFop((fop) -> {
             UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-                plates.computeImageArea(fop, false);
-                Element platesElement = plates.getElement();
-                // tell polymer that the plates belong in the slot named barbell of the template
-                platesElement.setAttribute("slot", "barbell");
-                platesElement.getStyle().set("font-size", "3.3vh");
-                attemptBoard.getElement().appendChild(platesElement);
+                try {
+                    if (plates != null) {
+                        attemptBoard.getElement().removeChild(plates.getElement());
+                    }
+                    plates = new Plates();
+                    plates.computeImageArea(fop, false);
+                    Element platesElement = plates.getElement();
+                    // tell polymer that the plates belong in the slot named barbell of the template
+                    platesElement.setAttribute("slot", "barbell");
+                    platesElement.getStyle().set("font-size", "3.3vh");
+                    attemptBoard.getElement().appendChild(platesElement);
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
             });
         });
     }

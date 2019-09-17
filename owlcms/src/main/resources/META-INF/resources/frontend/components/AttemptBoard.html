@@ -212,6 +212,10 @@
 
             static get properties() {
 	          	 return {
+	          		javaComponentId: {
+	          			type: String,
+	          			value: ''
+	          		},
 					lastName: {
 					    type: String,
 					    value: ''
@@ -250,7 +254,7 @@
             }
             
             reset() {
-            	//console.warn("attemptBoard reset");
+            	console.debug("attemptBoard reset "+this.javaComponentId);
             	this.$.attemptBoardDiv.style.display="grid";
             	this.$.attemptBoardDiv.style.color="white";
             	this.$.athleteTimer.reset();
@@ -263,17 +267,20 @@
             	this.$.startNumberDiv.style.display="block";
             	this.$.barbellDiv.style.display="block";
             	this.$.decisionDiv.style.display="none";
+            	console.debug("end of attemptBoard reset "+this.javaComponentId);
             }
             
             down() {
+            	console.debug("attemptBoard done "+this.javaComponentId);
             	this.$.athleteTimerDiv.style.display="none";
             	this.$.breakTimerDiv.style.display="none";
             	this.$.barbellDiv.style.display="none";
             	this.$.decisionDiv.style.display="block";
+            	console.debug("end of attemptBoard dome "+this.javaComponentId);
             }
             
             doBreak() {
-            	//console.warn("attemptBoard doBreak");
+            	console.debug("attemptBoard doBreak "+this.javaComponentId);
             	this.$.attemptBoardDiv.style.display="grid";
             	this.$.attemptBoardDiv.style.color="white";
                	this.$.athleteTimerDiv.style.display="none";
@@ -285,10 +292,11 @@
                	this.$.startNumberDiv.style.display="none";
                	this.$.barbellDiv.style.display="none";
                	this.$.decisionDiv.style.display="none";
+               	console.debug("attemptBoard end doBreak "+this.javaComponentId);
             }
             
             groupDone() {
-            	//console.warn("attemptBoard doBreak");
+            	console.debug("attemptBoard groupDone "+this.javaComponentId);
             	this.$.attemptBoardDiv.style.display="grid";
             	this.$.attemptBoardDiv.style.color="white";
                	//this.$.breakTimer.reset();
@@ -301,10 +309,13 @@
                	this.$.startNumberDiv.style.display="none";
                	this.$.barbellDiv.style.display="none";
                	this.$.decisionDiv.style.display="none";
+               	console.debug("attemptBoard end groupDone "+this.javaComponentId);
             }
             
             clear() {
+            	console.debug("attemptBoard clear "+this.javaComponentId);
             	this.$.attemptBoardDiv.style.display="none";
+            	console.debug("attemptBoard end clear "+this.javaComponentId);
             }
         }
         customElements.define(CurrentAttempt.is, CurrentAttempt);

@@ -106,12 +106,12 @@
 
       start() {
           if (this.indefinite) {
-        	  //console.warn("timer indefinite "+this.startTime);
+        	  //console.debug("timer indefinite "+this.startTime);
               this._indefinite()
               return;
           }
           
-    	  console.warn("timer start "+this.startTime);
+    	  console.debug("timer start "+this.startTime);
           if ((this.currentTime <= 0 && !this.countUp) 
               || (this.currentTime >= this.startTime && this.countUp) ) {
             // timer is over
@@ -130,7 +130,7 @@
 
           this._elapsed = performance.now()/1000;
           this.running = true;
-          //console.warn("timer running "+this.currentTime);
+          //console.debug("timer running "+this.currentTime);
           window.requestAnimationFrame(this._decreaseTimer.bind(this));
       }
 
@@ -139,7 +139,7 @@
               this._indefinite()
               return;
           } 
-    	  console.warn("timer pause");
+    	  console.debug("timer pause");
           this.running = false;
           if (this.$server != null) {
 			  this.$server.clientTimerStopped(this.currentTime);      
@@ -149,7 +149,7 @@
       }
       
       reset() {
-    	  console.warn("timer reset");
+    	  console.debug("timer reset");
     	  this.pause();
     	  this._init();
       }
@@ -160,7 +160,7 @@
 
       _init() {
           this.running = false;
-          //console.warn("init timer "+this.indefinite);
+          //console.debug("init timer "+this.indefinite);
           if (this.indefinite) {
               this.set('currentTime', this.startTime);
               this._indefinite()
@@ -189,7 +189,7 @@
 
           // we anticipate by 0.1 sec because .play() has a perceptible delay
           if (this.currentTime <= 30.1 && !this._finalWarningGiven) {
-        	  //console.warn("currentTime "+this.currentTime);
+        	  //console.debug("currentTime "+this.currentTime);
         	  if (!this.silent) this.$.finalWarning.play();
         	  if (this.$server != null) this.$server.clientFinalWarning();
         	  this._finalWarningGiven = true;
@@ -200,7 +200,7 @@
         	  this._initialWarningGiven = true;
           }
           if (this.currentTime <= 0.1 && !this._timeOverWarningGiven) {
-        	  //console.warn("calling play "+this.currentTime);
+        	  //console.debug("calling play "+this.currentTime);
               if (!this.silent) this.$.timeOver.play();
               this._timeOverWarningGiven = true;
           }

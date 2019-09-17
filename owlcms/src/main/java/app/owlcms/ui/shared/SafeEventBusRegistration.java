@@ -24,17 +24,17 @@ public interface SafeEventBusRegistration {
 
 	public default EventBus uiEventBusRegister(Component c, FieldOfPlay fop) {
 		
-		{logger.setLevel(Level.INFO);}
+		{logger.setLevel(Level.DEBUG);}
 		
 		UI ui = c.getUI().get();
 		EventBus uiEventBus = fop.getUiEventBus();
 		uiEventBus.register(c);
 		ui.addBeforeLeaveListener((e) -> {
-			logger.warn("leaving : unregister {} from {}", e.getSource(), uiEventBus.identifier());
+			logger.debug("leaving {}: unregister {} from {}", e.getSource(), c, uiEventBus.identifier());
 			try {uiEventBus.unregister(c);} catch (Exception ex) {}
 		});
 		ui.addDetachListener((e) -> {
-			logger.warn("detaching: unregister {} from {}", e.getSource(), uiEventBus.identifier());
+			logger.debug("detaching: unregister {} from {}", c, uiEventBus.identifier());
 			try {uiEventBus.unregister(c);} catch (Exception ex) {}
 		});
 		return uiEventBus;
@@ -42,17 +42,17 @@ public interface SafeEventBusRegistration {
 	
 	public default EventBus fopEventBusRegister(Component c, FieldOfPlay fop) {
 		
-		{logger.setLevel(Level.INFO);}
+		{logger.setLevel(Level.DEBUG);}
 		
 		UI ui = c.getUI().get();
 		EventBus fopEventBus = fop.getFopEventBus();
 		fopEventBus.register(c);
 		ui.addBeforeLeaveListener((e) -> {
-			logger.warn("leaving : unregister {} from {}", e.getSource(), fopEventBus.identifier());
+			logger.debug("leaving {}: unregister {} from {}", e.getSource(), c, fopEventBus.identifier());
 			try {fopEventBus.unregister(c);} catch (Exception ex) {}
 		});
 		ui.addDetachListener((e) -> {
-			logger.warn("detaching: unregister {} from {}", e.getSource(), fopEventBus.identifier());
+			logger.debug("{} detaching: unregister {} from {}", e, c, fopEventBus.identifier());
 			try {fopEventBus.unregister(c);} catch (Exception ex) {}
 		});
 		return fopEventBus;

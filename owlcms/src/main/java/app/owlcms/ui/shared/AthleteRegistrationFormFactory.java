@@ -168,9 +168,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @Override
     public Athlete update(Athlete athlete) {
         AthleteRepository.save(athlete);
-//        logger.warn("saved id={} {} {} {}", athlete.getId(), athlete.getSnatch1Declaration(),
+//        logger.debug("saved id={} {} {} {}", athlete.getId(), athlete.getSnatch1Declaration(),
 //                athlete.getCleanJerk1Declaration());
-//        logger.warn("merged id={} {} {}", merged.getId(), merged.getSnatch1Declaration(),
+//        logger.debug("merged id={} {} {}", merged.getId(), merged.getSnatch1Declaration(),
 //                merged.getCleanJerk1Declaration());
         return athlete;
     }
