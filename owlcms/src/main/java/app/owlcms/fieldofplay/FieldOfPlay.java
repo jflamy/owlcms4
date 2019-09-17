@@ -709,8 +709,9 @@ public class FieldOfPlay {
         } else {
             UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
             uiEventBus.post(event);
-            setBreakType(BreakType.GROUP_DONE);
-            setState(BREAK);
+//            setBreakType(BreakType.GROUP_DONE);
+//            setState(BREAK);
+            setState(INACTIVE);
         }
     }
 
