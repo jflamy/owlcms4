@@ -1,6 +1,9 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and the [live demo](https://jflamy.github.io/owlcms4/#/?id=demo) site
 - Release Highlights: 
   - It is now possible to print a single athlete card during weigh-in, allowing the athlete to sign a clean official card immediately in the weigh-in room if a printer is available.
+  - Fixed spurious sound during pause, and standardized behaviour of displays at the end of a group and when switching groups during a break.
+  - Marshall now informed of changes to current athlete made by announcer
+  - Updated French, Russian and Danish translations
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc)
 - Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` below and follow [Local installation instructions](https://jflamy.github.io/owlcms4/#/LocalSetup.md) 
