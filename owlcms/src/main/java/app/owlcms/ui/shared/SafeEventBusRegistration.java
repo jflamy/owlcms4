@@ -24,7 +24,7 @@ public interface SafeEventBusRegistration {
 
 	public default EventBus uiEventBusRegister(Component c, FieldOfPlay fop) {
 		
-		{logger.setLevel(Level.DEBUG);}
+		{logger.setLevel(Level.INFO);}
 		
 		UI ui = c.getUI().get();
 		EventBus uiEventBus = fop.getUiEventBus();
@@ -42,7 +42,7 @@ public interface SafeEventBusRegistration {
 	
 	public default EventBus fopEventBusRegister(Component c, FieldOfPlay fop) {
 		
-		{logger.setLevel(Level.DEBUG);}
+		{logger.setLevel(Level.INFO);}
 		
 		UI ui = c.getUI().get();
 		EventBus fopEventBus = fop.getFopEventBus();
