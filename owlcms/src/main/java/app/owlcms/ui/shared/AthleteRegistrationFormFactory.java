@@ -14,6 +14,7 @@ import java.util.Optional;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 
+import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -23,6 +24,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
+import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -30,6 +32,7 @@ import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
+import app.owlcms.components.NavigationPage;
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.ValidationUtils;
@@ -39,6 +42,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.displays.athletecard.AthleteCard;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
@@ -46,7 +50,7 @@ import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<Athlete> {
+public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<Athlete> implements NavigationPage {
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteRegistrationFormFactory.class);
 
     private Athlete editedAthlete = null;
@@ -54,6 +58,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     private boolean catGenderOk;
 
     private boolean genderCatOk;
+
+    private Button printButton;
+
+    private Button hiddenButton;
 
     public AthleteRegistrationFormFactory(Class<Athlete> domainType) {
         super(domainType);
@@ -63,11 +71,41 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     public Component buildNewForm(CrudOperation operation, Athlete domainObject, boolean readOnly,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
+        printButton = new Button(Translator.translate("AthleteCard"), IronIcons.PRINT.create());
+
+        hiddenButton = new Button("doit");
+        hiddenButton.getStyle().set("visibility", "hidden");
+        enablePrint(domainObject);
+        printButton.setThemeName("secondary success");
+
+        // ensure that writeBean() is called; this horror is due to the fact that we
+        // must open a new window from the client side, and cannot save on click.
+        printButton.addClickListener(click -> {
+            try {
+                binder.writeBean(domainObject);
+                this.update(domainObject);
+                hiddenButton.clickInClient();
+            } catch (ValidationException e) {
+                binder.validate();
+            }
+
+        });
+
         Component form = super.buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener,
-                operationButtonClickListener, deleteButtonClickListener);
+                operationButtonClickListener, deleteButtonClickListener, hiddenButton, printButton);
         filterCategories(domainObject.getCategory());
         return form;
+    }
+
+    public void enablePrint(Athlete domainObject) {
+        if (domainObject.getId() == null) {
+            printButton.setEnabled(false);
+        } else {
+            printButton.setEnabled(true);
+            hiddenButton.getElement().setAttribute("onClick",
+                    getWindowOpenerFromClass(AthleteCard.class, domainObject.getId().toString()));
+        }
     }
 
     /**
@@ -76,6 +114,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @Override
     public Athlete add(Athlete athlete) {
         AthleteRepository.save(athlete);
+        enablePrint(athlete);
         return athlete;
     }
 
@@ -101,7 +140,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         AthleteRepository.delete(athlete);
     }
 
-    @SuppressWarnings({ "unchecked"})
+    @SuppressWarnings({ "unchecked" })
     private void filterCategories(Category category) {
         Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
         ComboBox<Category> categoryField = (ComboBox<Category>) categoryBinding.getField();
@@ -129,6 +168,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @Override
     public Athlete update(Athlete athlete) {
         AthleteRepository.save(athlete);
+//        logger.debug("saved id={} {} {} {}", athlete.getId(), athlete.getSnatch1Declaration(),
+//                athlete.getCleanJerk1Declaration());
+//        logger.debug("merged id={} {} {}", merged.getId(), merged.getSnatch1Declaration(),
+//                merged.getCleanJerk1Declaration());
         return athlete;
     }
 
@@ -401,4 +444,22 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         HasValue<?, String> field = (HasValue<?, String>) binding.get().getField();
         return Athlete.zeroIfInvalid(field.getValue());
     }
+
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        // not used
+        return null;
+    }
+
+    @Override
+    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        // not used
+    }
+
+    @Override
+    public String getPageTitle() {
+        // not used
+        return null;
+    }
+
 }

@@ -130,7 +130,7 @@
       
       ready() {
 		super.ready();
-		console.warn("decision ready");
+		console.debug("decision ready");
 		if (! this.jury) {
 			document.body.addEventListener('keydown', e => this._readRef(e));
 		}
@@ -169,7 +169,7 @@
       
       _readRef(e) {
 			var key = e.key;
-			console.warn(key);
+			console.debug(key);
 			switch (e.key) {
 			case '1':
 				this.set('ref1',true);
@@ -207,7 +207,7 @@
 		}
       
       _registerVote(code) {
-    	  console.warn(key);
+    	  console.debug(key);
       }
       
       /* this is called from the client side to signal that a decision has been made
@@ -229,7 +229,7 @@
     		  if (!this.jury) {
 	    		  // true means we are master -- we are telling the server that the decision has
 	    		  // been reached
-	    		  console.warn("full decision reached, setting timer before decisions are shown");
+	    		  console.debug("full decision reached, setting timer before decisions are shown");
 	    		  
 	    		  // show the decisions after 3 seconds (by rule)
 	    		  if (!this.jury) setTimeout(this.showDecisions.bind(this, true, ref1, ref2, ref3), 3000);
@@ -290,7 +290,7 @@
       }
       
       showDown(isMaster) {
-    	  console.warn("showDown");
+    	  console.debug("showDown");
     	  this.downShown = true;
     	  this.$.downDiv.style.display = "flex";
     	  if (this.audio) {
@@ -317,9 +317,9 @@
       
       showDecisions(isMaster, ref1, ref2, ref3) {
     	  this.hideDown();
-    	  console.warn("showDecision: "+ref1+" "+ref2+" "+ref3);
+    	  console.debug("showDecision: "+ref1+" "+ref2+" "+ref3);
 		  this.setColors(this, ref1, ref2, ref3);
-		  console.warn("colorsShown");
+		  console.debug("colorsShown");
     	  // hide the decisions after 5 seconds (this is arbitrary)
 		  if (!this.jury) setTimeout(this.reset.bind(this, isMaster), 5000);
     	  // if we are the master, tell the server
@@ -330,9 +330,9 @@
       
       showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
     	  this.hideDown();
-    	  console.warn("showDecisionForJury: "+ref1+" "+ref2+" "+ref3);
+    	  console.debug("showDecisionForJury: "+ref1+" "+ref2+" "+ref3);
 		  this.setColors(this, ref1, ref2, ref3);
-		  console.warn("jury colorsShown");
+		  console.debug("jury colorsShown");
       }
       
       reset(isMaster) {

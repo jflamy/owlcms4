@@ -324,9 +324,12 @@ public abstract class AthleteGridContent extends VerticalLayout
             uiEventLogger.trace("slaveUpdateAnnouncerBar in {}  origin {}", this, e.getOrigin());
             // do not send weight change notification if we are the source of the weight
             // change
-            UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBar, uiEventBus, e, e.getOrigin(), this.getOrigin(),
-                    () -> warnAnnouncerIfCurrent(e, athlete, fop));
-            UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> doUpdateTopBar(athlete, e.getTimeAllowed()));
+            UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
+                if (e.getOrigin() != this) {
+                    warnOthersIfCurrent(e, athlete, fop);
+                }
+                doUpdateTopBar(athlete, e.getTimeAllowed());
+            });
         });
     }
 
@@ -474,7 +477,9 @@ public abstract class AthleteGridContent extends VerticalLayout
         attempt = new H2();
         weight = new H2();
         weight.setText("");
-        timeField = new AthleteTimerElement(this);
+        if (timeField == null) {
+            timeField = new AthleteTimerElement(this);
+        }
         H1 time = new H1(timeField);
         clearVerticalMargins(attempt);
         clearVerticalMargins(time);
@@ -813,12 +818,13 @@ public abstract class AthleteGridContent extends VerticalLayout
      * @param athlete
      * @param fop
      */
-    private void warnAnnouncerIfCurrent(UIEvent.LiftingOrderUpdated e, Athlete athlete, FieldOfPlay fop) {
+    private void warnOthersIfCurrent(UIEvent.LiftingOrderUpdated e, Athlete athlete, FieldOfPlay fop) {
         // the athlete currently displayed is not necessarily the fop curAthlete,
         // because the lifting order has been recalculated behind the scenes
         Athlete curDisplayAthlete = displayedAthlete;
         if (curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete())
-                && e.getOrigin() instanceof MarshallContent) {
+                //&& e.getOrigin() instanceof MarshallContent
+                ) {
             Notification n = new Notification();
             // Notification theme styling is done in
             // META-INF/resources/frontend/styles/shared-styles.html

@@ -43,7 +43,7 @@ public class ConfirmationDialog extends Dialog {
         });
         confirmButton.getElement().setAttribute("theme", "primary");
 
-        Button cancelButton = new Button("Cancel", event -> {
+        Button cancelButton = new Button(getTranslation("Cancel"), event -> {
             dialog.close();
         });
         cancelButton.getElement().setAttribute("theme", "primary error");

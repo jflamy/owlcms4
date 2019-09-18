@@ -56,8 +56,7 @@ public class AthleteRepository {
 	 * @return the athlete
 	 */
 	public static Athlete save(Athlete athlete) {
-		//REVIEW: we should be returning the merged athlete (erroneous check on == somewhere)
-		return JPAService.runInTransaction((em) -> {em.merge(athlete); return athlete;});
+		return JPAService.runInTransaction((em) -> {return em.merge(athlete);});
 	}
 
 	/**
@@ -224,5 +223,11 @@ public class AthleteRepository {
 	public static List<Athlete> doFindAllByGroupAndWeighIn(EntityManager em, Group group, Boolean weighedIn) {
 		return doFindFiltered(em, (String) null, group, (Category) null, (AgeDivision) null, weighedIn, -1, -1);
 	}
+
+    public static Athlete findById(long id) {
+        return JPAService.runInTransaction(em -> {
+            return getById(id, em);
+        });
+    }
 
 }

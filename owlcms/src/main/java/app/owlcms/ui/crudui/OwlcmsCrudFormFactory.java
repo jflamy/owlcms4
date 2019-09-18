@@ -89,7 +89,12 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     }
 
     private void init() {
+        setButtonCaption(CrudOperation.READ, Translator.translate("Ok"));
+        setButtonCaption(CrudOperation.ADD, Translator.translate("Add"));
+        setButtonCaption(CrudOperation.UPDATE, Translator.translate("Update"));
         setButtonCaption(CrudOperation.DELETE, Translator.translate("Delete"));
+        cancelButtonCaption = Translator.translate("Cancel");
+        validationErrorMessage = Translator.translate("PleaseFix");
     }
 
     /**
@@ -121,7 +126,8 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     public Component buildNewForm(CrudOperation operation, T domainObject, boolean readOnly,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener,
+            Button... buttons) {
         FormLayout formLayout = new FormLayout();
         formLayout.setSizeFull();
         if (this.responsiveSteps != null) {
@@ -132,7 +138,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         fields.stream().forEach(field -> formLayout.getElement().appendChild(field.getElement()));
 
         Component footerLayout = this.buildFooter(operation, domainObject, cancelButtonClickListener,
-                operationButtonClickListener, deleteButtonClickListener);
+                operationButtonClickListener, deleteButtonClickListener, buttons);
 
         errorLabel = new Label();
         HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
@@ -164,7 +170,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     }
 
     /**
-     * Footer with a Delete button.
+     * Footer with a Delete button and optional additional buttons
      * 
      * Also adds a shortcut so enter submits.
      *
@@ -179,7 +185,8 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     protected Component buildFooter(CrudOperation operation, T domainObject,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> postOperationCallBack,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener,
+            Button... buttons) {
 
         Button operationButton = null;
         if (operation == CrudOperation.UPDATE) {
@@ -202,6 +209,10 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         Label spacer = new Label();
 
         footerLayout.add(spacer, operationTrigger);
+        
+        if (buttons != null) {
+            for (Button b : buttons) footerLayout.add(b);
+        }
 
         if (cancelButton != null) {
             footerLayout.add(cancelButton);
@@ -296,6 +307,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 
         return button;
     }
+    
 
     /**
      * Added support for a delete button

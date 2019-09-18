@@ -709,8 +709,9 @@ public class FieldOfPlay {
         } else {
             UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
             uiEventBus.post(event);
-            setBreakType(BreakType.GROUP_DONE);
-            setState(BREAK);
+//            setBreakType(BreakType.GROUP_DONE);
+//            setState(BREAK);
+            setState(INACTIVE);
         }
     }
 
@@ -718,7 +719,7 @@ public class FieldOfPlay {
         Athlete changingAthlete = wc.getAthlete();
         Integer newWeight = changingAthlete.getNextAttemptRequestedWeight();
         logger.trace("&&1 cur={} curWeight={} new={} newWeight={}", curAthlete, curWeight, changingAthlete, newWeight);
-        logger.warn("&&2 clockOwner={} clockLastStopped={} state={}", clockOwner,
+        logger.trace("&&2 clockOwner={} clockLastStopped={} state={}", clockOwner,
                 getAthleteTimer().getTimeRemainingAtLastStop(), state);
 
         boolean stopAthleteTimer = false;
@@ -769,7 +770,7 @@ public class FieldOfPlay {
      */
     public void changeStateUnlessInBreak() {
         if (state == BREAK) {
-            logger.warn("{} {}",state, getBreakType());
+            logger.debug("{} {}",state, getBreakType());
             // if in a break, we don't stop break timer on a weight change.
             if (getBreakType() == BreakType.GROUP_DONE) {
                 // weight change in state GROUP_DONE can happen if there is a loading error

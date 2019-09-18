@@ -104,9 +104,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
      * @see org.vaadin.crudui.crud.CrudListener#add(java.lang.Object)
      */
     @Override
-    public Athlete add(Athlete Athlete) {
-        AthleteRepository.save(Athlete);
-        return Athlete;
+    public Athlete add(Athlete athlete) {
+        AthleteRepository.save(athlete);
+        return athlete;
     }
 
     /**
@@ -132,7 +132,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
     public Component buildNewForm(CrudOperation operation, Athlete aFromDb, boolean readOnly,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener) {
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
         logger.trace("building athlete card form {}", LoggerUtils.whereFrom());
         FormLayout formLayout = new FormLayout();
         formLayout.setSizeFull();
@@ -534,7 +534,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
     @Override
     protected Component buildFooter(CrudOperation operation, Athlete unused,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> unused2, ComponentEventListener<ClickEvent<Button>> unused3) {
+            ComponentEventListener<ClickEvent<Button>> unused2, ComponentEventListener<ClickEvent<Button>> unused3, Button... buttons) {
         ComponentEventListener<ClickEvent<Button>> postOperationCallBack = (e) -> {};
         Button operationButton = null;
         if (operation == CrudOperation.UPDATE) {

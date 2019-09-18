@@ -243,7 +243,7 @@ th, td {
 		<div class="clubName" id="teamNameDiv">[[teamName]]</div>
 		<div class="attempt" id="attemptDiv" inner-h-t-m-l="[[attempt]]"></div>
 		<div class="weight" id="weightDiv">
-			[[weight]]<span style="font-size: 75%">kg</span>
+			[[weight]]<span style="font-size: 75%">[[t.KgSymbol]]</span>
 		</div>
 		<div class="timer athleteTimer" id="timerDiv">
 			<timer-element id="timer"></timer-element>
@@ -328,7 +328,7 @@ class Scoreboard extends Polymer.Element {
 	}
 	         
 	reset() {
-		console.warn("reset");
+		console.debug("reset");
 		this.$.timer.reset();
 		this.$.groupDiv.style.visibility="visible";
 		this.$.startNumberDiv.style.display="block";
@@ -341,7 +341,7 @@ class Scoreboard extends Polymer.Element {
 	}
 	
 	down() {
-		console.warn("refereeDecision");
+		console.debug("refereeDecision");
 		this.$.groupDiv.style.visibility="visible";
 		this.$.startNumberDiv.style.display="block";
 		this.$.teamNameDiv.style.display="block";
@@ -353,7 +353,7 @@ class Scoreboard extends Polymer.Element {
 	}
 	
     doBreak() {
-    	console.warn("break");
+    	console.debug("break");
     	this.$.groupDiv.style.visibility="hidden";
 		this.$.startNumberDiv.style.display="none";
 		this.$.teamNameDiv.style.display="none";
@@ -365,7 +365,7 @@ class Scoreboard extends Polymer.Element {
     }
     
     groupDone() {
-    	console.warn("done");
+    	console.debug("done");
     	this.$.groupDiv.style.visibility="hidden";
     	this.$.fullNameDiv.style.display="block";
 		this.$.startNumberDiv.style.display="none";
@@ -378,7 +378,7 @@ class Scoreboard extends Polymer.Element {
     }
 	
 	refereeDecision() {
-		console.warn("refereeDecision");
+		console.debug("refereeDecision");
 		this.$.groupDiv.style.visibility="visible";
 		this.$.decisionDiv.style.display="flex";
 		this.$.weightDiv.style.display="block";

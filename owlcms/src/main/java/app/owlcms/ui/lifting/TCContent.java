@@ -156,7 +156,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         
         VerticalLayout platesDisplay = new VerticalLayout(plates);
         platesDisplay.setAlignItems(Alignment.CENTER);
-        Button applyButton = new Button("Apply");
+        Button applyButton = new Button(getTranslation("Apply"));
         applyButton.setThemeName("primary");
         applyButton.addClickListener((e) -> {
            try {

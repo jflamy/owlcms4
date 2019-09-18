@@ -15,6 +15,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.VaadinServletRequest;
 
@@ -31,23 +32,33 @@ import app.owlcms.utils.URLUtils;
  */
 public interface NavigationPage extends OwlcmsContent {
 
-    public default Button openInNewTab(Class<? extends Component> targetClass, String label) {
+    
+    public default <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass, String label, String parameter) {
         Button button = new Button(label);
-        button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass));
+        button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
         return button;
     }
     
-    public default String getWindowOpenerFromClass(Class<? extends Component> targetClass) {
+    public default <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass, String label) {
+        return openInNewTab(targetClass, label, null);
+    }
+    
+    public default <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass, String parameter) {
         FieldOfPlay fop = OwlcmsSession.getFop();
         String name = fop == null ? "" : "_" + fop.getName();
         return "window.open('" +
-                getUrlFromTargetClass(targetClass) + "','" +
+                getUrlFromTargetClass(targetClass, parameter) + "','" +
                 targetClass.getSimpleName() + name + "')";
     }
 
-    public default String getUrlFromTargetClass(Class<? extends Component> targetClass) {
+    public default <T extends Component & HasUrlParameter<String>> String getUrlFromTargetClass(Class<T> class1, String parameter) {
         RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
-        String relativeURL = routeResolver.getUrl(targetClass);
+        String relativeURL;
+        if (parameter == null) {
+            relativeURL = routeResolver.getUrl(class1);
+        } else {
+            relativeURL = routeResolver.<String,T>getUrl(class1, parameter);
+        }
         String absoluteURL = buildAbsoluteURL(VaadinServletRequest.getCurrent(), relativeURL);
         return absoluteURL;
     }

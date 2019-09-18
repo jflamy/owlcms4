@@ -14,6 +14,7 @@ import com.vaadin.flow.component.ClientCallable;
 
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -39,10 +40,12 @@ public class AthleteTimerElement extends TimerElement {
 	 */
 	public AthleteTimerElement() {
 		this.setOrigin(null); // force exception
+		logger.debug("### AthleteTimerElement new {}",origin);
 	}
 	
 	public AthleteTimerElement(Object origin) {
 		this.setOrigin(origin);
+	    logger.debug("### AthleteTimerElement new {} {}",origin, LoggerUtils.whereFrom());
 	}
 
 	/* (non-Javadoc)

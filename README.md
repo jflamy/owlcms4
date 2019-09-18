@@ -8,9 +8,7 @@ This software is a new generation of `owlcms` which has been used to manage Olym
 See the application [Web Site](https://jflamy.github.io/owlcms4/) for a full overview.  See [this page](https://jflamy.github.io/owlcms4/#/Demo) for accessing a live demo.
 
 ### Installation
-[Ready-to-run Releases](https://github.com/jflamy/owlcms4/releases) are available at [https://github.com/jflamy/owlcms4/releases](https://github.com/jflamy/owlcms4/releases) . The releases can be run either locally (on any machine where Java8 is available), or on the cloud.
-
-Installation Instructions are available for both [local setups without internet access](https://jflamy.github.io/owlcms4/#/LocalSetup.md) and for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
+[Ready-to-run Releases](https://github.com/jflamy/owlcms4/releases) are available for Windows, Mac OS, Linux and Heroku at [https://github.com/jflamy/owlcms4/releases](https://github.com/jflamy/owlcms4/releases) .  Installation Instructions are available for both [local setups without internet access](https://jflamy.github.io/owlcms4/#/LocalSetup.md) and for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
 
 ### Licensing and Notes
 

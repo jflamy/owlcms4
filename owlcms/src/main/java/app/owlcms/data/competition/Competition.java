@@ -53,7 +53,6 @@ public class Competition {
      */
     public static Competition getCurrent() {
         if (competition == null) {
-            //			competition = new Competition();
             competition = CompetitionRepository.findAll().get(0);
         }
         return competition;

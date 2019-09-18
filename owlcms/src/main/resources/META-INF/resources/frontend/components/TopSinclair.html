@@ -280,7 +280,7 @@ h2 {
 					<td class="veryNarrow">[[l.total]]</td>
 					<td class="veryNarrow">[[l.bw]]</td>
 					<td class="veryNarrow sinclair">[[l.sinclair]]</td>
-					<td class="veryNarrow">y[[l.needed]]</td>
+					<td class="veryNarrow">[[l.needed]]</td>
 				</tr>
 			</template>
 		</table>
@@ -348,26 +348,26 @@ class TopSinclair extends Polymer.Element {
 	}
 	         
 	reset() {
-		console.warn("reset");
+		console.debug("reset");
 	    this.$.resultBoardDiv.style.display="block";
 	}
 	
 	down() {
-		console.warn("down");
+		console.debug("down");
 	}
 	
     doBreak() {
-    	console.warn("break");
+    	console.debug("break");
 	    this.$.resultBoardDiv.style.display="block";
     }
     
     groupDone() {
-    	console.warn("done");
+    	console.debug("done");
 	    this.$.resultBoardDiv.style.display="block";
     }
 	
 	refereeDecision() {
-		console.warn("refereeDecision");
+		console.debug("refereeDecision");
 	}
 	         
 	_isEqualTo(title, string) {
