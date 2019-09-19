@@ -230,6 +230,7 @@ public class UIEvent {
         private boolean stopAthleteTimer;
         private Athlete changingAthlete;
         private boolean displayToggle;
+        private boolean inBreak;
 
         /**
          * Instantiates a new lifting order updated command.
@@ -248,7 +249,7 @@ public class UIEvent {
          */
         public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete,
                 Athlete changingAthlete, List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed,
-                boolean stopTimer, boolean displayToggle, Object origin) {
+                boolean stopTimer, boolean displayToggle, Object origin, boolean inBreak) {
             super(athlete, origin);
             this.nextAthlete = nextAthlete;
             this.previousAthlete = previousAthlete;
@@ -258,6 +259,7 @@ public class UIEvent {
             this.displayOrder = displayOrder;
             this.stopAthleteTimer = stopTimer;
             this.setDisplayToggle(displayToggle);
+            this.setInBreak(inBreak);
         }
 
         public Athlete getChangingAthlete() {
@@ -322,6 +324,14 @@ public class UIEvent {
 
         public void setDisplayToggle(boolean displayToggle) {
             this.displayToggle = displayToggle;
+        }
+
+        public boolean isInBreak() {
+            return inBreak;
+        }
+
+        public void setInBreak(boolean inBreak) {
+            this.inBreak = inBreak;
         }
 
     }

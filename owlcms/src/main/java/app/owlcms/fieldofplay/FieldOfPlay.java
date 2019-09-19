@@ -588,7 +588,7 @@ public class FieldOfPlay {
         int timeAllowed = getTimeAllowed();
         logger.debug("recomputed lifting order curAthlete={} prevlifter={} time={} [{}]",
                 curAthlete != null ? curAthlete.getFullName() : "",
-                previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed, LoggerUtils.whereFrom());
+                        previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed, LoggerUtils.whereFrom());
         getAthleteTimer().setTimeRemaining(timeAllowed);
     }
 
@@ -671,16 +671,20 @@ public class FieldOfPlay {
         if (e instanceof WeightChange) {
             changingAthlete = e.getAthlete();
         }
+        boolean inBreak = false;
+        if (state == FOPState.BREAK) {
+            inBreak = ((breakTimer != null && breakTimer.isRunning()));
+        }
         uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, changingAthlete,
-                liftingOrder, getDisplayOrder(), clock, stopTimer, displayToggle, e.getOrigin()));
+                liftingOrder, getDisplayOrder(), clock, stopTimer, displayToggle, e.getOrigin(), inBreak));
 
         logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
                 curAthlete, curAthlete != null ? curAthlete.getAttemptedLifts() + 1 : 0, curWeight, clock,
-                getAthleteTimer().getTimeRemainingAtLastStop());
+                        getAthleteTimer().getTimeRemainingAtLastStop());
     }
 
     public void updateGlobalRankings() {
-        logger.debug("update rankings {}", LoggerUtils.whereFrom());
+        logger.trace("update rankings {}", LoggerUtils.whereFrom());
         Competition competition = Competition.getCurrent();
         if (competition.isGlobalRankingRecompute()) {
             competition.computeGlobalRankings();
@@ -700,6 +704,32 @@ public class FieldOfPlay {
         // logger.debug("entering inactive {}",LoggerUtils.stackTrace());
         // }
         this.state = state;
+    }
+
+    /**
+     * Don't interrupt break if official-induced break. Interrupt break if it is
+     * simply "group done".
+     */
+    private void changeStateUnlessInBreak() {
+        if (state == BREAK) {
+            logger.debug("{} {}", state, getBreakType());
+            // if in a break, we don't stop break timer on a weight change.
+            if (getBreakType() == BreakType.GROUP_DONE) {
+                // weight change in state GROUP_DONE can happen if there is a loading error
+                // and there is no jury deliberation break -- the weight change is entered
+                // directly
+                // in this case, we need to go back to lifting.
+                // set the state now, otherwise attempt board will ignore request to display if
+                // in a break
+                setState(CURRENT_ATHLETE_DISPLAYED);
+                getBreakTimer().stop();
+            } else {
+                // remain in break state
+                setState(BREAK);
+            }
+        } else {
+            setState(CURRENT_ATHLETE_DISPLAYED);
+        }
     }
 
     private void displayOrBreakIfDone(FOPEvent e) {
@@ -761,31 +791,6 @@ public class FieldOfPlay {
             changeStateUnlessInBreak();
             uiDisplayCurrentAthleteAndTime(true, wc, false);
             updateGlobalRankings();
-        }
-    }
-
-    /**
-     * Don't interrupt break if official-induced break.
-     * Interrupt break if it is simply "group done".
-     */
-    public void changeStateUnlessInBreak() {
-        if (state == BREAK) {
-            logger.debug("{} {}",state, getBreakType());
-            // if in a break, we don't stop break timer on a weight change.
-            if (getBreakType() == BreakType.GROUP_DONE) {
-                // weight change in state GROUP_DONE can happen if there is a loading error
-                // and there is no jury deliberation break -- the weight change is entered directly
-                // in this case, we need to go back to lifting.
-                // set the state now, otherwise attempt board will ignore request to display if
-                // in a break
-                setState(CURRENT_ATHLETE_DISPLAYED);
-                getBreakTimer().stop();
-            } else {
-                // remain in break state
-                setState(BREAK);
-            }
-        } else {
-            setState(CURRENT_ATHLETE_DISPLAYED);
         }
     }
 
