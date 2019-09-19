@@ -16,6 +16,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
@@ -162,6 +163,35 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
         }));
     }
 
+    public void getAthleteJson(Athlete a, JsonObject ja, Category curCat) {
+        String category;
+        if (Competition.getCurrent().isMasters()) {
+            category = a.getShortCategory();
+        } else {
+            category = curCat != null ? curCat.getName() : "";
+        }
+        ja.put("fullName", a.getFullName());
+        ja.put("teamName", a.getTeam());
+        ja.put("yearOfBirth", a.getYearOfBirth());
+        Integer startNumber = a.getStartNumber();
+        ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
+        ja.put("mastersAgeGroup", a.getMastersAgeGroup());
+        ja.put("category", category);
+        getAttemptsJson(a);
+        ja.put("sattempts", sattempts);
+        ja.put("cattempts", cattempts);
+        ja.put("total", formatInt(a.getTotal()));
+        ja.put("snatchRank", formatInt(a.getSnatchRank()));
+        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
+        ja.put("totalRank", formatInt(a.getTotalRank()));
+        Integer liftOrderRank = a.getLiftOrderRank();
+        boolean notDone = a.getAttemptsDone() < 6;
+        String blink = (notDone ? " blink" : "");
+        if (notDone) {
+            ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
+        }
+    }
+
     @Override
     public String getPageTitle() {
         return getTranslation("Scoreboard");
@@ -272,24 +302,24 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        syncWithFOP(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            syncWithFOP(e);
+        });
     }
 
     public void syncWithFOP(UIEvent.SwitchGroup e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            OwlcmsSession.withFop(fop -> {
-                switch (fop.getState()) {
-                case INACTIVE:
-                    doEmpty();
-                    break;
-                case BREAK:
-                    doUpdate(fop.getCurAthlete(), e);
-                    doBreak();
-                    break;
-                default:
-                    doUpdate(fop.getCurAthlete(), e);
-                }
-            });
+        OwlcmsSession.withFop(fop -> {
+            switch (fop.getState()) {
+            case INACTIVE:
+                doEmpty();
+                break;
+            case BREAK:
+                doUpdate(fop.getCurAthlete(), e);
+                doBreak();
+                break;
+            default:
+                doUpdate(fop.getCurAthlete(), e);
+            }
         });
     }
 
@@ -407,16 +437,17 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        // fop obtained via QueryParameterReader interface default methods.
-        OwlcmsSession.withFop(fop -> {
-            init();
-            // sync with current status of FOP
-            order = fop.getDisplayOrder();
-            liftsDone = AthleteSorter.countLiftsDone(order);
-            syncWithFOP(null);
-            // we listen on uiEventBus.
-            uiEventBus = uiEventBusRegister(this, fop);
-        });
+        UI.getCurrent().access(() ->
+            // fop obtained via QueryParameterReader interface default methods.
+            OwlcmsSession.withFop(fop -> {
+                init();
+                // sync with current status of FOP
+                order = fop.getDisplayOrder();
+                liftsDone = AthleteSorter.countLiftsDone(order);
+                syncWithFOP(null);
+                // we listen on uiEventBus.
+                uiEventBus = uiEventBusRegister(this, fop);
+        }));
     }
 
     protected void setTranslationMap() {
@@ -497,35 +528,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             athx++;
         }
         return jath;
-    }
-
-    public void getAthleteJson(Athlete a, JsonObject ja, Category curCat) {
-        String category;
-        if (Competition.getCurrent().isMasters()) {
-            category = a.getShortCategory();
-        } else {
-            category = curCat != null ? curCat.getName() : "";
-        }
-        ja.put("fullName", a.getFullName());
-        ja.put("teamName", a.getTeam());
-        ja.put("yearOfBirth", a.getYearOfBirth());
-        Integer startNumber = a.getStartNumber();
-        ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-        ja.put("mastersAgeGroup", a.getMastersAgeGroup());
-        ja.put("category", category);
-        getAttemptsJson(a);
-        ja.put("sattempts", sattempts);
-        ja.put("cattempts", cattempts);
-        ja.put("total", formatInt(a.getTotal()));
-        ja.put("snatchRank", formatInt(a.getSnatchRank()));
-        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-        ja.put("totalRank", formatInt(a.getTotalRank()));
-        Integer liftOrderRank = a.getLiftOrderRank();
-        boolean notDone = a.getAttemptsDone() < 6;
-        String blink = (notDone ? " blink" : "");
-        if (notDone) {
-            ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
-        }
     }
 
     private Object getOrigin() {
