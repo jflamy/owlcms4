@@ -14,6 +14,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
@@ -83,9 +84,9 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         Boolean isPublicFacing();
 
         Boolean isShowBarbell();
-        
+
         String getKgSymbol();
-        
+
         String getJavaComponentId();
 
         void setAttempt(String formattedAttempt);
@@ -103,9 +104,9 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         void setTeamName(String teamName);
 
         void setWeight(Integer weight);
-        
+
         void setKgSymbol(String kgSymbol);
-        
+
         void setJavaComponentId(String id);
     }
 
@@ -133,7 +134,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      * Instantiates a new attempt board.
      */
     public AttemptBoard() {
-        logger.debug("*** AttemptBoard new {}",LoggerUtils.whereFrom());
+        logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
         athleteTimer.setOrigin(this);
         getModel().setJavaComponentId(this.toString());
         getModel().setKgSymbol(getTranslation("KgSymbol"));
@@ -153,12 +154,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         }));
     }
 
-    public void doReset() {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            this.getElement().callJsFunction("reset");
-        });
-    }
-
     @Override
     public String getPageTitle() {
         return getTranslation("Attempt");
@@ -173,7 +168,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     public boolean isIgnoreGroupFromURL() {
         return true;
     }
-    
+
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
@@ -218,19 +213,22 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     public void slaveGroupDone(UIEvent.GroupDone e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        Group g = e.getGroup();
-        doDone(g);
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            Group g = e.getGroup();
+            doDone(g);
+        });
     }
 
     @Subscribe
-    public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {        
-        OwlcmsSession.withFop(fop -> {
+    public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
             FOPState state = fop.getState();
-            uiEventLogger.debug("### {} {} isDisplayToggle={}", state, this.getClass().getSimpleName(), e.isDisplayToggle());
+            uiEventLogger.debug("### {} {} isDisplayToggle={}", state, this.getClass().getSimpleName(),
+                    e.isDisplayToggle());
             if (state == FOPState.BREAK) {
                 if (e.isDisplayToggle()) {
                     Athlete a = e.getAthlete();
-                    UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doAthleteUpdate(a));
+                    doAthleteUpdate(a);
                 }
                 return;
             } else if (state == FOPState.INACTIVE) {
@@ -240,9 +238,9 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 return;
             } else {
                 Athlete a = e.getAthlete();
-                UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doAthleteUpdate(a));
+                doAthleteUpdate(a);
             }
-        });
+        }));
     }
 
     /**
@@ -311,33 +309,31 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     protected void doAthleteUpdate(Athlete a) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            logger.debug("$$$ a {}  ",a);
-            if (a == null) {
-                doEmpty();
-                return;
-            } else if (a.getAttemptsDone() >= 6) {
-                OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
-                return;
-            }
-            FieldOfPlay fop = OwlcmsSession.getFop();
-            logger.debug("$$$ state {}", fop.getState());
-            if (fop.getState() == FOPState.INACTIVE) {
-                doEmpty();
-                return;
-            }
+        logger.debug("$$$ a {}  ", a);
+        if (a == null) {
+            doEmpty();
+            return;
+        } else if (a.getAttemptsDone() >= 6) {
+            OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+            return;
+        }
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        logger.debug("$$$ state {}", fop.getState());
+        if (fop.getState() == FOPState.INACTIVE) {
+            doEmpty();
+            return;
+        }
 
-            AttemptBoardModel model = getModel();
-            model.setLastName(a.getLastName());
-            model.setFirstName(a.getFirstName());
-            model.setTeamName(a.getTeam());
-            model.setStartNumber(a.getStartNumber());
-            String formattedAttempt = formatAttempt(a.getAttemptNumber());
-            model.setAttempt(formattedAttempt);
-            model.setWeight(a.getNextAttemptRequestedWeight());
-            showPlates();
-            this.getElement().callJsFunction("reset");
-        });
+        AttemptBoardModel model = getModel();
+        model.setLastName(a.getLastName());
+        model.setFirstName(a.getFirstName());
+        model.setTeamName(a.getTeam());
+        model.setStartNumber(a.getStartNumber());
+        String formattedAttempt = formatAttempt(a.getAttemptNumber());
+        model.setAttempt(formattedAttempt);
+        model.setWeight(a.getNextAttemptRequestedWeight());
+        showPlates();
+        this.getElement().callJsFunction("reset");
     }
 
     /**
@@ -347,22 +343,18 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
      * @param fop
      */
     protected void doBreak(FieldOfPlay fop) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setLastName(inferGroupName());
-            getModel().setFirstName(inferMessage(fop.getBreakType()));
-            getModel().setTeamName("");
-            getModel().setAttempt("");
-            this.getElement().callJsFunction("doBreak", 5 * 60);
-            uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
-        });
+        getModel().setLastName(inferGroupName());
+        getModel().setFirstName(inferMessage(fop.getBreakType()));
+        getModel().setTeamName("");
+        getModel().setAttempt("");
+        this.getElement().callJsFunction("doBreak", 5 * 60);
+        uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
     }
 
     protected void doEmpty() {
-        logger.debug("doEmpty {}",LoggerUtils.whereFrom());
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            hidePlates();
-            this.getElement().callJsFunction("clear");
-        });
+        logger.debug("doEmpty {}", LoggerUtils.whereFrom());
+        hidePlates();
+        this.getElement().callJsFunction("clear");
     }
 
     /*

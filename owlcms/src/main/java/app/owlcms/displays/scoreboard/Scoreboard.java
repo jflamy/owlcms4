@@ -16,7 +16,6 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
@@ -437,17 +436,16 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        UI.getCurrent().access(() ->
-            // fop obtained via QueryParameterReader interface default methods.
-            OwlcmsSession.withFop(fop -> {
-                init();
-                // sync with current status of FOP
-                order = fop.getDisplayOrder();
-                liftsDone = AthleteSorter.countLiftsDone(order);
-                syncWithFOP(null);
-                // we listen on uiEventBus.
-                uiEventBus = uiEventBusRegister(this, fop);
-        }));
+        // fop obtained via QueryParameterReader interface default methods.
+        OwlcmsSession.withFop(fop -> {
+            init();
+            // sync with current status of FOP
+            order = fop.getDisplayOrder();
+            liftsDone = AthleteSorter.countLiftsDone(order);
+            syncWithFOP(null);
+            // we listen on uiEventBus.
+            uiEventBus = uiEventBusRegister(this, fop);
+        });
     }
 
     protected void setTranslationMap() {
