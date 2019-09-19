@@ -154,7 +154,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             getModel().setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
             getModel().setTeamName("");
             getModel().setAttempt("");
-            
+
             ScoreboardModel model = getModel();
             updateBottom(model, computeLiftType(fop.getCurAthlete()));
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
@@ -303,31 +303,38 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     }
 
     protected void doUpdate(Athlete a, UIEvent e) {
-        logger.trace("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         ScoreboardModel model = getModel();
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
             LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
-            leaveTopAlone = e2.isDisplayToggle() ? false : !e2.isStopAthleteTimer();
-            logger.debug("doUpdate leaveTopAlone={} displayToggle={}", leaveTopAlone, e2.isDisplayToggle());
+            if (e2.isInBreak()) {
+                leaveTopAlone = !e2.isDisplayToggle();
+            } else {
+                leaveTopAlone = !e2.isStopAthleteTimer();
+            }
         }
 
+        logger.debug("doUpdate a={} leaveTopAlone={}", a, leaveTopAlone);
         if (a != null) {
             if (!leaveTopAlone) {
-                this.getElement().callJsFunction("reset");
+                logger.debug("updating top {}", a.getFullName());
                 model.setFullName(a.getFullName());
                 model.setTeamName(a.getTeam());
                 model.setStartNumber(a.getStartNumber());
                 String formattedAttempt = formatAttempt(a.getAttemptsDone());
                 model.setAttempt(formattedAttempt);
                 model.setWeight(a.getNextAttemptRequestedWeight());
+                this.getElement().callJsFunction("reset");
+                logger.debug("updated top {}", a.getFullName());
             }
-            logger.trace("updating bottom");
+            logger.debug("updating bottom");
             updateBottom(model, computeLiftType(a));
-        }
-        if (a == null || a.getAttemptsDone() >= 6) {
-            logger.trace("doUpdate calls doDone");
-            OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+        } else {
+            if (!leaveTopAlone) {
+                logger.debug("doUpdate doDone");
+                OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+            }
             return;
         }
     }
@@ -433,16 +440,14 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     }
 
     private void doDone(Group g) {
-        logger.trace("doDone {}", g == null ? null : g.getName());
+        logger.debug("doDone {}", g == null ? null : g.getName());
         if (g == null) {
             doEmpty();
         } else {
-            UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-                OwlcmsSession.withFop(fop -> {
-                    updateBottom(getModel(), computeLiftType(fop.getCurAthlete()));
-                    getModel().setFullName(getTranslation("Group_number_results", g.toString()));
-                    this.getElement().callJsFunction("groupDone");
-                });
+            OwlcmsSession.withFop(fop -> {
+                updateBottom(getModel(), computeLiftType(fop.getCurAthlete()));
+                getModel().setFullName(getTranslation("Group_number_results", g.toString()));
+                this.getElement().callJsFunction("groupDone");
             });
         }
     }
