@@ -63,7 +63,6 @@ import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.lifting.AnnouncerContent;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
 import app.owlcms.ui.lifting.JuryContent;
-import app.owlcms.ui.lifting.MarshallContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.utils.LoggerUtils;
