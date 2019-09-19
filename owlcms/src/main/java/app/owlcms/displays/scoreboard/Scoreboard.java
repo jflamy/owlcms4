@@ -211,11 +211,18 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
         uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
             Athlete a = e.getAthlete();
-            liftsDone = AthleteSorter.countLiftsDone(order);
-            doUpdate(a, e);
-        });
+            if (a == null) {
+                order = fop.getLiftingOrder();
+                a = order.size() > 0 ? order.get(0) : null;
+                liftsDone = AthleteSorter.countLiftsDone(order);
+                doUpdate(a, e);
+            } else {
+                liftsDone = AthleteSorter.countLiftsDone(order);
+                doUpdate(a, e);
+            }
+        }));
     }
 
     @Subscribe
@@ -345,7 +352,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
         }
 
         logger.debug("doUpdate a={} leaveTopAlone={}", a, leaveTopAlone);
-        if (a != null) {
+        if (a != null && a.getAttemptsDone() < 6) {
             if (!leaveTopAlone) {
                 logger.debug("updating top {}", a.getFullName());
                 model.setFullName(a.getFullName());
