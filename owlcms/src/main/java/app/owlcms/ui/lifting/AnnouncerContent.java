@@ -15,6 +15,7 @@ import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
@@ -44,6 +45,9 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 @Route(value = "lifting/announcer", layout = AthleteGridLayout.class)
+@CssImport(value = "./styles/shared-styles.css")
+@CssImport(value = "./styles/notification-theme.css", themeFor = "vaadin-notification-card")
+@CssImport(value = "./styles/text-field-theme.css", themeFor = "vaadin-text-field")
 public class AnnouncerContent extends AthleteGridContent implements HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);

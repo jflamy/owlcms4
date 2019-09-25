@@ -47,8 +47,7 @@ import elemental.json.JsonObject;
 @SuppressWarnings("serial")
 @Tag("athlete-card-template")
 @JsModule("./components/AthleteCard.js")
-@CssImport(value = "./styles/text-field-theme.css", id = "text-field-theme", themeFor = "vaadin-text-field")
-@CssImport(value = "./styles/shared-styles.css", include = "text-field-theme")
+@CssImport(value = "./styles/shared-styles.css")
 @Route("weighin/AthleteCard")
 @Theme(value = Lumo.class)
 @Push

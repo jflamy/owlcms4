@@ -28,8 +28,10 @@ import ch.qos.logback.classic.Logger;
 @Theme(Lumo.class)
 @Push
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
-@CssImport(value = "./styles/notification-theme.css", id = "notification-theme", themeFor = "vaadin-notification-card")
-@CssImport(value = "./styles/shared-styles.css", include = "notification-theme")
+@CssImport(value = "./styles/shared-styles.css")
+@CssImport(value = "./styles/notification-theme.css", themeFor = "vaadin-notification-card")
+@CssImport(value = "./styles/text-field-theme.css", themeFor = "vaadin-text-field")
+
 
 public class AthleteGridLayout extends OwlcmsRouterLayout {
 	
