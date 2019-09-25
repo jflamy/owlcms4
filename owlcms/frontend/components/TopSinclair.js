@@ -1,5 +1,5 @@
-import {PolymerElement} from '@polymer/polymer/polymer-element.js';
-class TopSinclair extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
+class TopSinclair extends PolymerElement {
 	static get is() {
 		return 'topsinclair-template'
 	}

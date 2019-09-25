@@ -13,7 +13,8 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.page.Push;
@@ -45,8 +46,9 @@ import elemental.json.JsonObject;
  */
 @SuppressWarnings("serial")
 @Tag("athlete-card-template")
-@HtmlImport("frontend://components/AthleteCard.html")
-@HtmlImport("frontend://styles/shared-styles.html")
+@JsModule("./components/AthleteCard.js")
+@CssImport(value = "./styles/text-field-theme.css", id = "text-field-theme", themeFor = "vaadin-text-field")
+@CssImport(value = "./styles/shared-styles.css", include = "text-field-theme")
 @Route("weighin/AthleteCard")
 @Theme(value = Lumo.class)
 @Push

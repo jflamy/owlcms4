@@ -14,7 +14,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -23,7 +24,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.material.Material;
+import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
@@ -49,10 +50,10 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
-@HtmlImport("frontend://components/AttemptBoard.html")
-@HtmlImport("frontend://styles/shared-styles.html")
-@Route("displays/attemptBoard")
-@Theme(value = Material.class, variant = Material.DARK)
+@JsModule("./components/AttemptBoard.js")
+@CssImport(value = "./styles/shared-styles.css")
+@Route("displays/attemptBard")
+@Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements QueryParameterReader,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {

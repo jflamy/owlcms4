@@ -1,68 +1,11 @@
-import {PolymerElement} from '@polymer/polymer/polymer-element.js';
-class AthleteCard extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
+class AthleteCard extends PolymerElement {
 	static get is() {
-	    return 'athlete-card-template'
+		return 'athlete-card-template'
 	}
 
-	static get properties() {
-		return {
-			lastName: {
-			    type: String,
-			    value: ''
-			},
-			firstName: {
-			      type: String,
-			      value: ''
-			},
-			teamName: {
-			    type: String,
-			    value: ''
-			},
-			startNumber: {
-			    type: Number,
-			    value: 0
-			},
-			lotNumber: {
-			    type: Number,
-			    value: 0
-			},
-			attempt: {
-			    type: String,
-			    value: ''
-			}, 
-			bodyWeight: {
-			    type: String,
-			    value: ''
-			},
-			ageDivision: {
-			    type: String,
-			    value: ''
-			},
-			category: {
-			    type: String,
-			    value: ''
-			},
-			startSnatch: {
-			    type: String,
-			    value: ''
-			},
-			startCJ: {
-			    type: String,
-			    value: ''
-			},
-			entryTotal: {
-			    type: String,
-			    value: ''
-			}
-		}
-	}
-         
-	ready() {
-		super.ready();
-	}
-	
-    static get template() {
-        return html`
+	static get template() {
+		return html`
 <style>
 #athleteCardDiv {
 	-webkit-print-color-adjust: exact !important;
@@ -491,10 +434,67 @@ td {
 			<td class=xl92>&nbsp;</td>
 		</tr>
 	</table>
-</div>
-`;
+</div>`;
+	}
+
+	static get properties() {
+		return {
+			lastName: {
+				type: String,
+				value: ''
+			},
+			firstName: {
+				type: String,
+				value: ''
+			},
+			teamName: {
+				type: String,
+				value: ''
+			},
+			startNumber: {
+				type: Number,
+				value: 0
+			},
+			lotNumber: {
+				type: Number,
+				value: 0
+			},
+			attempt: {
+				type: String,
+				value: ''
+			}, 
+			bodyWeight: {
+				type: String,
+				value: ''
+			},
+			ageDivision: {
+				type: String,
+				value: ''
+			},
+			category: {
+				type: String,
+				value: ''
+			},
+			startSnatch: {
+				type: String,
+				value: ''
+			},
+			startCJ: {
+				type: String,
+				value: ''
+			},
+			entryTotal: {
+				type: String,
+				value: ''
+			}
+		}
+	}
+
+	ready() {
+		super.ready();
+	}
 }
-    
+
 customElements.define(AthleteCard.is, AthleteCard);
 
 

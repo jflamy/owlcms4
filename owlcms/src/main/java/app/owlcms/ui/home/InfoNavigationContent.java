@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 import org.slf4j.LoggerFactory;
 
-import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
+import com.github.appreciated.app.layout.component.applayout.AbstractLeftAppLayoutBase;
 import com.github.appreciated.css.grid.GridLayoutComponent.AutoFlow;
 import com.github.appreciated.css.grid.GridLayoutComponent.Overflow;
 import com.github.appreciated.css.grid.sizes.Flex;

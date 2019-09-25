@@ -6,8 +6,8 @@
  */
 package app.owlcms.ui.preparation;
 
-import com.github.appreciated.app.layout.behaviour.AppLayout;
-import com.github.appreciated.app.layout.behaviour.Behaviour;
+import com.github.appreciated.app.layout.component.applayout.AppLayout;
+import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
 import com.vaadin.flow.component.html.Label;
 
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -22,8 +22,8 @@ public class PlatformLayout extends OwlcmsRouterLayout {
 	 * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
-	protected AppLayout getLayoutConfiguration(Behaviour variant) {
-		variant = Behaviour.LEFT;
+	protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
+		variant = LeftLayouts.Left.class;
 		AppLayout appLayout = super.getLayoutConfiguration(variant);
 		appLayout.closeDrawer();
 		appLayout.setTitleComponent(new Label(getTranslation("EditPlatforms")));

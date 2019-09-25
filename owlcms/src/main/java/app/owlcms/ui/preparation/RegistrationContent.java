@@ -20,7 +20,7 @@ import org.vaadin.crudui.crud.CrudListener;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -60,7 +60,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/athletes", layout = RegistrationLayout.class)
-@HtmlImport("frontend://styles/shared-styles.html")
+@CssImport(value = "./styles/shared-styles.css")
 public class RegistrationContent extends VerticalLayout
 implements CrudListener<Athlete>, OwlcmsContent {
 

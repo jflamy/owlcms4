@@ -1,5 +1,6 @@
-import {PolymerElement} from '@polymer/polymer/polymer-element.js';
-class TimerElement extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
+
+class TimerElement extends PolymerElement {
 	static get is() {
 		return 'timer-element'
 	}
@@ -16,6 +17,7 @@ class TimerElement extends Polymer.Element {
 		return {
 			/**
 			 * Start time for the timer in seconds
+			 * 
 			 * @default 60
 			 */
 			startTime: {
@@ -33,6 +35,7 @@ class TimerElement extends Polymer.Element {
 			},
 			/**
 			 * True if the timer is currently running
+			 * 
 			 * @default false
 			 */
 			running: {
@@ -43,6 +46,7 @@ class TimerElement extends Polymer.Element {
 			},
 			/**
 			 * Set to true to have timer count up
+			 * 
 			 * @default false
 			 */
 			countUp: {
@@ -52,6 +56,7 @@ class TimerElement extends Polymer.Element {
 			},
 			/**
 			 * Set to true to have timer not emit sounds
+			 * 
 			 * @default false
 			 */
 			silent: {
@@ -60,6 +65,7 @@ class TimerElement extends Polymer.Element {
 			},
 			/**
 			 * Set to true to state that timer is indefinite (--:--)
+			 * 
 			 * @default false
 			 */
 			indefinite: {
@@ -99,7 +105,7 @@ class TimerElement extends Polymer.Element {
 
 	start() {
 		if (this.indefinite) {
-			//console.debug("timer indefinite "+this.startTime);
+			// console.debug("timer indefinite "+this.startTime);
 			this._indefinite()
 			return;
 		}
@@ -112,7 +118,7 @@ class TimerElement extends Polymer.Element {
 		}
 
 		if (!this.startTime 
-				// || this.running    /* start should not result in pause() ! */
+				// || this.running /* start should not result in pause() ! */
 		) {
 			this.pause();
 			return;
@@ -123,7 +129,7 @@ class TimerElement extends Polymer.Element {
 
 		this._elapsed = performance.now()/1000;
 		this.running = true;
-		//console.debug("timer running "+this.currentTime);
+		// console.debug("timer running "+this.currentTime);
 		window.requestAnimationFrame(this._decreaseTimer.bind(this));
 	}
 
@@ -153,7 +159,7 @@ class TimerElement extends Polymer.Element {
 
 	_init() {
 		this.running = false;
-		//console.debug("init timer "+this.indefinite);
+		// console.debug("init timer "+this.indefinite);
 		if (this.indefinite) {
 			this.set('currentTime', this.startTime);
 			this._indefinite()
@@ -182,7 +188,7 @@ class TimerElement extends Polymer.Element {
 
 		// we anticipate by 0.1 sec because .play() has a perceptible delay
 		if (this.currentTime <= 30.1 && !this._finalWarningGiven) {
-			//console.debug("currentTime "+this.currentTime);
+			// console.debug("currentTime "+this.currentTime);
 			if (!this.silent) this.$.finalWarning.play();
 			if (this.$server != null) this.$server.clientFinalWarning();
 			this._finalWarningGiven = true;
@@ -193,7 +199,7 @@ class TimerElement extends Polymer.Element {
 			this._initialWarningGiven = true;
 		}
 		if (this.currentTime <= 0.1 && !this._timeOverWarningGiven) {
-			//console.debug("calling play "+this.currentTime);
+			// console.debug("calling play "+this.currentTime);
 			if (!this.silent) this.$.timeOver.play();
 			this._timeOverWarningGiven = true;
 		}
@@ -203,8 +209,12 @@ class TimerElement extends Polymer.Element {
 			// timer is over
 			if (this.$server != null) this.$server.clientTimeOver();   
 			this.running = false;
-			//this.dispatchEvent(new CustomEvent('timer-element-end', {bubbles: true, composed: true}))
-			this.currentTime = this.countUp ? this.startTime : 0; // avoid ugly if rounding error.
+			// this.dispatchEvent(new CustomEvent('timer-element-end', {bubbles:
+			// true, composed: true}))
+			this.currentTime = this.countUp ? this.startTime : 0; // avoid
+			// ugly if
+			// rounding
+			// error.
 		}
 
 		this._formattedTime = this._formatTime(this.currentTime);

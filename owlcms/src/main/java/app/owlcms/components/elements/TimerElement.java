@@ -13,7 +13,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
@@ -30,7 +30,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Tag("timer-element")
-@HtmlImport("frontend://components/TimerElement.html")
+@JsModule("./components/TimerElement.js")
 public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerModel>
 		implements SafeEventBusRegistration {
 

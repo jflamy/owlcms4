@@ -1,5 +1,6 @@
-import {PolymerElement} from '@polymer/polymer/polymer-element.js';       
-class Scoreboard extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';  
+
+class Scoreboard extends PolymerElement {
 	static get is() {
 		return 'scoreboard-template'
 	}

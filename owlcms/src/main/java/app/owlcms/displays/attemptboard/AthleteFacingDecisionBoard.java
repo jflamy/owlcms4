@@ -8,18 +8,18 @@ package app.owlcms.displays.attemptboard;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.material.Material;
+import com.vaadin.flow.theme.lumo.Lumo;
 
 @SuppressWarnings("serial")
 @Tag("decision-board-template")
-@HtmlImport("frontend://components/DecisionBoard.html")
+@JsModule("./components/DecisionBoard.js")
 @Route("displays/athleteFacingDecision")
 @Push
-@Theme(value = Material.class, variant = Material.DARK)
+@Theme(value = Lumo.class, variant = Lumo.DARK)
 public class AthleteFacingDecisionBoard extends AttemptBoard {
 	
 	public AthleteFacingDecisionBoard() {

@@ -23,8 +23,6 @@ import ch.qos.logback.classic.Logger;
  * Countdown timer element.
  */
 @SuppressWarnings("serial")
-//@Tag("break-timer-element")
-//@HtmlImport("frontend://components/TimerElement.html")
 public class BreakTimerElement extends TimerElement {
 
 	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);

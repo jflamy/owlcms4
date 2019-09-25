@@ -1,6 +1,6 @@
-import {PolymerElement} from '@polymer/polymer/polymer-element.js';
+import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
 
-class CurrentAttempt extends Polymer.Element {
+class CurrentAttempt extends PolymerElement {
     static get is() {
         return 'attempt-board-template'
     }
@@ -318,5 +318,6 @@ class CurrentAttempt extends Polymer.Element {
     	console.debug("attemptBoard end clear "+this.javaComponentId);
     }
 }
+
 customElements.define(CurrentAttempt.is, CurrentAttempt);
 

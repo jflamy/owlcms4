@@ -6,7 +6,8 @@ const merge = require('webpack-merge');
 const flowDefaults = require('./webpack.generated.js');
 
 module.exports = merge(flowDefaults, {
-
+mode: 'development',
+devtool: 'inline-source-map'
 });
 
 /**

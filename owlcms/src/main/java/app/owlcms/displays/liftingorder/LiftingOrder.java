@@ -16,14 +16,14 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.material.Material;
+import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -55,9 +55,9 @@ import elemental.json.JsonValue;
  */
 @SuppressWarnings("serial")
 @Tag("liftingorder-template")
-@HtmlImport("frontend://components/LiftingOrder.html")
+@JsModule("./components/LiftingOrder.js")
 @Route("displays/liftingorder")
-@Theme(value = Material.class, variant = Material.DARK)
+@Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel> implements QueryParameterReader,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {

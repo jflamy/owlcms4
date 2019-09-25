@@ -13,19 +13,19 @@ import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
 
-import com.github.appreciated.app.layout.behaviour.AppLayout;
-import com.github.appreciated.app.layout.behaviour.Behaviour;
-import com.github.appreciated.app.layout.builder.AppLayoutBuilder;
 import com.github.appreciated.app.layout.component.appbar.AppBarBuilder;
+import com.github.appreciated.app.layout.component.applayout.AppLayout;
+import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
+import com.github.appreciated.app.layout.component.builder.AppLayoutBuilder;
 import com.github.appreciated.app.layout.component.menu.left.builder.LeftAppMenuBuilder;
 import com.github.appreciated.app.layout.component.menu.left.items.LeftClickableItem;
 import com.github.appreciated.app.layout.component.menu.left.items.LeftHeaderItem;
 import com.github.appreciated.app.layout.component.menu.left.items.LeftNavigationItem;
-import com.github.appreciated.app.layout.router.AppLayoutRouterLayout;
+import com.github.appreciated.app.layout.component.router.AppLayoutRouterLayout;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.dependency.HtmlImport;
-import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -49,17 +49,20 @@ import ch.qos.logback.classic.Logger;
 /**
  * OwlcmsRouterLayout.
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "rawtypes" })
 @Push
-@HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
+
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
-@StyleSheet("frontend://styles/owlcms.css")
-@HtmlImport("frontend://bower_components/iron-icons/maps-icons.html")
-@HtmlImport("frontend://bower_components/iron-icons/av-icons.html")
-@HtmlImport("frontend://bower_components/iron-icons/hardware-icons.html")
-@HtmlImport("frontend://bower_components/iron-icons/maps-icons.html")
-@HtmlImport("frontend://bower_components/iron-icons/social-icons.html")
-@HtmlImport("frontend://bower_components/iron-icons/places-icons.html")
+@CssImport(value = "./styles/shared-styles.css")
+@JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
+@JsModule("@polymer/iron-icon/iron-icon.js")
+@JsModule("@polymer/iron-icons/iron-icons.js")
+@JsModule("@polymer/iron-icons/av-icons.js")
+@JsModule("@polymer/iron-icons/hardware-icons.js")
+@JsModule("@polymer/iron-icons/maps-icons.js")
+@JsModule("@polymer/iron-icons/social-icons.js")
+@JsModule("@polymer/iron-icons/places-icons.js")
+
 public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageConfigurator {
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
@@ -67,7 +70,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         logger.setLevel(Level.INFO);
     }
 
-    private Behaviour variant;
+    private Class<? extends AppLayout> variant;
 
     private HasElement layoutComponentContent;
 
@@ -79,6 +82,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
     String PREFERENCES = Translator.translate("Preferences");
     String DOCUMENTATION = Translator.translate("Documentation_Menu");
 
+    @SuppressWarnings("unchecked")
     public OwlcmsRouterLayout() {
         init(getLayoutConfiguration(variant));
     }
@@ -104,9 +108,9 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         return layoutComponentContent;
     }
 
-    protected AppLayout getLayoutConfiguration(Behaviour variant) {
+    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
         if (variant == null) {
-            variant = Behaviour.LEFT_RESPONSIVE;
+            variant = LeftLayouts.LeftResponsive.class;
         }
 
         LeftNavigationItem home = new LeftNavigationItem(getTranslation("Home"),
@@ -115,8 +119,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         AppLayout appLayout = AppLayoutBuilder.get(variant).withTitle(getTranslation("OWLCMS_Top"))
                 .withIcon("/frontend/images/logo.png")
                 .withAppBar(AppBarBuilder.get().build()).withAppMenu(LeftAppMenuBuilder.get()
-//				.addToSection(new LeftHeaderItem(null, OwlcmsFactory.getVersion(), null), HEADER)
-                        .addToSection(new LeftHeaderItem(null, "", null), HEADER).add(home)
+                        .addToSection(HEADER, new LeftHeaderItem(null, "", null)).add(home)
                         .add(new LeftNavigationItem(PREPARE_COMPETITION, new Icon("social", "group-add"),
                                 PreparationNavigationContent.class))
                         .add(new LeftNavigationItem(RUN_LIFTING_GROUP, new Icon("places", "fitness-center"),
@@ -127,8 +130,8 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
                                 ResultsNavigationContent.class))
                         .add(new LeftClickableItem(DOCUMENTATION, new Icon("icons", "help"),
                                 clickEvent -> UI.getCurrent().getPage().executeJs("window.open('https://jflamy.github.io/owlcms4/#/index','_blank')")))
-                        .addToSection(new LeftNavigationItem(INFO, new Icon("icons", "info-outline"),
-                                InfoNavigationContent.class), FOOTER)
+                        .addToSection(FOOTER, new LeftNavigationItem(INFO, new Icon("icons", "info-outline"),
+                                InfoNavigationContent.class))
                         .build())
                 .build();
 
@@ -137,13 +140,14 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 
 //    .add(new LeftClickableItem(DOCUMENTATION, VaadinIcon.COG.create(),
 //            clickEvent -> openModeSelector(this.variant))
-    private void setDrawerVariant(Behaviour variant) {
+    @SuppressWarnings("unchecked")
+    private void setDrawerVariant(Class<? extends AppLayout> variant) {
         this.variant = variant;
         init(getLayoutConfiguration(variant));
     }
 
     @SuppressWarnings("unused")
-    private void openModeSelector(Behaviour variant) {
+    private void openModeSelector(Class<? extends AppLayout> variant) {
         new BehaviourSelector(variant, this::setDrawerVariant).open();
     }
 
@@ -161,22 +165,17 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
          * @param current  the current
          * @param consumer the consumer
          */
-        public BehaviourSelector(Behaviour current, Consumer<Behaviour> consumer) {
+        @SuppressWarnings("unchecked")
+        public BehaviourSelector(Class<? extends AppLayout> current, Consumer<Class<? extends AppLayout>> consumer) {
             VerticalLayout layout = new VerticalLayout();
             add(layout);
-            RadioButtonGroup<Behaviour> group = new RadioButtonGroup<>();
+            RadioButtonGroup<Class<? extends AppLayout>> group = new RadioButtonGroup<>();
             group.getStyle().set("display", "flex");
             group.getStyle().set("flexDirection", "column");
-            group.setItems(Behaviour.LEFT, Behaviour.LEFT_OVERLAY, Behaviour.LEFT_RESPONSIVE, Behaviour.LEFT_HYBRID,
-                    Behaviour.LEFT_HYBRID_SMALL, Behaviour.LEFT_RESPONSIVE_HYBRID,
-//				Behaviour.LEFT_RESPONSIVE_HYBRID_NO_APP_BAR,
-//				Behaviour.LEFT_RESPONSIVE_HYBRID_OVERLAY_NO_APP_BAR,
-                    Behaviour.LEFT_RESPONSIVE_OVERLAY,
-//				Behaviour.LEFT_RESPONSIVE_OVERLAY_NO_APP_BAR,
-                    Behaviour.LEFT_RESPONSIVE_SMALL
-//				Behaviour.LEFT_RESPONSIVE_SMALL_NO_APP_BAR
-//				Behaviour.TOP,
-//				Behaviour.TOP_LARGE
+            group.setItems(LeftLayouts.Left.class, LeftLayouts.LeftOverlay.class, LeftLayouts.LeftResponsive.class, LeftLayouts.LeftHybrid.class,
+                    LeftLayouts.LeftHybridSmall.class, LeftLayouts.LeftResponsiveHybrid.class,
+                    LeftLayouts.LeftResponsiveOverlay.class,
+                    LeftLayouts.LeftResponsiveSmall.class
             );
             group.setValue(current);
             layout.add(group);

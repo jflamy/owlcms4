@@ -90,8 +90,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
 
             Notification n = new Notification();
-            // Notification theme styling is done in
-            // META-INF/resources/frontend/styles/shared-styles.html
             String themeName = e.decision ? "success" : "error";
             n.getElement().getThemeList().add(themeName);
 

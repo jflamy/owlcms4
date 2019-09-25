@@ -1,5 +1,5 @@
-import {PolymerElement} from '@polymer/polymer/polymer-element.js';       
-class DecisionBoard extends Polymer.Element {
+import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';       
+class DecisionBoard extends PolymerElement {
 	static get is() {
 		return 'decision-board-template'
 	}
@@ -154,5 +154,6 @@ class DecisionBoard extends Polymer.Element {
 		this.$.decisionBoardDiv.style.display="none";
 	}
 }
+
 customElements.define(DecisionBoard.is, DecisionBoard);
 
