@@ -27,6 +27,7 @@ import ch.qos.logback.classic.Logger;
  *
  * @author jflamy
  */
+@SuppressWarnings("restriction")
 public class Sound {
     static final String SOUND_PREFIX = "/META-INF/resources/sounds/";
 
