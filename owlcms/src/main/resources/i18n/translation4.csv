@@ -18,7 +18,7 @@ Attempt,Attempt,Essai,,Forsøg,,Попытка
 AttemptAF,Attempt (AF),Essai courant (face à l'athlète),,Forsøg (AV),,Экран попытки (лицом к атлету)
 AttemptBoard,Attempt Board,Essai courant,,Rækkefølge,,Экран попытки
 AttemptBoard_attempt_number,"{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.","{0}<sup>{0,choice,1#er|2#e|3#e}</sup> essai",,"{0}<sup>{0,choice,1.|2.|3.}</sup> forsøg",,"{0}{0,choice,1#-ая|2#-ая|3#-я}</sup> п."
-AtTimeOfRelease," as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you","tels que disponibles au moment de la publication du logiciel. Tel que mentionné dans la licence, il n'y a aucune garantie et vous",," as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you",,"опубликовано на момент релиза.  Как указано в лицензии, нет никакой гарантии в отношении этого программного обеспечения, и вы"
+AtTimeOfRelease,"\u0020as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you","\u0020tels que disponibles au moment de la publication du logiciel. Tel que mentionné dans la licence, il n'y a aucune garantie et vous",,"\u0020as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you",,"\u0020опубликовано на момент релиза.  Как указано в лицензии, нет никакой гарантии в отношении этого программного обеспечения, и вы"
 AutomaticProgression,Automatic Progression,Progression automatique,,Automatisk Øgning,,Автоматическая надбавка
 Bar,Bar,Barre,,Stang,Barra,Гриф
 BirthDate,Birth Date,Date naissance,,Født,Fecha de nacimiento,Дата рождения
