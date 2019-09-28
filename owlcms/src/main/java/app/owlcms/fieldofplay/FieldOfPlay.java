@@ -122,6 +122,7 @@ public class FieldOfPlay {
     private boolean timeoutEmitted;
     private boolean downEmitted;
     private Boolean[] refereeDecision;
+    private boolean decisionDisplayScheduled = false;
 
     private Integer[] refereeTime;
     private Boolean goodLift;
@@ -803,6 +804,10 @@ public class FieldOfPlay {
         return platform2 == null ? null : platform2.getMixer();
     }
 
+    private boolean isDecisionDisplayScheduled() {
+        return decisionDisplayScheduled;
+    }
+
     private synchronized boolean isDownEmitted() {
         return downEmitted;
     }
@@ -852,7 +857,9 @@ public class FieldOfPlay {
         }
         if (nbDecisions == 3) {
             goodLift = nbWhite >= 2;
-            showDecisionAfterDelay(this);
+            if (!isDecisionDisplayScheduled()) {
+                showDecisionAfterDelay(this);
+            }
         }
     }
 
@@ -870,6 +877,7 @@ public class FieldOfPlay {
         setFinalWarningEmitted(false);
         setTimeoutEmitted(false);
         setDownEmitted(false);
+        setDecisionDisplayScheduled(false);
     }
 
     private void setClockOwner(Athlete athlete) {
@@ -880,6 +888,10 @@ public class FieldOfPlay {
     private void setCurAthlete(Athlete athlete) {
         logger.trace("changing curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.curAthlete = athlete;
+    }
+
+    private void setDecisionDisplayScheduled(boolean decisionDisplayScheduled) {
+        this.decisionDisplayScheduled = decisionDisplayScheduled;
     }
 
     private synchronized void setDownEmitted(boolean downEmitted) {
@@ -907,9 +919,12 @@ public class FieldOfPlay {
         this.timeoutEmitted = timeoutEmitted;
     }
 
-    private void showDecisionAfterDelay(Object origin2) {
+    synchronized private void showDecisionAfterDelay(Object origin2) {
         logger.trace("scheduling decision display");
+        assert !isDecisionDisplayScheduled(); // caller checks.
+        setDecisionDisplayScheduled(true); // so there are never two scheduled...
         new DelayTimer().schedule(() -> showDecisionNow(origin2), 3000);
+
     }
 
     /**
