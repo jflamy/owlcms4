@@ -11,6 +11,7 @@ class Scoreboard extends PolymerElement {
 }
 
 .wrapper {
+	font-family: Arial, Helvetica, sans-serif;
 	color: white;
 	background-color: black;
 	height: 100vh;
@@ -23,7 +24,7 @@ class Scoreboard extends PolymerElement {
 	display: flex;
 	font-size: 3.6vmin;
 	justify-content: space-between;
-	width: 100%;
+	width: 100vw;
 	height: 4vmin;
 }
 
@@ -42,6 +43,7 @@ class Scoreboard extends PolymerElement {
 	display: flex;
 	font-size: 3.6vmin;
 	justify-content: space-between;
+	align-items: baseline;
 	width: 100%;
 }
 
@@ -60,6 +62,7 @@ class Scoreboard extends PolymerElement {
 	font-weight: bold;
 	width: 10vw;
 	display: flex;
+	justify-content: flex-end;
 }
 
 .athleteInfo .decisionBox {
@@ -73,7 +76,10 @@ class Scoreboard extends PolymerElement {
 }
 
 .athleteInfo .weight {
+	display: flex;
 	color: aqua;
+	justify-items: baseline;
+	justify-content: center;
 }
 
 .group {
@@ -83,6 +89,7 @@ class Scoreboard extends PolymerElement {
 }
 
 table.results {
+	/* table-layout: fixed; */
 	width: 100%;
 	border-collapse: collapse;
 	border: none;
@@ -95,6 +102,13 @@ th, td {
 	padding: 0.4vmin 1vmin 0.4vmin 1vmin;
 	font-size: 2.1vh;
 	font-weight: normal;
+}
+
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media screen and (min-width: 1030px) {
@@ -236,7 +250,7 @@ th, td {
 }
 </style>
 
-<div class="wrapper" id="resultBoardDiv">
+<div class="wrapper" width="100vw">
 <div class="attemptBar" style$="[[_computeHidden(hidden)]]">
 	<div class="athleteInfo" id="athleteInfoDiv" style$="[[_computeHidden(hidden)]]">
 		<div class="fullName" id="fullNameDiv" inner-h-t-m-l="[[fullName]]"></div>
@@ -245,17 +259,17 @@ th, td {
 <div class="group" id="groupDiv" style$="[[_computeHidden(hidden)]]">
 	<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
 </div>
-<table class="results" id="orderDiv" style$="[[_computeHidden(hidden)]]">
+<table width="100vw" class="results" id="orderDiv" style$="[[_computeHidden(hidden)]]">
 	<thead>
 		<tr>
 			<!--  [[t.x]] is loaded with the translation for key Scoreboard.x in the translation4.csv file -->
 			<th class="narrow" style="text-align: center;" inner-h-t-m-l="[[t.Start]]"></th>
-			<th inner-h-t-m-l="[[t.Name]]" style="width: 50%;"></th><!-- kludge to have preformatted html -->
-			<th class="narrow" inner-h-t-m-l="[[t.RequestedWeight]]"></th>
-			<th class="narrow" inner-h-t-m-l="[[t.NextAttempt]]"></th>
-			<th class$="[[_computeMasters(masters)]]" inner-h-t-m-l="[[t.AgeGroup]]"></th>
-			<th class="narrow" inner-h-t-m-l="[[t.Category]]"></th>
-			<th class='club' inner-h-t-m-l="[[t.Team]]"></th>
+			<th width="35%" inner-h-t-m-l="[[t.Name]]"></th>
+			<th width="9%" class="narrow" inner-h-t-m-l="[[t.RequestedWeight]]"></th>
+			<th width="9%" class="narrow" inner-h-t-m-l="[[t.NextAttempt]]"></th>
+			<th width="9%" class$="[[_computeMasters(masters)]]" inner-h-t-m-l="[[t.AgeGroup]]"></th>
+			<th width="9%" class="narrow" inner-h-t-m-l="[[t.Category]]"></th>
+			<th width="20%" class='club' inner-h-t-m-l="[[t.Team]]"></th>
 		</tr>
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
@@ -265,12 +279,12 @@ th, td {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class$="narrow"  style="text-align: center;"><div class$="[[l.classname]]">[[l.startNumber]]</div></td>
-				<td><div class$="[[l.classname]]">[[l.fullName]]</div></td>
-				<td class$="[[l.classname]]" style="text-align: center;">[[l.requestedWeight]]</td>
-				<td class$="[[l.classname]]" style="text-align: center;">[[l.nextAttemptNo]]</td>			
-				<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
-				<td class="narrow">[[l.category]]</td>
-				<td class="club">[[l.teamName]]</td>	
+				<td width="25%"><div class$="[[l.classname]] ellipsis">[[l.fullName]]</div></td>
+				<td width="10%" class$="[[l.classname]]" style="text-align: center;">[[l.requestedWeight]]</td>
+				<td width="10%" class$="[[l.classname]]" style="text-align: center;">[[l.nextAttemptNo]]</td>			
+				<td width="10%"class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
+				<td width="10%" class="narrow">[[l.category]]</td>
+				<td width="25%" class="club ellipsis">[[l.teamName]]</td>	
 			</tr>
 		</template>
 	</template>
@@ -322,10 +336,6 @@ th, td {
 
 	_isEqualTo(title, string) {
 		return title == string;
-	}
-
-	clear() {
-		this.$.resultBoardDiv.style.display="none";
 	}
 
 	_computeHidden(hidden) {

@@ -150,12 +150,13 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     @Override
     public void doBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            BreakType breakType = fop.getBreakType();
-            getModel().setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
-            getModel().setTeamName("");
-            getModel().setAttempt("");
-
             ScoreboardModel model = getModel();
+            BreakType breakType = fop.getBreakType();
+            model.setFullName(inferGroupName() + " &ndash; " + inferMessage(breakType));
+            model.setTeamName("");
+            model.setAttempt("");
+            model.setHidden(false);
+
             updateBottom(model, computeLiftType(fop.getCurAthlete()));
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
             this.getElement().callJsFunction("doBreak");
@@ -213,6 +214,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
             Athlete a = e.getAthlete();
+            getModel().setHidden(false);
             if (a == null) {
                 order = fop.getLiftingOrder();
                 a = order.size() > 0 ? order.get(0) : null;
@@ -229,6 +231,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     public void slaveDecision(UIEvent.Decision e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            getModel().setHidden(false);
             doUpdateBottomPart(e);
             this.getElement().callJsFunction("refereeDecision");
         });
@@ -238,6 +241,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     public void slaveDecisionReset(UIEvent.DecisionReset e) {
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            getModel().setHidden(false);
             this.getElement().callJsFunction("reset");
         });
     }
@@ -249,6 +253,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
         // (the timer element on the result board will actually process the keyboard
         // codes if devices are attached)
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+            getModel().setHidden(false);
             this.getElement().callJsFunction("down");
         });
     }
@@ -258,6 +263,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            getModel().setHidden(false);
             doDone(e.getGroup());
         });
     }
@@ -298,6 +304,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            getModel().setHidden(false);
             Athlete a = e.getAthlete();
             this.getElement().callJsFunction("reset");
             doUpdate(a, e);
@@ -495,7 +502,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     }
 
     private String formatAttempt(Integer attemptNo) {
-        return Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
+        String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
+        logger.warn("transation={}=",translate);
+        return translate;
     }
 
     private String formatInt(Integer total) {

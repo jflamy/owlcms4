@@ -12,8 +12,16 @@ class CurrentAttempt extends PolymerElement {
 	box-sizing: border-box;
 }
 
-.attemptBoard {
+.wrapper {
 	font: Arial;
+	color: white;
+	background-color: black;
+	height: 100vh;
+	width: 100vw;
+}
+
+.attemptBoard {
+	font-family: Arial, Helvetica, sans-serif;
 	color: white;
 	background-color: black;
 	display: grid;
@@ -100,6 +108,7 @@ class CurrentAttempt extends PolymerElement {
 }
 
 .attemptBoard .attempt {
+    display: block;
 	font-size: 10vh;
 	line-height: 10vh;
 	align-self: center;
@@ -166,9 +175,9 @@ class CurrentAttempt extends PolymerElement {
 .attemptBoard .down {
 	grid-area: down-start/down-start/down-end/down-end;
 	align-self: stretch;
-	justify-self: stretch; -
-	-iron-icon-height: 120%; -
-	-iron-icon-width: 120%;
+	justify-self: stretch;
+	--iron-icon-height: 120%;
+	--iron-icon-width: 120%;
 	font-weight: normal;
 	color: lime;
 	display: none;
@@ -183,7 +192,7 @@ class CurrentAttempt extends PolymerElement {
 	display: none;
 }
 </style>
-
+<div class="wrapper">
 <div class="attemptBoard" id="attemptBoardDiv">
 	<div class="lastName" id="lastNameDiv">[[lastName]]</div>
 	<div class="firstName" id="firstNameDiv">[[firstName]]</div>
@@ -207,6 +216,7 @@ class CurrentAttempt extends PolymerElement {
 	<div class="decision" id="decisionDiv" on-down="down" on-hideX="reset">
 		<decision-element id="decisions"></decision-element>
 	</div>
+</div>
 </div>`;
 }
 
