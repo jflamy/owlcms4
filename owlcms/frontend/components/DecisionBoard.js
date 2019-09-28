@@ -10,8 +10,16 @@ class DecisionBoard extends PolymerElement {
 	box-sizing: border-box;
 }
 
-.decisionBoard {
+.wrapper {
 	font: Arial;
+	color: white;
+	background-color: black;
+	height: 100vh;
+	width: 100vw;
+}
+
+.decisionBoard {
+	font-family: Arial, Helvetica, sans-serif;
 	color: white;
 	background-color: black;
 	display: grid;
@@ -80,6 +88,7 @@ class DecisionBoard extends PolymerElement {
 	display: none;
 }
 </style>
+<div class="wrapper">
 <div class="decisionBoard" id="decisionBoardDiv">
 	<div class="barbell" id="barbellDiv">
 		<slot name="barbell"></slot>
@@ -93,6 +102,7 @@ class DecisionBoard extends PolymerElement {
 	<div class="decision" id="decisionDiv" on-down="down">
 		<decision-element id="decisions"></decision-element>
 	</div>
+</div>
 </div>`;
 	}
 
