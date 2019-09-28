@@ -222,14 +222,14 @@ class DecisionElement extends PolymerElement {
 		}
 		if ((countWhite + countRed) >= 3) {
 			this.decision = (countWhite >= 2);
-			if (!this.jury) {
-				// true means we are master -- we are telling the server that the decision has
-				// been reached
-				console.debug("full decision reached, setting timer before decisions are shown");
-
-				// show the decisions after 3 seconds (by rule)
-				if (!this.jury) setTimeout(this.showDecisions.bind(this, true, ref1, ref2, ref3), 3000);
-			}
+//			if (!this.jury) {
+//				// true means we are master -- we are telling the server that the decision has
+//				// been reached
+//				console.debug("full decision reached, setting timer before decisions are shown");
+//
+//				// show the decisions after 3 seconds (by rule)
+//				if (!this.jury) setTimeout(this.showDecisions.bind(this, true, ref1, ref2, ref3), 3000);
+//			}
 			maj = (countWhite >= 2);
 		} else {
 			maj = undefined;
@@ -318,10 +318,11 @@ class DecisionElement extends PolymerElement {
 		console.debug("colorsShown");
 		// hide the decisions after 5 seconds (this is arbitrary)
 		if (!this.jury) setTimeout(this.reset.bind(this, isMaster), 5000);
-		// if we are the master, tell the server
-		if (isMaster) {
-			this.$server.masterShowDecisions(this.decision, this.ref1, this.ref2, this.ref3);
-		}
+// we get told to show by the master.
+//		// if we are the master, tell the server
+//		if (isMaster) {
+//			this.$server.masterShowDecisions(this.decision, this.ref1, this.ref2, this.ref3);
+//		}
 	}
 
 	showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {

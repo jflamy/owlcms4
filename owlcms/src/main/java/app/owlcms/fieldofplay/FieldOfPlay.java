@@ -70,6 +70,8 @@ import ch.qos.logback.classic.Logger;
  */
 public class FieldOfPlay {
 
+    private static final int REVERSAL_DELAY = 3000;
+
     private class DelayTimer {
         private final Timer t = new Timer();
 
@@ -920,10 +922,10 @@ public class FieldOfPlay {
     }
 
     synchronized private void showDecisionAfterDelay(Object origin2) {
-        logger.trace("scheduling decision display");
+        logger.warn("scheduling decision display");
         assert !isDecisionDisplayScheduled(); // caller checks.
         setDecisionDisplayScheduled(true); // so there are never two scheduled...
-        new DelayTimer().schedule(() -> showDecisionNow(origin2), 3000);
+        new DelayTimer().schedule(() -> showDecisionNow(origin2), REVERSAL_DELAY);
 
     }
 
