@@ -72,6 +72,8 @@ public class FieldOfPlay {
 
     private static final int REVERSAL_DELAY = 3000;
 
+    private static final long DECISION_VISIBLE_DURATION = 3500;
+
     private class DelayTimer {
         private final Timer t = new Timer();
 
@@ -922,7 +924,7 @@ public class FieldOfPlay {
     }
 
     synchronized private void showDecisionAfterDelay(Object origin2) {
-        logger.warn("scheduling decision display");
+        logger.debug("scheduling decision display");
         assert !isDecisionDisplayScheduled(); // caller checks.
         setDecisionDisplayScheduled(true); // so there are never two scheduled...
         new DelayTimer().schedule(() -> showDecisionNow(origin2), REVERSAL_DELAY);
@@ -956,7 +958,7 @@ public class FieldOfPlay {
         updateGlobalRankings();
         setState(DECISION_VISIBLE);
         // tell ourself to reset after 3 secs.
-        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), 3000);
+        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), DECISION_VISIBLE_DURATION);
     }
 
     /**
@@ -984,7 +986,7 @@ public class FieldOfPlay {
         updateGlobalRankings();
         setState(DECISION_VISIBLE);
         // tell ourself to reset after 3 secs.
-        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), 3000);
+        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), DECISION_VISIBLE_DURATION);
     }
 
     private void transitionToBreak(BreakStarted e) {

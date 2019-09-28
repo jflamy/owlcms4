@@ -318,13 +318,6 @@ class DecisionElement extends PolymerElement {
 		console.debug("showDecision: "+ref1+" "+ref2+" "+ref3);
 		this.setColors(this, ref1, ref2, ref3);
 		console.debug("colorsShown");
-		// hide the decisions after 5 seconds (this is arbitrary)
-		if (!this.jury) setTimeout(this.reset.bind(this, isMaster), 5000);
-// we get told to show by the master.
-//		// if we are the master, tell the server
-//		if (isMaster) {
-//			this.$server.masterShowDecisions(this.decision, this.ref1, this.ref2, this.ref3);
-//		}
 	}
 
 	showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
