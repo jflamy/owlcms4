@@ -8,12 +8,16 @@ package app.owlcms.init;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.EnumSet;
+
+import javax.servlet.DispatcherType;
 
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler.Context;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.FragmentConfiguration;
@@ -67,11 +71,13 @@ public class EmbeddedJetty {
         context.setInitParameter("vaadin.compatibilityMode", "true");
         Context servletContext = context.getServletContext();
         servletContext.setExtendedListenerTypes(true);
-        context.addEventListener(new ServletContextListeners());
-        
+        context.addEventListener(new ServletContextListeners());  
 
         Server server = new Server(port);
         server.setHandler(context);
+        ServletContextHandler scHandler = (ServletContextHandler) server.getHandler();
+        scHandler.getServletHandler().addFilterWithMapping(HttpsEnforcer.class, "/*",
+            EnumSet.of(DispatcherType.REQUEST));
 
         server.start();
         startLogger.info("started on port {}", port);

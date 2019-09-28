@@ -48,6 +48,26 @@ public class URLUtils {
         String port = request.getHeader("X-Forwarded-Port");
         return port != null ? Integer.parseInt(port) : request.getServerPort();
     }
+    
+    public static String buildAbsoluteURL(HttpServletRequest request, String resourcePath) {
+        int port = URLUtils.getServerPort(request);
+        String scheme = URLUtils.getScheme(request);
+        StringBuilder result = new StringBuilder();
+        result.append(scheme).append("://")
+                .append(URLUtils.getServerName(request));
+        if ((scheme.equals("http") && port != 80)
+                || (request.getScheme().equals("https") && port != 443)) {
+            result.append(':').append(port);
+        }
+        result.append(request.getContextPath());
+        if (resourcePath != null && resourcePath.length() > 0) {
+            if (!resourcePath.startsWith("/")) {
+                result.append("/");
+            }
+            result.append(resourcePath);
+        }
+        return result.toString();
+    }
 
 
 }

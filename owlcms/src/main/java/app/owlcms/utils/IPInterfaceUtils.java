@@ -69,12 +69,14 @@ public class IPInterfaceUtils {
         String prefix = "/META-INF/resources/";
         String targetFile = "sounds/timeOver.mp3";
         checkTargetFileOk(prefix, targetFile);
-
-        String protocol = request.getScheme();
-        int requestPort = request.getServerPort();
-        String server = request.getServerName();
+        
+        String protocol = URLUtils.getScheme(request);
+        int requestPort = URLUtils.getServerPort(request);
+        String server = URLUtils.getServerName(request);
         String siteString = request.getRequestURI();
         String requestURL = request.getRequestURL().toString();
+        String absoluteURL = URLUtils.buildAbsoluteURL(request, null);
+        logger.debug("absolute URL {}",absoluteURL);
 
         local = isLocalAddress(server) || isLoopbackAddress(server);
         logger.trace("request {}", requestURL);
@@ -82,10 +84,10 @@ public class IPInterfaceUtils {
         if (!local) {
             // we are logged on using a proper non-local URL, tell the users to use that.
             // return the URL we got, do not ask a cloud server for its interfaces
-            if (requestURL.endsWith("/")) {
-                requestURL = requestURL.substring(0, requestURL.length()-1);
+            if (absoluteURL.endsWith("/")) {
+                absoluteURL = requestURL.substring(0, requestURL.length()-1);
             }
-            recommended.add(requestURL);
+            recommended.add(absoluteURL);
             return;
         }
 
