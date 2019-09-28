@@ -249,7 +249,7 @@ public class Main {
 
     public static void startBrowser() {
         if (Desktop.isDesktopSupported()) {
-            logger.debug("starting browser");
+            logger.info("starting local browser");
             Desktop desktop = Desktop.getDesktop();
             try {
                 desktop.browse(
