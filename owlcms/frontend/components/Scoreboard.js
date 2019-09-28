@@ -29,8 +29,13 @@ class Scoreboard extends PolymerElement {
 	height: 4vmin;
 }
 
+.attemptBar .startNumber {
+	align-self: center;
+}
+
 .attemptBar .startNumber span {
 	font-size: 70%;
+	font-weight: bold;
 	border-width: 0.2ex;
 	border-style: solid;
 	border-color: red;
@@ -86,7 +91,7 @@ class Scoreboard extends PolymerElement {
 .group {
 	font-size: 3vh;
 	margin-top: 1vh;
-	margin-bottom: 1vh;
+	margin-bottom: 2vh;
 }
 
 table.results {
