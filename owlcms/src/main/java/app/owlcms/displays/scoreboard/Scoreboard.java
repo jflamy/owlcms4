@@ -503,7 +503,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
     private String formatAttempt(Integer attemptNo) {
         String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
-        logger.warn("transation={}=",translate);
         return translate;
     }
 

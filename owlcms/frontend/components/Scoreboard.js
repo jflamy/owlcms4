@@ -322,7 +322,7 @@ th, td {
 	}
 
 	ready() {
-		console.warn("ready");
+		console.debug("ready");
 		super.ready();
 //		this.$.groupDiv.style.visibility="visible";
 //		this.$.groupDiv.style.display="block";
@@ -342,7 +342,7 @@ th, td {
 	}
 
 	reset() {
-		console.warn("reset");
+		console.debug("reset");
 		this.$.timer.reset();
 //		this.$.groupDiv.style.visibility="visible";
 //		this.$.groupDiv.style.display="block";
@@ -370,7 +370,7 @@ th, td {
 	}
 
 	doBreak() {
-		console.warn("break");
+		console.debug("break");
 //		this.$.groupDiv.style.visibility="hidden";
 		this.$.fullNameDiv.style.visibility="visible";
 		this.$.fullNameDiv.style.display="flex";
@@ -384,7 +384,7 @@ th, td {
 	}
 
 	groupDone() {
-		console.warn("done");
+		console.debug("done");
 //		this.$.groupDiv.style.visibility="hidden";
 		this.$.fullNameDiv.style.visibility="visible";
 		this.$.fullNameDiv.style.display="flex";
