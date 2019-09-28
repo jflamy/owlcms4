@@ -11,6 +11,7 @@ class DecisionElement extends PolymerElement {
 	width: 100%;
 	height: 100%;
 }
+
 .decisions {
 	display: none;
 	height: 100%;
@@ -19,6 +20,7 @@ class DecisionElement extends PolymerElement {
 	align-items: stretch;
 	justify-content: space-between;
 }
+
 .decision {
 	border-radius: 5%;
 	border: medium solid white;

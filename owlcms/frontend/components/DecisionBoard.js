@@ -71,9 +71,7 @@ class DecisionBoard extends PolymerElement {
 
 .decisionBoard .decision {
 	grid-area: decision-start/decision-start/decision-end/decision-end;
-}
-
-.decisionBoard .decision {
+	font-size: 50vh;
 	height: 100%;
 	align-self: center;
 }
