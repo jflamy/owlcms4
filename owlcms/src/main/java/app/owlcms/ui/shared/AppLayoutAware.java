@@ -6,7 +6,7 @@
  */
 package app.owlcms.ui.shared;
 
-import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
+import com.github.appreciated.app.layout.component.applayout.AbstractLeftAppLayoutBase;
 
 public interface AppLayoutAware {
 	/**

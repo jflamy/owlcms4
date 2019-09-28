@@ -10,9 +10,9 @@ import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
-import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
-import com.github.appreciated.app.layout.behaviour.AppLayout;
-import com.github.appreciated.app.layout.behaviour.Behaviour;
+import com.github.appreciated.app.layout.component.applayout.AbstractLeftAppLayoutBase;
+import com.github.appreciated.app.layout.component.applayout.AppLayout;
+import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.button.Button;
@@ -74,8 +74,8 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
      * appreciated.app.layout.behaviour.Behaviour)
      */
     @Override
-    protected AppLayout getLayoutConfiguration(Behaviour variant) {
-        variant = Behaviour.LEFT;
+    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
+        variant = LeftLayouts.Left.class;
         appLayout = super.getLayoutConfiguration(variant);
         appLayout.closeDrawer();
         this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();

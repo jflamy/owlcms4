@@ -170,7 +170,7 @@ Group_number,Group {0},Groupe {0},,Gruppe {0},Tanda {0} ,Поток {0}
 Group_number_done,Group {0} done.,Groupe {0} terminé.,,Gruppe {0} afsluttet.,Sesion {0} terminada.,Поток {0} завершен.
 GroupResults,Group Results,Résultats de groupe,,Gruppe resultater,,Результаты потока
 Home,Home,Accueil,,Hjem,,Главная
-InstallationConfiguration,installation and configuration information.,instructions d'installation et de configuration,,installation and configuration information.,,инструкция по установке и настройке.
+InstallationConfiguration,\u0020installation and configuration information.,\u0020instructions d'installation et de configuration,,\u0020installation and configuration information.,,\u0020инструкция по установке и настройке.
 JFL, Jean-François Lamy,Jean-François Lamy,, Jean-François Lamy,,Жан-Франсуа Лами
 Jury,Jury,Jury,,Jury,Jurado,Жюри
 Jury1,Jury 1,Jury 1,,Jury 1,,Жюри 1

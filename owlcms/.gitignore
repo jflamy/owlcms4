@@ -2,3 +2,5 @@
 /pom.xml.versionsBackup
 /database/
 /logs/
+/node_modules/
+/webpack.generated.js

@@ -1,6 +1,9 @@
+/** global css definitions go here */
+
 html {
   box-sizing: border-box;
 }
+
 *, *:before, *:after {
   box-sizing: inherit;
 }
@@ -19,3 +22,22 @@ html {
     z-index: 10000;
     background: white;
 }
+
+@media print {
+	#Header, #Footer, #printing {
+		display: none !important;
+		visibility: hidden  !important;
+	}
+	
+	.printing {
+		display: none !important;
+		visibility: hidden  !important;
+	}
+}
+
+.errorMessage {
+	color: red;
+	font-weight: bold;
+	background-color: var(--lumo-error-color-10pct);
+}
+

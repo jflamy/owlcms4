@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
-import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
+import com.github.appreciated.app.layout.component.applayout.AbstractLeftAppLayoutBase;
 import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;

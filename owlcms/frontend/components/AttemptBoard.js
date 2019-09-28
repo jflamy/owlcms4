@@ -1,14 +1,27 @@
-<link rel="import"
-	href="../bower_components/polymer/polymer-element.html">
+import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
 
-<dom-module id="attempt-board-template"> <template>
+class CurrentAttempt extends PolymerElement {
+    static get is() {
+        return 'attempt-board-template'
+    }
+    
+    static get template() {
+    	return html`
 <style>
 * {
 	box-sizing: border-box;
 }
 
-.attemptBoard {
+.wrapper {
 	font: Arial;
+	color: white;
+	background-color: black;
+	height: 100vh;
+	width: 100vw;
+}
+
+.attemptBoard {
+	font-family: Arial, Helvetica, sans-serif;
 	color: white;
 	background-color: black;
 	display: grid;
@@ -95,6 +108,7 @@
 }
 
 .attemptBoard .attempt {
+    display: block;
 	font-size: 10vh;
 	line-height: 10vh;
 	align-self: center;
@@ -161,9 +175,9 @@
 .attemptBoard .down {
 	grid-area: down-start/down-start/down-end/down-end;
 	align-self: stretch;
-	justify-self: stretch; -
-	-iron-icon-height: 120%; -
-	-iron-icon-width: 120%;
+	justify-self: stretch;
+	--iron-icon-height: 120%;
+	--iron-icon-width: 120%;
 	font-weight: normal;
 	color: lime;
 	display: none;
@@ -172,13 +186,14 @@
 
 .attemptBoard .decision {
 	grid-area: decision-start/decision-start/decision-end/decision-end;
+	font-size: 15em;
 }
 
 .v-system-error {
 	display: none;
 }
 </style>
-
+<div class="wrapper">
 <div class="attemptBoard" id="attemptBoardDiv">
 	<div class="lastName" id="lastNameDiv">[[lastName]]</div>
 	<div class="firstName" id="firstNameDiv">[[firstName]]</div>
@@ -203,121 +218,117 @@
 		<decision-element id="decisions"></decision-element>
 	</div>
 </div>
+</div>`;
+}
 
-</template> <script>
-        class CurrentAttempt extends Polymer.Element {
-            static get is() {
-                return 'attempt-board-template'
-            }
+    static get properties() {
+    	return {
+    		javaComponentId: {
+    			type: String,
+    			value: ''
+    		},
+    		lastName: {
+    			type: String,
+    			value: ''
+    		},
+    		firstName: {
+    			type: String,
+    			value: ''
+    		},
+    		teamName: {
+    			type: String,
+    			value: ''
+    		},
+    		startNumber: {
+    			type: Number,
+    			value: 0
+    		},
+    		attempt: {
+    			type: String,
+    			value: ''
+    		}, 
+    		weight: {
+    			type: Number,
+    			value: 0
+    		}
+    	}
+    }
 
-            static get properties() {
-	          	 return {
-	          		javaComponentId: {
-	          			type: String,
-	          			value: ''
-	          		},
-					lastName: {
-					    type: String,
-					    value: ''
-					},
-					firstName: {
-					      type: String,
-					      value: ''
-					},
-					teamName: {
-					    type: String,
-					    value: ''
-					},
-					startNumber: {
-					    type: Number,
-					    value: 0
-					},
-					attempt: {
-					    type: String,
-					    value: ''
-					}, 
-					weight: {
-					    type: Number,
-					    value: 0
-					}
-				}
-            }
-            
-			ready() {
-				super.ready();
-				this.doBreak(); 
-				this.$.athleteTimerDiv.style.display="none";
-			}
-            
-            start() {
-            	this.$.timer.start();
-            }
-            
-            reset() {
-            	console.debug("attemptBoard reset "+this.javaComponentId);
-            	this.$.attemptBoardDiv.style.display="grid";
-            	this.$.attemptBoardDiv.style.color="white";
-            	this.$.athleteTimer.reset();
-            	this.$.athleteTimerDiv.style.display="block";
-            	this.$.firstNameDiv.style.display="block";
-            	this.$.teamNameDiv.style.display="block";
-            	this.$.attemptDiv.style.display="block";
-            	this.$.breakTimerDiv.style.display="none";
-            	this.$.weightDiv.style.display="block";
-            	this.$.startNumberDiv.style.display="block";
-            	this.$.barbellDiv.style.display="block";
-            	this.$.decisionDiv.style.display="none";
-            	console.debug("end of attemptBoard reset "+this.javaComponentId);
-            }
-            
-            down() {
-            	console.debug("attemptBoard done "+this.javaComponentId);
-            	this.$.athleteTimerDiv.style.display="none";
-            	this.$.breakTimerDiv.style.display="none";
-            	this.$.barbellDiv.style.display="none";
-            	this.$.decisionDiv.style.display="block";
-            	console.debug("end of attemptBoard dome "+this.javaComponentId);
-            }
-            
-            doBreak() {
-            	console.debug("attemptBoard doBreak "+this.javaComponentId);
-            	this.$.attemptBoardDiv.style.display="grid";
-            	this.$.attemptBoardDiv.style.color="white";
-               	this.$.athleteTimerDiv.style.display="none";
-               	this.$.breakTimerDiv.style.display="block";
-            	this.$.firstNameDiv.style.display="block";
-            	this.$.teamNameDiv.style.display="none";
-            	this.$.attemptDiv.style.display="none";
-               	this.$.weightDiv.style.display="none";
-               	this.$.startNumberDiv.style.display="none";
-               	this.$.barbellDiv.style.display="none";
-               	this.$.decisionDiv.style.display="none";
-               	console.debug("attemptBoard end doBreak "+this.javaComponentId);
-            }
-            
-            groupDone() {
-            	console.debug("attemptBoard groupDone "+this.javaComponentId);
-            	this.$.attemptBoardDiv.style.display="grid";
-            	this.$.attemptBoardDiv.style.color="white";
-               	//this.$.breakTimer.reset();
-               	this.$.athleteTimerDiv.style.display="none";
-                this.$.firstNameDiv.style.display="none";
-            	this.$.teamNameDiv.style.display="none";
-            	this.$.attemptDiv.style.display="none";
-               	this.$.breakTimerDiv.style.display="none";
-               	this.$.weightDiv.style.display="none";
-               	this.$.startNumberDiv.style.display="none";
-               	this.$.barbellDiv.style.display="none";
-               	this.$.decisionDiv.style.display="none";
-               	console.debug("attemptBoard end groupDone "+this.javaComponentId);
-            }
-            
-            clear() {
-            	console.debug("attemptBoard clear "+this.javaComponentId);
-            	this.$.attemptBoardDiv.style.display="none";
-            	console.debug("attemptBoard end clear "+this.javaComponentId);
-            }
-        }
-        customElements.define(CurrentAttempt.is, CurrentAttempt);
-    </script>
-</dom-module>
+    ready() {
+    	super.ready();
+    	this.doBreak(); 
+    	this.$.athleteTimerDiv.style.display="none";
+    }
+
+    start() {
+    	this.$.timer.start();
+    }
+
+    reset() {
+    	console.debug("attemptBoard reset "+this.javaComponentId);
+    	this.$.attemptBoardDiv.style.display="grid";
+    	this.$.attemptBoardDiv.style.color="white";
+    	this.$.athleteTimer.reset();
+    	this.$.athleteTimerDiv.style.display="block";
+    	this.$.firstNameDiv.style.display="block";
+    	this.$.teamNameDiv.style.display="block";
+    	this.$.attemptDiv.style.display="block";
+    	this.$.breakTimerDiv.style.display="none";
+    	this.$.weightDiv.style.display="block";
+    	this.$.startNumberDiv.style.display="block";
+    	this.$.barbellDiv.style.display="block";
+    	this.$.decisionDiv.style.display="none";
+    	console.debug("end of attemptBoard reset "+this.javaComponentId);
+    }
+
+    down() {
+    	console.debug("attemptBoard done "+this.javaComponentId);
+    	this.$.athleteTimerDiv.style.display="none";
+    	this.$.breakTimerDiv.style.display="none";
+    	this.$.barbellDiv.style.display="none";
+    	this.$.decisionDiv.style.display="block";
+    	console.debug("end of attemptBoard dome "+this.javaComponentId);
+    }
+
+    doBreak() {
+    	console.debug("attemptBoard doBreak "+this.javaComponentId);
+    	this.$.attemptBoardDiv.style.display="grid";
+    	this.$.attemptBoardDiv.style.color="white";
+    	this.$.athleteTimerDiv.style.display="none";
+    	this.$.breakTimerDiv.style.display="block";
+    	this.$.firstNameDiv.style.display="block";
+    	this.$.teamNameDiv.style.display="none";
+    	this.$.attemptDiv.style.display="none";
+    	this.$.weightDiv.style.display="none";
+    	this.$.startNumberDiv.style.display="none";
+    	this.$.barbellDiv.style.display="none";
+    	this.$.decisionDiv.style.display="none";
+    	console.debug("attemptBoard end doBreak "+this.javaComponentId);
+    }
+
+    groupDone() {
+    	console.debug("attemptBoard groupDone "+this.javaComponentId);
+    	this.$.attemptBoardDiv.style.display="grid";
+    	this.$.attemptBoardDiv.style.color="white";
+    	// this.$.breakTimer.reset();
+    	this.$.athleteTimerDiv.style.display="none";
+    	this.$.firstNameDiv.style.display="none";
+    	this.$.teamNameDiv.style.display="none";
+    	this.$.attemptDiv.style.display="none";
+    	this.$.breakTimerDiv.style.display="none";
+    	this.$.weightDiv.style.display="none";
+    	this.$.startNumberDiv.style.display="none";
+    	this.$.barbellDiv.style.display="none";
+    	this.$.decisionDiv.style.display="none";
+    	console.debug("attemptBoard end groupDone "+this.javaComponentId);
+    }
+
+    clear() {
+    	console.debug("attemptBoard clear "+this.javaComponentId);
+    	this.$.attemptBoardDiv.style.display="none";
+    	console.debug("attemptBoard end clear "+this.javaComponentId);
+    }
+}
+
+customElements.define(CurrentAttempt.is, CurrentAttempt);
+

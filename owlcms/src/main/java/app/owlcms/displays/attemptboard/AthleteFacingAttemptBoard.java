@@ -8,18 +8,18 @@ package app.owlcms.displays.attemptboard;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.material.Material;
+import com.vaadin.flow.theme.lumo.Lumo;
 
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
-@HtmlImport("frontend://components/AttemptBoard.html")
+@JsModule("./components/AttemptBoard.js")
 @Route("displays/athleteFacingAttempt")
 @Push
-@Theme(value = Material.class, variant = Material.DARK)
+@Theme(value = Lumo.class, variant = Lumo.DARK)
 public class AthleteFacingAttemptBoard extends AttemptBoard {
 	
 	public AthleteFacingAttemptBoard() {

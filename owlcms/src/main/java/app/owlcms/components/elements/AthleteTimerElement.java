@@ -22,8 +22,6 @@ import ch.qos.logback.classic.Logger;
  * Countdown timer element.
  */
 @SuppressWarnings("serial")
-//@Tag("timer-element")
-//@HtmlImport("frontend://components/TimerElement.html")
 public class AthleteTimerElement extends TimerElement {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteTimerElement.class);

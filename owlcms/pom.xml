@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.1.17</version>
+		<version>4.2.0-SNAPSHOT</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -16,22 +16,46 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-core</artifactId>
+			<exclusions>
+				<!-- Webjars are only needed when running in Vaadin 13 compatibility 
+					mode -->
+				<exclusion>
+					<groupId>com.vaadin.webjar</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.webjars.bowergithub.insites</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.webjars.bowergithub.polymer</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.webjars.bowergithub.polymerelements</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.webjars.bowergithub.vaadin</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.webjars.bowergithub.webcomponents</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>flow-server-compatibility-mode</artifactId>
-		</dependency> 		
 
 		<!-- user interface -->
 		<dependency>
 			<groupId>com.github.appreciated</groupId>
 			<artifactId>app-layout-addon</artifactId>
-			<version>3.0.0.beta5</version>
+			<version>4.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.appreciated</groupId>
 			<artifactId>vaadin-css-grid</artifactId>
-			<version>0.8.4</version>
+			<version>2.0.0.beta1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.vaadin</groupId>
@@ -42,7 +66,7 @@
 		<dependency>
 			<groupId>org.vaadin.crudui</groupId>
 			<artifactId>crudui</artifactId>
-			<version>3.9.0</version>
+			<version>4.0.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -55,12 +79,7 @@
 		<dependency>
 			<groupId>com.flowingcode.addons</groupId>
 			<artifactId>iron-icons</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bowergithub.polymerelements</groupId>
-			<artifactId>iron-icons</artifactId>
-			<version>2.1.1</version>
+			<version>1.0.1</version>
 		</dependency>
 
 		<!-- database -->
@@ -233,6 +252,20 @@
 		</resources>
 
 		<plugins>
+			<!-- Take care of synchronizing java dependencies and imports in package.json 
+				and main.js files. It also creates webpack.config.js if not exists yet. -->
+			<plugin>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-maven-plugin</artifactId>
+				<version>${vaadin.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-frontend</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -351,10 +384,10 @@
 						<configuration>
 							<headerType>console</headerType>
 							<outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
-							<!-- fake jar; the one we run in postCp below; we want "local" to be 
-							     before the jar we run from, but the plugin puts the value of jar
-							     at the beginning of classpath, which is not what we want.  So
-							     we put a dummy jar at the front... -->
+							<!-- fake jar; the one we run in postCp below; we want "local" to 
+								be before the jar we run from, but the plugin puts the value of jar at the 
+								beginning of classpath, which is not what we want. So we put a dummy jar 
+								at the front... -->
 							<jar>jre/lib/charsets.jar</jar>
 							<dontWrapJar>true</dontWrapJar>
 							<errTitle>owlcms</errTitle>
@@ -479,7 +512,7 @@
 					</execution>
 					<execution>
 						<id>windows_jdk_package</id>
-						<!-- verify phase is used because contrary to documentation, pom.xml
+						<!-- verify phase is used because contrary to documentation, pom.xml 
 							ordering is not respected and this execution does not run last if invoked 
 							in package phase -->
 						<phase>verify</phase>
@@ -503,6 +536,37 @@
 	</build>
 	<profiles>
 		<profile>
+			<!-- Production mode is activated using -Pproduction -->
+			<id>production</id>
+			<properties>
+				<vaadin.productionMode>true</vaadin.productionMode>
+			</properties>
+
+			<dependencies>
+				<dependency>
+					<groupId>com.vaadin</groupId>
+					<artifactId>flow-server-production-mode</artifactId>
+				</dependency>
+			</dependencies>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.vaadin</groupId>
+						<artifactId>vaadin-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<goals>
+									<goal>build-frontend</goal>
+								</goals>
+								<phase>compile</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 			<id>demo</id>
 			<build>
 				<plugins>
@@ -519,7 +583,8 @@
 							<processTypes>
 								<!-- following must be a single command line, cdata used to prevent 
 									xml formatters from splitting it -->
-									<!-- populate data after reset, *reset data on every restart*, run on postgres database -->
+								<!-- populate data after reset, *reset data on every restart*, run 
+									on postgres database -->
 								<web><![CDATA[java -Dport=$PORT -DdevMode=true -DresetMode=true -DmemoryMode=false -Dlogback.configurationFile=logback-cloud.xml -jar target/owlcms.jar]]></web>
 							</processTypes>
 
@@ -543,7 +608,8 @@
 								<include>target/owlcms.jar</include>
 							</includes>
 							<processTypes>
-								<!-- populate data after reset (devMode), do not wipe on restart (resetMode), run on postgres database -->
+								<!-- populate data after reset (devMode), do not wipe on restart 
+									(resetMode), run on postgres database -->
 								<web><![CDATA[java -Dport=$PORT -DdevMode=true -DresetMode=false -DmemoryMode=false -Dlogback.configurationFile=logback-cloud.xml -jar target/owlcms.jar]]></web>
 							</processTypes>
 
@@ -551,6 +617,6 @@
 					</plugin>
 				</plugins>
 			</build>
-		</profile>		
+		</profile>
 	</profiles>
 </project>

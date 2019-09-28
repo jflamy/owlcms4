@@ -7,7 +7,7 @@
 package app.owlcms.ui.shared;
 
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.icon.Icon;
 
 /**
@@ -19,12 +19,13 @@ import com.vaadin.flow.component.icon.Icon;
  */
 @SuppressWarnings("serial")
 @Tag("full-iron-icon")
-@HtmlImport("frontend://bower_components/iron-icons/iron-icons.html")
-@HtmlImport("frontend://bower_components/iron-icons/av-icons.html")
-@HtmlImport("frontend://bower_components/iron-icons/hardware-icons.html")
-@HtmlImport("frontend://bower_components/iron-icons/maps-icons.html")
-@HtmlImport("frontend://bower_components/iron-icons/social-icons.html")
-@HtmlImport("frontend://bower_components/iron-icons/places-icons.html")
+@JsModule("@polymer/iron-icon/iron-icon.js")
+@JsModule("@polymer/iron-icons/iron-icons.js")
+@JsModule("@polymer/iron-icons/av-icons.js")
+@JsModule("@polymer/iron-icons/hardware-icons.js")
+@JsModule("@polymer/iron-icons/maps-icons.js")
+@JsModule("@polymer/iron-icons/social-icons.js")
+@JsModule("@polymer/iron-icons/places-icons.js")
 public class FullIronIcon extends Icon {
 
     /**

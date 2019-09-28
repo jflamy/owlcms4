@@ -33,6 +33,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
     public JuryDisplayDecisionElement() {
         super();
         this.setJury(true);
+        this.getElement().getStyle().set("font-size", "18vh");
     }
 
 

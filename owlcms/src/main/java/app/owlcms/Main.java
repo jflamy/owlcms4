@@ -93,8 +93,6 @@ public class Main {
 
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
-        // force bower compatibility mode until we move to npm
-        System.setProperty("vaadin.compatibilityMode", "true");
 
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");

@@ -1,10 +1,11 @@
-<link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
-<link rel="import" href="../bower_components/polymer/lib/elements/dom-if.html">
+import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
+class TopSinclair extends PolymerElement {
+	static get is() {
+		return 'topsinclair-template'
+	}
 
-<dom-module id="topsinclair-template">
-<template>
-<style>
+	static get template() {
+		return html`<style>
 * {
 	box-sizing: border-box;
 }
@@ -242,7 +243,6 @@ h2 {
   font-size: 3.0vh;
 }
 </style>
-
 <div class="wrapper" id="resultBoardDiv">
 	<template is="dom-if" if="[[topSinclairWomen]]">
 		<h2 class="fullName" id="fullNameDiv" inner-h-t-m-l="[[topSinclairWomen]]"></h2>
@@ -329,65 +329,56 @@ h2 {
 			</template>
 		</table>
 	</template>
-</div>
-
-</template>
-<script>
-class TopSinclair extends Polymer.Element {
-	static get is() {
-		return 'topsinclair-template'
+</div>`;
 	}
-       
+
 	ready() {
 		super.ready();
-	    this.$.resultBoardDiv.style.display="block";
+		this.$.resultBoardDiv.style.display="block";
 	}
-         
+
 	start() {
-	    this.$.resultBoardDiv.style.display="block";
+		this.$.resultBoardDiv.style.display="block";
 	}
-	         
+
 	reset() {
 		console.debug("reset");
-	    this.$.resultBoardDiv.style.display="block";
+		this.$.resultBoardDiv.style.display="block";
 	}
-	
+
 	down() {
 		console.debug("down");
 	}
-	
-    doBreak() {
-    	console.debug("break");
-	    this.$.resultBoardDiv.style.display="block";
-    }
-    
-    groupDone() {
-    	console.debug("done");
-	    this.$.resultBoardDiv.style.display="block";
-    }
-	
+
+	doBreak() {
+		console.debug("break");
+		this.$.resultBoardDiv.style.display="block";
+	}
+
+	groupDone() {
+		console.debug("done");
+		this.$.resultBoardDiv.style.display="block";
+	}
+
 	refereeDecision() {
 		console.debug("refereeDecision");
 	}
-	         
+
 	_isEqualTo(title, string) {
 		return title == string;
 	}
-	
+
 	clear() {
 		this.$.resultBoardDiv.style.display="none";
 	}
-	
+
 	_computeHidden(hidden) {
 		return hidden ? 'display:none' : 'display:block';
 	}
-	
+
 	_computeMasters(masters) {
 		return masters ? 'masters' : 'mastersHidden';
 	}
 }
 
-
 customElements.define(TopSinclair.is, TopSinclair);
- </script>
- </dom-module>

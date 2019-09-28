@@ -70,6 +70,10 @@ import ch.qos.logback.classic.Logger;
  */
 public class FieldOfPlay {
 
+    private static final int REVERSAL_DELAY = 3000;
+
+    private static final long DECISION_VISIBLE_DURATION = 3500;
+
     private class DelayTimer {
         private final Timer t = new Timer();
 
@@ -122,6 +126,7 @@ public class FieldOfPlay {
     private boolean timeoutEmitted;
     private boolean downEmitted;
     private Boolean[] refereeDecision;
+    private boolean decisionDisplayScheduled = false;
 
     private Integer[] refereeTime;
     private Boolean goodLift;
@@ -803,6 +808,10 @@ public class FieldOfPlay {
         return platform2 == null ? null : platform2.getMixer();
     }
 
+    private boolean isDecisionDisplayScheduled() {
+        return decisionDisplayScheduled;
+    }
+
     private synchronized boolean isDownEmitted() {
         return downEmitted;
     }
@@ -852,7 +861,9 @@ public class FieldOfPlay {
         }
         if (nbDecisions == 3) {
             goodLift = nbWhite >= 2;
-            showDecisionAfterDelay(this);
+            if (!isDecisionDisplayScheduled()) {
+                showDecisionAfterDelay(this);
+            }
         }
     }
 
@@ -870,6 +881,7 @@ public class FieldOfPlay {
         setFinalWarningEmitted(false);
         setTimeoutEmitted(false);
         setDownEmitted(false);
+        setDecisionDisplayScheduled(false);
     }
 
     private void setClockOwner(Athlete athlete) {
@@ -880,6 +892,10 @@ public class FieldOfPlay {
     private void setCurAthlete(Athlete athlete) {
         logger.trace("changing curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.curAthlete = athlete;
+    }
+
+    private void setDecisionDisplayScheduled(boolean decisionDisplayScheduled) {
+        this.decisionDisplayScheduled = decisionDisplayScheduled;
     }
 
     private synchronized void setDownEmitted(boolean downEmitted) {
@@ -907,9 +923,12 @@ public class FieldOfPlay {
         this.timeoutEmitted = timeoutEmitted;
     }
 
-    private void showDecisionAfterDelay(Object origin2) {
-        logger.trace("scheduling decision display");
-        new DelayTimer().schedule(() -> showDecisionNow(origin2), 3000);
+    synchronized private void showDecisionAfterDelay(Object origin2) {
+        logger.debug("scheduling decision display");
+        assert !isDecisionDisplayScheduled(); // caller checks.
+        setDecisionDisplayScheduled(true); // so there are never two scheduled...
+        new DelayTimer().schedule(() -> showDecisionNow(origin2), REVERSAL_DELAY);
+
     }
 
     /**
@@ -939,7 +958,7 @@ public class FieldOfPlay {
         updateGlobalRankings();
         setState(DECISION_VISIBLE);
         // tell ourself to reset after 3 secs.
-        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), 3000);
+        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), DECISION_VISIBLE_DURATION);
     }
 
     /**
@@ -967,7 +986,7 @@ public class FieldOfPlay {
         updateGlobalRankings();
         setState(DECISION_VISIBLE);
         // tell ourself to reset after 3 secs.
-        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), 3000);
+        new DelayTimer().schedule(() -> fopEventBus.post(new DecisionReset(origin)), DECISION_VISIBLE_DURATION);
     }
 
     private void transitionToBreak(BreakStarted e) {

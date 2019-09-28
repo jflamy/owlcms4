@@ -1,7 +1,11 @@
-<link rel="import"
-	href="../bower_components/polymer/polymer-element.html">
-<dom-module id="athlete-card-template">
-<template>
+import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';
+class AthleteCard extends PolymerElement {
+	static get is() {
+		return 'athlete-card-template'
+	}
+
+	static get template() {
+		return html`
 <style>
 #athleteCardDiv {
 	-webkit-print-color-adjust: exact !important;
@@ -430,72 +434,68 @@ td {
 			<td class=xl92>&nbsp;</td>
 		</tr>
 	</table>
-</div>
-</template> <script>
-class AthleteCard extends Polymer.Element {
-	static get is() {
-	    return 'athlete-card-template'
+</div>`;
 	}
 
 	static get properties() {
 		return {
 			lastName: {
-			    type: String,
-			    value: ''
+				type: String,
+				value: ''
 			},
 			firstName: {
-			      type: String,
-			      value: ''
+				type: String,
+				value: ''
 			},
 			teamName: {
-			    type: String,
-			    value: ''
+				type: String,
+				value: ''
 			},
 			startNumber: {
-			    type: Number,
-			    value: 0
+				type: Number,
+				value: 0
 			},
 			lotNumber: {
-			    type: Number,
-			    value: 0
+				type: Number,
+				value: 0
 			},
 			attempt: {
-			    type: String,
-			    value: ''
+				type: String,
+				value: ''
 			}, 
 			bodyWeight: {
-			    type: String,
-			    value: ''
+				type: String,
+				value: ''
 			},
 			ageDivision: {
-			    type: String,
-			    value: ''
+				type: String,
+				value: ''
 			},
 			category: {
-			    type: String,
-			    value: ''
+				type: String,
+				value: ''
 			},
 			startSnatch: {
-			    type: String,
-			    value: ''
+				type: String,
+				value: ''
 			},
 			startCJ: {
-			    type: String,
-			    value: ''
+				type: String,
+				value: ''
 			},
 			entryTotal: {
-			    type: String,
-			    value: ''
+				type: String,
+				value: ''
 			}
 		}
 	}
-         
+
 	ready() {
 		super.ready();
 	}
-
 }
+
 customElements.define(AthleteCard.is, AthleteCard);
-</script> </dom-module>
+
 
 

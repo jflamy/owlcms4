@@ -8,11 +8,12 @@ package app.owlcms.ui.shared;
 
 import org.slf4j.LoggerFactory;
 
-import com.github.appreciated.app.layout.behaviour.AbstractLeftAppLayoutBase;
-import com.github.appreciated.app.layout.behaviour.AppLayout;
-import com.github.appreciated.app.layout.behaviour.Behaviour;
+import com.github.appreciated.app.layout.component.applayout.AbstractLeftAppLayoutBase;
+import com.github.appreciated.app.layout.component.applayout.AppLayout;
+import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
 import com.vaadin.flow.component.HasElement;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -24,10 +25,14 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerLayout.
  */
 @SuppressWarnings("serial")
-@HtmlImport("frontend://bower_components/vaadin-lumo-styles/presets/compact.html")
-@HtmlImport("frontend://styles/shared-styles.html")
 @Theme(Lumo.class)
 @Push
+@JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
+@CssImport(value = "./styles/shared-styles.css")
+@CssImport(value = "./styles/notification-theme.css", themeFor = "vaadin-notification-card")
+@CssImport(value = "./styles/text-field-theme.css", themeFor = "vaadin-text-field")
+
+
 public class AthleteGridLayout extends OwlcmsRouterLayout {
 	
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridLayout.class);
@@ -43,9 +48,9 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
 	 * @see app.owlcms.ui.shared.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
 	 */
 	@Override
-	protected AppLayout getLayoutConfiguration(Behaviour variant) {
+	protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
 		logger.debug("AthleteGridLayout getLayoutConfiguration ");
-		variant = Behaviour.LEFT;
+		variant = LeftLayouts.Left.class;
 		AbstractLeftAppLayoutBase appLayout = (AbstractLeftAppLayoutBase) super.getLayoutConfiguration(variant);
 		// hide the title and icon
 		appLayout.getTitleWrapper()

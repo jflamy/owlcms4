@@ -16,7 +16,7 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -56,7 +56,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/weighin", layout = WeighinLayout.class)
-@HtmlImport("frontend://styles/shared-styles.html")
+@CssImport(value = "./styles/shared-styles.css")
 public class WeighinContent extends VerticalLayout implements CrudListener<Athlete>, OwlcmsContent {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(WeighinContent.class);

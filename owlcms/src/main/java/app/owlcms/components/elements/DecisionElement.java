@@ -13,7 +13,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
@@ -31,7 +31,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Tag("decision-element")
-@HtmlImport("frontend://components/DecisionElement.html")
+@JsModule("./components/DecisionElement.js")
 public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionModel> implements SafeEventBusRegistration {
 	
 	/**
