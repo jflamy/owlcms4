@@ -48,12 +48,13 @@ import ch.qos.logback.classic.Logger;
 /**
  * Attempt board.
  */
+@Theme(value = Lumo.class, variant = Lumo.DARK)
 @SuppressWarnings("serial")
 @Tag("attempt-board-template")
 @JsModule("./components/AttemptBoard.js")
 @CssImport(value = "./styles/shared-styles.css")
+@CssImport(value = "./styles/plates.css")
 @Route("displays/attemptBard")
-@Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements QueryParameterReader,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
@@ -436,6 +437,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                     // tell polymer that the plates belong in the slot named barbell of the template
                     platesElement.setAttribute("slot", "barbell");
                     platesElement.getStyle().set("font-size", "3.3vh");
+                    platesElement.getClassList().set("dark", true);
                     attemptBoard.getElement().appendChild(platesElement);
                 } catch (Throwable t) {
                     t.printStackTrace();
