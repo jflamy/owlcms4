@@ -37,6 +37,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.DisplayParameters;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.UIEvent;
@@ -45,7 +46,6 @@ import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;
@@ -68,7 +68,7 @@ import elemental.json.JsonValue;
 @Route("displays/scoreboard")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> implements QueryParameterReader,
+public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> implements DisplayParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
@@ -145,6 +145,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
      */
     public Scoreboard() {
         timer.setOrigin(this);
+        setDarkMode(true);
     }
 
     @Override
@@ -569,5 +570,17 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             this.getElement().setPropertyJson("athletes", getAthletesJson(order));
         });
 
+    }
+
+    @Override
+    public void setDarkMode(boolean dark) {
+        this.getElement().getClassList().set("dark", dark);
+        this.getElement().getClassList().set("light", !dark);
+    }
+
+    @Override
+    public boolean isDarkMode() {
+        // TODO Auto-generated method stub
+        return false;
     }
 }
