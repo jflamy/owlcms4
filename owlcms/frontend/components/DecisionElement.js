@@ -121,8 +121,12 @@ class DecisionElement extends PolymerElement {
 				type: Boolean,
 				reflectToAttribute: false,
 				value: true
+			},
+			enabled: {
+				type: Boolean,
+				reflectToAttribute: false,
+				value: false
 			}
-
 		}
 	}
 
@@ -214,6 +218,8 @@ class DecisionElement extends PolymerElement {
 		var countWhite = 0;
 		var countRed = 0;
 		var maj = false;
+		if (!this.enabled) return;
+		
 		if (ref1 === true) {countWhite++;} else if (ref1 === false){countRed++;}
 		if (ref2 === true) {countWhite++;} else if (ref2 === false){countRed++;}
 		if (ref3 === true) {countWhite++;} else if (ref3 === false){countRed++;}
@@ -330,11 +336,6 @@ class DecisionElement extends PolymerElement {
 	reset(isMaster) {
 		this.hideDecisions();
 		this._init();
-
-		// if we are the master, tell the server
-		if (isMaster) {
-			this.$server.masterReset();
-		}
 	}
 
 	hideDecisions() {
