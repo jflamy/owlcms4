@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.elements;
@@ -33,24 +33,24 @@ import ch.qos.logback.classic.Logger;
 @Tag("decision-element")
 @JsModule("./components/DecisionElement.js")
 public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionModel>
-        implements SafeEventBusRegistration {
+implements SafeEventBusRegistration {
 
     /**
      * The Interface DecisionModel.
      */
     public interface DecisionModel extends TemplateModel {
 
-        boolean isPublicFacing();
+        boolean isEnabled();
 
         boolean isJury();
 
-        boolean isEnabled();
+        boolean isPublicFacing();
+
+        void setEnabled(boolean b);
 
         void setJury(boolean juryMode);
 
         void setPublicFacing(boolean publicFacing);
-
-        void setEnabled(boolean b);
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
@@ -72,13 +72,22 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     @ClientCallable
+    /**
+     * client side only sends after timer has been started until decision reset or
+     * break
+     *
+     * @param ref1
+     * @param ref2
+     * @param ref3
+     * @param ref1Time
+     * @param ref2Time
+     * @param ref3Time
+     */
     public void masterRefereeUpdate(Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time, Integer ref2Time,
             Integer ref3Time) {
         logger.debug("master referee decision update");
         Object origin = this.getOrigin();
         OwlcmsSession.withFop((fop) -> {
-            // FIXME: must not send the event if state is not appropriate -- move to
-            // FieldOfPlay class.
             logger.debug("referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time,
                     ref3Time);
             fopEventBus.post(new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
@@ -88,12 +97,19 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     @ClientCallable
+    /**
+     * client side only sends after timer has been started until decision reset or
+     * break
+     *
+     * @param decision
+     * @param ref1
+     * @param ref2
+     * @param ref3
+     */
     public void masterShowDown(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
         Object origin = this.getOrigin();
         logger.debug("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1,
                 ref2, ref3);
-        // FIXME: must not send the event if state is not appropriate -- move to
-        // FieldOfPlay class.
         fopEventBus.post(new FOPEvent.DownSignal(origin));
     }
 
@@ -106,11 +122,17 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     @Subscribe
-    public void slaveReset(UIEvent.DecisionReset e) {
+    public void slaveBreakStart(UIEvent.BreakStarted e) {
+        logger.debug("slaveBreakStart disable");
+        getModel().setEnabled(false);
+    }
+
+    @Subscribe
+    public void slaveDownSignal(UIEvent.DownSignal e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-            getElement().callJsFunction("reset", false);
-            logger.debug("slaveReset disable");
-            getModel().setEnabled(false);
+            uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
+                    this.getParent().get().getClass().getSimpleName());
+            this.getElement().callJsFunction("showDown", false);
         });
     }
 
@@ -124,11 +146,11 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     @Subscribe
-    public void slaveDownSignal(UIEvent.DownSignal e) {
+    public void slaveReset(UIEvent.DecisionReset e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-            uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
-                    this.getParent().get().getClass().getSimpleName());
-            this.getElement().callJsFunction("showDown", false);
+            getElement().callJsFunction("reset", false);
+            logger.debug("slaveReset disable");
+            getModel().setEnabled(false);
         });
     }
 
@@ -143,11 +165,12 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         logger.debug("slaveStopTimer enable");
         getModel().setEnabled(true);
     }
-    
-    @Subscribe
-    public void slaveBreakStart(UIEvent.BreakStarted e) {
-        logger.debug("slaveBreakStart disable");
-        getModel().setEnabled(false);
+
+    protected Object getOrigin() {
+        // we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard
+        // to identify
+        // our actions.
+        return this.getParent().get();
     }
 
     /*
@@ -163,13 +186,6 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
             fopEventBus = fop.getFopEventBus();
             uiEventBus = uiEventBusRegister(this, fop);
         });
-    }
-
-    protected Object getOrigin() {
-        // we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard
-        // to identify
-        // our actions.
-        return this.getParent().get();
     }
 
     private void init() {
