@@ -9,7 +9,12 @@ package app.owlcms;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Locale;
@@ -249,17 +254,41 @@ public class Main {
 
     public static void startBrowser() {
         if (Desktop.isDesktopSupported()) {
-            logger.info("starting local browser");
             Desktop desktop = Desktop.getDesktop();
             try {
-                desktop.browse(
-                        new URI("http://127.0.0.1" + (serverPort == 80 ? "" : ":" + serverPort.toString() + "/")));
+                InetAddress localMachine = InetAddress.getLocalHost();
+                String hostName = localMachine.getHostName();
+                
+                boolean opened = openBrowser(desktop, hostName);
+                if (!opened) {
+                    openBrowser(desktop, "127.0.0.1"); 
+                }
             } catch (Exception e) {
                 logger.error(LoggerUtils.stackTrace(e));
             }
         } else {
             logger.debug("no browser support");
         }
+    }
+
+    public static boolean openBrowser(Desktop desktop, String hostName)
+            throws MalformedURLException, IOException, ProtocolException, URISyntaxException {
+        if (hostName == null) return false;
+        
+        int response;
+        URL testingURL = new URL("http", hostName, serverPort, "/sounds/timeOver.mp3");
+        HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
+        logger.debug("checking for {}", testingURL.toExternalForm());
+        huc.setRequestMethod("GET");
+        huc.connect();
+        int response1 = huc.getResponseCode();
+        response = response1;
+        if (response == 200) {
+            URL appURL = new URL("http", hostName, serverPort, "");
+            desktop.browse(appURL.toURI());
+            return true;
+        }
+        return false;
     }
 
 }
