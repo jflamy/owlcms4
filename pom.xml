@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>app.owlcms</groupId>
 	<artifactId>owlcms4top</artifactId>
-	<version>4.2.0-beta2</version>
+	<version>4.2.0</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>owlcms</module>
@@ -168,31 +168,6 @@
 					<commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
 					<verbose>true</verbose>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>com.ragedunicorn.tools.maven</groupId>
-				<artifactId>github-release-maven-plugin</artifactId>
-				<version>1.0.1</version>
-				<inherited>false</inherited>
-				<executions>
-					<execution>
-						<id>default-cli</id>
-						<configuration>
-							<owner>jflamy</owner>
-							<repository>owlcms4</repository>
-							<server>github-oauth</server>
-							<tagName>${project.version}</tagName>
-							<name>${project.version}</name>
-							<targetCommitish>master</targetCommitish>
-							<body>${project.version}</body>
-							<releaseNotes>ReleaseNotes.md</releaseNotes>
-							<assets>
-								<asset>owlcms/target/owlcms.zip</asset>
-								<asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
-							</assets>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
