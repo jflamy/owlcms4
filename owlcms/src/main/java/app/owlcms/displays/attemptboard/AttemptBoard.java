@@ -54,7 +54,7 @@ import ch.qos.logback.classic.Logger;
 @JsModule("./components/AttemptBoard.js")
 @CssImport(value = "./styles/shared-styles.css")
 @CssImport(value = "./styles/plates.css")
-@Route("displays/attemptBard")
+@Route("displays/attemptBoard")
 @Push
 public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel> implements QueryParameterReader,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
