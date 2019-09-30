@@ -170,31 +170,6 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>com.ragedunicorn.tools.maven</groupId>
-				<artifactId>github-release-maven-plugin</artifactId>
-				<version>1.0.1</version>
-				<inherited>false</inherited>
-				<executions>
-					<execution>
-						<id>default-cli</id>
-						<configuration>
-							<owner>jflamy</owner>
-							<repository>owlcms4</repository>
-							<server>github-oauth</server>
-							<tagName>${project.version}</tagName>
-							<name>${project.version}</name>
-							<targetCommitish>master</targetCommitish>
-							<body>${project.version}</body>
-							<releaseNotes>ReleaseNotes.md</releaseNotes>
-							<assets>
-								<asset>owlcms/target/owlcms.zip</asset>
-								<asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
-							</assets>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>3.0.1</version>
