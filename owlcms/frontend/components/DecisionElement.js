@@ -170,6 +170,8 @@ class DecisionElement extends PolymerElement {
 	}
 
 	_readRef(e) {
+		if (!this.enabled) return;
+		
 		var key = e.key;
 		console.debug(key);
 		switch (e.key) {
@@ -218,8 +220,7 @@ class DecisionElement extends PolymerElement {
 		var countWhite = 0;
 		var countRed = 0;
 		var maj = false;
-		if (!this.enabled) return;
-		
+
 		if (ref1 === true) {countWhite++;} else if (ref1 === false){countRed++;}
 		if (ref2 === true) {countWhite++;} else if (ref2 === false){countRed++;}
 		if (ref3 === true) {countWhite++;} else if (ref3 === false){countRed++;}
