@@ -580,7 +580,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
     @Override
     public boolean isDarkMode() {
-        // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 }
