@@ -542,18 +542,9 @@
 						<id>default-cli</id>
 						<configuration>
 							<skip>true</skip>
-<!-- 							<owner>jflamy</owner> -->
-<!-- 							<repository>owlcms4</repository> -->
-<!-- 							<server>github-oauth</server> -->
-<!-- 							<tagName>${project.version}</tagName> -->
-<!-- 							<name>${project.version}</name> -->
-<!-- 							<targetCommitish>master</targetCommitish> -->
-<!-- 							<body>${project.version}</body> -->
-<!-- 							<releaseNotes>ReleaseNotes.md</releaseNotes> -->
-<!-- 							<assets> -->
-<!-- 								<asset>owlcms/target/owlcms.zip</asset> -->
-<!-- 								<asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset> -->
-<!-- 							</assets> -->
+							<owner>jflamy</owner>
+							<repository>owlcms4</repository>
+							<tagName>${project.version}</tagName>
 						</configuration>
 					</execution>
 				</executions>
