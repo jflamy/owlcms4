@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.utils;
@@ -38,13 +38,6 @@ public class IPInterfaceUtils {
     ArrayList<String> wireless = new ArrayList<>();
     ArrayList<String> loopback = new ArrayList<>();
 
-    /**
-     * @return the loopback
-     */
-    public ArrayList<String> getLocalUrl() {
-        return loopback;
-    }
-
     private boolean local;
 
     /**
@@ -64,29 +57,31 @@ public class IPInterfaceUtils {
     public IPInterfaceUtils() {
 
         HttpServletRequest request = VaadinServletRequest.getCurrent().getHttpServletRequest();
-        getRequestHeadersInMap(request);
-        
+        Map<String, String> headerMap = getRequestHeadersInMap(request);
+
         String prefix = "/META-INF/resources/";
         String targetFile = "sounds/timeOver.mp3";
         checkTargetFileOk(prefix, targetFile);
 
-        String protocol = request.getScheme();
-        int requestPort = request.getServerPort();
-        String server = request.getServerName();
+        String protocol = URLUtils.getScheme(request);
+        int requestPort = URLUtils.getServerPort(request);
+        String server = URLUtils.getServerName(request);
         String siteString = request.getRequestURI();
         String requestURL = request.getRequestURL().toString();
+        String absoluteURL = URLUtils.buildAbsoluteURL(request, null);
+        logger.debug("absolute URL {}",absoluteURL);
 
         local = isLocalAddress(server) || isLoopbackAddress(server);
         logger.trace("request {}", requestURL);
 
         if (!local) {
-            // we are logged on using a proper non-local URL, tell the users to use that.
-            // return the URL we got, do not ask a cloud server for its interfaces
-            if (requestURL.endsWith("/")) {
-                requestURL = requestURL.substring(0, requestURL.length()-1);
+            // a name was used. this is probably the best option.
+            if (absoluteURL.endsWith("/")) {
+                absoluteURL = requestURL.substring(0, requestURL.length()-1);
             }
-            recommended.add(requestURL);
-            return;
+            recommended.add(absoluteURL);
+            // if we are not on the cloud, we try to get a numerical address anyway.
+            if (headerMap.get("x-forwarded-for") != null) return;
         }
 
         String ip;
@@ -96,8 +91,9 @@ public class IPInterfaceUtils {
                 NetworkInterface iface = interfaces.nextElement();
                 // filters out 127.0.0.1 and inactive interfaces
                 if (//iface.isLoopback() ||
-                        !iface.isUp())
+                        !iface.isUp()) {
                     continue;
+                }
 
                 String displayName = iface.getDisplayName();
                 String ifaceName = displayName.toLowerCase();
@@ -125,59 +121,36 @@ public class IPInterfaceUtils {
         logger.trace("wireless = {} {}", wireless, wireless.size());
     }
 
-    private void checkTargetFileOk(String prefix, String targetFile) {
-        InputStream targetResource = this.getClass().getResourceAsStream(prefix + targetFile); // $NON-NLS-1$
-        if (targetResource == null) {
-            throw new RuntimeException("test resource not found " + targetFile);
-        }
+    /**
+     * @return the loopback
+     */
+    public ArrayList<String> getLocalUrl() {
+        return loopback;
     }
 
-    private boolean virtual(String ifaceName) {
-        return ifaceName.contains("virtual");
+    /**
+     * @return the external (non-local) url used to get to the site.
+     */
+    public ArrayList<String> getRecommended() {
+        return recommended;
     }
 
-    private void testIP(String protocol, int requestPort, String uri, String targetFile, String ip, String ifaceName) {
-        try {
-            URL siteURL = new URL(protocol, ip, requestPort, uri);
-            String siteExternalForm = siteURL.toExternalForm();
-            
-            // use a file inside the site to avoid triggering a loop if called on home page
-            URL testingURL = new URL(protocol, ip, requestPort, uri+targetFile);
-            String testingExternalForm = testingURL.toExternalForm();
-
-            HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
-            huc.setRequestMethod("GET");
-            huc.connect();
-            int response = huc.getResponseCode();
-            
-            if (siteURL.getProtocol().equals("http")) {
-                siteExternalForm = siteExternalForm.replaceFirst(":80/", "");
-                siteExternalForm = siteExternalForm.replaceFirst(":80$", "");
-            } else if (siteURL.getProtocol().equals("https")) {
-                siteExternalForm = siteExternalForm.replaceFirst(":443/", "");
-                siteExternalForm = siteExternalForm.replaceFirst(":443$", "");
+    public Map<String, String> getRequestHeadersInMap(HttpServletRequest request) {
+        Map<String, String> result = new HashMap<>();
+        String remoteAddr = request.getRemoteAddr();
+        logger.debug("remoteAddr: {}", remoteAddr);
+        result.put("remoteAddr", remoteAddr);
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String key = headerNames.nextElement().toLowerCase();
+            if (key.equals("x-forwarded-for") || key.equals("host")) {
+                String value = request.getHeader(key);
+                result.put(key, value);
+                logger.debug(key + ": " + value);
             }
-            logger.debug("{}",siteExternalForm);
-            if (siteExternalForm.endsWith("/")) {
-                siteExternalForm = siteExternalForm.substring(0, siteExternalForm.length()-1);
-            }
-              
-
-            if (response != 200) {
-                logger.debug("{} not reachable: {}", testingExternalForm, response);
-            } else {
-                logger.debug("{} OK: {}", testingURL, ifaceName);
-                if (isLoopbackAddress(ip)) {
-                    loopback.add(siteExternalForm);
-                } else if (ifaceName.contains("wireless")) {
-                    wireless.add(siteExternalForm);
-                } else {
-                    wired.add(siteExternalForm);
-                }
-            }
-        } catch (Exception e) {
-            logger.error(LoggerUtils.stackTrace(e));
         }
+
+        return result;
     }
 
     /**
@@ -194,11 +167,10 @@ public class IPInterfaceUtils {
         return wireless;
     }
 
-    /**
-     * @return the external (non-local) url used to get to the site.
-     */
-    public ArrayList<String> getRecommended() {
-        return recommended;
+    private void checkTargetFileOk(String prefix, String targetFile) {
+        InputStream targetResource = this.getClass().getResourceAsStream(prefix + targetFile); // $NON-NLS-1$
+        if (targetResource == null)
+            throw new RuntimeException("test resource not found " + targetFile);
     }
 
     /**
@@ -228,28 +200,46 @@ public class IPInterfaceUtils {
         }
         return isLocal;
     }
-    
+
     private boolean isLoopbackAddress(String serverString) {
         return (serverString.toLowerCase().startsWith("localhost") || serverString.startsWith("127.0.0"));
     }
 
-    public Map<String, String> getRequestHeadersInMap(HttpServletRequest request) {
+    private void testIP(String protocol, int requestPort, String uri, String targetFile, String ip, String ifaceName) {
+        try {
+            URL siteURL = new URL(protocol, ip, requestPort, uri);
+            String siteExternalForm = siteURL.toExternalForm();
 
-        Map<String, String> result = new HashMap<>();
-        String remoteAddr = request.getRemoteAddr();
-        logger.debug("remoteAddr: {}", remoteAddr);
-        result.put("remoteAddr", remoteAddr);
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String key = headerNames.nextElement().toLowerCase();
-            if (key.equals("x-forwarded-for") || key.equals("host")) {
-                String value = request.getHeader(key);
-                result.put(key, value);
-                logger.debug(key + ": " + value);
+            // use a file inside the site to avoid triggering a loop if called on home page
+            URL testingURL = new URL(protocol, ip, requestPort, uri+targetFile);
+            String testingExternalForm = testingURL.toExternalForm();
+
+            HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
+            huc.setRequestMethod("GET");
+            huc.connect();
+            int response = huc.getResponseCode();
+
+            siteExternalForm = URLUtils.cleanURL(siteURL, siteExternalForm);
+
+            if (response != 200) {
+                logger.debug("{} not reachable: {}", testingExternalForm, response);
+            } else {
+                logger.debug("{} OK: {}", testingURL, ifaceName);
+                if (isLoopbackAddress(ip)) {
+                    loopback.add(siteExternalForm);
+                } else if (ifaceName.contains("wireless")) {
+                    wireless.add(siteExternalForm);
+                } else {
+                    wired.add(siteExternalForm);
+                }
             }
+        } catch (Exception e) {
+            logger.error(LoggerUtils.stackTrace(e));
         }
+    }
 
-        return result;
+    private boolean virtual(String ifaceName) {
+        return ifaceName.contains("virtual");
     }
 
 }

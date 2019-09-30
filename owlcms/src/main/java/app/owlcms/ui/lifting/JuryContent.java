@@ -21,6 +21,8 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -64,6 +66,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
     private Icon[] juryIcons;
     private Boolean[] juryVotes;
     private int nbJurors;
+    private Notification decisionNotification;
 
 
     public JuryContent() {
@@ -103,6 +106,30 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         // Ignore down signal
     }
 
+    @Subscribe
+    public void slaveRefereeDecision(UIEvent.Decision e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            int d = e.decision ? 1 : 0;
+            String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
+
+            decisionNotification = new Notification();
+            // Notification theme styling is done in
+            // META-INF/resources/frontend/styles/shared-styles.html
+            String themeName = e.decision ? "success" : "error";
+            decisionNotification.getElement().getThemeList().add(themeName);
+
+            Div label = new Div();
+            label.add(text);
+            label.addClickListener((event) -> decisionNotification.close());
+            label.setSizeFull();
+            label.getStyle().set("font-size", "large");
+            decisionNotification.add(label);
+            decisionNotification.setPosition(Position.TOP_START);
+            //decisionNotification.setDuration(5000);
+            decisionNotification.open();
+        });
+    }
+
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#slaveGroupDone(app.owlcms.fieldofplay.UIEvent.GroupDone)
      */
@@ -119,6 +146,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             juryVotingButtons.removeAll();
             resetJuryVoting();
+            if (decisionNotification != null) {
+                decisionNotification.close();
+            }
             // referee decisions handle reset on their own, nothing to do.
         });
     }

@@ -102,12 +102,29 @@ table.results {
 	/*margin-bottom: 2vmin;*/
 }
 
+:host(.dark) table.results {
+	background-color: black;
+	color: white;
+}
+
+:host(.light) table.results {
+	background-color: white;
+	color: black;
+}
+
 th, td {
 	border-collapse: collapse;
 	border: solid 1px DarkGray;
 	padding: 0.4vmin 1vmin 0.4vmin 1vmin;
 	font-size: 2.1vh;
+}
+
+:host(.dark) th, td {
 	font-weight: normal;
+}
+
+:host(.light) th, td {
+	font-weight: bold;
 }
 
 .ellipsis {
@@ -200,27 +217,58 @@ th, td {
 	text-align: center;
 }
 
-.good {
+:host(.dark) .good {
 	background-color: green;
 	font-weight: bold;
 }
 
-.fail {
+:host(.light) .good {
+	background-color: green;
+	font-weight: bold;
+	color: white;
+}
+
+:host(.dark) .fail {
 	background-color: red;
 	font-weight: bold;
+}
+
+:host(.light) .fail {
+	background-color: red;
+	font-weight: bold;
+	color: white;
+}
+
+:host(.dark)  .spacer {
+	background-color: black;
+}
+
+
+:host(.light)  .spacer {
+	background-color: gray;
 }
 
 .english {
 	font-size: 85%;
 }
 
-.request {
+:host(.dark) .request {
 	background-color: black;
 	font-style: italic;
 }
 
-.current {
+:host(.light) .request {
+	background-color: white;
+	font-style: italic;
+}
+
+:host(.dark) .current {
 	color: yellow;
+	font-weight: bold;
+}
+
+:host(.light) .current {
+	background-color: yellow;
 	font-weight: bold;
 }
 
@@ -231,13 +279,23 @@ th, td {
 @keyframes blink { 50% {opacity: 0.0;}}
 @-webkit-keyframes blink { 50% {opacity: 0.0;}}
 
-.next {
+:host(.dark) .next {
 	color: orange;
 	font-weight: bold;
 }
 
-.empty {
+:host(.light) .next {
+	background-color: gold;
+	font-weight: bold;
+}
+
+:host(.dark) .empty {
 	background-color: black;
+	font-style: italic;
+}
+
+:host(.light) .empty {
+	background-color: white;
 	font-style: italic;
 }
 
@@ -298,22 +356,22 @@ th, td {
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
 		<template is="dom-if" if="[[l.isSpacer]]">
-			<tr><td colspan="0" style="height:0.1ex; border:none"></td></tr>
+			<tr><td colspan="100%" style="height:0.1ex; border:none" class="spacer"></td></tr>
 		</template>
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
-				<td class$="veryNarrow"><div class$="[[l.classname]]">[[l.startNumber]]</div></td>
-				<td width="30%" class="ellipsis"><div class$="[[l.classname]]">[[l.fullName]]</div></td>
+				<td class$="[[l.classname]] veryNarrow"><div>[[l.startNumber]]</div></td>
+				<td width="30%" class$="ellipsis [[l.classname]]"><div class$="">[[l.fullName]]</div></td>
 				<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
 				<td class="veryNarrow">[[l.category]]</td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
 				<td class="ellipsis" class="club">[[l.teamName]]</td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]]"><div class$="[[attempt.className]]">[[attempt.stringValue]]</div></td>
+					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank">[[l.snatchRank]]</td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]]"><div class$="[[attempt.className]]">[[attempt.stringValue]]</div></td>
+					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank">[[l.cleanJerkRank]]</td>		
 				<td class="veryNarrow">[[l.total]]</td>

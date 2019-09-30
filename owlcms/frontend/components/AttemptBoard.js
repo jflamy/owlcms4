@@ -186,7 +186,7 @@ class CurrentAttempt extends PolymerElement {
 
 .attemptBoard .decision {
 	grid-area: decision-start/decision-start/decision-end/decision-end;
-	font-size: 15em;
+	font-size: 30vh;
 }
 
 .v-system-error {

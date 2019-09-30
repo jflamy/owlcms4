@@ -126,7 +126,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
 
     @Subscribe
     public void slaveDown(UIEvent.DownSignal e) {
-        //TODO if no decision, remind referee
+        // if no decision, remind referee
     }
 
     @Subscribe
