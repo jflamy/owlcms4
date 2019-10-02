@@ -30,6 +30,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.DarkModeParameters;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.Decision;
@@ -59,7 +60,7 @@ import elemental.json.JsonValue;
 @Route("displays/liftingorder")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel> implements QueryParameterReader,
+public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel> implements DarkModeParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
@@ -121,6 +122,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
 
     JsonArray sattempts;
     JsonArray cattempts;
+    private boolean darkMode;
 
     /**
      * Instantiates a new results board.
@@ -295,6 +297,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
+        buildContextMenu(this);
     }
 
     protected void setTranslationMap() {
@@ -390,5 +393,15 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         });
         model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         this.getElement().setPropertyJson("athletes", getAthletesJson(order));
+    }
+
+    @Override
+    public void setDarkMode(boolean dark) {
+        this.darkMode = dark;
+    }
+
+    @Override
+    public boolean isDarkMode() {
+        return this.darkMode;
     }
 }

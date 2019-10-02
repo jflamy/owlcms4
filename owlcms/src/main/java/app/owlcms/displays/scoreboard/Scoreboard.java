@@ -15,7 +15,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
@@ -37,7 +39,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.DisplayParameters;
+import app.owlcms.displays.DarkModeParameters;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.UIEvent;
@@ -68,7 +70,7 @@ import elemental.json.JsonValue;
 @Route("displays/scoreboard")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> implements DisplayParameters,
+public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> implements DarkModeParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
@@ -132,6 +134,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     @Id("decisions")
     private DecisionElement decisions; // Flow creates it
 
+    private ContextMenu contextMenu;
+
     private EventBus uiEventBus;
     private List<Athlete> order;
     private Group curGroup;
@@ -139,6 +143,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
     JsonArray sattempts;
     JsonArray cattempts;
+    private boolean darkMode;
 
     /**
      * Instantiates a new results board.
@@ -461,6 +466,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
+        contextMenu = buildContextMenu(this);
     }
 
     protected void setTranslationMap() {
@@ -574,12 +580,11 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
     @Override
     public void setDarkMode(boolean dark) {
-        this.getElement().getClassList().set("dark", dark);
-        this.getElement().getClassList().set("light", !dark);
+        this.darkMode = dark;
     }
 
     @Override
     public boolean isDarkMode() {
-        return true;
+        return darkMode;
     }
 }
