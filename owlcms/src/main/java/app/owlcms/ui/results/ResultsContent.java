@@ -292,7 +292,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         groupFilter.addValueChangeListener(e -> {
             logger.debug("updating filters: group={}", e.getValue());
             currentGroup = e.getValue();
-            updateURLLocation(locationUI, location, currentGroup);
+            updateURLLocation(getLocationUI(), getLocation(), currentGroup);
             subscribeIfLifting(e.getValue());
         });
         crud.getCrudLayout().addFilterComponent(groupFilter);
@@ -409,9 +409,9 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        location = event.getLocation();
-        locationUI = event.getUI();
-        QueryParameters queryParameters = location.getQueryParameters();
+        setLocation(event.getLocation());
+        setLocationUI(event.getUI());
+        QueryParameters queryParameters = getLocation().getQueryParameters();
         Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
         HashMap<String, List<String>> params = new HashMap<String, List<String>>(parametersMap);
 
@@ -432,7 +432,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
         // change the URL to reflect group
         event.getUI().getPage().getHistory().replaceState(null,
-                new Location(location.getPath(), new QueryParameters(params)));
+                new Location(getLocation().getPath(), new QueryParameters(params)));
     }
 
     @Override

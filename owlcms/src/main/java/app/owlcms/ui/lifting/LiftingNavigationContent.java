@@ -16,6 +16,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
@@ -110,4 +111,25 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
     public String getPageTitle() {
         return getTranslation("OWLCMS_Lifting");
     }
+    
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
 }

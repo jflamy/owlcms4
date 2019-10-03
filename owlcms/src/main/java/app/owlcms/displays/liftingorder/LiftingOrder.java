@@ -16,10 +16,13 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -38,7 +41,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.AthleteGridContent;
-import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
@@ -123,6 +125,9 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     JsonArray sattempts;
     JsonArray cattempts;
     private boolean darkMode;
+    private ContextMenu contextMenu;
+    private Location location;
+    private UI locationUI;
 
     /**
      * Instantiates a new results board.
@@ -298,6 +303,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             uiEventBus = uiEventBusRegister(this, fop);
         });
         buildContextMenu(this);
+        setDarkMode(this, isDarkMode(), false);
     }
 
     protected void setTranslationMap() {
@@ -404,4 +410,35 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     public boolean isDarkMode() {
         return this.darkMode;
     }
+
+    @Override
+    public ContextMenu getContextMenu() {
+        return contextMenu;
+    }
+    
+    @Override
+    public void setContextMenu(ContextMenu contextMenu) {
+        this.contextMenu = contextMenu;
+    }
+    
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
 }
