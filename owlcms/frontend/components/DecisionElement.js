@@ -233,14 +233,6 @@ class DecisionElement extends PolymerElement {
 		}
 		if ((countWhite + countRed) >= 3) {
 			this.decision = (countWhite >= 2);
-//			if (!this.jury) {
-//				// true means we are master -- we are telling the server that the decision has
-//				// been reached
-//				console.debug("full decision reached, setting timer before decisions are shown");
-//
-//				// show the decisions after 3 seconds (by rule)
-//				if (!this.jury) setTimeout(this.showDecisions.bind(this, true, ref1, ref2, ref3), 3000);
-//			}
 			maj = (countWhite >= 2);
 		} else {
 			maj = undefined;

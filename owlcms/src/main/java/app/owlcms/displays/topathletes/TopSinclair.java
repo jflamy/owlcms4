@@ -285,13 +285,14 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         } else {
             category = a.getCategory() != null ? a.getCategory().getName() : "";
         }
-        ja.put("fullName", a.getFullName());
-        ja.put("teamName", a.getTeam());
+        ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+        ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
         ja.put("yearOfBirth", a.getYearOfBirth());
         Integer startNumber = a.getStartNumber();
         ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-        ja.put("mastersAgeGroup", a.getMastersAgeGroup());
-        ja.put("category", category);
+        String mastersAgeGroup = a.getMastersAgeGroup();
+        ja.put("mastersAgeGroup", mastersAgeGroup != null ? mastersAgeGroup : "");
+        ja.put("category", category != null ? category : "");
         getAttemptsJson(a);
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
