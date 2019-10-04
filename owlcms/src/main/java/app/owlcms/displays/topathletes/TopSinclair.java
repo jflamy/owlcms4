@@ -369,11 +369,12 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
 //    }
 
     private String formatInt(Integer total) {
-        if (total == -1)
-            return "inv.";// invited lifter, not eligible.
-        return (total == null || total == 0) ? "-" : (total < 0 ? "(" + Math.abs(total) + ")" : total.toString());
+        if (total == null || total == 0) return "-";
+        else if (total == -1) return "inv.";// invited lifter, not eligible.
+        else if (total < 0) return  "(" + Math.abs(total) + ")";
+        else return total.toString();
     }
-
+    
     private String formatKg(String total) {
         return (total == null || total.trim().isEmpty()) ? "-"
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
