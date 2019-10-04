@@ -753,29 +753,29 @@ public class FieldOfPlay {
     private void doWeightChange(WeightChange wc) {
         Athlete changingAthlete = wc.getAthlete();
         Integer newWeight = changingAthlete.getNextAttemptRequestedWeight();
-        logger.trace("&&1 cur={} curWeight={} new={} newWeight={}", curAthlete, curWeight, changingAthlete, newWeight);
-        logger.trace("&&2 clockOwner={} clockLastStopped={} state={}", clockOwner,
+        logger.warn("&&1 cur={} curWeight={} new={} newWeight={}", curAthlete, curWeight, changingAthlete, newWeight);
+        logger.warn("&&2 clockOwner={} clockLastStopped={} state={}", clockOwner,
                 getAthleteTimer().getTimeRemainingAtLastStop(), state);
 
         boolean stopAthleteTimer = false;
-        if (clockOwner != null) {
+        if (clockOwner != null && getAthleteTimer().isRunning()) {
             // time has started
             if (changingAthlete.equals(clockOwner)) {
-                logger.trace("&&3.A clock IS running for changing athlete");
+                logger.warn("&&3.A clock IS running for changing athlete");
                 // X is the current lifter
                 // if a real change (and not simply a declaration that does not change weight),
                 // make sure clock is stopped.
                 if (curWeight != newWeight) {
-                    logger.trace("&&3.A.A weight change for clock owner: stop clock");
+                    logger.warn("&&3.A.A weight change for clock owner: stop clock");
                     getAthleteTimer().stop(); // memorize time
                     stopAthleteTimer = true; // make sure we broacast to clients
-                    logger.trace("&&4.1 stop, recompute, state");
+                    logger.warn("&&4.1 stop, recompute, state");
                     recomputeLiftingOrder();
                     changeStateUnlessInBreak();
                     uiDisplayCurrentAthleteAndTime(stopAthleteTimer, wc, false);
                     updateGlobalRankings();
                 } else {
-                    logger.trace("&&3.A.B declaration for clock owner: leave clock running");
+                    logger.warn("&&3.A.B declaration at same weight for clock owner: leave clock running");
                     // no weight change. this is most likely a declaration.
                     if (Athlete.zeroIfInvalid(changingAthlete.getCurrentDeclaration()) == newWeight) {
                         Notification.show(Translator.translate("Declaration_Notification", changingAthlete, newWeight),
@@ -784,14 +784,13 @@ public class FieldOfPlay {
                     return;
                 }
             } else {
-                logger.trace("&&3.B clock running, but NOT for changing athlete");
+                logger.warn("&&3.B clock running, but NOT for changing athlete");
                 weightChangeDoNotDisturb(wc);
                 return;
             }
         } else {
-            logger.trace("&&4 recompute + NOT changing state");
+            logger.warn("&&4 clock NOT running, recompute + display athlete (unless in break)");
             // time is not running
-            // changing athlete is not current athlete
             recomputeLiftingOrder();
             changeStateUnlessInBreak();
             uiDisplayCurrentAthleteAndTime(true, wc, false);
