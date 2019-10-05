@@ -162,7 +162,6 @@
                 <version>1.12.0</version>
                 <configuration>
                     <allowSnapshots>true</allowSnapshots>
-                    <preReleaseGoals>verify</preReleaseGoals>
                     <postReleaseGoals>github-release:github-release</postReleaseGoals>
                     <skipTag>true</skipTag><!-- github-release creates the tag -->
                     <skipTestProject>true</skipTestProject>
