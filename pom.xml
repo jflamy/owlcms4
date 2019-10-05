@@ -50,32 +50,32 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <!-- <repository> -->
-        <!-- <id>vaadin-snapshots</id> -->
-        <!-- <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url> -->
-        <!-- <snapshots> -->
-        <!-- <enabled>true</enabled> -->
-        <!-- </snapshots> -->
-        <!-- </repository> -->
+        <repository>
+            <id>vaadin-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
         <!-- <repository> -->
         <!-- <id>flow-prerelease</id> -->
         <!-- <url>https://maven.vaadin.com/vaadin-prereleases</url> -->
         <!-- </repository> -->
     </repositories>
 
-    <!-- <pluginRepositories> -->
-    <!-- <pluginRepository> -->
-    <!-- <id>flow-internal-release</id> -->
-    <!-- <url>https://maven.vaadin.com/vaadin-prereleases</url> -->
-    <!-- </pluginRepository> -->
-    <!-- <pluginRepository> -->
-    <!-- <id>vaadin-snapshots</id> -->
-    <!-- <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url> -->
-    <!-- <snapshots> -->
-    <!-- <enabled>true</enabled> -->
-    <!-- </snapshots> -->
-    <!-- </pluginRepository> -->
-    <!-- </pluginRepositories> -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>vaadin-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        <!-- <pluginRepository> -->
+        <!-- <id>flow-internal-release</id> -->
+        <!-- <url>https://maven.vaadin.com/vaadin-prereleases</url> -->
+        <!-- </pluginRepository> -->
+    </pluginRepositories>
 
     <dependencyManagement>
         <dependencies>
@@ -164,7 +164,7 @@
                     <allowSnapshots>true</allowSnapshots>
                     <preReleaseGoals>verify</preReleaseGoals>
                     <postReleaseGoals>github-release:github-release</postReleaseGoals>
-                    <skipTag>false</skipTag>
+                    <skipTag>true</skipTag><!-- github-release creates the tag -->
                     <skipTestProject>true</skipTestProject>
                     <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
                     <verbose>true</verbose>

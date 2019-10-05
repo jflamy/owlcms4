@@ -461,6 +461,19 @@
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
+                    <execution>
+                        <id>plain</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${project.artifactId}</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/plain.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>                
 					<execution>
 						<id>zip</id>
 						<phase>package</phase>
