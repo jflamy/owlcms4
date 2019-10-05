@@ -164,7 +164,7 @@
                     <allowSnapshots>true</allowSnapshots>
                     <preReleaseGoals>verify</preReleaseGoals>
                     <postReleaseGoals>github-release:github-release</postReleaseGoals>
-                    <skipTag>true</skipTag>
+                    <skipTag>false</skipTag>
                     <skipTestProject>true</skipTestProject>
                     <commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
                     <verbose>true</verbose>
