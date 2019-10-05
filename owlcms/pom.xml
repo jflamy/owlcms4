@@ -532,6 +532,23 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.ragedunicorn.tools.maven</groupId>
+				<artifactId>github-release-maven-plugin</artifactId>
+				<version>1.0.2-SNAPSHOT</version>
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<id>default-cli</id>
+						<configuration>
+							<skip>true</skip>
+							<owner>jflamy</owner>
+							<repository>owlcms4</repository>
+							<tagName>${project.version}</tagName>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>			
 		</plugins>
 	</build>
 	<profiles>
