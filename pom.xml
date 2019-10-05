@@ -166,7 +166,7 @@
                     <postReleaseGoals>github-release:github-release</postReleaseGoals>
                     <skipTag>false</skipTag>
                     <skipTestProject>true</skipTestProject>
-                    <commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
+                    <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
                     <verbose>true</verbose>
                 </configuration>
             </plugin>
