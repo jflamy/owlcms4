@@ -33,7 +33,7 @@ import ch.qos.logback.classic.Logger;
 @Tag("decision-element")
 @JsModule("./components/DecisionElement.js")
 public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionModel>
-implements SafeEventBusRegistration {
+        implements SafeEventBusRegistration {
 
     /**
      * The Interface DecisionModel.
@@ -65,6 +65,32 @@ implements SafeEventBusRegistration {
     protected EventBus fopEventBus;
 
     public DecisionElement() {
+    }
+
+    protected Object getOrigin() {
+        // we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard
+        // to identify
+        // our actions.
+        return this.getParent().get();
+    }
+
+    private void init() {
+        DecisionModel model = getModel();
+        model.setPublicFacing(true);
+
+        Element elem = this.getElement();
+        elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
+            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
+        });
+        elem.addPropertyChangeListener("ref2", "ref2-changed", (e) -> {
+            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
+        });
+        elem.addPropertyChangeListener("ref3", "ref3-changed", (e) -> {
+            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
+        });
+        elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
+            uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
+        });
     }
 
     public boolean isPublicFacing() {
@@ -113,6 +139,21 @@ implements SafeEventBusRegistration {
         fopEventBus.post(new FOPEvent.DownSignal(origin));
     }
 
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+     * AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        init();
+        OwlcmsSession.withFop(fop -> {
+            // we send on fopEventBus, listen on uiEventBus.
+            fopEventBus = fop.getFopEventBus();
+            uiEventBus = uiEventBusRegister(this, fop);
+        });
+    }
+
     public void setJury(boolean juryMode) {
         getModel().setJury(juryMode);
     }
@@ -123,8 +164,10 @@ implements SafeEventBusRegistration {
 
     @Subscribe
     public void slaveBreakStart(UIEvent.BreakStarted e) {
-        logger.debug("slaveBreakStart disable");
-        getModel().setEnabled(false);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            logger.debug("slaveBreakStart disable");
+            getModel().setEnabled(false);
+        });
     }
 
     @Subscribe
@@ -151,60 +194,22 @@ implements SafeEventBusRegistration {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
             getElement().callJsFunction("reset", false);
             logger.debug("slaveReset disable");
-            getModel().setEnabled(false);
         });
     }
 
     @Subscribe
     public void slaveStartTimer(UIEvent.StartTime e) {
-        logger.debug("slaveStartTimer enable");
-        getModel().setEnabled(true);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            logger.debug("slaveStartTimer enable");
+            getModel().setEnabled(true);
+        });
     }
 
     @Subscribe
     public void slaveStopTimer(UIEvent.StopTime e) {
-        logger.debug("slaveStopTimer enable");
-        getModel().setEnabled(true);
-    }
-
-    protected Object getOrigin() {
-        // we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard
-        // to identify
-        // our actions.
-        return this.getParent().get();
-    }
-
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-     * AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        init();
-        OwlcmsSession.withFop(fop -> {
-            // we send on fopEventBus, listen on uiEventBus.
-            fopEventBus = fop.getFopEventBus();
-            uiEventBus = uiEventBusRegister(this, fop);
-        });
-    }
-
-    private void init() {
-        DecisionModel model = getModel();
-        model.setPublicFacing(true);
-
-        Element elem = this.getElement();
-        elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
-            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-        });
-        elem.addPropertyChangeListener("ref2", "ref2-changed", (e) -> {
-            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-        });
-        elem.addPropertyChangeListener("ref3", "ref3-changed", (e) -> {
-            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-        });
-        elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
-            uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            logger.debug("slaveStopTimer enable");
+            getModel().setEnabled(true);
         });
     }
 }

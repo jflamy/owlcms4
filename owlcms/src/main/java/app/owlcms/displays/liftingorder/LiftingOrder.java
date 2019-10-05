@@ -16,10 +16,13 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -30,6 +33,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.displays.DarkModeParameters;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.Decision;
@@ -37,7 +41,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.AthleteGridContent;
-import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
@@ -59,7 +62,7 @@ import elemental.json.JsonValue;
 @Route("displays/liftingorder")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel> implements QueryParameterReader,
+public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel> implements DarkModeParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
@@ -121,6 +124,10 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
 
     JsonArray sattempts;
     JsonArray cattempts;
+    private boolean darkMode;
+    private ContextMenu contextMenu;
+    private Location location;
+    private UI locationUI;
 
     /**
      * Instantiates a new results board.
@@ -295,6 +302,8 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
+        buildContextMenu(this);
+        setDarkMode(this, isDarkMode(), false);
     }
 
     protected void setTranslationMap() {
@@ -344,13 +353,14 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             } else {
                 category = curCat != null ? curCat.getName() : "";
             }
-            ja.put("fullName", a.getFullName());
-            ja.put("teamName", a.getTeam());
+            ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+            ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
             ja.put("yearOfBirth", a.getYearOfBirth());
             Integer startNumber = a.getStartNumber();
             ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-            ja.put("mastersAgeGroup", a.getMastersAgeGroup());
-            ja.put("category", category);
+            String mastersAgeGroup = a.getMastersAgeGroup();
+            ja.put("mastersAgeGroup", mastersAgeGroup != null ? mastersAgeGroup : "");
+            ja.put("category", category != null ? category : "");
             ja.put("nextAttemptNo", AthleteGridContent.formatAttemptNumber(a));
             Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
             ja.put("requestedWeight", nextAttemptRequestedWeight == 0 ? "-" : nextAttemptRequestedWeight.toString());
@@ -391,4 +401,45 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         this.getElement().setPropertyJson("athletes", getAthletesJson(order));
     }
+
+    @Override
+    public void setDarkMode(boolean dark) {
+        this.darkMode = dark;
+    }
+
+    @Override
+    public boolean isDarkMode() {
+        return this.darkMode;
+    }
+
+    @Override
+    public ContextMenu getContextMenu() {
+        return contextMenu;
+    }
+    
+    @Override
+    public void setContextMenu(ContextMenu contextMenu) {
+        this.contextMenu = contextMenu;
+    }
+    
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
 }

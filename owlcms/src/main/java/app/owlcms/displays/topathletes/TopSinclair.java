@@ -16,10 +16,13 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -31,6 +34,7 @@ import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.displays.DarkModeParameters;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
@@ -38,7 +42,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;
@@ -61,7 +64,7 @@ import elemental.json.JsonValue;
 @Route("displays/topsinclair")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> implements QueryParameterReader,
+public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> implements DarkModeParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
@@ -105,6 +108,10 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     private double topWomanSinclair;
     private List<Athlete> sortedMen;
     private List<Athlete> sortedWomen;
+    private boolean darkMode;
+    private ContextMenu contextMenu;
+    private Location location;
+    private UI locationUI;
 
     /**
      * Instantiates a new results board.
@@ -160,7 +167,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
             }
         }
         int minMen = java.lang.Math.min(5, getSortedMen().size());
-        setSortedMen(getSortedMen().subList(0, minMen));     
+        setSortedMen(getSortedMen().subList(0, minMen));
 //        Athlete topMan = (getSortedMen().size() > 0 ? getSortedMen().get(0) : null);
 //        topManSinclair = (topMan != null ? topMan.getSinclairForDelta() : 999.0D);
 
@@ -178,7 +185,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
             }
         }
         int minWomen = java.lang.Math.min(5, getSortedWomen().size());
-        setSortedWomen(getSortedWomen().subList(0, minWomen)); 
+        setSortedWomen(getSortedWomen().subList(0, minWomen));
 
         updateBottom(getModel());
     }
@@ -196,7 +203,8 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         if (e == null) {
             uiEventLogger.debug("### {} {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
         } else {
-            uiEventLogger.debug("### {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), LoggerUtils.whereFrom());
+            uiEventLogger.debug("### {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                    LoggerUtils.whereFrom());
         }
     }
 
@@ -223,6 +231,8 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         logger.debug("onAttach start");
+        buildContextMenu(this);
+        setDarkMode(this, isDarkMode(), false);
         setTranslationMap();
         for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
             // we listen on all the uiEventBus.
@@ -275,13 +285,14 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         } else {
             category = a.getCategory() != null ? a.getCategory().getName() : "";
         }
-        ja.put("fullName", a.getFullName());
-        ja.put("teamName", a.getTeam());
+        ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+        ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
         ja.put("yearOfBirth", a.getYearOfBirth());
         Integer startNumber = a.getStartNumber();
         ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-        ja.put("mastersAgeGroup", a.getMastersAgeGroup());
-        ja.put("category", category);
+        String mastersAgeGroup = a.getMastersAgeGroup();
+        ja.put("mastersAgeGroup", mastersAgeGroup != null ? mastersAgeGroup : "");
+        ja.put("category", category != null ? category : "");
         getAttemptsJson(a);
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
@@ -358,11 +369,12 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
 //    }
 
     private String formatInt(Integer total) {
-        if (total == -1)
-            return "inv.";// invited lifter, not eligible.
-        return (total == null || total == 0) ? "-" : (total < 0 ? "(" + Math.abs(total) + ")" : total.toString());
+        if (total == null || total == 0) return "-";
+        else if (total == -1) return "inv.";// invited lifter, not eligible.
+        else if (total < 0) return  "(" + Math.abs(total) + ")";
+        else return total.toString();
     }
-
+    
     private String formatKg(String total) {
         return (total == null || total.trim().isEmpty()) ? "-"
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
@@ -376,11 +388,13 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     private void updateBottom(LiftingOrderModel model) {
         getModel().setFullName(getTranslation("Scoreboard.TopSinclair"));
         List<Athlete> sortedMen2 = getSortedMen();
-        logger.debug("updateBottom {}",sortedMen2);
-        this.getElement().setProperty("topSinclairMen", sortedMen2 != null && sortedMen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairMen") : "");
+        logger.debug("updateBottom {}", sortedMen2);
+        this.getElement().setProperty("topSinclairMen",
+                sortedMen2 != null && sortedMen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairMen") : "");
         this.getElement().setPropertyJson("sortedMen", getAthletesJson(sortedMen2));
         List<Athlete> sortedWomen2 = getSortedWomen();
-        this.getElement().setProperty("topSinclairWomen", sortedWomen2 != null && sortedWomen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairWomen") : "");
+        this.getElement().setProperty("topSinclairWomen",
+                sortedWomen2 != null && sortedWomen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairWomen") : "");
         this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2));
     }
 
@@ -401,4 +415,45 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         this.sortedWomen = sortedWomen;
         logger.debug("sortedWomen = {} -- {}", getSortedWomen(), LoggerUtils.whereFrom());
     }
+
+    @Override
+    public void setDarkMode(boolean dark) {
+        this.darkMode = dark;
+    }
+
+    @Override
+    public boolean isDarkMode() {
+        return this.darkMode;
+    }
+    
+    @Override
+    public ContextMenu getContextMenu() {
+        return contextMenu;
+    }
+    
+    @Override
+    public void setContextMenu(ContextMenu contextMenu) {
+        this.contextMenu = contextMenu;
+    }
+    
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
 }

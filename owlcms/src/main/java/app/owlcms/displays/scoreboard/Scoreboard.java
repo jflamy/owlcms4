@@ -16,11 +16,14 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
@@ -37,7 +40,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.DisplayParameters;
+import app.owlcms.displays.DarkModeParameters;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.UIEvent;
@@ -68,7 +71,7 @@ import elemental.json.JsonValue;
 @Route("displays/scoreboard")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> implements DisplayParameters,
+public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> implements DarkModeParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
@@ -139,6 +142,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
     JsonArray sattempts;
     JsonArray cattempts;
+    private boolean darkMode;
+    private ContextMenu contextMenu;
+    private Location location;
+    private UI locationUI;
 
     /**
      * Instantiates a new results board.
@@ -171,13 +178,14 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
         } else {
             category = curCat != null ? curCat.getName() : "";
         }
-        ja.put("fullName", a.getFullName());
-        ja.put("teamName", a.getTeam());
+        ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+        ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
         ja.put("yearOfBirth", a.getYearOfBirth());
         Integer startNumber = a.getStartNumber();
         ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-        ja.put("mastersAgeGroup", a.getMastersAgeGroup());
-        ja.put("category", category);
+        String mastersAgeGroup = a.getMastersAgeGroup();
+        ja.put("mastersAgeGroup", mastersAgeGroup != null ? mastersAgeGroup : "");
+        ja.put("category", category != null ? category : "");
         getAttemptsJson(a);
         ja.put("sattempts", sattempts);
         ja.put("cattempts", cattempts);
@@ -461,6 +469,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
+        buildContextMenu(this);
+        setDarkMode(this, isDarkMode(), false);
     }
 
     protected void setTranslationMap() {
@@ -508,9 +518,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     }
 
     private String formatInt(Integer total) {
-        if (total == -1)
-            return "inv.";// invited lifter, not eligible.
-        return (total == null || total == 0) ? "-" : (total < 0 ? "(" + Math.abs(total) + ")" : total.toString());
+        if (total == null || total == 0) return "-";
+        else if (total == -1) return "inv.";// invited lifter, not eligible.
+        else if (total < 0) return  "(" + Math.abs(total) + ")";
+        else return total.toString();
     }
 
     private String formatKg(String total) {
@@ -574,12 +585,42 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
     @Override
     public void setDarkMode(boolean dark) {
-        this.getElement().getClassList().set("dark", dark);
-        this.getElement().getClassList().set("light", !dark);
+        this.darkMode = dark;
     }
 
     @Override
     public boolean isDarkMode() {
-        return true;
+        return darkMode;
     }
+    
+    @Override
+    public ContextMenu getContextMenu() {
+        return contextMenu;
+    }
+    
+    @Override
+    public void setContextMenu(ContextMenu contextMenu) {
+        this.contextMenu = contextMenu;
+    }
+    
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
 }

@@ -378,5 +378,26 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
             uiEventBus = uiEventBusRegister(this, fop);
         });
     }
+    
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
    
 }

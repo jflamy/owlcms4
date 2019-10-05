@@ -1,217 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>app.owlcms</groupId>
-	<artifactId>owlcms4top</artifactId>
-	<version>4.2.0-beta3</version>
-	<packaging>pom</packaging>
-	<modules>
-		<module>owlcms</module>
-	</modules>
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>app.owlcms</groupId>
+    <artifactId>owlcms4top</artifactId>
+    <version>4.2.0-beta4</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>owlcms</module>
+    </modules>
 
-	<organization>
-		<name>Jean-François Lamy</name>
-		<url>https://github.com/jflamy</url>
-	</organization>
+    <organization>
+        <name>Jean-François Lamy</name>
+        <url>https://github.com/jflamy</url>
+    </organization>
 
-	<properties>
-		<!-- hard-coded paths -->
-		<!-- bundled windows jre location -->
-		<jre.directory>C:\Apps\jdk8u222-b10-jre</jre.directory>
-		<!-- windows installer compiler -->
-		<innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
+    <properties>
+        <!-- hard-coded paths -->
+        <!-- bundled windows jre location -->
+        <jre.directory>C:\Dev\jdk8u222-b10-jre</jre.directory>
+        <!-- windows installer compiler -->
+        <innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
 
-		<!-- maven configs -->
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<failOnMissingWebXml>false</failOnMissingWebXml>
+        <!-- maven configs -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
 
-		<!-- Library versions -->
-		<vaadin.version>14.0.5</vaadin.version>
-		<logback.version>1.2.3</logback.version>
-		<slf4j.version>1.7.26</slf4j.version>
-		<hibernate.version>5.4.3.Final</hibernate.version>
-		<guava.version>27.1-jre</guava.version>
+        <!-- Library versions -->
+        <vaadin.version>14.0.7</vaadin.version>
+        <logback.version>1.2.3</logback.version>
+        <slf4j.version>1.7.26</slf4j.version>
+        <hibernate.version>5.4.3.Final</hibernate.version>
+        <guava.version>27.1-jre</guava.version>
 
-		<!-- Plugins -->
-		<jetty.version>9.4.20.v20190813</jetty.version>
+        <!-- Plugins -->
+        <jetty.version>9.4.20.v20190813</jetty.version>
 
-		<rootOutputDir>${project.build.directory}</rootOutputDir>
-	</properties>
-	<repositories>
-		<repository>
-			<id>vaadin-addons</id>
-			<url>http://vaadin.com/nexus/content/repositories/vaadin-addons/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-<!-- 		<repository> -->
-<!-- 			<id>vaadin-snapshots</id> -->
-<!-- 			<url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url> -->
-<!-- 			<snapshots> -->
-<!-- 				<enabled>true</enabled> -->
-<!-- 			</snapshots> -->
-<!-- 		</repository> -->
-<!-- 		<repository> -->
-<!-- 			<id>flow-prerelease</id> -->
-<!-- 			<url>https://maven.vaadin.com/vaadin-prereleases</url> -->
-<!-- 		</repository> -->
-	</repositories>
+        <rootOutputDir>${project.build.directory}</rootOutputDir>
+    </properties>
+    <repositories>
+        <repository>
+            <id>vaadin-addons</id>
+            <url>http://vaadin.com/nexus/content/repositories/vaadin-addons/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <!-- <repository> -->
+        <!-- <id>vaadin-snapshots</id> -->
+        <!-- <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url> -->
+        <!-- <snapshots> -->
+        <!-- <enabled>true</enabled> -->
+        <!-- </snapshots> -->
+        <!-- </repository> -->
+        <!-- <repository> -->
+        <!-- <id>flow-prerelease</id> -->
+        <!-- <url>https://maven.vaadin.com/vaadin-prereleases</url> -->
+        <!-- </repository> -->
+    </repositories>
 
-<!-- 	<pluginRepositories> -->
-<!-- 		<pluginRepository> -->
-<!-- 			<id>flow-internal-release</id> -->
-<!-- 			<url>https://maven.vaadin.com/vaadin-prereleases</url> -->
-<!-- 		</pluginRepository> -->
-<!-- 		<pluginRepository> -->
-<!-- 			<id>vaadin-snapshots</id> -->
-<!-- 			<url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url> -->
-<!-- 			<snapshots> -->
-<!-- 				<enabled>true</enabled> -->
-<!-- 			</snapshots> -->
-<!-- 		</pluginRepository> -->
-<!-- 	</pluginRepositories> -->
+    <!-- <pluginRepositories> -->
+    <!-- <pluginRepository> -->
+    <!-- <id>flow-internal-release</id> -->
+    <!-- <url>https://maven.vaadin.com/vaadin-prereleases</url> -->
+    <!-- </pluginRepository> -->
+    <!-- <pluginRepository> -->
+    <!-- <id>vaadin-snapshots</id> -->
+    <!-- <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url> -->
+    <!-- <snapshots> -->
+    <!-- <enabled>true</enabled> -->
+    <!-- </snapshots> -->
+    <!-- </pluginRepository> -->
+    <!-- </pluginRepositories> -->
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-bom</artifactId>
-				<type>pom</type>
-				<scope>import</scope>
-				<version>${vaadin.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.google.guava</groupId>
-				<artifactId>guava</artifactId>
-				<version>${guava.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-core</artifactId>
-				<version>${logback.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-classic</artifactId>
-				<version>${logback.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-access</artifactId>
-				<version>${logback.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-ext</artifactId>
-				<version>${slf4j.version}</version>
-				<type>jar</type>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>jcl-over-slf4j</artifactId>
-				<version>${slf4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>jul-to-slf4j</artifactId>
-				<version>${slf4j.version}</version>
-			</dependency>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-bom</artifactId>
+                <type>pom</type>
+                <scope>import</scope>
+                <version>${vaadin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-access</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-ext</artifactId>
+                <version>${slf4j.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jul-to-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
 
-			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>javax.servlet-api</artifactId>
-				<version>3.1.0</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.1.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-	<dependencies>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>flow-server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>flow-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>flow-push</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>flow-html-components</artifactId>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>flow-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>flow-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>flow-push</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>flow-html-components</artifactId>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>com.amashchenko.maven.plugin</groupId>
-				<artifactId>gitflow-maven-plugin</artifactId>
-				<version>1.12.0</version>
-				<configuration>
-					<allowSnapshots>true</allowSnapshots>
-					<preReleaseGoals>verify</preReleaseGoals>
-					<postReleaseGoals>github-release:github-release</postReleaseGoals>
-					<skipTag>true</skipTag>
-					<skipTestProject>true</skipTestProject>
-					<commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
-					<verbose>true</verbose>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>com.ragedunicorn.tools.maven</groupId>
-				<artifactId>github-release-maven-plugin</artifactId>
-				<version>1.0.2-SNAPSHOT</version>
-				<inherited>false</inherited>
-				<executions>
-					<execution>
-						<id>default-cli</id>
-						<configuration>
-							<owner>jflamy</owner>
-							<repository>owlcms4</repository>
-							<server>github-oauth</server>
-							<tagName>${project.version}</tagName>
-							<name>${project.version}</name>
-							<targetCommitish>master</targetCommitish>
-							<body>${project.version}</body>
-							<releaseNotes>ReleaseNotes.md</releaseNotes>
-							<assets>
-								<asset>owlcms/target/owlcms.zip</asset>
-								<asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
-							</assets>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.amashchenko.maven.plugin</groupId>
+                <artifactId>gitflow-maven-plugin</artifactId>
+                <version>1.12.0</version>
+                <configuration>
+                    <allowSnapshots>true</allowSnapshots>
+                    <preReleaseGoals>verify</preReleaseGoals>
+                    <postReleaseGoals>github-release:github-release</postReleaseGoals>
+                    <skipTag>true</skipTag>
+                    <skipTestProject>true</skipTestProject>
+                    <commitDevelopmentVersionAtStart>true</commitDevelopmentVersionAtStart>
+                    <verbose>true</verbose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.ragedunicorn.tools.maven</groupId>
+                <artifactId>github-release-maven-plugin</artifactId>
+                <version>1.0.2-SNAPSHOT</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <configuration>
+                            <owner>jflamy</owner>
+                            <repository>owlcms4</repository>
+                            <server>github-oauth</server>
+                            <tagName>${project.version}</tagName>
+                            <name>${project.version}</name>
+                            <targetCommitish>master</targetCommitish>
+                            <body>${project.version}</body>
+                            <releaseNotes>ReleaseNotes.md</releaseNotes>
+                            <assets>
+                                <asset>owlcms/target/owlcms.zip</asset>
+                                <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
+                            </assets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
-	<profiles>
-	</profiles>
+    <profiles />
+
 
 </project>

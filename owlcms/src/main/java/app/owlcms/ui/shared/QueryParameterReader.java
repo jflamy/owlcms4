@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Location;
@@ -96,5 +97,10 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
         // change the URL to reflect retrieved parameters
         event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
     }
+    
+    public Location getLocation();
+    public void setLocation(Location location);
+    public UI getLocationUI();
+    public void setLocationUI(UI locationUI);
 
 }

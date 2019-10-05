@@ -9,10 +9,12 @@ package app.owlcms.ui.displayselection;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
@@ -50,20 +52,24 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         intro.getStyle().set(getTranslation("margin-bottom"), "0");
 
         Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"));
+        Button referee = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
+        Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoard.class, getTranslation("Athlete_Attempt"));
+        
         Button scoreboard = openInNewTab(Scoreboard.class, getTranslation("Scoreboard"));
         Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
         Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
-        Button referee = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
-        Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoard.class, getTranslation("Athlete_Attempt"));
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, attempt, liftingOrder 
-                ,topSinclair
-                );
-        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, athleteFacingAttempt);
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, liftingOrder, topSinclair);
+        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, attempt,  athleteFacingAttempt);
 
+        VerticalLayout intro2 = new VerticalLayout();
+        addP(intro2, getTranslation("darkModeSelect"));
+                
         fillH(intro, this);
-        doGroup(getTranslation("FieldOfPlayDisplays"), grid1, this);
+
+        doGroup(getTranslation("Scoreboards"), intro2, grid1, this);
         doGroup(getTranslation("Refereeing_Displays"), grid2, this);
+
     }
 
     /**
@@ -89,6 +95,26 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
     @Override
     public String getPageTitle() {
         return getTranslation("OWLCMS_Displays");
+    }
+
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
     }
 
 }

@@ -95,8 +95,8 @@ public abstract class AthleteGridContent extends VerticalLayout
                 : Translator.translate("Snatch_number", attemptNumber);
     }
 
-    protected Location location;
-    protected UI locationUI;
+    private Location location;
+    private UI locationUI;
     protected EventBus uiEventBus;
 
     /**
@@ -252,8 +252,8 @@ public abstract class AthleteGridContent extends VerticalLayout
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
         logger.debug("AthleteGridContent parsing URL");
         QueryParameterReader.super.setParameter(event, parameter);
-        location = event.getLocation();
-        locationUI = event.getUI();
+        setLocation(event.getLocation());
+        setLocationUI(event.getUI());
     }
 
     /**
@@ -312,7 +312,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBarGroupSelect, uiEventBus, e, this, e.getOrigin(), () -> {
             syncWithFOP(true);
-            updateURLLocation(locationUI, location, e.getGroup());
+            updateURLLocation(getLocationUI(), getLocation(), e.getGroup());
         });
     }
 
@@ -565,7 +565,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                         // this assumes that SwitchGroup post is synchronous and has loaded.
                         // otherwise we should listen for UI SwitchGroup event.
                         syncWithFOP(true);
-                        updateURLLocation(locationUI, location, newGroup);
+                        updateURLLocation(getLocationUI(), getLocation(), newGroup);
                     } else {
                         fop.loadGroup(newGroup, this);
                         syncWithFOP(true);
@@ -847,6 +847,22 @@ public abstract class AthleteGridContent extends VerticalLayout
             n.add(label);
             n.open();
         }
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public UI getLocationUI() {
+        return locationUI;
+    }
+
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
     }
 
 }
