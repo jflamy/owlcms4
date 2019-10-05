@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.owlcms</groupId>
 		<artifactId>owlcms4top</artifactId>
-		<version>4.2.0-beta6</version>
+		<version>4.2.0-beta7</version>
 	</parent>
 
 	<name>Olympic Weightlifting Competition Management System</name>
@@ -461,6 +461,19 @@
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
+                    <execution>
+                        <id>plain</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${project.artifactId}</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/plain.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>                
 					<execution>
 						<id>zip</id>
 						<phase>package</phase>
