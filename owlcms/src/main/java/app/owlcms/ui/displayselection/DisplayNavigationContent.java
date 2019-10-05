@@ -66,8 +66,9 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         addP(intro2, getTranslation("darkModeSelect"));
                 
         fillH(intro, this);
-        doGroup(getTranslation("Refereeing_Displays"), grid2, this);
+
         doGroup(getTranslation("Scoreboards"), intro2, grid1, this);
+        doGroup(getTranslation("Refereeing_Displays"), grid2, this);
 
     }
 
