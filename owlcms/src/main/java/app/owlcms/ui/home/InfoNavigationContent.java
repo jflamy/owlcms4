@@ -35,6 +35,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.DebugUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -60,6 +61,8 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 	public InfoNavigationContent() {
 		VerticalLayout license = buildLicense();
 		fillH(license, this);
+
+        DebugUtils.gc();
 	}
 
 	private VerticalLayout buildLicense() {
