@@ -12,7 +12,7 @@ Announcer,Announcer,Annonceur,,Speaker,Presentador,Судья-информато
 AnnouncerEtc,"\u0020(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.)","\u0020(annonceur, chronométreur, changements, résultats, essai courant, jury, etc.)",,"\u0020(speaker, timekeeper, marshall, result boards, attempt board, jury, osv.)",,"\u0020(судьи-информатора, судьи-хронометриста, судьи на перезаявках, таблицы результатов, экрана попыток, жюри и т.д.)"
 AnnouncerSelectsGroup,The current group for the platform is selected on the <b><i>Announcer</i></b> screen<br> ,Le groupe courant pour la plateforme est déterminé par l'<b><i>annonceur</i></b><br> ,,Nuværende gruppe for platformen vælges på <b><i>Speaker</i></b> skærm<br> ,,Поток выбирается на экране <b><i>судьи-информатора</i></b><br> 
 Apply,Apply,Appliquer,,Anvend,Aplicar,Применить
-Athlete_Attempt,Athlete-facing Attempt Board Display,Essai courant (face à l'athlète),,Atlet-vendt Attempt Board Display,,Экран попытки для спортсмена
+Athlete_Attempt,Athlete-facing Attempt Board Display,Essai courant (face à l'athlète),,Atlet-vendt Attempt Board,,Экран попытки для спортсмена
 Athlete_Decisions,Athlete-facing Timer/Down/Decisions,Chrono/Terre/Décisions (face à l'athlète),,Atlet-vendt Timer/Nedsignal/Afgørelse,,Экран решения для спортсмена
 AthleteCard,Athlete Card,Carton d'athlète,,Atletkort,Athlete Card,Карточка
 AthleteCards,Athlete Cards,Cartons d'athlète,,Atlet kort,,Карточки спортсменов
@@ -294,7 +294,6 @@ Referee1,Referee 1,Arbitre 1,,Dommer 1,Juez 1,Рефери 1
 Referee2,Referee 2,Arbitre 2,,Dommer 2,Juez 2,Рефери 2
 Referee3,Referee 3,Arbitre 3,,Dommer 3,Juez 3,Рефери 3
 RefereeDecisions,Referee Decisions,Décisions des officiels,,Dommer Afgørelse,Decisiones de los jueces,Решение рефери
-Refereeing_Displays,Refereeing Displays (can accept keyboard input from refereeing devices),Affichages d'arbitrage (acceptent les entrées des claviers d'arbitrage),,Dommer Displays (accepterer keyboard input fra dommer enheder),,Экраны рефери (может принимать ввод с устройств)
 Referees_Jury,Referees and Jury,Arbitres et Jury,,Dommere og jury,Jueces y jurado,Рефери и жюри
 RefreshList,Refresh list,Rafraîchir,,Opfrisk liste,,Обновить список
 Registration,Registration,Inscriptions,,Registreringer,Inscripciones,Регистрация
@@ -410,3 +409,8 @@ dark,White on black,Blanc sur noir,,White on black,White on black,White on black
 light,Black on white,Noir sur blanc,,Black on white,Black on white,Black on white
 darkModeSelect,"After opening, click on the board to select white on black or black on white.","Après l'ouverture, cliquer sur l'écran pour choisir blanc sur noir ou noir sur blanc.",,Efter åbning skal du klikke på hvidt på sort eller sort på hvidt.,"Después de abrir, haga clic en blanco sobre negro o negro sobre blanco.",После открытия нажмите белый на черном или черный на белом.
 Scoreboards,Scoreboards,Tableaux d'affichage,,Resultattavler,Marcadores,Таблицы результатов
+refereeingDevices,"If refereeing devices are used, they are usually connected to this display.","Si des claviers d'arbitrage sont utilisés,  ils sont normalement connectés à cet appareil.",,"
+Hvis der bruges dommerudstyr, er de normalt forbundet til dette display.
+Hvis der bruges dommerudstyr, er de forbundet til dette display.",,"
+Если используются судейские устройства, они обычно подключаются к этому дисплею."
+Refereeing_Displays,Athlete-facing Timer/Down/Decisions,Chrono/Terre/Décisions (face à l'athlète),,Atlet-vendt Timer/Nedsignal/Afgørelse,,Экран решения для спортсмена

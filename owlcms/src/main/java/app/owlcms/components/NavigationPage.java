@@ -45,7 +45,9 @@ public interface NavigationPage extends OwlcmsContent {
 
     public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper) {
         VerticalLayout content1 = new VerticalLayout();
-        content1.add(new Label(label));
+        Label label2 = new Label(label);
+        label2.getStyle().set("font-weight", "bold");
+        content1.add(label2);
         content1.getStyle().set("margin-bottom", "-2ex");
         fillH(content1, wrapper);
         fillH(grid1, wrapper);
@@ -53,7 +55,9 @@ public interface NavigationPage extends OwlcmsContent {
 
     public default void doGroup(String label, VerticalLayout intro, FlexibleGridLayout grid1, VerticalLayout wrapper) {
         VerticalLayout content1 = new VerticalLayout();
-        content1.add(new Label(label));
+        Label label2 = new Label(label);
+        label2.getStyle().set("font-weight", "bold");
+        content1.add(label2);
         content1.add(intro);
         content1.getStyle().set("margin-bottom", "-2ex");
         fillH(content1, wrapper);

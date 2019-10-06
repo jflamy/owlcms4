@@ -11,12 +11,16 @@ class Scoreboard extends PolymerElement {
 	box-sizing: border-box;
 }
 
+:root {
+  --narrow-width: 6%;
+  --veryNarrow-width: 4%;
+}
+
 .wrapper {
 	font-family: Arial, Helvetica, sans-serif;
 	color: white;
 	background-color: black;
 	height: 100vh;
-	width: 100vw;
 	padding: 2vmin 2vmin 2vmin 2vmin;
 	overflow-y: hidden;
 }
@@ -57,7 +61,7 @@ class Scoreboard extends PolymerElement {
 	font-weight: bold;
 	flex: 0 0 35%;
 	text-align: left;
-	margin-left: 1em;
+/* 	margin-left: 1em; */
 	/*margin-right: auto;*/
 	flex-grow: 0.5;
 }
@@ -99,15 +103,16 @@ table.results {
 	width: 100%;
 	border-collapse: collapse;
 	border: none;
+	background-color: black;
 	/*margin-bottom: 2vmin;*/
 }
 
-:host(.dark) table.results {
+:host(.dark) table.results tr {
 	background-color: black;
 	color: white;
 }
 
-:host(.light) table.results {
+:host(.light) table.results tr {
 	background-color: white;
 	color: black;
 }
@@ -164,14 +169,14 @@ th, td {
 	font-size: 1.5vh;
 	font-weight: normal;
 	font-style: italic;
-	width: 4vw;
+	width: var(--veryNarrow-width);
 	text-align: center;
 }
 
 .masters {
 	display: table-cell;
 	text-align: center;
-	width: 4vw;
+	width: var(--veryNarrow-width);
 }
 
 .mastersHidden {
@@ -182,14 +187,14 @@ th, td {
 }
 
 .narrow {
-	width: 6vw;
+	width: var(--narrow-width);
 	text-align: center;
 }
 
 @media screen and (min-width: 1020px) {
 	.showRank {
 		display: table-cell;
-		width: 4vw;
+		width: var(--veryNarrow-width);
 		text-align: center;
 	}
 }
@@ -204,7 +209,7 @@ th, td {
 }
 
 .veryNarrow {
-	width: 4vw;
+	width: var(--veryNarrow-width);
 	text-align: center;
 }
 
@@ -213,7 +218,7 @@ th, td {
 }
 
 .narrow {
-	width: 6vw;
+	width: var(--narrow-width);
 	text-align: center;
 }
 

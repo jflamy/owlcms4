@@ -58,17 +58,23 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button scoreboard = openInNewTab(Scoreboard.class, getTranslation("Scoreboard"));
         Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
         Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
-
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, liftingOrder, topSinclair);
-        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, attempt,  athleteFacingAttempt);
-
-        VerticalLayout intro2 = new VerticalLayout();
-        addP(intro2, getTranslation("darkModeSelect"));
-                
+  
         fillH(intro, this);
+        
+        VerticalLayout intro1 = new VerticalLayout();
+        addP(intro1, getTranslation("darkModeSelect"));
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, liftingOrder, topSinclair);
+        doGroup(getTranslation("Scoreboards"), intro1, grid1, this);       
+        
+        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, athleteFacingAttempt);
+        doGroup(getTranslation("AttemptBoard"), grid3, this);
+        
+        VerticalLayout intro2 = new VerticalLayout();
+        addP(intro2, getTranslation("refereeingDevices"));
+        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee);
+        doGroup(getTranslation("Refereeing_Displays"), intro2, grid2, this);
+        
 
-        doGroup(getTranslation("Scoreboards"), intro2, grid1, this);
-        doGroup(getTranslation("Refereeing_Displays"), grid2, this);
 
     }
 
