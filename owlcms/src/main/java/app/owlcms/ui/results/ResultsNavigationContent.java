@@ -23,6 +23,7 @@ import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.DownloadButtonFactory;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.DebugUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -63,6 +64,8 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		
 		doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this);
 		doGroup(getTranslation("EndOfCompetitionDocuments"), grid2, this);
+
+        DebugUtils.gc();
     }
 
 
