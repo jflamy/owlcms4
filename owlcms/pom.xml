@@ -647,7 +647,7 @@
                                 <!-- reset on every restart, 
                                     populate data after manual reset (devMode),
                                     run on postgres database -->
-                                <web><![CDATA[java -javaagent:target/heroku-javaagent-2.0.jar=stdout=true,lxmem=true -Dport=$PORT -DdevMode=true -DresetMode=true -DmemoryMode=false -Xmx340m -Xms340m -XX:MaxMetaspaceSize=64m -Dlogback.configurationFile=logback-cloud.xml -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -cp target/owlcms.jar app.owlcms.Main]]></web>
+                                <web><![CDATA[java -javaagent:target/heroku-javaagent-2.0.jar=stdout=true,lxmem=true -Dport=$PORT -Dlogback.configurationFile=logback-console.xml -DdevMode=true -DresetMode=true -DmemoryMode=false -Xmx400m -Xms400m -XX:MaxMetaspaceSize=80m -Dlogback.configurationFile=logback-cloud.xml -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -cp target/owlcms.jar app.owlcms.Main]]></web>
                               </processTypes>
                         </configuration>
                     </plugin>
@@ -671,8 +671,8 @@
                             <processTypes>
                                 <!-- do not reset on restart(no resetMode), 
                                     populate data after manual reset (devMode),
-                                    run on postgres database -->
-                                <web><![CDATA[java -Dport=$PORT -DdevMode=true -DresetMode=false -DmemoryMode=false -Xmx360m -Dlogback.configurationFile=logback-cloud.xml -Xmx340m -Xms340m -XX:MaxMetaspaceSize=64m -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar target/owlcms.jar]]></web>
+                                    run on postgres database (memoryMode=false, JDBC url provided by Heroku)-->
+                                <web><![CDATA[java -Dport=$PORT -Dlogback.configurationFile=logback-console.xml -DdevMode=true -DresetMode=false -DmemoryMode=false -Xmx400m -Xms400m -XX:MaxMetaspaceSize=80m -Dlogback.configurationFile=logback-cloud.xml -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar target/owlcms.jar]]></web>
                             </processTypes>
                         </configuration>
                     </plugin>
