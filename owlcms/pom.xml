@@ -236,7 +236,11 @@
             <groupId>com.vaadin</groupId>
             <artifactId>flow-push</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.heroku.agent</groupId>
+            <artifactId>heroku-javaagent</artifactId>
+            <version>2.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -297,6 +301,32 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.heroku.agent</groupId>
+                                    <artifactId>heroku-javaagent</artifactId>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>    
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -598,14 +628,6 @@
         </profile>
         <profile>
             <id>demo</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.heroku.agent</groupId>
-                    <artifactId>heroku-javaagent</artifactId>
-                    <version>2.0</version>
-                    <scope>runtime</scope>
-                </dependency>
-            </dependencies>
             <build>
                 <plugins>
                     <plugin>
@@ -617,6 +639,7 @@
                             <includeTarget>false</includeTarget>
                             <includes>
                                 <include>target/owlcms.jar</include>
+                                <include>target/heroku-javaagent-2.0.jar</include>
                             </includes>
                             <processTypes>
 								<!-- following must be a single command line, cdata used to prevent 
@@ -624,9 +647,8 @@
                                 <!-- reset on every restart, 
                                     populate data after manual reset (devMode),
                                     run on postgres database -->
-                                <web><![CDATA[java -javaagent:heroku-javaagent-2.0.jar=stdout=true,lxmem=true -Dport=$PORT -DdevMode=true -DresetMode=true -DmemoryMode=false -Xmx360m -Dlogback.configurationFile=logback-cloud.xml -Xmx300m -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -cp target/owlcms.jar app.owlcms.Main]]></web>
+                                <web><![CDATA[java -javaagent:target/heroku-javaagent-2.0.jar=stdout=true,lxmem=true -Dport=$PORT -DdevMode=true -DresetMode=true -DmemoryMode=false -Xmx340m -Xms340m -XX:MaxMetaspaceSize=64m -Dlogback.configurationFile=logback-cloud.xml -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -cp target/owlcms.jar app.owlcms.Main]]></web>
                               </processTypes>
-
                         </configuration>
                     </plugin>
                 </plugins>
@@ -650,7 +672,7 @@
                                 <!-- do not reset on restart(no resetMode), 
                                     populate data after manual reset (devMode),
                                     run on postgres database -->
-                                <web><![CDATA[java -Dport=$PORT -DdevMode=true -DresetMode=false -DmemoryMode=false -Xmx360m -Dlogback.configurationFile=logback-cloud.xml -Xmx300m -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar target/owlcms.jar]]></web>
+                                <web><![CDATA[java -Dport=$PORT -DdevMode=true -DresetMode=false -DmemoryMode=false -Xmx360m -Dlogback.configurationFile=logback-cloud.xml -Xmx340m -Xms340m -XX:MaxMetaspaceSize=64m -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar target/owlcms.jar]]></web>
                             </processTypes>
                         </configuration>
                     </plugin>

@@ -1,1 +1,1 @@
-web: java -Dport=$PORT -DdemoMode=true -Xmx360m -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dlogback.configurationFile=logback-console.xml  -jar ${project.artifactId}.jar
+web: java -Dport=$PORT -DdemoMode=true -Xmx340m -Xms340m -XX:MaxMetaspaceSize=64m -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dlogback.configurationFile=logback-console.xml  -jar ${proj-Xmx340m -Xms340m -XX:MaxMetaspaceSize=64mect.artifactId}.jar
