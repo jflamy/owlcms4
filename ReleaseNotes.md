@@ -1,10 +1,12 @@
-**For the last stable version, please use the latest 4.1 version.  This "beta" version is a public test of the next major upgrade, in order to test a broader range of configurations.**
+**For the last stable version, please use the latest 4.1 version.**  This release candidate ("rc") version is a public test of the next major upgrade, in order to test a broader range of configurations. The official release should be the same as this release, feature-wise.
 
 - See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and the [live demo](https://jflamy.github.io/owlcms4/#/?id=demo) site
 - Release Highlights: 
-  - This version is a technical update to use the long-term support version of the [Vaadin](https://vaadin.com/) software that is used to build the user interface.
-  - All updates and features from version 4.1.20 have been merged
+  - This version is a technical update to use the long-term support version of the [Vaadin](https://vaadin.com/) software that is used to build the user interface.  This update provides five years of technical stability for the underlying platform and add-ons.
+  - All fixes and features from version 4.1.20 have been merged
   - This version has been tested to work on Linux (Ubuntu 18.03)
+  - The only new features in 4.2.0 are minor changes to the user interfaces such as the option for white-on-black scoreboards and tweaks to the navigation screens.
+  - No new features will be added to 4.1, future improvements will be in the 4.2 series.
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc)
 - Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` below and follow [Local installation instructions](https://jflamy.github.io/owlcms4/#/LocalSetup.md) 
