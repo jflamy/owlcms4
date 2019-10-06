@@ -3534,17 +3534,24 @@ public class Athlete {
     }
 
     public String getFullId() {
-//		Integer startNumber2 = this.getStartNumber();
-        Category category2 = this.getCategory();
-        String lastName2 = this.getLastName();
-        String firstName2 = this.getFirstName();
-        if (lastName2 == null && firstName2 == null) return "";
-        return lastName2 + ", " + firstName2 + " " + (category2 != null ? category2 : "");
+        String fullName = getFullName();
+        Category category2 = getCategory();
+        if (!fullName.isEmpty()) {
+            return fullName + " " + (category2 != null ? category2 : "");
 //				+(startNumber2 != null && startNumber2 >0 ? " ["+startNumber2+"]" : "");
+        } else {
+            return "";
+        }
     }
 
     public String getFullName() {
-        return this.getLastName().toUpperCase() + ", " + this.getFirstName();
+        String upperCase = this.getLastName().toUpperCase();
+        String firstName2 = this.getFirstName();
+        if ((upperCase != null) && !upperCase.trim().isEmpty() && (firstName2 != null) && !firstName2.trim().isEmpty()) {
+            return upperCase + ", " + firstName2;
+        } else {
+            return "";
+        }
     }
 
     public AgeDivision getAgeDivision() {
