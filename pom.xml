@@ -163,7 +163,7 @@
                 <configuration>
                     <allowSnapshots>true</allowSnapshots>
                     <postReleaseGoals>github-release:github-release</postReleaseGoals>
-                    <skipTag>true</skipTag><!-- github-release creates the tag -->
+                    <skipTag>false</skipTag><!-- github-release creates the tag -->
                     <skipTestProject>true</skipTestProject>
                     <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
                     <verbose>true</verbose>
