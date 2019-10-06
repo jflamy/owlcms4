@@ -133,6 +133,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
      * Instantiates a new results board.
      */
     public LiftingOrder() {
+        this.getElement().getStyle().set("width", "100%");
     }
 
     @Override
