@@ -27,6 +27,7 @@ import app.owlcms.displays.topathletes.TopSinclair;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.DebugUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -74,8 +75,7 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee);
         doGroup(getTranslation("Refereeing_Displays"), intro2, grid2, this);
         
-
-
+        DebugUtils.gc();
     }
 
     /**

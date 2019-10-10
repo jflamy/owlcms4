@@ -26,6 +26,7 @@ import app.owlcms.components.NavigationPage;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.DebugUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -79,6 +80,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         doGroup(getTranslation("Registration"), grid2, this);
         doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
 
+        DebugUtils.gc();
     }
 
     /**

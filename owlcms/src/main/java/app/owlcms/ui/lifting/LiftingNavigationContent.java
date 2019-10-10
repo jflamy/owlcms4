@@ -26,6 +26,7 @@ import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.referee.RefContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
+import app.owlcms.utils.DebugUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -74,7 +75,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, jury);
         doGroup(getTranslation("Referees_Jury"), grid2, this);
 
-
+        DebugUtils.gc();
         logger.trace("LiftingNavigationContent constructor stop");
     }
 

@@ -8,9 +8,14 @@ package app.owlcms.utils;
 
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.data.athlete.Athlete;
+import ch.qos.logback.classic.Logger;
 
 public class DebugUtils {
+    
+    static Logger logger = (Logger) LoggerFactory.getLogger("garbageCollection");
 
 	/**
 	 * @param lifterList
@@ -56,4 +61,17 @@ public class DebugUtils {
 
 	final static String LINESEPARATOR = System.getProperty("line.separator");
 
+    public static void gc() {
+        final String where = LoggerUtils.whereFrom();
+        new Thread(() -> {
+            try {
+                logger.warn("clearing memory {}", where);
+                System.gc();
+                Thread.sleep(500);
+                System.gc();
+            } catch (InterruptedException e) {
+            }
+
+        }).start();
+    }
 }
