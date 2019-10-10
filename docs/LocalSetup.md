@@ -8,7 +8,11 @@ This step is performed only on the master laptop.
 
 ![zip](img\LocalInstall\010_setupexe.png)
 
-- Open the downloaded installer by double-clicking on it.
+- Open the downloaded installer by double-clicking on it. 
+
+  - > **If the installer does not start right away and your computer seems to be working very hard, see this page : [Make Windows Defender Allow Installation](DefenderOff)**
+
+  - The same troubleshooting [page](DefenderOff) also shows what to do if you get a blue window that says `Windows protected your PC`
 
 - The installer will prompt you for an installation location.  The default is usually correct.
 
