@@ -409,8 +409,6 @@ dark,White on black,Blanc sur noir,,White on black,White on black,White on black
 light,Black on white,Noir sur blanc,,Black on white,Black on white,Black on white
 darkModeSelect,"After opening, click on the board to select white on black or black on white.","Après l'ouverture, cliquer sur l'écran pour choisir blanc sur noir ou noir sur blanc.",,Efter åbning skal du klikke på hvidt på sort eller sort på hvidt.,"Después de abrir, haga clic en blanco sobre negro o negro sobre blanco.",После открытия нажмите белый на черном или черный на белом.
 Scoreboards,Scoreboards,Tableaux d'affichage,,Resultattavler,Marcadores,Таблицы результатов
-refereeingDevices,"If refereeing devices are used, they are usually connected to this display.","Si des claviers d'arbitrage sont utilisés,  ils sont normalement connectés à cet appareil.",,"
-Hvis der bruges dommerudstyr, er de normalt forbundet til dette display.
-Hvis der bruges dommerudstyr, er de forbundet til dette display.",,"
-Если используются судейские устройства, они обычно подключаются к этому дисплею."
+refereeingDevices,"If refereeing devices are used, they are usually connected to this display.","Si des claviers d'arbitrage sont utilisés,  ils sont normalement connectés à cet appareil.",,"Hvis der bruges dommerudstyr, er de normalt forbundet til dette display.",,"Если используются судейские устройства, они обычно подключаются к этому дисплею."
 Refereeing_Displays,Athlete-facing Timer/Down/Decisions,Chrono/Terre/Décisions (face à l'athlète),,Atlet-vendt Timer/Nedsignal/Afgørelse,,Экран решения для спортсмена
+Membership,Membership #,Nº membre,,Medlemsnummer,Nº de socio,Членский номер

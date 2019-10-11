@@ -323,6 +323,7 @@ implements CrudListener<Athlete>, OwlcmsContent {
         props.add("cleanJerk1Declaration"); captions.add(getTranslation("C_and_J_decl"));
         props.add("eligibleForIndividualRanking"); captions.add(getTranslation("Eligible for Individual Ranking?")); 
         props.add("lotNumber"); captions.add(getTranslation("Lot"));
+        props.add("membership"); captions.add(getTranslation("Membership"));
         crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
         crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
 

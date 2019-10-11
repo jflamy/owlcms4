@@ -135,14 +135,14 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory.setVisibleProperties("bodyWeight", "category", "snatch1Declaration", "cleanJerk1Declaration",
                 "gender", "group", "lastName", "firstName", "team",
                 useBirthYear ? "yearOfBirth" : "fullBirthDate", "ageDivision",
-                "qualifyingTotal", "eligibleForIndividualRanking");
+                "qualifyingTotal", "membership", "eligibleForIndividualRanking");
         crudFormFactory.setFieldCaptions(getTranslation("BodyWeight"), getTranslation("Category"),
                 getTranslation("Snatch_Declaration"), getTranslation("Clean_and_Jerk_Declaration"),
                 getTranslation("Gender"), getTranslation("Group"), getTranslation("LastName"),
                 getTranslation("FirstName"), getTranslation("Team"),
                 useBirthYear ? getTranslation("YearOfBirth"):getTranslation("BirthDate_yyyy"),
                 getTranslation("AgeDivision"), getTranslation("EntryTotal"),
-
+                getTranslation("Membership"),
                 getTranslation("Eligible for Individual Ranking?"));
         crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
                 Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
@@ -159,7 +159,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         } else {
             crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
         }
-        
         crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {
             ((BodyWeightField) e).focus();
         });
