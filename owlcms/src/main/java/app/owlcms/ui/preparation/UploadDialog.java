@@ -91,7 +91,7 @@ public class UploadDialog extends Dialog {
 				beans.put("competition", c);
 				beans.put("athletes", athletes);
 
-				logger.info(getTranslation("ReadingData_"));
+				//logger.info(getTranslation("ReadingData_"));
 				XLSReadStatus status = reader.read(inputStream, beans);
 				@SuppressWarnings("unchecked")
 				List<XLSReadMessage> errors = status.getReadMessages();
@@ -100,14 +100,16 @@ public class UploadDialog extends Dialog {
 					sb.append(cleanMessage(m.getMessage()));
 					Exception e = m.getException();
 					Throwable cause = e.getCause();
-					sb.append(cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage());
+					String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
+					if (causeMessage.contentEquals("text")) causeMessage = "Empty or invalid.";
+                    sb.append(causeMessage);
 					sb.append(System.lineSeparator());
 				}
 				if (sb.length() > 0) {
 					ta.setValue(sb.toString());
 					ta.setVisible(true);
 				}
-				logger.info(getTranslation("DataRead") + athletes.size() + " athletes");
+				logger.info(getTranslation("DataRead") +" " + athletes.size() + " athletes");
 
 				JPAService.runInTransaction(em -> {
 					
@@ -140,11 +142,15 @@ public class UploadDialog extends Dialog {
 	}
 
 	public String cleanMessage(String localizedMessage) {
-		localizedMessage = localizedMessage.replace(getTranslation("CantReadCell"), "");
+		localizedMessage = localizedMessage.replace("Can't read cell ", "");
 		String cell = localizedMessage.substring(0,localizedMessage.indexOf(" "));
 		String ss = "spreadsheet";
 		int ix = localizedMessage.indexOf(ss)+ss.length();
-		String cleanMessage = getTranslation("Cell")+cell+": "+localizedMessage.substring(ix);
+		localizedMessage = localizedMessage.substring(ix);
+		if (localizedMessage.trim().contentEquals("text")) {
+		    localizedMessage = "Empty or invalid.";
+		}
+		String cleanMessage = getTranslation("Cell")+" "+cell+": *"+localizedMessage+"*";
 		return cleanMessage;
 	}
 }
