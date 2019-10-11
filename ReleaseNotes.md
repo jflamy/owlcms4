@@ -1,13 +1,14 @@
-**For the last stable version, please use the latest 4.1 version (4.1.20).**  
-This release candidate ("rc") version is a public test of the next major upgrade, in order to test a broader range of configurations. The official release should be the same as this release, feature-wise.
+**For the current stable version, please use the latest 4.1 version (4.1.20).**  
+This release candidate ("rc") version is a public test of the next major upgrade, in order to test a broader range of configurations. 
 
 - See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and the [live demo](https://jflamy.github.io/owlcms4/#/?id=demo) site
 - Release Highlights: 
   - This version is a technical update to use the long-term support (LTS) version of the [Vaadin](https://vaadin.com/) software that is used to build the user interface.  This LTS update provides five years of technical stability for the underlying platform and add-ons.
+    - No new features will be added to 4.1, future improvements will be in the 4.2 series.
   - All fixes and features from version 4.1.20 have been merged
+  - Clicking on the scoreboard, lifting order, top sinclair screens allows toggling between black background and white blackground
+  - Federation membership number added to athlete information capture screens (registration and weigh-in)
   - This version has been tested to work on Linux (Ubuntu 18.03)
-  - The only new features in 4.2.0 are minor changes to the user interfaces such as the option for white-on-black scoreboards and tweaks to the navigation screens.
-  - No new features will be added to 4.1, future improvements will be in the 4.2 series.
 - Known Issues:
   
   - (Annoyance) If the server is restarted, the various browsers should reload automatically.  Currently this is not working due to a [bug](https://github.com/vaadin/flow/issues/6635) in the underlying Vaadin framework which is has been acknowledged.  The workaround is to reload the pages with F5 or Ctrl-R.
