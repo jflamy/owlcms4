@@ -260,7 +260,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     private JsonValue getAthletesJson(List<Athlete> list2) {
         JsonArray jath = Json.createArray();
         int athx = 0;
-        List<Athlete> list3 = Collections.unmodifiableList(list2)
+        List<Athlete> list3 = Collections.unmodifiableList(list2);
         for (Athlete a : list3) {
             JsonObject ja = Json.createObject();
             Gender curGender = a.getGender();
