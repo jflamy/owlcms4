@@ -150,7 +150,7 @@ public class UploadDialog extends Dialog {
 		if (localizedMessage.trim().contentEquals("text")) {
 		    localizedMessage = "Empty or invalid.";
 		}
-		String cleanMessage = getTranslation("Cell")+" "+cell+": *"+localizedMessage+"*";
+		String cleanMessage = getTranslation("Cell")+" "+cell+": "+localizedMessage;
 		return cleanMessage;
 	}
 }
