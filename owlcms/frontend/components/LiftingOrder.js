@@ -13,6 +13,10 @@ class Scoreboard extends PolymerElement {
 :root {
   --narrow-width: 6%;
   --veryNarrow-width: 4%;
+  --fontSizeRank-height: 0.95em;
+  --fontSizeRows-height: 1.15em;
+  --fontSizeRank-heightXGA: 0.9em;
+  --fontSizeRows-heightXGA: 1.1em;
 }
 
 .wrapper {
@@ -120,7 +124,7 @@ th, td {
 	border-collapse: collapse;
 	border: solid 1px DarkGray;
 	padding: 0.4vmin 1vmin 0.4vmin 1vmin;
-	font-size: 2.1vh;
+	font-size: var(--fontSizeRows-height);
 }
 
 :host(.dark) th, td {
@@ -138,13 +142,14 @@ th, td {
   text-overflow: ellipsis;
 }
 
-@media screen and (min-width: 1030px) {
+/* header cells for rank in the main table, wide screen */
+@media screen and (min-width: 1401px) {
 	.showThRank {
 		border-collapse: collapse;
 		border: solid 1px DarkGray;
 		border-left-style: none;
 		padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-		font-size: 1.5vh;
+		font-size: var(--fontSizeRank-height);
 		font-weight: normal;
 		font-style: italic;
 		width: 4vw;
@@ -152,12 +157,14 @@ th, td {
 	}
 }
 
-@media screen and (max-width: 1029px) {
+/* header cells for rank in the main table, XGA projector */
+@media screen and (max-width: 1400px) {
 	.showThRank {
 		display: none;
 		width: 0px;
 		padding: 0 0 0 0;
 		margin: 0 0 0 0;
+		font-size: var(--fontSizeRank-heightXGA);
 	}
 }
 
@@ -166,7 +173,7 @@ th, td {
 	border: solid 1px DarkGray;
 	border-left-style: none;
 	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-	font-size: 1.5vh;
+	font-size: var(--fontSizeRows-height);
 	font-weight: normal;
 	font-style: italic;
 	width: var(--veryNarrow-width);
@@ -191,20 +198,27 @@ th, td {
 	text-align: center;
 }
 
-@media screen and (min-width: 1020px) {
+/* rank cells in the main table, wide screen */
+@media screen and (min-width: 1401px) {
 	.showRank {
 		display: table-cell;
 		width: var(--veryNarrow-width);
+		font-size: var(--fontSizeRows-height);
 		text-align: center;
 	}
 }
 
-@media screen and (max-width: 1029px) {
+/* rank cells in the main table, XGA projector */
+@media screen and (max-width: 1400px) {
 	.showRank {
 		display: none;
 		width: 0px;
 		padding: 0 0 0 0;
 		margin: 0 0 0 0;
+		font-size: var(--fontSizeRows-heightXGA);
+	}
+	th,td {
+		font-size: var(--fontSizeRows-heightXGA);
 	}
 }
 
@@ -218,6 +232,7 @@ th, td {
 }
 
 .narrow {
+	width: var(--narrow-width);
 	text-align: center;
 }
 
