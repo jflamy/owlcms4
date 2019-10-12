@@ -6,6 +6,7 @@
  */
 package app.owlcms.displays.topathletes;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ListIterator;
@@ -259,7 +260,8 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     private JsonValue getAthletesJson(List<Athlete> list2) {
         JsonArray jath = Json.createArray();
         int athx = 0;
-        for (Athlete a : list2) {
+        List<Athlete> list3 = Collections.unmodifiableList(list2)
+        for (Athlete a : list3) {
             JsonObject ja = Json.createObject();
             Gender curGender = a.getGender();
 
