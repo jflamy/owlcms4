@@ -593,7 +593,7 @@ public class FieldOfPlay {
         int timeAllowed = getTimeAllowed();
         logger.debug("recomputed lifting order curAthlete={} prevlifter={} time={} [{}]",
                 curAthlete != null ? curAthlete.getFullName() : "",
-                        previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed, LoggerUtils.whereFrom());
+                previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed, LoggerUtils.whereFrom());
         getAthleteTimer().setTimeRemaining(timeAllowed);
     }
 
@@ -685,7 +685,7 @@ public class FieldOfPlay {
 
         logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
                 curAthlete, curAthlete != null ? curAthlete.getAttemptedLifts() + 1 : 0, curWeight, clock,
-                        getAthleteTimer().getTimeRemainingAtLastStop());
+                getAthleteTimer().getTimeRemainingAtLastStop());
     }
 
     public void updateGlobalRankings() {
@@ -1030,12 +1030,15 @@ public class FieldOfPlay {
         uiEventLogger.info("requested weight: {} (from curAthlete {})", nextAttemptRequestedWeight, getCurAthlete());
     }
 
-    private void uiShowDownSignalOnSlaveDisplays(Object origin2) {
+    private synchronized void uiShowDownSignalOnSlaveDisplays(Object origin2) {
         boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
         boolean downEmitted2 = isDownEmitted();
         uiEventLogger.debug("showDownSignalOnSlaveDisplays server={} emitted={}", emitSoundsOnServer2, downEmitted2);
         if (emitSoundsOnServer2 && !downEmitted2) {
-            downSignal.emit();
+        	// sound is synchronous, we don't want to wait.
+            new Thread(() -> {
+                downSignal.emit();
+            }).start();
             setDownEmitted(true);
         }
         uiEventBus.post(new UIEvent.DownSignal(origin2));
