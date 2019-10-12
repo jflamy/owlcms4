@@ -6,6 +6,7 @@
  */
 package app.owlcms.displays.scoreboard;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -537,7 +538,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
         JsonArray jath = Json.createArray();
         int athx = 0;
         Category prevCat = null;
-        for (Athlete a : list2) {
+        List<Athlete> list3 = Collections.unmodifiableList(list2);
+        for (Athlete a : list3) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
             if (curCat != null && !curCat.equals(prevCat)) {
