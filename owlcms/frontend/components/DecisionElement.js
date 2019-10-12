@@ -292,6 +292,11 @@ class DecisionElement extends PolymerElement {
 		console.debug("showDown");
 		this.downShown = true;
 		this.$.downDiv.style.display = "flex";
+		// if we are the master, tell the server right away
+		if (isMaster) {
+			this.$server.masterShowDown(this.decision, this.ref1, this.ref2, this.ref3);
+		}
+		console.debug("server told");
 		if (this.audio) {
 			this.oscillator.start(0);
 			this.oscillator.stop(this.context.currentTime + 2);
@@ -299,10 +304,6 @@ class DecisionElement extends PolymerElement {
 		}
 		//this.$.downAudio.play();
 		this.dispatchEvent(new CustomEvent('down', {bubbles: true, composed: true}))
-		// if we are the master, tell the server
-		if (isMaster) {
-			this.$server.masterShowDown(this.decision, this.ref1, this.ref2, this.ref3);
-		}
 		// hide the down arrow after 2 seconds -- the decisions will show when available
 		// (there will be no decision lights for at least one second, more if last referee 
 		// waits after the other two have given down.

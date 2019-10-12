@@ -208,10 +208,15 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     public void slaveDownSignal(UIEvent.DownSignal e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
-        // hide the athleteTimer except if the down signal came from this ui.
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
-            this.getElement().callJsFunction("down");
-        });
+//        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+//            this.getElement().callJsFunction("down");
+//        });
+        // don't block others
+        new Thread(() -> {
+            UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+                this.getElement().callJsFunction("down");
+            });
+        }).start();
     }
 
     @Subscribe
@@ -449,7 +454,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             });
         });
     }
-    
+
     @Override
     public Location getLocation() {
         return this.location;
@@ -469,6 +474,5 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
     }
-
 
 }
