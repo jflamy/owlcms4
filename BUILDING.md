@@ -45,16 +45,13 @@ The process used for managing versions is [GitFlow](https://www.atlassian.com/gi
 A [GitFlow Maven plug-in](https://github.com/aleksandr-m/gitflow-maven-plugin) is used to reduce the number of manual steps.
 
 0. Stop all running owlcms processes
-1. Run `mvn gitflow:release-start` to create the new release.
+1. Run `mvn gitflow:release-start` to create the new release branch.
    - You should be in the `develop`  branch before starting, and have merged all the features you wish so include.
    - This will create the new release branch, and immediately change the version numbers on `develop` to the next SNAPSHOT number.
-5. Run `mvn gitflow:release-finish`
-   - First, this does a `clean verify` to create the uberjar, the zip for Heroku/Linux/Mac and the .exe for Windows
-   - Then it does the merge of the release branch into`master`
-   - Finally it creates the GitHub release
-6. The GitHub release portion will fail due to a bug in the plugin, but all the real work has been done.
-   - go to the target directory
-   - start the "git bash" shell
-   - run cleanup-release.sh
+2. Run `mvn clean verify` to create the uberjar, the zip for Heroku/Linux/Mac and the .exe for Windows
+2. Run `mvn gitflow:release-finish`
+   - This does the merge of the release branch into`master` and back into `develop`
+   - This creates the GitHub release
+3. Move the tag to just after the merge into develop
 
 
