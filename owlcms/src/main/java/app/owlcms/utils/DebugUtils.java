@@ -65,7 +65,7 @@ public class DebugUtils {
         final String where = LoggerUtils.whereFrom();
         new Thread(() -> {
             try {
-                logger.warn("clearing memory {}", where);
+                logger.debug("clearing memory {}", where);
                 System.gc();
                 Thread.sleep(500);
                 System.gc();

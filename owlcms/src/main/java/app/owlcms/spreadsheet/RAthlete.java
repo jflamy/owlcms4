@@ -38,7 +38,6 @@ public class RAthlete {
 	
 
 	public Athlete getAthlete() {
-		
 		return a;
 	}
 
@@ -190,7 +189,26 @@ public class RAthlete {
 	public void setTeam(String club) {
 		a.setTeam(club);
 	}
-	
-	
+
+    /**
+     * @param bodyWeight
+     */
+    public void setBodyWeight(Double bodyWeight) {
+        a.setBodyWeight(bodyWeight);
+    }
+
+    /**
+     * @param cleanJerk1Declaration
+     */
+    public void setCleanJerk1Declaration(String cleanJerk1Declaration) {
+        a.setCleanJerk1Declaration(cleanJerk1Declaration);
+    }
+
+    /**
+     * @param snatch1Declaration
+     */
+    public void setSnatch1Declaration(String snatch1Declaration) {
+        a.setSnatch1Declaration(snatch1Declaration);
+    }
 
 }
