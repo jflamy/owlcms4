@@ -716,7 +716,9 @@ public class FieldOfPlay {
      * simply "group done".
      */
     private void changeStateUnlessInBreak() {
-        if (state == BREAK) {
+        if (state == INACTIVE) {
+            // remain in INACTIVE state (do nothing)
+        } else if (state == BREAK) {
             logger.debug("{} {}", state, getBreakType());
             // if in a break, we don't stop break timer on a weight change.
             if (getBreakType() == BreakType.GROUP_DONE) {
@@ -793,6 +795,7 @@ public class FieldOfPlay {
             // time is not running
             recomputeLiftingOrder();
             changeStateUnlessInBreak();
+            logger.warn("&&5 displaying, state={}",state);
             uiDisplayCurrentAthleteAndTime(true, wc, false);
             updateGlobalRankings();
         }
