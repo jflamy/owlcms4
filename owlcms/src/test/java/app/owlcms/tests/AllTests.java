@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses( { AthleteSorterTest.class, AthleteTest.class, TwoMinutesRuleTest.class })
+@Suite.SuiteClasses( { AthleteSorterTest.class, AthleteTest.class, TwoMinutesRuleTest.class, RegistrationReaderTest.class })
 public class AllTests {
 
     final private static Logger logger = (Logger)LoggerFactory.getLogger(AllTests.class);

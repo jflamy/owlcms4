@@ -1,1 +1,1 @@
- lastName=Lamy firstName=Jean-François membership=null lotNumber=0 group=A team=QC gender=M bodyWeight=null birthDate=1961 category=m67 actualCategory=m67 snatch1ActualLift= snatch2= snatch3= bestSnatch=0 cleanJerk1ActualLift= cleanJerk2= cleanJerk3= total=0 totalRank=null teamMember=true
+ lastName=Lamy firstName=Jean-François membership=null lotNumber=0 group=A team=QC gender=M bodyWeight=0.0 birthDate=1961 category=m67 actualCategory=m67 snatch1ActualLift= snatch2= snatch3= bestSnatch=0 cleanJerk1ActualLift= cleanJerk2= cleanJerk3= total=0 totalRank=null teamMember=true
