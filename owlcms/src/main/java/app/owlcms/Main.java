@@ -52,6 +52,8 @@ public class Main {
     private static boolean testMode;
     private static boolean masters;
 
+    public static String productionMode;
+
     /**
      * The main method.
      *
@@ -98,7 +100,7 @@ public class Main {
 
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
-
+        
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");
         ConvertUtils.register(new DateConverter(null), java.util.Date.class);
@@ -138,6 +140,10 @@ public class Main {
         
         // load small dummy data if empty
         testMode = getBooleanParam("testMode"); 
+        
+        // productionMode required to tell vaadin to skip npm
+        boolean npmMode = getBooleanParam("npmMode");
+        productionMode = npmMode ? "false" : "true";
         
         masters = getBooleanParam("masters");
     }

@@ -74,7 +74,7 @@ public class CategoryRepository {
      */
     @SuppressWarnings("unchecked")
     public static List<Category> findAll() {
-        return JPAService.runInTransaction(em -> em.createQuery("select c from Category c").getResultList());
+        return JPAService.runInTransaction(em -> em.createQuery("select c from Category c order by c.name").getResultList());
     }
 
     /**
@@ -91,7 +91,7 @@ public class CategoryRepository {
 
     @SuppressWarnings("unchecked")
     public static Category doFindByName(String string, EntityManager em) {
-        Query query = em.createQuery("select c from Category c where lower(name) = lower(:string)");
+        Query query = em.createQuery("select c from Category c where lower(name) = lower(:string) order by c.name");
         query.setParameter("string", string);
         return (Category) query.getResultList().stream().findFirst().orElse(null);
     }
@@ -133,7 +133,7 @@ public class CategoryRepository {
 
     public static List<Category> doFindFiltered(EntityManager em, String name, AgeDivision ageDivision, Gender gender,
             Boolean active, int offset, int limit) {
-        String qlString = "select c from Category c" + filteringSelection(name, ageDivision, gender, active);
+        String qlString = "select c from Category c" + filteringSelection(name, ageDivision, gender, active) + " order by c.name";
         logger.trace("query = {}", qlString);
 
         Query query = em.createQuery(qlString);

@@ -135,189 +135,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
      */
     public LiftingOrder() {
         this.getElement().getStyle().set("width", "100%");
-    }
-
-    @Override
-    public void doBreak() {
-        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            // just update the display
-            order = fop.getLiftingOrder();
-            doUpdate(fop.getCurAthlete(), null);
-        }));
-    }
-
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Scoreboard.LiftingOrder");
-    }
-
-    @Override
-    public boolean isIgnoreGroupFromURL() {
-        return true;
-    }
-
-    /**
-     * Reset.
-     */
-    public void reset() {
-        order = ImmutableList.of();
-    }
-
-    @Subscribe
-    public void slaveBreakDone(UIEvent.BreakDone e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            Athlete a = e.getAthlete();
-            liftsDone = AthleteSorter.countLiftsDone(order);
-            doUpdate(a, e);
-        });
-    }
-
-    @Subscribe
-    public void slaveDecision(UIEvent.Decision e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            doUpdateBottomPart(e);
-        });
-    }
-
-    @Subscribe
-    public void slaveDecisionReset(UIEvent.DecisionReset e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            this.getElement().callJsFunction("reset");
-        });
-    }
-
-    @Subscribe
-    public void slaveGroupDone(UIEvent.GroupDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> doDone(e.getGroup()));
-    }
-
-    @Subscribe
-    public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            this.getElement().callJsFunction("reset");
-            Athlete a = e.getAthlete();
-            order = e.getLiftingOrder();
-            liftsDone = AthleteSorter.countLiftsDone(order);
-            doUpdate(a, e);
-        });
-    }
-
-    @Subscribe
-    public void slaveStartBreak(UIEvent.BreakStarted e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setHidden(false);
-            doBreak();
-        });
-    }
-
-    @Subscribe
-    public void slaveStartLifting(UIEvent.StartLifting e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
-            this.getElement().callJsFunction("reset");
-        });
-    }
-
-    @Subscribe
-    public void slaveStopBreak(UIEvent.BreakDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            Athlete a = e.getAthlete();
-            this.getElement().callJsFunction("reset");
-            doUpdate(a, e);
-        });
-    }
-
-    @Subscribe
-    public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
-        syncWithFOP(e);
-    }
-
-    public void syncWithFOP(UIEvent.SwitchGroup e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            OwlcmsSession.withFop(fop -> {
-                switch (fop.getState()) {
-                case INACTIVE:
-                    doEmpty();
-                    break;
-                case BREAK:
-                    doBreak();
-                    break;
-                default:
-                    doUpdate(fop.getCurAthlete(), e);
-                }
-            });
-        });
-    }
-
-    public void uiLog(UIEvent e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
-    }
-
-    protected void doEmpty() {
-        logger.trace("doEmpty");
-        this.getModel().setHidden(true);
-    }
-
-    protected void doUpdate(Athlete a, UIEvent e) {
-        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            LiftingOrderModel model = getModel();
-//            model.setHidden(a == null);
-            if (a != null) {
-                model.setFullName(getTranslation("Scoreboard.LiftingOrder"));
-                updateBottom(model, computeLiftType(a));
-            }
-        });
-        if (a == null || a.getAttemptsDone() >= 6) {
-            OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
-            return;
-        }
-    }
-
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-     * AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        // fop obtained via QueryParameterReader interface default methods.
-        OwlcmsSession.withFop(fop -> {
-            init();
-            // sync with current status of FOP
-            order = fop.getLiftingOrder();
-            liftsDone = AthleteSorter.countLiftsDone(order);
-            syncWithFOP(null);
-            // we listen on uiEventBus.
-            uiEventBus = uiEventBusRegister(this, fop);
-        });
-        buildContextMenu(this);
-        setDarkMode(this, isDarkMode(), false);
-    }
-
-    protected void setTranslationMap() {
-        JsonObject translations = Json.createObject();
-        Enumeration<String> keys = Translator.getKeys();
-        while (keys.hasMoreElements()) {
-            String curKey = keys.nextElement();
-            if (curKey.startsWith("Scoreboard.")) {
-                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-            }
-        }
-        this.getElement().setPropertyJson("t", translations);
+        setDarkMode(true);
     }
 
     private String computeLiftType(Athlete a) {
@@ -328,13 +146,43 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         return liftType;
     }
 
+    @Override
+    public void doBreak() {
+        OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            LiftingOrderModel model = getModel();
+            order = fop.getLiftingOrder();
+            model.setHidden(false);
+            doUpdate(fop.getCurAthlete(), null);
+        }));
+    }
+
     private void doDone(Group g) {
-        if (g == null)
+        if (g == null) {
             return;
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+        } else {
             getModel().setFullName(getTranslation("Group_number_done", g.toString()));
             this.getElement().callJsFunction("groupDone");
-        });
+        }
+    }
+
+    protected void doEmpty() {
+        logger.trace("doEmpty");
+        this.getModel().setHidden(true);
+    }
+
+    protected void doUpdate(Athlete a, UIEvent e) {
+        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+        LiftingOrderModel model = getModel();
+
+//            model.setHidden(a == null);
+        if (a != null) {
+            model.setFullName(getTranslation("Scoreboard.LiftingOrder"));
+            updateBottom(model, computeLiftType(a));
+        }
+        if (a == null || a.getAttemptsDone() >= 6) {
+            OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+            return;
+        }
     }
 
     private void doUpdateBottomPart(Decision e) {
@@ -379,8 +227,28 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         return jath;
     }
 
+    @Override
+    public ContextMenu getContextMenu() {
+        return contextMenu;
+    }
+
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
     private Object getOrigin() {
         return this;
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Scoreboard.LiftingOrder");
     }
 
     private void init() {
@@ -394,6 +262,185 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         order = ImmutableList.of();
     }
 
+    @Override
+    public boolean isDarkMode() {
+        return this.darkMode;
+    }
+
+    @Override
+    public boolean isIgnoreGroupFromURL() {
+        return true;
+    }
+
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+     * AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        // fop obtained via QueryParameterReader interface default methods.
+        OwlcmsSession.withFop(fop -> {
+            init();
+            // sync with current status of FOP
+            order = fop.getLiftingOrder();
+            liftsDone = AthleteSorter.countLiftsDone(order);
+            syncWithFOP(null);
+            // we listen on uiEventBus.
+            uiEventBus = uiEventBusRegister(this, fop);
+        });
+        buildContextMenu(this);
+        setDarkMode(this, isDarkMode(), false);
+    }
+
+    /**
+     * Reset.
+     */
+    public void reset() {
+        order = ImmutableList.of();
+    }
+
+    @Override
+    public void setContextMenu(ContextMenu contextMenu) {
+        this.contextMenu = contextMenu;
+    }
+
+    @Override
+    public void setDarkMode(boolean dark) {
+        this.darkMode = dark;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
+    protected void setTranslationMap() {
+        JsonObject translations = Json.createObject();
+        Enumeration<String> keys = Translator.getKeys();
+        while (keys.hasMoreElements()) {
+            String curKey = keys.nextElement();
+            if (curKey.startsWith("Scoreboard.")) {
+                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+            }
+        }
+        this.getElement().setPropertyJson("t", translations);
+    }
+
+    @Subscribe
+    public void slaveBreakDone(UIEvent.BreakDone e) {
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            Athlete a = e.getAthlete();
+            getModel().setHidden(false);
+            liftsDone = AthleteSorter.countLiftsDone(order);
+            doUpdate(a, e);
+        });
+    }
+
+    @Subscribe
+    public void slaveDecision(UIEvent.Decision e) {
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            getModel().setHidden(false);
+            doUpdateBottomPart(e);
+        });
+    }
+
+    @Subscribe
+    public void slaveDecisionReset(UIEvent.DecisionReset e) {
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            getModel().setHidden(false);
+            this.getElement().callJsFunction("reset");
+        });
+    }
+
+    @Subscribe
+    public void slaveGroupDone(UIEvent.GroupDone e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin());
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            getModel().setHidden(false);
+            doDone(e.getGroup());
+        });
+    }
+
+    @Subscribe
+    public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            Athlete a = e.getAthlete();
+            order = e.getLiftingOrder();
+            liftsDone = AthleteSorter.countLiftsDone(order);
+            doUpdate(a, e);
+        });
+    }
+
+    @Subscribe
+    public void slaveStartBreak(UIEvent.BreakStarted e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin());
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            getModel().setHidden(false);
+            doBreak();
+        });
+    }
+
+    @Subscribe
+    public void slaveStartLifting(UIEvent.StartLifting e) {
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            getModel().setHidden(false);
+            this.getElement().callJsFunction("reset");
+        });
+    }
+
+    @Subscribe
+    public void slaveStopBreak(UIEvent.BreakDone e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin());
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            getModel().setHidden(false);
+            Athlete a = e.getAthlete();
+            this.getElement().callJsFunction("reset");
+            doUpdate(a, e);
+        });
+    }
+
+    @Subscribe
+    public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin());
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            syncWithFOP(e);
+        });
+    }
+
+    public void syncWithFOP(UIEvent.SwitchGroup e) {
+        OwlcmsSession.withFop(fop -> {
+            switch (fop.getState()) {
+            case INACTIVE:
+                doEmpty();
+                break;
+            case BREAK:
+                doBreak();
+                break;
+            default:
+                doUpdate(fop.getCurAthlete(), e);
+            }
+        });
+    }
+
+    public void uiLog(UIEvent e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin());
+    }
+
     private void updateBottom(LiftingOrderModel model, String liftType) {
         OwlcmsSession.withFop((fop) -> {
             curGroup = fop.getGroup();
@@ -403,46 +450,6 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         });
         model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         this.getElement().setPropertyJson("athletes", getAthletesJson(order));
-    }
-
-    @Override
-    public void setDarkMode(boolean dark) {
-        this.darkMode = dark;
-    }
-
-    @Override
-    public boolean isDarkMode() {
-        return this.darkMode;
-    }
-
-    @Override
-    public ContextMenu getContextMenu() {
-        return contextMenu;
-    }
-    
-    @Override
-    public void setContextMenu(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
-    }
-    
-    @Override
-    public Location getLocation() {
-        return this.location;
-    }
-
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
-
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
     }
 
 }
