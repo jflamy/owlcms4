@@ -168,7 +168,7 @@ public final class DeploymentConfigurationFactory implements Serializable {
             initParameters.setProperty(name,
                     servletConfig.getInitParameter(name));
         }
-
+System.err.println("initParameter="+initParameters);
         readBuildInfo(initParameters);
         return initParameters;
     }
