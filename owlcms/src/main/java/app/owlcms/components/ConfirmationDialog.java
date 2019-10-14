@@ -36,7 +36,7 @@ public class ConfirmationDialog extends Dialog {
                 );
 
         HorizontalLayout buttons = new HorizontalLayout();
-        Button confirmButton = new Button("Confirm", event -> {
+        Button confirmButton = new Button(getTranslation("Confirm"), event -> {
             action.run();
             Notification.show(confirmation);
             dialog.close();
