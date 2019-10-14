@@ -20,6 +20,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
@@ -42,167 +43,165 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/categories", layout = CategoryLayout.class)
-public class CategoryContent extends VerticalLayout
-implements CrudListener<Category>, OwlcmsContent, RequireLogin {
+public class CategoryContent extends VerticalLayout implements CrudListener<Category>, OwlcmsContent, RequireLogin {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(CategoryContent.class);
-	static {
-		logger.setLevel(Level.INFO);
-	}
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(CategoryContent.class);
+    static {
+        logger.setLevel(Level.INFO);
+    }
 
-	private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
-	private TextField nameFilter = new TextField();
-	private Checkbox activeFilter = new Checkbox();
-	private OwlcmsRouterLayout routerLayout;
-	private OwlcmsCrudFormFactory<Category> crudFormFactory;
+    private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
+    private TextField nameFilter = new TextField();
+    private Checkbox activeFilter = new Checkbox();
+    private OwlcmsRouterLayout routerLayout;
+    private OwlcmsCrudFormFactory<Category> crudFormFactory;
 
-	/**
-	 * Instantiates the category crudGrid.
-	 */
-	public CategoryContent() {
-		crudFormFactory = createFormFactory();
-		GridCrud<Category> crud = createGrid(crudFormFactory);
-		defineFilters(crud);
-		fillHW(crud, this);
-	}
+    /**
+     * Instantiates the category crudGrid.
+     */
+    public CategoryContent() {
+        crudFormFactory = createFormFactory();
+        GridCrud<Category> crud = createGrid(crudFormFactory);
+        defineFilters(crud);
+        fillHW(crud, this);
+    }
 
-	/**
-	 * The columns of the crudGrid
-	 *
-	 * @param crudFormFactory what to call to create the form for editing an athlete
-	 * @return
-	 */
-	protected GridCrud<Category> createGrid(OwlcmsCrudFormFactory<Category> crudFormFactory) {
-		Grid<Category> grid = new Grid<>(Category.class, false);
-		grid.addColumn(Category::getName).setHeader(getTranslation("Name")); 
-		grid.addColumn(Category::getAgeDivision).setHeader(getTranslation("AgeDivision"));
-		grid.addColumn(Category::getGender).setHeader(getTranslation("Gender"));
-		grid.addColumn(Category::getMinimumWeight).setHeader(getTranslation("MinimumWeight"));
-		grid.addColumn(Category::getMaximumWeight).setHeader(getTranslation("MaximumWeight"));
-		grid.addColumn(Category::isActive).setHeader(getTranslation("Active"));
-		GridCrud<Category> crud = new OwlcmsCrudGrid<>(
-				Category.class,
-				new OwlcmsGridLayout(Category.class),
-				crudFormFactory,
-				grid);
-		crud.setCrudListener(this);
-		crud.setClickRowToUpdate(true);
-		return crud;
-	}
+    /**
+     * The columns of the crudGrid
+     *
+     * @param crudFormFactory what to call to create the form for editing an athlete
+     * @return
+     */
+    protected GridCrud<Category> createGrid(OwlcmsCrudFormFactory<Category> crudFormFactory) {
+        Grid<Category> grid = new Grid<>(Category.class, false);
+        grid.addColumn(new ComponentRenderer<>(cat -> {
+            // checkbox to avoid entering in the form
+            Checkbox activeBox = new Checkbox("Name");
+            activeBox.setLabel(null);
+            activeBox.getElement().getThemeList().set("secondary", true);
+            activeBox.setValue(cat.isActive());
+            activeBox.addValueChangeListener(click -> {
+                activeBox.setValue(click.getValue());
+                cat.setActive(click.getValue());
+                CategoryRepository.save(cat);
+                grid.getDataProvider().refreshItem(cat);
+            });
+            return activeBox;
+        })).setHeader(getTranslation("Active")).setWidth("0");
+        grid.addColumn(Category::getName).setHeader(getTranslation("Name"));
+        grid.addColumn(Category::getAgeDivision).setHeader(getTranslation("AgeDivision"));
+        grid.addColumn(Category::getGender).setHeader(getTranslation("Gender"));
+        grid.addColumn(Category::getMinimumWeight).setHeader(getTranslation("MinimumWeight"));
+        grid.addColumn(Category::getMaximumWeight).setHeader(getTranslation("MaximumWeight"));
 
-	/**
-	 * Define the form used to edit a given category.
-	 *
-	 * @return the form factory that will create the actual form on demand
-	 */
-	private OwlcmsCrudFormFactory<Category> createFormFactory() {
-		OwlcmsCrudFormFactory<Category> editingFormFactory = new CategoryEditingFormFactory(Category.class);
-		createFormLayout(editingFormFactory);
-		return editingFormFactory;
-	}
+        GridCrud<Category> crud = new OwlcmsCrudGrid<>(Category.class, new OwlcmsGridLayout(Category.class),
+                crudFormFactory, grid);
+        crud.setCrudListener(this);
+        crud.setClickRowToUpdate(true);
+        return crud;
+    }
 
-	/**
-	 * The content and ordering of the editing form
-	 *
-	 * @param crudFormFactory the factory that will create the form using this information
-	 */
-	protected void createFormLayout(OwlcmsCrudFormFactory<Category> crudFormFactory) {
-		crudFormFactory.setVisibleProperties("name",
-				"ageDivision",
-				"gender",
-				"minimumWeight",
-				"maximumWeight",
-				"wr",
-				"active");
-		crudFormFactory.setFieldCaptions(getTranslation("Name"),
-				getTranslation("AgeDivision"),
-				getTranslation("Gender"),
-				getTranslation("MinimumWeight"),
-				getTranslation("MaximumWeight"),
-				getTranslation("WorldRecord"),
-				getTranslation("Active"));
-	}
+    /**
+     * Define the form used to edit a given category.
+     *
+     * @return the form factory that will create the actual form on demand
+     */
+    private OwlcmsCrudFormFactory<Category> createFormFactory() {
+        OwlcmsCrudFormFactory<Category> editingFormFactory = new CategoryEditingFormFactory(Category.class);
+        createFormLayout(editingFormFactory);
+        return editingFormFactory;
+    }
 
-	public Category add(Category domainObjectToAdd) {
-		return crudFormFactory.add(domainObjectToAdd);
-	}
+    /**
+     * The content and ordering of the editing form
+     *
+     * @param crudFormFactory the factory that will create the form using this
+     *                        information
+     */
+    protected void createFormLayout(OwlcmsCrudFormFactory<Category> crudFormFactory) {
+        crudFormFactory.setVisibleProperties("name", "ageDivision", "gender", "minimumWeight", "maximumWeight", "wr",
+                "active");
+        crudFormFactory.setFieldCaptions(getTranslation("Name"), getTranslation("AgeDivision"),
+                getTranslation("Gender"), getTranslation("MinimumWeight"), getTranslation("MaximumWeight"),
+                getTranslation("WorldRecord"), getTranslation("Active"));
+    }
 
-	public Category update(Category domainObjectToUpdate) {
-		return crudFormFactory.update(domainObjectToUpdate);
-	}
+    public Category add(Category domainObjectToAdd) {
+        return crudFormFactory.add(domainObjectToAdd);
+    }
 
-	public void delete(Category domainObjectToDelete) {
-		crudFormFactory.delete(domainObjectToDelete);
-	}
+    public Category update(Category domainObjectToUpdate) {
+        return crudFormFactory.update(domainObjectToUpdate);
+    }
 
-	/**
-	 * The refresh button on the toolbar
-	 *
-	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
-	 */
-	@Override
-	public Collection<Category> findAll() {
-		return CategoryRepository
-				.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), null, activeFilter.getValue(), -1, -1);
-	}
+    public void delete(Category domainObjectToDelete) {
+        crudFormFactory.delete(domainObjectToDelete);
+    }
 
-	/**
-	 * The filters at the top of the crudGrid
-	 *
-	 * @param crudGrid the crudGrid that will be filtered.
-	 */
-	protected void defineFilters(GridCrud<Category> crud) {
-		nameFilter.setPlaceholder(getTranslation("Name"));
-		nameFilter.setClearButtonVisible(true);
-		nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-		nameFilter.addValueChangeListener(e -> {
-			crud.refreshGrid();
-		});
-		crud.getCrudLayout()
-		.addFilterComponent(nameFilter);
+    /**
+     * The refresh button on the toolbar
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     */
+    @Override
+    public Collection<Category> findAll() {
+        return CategoryRepository.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), null,
+                activeFilter.getValue(), -1, -1);
+    }
 
-		ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
-		ageDivisionFilter.setItems(AgeDivision.findAll());
-		ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
-		ageDivisionFilter.setClearButtonVisible(true);
-		ageDivisionFilter.addValueChangeListener(e -> {
-			crud.refreshGrid();
-		});
-		crud.getCrudLayout()
-		.addFilterComponent(ageDivisionFilter);
-		crud.getCrudLayout()
-		.addToolbarComponent(new Label(""));
+    /**
+     * The filters at the top of the crudGrid
+     *
+     * @param crudGrid the crudGrid that will be filtered.
+     */
+    protected void defineFilters(GridCrud<Category> crud) {
+        nameFilter.setPlaceholder(getTranslation("Name"));
+        nameFilter.setClearButtonVisible(true);
+        nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        nameFilter.addValueChangeListener(e -> {
+            crud.refreshGrid();
+        });
+        crud.getCrudLayout().addFilterComponent(nameFilter);
 
-		activeFilter.addValueChangeListener(e -> {
-			crud.refreshGrid();
-		});
-		activeFilter.setLabel(getTranslation("Active"));
-		activeFilter.setAriaLabel(getTranslation("ActiveCategoriesOnly"));
-		crud.getCrudLayout().addFilterComponent(activeFilter);
+        ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
+        ageDivisionFilter.setItems(AgeDivision.findAll());
+        ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
+        ageDivisionFilter.setClearButtonVisible(true);
+        ageDivisionFilter.addValueChangeListener(e -> {
+            crud.refreshGrid();
+        });
+        crud.getCrudLayout().addFilterComponent(ageDivisionFilter);
+        crud.getCrudLayout().addToolbarComponent(new Label(""));
 
-		Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
-		clearFilters.addClickListener(event -> {
-			ageDivisionFilter.clear();
-		});
-		crud.getCrudLayout()
-		.addFilterComponent(clearFilters);
-	}
+        activeFilter.addValueChangeListener(e -> {
+            crud.refreshGrid();
+        });
+        activeFilter.setLabel(getTranslation("Active"));
+        activeFilter.setAriaLabel(getTranslation("ActiveCategoriesOnly"));
+        crud.getCrudLayout().addFilterComponent(activeFilter);
 
-	@Override
-	public OwlcmsRouterLayout getRouterLayout() {
-		return routerLayout;
-	}
+        Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
+        clearFilters.addClickListener(event -> {
+            ageDivisionFilter.clear();
+        });
+        crud.getCrudLayout().addFilterComponent(clearFilters);
+    }
 
-	@Override
-	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
-		this.routerLayout = routerLayout;
-	}
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
 
-	/**
-	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-	 */
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Preparation_Categories");
-	}
+    @Override
+    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Preparation_Categories");
+    }
 }
