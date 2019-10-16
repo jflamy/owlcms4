@@ -16,26 +16,14 @@ import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.converters.DateConverter;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import app.owlcms.data.competition.Competition;
-import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.data.jpa.DemoData;
-import app.owlcms.data.jpa.JPAService;
-import app.owlcms.data.jpa.ProdData;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.EmbeddedJetty;
-import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
+import javassist.Translator;
 
 /**
  * Main.
@@ -45,12 +33,6 @@ public class Main {
     public final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 
     private static Integer serverPort;
-    private static boolean demoMode;
-    private static boolean memoryMode;
-    private static boolean resetMode;
-    private static boolean devMode;
-    private static boolean testMode;
-    private static boolean masters;
 
     public static String productionMode;
 
@@ -95,25 +77,12 @@ public class Main {
         parseConfig();
         logStart();
 
-        // open resource subdirectories as filesystems
-        ResourceWalker.openTemplatesFileSystem("/templates");
-
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
         
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");
-        ConvertUtils.register(new DateConverter(null), java.util.Date.class);
-        ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 
-        // setup database
-        JPAService.init(demoMode || memoryMode, demoMode || resetMode);
-        
-        // read locale from database and overrrde if needed
-        Locale l = overrideDisplayLanguage();
-        injectData(demoMode, devMode, testMode, masters, l);
-
-        OwlcmsFactory.getDefaultFOP();
         return;
     }
 
@@ -125,27 +94,6 @@ public class Main {
         // this is required for running on Heroku which assigns us the port at run time.
         // default is 8080
         serverPort = getIntegerParam("port", 8080);
-
-        // same as devMode + resetMode + memoryMode
-        demoMode = getBooleanParam("demoMode");
-
-        // run in memory
-        memoryMode = getBooleanParam("memoryMode");
-        
-        // drop the schema first
-        resetMode = getBooleanParam("resetMode");
-        
-        // load large demo data if empty
-        devMode = getBooleanParam("devMode");
-        
-        // load small dummy data if empty
-        testMode = getBooleanParam("testMode"); 
-        
-        // productionMode required to tell vaadin to skip npm
-        boolean npmMode = getBooleanParam("npmMode");
-        productionMode = npmMode ? "false" : "true";
-        
-        masters = getBooleanParam("masters");
     }
 
     /**
@@ -189,73 +137,17 @@ public class Main {
         }
     }
 
-    private static Locale overrideDisplayLanguage() {
-        // read override value from database
-        Locale l = null;
-        try {
-            l = Competition.getCurrent().getDefaultLocale();
-        } catch (Exception e) {
-        }
-
-        // check OWLCMS_LOCALE, then -Dlocale, then LOCALE
-        String localeEnvStr = getStringParam("locale");
-        if (localeEnvStr != null)
-            l = Translator.createLocale(localeEnvStr);
-        else {
-            localeEnvStr = System.getenv("LOCALE");
-            if (localeEnvStr != null)
-            l = Translator.createLocale(localeEnvStr);
-        }
-
-        if (l != null) {
-            Translator.setForcedLocale(l);
-            logger.info("forcing display language to {}", l);
-        }
-        return l;
-    }
-
-    private static void injectData(boolean demoMode, boolean devMode, boolean testMode, boolean masters, Locale locale) {
-        Locale l = (locale == null ? Locale.ENGLISH : locale);
-
-        try {
-            Translator.setForcedLocale(l);
-            if (demoMode) {
-                // demoMode forces JPAService to reset.
-                DemoData.insertInitialData(20, masters);
-            } else {
-                // the other modes require explicit resetMode. We don't want multiple inserts.
-                List<Competition> allCompetitions = CompetitionRepository.findAll();
-                if (allCompetitions.isEmpty()) {
-                    if (testMode) {
-                        DemoData.insertInitialData(1, masters);
-                    } else if (devMode) {
-                        DemoData.insertInitialData(20, masters);
-                    } else {
-                        ProdData.insertInitialData(0);
-                    }
-                } else {
-                    logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
-                }
-            }
-        } finally {
-            Translator.setForcedLocale(locale);
-        }
-    }
-
     protected static void logStart() throws IOException, ParseException {
         InputStream in = Main.class.getResourceAsStream("/build.properties");
         Properties props = new Properties();
         props.load(in);
         String version = props.getProperty("version");
-        OwlcmsFactory.setVersion(version);
         String buildTimestamp = props.getProperty("buildTimestamp");
-        OwlcmsFactory.setBuildTimestamp(buildTimestamp);
         String buildZone = props.getProperty("buildZone");
         logger.info("owlcms {} built {} ({})", version, buildTimestamp, buildZone);
     }
 
     protected static void tearDown() {
-        JPAService.close();
     }
 
     public static void startBrowser() {
@@ -270,7 +162,7 @@ public class Main {
                     openBrowser(desktop, "127.0.0.1"); 
                 }
             } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
+                e.printStackTrace();
             }
         } else {
             logger.debug("no browser support");
