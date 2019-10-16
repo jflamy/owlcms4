@@ -45,8 +45,11 @@ public class Main {
     public static void main(String... args) throws Exception {
 
         try {
+        	System.err.println("start");
             init();
             new EmbeddedJetty().run(serverPort, "/");
+        } catch (Exception e) {
+        	e.printStackTrace();
         } finally {
             tearDown();
         }
@@ -70,6 +73,7 @@ public class Main {
     protected static void init() throws IOException, ParseException {
         // Configure logging -- must take place before anything else
         // Redirect java.util.logging logs to SLF4J
+    	System.err.println("start init");
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
@@ -82,7 +86,7 @@ public class Main {
         
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");
-
+    	System.err.println("end init "+serverPort);
         return;
     }
 
@@ -144,7 +148,7 @@ public class Main {
         String version = props.getProperty("version");
         String buildTimestamp = props.getProperty("buildTimestamp");
         String buildZone = props.getProperty("buildZone");
-        logger.info("owlcms {} built {} ({})", version, buildTimestamp, buildZone);
+        logger.warn("relay {} built {} ({})", version, buildTimestamp, buildZone);
     }
 
     protected static void tearDown() {
