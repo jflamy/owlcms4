@@ -353,7 +353,7 @@ th, td {
 	</div>
 </div>
 <div class="group" id="groupDiv" style$="[[_computeHidden(hidden)]]">
-<span class="groupName"></span>[[groupName]]</span> &ndash; [[liftsDone]]
+<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
 </div>
 <table class="results" style$="[[_computeHidden(hidden)]]">
 	<thead>
@@ -406,8 +406,7 @@ th, td {
 	ready() {
 		console.debug("ready");
 		super.ready();
-//		this.$.groupDiv.style.visibility="visible";
-//		this.$.groupDiv.style.display="block";
+		this.$.groupDiv.style.visibility="visible";
 		this.$.fullNameDiv.style.visibility="visible";
 		this.$.fullNameDiv.style.display="flex";
 		this.$.startNumberDiv.style.display="flex";
@@ -426,8 +425,7 @@ th, td {
 	reset() {
 		console.debug("reset");
 		this.$.timer.reset();
-//		this.$.groupDiv.style.visibility="visible";
-//		this.$.groupDiv.style.display="block";
+		this.$.groupDiv.style.visibility="visible";
 		this.$.fullNameDiv.style.visibility="visible";
 		this.$.fullNameDiv.style.display="flex";
 		this.$.startNumberDiv.style.display="flex";
@@ -441,7 +439,7 @@ th, td {
 
 	down() {
 		console.debug("refereeDecision");
-//		this.$.groupDiv.style.visibility="visible";
+		this.$.groupDiv.style.visibility="visible";
 		this.$.startNumberDiv.style.display="flex";
 		this.$.teamNameDiv.style.display="flex";
 		this.$.attemptDiv.style.display="flex";
@@ -453,7 +451,7 @@ th, td {
 
 	doBreak() {
 		console.debug("break");
-//		this.$.groupDiv.style.visibility="hidden";
+		this.$.groupDiv.style.visibility="hidden";
 		this.$.fullNameDiv.style.visibility="visible";
 		this.$.fullNameDiv.style.display="flex";
 		this.$.startNumberDiv.style.display="none";
@@ -467,7 +465,7 @@ th, td {
 
 	groupDone() {
 		console.debug("done");
-//		this.$.groupDiv.style.visibility="hidden";
+		this.$.groupDiv.style.visibility="hidden";
 		this.$.fullNameDiv.style.visibility="visible";
 		this.$.fullNameDiv.style.display="flex";
 		this.$.startNumberDiv.style.display="none";
@@ -481,7 +479,7 @@ th, td {
 
 	refereeDecision() {
 		console.debug("refereeDecision");
-//		this.$.groupDiv.style.visibility="visible";
+		this.$.groupDiv.style.visibility="visible";
 		this.$.decisionDiv.style.display="flex";
 		this.$.weightDiv.style.display="flex";
 		this.$.timerDiv.style.display="flex";
