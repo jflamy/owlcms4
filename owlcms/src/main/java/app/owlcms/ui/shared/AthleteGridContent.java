@@ -799,7 +799,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         timeField.getElement().getStyle().set("visibility", "hidden");
         attempt.setText("");
         weight.setText("");
-        warning.setText(string);
+        if (warning != null) warning.setText(string);
     }
 
     /**
