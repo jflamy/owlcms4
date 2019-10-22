@@ -389,8 +389,6 @@ public class FieldOfPlay {
                 transitionToTimeRunning();
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
-                // leave us in INACTIVE state
-                setState(INACTIVE);
             } else {
                 unexpectedEventInState(e, INACTIVE);
             }
@@ -417,7 +415,6 @@ public class FieldOfPlay {
                 transitionToTimeRunning();
             } else if (e instanceof WeightChange) {
                 doWeightChange((WeightChange) e);
-                setState(CURRENT_ATHLETE_DISPLAYED);
             } else if (e instanceof ForceTime) {
                 // need to set time
                 getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed);
@@ -662,7 +659,7 @@ public class FieldOfPlay {
         getFopEventBus().post(new StartLifting(origin));
     }
 
-    public void uiDisplayCurrentAthleteAndTime(boolean stopTimer, FOPEvent e, boolean displayToggle) {
+    public void uiDisplayCurrentAthleteAndTime(boolean currentDisplayAffected, FOPEvent e, boolean displayToggle) {
         Integer clock = getAthleteTimer().getTimeRemaining();
 
         curWeight = 0;
@@ -681,7 +678,7 @@ public class FieldOfPlay {
             inBreak = ((breakTimer != null && breakTimer.isRunning()));
         }
         uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, changingAthlete,
-                liftingOrder, getDisplayOrder(), clock, stopTimer, displayToggle, e.getOrigin(), inBreak));
+                liftingOrder, getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(), inBreak));
 
         logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
                 curAthlete, curAthlete != null ? curAthlete.getAttemptedLifts() + 1 : 0, curWeight, clock,
@@ -704,7 +701,7 @@ public class FieldOfPlay {
      * @param state the new state
      */
     void setState(FOPState state) {
-        logger.trace("entering {} {}", state, LoggerUtils.whereFrom());
+        logger.warn("entering {} {}", state, LoggerUtils.whereFrom());
         // if (state == INACTIVE) {
         // logger.debug("entering inactive {}",LoggerUtils.stackTrace());
         // }
@@ -714,8 +711,10 @@ public class FieldOfPlay {
     /**
      * Don't interrupt break if official-induced break. Interrupt break if it is
      * simply "group done".
+     * 
+     * @param newState TODO
      */
-    private void changeStateUnlessInBreak() {
+    private void setStateUnlessInBreak(FOPState newState) {
         if (state == INACTIVE) {
             // remain in INACTIVE state (do nothing)
         } else if (state == BREAK) {
@@ -728,14 +727,14 @@ public class FieldOfPlay {
                 // in this case, we need to go back to lifting.
                 // set the state now, otherwise attempt board will ignore request to display if
                 // in a break
-                setState(CURRENT_ATHLETE_DISPLAYED);
+                setState(newState);
                 getBreakTimer().stop();
             } else {
                 // remain in break state
                 setState(BREAK);
             }
         } else {
-            setState(CURRENT_ATHLETE_DISPLAYED);
+            setState(newState);
         }
     }
 
@@ -746,36 +745,42 @@ public class FieldOfPlay {
         } else {
             UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
             uiEventBus.post(event);
-//            setBreakType(BreakType.GROUP_DONE);
-//            setState(BREAK);
-            setState(INACTIVE);
+            setBreakType(BreakType.GROUP_DONE);
+            setState(BREAK);
+//            setState(INACTIVE);
         }
     }
 
+    /**
+     * Perform weight change and adjust state.
+     * 
+     * If the clock was started and we come back to the clock owner, we set the state to TIME_STARTED
+     * If in a break, we are careful not to update, unless the change causes an exit from the break (e.g. jury overrule on last lift)
+     * Otherwise we update the displays.
+     * 
+     * @param wc
+     */
     private void doWeightChange(WeightChange wc) {
         Athlete changingAthlete = wc.getAthlete();
         Integer newWeight = changingAthlete.getNextAttemptRequestedWeight();
-        logger.warn("&&1 cur={} curWeight={} new={} newWeight={}", curAthlete, curWeight, changingAthlete, newWeight);
+        logger.warn("&&1 cur={} curWeight={} changing={} newWeight={}", curAthlete, curWeight, changingAthlete,
+                newWeight);
         logger.warn("&&2 clockOwner={} clockLastStopped={} state={}", clockOwner,
                 getAthleteTimer().getTimeRemainingAtLastStop(), state);
 
         boolean stopAthleteTimer = false;
         if (clockOwner != null && getAthleteTimer().isRunning()) {
-            // time has started
+            // time is running
             if (changingAthlete.equals(clockOwner)) {
-                logger.warn("&&3.A clock IS running for changing athlete");
+                logger.warn("&&3.A clock IS running for changing athlete {}", changingAthlete);
                 // X is the current lifter
                 // if a real change (and not simply a declaration that does not change weight),
                 // make sure clock is stopped.
                 if (curWeight != newWeight) {
-                    logger.warn("&&3.A.A weight change for clock owner: stop clock");
+                    logger.warn("&&3.A.A1 weight change for clock owner: clock running: stop clock");
                     getAthleteTimer().stop(); // memorize time
                     stopAthleteTimer = true; // make sure we broacast to clients
-                    logger.warn("&&4.1 stop, recompute, state");
-                    recomputeLiftingOrder();
-                    changeStateUnlessInBreak();
-                    uiDisplayCurrentAthleteAndTime(stopAthleteTimer, wc, false);
-                    updateGlobalRankings();
+                    doWeightChange(wc, changingAthlete, clockOwner, stopAthleteTimer);
                 } else {
                     logger.warn("&&3.A.B declaration at same weight for clock owner: leave clock running");
                     // no weight change. this is most likely a declaration.
@@ -786,19 +791,40 @@ public class FieldOfPlay {
                     return;
                 }
             } else {
-                logger.warn("&&3.B clock running, but NOT for changing athlete");
+                logger.warn("&&3.B clock running, but NOT for changing athlete, do not update attempt board");
                 weightChangeDoNotDisturb(wc);
                 return;
             }
+        } else if (clockOwner != null && !getAthleteTimer().isRunning()) {
+            logger.warn("&&3.B clock NOT running for changing athlete {}", changingAthlete);
+            // time was started (there is an owner) but is not currently running
+            // time was likely stopped by timekeeper because coach signaled change of weight
+            doWeightChange(wc, changingAthlete, clockOwner, true);
         } else {
-            logger.warn("&&4 clock NOT running, recompute + display athlete (unless in break)");
+            logger.warn("&&3.C1 no clock owner, time is not running");
             // time is not running
             recomputeLiftingOrder();
-            changeStateUnlessInBreak();
-            logger.warn("&&5 displaying, state={}",state);
+            setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
+            logger.warn("&&3.C2 displaying, curAthlete={}, state={}", curAthlete, state);
             uiDisplayCurrentAthleteAndTime(true, wc, false);
             updateGlobalRankings();
         }
+    }
+
+    private void doWeightChange(WeightChange wc, Athlete changingAthlete, Athlete clockOwner, boolean currentDisplayAffected) {
+        recomputeLiftingOrder();
+        // if the currentAthlete owns the clock, then the next ui update will show the correct athlete and
+        // the time needs to be restarted (state = TIME_STOPPED). Going to TIME_STOPPED allows the decision to register if the announcer
+        // forgets to start time.
+        
+        // otherwise we need to announce new athlete (state = CURRENT_ATHLETE_DISPLAYED)
+  
+        FOPState newState = clockOwner.equals(curAthlete) ? TIME_STOPPED : CURRENT_ATHLETE_DISPLAYED;
+        logger.warn("&&3.X change for {}, new cur = {}, switching to {}", changingAthlete, curAthlete,
+                newState);
+        setStateUnlessInBreak(newState);
+        uiDisplayCurrentAthleteAndTime(currentDisplayAffected, wc, false);
+        updateGlobalRankings();
     }
 
     private Athlete getClockOwner() {
@@ -1038,7 +1064,7 @@ public class FieldOfPlay {
         boolean downEmitted2 = isDownEmitted();
         uiEventLogger.debug("showDownSignalOnSlaveDisplays server={} emitted={}", emitSoundsOnServer2, downEmitted2);
         if (emitSoundsOnServer2 && !downEmitted2) {
-        	// sound is synchronous, we don't want to wait.
+            // sound is synchronous, we don't want to wait.
             new Thread(() -> {
                 downSignal.emit();
             }).start();
