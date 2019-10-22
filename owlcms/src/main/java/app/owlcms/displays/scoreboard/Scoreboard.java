@@ -206,7 +206,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             if (e2.isInBreak()) {
                 leaveTopAlone = !e2.isDisplayToggle();
             } else {
-                leaveTopAlone = !e2.isStopAthleteTimer();
+                leaveTopAlone = !e2.isCurrentDisplayAffected();
             }
         }
 

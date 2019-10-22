@@ -243,7 +243,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                 return;
             } else if (state == FOPState.INACTIVE) {
                 return;
-            } else if (!e.isStopAthleteTimer()) {
+            } else if (!e.isCurrentDisplayAffected()) {
                 // order change does not affect current lifter
                 return;
             } else {
