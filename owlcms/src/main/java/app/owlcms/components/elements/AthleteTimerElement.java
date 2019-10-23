@@ -115,9 +115,9 @@ public class AthleteTimerElement extends TimerElement {
 	
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), (e.isStopAthleteTimer()?"stop_timer":"leave_asis"),
+		uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(), (e.isCurrentDisplayAffected()?"stop_timer":"leave_asis"),
 			this.getOrigin(), e.getOrigin());
-		if (e.isStopAthleteTimer()) {
+		if (e.isCurrentDisplayAffected()) {
 			clientSyncTime();
 		} 
 //		else {

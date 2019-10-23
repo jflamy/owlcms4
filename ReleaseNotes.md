@@ -1,8 +1,8 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and [live demo](https://jflamy.github.io/owlcms4/#/?id=demo) 
 * Release Highlights: 
-  * Fix for user interface library memory issues preventing reloads (#188)
-  * Improved usability of Category editing page: new categories shown in proper location, checkbox to make category active or not (#196)
-  * Fix for Lifting Order page now waking up automatically at end of introduction timer (#198)
+  * Fix for decisions not showing up in borderline cases (mostly related to time not being restarted. #200, #201
+  * Fix for missing notifications to announcer and jury if athlete declared the same weight as the automatic progression in order to keep the right to two changes. #202
+  * Cosmetic fix to scoreboard information during breaks #199
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc)
 - Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` below and follow [Local installation instructions](https://jflamy.github.io/owlcms4/#/LocalSetup.md) 

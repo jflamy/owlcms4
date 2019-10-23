@@ -227,7 +227,7 @@ public class UIEvent {
         private Integer timeAllowed;
         private List<Athlete> liftingOrder;
         private List<Athlete> displayOrder;
-        private boolean stopAthleteTimer;
+        private boolean currentDisplayAffected;
         private Athlete changingAthlete;
         private boolean displayToggle;
         private boolean inBreak;
@@ -249,7 +249,7 @@ public class UIEvent {
          */
         public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete,
                 Athlete changingAthlete, List<Athlete> liftingOrder, List<Athlete> displayOrder, Integer timeAllowed,
-                boolean stopTimer, boolean displayToggle, Object origin, boolean inBreak) {
+                boolean currentDisplayAffected, boolean displayToggle, Object origin, boolean inBreak) {
             super(athlete, origin);
             this.nextAthlete = nextAthlete;
             this.previousAthlete = previousAthlete;
@@ -257,7 +257,7 @@ public class UIEvent {
             this.timeAllowed = timeAllowed;
             this.liftingOrder = liftingOrder;
             this.displayOrder = displayOrder;
-            this.stopAthleteTimer = stopTimer;
+            this.currentDisplayAffected = currentDisplayAffected;
             this.setDisplayToggle(displayToggle);
             this.setInBreak(inBreak);
         }
@@ -318,8 +318,8 @@ public class UIEvent {
         /**
          * @return true if the current event requires to stop the timer
          */
-        public boolean isStopAthleteTimer() {
-            return stopAthleteTimer;
+        public boolean isCurrentDisplayAffected() {
+            return currentDisplayAffected;
         }
 
         public void setDisplayToggle(boolean displayToggle) {

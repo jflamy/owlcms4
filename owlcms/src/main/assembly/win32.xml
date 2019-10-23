@@ -40,6 +40,11 @@
 			<outputDirectory>/</outputDirectory>
 			<filtered>true</filtered>
 		</file>
+        <file>
+            <source>${project.basedir}/src/main/assembly/demo-${project.artifactId}.l4j.ini</source>
+            <outputDirectory>/</outputDirectory>
+            <filtered>true</filtered>
+        </file>
 		<file>
 			<source>${project.basedir}/src/main/assembly/cleanup-release.sh</source>
 			<outputDirectory>../..</outputDirectory>

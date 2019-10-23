@@ -168,7 +168,7 @@ public class TwoMinutesRuleTest {
 		assertEquals(FOPState.TIME_RUNNING, fopState.getState());
 		// but asks for more weight -- the following stops time.
 		declaration(curLifter, "65", fopBus);
-		assertEquals(FOPState.CURRENT_ATHLETE_DISPLAYED, fopState.getState());
+		assertEquals(FOPState.TIME_STOPPED, fopState.getState());
 		int remainingTime = fopState.getAthleteTimer()
 			.getTimeRemaining();
 
