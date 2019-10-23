@@ -1,6 +1,6 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and [live demo](https://jflamy.github.io/owlcms4/#/?id=demo) 
 * Release Highlights: 
-  * Fix for decisions not showing up in borderline cases (mostly related to time not being restarted. #200, #201,
+  * Fix for decisions not showing up in borderline cases (mostly related to time not being restarted. #200, #201
   * Fix for missing notifications to announcer and jury if athlete declared the same weight as the automatic progression in order to keep the right to two changes. #202
   * Cosmetic fix to scoreboard information during breaks #199
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc)
