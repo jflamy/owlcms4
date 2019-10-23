@@ -2149,7 +2149,11 @@ public class Athlete {
      * @param bodyWeight the bodyWeight to set
      */
     public void setBodyWeight(Double bodyWeight) {
-        this.bodyWeight = bodyWeight;
+        if (bodyWeight != null && bodyWeight <= 0.01) {
+            this.bodyWeight = null;
+        } else {
+            this.bodyWeight = bodyWeight;
+        }
     }
 
     /**

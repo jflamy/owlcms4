@@ -115,8 +115,14 @@ public class UploadDialog extends Dialog {
 					
 					Competition curC = Competition.getCurrent();
 					try {
-						// update the current competition with the new properties
-						BeanUtils.copyProperties(curC, c.getCompetition());
+	                    Competition rCompetition = c.getCompetition();
+					    // save some properties from current database that do not appear on spreadheet
+	                    rCompetition.setEnforce20kgRule(curC.isEnforce20kgRule());
+	                    rCompetition.setUseBirthYear(curC.isUseBirthYear());
+	                    rCompetition.setMasters(curC.isMasters());
+
+						// update the current competition with the new properties read from spreadsheet
+                        BeanUtils.copyProperties(curC, rCompetition);
 						// update in database and set current to result of JPA merging.
 						Competition.setCurrent(em.merge(curC));
 						
