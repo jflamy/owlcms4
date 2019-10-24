@@ -163,11 +163,11 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
         updateButton = new Button(VaadinIcon.PENCIL.create(), e -> updateButtonClicked());
         updateButton.getElement().setAttribute("title", getTranslation("Update"));
-        crudLayout.addToolbarComponent(updateButton);
+//        crudLayout.addToolbarComponent(updateButton);
 
         deleteButton = new Button(VaadinIcon.TRASH.create(), e -> deleteButtonClicked());
         deleteButton.getElement().setAttribute("title", getTranslation("Delete"));
-        crudLayout.addToolbarComponent(deleteButton);
+//        crudLayout.addToolbarComponent(deleteButton);
 
         updateButtons();
     }

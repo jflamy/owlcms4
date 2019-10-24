@@ -40,120 +40,93 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/groups", layout = GroupLayout.class)
-public class GroupContent extends VerticalLayout
-		implements CrudListener<Group>, OwlcmsContent {
-	
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(GroupContent.class);
-	static {logger.setLevel(Level.INFO);}
+public class GroupContent extends VerticalLayout implements CrudListener<Group>, OwlcmsContent {
 
-	private OwlcmsRouterLayout routerLayout;
-	private OwlcmsCrudFormFactory<Group> editingFormFactory;
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(GroupContent.class);
+    static {
+        logger.setLevel(Level.INFO);
+    }
 
+    private OwlcmsRouterLayout routerLayout;
+    private OwlcmsCrudFormFactory<Group> editingFormFactory;
 
-	/**
-	 * Instantiates the Group crudGrid.
-	 */
-	public GroupContent() {
-		OwlcmsCrudFormFactory<Group> crudFormFactory = createFormFactory();
-		GridCrud<Group> crud = createGrid(crudFormFactory);
+    /**
+     * Instantiates the Group crudGrid.
+     */
+    public GroupContent() {
+        OwlcmsCrudFormFactory<Group> crudFormFactory = createFormFactory();
+        GridCrud<Group> crud = createGrid(crudFormFactory);
 //		defineFilters(crudGrid);
-		fillHW(crud, this);
-	}
-	
-	/**
-	 * The columns of the crudGrid
-	 * 
-	 * @param crudFormFactory what to call to create the form for editing an athlete
-	 * @return
-	 */
-	protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
-		Grid<Group> grid = new Grid<Group>(Group.class, false);
-		grid.addColumn(Group::getName).setHeader(getTranslation("Name"));
-		grid.addColumn(
-			LocalDateTimeField.getRenderer(
-				Group::getWeighInTime,this.getLocale()))
-			.setHeader(getTranslation("WeighInTime"));
-		grid.addColumn(
-			LocalDateTimeField.getRenderer(
-				Group::getCompetitionTime,this.getLocale()))
-			.setHeader(getTranslation("StartTime"));
-		grid.addColumn(Group::getPlatform)
-			.setHeader(getTranslation("Platform"));
+        fillHW(crud, this);
+    }
 
-		GridCrud<Group> crud = new OwlcmsCrudGrid<Group>(Group.class,
-				new OwlcmsGridLayout(Group.class),
-				crudFormFactory,
-				grid);
-		crud.setCrudListener(this);
-		crud.setClickRowToUpdate(true);
-		return crud;
-	}
+    /**
+     * The columns of the crudGrid
+     * 
+     * @param crudFormFactory what to call to create the form for editing an athlete
+     * @return
+     */
+    protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
+        Grid<Group> grid = new Grid<Group>(Group.class, false);
+        grid.addColumn(Group::getName).setHeader(getTranslation("Name"));
+        grid.addColumn(LocalDateTimeField.getRenderer(Group::getWeighInTime, this.getLocale()))
+                .setHeader(getTranslation("WeighInTime"));
+        grid.addColumn(LocalDateTimeField.getRenderer(Group::getCompetitionTime, this.getLocale()))
+                .setHeader(getTranslation("StartTime"));
+        grid.addColumn(Group::getPlatform).setHeader(getTranslation("Platform"));
 
-	/**
-	 * Define the form used to edit a given Group.
-	 * 
-	 * @return the form factory that will create the actual form on demand
-	 */
-	private OwlcmsCrudFormFactory<Group> createFormFactory() {
-		editingFormFactory = createGroupEditingFormFactory();
-		createFormLayout(editingFormFactory);
-		return editingFormFactory;
-	}
-	
-	/**
-	 * The content and ordering of the editing form.
-	 *
-	 * @param crudFormFactory the factory that will create the form using this information
-	 */
-	protected void createFormLayout(OwlcmsCrudFormFactory<Group> crudFormFactory) {
-		crudFormFactory.setVisibleProperties("name",
-		        "platform",
-				"weighInTime",
-				"competitionTime",
-				"announcer",
-				"marshall",
-				"technicalController",
-				"timeKeeper",
-				"referee1",
-				"referee2",
-				"referee3",
-				"jury1",
-				"jury2",
-				"jury3",
-				"jury4",
-				"jury5");
-		crudFormFactory.setFieldCaptions(getTranslation("Name"),
-		        getTranslation("Platform"),
-				getTranslation("WeighInTime"),
-				getTranslation("StartTime"),
-				getTranslation("Announcer"),
-				getTranslation("Marshall"),
-				getTranslation("TechnicalController"),
-				getTranslation("Timekeeper"),
-				getTranslation("Referee1"),
-				getTranslation("Referee2"),
-				getTranslation("Referee3"),
-				getTranslation("Jury1"),
-				getTranslation("Jury2"),
-				getTranslation("Jury3"),
-				getTranslation("Jury4"),
-				getTranslation("Jury5"));
-		crudFormFactory.setFieldProvider("platform",
-				new OwlcmsComboBoxProvider<>(getTranslation("Platform"), PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
-		crudFormFactory.setFieldType("weighInTime", LocalDateTimePicker.class);
-		crudFormFactory.setFieldType("competitionTime", LocalDateTimePicker.class);
-	}
+        GridCrud<Group> crud = new OwlcmsCrudGrid<Group>(Group.class, new OwlcmsGridLayout(Group.class),
+                crudFormFactory, grid);
+        crud.setCrudListener(this);
+        crud.setClickRowToUpdate(true);
+        return crud;
+    }
 
-	/**
-	 * Create the actual form generator with all the conversions and validations required
-	 * 
-	 * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
-	 * 
-	 * @return the actual factory, with the additional mechanisms to do validation
-	 */
-	private OwlcmsCrudFormFactory<Group> createGroupEditingFormFactory() {
-		return new OwlcmsCrudFormFactory<Group>(Group.class) {
-		    
+    /**
+     * Define the form used to edit a given Group.
+     * 
+     * @return the form factory that will create the actual form on demand
+     */
+    private OwlcmsCrudFormFactory<Group> createFormFactory() {
+        editingFormFactory = createGroupEditingFormFactory();
+        createFormLayout(editingFormFactory);
+        return editingFormFactory;
+    }
+
+    /**
+     * The content and ordering of the editing form.
+     *
+     * @param crudFormFactory the factory that will create the form using this
+     *                        information
+     */
+    protected void createFormLayout(OwlcmsCrudFormFactory<Group> crudFormFactory) {
+        crudFormFactory.setVisibleProperties("name", "platform", "weighInTime", "competitionTime", "announcer",
+                "marshall", "technicalController", "timeKeeper", "referee1", "referee2", "referee3", "jury1", "jury2",
+                "jury3", "jury4", "jury5");
+        crudFormFactory.setFieldCaptions(getTranslation("Name"), getTranslation("Platform"),
+                getTranslation("WeighInTime"), getTranslation("StartTime"), getTranslation("Announcer"),
+                getTranslation("Marshall"), getTranslation("TechnicalController"), getTranslation("Timekeeper"),
+                getTranslation("Referee1"), getTranslation("Referee2"), getTranslation("Referee3"),
+                getTranslation("Jury1"), getTranslation("Jury2"), getTranslation("Jury3"), getTranslation("Jury4"),
+                getTranslation("Jury5"));
+        crudFormFactory.setFieldProvider("platform", new OwlcmsComboBoxProvider<>(getTranslation("Platform"),
+                PlatformRepository.findAll(), new TextRenderer<>(Platform::getName), Platform::getName));
+        crudFormFactory.setFieldType("weighInTime", LocalDateTimePicker.class);
+        crudFormFactory.setFieldType("competitionTime", LocalDateTimePicker.class);
+    }
+
+    /**
+     * Create the actual form generator with all the conversions and validations
+     * required
+     * 
+     * {@link RegistrationContent#createAthleteEditingFormFactory} for example of
+     * redefinition of bindField
+     * 
+     * @return the actual factory, with the additional mechanisms to do validation
+     */
+    private OwlcmsCrudFormFactory<Group> createGroupEditingFormFactory() {
+        return new OwlcmsCrudFormFactory<Group>(Group.class) {
+
 //			@SuppressWarnings({ "unchecked", "rawtypes" })
 //			@Override
 //			protected void bindField(HasValue field, String property, Class<?> propertyType) {
@@ -171,9 +144,10 @@ public class GroupContent extends VerticalLayout
 //					super.bindField(field, property, propertyType);
 //				}
 //			}
-			
-			/**
-             * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.crud.CrudOperation, java.lang.Object)
+
+            /**
+             * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.crud.CrudOperation,
+             *      java.lang.Object)
              */
             @Override
             public String buildCaption(CrudOperation operation, Group domainObject) {
@@ -185,69 +159,67 @@ public class GroupContent extends VerticalLayout
             }
 
             @Override
-			public Group add(Group group) {
-				GroupRepository.save(group);
-				return group;
-			}
+            public Group add(Group group) {
+                GroupRepository.save(group);
+                return group;
+            }
 
-			@Override
-			public Group update(Group group) {
-			    logger.debug("saving group {} {}", group.getName(), group.getCompetitionTime());
-				return GroupRepository.save(group);
-			}
+            @Override
+            public Group update(Group group) {
+                logger.debug("saving group {} {}", group.getName(), group.getCompetitionTime());
+                return GroupRepository.save(group);
+            }
 
-			@Override
-			public void delete(Group group) {
-				GroupRepository.delete(group);
-			}
+            @Override
+            public void delete(Group group) {
+                GroupRepository.delete(group);
+            }
 
-			@Override
-			public Collection<Group> findAll() {
-				// implemented on grid
-				return null;
-			}
-		};
-	}
+            @Override
+            public Collection<Group> findAll() {
+                // implemented on grid
+                return null;
+            }
+        };
+    }
 
+    public Group add(Group domainObjectToAdd) {
+        return editingFormFactory.add(domainObjectToAdd);
+    }
 
+    public Group update(Group domainObjectToUpdate) {
+        return editingFormFactory.update(domainObjectToUpdate);
+    }
 
-	public Group add(Group domainObjectToAdd) {
-		return editingFormFactory.add(domainObjectToAdd);
-	}
+    public void delete(Group domainObjectToDelete) {
+        editingFormFactory.delete(domainObjectToDelete);
+    }
 
-	public Group update(Group domainObjectToUpdate) {
-		return editingFormFactory.update(domainObjectToUpdate);
-	}
+    /**
+     * The refresh button on the toolbar
+     * 
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     */
+    @Override
+    public Collection<Group> findAll() {
+        return GroupRepository.findAll();
+    }
 
-	public void delete(Group domainObjectToDelete) {
-		editingFormFactory.delete(domainObjectToDelete);
-	}
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
 
-	/**
-	 * The refresh button on the toolbar
-	 * 
-	 * @see org.vaadin.crudui.crud.CrudListener#findAll()
-	 */
-	@Override
-	public Collection<Group> findAll() {
-		return GroupRepository.findAll();
-	}
-	
-	@Override
-	public OwlcmsRouterLayout getRouterLayout() {
-		return routerLayout;
-	}
+    @Override
+    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
 
-	@Override
-	public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
-		this.routerLayout = routerLayout;
-	}
-	
-	/**
-	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-	 */
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Preparation_Groups");
-	}
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Preparation_Groups");
+    }
 }
