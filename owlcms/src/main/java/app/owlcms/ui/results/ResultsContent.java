@@ -8,7 +8,6 @@
 package app.owlcms.ui.results;
 
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
