@@ -11,8 +11,12 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.utils.LoggerUtils;
+import ch.qos.logback.classic.Logger;
 
 /**
  * GroupRepository.
@@ -20,6 +24,8 @@ import app.owlcms.data.jpa.JPAService;
  */
 public class GroupRepository {
 
+    static Logger logger = (Logger) LoggerFactory.getLogger(GroupRepository.class);
+    
 	/**
 	 * Gets group by id
 	 *
@@ -54,6 +60,7 @@ public class GroupRepository {
 	 */
 	
     public static void delete(Group groupe) {
+        if (groupe.getId() == null) return;
 		JPAService.runInTransaction(em -> {	    
 			try {
 			    // this is the only case where group needs to know its athletes, so we do a query
@@ -69,7 +76,7 @@ public class GroupRepository {
 			    em.remove(em.contains(groupe) ? groupe : em.merge(groupe));
 			    em.flush();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(LoggerUtils.stackTrace(e));
             }
 			return null;
 		});
