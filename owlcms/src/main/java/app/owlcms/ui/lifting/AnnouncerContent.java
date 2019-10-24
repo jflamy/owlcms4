@@ -211,7 +211,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             Group group = fop.getGroup();
             logger.info("resetting {} from database", group);
             fop.loadGroup(group, this);
-            syncWithFOP(true);  // loadgroup does not refresh grid
+            syncWithFOP(true);  // loadgroup does not refresh grid, true=ask for refresh
         }));
 
 
