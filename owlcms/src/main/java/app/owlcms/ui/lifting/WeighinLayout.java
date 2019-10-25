@@ -39,6 +39,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSCards;
+import app.owlcms.spreadsheet.JXLSJurySheet;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
@@ -51,183 +52,204 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusRegistration, UIEventProcessor {
 
-	private final static Logger logger = (Logger)LoggerFactory.getLogger(WeighinLayout.class);
-	static {logger.setLevel(Level.INFO);}
-	
-	private FlexLayout topBar;
-	private ComboBox<Group> gridGroupFilter;
-	private AppLayout appLayout;
-	private ComboBox<Group> groupSelect;
-	private Group group;
-	private Anchor startingWeights;
-	private Button startingWeightsButton;
-	private Anchor cards;
-	private Button cardsButton;
+    private final static Logger logger = (Logger) LoggerFactory.getLogger(WeighinLayout.class);
+    static {
+        logger.setLevel(Level.INFO);
+    }
 
+    private FlexLayout topBar;
+    private ComboBox<Group> gridGroupFilter;
+    private AppLayout appLayout;
+    private ComboBox<Group> groupSelect;
+    private Group group;
+    private Anchor startingWeights;
+    private Button startingWeightsButton;
+    private Anchor cards;
+    private Button cardsButton;
+    private Anchor jury;
+    private Button juryButton;
 
-	/* (non-Javadoc)
-	 * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
-	 */
-	@Override
-	protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
-		variant = LeftLayouts.Left.class;
-		appLayout = super.getLayoutConfiguration(variant);
-		appLayout.closeDrawer();
-		this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
-		createTopBar(topBar);
-		appLayout.getTitleWrapper()
-			.getElement()
-			.getStyle()
-			.set("flex", "0 1 0px");
-		return appLayout;
-	}
-	
-	/**
-	 * The layout is created before the content. This routine has created the content, we can refer to
-	 * the content using {@link #getLayoutComponentContent()} and the content can refer to us via
-	 * {@link AppLayoutContent#getParentLayout()}
-	 * 
-	 * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
-	 */
-	@Override
-	public void showRouterLayoutContent(HasElement content) {
-		super.showRouterLayoutContent(content);
-		WeighinContent weighinContent = (WeighinContent) getLayoutComponentContent();
-		gridGroupFilter = weighinContent.getGroupFilter();
-	}
-	
-	/**
-	 * Create the top bar.
-	 * 
-	 * Note: the top bar is created before the content.
-	 * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-	 * 
-	 * @param topBar
-	 */
-	protected void createTopBar(FlexLayout topBar) {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.
+     * appreciated.app.layout.behaviour.Behaviour)
+     */
+    @Override
+    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
+        variant = LeftLayouts.Left.class;
+        appLayout = super.getLayoutConfiguration(variant);
+        appLayout.closeDrawer();
+        this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
+        createTopBar(topBar);
+        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 0px");
+        return appLayout;
+    }
 
-		H3 title = new H3();
-		title.setText(getTranslation("WeighIn"));
-		title.add();
-		title.getStyle()
-			.set("margin", "0px 0px 0px 0px")
-			.set("font-weight", "normal");
-		
-		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder(getTranslation("Group"));
-		groupSelect.setItems(GroupRepository.findAll());
-		groupSelect.setItemLabelGenerator(Group::getName);
-		groupSelect.setClearButtonVisible(true);
-		
-		JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet(true);
-		StreamResource href = new StreamResource("startingWeights.xls", startingWeightsWriter);
-		startingWeights = new Anchor(href, "");
-		
-		JXLSCards cardsWriter = new JXLSCards(true);
-		StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter);
-		cards = new Anchor(href1, "");
-		OwlcmsSession.withFop((fop) -> {
-			groupSelect.setValue(null);
-	         startingWeights.getElement().setAttribute("download", "startingWeights"+(group != null ? "_"+group : "_all") +".xls");
-	         cards.getElement().setAttribute("download", "cards"+(group != null ? "_"+group : "_all") +".xls");
-		});
-		groupSelect.addValueChangeListener(e -> {
-			setContentGroup(e);
-			startingWeightsButton.setEnabled(e.getValue() != null);
-			startingWeights.getElement().setAttribute("download", "startingWeights"+(group != null ? "_"+group : "_all") +".xls");
-			cards.getElement().setAttribute("download", "cards"+(group != null ? "_"+group : "_all") +".xls");
-		});
+    /**
+     * The layout is created before the content. This routine has created the
+     * content, we can refer to the content using
+     * {@link #getLayoutComponentContent()} and the content can refer to us via
+     * {@link AppLayoutContent#getParentLayout()}
+     * 
+     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
+     */
+    @Override
+    public void showRouterLayoutContent(HasElement content) {
+        super.showRouterLayoutContent(content);
+        WeighinContent weighinContent = (WeighinContent) getLayoutComponentContent();
+        gridGroupFilter = weighinContent.getGroupFilter();
+    }
 
+    /**
+     * Create the top bar.
+     * 
+     * Note: the top bar is created before the content.
+     * 
+     * @see #showRouterLayoutContent(HasElement) for how to content to layout and
+     *      vice-versa
+     * 
+     * @param topBar
+     */
+    protected void createTopBar(FlexLayout topBar) {
 
-		Button start = new Button(getTranslation("GenerateStartNumbers"), (e) -> {
-			generateStartNumbers();
-		});
-		Button clear = new Button(getTranslation("ClearStartNumbers"), (e) -> {
-			clearStartNumbers();
-		});
+        H3 title = new H3();
+        title.setText(getTranslation("WeighIn"));
+        title.add();
+        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
-		String startingWeightsSheetTranslation = getTranslation("StartingWeightsSheet");
-        startingWeightsButton = new Button(startingWeightsSheetTranslation,new Icon(VaadinIcon.DOWNLOAD_ALT));
-		startingWeightsButton.addClickListener((e) -> {
-			startingWeightsWriter.setGroup(group);
-		});
-		startingWeights.add(startingWeightsButton);
-		
-		cardsButton = new Button(getTranslation("AthleteCards"),new Icon(VaadinIcon.DOWNLOAD_ALT));
-		cardsButton.addClickListener((e) -> {
-			cardsWriter.setGroup(group);
-		});
-		cards.add(cardsButton);
-		cardsButton.setEnabled(true);
-			
-		HorizontalLayout buttons = new HorizontalLayout(
-				start,
-				clear,
-				startingWeights,
-				cards
-				);
-		buttons.setPadding(true);
-		buttons.setSpacing(true);
-		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+        groupSelect = new ComboBox<>();
+        groupSelect.setPlaceholder(getTranslation("Group"));
+        groupSelect.setItems(GroupRepository.findAll());
+        groupSelect.setItemLabelGenerator(Group::getName);
+        groupSelect.setClearButtonVisible(true);
 
-		topBar
-			.getElement()
-			.getStyle()
-			.set("flex", "100 1");
-		topBar.removeAll();
-		topBar.add(title, groupSelect, buttons);
-		topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-		topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-	}
+        JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet(true);
+        StreamResource href = new StreamResource("startingWeights.xls", startingWeightsWriter);
+        startingWeights = new Anchor(href, "");
 
-	protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
-		group = e.getValue();
-		gridGroupFilter.setValue(e.getValue());
-	}
+        JXLSCards cardsWriter = new JXLSCards(true);
+        StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter);
+        cards = new Anchor(href1, "");
 
-	private void clearStartNumbers() {
-		Group group = groupSelect.getValue();
-		if (group == null) {
-			errorNotification();
-			return;
-		}
-		JPAService.runInTransaction((em) -> {
-			List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em,group, null);
-			for (Athlete a: currentGroupAthletes) {
-				a.setStartNumber(0);
-			}
-			return currentGroupAthletes;
-		});
-		((WeighinContent)getLayoutComponentContent()).refresh();
-	}
-	
-	private void generateStartNumbers() {
-		Group group = groupSelect.getValue();
-		if (group == null) {
-			errorNotification();
-			return;
-		}
-		JPAService.runInTransaction((em) -> {
-			List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em,group, true);
-			AthleteSorter.displayOrder(currentGroupAthletes);
-			AthleteSorter.assignStartNumbers(currentGroupAthletes);
-			return currentGroupAthletes;
-		});
-		((WeighinContent)getLayoutComponentContent()).refresh();
-	}
+        JXLSJurySheet juryWriter = new JXLSJurySheet();
+        StreamResource href2 = new StreamResource("jury.xls", juryWriter);
+        jury = new Anchor(href2, "");
 
-	protected void errorNotification() {
-		Label content = new Label(
-		        getTranslation("Select_group_first"));
-		content.getElement().setAttribute("theme", "error");
-		Button buttonInside = new Button(getTranslation("GotIt"));
-		buttonInside.getElement().setAttribute("theme","error primary");
-		VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
-		verticalLayout.setAlignItems(Alignment.CENTER);
-		Notification notification = new Notification(verticalLayout);
-		notification.setDuration(3000);
-		buttonInside.addClickListener(event -> notification.close());
-		notification.setPosition(Position.MIDDLE);
-		notification.open();
-	}
+        OwlcmsSession.withFop((fop) -> {
+            groupSelect.setValue(null);
+            startingWeights.getElement().setAttribute("download",
+                    "startingWeights" + (group != null ? "_" + group : "_all") + ".xls");
+            cards.getElement().setAttribute("download", "cards" + (group != null ? "_" + group : "_all") + ".xls");
+        });
+        groupSelect.addValueChangeListener(e -> {
+            setContentGroup(e);
+            
+            cardsWriter.setGroup(e.getValue());
+            startingWeightsWriter.setGroup(e.getValue());
+            juryWriter.setGroup(e.getValue());
+
+            startingWeightsButton.setEnabled(e.getValue() != null);
+            juryButton.setEnabled(e.getValue() != null);
+            startingWeights.getElement().setAttribute("download",
+                    "startingWeights" + (group != null ? "_" + group : "_all") + ".xls");
+            cards.getElement().setAttribute("download", 
+                    "cards" + (group != null ? "_" + group : "_all") + ".xls");
+            jury.getElement().setAttribute("download", 
+                    "jury" + (group != null ? "_" + group : "_all") + ".xls");
+        });
+
+        Button start = new Button(getTranslation("GenerateStartNumbers"), (e) -> {
+            generateStartNumbers();
+        });
+        Button clear = new Button(getTranslation("ClearStartNumbers"), (e) -> {
+            clearStartNumbers();
+        });
+
+        String startingWeightsSheetTranslation = getTranslation("StartingWeightsSheet");
+        startingWeightsButton = new Button(startingWeightsSheetTranslation, new Icon(VaadinIcon.DOWNLOAD_ALT));
+//        startingWeightsButton.addClickListener((e) -> {
+//            startingWeightsWriter.setGroup(getContentGroup());
+//        });
+        startingWeights.add(startingWeightsButton);
+
+        cardsButton = new Button(getTranslation("AthleteCards"), new Icon(VaadinIcon.DOWNLOAD_ALT));
+//        cardsButton.addClickListener((e) -> {
+//            cardsWriter.setGroup(getContentGroup());
+//        });
+        cards.add(cardsButton);
+        cardsButton.setEnabled(true);
+        
+        juryButton = new Button(getTranslation("Jury"), new Icon(VaadinIcon.DOWNLOAD_ALT));
+//        juryButton.addClickListener((e) -> {
+//            juryWriter.setGroup(getContentGroup());
+//        });
+        jury.add(juryButton);
+        juryButton.setEnabled(true);
+
+        HorizontalLayout buttons = new HorizontalLayout(start, clear, startingWeights, cards, jury);
+        buttons.setPadding(true);
+        buttons.setSpacing(true);
+        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+        topBar.getElement().getStyle().set("flex", "100 1");
+        topBar.removeAll();
+        topBar.add(title, groupSelect, buttons);
+        topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+    }
+
+    protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
+        group = e.getValue();
+        gridGroupFilter.setValue(e.getValue());
+    }
+    
+    private Group getContentGroup( ) {
+        return group;
+    }
+
+    private void clearStartNumbers() {
+        Group group = groupSelect.getValue();
+        if (group == null) {
+            errorNotification();
+            return;
+        }
+        JPAService.runInTransaction((em) -> {
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null);
+            for (Athlete a : currentGroupAthletes) {
+                a.setStartNumber(0);
+            }
+            return currentGroupAthletes;
+        });
+        ((WeighinContent) getLayoutComponentContent()).refresh();
+    }
+
+    private void generateStartNumbers() {
+        Group group = groupSelect.getValue();
+        if (group == null) {
+            errorNotification();
+            return;
+        }
+        JPAService.runInTransaction((em) -> {
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true);
+            AthleteSorter.displayOrder(currentGroupAthletes);
+            AthleteSorter.assignStartNumbers(currentGroupAthletes);
+            return currentGroupAthletes;
+        });
+        ((WeighinContent) getLayoutComponentContent()).refresh();
+    }
+
+    protected void errorNotification() {
+        Label content = new Label(getTranslation("Select_group_first"));
+        content.getElement().setAttribute("theme", "error");
+        Button buttonInside = new Button(getTranslation("GotIt"));
+        buttonInside.getElement().setAttribute("theme", "error primary");
+        VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
+        verticalLayout.setAlignItems(Alignment.CENTER);
+        Notification notification = new Notification(verticalLayout);
+        notification.setDuration(3000);
+        buttonInside.addClickListener(event -> notification.close());
+        notification.setPosition(Position.MIDDLE);
+        notification.open();
+    }
 }
