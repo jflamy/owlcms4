@@ -31,6 +31,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -50,6 +51,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -236,17 +238,21 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         grid.addColumn("cleanJerkRank").setHeader(getTranslation("Clean_and_Jerk_Rank"));
         grid.addColumn("total").setHeader(getTranslation("Total"));
         grid.addColumn("totalRank").setHeader(getTranslation("Rank"));
-        grid.addColumn("robi").setHeader(getTranslation("robi"));
+        grid.addColumn(new NumberRenderer<>(Athlete::getRobi,
+                "%.3f",OwlcmsSession.getLocale(),"-"),"robi").setHeader(getTranslation("robi"));
         try {
             String protocolFileName = Competition.getCurrent().getProtocolFileName();
-            if (protocolFileName != null && protocolFileName.toLowerCase().contains("qc")) {
+            if (protocolFileName != null && (protocolFileName.toLowerCase().contains("qc")||protocolFileName.toLowerCase().contains("quebec"))) {
                 // historical
-                grid.addColumn(Athlete::getCategorySinclair, "categorySinclair").setHeader("Cat. Sinclair.");
+                grid.addColumn(new NumberRenderer<>(Athlete::getCategorySinclair,
+                        "%.3f",OwlcmsSession.getLocale(),"-"),"categorySinclair").setHeader("Cat. Sinclair");
             }
         } catch (IOException e) {
         }
-        grid.addColumn("sinclair").setHeader(getTranslation("sinclair"));
-        grid.addColumn("smm").setHeader(getTranslation("smm"));
+        grid.addColumn(new NumberRenderer<>(Athlete::getSinclair,
+                "%.3f",OwlcmsSession.getLocale(),"-"),"sinclair").setHeader(getTranslation("sinclair"));
+        grid.addColumn(new NumberRenderer<>(Athlete::getSmm,
+                "%.3f",OwlcmsSession.getLocale(),"-"),"smm").setHeader(getTranslation("smm"));
 
 
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);

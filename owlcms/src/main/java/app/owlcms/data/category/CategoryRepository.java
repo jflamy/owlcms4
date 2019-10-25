@@ -1,13 +1,15 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.category;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -31,28 +33,17 @@ public class CategoryRepository {
     }
 
     /**
-     * Gets the by id.
+     * Count filtered.
      *
-     * @param id the id
-     * @param em the em
-     * @return the by id
+     * @param name        the name
+     * @param ageDivision the age division
+     * @param active      active category
+     * @return the int
      */
-    @SuppressWarnings("unchecked")
-    public static Category getById(Long id, EntityManager em) {
-        Query query = em.createQuery("select u from Category u where u.id=:id");
-        query.setParameter("id", id);
-
-        return (Category) query.getResultList().stream().findFirst().orElse(null);
-    }
-
-    /**
-     * Save.
-     *
-     * @param Category the category
-     * @return the category
-     */
-    public static Category save(Category Category) {
-        return JPAService.runInTransaction(em -> em.merge(Category));
+    public static int countFiltered(String name, AgeDivision ageDivision, Gender gender, Boolean active) {
+        return JPAService.runInTransaction(em -> {
+            return doCountFiltered(name, ageDivision, gender, active, em);
+        });
     }
 
     /**
@@ -67,26 +58,15 @@ public class CategoryRepository {
         });
     }
 
-    /**
-     * Find all.
-     *
-     * @return the list
-     */
-    @SuppressWarnings("unchecked")
-    public static List<Category> findAll() {
-        return JPAService.runInTransaction(em -> em.createQuery("select c from Category c order by c.name").getResultList());
-    }
-
-    /**
-     * Find by name.
-     *
-     * @param string the string
-     * @return the category
-     */
-    public static Category findByName(String string) {
-        return JPAService.runInTransaction(em -> {
-            return doFindByName(string, em);
-        });
+    public static Integer doCountFiltered(String name, AgeDivision ageDivision, Gender gender, Boolean active,
+            EntityManager em) {
+        String selection = filteringSelection(name, ageDivision, gender, active);
+        String qlString = "select count(c.id) from Category c " + selection;
+        logger.trace("count = {}", qlString);
+        Query query = em.createQuery(qlString);
+        setFilteringParameters(name, ageDivision, gender, true, query);
+        int i = ((Long) query.getSingleResult()).intValue();
+        return i;
     }
 
     @SuppressWarnings("unchecked")
@@ -96,21 +76,50 @@ public class CategoryRepository {
         return (Category) query.getResultList().stream().findFirst().orElse(null);
     }
 
-    /**
-     * Find filtered.
-     *
-     * @param name        the last name
-     * @param ageDivision the age division
-     * @param active      if category is active
-     * @param offset      the offset
-     * @param limit       the limit
-     * @return the list
-     */
-    public static List<Category> findFiltered(String name, AgeDivision ageDivision, Gender gender, Boolean active,
-            int offset, int limit) {
-        return JPAService.runInTransaction(em -> {
-            return doFindFiltered(em, name, ageDivision, gender, active, offset, limit);
-        });
+    public static List<Category> doFindFiltered(EntityManager em, String name, AgeDivision ageDivision, Gender gender,
+            Boolean active, int offset, int limit) {
+        String qlString = "select c from Category c" + filteringSelection(name, ageDivision, gender, active)
+                + " order by c.name";
+        logger.trace("query = {}", qlString);
+
+        Query query = em.createQuery(qlString);
+        setFilteringParameters(name, ageDivision, gender, active, query);
+        if (offset >= 0) {
+            query.setFirstResult(offset);
+        }
+        if (limit > 0) {
+            query.setMaxResults(limit);
+        }
+        @SuppressWarnings("unchecked")
+        List<Category> resultList = query.getResultList();
+        return resultList;
+    }
+
+    private static String filteringSelection(String name, AgeDivision ageDivision, Gender gender, Boolean active) {
+        String joins = null; // filteringJoins(group, category);
+        String where = filteringWhere(name, ageDivision, gender, active);
+        String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
+        return selection;
+    }
+
+    private static String filteringWhere(String name, AgeDivision ageDivision, Gender gender, Boolean active) {
+        List<String> whereList = new LinkedList<>();
+        if (ageDivision != null) {
+            whereList.add("c.ageDivision = :division");
+        }
+        if (name != null && name.trim().length() > 0) {
+            whereList.add("lower(c.name) like :name");
+        }
+        if (active != null && active) {
+            whereList.add("c.active = true");
+        }
+        if (gender != null) {
+            whereList.add("c.gender = :gender");
+        }
+        if (whereList.size() == 0)
+            return null;
+        else
+            return String.join(" and ", whereList);
     }
 
     /**
@@ -131,103 +140,71 @@ public class CategoryRepository {
         });
     }
 
-    public static List<Category> doFindFiltered(EntityManager em, String name, AgeDivision ageDivision, Gender gender,
-            Boolean active, int offset, int limit) {
-        String qlString = "select c from Category c" + filteringSelection(name, ageDivision, gender, active) + " order by c.name";
-        logger.trace("query = {}", qlString);
-
-        Query query = em.createQuery(qlString);
-        setFilteringParameters(name, ageDivision, gender, active, query);
-        if (offset >= 0)
-            query.setFirstResult(offset);
-        if (limit > 0)
-            query.setMaxResults(limit);
-        @SuppressWarnings("unchecked")
-        List<Category> resultList = query.getResultList();
-        return resultList;
+    public static Collection<Category> findActive(Gender gender, Double bodyWeight) {
+        List<Category> list = findActive(gender);
+        if (bodyWeight == null)
+            return list;
+        else {
+            return list.stream()
+                    .filter(cat -> bodyWeight > cat.getMinimumWeight() && bodyWeight <= cat.getMaximumWeight())
+                    .collect(Collectors.toList());
+        }
     }
 
     /**
-     * Count filtered.
+     * Find all.
      *
-     * @param name        the name
-     * @param ageDivision the age division
-     * @param active      active category
-     * @return the int
+     * @return the list
      */
-    public static int countFiltered(String name, AgeDivision ageDivision, Gender gender, Boolean active) {
+    @SuppressWarnings("unchecked")
+    public static List<Category> findAll() {
+        return JPAService
+                .runInTransaction(em -> em.createQuery("select c from Category c order by c.name").getResultList());
+    }
+
+    /**
+     * Find by name.
+     *
+     * @param string the string
+     * @return the category
+     */
+    public static Category findByName(String string) {
         return JPAService.runInTransaction(em -> {
-            return doCountFiltered(name, ageDivision, gender, active, em);
+            return doFindByName(string, em);
         });
     }
 
-    public static Integer doCountFiltered(String name, AgeDivision ageDivision, Gender gender, Boolean active,
-            EntityManager em) {
-        String selection = filteringSelection(name, ageDivision, gender, active);
-        String qlString = "select count(c.id) from Category c " + selection;
-        logger.trace("count = {}", qlString);
-        Query query = em.createQuery(qlString);
-        setFilteringParameters(name, ageDivision, gender, true, query);
-        int i = ((Long) query.getSingleResult()).intValue();
-        return i;
+    /**
+     * Find filtered.
+     *
+     * @param name        the last name
+     * @param ageDivision the age division
+     * @param active      if category is active
+     * @param offset      the offset
+     * @param limit       the limit
+     * @return the list
+     */
+    public static List<Category> findFiltered(String name, AgeDivision ageDivision, Gender gender, Boolean active,
+            int offset, int limit) {
+        return JPAService.runInTransaction(em -> {
+            return doFindFiltered(em, name, ageDivision, gender, active, offset, limit);
+        });
     }
 
-    private static void setFilteringParameters(String name, AgeDivision ageDivision, Gender gender, Boolean active,
-            Query query) {
-        if (name != null && name.trim().length() > 0) {
-            // starts with
-            query.setParameter("name", "%" + name.toLowerCase() + "%");
-        }
-//		if (active != null) {
-//			query.setParameter("active", active);
-//		}
-        if (ageDivision != null) {
-            query.setParameter("division", ageDivision); // ageDivision is a string
-        }
-        if (gender != null) {
-            query.setParameter("gender", gender);
-        }
-//		if (group != null) {
-//			query.setParameter("groupId", group.getId()); // group is via a relationship, we join and select on id.
-//		}
-    }
+    /**
+     * Gets the by id.
+     *
+     * @param id the id
+     * @param em the em
+     * @return the by id
+     */
+    @SuppressWarnings("unchecked")
+    public static Category getById(Long id, EntityManager em) {
+        Query query = em.createQuery("select u from Category u where u.id=:id");
+        query.setParameter("id", id);
 
-    private static String filteringSelection(String name, AgeDivision ageDivision, Gender gender, Boolean active) {
-        String joins = null; // filteringJoins(group, category);
-        String where = filteringWhere(name, ageDivision, gender, active);
-        String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
-        return selection;
+        return (Category) query.getResultList().stream().findFirst().orElse(null);
     }
-
-    private static String filteringWhere(String name, AgeDivision ageDivision, Gender gender, Boolean active) {
-        List<String> whereList = new LinkedList<String>();
-        if (ageDivision != null)
-            whereList.add("c.ageDivision = :division");
-        if (name != null && name.trim().length() > 0)
-            whereList.add("lower(c.name) like :name");
-        if (active != null && active)
-            whereList.add("c.active = true");
-        if (gender != null)
-            whereList.add("c.gender = :gender");
-        if (whereList.size() == 0) {
-            return null;
-        } else {
-            return String.join(" and ", whereList);
-        }
-    }
-
-//	@SuppressWarnings("unused")
-//	private static String filteringJoins(Group group, Category category) {
-//		List<String> fromList = new LinkedList<String>();
-//		if (group != null) {
-//			fromList.add("join c.group g"); // group is via a relationship, join on id
-//		}
-//		if (fromList.size() == 0) {
-//			return "";
-//		} else {
-//			return String.join(" ", fromList);
-//		}
-//	}
 
     /**
      * Insert kids categories.
@@ -259,6 +236,19 @@ public class CategoryRepository {
         em.persist(new Category(96.0, 999.0, Gender.M, active, curAG, 0));
     }
 
+//	@SuppressWarnings("unused")
+//	private static String filteringJoins(Group group, Category category) {
+//		List<String> fromList = new LinkedList<String>();
+//		if (group != null) {
+//			fromList.add("join c.group g"); // group is via a relationship, join on id
+//		}
+//		if (fromList.size() == 0) {
+//			return "";
+//		} else {
+//			return String.join(" ", fromList);
+//		}
+//	}
+
     private static void insertNewCategories(EntityManager em, AgeDivision curAG, boolean active) {
         em.persist(new Category(0.0, 45.0, Gender.F, active, curAG, 191));
         em.persist(new Category(45.0, 49.0, Gender.F, active, curAG, 203));
@@ -285,7 +275,7 @@ public class CategoryRepository {
 
     /**
      * Insert standard categories.
-     * 
+     *
      * @param em
      */
     public static void insertStandardCategories(EntityManager em) {
@@ -331,7 +321,7 @@ public class CategoryRepository {
 
     /**
      * Insert youth categories.
-     * 
+     *
      * @param em
      *
      * @param curAG  the cur AG
@@ -359,6 +349,36 @@ public class CategoryRepository {
         em.persist(new Category(89.0, 96.0, Gender.M, active, curAG, 0));
         em.persist(new Category(96.0, 102.0, Gender.M, active, curAG, 0));
         em.persist(new Category(102.0, 999.0, Gender.M, active, curAG, 0));
+    }
+
+    /**
+     * Save.
+     *
+     * @param Category the category
+     * @return the category
+     */
+    public static Category save(Category Category) {
+        return JPAService.runInTransaction(em -> em.merge(Category));
+    }
+
+    private static void setFilteringParameters(String name, AgeDivision ageDivision, Gender gender, Boolean active,
+            Query query) {
+        if (name != null && name.trim().length() > 0) {
+            // starts with
+            query.setParameter("name", "%" + name.toLowerCase() + "%");
+        }
+//		if (active != null) {
+//			query.setParameter("active", active);
+//		}
+        if (ageDivision != null) {
+            query.setParameter("division", ageDivision); // ageDivision is a string
+        }
+        if (gender != null) {
+            query.setParameter("gender", gender);
+        }
+//		if (group != null) {
+//			query.setParameter("groupId", group.getId()); // group is via a relationship, we join and select on id.
+//		}
     }
 
 }

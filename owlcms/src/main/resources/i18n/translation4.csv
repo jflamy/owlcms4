@@ -18,7 +18,7 @@ AthleteCard,Athlete Card,Carton d'athlète,,Atletkort,Athlete Card,Карточ�
 AthleteCards,Athlete Cards,Cartons d'athlète,,Atlet kort,,Карточки спортсменов
 Attempt,Attempt,Essai,,Forsøg,,Попытка
 AttemptAF,Attempt (AF),Essai courant (face à l'athlète),,Forsøg (AV),,Экран попытки (лицом к атлету)
-AttemptBoard,Attempt Board,Essai courant,,Rækkefølge,,Экран попытки
+AttemptBoard,Attempt Board,Essai courant,,Attempt Board,,Экран попытки
 AttemptBoard_attempt_number,"{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.","{0}<sup>{0,choice,1#er|2#e|3#e}</sup> essai",,"{0}<sup>{0,choice,1.|2.|3.}</sup> forsøg",,"{0}{0,choice,1#-ая|2#-ая|3#-я}</sup> п."
 AtTimeOfRelease,"\u0020as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you","\u0020tels que disponibles au moment de la publication du logiciel. Tel que mentionné dans la licence, il n'y a aucune garantie et vous",,"\u0020as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you",,"\u0020опубликовано на момент релиза.  Как указано в лицензии, нет никакой гарантии в отношении этого программного обеспечения, и вы"
 AutomaticProgression,Automatic Progression,Progression automatique,,Automatisk Øgning,,Автоматическая надбавка
@@ -358,7 +358,7 @@ Speakers,Audio Output,Sortie audio,,Lydudgang,Salida de audio,Аудио-вых�
 Start_,Start#,#Départ,,Startnr.,,Стартовый №
 StartCountdown,Start Break Countdown Timer,Démarrer le chronomètre de pause,,Start Break Countdown Timer,,Запустить таймер
 StartDisplays,Start Displays,Démarrer les affichages,,Start Displays,,Запуск экранов
-StartDisplays_description,"<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>","<li><b>{0}</b>: Lancer les tableaux de résultats, l''affichage de l''essai courant, et l''affichage pour l''athlète.</li>",,"<li><b>{0}</b>: Bruges til at starte Attempt board, Athlete-facing skærm og Scoreboard.</li>",,"<li><b>{0}</b>: Используется для запуска экрана попытки, экрана атлета и таблицы результатов.</li>"
+StartDisplays_description,"<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>","<li><b>{0}</b>: Lancer les tableaux de résultats, l''affichage de l''essai courant, et l''affichage pour l''athlète.</li>",,"<li><b>{0}</b>: Bruges til at starte Attempt board, Atlet-vendt Attempt Board og Scoreboard.</li>",,"<li><b>{0}</b>: Используется для запуска экрана попытки, экрана атлета и таблицы результатов.</li>"
 StartingList,Starting List,Liste de départ,,Startliste,Lista de inicio,Стартовый протокол
 StartingWeightsSheet,Starting Weights Sheet,Barres de départ,,Startvægte,Pesos iniciales,Таблица стартовых весов
 startLifting,Start Lifting,Débuter les levers,,Begynd konkurrencen,,Начать соревнования
@@ -391,7 +391,7 @@ UseBrowserSound,Use Browser Sound,Utiliser le son des navigateurs,,Anvend browse
 Warning_ClearAthleteLifts,This will clear all lifting data for the athletes currently displayed except for initial declarations.<br>Are you sure?,Ceci va vider les essais pour les athlètes actuellement affichés<br>Êtes-vous certain?,,Dette vil slette alle løft for de viste atleter bortset fra deres startvægte.<br>Er du sikker?,,"Это очистит все данные о попытках для спортсменов, которые в настоящее время отображаются, за исключением заявленных весов. <br>Вы уверены?"
 Warning_DeleteAthletes,This will delete the athletes currently displayed from the database.<br>Are you sure?,Ceci va effacer les athlètes actuellement affichés<br>Êtes-vous certain?,,Dette vil slette de viste atleter fra databasen.<br>Er du sikker?,,"Это приведет к удалению спортсменов, отображаемых в настоящее время из базы данных <br>Вы уверены?"
 Warning_GroupLifting,This group is currently lifting on platform ,Ce groupe est actuellement en compétition sur le plateau,,Denne gruppe løfter pt på platformen,,Соревнования потока начались
-Weighed,Weighed,Pesés,,Vejet,,Прошел взвешивание
+Weighed,Weighed,Pesés,,Indvejet,,Прошел взвешивание
 Weighed_in_p,Weighed-In?,Pesés ?,,Indvejet?,,Взвешивание
 WeighIn,Weigh-In,Pesée,,Indvejning,Pesaje,Взвешивание
 WeighIn_StartNumbers,Weigh-In and Start Numbers,Pesée et numéros de départ,,Indvejning og Startnumre,,Взвешивание и стартовые номера
@@ -405,11 +405,11 @@ Withdrawal,Withdrawal,Retrait,,Afstå (withdrawal),Withdrawal,Отказ от п
 WorldRecord,World Record,Record du monde,,Verdensrekord,Récord mundial,Мировой рекорд
 WrittenJFL,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>","Le système a été écrit et est mis à jour par Jean-François Lamy, Officiel Technique IWF catégorie 1<br><br>",,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>",,Данная система разработана и поддерживается Жан-Франсуа Лами. IWF Судья 1-й Международной Категории.<br><br>
 YearOfBirth,Year of Birth,Année de naissance,,Fødselsår,Year of Birth,Год рождения
-dark,White on black,Blanc sur noir,,White on black,White on black,Результаты на чёрном фоне
-light,Black on white,Noir sur blanc,,Black on white,Black on white,Результаты на белом фоне
-darkModeSelect,"After opening, click on the board to select white on black or black on white.","Après l'ouverture, cliquer sur l'écran pour choisir blanc sur noir ou noir sur blanc.",,Efter åbning skal du klikke på hvidt på sort eller sort på hvidt.,"Después de abrir, haga clic en blanco sobre negro o negro sobre blanco.",После открытия кликнуть мышкой по экрану и выбрать белый или черный фон результатов.
+dark,White on black,Blanc sur noir,,Hvid på Sort,White on black,Результаты на чёрном фоне
+light,Black on white,Noir sur blanc,,Sort på Hvid,Black on white,Результаты на белом фоне
+darkModeSelect,"After opening, click on the board to select white on black or black on white.","Après l'ouverture, cliquer sur l'écran pour choisir blanc sur noir ou noir sur blanc.",,Efter åbning skal du klikke på [Hvid på Sort] eller [Sort på Hvid].,"Después de abrir, haga clic en blanco sobre negro o negro sobre blanco.",После открытия кликнуть мышкой по экрану и выбрать белый или черный фон результатов.
 Scoreboards,Scoreboards,Tableaux d'affichage,,Resultattavler,Marcadores,Таблицы результатов
 refereeingDevices,"If refereeing devices are used, they are usually connected to this display.","Si des claviers d'arbitrage sont utilisés,  ils sont normalement connectés à cet appareil.",,"Hvis der bruges dommerudstyr, er de normalt forbundet til dette display.",,"Если используются судейские устройства, они обычно подключаются к этому дисплею."
 Refereeing_Displays,Athlete-facing Timer/Down/Decisions,Chrono/Terre/Décisions (face à l'athlète),,Atlet-vendt Timer/Nedsignal/Afgørelse,,Экран решения для спортсмена
-Membership,Membership #,Nº membre,,Medlemsnummer,Nº de socio,Членский номер
-Confirm,Conform,Confirmer,,Bekræfte,Confirmar,Подтвердить
+Membership,Membership #,Nº membre,,VL-Stat nr,Nº de socio,Членский номер
+Confirm,Conform,Confirmer,,Bekræft,Confirmar,Подтвердить

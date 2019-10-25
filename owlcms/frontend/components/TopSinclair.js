@@ -13,6 +13,10 @@ class TopSinclair extends PolymerElement {
 :root {
   --narrow-width: 6%;
   --veryNarrow-width: 4%;
+  --fontSizeRank-height: 0.95em;
+  --fontSizeRows-height: 1.15em;
+  --fontSizeRank-heightXGA: 0.9em;
+  --fontSizeRows-heightXGA: 1.1em;
 }
 
 .wrapper {
@@ -98,7 +102,7 @@ class TopSinclair extends PolymerElement {
 }
 
 table.results {
-    table-layout: fixed;
+    table-layout: auto;
 	width: 100%;
 	border-collapse: collapse;
 	border: none;
@@ -120,7 +124,7 @@ th, td {
 	border-collapse: collapse;
 	border: solid 1px DarkGray;
 	padding: 0.4vmin 1vmin 0.4vmin 1vmin;
-	font-size: 2.1vh;
+	font-size: var(--fontSizeRows-height);
 }
 
 :host(.dark) th, td {
@@ -137,13 +141,14 @@ th, td {
   text-overflow: ellipsis;
 }
 
-@media screen and (min-width: 1030px) {
+/* header cells for rank in the main table, wide screen */
+@media screen and (min-width: 1401px) {
 	.showThRank {
 		border-collapse: collapse;
 		border: solid 1px DarkGray;
 		border-left-style: none;
 		padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-		font-size: 1.5vh;
+		font-size: var(--fontSizeRank-height);
 		font-weight: normal;
 		font-style: italic;
 		width: 4vw;
@@ -151,12 +156,14 @@ th, td {
 	}
 }
 
-@media screen and (max-width: 1029px) {
+/* header cells for rank in the main table, XGA projector */
+@media screen and (max-width: 1400px) {
 	.showThRank {
 		display: none;
 		width: 0px;
 		padding: 0 0 0 0;
 		margin: 0 0 0 0;
+		font-size: var(--fontSizeRank-heightXGA);
 	}
 }
 
@@ -165,7 +172,7 @@ th, td {
 	border: solid 1px DarkGray;
 	border-left-style: none;
 	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-	font-size: 1.5vh;
+	font-size: var(--fontSizeRows-height);
 	font-weight: normal;
 	font-style: italic;
 	width: var(--veryNarrow-width);
@@ -190,20 +197,27 @@ th, td {
 	text-align: center;
 }
 
-@media screen and (min-width: 1020px) {
+/* rank cells in the main table, wide screen */
+@media screen and (min-width: 1401px) {
 	.showRank {
 		display: table-cell;
 		width: var(--veryNarrow-width);
+		font-size: var(--fontSizeRows-height);
 		text-align: center;
 	}
 }
 
-@media screen and (max-width: 1029px) {
+/* rank cells in the main table, XGA projector */
+@media screen and (max-width: 1400px) {
 	.showRank {
 		display: none;
 		width: 0px;
 		padding: 0 0 0 0;
 		margin: 0 0 0 0;
+		font-size: var(--fontSizeRows-heightXGA);
+	}
+	th,td {
+		font-size: var(--fontSizeRows-heightXGA);
 	}
 }
 
@@ -214,6 +228,7 @@ th, td {
 
 .club {
 	text-align: center;
+	width: 8%;
 }
 
 .narrow {
@@ -330,11 +345,11 @@ h2 {
 		<table class="results" id="orderDiv" style$="">
 			<thead>
 				<tr>
-					<th width="25%" inner-h-t-m-l="[[t.Name]]"></th>
+					<th inner-h-t-m-l="[[t.Name]]"></th>
 					<th class$="[[_computeMasters(masters)]]" inner-h-t-m-l="[[t.AgeGroup]]"></th>
 					<th class="veryNarrow" inner-h-t-m-l="[[t.Category]]"></th>
 					<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-					<th width="10%" class='club' inner-h-t-m-l="[[t.Team]]"></th>
+					<th class="club ellipsis" inner-h-t-m-l="[[t.Team]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
 					<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
@@ -345,11 +360,11 @@ h2 {
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedWomen]]" as="l">
 				<tr>
-					<td width="25%" class$="[[l.classname]]">[[l.fullName]]</td>
+					<td width="15%" class="ellipsis">[[l.fullName]]</td>
 					<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
 					<td class="veryNarrow">[[l.category]]</td>
 					<td class="veryNarrow">[[l.yearOfBirth]]</td>
-					<td width="10%" class="club">[[l.teamName]]</td>
+					<td class="club ellipsis">[[l.teamName]]</td>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</td>
 					</template>
@@ -370,11 +385,11 @@ h2 {
 		<table class="results" id="orderDiv" style$="">
 			<thead>
 				<tr>
-					<th width="25%" inner-h-t-m-l="[[t.Name]]"></th>
+					<th inner-h-t-m-l="[[t.Name]]"></th>
 					<th class$="[[_computeMasters(masters)]]" inner-h-t-m-l="[[t.AgeGroup]]"></th>
 					<th class="veryNarrow" inner-h-t-m-l="[[t.Category]]"></th>
 					<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-					<th width="10%" class='club' inner-h-t-m-l="[[t.Team]]"></th>
+					<th class="club ellipsis" inner-h-t-m-l="[[t.Team]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
 					<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
@@ -385,11 +400,11 @@ h2 {
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedMen]]" as="l">
 				<tr>
-					<td width="25%" class$="[[l.classname]]">[[l.fullName]]</td>
+					<td width="15%" class="ellipsis">[[l.fullName]]</td>
 					<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
 					<td class="veryNarrow">[[l.category]]</td>
 					<td class="veryNarrow">[[l.yearOfBirth]]</td>
-					<td width="10%" class="club">[[l.teamName]]</td>
+					<td class="club">[[l.teamName]]</td>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</td>
 					</template>

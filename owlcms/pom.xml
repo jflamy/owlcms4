@@ -5,7 +5,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.2.2</version>
+        <version>4.2.3</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System</name>
@@ -635,6 +635,9 @@
                         <groupId>com.heroku.sdk</groupId>
                         <artifactId>heroku-maven-plugin</artifactId>
                         <version>2.0.6</version>
+                        <executions>
+                        <execution><phase>verify</phase></execution>
+                        </executions>
                         <configuration>
                             <appName>owlcms4</appName>
                             <includeTarget>false</includeTarget>

@@ -142,19 +142,32 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     @SuppressWarnings({ "unchecked" })
     private void filterCategories(Category category) {
-        Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
-        ComboBox<Category> categoryField = (ComboBox<Category>) categoryBinding.getField();
         Binding<Athlete, ?> genderBinding = binder.getBinding("gender").get();
         ComboBox<Gender> genderField = (ComboBox<Gender>) genderBinding.getField();
+        
+        Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
+        ComboBox<Category> categoryField = (ComboBox<Category>) categoryBinding.getField();
+        
+        Binding<Athlete, ?> bodyWeightBinding = binder.getBinding("bodyWeight").get();
+        BodyWeightField bodyWeightField = (BodyWeightField) bodyWeightBinding.getField();
+        Double bodyWeight = bodyWeightField.getValue();
+        
         ListDataProvider<Category> listDataProvider = new ListDataProvider<Category>(
-                CategoryRepository.findActive(genderField.getValue()));
-        categoryField.setDataProvider(listDataProvider);
-        categoryField.setValue(category);
+                CategoryRepository.findActive(genderField.getValue(),bodyWeight));
+        categoryField.setDataProvider(listDataProvider);       
+        
         genderField.addValueChangeListener((vc) -> {
             ListDataProvider<Category> listDataProvider2 = new ListDataProvider<Category>(
-                    CategoryRepository.findActive(genderField.getValue()));
+                    CategoryRepository.findActive(genderField.getValue(),bodyWeightField.getValue()));
             categoryField.setDataProvider(listDataProvider2);
         });
+        bodyWeightField.addValueChangeListener((vc) -> {
+            ListDataProvider<Category> listDataProvider2 = new ListDataProvider<Category>(
+                    CategoryRepository.findActive(genderField.getValue(),bodyWeightField.getValue()));
+            categoryField.setDataProvider(listDataProvider2);
+        });
+        
+        categoryField.setValue(category);
     }
 
     @Override
@@ -329,17 +342,19 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void validateCategory(Binder.BindingBuilder bindingBuilder) {
-
         // check that category is consistent with body weight
         Validator<Category> v1 = Validator.from((category) -> {
-            if (category == null)
-                return true;
             try {
                 Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
                 Double bw = (Double) bwBinding.getField().getValue();
+                if (category == null && bw == null)
+                    return true;
                 if (bw == null)
                     // no body weight - no contradiction
                     return true;
+                if (bw != null && category == null) {
+                    return false;
+                }
                 Double min = category.getMinimumWeight();
                 Double max = category.getMaximumWeight();
                 logger.debug("comparing {} ]{},{}] with body weight {}", category.getName(), min, max, bw);

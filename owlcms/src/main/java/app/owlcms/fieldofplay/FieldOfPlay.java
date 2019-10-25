@@ -879,7 +879,7 @@ public class FieldOfPlay {
      * Don't interrupt break if official-induced break. Interrupt break if it is
      * simply "group done".
      * 
-     * @param newState TODO
+     * @param newState  the state we want to go to if there is no break
      */
     private void setStateUnlessInBreak(FOPState newState) {
         if (state == INACTIVE) {
