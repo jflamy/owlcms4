@@ -168,22 +168,13 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
 
         String startingWeightsSheetTranslation = getTranslation("StartingWeightsSheet");
         startingWeightsButton = new Button(startingWeightsSheetTranslation, new Icon(VaadinIcon.DOWNLOAD_ALT));
-//        startingWeightsButton.addClickListener((e) -> {
-//            startingWeightsWriter.setGroup(getContentGroup());
-//        });
         startingWeights.add(startingWeightsButton);
 
         cardsButton = new Button(getTranslation("AthleteCards"), new Icon(VaadinIcon.DOWNLOAD_ALT));
-//        cardsButton.addClickListener((e) -> {
-//            cardsWriter.setGroup(getContentGroup());
-//        });
         cards.add(cardsButton);
         cardsButton.setEnabled(true);
         
         juryButton = new Button(getTranslation("Jury"), new Icon(VaadinIcon.DOWNLOAD_ALT));
-//        juryButton.addClickListener((e) -> {
-//            juryWriter.setGroup(getContentGroup());
-//        });
         jury.add(juryButton);
         juryButton.setEnabled(true);
 
@@ -202,10 +193,6 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
     protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
         group = e.getValue();
         gridGroupFilter.setValue(e.getValue());
-    }
-    
-    private Group getContentGroup( ) {
-        return group;
     }
 
     private void clearStartNumbers() {
