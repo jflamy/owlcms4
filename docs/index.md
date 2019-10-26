@@ -4,9 +4,12 @@ OWLCMS version 4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!
 
 ## Downloads and Setup
 
-Setup packages and Installation Instructions are available for [stand-alone setups (no internet access needed)](https://jflamy.github.io/owlcms4/#/LocalSetup.md) on Windows, Mac OS and Linux, as well as for [running on the free tier of the Heroku cloud service](https://jflamy.github.io/owlcms4/#/Heroku.md).
+Setup packages and Installation Instructions are available for
+  * [Windows Stand-alone Installation](LocalWindowsSetup)
+  * [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
+  * [Cloud Installation](Heroku)
 
-With the same setup you can [change the language](Preparation#display-language) of the program between French, English, Danish or Russian. Volunteers to [translate](#translation-to-other-languages) to other languages  are welcome.
+Stand-alone installations run on a laptop and do not require an internet access for running the competition. Cloud installation requires a good connection during the competition, but only browsers are used at the competition site. See the [Equipment Setup](EquipmentSetup) page for more details.
 
 ## Features and Demo
 
