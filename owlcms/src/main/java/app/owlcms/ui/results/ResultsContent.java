@@ -13,14 +13,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
@@ -83,6 +87,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     private Group currentGroup;
     private JXLSResultSheet xlsWriter;
     private ComboBox<Resource> templateSelect;
+    private Checkbox medalsOnly;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -103,6 +108,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         createTopBar();
+        Competition competition = Competition.getCurrent();
+        competition.computeGlobalRankings();
     }
 
     /**
@@ -126,8 +133,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         H3 title = new H3();
         title.setText(getTranslation("GroupResults"));
         title.add();
-        title.getStyle().set("margin", "0px 0px 0px 0px")
-                .set("font-weight", "normal");
+        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
         topBarGroupSelect = new ComboBox<Group>();
         topBarGroupSelect.setPlaceholder(getTranslation("Group"));
@@ -185,7 +191,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             throw new RuntimeException(e);
         }
     }
-    
+
     private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
         Resource found = null;
         for (Resource curResource : resourceList) {
@@ -197,7 +203,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         }
         return found;
     }
-
 
     protected void setGroupSelectionListener() {
         topBarGroupSelect.setValue(getGridGroup());
@@ -227,39 +232,47 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         themes.add("compact");
         themes.add("row-stripes");
 
+        grid.addColumn("category").setHeader(getTranslation("Category"));
+        grid.addColumn("totalRank").setHeader(getTranslation("Rank"));
+
         grid.addColumn("lastName").setHeader(getTranslation("LastName"));
         grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
         grid.addColumn("team").setHeader(getTranslation("Team"));
         grid.addColumn("group").setHeader(getTranslation("Group"));
-        grid.addColumn("category").setHeader(getTranslation("Category"));
         grid.addColumn("bestSnatch").setHeader(getTranslation("Snatch"));
         grid.addColumn("snatchRank").setHeader(getTranslation("SnatchRank"));
         grid.addColumn("bestCleanJerk").setHeader(getTranslation("Clean_and_Jerk"));
         grid.addColumn("cleanJerkRank").setHeader(getTranslation("Clean_and_Jerk_Rank"));
         grid.addColumn("total").setHeader(getTranslation("Total"));
-        grid.addColumn("totalRank").setHeader(getTranslation("Rank"));
-        grid.addColumn(new NumberRenderer<>(Athlete::getRobi,
-                "%.3f",OwlcmsSession.getLocale(),"-"),"robi").setHeader(getTranslation("robi"));
+
+        grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"), "robi")
+                .setHeader(getTranslation("robi"));
         try {
             String protocolFileName = Competition.getCurrent().getProtocolFileName();
-            if (protocolFileName != null && (protocolFileName.toLowerCase().contains("qc")||protocolFileName.toLowerCase().contains("quebec"))) {
+            if (protocolFileName != null && (protocolFileName.toLowerCase().contains("qc")
+                    || protocolFileName.toLowerCase().contains("quebec"))) {
                 // historical
-                grid.addColumn(new NumberRenderer<>(Athlete::getCategorySinclair,
-                        "%.3f",OwlcmsSession.getLocale(),"-"),"categorySinclair").setHeader("Cat. Sinclair");
+                grid.addColumn(
+                        new NumberRenderer<>(Athlete::getCategorySinclair, "%.3f", OwlcmsSession.getLocale(), "-"),
+                        "categorySinclair").setHeader("Cat. Sinclair");
             }
         } catch (IOException e) {
         }
-        grid.addColumn(new NumberRenderer<>(Athlete::getSinclair,
-                "%.3f",OwlcmsSession.getLocale(),"-"),"sinclair").setHeader(getTranslation("sinclair"));
-        grid.addColumn(new NumberRenderer<>(Athlete::getSmm,
-                "%.3f",OwlcmsSession.getLocale(),"-"),"smm").setHeader(getTranslation("smm"));
-
+        grid.addColumn(new NumberRenderer<>(Athlete::getSinclair, "%.3f", OwlcmsSession.getLocale(), "-"), "sinclair")
+                .setHeader(getTranslation("sinclair"));
+        grid.addColumn(new NumberRenderer<>(Athlete::getSmm, "%.3f", OwlcmsSession.getLocale(), "-"), "smm")
+                .setHeader(getTranslation("smm"));
 
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
         AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
+
             @Override
             protected void initToolbar() {
-            }
+                Component reset = createReset();
+                if (reset != null) {
+                    crudLayout.addToolbarComponent(reset);
+                }
+            }   
 
             @Override
             protected void updateButtons() {
@@ -290,6 +303,9 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     protected void defineFilters(GridCrud<Athlete> crud) {
+        if (medalsOnly != null)
+            return;
+
         groupFilter.setPlaceholder(getTranslation("Group"));
         groupFilter.setItems(GroupRepository.findAll());
         groupFilter.setItemLabelGenerator(Group::getName);
@@ -302,6 +318,29 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             subscribeIfLifting(e.getValue());
         });
         crud.getCrudLayout().addFilterComponent(groupFilter);
+
+        medalsOnly = new Checkbox();
+        medalsOnly.setLabel(getTranslation("MedalsOnly"));
+        medalsOnly.setValue(false);
+        medalsOnly.addValueChangeListener(e -> {
+            crudGrid.getGrid().getElement().getClassList().set("medals", Boolean.TRUE.equals(e.getValue()));
+            crud.refreshGrid();
+        });
+        crud.getCrudLayout().addFilterComponent(medalsOnly);
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#createReset()
+     */
+    @Override
+    protected Component createReset() {
+        reset = new Button(getTranslation("RecomputeRanks"),IronIcons.REFRESH.create(), (e) -> OwlcmsSession.withFop((fop) -> {
+            refresh();
+        }));
+
+        reset.getElement().setAttribute("title", getTranslation("Reload_group"));
+        reset.getElement().setAttribute("theme", "secondary contrast small icon");
+        return reset;
     }
 
     /**
@@ -318,7 +357,14 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
         AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
-        return athletes;
+
+        Boolean medals = medalsOnly.getValue();
+        if (medals != null && medals) {
+            return athletes.stream().filter(a -> a.getTotalRank() >= 1 && a.getTotalRank() <= 3)
+                    .collect(Collectors.toList());
+        } else {
+            return athletes;
+        }
     }
 
     /**
