@@ -413,5 +413,5 @@ refereeingDevices,"If refereeing devices are used, they are usually connected to
 Refereeing_Displays,Athlete-facing Timer/Down/Decisions,Chrono/Terre/Décisions (face à l'athlète),,Atlet-vendt Timer/Nedsignal/Afgørelse,,Экран решения для спортсмена
 Membership,Membership #,Nº membre,,VL-Stat nr,Nº de socio,Членский номер
 Confirm,Conform,Confirmer,,Bekræft,Confirmar,Подтвердить
-MedalsOnly,Medals Only,Seulement les médailles,,Vis medaljer,Show Medals Only,только медали
-RecomputeRanks,Recompute Ranks,Recalculer les rangs,,Recompute Ranks,Recompute Ranks,Recompute Ranks
+MedalsOnly,Medals Only,Médailles seulement,,Vis medaljer,Show Medals Only,Медалисты
+RecomputeRanks,Recompute Ranks,Recalculer les rangs,,Recompute Ranks,Recompute Ranks,Перерасчёт мест
