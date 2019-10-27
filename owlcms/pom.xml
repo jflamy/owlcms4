@@ -5,7 +5,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.2.4</version>
+        <version>4.2.5-SNAPSHOT</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System</name>
@@ -601,11 +601,12 @@
                     <plugin>
                         <groupId>com.ragedunicorn.tools.maven</groupId>
                         <artifactId>github-release-maven-plugin</artifactId>
-                        <version>1.0.2-SNAPSHOT</version>
+                        <version>1.0.3.owlcms</version>
                         <inherited>false</inherited>
                         <executions>
                             <execution>
                                 <id>default-cli</id>
+                                <phase>none</phase>
                                 <configuration>
                                     <skip>true</skip>
                                     <owner>jflamy</owner>
