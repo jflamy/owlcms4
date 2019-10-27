@@ -355,44 +355,6 @@
                                         <exclude>META-INF/LICENSE.txt</exclude>
                                     </excludes>
                                 </filter>
-                                <!-- exclude the MANIFEST.MF entries that 
-                                    will cause problems -->
-                                <!-- <filter> -->
-                                <!-- <artifact>javax.annotation:*</artifact> -->
-                                <!-- <excludes> -->
-                                <!-- <exclude>META-INF/MANIFEST.MF</exclude> -->
-                                <!-- </excludes> -->
-                                <!-- </filter> -->
-                                <!-- <filter> -->
-                                <!-- <artifact>javax.servlet:*</artifact> -->
-                                <!-- <excludes> -->
-                                <!-- <exclude>META-INF/MANIFEST.MF</exclude> -->
-                                <!-- </excludes> -->
-                                <!-- </filter> -->
-                                <!-- <filter> -->
-                                <!-- <artifact>javax.websocket:*</artifact> -->
-                                <!-- <excludes> -->
-                                <!-- <exclude>META-INF/MANIFEST.MF</exclude> -->
-                                <!-- </excludes> -->
-                                <!-- </filter> -->
-                                <!-- <filter> -->
-                                <!-- <artifact>org.eclipse.jetty:*</artifact> -->
-                                <!-- <excludes> -->
-                                <!-- <exclude>META-INF/MANIFEST.MF</exclude> -->
-                                <!-- </excludes> -->
-                                <!-- </filter> -->
-                                <!-- <filter> -->
-                                <!-- <artifact>org.eclipse.jetty.websocket:*</artifact> -->
-                                <!-- <excludes> -->
-                                <!-- <exclude>META-INF/MANIFEST.MF</exclude> -->
-                                <!-- </excludes> -->
-                                <!-- </filter> -->
-                                <!-- <filter> -->
-                                <!-- <artifact>org.ow2.asm:*</artifact> -->
-                                <!-- <excludes> -->
-                                <!-- <exclude>META-INF/MANIFEST.MF</exclude> -->
-                                <!-- </excludes> -->
-                                <!-- </filter> -->
                             </filters>
                             <transformers>
                                 <transformer
