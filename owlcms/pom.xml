@@ -5,7 +5,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.2.3</version>
+        <version>4.2.4</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System</name>
@@ -256,8 +256,9 @@
         </resources>
 
         <plugins>
-			<!-- Take care of synchronizing java dependencies and imports in package.json 
-				and main.js files. It also creates webpack.config.js if not exists yet. -->
+            <!-- Take care of synchronizing java dependencies and imports 
+                in package.json and main.js files. It also creates webpack.config.js if not 
+                exists yet. -->
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
@@ -326,7 +327,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>    
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -354,43 +355,6 @@
                                         <exclude>META-INF/LICENSE.txt</exclude>
                                     </excludes>
                                 </filter>
-                                <!-- exclude the MANIFEST.MF entries that will cause problems -->
-                                <filter>
-                                    <artifact>javax.annotation:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>javax.servlet:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>javax.websocket:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>org.eclipse.jetty:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>org.eclipse.jetty.websocket:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>org.ow2.asm:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
                             </filters>
                             <transformers>
                                 <transformer
@@ -414,10 +378,10 @@
                         <configuration>
                             <headerType>console</headerType>
                             <outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
-							<!-- fake jar; the one we run in postCp below; we want "local" to 
-								be before the jar we run from, but the plugin puts the value of jar at the 
-								beginning of classpath, which is not what we want. So we put a dummy jar 
-								at the front... -->
+                            <!-- fake jar; the one we run in postCp below; 
+                                we want "local" to be before the jar we run from, but the plugin puts the 
+                                value of jar at the beginning of classpath, which is not what we want. So 
+                                we put a dummy jar at the front... -->
                             <jar>jre/lib/charsets.jar</jar>
                             <dontWrapJar>true</dontWrapJar>
                             <errTitle>owlcms</errTitle>
@@ -538,7 +502,32 @@
                 <version>1.6.0</version>
                 <executions>
                     <execution>
+                        <id>windows_jdk_package</id>
+                        <!-- verify phase is used because contrary to documentation, 
+                            pom.xml ordering is not respected and this execution does not run last if 
+                            invoked in package phase -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${innosetup.exe}</executable>
+                            <workingDirectory></workingDirectory>
+                            <arguments>
+                                <argument>/Q</argument>
+                                <argument>src\main\install\owlcms.iss</argument>
+                            </arguments>
+                            <environmentVariables>
+                                <versionNumber>${project.version}</versionNumber>
+                            </environmentVariables>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>default-cli</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
                         <configuration>
                             <mainClass>app.owlcms.Main</mainClass>
                             <systemProperties>
@@ -551,43 +540,6 @@
                                     <value>true</value>
                                 </systemProperty>
                             </systemProperties>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>windows_jdk_package</id>
-						<!-- verify phase is used because contrary to documentation, pom.xml 
-							ordering is not respected and this execution does not run last if invoked 
-							in package phase -->
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>${innosetup.exe}</executable>
-                            <workingDirectory></workingDirectory>
-                            <arguments>
-                                <argument>src\main\install\owlcms.iss</argument>
-                            </arguments>
-                            <environmentVariables>
-                                <versionNumber>${project.version}</versionNumber>
-                            </environmentVariables>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.ragedunicorn.tools.maven</groupId>
-                <artifactId>github-release-maven-plugin</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>default-cli</id>
-                        <configuration>
-                            <skip>true</skip>
-                            <owner>jflamy</owner>
-                            <repository>owlcms4</repository>
-                            <tagName>${project.version}</tagName>
                         </configuration>
                     </execution>
                 </executions>
@@ -624,6 +576,45 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <groupId>net.jsign</groupId>
+                        <artifactId>jsign-maven-plugin</artifactId>
+                        <version>2.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <file>target/owlcms_setup/owlcms_setup.exe</file>
+                                    <name>owlcms</name>
+                                    <url>http://jflamy.github.io/owlcms4</url>
+                                    <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
+                                    <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
+                                    <storepass>${codeSigning}</storepass>
+                                    <storetype>PKCS12</storetype>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.ragedunicorn.tools.maven</groupId>
+                        <artifactId>github-release-maven-plugin</artifactId>
+                        <version>1.0.2-SNAPSHOT</version>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>default-cli</id>
+                                <configuration>
+                                    <skip>true</skip>
+                                    <owner>jflamy</owner>
+                                    <repository>owlcms4</repository>
+                                    <tagName>${project.version}</tagName>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -636,7 +627,9 @@
                         <artifactId>heroku-maven-plugin</artifactId>
                         <version>2.0.6</version>
                         <executions>
-                        <execution><phase>verify</phase></execution>
+                            <execution>
+                                <phase>verify</phase>
+                            </execution>
                         </executions>
                         <configuration>
                             <appName>owlcms4</appName>
@@ -646,14 +639,14 @@
                                 <include>target/heroku-javaagent-2.0.jar</include>
                             </includes>
                             <processTypes>
-								<!-- following must be a single command line, cdata used to prevent 
-									xml formatters from splitting it -->
-                                <!-- reset on every restart, 
-                                    populate data after manual reset (devMode),
-                                    run on postgres database -->
-                                <!-- no memory settings, set using configuration variables on application -->
+                                <!-- following must be a single command line, 
+                                    cdata used to prevent xml formatters from splitting it -->
+                                <!-- reset on every restart, populate data 
+                                    after manual reset (devMode), run on postgres database -->
+                                <!-- no memory settings, set using configuration 
+                                    variables on application -->
                                 <web><![CDATA[java -javaagent:target/heroku-javaagent-2.0.jar=stdout=true,lxmem=true -Dport=$PORT -Dlogback.configurationFile=logback-console.xml -DdevMode=true -DresetMode=true -DmemoryMode=false -XX:+UseG1GC -XX:GCTimeRatio=39 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -XX:MaxMetaspaceSize=80m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -cp target/owlcms.jar app.owlcms.Main]]></web>
-                              </processTypes>
+                            </processTypes>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -675,8 +668,8 @@
                             </includes>
                             <processTypes>
                                 <!-- do not reset on restart(no resetMode), 
-                                    populate data after manual reset (devMode),
-                                    run on postgres database (memoryMode=false, JDBC url provided by Heroku)-->
+                                    populate data after manual reset (devMode), run on postgres database (memoryMode=false, 
+                                    JDBC url provided by Heroku) -->
                                 <web><![CDATA[java -Dport=$PORT -Dlogback.configurationFile=logback-console.xml -DdevMode=true -DresetMode=false -DmemoryMode=false -Dlogback.configurationFile=logback-console.xml -XX:+UseG1GC -Xmx512m -Xms128m -XX:+UseG1GC -XX:GCTimeRatio=39 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -XX:MaxMetaspaceSize=80m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar target/owlcms.jar]]></web>
                             </processTypes>
                         </configuration>

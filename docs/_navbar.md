@@ -2,9 +2,10 @@
 
 * Installation
 
-  *	[Local Setup](LocalSetup)
-  *	[Cloud Setup](Heroku)
-  *	[Equipment Setup](EquipmentSetup)
+  * [Windows Installation](LocalWindowsSetup)
+  * [Linux or Mac Installation](LocalLinuxMacSetup)
+  * [Cloud Installation](Heroku)
+  * [Equipment Setup](EquipmentSetup)
 
 * Competition
 

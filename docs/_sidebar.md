@@ -2,7 +2,8 @@
 
 * Getting Started
 
-  *	[Local Installation](LocalSetup)
+  *	[Windows Installation](LocalWindowsSetup)
+  * [Linux or Mac Installation](LocalLinuxMacSetup)
   *	[Cloud Installation](Heroku)
   *	[Equipment Setup](EquipmentSetup)
   

@@ -1013,7 +1013,7 @@ public class FieldOfPlay {
         logger.trace("transitionToLifting {} {} {}", e.getAthlete(), stopBreakTimer, LoggerUtils.whereFrom());
         recomputeLiftingOrder();
         Athlete clockOwner = getClockOwner();
-        if (curAthlete.equals(clockOwner)) {
+        if (curAthlete != null && curAthlete.equals(clockOwner)) {
             setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which
                                     // sometimes happens).
         } else {

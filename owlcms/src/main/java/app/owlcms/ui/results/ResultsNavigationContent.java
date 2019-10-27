@@ -41,8 +41,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 	 * Instantiates a new wrapup navigation content.
 	 */
 	public ResultsNavigationContent() {
-		Button groupResults = new Button(getTranslation("GroupResults"),
-			buttonClickEvent -> UI.getCurrent().navigate(ResultsContent.class));
+	    Button groupResults = openInNewTab(ResultsContent.class, getTranslation("GroupResults"));
 		
         Button finalPackage = new Button(getTranslation("FinalResultsPackage"),
                 buttonClickEvent -> UI.getCurrent().navigate(PackageContent.class));
