@@ -4,7 +4,7 @@
 
 - Open the downloaded installer by double-clicking on it. 
 
-  - > **If the installer does not start right away and your computer seems to be working very hard, or if you get a blue `Windows protected your PC` warning, see this page : [Make Windows Defender Allow Installation](DefenderOff)**
+  - > **If you get a blue `Windows protected your PC` warning, or if your machine seems to take a long time to open the download, see this page : [Make Windows Defender Allow Installation](DefenderOff)**
 
 - The installer will prompt you for an installation location.  The default is usually correct.
 
