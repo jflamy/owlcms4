@@ -544,45 +544,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>net.jsign</groupId>
-                <artifactId>jsign-maven-plugin</artifactId>
-                <version>2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <file>target/owlcms_setup/owlcms_setup.exe</file>
-                            <name>owlcms</name>
-                            <url>http://jflamy.github.io/owlcms4</url>
-                            <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
-                            <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
-                            <storepass>${codeSigning}</storepass>
-                            <storetype>PKCS12</storetype>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.ragedunicorn.tools.maven</groupId>
-                <artifactId>github-release-maven-plugin</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>default-cli</id>
-                        <configuration>
-                            <skip>true</skip>
-                            <owner>jflamy</owner>
-                            <repository>owlcms4</repository>
-                            <tagName>${project.version}</tagName>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -612,6 +573,45 @@
                                     <goal>build-frontend</goal>
                                 </goals>
                                 <phase>compile</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>net.jsign</groupId>
+                        <artifactId>jsign-maven-plugin</artifactId>
+                        <version>2.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <file>target/owlcms_setup/owlcms_setup.exe</file>
+                                    <name>owlcms</name>
+                                    <url>http://jflamy.github.io/owlcms4</url>
+                                    <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
+                                    <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
+                                    <storepass>${codeSigning}</storepass>
+                                    <storetype>PKCS12</storetype>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.ragedunicorn.tools.maven</groupId>
+                        <artifactId>github-release-maven-plugin</artifactId>
+                        <version>1.0.2-SNAPSHOT</version>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>default-cli</id>
+                                <configuration>
+                                    <skip>true</skip>
+                                    <owner>jflamy</owner>
+                                    <repository>owlcms4</repository>
+                                    <tagName>${project.version}</tagName>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
