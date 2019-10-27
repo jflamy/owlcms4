@@ -2,7 +2,7 @@
 * Release Highlights: minor usability and cosmetic fixes
   * Fix: add missing Jury / Referee Examination sheet generation button on weigh-in page #213
   * Fix: starting weight / athlete cards were not tracking the selected group correctly #212
-  * Enhancement: show the medals on the results screen used by the announcer #214
+  * Enhancement: filter to show only the medals on the results screen used by the announcer #214
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc)
 - Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` below and follow [Local installation instructions](https://jflamy.github.io/owlcms4/#/LocalSetup.md) 
