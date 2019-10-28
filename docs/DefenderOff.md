@@ -4,9 +4,9 @@ If you see a blue box like this, click on the `More info` link.
 
 ![0_protected](img/DefenderOff/0_protected.png)
 
-This will make will make a `Run Anyway` button appear at the bottom. You can click on the `Run Anyway` button to let installation proceed.
+This will make will make a `Run Anyway` button appear at the bottom. You can then click on the `Run Anyway` button to let the installation proceed.
 
-- **Notice the publisher information**: this attests that the code was digitally signed by the author and was not tampered with.  Microsoft takes note that nothing wrong happens when people install the application, and if enough different people install the application, will eventually remove the warning.
+- **Notice the publisher information**: this attests that the code was digitally signed by the author and was not tampered with.  Microsoft takes note that nothing wrong happens when people install the application, and if enough different people install the application, the warning will eventually go away.  Skipping this step requires a complicated procedure and costs several hundred dollars, sorry.
 
 ![1_moreInfo](img/DefenderOff/1_moreInfo.png)
 
@@ -14,7 +14,7 @@ This will make will make a `Run Anyway` button appear at the bottom. You can cli
 
 ## Why does opening the installer take forever for me ?
 
-Your Windows Defender may decide to scan the installer even though the application is signed and it can flag it as safe.  If it decides to, the scan is extremely slow.  There are a few thousand files zipped inside the installer, and apparently Defender is looking at each and everyone of them, even though roughly 90% of them are from well-known open-source libraries. I have no control over what Microsoft does.
+Windows Defender on your laptop may decide to scan the installer even though the application is signed.  If a scan is performed, unfortunately Windows Defender is extremely slow.  This is due to the nature of modern web applications, which are built of a very large number of small files as opposed to one big program.
 
 The easiest work-around is to disable the real-time scan feature of Windows 10.  After installing, you can re-enable it.  The installer will be scanned anyway the next time the nightly scan is run (which will reassure you that there was nothing evil inside). 
 
