@@ -1,16 +1,16 @@
 - **Get the installation zip archive**: Go to the releases location (https://github.com/jflamy/owlcms4/releases) and get the current `zip` file from the `assets` section at the bottom of the release entry.
 
-- Double-click on the zip file, and extract the files to a directory.  We suggest you use `~/owlcms4` as the unzipped location.
+- Right-click on the file and extract the files to a directory.  We suggest you use `~/owlcms` as the unzipped location.
 
 - Make sure you have Java 8 installed. 
 
   -  For Linux, refer to https://adoptopenjdk.net/releases.html depending on the Linux type you run
   -  For MacOS, see https://adoptopenjdk.net/releases.html#x64_mac
 
-- To start the program, open a Terminal window,  directory to the location where you unzipped the files and launch Java as follows.  Assuming you extracted to a directory called `owlcms4` in your home, the following would work
+- To start the program, open a Terminal window, in the directory where you unzipped the files and launch Java as follows.  Assuming you extracted to a directory called `owlcms4` in your home, the following would work
 
   ```bash
-  cd ~/owlcms4
+  cd ~/owlcms
   java -jar owlcms.jar
   ```
   This will actually start the program and a browser. See [Initial Startup](#initial-startup) for how to proceed.
@@ -27,9 +27,11 @@
 
 When OWLCMS4 is started on a laptop, two windows are visible:  a command-line window, and an internet browser
 
+<img src="img/LocalInstall/041_LinuxStartup.png" alt="041_LinuxStartup" style="zoom:67%;" />
+
 - The command-line window (typically with a black background) is where the OWLCMS4 master web server shows its execution log.  
 
-  All the other displays and screens connect to the master server.  <u>You can stop the program by clicking on the x</u> or clicking in the window and typing `Control-C`.  The various screens and displays will spin in wait mode until you restart the master program -- there is normally no need to restart or refresh them.
+  All the other displays and screens connect to this master server.  <u>You can stop the program by clicking on the x</u> or clicking in the window and typing `Control-C`.  The various screens and displays will spin in wait mode until you restart the master program -- there is normally no need to restart or refresh them.
 
 - The white window is a normal browser.  If you look at the top, you will see two or more lines that tell you how to open more browsers and connect them to the master server.
 
