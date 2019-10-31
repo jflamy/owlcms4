@@ -138,21 +138,33 @@ public class Translator implements I18NProvider {
         String csvName = BUNDLE_PACKAGE_SLASH + baseName + ".csv";
         File bundleDir = Files.createTempDir();
         line = 0;
-        
+
         if (i18nloader == null) {
             logger.debug("reloading translation bundles");
 
             InputStream csvStream = helper.getClass().getResourceAsStream(csvName);
             ICsvListReader listReader = null;
             try {
-                listReader = new CsvListReader(new InputStreamReader(csvStream, StandardCharsets.UTF_8), CsvPreference.STANDARD_PREFERENCE);
-                
+                CsvPreference[] preferences = new CsvPreference[] {
+                        CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE,
+                        CsvPreference.STANDARD_PREFERENCE,
+                        CsvPreference.TAB_PREFERENCE };
 
-                List<String> stringList;
-                if ((stringList = readLine(listReader)) == null) {
-                    throw new RuntimeException(csvName+" file is empty");
+                List<String> stringList = new ArrayList<>();
+                for (CsvPreference preference : preferences) {
+                    listReader = new CsvListReader(new InputStreamReader(csvStream, StandardCharsets.UTF_8),
+                            preference);
+ 
+                    if ((stringList = readLine(listReader)) == null) {
+                        throw new RuntimeException(csvName + " file is empty");
+                    } else if (stringList.size() <= 2 ) {
+                        // reset stream
+                        csvStream = helper.getClass().getResourceAsStream(csvName);
+                    } else {
+                        logger.debug(stringList.toString());
+                        break;
+                    }
                 }
-                logger.debug(stringList.toString());
 
                 final File[] outFiles = new File[stringList.size()];
                 final Properties[] languageProperties = new Properties[outFiles.length];
@@ -187,7 +199,8 @@ public class Translator implements I18NProvider {
                             if (!unescapeJava.isEmpty()) {
                                 Properties properties = languageProperties[i];
                                 if (properties == null) {
-                                    String message = MessageFormat.format("{0} line {1}: languageProperties[{2}] is null", csvName, line, i);
+                                    String message = MessageFormat
+                                            .format("{0} line {1}: languageProperties[{2}] is null", csvName, line, i);
                                     logger.error(message);
                                     throw new RuntimeException(message);
                                 }
@@ -216,7 +229,7 @@ public class Translator implements I18NProvider {
                 }
             }
         }
-        
+
         // reload the files
         ResourceBundle.clearCache();
         return ResourceBundle.getBundle(baseName, locale, i18nloader);
@@ -252,7 +265,7 @@ public class Translator implements I18NProvider {
         i18nloader = null;
         logger.debug("cleared translation class loader");
     }
-    
+
     /**
      * @see com.vaadin.flow.i18n.I18NProvider#getTranslation(java.lang.String,
      *      java.util.Locale, java.lang.Object[])
