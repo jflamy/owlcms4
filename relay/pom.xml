@@ -578,7 +578,7 @@
             <plugin>
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
+                <version>1.0.3</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
