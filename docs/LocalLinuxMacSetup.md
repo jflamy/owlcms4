@@ -41,11 +41,15 @@ When OWLCMS4 is started on a laptop, two windows are visible:  a command-line wi
 
   The address <u>depends on your own specific networking setup</u> and you must use one of the addresses displayed **on your setup.**  If none of the addresses listed work, you will need to refer to the persons that set up the networking at your site and on your laptop.  A "proxy" or a "firewall", or some other technical configuration may be blocking access, or requiring a different address that the server can't discover.
 
-  ## Accessing the Program Files and Configuration
+## Configuration Parameters
 
-  In order to uninstall owlcms4, to report problems, or to change some program configurations, you may need to access the program directory where you unzipped the files (the same where you start java from).
+Refer to the following file to see the list of [Configuration Parameters](Configuration).
 
-  If you do so, you will see the installation directory content:
+## Accessing the Program Files and Configuration
+
+In order to uninstall owlcms4, to report problems, or to change some program configurations, you may need to access the program directory where you unzipped the files (the same where you start java from).
+
+If you do so, you will see the installation directory content:
 
 - `owlcms.exe` starts the owlcms server.  `demo-owlcms.exe` does the same, but using fictitious data that is reset anew on every start; this makes it perfect for practicing.
 
