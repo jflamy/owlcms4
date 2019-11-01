@@ -89,6 +89,6 @@ You can use the same technique as for the PIN to force a language to be used on 
 
 If neither `-Dlocale` or `LOCALE` are defined, the [language setting](Preparation#display-language) from the competition information page is used.
 
-## Configuration Variables
+## Configuration Parameters
 
- [Configuration variables](Configuration.md  ' :include') 
+See the [Configuration Parameters](Configuration.md  ' :include') page to see additional configuration options in addition to the ones presented on this page.

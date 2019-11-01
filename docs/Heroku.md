@@ -141,3 +141,6 @@ The simplest way is to use the Heroku dashboard for the application and add the 
   If you do so, the database will be kept in memory, and will not affect the data in your real database.  The fake data will be regenerated every time the application is restarted. In particular, if you are using the free tier on Heroku, the application is restarted after 1h of idle time.
 - To run again with your real database and host a competition, just delete the `OWLCMS_DEMOMODE` config var.
 
+## Configuration Parameters
+
+See the [Configuration Parameters](Configuration.md  ' :include') page to see additional configuration options in addition to the ones presented on this page.
