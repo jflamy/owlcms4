@@ -146,8 +146,8 @@ public class Translator implements I18NProvider {
             ICsvListReader listReader = null;
             try {
                 CsvPreference[] preferences = new CsvPreference[] {
-                        CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE,
                         CsvPreference.STANDARD_PREFERENCE,
+                        CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE,
                         CsvPreference.TAB_PREFERENCE };
 
                 List<String> stringList = new ArrayList<>();
