@@ -88,3 +88,7 @@ You can use the same technique as for the PIN to force a language to be used on 
 - Alternately, define the environment variable `LOCALE` with the value `fr_CA` 
 
 If neither `-Dlocale` or `LOCALE` are defined, the [language setting](Preparation#display-language) from the competition information page is used.
+
+## Configuration Variables
+
+ [Configuration variables](Configuration.md  ' :include') 
