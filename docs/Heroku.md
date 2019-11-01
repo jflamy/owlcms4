@@ -143,4 +143,4 @@ The simplest way is to use the Heroku dashboard for the application and add the 
 
 ## Configuration Parameters
 
-See the [Configuration Parameters](Configuration.md  ' :include') page to see additional configuration options in addition to the ones presented on this page.
+See the [Configuration Parameters](./Configuration.md ':include') page to see additional configuration options in addition to the ones presented on this page.
