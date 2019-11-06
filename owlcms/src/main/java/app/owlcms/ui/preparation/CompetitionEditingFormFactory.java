@@ -65,4 +65,10 @@ class CompetitionEditingFormFactory extends OwlcmsCrudFormFactory<Competition> {
 	public void delete(Competition domainObjectToDelete) {
 		// not used
 	}
+
+    @Override
+    public void setValidationStatusHandler(boolean showErrorsOnFields) {
+        // TODO Auto-generated method stub
+        
+    }
 }

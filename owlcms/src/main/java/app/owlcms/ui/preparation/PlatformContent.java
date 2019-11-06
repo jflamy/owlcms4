@@ -9,13 +9,10 @@ package app.owlcms.ui.preparation;
 import java.util.Collection;
 import java.util.List;
 
-import javax.sound.sampled.Mixer;
-
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
@@ -41,7 +38,7 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation/platforms", layout = PlatformLayout.class)
 public class PlatformContent extends VerticalLayout implements CrudListener<Platform>, OwlcmsContent {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(PlatformContent.class);
+    final static Logger logger = (Logger) LoggerFactory.getLogger(PlatformContent.class);
     static {
         logger.setLevel(Level.INFO);
     }
@@ -115,47 +112,7 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
      * @return the actual factory, with the additional mechanisms to do validation
      */
     private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
-        return new OwlcmsCrudFormFactory<Platform>(Platform.class) {
-            @SuppressWarnings({ "rawtypes", "unchecked" })
-            @Override
-            protected void bindField(HasValue field, String property, Class<?> propertyType) {
-                if (property.equals("soundMixerName")) {
-                    field.addValueChangeListener(e -> {
-                        List<Mixer> soundMixers = Speakers.getOutputs();
-                        for (Mixer curMixer : soundMixers) {
-                            if (curMixer.getMixerInfo().getName().equals(e.getValue())) {
-                                if (e.getOldValue() != null && ! e.getValue().equals(e.getOldValue())) Speakers.testSound(curMixer);
-                                logger.debug("testing mixer {}",curMixer.getMixerInfo().getName()); // LoggerUtils.stackTrace());
-                                break;
-                            }
-                        }
-                    });
-                }
-                super.bindField(field, property, propertyType);
-            }
-
-            @Override
-            public Platform add(Platform platform) {
-                PlatformRepository.save(platform);
-                return platform;
-            }
-
-            @Override
-            public Platform update(Platform platform) {
-                return PlatformRepository.save(platform);
-            }
-
-            @Override
-            public void delete(Platform platform) {
-                PlatformRepository.delete(platform);
-            }
-
-            @Override
-            public Collection<Platform> findAll() {
-                // implemented on grid
-                return null;
-            }
-        };
+        return new PlatformEditingFormFactory(Platform.class);
     }
 
     @Override

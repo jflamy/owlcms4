@@ -48,4 +48,10 @@ class CategoryEditingFormFactory extends OwlcmsCrudFormFactory<Category> {
 	public void delete(Category Category) {
 		CategoryRepository.delete(Category);
 	}
+
+    @Override
+    public void setValidationStatusHandler(boolean showErrorsOnFields) {
+        // TODO Auto-generated method stub
+        
+    }
 }
