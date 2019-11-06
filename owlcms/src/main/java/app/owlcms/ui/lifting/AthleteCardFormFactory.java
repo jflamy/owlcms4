@@ -817,4 +817,28 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
             textfields[targetRow][targetCol].setAutoselect(true);
         }
     }
+    
+    @Override
+    public void setValidationStatusHandler(boolean showErrorsOnFields) {
+        logger.warn("setValidationStatusHandler(show on fields={}) from {}",showErrorsOnFields, LoggerUtils.whereFrom());
+        binder.setValidationStatusHandler((s) -> {
+            logger.warn("errors: {}",s.getFieldValidationErrors());
+            valid = !s.hasErrors();
+            if (showErrorsOnFields) {
+                logger.warn("notifyBindingValidationStatusHandlers updateFieldErrors={} {}", showErrorsOnFields,
+                        LoggerUtils.whereFrom());
+                s.notifyBindingValidationStatusHandlers();
+            }
+            if (!valid) {
+                if (errorLabel != null) {
+                    setErrorLabel(s, showErrorsOnFields);
+                }
+            } else {
+                if (errorLabel != null) {
+                    setErrorLabel(s, showErrorsOnFields);
+                    errorLabel.setVisible(false);
+                }
+            }
+        });
+    }
 }
