@@ -1,7 +1,11 @@
 - See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and [live demo](https://jflamy.github.io/owlcms4/#/?id=demo) 
 * Release Highlights: 
-  * Fix: on weigh-in, entering a body weight would clear the selected category if there was one
+  * Fix: on weigh-in, entering a body weight would clear the selected category if there was one (#221)
+  * Fix: The results screen for the officials was not sorting the Robi, Sinclair, SMM results correctly (#223)
+  * Fix: The results screen for the officials was not sorting first by category then by total rank as expected (#222) 
   * Enhancement: initial translation for Swedish language.
+* Known issue:
+  * Violation of the 20kg rule is shown only when submitting the registration or weigh-in card (Annoyance)
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc)
 - Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 
