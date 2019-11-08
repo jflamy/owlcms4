@@ -59,6 +59,12 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
             return compareCustomResultOrder(lifter1, lifter2);
         case ROBI:
             return compareRobiResultOrder(lifter1, lifter2);
+        case CAT_SINCLAIR:
+            return compareCategorySinclairResultOrder(lifter1, lifter2);
+        case BW_SINCLAIR:
+            return compareSinclairResultOrder(lifter1, lifter2);
+        case SMM:
+            return compareSmmResultOrder(lifter1, lifter2);
         case SINCLAIR:
             if (Competition.getCurrent().isMasters()) {
                 return compareSmmResultOrder(lifter1, lifter2);
@@ -71,9 +77,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
             }
         default:
             break;
-
         }
-
         return compare;
     }
 

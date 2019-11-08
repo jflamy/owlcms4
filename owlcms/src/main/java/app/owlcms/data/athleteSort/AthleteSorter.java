@@ -43,9 +43,13 @@ public class AthleteSorter implements Serializable {
         TOTAL, 
         /** combined (men + women). */
         COMBINED, 
-        SINCLAIR, 
+        SINCLAIR, // cat, bw or smm depending on competition parameters
+        CAT_SINCLAIR, // legacy Quebec federation, Sinclair computed at category boundary
+        BW_SINCLAIR,  // normal sinclair
+        SMM, // Sinclair Malone-Meltzer
         ROBI,
         CUSTOM // custom score (e.g. technical merit for kids competition)
+
     }
 
     /**
@@ -698,6 +702,14 @@ public class AthleteSorter implements Serializable {
             return curLifter.getCustomScore();
         case COMBINED:
             return 0D; // no such thing
+        case BW_SINCLAIR:
+            return curLifter.getSinclair();
+        case CAT_SINCLAIR:
+            return curLifter.getCategorySinclair();
+        case SMM:
+            return curLifter.getSmm();
+        default:
+            break;
         }
         return 0D;
     }

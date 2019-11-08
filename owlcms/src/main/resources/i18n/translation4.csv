@@ -1,59 +1,59 @@
-﻿key,en,fr,fr_CA,da,es,ru,sv
+key,en,fr,fr_CA,da,es,ru,sv
 OWLCMS_Top,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Gestion de compétition d'haltérophilie,,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Управление соревнованиями по тяжелой атлетике,OWLCMS - Olympic Weightlifting Competition Management System
 About,About,A propos,À propos,Om,Acerca de,О системе,Om
 Active,Active,Actif,,Aktiv,Activo,Активная,Aktiv
 Active,Active,Actif,,Aktiv,Activo,Активная,Aktiv
-ActiveCategoriesOnly,Active Categories Only,Catégories actives seulement,,Kun aktive vægtklasser,,Только активные категории,Endast aktiva viktklasser
+ActiveCategoriesOnly,Active Categories Only,Catégories actives seulement,,Kun aktive vægtklasser,Active Categories Only,Только активные категории,Endast aktiva viktklasser
 Add,Add,Ajouter,,Tilføj,Añadir,Добавить,Lägg till
 Add_title,Add {0},Créer {0},,Tilføj {0},Añadir {0},Добавить {0},Lägg till
-AgeDivision,Age Division,Division,,Aldersinddelt,,Возрастная кат.,Åldersdelning
+AgeDivision,Age Division,Division,,Aldersinddelt,Active Categories Only,Возрастная кат.,Åldersdelning
 AgeGroup,Age Group,Groupe d'âge,,Aldersgruppe,Grupos per edades,Возрастная категория,Åldersgrupp
 Announcer,Announcer,Annonceur,,Speaker,Presentador,Судья-информатор,Speaker
-AnnouncerEtc,"\u0020(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.)","\u0020(annonceur, chronométreur, changements, résultats, essai courant, jury, etc.)",,"\u0020(speaker, timekeeper, marshall, result boards, attempt board, jury, osv.)",,"\u0020(судьи-информатора, судьи-хронометриста, судьи на перезаявках, таблицы результатов, экрана попыток, жюри и т.д.)","\u0020(speaker, tidtagare, sekreterare, resultattavla, försökstavla , jury, osv.)"
-AnnouncerSelectsGroup,The current group for the platform is selected on the <b><i>Announcer</i></b> screen<br> ,Le groupe courant pour la plateforme est déterminé par l'<b><i>annonceur</i></b><br> ,,Nuværende gruppe for platformen vælges på <b><i>Speaker</i></b> skærm<br> ,,Поток выбирается на экране <b><i>судьи-информатора</i></b><br> ,Nuvarande gruppen för plattformen är vald på <b><i>Speaker</i></b> skärmen<br>
+AnnouncerEtc,"\u0020(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.)","\u0020(annonceur, chronométreur, changements, résultats, essai courant, jury, etc.)",,"\u0020(speaker, timekeeper, marshall, result boards, attempt board, jury, osv.)","\u0020(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.)","\u0020(судьи-информатора, судьи-хронометриста, судьи на перезаявках, таблицы результатов, экрана попыток, жюри и т.д.)","\u0020(speaker, tidtagare, sekreterare, resultattavla, försökstavla , jury, osv.)"
+AnnouncerSelectsGroup,The current group for the platform is selected on the <b><i>Announcer</i></b> screen<br>,Le groupe courant pour la plateforme est déterminé par l'<b><i>annonceur</i></b><br>,,Nuværende gruppe for platformen vælges på <b><i>Speaker</i></b> skærm<br>,The current group for the platform is selected on the <b><i>Announcer</i></b> screen<br>,Поток выбирается на экране <b><i>судьи-информатора</i></b><br>,Nuvarande gruppen för plattformen är vald på <b><i>Speaker</i></b> skärmen<br>
 Apply,Apply,Appliquer,,Anvend,Aplicar,Применить,Använd
-Athlete_Attempt,Athlete-facing Attempt Board Display,Essai courant (face à l'athlète),,Atlet-vendt Attempt Board,,Экран попытки для спортсмена,Lyftarens Försökstavla
-Athlete_Decisions,Athlete-facing Timer/Down/Decisions,Chrono/Terre/Décisions (face à l'athlète),,Atlet-vendt Timer/Nedsignal/Afgørelse,,Экран решения для спортсмена,Lyftarens skärm Timer/Nersignal/Beslut
+Athlete_Attempt,Athlete-facing Attempt Board Display,Essai courant (face à l'athlète),,Atlet-vendt Attempt Board,Athlete-facing Attempt Board Display,Экран попытки для спортсмена,Lyftarens Försökstavla
+Athlete_Decisions,Athlete-facing Timer/Down/Decisions,Chrono/Terre/Décisions (face à l'athlète),,Atlet-vendt Timer/Nedsignal/Afgørelse,Athlete-facing Timer/Down/Decisions,Экран решения для спортсмена,Lyftarens skärm Timer/Nersignal/Beslut
 AthleteCard,Athlete Card,Carton d'athlète,,Atletkort,Athlete Card,Карточка,Lyftarkort
-AthleteCards,Athlete Cards,Cartons d'athlète,,Atlet kort,,Карточки спортсменов,Lyftarkort
-Attempt,Attempt,Essai,,Forsøg,,Попытка,Försök
-AttemptAF,Attempt (AF),Essai courant (face à l'athlète),,Forsøg (AV),,Экран попытки (лицом к атлету),Försök (AF)
-AttemptBoard,Attempt Board,Essai courant,,Attempt Board,,Экран попытки,Försökstavla
-AttemptBoard_attempt_number,"{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.","{0}<sup>{0,choice,1#er|2#e|3#e}</sup> essai",,"{0}<sup>{0,choice,1.|2.|3.}</sup> forsøg",,"{0}{0,choice,1#-ая|2#-ая|3#-я}</sup> п.","{0}<sup>{0,choice,1#:e|2#:a|3#:e}</sup> försök."","""
-AtTimeOfRelease,"\u0020as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you","\u0020tels que disponibles au moment de la publication du logiciel. Tel que mentionné dans la licence, il n'y a aucune garantie et vous",,"\u0020as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you",,"\u0020опубликовано на момент релиза.  Как указано в лицензии, нет никакой гарантии в отношении этого программного обеспечения, и вы","\u0020som publicerades vid tidpunkten för utgivningen. Som anges i licensen finns det ingen garanti för denna programvara, och du"
-AutomaticProgression,Automatic Progression,Progression automatique,,Automatisk Øgning,,Автоматическая надбавка,Automatisk höjning
+AthleteCards,Athlete Cards,Cartons d'athlète,,Atlet kort,Athlete Cards,Карточки спортсменов,Lyftarkort
+Attempt,Attempt,Essai,,Forsøg,Attempt,Попытка,Försök
+AttemptAF,Attempt (AF),Essai courant (face à l'athlète),,Forsøg (AV),Attempt (AF),Экран попытки (лицом к атлету),Försök (AF)
+AttemptBoard,Attempt Board,Essai courant,,Attempt Board,Attempt Board,Экран попытки,Försökstavla
+AttemptBoard_attempt_number,"{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.","{0}<sup>{0,choice,1#er|2#e|3#e}</sup> essai",,"{0}<sup>{0,choice,1.|2.|3.}</sup> forsøg","{0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.","{0}{0,choice,1#-ая|2#-ая|3#-я}</sup> п.","{0}<sup>{0,choice,1#:e|2#:a|3#:e}</sup> försök."","""
+AtTimeOfRelease,"\u0020as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you","\u0020tels que disponibles au moment de la publication du logiciel. Tel que mentionné dans la licence, il n'y a aucune garantie et vous",,"\u0020as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you","\u0020as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software, and you","\u0020опубликовано на момент релиза.  Как указано в лицензии, нет никакой гарантии в отношении этого программного обеспечения, и вы","\u0020som publicerades vid tidpunkten för utgivningen. Som anges i licensen finns det ingen garanti för denna programvara, och du"
+AutomaticProgression,Automatic Progression,Progression automatique,,Automatisk Øgning,Automatic Progression,Автоматическая надбавка,Automatisk höjning
 AvailableTemplates,Available Templates,Formats disponibles,,Tilgængelige Skabeloner,Available Templates,Доступные шаблоны,Tillgängliga mallar
 Bar,Bar,Barre,,Stang,Barra,Гриф,Stång
 BarWeight,Bar Weight,Poids de la barre,,Stangens vægt,Bar Weight,Вес грифа,Stång vikt
 BetweenValues,Value must be between {0} and {1} inclusively.,La valeur doit être comprise entre {0} et {1} inclusivement.,,Værdien skal være mellem {0} og {1} inklusiv.,El valor debe estar entre {0} y {1} inclusive.,Значение должно быть между {0} и {1} включительно.,Värdet måste vara mellan {0} och {1} inklusive.
 BirthDate,Birth Date,Date naissance,,Født,Fecha de nacimiento,Дата рождения,Födelsedag
-BirthDate_cannot_future,Birth date cannot be in the future,La date de naissance ne peut pas être dans le futur.,,Fødselsdato må ikke ligge i fremtiden,,Дата рождения не может быть в будущем,Födelsedatum kan inte vara i framtiden
+BirthDate_cannot_future,Birth date cannot be in the future,La date de naissance ne peut pas être dans le futur.,,Fødselsdato må ikke ligge i fremtiden,Birth date cannot be in the future,Дата рождения не может быть в будущем,Födelsedatum kan inte vara i framtiden
 BirthDate_yyyy,Birth Date (yyyy-mm-dd),Date naissance (yyyy-mm-dd),,Født (yyyy-mm-dd),Fecha de nacimiento (yyyy-mm-dd),Дата рождения (yyyy-mm-dd),Födelsedag (yyyy-mm-dd)
 BodyWeight,Body Weight,Poids,,Vægt,Peso corporal,Собственный вес,Kroppsvikt
-BodyWeight_no_match_category,Body Weight is outside of selected category,Le poids ne correspond pas à la catégorie,,Kropsvægt passer ikke med den valgte klasse,,Собственный вес спортсмена выходит за пределы категории,Kroppsvikt är utanför den valda klassen
-BreakTimer,Break Timer,Chronomètre de pause,,Pause Timer,,Остановить таймер,Paus timer
-BreakType,Break Type,Type de pause,,Pause Type,,Тип паузы,Paus typ
-BreakType.FIRST_CJ,First Clean&Jerk,Premier épaulé-jeté,,Første stød,,Первый толчок,Ingång Stöt
-BreakType.FIRST_SNATCH,First Snatch,Premier arraché,,Første træk,,Первый рывок,Ingång Ryck
-BreakType.GROUPE_DONE,End,Fin,,Slut,,Поток завершен,Slut
-BreakType.INTRODUCTION,Introduction,Présentation,,Præsentation,,Представление,Intruduction
-BreakType.JURY,Jury Decision,Décision du jury,,Jury afgørelse,,Решение жюри,Jury beslut
-BreakType.TECHNICAL,Technical Issue,Problème technique,,Tekniske problemer,,Техническая пауза,Tekniska problem
-BreakType.Title,Waiting for…,En attente de…,,Afventer…,,Заголовок,Väntar
+BodyWeight_no_match_category,Body Weight is outside of selected category,Le poids ne correspond pas à la catégorie,,Kropsvægt passer ikke med den valgte klasse,Body Weight is outside of selected category,Собственный вес спортсмена выходит за пределы категории,Kroppsvikt är utanför den valda klassen
+BreakTimer,Break Timer,Chronomètre de pause,,Pause Timer,Break Timer,Остановить таймер,Paus timer
+BreakType,Break Type,Type de pause,,Pause Type,Break Type,Тип паузы,Paus typ
+BreakType.FIRST_CJ,First Clean&Jerk,Premier épaulé-jeté,,Første stød,First Clean&Jerk,Первый толчок,Ingång Stöt
+BreakType.FIRST_SNATCH,First Snatch,Premier arraché,,Første træk,First Snatch,Первый рывок,Ingång Ryck
+BreakType.GROUPE_DONE,End,Fin,,Slut,End,Поток завершен,Slut
+BreakType.INTRODUCTION,Introduction,Présentation,,Præsentation,Introduction,Представление,Intruduction
+BreakType.JURY,Jury Decision,Décision du jury,,Jury afgørelse,Jury Decision,Решение жюри,Jury beslut
+BreakType.TECHNICAL,Technical Issue,Problème technique,,Tekniske problemer,Technical Issue,Техническая пауза,Tekniska problem
+BreakType.Title,Waiting for…,En attente de…,,Afventer…,Waiting for…,Заголовок,Väntar
 BumperPlates,Bumper Plates,Grandes plaques,,Store skiver,Pesas grandes,Большие диски,Vikt plattor
-Button_Open_Display,Use one of the buttons below to open a display.,Utilisez un bouton ci-dessous pour démarrer un affichage,,Brug en af knapperne nedenfor for at åbne et display.,,Используйте одну из кнопок расположенных ниже для открытия экрана,Använd en av knapparna nedan för att öppna en diplay
+Button_Open_Display,Use one of the buttons below to open a display.,Utilisez un bouton ci-dessous pour démarrer un affichage,,Brug en af knapperne nedenfor for at åbne et display.,Use one of the buttons below to open a display.,Используйте одну из кнопок расположенных ниже для открытия экрана,Använd en av knapparna nedan för att öppna en diplay
 C_and_J_1,C.&J. 1,É.-J. 1,,Stød 1,D.T. 1,Т1,Stöt 1
 C_and_J_2,C.&J. 2,É.-J. 2,,Stød 2,D.T. 2,Т2,Stöt 2
 C_and_J_3,C.&J. 3,É.-J. 3,,Stød 3,D.T. 3,Т3,Stöt 3
-C_and_J_decl,C.&J. Decl.,Décl. É.-J.,,Stød Dekl.,,Толчок,Ingång Stöt
-C_and_J_decl,C.&J. Decl.,Décl. É.-J.,,Stød Dekl.,,Толчок,Ingång Stöt
+C_and_J_decl,C.&J. Decl.,Décl. É.-J.,,Stød Dekl.,C.&J. Decl.,Толчок,Ingång Stöt
+C_and_J_decl,C.&J. Decl.,Décl. É.-J.,,Stød Dekl.,C.&J. Decl.,Толчок,Ingång Stöt
 C_and_J_number,C.&J. #{0},É.-J. #{0},,Stød #{0},D.T. #{0},Толчок {0},Stöt #{0}
 Cancel,Cancel,Annuler,,Annuller,Cancelar,Отмена,Avbryt
-CannotEditResults,. You cannot edit the results.,. Vous ne pouvez pas éditer les résultats.,,. Resultaterne kan ikke ændres.,,Вы не можете редактировать результаты,. Du kan inte redigera beslutet
-CannotEditResults_logging,"Group {} currently lifting on platform {}, cannot edit","Groupe {} lève sur plateau {}, impossible d'éditer",,"Gruppe {} afvikles i øjeblikket på platform {}, kan ikke ændres",,"Поток {} в настоящее время активен на помосте {}, нельзя редактировать","Grupp {} lyfter för närvarande på plattformen {}, kan inte redigera"
-CantReadCell,Can't read cell ,Cellule impossible à interpréter,,Kan ikke læse cellen ,,Не могу прочитать ячейку,Kan inte läsa cell 
+CannotEditResults,. You cannot edit the results.,. Vous ne pouvez pas éditer les résultats.,,. Resultaterne kan ikke ændres.,. You cannot edit the results.,Вы не можете редактировать результаты,. Du kan inte redigera beslutet
+CannotEditResults_logging,"Group {} currently lifting on platform {}, cannot edit","Groupe {} lève sur plateau {}, impossible d'éditer",,"Gruppe {} afvikles i øjeblikket på platform {}, kan ikke ændres","Group {} currently lifting on platform {}, cannot edit","Поток {} в настоящее время активен на помосте {}, нельзя редактировать","Grupp {} lyfter för närvarande på plattformen {}, kan inte redigera"
+CantReadCell,Can't read cell,Cellule impossible à interpréter,,Kan ikke læse cellen,Can't read cell,Не могу прочитать ячейку,Kan inte läsa cell
 Card.ageDivision,Division,Division,,Aldersinddelt,Age Division,Возрастная кат.,Division
-Card.ageGroup,Age Group,Groupe d'âge,,Aldersgruppe,Grupos per edades,Возрастная категория,Ålders grupp 
+Card.ageGroup,Age Group,Groupe d'âge,,Aldersgruppe,Grupos per edades,Возрастная категория,Ålders grupp
 Card.automaticProgression,Automatic Progression,Progression automatique,,Automatisk Øgning,AutomaticProgression,Автоматическая надбавка,Automatisk höjning
 Card.birthDate,Birth Date,Naissance,,Født,Fecha denacimiento,Дата рождения,Födelsedag
 Card.bodyWeight,BodyWeight,Poids Corporel,,Kropsvægt,Peso corporal,Собственный вес,Kroppsvikt
@@ -71,18 +71,18 @@ Card.startingWeight,Starting Weight,Poids de départ,,Startvægt,Peso inicial,С
 Card.startNumber,Start #,# Départ,,Startnummer,Nº inicio,Стартовый номер,Start #
 Card.total,Total,Total,,Tokamp,Total,Сумма,Total
 Category,Category,Catégorie,,Vægtklasse,Categoría,Категория,Klass
-Category_no_match_body_weight,Category does not match body weight.,La catégorie ne correspond pas au poids corporel.,,Vægtklasse matcher ikke med kropsvægt,,Категория не соответствует весу спортсмена,Klassen matchar inte kroppsvikt.
-Category_no_match_gender,Category does not match gender.,La catégorie ne correspond pas au genre.,,Vægtklasse matcher ikke med køn,,Категория не соответствует полу спортсмена,Klassen matchar inte kön
-Cell,Cell ,Cellule,,Celle,,Ячейка,Cell
-Change_1,Change 1,Changement 1,,1. ændring,,Перезаявка 1,Ändring 1
-Change_2,Change 2,Changement 2,,2. ændring,,Перезаявка 2,Ändring 2
-ChangesGroupEverywhere,This changes the current group for all displays and screens associated with the platform ,Ceci change le groupe courant sur tous les écrans et affichages associés à ce plateau,,Dette ændrer nuværende gruppe for alle displays og skærme tilknyttet platformen,,Изменение потока применится для всех экранов связанных с помостом<br> ,Detta ändrar den aktuella gruppen för alla skärmar och skärmar associerade med plattformen
+Category_no_match_body_weight,Category does not match body weight.,La catégorie ne correspond pas au poids corporel.,,Vægtklasse matcher ikke med kropsvægt,Category does not match body weight.,Категория не соответствует весу спортсмена,Klassen matchar inte kroppsvikt.
+Category_no_match_gender,Category does not match gender.,La catégorie ne correspond pas au genre.,,Vægtklasse matcher ikke med køn,Category does not match gender.,Категория не соответствует полу спортсмена,Klassen matchar inte kön
+Cell,Cell,Cellule,,Celle,Cell,Ячейка,Cell
+Change_1,Change 1,Changement 1,,1. ændring,Change 1,Перезаявка 1,Ändring 1
+Change_2,Change 2,Changement 2,,2. ændring,Change 2,Перезаявка 2,Ändring 2
+ChangesGroupEverywhere,This changes the current group for all displays and screens associated with the platform,Ceci change le groupe courant sur tous les écrans et affichages associés à ce plateau,,Dette ændrer nuværende gruppe for alle displays og skærme tilknyttet platformen,This changes the current group for all displays and screens associated with the platform,Изменение потока применится для всех экранов связанных с помостом<br>,Detta ändrar den aktuella gruppen för alla skärmar och skärmar associerade med plattformen
 Clean_and_Jerk,Clean&Jerk,Épaulé-jeté,,Stød,Dos Tiempos,Толчок,Stöt
-Clean_and_Jerk_Declaration,Clean&Jerk Declaration,Déclaration É.-J.,,Stød deklareret,,Начальный вес в толчке,Angiven stöt
-Clean_and_Jerk_Rank,Clean&Jerk Rank,Rang É.-J.,,Stød rang,,Место (Т),Angiven rank
+Clean_and_Jerk_Declaration,Clean&Jerk Declaration,Déclaration É.-J.,,Stød deklareret,Clean&Jerk Declaration,Начальный вес в толчке,Angiven stöt
+Clean_and_Jerk_Rank,Clean&Jerk Rank,Rang É.-J.,,Stød rang,Clean&Jerk Rank,Место (Т),Angiven rank
 Clean_and_Jerk_short,C.&J.,É.-J.,,Stød,D.T.,Т.,Stöt
 ClearLifts,Clear Lifts,Effacer les levers,,Slet løft,Limpiar alzadas,Сброс попыток,Rensa lyft
-ClearLifts_forListed,Clear Lifts for Athletes Currently Listed,Effacer les levers des athlètes sélectionnés,,Slet løft for valgte atleter,,Сброс перечисленных попыток,Rensa lyft för listade atleter
+ClearLifts_forListed,Clear Lifts for Athletes Currently Listed,Effacer les levers des athlètes sélectionnés,,Slet løft for valgte atleter,Clear Lifts for Athletes Currently Listed,Сброс перечисленных попыток,Rensa lyft för listade atleter
 ClearStartNumbers,Clear Start Numbers,Vider Nº départ,,Ryd Start Nummer,Limpiar Nº inicio,Очистить стартовые номера,Rensa startnummer
 Collar,Collar,Collet,,Lås,Mordaza,Замок,Klov
 Competition,Competition,Compétition,,Stævne,Competición,Соревнование,Tävling
@@ -95,7 +95,7 @@ Competition.defaultFederation,\u0020,\u0020,Fédération d'haltérophilie du Qu�
 Competition.defaultFederationAddress,\u0020,\u0020,"C.P. 1000, Succ. M, Montréal, QC, H1V 3R2","Idrættens Hus, Brøndby Stadion 20, 2605 Brøndby","C/ Francos Rodríguez, 70 ",\u0020,"Karlsgatan 28, 703 41 Örebro"
 Competition.defaultFederationEMail,\u0020,\u0020,admin@fedhaltero.qc.ca,kontor@danskvaegtloeftning.dk,fehalterofilia@hotmail.com,\u0020,office@tyngdlyftning.org
 Competition.defaultFederationWebSite,\u0020,\u0020,www.fedhaltero.qc.ca,www.weightlifting.dk,www.fedehalter.org,\u0020,http://www.tyngdlyftning.com/
-Competition.defaultLocale,Display and printout language (requires restart),Langue d'affichage et d'impression (redémarrage requis),,Display og printout sprog (kræver genstart),,Язык отображения и печати (требуется перезагрузка),Visa och skriv ut språk (Omstart krävs)
+Competition.defaultLocale,Display and printout language (requires restart),Langue d'affichage et d'impression (redémarrage requis),,Display og printout sprog (kræver genstart),Display and printout language (requires restart),Язык отображения и печати (требуется перезагрузка),Visa och skriv ut språk (Omstart krävs)
 Competition.enforce20kgRule,Apply initial total weight rule (IWF §6.6.5/Masters §2.4)?,Appliquer la règle de poids total initial (IWF §6.6.5/Masters §2.4)?,,Anvend indledende tokampsvægtregel (IWF §6.6.5/Masters §2.4)?,Aplicar regla de peso total inicial (IWF §6.6.5/Masters §2.4)?,Применить «правило 20 кг» (IWF §6.6.5/Masters §2.4)?,Tillämpa totalviktsregeln (IWF ¬ß6.6.5/Masters ¬ß2.4)?
 Competition.federation,Federation Name,Nom de la fédération,,Forbundsnavn,Nombre de la federación,Название федерации,Förbundets namn
 Competition.federationAddress,Federation Address,Adresse de la fédération,,Forbundsadresse,Dirección de la federación,Адрес федерации,Förbundets adress
@@ -106,7 +106,7 @@ Competition.logo,Logo,Logo,,Logo,Logo,Логотип,Logga
 Competition.masters,Masters,Maîtres,,Masters,Masters,Ветераны,Masters
 Competition.protocolFileName,Protocol Sheet Template,Gabarit pour feuille de résultats,,Protokol Skabelon,Plantilla de protocolo,Шаблон рабочего протокола,Protokollmall
 Competition.resultTemplateFileName,Competition Book Template,Gabarit pour cahier de compétition,,Competition Book Skabelon,Plantilla de fichero de competición,Шаблон итогового протокола,Tävlingsbok mall
-Competition.useBirthYear,Use Birth Year Only,Utiliser l'année de naissance seulement,,Anvend kun fødselsår,,Использовать только год рождения,Använd endast födelseår
+Competition.useBirthYear,Use Birth Year Only,Utiliser l'année de naissance seulement,,Anvend kun fødselsår,Use Birth Year Only,Использовать только год рождения,Använd endast födelseår
 CompetitionBook.C,Competition,Compétition,,Stævne,Competición,Итоговый протокол,Tävling
 CompetitionBook.C_LeftHeader,Competition Information,Informations sur la compétition,,Stævneinformation,Información de la competición,Информация о соревнованиях,Tävlings information
 CompetitionBook.C_RightHeader,\u0020,\u0020,,\u0020,\u0020,\u0020,\u0020
@@ -114,7 +114,7 @@ CompetitionBook.M6,Men's Results,Hommes 6 essais,,Resultater Mænd,Resultados Ma
 CompetitionBook.M6_LeftHeader,Category Ranking,Classement par catégories - Category Ranking,,Vægtklasse Placering,Clasificación por categorías,Место в категории,Klass rankning
 CompetitionBook.M6_LeftHeader,Competition,Compétition,,Stævne,Competición,Соревнования,Tävling
 CompetitionBook.M6_RightHeader,Men,Hommes - Men,,Mænd,Masculino,Мужчины,Herrar
-CompetitionBook.MCT,Men - Combined Score,Hommes - Pointage Combiné,,Mænd - Kombineret Score,,Мужчины - Комбинированные очки,Herrar - Kombinerad poäng
+CompetitionBook.MCT,Men - Combined Score,Hommes - Pointage Combiné,,Mænd - Kombineret Score,Men - Combined Score,Мужчины - Комбинированные очки,Herrar - Kombinerad poäng
 CompetitionBook.MCT_LeftHeader,Team Ranking (Snatch+CJ+Total),Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Total),,Hold Placering (Træk+Stød+Tokamp),Clasificación por equipos (Arr+DT+Total),Командный рейтинг (Рывок+Толчок+Сумма),Lag Rankning (Ryck+Stöt+Total)
 CompetitionBook.MR,Men's Robi,Hommes Robi,,Robi Mænd,Robi Masculino,"Роби, мужчины",Herrar Robi
 CompetitionBook.MR_LeftHeader,Robi Ranking,Classement Robi - Robi Ranking,,Robi Placering,Clasificación Robi,Рейтинг Роби,Robi anking
@@ -148,146 +148,146 @@ CompetitionBook.WT_RightHeader,Women,Femmes - Women,,Kvinder,Femenino,Женщи
 CompetitionBook.WXT,Women - Custom Score,Femmes - Pointage Spécial,,Kvinder - Speciel Score,Femenino - Puntuación Personalizada,Женщины - Пользовательские очки,Damer anpassad poäng
 CompetitionBook.WXT_LeftHeader,Team  Ranking (Custom),Classement par équipes (Spécial) - Team Ranking (Custom),,Hold Placering (Speciel),Puntuación por equipos (Personalizado),Командный рейтинг (пользовательский),Lag rankning (Anpassad)
 CompetitionBook.WXT_RightHeader,Women,Femmes - Women,,Kvinder,Femenino,Женщины,Damer
-CompetitionDocuments_description,<li><b>{0}</b>: Produce printable documents for each group and the final results package.</li>,<li><b>{0}</b>: Produire les résultats imprimables pour chaque groupe et le cahier de compétition .</li>,,<li><b>{0}</b>: Dan print for hver enkelt gruppe og samlet resultat pakke.</li>,,<li><b>{0}</b>: Подготовьте документы для печати для каждого из потоков и пакет итоговых результатов</li>,<li><b>{0}</b>: Skapa utskrivbara dokument för varje grupp och det slutliga resultatpaketet.</li>
+CompetitionDocuments_description,<li><b>{0}</b>: Produce printable documents for each group and the final results package.</li>,<li><b>{0}</b>: Produire les résultats imprimables pour chaque groupe et le cahier de compétition .</li>,,<li><b>{0}</b>: Dan print for hver enkelt gruppe og samlet resultat pakke.</li>,<li><b>{0}</b>: Produce printable documents for each group and the final results package.</li>,<li><b>{0}</b>: Подготовьте документы для печати для каждого из потоков и пакет итоговых результатов</li>,<li><b>{0}</b>: Skapa utskrivbara dokument för varje grupp och det slutliga resultatpaketet.</li>
 CompetitionInformation,Competition Information,Informations sur la compétition,,Stævneinformation,Información de la competición,Информация о соревновании,Tävlnings information
-CompetitionPaused,Competition paused,Pause,,Konkurrencen er pauset,,Соревнования приостановлены,Tävling pusad
-CompetitionPlatform,Competition Platform,Plateau de compétition,,Stævne platform,,Помост,Tävlings plattform
-Copyright2009,This software is Copyright © 2009-,Ce logiciel est sous droit d'auteur - Copyright © 2009-,,This software is Copyright © 2009-,,Это программное обеспечение является авторским правом © 2009-,Denna programvara är upphovsrättsskyddad ¬© 2009-
-CopyrightLicense,Copyright and License,Licence et droits d'auteur,,Copyright and License,,Авторское право и лицензия,Upphovsrättsskydd och Licens
-Countdown_BreakTimer,Countdown to start / Break Timer,Décompte avant début / Chrono de pause,,Nedtælling til start / Break Timer,,Таймер до начала,Nedräkning till start / Paus Timer
-CountdownType,Countdown Type,Type de décompte,,Nedtællingstype,,Тип таймера,Nedräckningstyp
+CompetitionPaused,Competition paused,Pause,,Konkurrencen er pauset,Competition paused,Соревнования приостановлены,Tävling pusad
+CompetitionPlatform,Competition Platform,Plateau de compétition,,Stævne platform,Competition Platform,Помост,Tävlings plattform
+Copyright2009,This software is Copyright © 2009-,Ce logiciel est sous droit d'auteur - Copyright © 2009-,,This software is Copyright © 2009-,This software is Copyright © 2009-,Это программное обеспечение является авторским правом © 2009-,Denna programvara är upphovsrättsskyddad ¬© 2009-
+CopyrightLicense,Copyright and License,Licence et droits d'auteur,,Copyright and License,Copyright and License,Авторское право и лицензия,Upphovsrättsskydd och Licens
+Countdown_BreakTimer,Countdown to start / Break Timer,Décompte avant début / Chrono de pause,,Nedtælling til start / Break Timer,Countdown to start / Break Timer,Таймер до начала,Nedräkning till start / Paus Timer
+CountdownType,Countdown Type,Type de décompte,,Nedtællingstype,Countdown Type,Тип таймера,Nedräckningstyp
 CountdownType.DURATION,Duration,Durée,,Varighed,duración,Длительность,Varaktighet
-CountdownType.INDEFINITE,Wait,Attente,,Vent,,Не определен,Vänta
-CountdownType.TARGET,Start at,Débuter à,,Start,,До указанного времени,Börja på
+CountdownType.INDEFINITE,Wait,Attente,,Vent,Wait,Не определен,Vänta
+CountdownType.TARGET,Start at,Débuter à,,Start,Start at,До указанного времени,Börja på
 CountdownType.Title,Countdown Type,Type de décompte,,Nedtællingstype,Tipo de cuenta regresiva,Тип таймера,Nedräckningstyp
-Credits,Credits,Remerciements,,Credits,,Создатели,Medverkande
-DataRead,Read ,Lu,,Læs,,Чтение,Läs
-Decision_AF_,Decision (AF),Decision (face à l'athlète),,Afgørelse (AV),,Решение (лицом к спортсмену),Beslut (AF)
+Credits,Credits,Remerciements,,Credits,Credits,Создатели,Medverkande
+DataRead,Read,Lu,,Læs,Read,Чтение,Läs
+Decision_AF_,Decision (AF),Decision (face à l'athlète),,Afgørelse (AV),Decision (AF),Решение (лицом к спортсмену),Beslut (AF)
 Declaration,Declaration,Déclaration,,Deklareret,Declaration,Заявленный вес,Begärt
-Declaration_current_athlete,Declaration for current athlete<br>{0},Déclaration pour l''athlète courant<br>{0},,Deklareret for nuværende atlet<br>{0},,Заявленный вес для текущего спортсмена<br>{0},Begärt för nuvarande atlet<br>{0}
-Declaration_current_athlete_with_change,Declaration (with weight change) for current athlete<br>{0},Déclaration (avec changement de poids) pour l''athlète courant<br>{0},,Deklareret (inkl. øgning) for nuværende atlet<br>{0},,Заявленный вес (с учетом перезаявок) для текущего спортсмена<br>{0},Begärt (med vikt ändringar) för nuvarande atlet<br>{0}
-Declaration_Notification,Declaration for {0}: {1},Déclaration pour {0}: {1},,Ønsket vægt for {0}: {1},,Заявленный вес для {0}: {1} кг,Begärt för {0}: {1}
-DefineCategories,Define Categories,Définir les catégories,,Definér Kategorier,,Категории,Definerade klasser
-DefineFOP,Define Fields of Play and Sound Output,Définir les plateaux et les sorties sonores,,Opret platform,,Помосты,Definiera fält för uppspelning och ljudutgång
-DefineGroups,Define Groups,Définir les groupes,,Definér grupper,,Потоки,Definierade grupper
+Declaration_current_athlete,Declaration for current athlete<br>{0},Déclaration pour l''athlète courant<br>{0},,Deklareret for nuværende atlet<br>{0},Declaration for current athlete<br>{0},Заявленный вес для текущего спортсмена<br>{0},Begärt för nuvarande atlet<br>{0}
+Declaration_current_athlete_with_change,Declaration (with weight change) for current athlete<br>{0},Déclaration (avec changement de poids) pour l''athlète courant<br>{0},,Deklareret (inkl. øgning) for nuværende atlet<br>{0},Declaration (with weight change) for current athlete<br>{0},Заявленный вес (с учетом перезаявок) для текущего спортсмена<br>{0},Begärt (med vikt ändringar) för nuvarande atlet<br>{0}
+Declaration_Notification,Declaration for {0}: {1},Déclaration pour {0}: {1},,Ønsket vægt for {0}: {1},Declaration for {0}: {1},Заявленный вес для {0}: {1} кг,Begärt för {0}: {1}
+DefineCategories,Define Categories,Définir les catégories,,Definér Kategorier,Define Categories,Категории,Definerade klasser
+DefineFOP,Define Fields of Play and Sound Output,Définir les plateaux et les sorties sonores,,Opret platform,Define Fields of Play and Sound Output,Помосты,Definiera fält för uppspelning och ljudutgång
+DefineGroups,Define Groups,Définir les groupes,,Definér grupper,Define Groups,Потоки,Definierade grupper
 Delete,Delete,Détruire,,Slet,Eliminar,Удалить,Radera
 Delete_title,Delete {0},Effacer {0},,Slet {0},Eliminar {0},Удалить {0},Radera {0}
 DeleteAthletes,Delete Athletes,Détruire athlètes,,Slet løftere,Borrar atletas,Удалить спортсменов,Radera atleter
-DeleteAthletes_forListed,Delete Athletes Currently Listed,Détruire athlètes actuellement listés,,Slet valgte atleter,,Удалить перечисленных спортсменов,Radera listade atleter
+DeleteAthletes_forListed,Delete Athletes Currently Listed,Détruire athlètes actuellement listés,,Slet valgte atleter,Delete Athletes Currently Listed,Удалить перечисленных спортсменов,Radera listade atleter
 Display,Display,Afficher,,Display,Marcador,Экран,Skärm
-DisplayType.ATHLETE,Attempt Info,Information sur l'essai,,Nuværende forsøg,,Информация о попытке,Försöks information
-DisplayType.COUNTDOWN,Countdown clock,Horloge de décompte,,Nedtællingsur,,Таймер,Nedräkningsklocka
-DisplayType.Title,Attempt Board Information,Information sur l'écran d'essai courant,,Attempt Board Information,,Экран попытки,Försöks skärms information
-Documentation,<li>See also the <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> for ,<li>Voir aussi la <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> pour ,,<li>Se endvidere dokumentation på <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> for ,,См. также<a href='https://jflamy.github.io/owlcms4/#/index'> документацию</a> для ,<li>Se även <a href='https://jflamy.github.io/owlcms4/#/index'>dokumentation</a> för
+DisplayType.ATHLETE,Attempt Info,Information sur l'essai,,Nuværende forsøg,Attempt Info,Информация о попытке,Försöks information
+DisplayType.COUNTDOWN,Countdown clock,Horloge de décompte,,Nedtællingsur,Countdown clock,Таймер,Nedräkningsklocka
+DisplayType.Title,Attempt Board Information,Information sur l'écran d'essai courant,,Attempt Board Information,Attempt Board Information,Экран попытки,Försöks skärms information
+Documentation,<li>See also the <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> for,<li>Voir aussi la <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> pour,,<li>Se endvidere dokumentation på <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> for,<li>See also the <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> for,См. также<a href='https://jflamy.github.io/owlcms4/#/index'> документацию</a> для,<li>Se även <a href='https://jflamy.github.io/owlcms4/#/index'>dokumentation</a> för
 Documentation_Menu,Documentation,Documentation,,Dokumentation,Documentación,Документация,Dokumentation
 Done,done,terminé,,afsluttet,terminada,завершена,klar
 Done_period,Done.,Terminé,,Afsluttet.,Hecho,Завершено.,Klar.
-DownloadRegistrationTemplate,Download Empty Registration Spreadsheet,Obtenir une feuille d'inscription vide,,Download Tomt Registreringsark,,Скачать шаблон таблицы регистрации,Ladda ner ett tomt registreringsformulär
+DownloadRegistrationTemplate,Download Empty Registration Spreadsheet,Obtenir une feuille d'inscription vide,,Download Tomt Registreringsark,Download Empty Registration Spreadsheet,Скачать шаблон таблицы регистрации,Ladda ner ett tomt registreringsformulär
 DrawLotNumbers,Draw Lot Numbers,Tirage au sort,,Tildel lodt. numre,Números aleatorios,Жеребьёвка,Hämta lottnummer
-Dropdown_Select_Platform,Use the dropdown to select the platform where the display is located.,Utilisez le menu déroulant pour choisir le plateau de compétition où se trouve l'affichage,,Brug dropdown for at vælge den platform som displayet er tilknyttet.,,Используйте выпадающее меню для выбора помоста на котором находится экран.,Använd rullgardinsmenyn för att välja plattformen där skärmen finns
-Edit_Groups,Edit Groups,Éditer les groupes,,Ret grupper,,Редактирование потоков,Redigera grupper
-EditAthletes,Edit Athlete Entries,Éditer les athlètes,,Ret tilmeldingsdata for Atleter,,Редактировать спортсменов,Redigera Atlet poster
-EditAthletes_Groups,Edit Athlete Entries (adjust group assignments),Éditer les athlètes (ajuster l'assignation des groupes),,Ret tilmeldingsdata for Atleter (ret gruppe tildeling),,Редактировать спортсменов (изменение групп),Redigera atlet poster (ändra gruppuppgifter)
-EditCategories,Edit Categories,Éditer les catégories,,Ret kategorier,,Редактировать категории,Redigera klasser
-EditCompetitionInformation,Edit Competition Information,Éditer les données sur la compétition,,Ret data om konkurrencen,,Редактировать информацию о соревновании,Redigera tävlingsinformation
-EditingResults_logging,"Group {} lifting on {}, editing","Groupe {} lève sur plateau {}, édition",,"Gruppe {} løfter på {}, retter",,Редактирование потока {} на помосте {},"Grupp {} Lyfter på {}, redigering"
-EditPlatforms,Edit Platforms,Éditer les plateaux,,Ret platform(-e),,Редактировать помосты,Redigera plattformar
-EditRegisteredAthletes,Edit Registered Athletes,Éditer les athlètes inscrits,,Ret Registrerede Atleter,,Редактирование зарегистрированных спортсменов,Redigera registrerade atleter
-Eligible,Eligible,Éligible,,Medregnes,,Инд. рейтинг,Berättigad
-Eligible for Individual Ranking?,Eligible for individual ranking?,Éligible au classement individuel ?,,Medregnes i individuel rangering?,,Участвует в индивидуальном рейтинге?,Berättigad för inviduell ranking?
-EndBreak,End Break,Fin de la pause.,,Afslut pause,,Завершить паузу,Avsluta paus
-EndBreak_StartLifting,"End Break, Start Lifting","Fin de la pause, débuter les levers",,"Afslut pause, Start konkurrence",,"Закончить перерыв, начать соревнования","Avlsuta paus, börja lyftning"
-EndOfCompetitionDocuments,End of competition documents,Documents de compétition,,Konkurrence dokumenter genereret,,Документы по окончании соревнований,Slut på tävlingsdokument
-EnterPin,Enter PIN,Enter PIN,,Enter PIN,,Введите PIN-код,Ange PIN
-EntryTotal,Entry Total,Total déclaré,,Entry Total,,Начальный вес заявленный при регистрации (сумма),Ange total
-Error,Error,Erreur,,Error,,Ошибка,Error
-Errors,Errors,Erreurs,,Errors,,Ошибки,Errors
-FieldOfPlayDisplays,Field of Play Displays,Affichages sur les plateaux,,Platform Displays,,Экраны помоста,Visningsfält skärm
-FinalResultsPackage,Final Results Package,Compilation des résultats,,Final Results Pakke,,Пакет итоговых результатов,Slutresultatpaket
+Dropdown_Select_Platform,Use the dropdown to select the platform where the display is located.,Utilisez le menu déroulant pour choisir le plateau de compétition où se trouve l'affichage,,Brug dropdown for at vælge den platform som displayet er tilknyttet.,Use the dropdown to select the platform where the display is located.,Используйте выпадающее меню для выбора помоста на котором находится экран.,Använd rullgardinsmenyn för att välja plattformen där skärmen finns
+Edit_Groups,Edit Groups,Éditer les groupes,,Ret grupper,Edit Groups,Редактирование потоков,Redigera grupper
+EditAthletes,Edit Athlete Entries,Éditer les athlètes,,Ret tilmeldingsdata for Atleter,Edit Athlete Entries,Редактировать спортсменов,Redigera Atlet poster
+EditAthletes_Groups,Edit Athlete Entries (adjust group assignments),Éditer les athlètes (ajuster l'assignation des groupes),,Ret tilmeldingsdata for Atleter (ret gruppe tildeling),Edit Athlete Entries (adjust group assignments),Редактировать спортсменов (изменение групп),Redigera atlet poster (ändra gruppuppgifter)
+EditCategories,Edit Categories,Éditer les catégories,,Ret kategorier,Edit Categories,Редактировать категории,Redigera klasser
+EditCompetitionInformation,Edit Competition Information,Éditer les données sur la compétition,,Ret data om konkurrencen,Edit Competition Information,Редактировать информацию о соревновании,Redigera tävlingsinformation
+EditingResults_logging,"Group {} lifting on {}, editing","Groupe {} lève sur plateau {}, édition",,"Gruppe {} løfter på {}, retter","Group {} lifting on {}, editing",Редактирование потока {} на помосте {},"Grupp {} Lyfter på {}, redigering"
+EditPlatforms,Edit Platforms,Éditer les plateaux,,Ret platform(-e),Edit Platforms,Редактировать помосты,Redigera plattformar
+EditRegisteredAthletes,Edit Registered Athletes,Éditer les athlètes inscrits,,Ret Registrerede Atleter,Edit Registered Athletes,Редактирование зарегистрированных спортсменов,Redigera registrerade atleter
+Eligible,Eligible,Éligible,,Medregnes,Eligible,Инд. рейтинг,Berättigad
+Eligible for Individual Ranking?,Eligible for individual ranking?,Éligible au classement individuel ?,,Medregnes i individuel rangering?,Eligible for individual ranking?,Участвует в индивидуальном рейтинге?,Berättigad för inviduell ranking?
+EndBreak,End Break,Fin de la pause.,,Afslut pause,End Break,Завершить паузу,Avsluta paus
+EndBreak_StartLifting,"End Break, Start Lifting","Fin de la pause, débuter les levers",,"Afslut pause, Start konkurrence","End Break, Start Lifting","Закончить перерыв, начать соревнования","Avlsuta paus, börja lyftning"
+EndOfCompetitionDocuments,End of competition documents,Documents de compétition,,Konkurrence dokumenter genereret,End of competition documents,Документы по окончании соревнований,Slut på tävlingsdokument
+EnterPin,Enter PIN,Enter PIN,,Enter PIN,Enter PIN,Введите PIN-код,Ange PIN
+EntryTotal,Entry Total,Total déclaré,,Entry Total,Entry Total,Начальный вес заявленный при регистрации (сумма),Ange total
+Error,Error,Erreur,,Error,Error,Ошибка,Error
+Errors,Errors,Erreurs,,Errors,Errors,Ошибки,Errors
+FieldOfPlayDisplays,Field of Play Displays,Affichages sur les plateaux,,Platform Displays,Field of Play Displays,Экраны помоста,Visningsfält skärm
+FinalResultsPackage,Final Results Package,Compilation des résultats,,Final Results Pakke,Final Results Package,Пакет итоговых результатов,Slutresultatpaket
 FirstName,First Name,Prénom,,Fornavn,Nombre,Имя,Förnamn
 ForcedAsCurrent,Forced as Current Athlete,Forcé comme athlète courant,,Sæt som en nuværende atlet,Forzando como un atleta actual,Принудительно вызвать спортсмена,Sätt som nuvarande lyftare
-ForEachCompetitionGroup,For each competition group,Pour chaque groupe,,For hver gruppe,,Для каждого потока,För varje tävlingsgrupp
+ForEachCompetitionGroup,For each competition group,Pour chaque groupe,,For hver gruppe,For each competition group,Для каждого потока,För varje tävlingsgrupp
 Gender,Gender,Genre,,Køn,Genero,Пол,Kön
-GenerateStartNumbers,Generate Start Numbers,Générer les Nº de départ,,Generér Startnumre,,Назначить стартовые номера,Generera startnummer
-GotIt,Got it.,Compris.,,Forstået,,Понял,Uppfattat.
+GenerateStartNumbers,Generate Start Numbers,Générer les Nº de départ,,Generér Startnumre,Generate Start Numbers,Назначить стартовые номера,Generera startnummer
+GotIt,Got it.,Compris.,,Forstået,Got it.,Понял,Uppfattat.
 Group,Group,Groupe,,Gruppe,Sesión,Поток,Grupp
-Group_number,Group {0},Groupe {0},,Gruppe {0},Tanda {0} ,Поток {0},Grupp {0}
+Group_number,Group {0},Groupe {0},,Gruppe {0},Tanda {0},Поток {0},Grupp {0}
 Group_number_done,Group {0} done.,Groupe {0} terminé.,,Gruppe {0} afsluttet.,Sesion {0} terminada.,Поток {0} завершен.,Grupp {0} klar.
 Group_number_results,Group {0} &ndash; Results,Groupe {0} &ndash; Résultats.,,Gruppe {0} &ndash; resultater.,Sesion {0} &ndash; resultados.,Результаты потока {0},Grupp {0} &ndash; Resultat
-GroupResults,Group Results,Résultats de groupe,,Gruppe resultater,,Результаты потока,Grupp resultat
-Home,Home,Accueil,,Hjem,,Главная,Hem
-IdlePlatform,Idle Platform (no countdown displayed),Plateau inactif (pas de décompte affiché),,Inaktiv Platform (nedtælling vises ikke),,Помост не активен (нет обратного отсчета),Inaktiv Platform (Ingen nedräkning visas)
-InstallationConfiguration,\u0020installation and configuration information.,\u0020instructions d'installation et de configuration,,\u0020installation and configuration information.,,\u0020инструкция по установке и настройке.,\u0020installation och konfigurations information.
-introCountdown,Countdown to Introduction,Décompte avant présentation,,Nedtælling til præsentation,,Таймер до представления спортсменов,Nedräkning till defilering
-InvalidDurationFormat,Duration must be in format {0} -- Type {1} to get {2} minutes and {3} seconds.,"La durée doit être dans le format {0} -- Écrire {1} pour dire """"{2} minutes et {3} secondes"""".",,Varighed skal være i format {0} -- Tast {1} for at angive {2} minutter og {3} sekunder,,Длительность должна быть в формате {0} -- Введите {1} чтобы получить {2} минут и {3} секунд.,Varaktigheten måste vara i format {0} -- Typ {1} för att få {2} minuter och {3} sekunder.
-JFL, Jean-François Lamy,Jean-François Lamy,, Jean-François Lamy,,Жан-Франсуа Лами, Jean-François Lamy
+GroupResults,Group Results,Résultats de groupe,,Gruppe resultater,Group Results,Результаты потока,Grupp resultat
+Home,Home,Accueil,,Hjem,Home,Главная,Hem
+IdlePlatform,Idle Platform (no countdown displayed),Plateau inactif (pas de décompte affiché),,Inaktiv Platform (nedtælling vises ikke),Idle Platform (no countdown displayed),Помост не активен (нет обратного отсчета),Inaktiv Platform (Ingen nedräkning visas)
+InstallationConfiguration,\u0020installation and configuration information.,\u0020instructions d'installation et de configuration,,\u0020installation and configuration information.,\u0020installation and configuration information.,\u0020инструкция по установке и настройке.,\u0020installation och konfigurations information.
+introCountdown,Countdown to Introduction,Décompte avant présentation,,Nedtælling til præsentation,Countdown to Introduction,Таймер до представления спортсменов,Nedräkning till defilering
+InvalidDurationFormat,Duration must be in format {0} -- Type {1} to get {2} minutes and {3} seconds.,"La durée doit être dans le format {0} -- Écrire {1} pour dire """"{2} minutes et {3} secondes"""".",,Varighed skal være i format {0} -- Tast {1} for at angive {2} minutter og {3} sekunder,Duration must be in format {0} -- Type {1} to get {2} minutes and {3} seconds.,Длительность должна быть в формате {0} -- Введите {1} чтобы получить {2} минут и {3} секунд.,Varaktigheten måste vara i format {0} -- Typ {1} för att få {2} minuter och {3} sekunder.
+JFL,Jean-François Lamy,Jean-François Lamy,,Jean-François Lamy,Jean-François Lamy,Жан-Франсуа Лами,Jean-François Lamy
 Jury,Jury,Jury,,Jury,Jurado,Жюри,Jury
 Jury_Console,Jury Console,Console du jury,,Jury,Jurado,Консоль жюри,Jury konsol
-Jury1,Jury 1,Jury 1,,Jury 1,,Жюри 1,Jury 1
-Jury2,Jury 2,Jury 2,,Jury 2,,Жюри 2,Jury 2
-Jury3,Jury 3,Jury 3,,Jury 3,,Жюри 3,Jury 3
-Jury4,Jury 4,Jury 4,,Jury 4,,Жюри 4,Jury 4
-Jury5,Jury 5,Jury 5,,Jury 5,,Жюри 5,Jury 5
+Jury1,Jury 1,Jury 1,,Jury 1,Jury 1,Жюри 1,Jury 1
+Jury2,Jury 2,Jury 2,,Jury 2,Jury 2,Жюри 2,Jury 2
+Jury3,Jury 3,Jury 3,,Jury 3,Jury 3,Жюри 3,Jury 3
+Jury4,Jury 4,Jury 4,,Jury 4,Jury 4,Жюри 4,Jury 4
+Jury5,Jury 5,Jury 5,,Jury 5,Jury 5,Жюри 5,Jury 5
 JuryDecisions,Jury Decisions,Décisions du jury,,Jury Afgørelse,Decisiones del jurado,Решение жюри,Jury Beslut
-JuryDeliberation,Jury Deliberation,Délibération du jury,,Jury stop,,Обсуждение жюри,Juryns överläggning
+JuryDeliberation,Jury Deliberation,Délibération du jury,,Jury stop,Jury Deliberation,Обсуждение жюри,Juryns överläggning
 Kg,"{0,number,#.#}kg","{0,number,#.#}kg",,"{0,number,#.#}kg","{0,number,#.#}kg","{0,number,#.#} кг","{0,nummer,#.#}kg"
 KgSymbol,kg,kg,,kg,kg,\u0020кг,kg
 LastName,Last Name,Nom,,Efternavn,Apellido,Фамилия,Efternamn
-LeftMenuNavigate,Use the menu at the left to navigate to the various screens:<ul>,Utilisez le menu à gauche pour naviguer,,Brug menuen til venstre for at navigere til de forskellige skærme:<ul>,,Используйте меню слева для навигации:<ul>,Använd menyn till vänster för att navigera till de olika skärmarna:<ul>
-LicenseUsed,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Ce logiciel est disponible selon les termes de la licence <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Это программное обеспечение доступно под лицензией <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,
-LiftsCleared,Lifts cleared,Les essais ont été effacés,,Løft slettet,,Попытки сброшены,Lyft klara
-LocalComputer,\u0020(on the computer running the owlcms program),\u0020(sur l'ordinateur où owlcms s'exécute),,\u0020(på computeren der afvikler owlcms programmet),,\u0020(на компьютере на котором запущена система owlcms),\u0020(på datorn som driver owlcms programmet)
-Locale,Locale,Locale,,Locale,,Локаль,Locale
+LeftMenuNavigate,Use the menu at the left to navigate to the various screens:<ul>,Utilisez le menu à gauche pour naviguer,,Brug menuen til venstre for at navigere til de forskellige skærme:<ul>,Use the menu at the left to navigate to the various screens:<ul>,Используйте меню слева для навигации:<ul>,Använd menyn till vänster för att navigera till de olika skärmarna:<ul>
+LicenseUsed,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Ce logiciel est disponible selon les termes de la licence <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Это программное обеспечение доступно под лицензией <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.
+LiftsCleared,Lifts cleared,Les essais ont été effacés,,Løft slettet,Lifts cleared,Попытки сброшены,Lyft klara
+LocalComputer,\u0020(on the computer running the owlcms program),\u0020(sur l'ordinateur où owlcms s'exécute),,\u0020(på computeren der afvikler owlcms programmet),\u0020(on the computer running the owlcms program),\u0020(на компьютере на котором запущена система owlcms),\u0020(på datorn som driver owlcms programmet)
+Locale,Locale,Locale,,Locale,Locale,Локаль,Locale
 Locale.defaultCountry,US,US,,US,US,RU,SV
 Locale.defaultLanguage,en,en,,en,en,ru,se
 Locale.languageCode,en,fr,,da,es,ru,se
-Log_In,Log in,Identification,,Log in,,Логин,Logga in
-Login,Login,Identification,,Login,,Логин,Logga in
-LoginDenied,Incorrect Access Information Provided.,Information d'accès incorrecte,,Incorrect Access Information Provided.,,Доступ запрещен,Felaktig access information försedd
+Log_In,Log in,Identification,,Log in,Log in,Логин,Logga in
+Login,Login,Identification,,Login,Login,Логин,Logga in
+LoginDenied,Incorrect Access Information Provided.,Information d'accès incorrecte,,Incorrect Access Information Provided.,Incorrect Access Information Provided.,Доступ запрещен,Felaktig access information försedd
 Lot,Lot,Tirage,,Lodt.,Número,Жребий,Lott
 margin-bottom,margin-bottom,margin-bottom,,margin-bottom,margin-bottom,margin-bottom,margin-bottom
-Marshall,Marshall,Préposé aux changements,,Marshall,,Судья на перезаявках,Sekreterare
-MaximumWeight,Maximum Weight,Poids maximum,,Maximum vægt,,Максимальный вес,Maximum vikt
+Marshall,Marshall,Préposé aux changements,,Marshall,Marshall,Судья на перезаявках,Sekreterare
+MaximumWeight,Maximum Weight,Poids maximum,,Maximum vægt,Maximum Weight,Максимальный вес,Maximum vikt
 MetalPlates,Metal Plates,Plaques de métal,,Små skiver,Pesas de metal,Маленькие диски,Metallskivor
 MinimumWeight,Minimum Weight,Poids minimum,,Minimum vægt,Peso Mínimo,Минимальный вес,Minimum vikt
 Name,Name,Nom,,Navn,Nombre,Название,Namn
 No_weighed_in_athletes,No weighed-in athletes,Pas d'athlètes pesés,,Ikke-indvejede atleter,Ningún atleta pesó,Нет спортсменов прошедших взвешивание,Inga invägda atleter
-NoGroupSelected,No group selected,Pas de groupe sélectionné,,Ingen gruppe valgt,,Поток не выбран,Ingen grupp vald
-NoLift_GoodLift,"{0,choice,0#No Lift|1#Good Lift} for {1}","Essai {0,choice,0#refusé|1#réussi} pour {1}",,"{0,choice,0#Underkendt|1#Godkendt} for {1}",,"{0,choice,0#Подъём не засчитан|1#Подъём засчитан} для {1}","{0,val,0#Underkänt lyft|1#Godkänt lyft} for {1}"
-none,none,aucun,,ingen,,ни один,ingen
+NoGroupSelected,No group selected,Pas de groupe sélectionné,,Ingen gruppe valgt,No group selected,Поток не выбран,Ingen grupp vald
+NoLift_GoodLift,"{0,choice,0#No Lift|1#Good Lift} for {1}","Essai {0,choice,0#refusé|1#réussi} pour {1}",,"{0,choice,0#Underkendt|1#Godkendt} for {1}","{0,choice,0#No Lift|1#Good Lift} for {1}","{0,choice,0#Подъём не засчитан|1#Подъём засчитан} для {1}","{0,val,0#Underkänt lyft|1#Godkänt lyft} for {1}"
+none,none,aucun,,ingen,none,ни один,ingen
 NonStandardBar,Non-Standard Bar?,Barre non-standard?,,Ikke-standard Stang?,Non-standard bar?,Нестандартный гриф,Icke-standard skivstång?
-Not_weighed,Not weighed,Non pesé,,Ikke indvejet,,Не прошел взвешивание,Vägde inte
-Notes,Notes,Notes,,Notater,,Заметки,Antekningar
+Not_weighed,Not weighed,Non pesé,,Ikke indvejet,Not weighed,Не прошел взвешивание,Vägde inte
+Notes,Notes,Notes,,Notater,Notes,Заметки,Antekningar
 Number,Number,Nº,,Nummer,Nº,Рефери,Nummer
-OWLCMS_Displays,OWLCMS - Displays,OWLCMS - Affichages,,OWLCMS - Displays,,OWLCMS - Экраны,OWLCMS - Skärmar
-OWLCMS_Home,OWLCMS - Home,OWLCMS - Accueil,,OWLCMS - Hjem,,OWLCMS - Главная,OWLCMS - Hem
-OWLCMS_Info,OWLCMS - About,OWLCMS - Info,,OWLCMS - Om,,OWLCMS - О системе,OWLCMS - Om
-OWLCMS_Lifting,OWLCMS - Lifting,OWLCMS - Groupe,,OWLCMS - Afvikling,,OWLCMS - Поток,OWLCMS - Lyftning
-OWLCMS_Preparation,OWLCMS - Preparation,OWLCMS - Préparation,,OWLCMS - Forberedelse,,OWLCMS - Подготовка,OWLCMS - Förberedelser
-OWLCMS_Results,OWLCMS - Results,OWLCMS - Résultats,,OWLCMS - Resultater,,OWLCMS - Результаты,OWLCMS - Resultat
+OWLCMS_Displays,OWLCMS - Displays,OWLCMS - Affichages,,OWLCMS - Displays,OWLCMS - Displays,OWLCMS - Экраны,OWLCMS - Skärmar
+OWLCMS_Home,OWLCMS - Home,OWLCMS - Accueil,,OWLCMS - Hjem,OWLCMS - Home,OWLCMS - Главная,OWLCMS - Hem
+OWLCMS_Info,OWLCMS - About,OWLCMS - Info,,OWLCMS - Om,OWLCMS - About,OWLCMS - О системе,OWLCMS - Om
+OWLCMS_Lifting,OWLCMS - Lifting,OWLCMS - Groupe,,OWLCMS - Afvikling,OWLCMS - Lifting,OWLCMS - Поток,OWLCMS - Lyftning
+OWLCMS_Preparation,OWLCMS - Preparation,OWLCMS - Préparation,,OWLCMS - Forberedelse,OWLCMS - Preparation,OWLCMS - Подготовка,OWLCMS - Förberedelser
+OWLCMS_Results,OWLCMS - Results,OWLCMS - Résultats,,OWLCMS - Resultater,OWLCMS - Results,OWLCMS - Результаты,OWLCMS - Resultat
 OwlcmsBuild,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),OWLCMS - Skärmar
-PauseCountdown,Pause Break Countdown Timer,Stopper le chrono de pause,,Pause Countdown Timer,,Остановить таймер,Paus klocka
+PauseCountdown,Pause Break Countdown Timer,Stopper le chrono de pause,,Pause Countdown Timer,Pause Break Countdown Timer,Остановить таймер,Paus klocka
 Paused,Paused,En pause,,Pause,Paused,Пауза,Pausad
 Plates,Plates,Plaques,,Skiver,Pesas,Диски,Viktskivor
-PlatesDisplay,Plates Display,Plaques,,Skive display,,Диски,Viktskivor Skärm
+PlatesDisplay,Plates Display,Plaques,,Skive display,Plates Display,Диски,Viktskivor Skärm
 Platform,Platform,Plateau,,Platform,Tarima,Помост,Plattform
 PlatformName,Platform Name,Nom de la plateforme,,Platform Navn,Nombre de la tarima,Название помоста,Plattforms namn
 PleaseFix,Please fix the errors and try again.,Veuillez corriger les erreurs et réessayer.,,Ret venligst fejlene og prøv igen,Por favor corrija los errores e intente nuevamente,"Пожалуйста, исправьте ошибки и попробуйте снова.",Rätta till felen och försök igen
-PreCompetitionSetup,Pre-competition setup,Préparation de la compétition,,Pre-competition setup,,Подготовка соревнований,Inställningar före tävlingen
-Preferences,Preferences,Préférences,,Præferencer,,Предпочтения,Inställningar
-Preparation_Categories,Preparation - Categories,Préparation - Catégories,,Forbered - Kategorier,,Подготовка - Категории,Förberedelse - Klasser
-Preparation_Competition,Preparation - Competition,Préparation - Compétition,,Forbered - Konkurrence,,Подготовка - Соревнования,Förberedelse - Tävling
-Preparation_Groups,Preparation - Groups,Préparation - Groupes,,Forbered - Grupper,,Подготовка - Потоки,Förberedelse - Grupper
-Preparation_Platforms,Preparation - Platforms,Préparation - Plateformes,,Forbered - Platforme,,Подготовка - Помосты,Förberedelse - Plattformar
-Preparation_Registration,Preparation - Registration,Préparation - Inscriptions,,Forbered - Registrering,,Подготовка - Регистрация,Förberedelse -  Registrering
-PrepareCompatition_description,"<li><b>{0}</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>","<li><b>{0}</b>: Entrer les coordonnées, inscrire les athlètes, définir les groupes, etc.<br></li>",,"<li><b>{0}</b>: Indtast konkurrence oplysninger, registrer atleter, definér grupper, osv.<br></li>",,"<li><b>{0}</b>: Введите место проведения соревнований, зарегистрируйте спортсменов, определите потоки и т.д.<br></li>","<li> <b> {0} </b>: Ange tävlingskoordinaterna, registrera idrottare, definiera grupper osv. </li> <li> <b> {0} </b>: Ange tävlingskoordinaterna, registrera idrottare, definiera grupperna osv. </li>"
-PrepareCompetition,Prepare Competition,Préparer la compétition,,Forbered konkurrence,,Подготовка,Förbered tävling
+PreCompetitionSetup,Pre-competition setup,Préparation de la compétition,,Pre-competition setup,Pre-competition setup,Подготовка соревнований,Inställningar före tävlingen
+Preferences,Preferences,Préférences,,Præferencer,Preferences,Предпочтения,Inställningar
+Preparation_Categories,Preparation - Categories,Préparation - Catégories,,Forbered - Kategorier,Preparation - Categories,Подготовка - Категории,Förberedelse - Klasser
+Preparation_Competition,Preparation - Competition,Préparation - Compétition,,Forbered - Konkurrence,Preparation - Competition,Подготовка - Соревнования,Förberedelse - Tävling
+Preparation_Groups,Preparation - Groups,Préparation - Groupes,,Forbered - Grupper,Preparation - Groups,Подготовка - Потоки,Förberedelse - Grupper
+Preparation_Platforms,Preparation - Platforms,Préparation - Plateformes,,Forbered - Platforme,Preparation - Platforms,Подготовка - Помосты,Förberedelse - Plattformar
+Preparation_Registration,Preparation - Registration,Préparation - Inscriptions,,Forbered - Registrering,Preparation - Registration,Подготовка - Регистрация,Förberedelse -  Registrering
+PrepareCompatition_description,"<li><b>{0}</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>","<li><b>{0}</b>: Entrer les coordonnées, inscrire les athlètes, définir les groupes, etc.<br></li>",,"<li><b>{0}</b>: Indtast konkurrence oplysninger, registrer atleter, definér grupper, osv.<br></li>","<li><b>{0}</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>","<li><b>{0}</b>: Введите место проведения соревнований, зарегистрируйте спортсменов, определите потоки и т.д.<br></li>","<li> <b> {0} </b>: Ange tävlingskoordinaterna, registrera idrottare, definiera grupper osv. </li> <li> <b> {0} </b>: Ange tävlingskoordinaterna, registrera idrottare, definiera grupperna osv. </li>"
+PrepareCompetition,Prepare Competition,Préparer la compétition,,Forbered konkurrence,Prepare Competition,Подготовка,Förbered tävling
 Print,Print,Imprimer,,Print,Imprimir,печатать,Skriv ut
-ProduceResults,Produce Results,Produire les résultats,,Udskriv resultater,,Подготовить результаты,Producera resultat
-ProjectRepository,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.,<li>Voir le <a href='https://github.com/jflamy/owlcms4'>référentiel du projet</a> pour les packages d'installation et le code source.,,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.,,См. <a href='https://github.com/jflamy/owlcms4'>репозиторий проекта</a> для бинарных релизов и полных исходных кодов.<br>,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.
-Question,?,\u0020?,,?,,?,?
+ProduceResults,Produce Results,Produire les résultats,,Udskriv resultater,Produce Results,Подготовить результаты,Producera resultat
+ProjectRepository,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.,<li>Voir le <a href='https://github.com/jflamy/owlcms4'>référentiel du projet</a> pour les packages d'installation et le code source.,,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.,См. <a href='https://github.com/jflamy/owlcms4'>репозиторий проекта</a> для бинарных релизов и полных исходных кодов.<br>,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.
+Question,?,\u0020?,,?,?,?,?
 Rank,Rank,Rang,,Placering,Posición,Место,Rank
-ReadingData_,Reading the data,Lecture des données,,Læser data,,Чтение данных,Läser datan
+ReadingData_,Reading the data,Lecture des données,,Læser data,Reading the data,Чтение данных,Läser datan
 Referee,Referee,Arbitre,,Dommer,Juez,Рефери,Domare
 Referee_Mobile_Device,Referee (on mobile devices),Arbitre (sur appareils mobiles),,Dommer (til mobile enheder),Juez (para dispositivos móviles),Рефери (мобильное устройство),Domare (mobila enheter)
 Referee1,Referee 1,Arbitre 1,,Dommer 1,Juez 1,Рефери 1,Domare 1
@@ -295,33 +295,33 @@ Referee2,Referee 2,Arbitre 2,,Dommer 2,Juez 2,Рефери 2,Domare 2
 Referee3,Referee 3,Arbitre 3,,Dommer 3,Juez 3,Рефери 3,Domare 3
 RefereeDecisions,Referee Decisions,Décisions des officiels,,Dommer Afgørelse,Decisiones de los jueces,Решение рефери,Domarbeslut
 Referees_Jury,Referees and Jury,Arbitres et Jury,,Dommere og jury,Jueces y jurado,Рефери и жюри,Domare och Jury
-RefreshList,Refresh list,Rafraîchir,,Opfrisk liste,,Обновить список,Uppdatera lista
+RefreshList,Refresh list,Rafraîchir,,Opfrisk liste,Refresh list,Обновить список,Uppdatera lista
 Registration,Registration,Inscriptions,,Registreringer,Inscripciones,Регистрация,Registrering
-Reload_group,Reload group from database.,Recharger le groupe à partir de la base de données,,Genindlæs gruppe fra database,,Перезагрузить поток из базы данных,Ladda om gruppen från databasen.
+Reload_group,Reload group from database.,Recharger le groupe à partir de la base de données,,Genindlæs gruppe fra database,Reload group from database.,Перезагрузить поток из базы данных,Ladda om gruppen från databasen.
 reloadTranslation,Reload translation file,Recharger le fichier de traduction,,Reload translation file,Reload translation file,Загрузка файла перевода,Ladda om språkfil
 reloadTranslationInfo,"Click to reload the translation file, then refresh your pages (F5).","Cliquer pour recharger le fichier de traduction, puis raffraîchir les pages.",,"Click to reload the translation file, then refresh your pages (F5).","Click to reload the translation file, then refresh your pages (F5).","Нажмите для загрузки файла перевода, затем обновите страницу (F5).",Klicka för att ladda om språkfil och uppdatera sedan sidan (F5).
-Requested_weight,Requested Weight,Poids demandé,,Ønsket vægt,,Заявленный вес,Önskad vikt
-Reset1min,Reset to 1 min,Réinitialiser à 1 min.,,Reset til 1 min,,Сбросить до 1 мин.,Återställ till 1 min
-Reset2min,Reset to 2 min,Réinitialiser à 2 min.,,Reset til 2 min,,Сбросить до 2 мин.,Återställ till 2 min
-ResultDocuments,Result Documents,Documents de résultats,,Resultatdokumenter,,Результаты и документы,Resultat dokument
+Requested_weight,Requested Weight,Poids demandé,,Ønsket vægt,Requested Weight,Заявленный вес,Önskad vikt
+Reset1min,Reset to 1 min,Réinitialiser à 1 min.,,Reset til 1 min,Reset to 1 min,Сбросить до 1 мин.,Återställ till 1 min
+Reset2min,Reset to 2 min,Réinitialiser à 2 min.,,Reset til 2 min,Reset to 2 min,Сбросить до 2 мин.,Återställ till 2 min
+ResultDocuments,Result Documents,Documents de résultats,,Resultatdokumenter,Result Documents,Результаты и документы,Resultat dokument
 Results,Results,Résultats,,Resultater,Resultados,Результаты,Resultat
-ResumeCompetition,Resume Competition,Redémarrer la compétition,,Genoptag konkurrence,,Продолжить соревнования,Återuppta tävling
+ResumeCompetition,Resume Competition,Redémarrer la compétition,,Genoptag konkurrence,Resume Competition,Продолжить соревнования,Återuppta tävling
 robi,Robi,Robi,,Robi,Robi,Роби,Robi
 RuleViolation.declarationValueTooSmall,Lift {0} : Value {1} for declaration must be greater than or equal to the automatic progression ({2}).,Lever {0} : Le poids {1} déclaré doit être plus grand ou égal au poids de la progression automatique ({2}),,Løft {0} : Værdi {1} skal være større end eller lig den automatiske øgning ({2}).,Alzada {0} : El valor {1} declarado debe ser mayor o igual que la progresión automática ({2}),Попытка {0} : Значение {1} для заявки должно быть больше или равно автоматической надбавке({2}).,Lift {0} : Värdet {1} för begärd vikt måste vara större eller lika som den automatiska höjningen ({2}).
 RuleViolation.declaredChangesNotOk,Lift {0} : Value {1} for changes must be greater than or equal to the automatic progression ({2}).,Lever {0} : Le changement {1} doit être plus grand ou égal au poids de la progression automatique ({2}).,,Løft {0} : Værdi {1} for øgning skal være større end eller lig den automatiske øgning ({2}).,Alzada {0} : El valor {1} para los cambios debe ser mayor o igual que la progresión automática ({2}).,Попытка {0} : Значение {1} для перезаявки должно быть больше или равно автоматической надбавке({2}).,Lyft {0}: Värde {1} för ändringar måste vara större än eller lika med den automatiska höjningen ({2}).
 RuleViolation.liftValueBelowProgression,Lift {0} : Value {1} for lift must be greater than or equal to the automatic progression ({2}).,Lever {0} : Le lever ({1}) doit être plus grand ou égal au poids de la progression automatique ({2}).,,Løft {0} : Værdi {1} for løft skal være større end eller lig den automatiske øgning ({2}),Alzada {0} : El valor {1} para la alzada debe ser mayor o igual que la progresión automática ({2}).,Попытка {0} : Значение {1} для попытки должно быть больше или равно автоматической надбавке({2}).,Lyft {0}: Värde {1} för lyft måste vara större än eller lika med den automatiska höjningen ({2}).
 RuleViolation.liftValueNotWhatWasRequested,Lift {0} : Value {1} for lift must match requested amount ({2}).,Lever {0} : Le poids {1} du lever doit correspondre au poids demandé ({2}).,,Løft {0} : Værdi {1} for løft skal matche det opgivede ({2}).,Alzada {0} : El valor {1} para la alzada debe coincidir con el valor solicitado ({2}).,Попытка {0} : Значение {1} для попытки должно соответствовать заявленному({2}).,Hiss {0}: Värde {1} för hiss måste matcha det begärda vikten ({2}).
-RuleViolation.rule15_20Violated,Starting weight rule violation: Missing {5}kg.,Violation de la règle des poids initiaux: Il manque {5}kg.,,Overtrædelse af reglen om indledende vægte: Der mangler {5}kg.,,Нарушение правила стартового веса: не хватает {5}кг,Totalviktsregel brott: Saknar {5}kg.
-RunLiftingGroup,Run Lifting Group,Groupe de compétition,,Kør gruppe,,Запуск потока,Kör lyftgrupp
-RunLiftingGroup_description,"<li><b>{0}</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>","<li><b>{0}</b>: Lancer les écrans pour les officiels (annonceur, chrono, préposé aux changements). L''annonceur choisit le groupe en cours.</li>",,"<li><b>{0}</b>: Start skærmbillede for speaker, marshall, timekeeper. Speakeren styrer hvilken gruppen der vises på displays og skærme.</li>",,"<li><b>{0}</b>: Запустите экраны для судьи-информатора, судьи на перезаявках и судьи-хронометриста. Судья-информатор контролирует какой поток отображается на экранах.</li>","<li> <b> {0} </b>: Starta skärmarna för Speaker, Sekreterare, Tidtagare. Speaker styr vilken grupp som visas på skärmarna. </li>"
-Scoreboard,Scoreboard,Tableau de résultats,,Scoreboard,,Таблица результатов,Resultattavla
+RuleViolation.rule15_20Violated,Starting weight rule violation: Missing {5}kg.,Violation de la règle des poids initiaux: Il manque {5}kg.,,Overtrædelse af reglen om indledende vægte: Der mangler {5}kg.,Starting weight rule violation: Missing {5}kg.,Нарушение правила стартового веса: не хватает {5}кг,Totalviktsregel brott: Saknar {5}kg.
+RunLiftingGroup,Run Lifting Group,Groupe de compétition,,Kør gruppe,Run Lifting Group,Запуск потока,Kör lyftgrupp
+RunLiftingGroup_description,"<li><b>{0}</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>","<li><b>{0}</b>: Lancer les écrans pour les officiels (annonceur, chrono, préposé aux changements). L''annonceur choisit le groupe en cours.</li>",,"<li><b>{0}</b>: Start skærmbillede for speaker, marshall, timekeeper. Speakeren styrer hvilken gruppen der vises på displays og skærme.</li>","<li><b>{0}</b>: Start the screens for the announcer, the marshall, the timekeeper. The announcer controls which group is shown on the displays.</li>","<li><b>{0}</b>: Запустите экраны для судьи-информатора, судьи на перезаявках и судьи-хронометриста. Судья-информатор контролирует какой поток отображается на экранах.</li>","<li> <b> {0} </b>: Starta skärmarna för Speaker, Sekreterare, Tidtagare. Speaker styr vilken grupp som visas på skärmarna. </li>"
+Scoreboard,Scoreboard,Tableau de résultats,,Scoreboard,Scoreboard,Таблица результатов,Resultattavla
 Scoreboard.AgeGroup,Age Gr.,Gr. Age.,<nobr>Gr. Age.</nobr><div class='english'><nobr>Age Gr.</nobr></div>,Aldesgruppe,Grupos per edades,Возрастная категория,Åldersgrupp
-Scoreboard.AttemptsDone,"{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}","{0,choice,0#Aucun essai.|1#1 essai effectué.|1<{0} essais effectués.}",,"{0,choice,0#Ingen løft afviklet.|1#1 løft afviklet.|1<{0} løft afviklet.}",,Всего попыток выполнено: {0},"{0, val, 0 # Inga försök gjorda. | 1 # 1 försök gjort. | 1 <{0} gjorda försök.}"
+Scoreboard.AttemptsDone,"{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}","{0,choice,0#Aucun essai.|1#1 essai effectué.|1<{0} essais effectués.}",,"{0,choice,0#Ingen løft afviklet.|1#1 løft afviklet.|1<{0} løft afviklet.}","{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}",Всего попыток выполнено: {0},"{0, val, 0 # Inga försök gjorda. | 1 # 1 försök gjort. | 1 <{0} gjorda försök.}"
 Scoreboard.Birth,Born,Naiss.,Naiss.<div class='english'>Born</div>,Født,Nacimiento,Год,Född
 Scoreboard.BodyWeight,B.W.,Poids,,Vægt,B.W.,С.В.,B.W.
 Scoreboard.Category,Cat.,Cat.,Cat.,Vægtklasse,Cat.,Кат.,Klass
 Scoreboard.Clean_and_Jerk,Clean&amp;Jerk,Épaulé-jeté,Épaulé-jeté<div class='english'>Clean&amp;Jerk</div>,Stød,Stød,Толчок,Stöt
-Scoreboard.GroupLiftType,Group {0} {1},Groupe {0} {1},,Gruppe {0} {1},,Поток {0}. {1},Grupp{0} {1}
+Scoreboard.GroupLiftType,Group {0} {1},Groupe {0} {1},,Gruppe {0} {1},Group {0} {1},Поток {0}. {1},Grupp{0} {1}
 Scoreboard.KgSymbol,kg,kg,,kg,kg,\u0020кг,kg
 Scoreboard.LiftingOrder,Lifting Order,Ordre de passage,,Rækkefølge,Orden en competencia,Очередность выполнения попыток,Lyftordning
 Scoreboard.Name,Name,Nom,Nom<div class='english'>Name</div>,Navn,Nombre,"Фамилия, Имя",Namn
@@ -338,80 +338,81 @@ Scoreboard.TopSinclairMen,Top Sinclair &ndash; Men,Meilleurs Sinclair &ndash; Ho
 Scoreboard.TopSinclairWomen,Top Sinclair &ndash; Women,Meilleurs Sinclair &ndash; Women,,Top Sinclair &ndash; Kvinder,Top Sinclair &ndash; Women,Синклер &ndash; Женщины,BästaSinclair &ndash; Damer
 Scoreboard.Total,Total,Total,Total,Tokamp,Total,Сумма,Total
 Select_group_first,Please select a group first.,Il faut d'abord choisir un groupe.,,Vælg en gruppe først.,"Por favor, selecciona primero una tanda.",Выберите поток.,Vänligen välj grupp först.
-SelectPlatform,Select Platform,Choisir la plateforme,,Vælg platform,,Выберите помост,Vald plattform
+SelectPlatform,Select Platform,Choisir la plateforme,,Vælg platform,Select Platform,Выберите помост,Vald plattform
 Semicolon,\u003B,\u003B,,\u003B,\u003B,\u003B,\u003B
-SeparateLaptops,</ul>Each of the various screens or displays uses a separate laptop or mini-pc.,</ul>Chacun des écrans ou affichages requiert un portable ou mini-pc.,,</ul>Hver enkelt skærm/display køres på egen pc eller mini-pc.,,</ul>Каждый из различных экранов использует отдельный ноутбук или ПК.,</ul>Alla av dom olika skärmarna använder en separat dator
+SeparateLaptops,</ul>Each of the various screens or displays uses a separate laptop or mini-pc.,</ul>Chacun des écrans ou affichages requiert un portable ou mini-pc.,,</ul>Hver enkelt skærm/display køres på egen pc eller mini-pc.,</ul>Each of the various screens or displays uses a separate laptop or mini-pc.,</ul>Каждый из различных экранов использует отдельный ноутбук или ПК.,</ul>Alla av dom olika skärmarna använder en separat dator
 ShowResults,Show Results,Afficher les résultats,,Vis resultater,Mostrar resultados,Показать результаты,Visa resultat
 sinclair,Sinclair,Sinclair,,Sinclair,Sinclair,Синклер,Sinclair
 smm,SMM,SMM,,SMM,SMM,СММ,SMF
 Snatch,Snatch,Arraché,,Træk,Arrancada,Рывок,Ryck
-Snatch_Declaration,Snatch Declaration,Déclaration Arraché,,Træk deklareret,,Начальный вес в рывке,Ingång Ryck
+Snatch_Declaration,Snatch Declaration,Déclaration Arraché,,Træk deklareret,Snatch Declaration,Начальный вес в рывке,Ingång Ryck
 Snatch_number,Snatch #{0},Arraché #{0},,Træk  #{0},Arrancada #{0},Рывок {0},Ryck #{0}
 Snatch_short,Sn.,Arr.,,Træk,Arr.,Р.,Sn.
 Snatch1,snatch 1,Arraché 1,,Træk 1,Arrancada 1,Р1,ryck 1
 Snatch2,snatch 2,Arraché 2,,Træk 2,Arrancada 2,Р2,ryck 2
 Snatch3,snatch 3,Arraché 3,,Træk 3,Arrancada 3,Р3,ryck 3
-SnatchDecl_,Snatch Decl.,Décl. Arr.,,Træk dekl.,,Рывок,Ingång Ryck
-SnatchRank,Snatch Rank,Rang Arr.,,Træk rang,,Место (Р),Ranking Ryck
-SourceDocumentation,Source and Documentation,Code source et documentation,,Source og dokumentation,,Исходные коды и документация,Källa och Dokumentation
+SnatchDecl_,Snatch Decl.,Décl. Arr.,,Træk dekl.,Snatch Decl.,Рывок,Ingång Ryck
+SnatchRank,Snatch Rank,Rang Arr.,,Træk rang,Snatch Rank,Место (Р),Ranking Ryck
+SourceDocumentation,Source and Documentation,Code source et documentation,,Source og dokumentation,Source and Documentation,Исходные коды и документация,Källa och Dokumentation
 Speakers,Audio Output,Sortie audio,,Lydudgang,Salida de audio,Аудио-выход,Ljudutgång
-Start_,Start#,#Départ,,Startnr.,,Стартовый №,Start#
-StartCountdown,Start Break Countdown Timer,Démarrer le chronomètre de pause,,Start Break Countdown Timer,,Запустить таймер,Starta paus nedräkning
-StartDisplays,Start Displays,Démarrer les affichages,,Start Displays,,Запуск экранов,Start skärmar
-StartDisplays_description,"<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>","<li><b>{0}</b>: Lancer les tableaux de résultats, l''affichage de l''essai courant, et l''affichage pour l''athlète.</li>",,"<li><b>{0}</b>: Bruges til at starte Attempt board, Atlet-vendt Attempt Board og Scoreboard.</li>",,"<li><b>{0}</b>: Используется для запуска экрана попытки, экрана атлета и таблицы результатов.</li>","<li> <b> {0} </b>: Används för att starta försökstavla, atlet skärm och resultattavlan. </li>"
+Start_,Start#,#Départ,,Startnr.,Start#,Стартовый №,Start#
+StartCountdown,Start Break Countdown Timer,Démarrer le chronomètre de pause,,Start Break Countdown Timer,Start Break Countdown Timer,Запустить таймер,Starta paus nedräkning
+StartDisplays,Start Displays,Démarrer les affichages,,Start Displays,Start Displays,Запуск экранов,Start skärmar
+StartDisplays_description,"<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>","<li><b>{0}</b>: Lancer les tableaux de résultats, l''affichage de l''essai courant, et l''affichage pour l''athlète.</li>",,"<li><b>{0}</b>: Bruges til at starte Attempt board, Atlet-vendt Attempt Board og Scoreboard.</li>","<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>","<li><b>{0}</b>: Используется для запуска экрана попытки, экрана атлета и таблицы результатов.</li>","<li> <b> {0} </b>: Används för att starta försökstavla, atlet skärm och resultattavlan. </li>"
 StartingList,Starting List,Liste de départ,,Startliste,Lista de inicio,Стартовый протокол,Start lista
 StartingWeightsSheet,Starting Weights Sheet,Barres de départ,,Startvægte,Pesos iniciales,Таблица стартовых весов,Startprotokoll
-startLifting,Start Lifting,Débuter les levers,,Begynd konkurrencen,,Начать соревнования,Start Lifting
+startLifting,Start Lifting,Débuter les levers,,Begynd konkurrencen,Start Lifting,Начать соревнования,Start Lifting
 StartNumber,Start Number,Numéro de départ,,Startnummer,Nº inicio,Стартовый номер,Start nummer
 StartTime,Start Time,Heure de début,,Starttid,Hora de comienzo,Время начала,Start tid
-StopCompetition,Stop Competition,Arrêter la compétition,,Stop konkurrencen,,Остановить соревнования,Stoppa tävlingen
-SystemURL,The competition system is reachable using the following address(es): ,Le système est accessible en spécifiant:,,The competition system is reachable using the following address(es): ,,Система управления соревнованиями доступна по следующим адресам:,Tävlingssystemet kan nås via följande adresser:
-TCRRCompliance,This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules,"Ce logiciel respecte les règles techniques de compétition IWF (TCRR) en vigueur à sa publication, ainsi que les règles de la fédération Masters Weightlifting.",,This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules,,Это программное обеспечение предназначено для соблюдения технических правил и правил соревнований IWF (TCRR) и правил тяжелой атлетики для ветеранов,
+StopCompetition,Stop Competition,Arrêter la compétition,,Stop konkurrencen,Stop Competition,Остановить соревнования,Stoppa tävlingen
+SystemURL,The competition system is reachable using the following address(es):,Le système est accessible en spécifiant:,,The competition system is reachable using the following address(es):,The competition system is reachable using the following address(es):,Система управления соревнованиями доступна по следующим адресам:,Tävlingssystemet kan nås via följande adresser:
+TCRRCompliance,This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules,"Ce logiciel respecte les règles techniques de compétition IWF (TCRR) en vigueur à sa publication, ainsi que les règles de la fédération Masters Weightlifting.",,This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules,This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules,Это программное обеспечение предназначено для соблюдения технических правил и правил соревнований IWF (TCRR) и правил тяжелой атлетики для ветеранов,This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules
 Team,Team,Équipe,,Klub,Equipo,Команда,Lag
 TechnicalController,Technical Controller,Contrôleur Technique,,Teknisk kontrollant,Controlador Técnico,Технический контролер,Teknisk kontrollant
-ThanksToAll,"Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>","Merci à Anders Bendix Nielsen, Alexey Ruchev et Brock Pedersen pour leurs commentaires et leurs essais.<br>",,"Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>",,"Особая благодарность Андерсу Бендиксу Нильсену, Алексею Ручьеву и Броку Педерсену за обратную связь и тестирование.<br>","Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>"
-ThanksToFHQ,Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.,Merci à la Fédération d'haltérophilie du Québec d'avoir soutenu le développement initial du projet.,,Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.,,Спасибо федерации тяжелой атлетики Квебека за поддержку разработки программного обеспечения.,Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.
-TimeBeforeFirstLift,Time before first lift,Décompte avant le premier lever,,Tid inden første løft,,Начало упражнения рывок через:,Tid tills första lyft
-TimeBeforeIntroduction,Time before introduction,Décompte avant la présentation,,Tid inden præsentation,,Представление спортсменов через:,Tid tills defilering
-TimeBeforeNextLift,Time before next lift,Décompte avant le prochain lever,,Tid inden næste løft,,Начало упражнения толчок через:,Tid till nästa lyft
+ThanksToAll,"Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>","Merci à Anders Bendix Nielsen, Alexey Ruchev et Brock Pedersen pour leurs commentaires et leurs essais.<br>",,"Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>","Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>","Особая благодарность Андерсу Бендиксу Нильсену, Алексею Ручьеву и Броку Педерсену за обратную связь и тестирование.<br>","Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>"
+ThanksToFHQ,Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.,Merci à la Fédération d'haltérophilie du Québec d'avoir soutenu le développement initial du projet.,,Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.,Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.,Спасибо федерации тяжелой атлетики Квебека за поддержку разработки программного обеспечения.,Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.
+TimeBeforeFirstLift,Time before first lift,Décompte avant le premier lever,,Tid inden første løft,Time before first lift,Начало упражнения рывок через:,Tid tills första lyft
+TimeBeforeIntroduction,Time before introduction,Décompte avant la présentation,,Tid inden præsentation,Time before introduction,Представление спортсменов через:,Tid tills defilering
+TimeBeforeNextLift,Time before next lift,Décompte avant le prochain lever,,Tid inden næste løft,Time before next lift,Начало упражнения толчок через:,Tid till nästa lyft
 Timekeeper,Timekeeper,Chronométreur,,Tidtager,Cronometrador,Судья-хронометрист,Tidtagare
-TimingStatistics,Timing Statistics,Statistiques de durée,,Timing Statistik,,Статистика,Tidsstatistik
-TOScreens,Technical Official Screens (select the correct platform above before clicking),Écrans des officiels (choisir le plateau ci-dessus avant de cliquer),,Technical Official Screens (vælg korrekt platform inden du klikker),,Официальные технические экраны (выберите правильный помост перед нажатием),Tekniskt officiella skärmar (välj rätt plattform ovan innan du klickar)
+TimingStatistics,Timing Statistics,Statistiques de durée,,Timing Statistik,Timing Statistics,Статистика,Tidsstatistik
+TOScreens,Technical Official Screens (select the correct platform above before clicking),Écrans des officiels (choisir le plateau ci-dessus avant de cliquer),,Technical Official Screens (vælg korrekt platform inden du klikker),Technical Official Screens (select the correct platform above before clicking),Официальные технические экраны (выберите правильный помост перед нажатием),Tekniskt officiella skärmar (välj rätt plattform ovan innan du klickar)
 Total,Total,Total,,Tokamp,Total,Сумма,Total
 Translation,Translation,Traduction,,Oversættelse,Traducción,Перевод,Översättning
-TranslationDocumentation,<li>Contribute by translating the application to your own language: see the <a href='https://jflamy.github.io/owlcms4/#/Translation'>translation documentation</a>. ,<li>Traduire l'application dans votre propre langue: voir la  <a href='https://jflamy.github.io/owlcms4/#/Translation'>documentation de traduction</a>. ,,<li>Contribute by translating the application to your own language: see the <a href='https://jflamy.github.io/owlcms4/#/Translation'>translation documentation</a>. ,<li>Contribute by translating the application to your own language: see the <a href='https://jflamy.github.io/owlcms4/#/Translation'>translation documentation</a>. ,Переведите приложение на свой собственный язык: см. <a href='https://jflamy.github.io/owlcms4/#/Translation'> перевод документации</a>.,<li>Contribute by translating the application to your own language: see the <a href='https://jflamy.github.io/owlcms4/#/Translation'>translation documentation</a>.
-Unexpected_Logging,Unexpected event: {} in state {},Événement inattendu: {} dans l'état {},,Unexpected event: {} in state {},,Неожиданное событие: {} в состоянии {},Unexpected event: {} in state {}
-Unexpected_Notification,Unexpected event: {0} in state {1},Événement inattendu: {0} dans l''état {1},,Unexpected event: {0} in state {1},,Неожиданное событие: {0} в состоянии {1},Unexpected event: {0} in state {1}
-Update,Update,Modifier,,Opdatér,,Обновить,Uppdatera
-Update_title,Update {0},Modifier {0},,Opdatér {0},,Редактировать,Uppdatera {0}
-UploadRegistrationFile,Upload Registration File,Charger le fichier d'inscription,,Upload Registreringsfil,,Загрузить файл регистрации,Ladda upp registreringsfil
-UploadRegistrations,Upload Completed Registration Spreadsheet,Charger un fichier d'inscription ,,Upload udfyldt Registrerings-Excelfil,,Загрузить файл регистрации,Ladda upp fullbordad registreringsfil
-UseAtYourOwnRisk,\u0020are responsible for performing whatever tests are need to establish that the software is fit for your circumstances.,\u0020êtes responsable d'effectuer les tests requis pour établir que le logiciel répond à vos besoins.,,\u0020are responsible for performing whatever tests are need to establish that the software is fit for your circumstances.,\u0020are responsible for performing whatever tests are need to establish that the software is fit for your circumstances.,\u0020несете ответственность за выполнение любых тестов,
+TranslationDocumentation,<li>Contribute by translating the application to your own language: see the <a href='https://jflamy.github.io/owlcms4/#/Translation'>translation documentation</a>.,<li>Traduire l'application dans votre propre langue: voir la  <a href='https://jflamy.github.io/owlcms4/#/Translation'>documentation de traduction</a>.,,<li>Contribute by translating the application to your own language: see the <a href='https://jflamy.github.io/owlcms4/#/Translation'>translation documentation</a>.,<li>Contribute by translating the application to your own language: see the <a href='https://jflamy.github.io/owlcms4/#/Translation'>translation documentation</a>.,Переведите приложение на свой собственный язык: см. <a href='https://jflamy.github.io/owlcms4/#/Translation'> перевод документации</a>.,<li>Contribute by translating the application to your own language: see the <a href='https://jflamy.github.io/owlcms4/#/Translation'>translation documentation</a>.
+Unexpected_Logging,Unexpected event: {} in state {},Événement inattendu: {} dans l'état {},,Unexpected event: {} in state {},Unexpected event: {} in state {},Неожиданное событие: {} в состоянии {},Unexpected event: {} in state {}
+Unexpected_Notification,Unexpected event: {0} in state {1},Événement inattendu: {0} dans l''état {1},,Unexpected event: {0} in state {1},Unexpected event: {0} in state {1},Неожиданное событие: {0} в состоянии {1},Unexpected event: {0} in state {1}
+Update,Update,Modifier,,Opdatér,Update,Обновить,Uppdatera
+Update_title,Update {0},Modifier {0},,Opdatér {0},Update {0},Редактировать,Uppdatera {0}
+UploadRegistrationFile,Upload Registration File,Charger le fichier d'inscription,,Upload Registreringsfil,Upload Registration File,Загрузить файл регистрации,Ladda upp registreringsfil
+UploadRegistrations,Upload Completed Registration Spreadsheet,Charger un fichier d'inscription,,Upload udfyldt Registrerings-Excelfil,Upload Completed Registration Spreadsheet,Загрузить файл регистрации,Ladda upp fullbordad registreringsfil
+UseAtYourOwnRisk,\u0020are responsible for performing whatever tests are need to establish that the software is fit for your circumstances.,\u0020êtes responsable d'effectuer les tests requis pour établir que le logiciel répond à vos besoins.,,\u0020are responsible for performing whatever tests are need to establish that the software is fit for your circumstances.,\u0020are responsible for performing whatever tests are need to establish that the software is fit for your circumstances.,\u0020несете ответственность за выполнение любых тестов,\u0020are responsible for performing whatever tests are need to establish that the software is fit for your circumstances.
 UseBrowserSound,Use Browser Sound,Utiliser le son des navigateurs,,Anvend browser lyd,Use Browser Sound,Использовать звук браузера,Använd bläsarens ljud
-Warning_ClearAthleteLifts,This will clear all lifting data for the athletes currently displayed except for initial declarations.<br>Are you sure?,Ceci va vider les essais pour les athlètes actuellement affichés<br>Êtes-vous certain?,,Dette vil slette alle løft for de viste atleter bortset fra deres startvægte.<br>Er du sikker?,,"Это очистит все данные о попытках для спортсменов, которые в настоящее время отображаются, за исключением заявленных весов. <br>Вы уверены?",Detta kommer att rensa all lyftdata för atleterna som visas förutom ingångsvikterna. <br> Är du säker?
-Warning_DeleteAthletes,This will delete the athletes currently displayed from the database.<br>Are you sure?,Ceci va effacer les athlètes actuellement affichés<br>Êtes-vous certain?,,Dette vil slette de viste atleter fra databasen.<br>Er du sikker?,,"Это приведет к удалению спортсменов, отображаемых в настоящее время из базы данных <br>Вы уверены?",Detta kommer att radera alla atleter som visas från databasen. <br> Är du säker?
-Warning_GroupLifting,This group is currently lifting on platform ,Ce groupe est actuellement en compétition sur le plateau,,Denne gruppe løfter pt på platformen,,Соревнования потока начались,Denna grupp lyfter på platform
-Weighed,Weighed,Pesés,,Indvejet,,Прошел взвешивание,Vägde
-Weighed_in_p,Weighed-In?,Pesés ?,,Indvejet?,,Взвешивание,Vägt in?
+Warning_ClearAthleteLifts,This will clear all lifting data for the athletes currently displayed except for initial declarations.<br>Are you sure?,Ceci va vider les essais pour les athlètes actuellement affichés<br>Êtes-vous certain?,,Dette vil slette alle løft for de viste atleter bortset fra deres startvægte.<br>Er du sikker?,This will clear all lifting data for the athletes currently displayed except for initial declarations.<br>Are you sure?,"Это очистит все данные о попытках для спортсменов, которые в настоящее время отображаются, за исключением заявленных весов. <br>Вы уверены?",Detta kommer att rensa all lyftdata för atleterna som visas förutom ingångsvikterna. <br> Är du säker?
+Warning_DeleteAthletes,This will delete the athletes currently displayed from the database.<br>Are you sure?,Ceci va effacer les athlètes actuellement affichés<br>Êtes-vous certain?,,Dette vil slette de viste atleter fra databasen.<br>Er du sikker?,This will delete the athletes currently displayed from the database.<br>Are you sure?,"Это приведет к удалению спортсменов, отображаемых в настоящее время из базы данных <br>Вы уверены?",Detta kommer att radera alla atleter som visas från databasen. <br> Är du säker?
+Warning_GroupLifting,This group is currently lifting on platform,Ce groupe est actuellement en compétition sur le plateau,,Denne gruppe løfter pt på platformen,This group is currently lifting on platform,Соревнования потока начались,Denna grupp lyfter på platform
+Weighed,Weighed,Pesés,,Indvejet,Weighed,Прошел взвешивание,Vägde
+Weighed_in_p,Weighed-In?,Pesés ?,,Indvejet?,Weighed-In?,Взвешивание,Vägt in?
 WeighIn,Weigh-In,Pesée,,Indvejning,Pesaje,Взвешивание,Vägt in
-WeighIn_StartNumbers,Weigh-In and Start Numbers,Pesée et numéros de départ,,Indvejning og Startnumre,,Взвешивание и стартовые номера,Vägt in and Start nummer
+WeighIn_StartNumbers,Weigh-In and Start Numbers,Pesée et numéros de départ,,Indvejning og Startnumre,Weigh-In and Start Numbers,Взвешивание и стартовые номера,Vägt in and Start nummer
 WeighInTime,Weigh-in Time,Heure de pesée,,Indvejningstidspunkt,Hora de pesaje,Время взвешивания,Vägt in Tid
-Weight_change_current_athlete,Weight change for current athlete<br>{0},Changement pour l''athlète courant<br>{0},,Vægtændring for nuværende atlet<br>{0},,Перезаявка для {0},Vikt ändring för nuvarande atlet<br>{0}
-Weight_under_350,Weight should be between 0 and 350kg,Weight should be between 0 and 350kgment 350kg,,Vægt skal være mellem 0 og 350 kg,,Вес должен быть между 0 и 350 кг,Vikten bör vara mellan 0 och 350 kg
-WeightLifted,Weight Lifted,Poids soulevé,,Vægt løftet,,Засчитанный вес,Vikt lyft
-Wired,\u0020(wired),\u0020(cablé),,\u0020(kablet),,\u0020(кабель),\u0020(wired)
-Wireless,\u0020(wireless),\u0020(sans fil),,\u0020(wireless),,\u0020(беспроводной),\u0020(wireless)
+Weight_change_current_athlete,Weight change for current athlete<br>{0},Changement pour l''athlète courant<br>{0},,Vægtændring for nuværende atlet<br>{0},Weight change for current athlete<br>{0},Перезаявка для {0},Vikt ändring för nuvarande atlet<br>{0}
+Weight_under_350,Weight should be between 0 and 350kg,Weight should be between 0 and 350kgment 350kg,,Vægt skal være mellem 0 og 350 kg,Weight should be between 0 and 350kg,Вес должен быть между 0 и 350 кг,Vikten bör vara mellan 0 och 350 kg
+WeightLifted,Weight Lifted,Poids soulevé,,Vægt løftet,Weight Lifted,Засчитанный вес,Vikt lyft
+Wired,\u0020(wired),\u0020(cablé),,\u0020(kablet),\u0020(wired),\u0020(кабель),\u0020(wired)
+Wireless,\u0020(wireless),\u0020(sans fil),,\u0020(wireless),\u0020(wireless),\u0020(беспроводной),\u0020(wireless)
 Withdrawal,Withdrawal,Retrait,,Afstå (withdrawal),Withdrawal,Отказ от продолжения,Utträde
 WorldRecord,World Record,Record du monde,,Verdensrekord,Récord mundial,Мировой рекорд,Världsrekord
-WrittenJFL,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>","Le système a été écrit et est mis à jour par Jean-François Lamy, Officiel Technique IWF catégorie 1<br><br>",,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>",,Данная система разработана и поддерживается Жан-Франсуа Лами. IWF Судья 1-й Международной Категории.<br><br>,"Programvaran är skriven och underhållen av Jean-Fran√ßois Lamy, IWFs internationella tekniska officiella kategori 1. <br> <br>"
+WrittenJFL,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>","Le système a été écrit et est mis à jour par Jean-François Lamy, Officiel Technique IWF catégorie 1<br><br>",,"The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>","The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.<br><br>",Данная система разработана и поддерживается Жан-Франсуа Лами. IWF Судья 1-й Международной Категории.<br><br>,"Programvaran är skriven och underhållen av Jean-Fran√ßois Lamy, IWFs internationella tekniska officiella kategori 1. <br> <br>"
 YearOfBirth,Year of Birth,Année de naissance,,Fødselsår,Year of Birth,Год рождения,Födelseår
 dark,White on black,Blanc sur noir,,Hvid på Sort,White on black,Результаты на чёрном фоне,Vitt på svart
 light,Black on white,Noir sur blanc,,Sort på Hvid,Black on white,Результаты на белом фоне,Svart på vitt
 darkModeSelect,"After opening, click on the board to select white on black or black on white.","Après l'ouverture, cliquer sur l'écran pour choisir blanc sur noir ou noir sur blanc.",,Efter åbning skal du klikke på [Hvid på Sort] eller [Sort på Hvid].,"Después de abrir, haga clic en blanco sobre negro o negro sobre blanco.",После открытия кликнуть мышкой по экрану и выбрать белый или черный фон результатов.,Efter öppning ska du klicka på vitt på svart eller svart på vitt
-Scoreboards,Scoreboards,Tableaux d'affichage,,Resultattavler,Marcadores,Таблицы результатов,Resultattavlor 
-refereeingDevices,"If refereeing devices are used, they are usually connected to this display.","Si des claviers d'arbitrage sont utilisés,  ils sont normalement connectés à cet appareil.",,"Hvis der bruges dommerudstyr, er de normalt forbundet til dette display.",,"Если используются судейские устройства, они обычно подключаются к этому дисплею.","Om domarenheter används, är de vanligtvis anslutna till den här skärmen."
-Refereeing_Displays,Athlete-facing Timer/Down/Decisions,Chrono/Terre/Décisions (face à l'athlète),,Atlet-vendt Timer/Nedsignal/Afgørelse,,Экран решения для спортсмена,Lyftarens Timer/nersignal/Beslut
+Scoreboards,Scoreboards,Tableaux d'affichage,,Resultattavler,Marcadores,Таблицы результатов,Resultattavlor
+refereeingDevices,"If refereeing devices are used, they are usually connected to this display.","Si des claviers d'arbitrage sont utilisés,  ils sont normalement connectés à cet appareil.",,"Hvis der bruges dommerudstyr, er de normalt forbundet til dette display.","If refereeing devices are used, they are usually connected to this display.","Если используются судейские устройства, они обычно подключаются к этому дисплею.","Om domarenheter används, är de vanligtvis anslutna till den här skärmen."
+Refereeing_Displays,Athlete-facing Timer/Down/Decisions,Chrono/Terre/Décisions (face à l'athlète),,Atlet-vendt Timer/Nedsignal/Afgørelse,Athlete-facing Timer/Down/Decisions,Экран решения для спортсмена,Lyftarens Timer/nersignal/Beslut
 Membership,Membership #,Nº membre,,VL-Stat nr,Nº de socio,Членский номер,Medlemskap #
 Confirm,Conform,Confirmer,,Bekræft,Confirmar,Подтвердить,Anpassa
 MedalsOnly,Medals Only,Médailles seulement,,Vis medaljer,Show Medals Only,Медалисты,Endast medaljer
 RecomputeRanks,Recompute Ranks,Recalculer les rangs,,Recompute Ranks,Recompute Ranks,Перерасчёт мест,Räkna om ranking
+TotalRank,Total Rank,Rang Total,,Træk rang,Total Rank,Место (с),Ranking Total
