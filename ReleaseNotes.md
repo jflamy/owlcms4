@@ -3,6 +3,7 @@
   * Fix: on weigh-in, entering a body weight would clear the selected category if there was one (#221)
   * Fix: The results screen for the officials was not sorting the Robi, Sinclair, SMM results correctly (#223)
   * Fix: The results screen for the officials was not sorting first by category then by total rank as expected (#222) 
+  * Fix: Formatting of Jury/Referee Examination sheet to fit on one page  (#227)
   * Enhancement: initial translation for Swedish language.
 * Known issue:
   * Violation of the 20kg rule is shown only when submitting the registration or weigh-in card (Annoyance)
