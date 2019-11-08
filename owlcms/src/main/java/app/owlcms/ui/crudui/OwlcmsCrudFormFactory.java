@@ -40,6 +40,7 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.dom.ClassList;
 
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -134,8 +135,6 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         }
 
         List<HasValueAndElement> fields = buildFields(operation, domainObject, readOnly);
-        //FIXME: is setValidationStatusHandler required?
-        setValidationStatusHandler(true);
         fields.stream().forEach(field -> formLayout.getElement().appendChild(field.getElement()));
 
         Component footerLayout = this.buildFooter(operation, domainObject, cancelButtonClickListener,
@@ -388,7 +387,25 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         super.setFieldType(property, class1);
     }
 
-    abstract public void setValidationStatusHandler(boolean showErrorsOnFields);
+    public void setValidationStatusHandler(boolean showErrorsOnFields) {
+        binder.setValidationStatusHandler((s) -> {
+            valid = !s.hasErrors();
+            if (showErrorsOnFields)
+                s.notifyBindingValidationStatusHandlers();
+            if (!valid) {
+                logger.debug("validationStatusHandler updateFieldErrors={} {}", showErrorsOnFields,
+                        LoggerUtils.whereFrom());
+                if (errorLabel != null) {
+                    setErrorLabel(s, showErrorsOnFields);
+                }
+            } else {
+                if (errorLabel != null) {
+                    setErrorLabel(s, showErrorsOnFields);
+                    errorLabel.setVisible(false);
+                }
+            }
+        });
+    }
 
     /**
      * Force correcting one error at a time
@@ -398,15 +415,13 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
      * @return
      */
     protected boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean showErrorOnFields) {
-        
+        logger.debug("{} validations", this.getClass().getSimpleName());
         boolean hasErrors = validationStatus.getFieldValidationErrors().size() > 0;
         boolean showInLabel = !showErrorOnFields;
-        logger.warn("{} validations showInLabel={}", this.getClass().getSimpleName(), showInLabel);
 
         StringBuilder sb = new StringBuilder();
         for (BindingValidationStatus<?> ve : validationStatus.getFieldValidationErrors()) {
             HasValue<?, ?> field = ve.getField();
-            logger.warn("setErrorLabel {} {}", ve.getField(), ve.getMessage());
             if (showInLabel) {
                 // error message is only shown on label, we highlight the classes ourselves
                 ClassList fieldClasses = ((Component) field).getElement().getClassList();
@@ -419,7 +434,6 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
             if (field instanceof Focusable) {
                 ((Focusable<?>) field).focus();
             }
-            
             if (sb.length() > 0)
                 sb.append("; ");
             String message = ve.getMessage().orElse(Translator.translate("Error"));
