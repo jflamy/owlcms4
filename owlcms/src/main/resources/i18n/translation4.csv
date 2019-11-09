@@ -1,4 +1,4 @@
-key,en,fr,fr_CA,da,es,ru,sv
+﻿key,en,fr,fr_CA,da,es,ru,sv
 OWLCMS_Top,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Gestion de compétition d'haltérophilie,,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Управление соревнованиями по тяжелой атлетике,OWLCMS - Olympic Weightlifting Competition Management System
 About,About,A propos,À propos,Om,Acerca de,О системе,Om
 Active,Active,Actif,,Aktiv,Activo,Активная,Aktiv
@@ -280,7 +280,7 @@ Preparation_Competition,Preparation - Competition,Préparation - Compétition,,F
 Preparation_Groups,Preparation - Groups,Préparation - Groupes,,Forbered - Grupper,Preparation - Groups,Подготовка - Потоки,Förberedelse - Grupper
 Preparation_Platforms,Preparation - Platforms,Préparation - Plateformes,,Forbered - Platforme,Preparation - Platforms,Подготовка - Помосты,Förberedelse - Plattformar
 Preparation_Registration,Preparation - Registration,Préparation - Inscriptions,,Forbered - Registrering,Preparation - Registration,Подготовка - Регистрация,Förberedelse -  Registrering
-PrepareCompatition_description,"<li><b>{0}</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>","<li><b>{0}</b>: Entrer les coordonnées, inscrire les athlètes, définir les groupes, etc.<br></li>",,"<li><b>{0}</b>: Indtast konkurrence oplysninger, registrer atleter, definér grupper, osv.<br></li>","<li><b>{0}</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>","<li><b>{0}</b>: Введите место проведения соревнований, зарегистрируйте спортсменов, определите потоки и т.д.<br></li>","<li> <b> {0} </b>: Ange tävlingskoordinaterna, registrera idrottare, definiera grupper osv. </li> <li> <b> {0} </b>: Ange tävlingskoordinaterna, registrera idrottare, definiera grupperna osv. </li>"
+PrepareCompatition_description,"<li><b>{0}</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>","<li><b>{0}</b>: Entrer les coordonnées, inscrire les athlètes, définir les groupes, etc.<br></li>",,"<li><b>{0}</b>: Indtast konkurrence oplysninger, registrer atleter, definér grupper, osv.<br></li>","<li><b>{0}</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>","<li><b>{0}</b>: Введите место проведения соревнований, зарегистрируйте спортсменов, определите потоки и т.д.<br></li>","<li> <b> {0} </b>: Ange tävlingskoordinaterna, registrera idrottare, definiera grupperna osv.<br></li>"
 PrepareCompetition,Prepare Competition,Préparer la compétition,,Forbered konkurrence,Prepare Competition,Подготовка,Förbered tävling
 Print,Print,Imprimer,,Print,Imprimir,печатать,Skriv ut
 ProduceResults,Produce Results,Produire les résultats,,Udskriv resultater,Produce Results,Подготовить результаты,Producera resultat
@@ -412,7 +412,7 @@ Scoreboards,Scoreboards,Tableaux d'affichage,,Resultattavler,Marcadores,Табл
 refereeingDevices,"If refereeing devices are used, they are usually connected to this display.","Si des claviers d'arbitrage sont utilisés,  ils sont normalement connectés à cet appareil.",,"Hvis der bruges dommerudstyr, er de normalt forbundet til dette display.","If refereeing devices are used, they are usually connected to this display.","Если используются судейские устройства, они обычно подключаются к этому дисплею.","Om domarenheter används, är de vanligtvis anslutna till den här skärmen."
 Refereeing_Displays,Athlete-facing Timer/Down/Decisions,Chrono/Terre/Décisions (face à l'athlète),,Atlet-vendt Timer/Nedsignal/Afgørelse,Athlete-facing Timer/Down/Decisions,Экран решения для спортсмена,Lyftarens Timer/nersignal/Beslut
 Membership,Membership #,Nº membre,,VL-Stat nr,Nº de socio,Членский номер,Medlemskap #
-Confirm,Conform,Confirmer,,Bekræft,Confirmar,Подтвердить,Anpassa
-MedalsOnly,Medals Only,Médailles seulement,,Vis medaljer,Show Medals Only,Медалисты,Endast medaljer
-RecomputeRanks,Recompute Ranks,Recalculer les rangs,,Recompute Ranks,Recompute Ranks,Перерасчёт мест,Räkna om ranking
-TotalRank,Total Rank,Rang Total,,Træk rang,Total Rank,Место (с),Ranking Total
+Confirm,Confirm,Confirmer,,Bekræft,Confirmar,Подтвердить,Anpassa
+MedalsOnly,Medals Only,Médailles seulement,,Vis medaljeplaceringer,Medals Only,Медалисты,Endast medaljer
+RecomputeRanks,Recompute Ranks,Recalculer les rangs,,Genberegn placeringer,Recompute Ranks,Перерасчёт мест,Räkna om ranking
+TotalRank,Total Rank,Rang Total,,Placering Tokamp,Total Rank,Место (C),Ranking Total
