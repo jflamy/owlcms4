@@ -40,7 +40,10 @@ public interface BreakDisplay {
 	}
 
 	public default String inferMessage(BreakType bt) {
-		switch (bt) {
+	    if (bt == null) {
+	        return Translator.translate("CompetitionPaused");
+	    }
+	    switch (bt) {
 		case FIRST_CJ:
 			return Translator.translate("TimeBeforeNextLift");
 		case FIRST_SNATCH:
