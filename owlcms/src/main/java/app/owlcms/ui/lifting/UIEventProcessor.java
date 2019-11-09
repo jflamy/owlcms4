@@ -37,7 +37,12 @@ public interface UIEventProcessor {
 		if (attachedUI.isPresent()) {
 			try {
 				if (eventOrigin != null && eventOrigin.equals(selfOrigin)) return;
-				attachedUI.get().access(command);
+				if (attachedUI.get() != null) {
+				    attachedUI.get().access(command);
+				} else {
+				    // can't happen in theory, but does in practice !?
+				    UI.getCurrent().access(command);
+				}
 			} catch (UIDetachedException e1) {
 				if (uiEventBus != null) uiEventBus.unregister(attachedComponent);
 			}

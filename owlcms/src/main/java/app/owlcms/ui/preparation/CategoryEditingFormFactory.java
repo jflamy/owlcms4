@@ -48,4 +48,5 @@ class CategoryEditingFormFactory extends OwlcmsCrudFormFactory<Category> {
 	public void delete(Category Category) {
 		CategoryRepository.delete(Category);
 	}
+
 }

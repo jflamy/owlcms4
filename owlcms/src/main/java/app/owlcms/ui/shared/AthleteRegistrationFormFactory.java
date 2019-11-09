@@ -9,6 +9,7 @@ package app.owlcms.ui.shared;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.LoggerFactory;
@@ -18,19 +19,21 @@ import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
+import com.vaadin.flow.data.binder.BindingValidationStatus;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
-import com.vaadin.flow.data.value.ValueChangeMode;
 
 import app.owlcms.components.NavigationPage;
 import app.owlcms.components.fields.BodyWeightField;
@@ -144,29 +147,36 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     private void filterCategories(Category category) {
         Binding<Athlete, ?> genderBinding = binder.getBinding("gender").get();
         ComboBox<Gender> genderField = (ComboBox<Gender>) genderBinding.getField();
-        
+
         Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
         ComboBox<Category> categoryField = (ComboBox<Category>) categoryBinding.getField();
-        
+
         Binding<Athlete, ?> bodyWeightBinding = binder.getBinding("bodyWeight").get();
         BodyWeightField bodyWeightField = (BodyWeightField) bodyWeightBinding.getField();
         Double bodyWeight = bodyWeightField.getValue();
-        
-        ListDataProvider<Category> listDataProvider = new ListDataProvider<Category>(
-                CategoryRepository.findActive(genderField.getValue(),bodyWeight));
-        categoryField.setDataProvider(listDataProvider);       
-        
+
+        Collection<Category> allActive = CategoryRepository.findActive(genderField.getValue(), bodyWeight);
+        ListDataProvider<Category> listDataProvider = new ListDataProvider<Category>(allActive);
+        listDataProvider.addSortOrder(Category::getMinimumWeight, SortDirection.ASCENDING);
+        categoryField.setDataProvider(listDataProvider);
+
         genderField.addValueChangeListener((vc) -> {
             ListDataProvider<Category> listDataProvider2 = new ListDataProvider<Category>(
-                    CategoryRepository.findActive(genderField.getValue(),bodyWeightField.getValue()));
+                    CategoryRepository.findActive(genderField.getValue(), bodyWeightField.getValue()));
             categoryField.setDataProvider(listDataProvider2);
         });
         bodyWeightField.addValueChangeListener((vc) -> {
-            ListDataProvider<Category> listDataProvider2 = new ListDataProvider<Category>(
-                    CategoryRepository.findActive(genderField.getValue(),bodyWeightField.getValue()));
+            if (bodyWeightField.isInvalid())
+                return;
+            Category cat = categoryField.getValue();
+            Collection<Category> findActive = CategoryRepository.findActive(genderField.getValue(),
+                    bodyWeightField.getValue());
+            ListDataProvider<Category> listDataProvider2 = new ListDataProvider<Category>(findActive);
+            listDataProvider2.addSortOrder(Category::getMinimumWeight, SortDirection.ASCENDING);
             categoryField.setDataProvider(listDataProvider2);
+            categoryField.setValue(cat);
         });
-        
+
         categoryField.setValue(category);
     }
 
@@ -225,6 +235,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             validateYearOfBirth(bindingBuilder);
             HasValue<?, ?> bdateField = bindingBuilder.getField();
             bdateField.addValueChangeListener((e) -> {
+                BindingValidationStatus<?> validation = binder.getBinding("yearOfBirth").get().validate();
+                if (validation.isError())
+                    return;
                 Integer year = Integer.parseInt((String) e.getValue());
                 HasValue<?, ?> genderField = binder.getBinding("gender").get().getField();
                 Optional<Binding<Athlete, ?>> magBinding = binder.getBinding("mastersAgeGroup");
@@ -238,7 +251,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                     }
                 }
             });
-            bindingBuilder.bind(property);
+            Binding binding = bindingBuilder.bind(property);
+            logger.warn("validation status handler for date = {}",binding.getValidationStatusHandler());
         } else if ("category".equals(property)) {
             validateCategory(bindingBuilder);
             bindingBuilder.bind(property);
@@ -259,17 +273,15 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             TextField declField = (TextField) bindingBuilder.getField();
             declField.setPattern("^(-?\\d+)|()$"); // optional minus and at least one digit, or empty.
             declField.setPreventInvalidInput(true);
-            declField.setValueChangeMode(ValueChangeMode.ON_BLUR);
-            // ON_BLUR seems to be broken
-//			declField.addValueChangeListener((vc) -> {
-//				binder.getBinding(property).get().validate(true);
-//				logger.debug("BLUR validation of {}", property);
-//			});
 
-            bindingBuilder.withValidator(
-                    ValidationUtils.<String>checkUsing((unused) -> Athlete.validateStartingTotalsRule(editedAthlete,
-                            getIntegerFieldValue("snatch1Declaration"), getIntegerFieldValue("cleanJerk1Declaration"),
-                            getIntegerFieldValue("qualifyingTotal")), ""));
+            Validator<String> v2 = ValidationUtils.<String>checkUsing((unused) -> {
+                logger.warn("validating {}", property);
+                boolean validateStartingTotalsRule = Athlete.validateStartingTotalsRule(editedAthlete,
+                        getIntegerFieldValue("snatch1Declaration"), getIntegerFieldValue("cleanJerk1Declaration"),
+                        getIntegerFieldValue("qualifyingTotal"));
+                return validateStartingTotalsRule;
+            });
+            bindingBuilder.withValidator(v2);
             bindingBuilder.bind(property);
         } else {
             super.bindField(field, property, propertyType);
@@ -325,16 +337,12 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void validateBodyWeight(Binder.BindingBuilder bindingBuilder, boolean isRequired) {
-        Validator<Double> v1 = new DoubleRangeValidator(Translator.translate("Weight_under_350"), 0.0D, 350.0D);
+        Validator<Double> v1 = new DoubleRangeValidator(Translator.translate("Weight_under_350"), 0.1D, 350.0D);
         // check wrt body category
         Validator<Double> v2 = Validator.from((weight) -> {
-            if (!isRequired && weight == null)
-                return true;
-            // inconsistent selection is signaled on the category dropdown since the weight
-            // is a factual measure
-            Binding<Athlete, ?> categoryBinding = binder.getBinding("category").get();
-            categoryBinding.validate(true);
-            return true;
+            return (!isRequired && weight == null) || (weight != null && weight > 0.0);
+            // no need to do further validation because changing body weight resets the filter
+            // category drop-down, which causes a validation of the category.
         }, Translator.translate("BodyWeight_no_match_category"));
         bindingBuilder.withValidator(v1);
         bindingBuilder.withValidator(v2);
@@ -345,14 +353,19 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         // check that category is consistent with body weight
         Validator<Category> v1 = Validator.from((category) -> {
             try {
+                Binding<Athlete, ?> catBinding = binder.getBinding("category").get();
+                Category cat = (Category) catBinding.getField().getValue();
                 Binding<Athlete, ?> bwBinding = binder.getBinding("bodyWeight").get();
                 Double bw = (Double) bwBinding.getField().getValue();
-                if (category == null && bw == null)
+                if (category == null && bw == null) {
+                    logger.debug("1 category {} {} bw {}", category, cat, bw);
                     return true;
-                if (bw == null)
+                } else if (bw == null) {
+                    logger.debug("2 category {} {} bw {}", category.getName(), cat, bw);
                     // no body weight - no contradiction
                     return true;
-                if (bw != null && category == null) {
+                } else if (bw != null && category == null) {
+                    logger.warn("3 category {} {} bw {}", category, cat, bw);
                     return false;
                 }
                 Double min = category.getMinimumWeight();
@@ -396,6 +409,26 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         bindingBuilder.withValidator(v2);
     }
 
+    @Override
+    public void setValidationStatusHandler(boolean showErrorsOnFields) {
+        binder.setValidationStatusHandler((s) -> {
+            List<BindingValidationStatus<?>> fieldValidationErrors = s.getFieldValidationErrors();
+            for (BindingValidationStatus<?> error: fieldValidationErrors) {
+                HasValue<?, ?> field = error.getField();
+                logger.warn("error message: {} field: {}",error.getMessage(), field);
+                if (field instanceof HasValidation) {
+                   logger.warn("has validation");
+                   HasValidation vf = (HasValidation)field;
+                   vf.setInvalid(true);
+                   vf.setErrorMessage(error.getMessage().get());
+                   
+                }
+            }
+            valid = !s.hasErrors();
+            s.notifyBindingValidationStatusHandlers();
+        });
+    }
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void validateFullBirthDate(Binder.BindingBuilder bindingBuilder) {
         LocalDateField ldtf = (LocalDateField) bindingBuilder.getField();
@@ -414,6 +447,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     protected void validateYearOfBirth(Binder.BindingBuilder bindingBuilder) {
         String message = Translator.translate("InvalidYearFormat");
         RegexpValidator re = new RegexpValidator(message, "(19|20)[0-9][0-9]");
+//        Validator<String> re = ValidationUtils.checkUsing(val -> {
+//            logger.warn("validating val {}",val);
+//            return (val != null && val.length() == 4);
+//        }, "4 digits required");
         bindingBuilder.withValidator(re);
         StringToIntegerConverter converter = new StringToIntegerConverter(message) {
             @Override

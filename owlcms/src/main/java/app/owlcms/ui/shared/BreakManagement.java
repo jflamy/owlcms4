@@ -379,6 +379,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             guessCountdownFromBreak(bType);
         }
 
+        // FIXME: values can be null
         final LocalDateTime target;
         if (cType == CountdownType.DURATION) {
             Duration value = durationField.getValue();

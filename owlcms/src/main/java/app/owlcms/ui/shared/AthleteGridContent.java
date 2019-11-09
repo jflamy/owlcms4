@@ -177,6 +177,12 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     public void busyBreakButton() {
+        //FIXME: breakButton null
+        //        at app.owlcms.ui.shared.AthleteGridContent.busyBreakButton(AthleteGridContent.java:180)
+        //        at app.owlcms.ui.shared.AthleteGridContent.lambda$syncWithFOP$7(AthleteGridContent.java:736)
+        //        at app.owlcms.init.OwlcmsSession.withFop(OwlcmsSession.java:92)
+        //        at app.owlcms.ui.shared.AthleteGridContent.syncWithFOP(AthleteGridContent.java:700)
+        //        at app.owlcms.ui.shared.AthleteGridContent.lambda$slaveBreakDone$a2e7e93b$1(AthleteGridContent.java:615)
         breakButton.getElement().setAttribute("theme", "primary error");
         breakButton.getStyle().set("color", "white");
         breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
@@ -743,6 +749,11 @@ public abstract class AthleteGridContent extends VerticalLayout
                     if (decisions != null) {
                         decisions.setVisible(true);
                     }
+                    //FIXME: breakButton null
+                    //    at app.owlcms.ui.shared.AthleteGridContent.lambda$syncWithFOP$7(AthleteGridContent.java:746)
+                    //    at app.owlcms.init.OwlcmsSession.withFop(OwlcmsSession.java:92)
+                    //    at app.owlcms.ui.shared.AthleteGridContent.syncWithFOP(AthleteGridContent.java:700)
+                    //    at app.owlcms.ui.shared.AthleteGridContent.lambda$slaveBreakDone$a2e7e93b$1(AthleteGridContent.java:615)
                     breakButton.setText("");
                     quietBreakButton(this instanceof JuryContent);
                 }

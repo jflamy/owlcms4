@@ -1,10 +1,11 @@
-- See the [Web Site](https://jflamy.github.io/owlcms4/#) for an overview and [live demo](https://jflamy.github.io/owlcms4/#/?id=demo) 
-* Release Highlights: minor usability and cosmetic fixes
-  * Fix: add missing Jury / Referee Examination sheet generation button on weigh-in page #213
-  * Fix: starting weight / athlete cards were not tracking the selected group correctly #212
-  * Enhancement: filter to show only the medals on the results screen used by the announcer #214
-  * Enhancement: sign the Windows executable with an Authenticode certificate to quiet down Windows Defender #215
-- [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc)
+* Release Highlights: 
+  * Fix: on weigh-in, entering a body weight would needlessly clear the selected category if there was one (#221)
+  * Fix: The results screen for the officials was not sorting the Robi, Sinclair, SMM results correctly (#223)
+  * Fix: The results screen for the officials was not reliably sorting by category then by total rank as expected (#222) 
+  * Fix: Formatting of Jury/Referee Examination sheet to fit on one page  (#227)
+  * Enhancement: initial translation for Swedish language.
+- [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc) and [Work in progress](https://github.com/jflamy/owlcms4/projects/1)
+
 - Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 
     

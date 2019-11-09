@@ -10,7 +10,6 @@ import java.util.Collection;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
-import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.grid.Grid;
@@ -42,7 +41,7 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation/groups", layout = GroupLayout.class)
 public class GroupContent extends VerticalLayout implements CrudListener<Group>, OwlcmsContent {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(GroupContent.class);
+    final static Logger logger = (Logger) LoggerFactory.getLogger(GroupContent.class);
     static {
         logger.setLevel(Level.INFO);
     }
@@ -125,62 +124,7 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
      * @return the actual factory, with the additional mechanisms to do validation
      */
     private OwlcmsCrudFormFactory<Group> createGroupEditingFormFactory() {
-        return new OwlcmsCrudFormFactory<Group>(Group.class) {
-
-//			@SuppressWarnings({ "unchecked", "rawtypes" })
-//			@Override
-//			protected void bindField(HasValue field, String property, Class<?> propertyType) {
-//				Binder.BindingBuilder bindingBuilder = binder.forField(field);
-//				
-//				if ("competitionTime".equals(property)) {
-//					LocalDateTimeField ldtf = (LocalDateTimeField)field;
-//					Validator<LocalDateTime> fv = ldtf.formatValidation(locale);
-//					bindingBuilder.withValidator(fv).bind(property);
-//				} else if ("weighInTime".equals(property)) {
-//					LocalDateTimeField ldtf = (LocalDateTimeField)field;
-//					Validator<LocalDateTime> fv = ldtf.formatValidation(locale);
-//					bindingBuilder.withValidator(fv).bind(property);
-//				} else {
-//					super.bindField(field, property, propertyType);
-//				}
-//			}
-
-            /**
-             * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.crud.CrudOperation,
-             *      java.lang.Object)
-             */
-            @Override
-            public String buildCaption(CrudOperation operation, Group domainObject) {
-                if (domainObject.getName() == null || domainObject.getName().isEmpty()) {
-                    return "";
-                } else {
-                    return domainObject.getName();
-                }
-            }
-
-            @Override
-            public Group add(Group group) {
-                GroupRepository.save(group);
-                return group;
-            }
-
-            @Override
-            public Group update(Group group) {
-                logger.debug("saving group {} {}", group.getName(), group.getCompetitionTime());
-                return GroupRepository.save(group);
-            }
-
-            @Override
-            public void delete(Group group) {
-                GroupRepository.delete(group);
-            }
-
-            @Override
-            public Collection<Group> findAll() {
-                // implemented on grid
-                return null;
-            }
-        };
+        return new GroupEditingFormFactory(Group.class);
     }
 
     public Group add(Group domainObjectToAdd) {

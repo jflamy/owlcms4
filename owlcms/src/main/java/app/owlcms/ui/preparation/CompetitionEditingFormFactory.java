@@ -65,4 +65,5 @@ class CompetitionEditingFormFactory extends OwlcmsCrudFormFactory<Competition> {
 	public void delete(Competition domainObjectToDelete) {
 		// not used
 	}
+
 }
