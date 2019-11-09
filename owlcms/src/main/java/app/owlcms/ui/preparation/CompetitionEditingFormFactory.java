@@ -66,9 +66,4 @@ class CompetitionEditingFormFactory extends OwlcmsCrudFormFactory<Competition> {
 		// not used
 	}
 
-    @Override
-    public void setValidationStatusHandler(boolean showErrorsOnFields) {
-        // TODO Auto-generated method stub
-        
-    }
 }

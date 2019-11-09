@@ -50,9 +50,4 @@ class GroupEditingFormFactory extends OwlcmsCrudFormFactory<Group> {
         return null;
     }
 
-    @Override
-    public void setValidationStatusHandler(boolean showErrorsOnFields) {
-        // TODO Auto-generated method stub
-        
-    }
 }

@@ -33,6 +33,7 @@ import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
+import com.vaadin.flow.data.validator.RegexpValidator;
 
 import app.owlcms.components.NavigationPage;
 import app.owlcms.components.fields.BodyWeightField;
@@ -445,12 +446,11 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void validateYearOfBirth(Binder.BindingBuilder bindingBuilder) {
         String message = Translator.translate("InvalidYearFormat");
-//TODO: restore after mystery of missing error message is solved
-//        RegexpValidator re = new RegexpValidator(message, "(19|20)[0-9][0-9]");
-        Validator<String> re = ValidationUtils.checkUsing(val -> {
-            logger.warn("validating val {}",val);
-            return (val != null && val.length() == 4);
-        }, "4 digits required");
+        RegexpValidator re = new RegexpValidator(message, "(19|20)[0-9][0-9]");
+//        Validator<String> re = ValidationUtils.checkUsing(val -> {
+//            logger.warn("validating val {}",val);
+//            return (val != null && val.length() == 4);
+//        }, "4 digits required");
         bindingBuilder.withValidator(re);
         StringToIntegerConverter converter = new StringToIntegerConverter(message) {
             @Override

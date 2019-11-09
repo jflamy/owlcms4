@@ -57,9 +57,4 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
         // implemented on grid
         return null;
     }
-
-    @Override
-    public void setValidationStatusHandler(boolean showErrorsOnFields) {
-        // TODO Auto-generated method stub
-    }
 }
