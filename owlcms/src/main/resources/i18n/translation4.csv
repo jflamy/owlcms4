@@ -1,4 +1,4 @@
-﻿key,en,fr,fr_CA,da,es,ru,sv
+key,en,fr,fr_CA,da,es,ru,sv
 OWLCMS_Top,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Gestion de compétition d'haltérophilie,,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Управление соревнованиями по тяжелой атлетике,OWLCMS - Olympic Weightlifting Competition Management System
 About,About,A propos,À propos,Om,Acerca de,О системе,Om
 Active,Active,Actif,,Aktiv,Activo,Активная,Aktiv
@@ -175,8 +175,8 @@ Delete_title,Delete {0},Effacer {0},,Slet {0},Eliminar {0},Удалить {0},Ra
 DeleteAthletes,Delete Athletes,Détruire athlètes,,Slet løftere,Borrar atletas,Удалить спортсменов,Radera atleter
 DeleteAthletes_forListed,Delete Athletes Currently Listed,Détruire athlètes actuellement listés,,Slet valgte atleter,Delete Athletes Currently Listed,Удалить перечисленных спортсменов,Radera listade atleter
 Display,Display,Afficher,,Display,Marcador,Экран,Skärm
-DisplayType.ATHLETE,Attempt Info,Information sur l'essai,,Nuværende forsøg,Attempt Info,Информация о попытке,Försöks information
-DisplayType.COUNTDOWN,Countdown clock,Horloge de décompte,,Nedtællingsur,Countdown clock,Таймер,Nedräkningsklocka
+DisplayType.LIFT_INFO,Attempt Info,Information sur l'essai,,Nuværende forsøg,Attempt Info,Информация о попытке,Försöks information
+DisplayType.COUNTDOWN_INFO,Countdown clock,Horloge de décompte,,Nedtællingsur,Countdown clock,Таймер,Nedräkningsklocka
 DisplayType.Title,Attempt Board Information,Information sur l'écran d'essai courant,,Attempt Board Information,Attempt Board Information,Экран попытки,Försöks skärms information
 Documentation,<li>See also the <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> for,<li>Voir aussi la <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> pour,,<li>Se endvidere dokumentation på <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> for,<li>See also the <a href='https://jflamy.github.io/owlcms4/#/index'>documentation</a> for,См. также<a href='https://jflamy.github.io/owlcms4/#/index'> документацию</a> для,<li>Se även <a href='https://jflamy.github.io/owlcms4/#/index'>dokumentation</a> för
 Documentation_Menu,Documentation,Documentation,,Dokumentation,Documentación,Документация,Dokumentation

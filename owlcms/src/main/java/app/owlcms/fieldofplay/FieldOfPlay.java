@@ -52,6 +52,7 @@ import app.owlcms.fieldofplay.FOPEvent.WeightChange;
 import app.owlcms.i18n.Translator;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
+import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -133,6 +134,8 @@ public class FieldOfPlay {
 
     private boolean testingMode;
 
+    private CountdownType countdownType;
+
     /**
      * Instantiates a new field of play state. When using this constructor
      * {@link #init(List, IProxyTimer)} must later be used to provide the athletes
@@ -189,58 +192,59 @@ public class FieldOfPlay {
 
     /**
      * Perform weight change and adjust state.
-     * 
+     *
      * If the clock was started and we come back to the clock owner, we set the
      * state to TIME_STARTED If in a break, we are careful not to update, unless the
      * change causes an exit from the break (e.g. jury overrule on last lift)
      * Otherwise we update the displays.
-     * 
+     *
      * @param wc
      */
     private void doWeightChange(WeightChange wc) {
         Athlete changingAthlete = wc.getAthlete();
         Integer newWeight = changingAthlete.getNextAttemptRequestedWeight();
-        logger.warn("&&1 cur={} curWeight={} changing={} newWeight={}", curAthlete, curWeight, changingAthlete,
+        logger.debug("&&1 cur={} curWeight={} changing={} newWeight={}", curAthlete, curWeight, changingAthlete,
                 newWeight);
-        logger.warn("&&2 clockOwner={} clockLastStopped={} state={}", clockOwner,
+        logger.debug("&&2 clockOwner={} clockLastStopped={} state={}", clockOwner,
                 getAthleteTimer().getTimeRemainingAtLastStop(), state);
 
         boolean stopAthleteTimer = false;
         if (clockOwner != null && getAthleteTimer().isRunning()) {
             // time is running
             if (changingAthlete.equals(clockOwner)) {
-                logger.warn("&&3.A clock IS running for changing athlete {}", changingAthlete);
+                logger.debug("&&3.A clock IS running for changing athlete {}", changingAthlete);
                 // X is the current lifter
                 // if a real change (and not simply a declaration that does not change weight),
                 // make sure clock is stopped.
                 if (curWeight != newWeight) {
-                    logger.warn("&&3.A.A1 weight change for clock owner: clock running: stop clock");
+                    logger.debug("&&3.A.A1 weight change for clock owner: clock running: stop clock");
                     getAthleteTimer().stop(); // memorize time
                     stopAthleteTimer = true; // make sure we broacast to clients
                     doWeightChange(wc, changingAthlete, clockOwner, stopAthleteTimer);
                 } else {
-                    logger.warn("&&3.A.B declaration at same weight for clock owner: leave clock running");
+                    logger.debug("&&3.A.B declaration at same weight for clock owner: leave clock running");
                     // no actual weight change. this is most likely a declaration.
-                    // we do the call to trigger a notification on official's screens, but request that the clock keep running
+                    // we do the call to trigger a notification on official's screens, but request
+                    // that the clock keep running
                     doWeightChange(wc, changingAthlete, clockOwner, false);
                     return;
                 }
             } else {
-                logger.warn("&&3.B clock running, but NOT for changing athlete, do not update attempt board");
+                logger.debug("&&3.B clock running, but NOT for changing athlete, do not update attempt board");
                 weightChangeDoNotDisturb(wc);
                 return;
             }
         } else if (clockOwner != null && !getAthleteTimer().isRunning()) {
-            logger.warn("&&3.B clock NOT running for changing athlete {}", changingAthlete);
+            logger.debug("&&3.B clock NOT running for changing athlete {}", changingAthlete);
             // time was started (there is an owner) but is not currently running
             // time was likely stopped by timekeeper because coach signaled change of weight
             doWeightChange(wc, changingAthlete, clockOwner, true);
         } else {
-            logger.warn("&&3.C1 no clock owner, time is not running");
+            logger.debug("&&3.C1 no clock owner, time is not running");
             // time is not running
             recomputeLiftingOrder();
             setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
-            logger.warn("&&3.C2 displaying, curAthlete={}, state={}", curAthlete, state);
+            logger.debug("&&3.C2 displaying, curAthlete={}, state={}", curAthlete, state);
             uiDisplayCurrentAthleteAndTime(true, wc, false);
             updateGlobalRankings();
         }
@@ -329,6 +333,10 @@ public class FieldOfPlay {
 
     private Athlete getClockOwner() {
         return clockOwner;
+    }
+
+    public CountdownType getCountdownType() {
+        return countdownType;
     }
 
     /**
@@ -462,7 +470,7 @@ public class FieldOfPlay {
      */
     @Subscribe
     public void handleFOPEvent(FOPEvent e) {
-        logger.debug("state {}, event received {}", this.getState(), e.getClass().getSimpleName());
+        logger.debug("state {}, event received {} {}", this.getState(), e.getClass().getSimpleName(), e);
         // it is always possible to explicitly interrupt competition (break between the
         // two lifts, technical incident, etc.)
         if (e instanceof BreakStarted) {
@@ -801,6 +809,10 @@ public class FieldOfPlay {
         this.clockOwner = athlete;
     }
 
+    private void setCountdownType(CountdownType countdownType) {
+        this.countdownType = countdownType;
+    }
+
     private void setCurAthlete(Athlete athlete) {
         logger.trace("changing curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.curAthlete = athlete;
@@ -878,8 +890,8 @@ public class FieldOfPlay {
     /**
      * Don't interrupt break if official-induced break. Interrupt break if it is
      * simply "group done".
-     * 
-     * @param newState  the state we want to go to if there is no break
+     *
+     * @param newState the state we want to go to if there is no break
      */
     private void setStateUnlessInBreak(FOPState newState) {
         if (state == INACTIVE) {
@@ -997,15 +1009,28 @@ public class FieldOfPlay {
     }
 
     private void transitionToBreak(BreakStarted e) {
-        if (state == BREAK && (this.breakType != BreakType.GROUP_DONE && getBreakTimer().isRunning())) {
-            logger.error("break already started {}", LoggerUtils.stackTrace());
-        } else {
+        ProxyBreakTimer breakTimer2 = getBreakTimer();
+        if (state == BREAK && breakTimer2.isRunning()) {
+            // changing the kind of break
+            logger.debug("current {} new {}",getBreakType(),e.getBreakType());
+            breakTimer2.stop();
+        }
+        {
             BreakType breakType2 = e.getBreakType();
-            logger.trace("transition to break {}", breakType2);
             setState(BREAK);
             this.setBreakType(breakType2);
+            this.setCountdownType(e.getCountdownType());
             getAthleteTimer().stop();
-            getBreakTimer().start();
+
+            if (e.isIndefinite()) {
+                breakTimer2.setIndefinite();
+            } else {
+                breakTimer2.setTimeRemaining(e.getTimeRemaining());
+                breakTimer2.setEnd(e.getTargetTime());
+            }
+            // this will broadcast to all slave break timers
+            breakTimer2.start();
+            logger.trace("started break timers {}", breakType2);
         }
     }
 
@@ -1110,9 +1135,10 @@ public class FieldOfPlay {
 
     private void unexpectedEventInState(FOPEvent e, FOPState state) {
         // events not worth signaling
-        if (e instanceof DecisionReset || e instanceof DecisionFullUpdate)
+        if (e instanceof DecisionReset || e instanceof DecisionFullUpdate) {
             // ignore
             return;
+        }
         String text = Translator.translate("Unexpected_Notification", e.getClass().getSimpleName(), state);
         logger/**/.warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
         Notification.show(text, 5000, Position.BOTTOM_END);

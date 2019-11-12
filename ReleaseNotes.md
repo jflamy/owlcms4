@@ -1,9 +1,6 @@
 * Release Highlights: 
-  * Fix: on weigh-in, entering a body weight would needlessly clear the selected category if there was one (#221)
-  * Fix: The results screen for the officials was not sorting the Robi, Sinclair, SMM results correctly (#223)
-  * Fix: The results screen for the officials was not reliably sorting by category then by total rank as expected (#222) 
-  * Fix: Formatting of Jury/Referee Examination sheet to fit on one page  (#227)
-  * Enhancement: initial translation for Swedish language.
+  * Enhancement: more intuitive behaviour of break timer management (#226)
+  * Enhancement: improved Swedish translation.
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc) and [Work in progress](https://github.com/jflamy/owlcms4/projects/1)
 
 - Installation Instructions :

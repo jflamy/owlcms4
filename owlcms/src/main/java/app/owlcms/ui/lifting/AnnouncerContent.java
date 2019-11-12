@@ -173,6 +173,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
         introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(), (e) -> {
             BreakDialog dialog = new BreakDialog(this, BreakType.INTRODUCTION, CountdownType.TARGET);
+
             dialog.open();
         });
         introCountdownButton.getElement().setAttribute("theme", "primary contrast");

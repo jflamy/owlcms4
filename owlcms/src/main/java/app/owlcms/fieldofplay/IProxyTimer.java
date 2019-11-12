@@ -61,6 +61,5 @@ public interface IProxyTimer {
      * @return true if actively running (not paused)
      */
     public boolean isRunning();
-    
 
 }

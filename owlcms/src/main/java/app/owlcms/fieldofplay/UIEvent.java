@@ -1,33 +1,30 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.fieldofplay;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
+import app.owlcms.ui.shared.BreakManagement.CountdownType;
 
 /**
  * UIEvents are triggered in response to field of play events (FOPEvents). Each
  * field of play has an associated uiEventBus on which the user interface
  * commands are posted. The various browsers subscribe to UIEvents and react
  * accordingly.
- * 
+ *
  * @author owlcms
  */
 public class UIEvent {
-
-    static public class GlobalRankingUpdated extends UIEvent {
-        public GlobalRankingUpdated(Object object) {
-            super(object);
-        }
-    }
 
     static public class BarbellOrPlatesChanged extends UIEvent {
         public BarbellOrPlatesChanged(Object object) {
@@ -59,7 +56,7 @@ public class UIEvent {
         /**
          * Instantiates a new break paused.
          *
-         * @param origin      the origin
+         * @param origin the origin
          */
         public BreakPaused(Object origin) {
             super(origin);
@@ -72,13 +69,46 @@ public class UIEvent {
      */
     static public class BreakSetTime extends UIEvent {
 
-        private Integer timeRemaining;
-        private boolean indefinite;
+        protected Integer timeRemaining;
+        protected boolean indefinite;
+        protected LocalDateTime end;
+        protected BreakType breakType;
+        protected CountdownType countdownType;
 
-        public BreakSetTime(Integer timeRemaining, boolean indefinite, Object origin) {
+        public BreakSetTime(BreakType bt, CountdownType ct, Integer timeRemaining, boolean indefinite, Object origin) {
             super(origin);
-            this.timeRemaining = timeRemaining;
-            this.indefinite = indefinite;
+            if (bt == BreakType.TECHNICAL || bt == BreakType.JURY) {
+                this.indefinite = true;
+                this.end = null;
+            } else {
+                this.timeRemaining = timeRemaining;
+                this.indefinite = false;
+                this.end = LocalDateTime.now().plusNanos(timeRemaining * 1000);
+            }
+            this.breakType = bt;
+            this.countdownType = ct;
+        }
+
+        public BreakSetTime(BreakType bt, CountdownType ct, LocalDateTime end, Object origin) {
+            super(origin);
+            if (bt == BreakType.TECHNICAL || bt == BreakType.JURY) {
+                this.indefinite = true;
+                this.end = end;
+            } else {
+                timeRemaining = (int) LocalDateTime.now().until(end, ChronoUnit.MILLIS);
+                this.indefinite = false;
+                this.end = end;
+            }
+            this.breakType = bt;
+            this.countdownType = ct;
+        }
+
+        public BreakType getBreakType() {
+            return breakType;
+        }
+
+        public LocalDateTime getEnd() {
+            return end;
         }
 
         public Integer getTimeRemaining() {
@@ -96,15 +126,40 @@ public class UIEvent {
     /**
      * Class BreakStarted.
      */
+    // MUST NOT EXTEND otherwise subscription triggers on supertype as well
     static public class BreakStarted extends UIEvent {
 
-        private Integer timeRemaining;
         private boolean displayToggle;
 
-        public BreakStarted(Integer timeRemaining, Object origin, boolean displayToggle) {
+        protected Integer timeRemaining;
+
+        protected boolean indefinite;
+
+        protected LocalDateTime end;
+
+        protected BreakType breakType;
+
+        protected CountdownType countdownType;
+
+        public BreakStarted(Integer timeRemaining, Object origin, boolean displayToggle, BreakType bt,
+                CountdownType ct) {
             super(origin);
             this.timeRemaining = timeRemaining;
+            this.indefinite = (ct != null && ct == CountdownType.TARGET) || (timeRemaining == null);
+            if (timeRemaining != null) {
+                this.end = LocalDateTime.now().plusNanos(timeRemaining * 1000);
+            }
+            this.breakType = bt;
+            this.countdownType = ct;
             this.setDisplayToggle(displayToggle);
+        }
+
+        public BreakType getBreakType() {
+            return breakType;
+        }
+
+        public LocalDateTime getEnd() {
+            return end;
         }
 
         public Integer getTimeRemaining() {
@@ -120,10 +175,24 @@ public class UIEvent {
         }
 
         /**
+         * @return true if break lasts indefinitely and timeRemaining should be ignored
+         */
+        public boolean isIndefinite() {
+            return indefinite;
+        }
+
+        /**
          * @param displayToggle true to request switching to Break Timer
          */
         public void setDisplayToggle(boolean displayToggle) {
             this.displayToggle = displayToggle;
+        }
+
+        @Override
+        public String toString() {
+            return "UIEvent.BreakStarted [displayToggle=" + displayToggle + ", timeRemaining=" + timeRemaining
+                    + ", indefinite=" + indefinite + ", end=" + end + ", breakType=" + breakType + ", countdownType="
+                    + countdownType + "]";
         }
     }
 
@@ -193,6 +262,12 @@ public class UIEvent {
         }
     }
 
+    static public class GlobalRankingUpdated extends UIEvent {
+        public GlobalRankingUpdated(Object object) {
+            super(object);
+        }
+    }
+
     static public class GroupDone extends UIEvent {
 
         private Group group;
@@ -244,7 +319,8 @@ public class UIEvent {
          * @param liftingOrder    the lifting order
          * @param displayOrder    the display order
          * @param timeAllowed     the time allowed
-         * @param displayToggle   if true, just update display according to lifting order.
+         * @param displayToggle   if true, just update display according to lifting
+         *                        order.
          * @param origin          the origin
          */
         public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete,
@@ -311,10 +387,6 @@ public class UIEvent {
             return timeAllowed;
         }
 
-        public boolean isDisplayToggle() {
-            return displayToggle;
-        }
-        
         /**
          * @return true if the current event requires to stop the timer
          */
@@ -322,12 +394,16 @@ public class UIEvent {
             return currentDisplayAffected;
         }
 
-        public void setDisplayToggle(boolean displayToggle) {
-            this.displayToggle = displayToggle;
+        public boolean isDisplayToggle() {
+            return displayToggle;
         }
 
         public boolean isInBreak() {
             return inBreak;
+        }
+
+        public void setDisplayToggle(boolean displayToggle) {
+            this.displayToggle = displayToggle;
         }
 
         public void setInBreak(boolean inBreak) {
@@ -338,9 +414,9 @@ public class UIEvent {
 
     /**
      * Individual referee decision.
-     * 
+     *
      * No subclassing wrt ExplicitDecision because @Subscribe must be distinct.
-     * 
+     *
      * @author owlcms
      */
     static public class RefereeUpdate extends UIEvent {
@@ -422,7 +498,7 @@ public class UIEvent {
          *
          * @param timeRemaining the time remaining
          * @param origin        the origin
-         * @param silent 
+         * @param silent
          */
         public StartTime(Integer timeRemaining, Object origin, boolean silent) {
             super(origin);
