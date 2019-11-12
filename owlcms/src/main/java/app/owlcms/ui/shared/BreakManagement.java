@@ -336,7 +336,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 fop.getFopEventBus().post(new FOPEvent.BreakPaused(this.getOrigin()));
             }
         });
-        logger.warn("paused; enabling start");
+        logger.debug("paused; enabling start");
         startEnabled();
     }
 
