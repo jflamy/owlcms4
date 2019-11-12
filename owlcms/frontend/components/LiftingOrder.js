@@ -183,7 +183,7 @@ th, td {
 .masters {
 	display: table-cell;
 	text-align: center;
-	width: var(--veryNarrow-width);
+	width: var(--narrow-width);
 }
 
 .mastersHidden {
@@ -349,7 +349,7 @@ th, td {
 			<th width="9%" class="narrow" inner-h-t-m-l="[[t.RequestedWeight]]"></th>
 			<th width="9%" class="narrow" inner-h-t-m-l="[[t.NextAttempt]]"></th>
 			<th width="9%" class$="[[_computeMasters(masters)]]" inner-h-t-m-l="[[t.AgeGroup]]"></th>
-			<th width="9%" inner-h-t-m-l="[[t.Category]]"></th>
+			<th width="9%" class="narrow" inner-h-t-m-l="[[t.Category]]"></th>
 			<th width="20%" class='club' inner-h-t-m-l="[[t.Team]]"></th>
 		</tr>
 	</thead>
@@ -364,7 +364,7 @@ th, td {
 				<td width="9%" class$="[[l.classname]]" style="text-align: center;">[[l.requestedWeight]]</td>
 				<td width="9%" class$="[[l.classname]]" style="text-align: center;">[[l.nextAttemptNo]]</td>			
 				<td width="9%" class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
-				<td width="9%" style="text-align: center;" >[[l.category]]</td>
+				<td width="9%" class="narrow" style="text-align: center;" >[[l.category]]</td>
 				<td width="20%" class="club ellipsis">[[l.teamName]]</td>	
 			</tr>
 		</template>
