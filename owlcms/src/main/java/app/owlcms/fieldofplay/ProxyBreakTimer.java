@@ -6,6 +6,8 @@
  */
 package app.owlcms.fieldofplay;
 
+import java.time.LocalDateTime;
+
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.utils.LoggerUtils;
@@ -36,6 +38,7 @@ public class ProxyBreakTimer implements IProxyTimer {
     private boolean running = false;
     private int timeRemainingAtLastStop;
     private boolean indefinite;
+    private LocalDateTime end;
 
     /**
      * Instantiates a new break timer proxy.
@@ -46,9 +49,23 @@ public class ProxyBreakTimer implements IProxyTimer {
         this.fop = fop;
     }
 
+    /**
+     * Compute time elapsed since start and adjust time remaining accordingly.
+     */
+    public int computeTimeRemaining() {
+        stopMillis = System.currentTimeMillis();
+        long elapsed = stopMillis - startMillis;
+        timeRemaining = (int) (timeRemaining - elapsed);
+        return timeRemaining;
+    }
+
     @Override
     public void finalWarning(Object origin) {
         // ignored
+    }
+
+    public LocalDateTime getEnd() {
+        return end;
     }
 
     /**
@@ -76,11 +93,31 @@ public class ProxyBreakTimer implements IProxyTimer {
     }
 
     /**
+     * @return the indefinite
+     */
+    public boolean isIndefinite() {
+        return indefinite;
+    }
+
+    /**
      * @see app.owlcms.fieldofplay.IProxyTimer#isRunning()
      */
     @Override
     public boolean isRunning() {
         return running;
+    }
+
+    public void setEnd(LocalDateTime targetTime) {
+        // used only to keep values as entered
+        this.end = targetTime;
+    }
+
+    public void setIndefinite() {
+        indefinite = true;
+        logger.debug("setting break indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
+        this.timeRemaining = 0;
+        fop.getUiEventBus().post(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining, this.indefinite, this));
+        running = false;
     }
 
     /**
@@ -94,7 +131,7 @@ public class ProxyBreakTimer implements IProxyTimer {
         }
         logger.debug("setting break timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
-        fop.getUiEventBus().post(new UIEvent.BreakSetTime(timeRemaining, this.indefinite, this));
+        fop.getUiEventBus().post(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining, this.indefinite, this));
         running = false;
     }
 
@@ -108,7 +145,9 @@ public class ProxyBreakTimer implements IProxyTimer {
             logger.debug("starting Break -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
             timeRemainingAtLastStop = timeRemaining;
         }
-        fop.getUiEventBus().post(new UIEvent.BreakStarted(isIndefinite() ? null : timeRemaining, null, false));
+        UIEvent.BreakStarted event = new UIEvent.BreakStarted(isIndefinite() ? null : timeRemaining, null, false, fop.getBreakType(), fop.getCountdownType());
+        logger.debug("posting {}",event);
+        fop.getUiEventBus().post(event);
         running = true;
     }
 
@@ -127,8 +166,11 @@ public class ProxyBreakTimer implements IProxyTimer {
         running = false;
     }
 
-    /* (non-Javadoc)
-     * @see app.owlcms.fieldofplay.IProxyTimer#timeOut(java.lang.Object) */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see app.owlcms.fieldofplay.IProxyTimer#timeOut(java.lang.Object)
+     */
     @Override
     public void timeOver(Object origin) {
         if (running) {
@@ -138,31 +180,6 @@ public class ProxyBreakTimer implements IProxyTimer {
         fop.getUiEventBus().post(new UIEvent.BreakDone(origin));
         fop.getFopEventBus().post(new FOPEvent.StartLifting(origin));
 
-    }
-
-    /**
-     * Compute time elapsed since start and adjust time remaining accordingly.
-     */
-    public int computeTimeRemaining() {
-        stopMillis = System.currentTimeMillis();
-        long elapsed = stopMillis - startMillis;
-        timeRemaining = (int) (timeRemaining - elapsed);
-        return timeRemaining;
-    }
-
-    public void setIndefinite() {
-        indefinite = true;
-        logger.debug("setting break indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
-        this.timeRemaining = 0;
-        fop.getUiEventBus().post(new UIEvent.BreakSetTime(timeRemaining, indefinite, this));
-        running = false;
-    }
-
-    /**
-     * @return the indefinite
-     */
-    public boolean isIndefinite() {
-        return indefinite;
     }
 
 }

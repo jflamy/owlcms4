@@ -6,6 +6,8 @@
  */
 package app.owlcms.fieldofplay;
 
+import java.time.LocalDateTime;
+
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
@@ -15,7 +17,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The subclasses of FOPEvent are all the events that can take place on the field of play.
+ * The subclasses of FOPEvent are all the events that can take place on the
+ * field of play.
  *
  * @author owlcms
  */
@@ -31,7 +34,6 @@ public class FOPEvent {
         }
     }
 
-
     /**
      * Class BreakPaused.
      */
@@ -42,49 +44,81 @@ public class FOPEvent {
         }
     }
 
-
     /**
      * Class BreakStarted.
      */
     static public class BreakStarted extends FOPEvent {
 
-        private BreakType breakType;
-        private CountdownType countdownType;
-
-        public BreakStarted(BreakType bType, Object origin) {
-            this(bType, null, origin);
+        @Override
+        public String toString() {
+            return "BreakStarted [breakType=" + breakType + ", countdownType=" + countdownType + ", timeRemaining="
+                    + timeRemaining + ", targetTime=" + targetTime + "]";
         }
 
-        public BreakStarted(BreakType bType, CountdownType cType, Object origin) {
+        private BreakType breakType;
+        private CountdownType countdownType;
+        private Integer timeRemaining;
+
+        public Integer getTimeRemaining() {
+            return timeRemaining;
+        }
+
+        public void setTimeRemaining(Integer timeRemaining) {
+            this.timeRemaining = timeRemaining;
+        }
+
+        public LocalDateTime getTargetTime() {
+            return targetTime;
+        }
+
+        public void setTargetTime(LocalDateTime targetTime) {
+            this.targetTime = targetTime;
+        }
+
+        private LocalDateTime targetTime;
+
+        public BreakStarted(BreakType bType, CountdownType cType, Integer timeRemaining, LocalDateTime targetTime,
+                Object origin) {
             super(origin);
             this.setBreakType(bType);
             this.setCountdownType(cType);
+            this.timeRemaining = timeRemaining;
+            this.targetTime = targetTime;
         }
 
         public BreakType getBreakType() {
             return breakType;
         }
 
-        public void setBreakType(BreakType breakType) {
-            this.breakType = breakType;
-        }
-
         public CountdownType getCountdownType() {
             return countdownType;
+        }
+
+        public void setBreakType(BreakType breakType) {
+            this.breakType = breakType;
         }
 
         public void setCountdownType(CountdownType countdownType) {
             this.countdownType = countdownType;
         }
-    }
 
+        public boolean isIndefinite() {
+            if (countdownType != null) {
+                return countdownType == CountdownType.INDEFINITE;
+            } else {
+                return breakType == BreakType.JURY || breakType == BreakType.TECHNICAL
+                        || breakType == BreakType.GROUP_DONE;
+            }
+        }
+    }
 
     /**
      * Report an individual decision.
      *
-     * No subclassing relationship with {@link ExplicitDecision} because of different @Subscribe requirements
+     * No subclassing relationship with {@link ExplicitDecision} because of
+     * different @Subscribe requirements
      */
-    public static class DecisionFullUpdate extends FOPEvent {
+    static public class DecisionFullUpdate extends FOPEvent {
         public Boolean ref1;
         public Boolean ref2;
         public Boolean ref3;
@@ -105,7 +139,6 @@ public class FOPEvent {
 
     }
 
-
     /**
      * The Class DecisionReset.
      */
@@ -116,6 +149,7 @@ public class FOPEvent {
         }
 
     }
+
     static public class DecisionUpdate extends FOPEvent {
 
         public boolean decision;
@@ -139,6 +173,7 @@ public class FOPEvent {
         }
 
     }
+
     /**
      * The Class ExplicitDecision.
      */
@@ -152,12 +187,14 @@ public class FOPEvent {
 
         /**
          * Instantiates a new referee decision.
+         *
          * @param decision the decision
          * @param ref1
          * @param ref2
          * @param ref3
          */
-        public ExplicitDecision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
+        public ExplicitDecision(Athlete athlete, Object origin, boolean decision, Boolean ref1, Boolean ref2,
+                Boolean ref3) {
             super(athlete, origin);
             logger.trace("referee decision for {}", athlete);
             this.success = decision;
@@ -177,7 +214,7 @@ public class FOPEvent {
         }
     }
 
-    public static class JuryDecision extends FOPEvent {
+    static public class JuryDecision extends FOPEvent {
         /** The decision. */
         public Boolean success = null;
 
@@ -200,7 +237,7 @@ public class FOPEvent {
 
     }
 
-    public static class SwitchGroup extends FOPEvent {
+    static public class SwitchGroup extends FOPEvent {
 
         private Group group;
 
@@ -214,7 +251,7 @@ public class FOPEvent {
         }
     }
 
-    static public class TimeOver extends FOPEvent{
+    static public class TimeOver extends FOPEvent {
 
         public TimeOver(Object origin) {
             super(origin);
@@ -222,16 +259,16 @@ public class FOPEvent {
 
     }
 
-    //	/**
-    //	 * The Class AthleteAnnounced.
-    //	 */
-    //	static public class AthleteAnnounced extends FOPEvent {
+    // /**
+    // * The Class AthleteAnnounced.
+    // */
+    // static public class AthleteAnnounced extends FOPEvent {
     //
-    //		public AthleteAnnounced(Object object) {
-    //			super(object);
-    //		}
+    // public AthleteAnnounced(Object object) {
+    // super(object);
+    // }
     //
-    //	}
+    // }
 
     /**
      * The Class StartTime.
@@ -266,15 +303,18 @@ public class FOPEvent {
 
     }
 
-    final Logger logger = (Logger)LoggerFactory.getLogger(FOPEvent.class);
+    final Logger logger = (Logger) LoggerFactory.getLogger(FOPEvent.class);
 
-    {logger.setLevel(Level./**/DEBUG);}
+    {
+        logger.setLevel(Level./**/DEBUG);
+    }
 
     /**
-     * When a FOPEvent (for example stopping the clock) is handled, it is often reflected
-     * as a series of UIEvents (for example, all the displays running the clock get told to
-     * stop it).  The user interface that gave the order doesn't want to be notified again,
-     * so we memorize which user interface element created the original order so it can ignore it.
+     * When a FOPEvent (for example stopping the clock) is handled, it is often
+     * reflected as a series of UIEvents (for example, all the displays running the
+     * clock get told to stop it). The user interface that gave the order doesn't
+     * want to be notified again, so we memorize which user interface element
+     * created the original order so it can ignore it.
      */
     protected Object origin;
 
@@ -285,7 +325,7 @@ public class FOPEvent {
         this.origin = origin;
     }
 
-    FOPEvent (Object origin) {
+    FOPEvent(Object origin) {
         this(null, origin);
     }
 
@@ -296,7 +336,6 @@ public class FOPEvent {
     public Object getOrigin() {
         return origin;
     }
-
 
     public void setAthlete(Athlete athlete) {
         this.athlete = athlete;

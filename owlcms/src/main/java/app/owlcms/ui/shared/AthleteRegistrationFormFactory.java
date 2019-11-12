@@ -365,7 +365,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                     // no body weight - no contradiction
                     return true;
                 } else if (bw != null && category == null) {
-                    logger.warn("3 category {} {} bw {}", category, cat, bw);
+                    logger.debug("3 category {} {} bw {}", category, cat, bw);
                     return false;
                 }
                 Double min = category.getMinimumWeight();
@@ -415,9 +415,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             List<BindingValidationStatus<?>> fieldValidationErrors = s.getFieldValidationErrors();
             for (BindingValidationStatus<?> error: fieldValidationErrors) {
                 HasValue<?, ?> field = error.getField();
-                logger.warn("error message: {} field: {}",error.getMessage(), field);
+                logger.debug("error message: {} field: {}",error.getMessage(), field);
                 if (field instanceof HasValidation) {
-                   logger.warn("has validation");
+                   logger.debug("has validation");
                    HasValidation vf = (HasValidation)field;
                    vf.setInvalid(true);
                    vf.setErrorMessage(error.getMessage().get());

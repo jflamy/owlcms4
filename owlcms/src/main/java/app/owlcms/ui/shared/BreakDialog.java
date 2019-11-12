@@ -12,6 +12,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import app.owlcms.fieldofplay.BreakType;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -30,8 +31,12 @@ public class BreakDialog extends Dialog {
      * @param origin the origin
      */
     public BreakDialog(Object origin) {
-        VerticalLayout content = new BreakManagement(origin, this);
+        BreakManagement content = new BreakManagement(origin, this);
         this.add(content);
+        this.addDialogCloseActionListener((e) -> {
+            OwlcmsSession.getFop().getUiEventBus().unregister(content);
+            this.close();
+        });
     }
 
     /**
@@ -42,6 +47,10 @@ public class BreakDialog extends Dialog {
     public BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
         VerticalLayout content = new BreakManagement(origin, brt, cdt, this);
         this.add(content);
+        this.addDialogCloseActionListener((e) -> {
+            OwlcmsSession.getFop().getUiEventBus().unregister(content);
+            this.close();
+        });
     }
 
 }
