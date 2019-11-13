@@ -47,7 +47,11 @@ public interface UIEventProcessor {
 				if (uiEventBus != null) uiEventBus.unregister(attachedComponent);
 			}
 		} else if (uiEventBus != null) {
-			uiEventBus.unregister(attachedComponent);
+		    try {
+		        uiEventBus.unregister(attachedComponent);
+		    } catch (Exception exc) {
+		        // ignore
+		    }
 		}
 	}
 

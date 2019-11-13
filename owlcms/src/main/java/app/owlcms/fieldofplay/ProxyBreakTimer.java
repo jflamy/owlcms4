@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 
 import org.slf4j.LoggerFactory;
 
+import com.google.common.eventbus.EventBus;
+
+import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -173,13 +176,23 @@ public class ProxyBreakTimer implements IProxyTimer {
      */
     @Override
     public void timeOver(Object origin) {
-        if (running) {
+        if (running && !isIndefinite()) {
             this.stop();
+        } else {
+            // we've already signaled time over.
+            return;
         }
         logger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+        //TODO: emit sound at end of break
         fop.getUiEventBus().post(new UIEvent.BreakDone(origin));
-        fop.getFopEventBus().post(new FOPEvent.StartLifting(origin));
-
+        
+        EventBus fopEventBus = fop.getFopEventBus();
+        BreakType breakType = fop.getBreakType();
+        if (breakType == BreakType.FIRST_SNATCH || breakType == BreakType.FIRST_CJ) {
+            fopEventBus.post(new FOPEvent.StartLifting(origin));
+        } else if (breakType == BreakType.BEFORE_INTRODUCTION) {
+            fopEventBus.post(new FOPEvent.BreakStarted(BreakType.DURING_INTRODUCTION, CountdownType.INDEFINITE, null, null, origin));
+        }
     }
 
 }

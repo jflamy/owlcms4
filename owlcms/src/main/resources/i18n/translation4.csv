@@ -31,15 +31,6 @@ BirthDate_cannot_future,Birth date cannot be in the future,La date de naissance 
 BirthDate_yyyy,Birth Date (yyyy-mm-dd),Date naissance (yyyy-mm-dd),,Født (yyyy-mm-dd),Fecha de nacimiento (yyyy-mm-dd),Дата рождения (yyyy-mm-dd),Födelsedag (yyyy-mm-dd)
 BodyWeight,Body Weight,Poids,,Vægt,Peso corporal,Собственный вес,Kroppsvikt
 BodyWeight_no_match_category,Body Weight is outside of selected category,Le poids ne correspond pas à la catégorie,,Kropsvægt passer ikke med den valgte klasse,Body Weight is outside of selected category,Собственный вес спортсмена выходит за пределы категории,Kroppsvikt är utanför den valda klassen
-BreakTimer,Break Timer,Chronomètre de pause,,Pause Timer,Break Timer,Остановить таймер,Paus timer
-BreakType,Break Type,Type de pause,,Pause Type,Break Type,Тип паузы,Paus typ
-BreakType.FIRST_CJ,First Clean&Jerk,Premier épaulé-jeté,,Første stød,First Clean&Jerk,Первый толчок,Ingång Stöt
-BreakType.FIRST_SNATCH,First Snatch,Premier arraché,,Første træk,First Snatch,Первый рывок,Ingång Ryck
-BreakType.GROUPE_DONE,End,Fin,,Slut,End,Поток завершен,Slut
-BreakType.INTRODUCTION,Introduction,Présentation,,Præsentation,Introduction,Представление,Intruduction
-BreakType.JURY,Jury Decision,Décision du jury,,Jury afgørelse,Jury Decision,Решение жюри,Jury beslut
-BreakType.TECHNICAL,Technical Issue,Problème technique,,Tekniske problemer,Technical Issue,Техническая пауза,Tekniska problem
-BreakType.Title,Waiting for…,En attente de…,,Afventer…,Waiting for…,Заголовок,Väntar
 BumperPlates,Bumper Plates,Grandes plaques,,Store skiver,Pesas grandes,Большие диски,Vikt plattor
 Button_Open_Display,Use one of the buttons below to open a display.,Utilisez un bouton ci-dessous pour démarrer un affichage,,Brug en af knapperne nedenfor for at åbne et display.,Use one of the buttons below to open a display.,Используйте одну из кнопок расположенных ниже для открытия экрана,Använd en av knapparna nedan för att öppna en diplay
 C_and_J_1,C.&J. 1,É.-J. 1,,Stød 1,D.T. 1,Т1,Stöt 1
@@ -150,11 +141,9 @@ CompetitionBook.WXT_LeftHeader,Team  Ranking (Custom),Classement par équipes (S
 CompetitionBook.WXT_RightHeader,Women,Femmes - Women,,Kvinder,Femenino,Женщины,Damer
 CompetitionDocuments_description,<li><b>{0}</b>: Produce printable documents for each group and the final results package.</li>,<li><b>{0}</b>: Produire les résultats imprimables pour chaque groupe et le cahier de compétition .</li>,,<li><b>{0}</b>: Dan print for hver enkelt gruppe og samlet resultat pakke.</li>,<li><b>{0}</b>: Produce printable documents for each group and the final results package.</li>,<li><b>{0}</b>: Подготовьте документы для печати для каждого из потоков и пакет итоговых результатов</li>,<li><b>{0}</b>: Skapa utskrivbara dokument för varje grupp och det slutliga resultatpaketet.</li>
 CompetitionInformation,Competition Information,Informations sur la compétition,,Stævneinformation,Información de la competición,Информация о соревновании,Tävlnings information
-CompetitionPaused,Competition paused,Pause,,Konkurrencen er pauset,Competition paused,Соревнования приостановлены,Tävling pusad
 CompetitionPlatform,Competition Platform,Plateau de compétition,,Stævne platform,Competition Platform,Помост,Tävlings plattform
 Copyright2009,This software is Copyright © 2009-,Ce logiciel est sous droit d'auteur - Copyright © 2009-,,This software is Copyright © 2009-,This software is Copyright © 2009-,Это программное обеспечение является авторским правом © 2009-,Denna programvara är upphovsrättsskyddad ¬© 2009-
 CopyrightLicense,Copyright and License,Licence et droits d'auteur,,Copyright and License,Copyright and License,Авторское право и лицензия,Upphovsrättsskydd och Licens
-Countdown_BreakTimer,Countdown to start / Break Timer,Décompte avant début / Chrono de pause,,Nedtælling til start / Break Timer,Countdown to start / Break Timer,Таймер до начала,Nedräkning till start / Paus Timer
 CountdownType,Countdown Type,Type de décompte,,Nedtællingstype,Countdown Type,Тип таймера,Nedräckningstyp
 CountdownType.DURATION,Duration,Durée,,Varighed,duración,Длительность,Varaktighet
 CountdownType.INDEFINITE,Wait,Attente,,Vent,Wait,Не определен,Vänta
@@ -162,7 +151,7 @@ CountdownType.TARGET,Start at,Débuter à,,Start,Start at,До указанно�
 CountdownType.Title,Countdown Type,Type de décompte,,Nedtællingstype,Tipo de cuenta regresiva,Тип таймера,Nedräckningstyp
 Credits,Credits,Remerciements,,Credits,Credits,Создатели,Medverkande
 DataRead,Read,Lu,,Læs,Read,Чтение,Läs
-Decision_AF_,Decision (AF),Decision (face à l'athlète),,Afgørelse (AV),Decision (AF),Решение (лицом к спортсмену),Beslut (AF)
+Decision_AF_,Decision (Athlete-Facing),Decision (face à l'athlète),,Afgørelse (AV),Decision (AF),Решение (лицом к спортсмену),Beslut (AF)
 Declaration,Declaration,Déclaration,,Deklareret,Declaration,Заявленный вес,Begärt
 Declaration_current_athlete,Declaration for current athlete<br>{0},Déclaration pour l''athlète courant<br>{0},,Deklareret for nuværende atlet<br>{0},Declaration for current athlete<br>{0},Заявленный вес для текущего спортсмена<br>{0},Begärt för nuvarande atlet<br>{0}
 Declaration_current_athlete_with_change,Declaration (with weight change) for current athlete<br>{0},Déclaration (avec changement de poids) pour l''athlète courant<br>{0},,Deklareret (inkl. øgning) for nuværende atlet<br>{0},Declaration (with weight change) for current athlete<br>{0},Заявленный вес (с учетом перезаявок) для текущего спортсмена<br>{0},Begärt (med vikt ändringar) för nuvarande atlet<br>{0}
@@ -229,7 +218,6 @@ Jury3,Jury 3,Jury 3,,Jury 3,Jury 3,Жюри 3,Jury 3
 Jury4,Jury 4,Jury 4,,Jury 4,Jury 4,Жюри 4,Jury 4
 Jury5,Jury 5,Jury 5,,Jury 5,Jury 5,Жюри 5,Jury 5
 JuryDecisions,Jury Decisions,Décisions du jury,,Jury Afgørelse,Decisiones del jurado,Решение жюри,Jury Beslut
-JuryDeliberation,Jury Deliberation,Délibération du jury,,Jury stop,Jury Deliberation,Обсуждение жюри,Juryns överläggning
 Kg,"{0,number,#.#}kg","{0,number,#.#}kg",,"{0,number,#.#}kg","{0,number,#.#}kg","{0,number,#.#} кг","{0,nummer,#.#}kg"
 KgSymbol,kg,kg,,kg,kg,\u0020кг,kg
 LastName,Last Name,Nom,,Efternavn,Apellido,Фамилия,Efternamn
@@ -255,7 +243,7 @@ No_weighed_in_athletes,No weighed-in athletes,Pas d'athlètes pesés,,Ikke-indve
 NoGroupSelected,No group selected,Pas de groupe sélectionné,,Ingen gruppe valgt,No group selected,Поток не выбран,Ingen grupp vald
 NoLift_GoodLift,"{0,choice,0#No Lift|1#Good Lift} for {1}","Essai {0,choice,0#refusé|1#réussi} pour {1}",,"{0,choice,0#Underkendt|1#Godkendt} for {1}","{0,choice,0#No Lift|1#Good Lift} for {1}","{0,choice,0#Подъём не засчитан|1#Подъём засчитан} для {1}","{0,val,0#Underkänt lyft|1#Godkänt lyft} for {1}"
 none,none,aucun,,ingen,none,ни один,ingen
-NonStandardBar,Non-Standard Bar?,Barre non-standard?,,Ikke-standard Stang?,Non-standard bar?,Нестандартный гриф,Icke-standard skivstång?
+NonStandardBar,Non-Standard Bar,Barre non-standard,,Ikke-standard Stang,Non-standard bar,Нестандартный гриф,Icke-standard skivstång
 Not_weighed,Not weighed,Non pesé,,Ikke indvejet,Not weighed,Не прошел взвешивание,Ej invägd
 Notes,Notes,Notes,,Notater,Notes,Заметки,Antekningar
 Number,Number,Nº,,Nummer,Nº,Рефери,Nummer
@@ -265,9 +253,8 @@ OWLCMS_Info,OWLCMS - About,OWLCMS - Info,,OWLCMS - Om,OWLCMS - About,OWLCMS - О
 OWLCMS_Lifting,OWLCMS - Lifting,OWLCMS - Groupe,,OWLCMS - Afvikling,OWLCMS - Lifting,OWLCMS - Поток,OWLCMS - Lyftning
 OWLCMS_Preparation,OWLCMS - Preparation,OWLCMS - Préparation,,OWLCMS - Forberedelse,OWLCMS - Preparation,OWLCMS - Подготовка,OWLCMS - Förberedelser
 OWLCMS_Results,OWLCMS - Results,OWLCMS - Résultats,,OWLCMS - Resultater,OWLCMS - Results,OWLCMS - Результаты,OWLCMS - Resultat
-OwlcmsBuild,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),OWLCMS - Skärmar
+OwlcmsBuild,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),OWLCMS v{0} ({1})
 PauseCountdown,Pause Break Countdown Timer,Stopper le chrono de pause,,Pause Countdown Timer,Pause Break Countdown Timer,Остановить таймер,Paus klocka
-Paused,Paused,En pause,,Pause,Paused,Пауза,Pausad
 Plates,Plates,Plaques,,Skiver,Pesas,Диски,Viktskivor
 PlatesDisplay,Plates Display,Plaques,,Skive display,Plates Display,Диски,Viktskivor Skärm
 Platform,Platform,Plateau,,Platform,Tarima,Помост,Plattform
@@ -371,9 +358,6 @@ Team,Team,Équipe,,Klub,Equipo,Команда,Förening
 TechnicalController,Technical Controller,Contrôleur Technique,,Teknisk kontrollant,Controlador Técnico,Технический контролер,Teknisk kontrollant
 ThanksToAll,"Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>","Merci à Anders Bendix Nielsen, Alexey Ruchev et Brock Pedersen pour leurs commentaires et leurs essais.<br>",,"Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>","Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>","Особая благодарность Андерсу Бендиксу Нильсену, Алексею Ручьеву и Броку Педерсену за обратную связь и тестирование.<br>","Special thanks to Anders Bendix Nielsen, Alexey Ruchev and Brock Pedersen for feedback and testing.<br>"
 ThanksToFHQ,Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.,Merci à la Fédération d'haltérophilie du Québec d'avoir soutenu le développement initial du projet.,,Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.,Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.,Спасибо федерации тяжелой атлетики Квебека за поддержку разработки программного обеспечения.,Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.
-TimeBeforeFirstLift,Time before first lift,Décompte avant le premier lever,,Tid inden første løft,Time before first lift,Начало упражнения рывок через:,Tid tills första lyft
-TimeBeforeIntroduction,Time before introduction,Décompte avant la présentation,,Tid inden præsentation,Time before introduction,Представление спортсменов через:,Tid tills defilering
-TimeBeforeNextLift,Time before next lift,Décompte avant le prochain lever,,Tid inden næste løft,Time before next lift,Начало упражнения толчок через:,Tid till nästa lyft
 Timekeeper,Timekeeper,Chronométreur,,Tidtager,Cronometrador,Судья-хронометрист,Tidtagare
 TimingStatistics,Timing Statistics,Statistiques de durée,,Timing Statistik,Timing Statistics,Статистика,Tidsstatistik
 TOScreens,Technical Official Screens (select the correct platform above before clicking),Écrans des officiels (choisir le plateau ci-dessus avant de cliquer),,Technical Official Screens (vælg korrekt platform inden du klikker),Technical Official Screens (select the correct platform above before clicking),Официальные технические экраны (выберите правильный помост перед нажатием),Tekniskt officiella skärmar (välj rätt plattform ovan innan du klickar)
@@ -417,3 +401,21 @@ MedalsOnly,Medals Only,Médailles seulement,,Vis medaljeplaceringer,Medals Only,
 RecomputeRanks,Recompute Ranks,Recalculer les rangs,,Genberegn placeringer,Recompute Ranks,Перерасчёт мест,Räkna om ranking
 TotalRank,Total Rank,Rang Total,,Placering Tokamp,Total Rank,Место (C),Ranking Total
 InvalidYearFormat,Invalid year format (4 digits expected),Format d'année invalide (4 chiffres attendus),,Ugyldigt år format (4 cifre forventet),Formato no válido año (4 dígitos espera),Неверный год формат (ожидается 4 цифры),Ogiltig år format (4 siffror förväntas)
+BreakType.Title,Break Type,Type de pause,,Pause Type,Break Type,Тип паузы,Paus typ
+BreakType.Waiting,Waiting for…,En attente de…,,Afventer…,Waiting for…,Заголовок,Väntar
+BreakType.BEFORE_INTRODUCTION,Before Introduction,Avant présentation,,Før præsentation,Antes Introducción,Before Introduction,Innan introduktion
+BreakType.DURING_INTRODUCTION,Introduction,Présentation,,Præsentation,Introduction,Представление,Intruduction
+BreakType.FIRST_SNATCH,Before Snatch,Avant arraché,,Før træk,Antes arrancada,Before Snatch,Innan Ryck
+BreakType.FIRST_CJ,Before Clean&Jerk,Avant épaulé-jeté,,Før stød,Antes dos tiempos,Before Clean&Jerk,Innan Stöt
+BreakType.JURY,Jury Decision,Décision du jury,,Jury afgørelse,Jury Decision,Решение жюри,Jury beslut
+BreakType.TECHNICAL,Technical Issue,Problème technique,,Tekniske problemer,Technical Issue,Техническая пауза,Tekniska problem
+PublicMsg.BeforeIntroduction,Time before introduction,Décompte avant la présentation,,Tid inden præsentation,Time before introduction,Представление спортсменов через:,Tid tills defilering
+PublicMsg.DuringIntroduction,Introduction,Présentation,,Præsentation,Introduction,Представление,Intruduction
+PublicMsg.TimeBeforeSnatch,Time before first lift,Décompte avant le premier lever,,Tid inden første løft,Time before first lift,Начало упражнения рывок через:,Tid tills första lyft
+PublicMsg.TimeBeforeCJ,Time before next lift,Décompte avant le prochain lever,,Tid inden næste løft,Time before next lift,Начало упражнения толчок через:,Tid till nästa lyft
+PublicMsg.CompetitionPaused,Competition paused,Pause,,Konkurrencen er pauset,Competition paused,Соревнования приостановлены,Tävling pusad
+PublicMsg.JuryDeliberation,Jury Deliberation,Délibération du jury,,Jury stop,Jury Deliberation,Обсуждение жюри,Juryns överläggning
+BreakButton.JuryDeliberation,Jury Deliberation,Délibération du jury,,Jury stop,Jury Deliberation,Обсуждение жюри,Juryns överläggning
+BreakButton.Caption,Break Timer,Chronomètre de pause,,Pause Timer,Break Timer,Остановить таймер,Paus timer
+BreakButton.Paused,Paused,En pause,,Pause,Paused,Пауза,Pausad
+BreakButton.ToStartCaption,Countdown to start / Break Timer,Décompte avant début / Chrono de pause,,Nedtælling til start / Break Timer,Countdown to start / Break Timer,Таймер до начала,Nedräkning till start / Paus Timer
