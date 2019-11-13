@@ -141,6 +141,7 @@ class CurrentAttempt extends PolymerElement {
 
 .attemptBoard .barbell {
 	grid-area: barbell-start/barbell-start/barbell-end/barbell-end;
+	justify-self: center;
 }
 
 .attemptBoard .timer {
@@ -148,7 +149,7 @@ class CurrentAttempt extends PolymerElement {
 	font-weight: bold;
 	grid-area: timer-start/timer-start/timer-end/timer-end;
 	align-self: center;
-	justify-self: stretch;
+	justify-self: center;
 }
 
 @media screen and (max-width: 1025px) {
