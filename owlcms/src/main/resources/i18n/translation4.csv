@@ -1,4 +1,4 @@
-key,en,fr,fr_CA,da,es,ru,sv
+﻿key,en,fr,fr_CA,da,es,ru,sv
 OWLCMS_Top,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Gestion de compétition d'haltérophilie,,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Управление соревнованиями по тяжелой атлетике,OWLCMS - Olympic Weightlifting Competition Management System
 About,About,A propos,À propos,Om,Acerca de,О системе,Om
 Active,Active,Actif,,Aktiv,Activo,Активная,Aktiv
@@ -269,7 +269,7 @@ Preparation_Platforms,Preparation - Platforms,Préparation - Plateformes,,Forber
 Preparation_Registration,Preparation - Registration,Préparation - Inscriptions,,Forbered - Registrering,Preparation - Registration,Подготовка - Регистрация,Förberedelse -  Registrering
 PrepareCompatition_description,"<li><b>{0}</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>","<li><b>{0}</b>: Entrer les coordonnées, inscrire les athlètes, définir les groupes, etc.<br></li>",,"<li><b>{0}</b>: Indtast konkurrence oplysninger, registrer atleter, definér grupper, osv.<br></li>","<li><b>{0}</b>: Enter the competition coordinates, register the athletes, define the groups, etc.<br></li>","<li><b>{0}</b>: Введите место проведения соревнований, зарегистрируйте спортсменов, определите потоки и т.д.<br></li>","<li> <b> {0} </b>: Ange tävlingskoordinaterna, registrera idrottare, definiera grupper osv. </li> <li> <b> {0} </b>: Ange tävlingskoordinaterna, registrera idrottare, definiera grupperna osv. </li>"
 PrepareCompetition,Prepare Competition,Préparer la compétition,,Forbered konkurrence,Prepare Competition,Подготовка,Förbered tävling
-Print,Print,Imprimer,,Print,Imprimir,печатать,Skriv ut
+Print,Print,Imprimer,,Print,Imprimir,Печатать,Skriv ut
 ProduceResults,Produce Results,Produire les résultats,,Udskriv resultater,Produce Results,Подготовить результаты,Producera resultat
 ProjectRepository,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.,<li>Voir le <a href='https://github.com/jflamy/owlcms4'>référentiel du projet</a> pour les packages d'installation et le code source.,,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.,См. <a href='https://github.com/jflamy/owlcms4'>репозиторий проекта</a> для бинарных релизов и полных исходных кодов.<br>,<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> for binary releases and the full source.
 Question,?,\u0020?,,?,?,?,?
@@ -348,7 +348,7 @@ StartDisplays,Start Displays,Démarrer les affichages,,Start Displays,Start Disp
 StartDisplays_description,"<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>","<li><b>{0}</b>: Lancer les tableaux de résultats, l''affichage de l''essai courant, et l''affichage pour l''athlète.</li>",,"<li><b>{0}</b>: Bruges til at starte Attempt board, Atlet-vendt Attempt Board og Scoreboard.</li>","<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>","<li><b>{0}</b>: Используется для запуска экрана попытки, экрана атлета и таблицы результатов.</li>","<li> <b> {0} </b>: Används för att starta försökstavla, atlet skärm och resultattavlan. </li>"
 StartingList,Starting List,Liste de départ,,Startliste,Lista de inicio,Стартовый протокол,Start lista
 StartingWeightsSheet,Starting Weights Sheet,Barres de départ,,Startvægte,Pesos iniciales,Таблица стартовых весов,Startprotokoll
-startLifting,Start Lifting,Débuter les levers,,Begynd konkurrencen,Start Lifting,Начать соревнования,Start Lifting
+startLifting,Start Lifting,Débuter les levers,,Begynd konkurrencen,Start Lifting,Начало соревнования,Start Lifting
 StartNumber,Start Number,Numéro de départ,,Startnummer,Nº inicio,Стартовый номер,Start nummer
 StartTime,Start Time,Heure de début,,Starttid,Hora de comienzo,Время начала,Start tid
 StopCompetition,Stop Competition,Arrêter la compétition,,Stop konkurrencen,Stop Competition,Остановить соревнования,Stoppa tävlingen
@@ -400,13 +400,13 @@ Confirm,Confirm,Confirmer,,Bekræft,Confirmar,Подтвердить,Anpassa
 MedalsOnly,Medals Only,Médailles seulement,,Vis medaljeplaceringer,Medals Only,Медалисты,Endast medaljer
 RecomputeRanks,Recompute Ranks,Recalculer les rangs,,Genberegn placeringer,Recompute Ranks,Перерасчёт мест,Räkna om ranking
 TotalRank,Total Rank,Rang Total,,Placering Tokamp,Total Rank,Место (C),Ranking Total
-InvalidYearFormat,Invalid year format (4 digits expected),Format d'année invalide (4 chiffres attendus),,Ugyldigt år format (4 cifre forventet),Formato no válido año (4 dígitos espera),Неверный год формат (ожидается 4 цифры),Ogiltig år format (4 siffror förväntas)
+InvalidYearFormat,Invalid year format (4 digits expected),Format d'année invalide (4 chiffres attendus),,Ugyldigt år format (4 cifre forventet),Formato no válido año (4 dígitos espera),Недопустимый формат года (требуется 4 цифры),Ogiltig år format (4 siffror förväntas)
 BreakType.Title,Break Type,Type de pause,,Pause Type,Break Type,Тип паузы,Paus typ
 BreakType.Waiting,Waiting for…,En attente de…,,Afventer…,Waiting for…,Заголовок,Väntar
-BreakType.BEFORE_INTRODUCTION,Before Introduction,Avant présentation,,Før præsentation,Antes Introducción,Before Introduction,Innan introduktion
+BreakType.BEFORE_INTRODUCTION,Before Introduction,Avant présentation,,Før præsentation,Antes Introducción,До представления,Innan introduktion
 BreakType.DURING_INTRODUCTION,Introduction,Présentation,,Præsentation,Introduction,Представление,Intruduction
-BreakType.FIRST_SNATCH,Before Snatch,Avant arraché,,Før træk,Antes arrancada,Before Snatch,Innan Ryck
-BreakType.FIRST_CJ,Before Clean&Jerk,Avant épaulé-jeté,,Før stød,Antes dos tiempos,Before Clean&Jerk,Innan Stöt
+BreakType.FIRST_SNATCH,Before Snatch,Avant arraché,,Før træk,Antes arrancada,До рывка,Innan Ryck
+BreakType.FIRST_CJ,Before Clean&Jerk,Avant épaulé-jeté,,Før stød,Antes dos tiempos,До толчка,Innan Stöt
 BreakType.JURY,Jury Decision,Décision du jury,,Jury afgørelse,Jury Decision,Решение жюри,Jury beslut
 BreakType.TECHNICAL,Technical Issue,Problème technique,,Tekniske problemer,Technical Issue,Техническая пауза,Tekniska problem
 PublicMsg.BeforeIntroduction,Time before introduction,Décompte avant la présentation,,Tid inden præsentation,Time before introduction,Представление спортсменов через:,Tid tills defilering
