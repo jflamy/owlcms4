@@ -6,32 +6,21 @@
  */
 package app.owlcms.displays.attemptboard;
 
+import org.slf4j.LoggerFactory;
+
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import ch.qos.logback.classic.Logger;
 
 public interface BreakDisplay {
+    
+    Logger logger = (Logger)LoggerFactory.getLogger(BreakDisplay.class);
 	
 	public void doBreak();
 	
-	public default BreakType inferBreakType(FieldOfPlay fop) {
-		BreakType bt;
-		switch (fop.getState()) {
-		case BREAK:
-			bt = fop.countLiftsDone() > 0 ? BreakType.FIRST_SNATCH : BreakType.FIRST_CJ;
-			break;
-		case INACTIVE:
-			bt = BreakType.INTRODUCTION;
-			break;
-		default:
-			bt = BreakType.TECHNICAL;
-			break;
-		}
-		return bt;
-	}
-
 	public default String inferGroupName() {
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		Group group = fop.getGroup();
@@ -41,19 +30,21 @@ public interface BreakDisplay {
 
 	public default String inferMessage(BreakType bt) {
 	    if (bt == null) {
-	        return Translator.translate("CompetitionPaused");
+	        return Translator.translate("PublicMsg.CompetitionPaused");
 	    }
 	    switch (bt) {
 		case FIRST_CJ:
-			return Translator.translate("TimeBeforeNextLift");
+			return Translator.translate("PublicMsg.TimeBeforeCJ");
 		case FIRST_SNATCH:
-			return Translator.translate("TimeBeforeFirstLift");
-		case INTRODUCTION:
-			return Translator.translate("TimeBeforeIntroduction");
+			return Translator.translate("PublicMsg.TimeBeforeSnatch");
+		case BEFORE_INTRODUCTION:
+			return Translator.translate("PublicMsg.BeforeIntroduction");
+		case DURING_INTRODUCTION:
+		    return Translator.translate("PublicMsg.DuringIntroduction");
 		case TECHNICAL:
-			return Translator.translate("CompetitionPaused");
+			return Translator.translate("PublicMsg.CompetitionPaused");
 	     case JURY:
-	            return Translator.translate("JuryDeliberation");
+	            return Translator.translate("PublicMsg.JuryDeliberation");
 		default:
 			return "";
 		}

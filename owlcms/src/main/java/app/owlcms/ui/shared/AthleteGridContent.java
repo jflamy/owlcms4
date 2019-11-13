@@ -186,8 +186,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         breakButton.getElement().setAttribute("theme", "primary error");
         breakButton.getStyle().set("color", "white");
         breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
-        breakButton.setText(getTranslation("Paused"));
-        breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
+        breakButton.setText(getTranslation("BreakButton.Paused"));
+        breakButton.getElement().setAttribute("title", getTranslation("BreakButton.Caption"));
     }
 
     public void clearVerticalMargins(HasStyle styleable) {
@@ -536,7 +536,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         breakButton.getElement().setAttribute("theme", "secondary error");
         breakButton.getStyle().set("color", "var(--lumo-error-color)");
         breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
-        breakButton.getElement().setAttribute("title", getTranslation("Countdown_BreakTimer"));
+        breakButton.getElement().setAttribute("title", getTranslation("BreakButton.Caption"));
 
         HorizontalLayout buttons = new HorizontalLayout(breakButton);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -566,11 +566,11 @@ public abstract class AthleteGridContent extends VerticalLayout
         breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
         if (b) {
             breakButton.getElement().setAttribute("theme", "secondary error");
-            breakButton.setText(getTranslation("JuryDeliberation"));
-            breakButton.getElement().setAttribute("title", getTranslation("JuryDeliberation"));
+            breakButton.setText(getTranslation("BreakButton.JuryDeliberation"));
+            breakButton.getElement().setAttribute("title", getTranslation("BreakButton.JuryDeliberation"));
         } else {
             breakButton.getElement().setAttribute("theme", "secondary error icon");
-            breakButton.getElement().setAttribute("title", getTranslation("BreakTimer"));
+            breakButton.getElement().setAttribute("title", getTranslation("BreakButton.ToStartCaption"));
         }
 
     }

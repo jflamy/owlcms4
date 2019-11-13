@@ -140,7 +140,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         HorizontalLayout topBarLeft = createTopBarLeft();
 
         introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(), (e) -> {
-            BreakDialog dialog = new BreakDialog(this, BreakType.INTRODUCTION, CountdownType.TARGET);
+            BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
             dialog.open();
         });
         introCountdownButton.getElement().setAttribute("theme", "primary contrast");
