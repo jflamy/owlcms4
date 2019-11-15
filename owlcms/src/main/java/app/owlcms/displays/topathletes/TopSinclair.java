@@ -6,6 +6,7 @@
  */
 package app.owlcms.displays.topathletes;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -155,38 +156,48 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         setSortedWomen(competition.getGlobalSinclairRanking(Gender.F));
 
         topManSinclair = 0.0D;
-        ListIterator<Athlete> iterMen = getSortedMen().listIterator();
-        while (iterMen.hasNext()) {
-            Athlete curMan = iterMen.next();
-            Double curSinclair = (curMan.getAttemptsDone() <= 3 ? curMan.getSinclairForDelta() : curMan.getSinclair());
-            if (curSinclair <= 0) {
-                iterMen.remove();
-            } else {
-                if (curSinclair > topManSinclair) {
-                    topManSinclair = curSinclair;
+        List<Athlete> sortedMen2 = getSortedMen();
+        if (sortedMen2 != null && !sortedMen2.isEmpty()) {
+            ListIterator<Athlete> iterMen = sortedMen2.listIterator();
+            while (iterMen.hasNext()) {
+                Athlete curMan = iterMen.next();
+                Double curSinclair = (curMan.getAttemptsDone() <= 3 ? curMan.getSinclairForDelta() : curMan.getSinclair());
+                if (curSinclair <= 0) {
+                    iterMen.remove();
+                } else {
+                    if (curSinclair > topManSinclair) {
+                        topManSinclair = curSinclair;
+                    }
                 }
             }
+            int minMen = java.lang.Math.min(5, sortedMen2.size());
+            setSortedMen(sortedMen2.subList(0, minMen));
+        } else {
+            setSortedMen(new ArrayList<Athlete>());
         }
-        int minMen = java.lang.Math.min(5, getSortedMen().size());
-        setSortedMen(getSortedMen().subList(0, minMen));
 //        Athlete topMan = (getSortedMen().size() > 0 ? getSortedMen().get(0) : null);
 //        topManSinclair = (topMan != null ? topMan.getSinclairForDelta() : 999.0D);
 
         topWomanSinclair = 0.0D;
-        ListIterator<Athlete> iterWomen = getSortedWomen().listIterator();
-        while (iterWomen.hasNext()) {
-            Athlete curWoman = iterWomen.next();
-            Double curSinclair = curWoman.getSinclairForDelta();
-            if (curSinclair <= 0) {
-                iterWomen.remove();
-            } else {
-                if (curSinclair > topWomanSinclair) {
-                    topWomanSinclair = curSinclair;
+        List<Athlete> sortedWomen2 =  getSortedWomen();
+        if (sortedMen2 != null && !sortedMen2.isEmpty()) {
+            ListIterator<Athlete> iterWomen = sortedWomen2.listIterator();
+            while (iterWomen.hasNext()) {
+                Athlete curWoman = iterWomen.next();
+                Double curSinclair = curWoman.getSinclairForDelta();
+                if (curSinclair <= 0) {
+                    iterWomen.remove();
+                } else {
+                    if (curSinclair > topWomanSinclair) {
+                        topWomanSinclair = curSinclair;
+                    }
                 }
             }
+            int minWomen = java.lang.Math.min(5, getSortedWomen().size());
+            setSortedWomen(getSortedWomen().subList(0, minWomen));
+        } else {
+            setSortedWomen(new ArrayList<Athlete>());
         }
-        int minWomen = java.lang.Math.min(5, getSortedWomen().size());
-        setSortedWomen(getSortedWomen().subList(0, minWomen));
 
         updateBottom(getModel());
     }

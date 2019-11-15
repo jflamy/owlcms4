@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
 
     @Override
     protected List<Athlete> getSortedAthletes() {
-        return AthleteSorter.registrationOrderCopy(AthleteRepository.findAll());
+        return AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream().filter((a) -> a.getGroup() != null).collect(Collectors.toList());
     }
 
     @Override

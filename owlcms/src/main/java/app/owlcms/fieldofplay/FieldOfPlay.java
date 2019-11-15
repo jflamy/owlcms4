@@ -476,6 +476,8 @@ public class FieldOfPlay {
         if (e instanceof BreakStarted) {
             transitionToBreak((BreakStarted) e);
             return;
+        } else if (e instanceof BreakPaused) {
+            //logger.warn("break paused {}", LoggerUtils.stackTrace());
         } else if (e instanceof StartLifting) {
             transitionToLifting(e, true);
         } else if (e instanceof BarbellOrPlatesChanged) {
@@ -1010,28 +1012,30 @@ public class FieldOfPlay {
 
     private void transitionToBreak(BreakStarted e) {
         ProxyBreakTimer breakTimer2 = getBreakTimer();
-        if (state == BREAK && breakTimer2.isRunning()) {
+        BreakType breakType2 = e.getBreakType();
+        CountdownType countdownType2 = e.getCountdownType();
+        if (state == BREAK && breakTimer2.isRunning()
+                && (breakType2 != getBreakType() || countdownType2 != getCountdownType())) {
             // changing the kind of break
-            logger.debug("current {} new {}",getBreakType(),e.getBreakType());
+            logger.warn("switching break type while in break : current {} new {}", getBreakType(), e.getBreakType());
             breakTimer2.stop();
         }
-        {
-            BreakType breakType2 = e.getBreakType();
-            setState(BREAK);
-            this.setBreakType(breakType2);
-            this.setCountdownType(e.getCountdownType());
-            getAthleteTimer().stop();
 
-            if (e.isIndefinite()) {
-                breakTimer2.setIndefinite();
-            } else {
-                breakTimer2.setTimeRemaining(e.getTimeRemaining());
-                breakTimer2.setEnd(e.getTargetTime());
-            }
-            // this will broadcast to all slave break timers
-            breakTimer2.start();
-            logger.trace("started break timers {}", breakType2);
+        setState(BREAK);
+        this.setBreakType(breakType2);
+        this.setCountdownType(countdownType2);
+        getAthleteTimer().stop();
+
+        if (e.isIndefinite()) {
+            breakTimer2.setIndefinite();
+        } else {
+            breakTimer2.setTimeRemaining(e.getTimeRemaining());
+            breakTimer2.setEnd(e.getTargetTime());
         }
+        // this will broadcast to all slave break timers
+        if (!breakTimer2.isRunning())
+            breakTimer2.start();
+        logger.trace("started break timers {}", breakType2);
     }
 
     private void transitionToLifting(FOPEvent e, boolean stopBreakTimer) {

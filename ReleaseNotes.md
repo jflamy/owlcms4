@@ -1,7 +1,9 @@
 * Release Highlights: 
-  * Fix: in Masters mode, could not use "Edit Athlete Entries" (#226)
-  * Enhancement: more intuitive behaviour of break timer management (#226, #233)
+  * Fix: in Masters mode, could not use "Edit Athlete Entries" in version 4.2.5 (#226)
+  * Fix: The starting list should not fail when some athletes are not assigned to a group (#240)
+  * Enhancement: new "during presentation" break type; system switches automatically to that mode when the "before presentation" timer expires instead of showing the first lifter, miscellaneous cleanups of break timer management (#238, #226, #233) 
   * Enhancement: changed the translation process to allow several persons to work at once using a cloud-based copy. Updated the [translations instructions](https://jflamy.github.io/owlcms4/#/Translation) accordingly.
+  * Minor: fixed translations on English-language athlete cards (#237)
   * Enhancement: improved Swedish translation.
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc) and [Open Issues](https://github.com/jflamy/owlcms4/projects/1)
 
