@@ -16,6 +16,7 @@ import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
@@ -41,7 +42,7 @@ import ch.qos.logback.classic.Logger;
  * @param <T>
  */
 @SuppressWarnings("serial")
-public abstract class WrappedTextField<T> extends AbstractCompositeField<TextField, WrappedTextField<T>, T>
+public abstract class WrappedTextField<T> extends AbstractCompositeField<ValidationTextField, WrappedTextField<T>, T>
 		implements HasValidation {
 
 	private Logger logger;
@@ -63,6 +64,7 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<TextFie
 				String presentationValue = event.getValue();
 				doConvertToModel(presentationValue, true);
 			});
+		getWrappedTextField().setValueChangeMode(ValueChangeMode.EAGER);
 	}
 
 	public WrappedTextField(T defaultValue) {
