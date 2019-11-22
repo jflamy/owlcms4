@@ -288,7 +288,7 @@ class DecisionElement extends PolymerElement {
 		}
 	}
 
-	showDown(isMaster) {
+	showDown(isMaster, silent) {
 		console.debug("showDown");
 		this.downShown = true;
 		this.$.downDiv.style.display = "flex";
@@ -297,7 +297,7 @@ class DecisionElement extends PolymerElement {
 			this.$server.masterShowDown(this.decision, this.ref1, this.ref2, this.ref3);
 		}
 		console.debug("server told");
-		if (this.audio) {
+		if (this.audio && !silent) {
 			this.oscillator.start(0);
 			this.oscillator.stop(this.context.currentTime + 2);
 			this._setupAudio();

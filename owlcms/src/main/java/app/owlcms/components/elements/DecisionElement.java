@@ -175,7 +175,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
             uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
                     this.getParent().get().getClass().getSimpleName());
-            this.getElement().callJsFunction("showDown", false);
+            this.getElement().callJsFunction("showDown", false, OwlcmsSession.getFop().isEmitSoundsOnServer());
         });
     }
 
