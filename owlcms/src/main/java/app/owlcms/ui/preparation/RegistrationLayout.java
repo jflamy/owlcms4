@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.preparation;
@@ -67,46 +67,27 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     private Anchor startingList;
     private Button startingListButton;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.
-     * appreciated.app.layout.behaviour.Behaviour)
-     */
-    @Override
-    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
-        variant = LeftLayouts.Left.class;
-        appLayout = super.getLayoutConfiguration(variant);
-        appLayout.closeDrawer();
-        this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
-        createTopBar(topBar);
-        appLayout.getTitleWrapper().getStyle().set("flex", "0 1 0px");
-        return appLayout;
-    }
-
-    /**
-     * The layout is created before the content. This routine has created the
-     * content, we can refer to the content using
-     * {@link #getLayoutComponentContent()} and the content can refer to us via
-     * {@link AppLayoutContent#getParentLayout()}
-     * 
-     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
-     */
-    @Override
-    public void showRouterLayoutContent(HasElement content) {
-        super.showRouterLayoutContent(content);
-        RegistrationContent weighinContent = (RegistrationContent) getLayoutComponentContent();
-        gridGroupFilter = weighinContent.getGroupFilter();
+    private void clearLifts() {
+        JPAService.runInTransaction(em -> {
+            RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+            List<Athlete> athletes = (List<Athlete>) content.doFindAll(em);
+            for (Athlete a : athletes) {
+                a.clearLifts();
+                em.merge(a);
+            }
+            em.flush();
+            return null;
+        });
     }
 
     /**
      * Create the top bar.
-     * 
+     *
      * Note: the top bar is created before the content.
-     * 
+     *
      * @see #showRouterLayoutContent(HasElement) for how to content to layout and
      *      vice-versa
-     * 
+     *
      * @param topBar
      */
     protected void createTopBar(FlexLayout topBar) {
@@ -114,8 +95,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         H3 title = new H3();
         title.setText(getTranslation("EditRegisteredAthletes"));
         title.add();
-        title.getStyle().set("margin", "0px 0px 0px 0px")
-                .set("font-weight", "normal");
+        title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
         groupSelect = new ComboBox<>();
         groupSelect.setPlaceholder(getTranslation("Group"));
@@ -127,7 +107,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter);
         cards = new Anchor(href1, "");
 
-        groupSelect.setValue(null);   
+        groupSelect.setValue(null);
         cards.getElement().setAttribute("download", "cards" + (group != null ? "_" + group : "_all") + ".xls");
         groupSelect.addValueChangeListener(e -> {
             setContentGroup(e);
@@ -146,10 +126,8 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         });
 
         Button deleteAthletes = new Button(getTranslation("DeleteAthletes"), (e) -> {
-            new ConfirmationDialog(getTranslation("DeleteAthletes"),
-                    getTranslation("Warning_DeleteAthletes"),
-                    getTranslation("Done_period"),
-                    () -> {
+            new ConfirmationDialog(getTranslation("DeleteAthletes"), getTranslation("Warning_DeleteAthletes"),
+                    getTranslation("Done_period"), () -> {
                         deleteAthletes();
                     }).open();
 
@@ -157,10 +135,8 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         deleteAthletes.getElement().setAttribute("title", getTranslation("DeleteAthletes_forListed"));
 
         Button clearLifts = new Button(getTranslation("ClearLifts"), (e) -> {
-            new ConfirmationDialog(getTranslation("ClearLifts"),
-                    getTranslation("Warning_ClearAthleteLifts"),
-                    getTranslation("LiftsCleared"),
-                    () -> {
+            new ConfirmationDialog(getTranslation("ClearLifts"), getTranslation("Warning_ClearAthleteLifts"),
+                    getTranslation("LiftsCleared"), () -> {
                         clearLifts();
                     }).open();
         });
@@ -172,7 +148,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         });
         cards.add(cardsButton);
         cardsButton.setEnabled(true);
-        
+
         HorizontalLayout buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingList, cards);
         buttons.setPadding(true);
         buttons.setSpacing(true);
@@ -183,38 +159,6 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         topBar.add(title, groupSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-    }
-
-    protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
-        group = e.getValue();
-        gridGroupFilter.setValue(e.getValue());
-    }
-
-    protected void errorNotification() {
-        Label content = new Label(getTranslation("Select_group_first"));
-        content.getElement().setAttribute("theme", "error");
-        Button buttonInside = new Button(getTranslation("GotIt"));
-        buttonInside.getElement().setAttribute("theme", "error primary");
-        VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
-        verticalLayout.setAlignItems(Alignment.CENTER);
-        Notification notification = new Notification(verticalLayout);
-        notification.setDuration(3000);
-        buttonInside.addClickListener(event -> notification.close());
-        notification.setPosition(Position.MIDDLE);
-        notification.open();
-    }
-
-    private void clearLifts() {
-        JPAService.runInTransaction(em -> {
-            RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
-            List<Athlete> athletes = (List<Athlete>) content.doFindAll(em);
-            for (Athlete a : athletes) {
-                a.clearLifts();
-                em.merge(a);
-            }
-            em.flush();
-            return null;
-        });
     }
 
     private void deleteAthletes() {
@@ -242,5 +186,56 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
             return null;
         });
         content.refreshCrudGrid();
+    }
+
+    protected void errorNotification() {
+        Label content = new Label(getTranslation("Select_group_first"));
+        content.getElement().setAttribute("theme", "error");
+        Button buttonInside = new Button(getTranslation("GotIt"));
+        buttonInside.getElement().setAttribute("theme", "error primary");
+        VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
+        verticalLayout.setAlignItems(Alignment.CENTER);
+        Notification notification = new Notification(verticalLayout);
+        notification.setDuration(3000);
+        buttonInside.addClickListener(event -> notification.close());
+        notification.setPosition(Position.MIDDLE);
+        notification.open();
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.
+     * appreciated.app.layout.behaviour.Behaviour)
+     */
+    @Override
+    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
+        variant = LeftLayouts.Left.class;
+        appLayout = super.getLayoutConfiguration(variant);
+        appLayout.closeDrawer();
+        this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
+        createTopBar(topBar);
+        appLayout.getTitleWrapper().getStyle().set("flex", "0 1 0px");
+        return appLayout;
+    }
+
+    protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
+        group = e.getValue();
+        gridGroupFilter.setValue(e.getValue());
+    }
+
+    /**
+     * The layout is created before the content. This routine has created the
+     * content, we can refer to the content using
+     * {@link #getLayoutComponentContent()} and the content can refer to us via
+     * {@link AppLayoutContent#getParentLayout()}
+     *
+     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
+     */
+    @Override
+    public void showRouterLayoutContent(HasElement content) {
+        super.showRouterLayoutContent(content);
+        RegistrationContent weighinContent = (RegistrationContent) getLayoutComponentContent();
+        gridGroupFilter = weighinContent.getGroupFilter();
     }
 }

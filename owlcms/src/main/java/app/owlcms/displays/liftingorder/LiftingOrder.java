@@ -139,8 +139,9 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     }
 
     private String computeLiftType(Athlete a) {
-        if (a == null)
+        if (a == null) {
             return "";
+        }
         String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
                 : Translator.translate("Snatch");
         return liftType;

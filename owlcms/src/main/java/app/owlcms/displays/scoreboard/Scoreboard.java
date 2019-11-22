@@ -157,8 +157,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     }
 
     private String computeLiftType(Athlete a) {
-        if (a == null)
+        if (a == null) {
             return "";
+        }
         String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
                 : Translator.translate("Snatch");
         return liftType;
@@ -246,14 +247,15 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
     }
 
     private String formatInt(Integer total) {
-        if (total == null || total == 0)
+        if (total == null || total == 0) {
             return "-";
-        else if (total == -1)
+        } else if (total == -1) {
             return "inv.";// invited lifter, not eligible.
-        else if (total < 0)
+        } else if (total < 0) {
             return "(" + Math.abs(total) + ")";
-        else
+        } else {
             return total.toString();
+        }
     }
 
     private String formatKg(String total) {

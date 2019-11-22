@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.jpa;
@@ -17,20 +17,26 @@ import javax.persistence.Converter;
  */
 @Converter(autoApply = true)
 public class LocalDateTimeAttributeConverter implements AttributeConverter<LocalDateTime, Timestamp> {
-	
-    /* (non-Javadoc)
-     * @see javax.persistence.AttributeConverter#convertToDatabaseColumn(java.lang.Object)
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.persistence.AttributeConverter#convertToDatabaseColumn(java.lang.
+     * Object)
      */
     @Override
     public Timestamp convertToDatabaseColumn(LocalDateTime locDateTime) {
-    	return (locDateTime == null ? null : Timestamp.valueOf(locDateTime));
+        return (locDateTime == null ? null : Timestamp.valueOf(locDateTime));
     }
 
-    /* (non-Javadoc)
-     * @see javax.persistence.AttributeConverter#convertToEntityAttribute(java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.persistence.AttributeConverter#convertToEntityAttribute(java.lang.
+     * Object)
      */
     @Override
     public LocalDateTime convertToEntityAttribute(Timestamp sqlTimestamp) {
-    	return (sqlTimestamp == null ? null : sqlTimestamp.toLocalDateTime());
+        return (sqlTimestamp == null ? null : sqlTimestamp.toLocalDateTime());
     }
 }

@@ -57,7 +57,8 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "ref")
 @Push
-public class RefContent extends VerticalLayout implements QueryParameterReader, SafeEventBusRegistration, UIEventProcessor, HasDynamicTitle, RequireLogin, PageConfigurator {
+public class RefContent extends VerticalLayout implements QueryParameterReader, SafeEventBusRegistration,
+        UIEventProcessor, HasDynamicTitle, RequireLogin, PageConfigurator {
 
     private static final String REF_INDEX = "num";
     final private static Logger logger = (Logger) LoggerFactory.getLogger(RefContent.class);
@@ -70,7 +71,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
     private HorizontalLayout refVotingButtons;
     private VerticalLayout refVotingCenterHorizontally;
     private boolean redTouched;
-    private Integer refIndex = null;  // 1 2 or 3
+    private Integer refIndex = null; // 1 2 or 3
     private boolean whiteTouched;
     private Icon good;
     private Icon bad;
@@ -80,9 +81,15 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
     private NumberField refField;
     private EventBus uiEventBus;
 
-
     public RefContent() {
         init();
+    }
+
+    private Icon bigIcon(VaadinIcon iconDef, String color) {
+        Icon icon = iconDef.create();
+        icon.setSize("100%");
+        icon.getStyle().set("color", color);
+        return icon;
     }
 
     @Override
@@ -94,77 +101,13 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
     }
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Referee");
-    }
-
-    @Subscribe
-    public void slaveDecision(UIEvent.Decision e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            good.getElement().setEnabled(false); // cannot grant after down has been given
-            redTouched = false; // re-enable processing of red.
-        });
-    }
-
-    /**
-     * This must come from a timer on FieldOfPlay, because if we are using mobile devices
-     * there will not be a master decision reset coming from the keypad-hosting device
-     * 
-     * @param e
-     */
-    @Subscribe
-    public void slaveDecisionReset(UIEvent.DecisionReset e) {
-        logger.debug("received decision reset {}",refIndex);
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            resetRefVote();
-        });
-    }
-
-    @Subscribe
-    public void slaveDown(UIEvent.DownSignal e) {
-        // if no decision, remind referee
-    }
-
-    @Subscribe
-    public void slaveTimeStarted(UIEvent.StartTime e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            resetRefVote();
-        });
-    }
-
-    protected ComboBox<FieldOfPlay> createFopSelect() {
-        ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
-        fopSelect.setPlaceholder(getTranslation("SelectPlatform"));
-        fopSelect.setItems(OwlcmsFactory.getFOPs());
-        fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
-        fopSelect.setWidth("10rem");
-        return fopSelect;
-    }
-
-    protected void init() {
-        this.setBoxSizing(BoxSizing.BORDER_BOX);
-        this.setSizeFull();
-        createContent(this);
-    }
-
-    private Icon bigIcon(VaadinIcon iconDef, String color) {
-        Icon icon = iconDef.create();
-        icon.setSize("100%");
-        icon.getStyle().set("color", color);
-        return icon;
-    }
-    
     private void createContent(VerticalLayout refContainer) {
         HorizontalLayout topRow = new HorizontalLayout();
         Label juryLabel = new Label(getTranslation("Referee"));
         H3 labelWrapper = new H3(juryLabel);
         labelWrapper.getStyle().set("margin-top", "0");
         labelWrapper.getStyle().set("margin-bottom", "0");
-        
+
         refField = new NumberField();
         refField.setStep(1.0D);
         refField.setMax(3.0D);
@@ -177,7 +120,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
             refIndex = value == null ? null : ((int) Math.round(value));
             setUrl(refIndex != null ? refIndex.toString() : null);
         });
-        
+
         ComboBox<FieldOfPlay> fopSelect = createFopSelect();
         fopSelect.setValue(OwlcmsSession.getFop());
         fopSelect.addValueChangeListener((e) -> {
@@ -198,6 +141,15 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         refContainer.setAlignSelf(Alignment.START, topRow);
         refContainer.add(refVotingCenterHorizontally);
 
+    }
+
+    protected ComboBox<FieldOfPlay> createFopSelect() {
+        ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
+        fopSelect.setPlaceholder(getTranslation("SelectPlatform"));
+        fopSelect.setItems(OwlcmsFactory.getFOPs());
+        fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
+        fopSelect.setWidth("10rem");
+        return fopSelect;
     }
 
     private void createRefVoting() {
@@ -227,22 +179,56 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
 
     private void doRed() {
         OwlcmsSession.withFop(fop -> {
-            fop.getFopEventBus().post(new FOPEvent.DecisionUpdate(getOrigin(), refIndex-1, false));
+            fop.getFopEventBus().post(new FOPEvent.DecisionUpdate(getOrigin(), refIndex - 1, false));
         });
         good.getStyle().set("color", "grey");
     }
 
     private void doWhite() {
         OwlcmsSession.withFop(fop -> {
-            fop.getFopEventBus().post(new FOPEvent.DecisionUpdate(getOrigin(), refIndex-1, true));
+            fop.getFopEventBus().post(new FOPEvent.DecisionUpdate(getOrigin(), refIndex - 1, true));
         });
         bad.getStyle().set("color", "grey");
+    }
+
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
     }
 
     private Object getOrigin() {
         return this;
     }
 
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Referee");
+    }
+
+    protected void init() {
+        this.setBoxSizing(BoxSizing.BORDER_BOX);
+        this.setSizeFull();
+        createContent(this);
+    }
+
+    /**
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        OwlcmsSession.withFop(fop -> {
+            // we listen on uiEventBus.
+            uiEventBus = uiEventBusRegister(this, fop);
+        });
+    }
 
     private void redClicked(DomEvent e) {
         if (!redTouched) {
@@ -256,7 +242,6 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         vibrate();
     }
 
-
     private void resetRefVote() {
         refVotingButtons.removeAll();
         good = bigIcon(VaadinIcon.CHECK_CIRCLE, "white");
@@ -268,44 +253,139 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         refVotingButtons.add(bad, good);
     }
 
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
 
-    //	private Key getBadKey(int i) {
-    //		switch (i) {
-    //		case 0:
-    //			return Key.DIGIT_2;
-    //		case 1:
-    //			return Key.DIGIT_4;
-    //		case 2:
-    //			return Key.DIGIT_6;
-    //		case 3:
-    //			return Key.DIGIT_8;
-    //		case 4:
-    //			return Key.DIGIT_0;
-    //		default:
-    //			return Key.UNIDENTIFIED;
-    //		}
-    //	}
+    // private Key getBadKey(int i) {
+    // switch (i) {
+    // case 0:
+    // return Key.DIGIT_2;
+    // case 1:
+    // return Key.DIGIT_4;
+    // case 2:
+    // return Key.DIGIT_6;
+    // case 3:
+    // return Key.DIGIT_8;
+    // case 4:
+    // return Key.DIGIT_0;
+    // default:
+    // return Key.UNIDENTIFIED;
+    // }
+    // }
     //
-    //	private Key getGoodKey(int i) {
-    //		switch (i) {
-    //		case 0:
-    //			return Key.DIGIT_1;
-    //		case 1:
-    //			return Key.DIGIT_3;
-    //		case 2:
-    //			return Key.DIGIT_5;
-    //		case 3:
-    //			return Key.DIGIT_7;
-    //		case 4:
-    //			return Key.DIGIT_9;
-    //		default:
-    //			return Key.UNIDENTIFIED;
-    //		}
-    //	}
+    // private Key getGoodKey(int i) {
+    // switch (i) {
+    // case 0:
+    // return Key.DIGIT_1;
+    // case 1:
+    // return Key.DIGIT_3;
+    // case 2:
+    // return Key.DIGIT_5;
+    // case 3:
+    // return Key.DIGIT_7;
+    // case 4:
+    // return Key.DIGIT_9;
+    // default:
+    // return Key.UNIDENTIFIED;
+    // }
+    // }
 
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
+    /**
+     * Parse the http query parameters
+     *
+     * Note: because we have the @Route, the parameters are parsed *before* our
+     * parent layout is created.
+     *
+     * @param event     Vaadin navigation event
+     * @param parameter null in this case -- we don't want a vaadin "/" parameter.
+     *                  This allows us to add query parameters instead.
+     *
+     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+     *      java.lang.String)
+     */
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+        location = event.getLocation();
+        locationUI = event.getUI();
+        QueryParameters queryParameters = location.getQueryParameters();
+        Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
+        urlParams = computeParams(location, parametersMap);
+
+        // get the referee number from query parameters, do not add value if num is not
+        // defined
+        List<String> nums = parametersMap.get(REF_INDEX);
+        String num = null;
+        if (nums != null) {
+            num = nums.get(0);
+            try {
+                refIndex = Integer.parseInt(num);
+                logger.debug("parsed {} parameter = {}", REF_INDEX, num);
+                refField.setValue(refIndex.doubleValue());
+            } catch (NumberFormatException e) {
+                refIndex = null;
+                num = null;
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+        }
+
+    }
+
+    private void setUrl(String num) {
+        if (num != null) {
+            urlParams.put(REF_INDEX, Arrays.asList(num));
+        } else {
+            urlParams.remove(REF_INDEX);
+        }
+        // change the URL to reflect group
+        Location location2 = new Location(location.getPath(), new QueryParameters(urlParams));
+        locationUI.getPage().getHistory().replaceState(null, location2);
+        logger.trace("changed location to {}", location2.getPathWithQueryParameters());
+    }
+
+    @Subscribe
+    public void slaveDecision(UIEvent.Decision e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            good.getElement().setEnabled(false); // cannot grant after down has been given
+            redTouched = false; // re-enable processing of red.
+        });
+    }
+
+    /**
+     * This must come from a timer on FieldOfPlay, because if we are using mobile
+     * devices there will not be a master decision reset coming from the
+     * keypad-hosting device
+     *
+     * @param e
+     */
+    @Subscribe
+    public void slaveDecisionReset(UIEvent.DecisionReset e) {
+        logger.debug("received decision reset {}", refIndex);
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            resetRefVote();
+        });
+    }
+
+    @Subscribe
+    public void slaveDown(UIEvent.DownSignal e) {
+        // if no decision, remind referee
+    }
+
+    @Subscribe
+    public void slaveTimeStarted(UIEvent.StartTime e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            resetRefVote();
+        });
+    }
 
     private void vibrate() {
-        UI.getCurrent().getPage().executeJs("window.navigator.vibrate",200);
+        UI.getCurrent().getPage().executeJs("window.navigator.vibrate", 200);
     }
 
     private void whiteClicked(DomEvent e) {
@@ -320,84 +400,4 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         doWhite();
     }
 
-    /**
-     * Parse the http query parameters
-     * 
-     * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
-     * 
-     * @param event Vaadin navigation event
-     * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query parameters instead.
-     * 
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
-     */
-    @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        location = event.getLocation();
-        locationUI = event.getUI();     
-        QueryParameters queryParameters = location.getQueryParameters();
-        Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
-        urlParams = computeParams(location, parametersMap);
-        
-        // get the referee number from query parameters, do not add value if num is not defined
-        List<String> nums = parametersMap.get(REF_INDEX);
-        String num = null;
-        if (nums != null) {
-            num  = nums.get(0);
-            try {
-                refIndex = Integer.parseInt(num);
-                logger.debug("parsed {} parameter = {}",REF_INDEX, num);
-                refField.setValue(refIndex.doubleValue());
-            } catch (NumberFormatException e) {
-                refIndex = null;
-                num = null;
-                logger.error(LoggerUtils.stackTrace(e));
-            }
-        }
-       
-    }
-
-    private void setUrl(String num) {
-        if (num != null) {
-            urlParams.put(REF_INDEX,Arrays.asList(num));
-        } else {
-            urlParams.remove(REF_INDEX);
-        }
-        // change the URL to reflect group
-        Location location2 = new Location(location.getPath(),new QueryParameters(urlParams));
-        locationUI.getPage().getHistory().replaceState(null, location2);
-        logger.trace("changed location to {}",location2.getPathWithQueryParameters());
-    }
-    
-    /**
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        OwlcmsSession.withFop(fop -> {
-            // we listen on uiEventBus.
-            uiEventBus = uiEventBusRegister(this, fop);
-        });
-    }
-    
-    @Override
-    public Location getLocation() {
-        return this.location;
-    }
-
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
-
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
-    }
-
-   
 }

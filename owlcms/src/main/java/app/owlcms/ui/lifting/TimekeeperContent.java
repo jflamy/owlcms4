@@ -59,35 +59,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         return athlete;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
-     */
-    @Override
-    public void delete(Athlete Athlete) {
-        // do nothing;
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Timekeeper");
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-     */
-    @Override
-    public Athlete update(Athlete athlete) {
-        // do nothing
-        return athlete;
-    }
-
     @Override
     protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
 
@@ -177,6 +148,35 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
     protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
         HorizontalLayout decisions = new HorizontalLayout();
         return decisions;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
+     */
+    @Override
+    public void delete(Athlete Athlete) {
+        // do nothing;
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Timekeeper");
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+     */
+    @Override
+    public Athlete update(Athlete athlete) {
+        // do nothing
+        return athlete;
     }
 
 }

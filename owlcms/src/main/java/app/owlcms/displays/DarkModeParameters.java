@@ -36,19 +36,23 @@ public interface DarkModeParameters extends QueryParameterReader {
 
     public default void buildContextMenu(Component target) {
         ContextMenu oldContextMenu = getContextMenu();
-        if (oldContextMenu != null) oldContextMenu.setTarget(null);
-        
+        if (oldContextMenu != null) {
+            oldContextMenu.setTarget(null);
+        }
+
         ContextMenu contextMenu = new ContextMenu();
-        
+
         if (isDarkMode()) {
             Button darkButton = new Button(contextMenu.getTranslation(DARK), e -> setDarkMode(target, true, false));
             darkButton.setThemeName("primary contrast");
             contextMenu.addItem(darkButton);
-            Button lightButton = new Button(contextMenu.getTranslation("light"), e -> setDarkMode(target, false, false));
+            Button lightButton = new Button(contextMenu.getTranslation("light"),
+                    e -> setDarkMode(target, false, false));
             lightButton.setThemeName("secondary contrast");
             contextMenu.addItem(lightButton);
         } else {
-            Button lightButton = new Button(contextMenu.getTranslation("light"), e -> setDarkMode(target, false, false));
+            Button lightButton = new Button(contextMenu.getTranslation("light"),
+                    e -> setDarkMode(target, false, false));
             lightButton.setThemeName("secondary contrast");
             contextMenu.addItem(lightButton);
             Button darkButton = new Button(contextMenu.getTranslation(DARK), e -> setDarkMode(target, true, false));
@@ -76,7 +80,11 @@ public interface DarkModeParameters extends QueryParameterReader {
         n.open();
     }
 
+    public ContextMenu getContextMenu();
+
     public boolean isDarkMode();
+
+    public void setContextMenu(ContextMenu contextMenu);
 
     public void setDarkMode(boolean dark);
 
@@ -90,9 +98,6 @@ public interface DarkModeParameters extends QueryParameterReader {
             doNotification(dark);
         }
     }
-
-    public ContextMenu getContextMenu();
-    public void setContextMenu(ContextMenu contextMenu);
 
     /*
      * Process query parameters
@@ -122,10 +127,10 @@ public interface DarkModeParameters extends QueryParameterReader {
         event.getUI().getPage().getHistory().replaceState(null,
                 new Location(location.getPath(), new QueryParameters(cleanParams)));
     }
-    
+
     public default void updateURLLocation(UI ui, Location location, String mode) {
         // change the URL to reflect fop group
-        HashMap<String, List<String>> params = new HashMap<String, List<String>>(
+        HashMap<String, List<String>> params = new HashMap<>(
                 location.getQueryParameters().getParameters());
         if (mode != null) {
             params.put(DARK, Arrays.asList(mode));
@@ -134,5 +139,5 @@ public interface DarkModeParameters extends QueryParameterReader {
         }
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
-    
+
 }

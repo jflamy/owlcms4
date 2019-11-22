@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.jpa;
@@ -72,8 +72,9 @@ public class JPAService {
      * Close.
      */
     public static void close() {
-        if (factory != null)
+        if (factory != null) {
             factory.close();
+        }
         factory = null;
     }
 
@@ -167,8 +168,7 @@ public class JPAService {
                 .put("hibernate.javax.cache.missing_cache_strategy", "create")
                 .put("javax.persistence.sharedCache.mode", "ALL").put("hibernate.c3p0.min_size", 5)
                 .put("hibernate.c3p0.max_size", 20).put("hibernate.c3p0.acquire_increment", 5)
-                .put("hibernate.c3p0.timeout", 84200)
-                .put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
+                .put("hibernate.c3p0.timeout", 84200).put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
                 .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
                 .build();
         return vals;

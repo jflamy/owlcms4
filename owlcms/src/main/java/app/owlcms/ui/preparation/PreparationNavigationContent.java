@@ -51,7 +51,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
                 buttonClickEvent -> UI.getCurrent().navigate(CompetitionContent.class));
         Button categories = new Button(getTranslation("DefineCategories"),
                 buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class));
-        Button groups = new Button(getTranslation("DefineGroups"), buttonClickEvent -> UI.getCurrent().navigate(GroupContent.class));
+        Button groups = new Button(getTranslation("DefineGroups"),
+                buttonClickEvent -> UI.getCurrent().navigate(GroupContent.class));
         Button platforms = new Button(getTranslation("DefineFOP"),
                 buttonClickEvent -> UI.getCurrent().navigate(PlatformContent.class));
 
@@ -83,14 +84,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         DebugUtils.gc();
     }
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("OWLCMS_Preparation");
-    }
-
     @Override
     protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
         return null;
@@ -102,23 +95,31 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
     }
 
     @Override
-    protected String getTitle() {
-        return getTranslation("PrepareCompetition");
-    }
-    
-    @Override
     public Location getLocation() {
         return this.location;
     }
 
     @Override
-    public void setLocation(Location location) {
-        this.location = location;
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("OWLCMS_Preparation");
     }
 
     @Override
-    public UI getLocationUI() {
-        return this.locationUI;
+    protected String getTitle() {
+        return getTranslation("PrepareCompetition");
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     @Override

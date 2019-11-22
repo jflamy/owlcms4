@@ -129,23 +129,19 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         }));
     }
 
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Scoreboard.TopSinclair");
+    protected void doEmpty() {
+        logger.trace("doEmpty");
+        this.getModel().setHidden(true);
     }
 
-    @Override
-    public boolean isIgnoreGroupFromURL() {
-        return true;
-    }
-
-    @Subscribe
-    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
-        uiLog(e);
-        Competition competition = Competition.getCurrent();
-
-        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            doUpdate(competition);
+    protected void doUpdate(Athlete a, UIEvent e) {
+        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            LiftingOrderModel model = getModel();
+            if (a != null) {
+                model.setFullName(getTranslation("Scoreboard.TopSinclair"));
+                updateBottom(model);
+            }
         });
     }
 
@@ -161,7 +157,8 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
             ListIterator<Athlete> iterMen = sortedMen2.listIterator();
             while (iterMen.hasNext()) {
                 Athlete curMan = iterMen.next();
-                Double curSinclair = (curMan.getAttemptsDone() <= 3 ? curMan.getSinclairForDelta() : curMan.getSinclair());
+                Double curSinclair = (curMan.getAttemptsDone() <= 3 ? curMan.getSinclairForDelta()
+                        : curMan.getSinclair());
                 if (curSinclair <= 0) {
                     iterMen.remove();
                 } else {
@@ -179,7 +176,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
 //        topManSinclair = (topMan != null ? topMan.getSinclairForDelta() : 999.0D);
 
         topWomanSinclair = 0.0D;
-        List<Athlete> sortedWomen2 =  getSortedWomen();
+        List<Athlete> sortedWomen2 = getSortedWomen();
         if (sortedMen2 != null && !sortedMen2.isEmpty()) {
             ListIterator<Athlete> iterWomen = sortedWomen2.listIterator();
             while (iterWomen.hasNext()) {
@@ -202,93 +199,21 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         updateBottom(getModel());
     }
 
-    @Subscribe
-    public void slaveStartLifting(UIEvent.StartLifting e) {
-        uiLog(e);
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            getModel().setHidden(false);
-            this.getElement().callJsFunction("reset");
-        });
-    }
-
-    public void uiLog(UIEvent e) {
-        if (e == null) {
-            uiEventLogger.debug("### {} {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
+    private String formatInt(Integer total) {
+        if (total == null || total == 0) {
+            return "-";
+        } else if (total == -1) {
+            return "inv.";// invited lifter, not eligible.
+        } else if (total < 0) {
+            return "(" + Math.abs(total) + ")";
         } else {
-            uiEventLogger.debug("### {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                    LoggerUtils.whereFrom());
+            return total.toString();
         }
     }
 
-    protected void doEmpty() {
-        logger.trace("doEmpty");
-        this.getModel().setHidden(true);
-    }
-
-    protected void doUpdate(Athlete a, UIEvent e) {
-        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            LiftingOrderModel model = getModel();
-            if (a != null) {
-                model.setFullName(getTranslation("Scoreboard.TopSinclair"));
-                updateBottom(model);
-            }
-        });
-    }
-
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-     * AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        logger.debug("onAttach start");
-        buildContextMenu(this);
-        setDarkMode(this, isDarkMode(), false);
-        setTranslationMap();
-        for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
-            // we listen on all the uiEventBus.
-            uiEventBus = uiEventBusRegister(this, fop);
-        }
-        Competition competition = Competition.getCurrent();
-        competition.computeGlobalRankings();
-        doUpdate(competition);
-        logger.debug("onAttach end");
-    }
-
-    protected void setTranslationMap() {
-        JsonObject translations = Json.createObject();
-        Enumeration<String> keys = Translator.getKeys();
-        while (keys.hasMoreElements()) {
-            String curKey = keys.nextElement();
-            if (curKey.startsWith("Scoreboard.")) {
-                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-            }
-        }
-        this.getElement().setPropertyJson("t", translations);
-    }
-
-    private JsonValue getAthletesJson(List<Athlete> list2) {
-        JsonArray jath = Json.createArray();
-        int athx = 0;
-        List<Athlete> list3 = Collections.unmodifiableList(list2);
-        for (Athlete a : list3) {
-            JsonObject ja = Json.createObject();
-            Gender curGender = a.getGender();
-
-            int needed;
-            if (curGender == Gender.F) {
-                needed = (int) Math
-                        .round(Math.ceil((topWomanSinclair - a.getSinclairForDelta()) / a.getSinclairFactor()));
-            } else {
-                needed = (int) Math
-                        .round(Math.ceil((topManSinclair - a.getSinclairForDelta()) / a.getSinclairFactor()));
-            }
-            getAthleteJson(a, ja, curGender, needed);
-            jath.set(athx, ja);
-            athx++;
-        }
-        return jath;
+    private String formatKg(String total) {
+        return (total == null || total.trim().isEmpty()) ? "-"
+                : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
     }
 
     public void getAthleteJson(Athlete a, JsonObject ja, Gender g, int needed) {
@@ -313,6 +238,29 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         ja.put("bw", String.format("%.2f", a.getBodyWeight()));
         ja.put("sinclair", String.format("%.3f", a.getSinclair()));
         ja.put("needed", formatInt(needed));
+    }
+
+    private JsonValue getAthletesJson(List<Athlete> list2) {
+        JsonArray jath = Json.createArray();
+        int athx = 0;
+        List<Athlete> list3 = Collections.unmodifiableList(list2);
+        for (Athlete a : list3) {
+            JsonObject ja = Json.createObject();
+            Gender curGender = a.getGender();
+
+            int needed;
+            if (curGender == Gender.F) {
+                needed = (int) Math
+                        .round(Math.ceil((topWomanSinclair - a.getSinclairForDelta()) / a.getSinclairFactor()));
+            } else {
+                needed = (int) Math
+                        .round(Math.ceil((topManSinclair - a.getSinclairForDelta()) / a.getSinclairFactor()));
+            }
+            getAthleteJson(a, ja, curGender, needed);
+            jath.set(athx, ja);
+            athx++;
+        }
+        return jath;
     }
 
     /**
@@ -377,25 +325,141 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         }
     }
 
-//    private String formatAttempt(Integer attemptNo) {
-//        return Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
-//    }
-
-    private String formatInt(Integer total) {
-        if (total == null || total == 0) return "-";
-        else if (total == -1) return "inv.";// invited lifter, not eligible.
-        else if (total < 0) return  "(" + Math.abs(total) + ")";
-        else return total.toString();
+    @Override
+    public ContextMenu getContextMenu() {
+        return contextMenu;
     }
-    
-    private String formatKg(String total) {
-        return (total == null || total.trim().isEmpty()) ? "-"
-                : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
+
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
     }
 
     @SuppressWarnings("unused")
     private Object getOrigin() {
         return this;
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Scoreboard.TopSinclair");
+    }
+
+//    private String formatAttempt(Integer attemptNo) {
+//        return Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
+//    }
+
+    private List<Athlete> getSortedMen() {
+        return this.sortedMen;
+    }
+
+    private List<Athlete> getSortedWomen() {
+        return this.sortedWomen;
+    }
+
+    @Override
+    public boolean isDarkMode() {
+        return this.darkMode;
+    }
+
+    @Override
+    public boolean isIgnoreGroupFromURL() {
+        return true;
+    }
+
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+     * AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        logger.debug("onAttach start");
+        buildContextMenu(this);
+        setDarkMode(this, isDarkMode(), false);
+        setTranslationMap();
+        for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
+            // we listen on all the uiEventBus.
+            uiEventBus = uiEventBusRegister(this, fop);
+        }
+        Competition competition = Competition.getCurrent();
+        competition.computeGlobalRankings();
+        doUpdate(competition);
+        logger.debug("onAttach end");
+    }
+
+    @Override
+    public void setContextMenu(ContextMenu contextMenu) {
+        this.contextMenu = contextMenu;
+    }
+
+    @Override
+    public void setDarkMode(boolean dark) {
+        this.darkMode = dark;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
+    private void setSortedMen(List<Athlete> sortedMen) {
+        this.sortedMen = sortedMen;
+        logger.debug("sortedMen = {} -- {}", getSortedMen(), LoggerUtils.whereFrom());
+    }
+
+    private void setSortedWomen(List<Athlete> sortedWomen) {
+        this.sortedWomen = sortedWomen;
+        logger.debug("sortedWomen = {} -- {}", getSortedWomen(), LoggerUtils.whereFrom());
+    }
+
+    protected void setTranslationMap() {
+        JsonObject translations = Json.createObject();
+        Enumeration<String> keys = Translator.getKeys();
+        while (keys.hasMoreElements()) {
+            String curKey = keys.nextElement();
+            if (curKey.startsWith("Scoreboard.")) {
+                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+            }
+        }
+        this.getElement().setPropertyJson("t", translations);
+    }
+
+    @Subscribe
+    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
+        uiLog(e);
+        Competition competition = Competition.getCurrent();
+
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            doUpdate(competition);
+        });
+    }
+
+    @Subscribe
+    public void slaveStartLifting(UIEvent.StartLifting e) {
+        uiLog(e);
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            getModel().setHidden(false);
+            this.getElement().callJsFunction("reset");
+        });
+    }
+
+    public void uiLog(UIEvent e) {
+        if (e == null) {
+            uiEventLogger.debug("### {} {}", this.getClass().getSimpleName(), LoggerUtils.whereFrom());
+        } else {
+            uiEventLogger.debug("### {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                    LoggerUtils.whereFrom());
+        }
     }
 
     private void updateBottom(LiftingOrderModel model) {
@@ -409,64 +473,6 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         this.getElement().setProperty("topSinclairWomen",
                 sortedWomen2 != null && sortedWomen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairWomen") : "");
         this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2));
-    }
-
-    private List<Athlete> getSortedMen() {
-        return this.sortedMen;
-    }
-
-    private void setSortedMen(List<Athlete> sortedMen) {
-        this.sortedMen = sortedMen;
-        logger.debug("sortedMen = {} -- {}", getSortedMen(), LoggerUtils.whereFrom());
-    }
-
-    private List<Athlete> getSortedWomen() {
-        return this.sortedWomen;
-    }
-
-    private void setSortedWomen(List<Athlete> sortedWomen) {
-        this.sortedWomen = sortedWomen;
-        logger.debug("sortedWomen = {} -- {}", getSortedWomen(), LoggerUtils.whereFrom());
-    }
-
-    @Override
-    public void setDarkMode(boolean dark) {
-        this.darkMode = dark;
-    }
-
-    @Override
-    public boolean isDarkMode() {
-        return this.darkMode;
-    }
-    
-    @Override
-    public ContextMenu getContextMenu() {
-        return contextMenu;
-    }
-    
-    @Override
-    public void setContextMenu(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
-    }
-    
-    @Override
-    public Location getLocation() {
-        return this.location;
-    }
-
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
-
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
     }
 
 }

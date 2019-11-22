@@ -31,58 +31,55 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "lifting/marshall", layout = AthleteGridLayout.class)
 public class MarshallContent extends AthleteGridContent implements HasDynamicTitle {
 
-	// @SuppressWarnings("unused")
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);
-	static {
-		logger.setLevel(Level.INFO);
-	}
+    // @SuppressWarnings("unused")
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(MarshallContent.class);
+    static {
+        logger.setLevel(Level.INFO);
+    }
 
-	public MarshallContent() {
-		super();
-		setTopBarTitle(getTranslation("Marshall"));
-	}
+    public MarshallContent() {
+        super();
+        setTopBarTitle(getTranslation("Marshall"));
+    }
 
+    /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
+     */
+    @Override
+    protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
+        Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
+            OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.TimeStopped(this.getOrigin())));
+        });
+        stop.getElement().setAttribute("theme", "primary icon");
+        HorizontalLayout buttons = new HorizontalLayout(stop);
+        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+        return buttons;
+    }
 
-	/**
-	 * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
-	 */
-	@Override
-	protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
-		Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
-			OwlcmsSession.withFop(fop -> fop.getFopEventBus()
-				.post(new FOPEvent.TimeStopped(this.getOrigin())));
-		});
-		stop.getElement().setAttribute("theme", "primary icon");
-		HorizontalLayout buttons = new HorizontalLayout(
-			stop);
-		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-		return buttons;
-	}
+    /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
+     */
+    @Override
+    protected void createTopBar() {
+        super.createTopBar();
+        // this hides the back arrow
+        getAppLayout().setMenuVisible(false);
+    }
 
-	/**
-	 * @see app.owlcms.ui.shared.AthleteGridContent#createTopBar()
-	 */
-	@Override
-	protected void createTopBar() {
-		super.createTopBar();
-		// this hides the back arrow
-		getAppLayout().setMenuVisible(false);
-	}
+    /**
+     * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
+     */
+    @Override
+    protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
+        HorizontalLayout decisions = new HorizontalLayout();
+        return decisions;
+    }
 
-	/**
-	 * @see app.owlcms.ui.shared.AthleteGridContent#decisionButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
-	 */
-	@Override
-	protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
-		HorizontalLayout decisions = new HorizontalLayout();
-		return decisions;
-	}
-
-	/**
-	 * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-	 */
-	@Override
-	public String getPageTitle() {
-		return getTranslation("Marshall");
-	}
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Marshall");
+    }
 }

@@ -24,12 +24,13 @@ import ch.qos.logback.classic.Logger;
 public class Speakers {
     final static Logger logger = (Logger) LoggerFactory.getLogger(Speakers.class);
 
-    public static void main(String[] args) throws Exception {
-        List<Mixer> mixers = getOutputs();
-        for (Mixer mixer : mixers) {
-            System.out.println(mixer.getMixerInfo().getName());
-            testSound(mixer);
+    public static List<String> getOutputNames() {
+        ArrayList<String> outputNames = new ArrayList<>();
+        List<Mixer> outputs = getOutputs();
+        for (Mixer mixer : outputs) {
+            outputNames.add(mixer.getMixerInfo().getName());
         }
+        return outputNames;
     }
 
     /**
@@ -43,6 +44,14 @@ public class Speakers {
             mixers = new ArrayList<>();
         }
         return mixers;
+    }
+
+    public static void main(String[] args) throws Exception {
+        List<Mixer> mixers = getOutputs();
+        for (Mixer mixer : mixers) {
+            System.out.println(mixer.getMixerInfo().getName());
+            testSound(mixer);
+        }
     }
 
     /**
@@ -69,21 +78,6 @@ public class Speakers {
     }
 
     /**
-     * @param mixer
-     */
-    public static synchronized void testSound(Mixer mixer) {
-        try {
-            if (mixer == null)
-                return;
-            // both sounds should be heard simultaneously
-            new Sound(mixer, "initialWarning2.wav").emit();
-            new Tone(mixer, 1100, 1200, 1.0).emit();
-        } catch (Exception e) {
-            System.err.println("failed sound test\n"+LoggerUtils.stackTrace(e));
-        }
-    }
-
-    /**
      * @param infos
      * @throws LineUnavailableException
      */
@@ -95,19 +89,26 @@ public class Speakers {
                 port.open();
                 if (port.isControlSupported(FloatControl.Type.VOLUME)) {
                     FloatControl volume = (FloatControl) port.getControl(FloatControl.Type.VOLUME);
-                    logger.info("{} - {} - {}"+info, Port.Info.SPEAKER, volume);
+                    logger.info("{} - {} - {}" + info, Port.Info.SPEAKER, volume);
                 }
                 port.close();
             }
         }
     }
 
-    public static List<String> getOutputNames() {
-        ArrayList<String> outputNames = new ArrayList<>();
-        List<Mixer> outputs = getOutputs();
-        for (Mixer mixer : outputs) {
-            outputNames.add(mixer.getMixerInfo().getName());
+    /**
+     * @param mixer
+     */
+    public static synchronized void testSound(Mixer mixer) {
+        try {
+            if (mixer == null) {
+                return;
+            }
+            // both sounds should be heard simultaneously
+            new Sound(mixer, "initialWarning2.wav").emit();
+            new Tone(mixer, 1100, 1200, 1.0).emit();
+        } catch (Exception e) {
+            System.err.println("failed sound test\n" + LoggerUtils.stackTrace(e));
         }
-        return outputNames;
     }
 }

@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.shared;
@@ -32,14 +32,23 @@ public class FullIronIcon extends Icon {
      * Instantiates a new full iron icon.
      *
      * @param collection the collection
-     * @param icon the icon
+     * @param icon       the icon
      */
     public FullIronIcon(String collection, String icon) {
         // iron-icon's icon-attribute uses the format "collection:name",
         // e.g. icon="icons:expand-more"
-        super(collection,icon);
+        super(collection, icon);
     }
-    
+
+    /**
+     * Gets the rotation.
+     *
+     * @return the rotation
+     */
+    public String getRotation() {
+        return getStyle().get("transformation");
+    }
+
     /**
      * Sets the rotation.
      *
@@ -50,17 +59,8 @@ public class FullIronIcon extends Icon {
         if (angle == null) {
             getStyle().remove("transformation");
         } else {
-            getStyle().set("transformation", "rotate("+angle+"deg)");
+            getStyle().set("transformation", "rotate(" + angle + "deg)");
         }
         return this;
-    }
-    
-    /**
-     * Gets the rotation.
-     *
-     * @return the rotation
-     */
-    public String getRotation() {
-    	return getStyle().get("transformation");
     }
 }

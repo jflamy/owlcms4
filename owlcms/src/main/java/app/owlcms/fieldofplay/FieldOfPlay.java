@@ -477,7 +477,7 @@ public class FieldOfPlay {
             transitionToBreak((BreakStarted) e);
             return;
         } else if (e instanceof BreakPaused) {
-            //logger.warn("break paused {}", LoggerUtils.stackTrace());
+            // logger.warn("break paused {}", LoggerUtils.stackTrace());
         } else if (e instanceof StartLifting) {
             transitionToLifting(e, true);
         } else if (e instanceof BarbellOrPlatesChanged) {
@@ -1033,8 +1033,9 @@ public class FieldOfPlay {
             breakTimer2.setEnd(e.getTargetTime());
         }
         // this will broadcast to all slave break timers
-        if (!breakTimer2.isRunning())
+        if (!breakTimer2.isRunning()) {
             breakTimer2.start();
+        }
         logger.trace("started break timers {}", breakType2);
     }
 

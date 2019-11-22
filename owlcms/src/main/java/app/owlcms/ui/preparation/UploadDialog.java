@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.preparation;
@@ -42,121 +42,122 @@ import net.sf.jxls.reader.XLSReader;
 @SuppressWarnings("serial")
 public class UploadDialog extends Dialog {
 
-	private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
+    private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
 
-	final static Logger logger = (Logger) LoggerFactory.getLogger(UploadDialog.class);
-	final static Logger jxlsLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.reader.SimpleBlockReaderImpl");
-	static {
-		jxlsLogger.setLevel(Level.OFF);
-	}
+    final static Logger logger = (Logger) LoggerFactory.getLogger(UploadDialog.class);
+    final static Logger jxlsLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.reader.SimpleBlockReaderImpl");
+    static {
+        jxlsLogger.setLevel(Level.OFF);
+    }
 
-	public UploadDialog() {
+    public UploadDialog() {
 
-		MemoryBuffer buffer = new MemoryBuffer();
-		Upload upload = new Upload(buffer);
-		upload.setWidth("40em");
-		
-		TextArea ta = new TextArea(getTranslation("Errors"));
-		ta.setHeight("20ex");
-		ta.setWidth("80em");
-		ta.setVisible(false);
+        MemoryBuffer buffer = new MemoryBuffer();
+        Upload upload = new Upload(buffer);
+        upload.setWidth("40em");
 
-		upload.addSucceededListener(event -> {
-			processInput(buffer.getInputStream(),ta);
-		});
-		
-		upload.addStartedListener(event -> {
-			ta.clear();
-			ta.setVisible(false);
-		});
-		
-		H3 title = new H3(getTranslation("UploadRegistrationFile"));
-		VerticalLayout vl = new VerticalLayout(title, upload, ta);
-		add(vl);
-	}
+        TextArea ta = new TextArea(getTranslation("Errors"));
+        ta.setHeight("20ex");
+        ta.setWidth("80em");
+        ta.setVisible(false);
 
-	private void processInput(InputStream inputStream, TextArea ta) {
-		StringBuffer sb = new StringBuffer();
-		try (InputStream xmlInputStream = this.getClass().getResourceAsStream(REGISTRATION_READER_SPEC)) {
-			ReaderConfig readerConfig = ReaderConfig.getInstance();
-			readerConfig.setUseDefaultValuesForPrimitiveTypes(true);
-			readerConfig.setSkipErrors(true);
-			XLSReader reader = ReaderBuilder.buildFromXML(xmlInputStream);
+        upload.addSucceededListener(event -> {
+            processInput(buffer.getInputStream(), ta);
+        });
 
-			try (InputStream xlsInputStream = inputStream) {
-				RCompetition c = new RCompetition();
-				List<RAthlete> athletes = new ArrayList<RAthlete>();
+        upload.addStartedListener(event -> {
+            ta.clear();
+            ta.setVisible(false);
+        });
 
-				Map<String, Object> beans = new HashMap<>();
-				beans.put("competition", c);
-				beans.put("athletes", athletes);
+        H3 title = new H3(getTranslation("UploadRegistrationFile"));
+        VerticalLayout vl = new VerticalLayout(title, upload, ta);
+        add(vl);
+    }
 
-				//logger.info(getTranslation("ReadingData_"));
-				XLSReadStatus status = reader.read(inputStream, beans);
-				@SuppressWarnings("unchecked")
-				List<XLSReadMessage> errors = status.getReadMessages();
+    public String cleanMessage(String localizedMessage) {
+        localizedMessage = localizedMessage.replace("Can't read cell ", "");
+        String cell = localizedMessage.substring(0, localizedMessage.indexOf(" "));
+        String ss = "spreadsheet";
+        int ix = localizedMessage.indexOf(ss) + ss.length();
+        localizedMessage = localizedMessage.substring(ix);
+        if (localizedMessage.trim().contentEquals("text")) {
+            localizedMessage = "Empty or invalid.";
+        }
+        String cleanMessage = getTranslation("Cell") + " " + cell + ": " + localizedMessage;
+        return cleanMessage;
+    }
 
-				for (XLSReadMessage m : errors) {
-					sb.append(cleanMessage(m.getMessage()));
-					Exception e = m.getException();
-					Throwable cause = e.getCause();
-					String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
-					if (causeMessage.contentEquals("text")) causeMessage = "Empty or invalid.";
+    private void processInput(InputStream inputStream, TextArea ta) {
+        StringBuffer sb = new StringBuffer();
+        try (InputStream xmlInputStream = this.getClass().getResourceAsStream(REGISTRATION_READER_SPEC)) {
+            ReaderConfig readerConfig = ReaderConfig.getInstance();
+            readerConfig.setUseDefaultValuesForPrimitiveTypes(true);
+            readerConfig.setSkipErrors(true);
+            XLSReader reader = ReaderBuilder.buildFromXML(xmlInputStream);
+
+            try (InputStream xlsInputStream = inputStream) {
+                RCompetition c = new RCompetition();
+                List<RAthlete> athletes = new ArrayList<>();
+
+                Map<String, Object> beans = new HashMap<>();
+                beans.put("competition", c);
+                beans.put("athletes", athletes);
+
+                // logger.info(getTranslation("ReadingData_"));
+                XLSReadStatus status = reader.read(inputStream, beans);
+                @SuppressWarnings("unchecked")
+                List<XLSReadMessage> errors = status.getReadMessages();
+
+                for (XLSReadMessage m : errors) {
+                    sb.append(cleanMessage(m.getMessage()));
+                    Exception e = m.getException();
+                    Throwable cause = e.getCause();
+                    String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
+                    if (causeMessage.contentEquals("text")) {
+                        causeMessage = "Empty or invalid.";
+                    }
                     sb.append(causeMessage);
-					sb.append(System.lineSeparator());
-				}
-				if (sb.length() > 0) {
-					ta.setValue(sb.toString());
-					ta.setVisible(true);
-				}
-				logger.info(getTranslation("DataRead") +" " + athletes.size() + " athletes");
+                    sb.append(System.lineSeparator());
+                }
+                if (sb.length() > 0) {
+                    ta.setValue(sb.toString());
+                    ta.setVisible(true);
+                }
+                logger.info(getTranslation("DataRead") + " " + athletes.size() + " athletes");
 
-				JPAService.runInTransaction(em -> {
-					
-					Competition curC = Competition.getCurrent();
-					try {
-	                    Competition rCompetition = c.getCompetition();
-					    // save some properties from current database that do not appear on spreadheet
-	                    rCompetition.setEnforce20kgRule(curC.isEnforce20kgRule());
-	                    rCompetition.setUseBirthYear(curC.isUseBirthYear());
-	                    rCompetition.setMasters(curC.isMasters());
+                JPAService.runInTransaction(em -> {
 
-						// update the current competition with the new properties read from spreadsheet
+                    Competition curC = Competition.getCurrent();
+                    try {
+                        Competition rCompetition = c.getCompetition();
+                        // save some properties from current database that do not appear on spreadheet
+                        rCompetition.setEnforce20kgRule(curC.isEnforce20kgRule());
+                        rCompetition.setUseBirthYear(curC.isUseBirthYear());
+                        rCompetition.setMasters(curC.isMasters());
+
+                        // update the current competition with the new properties read from spreadsheet
                         BeanUtils.copyProperties(curC, rCompetition);
-						// update in database and set current to result of JPA merging.
-						Competition.setCurrent(em.merge(curC));
-						
-						// update the athletes with the values read; create if not present.
-						// because the athletes in the file have got no Id, this will create
-						// new athletes if the file is reloaded.
-						athletes.stream().forEach(r -> em.merge(r.getAthlete()));
-						em.flush();
-					} catch (IllegalAccessException | InvocationTargetException e) {
-						sb.append(e.getLocalizedMessage());
-					}
-					
+                        // update in database and set current to result of JPA merging.
+                        Competition.setCurrent(em.merge(curC));
 
-					return null;
-				});
-			} catch (InvalidFormatException | IOException e) {
-				logger.error(LoggerUtils.stackTrace(e));
-			}
-		} catch (IOException | SAXException e1) {
-			logger.error(LoggerUtils.stackTrace(e1));
-		}
-		return;
-	}
+                        // update the athletes with the values read; create if not present.
+                        // because the athletes in the file have got no Id, this will create
+                        // new athletes if the file is reloaded.
+                        athletes.stream().forEach(r -> em.merge(r.getAthlete()));
+                        em.flush();
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        sb.append(e.getLocalizedMessage());
+                    }
 
-	public String cleanMessage(String localizedMessage) {
-		localizedMessage = localizedMessage.replace("Can't read cell ", "");
-		String cell = localizedMessage.substring(0,localizedMessage.indexOf(" "));
-		String ss = "spreadsheet";
-		int ix = localizedMessage.indexOf(ss)+ss.length();
-		localizedMessage = localizedMessage.substring(ix);
-		if (localizedMessage.trim().contentEquals("text")) {
-		    localizedMessage = "Empty or invalid.";
-		}
-		String cleanMessage = getTranslation("Cell")+" "+cell+": "+localizedMessage;
-		return cleanMessage;
-	}
+                    return null;
+                });
+            } catch (InvalidFormatException | IOException e) {
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+        } catch (IOException | SAXException e1) {
+            logger.error(LoggerUtils.stackTrace(e1));
+        }
+        return;
+    }
 }

@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.i18n;
@@ -41,7 +41,7 @@ import ch.qos.logback.classic.Logger;
  * This class creates a resource bundle from a CSV file containing the various
  * translations, and provides translations for Components according to the
  * Vaadin translation spec.
- * 
+ *
  * Static variations of the translation routines are also provided for
  * translations that do not take place inside Vaadin components (e.g.
  * spreadsheets).
@@ -59,46 +59,6 @@ public class Translator implements I18NProvider {
     private static Locale forcedLocale = null;
     private static ClassLoader i18nloader = null;
     private static int line;
-
-    public static List<Locale> getAllAvailableLocales() {
-        return locales;
-    }
-
-    public static List<Locale> getAvailableLocales() {
-        return helper.getProvidedLocales();
-    }
-
-    public static Enumeration<String> getKeys() {
-        return Translator.getBundleFromCSV(Locale.ENGLISH).getKeys();
-    }
-
-    public static void setForcedLocale(Locale locale) {
-        if (locale != null && getAvailableLocales().contains(locale)) {
-            Translator.forcedLocale = locale;
-        } else {
-            Translator.forcedLocale = null; // default behaviour, first forcedLocale in list will be used
-        }
-    }
-
-    public static String translate(String string) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale());
-    }
-
-    public static String translate(String string, Locale locale) {
-        return helper.getTranslation(string, locale);
-    }
-
-    public static String translate(String string, Locale locale, Object... params) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
-    }
-
-    public static String translate(String string, Object... params) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
-    }
-
-    public static String translateOrElseNull(String string, Locale locale) {
-        return helper.getTranslationOrElseNull(string, locale);
-    }
 
     public static Locale createLocale(String localeString) {
         if (localeString == null) {
@@ -119,18 +79,26 @@ public class Translator implements I18NProvider {
         }
     }
 
+    public static List<Locale> getAllAvailableLocales() {
+        return locales;
+    }
+
+    public static List<Locale> getAvailableLocales() {
+        return helper.getProvidedLocales();
+    }
+
     /**
      * Return a resource bundle created by reading a CSV files. This creates
      * properties files, and uses the standard caching implementation and bundle
      * hierarchy as defined by Java.
-     * 
+     *
      * Resource bundles are cached by the Java implementation, so this method can be
      * called repeatedly.
-     * 
+     *
      * Adapted from https://hub.jmonkeyengine.org/t/i18n-from-csv-calc/31492
-     * 
+     *
      * @param locale
-     * 
+     *
      * @return
      */
     private static ResourceBundle getBundleFromCSV(Locale locale) {
@@ -145,19 +113,17 @@ public class Translator implements I18NProvider {
             InputStream csvStream = helper.getClass().getResourceAsStream(csvName);
             ICsvListReader listReader = null;
             try {
-                CsvPreference[] preferences = new CsvPreference[] {
-                        CsvPreference.STANDARD_PREFERENCE,
-                        CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE,
-                        CsvPreference.TAB_PREFERENCE };
+                CsvPreference[] preferences = new CsvPreference[] { CsvPreference.STANDARD_PREFERENCE,
+                        CsvPreference.EXCEL_NORTH_EUROPE_PREFERENCE, CsvPreference.TAB_PREFERENCE };
 
                 List<String> stringList = new ArrayList<>();
                 for (CsvPreference preference : preferences) {
                     listReader = new CsvListReader(new InputStreamReader(csvStream, StandardCharsets.UTF_8),
                             preference);
- 
+
                     if ((stringList = readLine(listReader)) == null) {
                         throw new RuntimeException(csvName + " file is empty");
-                    } else if (stringList.size() <= 2 ) {
+                    } else if (stringList.size() <= 2) {
                         // reset stream
                         csvStream = helper.getClass().getResourceAsStream(csvName);
                     } else {
@@ -235,15 +201,67 @@ public class Translator implements I18NProvider {
         return ResourceBundle.getBundle(baseName, locale, i18nloader);
     }
 
+    public static Enumeration<String> getKeys() {
+        return Translator.getBundleFromCSV(Locale.ENGLISH).getKeys();
+    }
+
     public static List<String> readLine(ICsvListReader listReader) throws IOException {
         line++;
         return listReader.read();
+    }
+
+    /**
+     * Force a reload of the translation files
+     */
+    public static void reset() {
+        locales = null;
+        i18nloader = null;
+        logger.debug("cleared translation class loader");
+    }
+
+    public static void setForcedLocale(Locale locale) {
+        if (locale != null && getAvailableLocales().contains(locale)) {
+            Translator.forcedLocale = locale;
+        } else {
+            Translator.forcedLocale = null; // default behaviour, first forcedLocale in list will be used
+        }
     }
 
     private static void throwInvalidLocale(String localeString) {
         String message = MessageFormat.format("invalid locale: {0}", localeString);
         logger.error(message);
         throw new RuntimeException(message);
+    }
+
+    public static String translate(String string) {
+        return helper.getTranslation(string, OwlcmsSession.getLocale());
+    }
+
+    public static String translate(String string, Locale locale) {
+        return helper.getTranslation(string, locale);
+    }
+
+    public static String translate(String string, Locale locale, Object... params) {
+        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
+    }
+
+    public static String translate(String string, Object... params) {
+        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
+    }
+
+    public static String translateOrElseNull(String string, Locale locale) {
+        return helper.getTranslationOrElseNull(string, locale);
+    }
+
+    private String format(String key, Locale locale, String value, Object... params) {
+        if (params.length > 0) {
+            try {
+                value = MessageFormat.format(value, params);
+            } catch (Exception e) {
+                value = "!" + locale.getLanguage() + ": " + e.getLocalizedMessage() + ": " + key + " " + params;
+            }
+        }
+        return value;
     }
 
     @Override
@@ -255,15 +273,6 @@ public class Translator implements I18NProvider {
             getBundleFromCSV(Locale.ENGLISH);
         }
         return locales;
-    }
-
-    /**
-     * Force a reload of the translation files
-     */
-    public static void reset() {
-        locales = null;
-        i18nloader = null;
-        logger.debug("cleared translation class loader");
     }
 
     /**
@@ -312,17 +321,6 @@ public class Translator implements I18NProvider {
 
     public void nullTranslationKey() {
         logger/**/.warn("null translation key");
-    }
-
-    private String format(String key, Locale locale, String value, Object... params) {
-        if (params.length > 0) {
-            try {
-                value = MessageFormat.format(value, params);
-            } catch (Exception e) {
-                value = "!" + locale.getLanguage() + ": " + e.getLocalizedMessage() + ": " + key + " " + params;
-            }
-        }
-        return value;
     }
 
     private Locale overrideLocale(Locale locale) {

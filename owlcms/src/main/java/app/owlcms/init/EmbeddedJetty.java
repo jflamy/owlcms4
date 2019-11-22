@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.init;
@@ -37,19 +37,19 @@ import ch.qos.logback.classic.Logger;
  * jetty web server
  */
 public class EmbeddedJetty {
-	@SuppressWarnings("unused")
+    @SuppressWarnings("unused")
     private final static Logger logger = (Logger) LoggerFactory.getLogger(EmbeddedJetty.class);
-	private final static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
-	
-	/**
-	 * Run.
-	 *
-	 * @param port the port
-	 * @param contextPath the context path
-	 * @throws Exception the exception
-	 */
-	public void run(int port, String contextPath) throws Exception {
-		startLogger.info("starting web server");
+    private final static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
+
+    /**
+     * Run.
+     *
+     * @param port        the port
+     * @param contextPath the context path
+     * @throws Exception the exception
+     */
+    public void run(int port, String contextPath) throws Exception {
+        startLogger.info("starting web server");
         URL webRootLocation = this.getClass().getResource("/META-INF/resources/");
         URI webRootUri = webRootLocation.toURI();
 
@@ -58,26 +58,19 @@ public class EmbeddedJetty {
         context.setContextPath(contextPath);
         context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*");
         context.setConfigurationDiscovered(true);
-        context.setConfigurations(new Configuration[]{
-                new AnnotationConfiguration(),
-                new WebInfConfiguration(),
-                new WebXmlConfiguration(),
-                new MetaInfConfiguration(),
-                new FragmentConfiguration(),
-                new EnvConfiguration(),
-                new PlusConfiguration(),
-                new JettyWebXmlConfiguration()
-        });
+        context.setConfigurations(new Configuration[] { new AnnotationConfiguration(), new WebInfConfiguration(),
+                new WebXmlConfiguration(), new MetaInfConfiguration(), new FragmentConfiguration(),
+                new EnvConfiguration(), new PlusConfiguration(), new JettyWebXmlConfiguration() });
         context.setInitParameter("vaadin.productionMode", Main.productionMode);
         Context servletContext = context.getServletContext();
         servletContext.setExtendedListenerTypes(true);
-        context.addEventListener(new ServletContextListeners());  
+        context.addEventListener(new ServletContextListeners());
 
         Server server = new Server(port);
         server.setHandler(context);
         ServletContextHandler scHandler = (ServletContextHandler) server.getHandler();
         scHandler.getServletHandler().addFilterWithMapping(HttpsEnforcer.class, "/*",
-            EnumSet.of(DispatcherType.REQUEST));
+                EnumSet.of(DispatcherType.REQUEST));
 
         server.start();
         startLogger.info("started on port {}", port);

@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.shared;
@@ -65,96 +65,6 @@ import ch.qos.logback.classic.Logger;
 
 public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageConfigurator {
 
-    final private Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
-    {
-        logger.setLevel(Level.INFO);
-    }
-
-    private Class<? extends AppLayout> variant;
-
-    private HasElement layoutComponentContent;
-
-    String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
-    String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
-    String START_DISPLAYS = Translator.translate("StartDisplays");
-    String RESULT_DOCUMENTS = Translator.translate("ResultDocuments");
-    String INFO = Translator.translate("About");
-    String PREFERENCES = Translator.translate("Preferences");
-    String DOCUMENTATION = Translator.translate("Documentation_Menu");
-
-    @SuppressWarnings("unchecked")
-    public OwlcmsRouterLayout() {
-        init(getLayoutConfiguration(variant));
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#
-     * showRouterLayoutContent(com.vaadin.flow.component.HasElement)
-     */
-    @Override
-    public void showRouterLayoutContent(HasElement content) {
-        logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName());
-        ((AppLayoutAware) content).setRouterLayout(this);
-        super.showRouterLayoutContent(content);
-        this.setLayoutComponentContent(content);
-    }
-
-    /**
-     * @return the layoutComponentContent
-     */
-    public HasElement getLayoutComponentContent() {
-        return layoutComponentContent;
-    }
-
-    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
-        if (variant == null) {
-            variant = LeftLayouts.LeftResponsive.class;
-        }
-
-        LeftNavigationItem home = new LeftNavigationItem(getTranslation("Home"),
-                VaadinIcon.HOME.create(), HomeNavigationContent.class);
-
-        AppLayout appLayout = AppLayoutBuilder.get(variant).withTitle(getTranslation("OWLCMS_Top"))
-                .withIcon("/frontend/images/logo.png")
-                .withAppBar(AppBarBuilder.get().build()).withAppMenu(LeftAppMenuBuilder.get()
-                        .addToSection(HEADER, new LeftHeaderItem(null, "", null)).add(home)
-                        .add(new LeftNavigationItem(PREPARE_COMPETITION, new Icon("social", "group-add"),
-                                PreparationNavigationContent.class))
-                        .add(new LeftNavigationItem(RUN_LIFTING_GROUP, new Icon("places", "fitness-center"),
-                                LiftingNavigationContent.class))
-                        .add(new LeftNavigationItem(START_DISPLAYS, new Icon("hardware", "desktop-windows"),
-                                DisplayNavigationContent.class))
-                        .add(new LeftNavigationItem(RESULT_DOCUMENTS, new Icon("maps", "local-printshop"),
-                                ResultsNavigationContent.class))
-                        .add(new LeftClickableItem(DOCUMENTATION, new Icon("icons", "help"),
-                                clickEvent -> UI.getCurrent().getPage().executeJs("window.open('https://jflamy.github.io/owlcms4/#/index','_blank')")))
-                        .addToSection(FOOTER, new LeftNavigationItem(INFO, new Icon("icons", "info-outline"),
-                                InfoNavigationContent.class))
-                        .build())
-                .build();
-
-        return appLayout;
-    }
-
-//    .add(new LeftClickableItem(DOCUMENTATION, VaadinIcon.COG.create(),
-//            clickEvent -> openModeSelector(this.variant))
-    @SuppressWarnings("unchecked")
-    private void setDrawerVariant(Class<? extends AppLayout> variant) {
-        this.variant = variant;
-        init(getLayoutConfiguration(variant));
-    }
-
-    @SuppressWarnings("unused")
-    private void openModeSelector(Class<? extends AppLayout> variant) {
-        new BehaviourSelector(variant, this::setDrawerVariant).open();
-    }
-
-    private void setLayoutComponentContent(HasElement layoutContent) {
-        this.layoutComponentContent = layoutContent;
-    }
-
     /**
      * The Class BehaviourSelector.
      */
@@ -172,11 +82,10 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
             RadioButtonGroup<Class<? extends AppLayout>> group = new RadioButtonGroup<>();
             group.getStyle().set("display", "flex");
             group.getStyle().set("flexDirection", "column");
-            group.setItems(LeftLayouts.Left.class, LeftLayouts.LeftOverlay.class, LeftLayouts.LeftResponsive.class, LeftLayouts.LeftHybrid.class,
-                    LeftLayouts.LeftHybridSmall.class, LeftLayouts.LeftResponsiveHybrid.class,
-                    LeftLayouts.LeftResponsiveOverlay.class,
-                    LeftLayouts.LeftResponsiveSmall.class
-            );
+            group.setItems(LeftLayouts.Left.class, LeftLayouts.LeftOverlay.class, LeftLayouts.LeftResponsive.class,
+                    LeftLayouts.LeftHybrid.class, LeftLayouts.LeftHybridSmall.class,
+                    LeftLayouts.LeftResponsiveHybrid.class, LeftLayouts.LeftResponsiveOverlay.class,
+                    LeftLayouts.LeftResponsiveSmall.class);
             group.setValue(current);
             layout.add(group);
             group.addValueChangeListener(singleSelectionEvent -> {
@@ -186,9 +95,100 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         }
     }
 
+    final private Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsRouterLayout.class);
+
+    {
+        logger.setLevel(Level.INFO);
+    }
+
+    private Class<? extends AppLayout> variant;
+
+    private HasElement layoutComponentContent;
+    String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
+    String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
+    String START_DISPLAYS = Translator.translate("StartDisplays");
+    String RESULT_DOCUMENTS = Translator.translate("ResultDocuments");
+    String INFO = Translator.translate("About");
+    String PREFERENCES = Translator.translate("Preferences");
+
+    String DOCUMENTATION = Translator.translate("Documentation_Menu");
+
+    @SuppressWarnings("unchecked")
+    public OwlcmsRouterLayout() {
+        init(getLayoutConfiguration(variant));
+    }
+
     @Override
     public void configurePage(InitialPageSettings settings) {
         settings.addInlineWithContents("<link rel=\"icon\" href=\"./frontend/images/owlcms.ico\">",
                 InitialPageSettings.WrapMode.NONE);
+    }
+
+    /**
+     * @return the layoutComponentContent
+     */
+    public HasElement getLayoutComponentContent() {
+        return layoutComponentContent;
+    }
+
+    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
+        if (variant == null) {
+            variant = LeftLayouts.LeftResponsive.class;
+        }
+
+        LeftNavigationItem home = new LeftNavigationItem(getTranslation("Home"), VaadinIcon.HOME.create(),
+                HomeNavigationContent.class);
+
+        AppLayout appLayout = AppLayoutBuilder.get(variant).withTitle(getTranslation("OWLCMS_Top"))
+                .withIcon("/frontend/images/logo.png").withAppBar(AppBarBuilder.get().build())
+                .withAppMenu(LeftAppMenuBuilder.get().addToSection(HEADER, new LeftHeaderItem(null, "", null)).add(home)
+                        .add(new LeftNavigationItem(PREPARE_COMPETITION, new Icon("social", "group-add"),
+                                PreparationNavigationContent.class))
+                        .add(new LeftNavigationItem(RUN_LIFTING_GROUP, new Icon("places", "fitness-center"),
+                                LiftingNavigationContent.class))
+                        .add(new LeftNavigationItem(START_DISPLAYS, new Icon("hardware", "desktop-windows"),
+                                DisplayNavigationContent.class))
+                        .add(new LeftNavigationItem(RESULT_DOCUMENTS, new Icon("maps", "local-printshop"),
+                                ResultsNavigationContent.class))
+                        .add(new LeftClickableItem(DOCUMENTATION, new Icon("icons", "help"),
+                                clickEvent -> UI.getCurrent().getPage()
+                                        .executeJs("window.open('https://jflamy.github.io/owlcms4/#/index','_blank')")))
+                        .addToSection(FOOTER, new LeftNavigationItem(INFO, new Icon("icons", "info-outline"),
+                                InfoNavigationContent.class))
+                        .build())
+                .build();
+
+        return appLayout;
+    }
+
+    @SuppressWarnings("unused")
+    private void openModeSelector(Class<? extends AppLayout> variant) {
+        new BehaviourSelector(variant, this::setDrawerVariant).open();
+    }
+
+    // .add(new LeftClickableItem(DOCUMENTATION, VaadinIcon.COG.create(),
+//            clickEvent -> openModeSelector(this.variant))
+    @SuppressWarnings("unchecked")
+    private void setDrawerVariant(Class<? extends AppLayout> variant) {
+        this.variant = variant;
+        init(getLayoutConfiguration(variant));
+    }
+
+    private void setLayoutComponentContent(HasElement layoutContent) {
+        this.layoutComponentContent = layoutContent;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#
+     * showRouterLayoutContent(com.vaadin.flow.component.HasElement)
+     */
+    @Override
+    public void showRouterLayoutContent(HasElement content) {
+        logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName());
+        ((AppLayoutAware) content).setRouterLayout(this);
+        super.showRouterLayoutContent(content);
+        this.setLayoutComponentContent(content);
     }
 }

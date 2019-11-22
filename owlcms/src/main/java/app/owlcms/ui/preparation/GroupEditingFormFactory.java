@@ -14,6 +14,12 @@ class GroupEditingFormFactory extends OwlcmsCrudFormFactory<Group> {
         super(domainType);
     }
 
+    @Override
+    public Group add(Group group) {
+        GroupRepository.save(group);
+        return group;
+    }
+
     /**
      * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.crud.CrudOperation,
      *      java.lang.Object)
@@ -28,18 +34,6 @@ class GroupEditingFormFactory extends OwlcmsCrudFormFactory<Group> {
     }
 
     @Override
-    public Group add(Group group) {
-        GroupRepository.save(group);
-        return group;
-    }
-
-    @Override
-    public Group update(Group group) {
-        GroupContent.logger.debug("saving group {} {}", group.getName(), group.getCompetitionTime());
-        return GroupRepository.save(group);
-    }
-
-    @Override
     public void delete(Group group) {
         GroupRepository.delete(group);
     }
@@ -48,6 +42,12 @@ class GroupEditingFormFactory extends OwlcmsCrudFormFactory<Group> {
     public Collection<Group> findAll() {
         // implemented on grid
         return null;
+    }
+
+    @Override
+    public Group update(Group group) {
+        GroupContent.logger.debug("saving group {} {}", group.getName(), group.getCompetitionTime());
+        return GroupRepository.save(group);
     }
 
 }

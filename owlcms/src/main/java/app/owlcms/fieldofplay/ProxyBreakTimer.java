@@ -119,7 +119,8 @@ public class ProxyBreakTimer implements IProxyTimer {
         indefinite = true;
         logger.debug("setting break indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
         this.timeRemaining = 0;
-        fop.getUiEventBus().post(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining, this.indefinite, this));
+        fop.getUiEventBus().post(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining,
+                this.indefinite, this));
         running = false;
     }
 
@@ -134,7 +135,8 @@ public class ProxyBreakTimer implements IProxyTimer {
         }
         logger.debug("setting break timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
-        fop.getUiEventBus().post(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining, this.indefinite, this));
+        fop.getUiEventBus().post(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining,
+                this.indefinite, this));
         running = false;
     }
 
@@ -148,8 +150,9 @@ public class ProxyBreakTimer implements IProxyTimer {
             logger.debug("starting Break -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
             timeRemainingAtLastStop = timeRemaining;
         }
-        UIEvent.BreakStarted event = new UIEvent.BreakStarted(isIndefinite() ? null : timeRemaining, null, false, fop.getBreakType(), fop.getCountdownType());
-        logger.debug("posting {}",event);
+        UIEvent.BreakStarted event = new UIEvent.BreakStarted(isIndefinite() ? null : timeRemaining, null, false,
+                fop.getBreakType(), fop.getCountdownType());
+        logger.debug("posting {}", event);
         fop.getUiEventBus().post(event);
         running = true;
     }
@@ -171,7 +174,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see app.owlcms.fieldofplay.IProxyTimer#timeOut(java.lang.Object)
      */
     @Override
@@ -183,15 +186,16 @@ public class ProxyBreakTimer implements IProxyTimer {
             return;
         }
         logger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
-        //TODO: emit sound at end of break
+        // TODO: emit sound at end of break
         fop.getUiEventBus().post(new UIEvent.BreakDone(origin));
-        
+
         EventBus fopEventBus = fop.getFopEventBus();
         BreakType breakType = fop.getBreakType();
         if (breakType == BreakType.FIRST_SNATCH || breakType == BreakType.FIRST_CJ) {
             fopEventBus.post(new FOPEvent.StartLifting(origin));
         } else if (breakType == BreakType.BEFORE_INTRODUCTION) {
-            fopEventBus.post(new FOPEvent.BreakStarted(BreakType.DURING_INTRODUCTION, CountdownType.INDEFINITE, null, null, origin));
+            fopEventBus.post(new FOPEvent.BreakStarted(BreakType.DURING_INTRODUCTION, CountdownType.INDEFINITE, null,
+                    null, origin));
         }
     }
 

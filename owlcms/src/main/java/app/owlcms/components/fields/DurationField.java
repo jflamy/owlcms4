@@ -34,13 +34,10 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public class DurationField extends WrappedTextField<Duration> implements HasValidation {
-    
-    Logger overrideLogger = (Logger) LoggerFactory.getLogger(DurationField.class);
-    Level overrideLoggerLevel = Level.INFO;
 
     private static DurationField helper = new DurationField();
-
     private static final String HHMMSS_FORMAT = "HH:mm:ss";
+
     private static final DateTimeFormatter HHMMSS_FORMATTER = DateTimeFormatter.ofPattern(HHMMSS_FORMAT);
 
     private static final String MMSS_FORMAT = "mm:ss";
@@ -49,6 +46,30 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
     public static <S> Renderer<S> getRenderer(ValueProvider<String, S> v, Locale locale) {
         return new TextRenderer<>(
                 d -> helper.getConverter().convertToPresentation((Duration) d, new ValueContext(locale)));
+    }
+
+    Logger overrideLogger = (Logger) LoggerFactory.getLogger(DurationField.class);
+
+    Level overrideLoggerLevel = Level.INFO;
+
+    private Result<Duration> doParse(String string, Locale locale, DateTimeFormatter formatter) {
+        LocalTime parsedTime;
+        try {
+            if ((string == null || string.trim().isEmpty()) && !this.isRequired()) {
+                // field is not required, accept empty content
+                setFormatValidationStatus(true, locale);
+                return Result.ok(null);
+            }
+            parsedTime = LocalTime.parse(string, formatter);
+            setFormatValidationStatus(true, locale);
+            Duration between = Duration.between(LocalTime.MIN, parsedTime);
+            getLogger().debug("parsed duration = {}", between);
+            return Result.ok(between);
+        } catch (DateTimeParseException e) {
+            getLogger().error(e.getLocalizedMessage());
+            setFormatValidationStatus(false, locale);
+            return Result.error(invalidFormatErrorMessage(locale));
+        }
     }
 
     @Override
@@ -72,27 +93,24 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
                     // last 5 characters, need zeros at front
                     String string2 = "00" + string;
                     return doParse("00:" + string2.substring(string2.length() - 5), locale, HHMMSS_FORMATTER);
-                } else
+                } else {
                     // assume hours
                     return doParse(string, locale, HHMMSS_FORMATTER);
+                }
             }
 
             @Override
             public String convertToPresentation(Duration value, ValueContext context) {
                 Locale locale = context.getLocale().orElse(Locale.ENGLISH);
-                if (!value.minusHours(1L).isNegative())
+                if (!value.minusHours(1L).isNegative()) {
                     // over 1h
                     return (value != null ? HHMMSS_FORMATTER.withLocale(locale).format(getValueAsLocalTime()) : "");
-                else
+                } else {
                     // show seconds for readability
                     return (value != null ? MMSS_FORMATTER.withLocale(locale).format(getValueAsLocalTime()) : "");
+                }
             }
         };
-    }
-
-    @Override
-    public String toString() {
-        return getConverter().convertToPresentation(getValue(), new ValueContext(getLocale()));
     }
 
     protected LocalTime getValueAsLocalTime() {
@@ -119,24 +137,9 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
         setValue(Duration.between(min, hhmmss));
     }
 
-    private Result<Duration> doParse(String string, Locale locale, DateTimeFormatter formatter) {
-        LocalTime parsedTime;
-        try {
-            if ((string == null || string.trim().isEmpty()) && !this.isRequired()) {
-                // field is not required, accept empty content
-                setFormatValidationStatus(true, locale);
-                return Result.ok(null);
-            }
-            parsedTime = LocalTime.parse(string, formatter);
-            setFormatValidationStatus(true, locale);
-            Duration between = Duration.between(LocalTime.MIN, parsedTime);
-            getLogger().debug("parsed duration = {}", between);
-            return Result.ok(between);
-        } catch (DateTimeParseException e) {
-            getLogger().error(e.getLocalizedMessage());
-            setFormatValidationStatus(false, locale);
-            return Result.error(invalidFormatErrorMessage(locale));
-        }
+    @Override
+    public String toString() {
+        return getConverter().convertToPresentation(getValue(), new ValueContext(getLocale()));
     }
 
 }

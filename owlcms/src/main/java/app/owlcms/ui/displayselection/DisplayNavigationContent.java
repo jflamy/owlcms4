@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.displayselection;
@@ -55,26 +55,26 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         Button attempt = openInNewTab(AttemptBoard.class, getTranslation("AttemptBoard"));
         Button referee = openInNewTab(AthleteFacingDecisionBoard.class, getTranslation("Athlete_Decisions"));
         Button athleteFacingAttempt = openInNewTab(AthleteFacingAttemptBoard.class, getTranslation("Athlete_Attempt"));
-        
+
         Button scoreboard = openInNewTab(Scoreboard.class, getTranslation("Scoreboard"));
         Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
         Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
-  
+
         fillH(intro, this);
-        
+
         VerticalLayout intro1 = new VerticalLayout();
         addP(intro1, getTranslation("darkModeSelect"));
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, liftingOrder, topSinclair);
-        doGroup(getTranslation("Scoreboards"), intro1, grid1, this);       
-        
+        doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
+
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, athleteFacingAttempt);
         doGroup(getTranslation("AttemptBoard"), grid3, this);
-        
+
         VerticalLayout intro2 = new VerticalLayout();
         addP(intro2, getTranslation("refereeingDevices"));
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee);
         doGroup(getTranslation("Refereeing_Displays"), intro2, grid2, this);
-        
+
         DebugUtils.gc();
     }
 
@@ -87,12 +87,14 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         return null;
     }
 
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
-     */
     @Override
-    protected String getTitle() {
-        return getTranslation("StartDisplays");
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
     }
 
     /**
@@ -103,19 +105,17 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         return getTranslation("OWLCMS_Displays");
     }
 
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
+     */
     @Override
-    public Location getLocation() {
-        return this.location;
+    protected String getTitle() {
+        return getTranslation("StartDisplays");
     }
 
     @Override
     public void setLocation(Location location) {
         this.location = location;
-    }
-
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
     }
 
     @Override

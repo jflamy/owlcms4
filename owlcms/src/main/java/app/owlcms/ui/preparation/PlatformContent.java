@@ -52,26 +52,13 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
     public PlatformContent() {
         OwlcmsCrudFormFactory<Platform> crudFormFactory = createFormFactory();
         GridCrud<Platform> crud = createGrid(crudFormFactory);
-        //		defineFilters(crudGrid);
+        // defineFilters(crudGrid);
         fillHW(crud, this);
     }
 
-    /**
-     * The columns of the crudGrid
-     *
-     * @param crudFormFactory what to call to create the form for editing an athlete
-     * @return
-     */
-    protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-        Grid<Platform> grid = new Grid<>(Platform.class, false);
-        grid.addColumn(Platform::getName).setHeader(getTranslation("Name"));
-        grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers"));
-        
-        GridCrud<Platform> crud = new OwlcmsCrudGrid<>(Platform.class, new OwlcmsGridLayout(Platform.class),
-                crudFormFactory, grid);
-        crud.setCrudListener(this);
-        crud.setClickRowToUpdate(true);
-        return crud;
+    @Override
+    public Platform add(Platform domainObjectToAdd) {
+        return editingFormFactory.add(domainObjectToAdd);
     }
 
     /**
@@ -92,14 +79,29 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
      *                        information
      */
     protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-        crudFormFactory.setVisibleProperties("name","soundMixerName");
-        crudFormFactory.setFieldCaptions(
-                getTranslation("PlatformName"),
-                getTranslation("Speakers"));
+        crudFormFactory.setVisibleProperties("name", "soundMixerName");
+        crudFormFactory.setFieldCaptions(getTranslation("PlatformName"), getTranslation("Speakers"));
         List<String> outputNames = Speakers.getOutputNames();
-        outputNames.add(0,getTranslation("UseBrowserSound"));
-        crudFormFactory.setFieldProvider("soundMixerName",
-                new OwlcmsComboBoxProvider<>(outputNames));
+        outputNames.add(0, getTranslation("UseBrowserSound"));
+        crudFormFactory.setFieldProvider("soundMixerName", new OwlcmsComboBoxProvider<>(outputNames));
+    }
+
+    /**
+     * The columns of the crudGrid
+     *
+     * @param crudFormFactory what to call to create the form for editing an athlete
+     * @return
+     */
+    protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
+        Grid<Platform> grid = new Grid<>(Platform.class, false);
+        grid.addColumn(Platform::getName).setHeader(getTranslation("Name"));
+        grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers"));
+
+        GridCrud<Platform> crud = new OwlcmsCrudGrid<>(Platform.class, new OwlcmsGridLayout(Platform.class),
+                crudFormFactory, grid);
+        crud.setCrudListener(this);
+        crud.setClickRowToUpdate(true);
+        return crud;
     }
 
     /**
@@ -113,16 +115,6 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
      */
     private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
         return new PlatformEditingFormFactory(Platform.class);
-    }
-
-    @Override
-    public Platform add(Platform domainObjectToAdd) {
-        return editingFormFactory.add(domainObjectToAdd);
-    }
-
-    @Override
-    public Platform update(Platform domainObjectToUpdate) {
-        return editingFormFactory.update(domainObjectToUpdate);
     }
 
     @Override
@@ -140,6 +132,14 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
         return PlatformRepository.findAll();
     }
 
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Preparation_Platforms");
+    }
+
     @Override
     public OwlcmsRouterLayout getRouterLayout() {
         return routerLayout;
@@ -150,11 +150,8 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
         this.routerLayout = routerLayout;
     }
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
     @Override
-    public String getPageTitle() {
-        return getTranslation("Preparation_Platforms");
+    public Platform update(Platform domainObjectToUpdate) {
+        return editingFormFactory.update(domainObjectToUpdate);
     }
 }

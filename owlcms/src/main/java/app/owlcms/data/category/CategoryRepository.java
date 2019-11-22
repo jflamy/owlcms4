@@ -116,10 +116,11 @@ public class CategoryRepository {
         if (gender != null) {
             whereList.add("c.gender = :gender");
         }
-        if (whereList.size() == 0)
+        if (whereList.size() == 0) {
             return null;
-        else
+        } else {
             return String.join(" and ", whereList);
+        }
     }
 
     /**
@@ -142,9 +143,9 @@ public class CategoryRepository {
 
     public static Collection<Category> findActive(Gender gender, Double bodyWeight) {
         List<Category> list = findActive(gender);
-        if (bodyWeight == null)
+        if (bodyWeight == null) {
             return list;
-        else {
+        } else {
             return list.stream()
                     .filter(cat -> bodyWeight > cat.getMinimumWeight() && bodyWeight <= cat.getMaximumWeight())
                     .collect(Collectors.toList());

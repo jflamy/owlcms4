@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
@@ -43,224 +43,232 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public abstract class BaseNavigationContent extends VerticalLayout
-implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
+        implements OwlcmsContent, QueryParameterReader, SafeEventBusRegistration, UIEventProcessor {
 
-	// @SuppressWarnings("unused")
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(BaseNavigationContent.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI"+logger.getName());
-	static {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
-	}
+    // @SuppressWarnings("unused")
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(BaseNavigationContent.class);
+    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    static {
+        logger.setLevel(Level.INFO);
+        uiEventLogger.setLevel(Level.INFO);
+    }
 
-	protected Location location;
-	protected UI locationUI;
-	protected EventBus uiEventBus;
+    protected Location location;
+    protected UI locationUI;
+    protected EventBus uiEventBus;
 
-	/**
-	 * Top part content
-	 */
-	private ComboBox<Group> groupSelect;
-	protected OwlcmsRouterLayout routerLayout;
+    /**
+     * Top part content
+     */
+    private ComboBox<Group> groupSelect;
+    protected OwlcmsRouterLayout routerLayout;
 
-	/**
-	 * Instantiates a new announcer content.
-	 * Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
-	 */
-	public BaseNavigationContent() {
-	}
+    /**
+     * Instantiates a new announcer content. Content is created in
+     * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
+     */
+    public BaseNavigationContent() {
+    }
 
-	/**
-	 * Process URL parameters, including query parameters
-	 * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
-	 */
-	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		QueryParameterReader.super.setParameter(event, parameter);
-		location = event.getLocation();
-		locationUI = event.getUI();
-	}
+    public void configureTopBar() {
+        FlexLayout topBar = getAppLayout().getAppBarElementWrapper();
+        topBar.setSizeFull();
+        topBar.setJustifyContentMode(JustifyContentMode.START);
+    }
 
-	/**
-	 * Update URL location.
-	 * This method is called when we set the group explicitly via a dropdown.
-	 *
-	 * @param ui the ui
-	 * @param location the location
-	 * @param newGroup the new group
-	 */
-	public void updateURLLocation(UI ui, Location location, Group newGroup) {
-		// change the URL to reflect fop group
-		HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
-		params.put("fop",Arrays.asList(OwlcmsSession.getFop().getName()));
-		if (newGroup != null && !isIgnoreGroupFromURL()) {
-			params.put("group",Arrays.asList(newGroup.getName()));
-		} else {
-			params.remove("group");
-		}
-		ui.getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
-	}
+    /**
+     * The left part of the top bar.
+     * 
+     * @param topBarTitle
+     * @param appLayoutComponent
+     */
+    protected void configureTopBarTitle(String topBarTitle) {
+        AbstractLeftAppLayoutBase appLayout = (AbstractLeftAppLayoutBase) getRouterLayout().getAppLayout();
+        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 20em");
+        Label label = new Label(topBarTitle);
+        appLayout.setTitleComponent(label);
+    }
 
-	/* (non-Javadoc)
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
-	 */
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsSession.withFop(fop -> {
-			// create the top bar, now that we know the group and fop
-			String title = getTitle();
-			logger.debug("createTopBar {}",title);
-			createTopBar(title);
-			// we listen on uiEventBus.
-			uiEventBus = uiEventBusRegister(this, fop);
+    /**
+     * The middle part of the top bar.
+     * 
+     * @param fopField
+     * @param groupField
+     * @param appLayoutComponent
+     */
+    protected void createAppBar(HorizontalLayout fopField, HorizontalLayout groupField) {
+        HorizontalLayout appBar = new HorizontalLayout();
+        if (fopField != null) {
+            appBar.add(fopField);
+        }
+        if (groupField != null) {
+            appBar.add(groupField);
+        }
+        appBar.setSpacing(true);
+        appBar.setAlignItems(FlexComponent.Alignment.CENTER);
+        getAppLayout().setAppBar(appBar);
+    }
 
-		});
-	}
+    protected ComboBox<FieldOfPlay> createFopSelect(String placeHolder) {
+        ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
+        fopSelect.setPlaceholder(placeHolder);
+        fopSelect.setItems(OwlcmsFactory.getFOPs());
+        fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
+        fopSelect.setWidth("10rem");
+        return fopSelect;
+    }
 
-	protected abstract String getTitle();
+    public ComboBox<Group> createGroupSelect(String placeHolder) {
+        groupSelect = new ComboBox<>();
+        groupSelect.setPlaceholder(placeHolder);
+        groupSelect.setItems(GroupRepository.findAll());
+        groupSelect.setItemLabelGenerator(Group::getName);
+        groupSelect.setWidth("10rem");
+        return groupSelect;
+    }
 
-	/**
-	 * The top bar is logically is the master part of a master-detail
-	 * In the current implementation, the most convenient place to put it is in the top bar
-	 * which is managed by the layout, but this could change. So we change the surrounding layout
-	 * from this class.  In this way, only one class (the content) listens for events.
-	 * Doing it the other way around would require multiple layouts, which breaks the idea of
-	 * a single page app.
-	 */
-	protected void createTopBar(String title) {
-		configureTopBar();
-		configureTopBarTitle(title);
-		HorizontalLayout fopField = createTopBarFopField(getTranslation("CompetitionPlatform"), getTranslation("SelectPlatform"));
-		createAppBar(fopField, null); //, groupField
-	}
+    /**
+     * The top bar is logically is the master part of a master-detail In the current
+     * implementation, the most convenient place to put it is in the top bar which
+     * is managed by the layout, but this could change. So we change the surrounding
+     * layout from this class. In this way, only one class (the content) listens for
+     * events. Doing it the other way around would require multiple layouts, which
+     * breaks the idea of a single page app.
+     */
+    protected void createTopBar(String title) {
+        configureTopBar();
+        configureTopBarTitle(title);
+        HorizontalLayout fopField = createTopBarFopField(getTranslation("CompetitionPlatform"),
+                getTranslation("SelectPlatform"));
+        createAppBar(fopField, null); // , groupField
+    }
 
-	public void configureTopBar() {
-		FlexLayout topBar = getAppLayout().getAppBarElementWrapper();
-		topBar.setSizeFull();
-		topBar.setJustifyContentMode(JustifyContentMode.START);
-	}
+    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+        Label fopLabel = new Label(label);
+        formatLabel(fopLabel);
 
-	/**
-	 * The left part of the top bar.
-	 * @param topBarTitle
-	 * @param appLayoutComponent
-	 */
-	protected void configureTopBarTitle(String topBarTitle) {
-		AbstractLeftAppLayoutBase appLayout = (AbstractLeftAppLayoutBase) getRouterLayout().getAppLayout();
-		appLayout.getTitleWrapper().getElement()
-		.getStyle()
-		.set("flex", "0 1 20em");
-		Label label = new Label(topBarTitle);
-		appLayout.setTitleComponent(label);
-	}
-	/**
-	 * The middle part of the top bar.
-	 * @param fopField
-	 * @param groupField
-	 * @param appLayoutComponent
-	 */
-	protected void createAppBar(HorizontalLayout fopField, HorizontalLayout groupField) {
-		HorizontalLayout appBar = new HorizontalLayout();
-		if (fopField != null) {
-			appBar.add(fopField);
-		}
-		if (groupField != null) {
-			appBar.add(groupField);
-		}
-		appBar.setSpacing(true);
-		appBar.setAlignItems(FlexComponent.Alignment.CENTER);
-		getAppLayout().setAppBar(appBar);
-	}
+        ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
+        OwlcmsSession.withFop((fop1) -> {
+            fopSelect.setValue(fop1);
+        });
+        fopSelect.addValueChangeListener(e -> {
+            // by default, we do NOT switch the group -- only the competition group lifting
+            // page
+            // does by overriding this method.
+            OwlcmsSession.setFop(e.getValue());
+        });
 
-	protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
-		Label fopLabel = new Label(label);
-		formatLabel(fopLabel);
+        HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
+        fopField.setAlignItems(Alignment.CENTER);
+        return fopField;
+    }
 
-		ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
-		OwlcmsSession.withFop((fop1) -> {
-			fopSelect.setValue(fop1);
-		});
-		fopSelect.addValueChangeListener(e -> {
-			// by default, we do NOT switch the group -- only the competition group lifting page
-			// does by overriding this method.
-			OwlcmsSession.setFop(e.getValue());
-		});
+    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
+        Label groupLabel = new Label(label);
+        formatLabel(groupLabel);
 
-		HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
-		fopField.setAlignItems(Alignment.CENTER);
-		return fopField;
-	}
+        ComboBox<Group> groupSelect = createGroupSelect(placeHolder);
+        OwlcmsSession.withFop((fop) -> {
+            groupSelect.setValue(fop.getGroup());
+        });
+        groupSelect.addValueChangeListener(e -> {
+            OwlcmsSession.withFop((fop) -> {
+                switchGroup(e.getValue(), fop);
+            });
+        });
 
-	protected ComboBox<FieldOfPlay> createFopSelect(String placeHolder) {
-		ComboBox<FieldOfPlay> fopSelect = new ComboBox<>();
-		fopSelect.setPlaceholder(placeHolder);
-		fopSelect.setItems(OwlcmsFactory.getFOPs());
-		fopSelect.setItemLabelGenerator(FieldOfPlay::getName);
-		fopSelect.setWidth("10rem");
-		return fopSelect;
-	}
+        HorizontalLayout groupField = new HorizontalLayout(groupLabel, groupSelect);
+        groupField.setAlignItems(Alignment.CENTER);
+        return groupField;
+    }
 
-	protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-		Label groupLabel = new Label(label);
-		formatLabel(groupLabel);
+    protected void formatLabel(Label label) {
+        label.getStyle().set("font-size", "small");
+        label.getStyle().set("text-align", "right");
+        label.getStyle().set("width", "12em");
+    }
 
-		ComboBox<Group> groupSelect = createGroupSelect(placeHolder);
-		OwlcmsSession.withFop((fop) -> {
-			groupSelect.setValue(fop.getGroup());
-		});
-		groupSelect.addValueChangeListener(e -> {
-			OwlcmsSession.withFop((fop) -> {
-				switchGroup(e.getValue(), fop);
-			});
-		});
+    protected Object getOrigin() {
+        return this;
+    }
 
-		HorizontalLayout groupField = new HorizontalLayout(groupLabel, groupSelect);
-		groupField.setAlignItems(Alignment.CENTER);
-		return groupField;
-	}
+    @Override
+    final public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
 
-	public ComboBox<Group> createGroupSelect(String placeHolder) {
-		groupSelect = new ComboBox<>();
-		groupSelect.setPlaceholder(placeHolder);
-		groupSelect.setItems(GroupRepository.findAll());
-		groupSelect.setItemLabelGenerator(Group::getName);
-		groupSelect.setWidth("10rem");
-		return groupSelect;
-	}
+    protected abstract String getTitle();
 
-	protected void formatLabel(Label label) {
-		label.getStyle().set("font-size", "small");
-		label.getStyle().set("text-align", "right");
-		label.getStyle().set("width", "12em");
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+     * AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        OwlcmsSession.withFop(fop -> {
+            // create the top bar, now that we know the group and fop
+            String title = getTitle();
+            logger.debug("createTopBar {}", title);
+            createTopBar(title);
+            // we listen on uiEventBus.
+            uiEventBus = uiEventBusRegister(this, fop);
 
-	protected void switchGroup(Group group2,FieldOfPlay fop) {
-		Group group = group2;
-		Group currentGroup = fop.getGroup();
-		if (group == null) {
-			fop.startLifting(null, this.getOrigin());
-			if (groupSelect != null) {
-				groupSelect.setValue(null);
-			}
-		} else if (!group.equals(currentGroup)) {
-			fop.startLifting(group, this.getOrigin());
-			if (groupSelect != null) {
-				groupSelect.setValue(group);
-			}
-		}
-	}
+        });
+    }
 
-	protected Object getOrigin() {
-		return this;
-	}
-	
-	@Override
-	final public OwlcmsRouterLayout getRouterLayout() {
-		return routerLayout;
-	}
+    /**
+     * Process URL parameters, including query parameters
+     * 
+     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+     *      java.lang.String)
+     */
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+        QueryParameterReader.super.setParameter(event, parameter);
+        location = event.getLocation();
+        locationUI = event.getUI();
+    }
 
-	@Override
-	final public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
-		this.routerLayout = routerLayout;
-	}
+    @Override
+    final public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
+
+    protected void switchGroup(Group group2, FieldOfPlay fop) {
+        Group group = group2;
+        Group currentGroup = fop.getGroup();
+        if (group == null) {
+            fop.startLifting(null, this.getOrigin());
+            if (groupSelect != null) {
+                groupSelect.setValue(null);
+            }
+        } else if (!group.equals(currentGroup)) {
+            fop.startLifting(group, this.getOrigin());
+            if (groupSelect != null) {
+                groupSelect.setValue(group);
+            }
+        }
+    }
+
+    /**
+     * Update URL location. This method is called when we set the group explicitly
+     * via a dropdown.
+     *
+     * @param ui       the ui
+     * @param location the location
+     * @param newGroup the new group
+     */
+    public void updateURLLocation(UI ui, Location location, Group newGroup) {
+        // change the URL to reflect fop group
+        HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
+        params.put("fop", Arrays.asList(OwlcmsSession.getFop().getName()));
+        if (newGroup != null && !isIgnoreGroupFromURL()) {
+            params.put("group", Arrays.asList(newGroup.getName()));
+        } else {
+            params.remove("group");
+        }
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
+    }
 }

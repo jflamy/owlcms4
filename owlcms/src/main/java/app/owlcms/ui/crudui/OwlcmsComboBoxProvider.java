@@ -11,7 +11,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 
 @SuppressWarnings("serial")
 public class OwlcmsComboBoxProvider<T> extends ComboBoxProvider<T> {
-    
+
     private ItemLabelGenerator<T> itemLabelGenerator;
 
     public OwlcmsComboBoxProvider(Collection<T> items) {
@@ -22,7 +22,8 @@ public class OwlcmsComboBoxProvider<T> extends ComboBoxProvider<T> {
         super(caption, items);
     }
 
-    public OwlcmsComboBoxProvider(String caption, Collection<T> items, ComponentRenderer<? extends Component, T> renderer, ItemLabelGenerator<T> itemLabelGenerator) {
+    public OwlcmsComboBoxProvider(String caption, Collection<T> items,
+            ComponentRenderer<? extends Component, T> renderer, ItemLabelGenerator<T> itemLabelGenerator) {
         super(caption, items, renderer, itemLabelGenerator);
         this.itemLabelGenerator = itemLabelGenerator;
     }
@@ -30,7 +31,7 @@ public class OwlcmsComboBoxProvider<T> extends ComboBoxProvider<T> {
     @Override
     protected ComboBox<T> buildAbstractListing() {
         ComboBox<T> field = new ComboBox<>();
-        if(renderer != null) {
+        if (renderer != null) {
             field.setRenderer(renderer);
         }
         if (itemLabelGenerator != null) {

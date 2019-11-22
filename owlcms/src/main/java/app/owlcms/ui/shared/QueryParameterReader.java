@@ -29,11 +29,12 @@ import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
-public interface QueryParameterReader extends HasUrlParameter<String>{
+public interface QueryParameterReader extends HasUrlParameter<String> {
 
-    final Logger logger = (Logger)LoggerFactory.getLogger(QueryParameterReader.class);
+    final Logger logger = (Logger) LoggerFactory.getLogger(QueryParameterReader.class);
 
-    public default HashMap<String, List<String>> computeParams(Location location, Map<String, List<String>> parametersMap) {
+    public default HashMap<String, List<String>> computeParams(Location location,
+            Map<String, List<String>> parametersMap) {
 
         HashMap<String, List<String>> params = new HashMap<>(parametersMap);
 
@@ -48,7 +49,7 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
             } else {
                 fop = OwlcmsFactory.getDefaultFOP();
             }
-            params.put("fop",Arrays.asList(fop.getName()));
+            params.put("fop", Arrays.asList(fop.getName()));
             OwlcmsSession.setFop(fop);
         } else {
             params.remove("fop");
@@ -58,22 +59,27 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
         Group group = null;
         if (!isIgnoreGroupFromURL()) {
             List<String> groupNames = parametersMap.get("group");
-            if (groupNames != null  && groupNames.get(0) != null) {
+            if (groupNames != null && groupNames.get(0) != null) {
                 group = GroupRepository.findByName(groupNames.get(0));
                 fop.setGroup(group);
             } else {
                 group = (fop != null ? fop.getGroup() : null);
             }
             if (group != null) {
-                params.put("group",Arrays.asList(group.getName()));
+                params.put("group", Arrays.asList(group.getName()));
             }
         } else {
             params.remove("group");
         }
 
-        logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}",LoggerUtils.whereFrom(),(fop != null ? fop.getName() : null),(group != null ? group.getName() : null));
+        logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
+                (fop != null ? fop.getName() : null), (group != null ? group.getName() : null));
         return params;
     }
+
+    public Location getLocation();
+
+    public UI getLocationUI();
 
     public default boolean isIgnoreFopFromURL() {
         return false;
@@ -83,9 +89,15 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
         return true;
     }
 
+    public void setLocation(Location location);
+
+    public void setLocationUI(UI locationUI);
+
     /*
      * Process query parameters
-     * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     * 
+     * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router.
+     * BeforeEvent, java.lang.String)
      */
     @Override
     public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
@@ -95,12 +107,8 @@ public interface QueryParameterReader extends HasUrlParameter<String>{
         Map<String, List<String>> parametersMap = queryParameters.getParameters();
         HashMap<String, List<String>> params = computeParams(location, parametersMap);
         // change the URL to reflect retrieved parameters
-        event.getUI().getPage().getHistory().replaceState(null, new Location(location.getPath(),new QueryParameters(params)));
+        event.getUI().getPage().getHistory().replaceState(null,
+                new Location(location.getPath(), new QueryParameters(params)));
     }
-    
-    public Location getLocation();
-    public void setLocation(Location location);
-    public UI getLocationUI();
-    public void setLocationUI(UI locationUI);
 
 }

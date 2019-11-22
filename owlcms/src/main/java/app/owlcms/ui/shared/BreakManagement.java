@@ -54,8 +54,6 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class BreakManagement extends VerticalLayout implements SafeEventBusRegistration {
-    private static final Duration DEFAULT_DURATION = Duration.ofMinutes(10L);
-
     public enum CountdownType {
         DURATION, TARGET, INDEFINITE
     }
@@ -63,6 +61,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public enum DisplayType {
         COUNTDOWN_INFO, LIFT_INFO
     }
+
+    private static final Duration DEFAULT_DURATION = Duration.ofMinutes(10L);
 
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakManagement.class);
     {

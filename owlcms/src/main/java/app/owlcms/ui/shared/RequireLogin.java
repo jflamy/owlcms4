@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.shared;
@@ -21,7 +21,7 @@ public interface RequireLogin extends BeforeEnterObserver {
 
         String whiteList = LoginView.getWhitelist();
         String pin = LoginView.getPin();
-        
+
         boolean isAuthenticated = OwlcmsSession.isAuthenticated();
         if (isAuthenticated || (pin == null && whiteList == null)) {
             // no check required

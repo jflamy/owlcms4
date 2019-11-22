@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -32,16 +32,11 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
      */
     final static int CARDS_PER_PAGE = 2;
 
-    public JXLSCards(boolean excludeNotWeighed) {
-        super();
-    }
-
     @SuppressWarnings("unused")
     private final static Logger logger = LoggerFactory.getLogger(JXLSCards.class);
 
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/cards/CardTemplate", ".xls", locale);
+    public JXLSCards(boolean excludeNotWeighed) {
+        super();
     }
 
     @Override
@@ -55,6 +50,11 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
                     .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, null));
             return registrationOrderCopy;
         }
+    }
+
+    @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        return getLocalizedTemplate("/templates/cards/CardTemplate", ".xls", locale);
     }
 
     /*

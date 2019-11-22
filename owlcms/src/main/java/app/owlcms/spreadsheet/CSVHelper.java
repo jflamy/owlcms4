@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -37,15 +37,17 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 
 /**
- * Read registration data in CSV format. The file is expected to contain a header line, as illustrated:
+ * Read registration data in CSV format. The file is expected to contain a
+ * header line, as illustrated:
  *
  * <pre>
  * lastName,firstName,gender,club,fullBirthDate,category,group,qualifyingTotal
  * Lamy,Jean-François,M,C-I,1961-12-02,m69,H1,140
  * </pre>
  *
- * (the date is expected in ISO international format YYYY-MM-dd : 4 digit year - month - day).
- * If you are forcing owlcms.useBirthYear=true then your header and format should be as follows.
+ * (the date is expected in ISO international format YYYY-MM-dd : 4 digit year -
+ * month - day). If you are forcing owlcms.useBirthYear=true then your header
+ * and format should be as follows.
  *
  * <pre>
  * lastName,firstName,gender,club,yearOfBirth,category,group,qualifyingTotal
@@ -54,58 +56,62 @@ import app.owlcms.data.group.GroupRepository;
  *
  *
  *
-
  *
- * registrationCategory and competitionSession must be valid entries in the database.
+ * 
+ * registrationCategory and competitionSession must be valid entries in the
+ * database.
  *
  * @author Jean-François Lamy
  *
  */
 public class CSVHelper {
+    @SuppressWarnings("unused")
+    private class AsCategory extends CellProcessorAdaptor {
+
+        public AsCategory() {
+            super();
+        }
+
+        public AsCategory(CellProcessor next) {
+            super(next);
+        }
+
+        @Override
+        public <T> T execute(Object value, CsvContext context) {
+            final Category result = CategoryRepository.findByName((String) value);
+            return next.execute(result, context);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private class AsGroup extends CellProcessorAdaptor {
+
+        public AsGroup() {
+            super();
+        }
+
+        public AsGroup(CellProcessor next) {
+            super(next);
+        }
+
+        @Override
+        public <T> T execute(Object value, CsvContext context) {
+            final Group result = GroupRepository.findByName((String) value);
+            return next.execute(result, context);
+        }
+
+    }
+
     final private Logger logger = LoggerFactory.getLogger(CSVHelper.class);
+
     private CellProcessor[] processors;
 
     public CSVHelper() {
         initProcessors();
     }
 
-    /**
-     * Configure the cell validators and value converters.
-     *
-     * @param hbnSessionManager
-     *            to access current database.
-     */
-    private void initProcessors() {
-
-        List<Group> sessionList = GroupRepository.findAll();
-        Set<Object> sessionNameSet = new HashSet<Object>();
-        for (Group s : sessionList) {
-            sessionNameSet.add(s.getName());
-        }
-        List<Category> categoryList = CategoryRepository.findActive();
-        Set<Object> categoryNameSet = new HashSet<Object>();
-        for (Category c : categoryList) {
-            categoryNameSet.add(c.getName());
-        }
-
-        CellProcessor dateparser = new ParseDate("yyyy-MM-dd");
-        if (Competition.getCurrent().isUseBirthYear()) {
-            dateparser = new StrRegEx("(19|20)[0-9][0-9]", new ParseInt());
-        }
-        processors = new CellProcessor[] {
-                null, // last name, as is.
-                null, // first name, as is.
-                new StrRegEx("[mfMF]"), // gender
-                null, // club, as is.
-                dateparser, // birth date or birth year
-                new Optional(new IsIncludedIn(categoryNameSet, new AsCategory())), // registrationCategory
-                new IsIncludedIn(sessionNameSet, new AsGroup()), // sessionName
-                new Optional(new ParseInt()), // registration total
-        };
-    }
-
     public synchronized List<Athlete> getAllAthletes(InputStream is, Session session) {
-        LinkedList<Athlete> allAthletes = new LinkedList<Athlete>();
+        LinkedList<Athlete> allAthletes = new LinkedList<>();
 
         CsvBeanReader cbr = new CsvBeanReader(new InputStreamReader(is), CsvPreference.EXCEL_PREFERENCE);
         try {
@@ -127,48 +133,16 @@ public class CSVHelper {
         return allAthletes;
     }
 
-    @SuppressWarnings("unused")
-    private class AsCategory extends CellProcessorAdaptor {
-
-        public AsCategory() {
-            super();
-        }
-
-        public AsCategory(CellProcessor next) {
-            super(next);
-        }
-
-		@Override
-		public <T> T execute(Object value, CsvContext context) {
-            final Category result = CategoryRepository.findByName((String) value);
-            return next.execute(result, context);
-		}
-    }
-
-    @SuppressWarnings("unused")
-    private class AsGroup extends CellProcessorAdaptor {
-
-        public AsGroup() {
-            super();
-        }
-
-        public AsGroup(CellProcessor next) {
-            super(next);
-        }
-
-		@Override
-		public  <T> T execute(Object value, CsvContext context) {
-            final Group result = GroupRepository.findByName((String) value);
-            return next.execute(result, context);
-        }
-
+    public List<Athlete> getAthletes(boolean excludeNotWeighed) {
+        // do nothing
+        return null;
     }
 
     /*
      * (non-Javadoc)
      */
     public List<Athlete> getGroupAthletes(InputStream is, Group aGroup, Session session) {
-        List<Athlete> groupAthletes = new ArrayList<Athlete>();
+        List<Athlete> groupAthletes = new ArrayList<>();
         for (Athlete curAthlete : getAllAthletes(is, session)) {
             if (aGroup.equals(curAthlete.getGroup())) {
                 groupAthletes.add(curAthlete);
@@ -177,9 +151,37 @@ public class CSVHelper {
         return groupAthletes;
     }
 
-    public List<Athlete> getAthletes(boolean excludeNotWeighed) {
-        // do nothing
-        return null;
+    /**
+     * Configure the cell validators and value converters.
+     *
+     * @param hbnSessionManager to access current database.
+     */
+    private void initProcessors() {
+
+        List<Group> sessionList = GroupRepository.findAll();
+        Set<Object> sessionNameSet = new HashSet<>();
+        for (Group s : sessionList) {
+            sessionNameSet.add(s.getName());
+        }
+        List<Category> categoryList = CategoryRepository.findActive();
+        Set<Object> categoryNameSet = new HashSet<>();
+        for (Category c : categoryList) {
+            categoryNameSet.add(c.getName());
+        }
+
+        CellProcessor dateparser = new ParseDate("yyyy-MM-dd");
+        if (Competition.getCurrent().isUseBirthYear()) {
+            dateparser = new StrRegEx("(19|20)[0-9][0-9]", new ParseInt());
+        }
+        processors = new CellProcessor[] { null, // last name, as is.
+                null, // first name, as is.
+                new StrRegEx("[mfMF]"), // gender
+                null, // club, as is.
+                dateparser, // birth date or birth year
+                new Optional(new IsIncludedIn(categoryNameSet, new AsCategory())), // registrationCategory
+                new IsIncludedIn(sessionNameSet, new AsGroup()), // sessionName
+                new Optional(new ParseInt()), // registration total
+        };
     }
 
     public void readHeader(InputStream is, Session session) {

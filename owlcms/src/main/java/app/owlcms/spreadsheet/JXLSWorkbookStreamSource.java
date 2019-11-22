@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -32,34 +32,150 @@ import ch.qos.logback.classic.Logger;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
- * Encapsulate a spreadsheet as a StreamSource so that it can be used as a source of data when the user clicks on a link. This class
- * converts the output stream to an input stream that the vaadin framework can consume.
+ * Encapsulate a spreadsheet as a StreamSource so that it can be used as a
+ * source of data when the user clicks on a link. This class converts the output
+ * stream to an input stream that the vaadin framework can consume.
  */
 @SuppressWarnings("serial")
 public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
-	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
-	static {
-		logger.setLevel(Level.INFO);
-		jexlLogger.setLevel(Level.ERROR);
-		tagLogger.setLevel(Level.ERROR);
-	}
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWorkbookStreamSource.class);
+    final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+    final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+    static {
+        logger.setLevel(Level.INFO);
+        jexlLogger.setLevel(Level.ERROR);
+        tagLogger.setLevel(Level.ERROR);
+    }
 
     private HashMap<String, Object> reportingBeans;
 
     private boolean excludeNotWeighed;
 
-	private Group group;
+    private Group group;
 
     public JXLSWorkbookStreamSource() {
         this.setExcludeNotWeighed(true);
         init();
     }
 
+    /**
+     * Read the xls template and write the processed XLS file out.
+     * 
+     * @see com.vaadin.flow.server.StreamResourceWriter#accept(java.io.OutputStream,
+     *      com.vaadin.flow.server.VaadinSession)
+     */
+    @Override
+    public void accept(OutputStream stream, VaadinSession session) throws IOException {
+        try {
+            session.lock();
+            Locale locale = session.getLocale();
+            XLSTransformer transformer = new XLSTransformer();
+            configureTransformer(transformer);
+            Workbook workbook = null;
+            try {
+                setReportingInfo();
+                HashMap<String, Object> reportingBeans2 = getReportingBeans();
+                workbook = transformer.transformXLS(getTemplate(locale), reportingBeans2);
+            } catch (Exception e) {
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+            if (workbook != null) {
+                postProcess(workbook);
+                workbook.write(stream);
+            }
+        } catch (IOException e) {
+            // ignore
+        } catch (Throwable t) {
+            logger.error(LoggerUtils.stackTrace(t));
+        } finally {
+            session.unlock();
+        }
+    }
+
+    protected void configureTransformer(XLSTransformer transformer) {
+        // do nothing, to be overridden as needed,
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    /**
+     * Try the possible variations of a template based on locale. For
+     * "/templates/start/startList", ".xls", and a locale of fr_CA, the following
+     * names will be tried /templates/start/startList_fr_CA.xls
+     * /templates/start/startList_fr.xls /templates/start/startList_en.xls
+     *
+     * @param templateName
+     * @param extension
+     * @param locale
+     * @return
+     * @throws IOException
+     */
+    protected InputStream getLocalizedTemplate(String templateName, String extension, Locale locale)
+            throws IOException {
+        List<String> tryList = getSuffixes(locale);
+        for (String suffix : tryList) {
+            final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName + suffix + extension);
+            if (resourceAsStream != null) {
+                return resourceAsStream;
+            }
+        }
+        throw new IOException("no template found for : " + templateName + extension + " tried with suffix " + tryList);
+    }
+
+    public HashMap<String, Object> getReportingBeans() {
+        return reportingBeans;
+    }
+
+    protected abstract List<Athlete> getSortedAthletes();
+
+    public List<String> getSuffixes(Locale locale) {
+        List<String> tryList = new ArrayList<>();
+        if (!locale.getVariant().isEmpty()) {
+            tryList.add("_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant());
+        }
+        if (!locale.getCountry().isEmpty()) {
+            tryList.add("_" + locale.getLanguage() + "_" + locale.getCountry());
+        }
+        if (!locale.getLanguage().isEmpty()) {
+            tryList.add("_" + locale.getLanguage());
+        }
+        // always add English as last resort.
+        if (!locale.getLanguage().equals("en")) {
+            tryList.add("_" + "en");
+        }
+        if (!locale.getLanguage().equals("en")) {
+            tryList.add("");
+        }
+        return tryList;
+    }
+
+    abstract public InputStream getTemplate(Locale locale) throws IOException;
+
     protected void init() {
         setReportingBeans(new HashMap<String, Object>());
+    }
+
+    public boolean isExcludeNotWeighed() {
+        return excludeNotWeighed;
+    }
+
+    protected void postProcess(Workbook workbook) {
+        // do nothing, to be overridden as needed,
+    }
+
+    public void setExcludeNotWeighed(boolean excludeNotWeighed) {
+        this.excludeNotWeighed = excludeNotWeighed;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public void setReportingBeans(HashMap<String, Object> jXLSBeans) {
+        this.reportingBeans = jXLSBeans;
     }
 
     /**
@@ -78,108 +194,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         getReportingBeans().put("masters", Competition.getCurrent().isMasters());
     }
 
-    protected abstract List<Athlete> getSortedAthletes();
-
-	/**
-     * Read the xls template and write the processed XLS file out. 
-     * 
-	 * @see com.vaadin.flow.server.StreamResourceWriter#accept(java.io.OutputStream, com.vaadin.flow.server.VaadinSession)
-	 */
-	@Override
-	public void accept(OutputStream stream, VaadinSession session) throws IOException {
-        try {
-    		session.lock();
-    		Locale locale = session.getLocale();
-            XLSTransformer transformer = new XLSTransformer();
-            configureTransformer(transformer);
-            Workbook workbook = null;
-            try {
-                setReportingInfo();
-                HashMap<String, Object> reportingBeans2 = getReportingBeans();
-                workbook = transformer.transformXLS(getTemplate(locale), reportingBeans2);
-            } catch (Exception e) {
-            	logger.error(LoggerUtils.stackTrace(e));
-            }
-            if (workbook != null) {
-                postProcess(workbook);
-                workbook.write(stream);
-            }
-        } catch (IOException e) {
-            // ignore
-        } catch (Throwable t) {
-        	logger.error(LoggerUtils.stackTrace(t));
-        } finally {
-        	session.unlock();
-        }
-	}
-	
-    abstract public InputStream getTemplate(Locale locale) throws IOException;
-    
-    public void setReportingBeans(HashMap<String, Object> jXLSBeans) {
-        this.reportingBeans = jXLSBeans;
-    }
-
-    public HashMap<String, Object> getReportingBeans() {
-        return reportingBeans;
-    }
-
-    public void setExcludeNotWeighed(boolean excludeNotWeighed) {
-        this.excludeNotWeighed = excludeNotWeighed;
-    }
-
-    public boolean isExcludeNotWeighed() {
-        return excludeNotWeighed;
-    }
-
-	public Group getGroup() {
-		return group;
-	}
-
-	public void setGroup(Group group) {
-		this.group = group;
-	}
-	
-    protected void configureTransformer(XLSTransformer transformer) {
-        // do nothing, to be overridden as needed,
-    }
-
-    protected void postProcess(Workbook workbook) {
-        // do nothing, to be overridden as needed,
-    }
-    
-    /**
-     * Try the possible variations of a template based on locale.
-     * For "/templates/start/startList", ".xls", and a locale of fr_CA, the following names will be tried
-     * /templates/start/startList_fr_CA.xls
-     * /templates/start/startList_fr.xls
-     * /templates/start/startList_en.xls
-     * 
-     * @param templateName
-     * @param extension
-     * @param locale
-     * @return
-     * @throws IOException 
-     */
-    protected InputStream getLocalizedTemplate(String templateName, String extension, Locale locale) throws IOException {
-        List<String> tryList = getSuffixes(locale);
-        for (String suffix : tryList) {
-            final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName+suffix+extension);
-            if (resourceAsStream != null) return resourceAsStream;
-        }
-        throw new IOException("no template found for : " + templateName + extension + " tried with suffix "+tryList);
-    }
-
-    public List<String> getSuffixes(Locale locale) {
-        List<String> tryList = new ArrayList<>();
-        if (!locale.getVariant().isEmpty()) { tryList.add( "_"+locale.getLanguage()+"_"+locale.getCountry()+"_"+locale.getVariant()); }
-        if (!locale.getCountry().isEmpty()) { tryList.add( "_"+locale.getLanguage()+"_"+locale.getCountry()); }
-        if (!locale.getLanguage().isEmpty()) { tryList.add( "_"+locale.getLanguage()); }
-        // always add English as last resort.
-        if (!locale.getLanguage().equals("en")) { tryList.add("_"+"en"); };
-        if (!locale.getLanguage().equals("en")) { tryList.add(""); };
-        return tryList;
-    }
-
     /**
      * Attempt to erase a pair of adjoining cells.
      *
@@ -190,12 +204,16 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
     public void zapCellPair(Workbook workbook, int rownum, int cellnum) {
         Row row = workbook.getSheetAt(0).getRow(rownum);
         final Cell cellLeft = row.getCell(cellnum);
-        if (cellLeft == null) return;
+        if (cellLeft == null) {
+            return;
+        }
 
         cellLeft.setCellValue("");
 
         Cell cellRight = row.getCell(cellnum + 1);
-        if (cellRight == null) return;
+        if (cellRight == null) {
+            return;
+        }
 
         cellRight.setCellValue("");
 

@@ -69,7 +69,7 @@ public interface NavigationPage extends OwlcmsContent {
         FieldOfPlay fop = OwlcmsSession.getFop();
         String name = fop == null ? "" : "_" + fop.getName();
         return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass, parameter) + "','"
-        + targetClass.getSimpleName() + name + "')";
+                + targetClass.getSimpleName() + name + "')";
     }
 
     public default <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,

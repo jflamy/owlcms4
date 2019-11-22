@@ -49,32 +49,10 @@ public class FOPEvent {
      */
     static public class BreakStarted extends FOPEvent {
 
-        @Override
-        public String toString() {
-            return "BreakStarted [breakType=" + breakType + ", countdownType=" + countdownType + ", timeRemaining="
-                    + timeRemaining + ", targetTime=" + targetTime + "]";
-        }
-
         private BreakType breakType;
+
         private CountdownType countdownType;
         private Integer timeRemaining;
-
-        public Integer getTimeRemaining() {
-            return timeRemaining;
-        }
-
-        public void setTimeRemaining(Integer timeRemaining) {
-            this.timeRemaining = timeRemaining;
-        }
-
-        public LocalDateTime getTargetTime() {
-            return targetTime;
-        }
-
-        public void setTargetTime(LocalDateTime targetTime) {
-            this.targetTime = targetTime;
-        }
-
         private LocalDateTime targetTime;
 
         public BreakStarted(BreakType bType, CountdownType cType, Integer timeRemaining, LocalDateTime targetTime,
@@ -94,12 +72,12 @@ public class FOPEvent {
             return countdownType;
         }
 
-        public void setBreakType(BreakType breakType) {
-            this.breakType = breakType;
+        public LocalDateTime getTargetTime() {
+            return targetTime;
         }
 
-        public void setCountdownType(CountdownType countdownType) {
-            this.countdownType = countdownType;
+        public Integer getTimeRemaining() {
+            return timeRemaining;
         }
 
         public boolean isIndefinite() {
@@ -109,6 +87,28 @@ public class FOPEvent {
                 return breakType == BreakType.JURY || breakType == BreakType.TECHNICAL
                         || breakType == BreakType.GROUP_DONE;
             }
+        }
+
+        public void setBreakType(BreakType breakType) {
+            this.breakType = breakType;
+        }
+
+        public void setCountdownType(CountdownType countdownType) {
+            this.countdownType = countdownType;
+        }
+
+        public void setTargetTime(LocalDateTime targetTime) {
+            this.targetTime = targetTime;
+        }
+
+        public void setTimeRemaining(Integer timeRemaining) {
+            this.timeRemaining = timeRemaining;
+        }
+
+        @Override
+        public String toString() {
+            return "BreakStarted [breakType=" + breakType + ", countdownType=" + countdownType + ", timeRemaining="
+                    + timeRemaining + ", targetTime=" + targetTime + "]";
         }
     }
 

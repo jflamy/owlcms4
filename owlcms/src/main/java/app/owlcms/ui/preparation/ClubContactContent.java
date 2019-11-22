@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.preparation;
@@ -128,9 +128,17 @@ public class ClubContactContent extends Composite<VerticalLayout> implements Owl
             infoLabel.setText("");
             doNotCall.setValue(false);
         });
-        
+
         fillH(layoutWithBinder, getContent());
-        fillH(actions,getContent());
+        fillH(actions, getContent());
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Preparation_Club");
     }
 
     @Override
@@ -143,12 +151,4 @@ public class ClubContactContent extends Composite<VerticalLayout> implements Owl
         this.routerLayout = routerLayout;
     }
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Preparation_Club");
-    }
-   
 }

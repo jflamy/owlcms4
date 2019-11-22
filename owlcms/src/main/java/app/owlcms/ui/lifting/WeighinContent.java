@@ -168,8 +168,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
 
         grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
-        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class,
-                new OwlcmsGridLayout(Athlete.class), crudFormFactory, grid);
+        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class),
+                crudFormFactory, grid);
         crudGrid.setCrudListener(this);
         crudGrid.setClickRowToUpdate(true);
         return crudGrid;

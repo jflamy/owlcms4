@@ -30,10 +30,7 @@ public class ConfirmationDialog extends Dialog {
 
         Paragraph paragraph = new Paragraph();
         paragraph.getElement().setProperty("innerHTML", question);
-        content.add(
-                title1,
-                paragraph
-                );
+        content.add(title1, paragraph);
 
         HorizontalLayout buttons = new HorizontalLayout();
         Button confirmButton = new Button(getTranslation("Confirm"), event -> {

@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.group;
@@ -37,11 +37,11 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 public class Group implements Comparable<Group> {
 
-    final private Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
-
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
+
     private final static DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder().parseLenient()
             .appendPattern(DATE_FORMAT).toFormatter();
+    final private Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -115,26 +115,30 @@ public class Group implements Comparable<Group> {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override
     public int compareTo(Group obj) {
-        if (this == obj)
+        if (this == obj) {
             return 0;
-        if (obj == null)
+        }
+        if (obj == null) {
             return -1;
+        }
         Group other = obj;
         if (name == null) {
-            if (other.name != null)
+            if (other.name != null) {
                 return 1;
-            else
+            } else {
                 return 0;
+            }
         } else {
-            if (other.name != null)
+            if (other.name != null) {
                 return name.compareTo(other.name);
-            else // this != null other.name == null
+            } else {
                 return -1;
+            }
         }
     }
 
@@ -145,18 +149,23 @@ public class Group implements Comparable<Group> {
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Group other = (Group) obj;
         if (name == null) {
-            if (other.name != null)
+            if (other.name != null) {
                 return false;
-        } else if (!name.equals(other.name))
+            }
+        } else if (!name.equals(other.name)) {
             return false;
+        }
         return true;
     }
 
@@ -186,7 +195,7 @@ public class Group implements Comparable<Group> {
 //    public Set<Category> getCategories() {
 //        return categories;
 //    }
-    
+
     /**
      * Gets the competition short date time.
      *

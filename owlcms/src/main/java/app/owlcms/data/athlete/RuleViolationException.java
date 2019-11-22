@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athlete;
@@ -18,9 +18,9 @@ import ch.qos.logback.classic.Logger;
  * The Class RuleViolationException.
  */
 public class RuleViolationException extends RuntimeException {
-	@SuppressWarnings("unused")
-	private static final Logger logger = (Logger)LoggerFactory.getLogger(RuleViolationException.class);
-	
+    @SuppressWarnings("unused")
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(RuleViolationException.class);
+
     private static final long serialVersionUID = 8965943679108964933L;
     private String messageKey;
     private Object[] messageFormatData;
@@ -29,20 +29,8 @@ public class RuleViolationException extends RuntimeException {
     /**
      * Instantiates a new rule violation exception.
      *
-     * @param s the s
-     * @param objs the objs
-     */
-    public RuleViolationException(String s, Object... objs) {
-        super(s);
-        this.messageKey = s;
-        this.messageFormatData = objs;
-    }
-
-    /**
-     * Instantiates a new rule violation exception.
-     *
-     * @param l the l
-     * @param s the s
+     * @param l    the l
+     * @param s    the s
      * @param objs the objs
      */
     public RuleViolationException(Locale l, String s, Object... objs) {
@@ -52,24 +40,30 @@ public class RuleViolationException extends RuntimeException {
         this.messageFormatData = objs;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Throwable#getMessage()
+    /**
+     * Instantiates a new rule violation exception.
+     *
+     * @param s    the s
+     * @param objs the objs
      */
-    @Override
-    public String getMessage() {
-        return getLocalizedMessage();
+    public RuleViolationException(String s, Object... objs) {
+        super(s);
+        this.messageKey = s;
+        this.messageFormatData = objs;
     }
 
     /**
-     * Sets the locale.
+     * Gets the locale.
      *
-     * @param locale the new locale
+     * @return the locale
      */
-    public void setLocale(Locale locale) {
-        this.locale = locale;
+    public Locale getLocale() {
+        return this.locale;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Throwable#getLocalizedMessage()
      */
     @Override
@@ -88,13 +82,23 @@ public class RuleViolationException extends RuntimeException {
         return Translator.translate(this.messageKey, locale1, messageFormatData);
     }
 
-    /**
-     * Gets the locale.
-     *
-     * @return the locale
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Throwable#getMessage()
      */
-    public Locale getLocale() {
-        return this.locale;
+    @Override
+    public String getMessage() {
+        return getLocalizedMessage();
+    }
+
+    /**
+     * Sets the locale.
+     *
+     * @param locale the new locale
+     */
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 
 }
