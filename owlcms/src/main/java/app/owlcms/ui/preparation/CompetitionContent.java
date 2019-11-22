@@ -113,6 +113,9 @@ public class CompetitionContent extends Composite<VerticalLayout>
 		crudFormFactory.setFieldType("competitionDate", DatePicker.class);
 	}
 	
+	/**
+	 * @see org.vaadin.crudui.layout.CrudLayout#setMainComponent(com.vaadin.flow.component.Component)
+	 */
 	@Override
 	public void setMainComponent(Component component) {
 		getContent().removeAll();
