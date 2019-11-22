@@ -64,7 +64,8 @@ public class Tone {
         if (sdl == null)
             return;
         try {
-            sdl.open(af);
+            System.err.println("new");
+            sdl.open(af, buf.length);
             sdl.start();
             sdl.write(buf, 0, buf.length);
             sdl.drain();
