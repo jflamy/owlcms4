@@ -1057,7 +1057,7 @@ public class Athlete {
      */
     public Double getCustomScore() {
         if (customScore == null || customScore < 0.01)
-            return new Double(getTotal());
+            return Double.valueOf(getTotal());
         return customScore;
     }
 
