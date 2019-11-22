@@ -28,6 +28,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
+import app.owlcms.components.fields.ValidationTextField;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -153,15 +154,22 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory.setFieldProvider("ageDivision", new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"),
                 Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name), AgeDivision::name));
 
+        // ValidationTextField (or a wrapper) must be used as workaround for unexplained validation behaviour
+        crudFormFactory.setFieldType("snatch1Declaration", ValidationTextField.class);
+        crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
+        crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
+        
         crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
         if (useBirthYear) {
-            crudFormFactory.setFieldType("yearOfBirth", TextField.class);
+            crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
         } else {
             crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
         }
         crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {
             ((BodyWeightField) e).focus();
         });
+        
+
     }
 
     @Override

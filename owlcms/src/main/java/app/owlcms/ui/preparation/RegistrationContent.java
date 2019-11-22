@@ -32,6 +32,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
+import app.owlcms.components.fields.ValidationTextField;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -344,7 +345,12 @@ implements CrudListener<Athlete>, OwlcmsContent {
 
         crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
         crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
-        //crudFormFactory.setFieldType("yearOfBirth", IntegerField.class);
+        
+        // ValidationTextField (or a wrapper) must be used as workaround for unexplained validation behaviour
+        crudFormFactory.setFieldType("snatch1Declaration", ValidationTextField.class);
+        crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
+        crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
+        crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
     }
 
     private Collection<Athlete> doExtraFiltering(List<Athlete> all) {

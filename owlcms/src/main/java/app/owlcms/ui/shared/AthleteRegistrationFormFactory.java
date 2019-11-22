@@ -36,6 +36,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.validator.DoubleRangeValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 import app.owlcms.components.NavigationPage;
 import app.owlcms.components.fields.BodyWeightField;
@@ -70,6 +71,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
     private StringToIntegerConverter yobConverter;
 
+    private boolean checkOther20kgFields;
+
     public AthleteRegistrationFormFactory(Class<Athlete> domainType) {
         super(domainType);
     }
@@ -100,8 +103,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             bindingBuilder.bind(property);
         } else if ("fullBirthDate".equals(property)) {
             validateFullBirthDate(bindingBuilder);
-            HasValue<?, ?> bdateField = bindingBuilder.getField();
-            bdateField.addValueChangeListener((e) -> {
+            field.addValueChangeListener((e) -> {
                 LocalDate date = (LocalDate) e.getValue();
                 Integer year = null;
                 if (date != null) {
@@ -112,23 +114,21 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             bindingBuilder.bind(property);
         } else if ("yearOfBirth".equals(property)) {
             validateYearOfBirth(bindingBuilder);
-            HasValue<?, ?> bdateField = bindingBuilder.getField();
-            bdateField.addValueChangeListener((event) -> {
+            ((TextField) field).setValueChangeMode(ValueChangeMode.EAGER);
+            field.addValueChangeListener((event) -> {
                 Result<Integer> yR = yobConverter.convertToModel((String) event.getValue(),
                         new ValueContext(OwlcmsSession.getLocale()));
                 yR.ifOk((r) -> {
                     setMastersAgeGroupFromYOB(r);
                 });
             });
-            Binding binding = bindingBuilder.bind(property);
-            logger.warn("validation status handler for date = {}", binding.getValidationStatusHandler());
+            bindingBuilder.bind(property);
         } else if ("category".equals(property)) {
             validateCategory(bindingBuilder);
             bindingBuilder.bind(property);
         } else if ("gender".equals(property)) {
             validateGender(bindingBuilder);
-            HasValue<?, ?> genderField = bindingBuilder.getField();
-            genderField.addValueChangeListener((e) -> {
+            field.addValueChangeListener((e) -> {
                 Gender gender = (Gender) e.getValue();
                 if (Competition.getCurrent().isUseBirthYear()) {
                     setMastersAgeGroupFromYearOfBirth(gender);
@@ -137,23 +137,80 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 }
             });
             bindingBuilder.bind(property);
-        } else if (property.endsWith("Declaration")) {
-            logger.debug(property);
-            TextField declField = (TextField) bindingBuilder.getField();
-            declField.setPattern("^(-?\\d+)|()$"); // optional minus and at least one digit, or empty.
-            declField.setPreventInvalidInput(true);
-
-            Validator<String> v2 = ValidationUtils.<String>checkUsing((unused) -> {
-                logger.warn("validating {}", property);
-                boolean validateStartingTotalsRule = Athlete.validateStartingTotalsRule(editedAthlete,
-                        getIntegerFieldValue("snatch1Declaration"), getIntegerFieldValue("cleanJerk1Declaration"),
-                        getIntegerFieldValue("qualifyingTotal"));
-                return validateStartingTotalsRule;
+        } else if (property.endsWith("snatch1Declaration")) {
+            configure20kgWeightField(field);
+            Validator<String> v2 = ValidationUtils.<String>checkUsingException((unused) -> {
+                return validateStartingTotals("snatch1Declaration", "cleanJerk1Declaration", "qualifyingTotal");
             });
             bindingBuilder.withValidator(v2);
             bindingBuilder.bind(property);
+        } else if (property.endsWith("cleanJerk1Declaration")) {
+            configure20kgWeightField(field);
+            Validator<String> v2 = ValidationUtils.<String>checkUsingException((unused) -> {
+                return validateStartingTotals("cleanJerk1Declaration", "snatch1Declaration", "qualifyingTotal");
+            });
+            bindingBuilder.withValidator(v2);
+            bindingBuilder.bind(property);
+        } else if ("qualifyingTotal".equals(property)) {
+            configure20kgWeightField(field);
+            Validator<String> v2 = ValidationUtils.<String>checkUsingException((unused) -> {
+                return validateStartingTotals("qualifyingTotal", "snatch1Declaration", "cleanJerk1Declaration");
+            });
+
+            bindingBuilder.withValidator(v2);
+            bindingBuilder.withConverter(new StringToIntegerConverter(Translator.translate("InvalidIntegerValue")));
+            bindingBuilder.bind(property);
         } else {
             super.bindField(field, property, propertyType);
+        }
+    }
+
+    private void configure20kgWeightField(HasValue<?, ?> field) {
+        TextField textField = (TextField) field;
+        textField.setValueChangeMode(ValueChangeMode.ON_BLUR);
+        textField.setPattern("^(-?\\d+)|()$"); // optional minus and at least one digit, or empty.
+        textField.setPreventInvalidInput(true);
+        textField.addValueChangeListener((e) -> {
+            setCheckOther20kgFields(true);
+        });
+    }
+
+    private boolean validateStartingTotals(String mainProp, String otherProp1, String otherProp2) {
+        try {
+            logger.debug("before {} validation", mainProp);
+            Athlete.validateStartingTotalsRule(editedAthlete, getIntegerFieldValue("snatch1Declaration"),
+                    getIntegerFieldValue("cleanJerk1Declaration"), getIntegerFieldValue("qualifyingTotal"));
+            // clear errors on other fields.
+            logger.debug("clearing errors on {} {}", otherProp1, otherProp2);
+            clearErrors(otherProp1, otherProp2);
+            logger.debug("checking again on {} {}", otherProp1, otherProp2);
+            checkOther20kgFields(otherProp1, otherProp2);
+        } catch (Exception e1) {
+            logger.debug("{} validation failed", mainProp);
+            // signal exception on all fields that must be mutually-consistent
+            checkOther20kgFields(otherProp1, otherProp2);
+            throw e1;
+        }
+        return true;
+    }
+
+    private void clearErrors(String otherProp1, String otherProp2) {
+        Binding<Athlete, ?> prop1Binding = binder.getBinding(otherProp1).get();
+        ((TextField)prop1Binding.getField()).setInvalid(false);
+        Binding<Athlete, ?> prop2Binding = binder.getBinding(otherProp2).get();
+        ((TextField)prop2Binding.getField()).setInvalid(false);   
+    }
+
+    private void checkOther20kgFields(String prop1, String prop2) {
+        logger.debug("entering checkOther20kgFields {} {}", isCheckOther20kgFields(), LoggerUtils.whereFrom());
+        if (isCheckOther20kgFields()) {
+            setCheckOther20kgFields(false); // prevent recursion
+            Binding<Athlete, ?> prop1Binding = binder.getBinding(prop1).get();
+            logger.debug("before {} explicit validate", prop1);
+            prop1Binding.validate();
+            Binding<Athlete, ?> prop2Binding = binder.getBinding(prop2).get();
+            logger.debug("before {} explicit validate", prop2);
+            prop2Binding.validate();
         }
     }
 
@@ -510,10 +567,6 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     protected void validateYearOfBirth(Binder.BindingBuilder bindingBuilder) {
         String message = Translator.translate("InvalidYearFormat");
         RegexpValidator re = new RegexpValidator(message, "(19|20)[0-9][0-9]");
-//        Validator<String> re = ValidationUtils.checkUsing(val -> {
-//            logger.warn("validating val {}",val);
-//            return (val != null && val.length() == 4);
-//        }, "4 digits required");
         bindingBuilder.withValidator(re);
         yobConverter = new StringToIntegerConverter(message) {
             @Override
@@ -524,6 +577,15 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             }
         };
         bindingBuilder.withConverter(yobConverter);
+    }
+
+    private boolean isCheckOther20kgFields() {
+        return checkOther20kgFields;
+    }
+
+    private void setCheckOther20kgFields(boolean checkOther20kgFields) {
+        logger.debug("checkOther20kgFields={} {}", checkOther20kgFields, LoggerUtils.whereFrom());
+        this.checkOther20kgFields = checkOther20kgFields;
     }
 
 }

@@ -30,7 +30,7 @@ public class ValidationUtils {
      * @return the new validator using the function
      *
      */
-    public static <T> Validator<T> checkUsing(SerializablePredicate<T> guard, String...errorMessage) {
+    public static <T> Validator<T> checkUsingException(SerializablePredicate<T> guard, String...errorMessage) {
         Objects.requireNonNull(guard, "guard cannot be null");
         return (value, context) -> {
             try {
