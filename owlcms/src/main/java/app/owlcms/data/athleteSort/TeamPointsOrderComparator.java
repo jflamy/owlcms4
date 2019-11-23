@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athleteSort;
@@ -10,7 +10,6 @@ import java.util.Comparator;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
-
 
 /**
  * This comparator sorts athletes within their team.
@@ -30,7 +29,9 @@ public class TeamPointsOrderComparator extends AbstractLifterComparator implemen
         this.rankingType = rankingType;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @Override
@@ -38,16 +39,19 @@ public class TeamPointsOrderComparator extends AbstractLifterComparator implemen
         int compare = 0;
 
         compare = compareClub(lifter1, lifter2);
-        if (compare != 0)
+        if (compare != 0) {
             return compare;
+        }
 
         compare = compareGender(lifter1, lifter2);
-        if (compare != 0)
+        if (compare != 0) {
             return compare;
+        }
 
         compare = compareRanking(lifter1, lifter2);
-        if (compare != 0)
+        if (compare != 0) {
             return compare;
+        }
 
         return compare;
     }
@@ -65,8 +69,8 @@ public class TeamPointsOrderComparator extends AbstractLifterComparator implemen
             return lifter1.getCleanJerkRank().compareTo(lifter2.getCleanJerkRank());
         case TOTAL:
             return lifter1.getRank().compareTo(lifter2.getRank());
-		default:
-			break;
+        default:
+            break;
         }
         return 0;
     }

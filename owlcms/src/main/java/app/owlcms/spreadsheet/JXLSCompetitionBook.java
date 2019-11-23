@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -50,44 +50,6 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     public JXLSCompetitionBook(boolean excludeNotWeighed) {
         super();
     }
-    
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        Competition current = Competition.getCurrent();
-        finalPackageTemplate = current.getFinalPackageTemplate();
-        if (finalPackageTemplate == null) {
-            finalPackageTemplate = loadDefaultPackageTemplate(locale, current);
-        }
-        InputStream stream = new ByteArrayInputStream(finalPackageTemplate);
-        return stream;
-    }
-
-    private byte[] loadDefaultPackageTemplate(Locale locale, Competition current) {
-        JPAService.runInTransaction((em) -> {
-            String protocolTemplateFileName = "/templates/competitionBook/CompetitionBook_Total_"  + locale.getLanguage() + ".xls";
-            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);  
-            try {
-                finalPackageTemplate = ByteStreams.toByteArray(stream);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            current.setFinalPackageTemplate(finalPackageTemplate);
-            Competition merge = em.merge(current);
-            Competition.setCurrent(merge);
-            return merge;
-        });
-        return finalPackageTemplate;
-    }
-
-    @Override
-    protected void setReportingInfo() {
-    	super.setReportingInfo();
-        HashMap<String, Object> reportingBeans = getReportingBeans();
-
-        Competition.getCurrent().computeGlobalRankings(reportingBeans);
-    }
-
-    
 
     @Override
     protected void configureTransformer(XLSTransformer transformer) {
@@ -102,10 +64,47 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         transformer.markAsFixedSizeCollection("wCustom");
     }
 
+    @Override
+    protected List<Athlete> getSortedAthletes() {
+        // not used (setReportingInfo does all the work)
+        return null;
+    }
+
+    @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        Competition current = Competition.getCurrent();
+        finalPackageTemplate = current.getFinalPackageTemplate();
+        if (finalPackageTemplate == null) {
+            finalPackageTemplate = loadDefaultPackageTemplate(locale, current);
+        }
+        InputStream stream = new ByteArrayInputStream(finalPackageTemplate);
+        return stream;
+    }
+
+    private byte[] loadDefaultPackageTemplate(Locale locale, Competition current) {
+        JPAService.runInTransaction((em) -> {
+            String protocolTemplateFileName = "/templates/competitionBook/CompetitionBook_Total_" + locale.getLanguage()
+                    + ".xls";
+            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
+            try {
+                finalPackageTemplate = ByteStreams.toByteArray(stream);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            current.setFinalPackageTemplate(finalPackageTemplate);
+            Competition merge = em.merge(current);
+            Competition.setCurrent(merge);
+            return merge;
+        });
+        return finalPackageTemplate;
+    }
+
     /*
      * team result sheets need columns hidden, print area fixed
      *
-     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#postProcess(org.apache.poi.ss.usermodel.Workbook)
+     * @see
+     * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+     * postProcess(org.apache.poi.ss.usermodel.Workbook)
      */
     @Override
     protected void postProcess(Workbook workbook) {
@@ -129,10 +128,19 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
     }
 
+    @Override
+    protected void setReportingInfo() {
+        super.setReportingInfo();
+        HashMap<String, Object> reportingBeans = getReportingBeans();
+
+        Competition.getCurrent().computeGlobalRankings(reportingBeans);
+    }
+
     private void setTeamSheetPrintArea(Workbook workbook, String sheetName, int nbClubs) {
         // int sheetIndex = workbook.getSheetIndex(sheetName);
         // if (sheetIndex >= 0) {
-        // workbook.setPrintArea(sheetIndex, 0, 4, TEAMSHEET_FIRST_ROW, TEAMSHEET_FIRST_ROW+nbClubs);
+        // workbook.setPrintArea(sheetIndex, 0, 4, TEAMSHEET_FIRST_ROW,
+        // TEAMSHEET_FIRST_ROW+nbClubs);
         // }
     }
 
@@ -141,41 +149,40 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         for (int sheetIndex = 0; sheetIndex < nbSheets; sheetIndex++) {
             Sheet curSheet = workbook.getSheetAt(sheetIndex);
             String sheetName = curSheet.getSheetName();
-            workbook.setSheetName(sheetIndex, Translator.translate("CompetitionBook." + sheetName, OwlcmsSession.getLocale()));
+            workbook.setSheetName(sheetIndex,
+                    Translator.translate("CompetitionBook." + sheetName, OwlcmsSession.getLocale()));
 
             String leftHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_LeftHeader",
                     OwlcmsSession.getLocale());
-            if (leftHeader != null)
+            if (leftHeader != null) {
                 curSheet.getHeader().setLeft(leftHeader);
+            }
             String centerHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_CenterHeader",
                     OwlcmsSession.getLocale());
-            if (centerHeader != null)
+            if (centerHeader != null) {
                 curSheet.getHeader().setCenter(centerHeader);
+            }
             String rightHeader = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_RightHeader",
                     OwlcmsSession.getLocale());
-            if (rightHeader != null)
+            if (rightHeader != null) {
                 curSheet.getHeader().setRight(rightHeader);
+            }
 
             String leftFooter = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_LeftFooter",
                     OwlcmsSession.getLocale());
-            if (leftFooter != null)
+            if (leftFooter != null) {
                 curSheet.getFooter().setLeft(leftFooter);
+            }
             String centerFooter = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_CenterFooter",
                     OwlcmsSession.getLocale());
-            if (centerFooter != null)
+            if (centerFooter != null) {
                 curSheet.getFooter().setCenter(centerFooter);
+            }
             String rightFooter = Translator.translateOrElseNull("CompetitionBook." + sheetName + "_RightFooter",
                     OwlcmsSession.getLocale());
-            if (rightFooter != null)
+            if (rightFooter != null) {
                 curSheet.getFooter().setRight(rightFooter);
+            }
         }
     }
-
-
-
-	@Override
-	protected List<Athlete> getSortedAthletes() {
-		// not used (setReportingInfo does all the work)
-		return null;
-	}
 }

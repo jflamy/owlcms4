@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.lifting;
@@ -69,46 +69,30 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
     private Anchor jury;
     private Button juryButton;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.
-     * appreciated.app.layout.behaviour.Behaviour)
-     */
-    @Override
-    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
-        variant = LeftLayouts.Left.class;
-        appLayout = super.getLayoutConfiguration(variant);
-        appLayout.closeDrawer();
-        this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
-        createTopBar(topBar);
-        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 0px");
-        return appLayout;
-    }
-
-    /**
-     * The layout is created before the content. This routine has created the
-     * content, we can refer to the content using
-     * {@link #getLayoutComponentContent()} and the content can refer to us via
-     * {@link AppLayoutContent#getParentLayout()}
-     * 
-     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
-     */
-    @Override
-    public void showRouterLayoutContent(HasElement content) {
-        super.showRouterLayoutContent(content);
-        WeighinContent weighinContent = (WeighinContent) getLayoutComponentContent();
-        gridGroupFilter = weighinContent.getGroupFilter();
+    private void clearStartNumbers() {
+        Group group = groupSelect.getValue();
+        if (group == null) {
+            errorNotification();
+            return;
+        }
+        JPAService.runInTransaction((em) -> {
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null);
+            for (Athlete a : currentGroupAthletes) {
+                a.setStartNumber(0);
+            }
+            return currentGroupAthletes;
+        });
+        ((WeighinContent) getLayoutComponentContent()).refresh();
     }
 
     /**
      * Create the top bar.
-     * 
+     *
      * Note: the top bar is created before the content.
-     * 
+     *
      * @see #showRouterLayoutContent(HasElement) for how to content to layout and
      *      vice-versa
-     * 
+     *
      * @param topBar
      */
     protected void createTopBar(FlexLayout topBar) {
@@ -144,7 +128,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         });
         groupSelect.addValueChangeListener(e -> {
             setContentGroup(e);
-            
+
             cardsWriter.setGroup(e.getValue());
             startingWeightsWriter.setGroup(e.getValue());
             juryWriter.setGroup(e.getValue());
@@ -153,10 +137,8 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
             juryButton.setEnabled(e.getValue() != null);
             startingWeights.getElement().setAttribute("download",
                     "startingWeights" + (group != null ? "_" + group : "_all") + ".xls");
-            cards.getElement().setAttribute("download", 
-                    "cards" + (group != null ? "_" + group : "_all") + ".xls");
-            jury.getElement().setAttribute("download", 
-                    "jury" + (group != null ? "_" + group : "_all") + ".xls");
+            cards.getElement().setAttribute("download", "cards" + (group != null ? "_" + group : "_all") + ".xls");
+            jury.getElement().setAttribute("download", "jury" + (group != null ? "_" + group : "_all") + ".xls");
         });
 
         Button start = new Button(getTranslation("GenerateStartNumbers"), (e) -> {
@@ -173,7 +155,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         cardsButton = new Button(getTranslation("AthleteCards"), new Icon(VaadinIcon.DOWNLOAD_ALT));
         cards.add(cardsButton);
         cardsButton.setEnabled(true);
-        
+
         juryButton = new Button(getTranslation("Jury"), new Icon(VaadinIcon.DOWNLOAD_ALT));
         jury.add(juryButton);
         juryButton.setEnabled(true);
@@ -190,25 +172,18 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
-    protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
-        group = e.getValue();
-        gridGroupFilter.setValue(e.getValue());
-    }
-
-    private void clearStartNumbers() {
-        Group group = groupSelect.getValue();
-        if (group == null) {
-            errorNotification();
-            return;
-        }
-        JPAService.runInTransaction((em) -> {
-            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null);
-            for (Athlete a : currentGroupAthletes) {
-                a.setStartNumber(0);
-            }
-            return currentGroupAthletes;
-        });
-        ((WeighinContent) getLayoutComponentContent()).refresh();
+    protected void errorNotification() {
+        Label content = new Label(getTranslation("Select_group_first"));
+        content.getElement().setAttribute("theme", "error");
+        Button buttonInside = new Button(getTranslation("GotIt"));
+        buttonInside.getElement().setAttribute("theme", "error primary");
+        VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
+        verticalLayout.setAlignItems(Alignment.CENTER);
+        Notification notification = new Notification(verticalLayout);
+        notification.setDuration(3000);
+        buttonInside.addClickListener(event -> notification.close());
+        notification.setPosition(Position.MIDDLE);
+        notification.open();
     }
 
     private void generateStartNumbers() {
@@ -226,17 +201,40 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         ((WeighinContent) getLayoutComponentContent()).refresh();
     }
 
-    protected void errorNotification() {
-        Label content = new Label(getTranslation("Select_group_first"));
-        content.getElement().setAttribute("theme", "error");
-        Button buttonInside = new Button(getTranslation("GotIt"));
-        buttonInside.getElement().setAttribute("theme", "error primary");
-        VerticalLayout verticalLayout = new VerticalLayout(content, buttonInside);
-        verticalLayout.setAlignItems(Alignment.CENTER);
-        Notification notification = new Notification(verticalLayout);
-        notification.setDuration(3000);
-        buttonInside.addClickListener(event -> notification.close());
-        notification.setPosition(Position.MIDDLE);
-        notification.open();
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.
+     * appreciated.app.layout.behaviour.Behaviour)
+     */
+    @Override
+    protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
+        variant = LeftLayouts.Left.class;
+        appLayout = super.getLayoutConfiguration(variant);
+        appLayout.closeDrawer();
+        this.topBar = ((AbstractLeftAppLayoutBase) appLayout).getAppBarElementWrapper();
+        createTopBar(topBar);
+        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 0px");
+        return appLayout;
+    }
+
+    protected void setContentGroup(ComponentValueChangeEvent<ComboBox<Group>, Group> e) {
+        group = e.getValue();
+        gridGroupFilter.setValue(e.getValue());
+    }
+
+    /**
+     * The layout is created before the content. This routine has created the
+     * content, we can refer to the content using
+     * {@link #getLayoutComponentContent()} and the content can refer to us via
+     * {@link AppLayoutContent#getParentLayout()}
+     *
+     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
+     */
+    @Override
+    public void showRouterLayoutContent(HasElement content) {
+        super.showRouterLayoutContent(content);
+        WeighinContent weighinContent = (WeighinContent) getLayoutComponentContent();
+        gridGroupFilter = weighinContent.getGroupFilter();
     }
 }

@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.crudui;
@@ -20,20 +20,20 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public class OwlcmsGridLayout extends WindowBasedCrudLayout {
-	
-	@SuppressWarnings("unused")
-	final private static Logger logger = (Logger)LoggerFactory.getLogger(OwlcmsGridLayout.class);
 
-	/**
-	 * Instantiates a new owlcms crudGrid layout.
-	 *
-	 * @param aClass the a class
-	 */
-	public OwlcmsGridLayout(Class<?> aClass) {
-	    mainLayout = getContent();
-	    mainLayout.removeAll();
-	    mainLayout.setBoxSizing(BoxSizing.BORDER_BOX);
-	    
+    @SuppressWarnings("unused")
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsGridLayout.class);
+
+    /**
+     * Instantiates a new owlcms crudGrid layout.
+     *
+     * @param aClass the a class
+     */
+    public OwlcmsGridLayout(Class<?> aClass) {
+        mainLayout = getContent();
+        mainLayout.removeAll();
+        mainLayout.setBoxSizing(BoxSizing.BORDER_BOX);
+
 //        getContent().setPadding(false);
 //        ((ThemableLayout) getContent()).setMargin(false);
 //        ((HasComponents) getContent()).add(mainLayout);
@@ -70,8 +70,7 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
         setWindowCaption(CrudOperation.ADD, getTranslation("Add_title", aClass.getSimpleName()));
         setWindowCaption(CrudOperation.UPDATE, getTranslation("Update_title", aClass.getSimpleName()));
         setWindowCaption(CrudOperation.DELETE, getTranslation("Delete_title", aClass.getSimpleName()));
-        
+
     }
 
-	
 }

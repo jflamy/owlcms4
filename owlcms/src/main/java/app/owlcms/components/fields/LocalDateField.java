@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.fields;
@@ -26,77 +26,70 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * LocalDate field with conversion, validation and rendering.
- * 
+ *
  * @author Jean-François Lamy
  *
  */
 @SuppressWarnings("serial")
 public class LocalDateField extends WrappedTextField<LocalDate> {
-	
-	@Override
-	protected void initLoggers() {
-		setLogger((Logger)LoggerFactory.getLogger(LocalDateField.class));
-		getLogger().setLevel(Level.INFO);
-	}
 
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
-	
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 
-	@Override
-	public Converter<String, LocalDate> getConverter() {
-		return new Converter<String,LocalDate>() {		
-			@Override
-			public String convertToPresentation(LocalDate value, ValueContext context) {
-				Locale locale = context.getLocale().orElse(Locale.ENGLISH);
-				return (value != null ? FORMATTER.withLocale(locale).format(value) : "");
-			}
+    public static <SOURCE> Renderer<SOURCE> getRenderer(ValueProvider<SOURCE, LocalDate> v, Locale locale) {
+        return new LocalDateRenderer<>(v, FORMATTER.withLocale(locale));
+    }
 
-			@Override
-			public Result<LocalDate> convertToModel(String value, ValueContext context) {
-				Locale locale = context.getLocale().orElse(Locale.ENGLISH);
-				return doParse(value, locale, FORMATTER.withLocale(locale));
-			}
-		};
-	}
+    private Result<LocalDate> doParse(String content, Locale locale, DateTimeFormatter formatter) {
+        LocalDate parse;
+        try {
+            if ((content == null || content.trim().isEmpty()) && !this.isRequired()) {
+                // field is not required, accept empty content
+                setFormatValidationStatus(true, locale);
+                return Result.ok(null);
+            }
+            parse = LocalDate.parse(content, formatter);
+            setFormatValidationStatus(true, locale);
+            return Result.ok(parse);
+        } catch (DateTimeParseException e) {
+            String m = invalidFormatErrorMessage(locale);
+            setFormatValidationStatus(false, locale);
+            return Result.error(m);
+        }
+    }
 
-	public static <SOURCE> Renderer<SOURCE> getRenderer(ValueProvider<SOURCE, LocalDate> v, Locale locale) {
-		return new LocalDateRenderer<SOURCE>(v, FORMATTER.withLocale(locale));
-	}
-	
-	@Override
-	public String toString() {
-		return FORMATTER.format(getValue());
-	}
-	
-	@Override
-	protected String invalidFormatErrorMessage(Locale locale) {
-		LocalDate sampleDate = LocalDate.of(2000, 12, 31);
-		return "Date must be in international format YYYY-MM-DD "
-				+ "("
-				+ FORMATTER.format(sampleDate)
-				+ " for "
-				+ DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
-					.format(sampleDate)
-				+ ")";
-	}
-	
-	private Result<LocalDate> doParse(String content, Locale locale, DateTimeFormatter formatter) {
-		LocalDate parse;
-		try {
-			if ((content == null || content.trim().isEmpty()) && !this.isRequired()) {
-				// field is not required, accept empty content
-				setFormatValidationStatus(true, locale);
-				return Result.ok(null);
-			}
-			parse = LocalDate.parse(content, formatter);
-			setFormatValidationStatus(true, locale);
-			return Result.ok(parse);
-		} catch (DateTimeParseException e) {
-			String m = invalidFormatErrorMessage(locale);
-			setFormatValidationStatus(false, locale);
-			return Result.error(m);
-		}
-	}
+    @Override
+    public Converter<String, LocalDate> getConverter() {
+        return new Converter<String, LocalDate>() {
+            @Override
+            public Result<LocalDate> convertToModel(String value, ValueContext context) {
+                Locale locale = context.getLocale().orElse(Locale.ENGLISH);
+                return doParse(value, locale, FORMATTER.withLocale(locale));
+            }
+
+            @Override
+            public String convertToPresentation(LocalDate value, ValueContext context) {
+                Locale locale = context.getLocale().orElse(Locale.ENGLISH);
+                return (value != null ? FORMATTER.withLocale(locale).format(value) : "");
+            }
+        };
+    }
+
+    @Override
+    protected void initLoggers() {
+        setLogger((Logger) LoggerFactory.getLogger(LocalDateField.class));
+        getLogger().setLevel(Level.INFO);
+    }
+
+    @Override
+    protected String invalidFormatErrorMessage(Locale locale) {
+        LocalDate sampleDate = LocalDate.of(2000, 12, 31);
+        return "Date must be in international format YYYY-MM-DD " + "(" + FORMATTER.format(sampleDate) + " for "
+                + DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale).format(sampleDate) + ")";
+    }
+
+    @Override
+    public String toString() {
+        return FORMATTER.format(getValue());
+    }
 
 }
-

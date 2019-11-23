@@ -66,6 +66,36 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
         fillHW(crud, this);
     }
 
+    @Override
+    public Category add(Category domainObjectToAdd) {
+        return crudFormFactory.add(domainObjectToAdd);
+    }
+
+    /**
+     * Define the form used to edit a given category.
+     *
+     * @return the form factory that will create the actual form on demand
+     */
+    private OwlcmsCrudFormFactory<Category> createFormFactory() {
+        OwlcmsCrudFormFactory<Category> editingFormFactory = new CategoryEditingFormFactory(Category.class);
+        createFormLayout(editingFormFactory);
+        return editingFormFactory;
+    }
+
+    /**
+     * The content and ordering of the editing form
+     *
+     * @param crudFormFactory the factory that will create the form using this
+     *                        information
+     */
+    protected void createFormLayout(OwlcmsCrudFormFactory<Category> crudFormFactory) {
+        crudFormFactory.setVisibleProperties("name", "ageDivision", "gender", "minimumWeight", "maximumWeight", "wr",
+                "active");
+        crudFormFactory.setFieldCaptions(getTranslation("Name"), getTranslation("AgeDivision"),
+                getTranslation("Gender"), getTranslation("MinimumWeight"), getTranslation("MaximumWeight"),
+                getTranslation("WorldRecord"), getTranslation("Active"));
+    }
+
     /**
      * The columns of the crudGrid
      *
@@ -99,54 +129,6 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
         crud.setCrudListener(this);
         crud.setClickRowToUpdate(true);
         return crud;
-    }
-
-    /**
-     * Define the form used to edit a given category.
-     *
-     * @return the form factory that will create the actual form on demand
-     */
-    private OwlcmsCrudFormFactory<Category> createFormFactory() {
-        OwlcmsCrudFormFactory<Category> editingFormFactory = new CategoryEditingFormFactory(Category.class);
-        createFormLayout(editingFormFactory);
-        return editingFormFactory;
-    }
-
-    /**
-     * The content and ordering of the editing form
-     *
-     * @param crudFormFactory the factory that will create the form using this
-     *                        information
-     */
-    protected void createFormLayout(OwlcmsCrudFormFactory<Category> crudFormFactory) {
-        crudFormFactory.setVisibleProperties("name", "ageDivision", "gender", "minimumWeight", "maximumWeight", "wr",
-                "active");
-        crudFormFactory.setFieldCaptions(getTranslation("Name"), getTranslation("AgeDivision"),
-                getTranslation("Gender"), getTranslation("MinimumWeight"), getTranslation("MaximumWeight"),
-                getTranslation("WorldRecord"), getTranslation("Active"));
-    }
-
-    public Category add(Category domainObjectToAdd) {
-        return crudFormFactory.add(domainObjectToAdd);
-    }
-
-    public Category update(Category domainObjectToUpdate) {
-        return crudFormFactory.update(domainObjectToUpdate);
-    }
-
-    public void delete(Category domainObjectToDelete) {
-        crudFormFactory.delete(domainObjectToDelete);
-    }
-
-    /**
-     * The refresh button on the toolbar
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-    @Override
-    public Collection<Category> findAll() {
-        return CategoryRepository.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), null,
-                activeFilter.getValue(), -1, -1);
     }
 
     /**
@@ -188,6 +170,30 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
     }
 
     @Override
+    public void delete(Category domainObjectToDelete) {
+        crudFormFactory.delete(domainObjectToDelete);
+    }
+
+    /**
+     * The refresh button on the toolbar
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     */
+    @Override
+    public Collection<Category> findAll() {
+        return CategoryRepository.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), null,
+                activeFilter.getValue(), -1, -1);
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Preparation_Categories");
+    }
+
+    @Override
     public OwlcmsRouterLayout getRouterLayout() {
         return routerLayout;
     }
@@ -197,11 +203,8 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
         this.routerLayout = routerLayout;
     }
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
     @Override
-    public String getPageTitle() {
-        return getTranslation("Preparation_Categories");
+    public Category update(Category domainObjectToUpdate) {
+        return crudFormFactory.update(domainObjectToUpdate);
     }
 }

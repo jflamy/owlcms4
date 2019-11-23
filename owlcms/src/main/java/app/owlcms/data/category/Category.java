@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.category;
@@ -22,8 +22,10 @@ import app.owlcms.data.athlete.Gender;
 /**
  * Contains information regarding each competition category.
  *
- * A category is the combination of an age division and a weight class. Categories also define information for the computation of Robi
- * points Robi = A x (total)^b where b = log(10)/log(2) (any logrithm base) A = 1000 / [ (WR)^b ] WR = World Record
+ * A category is the combination of an age division and a weight class.
+ * Categories also define information for the computation of Robi points Robi =
+ * A x (total)^b where b = log(10)/log(2) (any logrithm base) A = 1000 / [
+ * (WR)^b ] WR = World Record
  *
  * @author owlcms
  *
@@ -32,6 +34,8 @@ import app.owlcms.data.athlete.Gender;
 @Entity
 @Cacheable
 public class Category implements Serializable, Comparable<Category> {
+
+    private final static Double ROBI_B = 3.321928095;
 
     /** The id. */
     @Id
@@ -46,7 +50,7 @@ public class Category implements Serializable, Comparable<Category> {
 
     /** The maximum weight. */
     Double maximumWeight; // exclusive
-    
+
     @Enumerated(EnumType.STRING)
     private AgeDivision ageDivision;
 
@@ -60,9 +64,6 @@ public class Category implements Serializable, Comparable<Category> {
 
     private Double robiA = 0.0D;
 
-    private final static Double ROBI_B = 3.321928095;
-
-
     /**
      * Instantiates a new category.
      */
@@ -72,14 +73,15 @@ public class Category implements Serializable, Comparable<Category> {
     /**
      * Instantiates a new category.
      *
-     * @param minimumWeight the minimum weight
-     * @param maximumWeight the maximum weight
-     * @param enumGender the enum gender
-     * @param active the active
+     * @param minimumWeight   the minimum weight
+     * @param maximumWeight   the maximum weight
+     * @param enumGender      the enum gender
+     * @param active          the active
      * @param enumAgeDivision the enum age division
-     * @param wr the wr
+     * @param wr              the wr
      */
-    public Category(Double minimumWeight, Double maximumWeight, Gender enumGender, Boolean active, AgeDivision enumAgeDivision, Integer wr) {
+    public Category(Double minimumWeight, Double maximumWeight, Gender enumGender, Boolean active,
+            AgeDivision enumAgeDivision, Integer wr) {
         this.setMinimumWeight(minimumWeight);
         this.setMaximumWeight(maximumWeight);
         this.setGender(enumGender);
@@ -87,15 +89,13 @@ public class Category implements Serializable, Comparable<Category> {
         this.setActive(active);
         this.setWr(wr);
         if (wr >= 0) {
-            this.setRobiA(1000.0D/Math.pow(wr,ROBI_B));
+            this.setRobiA(1000.0D / Math.pow(wr, ROBI_B));
         }
 
 //        this.setGender(gender.toString());
 //        this.setAgeDivision(ageDivision.getCode());
         setCategoryName(minimumWeight, maximumWeight, enumGender, enumAgeDivision);
     }
-
-
 
     /*
      * (non-Javadoc)
@@ -104,16 +104,19 @@ public class Category implements Serializable, Comparable<Category> {
      */
     @Override
     public int compareTo(Category o) {
-        if (o == null)
+        if (o == null) {
             return 1; // we are greater than null;
+        }
 
         int compare = this.ageDivision.compareTo(o.getAgeDivision());
-        if (compare != 0)
+        if (compare != 0) {
             return compare;
+        }
 
         compare = this.gender.compareTo(o.getGender());
-        if (compare != 0)
+        if (compare != 0) {
             return compare;
+        }
 
         // same division, same gender, rank according to maximumWeight.
         Double value1 = this.getMaximumWeight();
@@ -127,10 +130,12 @@ public class Category implements Serializable, Comparable<Category> {
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!(obj instanceof Category))
+        }
+        if (!(obj instanceof Category)) {
             return false;
+        }
         Category other = (Category) obj;
         return Objects.equals(active, other.active) && ageDivision == other.ageDivision && gender == other.gender
                 && Objects.equals(id, other.id) && Objects.equals(maximumWeight, other.maximumWeight)
@@ -164,7 +169,6 @@ public class Category implements Serializable, Comparable<Category> {
     public Gender getGender() {
         return gender;
     }
-
 
     /**
      * Gets the id.
@@ -212,12 +216,23 @@ public class Category implements Serializable, Comparable<Category> {
     }
 
     /**
+     * Gets the robi B.
+     *
+     * @return the robi B
+     */
+    public Double getRobiB() {
+        return ROBI_B;
+    }
+
+    /**
      * Gets the wr.
      *
      * @return the wr
      */
     public Integer getWr() {
-        if (wr == null) return 0;
+        if (wr == null) {
+            return 0;
+        }
         return wr;
     }
 
@@ -247,7 +262,21 @@ public class Category implements Serializable, Comparable<Category> {
         this.active = active;
     }
 
-    private void setCategoryName(Double minimumWeight, Double maximumWeight, Gender enumGender, AgeDivision enumAgeGroup) {
+    /**
+     * Sets the age division.
+     *
+     * @param enumAgeGroup2 the new age division
+     */
+    public void setAgeDivision(AgeDivision enumAgeGroup2) {
+        if (enumAgeGroup2 == null) {
+            this.ageDivision = AgeDivision.DEFAULT;
+        } else {
+            this.ageDivision = enumAgeGroup2;
+        }
+    }
+
+    private void setCategoryName(Double minimumWeight, Double maximumWeight, Gender enumGender,
+            AgeDivision enumAgeGroup) {
         String catName = enumAgeGroup.getCode() + enumGender.toString();
         if (maximumWeight > 110) {
             catName = catName + ">" + (int) (Math.round(minimumWeight));
@@ -255,19 +284,6 @@ public class Category implements Serializable, Comparable<Category> {
             catName = catName + (int) (Math.round(maximumWeight));
         }
         this.setName(catName);
-    }
-
-    /**
-     * Sets the age division.
-     *
-     * @param enumAgeGroup2 the new age division
-     */
-    public void setAgeDivision(AgeDivision enumAgeGroup2) {
-        if (enumAgeGroup2 == null){
-            this.ageDivision = AgeDivision.DEFAULT;
-        } else {
-            this.ageDivision = enumAgeGroup2;
-        }
     }
 
     /**
@@ -282,7 +298,7 @@ public class Category implements Serializable, Comparable<Category> {
     /**
      * Sets the maximum weight.
      *
-     * @param maximumWeight            the maximumWeight to set
+     * @param maximumWeight the maximumWeight to set
      */
     public void setMaximumWeight(Double maximumWeight) {
         this.maximumWeight = maximumWeight;
@@ -291,7 +307,7 @@ public class Category implements Serializable, Comparable<Category> {
     /**
      * Sets the minimum weight.
      *
-     * @param minimumWeight            the minimumWeight to set
+     * @param minimumWeight the minimumWeight to set
      */
     public void setMinimumWeight(Double minimumWeight) {
         this.minimumWeight = minimumWeight;
@@ -300,7 +316,7 @@ public class Category implements Serializable, Comparable<Category> {
     /**
      * Sets the name.
      *
-     * @param name            the name to set
+     * @param name the name to set
      */
     public void setName(String name) {
         this.name = name;
@@ -318,35 +334,28 @@ public class Category implements Serializable, Comparable<Category> {
     /**
      * Sets the wr.
      *
-     * @param wr            the wr to set
+     * @param wr the wr to set
      */
     public void setWr(Integer wr) {
         this.wr = wr;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return name;
-    }
-    
     /**
      * Short dump.
      *
      * @return the string
      */
     public String shortDump() {
-    	return name + "_" + active + "_" + gender + "_" + ageDivision;
+        return name + "_" + active + "_" + gender + "_" + ageDivision;
     }
 
-    /**
-     * Gets the robi B.
-     *
-     * @return the robi B
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
      */
-    public Double getRobiB() {
-        return ROBI_B;
+    @Override
+    public String toString() {
+        return name;
     }
 }

@@ -54,7 +54,7 @@ import elemental.json.JsonObject;
 @Theme(value = Lumo.class)
 @Push
 public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
-implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, RequireLogin {
+        implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, RequireLogin {
 
     /**
      * AthleteCardModel
@@ -79,7 +79,7 @@ implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, Requ
         String getCategory();
 
         String getCleanJerk1Declaration();
-        
+
         String getEntryTotal();
 
         String getFullName();
@@ -101,7 +101,7 @@ implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, Requ
         void setBirth(String birth);
 
         void setBodyWeight(String format);
-        
+
         void setCategory(String name);
 
         void setCleanJerk1Declaration(String cleanJerk1Declaration);
@@ -111,13 +111,13 @@ implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, Requ
         void setFullName(String fullName);
 
         void setGroup(String group);
-        
+
         void setLotNumber(String string);
-        
+
         void setSnatch1Declaration(String snatch1Declaration);
-        
+
         void setStartNumber(String string);
-        
+
         void setTeam(String team);
 
     }
@@ -141,20 +141,32 @@ implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, Requ
     }
 
     @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    @Override
     public String getPageTitle() {
         return getTranslation("AthleteCard");
     }
 
-    /**
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
-     *      java.lang.String)
-     */
-    @Override
-    public void setParameter(BeforeEvent event, String parameter) {
-        long id = Long.parseLong(parameter);
-        this.athlete = AthleteRepository.findById(id);
-    }
+    private void init() {
+        setTranslationMap();
 
+        Button button = new Button(getTranslation("Print"));
+        button.setThemeName("primary success");
+        button.getElement().setAttribute("onClick", "window.print()");
+        HorizontalLayout banner = new HorizontalLayout(button);
+        banner.setJustifyContentMode(JustifyContentMode.END);
+        banner.setPadding(true);
+        banner.setClassName("printing");
+        getElement().getParent().appendChild(banner.getElement());
+    }
 
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
@@ -167,10 +179,10 @@ implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, Requ
         AthleteCardModel model = getModel();
         model.setFullName(athlete.getFullName());
         model.setTeam(athlete.getTeam());
-        model.setBodyWeight(String.format("%.2f",athlete.getBodyWeight()));
+        model.setBodyWeight(String.format("%.2f", athlete.getBodyWeight()));
         AgeDivision ageDivision = athlete.getAgeDivision();
         if (ageDivision != null && ageDivision != AgeDivision.DEFAULT) {
-            model.setAgeDivision(getTranslation("AgeDivision."+ageDivision.name()));
+            model.setAgeDivision(getTranslation("AgeDivision." + ageDivision.name()));
         } else {
             model.setAgeDivision(null);
         }
@@ -229,14 +241,26 @@ implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, Requ
         }
     }
 
-    public int zeroIfInvalid(String v) {
-        try {
-            return Integer.parseInt(v);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
     }
-    
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+     *      java.lang.String)
+     */
+    @Override
+    public void setParameter(BeforeEvent event, String parameter) {
+        long id = Long.parseLong(parameter);
+        this.athlete = AthleteRepository.findById(id);
+    }
+
     protected void setTranslationMap() {
         JsonObject translations = Json.createObject();
         Enumeration<String> keys = Translator.getKeys();
@@ -249,37 +273,12 @@ implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, Requ
         this.getElement().setPropertyJson("t", translations);
     }
 
-    private void init() {
-        setTranslationMap();
-        
-        Button button = new Button(getTranslation("Print"));
-        button.setThemeName("primary success");
-        button.getElement().setAttribute("onClick", "window.print()");
-        HorizontalLayout banner = new HorizontalLayout(button);
-        banner.setJustifyContentMode(JustifyContentMode.END);
-        banner.setPadding(true);
-        banner.setClassName("printing");
-        getElement().getParent().appendChild(banner.getElement());
-    }
-
-    @Override
-    public Location getLocation() {
-        return this.location;
-    }
-
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
-
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
+    public int zeroIfInvalid(String v) {
+        try {
+            return Integer.parseInt(v);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
 }

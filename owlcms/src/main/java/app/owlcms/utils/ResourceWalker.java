@@ -35,11 +35,13 @@ import ch.qos.logback.classic.Logger;
 /**
  * Get resource paths recursively from jar or classpath and assign them a short
  * display name for selection by user.
- * 
+ *
  * @author owlcms
  *
  */
 public class ResourceWalker {
+
+    static Logger logger = (Logger) LoggerFactory.getLogger(ResourceWalker.class);
 
     public static void main(String[] args) {
         new ResourceWalker().getMap("/templates/protocol", (filePath, rootPath) -> {
@@ -56,11 +58,34 @@ public class ResourceWalker {
         });
     }
 
+    /**
+     * open the file system for locating resources.
+     *
+     * @param absoluteRootPath
+     * @return an open file system (intentionnaly not closed)
+     */
+    public static FileSystem openTemplatesFileSystem(String absoluteRootPath) {
+        URL resources = ResourceWalker.class.getResource(absoluteRootPath);
+        try {
+            URI resourcesURI = resources.toURI();
+            FileSystem fileSystem = (resourcesURI.getScheme().equals("jar")
+                    ? FileSystems.newFileSystem(resourcesURI, Collections.<String, Object>emptyMap())
+                    : null);
+            logger.trace("resources for URI {} found in {}", resourcesURI,
+                    (fileSystem != null ? "jar" : "classpath folders"));
+            return fileSystem;
+        } catch (URISyntaxException | IOException e) {
+            logger.error(LoggerUtils.stackTrace(e));
+            throw new RuntimeException(e);
+        } catch (Throwable t) {
+            logger.error(LoggerUtils.stackTrace(t));
+            throw t;
+        }
+    }
+
     public static String relativeName(Path filePath, Path rootPath) {
         return filePath.toString().substring(rootPath.toString().length() + 1);
     }
-
-    static Logger logger = (Logger) LoggerFactory.getLogger(ResourceWalker.class);
 
     /**
      * Walk a resource tree and return the entries. The paths can be inside a jar or
@@ -102,8 +127,9 @@ public class ResourceWalker {
      * Walk a resource tree and return the entries. The paths can be inside a jar or
      * classpath folder. A function is called on the name in order to generate a
      * display name.
-     * 
-     * Assumes that the jar has been opened as a file system (see {@link #openTemplatesFileSystem(String)}
+     *
+     * Assumes that the jar has been opened as a file system (see
+     * {@link #openTemplatesFileSystem(String)}
      *
      * @param absoluteRoot a starting point (absolute resource name starts with a /)
      * @param generateName a function that takes the current path and the starting
@@ -117,42 +143,18 @@ public class ResourceWalker {
             URL resources = getClass().getResource(absoluteRoot);
             URI resourcesURI = resources.toURI();
             List<Resource> processedNames = new ArrayList<>();
-                Path rootPath = Paths.get(resourcesURI);
-                Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-                        String processedName = generateName.apply(filePath, rootPath);
-                        processedNames.add(new Resource(processedName, filePath));
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
+            Path rootPath = Paths.get(resourcesURI);
+            Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
+                    String processedName = generateName.apply(filePath, rootPath);
+                    processedNames.add(new Resource(processedName, filePath));
+                    return FileVisitResult.CONTINUE;
+                }
+            });
             return processedNames;
         } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-    
-    /**
-     * open the file system for locating resources.
-     *
-     * @param absoluteRootPath
-     * @return an open file system (intentionnaly not closed)
-     */
-    public static FileSystem openTemplatesFileSystem(String absoluteRootPath) {
-        URL resources = ResourceWalker.class.getResource(absoluteRootPath);
-        try {
-            URI resourcesURI = resources.toURI();
-            FileSystem fileSystem = (resourcesURI.getScheme().equals("jar")
-                    ? FileSystems.newFileSystem(resourcesURI, Collections.<String, Object>emptyMap())
-                    : null);
-            logger.trace("resources for URI {} found in {}",resourcesURI, (fileSystem != null ? "jar" : "classpath folders"));
-            return fileSystem;
-        } catch (URISyntaxException | IOException e) {
-            logger.error(LoggerUtils.stackTrace(e));
-            throw new RuntimeException(e);
-        } catch (Throwable t) {
-            logger.error(LoggerUtils.stackTrace(t));
-            throw t;
         }
     }
 }

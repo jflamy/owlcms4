@@ -14,12 +14,19 @@
  * the License.
  */
 
-
 package com.vaadin.flow.server;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import static com.vaadin.flow.server.Constants.FRONTEND_TOKEN;
+import static com.vaadin.flow.server.Constants.NPM_TOKEN;
+import static com.vaadin.flow.server.Constants.SERVLET_PARAMETER_COMPATIBILITY_MODE;
+import static com.vaadin.flow.server.Constants.SERVLET_PARAMETER_ENABLE_DEV_SERVER;
+import static com.vaadin.flow.server.Constants.SERVLET_PARAMETER_PRODUCTION_MODE;
+import static com.vaadin.flow.server.Constants.SERVLET_PARAMETER_REUSE_DEV_SERVER;
+import static com.vaadin.flow.server.Constants.VAADIN_PREFIX;
+import static com.vaadin.flow.server.Constants.VAADIN_SERVLET_RESOURCES;
+import static com.vaadin.flow.server.frontend.FrontendUtils.PARAM_TOKEN_FILE;
+import static com.vaadin.flow.server.frontend.FrontendUtils.PROJECT_BASEDIR;
+import static com.vaadin.flow.server.frontend.FrontendUtils.TOKEN_FILE;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +41,10 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
 
@@ -45,18 +56,6 @@ import com.vaadin.flow.server.frontend.FrontendUtils;
 
 import elemental.json.JsonObject;
 import elemental.json.impl.JsonUtil;
-
-import static com.vaadin.flow.server.Constants.FRONTEND_TOKEN;
-import static com.vaadin.flow.server.Constants.NPM_TOKEN;
-import static com.vaadin.flow.server.Constants.SERVLET_PARAMETER_COMPATIBILITY_MODE;
-import static com.vaadin.flow.server.Constants.SERVLET_PARAMETER_ENABLE_DEV_SERVER;
-import static com.vaadin.flow.server.Constants.SERVLET_PARAMETER_PRODUCTION_MODE;
-import static com.vaadin.flow.server.Constants.SERVLET_PARAMETER_REUSE_DEV_SERVER;
-import static com.vaadin.flow.server.Constants.VAADIN_PREFIX;
-import static com.vaadin.flow.server.Constants.VAADIN_SERVLET_RESOURCES;
-import static com.vaadin.flow.server.frontend.FrontendUtils.PARAM_TOKEN_FILE;
-import static com.vaadin.flow.server.frontend.FrontendUtils.PROJECT_BASEDIR;
-import static com.vaadin.flow.server.frontend.FrontendUtils.TOKEN_FILE;
 
 /**
  * Creates {@link DeploymentConfiguration} filled with all parameters specified
@@ -75,80 +74,50 @@ public final class DeploymentConfigurationFactory implements Serializable {
             + "this is handled by the 'prepare-frontend' goal. To use "
             + "compatibility mode, add the 'flow-server-compatibility-mode' "
             + "dependency. If using Vaadin with Spring Boot, instead set the "
-            + "property 'vaadin.compatibilityMode' to 'true' in "
-            + "'application.properties'.";
+            + "property 'vaadin.compatibilityMode' to 'true' in " + "'application.properties'.";
 
     public static final String ERROR_DEV_MODE_NO_FILES = "The compatibility mode is explicitly set to 'false', "
             + "but there are neither 'flow-build-info.json' nor 'webpack.config.js' file available in "
             + "the project/working directory. Ensure 'webpack.config.js' is present or trigger creation of "
             + "'flow-build-info.json' via running 'prepare-frontend' Maven goal.";
 
-    public static final String DEV_FOLDER_MISSING_MESSAGE =
-            "Running project in development mode with no access to folder '%s'.%n"
-                    + "Build project in production mode instead, see https://vaadin.com/docs/v14/flow/production/tutorial-production-mode-basic.html";
+    public static final String DEV_FOLDER_MISSING_MESSAGE = "Running project in development mode with no access to folder '%s'.%n"
+            + "Build project in production mode instead, see https://vaadin.com/docs/v14/flow/production/tutorial-production-mode-basic.html";
 
     @SuppressWarnings("unused")
     private static Pattern JAR_REGEX = Pattern.compile("(.+\\.jar).*");
 
-    private DeploymentConfigurationFactory() {
-    }
-
     /**
-     * Creates a {@link DeploymentConfiguration} instance that is filled with
-     * all parameters, specified for the current app.
+     * Creates a {@link DeploymentConfiguration} instance that is filled with all
+     * parameters, specified for the current app.
      *
-     * @param systemPropertyBaseClass
-     *            the class to look for properties defined with annotations
-     * @param servletConfig
-     *            the config to get the rest of the properties from
+     * @param systemPropertyBaseClass the class to look for properties defined with
+     *                                annotations
+     * @param servletConfig           the config to get the rest of the properties
+     *                                from
      * @return {@link DeploymentConfiguration} instance
-     * @throws ServletException
-     *             if construction of the {@link Properties} for the parameters
-     *             fails
+     * @throws ServletException if construction of the {@link Properties} for the
+     *                          parameters fails
      */
-    public static DeploymentConfiguration createDeploymentConfiguration(
-            Class<?> systemPropertyBaseClass, ServletConfig servletConfig)
-            throws ServletException {
+    public static DeploymentConfiguration createDeploymentConfiguration(Class<?> systemPropertyBaseClass,
+            ServletConfig servletConfig) throws ServletException {
         return new DefaultDeploymentConfiguration(systemPropertyBaseClass,
                 createInitParameters(systemPropertyBaseClass, servletConfig));
     }
 
     /**
-     * Creates a {@link DeploymentConfiguration} instance that has all
-     * parameters, specified for the current app without doing checks so
-     * property states and only returns default.
+     * Generate Property containing parameters for with all parameters contained in
+     * current application.
      *
-     * @param systemPropertyBaseClass
-     *            the class to look for properties defined with annotations
-     * @param servletConfig
-     *            the config to get the rest of the properties from
-     * @return {@link DeploymentConfiguration} instance
-     * @throws ServletException
-     *             if construction of the {@link Properties} for the parameters
-     *             fails
-     */
-    public static DeploymentConfiguration createPropertyDeploymentConfiguration(
-            Class<?> systemPropertyBaseClass, ServletConfig servletConfig)
-            throws ServletException {
-        return new PropertyDeploymentConfiguration(systemPropertyBaseClass,
-                createInitParameters(systemPropertyBaseClass, servletConfig));
-    }
-
-    /**
-     * Generate Property containing parameters for with all parameters contained
-     * in current application.
-     *
-     * @param systemPropertyBaseClass
-     *            the class to look for properties defined with annotations
-     * @param servletConfig
-     *            the config to get the rest of the properties from
+     * @param systemPropertyBaseClass the class to look for properties defined with
+     *                                annotations
+     * @param servletConfig           the config to get the rest of the properties
+     *                                from
      * @return {@link Properties} instance
-     * @throws ServletException
-     *             if construction of the {@link Properties} for the parameters
-     *             fails
+     * @throws ServletException if construction of the {@link Properties} for the
+     *                          parameters fails
      */
-    protected static Properties createInitParameters(
-            Class<?> systemPropertyBaseClass, ServletConfig servletConfig)
+    protected static Properties createInitParameters(Class<?> systemPropertyBaseClass, ServletConfig servletConfig)
             throws ServletException {
         Properties initParameters = new Properties();
         readUiFromEnclosingClass(systemPropertyBaseClass, initParameters);
@@ -156,21 +125,44 @@ public final class DeploymentConfigurationFactory implements Serializable {
 
         // Read default parameters from server.xml
         final ServletContext context = servletConfig.getServletContext();
-        for (final Enumeration<String> e = context.getInitParameterNames(); e
-                .hasMoreElements();) {
+        for (final Enumeration<String> e = context.getInitParameterNames(); e.hasMoreElements();) {
             final String name = e.nextElement();
             initParameters.setProperty(name, context.getInitParameter(name));
         }
 
         // Override with application config from web.xml
-        for (final Enumeration<String> e = servletConfig
-                .getInitParameterNames(); e.hasMoreElements();) {
+        for (final Enumeration<String> e = servletConfig.getInitParameterNames(); e.hasMoreElements();) {
             final String name = e.nextElement();
-            initParameters.setProperty(name,
-                    servletConfig.getInitParameter(name));
+            initParameters.setProperty(name, servletConfig.getInitParameter(name));
         }
         readBuildInfo(initParameters);
         return initParameters;
+    }
+
+    /**
+     * Creates a {@link DeploymentConfiguration} instance that has all parameters,
+     * specified for the current app without doing checks so property states and
+     * only returns default.
+     *
+     * @param systemPropertyBaseClass the class to look for properties defined with
+     *                                annotations
+     * @param servletConfig           the config to get the rest of the properties
+     *                                from
+     * @return {@link DeploymentConfiguration} instance
+     * @throws ServletException if construction of the {@link Properties} for the
+     *                          parameters fails
+     */
+    public static DeploymentConfiguration createPropertyDeploymentConfiguration(Class<?> systemPropertyBaseClass,
+            ServletConfig servletConfig) throws ServletException {
+        return new PropertyDeploymentConfiguration(systemPropertyBaseClass,
+                createInitParameters(systemPropertyBaseClass, servletConfig));
+    }
+
+    private static boolean hasWebpackConfig(Properties initParameters) throws IOException {
+        String baseDir = initParameters.getProperty(FrontendUtils.PROJECT_BASEDIR);
+        File projectBaseDir = baseDir == null ? new File(".") : new File(baseDir);
+        File webPackConfig = new File(projectBaseDir, FrontendUtils.WEBPACK_CONFIG);
+        return FrontendUtils.isWebpackConfigFile(webPackConfig);
     }
 
     private static void readBuildInfo(Properties initParameters) {
@@ -189,22 +181,20 @@ public final class DeploymentConfigurationFactory implements Serializable {
             if (json == null) {
                 String location = VAADIN_SERVLET_RESOURCES + TOKEN_FILE;
                 List<URL> resources = Collections
-                        .list(DeploymentConfigurationFactory.class.getClassLoader()
-                                .getResources(
-                                        location));
+                        .list(DeploymentConfigurationFactory.class.getClassLoader().getResources(location));
                 // kludge: use the first found; works ok for development and for uber-jar
                 URL resource = null;
-                for (URL r: resources) {
+                for (URL r : resources) {
                     resource = r;
                     break;
                 }
-              
+
 //                if (!resources.isEmpty()) {
 //                    resource = resources.stream().filter(
 //                            url -> !JAR_REGEX.matcher(url.getPath()).find())
 //                            .findFirst().orElse(null);
 //                }
-                
+
                 if (resource != null) {
                     json = FrontendUtils.streamToString(resource.openStream());
                 }
@@ -219,41 +209,32 @@ public final class DeploymentConfigurationFactory implements Serializable {
             JsonObject buildInfo = JsonUtil.parse(json);
             if (buildInfo.hasKey(SERVLET_PARAMETER_PRODUCTION_MODE)) {
                 initParameters.setProperty(SERVLET_PARAMETER_PRODUCTION_MODE,
-                        String.valueOf(buildInfo.getBoolean(
-                                SERVLET_PARAMETER_PRODUCTION_MODE)));
+                        String.valueOf(buildInfo.getBoolean(SERVLET_PARAMETER_PRODUCTION_MODE)));
                 // Need to be sure that we remove the system property,
                 // because
                 // it has priority in the configuration getter
-                System.clearProperty(
-                        VAADIN_PREFIX + SERVLET_PARAMETER_PRODUCTION_MODE);
+                System.clearProperty(VAADIN_PREFIX + SERVLET_PARAMETER_PRODUCTION_MODE);
             }
             if (buildInfo.hasKey(SERVLET_PARAMETER_COMPATIBILITY_MODE)) {
                 initParameters.setProperty(SERVLET_PARAMETER_COMPATIBILITY_MODE,
-                        String.valueOf(buildInfo.getBoolean(
-                                SERVLET_PARAMETER_COMPATIBILITY_MODE)));
+                        String.valueOf(buildInfo.getBoolean(SERVLET_PARAMETER_COMPATIBILITY_MODE)));
                 // Need to be sure that we remove the system property,
                 // because it has priority in the configuration getter
-                System.clearProperty(
-                        VAADIN_PREFIX + SERVLET_PARAMETER_COMPATIBILITY_MODE);
+                System.clearProperty(VAADIN_PREFIX + SERVLET_PARAMETER_COMPATIBILITY_MODE);
             }
 
             if (buildInfo.hasKey(NPM_TOKEN)) {
-                initParameters.setProperty(PROJECT_BASEDIR,
-                        buildInfo.getString(NPM_TOKEN));
-                verifyFolderExists(initParameters,
-                        buildInfo.getString(NPM_TOKEN));
+                initParameters.setProperty(PROJECT_BASEDIR, buildInfo.getString(NPM_TOKEN));
+                verifyFolderExists(initParameters, buildInfo.getString(NPM_TOKEN));
             }
 
             if (buildInfo.hasKey(FRONTEND_TOKEN)) {
-                initParameters.setProperty(FrontendUtils.PARAM_FRONTEND_DIR,
-                        buildInfo.getString(FRONTEND_TOKEN));
+                initParameters.setProperty(FrontendUtils.PARAM_FRONTEND_DIR, buildInfo.getString(FRONTEND_TOKEN));
                 // Only verify frontend folder if it's not a subfolder of the
                 // npm folder.
-                if (!buildInfo.hasKey(NPM_TOKEN) || !buildInfo
-                        .getString(FRONTEND_TOKEN)
-                        .startsWith(buildInfo.getString(NPM_TOKEN))) {
-                    verifyFolderExists(initParameters,
-                            buildInfo.getString(FRONTEND_TOKEN));
+                if (!buildInfo.hasKey(NPM_TOKEN)
+                        || !buildInfo.getString(FRONTEND_TOKEN).startsWith(buildInfo.getString(NPM_TOKEN))) {
+                    verifyFolderExists(initParameters, buildInfo.getString(FRONTEND_TOKEN));
                 }
             }
 
@@ -262,21 +243,19 @@ public final class DeploymentConfigurationFactory implements Serializable {
             // they are doing.
             if (buildInfo.hasKey(SERVLET_PARAMETER_ENABLE_DEV_SERVER)) {
                 initParameters.setProperty(SERVLET_PARAMETER_ENABLE_DEV_SERVER,
-                        String.valueOf(buildInfo.getBoolean(
-                                SERVLET_PARAMETER_ENABLE_DEV_SERVER)));
+                        String.valueOf(buildInfo.getBoolean(SERVLET_PARAMETER_ENABLE_DEV_SERVER)));
             }
             if (buildInfo.hasKey(SERVLET_PARAMETER_REUSE_DEV_SERVER)) {
                 initParameters.setProperty(SERVLET_PARAMETER_REUSE_DEV_SERVER,
-                        String.valueOf(buildInfo.getBoolean(
-                                SERVLET_PARAMETER_REUSE_DEV_SERVER)));
+                        String.valueOf(buildInfo.getBoolean(SERVLET_PARAMETER_REUSE_DEV_SERVER)));
             }
         }
 
         try {
             boolean hasWebPackConfig = hasWebpackConfig(initParameters);
             boolean hasTokenFile = json != null;
-            SerializableConsumer<CompatibilityModeStatus> strategy = value -> verifyMode(
-                    value, hasTokenFile, hasWebPackConfig);
+            SerializableConsumer<CompatibilityModeStatus> strategy = value -> verifyMode(value, hasTokenFile,
+                    hasWebPackConfig);
             initParameters.put(DEV_MODE_ENABLE_STRATEGY, strategy);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -284,30 +263,70 @@ public final class DeploymentConfigurationFactory implements Serializable {
 
     }
 
+    @SuppressWarnings("deprecation")
+    private static void readConfigurationAnnotation(Class<?> systemPropertyBaseClass, Properties initParameters)
+            throws ServletException {
+        Optional<VaadinServletConfiguration> optionalConfigAnnotation = AnnotationReader
+                .getAnnotationFor(systemPropertyBaseClass, VaadinServletConfiguration.class);
+
+        if (!optionalConfigAnnotation.isPresent()) {
+            return;
+        }
+
+        VaadinServletConfiguration configuration = optionalConfigAnnotation.get();
+        Method[] methods = VaadinServletConfiguration.class.getDeclaredMethods();
+        for (Method method : methods) {
+            VaadinServletConfiguration.InitParameterName name = method
+                    .getAnnotation(VaadinServletConfiguration.InitParameterName.class);
+            assert name != null : "All methods declared in VaadinServletConfiguration should have a @InitParameterName annotation";
+
+            try {
+                Object value = method.invoke(configuration);
+
+                String stringValue;
+                if (value instanceof Class<?>) {
+                    stringValue = ((Class<?>) value).getName();
+                } else {
+                    stringValue = value.toString();
+                }
+
+                initParameters.setProperty(name.value(), stringValue);
+            } catch (Exception e) {
+                // This should never happen
+                throw new ServletException("Could not read @VaadinServletConfiguration value " + method.getName(), e);
+            }
+        }
+
+    }
+
+    private static void readUiFromEnclosingClass(Class<?> systemPropertyBaseClass, Properties initParameters) {
+        Class<?> enclosingClass = systemPropertyBaseClass.getEnclosingClass();
+
+        if (enclosingClass != null && UI.class.isAssignableFrom(enclosingClass)) {
+            initParameters.put(VaadinSession.UI_PARAMETER, enclosingClass.getName());
+        }
+    }
+
     /**
      * Verify that given folder actually exists on the system if we are not in
      * production mode.
      * <p>
-     * If folder doesn't exist throw IllegalStateException saying that this
-     * should probably be a production mode build.
+     * If folder doesn't exist throw IllegalStateException saying that this should
+     * probably be a production mode build.
      *
-     * @param initParameters
-     *         deployment init parameters
-     * @param folder
-     *         folder to check exists
+     * @param initParameters deployment init parameters
+     * @param folder         folder to check exists
      */
-    private static void verifyFolderExists(Properties initParameters,
-            String folder) {
-        Boolean productionMode = Boolean.parseBoolean(initParameters
-                .getProperty(SERVLET_PARAMETER_PRODUCTION_MODE, "false"));
-        if(!productionMode && !new File(folder).exists()) {
+    private static void verifyFolderExists(Properties initParameters, String folder) {
+        Boolean productionMode = Boolean
+                .parseBoolean(initParameters.getProperty(SERVLET_PARAMETER_PRODUCTION_MODE, "false"));
+        if (!productionMode && !new File(folder).exists()) {
             String message = String.format(DEV_FOLDER_MISSING_MESSAGE, folder);
             throw new IllegalStateException(message);
         }
     }
 
-    private static void verifyMode(CompatibilityModeStatus value,
-            boolean hasTokenFile, boolean hasWebpackConfig) {
+    private static void verifyMode(CompatibilityModeStatus value, boolean hasTokenFile, boolean hasWebpackConfig) {
         // Don't handle the case when compatibility mode is enabled.
 
         // If no compatibility mode setting is defined
@@ -334,75 +353,12 @@ public final class DeploymentConfigurationFactory implements Serializable {
         if (!hasTokenFile && hasWebpackConfig) {
             // the current working directory will be used automatically by the
             // dev server unless it's specified explicitly
-            LoggerFactory.getLogger(DeploymentConfigurationFactory.class).warn(
-                    "Found 'webpack.config.js' in the project/working directory. "
+            LoggerFactory.getLogger(DeploymentConfigurationFactory.class)
+                    .warn("Found 'webpack.config.js' in the project/working directory. "
                             + "Will use it for webpack dev server.");
         }
     }
 
-    private static boolean hasWebpackConfig(Properties initParameters)
-            throws IOException {
-        String baseDir = initParameters
-                .getProperty(FrontendUtils.PROJECT_BASEDIR);
-        File projectBaseDir = baseDir == null ? new File(".")
-                : new File(baseDir);
-        File webPackConfig = new File(projectBaseDir,
-                FrontendUtils.WEBPACK_CONFIG);
-        return FrontendUtils.isWebpackConfigFile(webPackConfig);
-    }
-
-    private static void readUiFromEnclosingClass(
-            Class<?> systemPropertyBaseClass, Properties initParameters) {
-        Class<?> enclosingClass = systemPropertyBaseClass.getEnclosingClass();
-
-        if (enclosingClass != null
-                && UI.class.isAssignableFrom(enclosingClass)) {
-            initParameters.put(VaadinSession.UI_PARAMETER,
-                    enclosingClass.getName());
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    private static void readConfigurationAnnotation(
-            Class<?> systemPropertyBaseClass, Properties initParameters)
-            throws ServletException {
-        Optional<VaadinServletConfiguration> optionalConfigAnnotation = AnnotationReader
-                .getAnnotationFor(systemPropertyBaseClass,
-                        VaadinServletConfiguration.class);
-
-        if (!optionalConfigAnnotation.isPresent()) {
-            return;
-        }
-
-        VaadinServletConfiguration configuration = optionalConfigAnnotation
-                .get();
-        Method[] methods = VaadinServletConfiguration.class
-                .getDeclaredMethods();
-        for (Method method : methods) {
-            VaadinServletConfiguration.InitParameterName name = method
-                    .getAnnotation(
-                            VaadinServletConfiguration.InitParameterName.class);
-            assert name != null : "All methods declared in VaadinServletConfiguration should have a @InitParameterName annotation";
-
-            try {
-                Object value = method.invoke(configuration);
-
-                String stringValue;
-                if (value instanceof Class<?>) {
-                    stringValue = ((Class<?>) value).getName();
-                } else {
-                    stringValue = value.toString();
-                }
-
-                initParameters.setProperty(name.value(), stringValue);
-            } catch (Exception e) {
-                // This should never happen
-                throw new ServletException(
-                        "Could not read @VaadinServletConfiguration value "
-                                + method.getName(),
-                        e);
-            }
-        }
-
+    private DeploymentConfigurationFactory() {
     }
 }

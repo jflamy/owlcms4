@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.home;
@@ -34,7 +34,7 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Check for proper credentials.
- * 
+ *
  * Scenarios:
  * <ul>
  * <li>If the IP environment variable is present, it is expected to be a
@@ -58,6 +58,68 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
     static Logger logger = (Logger) LoggerFactory.getLogger(LoginView.class);
 
     public static final String LOGIN = "login";
+
+    public static boolean checkWhitelist() {
+        String whiteList = getWhitelist();
+        String clientIp = getClientIp();
+        if ("0:0:0:0:0:0:0:1".equals(clientIp)) {
+            // compensate for IPv6 returned in spite of IPv4-only configuration...
+            clientIp = "127.0.0.1";
+        }
+        boolean whiteListed;
+        if (whiteList != null) {
+            List<String> whiteListedList = Arrays.asList(whiteList.split(","));
+            logger.debug("checking client IP={} vs configured IP={}", clientIp, whiteList);
+            // must come from whitelisted address and have matching PIN
+            whiteListed = whiteListedList.contains(clientIp);
+            if (!whiteListed) {
+                logger.error("login attempt from non-whitelisted host {} (whitelist={})", clientIp, whiteListedList);
+            }
+        } else {
+            // no white list, allow all IP addresses
+            whiteListed = true;
+        }
+        return whiteListed;
+    }
+
+    public static String getClientIp() {
+        HttpServletRequest request;
+        request = VaadinServletRequest.getCurrent().getHttpServletRequest();
+
+        String remoteAddr = "";
+
+        if (request != null) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
+
+        return remoteAddr;
+    }
+
+    public static String getPin() {
+        String pin = Main.getStringParam("pin");
+        if (pin == null) {
+            pin = System.getenv("PIN");
+        }
+        if (pin == null) {
+            pin = System.getProperty("PIN");
+        }
+        return pin;
+    }
+
+    public static String getWhitelist() {
+        String whiteList = Main.getStringParam("ip");
+        if (whiteList == null) {
+            whiteList = System.getenv("IP");
+        }
+        if (whiteList == null) {
+            whiteList = System.getProperty("IP");
+        }
+        return whiteList;
+    }
+
     private PasswordField pinField = new PasswordField();
 
     private OwlcmsRouterLayout routerLayout;
@@ -122,43 +184,6 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
         return true;
     }
 
-    public static String getPin() {
-        String pin = Main.getStringParam("pin"); 
-        if (pin == null) pin = System.getenv("PIN");
-        if (pin == null) pin = System.getProperty("PIN");
-        return pin;
-    }
-
-    public static boolean checkWhitelist() {
-        String whiteList = getWhitelist();
-        String clientIp = getClientIp();
-        if ("0:0:0:0:0:0:0:1".equals(clientIp)) {
-            // compensate for IPv6 returned in spite of IPv4-only configuration...
-            clientIp = "127.0.0.1";
-        }
-        boolean whiteListed;
-        if (whiteList != null) {
-            List<String> whiteListedList = Arrays.asList(whiteList.split(","));
-            logger.debug("checking client IP={} vs configured IP={}", clientIp, whiteList);
-            // must come from whitelisted address and have matching PIN
-            whiteListed = whiteListedList.contains(clientIp);
-            if (!whiteListed) {
-                logger.error("login attempt from non-whitelisted host {} (whitelist={})", clientIp, whiteListedList);
-            }
-        } else {
-            // no white list, allow all IP addresses
-            whiteListed = true;
-        }
-        return whiteListed;
-    }
-
-    public static String getWhitelist() {
-        String whiteList = Main.getStringParam("ip");
-        if (whiteList == null) whiteList = System.getenv("IP");
-        if (whiteList == null) whiteList = System.getProperty("IP");
-        return whiteList;
-    }
-
     @Override
     public OwlcmsRouterLayout getRouterLayout() {
         return routerLayout;
@@ -167,22 +192,6 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
     @Override
     public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
         this.routerLayout = routerLayout;
-    }
-
-    public static String getClientIp() {
-        HttpServletRequest request;
-        request = VaadinServletRequest.getCurrent().getHttpServletRequest();
-
-        String remoteAddr = "";
-
-        if (request != null) {
-            remoteAddr = request.getHeader("X-FORWARDED-FOR");
-            if (remoteAddr == null || "".equals(remoteAddr)) {
-                remoteAddr = request.getRemoteAddr();
-            }
-        }
-
-        return remoteAddr;
     }
 
 }

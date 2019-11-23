@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.lifting;
@@ -48,7 +48,6 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
     public LiftingNavigationContent() {
         logger.trace("LiftingNavigationContent constructor start");
 
-        
         Button weighIn = new Button(getTranslation("WeighIn_StartNumbers"),
                 buttonClickEvent -> UI.getCurrent().navigate(WeighinContent.class));
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
@@ -62,11 +61,10 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         Button technical = openInNewTab(TCContent.class, getTranslation("TechnicalController"));
 
         VerticalLayout intro = new VerticalLayout();
-        addP(intro, getTranslation("AnnouncerSelectsGroup") +
-                getTranslation("ChangesGroupEverywhere") +
-                getTranslation("AnnouncerEtc"));
+        addP(intro, getTranslation("AnnouncerSelectsGroup") + getTranslation("ChangesGroupEverywhere")
+                + getTranslation("AnnouncerEtc"));
         intro.getStyle().set("margin-bottom", "0");
-        
+
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(announcer, marshall, timekeeper, technical);
         doGroup(getTranslation("Scoreboard.LiftingOrder"), intro, grid1, this);
 
@@ -81,7 +79,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see app.owlcms.ui.home.BaseNavigationContent#createTopBarFopField(java.lang.
      * String, java.lang.String)
      */
@@ -104,28 +102,28 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
     }
 
     @Override
-    protected String getTitle() {
-        return getTranslation("RunLiftingGroup");
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
     }
 
     @Override
     public String getPageTitle() {
         return getTranslation("OWLCMS_Lifting");
     }
-    
+
     @Override
-    public Location getLocation() {
-        return this.location;
+    protected String getTitle() {
+        return getTranslation("RunLiftingGroup");
     }
 
     @Override
     public void setLocation(Location location) {
         this.location = location;
-    }
-
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
     }
 
     @Override

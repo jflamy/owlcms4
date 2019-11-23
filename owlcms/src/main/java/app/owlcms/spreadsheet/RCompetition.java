@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -12,83 +12,81 @@ import java.util.Date;
 
 import app.owlcms.data.competition.Competition;
 
-public class RCompetition{
-	
-	Competition c = new Competition();
+public class RCompetition {
 
-	/**
-	 * @param competitionCity
-	 * @see app.owlcms.data.competition.Competition#setCompetitionCity(java.lang.String)
-	 */
-	public void setCompetitionCity(String competitionCity) {
-		c.setCompetitionCity(competitionCity);
-	}
+    Competition c = new Competition();
 
-	/**
-	 * @param competitionName
-	 * @see app.owlcms.data.competition.Competition#setCompetitionName(java.lang.String)
-	 */
-	public void setCompetitionName(String competitionName) {
-		c.setCompetitionName(competitionName);
-	}
+    public Competition getCompetition() {
+        return c;
+    }
 
-	/**
-	 * @param competitionOrganizer
-	 * @see app.owlcms.data.competition.Competition#setCompetitionOrganizer(java.lang.String)
-	 */
-	public void setCompetitionOrganizer(String competitionOrganizer) {
-		c.setCompetitionOrganizer(competitionOrganizer);
-	}
+    /**
+     * @param competitionCity
+     * @see app.owlcms.data.competition.Competition#setCompetitionCity(java.lang.String)
+     */
+    public void setCompetitionCity(String competitionCity) {
+        c.setCompetitionCity(competitionCity);
+    }
 
-	/**
-	 * @param competitionSite
-	 * @see app.owlcms.data.competition.Competition#setCompetitionSite(java.lang.String)
-	 */
-	public void setCompetitionSite(String competitionSite) {
-		c.setCompetitionSite(competitionSite);
-	}
+    public void setCompetitionDate(Date date) {
+        LocalDate cd = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        c.setCompetitionDate(cd);
+    }
 
-	/**
-	 * @param federation
-	 * @see app.owlcms.data.competition.Competition#setFederation(java.lang.String)
-	 */
-	public void setFederation(String federation) {
-		c.setFederation(federation);
-	}
+    /**
+     * @param competitionName
+     * @see app.owlcms.data.competition.Competition#setCompetitionName(java.lang.String)
+     */
+    public void setCompetitionName(String competitionName) {
+        c.setCompetitionName(competitionName);
+    }
 
-	/**
-	 * @param federationAddress
-	 * @see app.owlcms.data.competition.Competition#setFederationAddress(java.lang.String)
-	 */
-	public void setFederationAddress(String federationAddress) {
-		c.setFederationAddress(federationAddress);
-	}
+    /**
+     * @param competitionOrganizer
+     * @see app.owlcms.data.competition.Competition#setCompetitionOrganizer(java.lang.String)
+     */
+    public void setCompetitionOrganizer(String competitionOrganizer) {
+        c.setCompetitionOrganizer(competitionOrganizer);
+    }
 
-	/**
-	 * @param federationEMail
-	 * @see app.owlcms.data.competition.Competition#setFederationEMail(java.lang.String)
-	 */
-	public void setFederationEMail(String federationEMail) {
-		c.setFederationEMail(federationEMail);
-	}
+    /**
+     * @param competitionSite
+     * @see app.owlcms.data.competition.Competition#setCompetitionSite(java.lang.String)
+     */
+    public void setCompetitionSite(String competitionSite) {
+        c.setCompetitionSite(competitionSite);
+    }
 
-	/**
-	 * @param federationWebSite
-	 * @see app.owlcms.data.competition.Competition#setFederationWebSite(java.lang.String)
-	 */
-	public void setFederationWebSite(String federationWebSite) {
-		c.setFederationWebSite(federationWebSite);
-	}
-	
-	public void setCompetitionDate(Date date) {
-		LocalDate cd = date.toInstant()
-			      .atZone(ZoneId.systemDefault())
-			      .toLocalDate();
-		c.setCompetitionDate(cd);
-	}
-	
-	public Competition getCompetition() {
-		return c;
-	}
-	
+    /**
+     * @param federation
+     * @see app.owlcms.data.competition.Competition#setFederation(java.lang.String)
+     */
+    public void setFederation(String federation) {
+        c.setFederation(federation);
+    }
+
+    /**
+     * @param federationAddress
+     * @see app.owlcms.data.competition.Competition#setFederationAddress(java.lang.String)
+     */
+    public void setFederationAddress(String federationAddress) {
+        c.setFederationAddress(federationAddress);
+    }
+
+    /**
+     * @param federationEMail
+     * @see app.owlcms.data.competition.Competition#setFederationEMail(java.lang.String)
+     */
+    public void setFederationEMail(String federationEMail) {
+        c.setFederationEMail(federationEMail);
+    }
+
+    /**
+     * @param federationWebSite
+     * @see app.owlcms.data.competition.Competition#setFederationWebSite(java.lang.String)
+     */
+    public void setFederationWebSite(String federationWebSite) {
+        c.setFederationWebSite(federationWebSite);
+    }
+
 }

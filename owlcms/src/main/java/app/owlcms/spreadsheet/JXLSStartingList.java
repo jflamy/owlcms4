@@ -38,7 +38,8 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
 
     @Override
     protected List<Athlete> getSortedAthletes() {
-        return AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream().filter((a) -> a.getGroup() != null).collect(Collectors.toList());
+        return AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
+                .filter((a) -> a.getGroup() != null).collect(Collectors.toList());
     }
 
     @Override

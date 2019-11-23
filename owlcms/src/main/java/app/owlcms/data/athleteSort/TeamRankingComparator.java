@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athleteSort;
@@ -33,7 +33,9 @@ public class TeamRankingComparator extends AbstractLifterComparator implements C
         this.rankingType = rankingType;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @Override
@@ -41,16 +43,19 @@ public class TeamRankingComparator extends AbstractLifterComparator implements C
         int compare = 0;
 
         compare = compareClub(lifter1, lifter2);
-        if (compare != 0)
+        if (compare != 0) {
             return compare;
+        }
 
         compare = compareGender(lifter1, lifter2);
-        if (compare != 0)
+        if (compare != 0) {
             return compare;
+        }
 
         compare = comparePointsOrder(lifter1, lifter2);
-        if (compare != 0)
+        if (compare != 0) {
             return -compare;
+        }
 
         return compare;
     }
@@ -76,10 +81,11 @@ public class TeamRankingComparator extends AbstractLifterComparator implements C
             final Float combinedPoints1 = lifter1.getCombinedPoints();
             final Float combinedPoints2 = lifter2.getCombinedPoints();
             final int compareCombined = combinedPoints1.compareTo(combinedPoints2);
-            logger.trace(lifter1 + " " + combinedPoints1 + " [" + compareCombined + "]" + lifter2 + " " + combinedPoints2);
+            logger.trace(
+                    lifter1 + " " + combinedPoints1 + " [" + compareCombined + "]" + lifter2 + " " + combinedPoints2);
             return compareCombined;
-		default:
-			break;
+        default:
+            break;
         }
 
         return 0;

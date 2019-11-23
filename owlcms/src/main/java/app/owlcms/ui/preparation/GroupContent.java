@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.preparation;
@@ -34,7 +34,7 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Class CategoryContent.
- * 
+ *
  * Defines the toolbar and the table for editing data on categories.
  */
 @SuppressWarnings("serial")
@@ -59,31 +59,14 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
         fillHW(crud, this);
     }
 
-    /**
-     * The columns of the crudGrid
-     * 
-     * @param crudFormFactory what to call to create the form for editing an athlete
-     * @return
-     */
-    protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
-        Grid<Group> grid = new Grid<Group>(Group.class, false);
-        grid.addColumn(Group::getName).setHeader(getTranslation("Name"));
-        grid.addColumn(LocalDateTimeField.getRenderer(Group::getWeighInTime, this.getLocale()))
-                .setHeader(getTranslation("WeighInTime"));
-        grid.addColumn(LocalDateTimeField.getRenderer(Group::getCompetitionTime, this.getLocale()))
-                .setHeader(getTranslation("StartTime"));
-        grid.addColumn(Group::getPlatform).setHeader(getTranslation("Platform"));
-
-        GridCrud<Group> crud = new OwlcmsCrudGrid<Group>(Group.class, new OwlcmsGridLayout(Group.class),
-                crudFormFactory, grid);
-        crud.setCrudListener(this);
-        crud.setClickRowToUpdate(true);
-        return crud;
+    @Override
+    public Group add(Group domainObjectToAdd) {
+        return editingFormFactory.add(domainObjectToAdd);
     }
 
     /**
      * Define the form used to edit a given Group.
-     * 
+     *
      * @return the form factory that will create the actual form on demand
      */
     private OwlcmsCrudFormFactory<Group> createFormFactory() {
@@ -115,38 +98,61 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
     }
 
     /**
+     * The columns of the crudGrid
+     *
+     * @param crudFormFactory what to call to create the form for editing an athlete
+     * @return
+     */
+    protected GridCrud<Group> createGrid(OwlcmsCrudFormFactory<Group> crudFormFactory) {
+        Grid<Group> grid = new Grid<>(Group.class, false);
+        grid.addColumn(Group::getName).setHeader(getTranslation("Name"));
+        grid.addColumn(LocalDateTimeField.getRenderer(Group::getWeighInTime, this.getLocale()))
+                .setHeader(getTranslation("WeighInTime"));
+        grid.addColumn(LocalDateTimeField.getRenderer(Group::getCompetitionTime, this.getLocale()))
+                .setHeader(getTranslation("StartTime"));
+        grid.addColumn(Group::getPlatform).setHeader(getTranslation("Platform"));
+
+        GridCrud<Group> crud = new OwlcmsCrudGrid<>(Group.class, new OwlcmsGridLayout(Group.class),
+                crudFormFactory, grid);
+        crud.setCrudListener(this);
+        crud.setClickRowToUpdate(true);
+        return crud;
+    }
+
+    /**
      * Create the actual form generator with all the conversions and validations
      * required
-     * 
+     *
      * {@link RegistrationContent#createAthleteEditingFormFactory} for example of
      * redefinition of bindField
-     * 
+     *
      * @return the actual factory, with the additional mechanisms to do validation
      */
     private OwlcmsCrudFormFactory<Group> createGroupEditingFormFactory() {
         return new GroupEditingFormFactory(Group.class);
     }
 
-    public Group add(Group domainObjectToAdd) {
-        return editingFormFactory.add(domainObjectToAdd);
-    }
-
-    public Group update(Group domainObjectToUpdate) {
-        return editingFormFactory.update(domainObjectToUpdate);
-    }
-
+    @Override
     public void delete(Group domainObjectToDelete) {
         editingFormFactory.delete(domainObjectToDelete);
     }
 
     /**
      * The refresh button on the toolbar
-     * 
+     *
      * @see org.vaadin.crudui.crud.CrudListener#findAll()
      */
     @Override
     public Collection<Group> findAll() {
         return GroupRepository.findAll();
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Preparation_Groups");
     }
 
     @Override
@@ -159,11 +165,8 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
         this.routerLayout = routerLayout;
     }
 
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
     @Override
-    public String getPageTitle() {
-        return getTranslation("Preparation_Groups");
+    public Group update(Group domainObjectToUpdate) {
+        return editingFormFactory.update(domainObjectToUpdate);
     }
 }

@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms;
@@ -55,32 +55,58 @@ public class Main {
     public static String productionMode;
 
     /**
-     * The main method.
+     * return true if OWLCMS_KEY = true as an environment variable, and if not, if
+     * -Dkey=true as a system property.
      *
-     * @param args the arguments
-     * @throws Exception the exception
+     * Environment variables are upperCased, system properties are case-sensitive.
+     * <ul>
+     * <li>OWMCMS_PORT=80 is the same as -Dport=80
+     * </ul>
+     * 
+     * @param key
+     * @return true if value is found and exactly "true"
      */
-    public static void main(String... args) throws Exception {
+    public static boolean getBooleanParam(String key) {
+        String envVar = "OWLCMS_" + key.toUpperCase();
+        String val = System.getenv(envVar);
+        if (val != null) {
+            return val.equals("true");
+        } else {
+            return Boolean.getBoolean(key);
+        }
+    }
 
-        try {
-            init();
-            new EmbeddedJetty().run(serverPort, "/");
-        } finally {
-            tearDown();
+    public static Integer getIntegerParam(String key, Integer defaultValue) {
+        String envVar = "OWLCMS_" + key.toUpperCase();
+        String val = System.getenv(envVar);
+        if (val != null) {
+            return Integer.parseInt(val);
+        } else {
+            return Integer.getInteger(key, defaultValue);
+        }
+    }
+
+    public static String getStringParam(String key) {
+        String envVar = "OWLCMS_" + key.toUpperCase();
+        String val = System.getenv(envVar);
+        if (val != null) {
+            return val;
+        } else {
+            return System.getProperty(key);
         }
     }
 
     /**
      * Prepare owlcms
-     * 
+     *
      * Reads configuration options, injects data, initializes singletons and
      * configurations. The embedded web server can then be started.
-     * 
+     *
      * Sample command line to run on port 80 and in demo mode (automatically
      * generated fake data, in-memory database)
-     * 
+     *
      * <code><pre>java -D"server.port"=80 -DdemoMode=true -jar owlcms-4.0.1-SNAPSHOT.jar app.owlcms.Main</pre></code>
-     * 
+     *
      * @return the server port on which we want to run
      * @throws IOException
      * @throws ParseException
@@ -100,7 +126,7 @@ public class Main {
 
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
-        
+
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");
         ConvertUtils.register(new DateConverter(null), java.util.Date.class);
@@ -108,7 +134,7 @@ public class Main {
 
         // setup database
         JPAService.init(demoMode || memoryMode, demoMode || resetMode);
-        
+
         // read locale from database and overrrde if needed
         Locale l = overrideDisplayLanguage();
         injectData(demoMode, devMode, testMode, masters, l);
@@ -117,104 +143,8 @@ public class Main {
         return;
     }
 
-    /**
-     * get configuration from environment variables and if not found, from system properties.
-     */
-    private static void parseConfig() {
-        // read server.port parameter from -D"server.port"=9999 on java command line
-        // this is required for running on Heroku which assigns us the port at run time.
-        // default is 8080
-        serverPort = getIntegerParam("port", 8080);
-
-        // same as devMode + resetMode + memoryMode
-        demoMode = getBooleanParam("demoMode");
-
-        // run in memory
-        memoryMode = getBooleanParam("memoryMode");
-        
-        // drop the schema first
-        resetMode = getBooleanParam("resetMode");
-        
-        // load large demo data if empty
-        devMode = getBooleanParam("devMode");
-        
-        // load small dummy data if empty
-        testMode = getBooleanParam("testMode"); 
-        
-        // productionMode required to tell vaadin to skip npm
-        boolean npmMode = getBooleanParam("npmMode");
-        productionMode = npmMode ? "false" : "true";
-        
-        masters = getBooleanParam("masters");
-    }
-
-    /**
-     * return true if OWLCMS_KEY = true as an environment variable,
-     * and if not, if -Dkey=true as a system property.
-     * 
-     * Environment variables are upperCased, system properties are case-sensitive.
-     * <ul>
-     * <li>OWMCMS_PORT=80 is the same as -Dport=80
-     * </ul>
-     * @param key
-     * @return true if value is found and exactly "true"
-     */
-    public static boolean getBooleanParam(String key) {
-        String envVar = "OWLCMS_"+key.toUpperCase();
-        String val = System.getenv(envVar);
-        if (val != null) {
-            return val.equals("true");
-        } else {
-            return Boolean.getBoolean(key);
-        }
-    }
-    
-    public static String getStringParam(String key) {
-        String envVar = "OWLCMS_"+key.toUpperCase();
-        String val = System.getenv(envVar);
-        if (val != null) {
-            return val;
-        } else {
-            return System.getProperty(key);
-        }
-    }
-
-    public static Integer getIntegerParam(String key, Integer defaultValue) {
-        String envVar = "OWLCMS_"+key.toUpperCase();
-        String val = System.getenv(envVar);
-        if (val != null) {
-            return Integer.parseInt(val);
-        } else {
-            return Integer.getInteger(key,defaultValue);
-        }
-    }
-
-    private static Locale overrideDisplayLanguage() {
-        // read override value from database
-        Locale l = null;
-        try {
-            l = Competition.getCurrent().getDefaultLocale();
-        } catch (Exception e) {
-        }
-
-        // check OWLCMS_LOCALE, then -Dlocale, then LOCALE
-        String localeEnvStr = getStringParam("locale");
-        if (localeEnvStr != null)
-            l = Translator.createLocale(localeEnvStr);
-        else {
-            localeEnvStr = System.getenv("LOCALE");
-            if (localeEnvStr != null)
-            l = Translator.createLocale(localeEnvStr);
-        }
-
-        if (l != null) {
-            Translator.setForcedLocale(l);
-            logger.info("forcing display language to {}", l);
-        }
-        return l;
-    }
-
-    private static void injectData(boolean demoMode, boolean devMode, boolean testMode, boolean masters, Locale locale) {
+    private static void injectData(boolean demoMode, boolean devMode, boolean testMode, boolean masters,
+            Locale locale) {
         Locale l = (locale == null ? Locale.ENGLISH : locale);
 
         try {
@@ -254,33 +184,28 @@ public class Main {
         logger.info("owlcms {} built {} ({})", version, buildTimestamp, buildZone);
     }
 
-    protected static void tearDown() {
-        JPAService.close();
-    }
+    /**
+     * The main method.
+     *
+     * @param args the arguments
+     * @throws Exception the exception
+     */
+    public static void main(String... args) throws Exception {
 
-    public static void startBrowser() {
-        if (Desktop.isDesktopSupported()) {
-            Desktop desktop = Desktop.getDesktop();
-            try {
-                InetAddress localMachine = InetAddress.getLocalHost();
-                String hostName = localMachine.getHostName();
-                
-                boolean opened = openBrowser(desktop, hostName);
-                if (!opened) {
-                    openBrowser(desktop, "127.0.0.1"); 
-                }
-            } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
-            }
-        } else {
-            logger.debug("no browser support");
+        try {
+            init();
+            new EmbeddedJetty().run(serverPort, "/");
+        } finally {
+            tearDown();
         }
     }
 
     public static boolean openBrowser(Desktop desktop, String hostName)
             throws MalformedURLException, IOException, ProtocolException, URISyntaxException {
-        if (hostName == null) return false;
-        
+        if (hostName == null) {
+            return false;
+        }
+
         int response;
         URL testingURL = new URL("http", hostName, serverPort, "/sounds/timeOver.mp3");
         HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
@@ -295,6 +220,87 @@ public class Main {
             return true;
         }
         return false;
+    }
+
+    private static Locale overrideDisplayLanguage() {
+        // read override value from database
+        Locale l = null;
+        try {
+            l = Competition.getCurrent().getDefaultLocale();
+        } catch (Exception e) {
+        }
+
+        // check OWLCMS_LOCALE, then -Dlocale, then LOCALE
+        String localeEnvStr = getStringParam("locale");
+        if (localeEnvStr != null) {
+            l = Translator.createLocale(localeEnvStr);
+        } else {
+            localeEnvStr = System.getenv("LOCALE");
+            if (localeEnvStr != null) {
+                l = Translator.createLocale(localeEnvStr);
+            }
+        }
+
+        if (l != null) {
+            Translator.setForcedLocale(l);
+            logger.info("forcing display language to {}", l);
+        }
+        return l;
+    }
+
+    /**
+     * get configuration from environment variables and if not found, from system
+     * properties.
+     */
+    private static void parseConfig() {
+        // read server.port parameter from -D"server.port"=9999 on java command line
+        // this is required for running on Heroku which assigns us the port at run time.
+        // default is 8080
+        serverPort = getIntegerParam("port", 8080);
+
+        // same as devMode + resetMode + memoryMode
+        demoMode = getBooleanParam("demoMode");
+
+        // run in memory
+        memoryMode = getBooleanParam("memoryMode");
+
+        // drop the schema first
+        resetMode = getBooleanParam("resetMode");
+
+        // load large demo data if empty
+        devMode = getBooleanParam("devMode");
+
+        // load small dummy data if empty
+        testMode = getBooleanParam("testMode");
+
+        // productionMode required to tell vaadin to skip npm
+        boolean npmMode = getBooleanParam("npmMode");
+        productionMode = npmMode ? "false" : "true";
+
+        masters = getBooleanParam("masters");
+    }
+
+    public static void startBrowser() {
+        if (Desktop.isDesktopSupported()) {
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                InetAddress localMachine = InetAddress.getLocalHost();
+                String hostName = localMachine.getHostName();
+
+                boolean opened = openBrowser(desktop, hostName);
+                if (!opened) {
+                    openBrowser(desktop, "127.0.0.1");
+                }
+            } catch (Exception e) {
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+        } else {
+            logger.debug("no browser support");
+        }
+    }
+
+    protected static void tearDown() {
+        JPAService.close();
     }
 
 }

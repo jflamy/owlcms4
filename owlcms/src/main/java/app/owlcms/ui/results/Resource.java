@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.results;
@@ -14,31 +14,31 @@ import java.nio.file.Path;
 import org.apache.commons.io.IOUtils;
 
 public class Resource {
-    
+
     String fileName;
     Path filePath;
-    
+
     public Resource(String fileName, Path filePath) {
         this.fileName = fileName;
         this.filePath = filePath;
+    }
+
+    public byte[] getByteArray() throws IOException {
+        return IOUtils.toByteArray(getStream());
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public Path getFilePath() {
+        return filePath;
     }
 
     public InputStream getStream() throws IOException {
         return Files.newInputStream(filePath);
     }
 
-    public byte[] getByteArray() throws IOException {
-        return IOUtils.toByteArray(getStream());
-    }
-    
-    public String getFileName() {
-        return fileName;
-    }
-    
-    public Path getFilePath( ) {
-        return filePath;
-    }
-    
     @Override
     public String toString() {
         return getFileName();

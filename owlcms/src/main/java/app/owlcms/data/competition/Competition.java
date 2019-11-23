@@ -62,43 +62,171 @@ public class Competition {
         competition = c;
     }
 
+    public static void splitByGender(List<Athlete> sortedAthletes, List<Athlete> sortedMen, List<Athlete> sortedWomen) {
+        for (Athlete l : sortedAthletes) {
+            Gender gender = l.getGender();
+            if (Gender.M == gender) {
+                sortedMen.add(l);
+            } else if (Gender.F == gender) {
+                sortedWomen.add(l);
+            } else {
+                throw new RuntimeException("gender is " + gender);
+            }
+        }
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
-
     private String competitionName;
     private LocalDate competitionDate = null;
     private String competitionOrganizer;
     private String competitionSite;
-    private String competitionCity;
 
+    private String competitionCity;
     private String federation;
     private String federationAddress;
     private String federationEMail;
+
     private String federationWebSite;
 
     @Convert(converter = LocaleAttributeConverter.class)
     private Locale defaultLocale = null;
-
     private String protocolFileName;
+
     @Lob
     private byte[] protocolTemplate;
-
     private String finalPackageTemplateFileName;
+
     @Lob
     private byte[] finalPackageTemplate;
-
     private boolean enforce20kgRule;
     private boolean masters;
-    private boolean useBirthYear;
 
+    private boolean useBirthYear;
     private boolean useCategorySinclair = false;
     private boolean useOldBodyWeightTieBreak = false;
+
     private boolean useRegistrationCategory = true;
-    
+
     @Transient
     private HashMap<String, Object> reportingBeans;
 
+    public void computeGlobalRankings() {
+        this.setGlobalRankingRecompute(true);
+        computeGlobalRankings(reportingBeans);
+    }
+
+    public void computeGlobalRankings(HashMap<String, Object> reportingBeans2) {
+        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
+        if (athletes.isEmpty()) {
+            // prevent outputting silliness.
+            throw new RuntimeException("No athletes.");
+        }
+        // extract club lists
+        TreeSet<String> teams = new TreeSet<>();
+        for (Athlete curAthlete : athletes) {
+            teams.add(curAthlete.getTeam());
+        }
+        reportingBeans2.put("clubs", teams);
+        logger.debug("teams {}", teams);
+
+        List<Athlete> sortedAthletes;
+        List<Athlete> sortedMen = null;
+        List<Athlete> sortedWomen = null;
+
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans2.put("mSn", sortedMen);
+        reportingBeans2.put("wSn", sortedWomen);
+
+        // only needed once
+        reportingBeans2.put("nbMen", sortedMen.size());
+        reportingBeans2.put("nbWomen", sortedWomen.size());
+        reportingBeans2.put("nbAthletes", sortedAthletes.size());
+        reportingBeans2.put("nbClubs", teams.size());
+        if (sortedMen.size() > 0) {
+            reportingBeans2.put("mClubs", teams);
+        } else {
+            reportingBeans2.put("mClubs", new ArrayList<String>());
+        }
+        if (sortedWomen.size() > 0) {
+            reportingBeans2.put("wClubs", teams);
+        } else {
+            reportingBeans2.put("wClubs", new ArrayList<String>());
+        }
+
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans2.put("mCJ", sortedMen);
+        reportingBeans2.put("wCJ", sortedWomen);
+
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.TOTAL);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans2.put("mTot", sortedMen);
+        reportingBeans2.put("wTot", sortedWomen);
+
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SINCLAIR);
+        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.SINCLAIR);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans2.put("mSinclair", sortedMen);
+        reportingBeans2.put("wSinclair", sortedWomen);
+        logger.debug("mSinclair {}", sortedMen);
+        logger.debug("wSinclair {}", sortedWomen);
+
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.ROBI);
+        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.ROBI);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans2.put("mRobi", sortedMen);
+        reportingBeans2.put("wRobi", sortedWomen);
+
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CUSTOM);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CUSTOM);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans2.put("mCus", sortedMen);
+        reportingBeans2.put("wCus", sortedWomen);
+
+        // team-oriented rankings. These put all the athletes from the same team
+        // together,
+        // sorted from best to worst, so that the top "n" can be given points
+        sortedAthletes = AthleteSorter.teamRankingOrderCopy(athletes, Ranking.CUSTOM);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans2.put("mCustom", sortedMen);
+        reportingBeans2.put("wCustom", sortedWomen);
+
+        sortedAthletes = AthleteSorter.teamRankingOrderCopy(athletes, Ranking.COMBINED);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans2.put("mCombined", sortedMen);
+        reportingBeans2.put("wCombined", sortedWomen);
+        reportingBeans2.put("mwCombined", sortedAthletes);
+
+        AthleteSorter.teamRankingOrder(sortedAthletes, Ranking.TOTAL);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans2.put("mTeam", sortedMen);
+        reportingBeans2.put("wTeam", sortedWomen);
+        reportingBeans2.put("mwTeam", sortedAthletes);
+    }
 
     /**
      * Gets the competition city.
@@ -151,7 +279,7 @@ public class Competition {
      * @return the default locale
      */
     public Locale getDefaultLocale() {
-        return defaultLocale ;
+        return defaultLocale;
     }
 
     /**
@@ -201,10 +329,16 @@ public class Competition {
      * @throws IOException Signals that an I/O exception has occurred.
      */
     public String getFinalPackageTemplateFileName() throws IOException {
-        if (finalPackageTemplateFileName == null)
+        if (finalPackageTemplateFileName == null) {
             return DEFAULT_PACKAGE_NAME;
-        else
+        } else {
             return finalPackageTemplateFileName;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Athlete> getGlobalSinclairRanking(Gender gender) {
+        return (List<Athlete>) reportingBeans.get(gender == Gender.F ? "wSinclair" : "mSinclair");
     }
 
     /**
@@ -250,10 +384,11 @@ public class Competition {
      * @throws IOException Signals that an I/O exception has occurred.
      */
     public String getProtocolFileName() throws IOException {
-        if (protocolFileName == null)
+        if (protocolFileName == null) {
             return DEFAULT_PROTOCOL_NAME;
-        else
+        } else {
             return protocolFileName;
+        }
     }
 
     public byte[] getProtocolTemplate() {
@@ -267,6 +402,13 @@ public class Competition {
      */
     public boolean isEnforce20kgRule() {
         return enforce20kgRule;
+    }
+
+    /**
+     * @return the globalRankingRecompute
+     */
+    public boolean isGlobalRankingRecompute() {
+        return this.reportingBeans != null;
     }
 
     /**
@@ -408,13 +550,32 @@ public class Competition {
     }
 
     /**
+     * Sets the result template file name.
+     *
+     * @param finalPackageTemplateFileName the new result template file name
+     */
+    public void setFinalPackageTemplateFileName(String finalPackageTemplateFileName) {
+        this.finalPackageTemplateFileName = finalPackageTemplateFileName;
+    }
+
+    /**
+     * @param globalRankingRecompute the globalRankingRecompute to set
+     */
+    public void setGlobalRankingRecompute(boolean globalRankingRecompute) {
+        if (globalRankingRecompute) {
+            this.reportingBeans = new HashMap<>();
+        } else {
+            this.reportingBeans = null;
+        }
+    }
+
+    /**
      * Sets the invited if born before.
      *
      * @param invitedIfBornBefore the new invited if born before
      */
     public void setInvitedIfBornBefore(Integer invitedIfBornBefore) {
     }
-
 
     public void setMasters(boolean masters) {
         this.masters = masters;
@@ -434,15 +595,6 @@ public class Competition {
     }
 
     /**
-     * Sets the result template file name.
-     *
-     * @param finalPackageTemplateFileName the new result template file name
-     */
-    public void setFinalPackageTemplateFileName(String finalPackageTemplateFileName) {
-        this.finalPackageTemplateFileName = finalPackageTemplateFileName;
-    }
-
-    /**
      * Sets the use birth year.
      *
      * @param b the new use birth year
@@ -458,157 +610,5 @@ public class Competition {
      */
     public void setUseRegistrationCategory(boolean useRegistrationCategory) {
         this.useRegistrationCategory = useRegistrationCategory;
-    }
-
-    /**
-     * @return the globalRankingRecompute
-     */
-    public boolean isGlobalRankingRecompute() {
-        return this.reportingBeans != null;
-    }
-
-    /**
-     * @param globalRankingRecompute the globalRankingRecompute to set
-     */
-    public void setGlobalRankingRecompute(boolean globalRankingRecompute) {
-        if (globalRankingRecompute) {
-            this.reportingBeans = new HashMap<>();
-        } else {
-            this.reportingBeans = null;
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Athlete> getGlobalSinclairRanking(Gender gender) {
-        return (List<Athlete>) reportingBeans.get(gender == Gender.F ? "wSinclair" : "mSinclair");
-    }
-
-    public void computeGlobalRankings(HashMap<String, Object> reportingBeans2) {
-        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null,true);
-        if (athletes.isEmpty()) {
-            // prevent outputting silliness.
-            throw new RuntimeException("No athletes.");
-        }
-        // extract club lists
-        TreeSet<String> teams = new TreeSet<String>();
-        for (Athlete curAthlete : athletes) {
-            teams.add(curAthlete.getTeam());
-        }
-        reportingBeans2.put("clubs", teams);
-        logger.debug("teams {}", teams);
-
-        List<Athlete> sortedAthletes;
-        List<Athlete> sortedMen = null;
-        List<Athlete> sortedWomen = null;
-
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
-        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);
-        sortedMen = new ArrayList<Athlete>(sortedAthletes.size());
-        sortedWomen = new ArrayList<Athlete>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reportingBeans2.put("mSn", sortedMen);
-        reportingBeans2.put("wSn", sortedWomen);
-
-        // only needed once
-        reportingBeans2.put("nbMen", sortedMen.size());
-        reportingBeans2.put("nbWomen", sortedWomen.size());
-        reportingBeans2.put("nbAthletes", sortedAthletes.size());
-        reportingBeans2.put("nbClubs", teams.size());
-        if (sortedMen.size() > 0) {
-            reportingBeans2.put("mClubs", teams);
-        } else {
-            reportingBeans2.put("mClubs", new ArrayList<String>());
-        }
-        if (sortedWomen.size() > 0) {
-            reportingBeans2.put("wClubs", teams);
-        } else {
-            reportingBeans2.put("wClubs", new ArrayList<String>());
-        }
-
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK);
-        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
-        sortedMen = new ArrayList<Athlete>(sortedAthletes.size());
-        sortedWomen = new ArrayList<Athlete>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reportingBeans2.put("mCJ", sortedMen);
-        reportingBeans2.put("wCJ", sortedWomen);
-
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL);
-        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.TOTAL);
-        sortedMen = new ArrayList<Athlete>(sortedAthletes.size());
-        sortedWomen = new ArrayList<Athlete>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reportingBeans2.put("mTot", sortedMen);
-        reportingBeans2.put("wTot", sortedWomen);
-
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SINCLAIR);
-        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.SINCLAIR);
-        sortedMen = new ArrayList<Athlete>(sortedAthletes.size());
-        sortedWomen = new ArrayList<Athlete>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reportingBeans2.put("mSinclair", sortedMen);
-        reportingBeans2.put("wSinclair", sortedWomen);
-        logger.debug("mSinclair {}",sortedMen);
-        logger.debug("wSinclair {}", sortedWomen);
-
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.ROBI);
-        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.ROBI);
-        sortedMen = new ArrayList<Athlete>(sortedAthletes.size());
-        sortedWomen = new ArrayList<Athlete>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reportingBeans2.put("mRobi", sortedMen);
-        reportingBeans2.put("wRobi", sortedWomen);
-
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CUSTOM);
-        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CUSTOM);
-        sortedMen = new ArrayList<Athlete>(sortedAthletes.size());
-        sortedWomen = new ArrayList<Athlete>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reportingBeans2.put("mCus", sortedMen);
-        reportingBeans2.put("wCus", sortedWomen);
-
-        // team-oriented rankings. These put all the athletes from the same team together,
-        // sorted from best to worst, so that the top "n" can be given points
-        sortedAthletes = AthleteSorter.teamRankingOrderCopy(athletes, Ranking.CUSTOM);
-        sortedMen = new ArrayList<Athlete>(sortedAthletes.size());
-        sortedWomen = new ArrayList<Athlete>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reportingBeans2.put("mCustom", sortedMen);
-        reportingBeans2.put("wCustom", sortedWomen);
-
-        sortedAthletes = AthleteSorter.teamRankingOrderCopy(athletes, Ranking.COMBINED);
-        sortedMen = new ArrayList<Athlete>(sortedAthletes.size());
-        sortedWomen = new ArrayList<Athlete>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reportingBeans2.put("mCombined", sortedMen);
-        reportingBeans2.put("wCombined", sortedWomen);
-        reportingBeans2.put("mwCombined", sortedAthletes);
-
-        AthleteSorter.teamRankingOrder(sortedAthletes, Ranking.TOTAL);
-        sortedMen = new ArrayList<Athlete>(sortedAthletes.size());
-        sortedWomen = new ArrayList<Athlete>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reportingBeans2.put("mTeam", sortedMen);
-        reportingBeans2.put("wTeam", sortedWomen);
-        reportingBeans2.put("mwTeam", sortedAthletes);
-    }
-    
-    public static void splitByGender(List<Athlete> sortedAthletes,
-            List<Athlete> sortedMen, List<Athlete> sortedWomen) {
-        for (Athlete l : sortedAthletes) {
-            Gender gender = l.getGender();
-            if (Gender.M == gender) {
-                sortedMen.add(l);
-            } else if (Gender.F == gender) {
-                sortedWomen.add(l);
-            } else {
-                throw new RuntimeException("gender is "+gender);
-            }
-        }
-    }
-
-    public void computeGlobalRankings() {
-        this.setGlobalRankingRecompute(true);
-        computeGlobalRankings(reportingBeans);
     }
 }

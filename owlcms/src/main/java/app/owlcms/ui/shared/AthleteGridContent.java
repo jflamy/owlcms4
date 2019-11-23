@@ -32,6 +32,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -40,6 +41,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
@@ -105,7 +107,8 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected H3 title;
     protected H1 lastName;
-    protected H2 firstName;
+    protected Span firstName;
+    protected Span startNumber;
     protected H2 attempt;
     protected H2 weight;
     protected AthleteTimerElement timeField;
@@ -147,6 +150,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     private HorizontalLayout decisions;
     private HorizontalLayout breaks;
     protected BreakDialog breakDialog;
+    private H2 firstNameWrapper;
 
     /**
      * Instantiates a new announcer content. Content is created in
@@ -177,12 +181,16 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     public void busyBreakButton() {
-        //FIXME: breakButton null
-        //        at app.owlcms.ui.shared.AthleteGridContent.busyBreakButton(AthleteGridContent.java:180)
-        //        at app.owlcms.ui.shared.AthleteGridContent.lambda$syncWithFOP$7(AthleteGridContent.java:736)
-        //        at app.owlcms.init.OwlcmsSession.withFop(OwlcmsSession.java:92)
-        //        at app.owlcms.ui.shared.AthleteGridContent.syncWithFOP(AthleteGridContent.java:700)
-        //        at app.owlcms.ui.shared.AthleteGridContent.lambda$slaveBreakDone$a2e7e93b$1(AthleteGridContent.java:615)
+        // FIXME: breakButton null
+        // at
+        // app.owlcms.ui.shared.AthleteGridContent.busyBreakButton(AthleteGridContent.java:180)
+        // at
+        // app.owlcms.ui.shared.AthleteGridContent.lambda$syncWithFOP$7(AthleteGridContent.java:736)
+        // at app.owlcms.init.OwlcmsSession.withFop(OwlcmsSession.java:92)
+        // at
+        // app.owlcms.ui.shared.AthleteGridContent.syncWithFOP(AthleteGridContent.java:700)
+        // at
+        // app.owlcms.ui.shared.AthleteGridContent.lambda$slaveBreakDone$a2e7e93b$1(AthleteGridContent.java:615)
         breakButton.getElement().setAttribute("theme", "primary error");
         breakButton.getStyle().set("color", "white");
         breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
@@ -298,9 +306,22 @@ public abstract class AthleteGridContent extends VerticalLayout
         lastName = new H1();
         lastName.setText("\u2013");
         lastName.getStyle().set("margin", "0px 0px 0px 0px");
-        firstName = new H2("");
+
+        firstNameWrapper = new H2("");
+        firstNameWrapper.getStyle().set("margin", "0px 0px 0px 0px");
+        firstName = new Span("");
         firstName.getStyle().set("margin", "0px 0px 0px 0px");
-        Div fullName = new Div(lastName, firstName);
+        startNumber = new Span("");
+        Style style = startNumber.getStyle();
+        style.set("margin", "0px 0px 0px 1em");
+        style.set("padding", "0px 0px 0px 0px");
+        style.set("border", "2px solid var(--lumo-primary-color)");
+        style.set("font-size", "90%");
+        style.set("width", "1.4em");
+        style.set("text-align", "center");
+        style.set("display", "inline-block");
+        firstNameWrapper.add(firstName, startNumber);
+        Div fullName = new Div(lastName, firstNameWrapper);
 
         attempt = new H2();
         weight = new H2();
@@ -444,7 +465,21 @@ public abstract class AthleteGridContent extends VerticalLayout
                     if (!initialBar) {
                         String lastName2 = athlete.getLastName();
                         lastName.setText(lastName2 != null ? lastName2.toUpperCase() : "");
-                        firstName.setText(athlete.getFirstName());
+                        String firstName2 = athlete.getFirstName();
+                        firstName.setText(firstName2 != null ? firstName2 : "");
+                        Integer startNumber2 = athlete.getStartNumber();
+                        String startNumberText = (startNumber2 != null && startNumber2 > 0 ? startNumber2.toString()
+                                : null);
+                        if (startNumberText != null) {
+                            startNumber.setText(startNumberText);
+                            startNumber.getStyle().set("visibility", "visible");
+                            startNumber.getStyle().set("font-size", "normal");
+                        } else {
+                            startNumber.setText("\u26A0");
+                            startNumber.setTitle(getTranslation("StartNumbersNotSet"));
+                            startNumber.getStyle().set("visibility", "visible");
+                            startNumber.getStyle().set("font-size", "smaller");
+                        }
                         timeField.getElement().getStyle().set("visibility", "visible");
                         attempt.setText(formatAttemptNumber(athlete));
                         Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
@@ -749,11 +784,14 @@ public abstract class AthleteGridContent extends VerticalLayout
                     if (decisions != null) {
                         decisions.setVisible(true);
                     }
-                    //FIXME: breakButton null
-                    //    at app.owlcms.ui.shared.AthleteGridContent.lambda$syncWithFOP$7(AthleteGridContent.java:746)
-                    //    at app.owlcms.init.OwlcmsSession.withFop(OwlcmsSession.java:92)
-                    //    at app.owlcms.ui.shared.AthleteGridContent.syncWithFOP(AthleteGridContent.java:700)
-                    //    at app.owlcms.ui.shared.AthleteGridContent.lambda$slaveBreakDone$a2e7e93b$1(AthleteGridContent.java:615)
+                    // FIXME: breakButton null
+                    // at
+                    // app.owlcms.ui.shared.AthleteGridContent.lambda$syncWithFOP$7(AthleteGridContent.java:746)
+                    // at app.owlcms.init.OwlcmsSession.withFop(OwlcmsSession.java:92)
+                    // at
+                    // app.owlcms.ui.shared.AthleteGridContent.syncWithFOP(AthleteGridContent.java:700)
+                    // at
+                    // app.owlcms.ui.shared.AthleteGridContent.lambda$slaveBreakDone$a2e7e93b$1(AthleteGridContent.java:615)
                     breakButton.setText("");
                     quietBreakButton(this instanceof JuryContent);
                 }

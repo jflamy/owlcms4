@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.lifting;
@@ -28,6 +28,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
+import app.owlcms.components.fields.ValidationTextField;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -50,9 +51,9 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Class AthleteContent
- * 
+ *
  * Defines the toolbar and the table for editing data on athletes.
- * 
+ *
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/weighin", layout = WeighinLayout.class)
@@ -85,37 +86,15 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         fillHW(crudGrid, this);
     }
 
-    /**
-     * The columns of the crudGrid
-     * 
-     * @param crudFormFactory what to call to create the form for editing an athlete
-     * @return
-     */
-    protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-        Grid<Athlete> grid = new Grid<Athlete>(Athlete.class, false);
-        grid.addColumn("startNumber").setHeader(getTranslation("Start_"));
-        grid.addColumn("lastName").setHeader(getTranslation("LastName"));
-        grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
-        grid.addColumn("team").setHeader(getTranslation("Team"));
-        grid.addColumn("ageDivision").setHeader(getTranslation("AgeDivision"));
-        grid.addColumn("category").setHeader(getTranslation("Category"));
-        grid.addColumn("group").setHeader(getTranslation("Group"));
-        grid.addColumn(new NumberRenderer<Athlete>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
-                .setHeader(getTranslation("BodyWeight"));
-        grid.addColumn("snatch1Declaration").setHeader(getTranslation("SnatchDecl_"));
-        grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
-
-        grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
-        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<Athlete>(Athlete.class,
-                new OwlcmsGridLayout(Athlete.class), crudFormFactory, grid);
-        crudGrid.setCrudListener(this);
-        crudGrid.setClickRowToUpdate(true);
-        return crudGrid;
+    @Override
+    public Athlete add(Athlete Athlete) {
+        crudFormFactory.add(Athlete);
+        return Athlete;
     }
 
     /**
      * Define the form used to edit a given athlete.
-     * 
+     *
      * @return the form factory that will create the actual form on demand
      */
     protected OwlcmsCrudFormFactory<Athlete> createFormFactory() {
@@ -126,23 +105,21 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
     /**
      * The content and ordering of the editing form
-     * 
+     *
      * @param crudFormFactory the factory that will create the form using this
      *                        information
      */
     private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
         boolean useBirthYear = Competition.getCurrent().isUseBirthYear();
         crudFormFactory.setVisibleProperties("bodyWeight", "category", "snatch1Declaration", "cleanJerk1Declaration",
-                "gender", "group", "lastName", "firstName", "team",
-                useBirthYear ? "yearOfBirth" : "fullBirthDate", "ageDivision",
-                "qualifyingTotal", "membership", "eligibleForIndividualRanking");
+                "gender", "group", "lastName", "firstName", "team", useBirthYear ? "yearOfBirth" : "fullBirthDate",
+                "ageDivision", "qualifyingTotal", "membership", "eligibleForIndividualRanking");
         crudFormFactory.setFieldCaptions(getTranslation("BodyWeight"), getTranslation("Category"),
                 getTranslation("Snatch_Declaration"), getTranslation("Clean_and_Jerk_Declaration"),
                 getTranslation("Gender"), getTranslation("Group"), getTranslation("LastName"),
                 getTranslation("FirstName"), getTranslation("Team"),
-                useBirthYear ? getTranslation("YearOfBirth"):getTranslation("BirthDate_yyyy"),
-                getTranslation("AgeDivision"), getTranslation("EntryTotal"),
-                getTranslation("Membership"),
+                useBirthYear ? getTranslation("YearOfBirth") : getTranslation("BirthDate_yyyy"),
+                getTranslation("AgeDivision"), getTranslation("EntryTotal"), getTranslation("Membership"),
                 getTranslation("Eligible for Individual Ranking?"));
         crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
                 Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
@@ -153,9 +130,15 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory.setFieldProvider("ageDivision", new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"),
                 Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name), AgeDivision::name));
 
+        // ValidationTextField (or a wrapper) must be used as workaround for unexplained
+        // validation behaviour
+        crudFormFactory.setFieldType("snatch1Declaration", ValidationTextField.class);
+        crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
+        crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
+
         crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
         if (useBirthYear) {
-            crudFormFactory.setFieldType("yearOfBirth", TextField.class);
+            crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
         } else {
             crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
         }
@@ -164,39 +147,37 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         });
     }
 
-    @Override
-    public Athlete add(Athlete Athlete) {
-        crudFormFactory.add(Athlete);
-        return Athlete;
-    }
-
-    @Override
-    public Athlete update(Athlete Athlete) {
-        return crudFormFactory.update(Athlete);
-    }
-
-    @Override
-    public void delete(Athlete Athlete) {
-        crudFormFactory.delete(Athlete);
-        return;
-    }
-
     /**
-     * The refresh button on the toolbar calls this.
-     * 
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     * The columns of the crudGrid
+     *
+     * @param crudFormFactory what to call to create the form for editing an athlete
+     * @return
      */
-    @Override
-    public Collection<Athlete> findAll() {
-        List<Athlete> findFiltered = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
-                categoryFilter.getValue(), ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
-        AthleteSorter.registrationOrder(findFiltered);
-        return findFiltered;
+    protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+        grid.addColumn("startNumber").setHeader(getTranslation("Start_"));
+        grid.addColumn("lastName").setHeader(getTranslation("LastName"));
+        grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
+        grid.addColumn("team").setHeader(getTranslation("Team"));
+        grid.addColumn("ageDivision").setHeader(getTranslation("AgeDivision"));
+        grid.addColumn("category").setHeader(getTranslation("Category"));
+        grid.addColumn("group").setHeader(getTranslation("Group"));
+        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
+                .setHeader(getTranslation("BodyWeight"));
+        grid.addColumn("snatch1Declaration").setHeader(getTranslation("SnatchDecl_"));
+        grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
+
+        grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
+        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class),
+                crudFormFactory, grid);
+        crudGrid.setCrudListener(this);
+        crudGrid.setClickRowToUpdate(true);
+        return crudGrid;
     }
 
     /**
      * The filters at the top of the crudGrid
-     * 
+     *
      * @param crudGrid the crudGrid that will be filtered.
      */
     protected void defineFilters(GridCrud<Athlete> crud) {
@@ -260,25 +241,30 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crud.getCrudLayout().addFilterComponent(clearFilters);
     }
 
+    @Override
+    public void delete(Athlete Athlete) {
+        crudFormFactory.delete(Athlete);
+        return;
+    }
+
+    /**
+     * The refresh button on the toolbar calls this.
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     */
+    @Override
+    public Collection<Athlete> findAll() {
+        List<Athlete> findFiltered = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
+                categoryFilter.getValue(), ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
+        AthleteSorter.registrationOrder(findFiltered);
+        return findFiltered;
+    }
+
     /**
      * @return the groupFilter
      */
     public ComboBox<Group> getGroupFilter() {
         return groupFilter;
-    }
-
-    public void refresh() {
-        crudGrid.refreshGrid();
-    }
-
-    @Override
-    public OwlcmsRouterLayout getRouterLayout() {
-        return routerLayout;
-    }
-
-    @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
-        this.routerLayout = routerLayout;
     }
 
     /**
@@ -287,5 +273,24 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     @Override
     public String getPageTitle() {
         return getTranslation("WeighIn");
+    }
+
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
+
+    public void refresh() {
+        crudGrid.refreshGrid();
+    }
+
+    @Override
+    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
+
+    @Override
+    public Athlete update(Athlete Athlete) {
+        return crudFormFactory.update(Athlete);
     }
 }

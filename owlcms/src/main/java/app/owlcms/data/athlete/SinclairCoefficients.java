@@ -22,112 +22,114 @@ import ch.qos.logback.classic.Logger;
  */
 public class SinclairCoefficients {
 
-	static Logger logger = (Logger) LoggerFactory.getLogger(SinclairCoefficients.class);
+    static Logger logger = (Logger) LoggerFactory.getLogger(SinclairCoefficients.class);
 
-	private static HashMap<Integer, Float> smm = null;
-	static Properties props = null;
-	static Double menCoefficient = null;
-	static Double womenCoefficient = null;
-	static Double menMaxWeight = null;
-	static Double womenMaxWeight = null;
+    private static HashMap<Integer, Float> smm = null;
+    static Properties props = null;
+    static Double menCoefficient = null;
+    static Double womenCoefficient = null;
+    static Double menMaxWeight = null;
+    static Double womenMaxWeight = null;
 
-	/**
-	 * @return
-	 * @throws IOException
-	 */
-	private static HashMap<Integer, Float> loadSMM() {
+    /**
+     * @param age
+     * @return the Sinclair-Malone-Meltzer Coefficient for that age.
+     * @throws IOException
+     */
+    public static Float getSMMCoefficient(Integer age) {
+        if (smm == null) {
+            loadSMM();
+        }
+        if (age <= 30) {
+            return 1.0F;
+        }
+        if (age >= 90) {
+            return smm.get(90);
+        }
+        return smm.get(age);
+    }
 
-		if (props == null) {
-			loadProps();
-		}
+    private static void loadCoefficients() {
+        if (props == null) {
+            loadProps();
+        }
+        menCoefficient = Double.valueOf((String) props.get("sinclair.menCoefficient"));
+        menMaxWeight = Double.valueOf((String) props.get("sinclair.menMaxWeight"));
+        womenCoefficient = Double.valueOf((String) props.get("sinclair.womenCoefficient"));
+        womenMaxWeight = Double.valueOf((String) props.get("sinclair.womenMaxWeight"));
+    }
 
-		smm = new HashMap<>((int) (props.size() * 1.4));
-		for (Entry<Object, Object> entry : props.entrySet()) {
-			String curKey = (String) entry.getKey();
-			if (curKey.startsWith("smm.")) {
-				smm.put(Integer.valueOf(curKey.replace("smm.", "")), Float.valueOf((String) entry.getValue()));
-			}
-		}
-		return smm;
-	}
+    /**
+     * @throws IOException
+     */
+    private static void loadProps() {
+        props = new Properties();
+        try {
+            InputStream stream = SinclairCoefficients.class.getResourceAsStream("/sinclair.properties");
+            props.load(stream);
+            // props.list(System.err);
+        } catch (IOException e) {
+            logger.error(LoggerUtils.stackTrace(e));
+        }
+    }
 
-	/**
-	 * @throws IOException
-	 */
-	private static void loadProps() {
-		props = new Properties();
-		try {
-			InputStream stream = SinclairCoefficients.class.getResourceAsStream("/sinclair.properties");
-			props.load(stream);
-			// props.list(System.err);
-		} catch (IOException e) {
-			logger.error(LoggerUtils.stackTrace(e));
-		}
-	}
+    /**
+     * @return
+     * @throws IOException
+     */
+    private static HashMap<Integer, Float> loadSMM() {
 
-	private static void loadCoefficients() {
-		if (props == null) {
-			loadProps();
-		}
-		menCoefficient = Double.valueOf((String) props.get("sinclair.menCoefficient"));
-		menMaxWeight = Double.valueOf((String) props.get("sinclair.menMaxWeight"));
-		womenCoefficient = Double.valueOf((String) props.get("sinclair.womenCoefficient"));
-		womenMaxWeight = Double.valueOf((String) props.get("sinclair.womenMaxWeight"));
-	}
+        if (props == null) {
+            loadProps();
+        }
 
-	/**
-	 * @return
-	 */
-	public static Double menCoefficient() {
-		if (menCoefficient == null) {
-			loadCoefficients();
-		}
-		return menCoefficient;
-	}
+        smm = new HashMap<>((int) (props.size() * 1.4));
+        for (Entry<Object, Object> entry : props.entrySet()) {
+            String curKey = (String) entry.getKey();
+            if (curKey.startsWith("smm.")) {
+                smm.put(Integer.valueOf(curKey.replace("smm.", "")), Float.valueOf((String) entry.getValue()));
+            }
+        }
+        return smm;
+    }
 
-	/**
-	 * @return
-	 */
-	public static Double womenCoefficient() {
-		if (womenCoefficient == null) {
-			loadCoefficients();
-		}
-		return womenCoefficient;
-	}
+    /**
+     * @return
+     */
+    public static Double menCoefficient() {
+        if (menCoefficient == null) {
+            loadCoefficients();
+        }
+        return menCoefficient;
+    }
 
-	/**
-	 * @return
-	 */
-	public static Double menMaxWeight() {
-		if (menMaxWeight == null) {
-			loadCoefficients();
-		}
-		return menMaxWeight;
-	}
+    /**
+     * @return
+     */
+    public static Double menMaxWeight() {
+        if (menMaxWeight == null) {
+            loadCoefficients();
+        }
+        return menMaxWeight;
+    }
 
-	/**
-	 * @return
-	 */
-	public static Double womenMaxWeight() {
-		if (womenMaxWeight == null) {
-			loadCoefficients();
-		}
-		return womenMaxWeight;
-	}
+    /**
+     * @return
+     */
+    public static Double womenCoefficient() {
+        if (womenCoefficient == null) {
+            loadCoefficients();
+        }
+        return womenCoefficient;
+    }
 
-	/**
-	 * @param age
-	 * @return the Sinclair-Malone-Meltzer Coefficient for that age.
-	 * @throws IOException
-	 */
-	public static Float getSMMCoefficient(Integer age) {
-		if (smm == null) {
-			loadSMM();
-		}
-		if (age <= 30)
-			return 1.0F;
-		if (age >= 90)
-			return smm.get(90);
-		return smm.get(age);
-	}
+    /**
+     * @return
+     */
+    public static Double womenMaxWeight() {
+        if (womenMaxWeight == null) {
+            loadCoefficients();
+        }
+        return womenMaxWeight;
+    }
 }

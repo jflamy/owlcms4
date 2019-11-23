@@ -23,7 +23,8 @@ import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Play a sampled sound. Requires an uncompressed format (WAV), not a compressed (MP3) format.
+ * Play a sampled sound. Requires an uncompressed format (WAV), not a compressed
+ * (MP3) format.
  *
  * @author jflamy
  */
@@ -31,7 +32,7 @@ import ch.qos.logback.classic.Logger;
 public class Sound {
     static final String SOUND_PREFIX = "/META-INF/resources/sounds/";
 
-    final Logger logger = (Logger)LoggerFactory.getLogger(Sound.class);
+    final Logger logger = (Logger) LoggerFactory.getLogger(Sound.class);
     private Mixer mixer;
     private InputStream resource;
 
@@ -39,16 +40,18 @@ public class Sound {
 
     public Sound(Mixer mixer, String soundRelativeURL) throws IllegalArgumentException {
         this.mixer = mixer;
-        this.soundURL = SOUND_PREFIX+soundRelativeURL;
+        this.soundURL = SOUND_PREFIX + soundRelativeURL;
         this.resource = Sound.class.getResourceAsStream(soundURL);
     }
 
     public synchronized void emit() {
         try {
-            if (mixer == null)
+            if (mixer == null) {
                 return;
+            }
 
-            // since we are reading from the jar, we need to avoid the mark/reset trial and error from AudioSystem.getAudioInputStream
+            // since we are reading from the jar, we need to avoid the mark/reset trial and
+            // error from AudioSystem.getAudioInputStream
             // so we force WaveFileReader.
             WaveFileReader wfr = new WaveFileReader();
             final AudioInputStream inputStream = wfr.getAudioInputStream(resource);
@@ -57,7 +60,8 @@ public class Sound {
 
             // clip.start() creates a native thread 'behind the scenes'
             // unless this is added, it never goes away
-            // ref: http://stackoverflow.com/questions/837974/determine-when-to-close-a-sound-playing-thread-in-java
+            // ref:
+            // http://stackoverflow.com/questions/837974/determine-when-to-close-a-sound-playing-thread-in-java
             clip.addLineListener(new LineListener() {
                 @Override
                 public void update(LineEvent evt) {

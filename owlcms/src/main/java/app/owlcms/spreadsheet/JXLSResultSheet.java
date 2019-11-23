@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -34,14 +34,14 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSResultSheet.class);
-	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
-	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
-	static {
-		logger.setLevel(Level.INFO);
-		jexlLogger.setLevel(Level.ERROR);
-		tagLogger.setLevel(Level.ERROR);
-	}
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSResultSheet.class);
+    final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
+    final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+    static {
+        logger.setLevel(Level.INFO);
+        jexlLogger.setLevel(Level.ERROR);
+        tagLogger.setLevel(Level.ERROR);
+    }
 
     private byte[] protocolTemplate;
 
@@ -49,7 +49,22 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         super();
     }
 
-	@Override
+    @Override
+    protected List<Athlete> getSortedAthletes() {
+        final Group currentGroup = getGroup();
+        List<Athlete> athletes;
+        if (currentGroup != null) {
+            athletes = AthleteSorter.resultsOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, true),
+                    Ranking.TOTAL);
+        } else {
+            athletes = AthleteSorter.resultsOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, true),
+                    Ranking.TOTAL);
+        }
+        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+        return athletes;
+    }
+
+    @Override
     public InputStream getTemplate(Locale locale) throws IOException {
         Competition current = Competition.getCurrent();
         protocolTemplate = current.getProtocolTemplate();
@@ -62,8 +77,9 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
     private byte[] loadDefaultProtocolTemplate(Locale locale, Competition current) {
         JPAService.runInTransaction((em) -> {
-            String protocolTemplateFileName = "/templates/protocol/ProtocolSheetTemplate_" + locale.getLanguage() + ".xls";
-            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);  
+            String protocolTemplateFileName = "/templates/protocol/ProtocolSheetTemplate_" + locale.getLanguage()
+                    + ".xls";
+            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
             try {
                 protocolTemplate = ByteStreams.toByteArray(stream);
             } catch (IOException e) {
@@ -77,23 +93,12 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         return protocolTemplate;
     }
 
-    @Override
-    protected List<Athlete> getSortedAthletes() {
-        final Group currentGroup = getGroup();
-        List<Athlete> athletes;
-		if (currentGroup != null) {
-            athletes = AthleteSorter.resultsOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup,true),Ranking.TOTAL);
-        } else {
-            athletes = AthleteSorter.resultsOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null,true),Ranking.TOTAL);
-        }
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-        return athletes;
-    }
-
     /*
      * (non-Javadoc)
      *
-     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#postProcess(org.apache.poi.ss.usermodel.Workbook)
+     * @see
+     * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+     * postProcess(org.apache.poi.ss.usermodel.Workbook)
      */
     @Override
     protected void postProcess(Workbook workbook) {

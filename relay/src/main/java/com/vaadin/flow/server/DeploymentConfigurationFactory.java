@@ -63,7 +63,7 @@ import static com.vaadin.flow.server.frontend.FrontendUtils.TOKEN_FILE;
  *
  * @since 1.2
  */
-@SuppressWarnings("serial")
+//@SuppressWarnings("serial")
 public final class DeploymentConfigurationFactory implements Serializable {
 
     public static final Object DEV_MODE_ENABLE_STRATEGY = new Serializable() {

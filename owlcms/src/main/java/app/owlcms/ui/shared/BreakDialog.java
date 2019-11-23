@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.shared;
@@ -19,10 +19,10 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class BreakDialog extends Dialog {
-    final private Logger logger = (Logger) LoggerFactory.getLogger(BreakDialog.class);;
+    final private Logger logger = (Logger) LoggerFactory.getLogger(BreakDialog.class);
     {
         logger.setLevel(Level.INFO);
-    };
+    }
 
     /**
      * Used by the announcer -- tries to guess what type of break is pertinent based

@@ -57,56 +57,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         uiEventLogger.setLevel(Level.INFO);
     }
 
-
-
     public AnnouncerContent() {
         super();
         defineFilters(crudGrid);
         setTopBarTitle(getTranslation("Announcer"));
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Announcer");
-    }
-
-    /**
-     * The URL contains the group, contrary to other screens.
-     *
-     * Normally there is only one announcer. If we have to restart the program the
-     * announcer screen will have the URL correctly set. if there is no current
-     * group in the FOP, the announcer will (exceptionally set it)
-     *
-     * @see app.owlcms.ui.shared.AthleteGridContent#isIgnoreGroupFromURL()
-     */
-    @Override
-    public boolean isIgnoreGroupFromURL() {
-        return false;
-    }
-
-    @Subscribe
-    public void slaveRefereeDecision(UIEvent.Decision e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            int d = e.decision ? 1 : 0;
-            String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
-
-            Notification n = new Notification();
-            String themeName = e.decision ? "success" : "error";
-            n.getElement().getThemeList().add(themeName);
-
-            Div label = new Div();
-            label.add(text);
-            label.addClickListener((event) -> n.close());
-            label.setSizeFull();
-            label.getStyle().set("font-size", "large");
-            n.add(label);
-            n.setPosition(Position.TOP_START);
-            n.setDuration(5000);
-            n.open();
-        });
     }
 
     /**
@@ -212,9 +166,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             Group group = fop.getGroup();
             logger.info("resetting {} from database", group);
             fop.loadGroup(group, this);
-            syncWithFOP(true);  // loadgroup does not refresh grid, true=ask for refresh
+            syncWithFOP(true); // loadgroup does not refresh grid, true=ask for refresh
         }));
-
 
         reset.getElement().setAttribute("title", getTranslation("Reload_group"));
         reset.getElement().setAttribute("theme", "secondary contrast small icon");
@@ -280,6 +233,48 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         return decisions;
     }
 
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Announcer");
+    }
 
+    /**
+     * The URL contains the group, contrary to other screens.
+     *
+     * Normally there is only one announcer. If we have to restart the program the
+     * announcer screen will have the URL correctly set. if there is no current
+     * group in the FOP, the announcer will (exceptionally set it)
+     *
+     * @see app.owlcms.ui.shared.AthleteGridContent#isIgnoreGroupFromURL()
+     */
+    @Override
+    public boolean isIgnoreGroupFromURL() {
+        return false;
+    }
+
+    @Subscribe
+    public void slaveRefereeDecision(UIEvent.Decision e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            int d = e.decision ? 1 : 0;
+            String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
+
+            Notification n = new Notification();
+            String themeName = e.decision ? "success" : "error";
+            n.getElement().getThemeList().add(themeName);
+
+            Div label = new Div();
+            label.add(text);
+            label.addClickListener((event) -> n.close());
+            label.setSizeFull();
+            label.getStyle().set("font-size", "large");
+            n.add(label);
+            n.setPosition(Position.TOP_START);
+            n.setDuration(5000);
+            n.open();
+        });
+    }
 
 }

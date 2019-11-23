@@ -1,10 +1,7 @@
 * Release Highlights: 
-  * Fix: in Masters mode, could not use "Edit Athlete Entries" in version 4.2.5 (#226)
-  * Fix: The starting list should not fail when some athletes are not assigned to a group (#240)
-  * Enhancement: new "during presentation" break type; system switches automatically to that mode when the "before presentation" timer expires instead of showing the first lifter, miscellaneous cleanups of break timer management (#238, #226, #233) 
-  * Enhancement: changed the translation process to allow several persons to work at once using a cloud-based copy. Updated the [translations instructions](https://jflamy.github.io/owlcms4/#/Translation) accordingly.
-  * Minor: fixed translations on English-language athlete cards (#237)
-  * Enhancement: improved Swedish translation.
+  * Fix: violations of the 20kg rule are now shown immediately on field entry and not only on submit  (#217).
+  * Enhancement: show the start number on the technical official and jury screens (#243)  Also show a warning sign and mouse-over if no start numbers have been assigned.  Also show the start number on the athlete card edited by the Marshall or announcer (#245)
+  * Fix: Down signal no longer emitted on browsers if server-side sound has been selected (#244)
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc) and [Open Issues](https://github.com/jflamy/owlcms4/projects/1)
 
 - Installation Instructions :

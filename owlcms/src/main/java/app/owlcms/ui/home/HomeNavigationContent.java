@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.home;
@@ -59,10 +59,29 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
         logger.setLevel(Level.INFO);
     }
 
+    /**
+     * Navigation crudGrid.
+     *
+     * @param items the items
+     * @return the flexible crudGrid layout
+     */
+    public static FlexibleGridLayout navigationGrid(Component... items) {
+        FlexibleGridLayout layout = new FlexibleGridLayout();
+        layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1)))
+                .withAutoRows(new Length("1fr")).withItems(items).withGap(new Length("2vmin"))
+                .withOverflow(Overflow.AUTO).withAutoFlow(AutoFlow.ROW).withMargin(false).withPadding(true)
+                .withSpacing(false);
+        layout.setSizeUndefined();
+        layout.setWidth("80%");
+        layout.setBoxSizing(BoxSizing.BORDER_BOX);
+        return layout;
+    }
+
     String PREPARE_COMPETITION = Translator.translate("PrepareCompetition");
     String RUN_LIFTING_GROUP = Translator.translate("RunLiftingGroup");
     String START_DISPLAYS = Translator.translate("StartDisplays");
     String RESULT_DOCUMENTS = Translator.translate("ResultDocuments");
+
     String INFO = Translator.translate("About");
 
     /**
@@ -118,26 +137,8 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     }
 
     /**
-     * Navigation crudGrid.
-     *
-     * @param items the items
-     * @return the flexible crudGrid layout
-     */
-    public static FlexibleGridLayout navigationGrid(Component... items) {
-        FlexibleGridLayout layout = new FlexibleGridLayout();
-        layout.withColumns(Repeat.RepeatMode.AUTO_FILL, new MinMax(new Length("300px"), new Flex(1)))
-                .withAutoRows(new Length("1fr")).withItems(items).withGap(new Length("2vmin"))
-                .withOverflow(Overflow.AUTO).withAutoFlow(AutoFlow.ROW).withMargin(false).withPadding(true)
-                .withSpacing(false);
-        layout.setSizeUndefined();
-        layout.setWidth("80%");
-        layout.setBoxSizing(BoxSizing.BORDER_BOX);
-        return layout;
-    }
-
-    /**
      * The left part of the top bar.
-     * 
+     *
      * @see app.owlcms.ui.shared.BaseNavigationContent#configureTopBarTitle(java.lang.String)
      */
     @Override
@@ -166,12 +167,22 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
         return null;
     }
 
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
     /**
-     * @see app.owlcms.ui.shared.QueryParameterReader#isIgnoreFopFromURL()
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
     @Override
-    public boolean isIgnoreFopFromURL() {
-        return true;
+    public String getPageTitle() {
+        return getTranslation("OWLCMS_Home");
     }
 
     /**
@@ -183,26 +194,16 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
     }
 
     /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     * @see app.owlcms.ui.shared.QueryParameterReader#isIgnoreFopFromURL()
      */
     @Override
-    public String getPageTitle() {
-        return getTranslation("OWLCMS_Home");
-    }
-
-    @Override
-    public Location getLocation() {
-        return this.location;
+    public boolean isIgnoreFopFromURL() {
+        return true;
     }
 
     @Override
     public void setLocation(Location location) {
         this.location = location;
-    }
-
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
     }
 
     @Override

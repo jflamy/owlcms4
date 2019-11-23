@@ -29,21 +29,6 @@ public class Plates extends FlexLayout {
         this.getClassNames().add("loadChart");
     }
 
-
-    public void computeImageArea(FieldOfPlay fop, boolean showCaption) {
-        if (fop == null)
-            return;
-
-        final Athlete currentAthlete = fop.getCurAthlete();
-        final Integer barWeight = computeBarWeight(fop);
-        if (currentAthlete == null)
-            return;
-        weight = currentAthlete.getNextAttemptRequestedWeight();
-        final String caption = getTranslation("Kg", weight);
-
-        createImageArea(fop, barWeight, (showCaption ? caption : ""));
-    }
-
     /**
      * @param availablePlates
      * @param style
@@ -70,21 +55,40 @@ public class Plates extends FlexLayout {
     }
 
     private Integer computeBarWeight(FieldOfPlay fop) {
-        if (fop == null)
+        if (fop == null) {
             return 0;
+        }
         Platform platform = fop.getPlatform();
-        if (platform.isNonStandardBar() && platform.getLightBar() > 0)
+        if (platform.isNonStandardBar() && platform.getLightBar() > 0) {
             return platform.getLightBar();
-        else
+        } else {
             return computeOfficialBarWeight(fop, platform);
+        }
+    }
+
+    public void computeImageArea(FieldOfPlay fop, boolean showCaption) {
+        if (fop == null) {
+            return;
+        }
+
+        final Athlete currentAthlete = fop.getCurAthlete();
+        final Integer barWeight = computeBarWeight(fop);
+        if (currentAthlete == null) {
+            return;
+        }
+        weight = currentAthlete.getNextAttemptRequestedWeight();
+        final String caption = getTranslation("Kg", weight);
+
+        createImageArea(fop, barWeight, (showCaption ? caption : ""));
     }
 
     /**
      * @return
      */
     private Integer computeOfficialBarWeight(FieldOfPlay fop, Platform platform) {
-        if (fop == null || platform == null)
+        if (fop == null || platform == null) {
             return 0;
+        }
 
         final Athlete currentAthlete = fop.getCurAthlete();
         Gender gender = Gender.M;
@@ -104,9 +108,10 @@ public class Plates extends FlexLayout {
         this.removeAll();
         Platform platform = fop.getPlatform();
 
-        if (weight == 0)
+        if (weight == 0) {
             return;
-        // compute the bar and collar first.
+            // compute the bar and collar first.
+        }
 
         addPlates(1, "bar", barWeight);
         addPlates(1, "barInner", 0);
@@ -129,8 +134,7 @@ public class Plates extends FlexLayout {
             int nonBarWeight = weight;
             // make sure that large 5 and large 2.5 are only used when warranted
             // (must not require manual intervention if they are available)
-            if (platform.getNbL_2_5() > 0 && nonBarWeight < 10 ||
-                    platform.getNbL_5() > 0 && nonBarWeight < 15) {
+            if (platform.getNbL_2_5() > 0 && nonBarWeight < 10 || platform.getNbL_5() > 0 && nonBarWeight < 15) {
                 useCollar = false;
             }
             if (useCollar) {
@@ -163,6 +167,5 @@ public class Plates extends FlexLayout {
         addPlates(platform.getNbS_0_5(), "S_0_5", 2 * 0.5);
         addPlates(1, "barOuter", 0);
     }
-
 
 }

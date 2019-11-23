@@ -39,6 +39,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         LocalDateTime maxTime = LocalDateTime.MIN; // forever ago
         LocalDateTime minTime = LocalDateTime.MAX; // long time in the future
         int nbAttemptedLifts;
+
         public SessionStats() {
         }
 
@@ -46,8 +47,34 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             this.setGroupName(groupName);
         }
 
+        public Double getAthletesPerHour() {
+            Double hours = getHours();
+            return hours > 0 ? (nbAthletes / hours) : null;
+        }
+
+        /**
+         * @return duration as a fraction of day, for Excel
+         */
+        public Double getDayDuration() {
+            Duration delta = Duration.between(minTime, maxTime);
+            if (delta.isNegative()) {
+                delta = Duration.ZERO;
+                return null;
+            }
+            return ((double) delta.getSeconds() / (24 * 3600));
+        }
+
         public String getGroupName() {
             return groupName;
+        }
+
+        private Double getHours() {
+            Duration delta = Duration.between(minTime, maxTime);
+            if (delta.isNegative()) {
+                delta = Duration.ZERO;
+            }
+            Double hours = delta.getSeconds() / 3600.0D;
+            return hours;
         }
 
         public LocalDateTime getMaxTime() {
@@ -73,27 +100,18 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             }
             return formatDuration(delta);
         }
-        
-        /**
-         * @return duration as a fraction of day, for Excel
-         */
-        public Double getDayDuration() {
-            Duration delta = Duration.between(minTime, maxTime);
-            if (delta.isNegative()) {
-                delta = Duration.ZERO;
-                return null;
-            }
-            return  ((double)delta.getSeconds()/(24*3600));
-        }
-
 
         public String getSMaxTime() {
-            if (maxTime.isEqual(LocalDateTime.MIN)) return "-";
+            if (maxTime.isEqual(LocalDateTime.MIN)) {
+                return "-";
+            }
             return maxTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
         }
 
         public String getSMinTime() {
-            if (minTime.isEqual(LocalDateTime.MAX)) return "-";
+            if (minTime.isEqual(LocalDateTime.MAX)) {
+                return "-";
+            }
             return minTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
         }
 
@@ -120,23 +138,8 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         @Override
         public String toString() {
             return "SessionStats [groupName=" + getGroupName() + ", nbAthletes=" + nbAthletes + ", minTime=" + minTime
-                    + ", maxTime=" + maxTime
-                    + ", nbAttemptedLifts=" + nbAttemptedLifts + " Hours=" + getDayDuration() + " AthletesPerHour="
-                    + getAthletesPerHour() + "]";
-        }
-
-        private Double getHours() {
-            Duration delta = Duration.between(minTime, maxTime);
-            if (delta.isNegative()) {
-                delta = Duration.ZERO;
-            }
-            Double hours = delta.getSeconds()/3600.0D;
-            return hours;
-        }
-        
-        public Double getAthletesPerHour() {
-            Double hours = getHours();
-            return hours > 0 ? (nbAthletes/ hours) : null;
+                    + ", maxTime=" + maxTime + ", nbAttemptedLifts=" + nbAttemptedLifts + " Hours=" + getDayDuration()
+                    + " AthletesPerHour=" + getAthletesPerHour() + "]";
         }
 
         public void updateMaxTime(LocalDateTime newTime) {
@@ -159,11 +162,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
     public static String formatDuration(Duration duration) {
         long seconds = duration.getSeconds();
         long absSeconds = Math.abs(seconds);
-        String positive = String.format(
-                "%d:%02d:%02d",
-                absSeconds / 3600,
-                (absSeconds % 3600) / 60,
-                absSeconds % 60);
+        String positive = String.format("%d:%02d:%02d", absSeconds / 3600, (absSeconds % 3600) / 60, absSeconds % 60);
         return seconds < 0 ? "-" + positive : positive;
     }
 
@@ -176,11 +175,6 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
     public JXLSTimingStats(Group group, boolean excludeNotWeighed) {
         super();
     }
-    
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/timing/TimingStats", ".xls", locale);
-    }
 
     @Override
     protected List<Athlete> getSortedAthletes() {
@@ -188,9 +182,10 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
         List<Athlete> athletes = AthleteSorter
                 .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
-        if (athletes.isEmpty())
+        if (athletes.isEmpty()) {
             // prevent outputting silliness.
             throw new RuntimeException("");
+        }
 
         // extract group stats
         Group curGroup = null;
@@ -230,9 +225,15 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         return athletes;
     }
 
+    @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        return getLocalizedTemplate("/templates/timing/TimingStats", ".xls", locale);
+    }
+
     private void processGroup(List<SessionStats> sessions, SessionStats curStat) {
-        if (curStat == null)
+        if (curStat == null) {
             return;
+        }
         sessions.add(curStat);
     }
 }
