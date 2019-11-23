@@ -370,7 +370,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
     @Override
     public String buildCaption(CrudOperation operation, final Athlete aFromDb) {
         // If getFullId() is null, caller will build a defaut caption, so this is safe
-        return aFromDb.getFullId();
+        Integer startNumber = aFromDb.getStartNumber();
+        return (startNumber != null ? "["+startNumber+"] " : "")+aFromDb.getFullId();
     }
 
     /**
