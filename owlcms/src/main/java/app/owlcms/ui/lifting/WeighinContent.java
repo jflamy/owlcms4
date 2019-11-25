@@ -83,7 +83,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory = createFormFactory();
         crudGrid = createGrid(crudFormFactory);
         defineFilters(crudGrid);
-//		defineQueries(crudGrid);
         fillHW(crudGrid, this);
     }
 
