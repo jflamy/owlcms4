@@ -14,33 +14,17 @@ import java.util.Collection;
  */
 public enum AgeDivision {
 
-    /** The default. */
     DEFAULT,
-    /** The senior. */
     SENIOR,
-    /** The junior. */
-    JUNIOR,
-    /** The youth. */
-    YOUTH,
-    /** The kids. */
-    KIDS,
-    /** The masters. */
-    MASTERS,
-    /** The traditional. */
-    TRADITIONAL,
-    /** The a. */
-    A,
-    /** The b. */
+    JUNIOR, /** 18-20 */
+    YOUTH, /** 13-17 */
+    KIDS, /** 0-12 */
+    MASTERS, /** 35+ (30+ in some federations) */
+    TRADITIONAL, /** for competitions using the old categories */
+    A, // custom divisions
     B,
-    /** The c. */
     C,
-    /** The d. */
     D;
-
-//    @Override
-//    public String toString() {
-//        return (isDefault() ? "" : name().charAt(0) + name().substring(1).toLowerCase());
-//    }
 
     /**
      * Find all.
