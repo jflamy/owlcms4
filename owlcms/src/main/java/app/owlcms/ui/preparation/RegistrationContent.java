@@ -166,7 +166,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         }
         props.add("membership");
         captions.add(getTranslation("Membership"));
-
         props.add("ageDivision");
         captions.add(getTranslation("AgeDivision"));
         props.add("mastersAgeGroup");
@@ -176,21 +175,20 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         captions.add(getTranslation("BodyWeight"));
         props.add("category");
         captions.add(getTranslation("Category"));
-        props.add("group");
-        captions.add(getTranslation("Group"));
-
-        props.add("qualifyingTotal");
-        captions.add(getTranslation("EntryTotal"));
         props.add("snatch1Declaration");
         captions.add(getTranslation("SnatchDecl_"));
         props.add("cleanJerk1Declaration");
         captions.add(getTranslation("C_and_J_decl"));
+        props.add("group");
+        captions.add(getTranslation("Group"));
+        props.add("qualifyingTotal");
+        captions.add(getTranslation("EntryTotal"));
 
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
-
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
+        
         crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
         crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
 

@@ -8,6 +8,7 @@ package app.owlcms.ui.lifting;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
@@ -110,17 +111,54 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
      *                        information
      */
     private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-        boolean useBirthYear = Competition.getCurrent().isUseBirthYear();
-        crudFormFactory.setVisibleProperties("bodyWeight", "category", "snatch1Declaration", "cleanJerk1Declaration",
-                "gender", "group", "lastName", "firstName", "team", useBirthYear ? "yearOfBirth" : "fullBirthDate",
-                "ageDivision", "qualifyingTotal", "membership", "eligibleForIndividualRanking");
-        crudFormFactory.setFieldCaptions(getTranslation("BodyWeight"), getTranslation("Category"),
-                getTranslation("Snatch_Declaration"), getTranslation("Clean_and_Jerk_Declaration"),
-                getTranslation("Gender"), getTranslation("Group"), getTranslation("LastName"),
-                getTranslation("FirstName"), getTranslation("Team"),
-                useBirthYear ? getTranslation("YearOfBirth") : getTranslation("BirthDate_yyyy"),
-                getTranslation("AgeDivision"), getTranslation("EntryTotal"), getTranslation("Membership"),
-                getTranslation("Eligible for Individual Ranking?"));
+        List<String> props = new LinkedList<>();
+        List<String> captions = new LinkedList<>();
+        
+        props.add("bodyWeight");
+        captions.add(getTranslation("BodyWeight"));
+        props.add("category");
+        captions.add(getTranslation("Category"));
+        props.add("snatch1Declaration");
+        captions.add(getTranslation("SnatchDecl_"));
+        props.add("cleanJerk1Declaration");
+        captions.add(getTranslation("C_and_J_decl"));
+        props.add("group");
+        captions.add(getTranslation("Group"));
+        props.add("qualifyingTotal");
+        captions.add(getTranslation("EntryTotal"));
+        
+        props.add("lastName");
+        captions.add(getTranslation("LastName"));
+        props.add("firstName");
+        captions.add(getTranslation("FirstName"));
+        props.add("gender");
+        captions.add(getTranslation("Gender"));
+        props.add("team");
+        captions.add(getTranslation("Team"));
+        
+        Competition competition = Competition.getCurrent();
+        if (competition.isUseBirthYear()) {
+            props.add("yearOfBirth");
+            captions.add(getTranslation("YearOfBirth"));
+        } else {
+            props.add("fullBirthDate");
+            captions.add(getTranslation("BirthDate_yyyy"));
+        }
+        props.add("membership");
+        captions.add(getTranslation("Membership"));
+        props.add("ageDivision");
+        captions.add(getTranslation("AgeDivision"));
+        props.add("mastersAgeGroup");
+        captions.add(getTranslation("AgeGroup"));
+        
+        props.add("lotNumber");
+        captions.add(getTranslation("Lot"));
+        props.add("eligibleForIndividualRanking");
+        captions.add(getTranslation("Eligible for Individual Ranking?"));
+        
+        crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
+        crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
+
         crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
                 Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
         crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
@@ -130,18 +168,16 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory.setFieldProvider("ageDivision", new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"),
                 Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name), AgeDivision::name));
 
+        crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
+        crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
+
         // ValidationTextField (or a wrapper) must be used as workaround for unexplained
         // validation behaviour
         crudFormFactory.setFieldType("snatch1Declaration", ValidationTextField.class);
         crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
         crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
-
-        crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
-        if (useBirthYear) {
-            crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
-        } else {
-            crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
-        }
+        crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
+        
         crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {
             ((BodyWeightField) e).focus();
         });
