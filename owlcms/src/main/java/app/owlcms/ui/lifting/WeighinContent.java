@@ -113,7 +113,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
         List<String> props = new LinkedList<>();
         List<String> captions = new LinkedList<>();
-        
+
         props.add("bodyWeight");
         captions.add(getTranslation("BodyWeight"));
         props.add("category");
@@ -126,7 +126,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         captions.add(getTranslation("Group"));
         props.add("qualifyingTotal");
         captions.add(getTranslation("EntryTotal"));
-        
+
         props.add("lastName");
         captions.add(getTranslation("LastName"));
         props.add("firstName");
@@ -135,7 +135,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         captions.add(getTranslation("Gender"));
         props.add("team");
         captions.add(getTranslation("Team"));
-        
+
         Competition competition = Competition.getCurrent();
         if (competition.isUseBirthYear()) {
             props.add("yearOfBirth");
@@ -150,12 +150,12 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         captions.add(getTranslation("AgeDivision"));
         props.add("mastersAgeGroup");
         captions.add(getTranslation("AgeGroup"));
-        
+
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
-        
+
         crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
         crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
 
@@ -165,8 +165,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                 GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
                 CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
-        crudFormFactory.setFieldProvider("ageDivision", new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"),
-                Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name), AgeDivision::name));
+        crudFormFactory.setFieldProvider("ageDivision",
+                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
+                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
 
         crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
         crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
@@ -177,7 +178,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
         crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
         crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
-        
+
         crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {
             ((BodyWeightField) e).focus();
         });
@@ -216,44 +217,44 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
      *
      * @param crudGrid the crudGrid that will be filtered.
      */
-    protected void defineFilters(GridCrud<Athlete> crud) {
+    protected void defineFilters(GridCrud<Athlete> crudGrid) {
         lastNameFilter.setPlaceholder(getTranslation("LastName"));
         lastNameFilter.setClearButtonVisible(true);
         lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
         lastNameFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
+            crudGrid.refreshGrid();
         });
-        crud.getCrudLayout().addFilterComponent(lastNameFilter);
+        crudGrid.getCrudLayout().addFilterComponent(lastNameFilter);
 
         ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
         ageDivisionFilter.setItems(AgeDivision.findAll());
         ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
         ageDivisionFilter.setClearButtonVisible(true);
         ageDivisionFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
+            crudGrid.refreshGrid();
         });
-        crud.getCrudLayout().addFilterComponent(ageDivisionFilter);
+        crudGrid.getCrudLayout().addFilterComponent(ageDivisionFilter);
 
         categoryFilter.setPlaceholder(getTranslation("Category"));
         categoryFilter.setItems(CategoryRepository.findActive());
         categoryFilter.setItemLabelGenerator(Category::getName);
         categoryFilter.setClearButtonVisible(true);
         categoryFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
+            crudGrid.refreshGrid();
         });
-        crud.getCrudLayout().addFilterComponent(categoryFilter);
+        crudGrid.getCrudLayout().addFilterComponent(categoryFilter);
 
         groupFilter.setPlaceholder(getTranslation("Group"));
         groupFilter.setItems(GroupRepository.findAll());
         groupFilter.setItemLabelGenerator(Group::getName);
         groupFilter.setClearButtonVisible(true);
         groupFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
+            crudGrid.refreshGrid();
         });
         // hide because the top bar has it
         groupFilter.getStyle().set("display", "none");
 
-        crud.getCrudLayout().addFilterComponent(groupFilter);
+        crudGrid.getCrudLayout().addFilterComponent(groupFilter);
 
         weighedInFilter.setPlaceholder(getTranslation("Weighed_in_p"));
         weighedInFilter.setItems(Boolean.TRUE, Boolean.FALSE);
@@ -262,9 +263,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         });
         weighedInFilter.setClearButtonVisible(true);
         weighedInFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
+            crudGrid.refreshGrid();
         });
-        crud.getCrudLayout().addFilterComponent(weighedInFilter);
+        crudGrid.getCrudLayout().addFilterComponent(weighedInFilter);
 
         Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
         clearFilters.addClickListener(event -> {
@@ -274,7 +275,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
             // groupFilter.clear();
             weighedInFilter.clear();
         });
-        crud.getCrudLayout().addFilterComponent(clearFilters);
+        crudGrid.getCrudLayout().addFilterComponent(clearFilters);
     }
 
     @Override
