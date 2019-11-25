@@ -153,7 +153,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         captions.add(getTranslation("FirstName"));
         props.add("gender");
         captions.add(getTranslation("Gender"));
-
         props.add("team");
         captions.add(getTranslation("Team"));
 
@@ -165,29 +164,31 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
             props.add("fullBirthDate");
             captions.add(getTranslation("BirthDate_yyyy"));
         }
-        if (competition.isMasters()) {
-            props.add("mastersAgeGroup");
-            captions.add(getTranslation("AgeGroup"));
-        } else {
-            props.add("ageDivision");
-            captions.add(getTranslation("AgeDivision"));
-        }
+        props.add("membership");
+        captions.add(getTranslation("Membership"));
+
+        props.add("ageDivision");
+        captions.add(getTranslation("AgeDivision"));
+        props.add("mastersAgeGroup");
+        captions.add(getTranslation("AgeGroup"));
+
+        props.add("bodyWeight");
+        captions.add(getTranslation("BodyWeight"));
         props.add("category");
         captions.add(getTranslation("Category"));
         props.add("group");
         captions.add(getTranslation("Group"));
+
         props.add("qualifyingTotal");
         captions.add(getTranslation("EntryTotal"));
-        props.add("bodyWeight");
-        captions.add(getTranslation("BodyWeight"));
         props.add("snatch1Declaration");
         captions.add(getTranslation("SnatchDecl_"));
         props.add("cleanJerk1Declaration");
         captions.add(getTranslation("C_and_J_decl"));
+
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
-        props.add("membership");
-        captions.add(getTranslation("Membership"));
+
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
         crudFormFactory.setVisibleProperties(props.toArray(new String[0]));

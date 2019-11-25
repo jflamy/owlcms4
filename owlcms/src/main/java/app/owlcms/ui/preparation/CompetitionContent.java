@@ -79,10 +79,8 @@ public class CompetitionContent extends Composite<VerticalLayout> implements Cru
     private void createFormLayout(DefaultCrudFormFactory<Competition> crudFormFactory) {
         crudFormFactory.setVisibleProperties("competitionName", "competitionDate", "competitionOrganizer",
                 "competitionSite", "competitionCity", "federation", "federationAddress", "federationEMail",
-                "federationWebSite", "defaultLocale",
-//			"protocolFileName",
-//			"finalPackageTemplateFileName",
-                "enforce20kgRule", "masters", "useBirthYear");
+                "federationWebSite", "defaultLocale", "enforce20kgRule", "masters", "useBirthYear",
+                "mastersGenderEquality");
         crudFormFactory.setFieldCaptions(Translator.translate("Competition.competitionName"),
                 Translator.translate("Competition.competitionDate"),
                 Translator.translate("Competition.competitionOrganizer"),
@@ -92,10 +90,9 @@ public class CompetitionContent extends Composite<VerticalLayout> implements Cru
                 Translator.translate("Competition.federationEMail"),
                 Translator.translate("Competition.federationWebSite"),
                 Translator.translate("Competition.defaultLocale"),
-                // Translator.translate(""protocolFileName"),
-                // Translator.translate(""finalPackageTemplateFileName"),
                 Translator.translate("Competition.enforce20kgRule"), Translator.translate("Competition.masters"),
-                Translator.translate("Competition.useBirthYear"));
+                Translator.translate("Competition.useBirthYear"),
+                Translator.translate("Competition.mastersGenderEquality"));
         ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(locale);
         crudFormFactory.setFieldProvider("defaultLocale", new OwlcmsComboBoxProvider<>(getTranslation("Locale"),
                 Translator.getAllAvailableLocales(), new TextRenderer<>(nameGenerator), nameGenerator));
