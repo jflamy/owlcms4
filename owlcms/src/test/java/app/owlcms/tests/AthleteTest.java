@@ -17,6 +17,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
 
 public class AthleteTest {
 
@@ -139,6 +140,8 @@ public class AthleteTest {
 
     @Test
     public void ageGroup() {
+        Competition.setCurrent(new Competition());
+        Competition.getCurrent().setMasters(true);
         int thisYear = Calendar.getInstance().get(Calendar.YEAR);
         assertEquals(80, (long) athlete.getAgeGroup());
         athlete.setYearOfBirth(thisYear - 40);
