@@ -437,44 +437,53 @@ public class Athlete {
         if (yob == null) {
             yob = 1900;
         }
-
+        int ageGroup1 = 0;
         int year1 = Calendar.getInstance().get(Calendar.YEAR);
         final int age = year1 - yob;
         if (age <= 12) {
-            return 0;
+            ageGroup1 = 0;
         } else if (age <= 17) {
-            return 13;
+            ageGroup1 = 13;
         } else if (age <= 20) {
-            return 18;
-        } else if (ageDivision != AgeDivision.MASTERS) {
-            return 21;
-        } else if (age < 30) {
-            // Masters under 30, should not happen.  No SMM coeffs for under 30
-            // No known federation with masters under 30.
-            return 21;
-        }
-        
-        int ageGroup1 = (int) (Math.ceil(age / 5) * 5);
-
-        boolean mastersGenderEquality = Competition.getCurrent().isMastersGenderEquality();
-        if (mastersGenderEquality) {
-            if (ageGroup1 >= 80) {
-                return 80;
-            }
+            ageGroup1 =  18;
         } else {
-            Gender gender2 = this.getGender();
-            if (gender2 == null) {
-                gender2 = Gender.F;
-            }
-            if (Gender.F == gender2 && ageGroup1 >= 70) { // $NON-NLS-1$
-                return 70;
-            }
-            if (Gender.M == gender2 && ageGroup1 >= 80) { // $NON-NLS-1$
-                return 80;
+            boolean masters = Competition.getCurrent().isMasters();
+            if (age < 35) {
+                if (masters && ageDivision == AgeDivision.MASTERS) {
+                    // explicitly categorized as masters
+                    ageGroup1 =  (int) (Math.ceil(age / 5) * 5);
+                } else {
+                    ageGroup1 =  21;
+                }
+            } else if (age >= 35 && ageDivision == AgeDivision.SENIOR) {
+                // explicitly categorized as senior (masters in denial)
+                return 21;
+            } else {
+                // computing an age group for use on Masters-style display.
+                ageGroup1 = (int) (Math.ceil(age / 5) * 5);
+                boolean mastersGenderEquality = Competition.getCurrent().isMastersGenderEquality();
+                if (mastersGenderEquality) {
+                    if (ageGroup1 >= 80) {
+                        return 80;
+                    } else {
+                        return ageGroup1;
+                    }
+                } else {
+                    Gender gender2 = this.getGender();
+                    if (gender2 == null) {
+                        gender2 = Gender.F;
+                    }
+                    if (Gender.F == gender2 && ageGroup1 >= 70) { // $NON-NLS-1$
+                        return 70;
+                    }
+                    if (Gender.M == gender2 && ageGroup1 >= 80) { // $NON-NLS-1$
+                        return 80;
+                    }
+                    return ageGroup1;
+                }
             }
         }
-        // normal case
-        return ageGroup1;
+        return 0;
     }
 
     /**
@@ -1473,27 +1482,41 @@ public class Athlete {
      * @return
      */
     public String getMastersAgeGroup(String gender1, Integer yob, AgeDivision ageDivision) {
-        if (ageDivision != AgeDivision.MASTERS || getAge(yob) <= 29) {
+        // Under 35 need to be in Masters division for Masters rules to apply (e.g.
+        // Canada has M30 and W30 Masters)
+        // In an age-group championship, some athletes over 35 may want to compete as
+        // seniors
+        Competition competition = Competition.getCurrent();
+        int age = getAge(yob);
+        if (age < 30) {
+            // not a Masters meet, or not a Masters
             return getRegularAgeGroup(gender1, yob);
+        } else if (age < 35 && (ageDivision != AgeDivision.MASTERS)) {
+            // under 35, young master -- federation needs to mark as MASTERS.
+            return getRegularAgeGroup(gender1, yob);
+        } else if (age >= 35 && competition.isMasters() && (ageDivision == AgeDivision.SENIOR)) {
+            // over 35 and in denial (competing as senior)
+            return getRegularAgeGroup(gender1, yob);
+        } else {
+            // considered as masters
+            Integer ageGroup1;
+            ageGroup1 = doGetAgeGroup(yob, ageDivision);
+
+            String agePlus = "";
+            boolean mastersGenderEquality = Competition.getCurrent().isMastersGenderEquality();
+            if ((mastersGenderEquality || "M".equals(gender1)) && ageGroup1 == 80) {
+                agePlus = "+";
+            } else if ((!mastersGenderEquality && "F".equals(gender1)) && ageGroup1 == 70) {
+                agePlus = "+";
+            }
+            final String mastersAgeCategory = ("F".equals(gender1) ? "W" : "M") + ageGroup1 + agePlus;
+            return mastersAgeCategory;
         }
-
-        Integer ageGroup1;
-        ageGroup1 = doGetAgeGroup(yob, ageDivision);
-
-        String agePlus = "";
-        boolean mastersGenderEquality = Competition.getCurrent().isMastersGenderEquality();
-        if ((mastersGenderEquality || "M".equals(gender1)) && ageGroup1 == 80) {
-            agePlus = "+";
-        } else if ((!mastersGenderEquality && "F".equals(gender1)) && ageGroup1 == 70) {
-            agePlus = "+";
-        }
-
-        final String mastersAgeCategory = ("F".equals(gender1) ? "W" : "M") + ageGroup1 + agePlus;
-        return mastersAgeCategory;
     }
 
     private int getAge(Integer yob) {
-        if (yob == null) return 99;
+        if (yob == null)
+            return 99;
         return LocalDate.now().getYear() - yob;
     }
 
@@ -1503,25 +1526,39 @@ public class Athlete {
      * @return the ageGroup
      */
     public String getMastersAgeGroupInterval() {
-        if (ageDivision != AgeDivision.MASTERS) {
+        // Under 35 need to be in Masters division for Masters rules to apply (e.g.
+        // Canada has M30 and W30 Masters)
+        // In an age-group championship, some athletes over 35 may want to compete as
+        // seniors
+        Competition competition = Competition.getCurrent();
+        int age = getAge(getYearOfBirth());
+        if (age < 30) {
+            // not a Masters meet, or not a Masters
             return getRegularAgeGroupInterval(getGender(), getYearOfBirth());
-        }
-
-        Integer ageGroup1 = getAgeGroup();
-        boolean mastersGenderEquality = Competition.getCurrent().isMastersGenderEquality();
-        if (mastersGenderEquality) {
-            if (ageGroup1 >= 80) {
-                return "80+";
-            }
+        } else if (age < 35 && (ageDivision != AgeDivision.MASTERS)) {
+            // under 35 and not explicitly classified as a Masters
+            return getRegularAgeGroupInterval(getGender(), getYearOfBirth());
+        } else if (age >= 35 && competition.isMasters() && (ageDivision == AgeDivision.SENIOR)) {
+            // over 35 competing as senior
+            return getRegularAgeGroupInterval(getGender(), getYearOfBirth());
         } else {
-            if (this.getGender() == Gender.F && ageGroup1 >= 70) { // $NON-NLS-1$
-                return "70+";
+            // considered as Masters.
+            Integer ageGroup1 = getAgeGroup();
+            boolean mastersGenderEquality = Competition.getCurrent().isMastersGenderEquality();
+            if (mastersGenderEquality) {
+                if (ageGroup1 >= 80) {
+                    return "80+";
+                }
+            } else {
+                if (this.getGender() == Gender.F && ageGroup1 >= 70) { // $NON-NLS-1$
+                    return "70+";
+                }
+                if (this.getGender() == Gender.M && ageGroup1 >= 80) { // $NON-NLS-1$
+                    return "80+";
+                }
             }
-            if (this.getGender() == Gender.M && ageGroup1 >= 80) { // $NON-NLS-1$
-                return "80+";
-            }
+            return ageGroup1 + "-" + (ageGroup1 + 4);
         }
-        return ageGroup1 + "-" + (ageGroup1 + 4);
     }
 
     /**
@@ -1704,7 +1741,7 @@ public class Athlete {
         } else if (age <= 20) {
             return prefix + "20-";
         } else {
-            return prefix + "21+";
+            return prefix + "21";
         }
     }
 
