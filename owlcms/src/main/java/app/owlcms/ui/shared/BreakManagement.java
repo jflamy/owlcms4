@@ -403,7 +403,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             }
             target = now.plus(value);
         } else if (cType == CountdownType.TARGET) {
-            // FIXME: values can be null
             target = getTarget();
         } else { // INDEFINITE
             target = now;
