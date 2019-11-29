@@ -20,7 +20,7 @@
     <properties>
         <!-- hard-coded paths -->
         <!-- jre location for bundling with windows installer -->
-        <jre.directory>C:\Dev\jdk8u222-b10-jre</jre.directory>
+        <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>
         <!-- windows installer compiler -->
         <innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
 
