@@ -85,7 +85,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
      */
     public RegistrationContent() {
         crudFormFactory = createFormFactory();
-        crudGrid = createCrudGrid(crudFormFactory);
+        crudGrid = createGrid(crudFormFactory);
         defineFilters(crudGrid);
         fillHW(crudGrid, this);
     }
@@ -94,36 +94,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     public Athlete add(Athlete Athlete) {
         crudFormFactory.add(Athlete);
         return Athlete;
-    }
-
-    /**
-     * The columns of the crudGrid
-     *
-     * @param crudFormFactory what to call to create the form for editing an athlete
-     * @return
-     */
-    protected OwlcmsCrudGrid<Athlete> createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
-        grid.addColumn("lotNumber").setHeader(getTranslation("Lot"));
-        grid.addColumn("lastName").setHeader(getTranslation("LastName"));
-        grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
-        grid.addColumn("team").setHeader(getTranslation("Team"));
-        grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate"));
-        grid.addColumn("gender").setHeader(getTranslation("Gender"));
-        grid.addColumn("ageDivision").setHeader(getTranslation("AgeDivision"));
-        if (Competition.getCurrent().isMasters()) {
-            grid.addColumn("mastersAgeGroup").setHeader(getTranslation("AgeGroup"));
-        }
-        grid.addColumn("category").setHeader(getTranslation("Category"));
-        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
-                .setHeader(getTranslation("BodyWeight"));
-        grid.addColumn("group").setHeader(getTranslation("Group"));
-        grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
-        OwlcmsCrudGrid<Athlete> crud = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class),
-                crudFormFactory, grid);
-        crud.setCrudListener(this);
-        crud.setClickRowToUpdate(true);
-        return crud;
     }
 
     /**
@@ -153,7 +123,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         captions.add(getTranslation("FirstName"));
         props.add("gender");
         captions.add(getTranslation("Gender"));
-
         props.add("team");
         captions.add(getTranslation("Team"));
 
@@ -165,31 +134,31 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
             props.add("fullBirthDate");
             captions.add(getTranslation("BirthDate_yyyy"));
         }
-        if (competition.isMasters()) {
-            props.add("mastersAgeGroup");
-            captions.add(getTranslation("AgeGroup"));
-        } else {
-            props.add("ageDivision");
-            captions.add(getTranslation("AgeDivision"));
-        }
-        props.add("category");
-        captions.add(getTranslation("Category"));
-        props.add("group");
-        captions.add(getTranslation("Group"));
-        props.add("qualifyingTotal");
-        captions.add(getTranslation("EntryTotal"));
+        props.add("membership");
+        captions.add(getTranslation("Membership"));
+        props.add("ageDivision");
+        captions.add(getTranslation("AgeDivision"));
+        props.add("mastersAgeGroup");
+        captions.add(getTranslation("AgeGroup"));
+
         props.add("bodyWeight");
         captions.add(getTranslation("BodyWeight"));
+        props.add("category");
+        captions.add(getTranslation("Category"));
         props.add("snatch1Declaration");
         captions.add(getTranslation("SnatchDecl_"));
         props.add("cleanJerk1Declaration");
         captions.add(getTranslation("C_and_J_decl"));
+        props.add("group");
+        captions.add(getTranslation("Group"));
+        props.add("qualifyingTotal");
+        captions.add(getTranslation("EntryTotal"));
+
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
-        props.add("membership");
-        captions.add(getTranslation("Membership"));
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
+
         crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
         crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
 
@@ -199,8 +168,9 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
                 GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
                 CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
-        crudFormFactory.setFieldProvider("ageDivision", new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"),
-                Arrays.asList(AgeDivision.values()), new TextRenderer<>(AgeDivision::name), AgeDivision::name));
+        crudFormFactory.setFieldProvider("ageDivision",
+                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
+                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
 
         crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
         crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
@@ -211,6 +181,36 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
         crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
         crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
+    }
+
+    /**
+     * The columns of the crudGrid
+     *
+     * @param crudFormFactory what to call to create the form for editing an athlete
+     * @return
+     */
+    protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+        grid.addColumn("lotNumber").setHeader(getTranslation("Lot"));
+        grid.addColumn("lastName").setHeader(getTranslation("LastName"));
+        grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
+        grid.addColumn("team").setHeader(getTranslation("Team"));
+        grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate"));
+        grid.addColumn("gender").setHeader(getTranslation("Gender"));
+        grid.addColumn("ageDivision").setHeader(getTranslation("AgeDivision"));
+        if (Competition.getCurrent().isMasters()) {
+            grid.addColumn("mastersAgeGroup").setHeader(getTranslation("AgeGroup"));
+        }
+        grid.addColumn("category").setHeader(getTranslation("Category"));
+        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
+                .setHeader(getTranslation("BodyWeight"));
+        grid.addColumn("group").setHeader(getTranslation("Group"));
+        grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
+        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class),
+                crudFormFactory, grid);
+        crudGrid.setCrudListener(this);
+        crudGrid.setClickRowToUpdate(true);
+        return crudGrid;
     }
 
     /**

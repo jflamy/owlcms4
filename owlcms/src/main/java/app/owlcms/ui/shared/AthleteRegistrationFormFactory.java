@@ -45,6 +45,7 @@ import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -104,12 +105,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         } else if ("fullBirthDate".equals(property)) {
             validateFullBirthDate(bindingBuilder);
             field.addValueChangeListener((e) -> {
-                LocalDate date = (LocalDate) e.getValue();
-                Integer year = null;
-                if (date != null) {
-                    year = date.getYear();
-                }
-                setMastersAgeGroupFromYOB(year);
+                AgeDivision ageDivision = getAgeDivisionFieldValue();
+                Gender gender = getGenderFieldValue();
+                setMastersAgeGroupFromFullBirthDate(gender, ageDivision);
             });
             bindingBuilder.bind(property);
         } else if ("yearOfBirth".equals(property)) {
@@ -119,7 +117,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 Result<Integer> yR = yobConverter.convertToModel((String) event.getValue(),
                         new ValueContext(OwlcmsSession.getLocale()));
                 yR.ifOk((r) -> {
-                    setMastersAgeGroupFromYOB(r);
+                    AgeDivision ageDivision = getAgeDivisionFieldValue();
+                    Gender gender = getGenderFieldValue();
+                    setMastersAgeGroupFromYearOfBirth(gender, ageDivision);
                 });
             });
             bindingBuilder.bind(property);
@@ -130,10 +130,11 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             validateGender(bindingBuilder);
             field.addValueChangeListener((e) -> {
                 Gender gender = (Gender) e.getValue();
+                AgeDivision ageDivision = getAgeDivisionFieldValue();
                 if (Competition.getCurrent().isUseBirthYear()) {
-                    setMastersAgeGroupFromYearOfBirth(gender);
+                    setMastersAgeGroupFromYearOfBirth(gender, ageDivision);
                 } else {
-                    setMastersAgeGroupFromFullBirthDate(gender);
+                    setMastersAgeGroupFromFullBirthDate(gender, ageDivision);
                 }
             });
             bindingBuilder.bind(property);
@@ -159,6 +160,17 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
             bindingBuilder.withValidator(v2);
             bindingBuilder.withConverter(new StringToIntegerConverter(Translator.translate("InvalidIntegerValue")));
+            bindingBuilder.bind(property);
+        } else if ("ageDivision".equals(property)) {
+            field.addValueChangeListener((e) -> {
+                AgeDivision ageDivision = (AgeDivision) e.getValue();
+                Gender gender = getGenderFieldValue();
+                if (Competition.getCurrent().isUseBirthYear()) {
+                    setMastersAgeGroupFromYearOfBirth(gender, ageDivision);
+                } else {
+                    setMastersAgeGroupFromFullBirthDate(gender, ageDivision);
+                }
+            });
             bindingBuilder.bind(property);
         } else {
             super.bindField(field, property, propertyType);
@@ -317,6 +329,21 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     @SuppressWarnings("unchecked")
+    private AgeDivision getAgeDivisionFieldValue() {
+        HasValue<?, AgeDivision> ageDivisionField = (HasValue<?, AgeDivision>) binder.getBinding("ageDivision").get()
+                .getField();
+        AgeDivision ageDivision = ageDivisionField.getValue();
+        return ageDivision;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Gender getGenderFieldValue() {
+        HasValue<?, Gender> genderField = (HasValue<?, Gender>) binder.getBinding("gender").get().getField();
+        Gender gender = genderField.getValue();
+        return gender;
+    }
+
+    @SuppressWarnings("unchecked")
     private Integer getIntegerFieldValue(String property) {
         Optional<Binding<Athlete, ?>> binding = binder.getBinding(property);
         HasValue<?, String> field = (HasValue<?, String>) binding.get().getField();
@@ -345,7 +372,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     @SuppressWarnings("unchecked")
-    public void setMastersAgeGroupFromFullBirthDate(Gender gender) {
+    public void setMastersAgeGroupFromFullBirthDate(Gender gender, AgeDivision ageDivision) {
         Optional<Binding<Athlete, ?>> fbdBinding = binder.getBinding("fullBirthDate");
         HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
         Optional<Binding<Athlete, ?>> agBinding = binder.getBinding("mastersAgeGroup");
@@ -353,8 +380,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             HasValue<?, String> ageGroupField = (HasValue<?, String>) agBinding.get().getField();
             LocalDate date = dateField.getValue();
             if (gender != null && date != null) {
-                int year = date.getYear();
-                ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), year));
+                ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), date.getYear(), ageDivision));
             } else {
                 ageGroupField.setValue("");
             }
@@ -362,7 +388,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     @SuppressWarnings("unchecked")
-    public void setMastersAgeGroupFromYearOfBirth(Gender gender) {
+    public void setMastersAgeGroupFromYearOfBirth(Gender gender, AgeDivision ageDivision) {
         Optional<Binding<Athlete, ?>> yobBinding = binder.getBinding("yearOfBirth");
         HasValue<?, String> yobField = (HasValue<?, String>) yobBinding.get().getField();
         Optional<Binding<Athlete, ?>> agBinding = binder.getBinding("mastersAgeGroup");
@@ -372,7 +398,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                     new ValueContext(OwlcmsSession.getLocale()));
             yR.ifOk((year) -> {
                 if (gender != null && year != null) {
-                    ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), year));
+                    ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), year, ageDivision));
                 } else {
                     ageGroupField.setValue("");
                 }
@@ -381,20 +407,20 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         }
     }
 
-    private void setMastersAgeGroupFromYOB(Integer year) {
-        HasValue<?, ?> genderField = binder.getBinding("gender").get().getField();
-        Optional<Binding<Athlete, ?>> magBinding = binder.getBinding("mastersAgeGroup");
-        if (magBinding.isPresent()) {
-            @SuppressWarnings("unchecked")
-            HasValue<?, String> ageGroupField = (HasValue<?, String>) magBinding.get().getField();
-            Gender gender = (Gender) genderField.getValue();
-            if (gender != null && year != null) {
-                ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), year));
-            } else {
-                ageGroupField.setValue("");
-            }
-        }
-    }
+//    private void setMastersAgeGroupFromYOB(Integer year) {
+//        HasValue<?, ?> genderField = binder.getBinding("gender").get().getField();
+//        Optional<Binding<Athlete, ?>> magBinding = binder.getBinding("mastersAgeGroup");
+//        if (magBinding.isPresent()) {
+//            @SuppressWarnings("unchecked")
+//            HasValue<?, String> ageGroupField = (HasValue<?, String>) magBinding.get().getField();
+//            Gender gender = (Gender) genderField.getValue();
+//            if (gender != null && year != null) {
+//                ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), year, AgeDivision.DEFAULT));
+//            } else {
+//                ageGroupField.setValue("");
+//            }
+//        }
+//    }
 
     @Override
     public void setRouterLayout(OwlcmsRouterLayout routerLayout) {

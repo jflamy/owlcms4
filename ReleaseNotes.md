@@ -1,7 +1,11 @@
 * Release Highlights: 
-  * Fix: violations of the 20kg rule are now shown immediately on field entry and not only on submit  (#217).
-  * Enhancement: show the start number on the technical official and jury screens (#243)  Also show a warning sign and mouse-over if no start numbers have been assigned.  Also show the start number on the athlete card edited by the Marshall or announcer (#245)
-  * Fix: Down signal no longer emitted on browsers if server-side sound has been selected (#244)
+  * Enhancement: added checkbox to enable Masters W75 and W80+ age groups for national federations that have gender-equality rules (#242)
+  * Enhancement: make it easier to run a competition with athletes of all ages by running it as an "extended Masters" competition.  When selecting the "Masters" setting on the competition information page,
+    * Additional masters-style age groups are automatically assigned for:  kids (12 and under), youth (13-17 inclusive), junior (18-20 inclusive), and senior (21-35 inclusive).  As in Masters competitions, older age groups get smaller start numbers.
+    * Some athletes over 35 may want to compete as Senior instead of Masters.  This can be done on a case-by-case basis by setting their age division to SENIOR which will override the age group calculation. (#246)
+    * Some athletes over 30 may want to compete as Masters, if the Masters national federation allow M30 and W30 age groups. This is achieved by explicitly setting the MASTERS age division on the concerned athletes, which overrules the default assignment as senior. (#246)
+  * Enhancement: in a Masters competition, allow M30 and 30 groups by explicitly setting the MASTERS age division for the athletes (see above, this is the same rule as when running a mixed-age-group competition as Masters meet.) (#246)
+  * Enhancement: the ordering of the fields on the Registration and Weigh-in pages is more consitent.  The only difference is that on the Registration page the identification fields come first, whereas on the weigh-in page the weight and declaration fields come first. (#247)
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc) and [Open Issues](https://github.com/jflamy/owlcms4/projects/1)
 
 - Installation Instructions :

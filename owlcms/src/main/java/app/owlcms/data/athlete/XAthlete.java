@@ -701,8 +701,8 @@ public class XAthlete extends Athlete {
     }
 
     @Override
-    public String getMastersAgeGroup(String gender1, Integer yob) {
-        return a.getMastersAgeGroup(gender1, yob);
+    public String getMastersAgeGroup(String gender1, Integer yob, AgeDivision ageDivision) {
+        return a.getMastersAgeGroup(gender1, yob, AgeDivision.DEFAULT);
     }
 
     /**

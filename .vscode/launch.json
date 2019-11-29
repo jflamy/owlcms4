@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Main<owlcms>",
+            "request": "launch",
+            "mainClass": "app.owlcms.Main",
+            "projectName": "owlcms"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Speakers<owlcms>",
+            "request": "launch",
+            "mainClass": "app.owlcms.sound.Speakers",
+            "projectName": "owlcms"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ResourceWalker<owlcms>",
+            "request": "launch",
+            "mainClass": "app.owlcms.utils.ResourceWalker",
+            "projectName": "owlcms"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Main<relay>",
+            "request": "launch",
+            "mainClass": "app.owlcms.relay.Main",
+            "projectName": "relay"
+        }
+    ]
+}

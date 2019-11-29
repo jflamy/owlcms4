@@ -267,7 +267,7 @@ public class FieldOfPlay {
         } else if (currentDisplayAffected) {
             newState = CURRENT_ATHLETE_DISPLAYED;
         }
-        logger.warn("&&3.X change for {}, new cur = {}, displayAffected = {}, switching to {}", changingAthlete,
+        logger.debug("&&3.X change for {}, new cur = {}, displayAffected = {}, switching to {}", changingAthlete,
                 curAthlete, currentDisplayAffected, newState);
         setStateUnlessInBreak(newState);
         uiDisplayCurrentAthleteAndTime(currentDisplayAffected, wc, false);
@@ -477,7 +477,7 @@ public class FieldOfPlay {
             transitionToBreak((BreakStarted) e);
             return;
         } else if (e instanceof BreakPaused) {
-            // logger.warn("break paused {}", LoggerUtils.stackTrace());
+            // logger.debug("break paused {}", LoggerUtils.stackTrace());
         } else if (e instanceof StartLifting) {
             transitionToLifting(e, true);
         } else if (e instanceof BarbellOrPlatesChanged) {
@@ -882,7 +882,7 @@ public class FieldOfPlay {
      * @param state the new state
      */
     void setState(FOPState state) {
-        logger.warn("entering {} {}", state, LoggerUtils.whereFrom());
+        logger.debug("entering {} {}", state, LoggerUtils.whereFrom());
         // if (state == INACTIVE) {
         // logger.debug("entering inactive {}",LoggerUtils.stackTrace());
         // }
@@ -1017,7 +1017,7 @@ public class FieldOfPlay {
         if (state == BREAK && breakTimer2.isRunning()
                 && (breakType2 != getBreakType() || countdownType2 != getCountdownType())) {
             // changing the kind of break
-            logger.warn("switching break type while in break : current {} new {}", getBreakType(), e.getBreakType());
+            logger.debug("switching break type while in break : current {} new {}", getBreakType(), e.getBreakType());
             breakTimer2.stop();
         }
 

@@ -336,7 +336,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
             if (bType != null && (bType == BreakType.JURY || bType == BreakType.TECHNICAL
                     || bType == BreakType.DURING_INTRODUCTION)) {
-                logger.warn("starting break from radiobutton setvalue {}", bType);
+                logger.debug("starting break from radiobutton setvalue {}", bType);
                 startIndefiniteBreakImmediately(bType);
             } else {
                 setBreakTimeRemaining(ct.getValue());
@@ -396,14 +396,13 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 value = (value == null ? DEFAULT_DURATION : value);
 //                if (value.compareTo(Duration.ofMinutes(50)) > 0) {
 //                    // defensive; should no longer be required
-//                    logger.warn("setting to absurd duration {}",value);
+//                    logger.debug("setting to absurd duration {}",value);
 //                    value = DEFAULT_DURATION;
 //                    durationField.setValue(value);
 //                }
             }
             target = now.plus(value);
         } else if (cType == CountdownType.TARGET) {
-            // FIXME: values can be null
             target = getTarget();
         } else { // INDEFINITE
             target = now;

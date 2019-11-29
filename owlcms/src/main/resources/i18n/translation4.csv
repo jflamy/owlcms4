@@ -94,7 +94,7 @@ Competition.federationEMail,Federation e-mail,Courriel de la fédération,,Forbu
 Competition.federationWebSite,Federation Web Site,Site web de la fédération,,Forbunds Web Site,Sitio Web de la federación,Веб-сайт федерации,Förbundets hemsida
 Competition.invitedIfBornBefore,Invited if born before,Invité si né avant,,For løftere født før,Invitado si es nacido antes de,Приглашен если дата рождения ранее,Inbjuden om född före
 Competition.logo,Logo,Logo,,Logo,Logo,Логотип,Logga
-Competition.masters,Masters,Maîtres,,Masters,Masters,Ветераны,Masters
+Competition.masters,Masters,Maîtres,,Masters,Masters,Ветераны (Возрастное разделение),Masters
 Competition.protocolFileName,Protocol Sheet Template,Gabarit pour feuille de résultats,,Protokol Skabelon,Plantilla de protocolo,Шаблон рабочего протокола,Protokollmall
 Competition.resultTemplateFileName,Competition Book Template,Gabarit pour cahier de compétition,,Competition Book Skabelon,Plantilla de fichero de competición,Шаблон итогового протокола,Tävlingsbok mall
 Competition.useBirthYear,Use Birth Year Only,Utiliser l'année de naissance seulement,,Anvend kun fødselsår,Use Birth Year Only,Использовать только год рождения,Använd endast födelseår
@@ -419,4 +419,16 @@ BreakButton.JuryDeliberation,Jury Deliberation,Délibération du jury,,Jury stop
 BreakButton.Caption,Break Timer,Chronomètre de pause,,Pause Timer,Break Timer,Остановить таймер,Paus timer
 BreakButton.Paused,Paused,En pause,,Pause,Paused,Пауза,Pausad
 BreakButton.ToStartCaption,Countdown to start / Break Timer,Décompte avant début / Chrono de pause,,Nedtælling til start / Break Timer,Countdown to start / Break Timer,Таймер до начала,Nedräkning till start / Paus Timer
-StartNumbersNotSet,Start numbers were not assigned. Use the Weigh-in page.,Les numéros de départ n'ont pas été attribués. Utiliser la page de pesée.,,Startnumre er ikke tildelt. Brug siden til vejning.,Los números de partida no han sido asignados. Utilice la página de pesaje.,Стартовые номера не назначены. Используйте страницу взвешивания.,Startnummer tilldelas inte. Använd vägningssidan.
+StartNumbersNotSet,Start numbers were not assigned. Use the Weigh-in page.,Les numéros de départ n'ont pas été attribués. Utiliser la page de pesée.,,Startnumre er ikke tildelt. Brug Invejningssiden.,Los números de partida no han sido asignados. Utilice la página de pesaje.,Стартовые номера не назначены. Используйте страницу взвешивания.,Startnummer tilldelas inte. Använd vägningssidan.
+Competition.mastersGenderEquality,Masters: use W75 and W80+ age groups,Masters: utiliser groupes d'âge W75 et W80+,,Masters: Brug aldersgrupper W75 og W80+,Masters: use los grupos de edad W75 y W80+,Ветераны: используйте возрастные группы M/W75 и M/W80+,Masters: använd åldersgrupper W75 och W80+
+Division.DEFAULT,DEFAULT,PAR DEFAUT,PAR DÉFAUT,DEFAULT,DEFAULT,DEFAULT (В.К. по умолчанию),DEFAULT
+Division.SENIOR,SENIOR,SENIOR,,SENIOR,SENIOR,SENIOR (21 год и старше),SENIOR
+Division.JUNIOR,JUNIOR,JUNIOR,,JUNIOR,JUNIOR,JUNIOR (18-20 лет),JUNIOR
+Division.YOUTH,YOUTH,JEUNESSE,,UNGDOM,YOUTH,YOUTH (13-17 лет),YOUTH
+Division.KIDS,KIDS,ENFANTS,,BØRN,KIDS,KIDS (10-12 лет),KIDS
+Division.MASTERS,MASTERS,MASTERS,,MASTERS,MASTERS,MASTERS (30 лет и старше),MASTERS
+Division.TRADITIONAL,TRADITIONAL,TRADITIONNEL,,TRADITIONEL,TRADITIONAL,TRADITIONAL,TRADITIONAL
+Division.A,A,A,,A,A,A,A
+Division.B,B,B,,B,B,B,B
+Division.C,C,C,,C,C,C,C
+Division.D,D,D,,D,D,D,D

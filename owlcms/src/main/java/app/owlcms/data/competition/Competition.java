@@ -15,6 +15,7 @@ import java.util.Locale;
 import java.util.TreeSet;
 
 import javax.persistence.Cacheable;
+import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -102,11 +103,12 @@ public class Competition {
     private byte[] finalPackageTemplate;
     private boolean enforce20kgRule;
     private boolean masters;
-
+    
+    @Column(columnDefinition = "boolean default false")
+    private boolean mastersGenderEquality = false;
     private boolean useBirthYear;
     private boolean useCategorySinclair = false;
     private boolean useOldBodyWeightTieBreak = false;
-
     private boolean useRegistrationCategory = true;
 
     @Transient
@@ -420,6 +422,10 @@ public class Competition {
         return masters;
     }
 
+    public boolean isMastersGenderEquality() {
+        return mastersGenderEquality;
+    }
+
     /**
      * Checks if is use birth year.
      *
@@ -579,6 +585,10 @@ public class Competition {
 
     public void setMasters(boolean masters) {
         this.masters = masters;
+    }
+
+    public void setMastersGenderEquality(boolean mastersGenderEquality) {
+        this.mastersGenderEquality = mastersGenderEquality;
     }
 
     /**
