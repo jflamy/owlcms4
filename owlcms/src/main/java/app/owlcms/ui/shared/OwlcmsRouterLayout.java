@@ -22,6 +22,7 @@ import com.github.appreciated.app.layout.component.menu.left.items.LeftClickable
 import com.github.appreciated.app.layout.component.menu.left.items.LeftHeaderItem;
 import com.github.appreciated.app.layout.component.menu.left.items.LeftNavigationItem;
 import com.github.appreciated.app.layout.component.router.AppLayoutRouterLayout;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -33,8 +34,11 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.PageConfigurator;
+import com.vaadin.flow.theme.Theme;
+import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.i18n.Translator;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
@@ -51,7 +55,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings({ "serial", "rawtypes" })
 @Push
-
+@Theme(value = Lumo.class, variant = Lumo.LIGHT)
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 @CssImport(value = "./styles/shared-styles.css")
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
@@ -123,6 +127,14 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         settings.addInlineWithContents("<link rel=\"icon\" href=\"./frontend/images/owlcms.ico\">",
                 InitialPageSettings.WrapMode.NONE);
     }
+    
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        ThemeList themeList = UI.getCurrent().getElement().getThemeList();
+        themeList.remove(Lumo.DARK);
+        themeList.add(Lumo.LIGHT);
+        super.onAttach(attachEvent);
+    }
 
     /**
      * @return the layoutComponentContent
@@ -153,6 +165,8 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
                         .add(new LeftClickableItem(DOCUMENTATION, new Icon("icons", "help"),
                                 clickEvent -> UI.getCurrent().getPage()
                                         .executeJs("window.open('https://jflamy.github.io/owlcms4/#/index','_blank')")))
+//                        .add(new LeftNavigationItem(RESULT_DOCUMENTS, new Icon("image", "brightness-2"),
+//                                ResultsNavigationContent.class))
                         .addToSection(FOOTER, new LeftNavigationItem(INFO, new Icon("icons", "info-outline"),
                                 InfoNavigationContent.class))
                         .build())
