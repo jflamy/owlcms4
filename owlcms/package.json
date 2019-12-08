@@ -2,12 +2,9 @@
   "name": "no-name",
   "license": "UNLICENSED",
   "dependencies": {
-    "@polymer/iron-icons": "^3.0.1",
     "@polymer/polymer": "3.2.0",
-    "@vaadin/flow-deps": "./target/frontend",
     "@webcomponents/webcomponentsjs": "^2.2.10",
-    "bower": "^1.8.8",
-    "polymer-modulizer": "^0.4.3"
+    "@vaadin/flow-deps": "./target/frontend"
   },
   "devDependencies": {
     "webpack": "4.30.0",
@@ -15,9 +12,9 @@
     "webpack-dev-server": "3.3.0",
     "webpack-babel-multi-target-plugin": "2.1.0",
     "copy-webpack-plugin": "5.0.3",
+    "compression-webpack-plugin": "3.0.0",
     "webpack-merge": "4.2.1",
-    "raw-loader": "3.0.0",
-    "compression-webpack-plugin": "3.0.0"
+    "raw-loader": "3.0.0"
   },
-  "vaadinAppPackageHash": "a138d56f76921718b2ffabaf8d5cd09490c873770b9bf7a2fab63f2b2258c6ac"
+  "vaadinAppPackageHash": "a8ebe74a1f0f080b607277b2745bf20a2e54fbae7c613aea1fac4ad1d59fa7bc"
 }
