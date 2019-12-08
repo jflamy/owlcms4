@@ -61,7 +61,6 @@ public class EmbeddedJetty {
         context.setConfigurations(new Configuration[] { new AnnotationConfiguration(), new WebInfConfiguration(),
                 new WebXmlConfiguration(), new MetaInfConfiguration(), new FragmentConfiguration(),
                 new EnvConfiguration(), new PlusConfiguration(), new JettyWebXmlConfiguration() });
-        context.setInitParameter("vaadin.productionMode", Main.productionMode);
         Context servletContext = context.getServletContext();
         servletContext.setExtendedListenerTypes(true);
         context.addEventListener(new ServletContextListeners());
