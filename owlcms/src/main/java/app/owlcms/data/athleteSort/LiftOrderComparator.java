@@ -46,7 +46,9 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
 
         if (Competition.getCurrent().isGenderOrder()) {
             compare = compareGender(lifter1, lifter2);
-            return compare;
+            if (compare != 0) {
+                return compare;
+            }
         }
         
         compare = compareRequestedWeight(lifter1, lifter2);

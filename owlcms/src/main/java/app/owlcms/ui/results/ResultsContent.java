@@ -343,12 +343,15 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
         Boolean medals = medalsOnly.getValue();
         if (medals != null && medals) {
-            return athletes.stream().peek(a -> System.out.println(a.getMastersLongCategory())).filter(a -> a.getTotalRank() >= 1 && a.getTotalRank() <= 3)
+            return athletes.stream()
+//                    .peek(a -> System.out.println(a.getMastersLongCategory()))
+                    .filter(a -> a.getTotalRank() >= 1 && a.getTotalRank() <= 3)
                     .collect(Collectors.toList());
         } else {
-            return athletes.stream().peek(a -> System.err.println(a.getMastersLongCategory()))
-                    .collect(Collectors.toList());
-            //return athletes;
+//            return athletes.stream()
+//                    .peek(a -> System.err.println(a.getMastersLongCategory()))
+//                    .collect(Collectors.toList());
+            return athletes;
         }
     }
 
