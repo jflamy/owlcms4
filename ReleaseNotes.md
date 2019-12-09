@@ -1,11 +1,6 @@
 * Release Highlights: 
-  * Enhancement: added checkbox to enable Masters W75 and W80+ age groups for national federations that have gender-equality rules (#242)
-  * Enhancement: make it easier to run a competition with athletes of all ages by running it as an "extended Masters" competition.  When selecting the "Masters" setting on the competition information page,
-    * Additional masters-style age groups are automatically assigned for:  kids (12 and under), youth (13-17 inclusive), junior (18-20 inclusive), and senior (21-35 inclusive).  As in Masters competitions, older age groups get smaller start numbers.
-    * Some athletes over 35 may want to compete as Senior instead of Masters.  This can be done on a case-by-case basis by setting their age division to SENIOR which will override the age group calculation. (#246)
-    * Some athletes over 30 may want to compete as Masters, if the Masters national federation allow M30 and W30 age groups. This is achieved by explicitly setting the MASTERS age division on the concerned athletes, which overrules the default assignment as senior. (#246)
-  * Enhancement: in a Masters competition, allow M30 and 30 groups by explicitly setting the MASTERS age division for the athletes (see above, this is the same rule as when running a mixed-age-group competition as Masters meet.) (#246)
-  * Enhancement: the ordering of the fields on the Registration and Weigh-in pages is more consitent.  The only difference is that on the Registration page the identification fields come first, whereas on the weigh-in page the weight and declaration fields come first. (#247)
+  * Fix: (Masters) the results screen used by the announcer to announce medals was not correctly sorting the results according to age groups (#250).  The same display now shows the age group (#248)
+  * Experimental: for kids competitions using different bars for boys and girls, allow a non-standard lifting order (girls-snatch boys-snatch girls-c&j boys-c&j) to limit bar changes. This is currently enabled by setting the environment variable `OWLCMS_GENDERORDER=true` or adding <nobr>`-DgenderOrder=true`</nobr> to the startup flags (on the command line for Linux and Mac or, for Windows, in the `owlcms.l4j.ini` file) (#249).  This flag has no effect if all athletes in the group are of the same gender.
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc) and [Open Issues](https://github.com/jflamy/owlcms4/projects/1)
 
 - Installation Instructions :
