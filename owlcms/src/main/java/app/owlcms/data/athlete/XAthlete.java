@@ -1818,6 +1818,7 @@ public class XAthlete extends Athlete {
      * @param registrationCategory
      * @see app.owlcms.data.athlete.Athlete#setRegistrationCategory(app.owlcms.data.category.Category)
      */
+    @Deprecated
     @Override
     public void setRegistrationCategory(Category registrationCategory) {
         a.setRegistrationCategory(registrationCategory);

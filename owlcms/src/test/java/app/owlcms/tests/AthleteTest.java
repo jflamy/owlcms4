@@ -23,6 +23,7 @@ public class AthleteTest {
 
     private static Athlete athlete;
 
+    @SuppressWarnings("deprecation")
     @Before
     public void setupTest() {
         athlete = new Athlete();

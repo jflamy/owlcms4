@@ -77,21 +77,12 @@ public class AthleteSorter implements Serializable {
 
         int rank = 1;
         for (Athlete curLifter : sortedList) {
-            Category curCategory = null;
-            if (Competition.getCurrent().isUseRegistrationCategory() || rankingType == Ranking.CUSTOM) {
-                curCategory = curLifter.getRegistrationCategory();
-                if (curCategory == null && rankingType == Ranking.CUSTOM) {
-                    curCategory = curLifter.getCategory();
-                }
-                logger.trace("Athlete {}, category {}, regcategory {}",
-                        new Object[] { curLifter, curLifter.getCategory(), curLifter.getRegistrationCategory() });
-            } else {
-                curCategory = curLifter.getCategory();
-            }
+            Category curCategory = curLifter.getCategory();
             if (Competition.getCurrent().isMasters()) {
                 curAgeGroup = curLifter.getAgeGroup();
                 if (!equals(curCategory, prevCategory) || !equals(curAgeGroup, prevAgeGroup)) {
                     // category boundary has been crossed
+                    logger.trace("age+category boundary crossed {} {}", curAgeGroup, curCategory);
                     rank = 1;
                 }
             } else {

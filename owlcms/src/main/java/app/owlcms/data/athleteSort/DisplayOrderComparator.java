@@ -36,11 +36,7 @@ public class DisplayOrderComparator extends AbstractLifterComparator implements 
             }
         }
 
-        if (Competition.getCurrent().isUseRegistrationCategory()) {
-            compare = compareRegistrationCategory(lifter1, lifter2);
-        } else {
-            compare = compareCategory(lifter1, lifter2);
-        }
+        compare = compareCategory(lifter1, lifter2);
         if (compare != 0) {
             return compare;
         }

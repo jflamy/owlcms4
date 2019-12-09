@@ -67,7 +67,8 @@ public class AthleteSorterTest {
 		assertEqualsToReferenceFile(resName, actual);
 	}
 
-	@Test
+	@SuppressWarnings("deprecation")
+    @Test
 	public void liftSequence1() {
 		AthleteSorter.assignLotNumbers(athletes);
 		AthleteSorter.assignStartNumbers(athletes);
@@ -213,7 +214,8 @@ public class AthleteSorterTest {
 
 		// now we force the athletes to be in different registration categories and check that
 		// useRegistrationCategories works)
-		boolean reset = Competition.getCurrent().isUseRegistrationCategory();
+		// This is obsolete.
+        boolean reset = Competition.getCurrent().isUseRegistrationCategory();
 		try {
 			Competition.getCurrent().setUseRegistrationCategory(true);
 

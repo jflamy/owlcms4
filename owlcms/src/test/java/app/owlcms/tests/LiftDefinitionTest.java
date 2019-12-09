@@ -78,7 +78,8 @@ public class LiftDefinitionTest {
 		assertEqualsToReferenceFile(resName, actual);
 	}
 
-	@Ignore
+	@SuppressWarnings("deprecation")
+    @Ignore
 	public void liftSequence1() {
 		AthleteSorter.assignLotNumbers(athletes);
 		AthleteSorter.assignStartNumbers(athletes);

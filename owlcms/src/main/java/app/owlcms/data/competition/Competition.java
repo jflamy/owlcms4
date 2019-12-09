@@ -26,6 +26,7 @@ import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -103,13 +104,38 @@ public class Competition {
     private byte[] finalPackageTemplate;
     private boolean enforce20kgRule;
     private boolean masters;
-    
+
+    /**
+     * Add W75 and W80+ masters categories
+     */
     @Column(columnDefinition = "boolean default false")
     private boolean mastersGenderEquality = false;
-    private boolean useBirthYear;
+
+    /**
+     * Do not require month and day for birth.
+     */
+    @Column(columnDefinition = "boolean default true")
+    private boolean useBirthYear = true;
+
+    /**
+     * Idiosyncratic rule in Québec federation computes best lifter using Sinclair
+     * at bodyweight boundary.
+     */
+    @Column(columnDefinition = "boolean default false")
     private boolean useCategorySinclair = false;
+
+    /**
+     * For traditional competitions that have lower body weight comes out first. Tie
+     * breaker for identical Sinclair.
+     */
+    @Column(columnDefinition = "boolean default false")
     private boolean useOldBodyWeightTieBreak = false;
-    private boolean useRegistrationCategory = true;
+
+    /**
+     * Obsolete. We no longer infer categories.
+     */
+    @Column(columnDefinition = "boolean default false")
+    private boolean useRegistrationCategory = false;
 
     @Transient
     private HashMap<String, Object> reportingBeans;
@@ -458,8 +484,9 @@ public class Competition {
      *
      * @return true, if is use registration category
      */
+    @Deprecated
     public boolean isUseRegistrationCategory() {
-        return useRegistrationCategory;
+        return false;
     }
 
     /**
@@ -614,11 +641,17 @@ public class Competition {
     }
 
     /**
-     * Sets the use registration category.
+     * Sets the use registration category. No longer used. We always use the
+     * category. Only kept for backward compatibility.
      *
      * @param useRegistrationCategory the useRegistrationCategory to set
      */
+    @Deprecated
     public void setUseRegistrationCategory(boolean useRegistrationCategory) {
-        this.useRegistrationCategory = useRegistrationCategory;
+        this.useRegistrationCategory = false;
+    }
+
+    public boolean isGenderOrder() {
+        return Main.getBooleanParam("genderOrder");
     }
 }
