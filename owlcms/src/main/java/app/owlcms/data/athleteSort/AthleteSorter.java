@@ -707,15 +707,6 @@ public class AthleteSorter implements Serializable {
      * @param rankingType
      */
     @SuppressWarnings("unused")
-    private void combinedPointsOrder(List<Athlete> toBeSorted, Ranking rankingType) {
-        Collections.sort(toBeSorted, new CombinedPointsOrderComparator(rankingType));
-    }
-
-    /**
-     * @param athletes
-     * @param rankingType
-     */
-    @SuppressWarnings("unused")
     private void teamPointsOrder(List<Athlete> toBeSorted, Ranking rankingType) {
         Collections.sort(toBeSorted, new TeamPointsOrderComparator(rankingType));
     }
