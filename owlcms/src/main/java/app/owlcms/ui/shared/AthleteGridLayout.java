@@ -25,7 +25,7 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerLayout.
  */
 @SuppressWarnings("serial")
-@Theme(Lumo.class)
+@Theme(value = Lumo.class, variant = Lumo.LIGHT)
 @Push
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
 @CssImport(value = "./styles/shared-styles.css")

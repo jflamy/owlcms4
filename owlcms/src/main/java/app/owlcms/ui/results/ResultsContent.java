@@ -139,8 +139,13 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         themes.add("compact");
         themes.add("row-stripes");
 
-        grid.addColumn("category").setHeader(getTranslation("Category"))
-                .setComparator(new WinningOrderComparator(Ranking.TOTAL));
+        if (Competition.getCurrent().isMasters()) {
+            grid.addColumn("mastersLongCategory").setHeader(getTranslation("Category"))
+                    .setComparator(new WinningOrderComparator(Ranking.TOTAL));
+        } else {
+            grid.addColumn("category").setHeader(getTranslation("Category"))
+                    .setComparator(new WinningOrderComparator(Ranking.TOTAL));
+        }
         grid.addColumn("totalRank").setHeader(getTranslation("TotalRank"))
                 .setComparator(new WinningOrderComparator(Ranking.TOTAL));
 
@@ -176,6 +181,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         grid.addColumn(new NumberRenderer<>(Athlete::getSmm, "%.3f", OwlcmsSession.getLocale(), "-"), "smm")
                 .setHeader(getTranslation("smm")).setSortProperty("smm")
                 .setComparator(new WinningOrderComparator(Ranking.SMM));
+        
 
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
         AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
@@ -328,18 +334,23 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     @Override
     public Collection<Athlete> findAll() {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(), true);
-        AthleteSorter.resultsOrder(athletes, Ranking.TOTAL);
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
         AthleteSorter.resultsOrder(athletes, Ranking.SNATCH);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
         AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
+        AthleteSorter.resultsOrder(athletes, Ranking.TOTAL);
+        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
 
         Boolean medals = medalsOnly.getValue();
         if (medals != null && medals) {
-            return athletes.stream().filter(a -> a.getTotalRank() >= 1 && a.getTotalRank() <= 3)
+            return athletes.stream()
+//                    .peek(a -> System.out.println(a.getMastersLongCategory()))
+                    .filter(a -> a.getTotalRank() >= 1 && a.getTotalRank() <= 3)
                     .collect(Collectors.toList());
         } else {
+//            return athletes.stream()
+//                    .peek(a -> System.err.println(a.getMastersLongCategory()))
+//                    .collect(Collectors.toList());
             return athletes;
         }
     }

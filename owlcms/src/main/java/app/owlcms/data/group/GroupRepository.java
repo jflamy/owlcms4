@@ -72,7 +72,7 @@ public class GroupRepository {
      */
     @SuppressWarnings("unchecked")
     public static List<Group> findAll() {
-        return JPAService.runInTransaction(em -> em.createQuery("select c from CompetitionGroup c").getResultList());
+        return JPAService.runInTransaction(em -> em.createQuery("select c from CompetitionGroup c order by c.name").getResultList());
     }
 
     public static Group findByName(String name) {

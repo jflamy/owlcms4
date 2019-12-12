@@ -440,21 +440,21 @@ public class Athlete {
         int ageGroup1;
         int year1 = Calendar.getInstance().get(Calendar.YEAR);
         final int age = year1 - yob;
-        
+
         if (age <= 12) {
             ageGroup1 = 0;
         } else if (age <= 17) {
             ageGroup1 = 13;
         } else if (age <= 20) {
-            ageGroup1 =  18;
+            ageGroup1 = 18;
         } else {
             boolean masters = Competition.getCurrent().isMasters();
             if (age < 35) {
                 if (masters && ageDivision == AgeDivision.MASTERS) {
                     // explicitly categorized as masters
-                    ageGroup1 =  (int) (Math.ceil(age / 5) * 5);
+                    ageGroup1 = (int) (Math.ceil(age / 5) * 5);
                 } else {
-                    ageGroup1 =  21;
+                    ageGroup1 = 21;
                 }
             } else if (masters && age >= 35 && ageDivision == AgeDivision.SENIOR) {
                 // explicitly categorized as senior (masters in denial)
@@ -615,6 +615,13 @@ public class Athlete {
             return 20;
         }
 
+    }
+
+    private int getAge(Integer yob) {
+        if (yob == null) {
+            return 99;
+        }
+        return LocalDate.now().getYear() - yob;
     }
 
     public AgeDivision getAgeDivision() {
@@ -1437,13 +1444,7 @@ public class Athlete {
      * @return the long category
      */
     public String getLongCategory() {
-        if (Competition.getCurrent().isUseRegistrationCategory()) {
-            Category registrationCategory2 = getRegistrationCategory();
-            if (registrationCategory2 == null) {
-                return "?";
-            }
-            return registrationCategory2.getName();
-        } else if (Competition.getCurrent().isMasters()) {
+        if (Competition.getCurrent().isMasters()) {
             return getMastersLongCategory();
         } else {
             Category category = getCategory();
@@ -1515,12 +1516,6 @@ public class Athlete {
         }
     }
 
-    private int getAge(Integer yob) {
-        if (yob == null)
-            return 99;
-        return LocalDate.now().getYear() - yob;
-    }
-
     /**
      * Gets the masters age group interval.
      *
@@ -1539,10 +1534,11 @@ public class Athlete {
         } else if (competition.isMasters() && age < 35 && (ageDivision != AgeDivision.MASTERS)) {
             // under 35 and not explicitly classified as a Masters
             return getRegularAgeGroupInterval(getGender(), getYearOfBirth());
-        } else if (competition.isMasters() && age >= 35 && competition.isMasters() && (ageDivision == AgeDivision.SENIOR)) {
+        } else if (competition.isMasters() && age >= 35 && competition.isMasters()
+                && (ageDivision == AgeDivision.SENIOR)) {
             // over 35 competing as senior
             return getRegularAgeGroupInterval(getGender(), getYearOfBirth());
-        } else if (competition.isMasters()){
+        } else if (competition.isMasters()) {
             // considered as Masters.
             Integer ageGroup1 = getAgeGroup();
             boolean mastersGenderEquality = Competition.getCurrent().isMastersGenderEquality();
@@ -1801,12 +1797,7 @@ public class Athlete {
      * @return the robi
      */
     public Double getRobi() {
-        Category c;
-        if (Competition.getCurrent().isUseRegistrationCategory()) {
-            c = getRegistrationCategory();
-        } else {
-            c = getCategory();
-        }
+        Category c = getCategory();
 
         if (c == null) {
             return 0.0;
@@ -1857,10 +1848,6 @@ public class Athlete {
         final Category category = getCategory();
         if (category == null) {
             return "";
-        }
-
-        if (Competition.getCurrent().isUseRegistrationCategory()) {
-            return getShortRegistrationCategory(gender1);
         }
 
         String shortCategory = category.getName();
@@ -3159,10 +3146,11 @@ public class Athlete {
     }
 
     /**
-     * Sets the registration category.
+     * Sets the category. There is no longer a registration category.
      *
      * @param registrationCategory the new registration category
      */
+    @Deprecated
     public void setRegistrationCategory(Category registrationCategory) {
         this.category = registrationCategory;
     }

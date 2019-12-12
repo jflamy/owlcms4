@@ -9,6 +9,7 @@ package app.owlcms.data.athleteSort;
 import java.util.Comparator;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.competition.Competition;
 
 /**
  * The Class LiftOrderComparator.
@@ -43,6 +44,13 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
             return compare;
         }
 
+        if (Competition.getCurrent().isGenderOrder()) {
+            compare = compareGender(lifter1, lifter2);
+            if (compare != 0) {
+                return compare;
+            }
+        }
+        
         compare = compareRequestedWeight(lifter1, lifter2);
         if (compare != 0) {
             return compare;

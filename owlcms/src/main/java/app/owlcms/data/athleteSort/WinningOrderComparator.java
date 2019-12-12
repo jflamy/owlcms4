@@ -109,12 +109,20 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      */
     public int compareCleanJerkResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
+        
+        if (Competition.getCurrent().isMasters()) {
+            compare = compareGender(lifter1, lifter2);
+            if (compare != 0) {
+                return compare;
+            }
 
-        if (Competition.getCurrent().isUseRegistrationCategory()) {
-            compare = compareRegistrationCategory(lifter1, lifter2);
-        } else {
-            compare = compareCategory(lifter1, lifter2);
+            compare = compareAgeGroup(lifter1, lifter2);
+            if (compare != 0) {
+                return -compare;
+            }
         }
+
+        compare = compareCategory(lifter1, lifter2);
         if (compare != 0) {
             return compare;
         }
@@ -285,11 +293,20 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
             logger.trace("lifter1 {};  lifter2 {}", lifter1.getFirstName(), lifter2.getFirstName());
         }
 
-        if (Competition.getCurrent().isUseRegistrationCategory()) {
-            compare = compareRegistrationCategory(lifter1, lifter2);
-        } else {
-            compare = compareCategory(lifter1, lifter2);
+        if (Competition.getCurrent().isMasters()) {
+            compare = compareGender(lifter1, lifter2);
+            if (compare != 0) {
+                return compare;
+            }
+
+            compare = compareAgeGroup(lifter1, lifter2);
+            if (compare != 0) {
+                return -compare;
+            }
         }
+
+        
+        compare = compareCategory(lifter1, lifter2);
         if (trace) {
             logger.trace("compareCategory {}", compare);
         }
@@ -378,11 +395,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
             }
         }
 
-        if (Competition.getCurrent().isUseRegistrationCategory()) {
-            compare = compareRegistrationCategory(lifter1, lifter2);
-        } else {
-            compare = compareCategory(lifter1, lifter2);
-        }
+        compare = compareCategory(lifter1, lifter2);
         if (compare != 0) {
             return compare;
         }

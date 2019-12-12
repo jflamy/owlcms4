@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
-import app.owlcms.data.competition.Competition;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -76,11 +75,7 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
     public int compareCleanJerkResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
-        if (Competition.getCurrent().isUseRegistrationCategory()) {
-            compare = compareRegistrationCategory(lifter1, lifter2);
-        } else {
-            compare = compareCategory(lifter1, lifter2);
-        }
+        compare = compareCategory(lifter1, lifter2);
         if (compare != 0) {
             return compare;
         }
@@ -252,26 +247,14 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
      * @return the int
      */
     public int compareSnatchResultOrder(Athlete lifter1, Athlete lifter2) {
-        boolean trace =
-                // (
-                // (lifter1.getFirstName().equals("Yvon") &&
-                // lifter2.getFirstName().equals("Anthony"))
-                // ||
-                // (lifter2.getFirstName().equals("Yvon") &&
-                // lifter1.getFirstName().equals("Anthony"))
-                // );
-                false;
+        boolean trace = false;
         int compare = 0;
 
         if (trace) {
             logger.trace("lifter1 {};  lifter2 {}", lifter1.getFirstName(), lifter2.getFirstName());
         }
 
-        if (Competition.getCurrent().isUseRegistrationCategory()) {
-            compare = compareRegistrationCategory(lifter1, lifter2);
-        } else {
-            compare = compareCategory(lifter1, lifter2);
-        }
+        compare = compareCategory(lifter1, lifter2);
         if (trace) {
             logger.trace("compareCategory {}", compare);
         }
@@ -343,11 +326,7 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
     public int compareTotalResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
-        if (Competition.getCurrent().isUseRegistrationCategory()) {
-            compare = compareRegistrationCategory(lifter1, lifter2);
-        } else {
-            compare = compareCategory(lifter1, lifter2);
-        }
+        compare = compareCategory(lifter1, lifter2);
         if (compare != 0) {
             return compare;
         }

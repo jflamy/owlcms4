@@ -54,17 +54,12 @@ public class DemoData {
     }
 
     protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit,
-            boolean masters, int min, int max) {
-        int minAge = 18;
-        int maxAge = 32;
-        if (masters) {
-            minAge = min;
-            maxAge = max;
-        }
+            boolean masters, int min, int max, Gender gender) {
         int referenceYear = LocalDate.now().getYear();
         LocalDate baseDate = LocalDate.of(referenceYear, 12, 31);
 
-        Category categ = CategoryRepository.doFindByName("m" + catLimit, em);
+        String catName = gender.name().toLowerCase() + catLimit;
+        Category categ = CategoryRepository.doFindByName(catName, em);
         p.setCategory(categ);
         p.setBodyWeight(categ.getMaximumWeight() - nextDouble * 2.0);
 
@@ -84,7 +79,7 @@ public class DemoData {
         }
         p.setTeam(team);
         // compute a random number of weeks inside the age bracket
-        long weeksToSubtract = (long) ((minAge * 52) + Math.floor(r.nextDouble() * (maxAge - minAge) * 52));
+        long weeksToSubtract = (long) ((min * 52) + Math.floor(r.nextDouble() * (max - min) * 52));
         p.setFullBirthDate(baseDate.minusWeeks(weeksToSubtract));
         // respect 20kg rule
         p.setQualifyingTotal((int) (isd + icjd - 15));
@@ -117,8 +112,9 @@ public class DemoData {
     }
 
     protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
-            Random r, int cat1, int cat2, int liftersToLoad, boolean masters, int min, int max) {
-
+            Random r, int cat1, int cat2, int liftersToLoad, boolean masters, int min, int max, Gender gender) {
+        if (liftersToLoad < 1) liftersToLoad = 1;
+        
         for (int i = 0; i < liftersToLoad; i++) {
             Athlete p = new Athlete();
             try {
@@ -126,12 +122,12 @@ public class DemoData {
                 p.setGroup(group);
                 p.setFirstName(fnames[r.nextInt(fnames.length)]);
                 p.setLastName(lnames[r.nextInt(lnames.length)]);
-                p.setGender(Gender.M);
+                p.setGender(gender);
                 double nextDouble = r.nextDouble();
                 if (nextDouble > 0.5F) {
-                    createAthlete(em, r, p, nextDouble, cat1, masters, min, max);
+                    createAthlete(em, r, p, nextDouble, cat1, masters, min, max, gender);
                 } else {
-                    createAthlete(em, r, p, nextDouble, cat2, masters, min, max);
+                    createAthlete(em, r, p, nextDouble, cat2, masters, min, max, gender);
                 }
                 em.persist(p);
             } catch (Exception e) {
@@ -194,29 +190,40 @@ public class DemoData {
     }
 
     private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupM1, Group groupM2,
-            boolean masters) {
+            Group groupF1, Group groupY1, boolean masters) {
         final String[] lnames = { "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson",
                 "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia",
                 "Martinez", "Robinson", "Clark", "Rodriguez", "Lewis", "Lee", "Walker", "Hall", "Allen", "Young",
                 "Hernandez", "King", "Wright", "Lopez", "Hill", "Scott", "Green", "Adams", "Baker", "Gonzalez",
                 "Nelson", "Carter", "Mitchell", "Perez", "Roberts", "Turner", "Phillips", "Campbell", "Parker", "Evans",
                 "Edwards", "Collins", };
-        final String[] fnames = { "James", "John", "Robert", "Michael", "William", "David", "Richard", "Joseph",
+        final String[] mNames = { "James", "John", "Robert", "Michael", "William", "David", "Richard", "Joseph",
                 "Thomas", "Charles", "Christopher", "Daniel", "Matthew", "Anthony", "Donald", "Mark", "Paul", "Steven",
                 "Andrew", "Kenneth", "George", "Joshua", "Kevin", "Brian", "Edward", "Ronald", "Timothy", "Jason",
                 "Jeffrey", "Ryan", "Jacob", "Gary", "Nicholas", "Eric", "Stephen", "Jonathan", "Larry", "Justin",
                 "Scott", "Brandon", "Frank", "Benjamin", "Gregory", "Raymond", "Samuel", "Patrick", "Alexander", "Jack",
                 "Dennis", "Jerry", };
+        final String[] fNames = { "Emily", "Abigail", "Alexis", "Alyssa", "Angela", "Ashley", "Brianna", "Cynthia",
+                "Deborah", "Donna", "Elizabeth", "Elizabeth", "Emma", "Grace", "Hannah", "Jennifer", "Jessica", "Julie",
+                "Karen", "Kayla", "Kimberly", "Laura", "Lauren", "Linda", "Lisa", "Lori", "Madison", "Mary", "Megan",
+                "Michelle", "Olivia", "Pamela", "Patricia", "Samantha", "Sandra", "Sarah", "Susan", "Tammy", "Taylor",
+                "Victoria", };
 
         Random r = new Random(0);
+        Random r2 = new Random(0);
 
-        createGroup(em, groupM1, fnames, lnames, r, 81, 73, liftersToLoad, masters, 35, 45);
-        createGroup(em, groupM2, fnames, lnames, r, 73, 67, liftersToLoad, masters, 45, 50);
+        createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, masters, (masters ? 35 : 18), (masters ? 45 : 32), Gender.M);
+        createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, masters, (masters ? 35 : 18), (masters ? 50 : 32), Gender.M);
+        createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad/2, masters, (masters ? 35 : 18), (masters ? 45 : 32), Gender.F);
+        createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad/4, masters, 13, 17, Gender.M);
+        createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad/4, masters, 13, 17, Gender.F);
 
         drawLots(em);
 
         assignStartNumbers(em, groupM1);
         assignStartNumbers(em, groupM2);
+        assignStartNumbers(em, groupF1);
+        assignStartNumbers(em, groupY1);
     }
 
     protected static void setupCompetitionDocuments(Competition competition, Platform platform1) {
@@ -284,20 +291,26 @@ public class DemoData {
 
         Group groupM2 = new Group("M2", w, c);
         groupM2.setPlatform(platform2);
+        
+        Group groupF1 = new Group("F1", w, c);
+        groupF1.setPlatform(platform1);
+        
+        Group groupY1 = new Group("Y1", w, c);
+        groupY1.setPlatform(platform2);
 
         em.persist(groupM1);
         em.persist(groupM2);
         em.persist(new Group("M3", null, null));
         em.persist(new Group("M4", null, null));
-        em.persist(new Group("F1", null, null));
-        em.persist(new Group("F2", null, null));
+        em.persist(groupF1);
+        em.persist(groupY1);
         em.persist(new Group("F3", null, null));
 
         em.persist(platform1);
         em.persist(platform2);
         em.persist(competition);
 
-        insertSampleLifters(em, liftersToLoad, groupM1, groupM2, masters);
+        insertSampleLifters(em, liftersToLoad, groupM1, groupM2, groupF1, groupY1, masters);
         em.flush();
     }
 
