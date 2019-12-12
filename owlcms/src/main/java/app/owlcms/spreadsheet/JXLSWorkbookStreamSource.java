@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -218,7 +219,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         cellRight.setCellValue("");
 
         CellStyle blank = workbook.createCellStyle();
-        blank.setBorderBottom(CellStyle.BORDER_NONE);
+        blank.setBorderBottom(BorderStyle.NONE);
         cellLeft.setCellStyle(blank);
         cellRight.setCellStyle(blank);
     }
