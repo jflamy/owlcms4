@@ -31,7 +31,7 @@ BirthDate_cannot_future,Birth date cannot be in the future,La date de naissance 
 BirthDate_yyyy,Birth Date (yyyy-mm-dd),Date naissance (yyyy-mm-dd),,,Født (yyyy-mm-dd),Fecha de nacimiento (yyyy-mm-dd),Дата рождения (yyyy-mm-dd),Födelsedag (yyyy-mm-dd)
 BodyWeight,Body Weight,Poids,,,Vægt,Peso corporal,Собственный вес,Kroppsvikt
 BodyWeight_no_match_category,Body Weight is outside of selected category,Le poids ne correspond pas à la catégorie,,,Kropsvægt passer ikke med den valgte klasse,Body Weight is outside of selected category,Собственный вес спортсмена выходит за пределы категории,Kroppsvikt är utanför den valda klassen
-BumperPlates,Bumper Plates,Grandes plaques,,,Store skiver,Pesas grandes,Большие диски,Vikt plattor
+BumperPlates,Bumper Plates,Grandes plaques,,Disque,Store skiver,Pesas grandes,Большие диски,Vikt plattor
 Button_Open_Display,Use one of the buttons below to open a display.,Utilisez un bouton ci-dessous pour démarrer un affichage,,,Brug en af knapperne nedenfor for at åbne et display.,Use one of the buttons below to open a display.,Используйте одну из кнопок расположенных ниже для открытия экрана,Använd en av knapparna nedan för att öppna en diplay
 C_and_J_1,C.&J. 1,É.-J. 1,,,Stød 1,D.T. 1,Т1,Stöt 1
 C_and_J_2,C.&J. 2,É.-J. 2,,,Stød 2,D.T. 2,Т2,Stöt 2
@@ -75,17 +75,17 @@ Clean_and_Jerk_short,C.&J.,É.-J.,,,Stød,D.T.,Т.,Stöt
 ClearLifts,Clear Lifts,Effacer les levers,,,Slet løft,Limpiar alzadas,Сброс попыток,Rensa lyft
 ClearLifts_forListed,Clear Lifts for Athletes Currently Listed,Effacer les levers des athlètes sélectionnés,,,Slet løft for valgte atleter,Clear Lifts for Athletes Currently Listed,Сброс перечисленных попыток,Rensa lyft för listade atleter
 ClearStartNumbers,Clear Start Numbers,Vider Nº départ,,,Ryd Start Nummer,Limpiar Nº inicio,Очистить стартовые номера,Rensa startnummer
-Collar,Collar,Collet,,,Lås,Mordaza,Замок,Klov
+Collar,Collar,Collet,,Bagues,Lås,Mordaza,Замок,Klov
 Competition,Competition,Compétition,,,Stævne,Competición,Соревнование,Tävling
 Competition.competitionCity,City,Ville,,,By,Ciudad,Город проведения соревнования,Stad
 Competition.competitionDate,Date,Date,,,Dato,Fecha,Дата проведения соревнования,Datum
 Competition.competitionName,Name,Nom,,,Navn,Nombre,Название соревнования,Namn
 Competition.competitionOrganizer,Organizer,Organisateur,,,Arrangør,Organizador,Организатор соревнования,Arrangör
 Competition.competitionSite,Site,Site,,,Lokalitet,Lugar,Место проведения соревнования,Webbplats
-Competition.defaultFederation,\u0020,\u0020,Fédération d'haltérophilie du Québec,,Dansk Vægtløftnings-Forbund,Federación Española de Halterofilia,\u0020,Svenska tyngdlyftningsförbundet
-Competition.defaultFederationAddress,\u0020,\u0020,"C.P. 1000, Succ. M, Montréal, QC, H1V 3R2",,"Idrættens Hus, Brøndby Stadion 20, 2605 Brøndby","C/ Francos Rodríguez, 70 ",\u0020,"Karlsgatan 28, 703 41 Örebro"
-Competition.defaultFederationEMail,\u0020,\u0020,admin@fedhaltero.qc.ca,,kontor@danskvaegtloeftning.dk,fehalterofilia@hotmail.com,\u0020,office@tyngdlyftning.org
-Competition.defaultFederationWebSite,\u0020,\u0020,www.fedhaltero.qc.ca,,www.weightlifting.dk,www.fedehalter.org,\u0020,http://www.tyngdlyftning.com/
+Competition.defaultFederation,\u0020,\u0020,Fédération d'haltérophilie du Québec,Fédération Française d'Haltérophilie,Dansk Vægtløftnings-Forbund,Federación Española de Halterofilia,\u0020,Svenska tyngdlyftningsförbundet
+Competition.defaultFederationAddress,\u0020,\u0020,"C.P. 1000, Succ. M, Montréal, QC, H1V 3R2","7 Rue Roland Martin, 94500 Champigny-sur-Marne","Idrættens Hus, Brøndby Stadion 20, 2605 Brøndby","C/ Francos Rodríguez, 70 ",\u0020,"Karlsgatan 28, 703 41 Örebro"
+Competition.defaultFederationEMail,\u0020,\u0020,admin@fedhaltero.qc.ca,contact@ffhaltero.fr,kontor@danskvaegtloeftning.dk,fehalterofilia@hotmail.com,\u0020,office@tyngdlyftning.org
+Competition.defaultFederationWebSite,\u0020,\u0020,www.fedhaltero.qc.ca,www.ffhaltero.fr,www.weightlifting.dk,www.fedehalter.org,\u0020,http://www.tyngdlyftning.com/
 Competition.defaultLocale,Display and printout language (requires restart),Langue d'affichage et d'impression (redémarrage requis),,,Display og printout sprog (kræver genstart),Display and printout language (requires restart),Язык отображения и печати (требуется перезагрузка),Visa och skriv ut språk (Omstart krävs)
 Competition.enforce20kgRule,Apply initial total weight rule (IWF §6.6.5/Masters §2.4)?,Appliquer la règle de poids total initial (IWF §6.6.5/Masters §2.4)?,,,Anvend indledende tokampsvægtregel (IWF §6.6.5/Masters §2.4)?,Aplicar regla de peso total inicial (IWF §6.6.5/Masters §2.4)?,Применить «правило 20 кг» (IWF §6.6.5/Masters §2.4)?,Tillämpa totalviktsregeln (IWF ¬ß6.6.5/Masters ¬ß2.4)?
 Competition.federation,Federation Name,Nom de la fédération,,,Forbundsnavn,Nombre de la federación,Название федерации,Förbundets namn
@@ -94,7 +94,7 @@ Competition.federationEMail,Federation e-mail,Courriel de la fédération,,,Forb
 Competition.federationWebSite,Federation Web Site,Site web de la fédération,,,Forbunds Web Site,Sitio Web de la federación,Веб-сайт федерации,Förbundets hemsida
 Competition.invitedIfBornBefore,Invited if born before,Invité si né avant,,,For løftere født før,Invitado si es nacido antes de,Приглашен если дата рождения ранее,Inbjuden om född före
 Competition.logo,Logo,Logo,,,Logo,Logo,Логотип,Logga
-Competition.masters,Masters,Maîtres,,,Masters,Masters,Ветераны (Возрастное разделение),Masters
+Competition.masters,Masters,Masters,,,Masters,Masters,Ветераны (Возрастное разделение),Masters
 Competition.protocolFileName,Protocol Sheet Template,Gabarit pour feuille de résultats,,,Protokol Skabelon,Plantilla de protocolo,Шаблон рабочего протокола,Protokollmall
 Competition.resultTemplateFileName,Competition Book Template,Gabarit pour cahier de compétition,,,Competition Book Skabelon,Plantilla de fichero de competición,Шаблон итогового протокола,Tävlingsbok mall
 Competition.useBirthYear,Use Birth Year Only,Utiliser l'année de naissance seulement,,,Anvend kun fødselsår,Use Birth Year Only,Использовать только год рождения,Använd endast födelseår
@@ -102,43 +102,43 @@ CompetitionBook.C,Competition,Compétition,,,Stævne,Competición,Итоговы
 CompetitionBook.C_LeftHeader,Competition Information,Informations sur la compétition,,,Stævneinformation,Información de la competición,Информация о соревнованиях,Tävlings information
 CompetitionBook.C_RightHeader,\u0020,\u0020,,,\u0020,\u0020,\u0020,\u0020
 CompetitionBook.M6,Men's Results,Hommes 6 essais,,,Resultater Mænd,Resultados Masculino,"Результаты, мужчины",Resultat herrar
-CompetitionBook.M6_LeftHeader,Category Ranking,Classement par catégories - Category Ranking,,,Vægtklasse Placering,Clasificación por categorías,Место в категории,Klass rankning
+CompetitionBook.M6_LeftHeader,Category Ranking,Classement par catégories,Classement par catégories - Category Ranking,,Vægtklasse Placering,Clasificación por categorías,Место в категории,Klass rankning
 CompetitionBook.M6_LeftHeader,Competition,Compétition,,,Stævne,Competición,Соревнования,Tävling
-CompetitionBook.M6_RightHeader,Men,Hommes - Men,,,Mænd,Masculino,Мужчины,Herrar
+CompetitionBook.M6_RightHeader,Men,Hommes,Hommes - Men,,Mænd,Masculino,Мужчины,Herrar
 CompetitionBook.MCT,Men - Combined Score,Hommes - Pointage Combiné,,,Mænd - Kombineret Score,Men - Combined Score,Мужчины - Комбинированные очки,Herrar - Kombinerad poäng
-CompetitionBook.MCT_LeftHeader,Team Ranking (Snatch+CJ+Total),Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Total),,,Hold Placering (Træk+Stød+Tokamp),Clasificación por equipos (Arr+DT+Total),Командный рейтинг (Рывок+Толчок+Сумма),Förenings Rankning (Ryck+Stöt+Total)
+CompetitionBook.MCT_LeftHeader,Team Ranking (Snatch+CJ+Total),Classement par équipes (Arr.+É.J.+Total),Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Total),,Hold Placering (Træk+Stød+Tokamp),Clasificación por equipos (Arr+DT+Total),Командный рейтинг (Рывок+Толчок+Сумма),Förenings Rankning (Ryck+Stöt+Total)
 CompetitionBook.MR,Men's Robi,Hommes Robi,,,Robi Mænd,Robi Masculino,"Роби, мужчины",Herrar Robi
 CompetitionBook.MR_LeftHeader,Robi Ranking,Classement Robi - Robi Ranking,,,Robi Placering,Clasificación Robi,Рейтинг Роби,Robi anking
 CompetitionBook.MS,Men's Sinclair,Hommes Sinclair,,,Sinclair Mænd,Sinclair Masculino,"Синклер, мужчины",Herrar Sinclair
-CompetitionBook.MS_LeftHeader,Sinclair  Ranking,Classement Sinclair - Sinclair Ranking,,,Sinclair Placering,Clasificación Sinclair,Рейтинг Синклер,SinclairRank
+CompetitionBook.MS_LeftHeader,Sinclair  Ranking,Classement Sinclair,Classement Sinclair - Sinclair Ranking,,Sinclair Placering,Clasificación Sinclair,Рейтинг Синклер,SinclairRank
 CompetitionBook.MT,Men's Total Score,Hommes Pointage Total,,,Total Score Mænd,Puntos Total Masculino,Мужчины - итоговые очки,Herrar total poäng
-CompetitionBook.MT_LeftHeader,Team Ranking (Total),Classement par équipes (Total) - Team Ranking (Total),,,Hold Placering (Total),Clasificación por equipos (Total),Командный рейтинг (сумма),Förenings rank (Total)
-CompetitionBook.MT_RightHeader,Men,Hommes - Men,,,Mænd,Masculino,Мужчины,Herrar
+CompetitionBook.MT_LeftHeader,Team Ranking (Total),Classement par équipes (Total),Classement par équipes (Total) - Team Ranking (Total),,Hold Placering (Total),Clasificación por equipos (Total),Командный рейтинг (сумма),Förenings rank (Total)
+CompetitionBook.MT_RightHeader,Men,Hommes,Hommes - Men,,Mænd,Masculino,Мужчины,Herrar
 CompetitionBook.MWCT,Men&Women - Combined Score,Hommes et Femmes - Pointage Combiné,,,Mænd&Kvinder - Kombineret Score,Masculino y Femenino - Puntuación Combinada,М+Ж комбинированные очки,Herrar & Damer - Kombinerad poäng
 CompetitionBook.MWCT_LeftHeader,Team Ranking (Snatch+CJ+Total),Classement par équipes (Arr.+É.J.+Total),,,Hold Placering (Træk+Stød+Tokamp),Clasificación por equipos (Arr+DT+Total),Командный рейтинг (Рывок+Толчок+Сумма),Förenings Rankning (Ryck+Stöt+Total)
 CompetitionBook.MWCT_RightHeader,Women,Femmes,,,Kvinder,Femenino,Женщины,Damer
 CompetitionBook.MWT,M+W Total Score,M+F Pointage Total,,,M+K Total Score,M+F Puntuación Total,М+Ж Итоговые очки,H+D total poäng
-CompetitionBook.MWT_LeftHeader,Team Ranking (Total),Classement par équipes (Total) - Team Ranking (Total),,,Hold Placering (Total),Clasificación por equipos (Total),Командный рейтинг (сумма),Förenings rankning (Total)
-CompetitionBook.MWT_RightHeader,Men and Women,Hommes et Femmes - Men and Women,,,Mænd og Kvinder,Masculino y Femenino,Мужчины и женщины,Herrar och Damer
+CompetitionBook.MWT_LeftHeader,Team Ranking (Total),Classement par équipes (Total),Classement par équipes (Total) - Team Ranking (Total),,Hold Placering (Total),Clasificación por equipos (Total),Командный рейтинг (сумма),Förenings rankning (Total)
+CompetitionBook.MWT_RightHeader,Men and Women,Hommes et Femmes,Hommes et Femmes - Men and Women,,Mænd og Kvinder,Masculino y Femenino,Мужчины и женщины,Herrar och Damer
 CompetitionBook.MXT,Men's Custom Score,Hommes Pointage Spécial,,,Mænd Speciel Score,Puntuación Masculina Personalizada,Мужчины - Пользовательские очки,Herrar anpassad poäng
-CompetitionBook.MXT_LeftHeader,Team  Ranking (Custom),Classement par équipes (Spécial) - Team Ranking (Custom),,,Hold Placering (Speciel),Clasificación por equipos (Personalizada),Командный рейтинг(пользовательский),Förenings rankning (Anpassad)
-CompetitionBook.MXT_RightHeader,Men,Hommes - Men,,,Mænd,Masculino,Мужчины,Herrar
+CompetitionBook.MXT_LeftHeader,Team  Ranking (Custom),Classement par équipes (Spécial),Classement par équipes (Spécial) - Team Ranking (Custom),,Hold Placering (Speciel),Clasificación por equipos (Personalizada),Командный рейтинг(пользовательский),Förenings rankning (Anpassad)
+CompetitionBook.MXT_RightHeader,Men,Hommes,Hommes - Men,,Mænd,Masculino,Мужчины,Herrar
 CompetitionBook.W6,Women's Results,Femmes 6 essais,,,Resultater Kvinder,Clasificación Femenina,"Результаты, женщины",Dammer Reslutat
-CompetitionBook.W6_RightHeader,Women,Femmes - Women,,,Kvinder,Femenino,Женщины,Damer
+CompetitionBook.W6_RightHeader,Women,Femmes,Femmes - Women,,Kvinder,Femenino,Женщины,Damer
 CompetitionBook.WCT,Women - Combined Score,Femmes - Pointage Combiné,,,Kvinder - Combined Score,Femenino - Puntuación Combinada,Женщины - комбинированные очки,Damer kombinerad poäng
-CompetitionBook.WCT_LeftHeader,Team Ranking (Snatch+CJ+Total),Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Snatch+CJ+Total),,,Hold Placering (Træk+Stød+Tokamp),Clasificación por equipos (Arr+DT+Total),Командный рейтинг (Рывок+Толчок+Сумма),Förenings Rankning (Ryck+Stöt+Total)
-CompetitionBook.WCT_RightHeader,Women,Femmes - Women,,,Kvinder,Femenino,Женщины,Damer
+CompetitionBook.WCT_LeftHeader,Team Ranking (Snatch+CJ+Total),Classement par équipes (Arr.+É.J.+Total),Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Snatch+CJ+Total),,Hold Placering (Træk+Stød+Tokamp),Clasificación por equipos (Arr+DT+Total),Командный рейтинг (Рывок+Толчок+Сумма),Förenings Rankning (Ryck+Stöt+Total)
+CompetitionBook.WCT_RightHeader,Women,,Femmes - Women,Femmes,Kvinder,Femenino,Женщины,Damer
 CompetitionBook.WR,Women's Robi,Femmes Robi,,,Robi Kvinder,Robi Femenino,"Роби, женщины",Dammer Robi
-CompetitionBook.WR_RightHeader,Women,Femmes - Women,,,Kvinder,Femenino,Женщины,Damer
+CompetitionBook.WR_RightHeader,Women,Femmes,Femmes - Women,,Kvinder,Femenino,Женщины,Damer
 CompetitionBook.WS,Women's Sinclair,Femmes Sinclair,,,Sinclair Kvinder,Sinclair Femenino,"Синклер, женщины",Sinclair Damer
-CompetitionBook.WS_LeftHeader,Sinclair  Ranking,Classement Sinclair - Sinclair Ranking,,,Sinclair Placering,Clasificación Sinclair,Рейтинг Синклер,Sinclair  Rankning
-CompetitionBook.WS_RightHeader,Women,Femmes - Women,,,Kvinder,Femenino,Женщины,Damer
+CompetitionBook.WS_LeftHeader,Sinclair  Ranking,Classement Sinclair,Classement Sinclair - Sinclair Ranking,,Sinclair Placering,Clasificación Sinclair,Рейтинг Синклер,Sinclair  Rankning
+CompetitionBook.WS_RightHeader,Women,Femmes,Femmes - Women,,Kvinder,Femenino,Женщины,Damer
 CompetitionBook.WT,Women - Total Score,Femmes - Pointage Total,,,Kvinder - Total Score,Femenino - Puntuación Total,Женщины - итоговые очки,Dammer total poäng
-CompetitionBook.WT_LeftHeader,Team Ranking (Total),Classement par équipes (Total) - Team Ranking (Total),,,Hold Placering (Total),Clasificación por equipos (Total),Командный рейтинг (сумма),Förenings rankning (Total)
-CompetitionBook.WT_RightHeader,Women,Femmes - Women,,,Kvinder,Femenino,Женщины,Damer
+CompetitionBook.WT_LeftHeader,Team Ranking (Total),Classement par équipes (Total),Classement par équipes (Total) - Team Ranking (Total),,Hold Placering (Total),Clasificación por equipos (Total),Командный рейтинг (сумма),Förenings rankning (Total)
+CompetitionBook.WT_RightHeader,Women,Femmes,Femmes - Women,,Kvinder,Femenino,Женщины,Damer
 CompetitionBook.WXT,Women - Custom Score,Femmes - Pointage Spécial,,,Kvinder - Speciel Score,Femenino - Puntuación Personalizada,Женщины - Пользовательские очки,Damer anpassad poäng
-CompetitionBook.WXT_LeftHeader,Team  Ranking (Custom),Classement par équipes (Spécial) - Team Ranking (Custom),,,Hold Placering (Speciel),Puntuación por equipos (Personalizado),Командный рейтинг (пользовательский),Förenings rankning (Anpassad)
-CompetitionBook.WXT_RightHeader,Women,Femmes - Women,,,Kvinder,Femenino,Женщины,Damer
+CompetitionBook.WXT_LeftHeader,Team  Ranking (Custom),Classement par équipes (Spécial),Classement par équipes (Spécial) - Team Ranking (Custom),,Hold Placering (Speciel),Puntuación por equipos (Personalizado),Командный рейтинг (пользовательский),Förenings rankning (Anpassad)
+CompetitionBook.WXT_RightHeader,Women,Femmes,Femmes - Women,,Kvinder,Femenino,Женщины,Damer
 CompetitionDocuments_description,<li><b>{0}</b>: Produce printable documents for each group and the final results package.</li>,<li><b>{0}</b>: Produire les résultats imprimables pour chaque groupe et le cahier de compétition .</li>,,,<li><b>{0}</b>: Dan print for hver enkelt gruppe og samlet resultat pakke.</li>,<li><b>{0}</b>: Produce printable documents for each group and the final results package.</li>,<li><b>{0}</b>: Подготовьте документы для печати для каждого из потоков и пакет итоговых результатов</li>,<li><b>{0}</b>: Skapa utskrivbara dokument för varje grupp och det slutliga resultatpaketet.</li>
 CompetitionInformation,Competition Information,Informations sur la compétition,,,Stævneinformation,Información de la competición,Информация о соревновании,Tävlnings information
 CompetitionPlatform,Competition Platform,Plateau de compétition,,,Stævne platform,Competition Platform,Помост,Tävlings plattform
@@ -226,9 +226,6 @@ LicenseUsed,This software is made available under the <a href='https://opensourc
 LiftsCleared,Lifts cleared,Les essais ont été effacés,,,Løft slettet,Lifts cleared,Попытки сброшены,Lyft klara
 LocalComputer,\u0020(on the computer running the owlcms program),\u0020(sur l'ordinateur où owlcms s'exécute),,,\u0020(på computeren der afvikler owlcms programmet),\u0020(on the computer running the owlcms program),\u0020(на компьютере на котором запущена система owlcms),\u0020(på datorn som driver owlcms programmet)
 Locale,Locale,Locale,,,Locale,Locale,Локаль,Locale
-Locale.defaultCountry,US,US,,,US,US,RU,SV
-Locale.defaultLanguage,en,en,,,en,en,ru,se
-Locale.languageCode,en,fr,,,da,es,ru,se
 Log_In,Log in,Identification,,,Log in,Log in,Логин,Logga in
 Login,Login,Identification,,,Login,Login,Логин,Logga in
 LoginDenied,Incorrect Access Information Provided.,Information d'accès incorrecte,,,Incorrect Access Information Provided.,Incorrect Access Information Provided.,Доступ запрещен,Felaktig access information försedd
@@ -255,8 +252,8 @@ OWLCMS_Preparation,OWLCMS - Preparation,OWLCMS - Préparation,,,OWLCMS - Forbere
 OWLCMS_Results,OWLCMS - Results,OWLCMS - Résultats,,,OWLCMS - Resultater,OWLCMS - Results,OWLCMS - Результаты,OWLCMS - Resultat
 OwlcmsBuild,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),,,OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),OWLCMS v{0} ({1}),OWLCMS v{0} ({1})
 PauseCountdown,Pause Break Countdown Timer,Stopper le chrono de pause,,,Pause Countdown Timer,Pause Break Countdown Timer,Остановить таймер,Paus klocka
-Plates,Plates,Plaques,,,Skiver,Pesas,Диски,Viktskivor
-PlatesDisplay,Plates Display,Plaques,,,Skive display,Plates Display,Диски,Viktskivor Skärm
+Plates,Plates,Plaques,,Disques,Skiver,Pesas,Диски,Viktskivor
+PlatesDisplay,Plates Display,Plaques,,Disques,Skive display,Plates Display,Диски,Viktskivor Skärm
 Platform,Platform,Plateau,,,Platform,Tarima,Помост,Plattform
 PlatformName,Platform Name,Nom de la plateforme,,,Platform Navn,Nombre de la tarima,Название помоста,Plattforms namn
 PleaseFix,Please fix the errors and try again.,Veuillez corriger les erreurs et réessayer.,,,Ret venligst fejlene og prøv igen,Por favor corrija los errores e intente nuevamente,"Пожалуйста, исправьте ошибки и попробуйте снова.",Rätta till felen och försök igen
@@ -322,7 +319,7 @@ Scoreboard.Start,Start,Départ,Départ<div class='english'>Start</div>,,Start,,�
 Scoreboard.Team,Team,Équipe,Équipe<div class='english'>Team</div>,,Hold,Equipo,Команда,Förening
 Scoreboard.TopSinclair,Top Sinclair,Meilleurs Sinclair,,,Top Sinclair,Top Sinclair,Результаты (Синклер),Bästa Sinclair
 Scoreboard.TopSinclairMen,Top Sinclair &ndash; Men,Meilleurs Sinclair &ndash; Hommes,,,Top Sinclair &ndash; Mænd,Top Sinclair &ndash; Men,Синклер &ndash; Мужчины,Bästa Sinclair &ndash; Herrar
-Scoreboard.TopSinclairWomen,Top Sinclair &ndash; Women,Meilleurs Sinclair &ndash; Women,,,Top Sinclair &ndash; Kvinder,Top Sinclair &ndash; Women,Синклер &ndash; Женщины,BästaSinclair &ndash; Damer
+Scoreboard.TopSinclairWomen,Top Sinclair &ndash; Women,Meilleurs Sinclair &ndash; Femme,,,Top Sinclair &ndash; Kvinder,Top Sinclair &ndash; Women,Синклер &ndash; Женщины,BästaSinclair &ndash; Damer
 Scoreboard.Total,Total,Total,Total,,Tokamp,Total,Сумма,Total
 Select_group_first,Please select a group first.,Il faut d'abord choisir un groupe.,,,Vælg en gruppe først.,"Por favor, selecciona primero una tanda.",Выберите поток.,Vänligen välj grupp först.
 SelectPlatform,Select Platform,Choisir la plateforme,,,Vælg platform,Select Platform,Выберите помост,Vald plattform
@@ -381,7 +378,7 @@ WeighIn,Weigh-In,Pesée,,,Indvejning,Pesaje,Взвешивание,Vägt in
 WeighIn_StartNumbers,Weigh-In and Start Numbers,Pesée et numéros de départ,,,Indvejning og Startnumre,Weigh-In and Start Numbers,Взвешивание и стартовые номера,Invägning och Start nummer
 WeighInTime,Weigh-in Time,Heure de pesée,,,Indvejningstidspunkt,Hora de pesaje,Время взвешивания,Vägt in Tid
 Weight_change_current_athlete,Weight change for current athlete<br>{0},Changement pour l''athlète courant<br>{0},,,Vægtændring for nuværende atlet<br>{0},Weight change for current athlete<br>{0},Перезаявка для {0},Vikt ändring för nuvarande atlet<br>{0}
-Weight_under_350,Weight should be between 0 and 350kg,Weight should be between 0 and 350kgment 350kg,,,Vægt skal være mellem 0 og 350 kg,Weight should be between 0 and 350kg,Вес должен быть между 0 и 350 кг,Vikten bör vara mellan 0 och 350 kg
+Weight_under_350,Weight should be between 0 and 350kg,Le poids doit être compris entre 0 et 350kg,,,Vægt skal være mellem 0 og 350 kg,Weight should be between 0 and 350kg,Вес должен быть между 0 и 350 кг,Vikten bör vara mellan 0 och 350 kg
 WeightLifted,Weight Lifted,Poids soulevé,,,Vægt løftet,Weight Lifted,Засчитанный вес,Vikt lyft
 Wired,\u0020(wired),\u0020(cablé),,,\u0020(kablet),\u0020(wired),\u0020(кабель),\u0020(wired)
 Wireless,\u0020(wireless),\u0020(sans fil),,,\u0020(wireless),\u0020(wireless),\u0020(беспроводной),\u0020(wireless)
@@ -421,14 +418,14 @@ BreakButton.Paused,Paused,En pause,,,Pause,Paused,Пауза,Pausad
 BreakButton.ToStartCaption,Countdown to start / Break Timer,Décompte avant début / Chrono de pause,,,Nedtælling til start / Break Timer,Countdown to start / Break Timer,Таймер до начала,Nedräkning till start / Paus Timer
 StartNumbersNotSet,Start numbers were not assigned. Use the Weigh-in page.,Les numéros de départ n'ont pas été attribués. Utiliser la page de pesée.,,,Startnumre er ikke tildelt. Brug Invejningssiden.,Los números de partida no han sido asignados. Utilice la página de pesaje.,Стартовые номера не назначены. Используйте страницу взвешивания.,Startnummer tilldelas inte. Använd vägningssidan.
 Competition.mastersGenderEquality,Masters: use W75 and W80+ age groups,Masters: utiliser groupes d'âge W75 et W80+,,,Masters: Brug aldersgrupper W75 og W80+,Masters: use los grupos de edad W75 y W80+,Ветераны: используйте возрастные группы M/W75 и M/W80+,Masters: använd åldersgrupper W75 och W80+
-Division.DEFAULT,DEFAULT,PAR DEFAUT,PAR DÉFAUT,,DEFAULT,DEFAULT,DEFAULT (В.К. по умолчанию),DEFAULT
+Division.DEFAULT,DEFAULT,PAR DEFAUT,PAR DÉFAUT,PAR DEFAUT,DEFAULT,DEFAULT,DEFAULT (В.К. по умолчанию),DEFAULT
 Division.SENIOR,SENIOR,SENIOR,,SENIOR,SENIOR,SENIOR,SENIOR (21 год и старше),SENIOR
 Division.JUNIOR,JUNIOR,JUNIOR,,U20,JUNIOR,JUNIOR,JUNIOR (18-20 лет),JUNIOR
 Division.YOUTH,YOUTH,JEUNESSE,,U17,UNGDOM,YOUTH,YOUTH (13-17 лет),YOUTH
-Division.KIDS,KIDS,ENFANTS,,U13,BØRN,KIDS,KIDS (10-12 лет),KIDS
+Division.KIDS,KIDS,ENFANTS,,U15,BØRN,KIDS,KIDS (10-12 лет),KIDS
 Division.MASTERS,MASTERS,MASTERS,,,MASTERS,MASTERS,MASTERS (30 лет и старше),MASTERS
 Division.TRADITIONAL,TRADITIONAL,TRADITIONNEL,,,TRADITIONEL,TRADITIONAL,TRADITIONAL,TRADITIONAL
-Division.A,A,A,,,A,A,A,A
-Division.B,B,B,,,B,B,B,B
-Division.C,C,C,,,C,C,C,C
-Division.D,D,D,,,D,D,D,D
+Division.A,A,A,,U13,A,A,A,A
+Division.B,B,B,,U10,B,B,B,B
+Division.C,C,C,,A,C,C,C,C
+Division.D,D,D,,B,D,D,D,D
