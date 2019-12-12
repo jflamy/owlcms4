@@ -591,7 +591,9 @@
                         <executions>
                             <execution>
                                 <id>default-cli</id>
+                                <phase>none</phase>
                                 <configuration>
+                                    <skip>true</skip>
                                     <owner>jflamy</owner>
                                     <repository>owlcms4</repository>
                                     <server>github-oauth</server>
