@@ -214,6 +214,8 @@
                         <artifactId>gitflow-maven-plugin</artifactId>
                         <version>1.12.0</version>
                         <configuration>
+                            <productionBranch>master</productionBranch>
+                            <developmentBranch>support/4.2</developmentBranch>
                             <allowSnapshots>true</allowSnapshots>
                             <postReleaseGoals>github-release:github-release</postReleaseGoals>
                             <skipTag>false</skipTag><!-- github-release creates 
