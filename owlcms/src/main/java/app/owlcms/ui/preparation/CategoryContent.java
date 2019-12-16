@@ -28,7 +28,6 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
-import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -122,8 +121,8 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
         })).setHeader(getTranslation("Active")).setWidth("0");
         grid.addColumn(Category::getName).setHeader(getTranslation("Name"));
         grid.addColumn(new TextRenderer<Category>(
-                item -> getTranslation("Division." + item.getAgeDivision().name())))
-            .setHeader(getTranslation("AgeDivision"));
+                item -> getTranslation("AgeGroup." + item.getAgeGroup().getCode())))
+            .setHeader(getTranslation("AgeGroup"));
         grid.addColumn(Category::getGender).setHeader(getTranslation("Gender"));
         grid.addColumn(Category::getMinimumWeight).setHeader(getTranslation("MinimumWeight"));
         grid.addColumn(Category::getMaximumWeight).setHeader(getTranslation("MaximumWeight"));

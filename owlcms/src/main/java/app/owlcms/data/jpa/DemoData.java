@@ -53,16 +53,15 @@ public class DemoData {
         AthleteSorter.assignStartNumbers(athletes);
     }
 
-    protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit,
+    protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, Category categ,
             boolean masters, int min, int max, Gender gender) {
         int referenceYear = LocalDate.now().getYear();
         LocalDate baseDate = LocalDate.of(referenceYear, 12, 31);
 
-        String catName = gender.name().toLowerCase() + catLimit;
-        Category categ = CategoryRepository.doFindByName(catName, em);
         p.setCategory(categ);
         p.setBodyWeight(categ.getMaximumWeight() - nextDouble * 2.0);
 
+        Double catLimit = categ.getMaximumWeight();
         double sd = catLimit * (1 + (r.nextGaussian() / 10));
         long isd = Math.round(sd);
         p.setSnatch1Declaration(Long.toString(isd));
@@ -112,9 +111,11 @@ public class DemoData {
     }
 
     protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
-            Random r, int cat1, int cat2, int liftersToLoad, boolean masters, int min, int max, Gender gender) {
-        if (liftersToLoad < 1) liftersToLoad = 1;
-        
+            Random r, int cat1, int cat2, int liftersToLoad, boolean masters, int min, int max,
+            Gender gender) {
+        if (liftersToLoad < 1)
+            liftersToLoad = 1;
+
         for (int i = 0; i < liftersToLoad; i++) {
             Athlete p = new Athlete();
             try {
@@ -183,6 +184,12 @@ public class DemoData {
      */
     public static void insertInitialData(int nbAthletes, boolean masters) {
         startLogger.info("inserting demo data.{}", masters ? " (masters=true)" : "");
+//        JPAService.runInTransaction(em -> {
+//            AgeGroup ag = new AgeGroup("FO21", true, 21, 99, Gender.F, AgeDivision.DEFAULT);
+//            em.persist(ag);
+//            return null;
+//        });
+
         JPAService.runInTransaction(em -> {
             setupDemoData(em, nbAthletes, masters);
             return null;
@@ -212,11 +219,19 @@ public class DemoData {
         Random r = new Random(0);
         Random r2 = new Random(0);
 
-        createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, masters, (masters ? 35 : 18), (masters ? 45 : 32), Gender.M);
-        createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, masters, (masters ? 35 : 18), (masters ? 50 : 32), Gender.M);
-        createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad/2, masters, (masters ? 35 : 18), (masters ? 45 : 32), Gender.F);
-        createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad/4, masters, 13, 17, Gender.M);
-        createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad/4, masters, 13, 17, Gender.F);
+        if (masters) {
+            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, true, 35, 45, Gender.M);
+            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, true, 35, 50, Gender.M);
+            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, true, 35, 45, Gender.F);
+            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, true, 13, 17, Gender.M);
+            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, true, 13, 17, Gender.F);
+        } else {
+            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, false, 18, 32, Gender.M);
+            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, false, 18, 32, Gender.M);
+            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, false, 18, 32, Gender.F);
+            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, false, 13, 17, Gender.M);
+            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, false, 13, 17, Gender.F);
+        }
 
         drawLots(em);
 
@@ -291,10 +306,10 @@ public class DemoData {
 
         Group groupM2 = new Group("M2", w, c);
         groupM2.setPlatform(platform2);
-        
+
         Group groupF1 = new Group("F1", w, c);
         groupF1.setPlatform(platform1);
-        
+
         Group groupY1 = new Group("Y1", w, c);
         groupY1.setPlatform(platform2);
 

@@ -41,6 +41,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import app.owlcms.Main;
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
@@ -86,7 +87,7 @@ public class JPAService {
     protected static List<String> entityClassNames() {
         ImmutableList<String> vals = new ImmutableList.Builder<String>().add(Group.class.getName())
                 .add(Category.class.getName()).add(Athlete.class.getName()).add(Platform.class.getName())
-                .add(Competition.class.getName()).build();
+                .add(Competition.class.getName()).add(AgeGroup.class.getName()).build();
         return vals;
     }
 

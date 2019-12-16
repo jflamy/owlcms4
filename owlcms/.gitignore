@@ -4,3 +4,5 @@
 /logs/
 /node_modules/
 /webpack.generated.js
+/.apt_generated/
+/.apt_generated_tests/

@@ -7,25 +7,36 @@
 package app.owlcms.data.category;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 
 /**
  * Contains information regarding each competition category.
  *
- * A category is the combination of an age division and a weight class.
- * Categories also define information for the computation of Robi points Robi =
- * A x (total)^b where b = log(10)/log(2) (any logrithm base) A = 1000 / [
- * (WR)^b ] WR = World Record
+ * A category is the combination of an age group and a weight class.
+ * 
+ * Categories also define information for the computation of Robi points 
+ * 
+ * Robi = * A x (total)^b where b = log(10)/log(2) 
+ * 
+ * A = 1000 / [ (WR)^b ] WR = World Record
  *
  * @author owlcms
  *
@@ -36,6 +47,7 @@ import app.owlcms.data.athlete.Gender;
 public class Category implements Serializable, Comparable<Category> {
 
     private final static Double ROBI_B = 3.321928095;
+    private Double robiA = 0.0D;
 
     /** The id. */
     @Id
@@ -51,18 +63,19 @@ public class Category implements Serializable, Comparable<Category> {
     /** The maximum weight. */
     Double maximumWeight; // exclusive
 
-    @Enumerated(EnumType.STRING)
-    private AgeDivision ageDivision;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agegroup_id")
+    private AgeGroup ageGroup;
+
+    @ManyToMany(mappedBy = "eligibleCategories")
+    private List<Athlete> athletes = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    /** The active. */
     Boolean active;
 
     private Integer wr;
-
-    private Double robiA = 0.0D;
 
     /**
      * Instantiates a new category.
@@ -73,28 +86,24 @@ public class Category implements Serializable, Comparable<Category> {
     /**
      * Instantiates a new category.
      *
-     * @param minimumWeight   the minimum weight
-     * @param maximumWeight   the maximum weight
-     * @param enumGender      the enum gender
-     * @param active          the active
-     * @param enumAgeDivision the enum age division
-     * @param wr              the wr
+     * @param minimumWeight the minimum weight
+     * @param maximumWeight the maximum weight
+     * @param enumGender    the enum gender
+     * @param active        the active
+     * @param wr            the wr
+     * @param ageGroup TODO
      */
-    public Category(Double minimumWeight, Double maximumWeight, Gender enumGender, Boolean active,
-            AgeDivision enumAgeDivision, Integer wr) {
+    public Category(Double minimumWeight, Double maximumWeight, Gender enumGender, Boolean active, Integer wr, AgeGroup ageGroup) {
         this.setMinimumWeight(minimumWeight);
         this.setMaximumWeight(maximumWeight);
         this.setGender(enumGender);
-        this.setAgeDivision(enumAgeDivision);
         this.setActive(active);
+        this.setAgeGroup(ageGroup);
         this.setWr(wr);
         if (wr >= 0) {
             this.setRobiA(1000.0D / Math.pow(wr, ROBI_B));
         }
-
-//        this.setGender(gender.toString());
-//        this.setAgeDivision(ageDivision.getCode());
-        setCategoryName(minimumWeight, maximumWeight, enumGender, enumAgeDivision);
+        setCategoryName(minimumWeight, maximumWeight, enumGender, ageGroup);
     }
 
     /*
@@ -108,7 +117,7 @@ public class Category implements Serializable, Comparable<Category> {
             return 1; // we are greater than null;
         }
 
-        int compare = this.ageDivision.compareTo(o.getAgeDivision());
+        int compare = this.ageGroup.compareTo(o.getAgeGroup());
         if (compare != 0) {
             return compare;
         }
@@ -137,8 +146,9 @@ public class Category implements Serializable, Comparable<Category> {
             return false;
         }
         Category other = (Category) obj;
-        return Objects.equals(active, other.active) && ageDivision == other.ageDivision && gender == other.gender
-                && Objects.equals(id, other.id) && Objects.equals(maximumWeight, other.maximumWeight)
+        return Objects.equals(active, other.active) && Objects.equals(ageGroup, other.ageGroup)
+                && gender == other.gender && Objects.equals(id, other.id)
+                && Objects.equals(maximumWeight, other.maximumWeight)
                 && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
                 && Objects.equals(robiA, other.robiA) && Objects.equals(wr, other.wr);
     }
@@ -152,13 +162,12 @@ public class Category implements Serializable, Comparable<Category> {
         return active;
     }
 
-    /**
-     * Gets the age division.
-     *
-     * @return the age division
-     */
-    public AgeDivision getAgeDivision() {
-        return ageDivision;
+    public AgeGroup getAgeGroup() {
+        return ageGroup;
+    }
+
+    public List<Athlete> getAthletes() {
+        return athletes;
     }
 
     /**
@@ -241,7 +250,7 @@ public class Category implements Serializable, Comparable<Category> {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(active, ageDivision, gender, id, maximumWeight, minimumWeight, name, robiA, wr);
+        return Objects.hash(active, ageGroup, gender, id, maximumWeight, minimumWeight, name, robiA, wr);
     }
 
     /**
@@ -262,22 +271,19 @@ public class Category implements Serializable, Comparable<Category> {
         this.active = active;
     }
 
-    /**
-     * Sets the age division.
-     *
-     * @param enumAgeGroup2 the new age division
-     */
-    public void setAgeDivision(AgeDivision enumAgeGroup2) {
-        if (enumAgeGroup2 == null) {
-            this.ageDivision = AgeDivision.DEFAULT;
-        } else {
-            this.ageDivision = enumAgeGroup2;
+    public void setAgeGroup(AgeGroup ageGroup) {
+        this.ageGroup = ageGroup;
+    }
+
+    public void setAthletes(List<Athlete> athletes) {
+        for (Athlete a : athletes) {
+            // manage both sides of the relationship
+            a.addEligibleCategory(this);
         }
     }
 
-    private void setCategoryName(Double minimumWeight, Double maximumWeight, Gender enumGender,
-            AgeDivision enumAgeGroup) {
-        String catName = enumAgeGroup.getCode() + enumGender.toString();
+    private void setCategoryName(Double minimumWeight, Double maximumWeight, Gender enumGender, AgeGroup ageGroup) {
+        String catName = ageGroup.getCode() + " ";
         if (maximumWeight > 110) {
             catName = catName + ">" + (int) (Math.round(minimumWeight));
         } else {
@@ -346,12 +352,12 @@ public class Category implements Serializable, Comparable<Category> {
      * @return the string
      */
     public String shortDump() {
-        return name + "_" + active + "_" + gender + "_" + ageDivision;
+        return name + "_" + active + "_" + gender + "_" + ageGroup;
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override
