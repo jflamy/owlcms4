@@ -1,7 +1,5 @@
 * Release Highlights: 
-  * Fix: (Masters) the results screen used by the announcer to announce medals was not correctly sorting the results according to age groups (#250).  The same display now shows the age group (#248)
-  * Enhancement: added `fr_FR` translations for French federation usage (age group names, language usage) (#251)
-  * Experimental: for kids competitions using different bars for boys and girls, allow a non-standard lifting order (girls-snatch boys-snatch girls-c&j boys-c&j) to limit bar changes. This is currently enabled by setting the environment variable `OWLCMS_GENDERORDER=true` or adding <nobr>`-DgenderOrder=true`</nobr> to the startup flags (on the command line for Linux and Mac or, for Windows, in the `owlcms.l4j.ini` file) (#249).  This flag has no effect if all athletes in the group are of the same gender.
+  * Enhancement: added `de` translations for German, thanks to Martin Moreno (#253)
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc) and [Open Issues](https://github.com/jflamy/owlcms4/projects/1)
 
 - Installation Instructions :

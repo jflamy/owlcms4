@@ -8,5 +8,9 @@ git push origin ${project.version} --force
 git checkout develop
 git merge master
 git push --all
-# delete local branch
+# delete local and remote branch
 git branch -D release/${project.version}
+git push origin --delete release/${project.version}
+# keep the release tag!
+#git push origin :refs/tags/${project.version}
+
