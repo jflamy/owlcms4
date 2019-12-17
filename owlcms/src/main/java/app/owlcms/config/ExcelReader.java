@@ -103,7 +103,6 @@ public class ExcelReader {
                 case 1: {
                     String cellValue = dataFormatter.formatCellValue(cell);
                     ag.setAgeDivision(AgeDivision.getAgeDivisionFromCode(cellValue));
-                    //TODO error if null
                 }
                     break;
                 case 2: {

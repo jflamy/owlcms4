@@ -41,9 +41,10 @@ public class CategoryRepository {
      * @param active      active category
      * @return the int
      */
-    public static int countFiltered(String name, AgeDivision ageDivision, Gender gender, Boolean active) {
+    public static int countFiltered(String name, AgeDivision ageDivision, AgeGroup ageGroup, Gender gender, Integer age,
+            Double bodyWeight, Boolean active) {
         return JPAService.runInTransaction(em -> {
-            return doCountFiltered(name, ageDivision, gender, active, em);
+            return doCountFiltered(name, gender, ageDivision, ageGroup, age, bodyWeight, active, em);
         });
     }
 
@@ -59,13 +60,13 @@ public class CategoryRepository {
         });
     }
 
-    public static Integer doCountFiltered(String name, AgeDivision ageDivision, Gender gender, Boolean active,
-            EntityManager em) {
-        String selection = filteringSelection(name, ageDivision, gender, active);
+    public static Integer doCountFiltered(String name, Gender gender, AgeDivision ageDivision, AgeGroup ageGroup,
+            Integer age, Double bodyWeight, Boolean active, EntityManager em) {
+        String selection = filteringSelection(name, gender, ageDivision, ageGroup, age, bodyWeight, active);
         String qlString = "select count(c.id) from Category c " + selection;
         logger.trace("count = {}", qlString);
         Query query = em.createQuery(qlString);
-        setFilteringParameters(name, ageDivision, gender, true, query);
+        setFilteringParameters(name, gender, ageDivision, ageGroup, age, bodyWeight, true, query);
         int i = ((Long) query.getSingleResult()).intValue();
         return i;
     }
@@ -77,14 +78,15 @@ public class CategoryRepository {
         return (Category) query.getResultList().stream().findFirst().orElse(null);
     }
 
-    public static List<Category> doFindFiltered(EntityManager em, String name, AgeDivision ageDivision, Gender gender,
-            Boolean active, int offset, int limit) {
-        String qlString = "select c from Category c" + filteringSelection(name, ageDivision, gender, active)
-                + " order by c.name";
+    public static List<Category> doFindFiltered(EntityManager em, String name, Gender gender, AgeDivision ageDivision,
+            AgeGroup ageGroup, Integer age, Double bodyWeight, Boolean active, int offset, int limit) {
+        String qlString = "select c from Category c"
+                + filteringSelection(name, gender, ageDivision, ageGroup, age, bodyWeight, active)
+                + " order by c.ageGroup.ageDivision, c.ageGroup.minAge, c.ageGroup.maxAge, c.maximumWeight";
         logger.trace("query = {}", qlString);
-
+        
         Query query = em.createQuery(qlString);
-        setFilteringParameters(name, ageDivision, gender, active, query);
+        setFilteringParameters(name, gender, ageDivision, ageGroup, age, bodyWeight, active, query);
         if (offset >= 0) {
             query.setFirstResult(offset);
         }
@@ -96,17 +98,31 @@ public class CategoryRepository {
         return resultList;
     }
 
-    private static String filteringSelection(String name, AgeDivision ageDivision, Gender gender, Boolean active) {
-        String joins = null; // filteringJoins(group, category);
-        String where = filteringWhere(name, ageDivision, gender, active);
+    private static String filteringJoins(AgeGroup ag, Integer age) {
+        List<String> fromList = new LinkedList<>();
+        if (ag != null || age != null) {
+            fromList.add("join c.ageGroup ag"); // group is via a relationship, join on id
+        }
+        if (fromList.size() == 0) {
+            return "";
+        } else {
+            return String.join(" ", fromList);
+        }
+    }
+
+    private static String filteringSelection(String name, Gender gender, AgeDivision ageDivision, AgeGroup ageGroup,
+            Integer age, Double bodyWeight, Boolean active) {
+        String joins = filteringJoins(ageGroup, age);
+        String where = filteringWhere(name, ageDivision, ageGroup, age, bodyWeight, gender, active);
         String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
         return selection;
     }
 
-    private static String filteringWhere(String name, AgeDivision ageDivision, Gender gender, Boolean active) {
+    private static String filteringWhere(String name, AgeDivision ageDivision, AgeGroup ageGroup, Integer age,
+            Double bodyWeight, Gender gender, Boolean active) {
         List<String> whereList = new LinkedList<>();
         if (ageDivision != null) {
-            whereList.add("c.ageDivision = :division");
+            whereList.add("c.ageGroup.ageDivision = :division");
         }
         if (name != null && name.trim().length() > 0) {
             whereList.add("lower(c.name) like :name");
@@ -116,6 +132,19 @@ public class CategoryRepository {
         }
         if (gender != null) {
             whereList.add("c.gender = :gender");
+        }
+        // because there is exactly one ageGroup following could be done with
+        // c.ageGroup.id = :ageGroupId
+        if (ageGroup != null) {
+            whereList.add("ag.id = :ageGroupId"); // group is via a relationship, select the joined id.
+        }
+        // because there is exactly one ageGroup following could test on
+        // c.ageGroup.minAge and maxAge
+        if (age != null) {
+            whereList.add("(ag.minAge <= :age) and (ag.maxAge >= :age)");
+        }
+        if (bodyWeight != null) {
+            whereList.add("(c.minimumWeight < :bodyWeight) and (c.maximumWeight >= :bodyWeight)");
         }
         if (whereList.size() == 0) {
             return null;
@@ -129,16 +158,16 @@ public class CategoryRepository {
      */
     public static List<Category> findActive() {
         return JPAService.runInTransaction(em -> {
-            return doFindFiltered(em, null, null, null, true, -1, -1);
+            return doFindFiltered(em, null, null, null, null, null, null, true, -1, -1);
         });
     }
 
     /**
-     * @return active categories
+     * @return active categories for gender
      */
     public static List<Category> findActive(Gender gender) {
         return JPAService.runInTransaction(em -> {
-            return doFindFiltered(em, null, null, gender, true, -1, -1);
+            return doFindFiltered(em, null, gender, null, null, null, null, true, -1, -1);
         });
     }
 
@@ -186,11 +215,26 @@ public class CategoryRepository {
      * @param limit       the limit
      * @return the list
      */
-    public static List<Category> findFiltered(String name, AgeDivision ageDivision, Gender gender, Boolean active,
-            int offset, int limit) {
+    public static List<Category> findFiltered(String name, Gender gender, AgeDivision ageDivision, AgeGroup ageGroup,
+            Integer age, Double bodyWeight, Boolean active, int offset, int limit) {
         return JPAService.runInTransaction(em -> {
-            return doFindFiltered(em, name, ageDivision, gender, active, offset, limit);
+            List<Category> doFindFiltered = doFindFiltered(em, name, gender, ageDivision, ageGroup, age, bodyWeight, active, offset, limit);
+            logger.warn("found {} searching for {} {} {} {} {}", doFindFiltered.size(), gender, ageDivision, age, bodyWeight, active);
+            return doFindFiltered;
         });
+    }
+
+    public static List<Category> findByGenderDivisionAgeBW(Gender gender, AgeDivision ageDivision, Integer age,
+            Double bodyWeight) {
+        
+        List<Category> findFiltered = findFiltered((String)null, gender, ageDivision, (AgeGroup)null, age, bodyWeight, true, -1, -1);
+//        gender = null;
+//        ageDivision = null;
+//        age = (Integer) null;
+//        bodyWeight = (Double) null;
+//        Boolean active = null;
+//        List<Category> findFiltered = findFiltered((String)null, gender, ageDivision, (AgeGroup)null, age, bodyWeight, active, -1, -1);
+        return findFiltered;
     }
 
     /**
@@ -272,19 +316,18 @@ public class CategoryRepository {
      *
      * @param em
      */
-    @SuppressWarnings("unchecked")
     public static void insertStandardCategories(EntityManager em) {
         if (findAll().size() == 0) {
-            AgeGroup msr = new AgeGroup("MSR", true, 15, 99, Gender.M, AgeDivision.DEFAULT);
+            AgeGroup msr = new AgeGroup("SR", true, 15, 99, Gender.M, AgeDivision.DEFAULT);
             insertNewCategories(em, msr, Gender.M);
             em.persist(msr);
 
-            AgeGroup mjr = new AgeGroup("MJR", true, 15, 20, Gender.M, AgeDivision.DEFAULT);
-            insertYouthCategories(em, mjr, Gender.M);
+            AgeGroup mjr = new AgeGroup("JR", true, 15, 20, Gender.M, AgeDivision.DEFAULT);
+            insertNewCategories(em, mjr, Gender.M);
             em.persist(mjr);
-            
-            AgeGroup myth = new AgeGroup("MYTH", true, 13, 17, Gender.M, AgeDivision.DEFAULT);
-            insertKidsCategories(em, mjr, Gender.M);
+
+            AgeGroup myth = new AgeGroup("YTH", true, 13, 17, Gender.M, AgeDivision.DEFAULT);
+            insertYouthCategories(em, myth, Gender.M);
             em.persist(myth);
         }
     }
@@ -296,7 +339,7 @@ public class CategoryRepository {
      * @param curAG the cur AG
      */
     static void insertYouthCategories(EntityManager em, AgeGroup ag, Gender gender) {
-        boolean active = true;
+        boolean active = false;
         if (gender == Gender.F) {
             em.persist(new Category(0.0, 40.0, Gender.F, active, 0, ag));
             em.persist(new Category(40.0, 45.0, Gender.F, active, 0, ag));
@@ -332,24 +375,29 @@ public class CategoryRepository {
         return JPAService.runInTransaction(em -> em.merge(Category));
     }
 
-    private static void setFilteringParameters(String name, AgeDivision ageDivision, Gender gender, Boolean active,
-            Query query) {
+    private static void setFilteringParameters(String name, Gender gender, AgeDivision ageDivision, AgeGroup ageGroup,
+            Integer age, Double bodyWeight, Boolean active, Query query) {
+        // note -- active is not used, it is hard-coded in the where query.
         if (name != null && name.trim().length() > 0) {
             // starts with
             query.setParameter("name", "%" + name.toLowerCase() + "%");
         }
-//		if (active != null) {
-//			query.setParameter("active", active);
-//		}
+        if (ageGroup != null) {
+            // group is via a relationship, we join and select on id
+            query.setParameter("ageGroupId", ageGroup.getId());
+        }
+        if (age != null) {
+            query.setParameter("age", age);
+        }
+        if (bodyWeight != null) {
+            query.setParameter("bodyWeight", bodyWeight);
+        }
         if (ageDivision != null) {
             query.setParameter("division", ageDivision); // ageDivision is a string
         }
         if (gender != null) {
             query.setParameter("gender", gender);
         }
-//		if (group != null) {
-//			query.setParameter("groupId", group.getId()); // group is via a relationship, we join and select on id.
-//		}
     }
 
 }

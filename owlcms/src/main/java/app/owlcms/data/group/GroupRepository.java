@@ -39,8 +39,7 @@ public class GroupRepository {
         JPAService.runInTransaction(em -> {
             try {
                 // this is the only case where group needs to know its athletes, so we do a
-                // query
-                // instead of adding a relationship.
+                // query instead of adding a relationship.
                 Query aQ = em.createQuery("select a from Athlete a join a.group g where g.id = :groupId");
                 aQ.setParameter("groupId", groupe.getId());
                 @SuppressWarnings("unchecked")

@@ -164,9 +164,9 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                 GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
                 CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
-        crudFormFactory.setFieldProvider("ageDivision",
-                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
-                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
+//        crudFormFactory.setFieldProvider("ageDivision",
+//                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
+//                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
 
         crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
         crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);

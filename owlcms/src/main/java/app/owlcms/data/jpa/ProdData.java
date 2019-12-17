@@ -118,6 +118,10 @@ public class ProdData {
      */
     public static void insertInitialData(int nbAthletes) {
         JPAService.runInTransaction(em -> {
+            CategoryRepository.insertStandardCategories(em);
+            return null;
+        });
+        JPAService.runInTransaction(em -> {
             setupEmptyCompetition(em);
             return null;
         });

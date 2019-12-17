@@ -28,7 +28,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
-    
+
     boolean active;
 
     String code;
@@ -53,14 +53,11 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     public List<Category> getCategories() {
         // simpler to use a query; it is sufficient to call Category.setAgeGroup()
         // to manage the relationship.
-        return (List<Category>) JPAService.runInTransaction(em -> 
-            em.createQuery(
-                    "select c " +
-                    "from Category c " +
-                    "where c.ageGroup.id = :agId order by c.maximumWeight", Category.class)
-                .setParameter( "agId", this.getId())
-                .getResultList()
-        );
+        return (List<Category>) JPAService
+                .runInTransaction(em -> em
+                        .createQuery("select c " + "from Category c "
+                                + "where c.ageGroup.id = :agId order by c.maximumWeight", Category.class)
+                        .setParameter("agId", this.getId()).getResultList());
 
     }
 
@@ -89,8 +86,18 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     }
 
     public void setCategories(Set<Category> categories) {
-        //FIXME: use the category to connect to age group
+        for (Category category : categories) {
+            category.setAgeGroup(this);
+        }
     }
+
+//    public void addCategory(Category category) {
+//        if (category != null) category.setAgeGroup(this);
+//    }
+//    
+//    public void removeCategory(Category category) {
+//        if (category != null) category.setAgeGroup(null);
+//    }
 
     public void setCode(String code) {
         this.code = code;
@@ -110,17 +117,21 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     @Override
     public int compareTo(AgeGroup o) {
-        if (o == null) return 1; // we are bigger.
+        if (o == null)
+            return 1; // we are bigger.
         int compare = 0;
-        
+
         compare = ObjectUtils.compare(gender, o.getGender());
-        if (compare != 0) return compare;
+        if (compare != 0)
+            return compare;
         compare = ObjectUtils.compare(ageDivision, o.getAgeDivision());
-        if (compare != 0) return compare;
+        if (compare != 0)
+            return compare;
         compare = ObjectUtils.compare(minAge, o.getMinAge());
-        if (compare != 0) return compare;
+        if (compare != 0)
+            return compare;
         compare = ObjectUtils.compare(maxAge, o.getMaxAge());
-           
+
         return compare;
     }
 
@@ -133,6 +144,17 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         this.maxAge = maxAge;
         this.ageDivision = ageDivision;
         this.gender = gender;
+    }
+
+    public AgeGroup() {
+    }
+
+    public String getName() {
+        if (ageDivision == AgeDivision.MASTERS) {
+            return getCode();
+        } else {
+            return getCode() + " " +getGender();
+        }
     }
 
 }

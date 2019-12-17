@@ -7,6 +7,8 @@
 package app.owlcms.ui.preparation;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -25,9 +27,13 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.ui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -52,6 +58,7 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
     }
 
     private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
+    private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
     private TextField nameFilter = new TextField();
     private Checkbox activeFilter = new Checkbox();
     private OwlcmsRouterLayout routerLayout;
@@ -90,11 +97,29 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
      *                        information
      */
     protected void createFormLayout(OwlcmsCrudFormFactory<Category> crudFormFactory) {
-        crudFormFactory.setVisibleProperties("name", "ageDivision", "gender", "minimumWeight", "maximumWeight", "wr",
-                "active");
-        crudFormFactory.setFieldCaptions(getTranslation("Name"), getTranslation("AgeDivision"),
-                getTranslation("Gender"), getTranslation("MinimumWeight"), getTranslation("MaximumWeight"),
-                getTranslation("WorldRecord"), getTranslation("Active"));
+        List<String> props = new LinkedList<>();
+        List<String> captions = new LinkedList<>();
+
+        props.add("name");
+        captions.add(getTranslation("Name"));
+        props.add("ageGroup");
+        captions.add(getTranslation("AgeGroup"));
+        ;
+        props.add("gender");
+        captions.add(getTranslation("Gender"));
+        props.add("minimumWeight");
+        captions.add(getTranslation("MinimumWeight"));
+        props.add("maximumWeight");
+        captions.add(getTranslation("MaximumWeight"));
+        props.add("wr");
+        captions.add(getTranslation("WorldRecord"));
+        props.add("active");
+        captions.add(getTranslation("Active"));
+
+        crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
+        crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
+        crudFormFactory.setFieldProvider("ageGroup", new OwlcmsComboBoxProvider<>(getTranslation("AgeGroup"),
+                AgeGroupRepository.findAll(), new TextRenderer<>(AgeGroup::getName), AgeGroup::getName));
     }
 
     /**
@@ -121,8 +146,8 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
         })).setHeader(getTranslation("Active")).setWidth("0");
         grid.addColumn(Category::getName).setHeader(getTranslation("Name"));
         grid.addColumn(new TextRenderer<Category>(
-                item -> getTranslation("AgeGroup." + item.getAgeGroup().getCode())))
-            .setHeader(getTranslation("AgeGroup"));
+                item -> getTranslation("Division." + item.getAgeGroup().getAgeDivision().name())))
+                .setHeader(getTranslation("AgeDivision"));
         grid.addColumn(Category::getGender).setHeader(getTranslation("Gender"));
         grid.addColumn(Category::getMinimumWeight).setHeader(getTranslation("MinimumWeight"));
         grid.addColumn(Category::getMaximumWeight).setHeader(getTranslation("MaximumWeight"));
@@ -158,6 +183,16 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
         crud.getCrudLayout().addFilterComponent(ageDivisionFilter);
         crud.getCrudLayout().addToolbarComponent(new Label(""));
 
+        ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
+        ageGroupFilter.setItems(AgeGroupRepository.findAll());
+        ageGroupFilter.setItemLabelGenerator(AgeGroup::getName);
+        ageGroupFilter.setClearButtonVisible(true);
+        ageGroupFilter.addValueChangeListener(e -> {
+            crud.refreshGrid();
+        });
+        crud.getCrudLayout().addFilterComponent(ageGroupFilter);
+        crud.getCrudLayout().addToolbarComponent(new Label(""));
+
         activeFilter.addValueChangeListener(e -> {
             crud.refreshGrid();
         });
@@ -184,8 +219,8 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
      */
     @Override
     public Collection<Category> findAll() {
-        return CategoryRepository.findFiltered(nameFilter.getValue(), ageDivisionFilter.getValue(), null,
-                activeFilter.getValue(), -1, -1);
+        return CategoryRepository.findFiltered(nameFilter.getValue(), (Gender) null, ageDivisionFilter.getValue(),
+                ageGroupFilter.getValue(), (Integer) null, (Double) null, activeFilter.getValue(), -1, -1);
     }
 
     /**

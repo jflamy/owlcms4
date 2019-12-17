@@ -53,15 +53,14 @@ public class DemoData {
         AthleteSorter.assignStartNumbers(athletes);
     }
 
-    protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, Category categ,
-            boolean masters, int min, int max, Gender gender) {
+    protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catMax,
+            boolean masters, int minAge, int maxAge, Gender gender) {
         int referenceYear = LocalDate.now().getYear();
         LocalDate baseDate = LocalDate.of(referenceYear, 12, 31);
-
-        p.setCategory(categ);
-        p.setBodyWeight(categ.getMaximumWeight() - nextDouble * 2.0);
-
-        Double catLimit = categ.getMaximumWeight();
+        
+        Double catLimit = (double) catMax;
+        double bodyWeight = catLimit - (nextDouble * 2.0);
+        p.setBodyWeight(bodyWeight);
         double sd = catLimit * (1 + (r.nextGaussian() / 10));
         long isd = Math.round(sd);
         p.setSnatch1Declaration(Long.toString(isd));
@@ -78,13 +77,23 @@ public class DemoData {
         }
         p.setTeam(team);
         // compute a random number of weeks inside the age bracket
-        long weeksToSubtract = (long) ((min * 52) + Math.floor(r.nextDouble() * (max - min) * 52));
-        p.setFullBirthDate(baseDate.minusWeeks(weeksToSubtract));
-        // respect 20kg rule
-        p.setQualifyingTotal((int) (isd + icjd - 15));
+        long weeksToSubtract = (long) ((minAge * 52) + Math.floor(r.nextDouble() * (maxAge - minAge) * 52));
+        LocalDate fullBirthDate = baseDate.minusWeeks(weeksToSubtract);
+        p.setFullBirthDate(fullBirthDate);
+        int age = LocalDate.now().getYear() - fullBirthDate.getYear();
+        
         if (masters) {
             p.setAgeDivision(AgeDivision.MASTERS);
+        } else {
+            p.setAgeDivision(AgeDivision.DEFAULT);
         }
+        
+        List<Category> cat = CategoryRepository.findByGenderDivisionAgeBW(gender,p.getAgeDivision(),age,bodyWeight);
+        p.setCategory(cat.stream().findFirst().orElse(null));
+        
+        // respect 20kg rule
+        p.setQualifyingTotal((int) (isd + icjd - 15));
+
     }
 
     protected static Competition createDefaultCompetition(boolean masters) {
@@ -184,12 +193,11 @@ public class DemoData {
      */
     public static void insertInitialData(int nbAthletes, boolean masters) {
         startLogger.info("inserting demo data.{}", masters ? " (masters=true)" : "");
-//        JPAService.runInTransaction(em -> {
-//            AgeGroup ag = new AgeGroup("FO21", true, 21, 99, Gender.F, AgeDivision.DEFAULT);
-//            em.persist(ag);
-//            return null;
-//        });
-
+        JPAService.runInTransaction(em -> {
+            CategoryRepository.insertStandardCategories(em);
+            return null;
+        });
+        
         JPAService.runInTransaction(em -> {
             setupDemoData(em, nbAthletes, masters);
             return null;
@@ -290,8 +298,6 @@ public class DemoData {
      */
     protected static void setupDemoData(EntityManager em, int liftersToLoad, boolean masters) {
         Competition competition = createDefaultCompetition(masters);
-
-        CategoryRepository.insertStandardCategories(em);
 
         LocalDateTime w = LocalDateTime.now();
         LocalDateTime c = w.plusHours((long) 2.0);

@@ -55,7 +55,7 @@ public class Category implements Serializable, Comparable<Category> {
     Long id;
 
     /** The name. */
-    String name;
+    private String name;
 
     /** The minimum weight. */
     Double minimumWeight; // inclusive
@@ -63,7 +63,7 @@ public class Category implements Serializable, Comparable<Category> {
     /** The maximum weight. */
     Double maximumWeight; // exclusive
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER) // ok in this case
     @JoinColumn(name = "agegroup_id")
     private AgeGroup ageGroup;
 
@@ -90,8 +90,8 @@ public class Category implements Serializable, Comparable<Category> {
      * @param maximumWeight the maximum weight
      * @param enumGender    the enum gender
      * @param active        the active
-     * @param wr            the wr
-     * @param ageGroup TODO
+     * @param wr            the world record, for IWF Seniors
+     * @param ageGroup      the age group for the athlete
      */
     public Category(Double minimumWeight, Double maximumWeight, Gender enumGender, Boolean active, Integer wr, AgeGroup ageGroup) {
         this.setMinimumWeight(minimumWeight);
@@ -212,9 +212,15 @@ public class Category implements Serializable, Comparable<Category> {
      * @return the name
      */
     public String getName() {
-        return name;
+        String catName = ageGroup.getName() + " ";
+        if (maximumWeight > 110) {
+            catName = catName + ">" + (int) (Math.round(minimumWeight));
+        } else {
+            catName = catName + (int) (Math.round(maximumWeight));
+        }
+        return catName;
     }
-
+    
     /**
      * Gets the robi A.
      *
@@ -283,13 +289,13 @@ public class Category implements Serializable, Comparable<Category> {
     }
 
     private void setCategoryName(Double minimumWeight, Double maximumWeight, Gender enumGender, AgeGroup ageGroup) {
-        String catName = ageGroup.getCode() + " ";
+        String catName = ageGroup.getName() + " ";
         if (maximumWeight > 110) {
             catName = catName + ">" + (int) (Math.round(minimumWeight));
         } else {
             catName = catName + (int) (Math.round(maximumWeight));
         }
-        this.setName(catName);
+        //this.setName(catName);
     }
 
     /**
@@ -319,14 +325,14 @@ public class Category implements Serializable, Comparable<Category> {
         this.minimumWeight = minimumWeight;
     }
 
-    /**
-     * Sets the name.
-     *
-     * @param name the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
+//    /**
+//     * Sets the name.
+//     *
+//     * @param name the name to set
+//     */
+//    public void setName(String name) {
+//        this.name = name;
+//    }
 
     /**
      * Sets the robi A.
@@ -362,6 +368,6 @@ public class Category implements Serializable, Comparable<Category> {
      */
     @Override
     public String toString() {
-        return name;
+        return getName();
     }
 }
