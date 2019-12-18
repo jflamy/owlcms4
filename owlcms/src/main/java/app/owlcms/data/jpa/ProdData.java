@@ -17,6 +17,7 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -117,6 +118,10 @@ public class ProdData {
      * @param nbAthletes how many athletes
      */
     public static void insertInitialData(int nbAthletes) {
+        JPAService.runInTransaction(em -> {
+            AgeGroupRepository.insertStandardAgeGroups(em);
+            return null;
+        });
         JPAService.runInTransaction(em -> {
             CategoryRepository.insertStandardCategories(em);
             return null;

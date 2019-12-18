@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.competition.Competition;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -72,26 +71,14 @@ public class AthleteSorter implements Serializable {
      */
     public static void assignCategoryRanks(List<Athlete> sortedList, Ranking rankingType) {
         Category prevCategory = null;
-        Integer prevAgeGroup = null;
-        Integer curAgeGroup = null;
 
         int rank = 1;
         for (Athlete curLifter : sortedList) {
             Category curCategory = curLifter.getCategory();
-            if (Competition.getCurrent().isMasters()) {
-                curAgeGroup = curLifter.getAgeGroup();
-                if (!equals(curCategory, prevCategory) || !equals(curAgeGroup, prevAgeGroup)) {
-                    // category boundary has been crossed
-                    logger.trace("age+category boundary crossed {} {}", curAgeGroup, curCategory);
-                    rank = 1;
-                }
-            } else {
-                // not masters, only consider category boundary
-                if (!equals(curCategory, prevCategory)) {
-                    // category boundary has been crossed
-                    logger.trace("category boundary crossed {}", curCategory);
-                    rank = 1;
-                }
+            if (!equals(curCategory, prevCategory)) {
+                // category boundary has been crossed
+                logger.trace("category boundary crossed {}", curCategory);
+                rank = 1;
             }
 
             if (curLifter.isInvited() || !curLifter.getTeamMember()) {
@@ -120,7 +107,6 @@ public class AthleteSorter implements Serializable {
 
             }
             prevCategory = curCategory;
-            prevAgeGroup = curAgeGroup;
         }
     }
 
@@ -385,8 +371,8 @@ public class AthleteSorter implements Serializable {
     }
 
     /**
-     * Check that Athlete is one of the howMany previous athletes. The list of
-     * athletes is assumed to have been sorted with {@link #liftTimeOrderCopy}
+     * Check that Athlete is one of the howMany previous athletes. The list of athletes is assumed to have been sorted
+     * with {@link #liftTimeOrderCopy}
      *
      * @param Athlete       the athlete
      * @param sortedLifters the sorted lifters
@@ -408,8 +394,7 @@ public class AthleteSorter implements Serializable {
      * <li>Lowest weight goes first</li>
      * <li>At same weight, lower attempt goes first</li>
      * <li>At same weight and same attempt, whoever lifted first goes first</li>
-     * <li>At first attempt of each lift, lowest lot number goes first if same
-     * weight is requested</li>
+     * <li>At first attempt of each lift, lowest lot number goes first if same weight is requested</li>
      * </p>
      *
      * @param toBeSorted the to be sorted
@@ -477,8 +462,7 @@ public class AthleteSorter implements Serializable {
     }
 
     /**
-     * Sort athletes according to official rules (in place) for the technical
-     * meeting <tableToolbar>
+     * Sort athletes according to official rules (in place) for the technical meeting <tableToolbar>
      * <li>by registration category</li>
      * <li>by lot number</li> </tableToolbar>.
      *
@@ -492,8 +476,7 @@ public class AthleteSorter implements Serializable {
      * Sort athletes according to official rules, creating a new list.
      *
      * @param toBeSorted the to be sorted
-     * @return athletes, ordered according to their standard order for the technical
-     *         meeting
+     * @return athletes, ordered according to their standard order for the technical meeting
      * @see #liftingOrder(List)
      */
     static public List<Athlete> registrationOrderCopy(List<Athlete> toBeSorted) {
@@ -620,8 +603,7 @@ public class AthleteSorter implements Serializable {
     }
 
     /**
-     * Sort athletes according to official rules (in place) for the start number
-     * <tableToolbar>
+     * Sort athletes according to official rules (in place) for the start number <tableToolbar>
      * <li>by registration category</li>
      * <li>by lot number</li> </tableToolbar>.
      *

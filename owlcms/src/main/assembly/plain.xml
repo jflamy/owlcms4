@@ -21,6 +21,7 @@
 			<includes>
 				<include>i18n**/**</include>
 				<include>templates**/**</include>
+                <include>config**/**</include>
 			</includes>
 		</fileSet>		
 	</fileSets>

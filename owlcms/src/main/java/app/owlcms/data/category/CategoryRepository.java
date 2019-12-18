@@ -82,7 +82,7 @@ public class CategoryRepository {
             AgeGroup ageGroup, Integer age, Double bodyWeight, Boolean active, int offset, int limit) {
         String qlString = "select c from Category c"
                 + filteringSelection(name, gender, ageDivision, ageGroup, age, bodyWeight, active)
-                + " order by c.ageGroup.ageDivision, c.ageGroup.minAge, c.ageGroup.maxAge, c.maximumWeight";
+                + " order by c.ageGroup.ageDivision, c.gender, c.ageGroup.minAge, c.ageGroup.maxAge, c.ageGroup, c.maximumWeight";
         logger.trace("query = {}", qlString);
         
         Query query = em.createQuery(qlString);
@@ -219,7 +219,7 @@ public class CategoryRepository {
             Integer age, Double bodyWeight, Boolean active, int offset, int limit) {
         return JPAService.runInTransaction(em -> {
             List<Category> doFindFiltered = doFindFiltered(em, name, gender, ageDivision, ageGroup, age, bodyWeight, active, offset, limit);
-            logger.warn("found {} searching for {} {} {} {} {}", doFindFiltered.size(), gender, ageDivision, age, bodyWeight, active);
+            //logger.warn("found {} searching for {} {} {} {} {}", doFindFiltered.size(), gender, ageDivision, age, bodyWeight, active);
             return doFindFiltered;
         });
     }

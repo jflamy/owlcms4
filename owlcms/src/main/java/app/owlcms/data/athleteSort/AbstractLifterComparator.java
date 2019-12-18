@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
@@ -52,8 +53,8 @@ public class AbstractLifterComparator {
      * @return the int
      */
     int compareAgeGroup(Athlete lifter1, Athlete lifter2) {
-        Integer lifter1Value = lifter1.getAgeGroup();
-        Integer lifter2Value = lifter2.getAgeGroup();
+        AgeGroup lifter1Value = lifter1.getAgeGroup();
+        AgeGroup lifter2Value = lifter2.getAgeGroup();
         if (lifter1Value == null && lifter2Value == null) {
             return 0;
         }

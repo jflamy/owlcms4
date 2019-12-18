@@ -380,7 +380,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             HasValue<?, String> ageGroupField = (HasValue<?, String>) agBinding.get().getField();
             LocalDate date = dateField.getValue();
             if (gender != null && date != null) {
-                ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), date.getYear(), ageDivision));
+                ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), date.getYear()));
             } else {
                 ageGroupField.setValue("");
             }
@@ -398,7 +398,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                     new ValueContext(OwlcmsSession.getLocale()));
             yR.ifOk((year) -> {
                 if (gender != null && year != null) {
-                    ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), year, ageDivision));
+                    ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), year));
                 } else {
                     ageGroupField.setValue("");
                 }

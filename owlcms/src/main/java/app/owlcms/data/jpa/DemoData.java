@@ -20,7 +20,7 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.Main;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -42,7 +42,7 @@ public class DemoData {
 
     private static Logger logger = (Logger) LoggerFactory.getLogger(DemoData.class);
 
-    private static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
+//    private static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
     static {
         logger.setLevel(Level.INFO);
     }
@@ -82,13 +82,14 @@ public class DemoData {
         p.setFullBirthDate(fullBirthDate);
         int age = LocalDate.now().getYear() - fullBirthDate.getYear();
         
+        AgeDivision ageDivision;
         if (masters) {
-            p.setAgeDivision(AgeDivision.MASTERS);
+            ageDivision = AgeDivision.MASTERS;
         } else {
-            p.setAgeDivision(AgeDivision.DEFAULT);
+            ageDivision =  AgeDivision.DEFAULT;
         }
         
-        List<Category> cat = CategoryRepository.findByGenderDivisionAgeBW(gender,p.getAgeDivision(),age,bodyWeight);
+        List<Category> cat = CategoryRepository.findByGenderDivisionAgeBW(gender,ageDivision,age,bodyWeight);
         p.setCategory(cat.stream().findFirst().orElse(null));
         
         // respect 20kg rule
@@ -192,7 +193,11 @@ public class DemoData {
      * @param masters
      */
     public static void insertInitialData(int nbAthletes, boolean masters) {
-        startLogger.info("inserting demo data.{}", masters ? " (masters=true)" : "");
+        logger.info("inserting initial data");
+        JPAService.runInTransaction(em -> {
+            AgeGroupRepository.insertStandardAgeGroups(em);
+            return null;
+        });
         JPAService.runInTransaction(em -> {
             CategoryRepository.insertStandardCategories(em);
             return null;

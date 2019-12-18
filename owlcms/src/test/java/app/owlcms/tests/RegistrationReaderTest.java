@@ -34,52 +34,53 @@ import net.sf.jxls.reader.XLSReader;
 
 public class RegistrationReaderTest {
 
-	private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
-	final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationReaderTest.class);
-	
-	@BeforeClass
-	public static void setupTests() {
-		JPAService.init(true, true);
-		TestData.insertInitialData(5, true);
-	}
+    private static final String REGISTRATION_READER_SPEC = "/templates/registration/RegistrationReader.xml";
+    final static Logger logger = (Logger) LoggerFactory.getLogger(RegistrationReaderTest.class);
 
-	@AfterClass
-	public static void tearDownTests() {
-		JPAService.close();
-	}
+    @BeforeClass
+    public static void setupTests() {
+        JPAService.init(true, true);
+        TestData.insertInitialData(5, true);
+    }
 
-	@Test
-	public void test() throws IOException, SAXException, InvalidFormatException {
-		
-		String streamURI = "/testdata/registration.xls";
-		
-		try(InputStream xmlInputStream = this.getClass().getResourceAsStream(REGISTRATION_READER_SPEC)) {
+    @AfterClass
+    public static void tearDownTests() {
+        JPAService.close();
+    }
 
-			ReaderConfig.getInstance().setUseDefaultValuesForPrimitiveTypes(true);
-			XLSReader reader = ReaderBuilder.buildFromXML(xmlInputStream);
-			
-			try (InputStream xlsInputStream = this.getClass().getResourceAsStream(streamURI)) {
-				RCompetition c = new RCompetition();
-				List<RAthlete> athletes = new ArrayList<RAthlete>();
+    @Test
+    public void test() throws IOException, SAXException, InvalidFormatException {
 
-				Map<String, Object> beans = new HashMap<>();
-				beans.put("competition", c);
-				beans.put("athletes", athletes);
+        String streamURI = "/testdata/registration.xls";
 
-				logger.info("Reading the data...");
-				reader.read(xlsInputStream, beans);
-				
-				logger.info("Read " + athletes.size() + " athletes into `athletes` list");
+        try (InputStream xmlInputStream = this.getClass().getResourceAsStream(REGISTRATION_READER_SPEC)) {
 
-				List<Athlete> collect = athletes.stream().map(r -> r.getAthlete()).collect(Collectors.toList());
-				AllTests.assertEqualsToReferenceFile("/reg_results.txt", DebugUtils.longDump(collect));
-			} catch (XLSDataReadException e) {
-				Throwable cause = e.getCause();
-				Throwable cause2 = cause.getCause();
-				
-				logger.error("cannot read cell {}: {}", e.getCellName(), cause2 != null ? cause2.getLocalizedMessage() : cause.getLocalizedMessage());
-			}
-		}
-	}
+            ReaderConfig.getInstance().setUseDefaultValuesForPrimitiveTypes(true);
+            XLSReader reader = ReaderBuilder.buildFromXML(xmlInputStream);
+
+            try (InputStream xlsInputStream = this.getClass().getResourceAsStream(streamURI)) {
+                RCompetition c = new RCompetition();
+                List<RAthlete> athletes = new ArrayList<RAthlete>();
+
+                Map<String, Object> beans = new HashMap<>();
+                beans.put("competition", c);
+                beans.put("athletes", athletes);
+
+                logger.info("Reading the data...");
+                reader.read(xlsInputStream, beans);
+
+                logger.info("Read " + athletes.size() + " athletes into `athletes` list");
+
+                List<Athlete> collect = athletes.stream().map(r -> r.getAthlete()).collect(Collectors.toList());
+                AllTests.assertEqualsToReferenceFile("/reg_results.txt", DebugUtils.longDump(collect));
+            } catch (XLSDataReadException e) {
+                Throwable cause = e.getCause();
+                Throwable cause2 = (cause != null ? cause.getCause() : null);
+
+                logger.error("cannot read cell {}: {}", e.getCellName(), cause2 != null ? cause2.getLocalizedMessage()
+                        : (cause != null ? cause.getLocalizedMessage() : "Error"));
+            }
+        }
+    }
 
 }

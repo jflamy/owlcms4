@@ -43,6 +43,44 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    public AgeGroup() {
+    }
+
+    public AgeGroup(String code, boolean active, Integer minAge, Integer maxAge, Gender gender,
+            AgeDivision ageDivision) {
+        super();
+        this.active = active;
+        this.code = code;
+        this.minAge = minAge;
+        this.maxAge = maxAge;
+        this.ageDivision = ageDivision;
+        this.gender = gender;
+    }
+
+    @Override
+    public int compareTo(AgeGroup o) {
+        if (o == null) {
+            return 1; // we are bigger.
+        }
+        int compare = 0;
+
+        compare = ObjectUtils.compare(gender, o.getGender());
+        if (compare != 0) {
+            return compare;
+        }
+        compare = ObjectUtils.compare(ageDivision, o.getAgeDivision());
+        if (compare != 0) {
+            return compare;
+        }
+        compare = ObjectUtils.compare(minAge, o.getMinAge());
+        if (compare != 0) {
+            return compare;
+        }
+        compare = ObjectUtils.compare(maxAge, o.getMaxAge());
+
+        return compare;
+    }
+
     public AgeDivision getAgeDivision() {
         return ageDivision;
     }
@@ -53,7 +91,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     public List<Category> getCategories() {
         // simpler to use a query; it is sufficient to call Category.setAgeGroup()
         // to manage the relationship.
-        return (List<Category>) JPAService
+        return JPAService
                 .runInTransaction(em -> em
                         .createQuery("select c " + "from Category c "
                                 + "where c.ageGroup.id = :agId order by c.maximumWeight", Category.class)
@@ -81,6 +119,32 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         return minAge;
     }
 
+    public String getName() {
+        if (ageDivision == AgeDivision.MASTERS) {
+            return getCode();
+        } else if (ageDivision == AgeDivision.DEFAULT) {
+            return getGender().toString();
+        } else {
+            return getCode() + " " + getGender();
+        }
+    }
+
+//    public void addCategory(Category category) {
+//        if (category != null) category.setAgeGroup(this);
+//    }
+//
+//    public void removeCategory(Category category) {
+//        if (category != null) category.setAgeGroup(null);
+//    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     public void setAgeDivision(AgeDivision ageDivision) {
         this.ageDivision = ageDivision;
     }
@@ -90,14 +154,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
             category.setAgeGroup(this);
         }
     }
-
-//    public void addCategory(Category category) {
-//        if (category != null) category.setAgeGroup(this);
-//    }
-//    
-//    public void removeCategory(Category category) {
-//        if (category != null) category.setAgeGroup(null);
-//    }
 
     public void setCode(String code) {
         this.code = code;
@@ -113,48 +169,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     public void setMinAge(Integer minAge) {
         this.minAge = minAge;
-    }
-
-    @Override
-    public int compareTo(AgeGroup o) {
-        if (o == null)
-            return 1; // we are bigger.
-        int compare = 0;
-
-        compare = ObjectUtils.compare(gender, o.getGender());
-        if (compare != 0)
-            return compare;
-        compare = ObjectUtils.compare(ageDivision, o.getAgeDivision());
-        if (compare != 0)
-            return compare;
-        compare = ObjectUtils.compare(minAge, o.getMinAge());
-        if (compare != 0)
-            return compare;
-        compare = ObjectUtils.compare(maxAge, o.getMaxAge());
-
-        return compare;
-    }
-
-    public AgeGroup(String code, boolean active, Integer minAge, Integer maxAge, Gender gender,
-            AgeDivision ageDivision) {
-        super();
-        this.active = active;
-        this.code = code;
-        this.minAge = minAge;
-        this.maxAge = maxAge;
-        this.ageDivision = ageDivision;
-        this.gender = gender;
-    }
-
-    public AgeGroup() {
-    }
-
-    public String getName() {
-        if (ageDivision == AgeDivision.MASTERS) {
-            return getCode();
-        } else {
-            return getCode() + " " +getGender();
-        }
     }
 
 }

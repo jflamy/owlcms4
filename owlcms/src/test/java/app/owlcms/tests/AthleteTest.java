@@ -8,8 +8,6 @@ package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Calendar;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,7 +16,6 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.competition.Competition;
 
 public class AthleteTest {
 
@@ -140,27 +137,5 @@ public class AthleteTest {
         assertEquals("total with full bomb out", 0, (long) athlete.getTotal());
     }
 
-    @Test
-    public void ageGroup() {
-        Competition.setCurrent(new Competition());
-        Competition.getCurrent().setMasters(true);
-        int thisYear = Calendar.getInstance().get(Calendar.YEAR);
-        assertEquals(80, (long) athlete.getAgeGroup());
-        athlete.setYearOfBirth(thisYear - 40);
-        assertEquals(40, (long) athlete.getAgeGroup());
-        athlete.setYearOfBirth(thisYear - 39);
-        assertEquals(35, (long) athlete.getAgeGroup());
-        athlete.setYearOfBirth(thisYear - 41);
-        assertEquals(40, (long) athlete.getAgeGroup());
-        athlete.setYearOfBirth(thisYear - 86);
-        assertEquals(80, (long) athlete.getAgeGroup());
-        athlete.setGender(Gender.F);
-        assertEquals(70, (long) athlete.getAgeGroup());
-        athlete.setYearOfBirth(null);
-        assertEquals(70, (long) athlete.getAgeGroup());
-        athlete.setGender(null);
-        athlete.setYearOfBirth(1900);
-        assertEquals(70, (long) athlete.getAgeGroup());
-    }
 
 }

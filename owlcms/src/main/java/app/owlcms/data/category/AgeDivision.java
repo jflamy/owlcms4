@@ -9,23 +9,27 @@ package app.owlcms.data.category;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+
 /**
  * The Enum AgeDivision.
  */
 public enum AgeDivision {
 
-    DEFAULT,
-    SENIOR,
-    JUNIOR, /** 18-20 */
-    YOUTH, /** 13-17 */
-    KIDS, /** 0-12 */
+    DEFAULT, /* All ages */
+    IWF, 
+    U, /** for age groups */
     MASTERS, /** 35+ (30+ in some federations) */
-    TRADITIONAL, /** for competitions using the old categories */
     A, // custom divisions
     B,
     C,
     D;
 
+    @SuppressWarnings("unused")
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(AgeDivision.class);
+    
     /**
      * Find all.
      *
@@ -42,8 +46,9 @@ public enum AgeDivision {
      * @return the age division from code
      */
     static public AgeDivision getAgeDivisionFromCode(String code) {
+        if (code == null) return null;
         for (AgeDivision curAD : AgeDivision.values()) {
-            if (code.equals(curAD.getCode())) {
+            if (code.equalsIgnoreCase(curAD.name())) {
                 return curAD;
             }
         }

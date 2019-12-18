@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
@@ -40,23 +39,6 @@ public class RAthlete {
 
     public Athlete getAthlete() {
         return a;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see app.owlcms.data.athlete.Athlete#setAgeDivision(app.owlcms.data.category.
-     * AgeDivision)
-     */
-    public void setAgeDivision(String ageDivisionName) throws Exception {
-        if (ageDivisionName == null) {
-            return;
-        }
-        AgeDivision ageDivision = AgeDivision.getAgeDivisionFromCode(ageDivisionName);
-        if (ageDivision == null) {
-            throw new Exception("AgeDivision " + ageDivisionName + "is not defined.");
-        }
-        a.setAgeDivision(ageDivision);
     }
 
     /**

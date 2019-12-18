@@ -31,11 +31,11 @@ import app.owlcms.data.athlete.Gender;
  * Contains information regarding each competition category.
  *
  * A category is the combination of an age group and a weight class.
- * 
- * Categories also define information for the computation of Robi points 
- * 
- * Robi = * A x (total)^b where b = log(10)/log(2) 
- * 
+ *
+ * Categories also define information for the computation of Robi points
+ *
+ * Robi = * A x (total)^b where b = log(10)/log(2)
+ *
  * A = 1000 / [ (WR)^b ] WR = World Record
  *
  * @author owlcms
@@ -76,6 +76,7 @@ public class Category implements Serializable, Comparable<Category> {
     Boolean active;
 
     private Integer wr;
+    private String code;
 
     /**
      * Instantiates a new category.
@@ -93,7 +94,8 @@ public class Category implements Serializable, Comparable<Category> {
      * @param wr            the world record, for IWF Seniors
      * @param ageGroup      the age group for the athlete
      */
-    public Category(Double minimumWeight, Double maximumWeight, Gender enumGender, Boolean active, Integer wr, AgeGroup ageGroup) {
+    public Category(Double minimumWeight, Double maximumWeight, Gender enumGender, Boolean active, Integer wr,
+            AgeGroup ageGroup) {
         this.setMinimumWeight(minimumWeight);
         this.setMaximumWeight(maximumWeight);
         this.setGender(enumGender);
@@ -170,6 +172,10 @@ public class Category implements Serializable, Comparable<Category> {
         return athletes;
     }
 
+    public String getCode() {
+        return code;
+    }
+
     /**
      * Gets the gender.
      *
@@ -220,7 +226,7 @@ public class Category implements Serializable, Comparable<Category> {
         }
         return catName;
     }
-    
+
     /**
      * Gets the robi A.
      *
@@ -295,7 +301,11 @@ public class Category implements Serializable, Comparable<Category> {
         } else {
             catName = catName + (int) (Math.round(maximumWeight));
         }
-        //this.setName(catName);
+        // this.setName(catName);
+    }
+
+    public void setCode(String cellValue) {
+        this.code = cellValue;
     }
 
     /**
@@ -316,15 +326,6 @@ public class Category implements Serializable, Comparable<Category> {
         this.maximumWeight = maximumWeight;
     }
 
-    /**
-     * Sets the minimum weight.
-     *
-     * @param minimumWeight the minimumWeight to set
-     */
-    public void setMinimumWeight(Double minimumWeight) {
-        this.minimumWeight = minimumWeight;
-    }
-
 //    /**
 //     * Sets the name.
 //     *
@@ -333,6 +334,15 @@ public class Category implements Serializable, Comparable<Category> {
 //    public void setName(String name) {
 //        this.name = name;
 //    }
+
+    /**
+     * Sets the minimum weight.
+     *
+     * @param minimumWeight the minimumWeight to set
+     */
+    public void setMinimumWeight(Double minimumWeight) {
+        this.minimumWeight = minimumWeight;
+    }
 
     /**
      * Sets the robi A.
@@ -359,6 +369,14 @@ public class Category implements Serializable, Comparable<Category> {
      */
     public String shortDump() {
         return name + "_" + active + "_" + gender + "_" + ageGroup;
+    }
+    
+    
+
+    public String longDump() {
+        return "Category [robiA=" + robiA + ", id=" + id + ", name=" + getName() + ", minimumWeight=" + minimumWeight
+                + ", maximumWeight=" + maximumWeight + ", ageGroup=" + ageGroup + ", athletes=" + athletes + ", gender="
+                + gender + ", active=" + active + ", wr=" + wr + ", code=" + code + "]";
     }
 
     /*

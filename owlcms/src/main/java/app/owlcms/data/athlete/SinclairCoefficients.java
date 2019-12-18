@@ -65,7 +65,7 @@ public class SinclairCoefficients {
     private static void loadProps() {
         props = new Properties();
         try {
-            InputStream stream = SinclairCoefficients.class.getResourceAsStream("/sinclair.properties");
+            InputStream stream = SinclairCoefficients.class.getResourceAsStream("/config/sinclair.properties");
             props.load(stream);
             // props.list(System.err);
         } catch (IOException e) {

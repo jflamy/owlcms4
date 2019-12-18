@@ -28,11 +28,10 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 import app.owlcms.ui.shared.QueryParameterReader;
@@ -96,7 +95,7 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
 
         void setAgeDivision(String division);
 
-        void setAgeGroup(Integer ageGroup);
+        void setAgeGroup(String string);
 
         void setBirth(String birth);
 
@@ -180,17 +179,9 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
         model.setFullName(athlete.getFullName());
         model.setTeam(athlete.getTeam());
         model.setBodyWeight(String.format("%.2f", athlete.getBodyWeight()));
-        AgeDivision ageDivision = athlete.getAgeDivision();
-        if (ageDivision != null && ageDivision != AgeDivision.DEFAULT) {
-            model.setAgeDivision(getTranslation("AgeDivision." + ageDivision.name()));
-        } else {
-            model.setAgeDivision(null);
-        }
-        if (Competition.getCurrent().isMasters()) {
-            model.setAgeGroup(athlete.getAgeGroup());
-        } else {
-            model.setAgeGroup(null);
-        }
+        AgeGroup ageGroup = athlete.getAgeGroup();
+        model.setAgeGroup(ageGroup != null ? ageGroup.getName() : "");
+        model.setAgeDivision(ageGroup != null ? getTranslation("Division."+ageGroup.getAgeDivision().name()) : "");
         Integer yearOfBirth = athlete.getYearOfBirth();
         if (yearOfBirth != null && yearOfBirth > 1900) {
             model.setBirth(yearOfBirth.toString());

@@ -14,7 +14,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,7 +33,7 @@ import javax.persistence.Version;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.category.AgeDivision;
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -257,7 +256,6 @@ public class Athlete {
     private Gender gender = null; // $NON-NLS-1$
     private LocalDate fullBirthDate = null;
 
-    private AgeDivision ageDivision = null;
     private Double bodyWeight = null;
     private String membership = "";
 
@@ -454,57 +452,6 @@ public class Athlete {
         }
     }
 
-    private Integer doGetAgeGroup(Integer yob, AgeDivision ageDivision) {
-        if (yob == null) {
-            yob = 1900;
-        }
-        int ageGroup1;
-        int year1 = Calendar.getInstance().get(Calendar.YEAR);
-        final int age = year1 - yob;
-
-        if (age <= 12) {
-            ageGroup1 = 0;
-        } else if (age <= 17) {
-            ageGroup1 = 13;
-        } else if (age <= 20) {
-            ageGroup1 = 18;
-        } else {
-            boolean masters = Competition.getCurrent().isMasters();
-            if (age < 35) {
-                if (masters && ageDivision == AgeDivision.MASTERS) {
-                    // explicitly categorized as masters
-                    ageGroup1 = (int) (Math.ceil(age / 5) * 5);
-                } else {
-                    ageGroup1 = 21;
-                }
-            } else if (masters && age >= 35 && ageDivision == AgeDivision.SENIOR) {
-                // explicitly categorized as senior (masters in denial)
-                ageGroup1 = 21;
-            } else if (masters) {
-                // computing an age group for use on Masters-style display.
-                ageGroup1 = (int) (Math.ceil(age / 5) * 5);
-                boolean mastersGenderEquality = Competition.getCurrent().isMastersGenderEquality();
-                if (mastersGenderEquality) {
-                    if (ageGroup1 >= 80) {
-                        ageGroup1 = 80;
-                    }
-                } else {
-                    Gender gender2 = this.getGender();
-                    if (gender2 == null) {
-                        gender2 = Gender.F;
-                    }
-                    if (Gender.F == gender2 && ageGroup1 >= 70) { // $NON-NLS-1$
-                        ageGroup1 = 70;
-                    } else if (Gender.M == gender2 && ageGroup1 >= 80) { // $NON-NLS-1$
-                        ageGroup1 = 80;
-                    }
-                }
-            } else {
-                ageGroup1 = 21;
-            }
-        }
-        return ageGroup1;
-    }
 
     /**
      * @param Athlete
@@ -638,26 +585,15 @@ public class Athlete {
 
     }
 
-    private int getAge(Integer yob) {
-        if (yob == null) {
-            return 99;
-        }
-        return LocalDate.now().getYear() - yob;
-    }
-
-    public AgeDivision getAgeDivision() {
-        return ageDivision;
-    }
-
     /**
      * Gets the age group.
      *
      * @return the ageGroup. M80 if male missing birth date, F70 if female missing
      *         birth date or missing both gender and birth.
      */
-    public Integer getAgeGroup() {
-        Integer yob = this.getYearOfBirth();
-        return doGetAgeGroup(yob, this.getAgeDivision());
+    public AgeGroup getAgeGroup() {
+        Category cat = getCategory();
+        return (cat != null ? cat.getAgeGroup() : null);
     }
 
     /**
@@ -1493,48 +1429,16 @@ public class Athlete {
         }
         String gender1 = getGender().name();
         Integer yob = this.getYearOfBirth();
-        return getMastersAgeGroup(gender1, yob, getAgeDivision());
+        return getMastersAgeGroup(gender1, yob);
     }
 
     /**
      * @param gender1
      * @param yob
-     * @param ageDivision
      * @return
      */
-    public String getMastersAgeGroup(String gender1, Integer yob, AgeDivision ageDivision) {
-        // Under 35 need to be in Masters division for Masters rules to apply (e.g.
-        // Canada has M30 and W30 Masters)
-        // In an age-group championship, some athletes over 35 may want to compete as
-        // seniors
-        Competition competition = Competition.getCurrent();
-        int age = getAge(yob);
-        if (age < 30) {
-            // not a Masters meet, or not a Masters
-            return getRegularAgeGroup(gender1, yob);
-        } else if (competition.isMasters() && age < 35 && (ageDivision != AgeDivision.MASTERS)) {
-            // under 35, young master -- federation needs to mark as MASTERS explicitly
-            return getRegularAgeGroup(gender1, yob);
-        } else if (competition.isMasters() && age >= 35 && (ageDivision == AgeDivision.SENIOR)) {
-            // over 35 and in denial (competing as senior)
-            return getRegularAgeGroup(gender1, yob);
-        } else if (competition.isMasters()) {
-            // considered as masters
-            Integer ageGroup1;
-            ageGroup1 = doGetAgeGroup(yob, ageDivision);
-
-            String agePlus = "";
-            boolean mastersGenderEquality = Competition.getCurrent().isMastersGenderEquality();
-            if ((mastersGenderEquality || "M".equals(gender1)) && ageGroup1 == 80) {
-                agePlus = "+";
-            } else if ((!mastersGenderEquality && "F".equals(gender1)) && ageGroup1 == 70) {
-                agePlus = "+";
-            }
-            final String mastersAgeCategory = ("F".equals(gender1) ? "W" : "M") + ageGroup1 + agePlus;
-            return mastersAgeCategory;
-        } else {
-            return getRegularAgeGroup(gender1, yob);
-        }
+    public String getMastersAgeGroup(String gender1, Integer yob) {
+        return getAgeGroup().getName();
     }
 
     /**
@@ -1543,41 +1447,15 @@ public class Athlete {
      * @return the ageGroup
      */
     public String getMastersAgeGroupInterval() {
-        // Under 35 need to be in Masters division for Masters rules to apply (e.g.
-        // Canada has M30 and W30 Masters)
-        // In an age-group championship, some athletes over 35 may want to compete as
-        // seniors
-        Competition competition = Competition.getCurrent();
-        int age = getAge(getYearOfBirth());
-        if (age < 30) {
-            // not a Masters
-            return getRegularAgeGroupInterval(getGender(), getYearOfBirth());
-        } else if (competition.isMasters() && age < 35 && (ageDivision != AgeDivision.MASTERS)) {
-            // under 35 and not explicitly classified as a Masters
-            return getRegularAgeGroupInterval(getGender(), getYearOfBirth());
-        } else if (competition.isMasters() && age >= 35 && competition.isMasters()
-                && (ageDivision == AgeDivision.SENIOR)) {
-            // over 35 competing as senior
-            return getRegularAgeGroupInterval(getGender(), getYearOfBirth());
-        } else if (competition.isMasters()) {
-            // considered as Masters.
-            Integer ageGroup1 = getAgeGroup();
-            boolean mastersGenderEquality = Competition.getCurrent().isMastersGenderEquality();
-            if (mastersGenderEquality) {
-                if (ageGroup1 >= 80) {
-                    return "80+";
-                }
-            } else {
-                if (this.getGender() == Gender.F && ageGroup1 >= 70) { // $NON-NLS-1$
-                    return "70+";
-                }
-                if (this.getGender() == Gender.M && ageGroup1 >= 80) { // $NON-NLS-1$
-                    return "80+";
-                }
-            }
-            return ageGroup1 + "-" + (ageGroup1 + 4);
+        AgeGroup ag = getAgeGroup();
+        if (ag == null) return "";
+        
+        if (ag.getMinAge() == 0) {
+            return "<"+ag.getMaxAge();
+        } else if (ag.getMaxAge() == 99) {
+            return ">"+ag.getMinAge();
         } else {
-            return getRegularAgeGroupInterval(getGender(), getYearOfBirth());
+            return ag.getMinAge()+"-"+ag.getMaxAge();
         }
     }
 
@@ -1602,7 +1480,7 @@ public class Athlete {
     public String getMastersLongCategory() {
         String catString;
         String gender1 = getGender().name();
-        final String mastersAgeCategory = getMastersAgeGroup(gender1, this.getYearOfBirth(), AgeDivision.DEFAULT);
+        final String mastersAgeCategory = getMastersAgeGroup(gender1, this.getYearOfBirth());
         final String shortCategory = getShortCategory(gender1);
         catString = mastersAgeCategory + " " + shortCategory;
         return catString;
@@ -1616,7 +1494,7 @@ public class Athlete {
     public String getMastersLongRegistrationCategoryName() {
         String catString;
         String gender1 = getGender().name();
-        final String mastersAgeCategory = getMastersAgeGroup(gender1, this.getYearOfBirth(), AgeDivision.DEFAULT);
+        final String mastersAgeCategory = getMastersAgeGroup(gender1, this.getYearOfBirth());
         final String shortCategory = getShortRegistrationCategory(gender1);
         catString = mastersAgeCategory + " " + shortCategory;
         return catString;
@@ -1765,22 +1643,6 @@ public class Athlete {
         }
     }
 
-    private String getRegularAgeGroupInterval(Gender unused, Integer yob) {
-        if (yob == null) {
-            yob = 1900;
-        }
-        int year1 = Calendar.getInstance().get(Calendar.YEAR);
-        final int age = year1 - yob;
-        if (age < 13) {
-            return "0-12";
-        } else if (age < 17) {
-            return "13-17";
-        } else if (age <= 20) {
-            return "18-20";
-        } else {
-            return "21+";
-        }
-    }
 
     /**
      * Gets the requested weight for attempt.
@@ -2594,10 +2456,6 @@ public class Athlete {
 
     public void resetLoggerLevel() {
         logger.setLevel(NORMAL_LEVEL);
-    }
-
-    public void setAgeDivision(AgeDivision ageDivision) {
-        this.ageDivision = ageDivision;
     }
 
     /**

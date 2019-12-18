@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.LiftDefinition.Stage;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Logger;
@@ -73,19 +73,10 @@ public class XAthlete extends Athlete {
 
     /**
      * @return
-     * @see app.owlcms.data.athlete.Athlete#getAgeDivision()
-     */
-    @Override
-    public AgeDivision getAgeDivision() {
-        return a.getAgeDivision();
-    }
-
-    /**
-     * @return
      * @see app.owlcms.data.athlete.Athlete#getAgeGroup()
      */
     @Override
-    public Integer getAgeGroup() {
+    public AgeGroup getAgeGroup() {
         return a.getAgeGroup();
     }
 
@@ -701,8 +692,8 @@ public class XAthlete extends Athlete {
     }
 
     @Override
-    public String getMastersAgeGroup(String gender1, Integer yob, AgeDivision ageDivision) {
-        return a.getMastersAgeGroup(gender1, yob, AgeDivision.DEFAULT);
+    public String getMastersAgeGroup(String gender1, Integer yob) {
+        return a.getMastersAgeGroup(gender1, yob);
     }
 
     /**
@@ -1395,15 +1386,6 @@ public class XAthlete extends Athlete {
     @Override
     public void resetForcedAsCurrent() {
         a.resetForcedAsCurrent();
-    }
-
-    /**
-     * @param ageDivision
-     * @see app.owlcms.data.athlete.Athlete#setAgeDivision(app.owlcms.data.category.AgeDivision)
-     */
-    @Override
-    public void setAgeDivision(AgeDivision ageDivision) {
-        a.setAgeDivision(ageDivision);
     }
 
     /**
