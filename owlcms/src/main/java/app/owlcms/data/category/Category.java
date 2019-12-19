@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Cacheable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -73,7 +74,8 @@ public class Category implements Serializable, Comparable<Category> {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    Boolean active;
+    @Column(columnDefinition = "boolean default false")
+    private boolean active;
 
     private Integer wr;
     private String code;
@@ -370,13 +372,13 @@ public class Category implements Serializable, Comparable<Category> {
     public String shortDump() {
         return name + "_" + active + "_" + gender + "_" + ageGroup;
     }
-    
-    
 
     public String longDump() {
-        return "Category [robiA=" + robiA + ", id=" + id + ", name=" + getName() + ", minimumWeight=" + minimumWeight
-                + ", maximumWeight=" + maximumWeight + ", ageGroup=" + ageGroup + ", athletes=" + athletes + ", gender="
-                + gender + ", active=" + active + ", wr=" + wr + ", code=" + code + "]";
+        return "Category [name=" + getName() + ", active=" + active  + ", id=" + id
+                + ", minimumWeight=" + minimumWeight
+                + ", maximumWeight=" + maximumWeight + ", ageGroup=" + ageGroup.getName() + ", athletes=" + athletes
+                + ", gender="
+                + gender + ", wr=" + wr + ", code=" + code + ", robiA=" + robiA + "]";
     }
 
     /*

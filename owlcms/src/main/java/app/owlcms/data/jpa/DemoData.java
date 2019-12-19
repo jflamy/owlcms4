@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -54,7 +55,7 @@ public class DemoData {
     }
 
     protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catMax,
-            boolean masters, int minAge, int maxAge, Gender gender) {
+            AgeDivision ageDivision, int minAge, int maxAge, Gender gender) {
         int referenceYear = LocalDate.now().getYear();
         LocalDate baseDate = LocalDate.of(referenceYear, 12, 31);
         
@@ -82,14 +83,8 @@ public class DemoData {
         p.setFullBirthDate(fullBirthDate);
         int age = LocalDate.now().getYear() - fullBirthDate.getYear();
         
-        AgeDivision ageDivision;
-        if (masters) {
-            ageDivision = AgeDivision.MASTERS;
-        } else {
-            ageDivision =  AgeDivision.DEFAULT;
-        }
-        
         List<Category> cat = CategoryRepository.findByGenderDivisionAgeBW(gender,ageDivision,age,bodyWeight);
+        logger.warn("athlete {} matches {}",p.getFullName(),cat.stream().map(Category::getName).collect(Collectors.joining(", ")));
         p.setCategory(cat.stream().findFirst().orElse(null));
         
         // respect 20kg rule
@@ -121,7 +116,7 @@ public class DemoData {
     }
 
     protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
-            Random r, int cat1, int cat2, int liftersToLoad, boolean masters, int min, int max,
+            Random r, int cat1, int cat2, int liftersToLoad, AgeDivision ageDivision, int min, int max,
             Gender gender) {
         if (liftersToLoad < 1)
             liftersToLoad = 1;
@@ -136,9 +131,9 @@ public class DemoData {
                 p.setGender(gender);
                 double nextDouble = r.nextDouble();
                 if (nextDouble > 0.5F) {
-                    createAthlete(em, r, p, nextDouble, cat1, masters, min, max, gender);
+                    createAthlete(em, r, p, nextDouble, cat1, ageDivision, min, max, gender);
                 } else {
-                    createAthlete(em, r, p, nextDouble, cat2, masters, min, max, gender);
+                    createAthlete(em, r, p, nextDouble, cat2, ageDivision, min, max, gender);
                 }
                 em.persist(p);
             } catch (Exception e) {
@@ -195,13 +190,13 @@ public class DemoData {
     public static void insertInitialData(int nbAthletes, boolean masters) {
         logger.info("inserting initial data");
         JPAService.runInTransaction(em -> {
-            AgeGroupRepository.insertStandardAgeGroups(em);
+            AgeGroupRepository.insertStandardAgeGroups(em, masters);
             return null;
         });
-        JPAService.runInTransaction(em -> {
-            CategoryRepository.insertStandardCategories(em);
-            return null;
-        });
+//        JPAService.runInTransaction(em -> {
+//            CategoryRepository.insertStandardCategories(em);
+//            return null;
+//        });
         
         JPAService.runInTransaction(em -> {
             setupDemoData(em, nbAthletes, masters);
@@ -233,17 +228,17 @@ public class DemoData {
         Random r2 = new Random(0);
 
         if (masters) {
-            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, true, 35, 45, Gender.M);
-            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, true, 35, 50, Gender.M);
-            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, true, 35, 45, Gender.F);
-            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, true, 13, 17, Gender.M);
-            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, true, 13, 17, Gender.F);
+            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, AgeDivision.MASTERS, 35, 45, Gender.M);
+            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, AgeDivision.MASTERS, 35, 50, Gender.M);
+            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, AgeDivision.MASTERS, 35, 45, Gender.F);
+            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, AgeDivision.U, 13, 17, Gender.M);
+            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, AgeDivision.U, 13, 17, Gender.F);
         } else {
-            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, false, 18, 32, Gender.M);
-            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, false, 18, 32, Gender.M);
-            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, false, 18, 32, Gender.F);
-            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, false, 13, 17, Gender.M);
-            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, false, 13, 17, Gender.F);
+            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, AgeDivision.IWF, 18, 32, Gender.M);
+            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, AgeDivision.IWF, 18, 32, Gender.M);
+            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, AgeDivision.IWF, 18, 32, Gender.F);
+            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, AgeDivision.IWF, 13, 17, Gender.M);
+            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, AgeDivision.IWF, 13, 17, Gender.F);
         }
 
         drawLots(em);

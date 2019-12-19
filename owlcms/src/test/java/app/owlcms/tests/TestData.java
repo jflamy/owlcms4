@@ -14,8 +14,10 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -59,7 +61,10 @@ public class TestData {
 	 */
 	protected static void setupTestData(EntityManager em, int liftersToLoad) {
 		logger.info("inserting test data.");
-		CategoryRepository.insertStandardCategories(em);
+	    // needed because some classes such as Athlete refer to the current competition
+        Competition.setCurrent(new Competition());
+        
+		AgeGroupRepository.insertStandardAgeGroups(em, false);
 
 		LocalDateTime w = LocalDateTime.now();
 		LocalDateTime c = w.plusHours((long) 2.0);
@@ -81,9 +86,6 @@ public class TestData {
 		em.persist(groupA);
 		em.persist(groupB);
 		em.persist(groupC);
-		
-		// needed because some classes such as Athlete refer to the current competition
-		Competition.setCurrent(new Competition());
 	}
 
 	public static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
@@ -129,8 +131,13 @@ public class TestData {
 
 	protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit) {
 		p.setBodyWeight(81 - nextDouble);
-		Category categ = CategoryRepository.doFindByName("m" + catLimit, em);
+		Category categ = ((List<Category>)CategoryRepository.findByGenderAgeBW(Gender.M, 40, p.getBodyWeight())).get(0);
 		p.setCategory(categ);
+		try {
+            System.err.println("create athlete "+p.longDump());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 	}
 	
 	public static void deleteAllLifters(EntityManager em) {

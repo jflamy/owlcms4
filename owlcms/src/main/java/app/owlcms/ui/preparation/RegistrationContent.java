@@ -136,10 +136,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         }
         props.add("membership");
         captions.add(getTranslation("Membership"));
-        props.add("ageDivision");
-        captions.add(getTranslation("AgeDivision"));
-        props.add("mastersAgeGroup");
-        captions.add(getTranslation("AgeGroup"));
 
         props.add("bodyWeight");
         captions.add(getTranslation("BodyWeight"));
@@ -197,7 +193,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         grid.addColumn("team").setHeader(getTranslation("Team"));
         grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate"));
         grid.addColumn("gender").setHeader(getTranslation("Gender"));
-        grid.addColumn("ageDivision").setHeader(getTranslation("AgeDivision"));
+        grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup"));
         if (Competition.getCurrent().isMasters()) {
             grid.addColumn("mastersAgeGroup").setHeader(getTranslation("AgeGroup"));
         }

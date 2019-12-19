@@ -18,7 +18,6 @@ import javax.persistence.EntityManager;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
@@ -119,13 +118,13 @@ public class ProdData {
      */
     public static void insertInitialData(int nbAthletes) {
         JPAService.runInTransaction(em -> {
-            AgeGroupRepository.insertStandardAgeGroups(em);
+            AgeGroupRepository.insertStandardAgeGroups(em, false);
             return null;
         });
-        JPAService.runInTransaction(em -> {
-            CategoryRepository.insertStandardCategories(em);
-            return null;
-        });
+//        JPAService.runInTransaction(em -> {
+//            CategoryRepository.insertStandardCategories(em);
+//            return null;
+//        });
         JPAService.runInTransaction(em -> {
             setupEmptyCompetition(em);
             return null;
@@ -178,7 +177,6 @@ public class ProdData {
         Competition competition = createDefaultCompetition();
         em.persist(competition);
         Platform platform1 = new Platform("A");
-        CategoryRepository.insertStandardCategories(em);
         defaultPlates(platform1);
         setupCompetitionDocuments(competition, platform1);
 

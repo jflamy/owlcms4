@@ -10,6 +10,7 @@ import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -67,7 +68,6 @@ public class AthleteSorterTest {
 		assertEqualsToReferenceFile(resName, actual);
 	}
 
-	@SuppressWarnings("deprecation")
     @Test
 	public void liftSequence1() {
 		AthleteSorter.assignLotNumbers(athletes);
@@ -212,40 +212,28 @@ public class AthleteSorterTest {
 		// assertEqualsToReferenceFile("/seq1_medals_weighInCategories.txt",
 		// DebugUtils.longDump(athletes,false));
 
-		// now we force the athletes to be in different registration categories and check that
-		// useRegistrationCategories works)
-		// This is obsolete.
-        boolean reset = Competition.getCurrent().isUseRegistrationCategory();
+		// now we force the athletes to be in different categories 
+		Category resetCategory = simpsonR.getCategory();
 		try {
-			Competition.getCurrent().setUseRegistrationCategory(true);
+			Category registrationCategory1 = ((List<Category>) CategoryRepository.findByGenderAgeBW(resetCategory.getGender(), 40, resetCategory.getMaximumWeight()+1)).get(0);
 
-			Category registrationCategory0 = CategoryRepository.findAll().get(0);
-			Category registrationCategory1 = CategoryRepository.findAll().get(1);
-
-			schneiderF.setRegistrationCategory(registrationCategory0);
-			simpsonR.setRegistrationCategory(registrationCategory1);
-			allisonA.setRegistrationCategory(registrationCategory0);
-			verneU.setRegistrationCategory(registrationCategory1);
+			// change categories for simpson and verne
+			simpsonR.setCategory(registrationCategory1);
+			verneU.setCategory(registrationCategory1);
 			// and we sort again for medals. order should now be schneider allison simpson verne
 			Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
 			AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
 			assertEqualsToReferenceFile("/seq1_medals_registrationCategories.txt", DebugUtils.shortDump(athletes));
-			Competition.getCurrent().setUseRegistrationCategory(true);
 		} finally {
-			Competition.getCurrent().setUseRegistrationCategory(reset);
 		}
 
 		// back to the same category
 		// now we test that for same total a smaller cj breaks tie (since reached earlier)
-		reset = Competition.getCurrent().isUseRegistrationCategory();
 		try {
-			Competition.getCurrent().setUseRegistrationCategory(true);
-			Category registrationCategory0 = CategoryRepository.findAll().get(0);
-
-			schneiderF.setRegistrationCategory(registrationCategory0);
-			simpsonR.setRegistrationCategory(registrationCategory0);
-			allisonA.setRegistrationCategory(registrationCategory0);
-			verneU.setRegistrationCategory(registrationCategory0);
+			schneiderF.setCategory(resetCategory);
+			simpsonR.setCategory(resetCategory);
+			allisonA.setCategory(resetCategory);
+			verneU.setCategory(resetCategory);
 
 			// improve snatch
 			simpsonR.setSnatch3Declaration(Integer.toString(62));
@@ -260,17 +248,12 @@ public class AthleteSorterTest {
 			Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
 			AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
 			assertEqualsToReferenceFile("/seq1_medals_earlierTotal.txt", DebugUtils.longDump(athletes));
-			Competition.getCurrent().setUseRegistrationCategory(true);
 		} finally {
-			Competition.getCurrent().setUseRegistrationCategory(reset);
 		}
 
 		// back to the same category
 		// now we test that for same total a smaller cj breaks tie (since reached earlier)
-		reset = Competition.getCurrent().isUseRegistrationCategory();
 		try {
-			Competition.getCurrent().setUseRegistrationCategory(true);
-
 			// improve snatch
 			simpsonR.setSnatch3Declaration(Integer.toString(62));
 			simpsonR.setSnatch3ActualLift(Integer.toString(62));
@@ -291,16 +274,12 @@ public class AthleteSorterTest {
 			Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
 			AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
 			assertEqualsToReferenceFile("/seq1_medals_earlierTotal2.txt", DebugUtils.longDump(athletes));
-			Competition.getCurrent().setUseRegistrationCategory(true);
 		} finally {
-			Competition.getCurrent().setUseRegistrationCategory(reset);
 		}
 
 		// back to the same category
 		// now we test that for same total a smaller cj breaks tie (since reached earlier)
-		reset = Competition.getCurrent().isUseRegistrationCategory();
 		try {
-			Competition.getCurrent().setUseRegistrationCategory(true);
 
 			// replicate canadian masters bug
 			allisonA.setEligibleForTeamRanking(false);
@@ -347,9 +326,7 @@ public class AthleteSorterTest {
 			Collections.sort(athletes, new WinningOrderComparator(Ranking.TOTAL));
 			AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
 			assertEqualsToReferenceFile("/seq1_medals_earlierTotal3.txt", DebugUtils.longDump(athletes));
-			Competition.getCurrent().setUseRegistrationCategory(true);
 		} finally {
-			Competition.getCurrent().setUseRegistrationCategory(reset);
 		}
 	}
 

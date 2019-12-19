@@ -170,5 +170,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     public void setMinAge(Integer minAge) {
         this.minAge = minAge;
     }
+    
+    @Override
+    public String toString() {
+        return getName();
+    }
 
 }

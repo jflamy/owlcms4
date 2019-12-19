@@ -145,10 +145,6 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         }
         props.add("membership");
         captions.add(getTranslation("Membership"));
-        props.add("ageDivision");
-        captions.add(getTranslation("AgeDivision"));
-        props.add("mastersAgeGroup");
-        captions.add(getTranslation("AgeGroup"));
 
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
@@ -195,7 +191,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         grid.addColumn("lastName").setHeader(getTranslation("LastName"));
         grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
         grid.addColumn("team").setHeader(getTranslation("Team"));
-        grid.addColumn("ageDivision").setHeader(getTranslation("AgeDivision"));
+        grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup"));
         grid.addColumn("category").setHeader(getTranslation("Category"));
         grid.addColumn("group").setHeader(getTranslation("Group"));
         grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")

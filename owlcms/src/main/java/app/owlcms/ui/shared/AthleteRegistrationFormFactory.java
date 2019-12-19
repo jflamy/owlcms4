@@ -45,7 +45,6 @@ import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -104,39 +103,36 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             bindingBuilder.bind(property);
         } else if ("fullBirthDate".equals(property)) {
             validateFullBirthDate(bindingBuilder);
-            field.addValueChangeListener((e) -> {
-                AgeDivision ageDivision = getAgeDivisionFieldValue();
-                Gender gender = getGenderFieldValue();
-                setMastersAgeGroupFromFullBirthDate(gender, ageDivision);
-            });
+//            field.addValueChangeListener((e) -> {
+//                Gender gender = getGenderFieldValue();
+//                setAgeGroupFromFullBirthDate(gender);
+//            });
             bindingBuilder.bind(property);
         } else if ("yearOfBirth".equals(property)) {
             validateYearOfBirth(bindingBuilder);
             ((TextField) field).setValueChangeMode(ValueChangeMode.EAGER);
-            field.addValueChangeListener((event) -> {
-                Result<Integer> yR = yobConverter.convertToModel((String) event.getValue(),
-                        new ValueContext(OwlcmsSession.getLocale()));
-                yR.ifOk((r) -> {
-                    AgeDivision ageDivision = getAgeDivisionFieldValue();
-                    Gender gender = getGenderFieldValue();
-                    setMastersAgeGroupFromYearOfBirth(gender, ageDivision);
-                });
-            });
+//            field.addValueChangeListener((event) -> {
+//                Result<Integer> yR = yobConverter.convertToModel((String) event.getValue(),
+//                        new ValueContext(OwlcmsSession.getLocale()));
+//                yR.ifOk((r) -> {
+//                    Gender gender = getGenderFieldValue();
+//                    setAgeGroupFromYearOfBirth(gender);
+//                });
+//            });
             bindingBuilder.bind(property);
         } else if ("category".equals(property)) {
             validateCategory(bindingBuilder);
             bindingBuilder.bind(property);
         } else if ("gender".equals(property)) {
             validateGender(bindingBuilder);
-            field.addValueChangeListener((e) -> {
-                Gender gender = (Gender) e.getValue();
-                AgeDivision ageDivision = getAgeDivisionFieldValue();
-                if (Competition.getCurrent().isUseBirthYear()) {
-                    setMastersAgeGroupFromYearOfBirth(gender, ageDivision);
-                } else {
-                    setMastersAgeGroupFromFullBirthDate(gender, ageDivision);
-                }
-            });
+//            field.addValueChangeListener((e) -> {
+//                Gender gender = (Gender) e.getValue();
+//                if (Competition.getCurrent().isUseBirthYear()) {
+//                    setAgeGroupFromYearOfBirth(gender);
+//                } else {
+//                    setAgeGroupFromFullBirthDate(gender);
+//                }
+//            });
             bindingBuilder.bind(property);
         } else if (property.endsWith("snatch1Declaration")) {
             configure20kgWeightField(field);
@@ -160,17 +156,6 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
             bindingBuilder.withValidator(v2);
             bindingBuilder.withConverter(new StringToIntegerConverter(Translator.translate("InvalidIntegerValue")));
-            bindingBuilder.bind(property);
-        } else if ("ageDivision".equals(property)) {
-            field.addValueChangeListener((e) -> {
-                AgeDivision ageDivision = (AgeDivision) e.getValue();
-                Gender gender = getGenderFieldValue();
-                if (Competition.getCurrent().isUseBirthYear()) {
-                    setMastersAgeGroupFromYearOfBirth(gender, ageDivision);
-                } else {
-                    setMastersAgeGroupFromFullBirthDate(gender, ageDivision);
-                }
-            });
             bindingBuilder.bind(property);
         } else {
             super.bindField(field, property, propertyType);
@@ -295,27 +280,44 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
         Binding<Athlete, ?> bodyWeightBinding = binder.getBinding("bodyWeight").get();
         BodyWeightField bodyWeightField = (BodyWeightField) bodyWeightBinding.getField();
-        Double bodyWeight = bodyWeightField.getValue();
 
-        Collection<Category> allActive = CategoryRepository.findActive(genderField.getValue(), bodyWeight);
-        ListDataProvider<Category> listDataProvider = new ListDataProvider<>(allActive);
+        Collection<Category> allEligible = CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue());
+        ListDataProvider<Category> listDataProvider = new ListDataProvider<>(allEligible);
         listDataProvider.addSortOrder(Category::getMinimumWeight, SortDirection.ASCENDING);
         categoryField.setDataProvider(listDataProvider);
 
         genderField.addValueChangeListener((vc) -> {
             ListDataProvider<Category> listDataProvider2 = new ListDataProvider<>(
-                    CategoryRepository.findActive(genderField.getValue(), bodyWeightField.getValue()));
+                    CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue()));
             categoryField.setDataProvider(listDataProvider2);
         });
+        
+        //TODO: recompute on changed age
+        if (Competition.getCurrent().isUseBirthYear()) {
+            Optional<Binding<Athlete, ?>> yobBinding = binder.getBinding("yearOfBirth");
+            HasValue<?, String> yobField = (HasValue<?, String>) yobBinding.get().getField();
+            yobField.addValueChangeListener((vc) -> {
+                ListDataProvider<Category> listDataProvider2 = new ListDataProvider<>(
+                        CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue()));
+                categoryField.setDataProvider(listDataProvider2);
+            });
+        } else {
+            Optional<Binding<Athlete, ?>> fbdBinding = binder.getBinding("fullBirthDate");
+            HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
+            dateField.addValueChangeListener((vc) -> {
+                ListDataProvider<Category> listDataProvider2 = new ListDataProvider<>(
+                        CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue()));
+                categoryField.setDataProvider(listDataProvider2);
+            });
+        }
+
         bodyWeightField.addValueChangeListener((vc) -> {
             if (bodyWeightField.isInvalid()) {
                 return;
             }
             Category cat = categoryField.getValue();
-            Collection<Category> findActive = CategoryRepository.findActive(genderField.getValue(),
-                    bodyWeightField.getValue());
-            ListDataProvider<Category> listDataProvider2 = new ListDataProvider<>(findActive);
-            listDataProvider2.addSortOrder(Category::getMinimumWeight, SortDirection.ASCENDING);
+            Collection<Category> findActiveEligible = CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue());
+            ListDataProvider<Category> listDataProvider2 = new ListDataProvider<>(findActiveEligible);
             categoryField.setDataProvider(listDataProvider2);
             categoryField.setValue(cat);
         });
@@ -323,20 +325,38 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         categoryField.setValue(category);
     }
 
+    @SuppressWarnings("unchecked")
+    private Integer getAgeFromFields() {
+        Integer age = null;
+        if (Competition.getCurrent().isUseBirthYear()) {
+            Optional<Binding<Athlete, ?>> yobBinding = binder.getBinding("yearOfBirth");
+            HasValue<?, String> yobField = (HasValue<?, String>) yobBinding.get().getField();
+            Result<Integer> yR = yobConverter.convertToModel(yobField.getValue(),
+                    new ValueContext(OwlcmsSession.getLocale()));
+            try {
+                Integer yob = yR.getOrThrow((message) -> { return new Exception(message);});
+                age = (LocalDate.now().getYear()) - yob;
+            } catch (Exception e) {
+                age = null;
+            }
+        } else {
+            Optional<Binding<Athlete, ?>> fbdBinding = binder.getBinding("fullBirthDate");
+            HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
+            LocalDate date = dateField.getValue();
+            if (date != null) {
+                age = date.getYear() - (LocalDate.now().getYear());
+            }
+        }
+        return age;
+    }
+
     @Override
     public Collection<Athlete> findAll() {
         throw new UnsupportedOperationException(); // should be called on the grid, not on the form
     }
 
-    @SuppressWarnings("unchecked")
-    private AgeDivision getAgeDivisionFieldValue() {
-        HasValue<?, AgeDivision> ageDivisionField = (HasValue<?, AgeDivision>) binder.getBinding("ageDivision").get()
-                .getField();
-        AgeDivision ageDivision = ageDivisionField.getValue();
-        return ageDivision;
-    }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "unused" })
     private Gender getGenderFieldValue() {
         HasValue<?, Gender> genderField = (HasValue<?, Gender>) binder.getBinding("gender").get().getField();
         Gender gender = genderField.getValue();
@@ -371,41 +391,41 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         this.checkOther20kgFields = checkOther20kgFields;
     }
 
-    @SuppressWarnings("unchecked")
-    public void setMastersAgeGroupFromFullBirthDate(Gender gender, AgeDivision ageDivision) {
-        Optional<Binding<Athlete, ?>> fbdBinding = binder.getBinding("fullBirthDate");
-        HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
-        Optional<Binding<Athlete, ?>> agBinding = binder.getBinding("mastersAgeGroup");
-        if (agBinding.isPresent()) {
-            HasValue<?, String> ageGroupField = (HasValue<?, String>) agBinding.get().getField();
-            LocalDate date = dateField.getValue();
-            if (gender != null && date != null) {
-                ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), date.getYear()));
-            } else {
-                ageGroupField.setValue("");
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void setMastersAgeGroupFromYearOfBirth(Gender gender, AgeDivision ageDivision) {
-        Optional<Binding<Athlete, ?>> yobBinding = binder.getBinding("yearOfBirth");
-        HasValue<?, String> yobField = (HasValue<?, String>) yobBinding.get().getField();
-        Optional<Binding<Athlete, ?>> agBinding = binder.getBinding("mastersAgeGroup");
-        if (agBinding.isPresent()) {
-            HasValue<?, String> ageGroupField = (HasValue<?, String>) agBinding.get().getField();
-            Result<Integer> yR = yobConverter.convertToModel(yobField.getValue(),
-                    new ValueContext(OwlcmsSession.getLocale()));
-            yR.ifOk((year) -> {
-                if (gender != null && year != null) {
-                    ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), year));
-                } else {
-                    ageGroupField.setValue("");
-                }
-            });
-            yR.ifError((e) -> ageGroupField.setValue(""));
-        }
-    }
+//    @SuppressWarnings("unchecked")
+//    public void setAgeGroupFromFullBirthDate(Gender gender) {
+//        Optional<Binding<Athlete, ?>> fbdBinding = binder.getBinding("fullBirthDate");
+//        HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
+//        Optional<Binding<Athlete, ?>> agBinding = binder.getBinding("mastersAgeGroup");
+//        if (agBinding.isPresent()) {
+//            HasValue<?, String> ageGroupField = (HasValue<?, String>) agBinding.get().getField();
+//            LocalDate date = dateField.getValue();
+//            if (gender != null && date != null) {
+//                ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), date.getYear()));
+//            } else {
+//                ageGroupField.setValue("");
+//            }
+//        }
+//    }
+//
+//    @SuppressWarnings("unchecked")
+//    public void setAgeGroupFromYearOfBirth(Gender gender) {
+//        Optional<Binding<Athlete, ?>> yobBinding = binder.getBinding("yearOfBirth");
+//        HasValue<?, String> yobField = (HasValue<?, String>) yobBinding.get().getField();
+//        Optional<Binding<Athlete, ?>> agBinding = binder.getBinding("mastersAgeGroup");
+//        if (agBinding.isPresent()) {
+//            HasValue<?, String> ageGroupField = (HasValue<?, String>) agBinding.get().getField();
+//            Result<Integer> yR = yobConverter.convertToModel(yobField.getValue(),
+//                    new ValueContext(OwlcmsSession.getLocale()));
+//            yR.ifOk((year) -> {
+//                if (gender != null && year != null) {
+//                    ageGroupField.setValue(editedAthlete.getMastersAgeGroup(gender.name(), year));
+//                } else {
+//                    ageGroupField.setValue("");
+//                }
+//            });
+//            yR.ifError((e) -> ageGroupField.setValue(""));
+//        }
+//    }
 
 //    private void setMastersAgeGroupFromYOB(Integer year) {
 //        HasValue<?, ?> genderField = binder.getBinding("gender").get().getField();
@@ -504,6 +524,34 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             return true;
         }, Translator.translate("Category_no_match_body_weight"));
         bindingBuilder.withValidator(v1);
+        
+        // check that category is consistent with age
+        Validator<Category> v11 = Validator.from((category) -> {
+            try {
+                Binding<Athlete, ?> catBinding = binder.getBinding("category").get();
+                Category cat = (Category) catBinding.getField().getValue();;
+                Integer age = getAgeFromFields();
+                if (category == null && age == null) {
+                    logger.debug("1 category {} {} age {}", category, cat, age);
+                    return true;
+                } else if (age == null) {
+                    logger.debug("2 category {} {} age {}", category.getName(), cat, age);
+                    // no body weight - no contradiction
+                    return true;
+                } else if (age != null && category == null) {
+                    logger.debug("3 category {} {} age {}", category, cat, age);
+                    return false;
+                }
+                int min = category.getAgeGroup().getMinAge();
+                int max = category.getAgeGroup().getMaxAge();
+                logger.debug("comparing {} ]{},{}] with age {}", category.getName(), min, max, age);
+                return (age >= min && age <= max);
+            } catch (Exception e) {
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+            return true;
+        }, Translator.translate("Category_no_match_body_weight"));
+        bindingBuilder.withValidator(v11);
 
         // check that category is consistent with gender
         Validator<Category> v2 = Validator.from((category) -> {

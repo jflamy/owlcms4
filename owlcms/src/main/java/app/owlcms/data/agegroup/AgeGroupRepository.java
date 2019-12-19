@@ -43,7 +43,7 @@ public class AgeGroupRepository {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupRepository.class);
 
-    private static void createAgeGroups(Workbook workbook, Map<String, Category> templates) {
+    private static void createAgeGroups(Workbook workbook, Map<String, Category> templates, boolean masters) {
         DataFormatter dataFormatter = new DataFormatter();
         logger.warn("createAgeGroups");
 
@@ -69,7 +69,6 @@ public class AgeGroupRepository {
                     switch (iColumn) {
                     case 0: {
                         String cellValue = dataFormatter.formatCellValue(cell);
-                        logger.warn("processing {}", cellValue);
                         ag.setCode(cellValue.trim());
                     }
                         break;
@@ -99,15 +98,16 @@ public class AgeGroupRepository {
                         break;
                     case 6: {
                         String cellValue = dataFormatter.formatCellValue(cell);
-                        ag.setActive(cellValue != null ? "true".contentEquals(cellValue.toLowerCase()): false);
+                        boolean explicitlyActive = cellValue != null ? "true".contentEquals(cellValue.toLowerCase()): false;
+                        ag.setActive(masters ? (ag.getAgeDivision() == AgeDivision.MASTERS ||  ag.getAgeDivision() == AgeDivision.U) : explicitlyActive);
                     }
                         break;
                     default: {
                         String cellValue = dataFormatter.formatCellValue(cell);
                         Category cat = createCategoryFromTemplate(cellValue, ag, templates, curMin);
                         if (cat != null) {
-                            cat.longDump();
                             em.persist(cat);
+                            logger.warn(cat.longDump());
                             curMin = cat.getMaximumWeight();
                         }
                     }
@@ -136,7 +136,6 @@ public class AgeGroupRepository {
                 newCat.setCode(ag.getCode() + "_" + template.getCode());
                 newCat.setAgeGroup(ag);
                 newCat.setActive(ag.isActive());
-                logger.warn("created {}", newCat.longDump());
                 return newCat;
             } catch (IllegalAccessException | InvocationTargetException e) {
                 logger.error("cannot create category from template\n{}", LoggerUtils.stackTrace(e));
@@ -171,7 +170,7 @@ public class AgeGroupRepository {
                     String cellValue = dataFormatter.formatCellValue(cell);
                     c.setCode(cellValue.trim());
                     categoryMap.put(cellValue, c);
-                    logger.warn("creating template {}", cellValue);
+                    logger.trace("creating template {}", cellValue);
                 }
                     break;
                 case 1: {
@@ -260,11 +259,11 @@ public class AgeGroupRepository {
         return (AgeGroup) query.getResultList().stream().findFirst().orElse(null);
     }
 
-    public static void insertStandardAgeGroups(EntityManager em) {
+    public static void insertStandardAgeGroups(EntityManager em, boolean masters) {
         try {
             Workbook workbook = WorkbookFactory.create(ExcelReader.class.getResourceAsStream("/config/AgeGroups.xlsx"));
             Map<String, Category> templates = createCategoryTemplates(workbook);
-            createAgeGroups(workbook, templates);
+            createAgeGroups(workbook, templates, masters);
             workbook.close();
 
         } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
