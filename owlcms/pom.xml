@@ -5,7 +5,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.2.11-SNAPSHOT</version>
+        <version>4.2.11</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System</name>
@@ -486,24 +486,24 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
                 <executions>
-                    <!-- <execution> -->
-                    <!-- <id>windows_jdk_package</id> -->
-                    <!-- <phase>package</phase> -->
-                    <!-- <goals> -->
-                    <!-- <goal>exec</goal> -->
-                    <!-- </goals> -->
-                    <!-- <configuration> -->
-                    <!-- <executable>${innosetup.exe}</executable> -->
-                    <!-- <workingDirectory></workingDirectory> -->
-                    <!-- <arguments> -->
-                    <!-- <argument>/Q</argument> -->
-                    <!-- <argument>src\main\install\owlcms.iss</argument> -->
-                    <!-- </arguments> -->
-                    <!-- <environmentVariables> -->
-                    <!-- <versionNumber>${project.version}</versionNumber> -->
-                    <!-- </environmentVariables> -->
-                    <!-- </configuration> -->
-                    <!-- </execution> -->
+                    <execution>
+                        <id>windows_jdk_package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${innosetup.exe}</executable>
+                            <workingDirectory></workingDirectory>
+                            <arguments>
+                                <argument>/Q</argument>
+                                <argument>src\main\install\owlcms.iss</argument>
+                            </arguments>
+                            <environmentVariables>
+                                <versionNumber>${project.version}</versionNumber>
+                            </environmentVariables>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>default-cli</id>
                         <phase>verify</phase>
@@ -584,28 +584,28 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- <plugin> -->
-                    <!-- <groupId>net.jsign</groupId> -->
-                    <!-- <artifactId>jsign-maven-plugin</artifactId> -->
-                    <!-- <version>2.1</version> -->
-                    <!-- <executions> -->
-                    <!-- <execution> -->
-                    <!-- <goals> -->
-                    <!-- <goal>sign</goal> -->
-                    <!-- </goals> -->
-                    <!-- <phase>package</phase> -->
-                    <!-- <configuration> -->
-                    <!-- <file>target/owlcms_setup/owlcms_setup.exe</file> -->
-                    <!-- <name>owlcms</name> -->
-                    <!-- <url>http://jflamy.github.io/owlcms4</url> -->
-                    <!-- <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore> -->
-                    <!-- <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias> -->
-                    <!-- <storepass>${codeSigning}</storepass> -->
-                    <!-- <storetype>PKCS12</storetype> -->
-                    <!-- </configuration> -->
-                    <!-- </execution> -->
-                    <!-- </executions> -->
-                    <!-- </plugin> -->
+                    <plugin>
+                        <groupId>net.jsign</groupId>
+                        <artifactId>jsign-maven-plugin</artifactId>
+                        <version>2.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <file>target/owlcms_setup/owlcms_setup.exe</file>
+                                    <name>owlcms</name>
+                                    <url>http://jflamy.github.io/owlcms4</url>
+                                    <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
+                                    <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
+                                    <storepass>${codeSigning}</storepass>
+                                    <storetype>PKCS12</storetype>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
