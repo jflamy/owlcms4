@@ -492,15 +492,15 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void validateBodyWeight(Binder.BindingBuilder bindingBuilder, boolean isRequired) {
         Validator<Double> v1 = new DoubleRangeValidator(Translator.translate("Weight_under_350"), 0.1D, 350.0D);
-        // check wrt body category
-        Validator<Double> v2 = Validator.from((weight) -> {
-            return (!isRequired && weight == null) || (weight != null && weight > 0.0);
-            // no need to do further validation because changing body weight resets the
-            // filter
-            // category drop-down, which causes a validation of the category.
-        }, Translator.translate("BodyWeight_no_match_category"));
+//        // check wrt body category
+//        Validator<Double> v2 = Validator.from((weight) -> {
+//            return (!isRequired && weight == null) || (weight != null && weight > 0.0);
+//            // no need to do further validation because changing body weight resets the
+//            // filter
+//            // category drop-down, which causes a validation of the category.
+//        }, Translator.translate("BodyWeight_no_match_category"));
         bindingBuilder.withValidator(v1);
-        bindingBuilder.withValidator(v2);
+//        bindingBuilder.withValidator(v2);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
