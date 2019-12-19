@@ -1,5 +1,5 @@
 * Release Highlights: 
-  * Enhancement: added `de` translations for German, thanks to Martin Moreno (#253)
+  * Fix: the final results package could not be produced in v4.2.9 and v4.2.10; an update to the widely-used library used to create Excel files introduced an incompatible change which was undetected on the other types of result documents. (#254)
 - [Change Log](https://github.com/jflamy/owlcms4/issues?q=is%3Aissue+is%3Aclosed+sort%3Aupdated-desc) and [Open Issues](https://github.com/jflamy/owlcms4/projects/1)
 
 - Installation Instructions :

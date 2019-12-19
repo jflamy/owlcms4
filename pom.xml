@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.2.10</version>
+    <version>4.2.11</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -133,6 +133,11 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>3.1.1</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -193,8 +198,8 @@
                             <body>${project.version}</body>
                             <releaseNotes>ReleaseNotes.md</releaseNotes>
                             <assets>
-                                <!-- <asset>owlcms/target/owlcms.zip</asset> -->
-                                <!-- <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset> -->
+                                <asset>owlcms/target/owlcms.zip</asset>
+                                <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
                             </assets>
                         </configuration>
                     </execution>
