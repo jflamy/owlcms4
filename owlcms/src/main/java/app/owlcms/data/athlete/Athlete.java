@@ -1452,7 +1452,7 @@ public class Athlete {
         
         if (ag.getMinAge() == 0) {
             return "<"+ag.getMaxAge();
-        } else if (ag.getMaxAge() == 99) {
+        } else if (ag.getMaxAge() == 999) {
             return ">"+ag.getMinAge();
         } else {
             return ag.getMinAge()+"-"+ag.getMaxAge();

@@ -252,6 +252,7 @@ public class Category implements Serializable, Comparable<Category> {
      *
      * @return the wr
      */
+    //TODO: get world records from configuration file
     public Integer getWr() {
         if (wr == null) {
             return 0;
