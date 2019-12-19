@@ -133,11 +133,6 @@ public class TestData {
 		p.setBodyWeight(81 - nextDouble);
 		Category categ = ((List<Category>)CategoryRepository.findByGenderAgeBW(Gender.M, 40, p.getBodyWeight())).get(0);
 		p.setCategory(categ);
-		try {
-            System.err.println("create athlete "+p.longDump());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 	}
 	
 	public static void deleteAllLifters(EntityManager em) {

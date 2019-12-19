@@ -292,15 +292,15 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             categoryField.setDataProvider(listDataProvider2);
         });
         
-        //TODO: recompute on changed age
         if (Competition.getCurrent().isUseBirthYear()) {
             Optional<Binding<Athlete, ?>> yobBinding = binder.getBinding("yearOfBirth");
             HasValue<?, String> yobField = (HasValue<?, String>) yobBinding.get().getField();
-            yobField.addValueChangeListener((vc) -> {
-                ListDataProvider<Category> listDataProvider2 = new ListDataProvider<>(
-                        CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue()));
-                categoryField.setDataProvider(listDataProvider2);
-            });
+            
+//            yobField.addValueChangeListener((vc) -> {
+//                ListDataProvider<Category> listDataProvider2 = new ListDataProvider<>(
+//                        CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue()));
+//                categoryField.setDataProvider(listDataProvider2);
+//            });
         } else {
             Optional<Binding<Athlete, ?>> fbdBinding = binder.getBinding("fullBirthDate");
             HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();

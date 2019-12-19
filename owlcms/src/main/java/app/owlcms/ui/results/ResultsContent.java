@@ -349,7 +349,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
                     .collect(Collectors.toList());
         } else {
 //            return athletes.stream()
-//                    .peek(a -> System.err.println(a.getMastersLongCategory()))
+//                    .peek(a -> System.err .println(a.getMastersLongCategory()))
 //                    .collect(Collectors.toList());
             return athletes;
         }
