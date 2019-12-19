@@ -1,12 +1,12 @@
 ﻿key,en,fr,fr_CA,fr_FR,da,ru,sv,de,es
 OWLCMS_Top,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Gestion de compétition d'haltérophilie,,,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Управление соревнованиями по тяжелой атлетике,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Olympic Weightlifting Competition Management System
+Translator,Jean-François Lamy,Jean-François Lamy,Jean-François Lamy,Georges Viaud,Anders Bendix Nielsen,Alexey Ruchev,Niclas Skarnes,Martin Moreno,Google Translate
 About,About,A propos,À propos,,Om,О системе,Om,Über,Acerca de
 Active,Active,Actif,,,Aktiv,Активная,Aktiv,Akitv,Activo
 Active,Active,Actif,,,Aktiv,Активная,Aktiv,Aktiv,Activo
 ActiveCategoriesOnly,Active Categories Only,Catégories actives seulement,,,Kun aktive vægtklasser,Только активные категории,Endast aktiva viktklasser,Nur aktive Gewichtsklassen,Active Categories Only
 Add,Add,Ajouter,,,Tilføj,Добавить,Lägg till,Hinzufügen,Añadir
 Add_title,Add {0},Créer {0},,,Tilføj {0},Добавить {0},Lägg till {0},Hinzufügen {0},Añadir {0}
-AgeDivision,Age Division,Division,,,Aldersinddelt,Возрастная кат.,Åldersdelning,Altersklasse,Active Categories Only
 AgeGroup,Age Group,Groupe d'âge,,,Aldersgruppe,Возрастная категория,Åldersgrupp,Altersgruppe,Grupos per edades
 Announcer,Announcer,Annonceur,,,Speaker,Судья-информатор,Speaker,Sprecher,Presentador
 AnnouncerEtc,"\u0020(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.)","\u0020(annonceur, chronométreur, changements, résultats, essai courant, jury, etc.)",,,"\u0020(speaker, timekeeper, marshall, result boards, attempt board, jury, osv.)","\u0020(судьи-информатора, судьи-хронометриста, судьи на перезаявках, таблицы результатов, экрана попыток, жюри и т.д.)","\u0020(speaker, tidtagare, sekreterare, resultattavla, försökstavla , jury, osv.)","\u0020(Sprecher, Zeitnehmer, Steigerung, Ergebnis Anzeige, Anzeige Versuch, Jury, usw.)","\u0020(announcer, timekeeper, marshall, result boards, attempt board, jury, etc.)"
@@ -30,7 +30,6 @@ BirthDate,Birth Date,Date naissance,,,Født,Дата рождения,Födelstid
 BirthDate_cannot_future,Birth date cannot be in the future,La date de naissance ne peut pas être dans le futur.,,,Fødselsdato må ikke ligge i fremtiden,Дата рождения не может быть в будущем,Födelsedatum kan inte vara i framtiden,Das Geburtsdatum kann nicht in der Zukunft liegen,Birth date cannot be in the future
 BirthDate_yyyy,Birth Date (yyyy-mm-dd),Date naissance (yyyy-mm-dd),,,Født (yyyy-mm-dd),Дата рождения (yyyy-mm-dd),Födelsedag (yyyy-mm-dd),Geburtsdatum (dd-mm-yyyy),Fecha de nacimiento (yyyy-mm-dd)
 BodyWeight,Body Weight,Poids,,,Vægt,Собственный вес,Kroppsvikt,Körpergewicht,Peso corporal
-BodyWeight_no_match_category,Body Weight is outside of selected category,Le poids ne correspond pas à la catégorie,,,Kropsvægt passer ikke med den valgte klasse,Собственный вес спортсмена выходит за пределы категории,Kroppsvikt är utanför den valda klassen,Das Körpergewicht passt nicht zur Gewichtsklasse,Body Weight is outside of selected category
 BumperPlates,Bumper Plates,Grandes plaques,,Disque,Store skiver,Большие диски,Vikt plattor,Hantelscheiben,Pesas grandes
 Button_Open_Display,Use one of the buttons below to open a display.,Utilisez un bouton ci-dessous pour démarrer un affichage,,,Brug en af knapperne nedenfor for at åbne et display.,Используйте одну из кнопок расположенных ниже для открытия экрана,Använd en av knapparna nedan för att öppna en diplay,Benutze einen der unteren Schalter um eine Anzeige zu öffnen,Use one of the buttons below to open a display.
 C_and_J_1,C.&J. 1,É.-J. 1,,,Stød 1,Т1,Stöt 1,Stossen 1,D.T. 1
@@ -429,3 +428,6 @@ Division.A,A,A,,U13,A,A,A,A,A
 Division.B,B,B,,U10,B,B,B,B,B
 Division.C,C,C,,A,C,C,C,C,C
 Division.D,D,D,,B,D,D,D,D,D
+Division.IWF,IWF,IWF,,,IWF,IWF,IWF,IWF,IWF
+AgeDivision,Division,Division,,,Aldersinddelt,Возрастная кат.,Åldersdelning,Altersklasse,Division
+Category_no_match_age,Category does not match the age of the athlete.,La catégorie ne correspond pas à l'âge de l'athlète.,,,Category does not match the age of the athlete.,Category does not match the age of the athlete.,Category does not match the age of the athlete.,Category does not match the age of the athlete.,Category does not match the age of the athlete.
