@@ -10,7 +10,6 @@ import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -28,7 +27,6 @@ import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.DebugUtils;
 

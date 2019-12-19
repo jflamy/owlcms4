@@ -21,6 +21,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.HasValue.ValueChangeEvent;
+import com.vaadin.flow.component.HasValue.ValueChangeListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.textfield.TextField;
@@ -287,27 +289,34 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         categoryField.setDataProvider(listDataProvider);
 
         genderField.addValueChangeListener((vc) -> {
+            Category cat = categoryField.getValue();
             ListDataProvider<Category> listDataProvider2 = new ListDataProvider<>(
                     CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue()));
             categoryField.setDataProvider(listDataProvider2);
+            categoryField.setValue(cat); // forces a validation and a meaningful message
         });
         
         if (Competition.getCurrent().isUseBirthYear()) {
             Optional<Binding<Athlete, ?>> yobBinding = binder.getBinding("yearOfBirth");
             HasValue<?, String> yobField = (HasValue<?, String>) yobBinding.get().getField();
-            
-//            yobField.addValueChangeListener((vc) -> {
-//                ListDataProvider<Category> listDataProvider2 = new ListDataProvider<>(
-//                        CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue()));
-//                categoryField.setDataProvider(listDataProvider2);
-//            });
+            // Workaround for bug https://stackoverflow.com/questions/55532055/java-casting-java-11-throws-lambdaconversionexception-while-1-8-does-not
+            ValueChangeListener<ValueChangeEvent<?>> listener = (vc) -> {
+                Category cat = categoryField.getValue();
+                ListDataProvider<Category> listDataProvider2 = new ListDataProvider<>(
+                        CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue()));
+                categoryField.setDataProvider(listDataProvider2);
+                categoryField.setValue(cat); // forces a validation and a meaningful message
+            };
+            yobField.addValueChangeListener(listener);
         } else {
             Optional<Binding<Athlete, ?>> fbdBinding = binder.getBinding("fullBirthDate");
             HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
             dateField.addValueChangeListener((vc) -> {
+                Category cat = categoryField.getValue();
                 ListDataProvider<Category> listDataProvider2 = new ListDataProvider<>(
                         CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue()));
                 categoryField.setDataProvider(listDataProvider2);
+                categoryField.setValue(cat); // forces a validation and a meaningful message
             });
         }
 
@@ -550,7 +559,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 logger.error(LoggerUtils.stackTrace(e));
             }
             return true;
-        }, Translator.translate("Category_no_match_body_weight"));
+        }, Translator.translate("Category_no_match_age"));
         bindingBuilder.withValidator(v11);
 
         // check that category is consistent with gender

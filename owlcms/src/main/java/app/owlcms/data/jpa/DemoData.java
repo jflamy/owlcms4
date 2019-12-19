@@ -84,7 +84,7 @@ public class DemoData {
         int age = LocalDate.now().getYear() - fullBirthDate.getYear();
         
         List<Category> cat = CategoryRepository.findByGenderDivisionAgeBW(gender,ageDivision,age,bodyWeight);
-        logger.warn("athlete {} matches {}",p.getFullName(),cat.stream().map(Category::getName).collect(Collectors.joining(", ")));
+        logger.trace("athlete {} matches {}",p.getFullName(),cat.stream().map(Category::getName).collect(Collectors.joining(", ")));
         p.setCategory(cat.stream().findFirst().orElse(null));
         
         // respect 20kg rule

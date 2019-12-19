@@ -9,6 +9,7 @@ package app.owlcms;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -36,10 +37,12 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
+import sun.misc.Unsafe;
 
 /**
  * Main.
  */
+@SuppressWarnings("restriction")
 public class Main {
 
     public final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
@@ -116,6 +119,8 @@ public class Main {
         // Redirect java.util.logging logs to SLF4J
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
+        // disable poixml warning
+        disableWarning();
 
         // read command-line and environment variable parameters
         parseConfig();
@@ -131,6 +136,7 @@ public class Main {
         System.setProperty("java.net.preferIPv4Stack", "true");
         ConvertUtils.register(new DateConverter(null), java.util.Date.class);
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
+
 
         // setup database
         JPAService.init(demoMode || memoryMode, demoMode || resetMode);
@@ -301,6 +307,21 @@ public class Main {
 
     protected static void tearDown() {
         JPAService.close();
+    }
+    
+    public static void disableWarning() {
+        // https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
+        try {
+            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
+            Unsafe u = (Unsafe) theUnsafe.get(null);
+
+            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            Field logger = cls.getDeclaredField("logger");
+            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
 }

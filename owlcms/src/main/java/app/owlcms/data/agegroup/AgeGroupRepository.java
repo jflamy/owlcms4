@@ -45,7 +45,6 @@ public class AgeGroupRepository {
 
     private static void createAgeGroups(Workbook workbook, Map<String, Category> templates, boolean masters) {
         DataFormatter dataFormatter = new DataFormatter();
-        logger.warn("createAgeGroups");
 
         JPAService.runInTransaction(em -> {
             Sheet sheet = workbook.getSheetAt(1);
@@ -107,7 +106,7 @@ public class AgeGroupRepository {
                         Category cat = createCategoryFromTemplate(cellValue, ag, templates, curMin);
                         if (cat != null) {
                             em.persist(cat);
-                            logger.warn(cat.longDump());
+                            logger.trace(cat.longDump());
                             curMin = cat.getMaximumWeight();
                         }
                     }
