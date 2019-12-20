@@ -98,7 +98,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
         Boolean isHidden();
 
-        Boolean isMasters();
+        Boolean isWideCategory();
 
         void setAttempt(String formattedAttempt);
 
@@ -110,7 +110,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
 
         void setLiftsDone(String formattedDone);
 
-        void setMasters(boolean b);
+        void setWideCategory(boolean b);
 
         void setStartNumber(Integer integer);
 
@@ -411,7 +411,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             logger.trace("Starting result board on FOP {}", fop.getName());
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
-            getModel().setMasters(Competition.getCurrent().isMasters());
+            getModel().setWideCategory(true); //TODO figure out how to get narrow category if wide not needed
         });
         setTranslationMap();
         order = ImmutableList.of();

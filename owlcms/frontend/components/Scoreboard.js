@@ -12,6 +12,7 @@ class Scoreboard extends PolymerElement {
 }
 
 :root {
+  --medium-width: 9%;
   --narrow-width: 6%;
   --veryNarrow-width: 4%;
   --fontSizeRank-height: 0.95em;
@@ -180,19 +181,6 @@ th, td {
 	text-align: center;
 }
 
-.masters {
-	display: table-cell;
-	text-align: center;
-	width: var(--veryNarrow-width);
-}
-
-.mastersHidden {
-	display: none;
-	width: 0px;
-	padding: 0 0 0 0;
-	margin: 0 0 0 0;
-}
-
 .narrow {
 	width: var(--narrow-width);
 	text-align: center;
@@ -224,6 +212,11 @@ th, td {
 
 .veryNarrow {
 	width: var(--veryNarrow-width);
+	text-align: center;
+}
+
+.medium {
+	width: var(--medium-width);
 	text-align: center;
 }
 
@@ -361,8 +354,7 @@ th, td {
 			<!--  [[t.x]] references the translation for key Scoreboard.x in the translation4.csv file -->
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Start]]"></th>
 			<th inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
-			<th class$="[[_computeMasters(masters)]]" inner-h-t-m-l="[[t.AgeGroup]]"></th>
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Category]]"></th>
+			<th class$="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
 			<th class="club ellipsis" inner-h-t-m-l="[[t.Team]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
@@ -381,8 +373,7 @@ th, td {
 			<tr>
 				<td class$="[[l.classname]] veryNarrow"><div>[[l.startNumber]]</div></td>
 				<td width="30%" class$="ellipsis [[l.classname]]"><div class$="">[[l.fullName]]</div></td>
-				<td class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
-				<td class="veryNarrow">[[l.category]]</td>
+				<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
 				<td class="ellipsis club">[[l.teamName]]</td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
@@ -498,8 +489,8 @@ th, td {
 		return hidden ? 'display:none' : 'display:block';
 	}
 
-	_computeMasters(masters) {
-		return masters ? 'masters' : 'mastersHidden';
+	_computeCatWidth(wideCategory) {
+		return wideCategory ? 'medium' : 'narrow';
 	}
 }
 

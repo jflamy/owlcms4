@@ -85,13 +85,13 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
 
         Boolean isHidden();
 
-        Boolean isMasters();
+        Boolean isWideCategory();
 
         void setFullName(String lastName);
 
         void setHidden(boolean b);
 
-        void setMasters(boolean b);
+        void setWideCategory(boolean b);
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TopSinclair.class);
@@ -381,6 +381,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         logger.debug("onAttach start");
         buildContextMenu(this);
         setDarkMode(this, isDarkMode(), false);
+        getModel().setWideCategory(true);
         setTranslationMap();
         for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
             // we listen on all the uiEventBus.

@@ -11,6 +11,7 @@ class Scoreboard extends PolymerElement {
 }
 
 :root {
+  --medium-width: 9%;
   --narrow-width: 6%;
   --veryNarrow-width: 4%;
   --fontSizeRank-height: 0.95em;
@@ -180,19 +181,6 @@ th, td {
 	text-align: center;
 }
 
-.masters {
-	display: table-cell;
-	text-align: center;
-	width: var(--narrow-width);
-}
-
-.mastersHidden {
-	display: none;
-	width: 0px;
-	padding: 0 0 0 0;
-	margin: 0 0 0 0;
-}
-
 .narrow {
 	width: var(--narrow-width);
 	text-align: center;
@@ -224,6 +212,11 @@ th, td {
 
 .veryNarrow {
 	width: var(--veryNarrow-width);
+	text-align: center;
+}
+
+.medium {
+	width: var(--medium-width);
 	text-align: center;
 }
 
@@ -348,8 +341,7 @@ th, td {
 			<th width="30%" inner-h-t-m-l="[[t.Name]]"></th>
 			<th width="9%" class="narrow" inner-h-t-m-l="[[t.RequestedWeight]]"></th>
 			<th width="9%" class="narrow" inner-h-t-m-l="[[t.NextAttempt]]"></th>
-			<th width="9%" class$="[[_computeMasters(masters)]]" inner-h-t-m-l="[[t.AgeGroup]]"></th>
-			<th width="9%" class="narrow" inner-h-t-m-l="[[t.Category]]"></th>
+			<th class="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
 			<th width="20%" class='club' inner-h-t-m-l="[[t.Team]]"></th>
 		</tr>
 	</thead>
@@ -363,8 +355,7 @@ th, td {
 				<td width="30%" class$="[[l.classname]] ellipsis">[[l.fullName]]</td>
 				<td width="9%" class$="[[l.classname]]" style="text-align: center;">[[l.requestedWeight]]</td>
 				<td width="9%" class$="[[l.classname]]" style="text-align: center;">[[l.nextAttemptNo]]</td>			
-				<td width="9%" class$="[[_computeMasters(masters)]]">[[l.mastersAgeGroup]]</td>
-				<td width="9%" class="narrow" style="text-align: center;" >[[l.category]]</td>
+				<td class="[[_computeCatWidth(wideCategory)]]" style="text-align: center;" >[[l.category]]</td>
 				<td width="20%" class="club ellipsis">[[l.teamName]]</td>	
 			</tr>
 		</template>
@@ -423,8 +414,8 @@ th, td {
 		return hidden ? 'display:none' : 'display:block';
 	}
 
-	_computeMasters(masters) {
-		return masters ? 'masters' : 'mastersHidden';
+	_computeCatWidth(wideCategory) {
+		return wideCategory ? 'medium' : 'narrow';
 	}
 }
 

@@ -89,7 +89,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
 
         Boolean isHidden();
 
-        Boolean isMasters();
+        Boolean isWideCategory();
 
         void setAttempt(String formattedAttempt);
 
@@ -101,7 +101,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
 
         void setLiftsDone(String formattedDone);
 
-        void setMasters(boolean b);
+        void setWideCategory(boolean b);
 
         void setStartNumber(Integer integer);
 
@@ -257,7 +257,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             logger.trace("Starting result board on FOP {}", fop.getName());
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
-            getModel().setMasters(Competition.getCurrent().isMasters());
+            getModel().setWideCategory(true);
         });
         setTranslationMap();
         order = ImmutableList.of();
