@@ -691,11 +691,6 @@ public class XAthlete extends Athlete {
         return a.getMastersAgeGroup();
     }
 
-    @Override
-    public String getMastersAgeGroup(String gender1, Integer yob) {
-        return a.getMastersAgeGroup(gender1, yob);
-    }
-
     /**
      * @return
      * @see app.owlcms.data.athlete.Athlete#getMastersAgeGroupInterval()
@@ -728,6 +723,7 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#getMastersLongRegistrationCategoryName()
      */
     @Override
+    @Deprecated
     public String getMastersLongRegistrationCategoryName() {
         return a.getMastersLongRegistrationCategoryName();
     }

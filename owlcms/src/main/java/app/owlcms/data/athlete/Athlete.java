@@ -45,32 +45,25 @@ import ch.qos.logback.classic.Logger;
 /**
  * This class stores all the information related to a particular participant.
  * <p>
- * This class is an example of what not to do. This was designed prior reaching
- * a proper understanding of Hibernate/JPA and of proper separation between
- * Vaadin Containers and persistence frameworks. Live and Learn.
+ * This class is an example of what not to do. This was designed prior reaching a proper understanding of Hibernate/JPA
+ * and of proper separation between Vaadin Containers and persistence frameworks. Live and Learn.
  * <p>
- * All persistent properties are managed by Java Persistance annotations.
- * "Field" access mode is used, meaning that it is the values of the fields that
- * are stored, and not the values returned by the getters. Note that it is often
- * necessary to know when a value has been captured or not -- this is why values
- * are stored as Integers or Doubles, so that we can use null to indicate that a
- * value has not been captured.
+ * All persistent properties are managed by Java Persistance annotations. "Field" access mode is used, meaning that it
+ * is the values of the fields that are stored, and not the values returned by the getters. Note that it is often
+ * necessary to know when a value has been captured or not -- this is why values are stored as Integers or Doubles, so
+ * that we can use null to indicate that a value has not been captured.
  * </p>
  * <p>
- * This allows us to use the getters to return the values as they will be
- * displayed by the application
+ * This allows us to use the getters to return the values as they will be displayed by the application
  * </p>
  * <p>
- * Computed fields are defined as final transient properties and marked
- * as @Transient; the only reason for this is so the JavaBeans introspection
- * mechanisms find them.
+ * Computed fields are defined as final transient properties and marked as @Transient; the only reason for this is so
+ * the JavaBeans introspection mechanisms find them.
  * </p>
  * <p>
- * This class uses events to notify interested user interface components that
- * fields or computed values have changed. In this way the user interface does
- * not have to know that the category field on the screen is dependent on the
- * bodyweight and the gender -- all the dependency logic is kept at the business
- * object level.
+ * This class uses events to notify interested user interface components that fields or computed values have changed. In
+ * this way the user interface does not have to know that the category field on the screen is dependent on the
+ * bodyweight and the gender -- all the dependency logic is kept at the business object level.
  * </p>
  */
 @Entity
@@ -82,8 +75,8 @@ public class Athlete {
     /**
      * Copy lift values to/from another athlete object used as editing scratchpad.
      *
-     * The methods must be called in the proper order otherwise validation errors
-     * will occur (e.g. actual lift must match last requested change)
+     * The methods must be called in the proper order otherwise validation errors will occur (e.g. actual lift must
+     * match last requested change)
      *
      * @param dest
      * @param src
@@ -338,8 +331,7 @@ public class Athlete {
     private boolean eligibleForTeamRanking = true;
 
     /*
-     * Non-persistent properties. These properties are used during computations, but
-     * need not be stored in the database
+     * Non-persistent properties. These properties are used during computations, but need not be stored in the database
      */
     @Transient
     Integer liftOrderRank = 0;
@@ -360,17 +352,16 @@ public class Athlete {
         super();
     }
 
-
     public void addEligibleCategory(Category cat) {
         eligibleCategories.add(cat);
         cat.getAthletes().add(this);
     }
- 
+
     public void removeEligibleCategory(Category cat) {
         eligibleCategories.remove(cat);
         cat.getAthletes().remove(this);
     }
-    
+
     /**
      * As integer.
      *
@@ -451,7 +442,6 @@ public class Athlete {
             return Integer.toString(Math.abs(prevVal));
         }
     }
-
 
     /**
      * @param Athlete
@@ -588,8 +578,8 @@ public class Athlete {
     /**
      * Gets the age group.
      *
-     * @return the ageGroup. M80 if male missing birth date, F70 if female missing
-     *         birth date or missing both gender and birth.
+     * @return the ageGroup. M80 if male missing birth date, F70 if female missing birth date or missing both gender and
+     *         birth.
      */
     public AgeGroup getAgeGroup() {
         Category cat = getCategory();
@@ -774,10 +764,9 @@ public class Athlete {
     }
 
     /**
-     * Compute the body weight at the maximum weight of the Athlete's category.
-     * Note: for the purpose of this computation, only "official" categories are
-     * used as the purpose is to totalRank athletes according to their competition
-     * potential.
+     * Compute the body weight at the maximum weight of the Athlete's category. Note: for the purpose of this
+     * computation, only "official" categories are used as the purpose is to totalRank athletes according to their
+     * competition potential.
      *
      * @return the category sinclair
      */
@@ -1401,12 +1390,8 @@ public class Athlete {
      * @return the long category
      */
     public String getLongCategory() {
-        if (Competition.getCurrent().isMasters()) {
-            return getMastersLongCategory();
-        } else {
-            Category category = getCategory();
-            return (category != null ? category.getName() : "");
-        }
+        Category category = getCategory();
+        return (category != null ? category.getName() : "");
     }
 
     /**
@@ -1424,20 +1409,9 @@ public class Athlete {
      * @return the masters age group
      */
     public String getMastersAgeGroup() {
-        if (this.getGender() == null) {
+        if (this.getGender() == null || this.getAgeGroup() == null) {
             return "";
         }
-        String gender1 = getGender().name();
-        Integer yob = this.getYearOfBirth();
-        return getMastersAgeGroup(gender1, yob);
-    }
-
-    /**
-     * @param gender1
-     * @param yob
-     * @return
-     */
-    public String getMastersAgeGroup(String gender1, Integer yob) {
         return getAgeGroup().getName();
     }
 
@@ -1448,14 +1422,15 @@ public class Athlete {
      */
     public String getMastersAgeGroupInterval() {
         AgeGroup ag = getAgeGroup();
-        if (ag == null) return "";
-        
+        if (ag == null)
+            return "";
+
         if (ag.getMinAge() == 0) {
-            return "<"+ag.getMaxAge();
+            return "<" + ag.getMaxAge();
         } else if (ag.getMaxAge() == 999) {
-            return ">"+ag.getMinAge();
+            return ">" + ag.getMinAge();
         } else {
-            return ag.getMinAge()+"-"+ag.getMaxAge();
+            return ag.getMinAge() + "-" + ag.getMaxAge();
         }
     }
 
@@ -1478,12 +1453,7 @@ public class Athlete {
      * @return the masters long category
      */
     public String getMastersLongCategory() {
-        String catString;
-        String gender1 = getGender().name();
-        final String mastersAgeCategory = getMastersAgeGroup(gender1, this.getYearOfBirth());
-        final String shortCategory = getShortCategory(gender1);
-        catString = mastersAgeCategory + " " + shortCategory;
-        return catString;
+        return getCategory().getName();
     }
 
     /**
@@ -1491,13 +1461,9 @@ public class Athlete {
      *
      * @return the masters long registration category name
      */
+    @Deprecated
     public String getMastersLongRegistrationCategoryName() {
-        String catString;
-        String gender1 = getGender().name();
-        final String mastersAgeCategory = getMastersAgeGroup(gender1, this.getYearOfBirth());
-        final String shortCategory = getShortRegistrationCategory(gender1);
-        catString = mastersAgeCategory + " " + shortCategory;
-        return catString;
+        return getMastersLongCategory();
     }
 
     /**
@@ -1533,9 +1499,8 @@ public class Athlete {
     }
 
     /**
-     * Compute the time of last lift for Athlete. Times are only compared within the
-     * same lift type (if a Athlete is at the first attempt of clean and jerk, then
-     * the last lift occurred forever ago.)
+     * Compute the time of last lift for Athlete. Times are only compared within the same lift type (if a Athlete is at
+     * the first attempt of clean and jerk, then the last lift occurred forever ago.)
      *
      * @return null if Athlete has not lifted
      */
@@ -1642,7 +1607,6 @@ public class Athlete {
             return prefix + "21";
         }
     }
-
 
     /**
      * Gets the requested weight for attempt.
@@ -1764,9 +1728,8 @@ public class Athlete {
     }
 
     /**
-     * Compute the Sinclair total for the Athlete, that is, the total multiplied by
-     * a value that depends on the Athlete's body weight. This value extrapolates
-     * what the Athlete would have lifted if he/she had the bodymass of a
+     * Compute the Sinclair total for the Athlete, that is, the total multiplied by a value that depends on the
+     * Athlete's body weight. This value extrapolates what the Athlete would have lifted if he/she had the bodymass of a
      * maximum-weight Athlete.
      *
      * @return the sinclair-adjusted value for the Athlete
@@ -2198,9 +2161,8 @@ public class Athlete {
     }
 
     /**
-     * Total is zero if all three snatches or all three clean&jerks are failed.
-     * Failed lifts are indicated as negative amounts. Total is the sum of all good
-     * lifts otherwise. Null entries indicate that no data has been captured, and
+     * Total is zero if all three snatches or all three clean&jerks are failed. Failed lifts are indicated as negative
+     * amounts. Total is the sum of all good lifts otherwise. Null entries indicate that no data has been captured, and
      * are counted as zero.
      *
      * @return the total
@@ -2926,9 +2888,8 @@ public class Athlete {
     }
 
     /*
-     * General event framework: we implement the com.vaadin.event.MethodEventSource
-     * interface which defines how a notifier can call a method on a listener to
-     * signal that an event has occurred, and how the listener can
+     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
+     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
      * register/unregister itself.
      */
 
