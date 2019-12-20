@@ -39,7 +39,6 @@ import ch.qos.logback.classic.Logger;
  * jetty web server
  */
 public class EmbeddedJetty {
-    @SuppressWarnings("unused")
     private final static Logger logger = (Logger) LoggerFactory.getLogger(EmbeddedJetty.class);
     private final static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
 
