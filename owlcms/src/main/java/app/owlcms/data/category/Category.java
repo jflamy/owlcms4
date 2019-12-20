@@ -262,11 +262,11 @@ public class Category implements Serializable, Comparable<Category> {
         if (ageGroup.getAgeDivision() != AgeDivision.IWF) {
             return 0;
         }
-        if (ageGroup.getMinAge() == 15 && ageGroup.getMaxAge() == 999) {
+        if (ageGroup.getMaxAge() == 999) {
             return wrSr;
-        } else if (ageGroup.getMinAge() == 15 && ageGroup.getMaxAge() == 20) {
+        } else if (ageGroup.getMaxAge() == 20) {
             return wrJr;
-        } else if (ageGroup.getMinAge() == 13 && ageGroup.getMaxAge() == 17) {
+        } else if (ageGroup.getMaxAge() == 17) {
             return wrYth;
         } else {
             return 0;

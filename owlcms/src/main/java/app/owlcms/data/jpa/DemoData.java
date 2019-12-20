@@ -6,6 +6,12 @@
  */
 package app.owlcms.data.jpa;
 
+import static app.owlcms.data.athlete.Gender.F;
+import static app.owlcms.data.athlete.Gender.M;
+import static app.owlcms.data.category.AgeDivision.IWF;
+import static app.owlcms.data.category.AgeDivision.MASTERS;
+import static app.owlcms.data.category.AgeDivision.U;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -107,7 +113,7 @@ public class DemoData {
         competition.setFederationWebSite("http://national-weightlifting.org");
 
         competition.setEnforce20kgRule(true);
-        competition.setMasters(ageDivisions != null && ageDivisions.contains(AgeDivision.MASTERS));
+        competition.setMasters(ageDivisions != null && ageDivisions.contains(MASTERS));
         competition.setUseBirthYear(true);
 
         // needed because some classes such as Athlete refer to the current competition
@@ -228,18 +234,18 @@ public class DemoData {
         Random r = new Random(0);
         Random r2 = new Random(0);
 
-        if (ageDivisions != null && ageDivisions.contains(AgeDivision.MASTERS)) {
-            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, AgeDivision.MASTERS, 35, 45, Gender.M);
-            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, AgeDivision.MASTERS, 35, 50, Gender.M);
-            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, AgeDivision.MASTERS, 35, 45, Gender.F);
-            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, AgeDivision.U, 13, 17, Gender.M);
-            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, AgeDivision.U, 13, 17, Gender.F);
+        if (ageDivisions != null && ageDivisions.contains(MASTERS)) {
+            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, MASTERS, 35, 45, M);
+            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, MASTERS, 35, 50, M);
+            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, MASTERS, 35, 45, F);
+            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, U, 13, 17, Gender.M);
+            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, U, 13, 17, F);
         } else {
-            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, AgeDivision.IWF, 18, 32, Gender.M);
-            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, AgeDivision.IWF, 18, 32, Gender.M);
-            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, AgeDivision.IWF, 18, 32, Gender.F);
-            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, AgeDivision.U, 13, 17, Gender.M);
-            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, AgeDivision.U, 13, 17, Gender.F);
+            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, IWF, 18, 32, M);
+            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, IWF, 18, 32, M);
+            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, IWF, 18, 32, F);
+            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, U, 13, 17, M);
+            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, U, 13, 17, F);
         }
 
         drawLots(em);

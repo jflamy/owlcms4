@@ -1682,7 +1682,7 @@ public class Athlete {
     public Double getRobi() {
         Category c = getCategory();
 
-        if (c == null) {
+        if (getCategory() == null) {
             return 0.0;
         }
         if (c.getWr() == null || c.getWr() == 0) {

@@ -21,7 +21,6 @@ public class AthleteTest {
 
     private static Athlete athlete;
 
-    @SuppressWarnings("deprecation")
     @Before
     public void setupTest() {
         athlete = new Athlete();
@@ -32,8 +31,8 @@ public class AthleteTest {
         athlete.setSnatch1Declaration("60");
         athlete.setCleanJerk1Declaration("80");
         athlete.setYearOfBirth(1900);
-        Category registrationCategory = new Category(67.0,73.0,Gender.M,true,348, new AgeGroup("MO21", true, 21, 99, Gender.M, AgeDivision.DEFAULT));
-        athlete.setRegistrationCategory(registrationCategory);
+        Category registrationCategory = new Category(67.0,73.0,Gender.M,true,348, new AgeGroup("SR", true, 15, 999, Gender.M, AgeDivision.IWF));
+        athlete.setCategory(registrationCategory);
     }
 
 
