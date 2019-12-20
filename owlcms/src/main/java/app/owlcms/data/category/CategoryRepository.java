@@ -9,7 +9,6 @@ package app.owlcms.data.category;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -157,29 +156,20 @@ public class CategoryRepository {
      * @return active categories
      */
     public static List<Category> findActive() {
-        return JPAService.runInTransaction(em -> {
-            return doFindFiltered(em, null, null, null, null, null, null, true, -1, -1);
-        });
+        List<Category> findFiltered = findFiltered((String)null, (Gender)null, (AgeDivision)null, (AgeGroup)null, (Integer)null, (Double)null,
+                true, -1, -1);
+        findFiltered.sort(new RegistrationPreferenceComparator());
+        return findFiltered;
     }
 
-    /**
-     * @return active categories for gender
-     */
-    public static List<Category> findActive(Gender gender) {
-        return JPAService.runInTransaction(em -> {
-            return doFindFiltered(em, null, gender, null, null, null, null, true, -1, -1);
-        });
-    }
 
     public static Collection<Category> findActive(Gender gender, Double bodyWeight) {
-        List<Category> list = findActive(gender);
-        if (bodyWeight == null) {
-            return list;
-        } else {
-            return list.stream()
-                    .filter(cat -> bodyWeight > cat.getMinimumWeight() && bodyWeight <= cat.getMaximumWeight())
-                    .collect(Collectors.toList());
-        }
+        List<Category> findFiltered = findFiltered((String) null, gender, (AgeDivision) null, (AgeGroup) null, (Integer)null,
+                bodyWeight, true, -1, -1);
+        // sort comparison to put more specific category age before. M30 before O21, O21 also before SR (MASTERS, then
+        // U, then IWF/other)
+        findFiltered.sort(new RegistrationPreferenceComparator());
+        return findFiltered;
     }
 
     /**
@@ -191,6 +181,38 @@ public class CategoryRepository {
     public static List<Category> findAll() {
         return JPAService
                 .runInTransaction(em -> em.createQuery("select c from Category c order by c.name").getResultList());
+    }
+
+    public static Collection<Category> findByGenderAgeBW(Gender gender, Integer age,
+            Double bodyWeight) {
+        Boolean active = true;
+//      List<Category> findFiltered = findFiltered((String)null, gender, ageDivision, (AgeGroup)null, age, bodyWeight, true, -1, -1);
+//      gender = null;
+//      ageDivision = null;
+//      age = (Integer) null;
+//      bodyWeight = (Double) null;
+//      active = null;
+        List<Category> findFiltered = findFiltered((String) null, gender, (AgeDivision) null, (AgeGroup) null, age,
+                bodyWeight, active, -1, -1);
+        // sort comparison to put more specific category age before. M30 before O21, O21 also before SR (MASTERS, then
+        // U, then IWF/other)
+        findFiltered.sort(new RegistrationPreferenceComparator());
+        return findFiltered;
+    }
+
+    public static List<Category> findByGenderDivisionAgeBW(Gender gender, AgeDivision ageDivision, Integer age,
+            Double bodyWeight) {
+        Boolean active = true;
+//        List<Category> findFiltered = findFiltered((String)null, gender, ageDivision, (AgeGroup)null, age, bodyWeight, true, -1, -1);
+//        gender = null;
+//        ageDivision = null;
+//        age = (Integer) null;
+//        bodyWeight = (Double) null;
+//          active = null;
+        List<Category> findFiltered = findFiltered((String) null, gender, ageDivision, (AgeGroup) null, age, bodyWeight,
+                active, -1, -1);
+        findFiltered.sort(new RegistrationPreferenceComparator());
+        return findFiltered;
     }
 
     /**
@@ -225,20 +247,6 @@ public class CategoryRepository {
 //            System.err .println("first="+doFindFiltered.get(0).longDump());
             return doFindFiltered;
         });
-    }
-
-    public static List<Category> findByGenderDivisionAgeBW(Gender gender, AgeDivision ageDivision, Integer age,
-            Double bodyWeight) {
-        Boolean active = true;
-//        List<Category> findFiltered = findFiltered((String)null, gender, ageDivision, (AgeGroup)null, age, bodyWeight, true, -1, -1);
-//        gender = null;
-//        ageDivision = null;
-//        age = (Integer) null;
-//        bodyWeight = (Double) null;
-//          active = null;
-        List<Category> findFiltered = findFiltered((String) null, gender, ageDivision, (AgeGroup) null, age, bodyWeight,
-                active, -1, -1);
-        return findFiltered;
     }
 
     /**
@@ -291,21 +299,6 @@ public class CategoryRepository {
         if (gender != null) {
             query.setParameter("gender", gender);
         }
-    }
-
-    public static Collection<Category> findByGenderAgeBW(Gender gender, Integer age,
-            Double bodyWeight) {
-        Boolean active = true;
-//      List<Category> findFiltered = findFiltered((String)null, gender, ageDivision, (AgeGroup)null, age, bodyWeight, true, -1, -1);
-//      gender = null;
-//      ageDivision = null;
-//      age = (Integer) null;
-//      bodyWeight = (Double) null;
-//      active = null;
-        List<Category> findFiltered = findFiltered((String) null, gender, (AgeDivision) null, (AgeGroup) null, age,
-                bodyWeight, active, -1, -1);
-        //TODO: sort comparison to put more specific category age before. M30 before O21, O21 also before SR (U and MASTERS come first)
-        return findFiltered;
     }
 
 }

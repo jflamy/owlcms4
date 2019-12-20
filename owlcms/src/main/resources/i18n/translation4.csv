@@ -428,6 +428,8 @@ Division.A,A,A,,U13,A,A,A,A,A
 Division.B,B,B,,U10,B,B,B,B,B
 Division.C,C,C,,A,C,C,C,C,C
 Division.D,D,D,,B,D,D,D,D,D
+Division.U,Age Groups,Groupes d'âge,,,Aldersinddelt,Возрастная кат.,Åldersdelning,Altersklasse,Age Groups
 Division.IWF,IWF,IWF,,,IWF,IWF,IWF,IWF,IWF
-AgeDivision,Division,Division,,,Aldersinddelt,Возрастная кат.,Åldersdelning,Altersklasse,Division
+Division.OLY,Olympics,Olympiques,,,Olympics,Olympics,Olympics,Olympics,Olympics
+AgeDivision,Competition type,Type de compétition,,,Competition type,Competition type,Competition type,Competition type,Competition type
 Category_no_match_age,Category does not match the age of the athlete.,La catégorie ne correspond pas à l'âge de l'athlète.,,,Category does not match the age of the athlete.,Category does not match the age of the athlete.,Category does not match the age of the athlete.,Category does not match the age of the athlete.,Category does not match the age of the athlete.

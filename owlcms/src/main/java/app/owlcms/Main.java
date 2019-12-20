@@ -17,6 +17,7 @@ import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -26,6 +27,7 @@ import org.apache.commons.beanutils.converters.DateConverter;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.jpa.DemoData;
@@ -152,20 +154,21 @@ public class Main {
     private static void injectData(boolean demoMode, boolean devMode, boolean testMode, boolean masters,
             Locale locale) {
         Locale l = (locale == null ? Locale.ENGLISH : locale);
-
+        EnumSet<AgeDivision> ageDivisions = masters ? EnumSet.of(AgeDivision.MASTERS, AgeDivision.U) : null;
         try {
             Translator.setForcedLocale(l);
             if (demoMode) {
                 // demoMode forces JPAService to reset.
-                DemoData.insertInitialData(20, masters);
+
+                DemoData.insertInitialData(20, ageDivisions);
             } else {
                 // the other modes require explicit resetMode. We don't want multiple inserts.
                 List<Competition> allCompetitions = CompetitionRepository.findAll();
                 if (allCompetitions.isEmpty()) {
                     if (testMode) {
-                        DemoData.insertInitialData(1, masters);
+                        DemoData.insertInitialData(1, ageDivisions);
                     } else if (devMode) {
-                        DemoData.insertInitialData(20, masters);
+                        DemoData.insertInitialData(20, ageDivisions);
                     } else {
                         ProdData.insertInitialData(0);
                     }

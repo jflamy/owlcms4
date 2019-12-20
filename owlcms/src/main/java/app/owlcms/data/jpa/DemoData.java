@@ -12,6 +12,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -92,7 +93,7 @@ public class DemoData {
 
     }
 
-    protected static Competition createDefaultCompetition(boolean masters) {
+    protected static Competition createDefaultCompetition(EnumSet<AgeDivision> ageDivisions) {
         Competition competition = new Competition();
 
         competition.setCompetitionName("Spring Equinox Open");
@@ -106,7 +107,7 @@ public class DemoData {
         competition.setFederationWebSite("http://national-weightlifting.org");
 
         competition.setEnforce20kgRule(true);
-        competition.setMasters(masters);
+        competition.setMasters(ageDivisions != null && ageDivisions.contains(AgeDivision.MASTERS));
         competition.setUseBirthYear(true);
 
         // needed because some classes such as Athlete refer to the current competition
@@ -185,12 +186,12 @@ public class DemoData {
      * Insert initial data if the database is empty.
      *
      * @param nbAthletes how many athletes
-     * @param masters
+     * @param ageDivisions
      */
-    public static void insertInitialData(int nbAthletes, boolean masters) {
+    public static void insertInitialData(int nbAthletes, EnumSet<AgeDivision> ageDivisions) {
         logger.info("inserting initial data");
         JPAService.runInTransaction(em -> {
-            AgeGroupRepository.insertStandardAgeGroups(em, masters);
+            AgeGroupRepository.insertAgeGroups(em, ageDivisions);
             return null;
         });
 //        JPAService.runInTransaction(em -> {
@@ -199,13 +200,13 @@ public class DemoData {
 //        });
         
         JPAService.runInTransaction(em -> {
-            setupDemoData(em, nbAthletes, masters);
+            setupDemoData(em, nbAthletes, ageDivisions);
             return null;
         });
     }
 
     private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupM1, Group groupM2,
-            Group groupF1, Group groupY1, boolean masters) {
+            Group groupF1, Group groupY1, EnumSet<AgeDivision> ageDivisions) {
         final String[] lnames = { "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson",
                 "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia",
                 "Martinez", "Robinson", "Clark", "Rodriguez", "Lewis", "Lee", "Walker", "Hall", "Allen", "Young",
@@ -227,7 +228,7 @@ public class DemoData {
         Random r = new Random(0);
         Random r2 = new Random(0);
 
-        if (masters) {
+        if (ageDivisions != null && ageDivisions.contains(AgeDivision.MASTERS)) {
             createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, AgeDivision.MASTERS, 35, 45, Gender.M);
             createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, AgeDivision.MASTERS, 35, 50, Gender.M);
             createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, AgeDivision.MASTERS, 35, 45, Gender.F);
@@ -237,8 +238,8 @@ public class DemoData {
             createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, AgeDivision.IWF, 18, 32, Gender.M);
             createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, AgeDivision.IWF, 18, 32, Gender.M);
             createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, AgeDivision.IWF, 18, 32, Gender.F);
-            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, AgeDivision.IWF, 13, 17, Gender.M);
-            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, AgeDivision.IWF, 13, 17, Gender.F);
+            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, AgeDivision.U, 13, 17, Gender.M);
+            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, AgeDivision.U, 13, 17, Gender.F);
         }
 
         drawLots(em);
@@ -292,12 +293,12 @@ public class DemoData {
      *
      * @param competition   the competition
      * @param liftersToLoad the lifters to load
-     * @param masters
+     * @param ageDivisions
      * @param w             the w
      * @param c             the c
      */
-    protected static void setupDemoData(EntityManager em, int liftersToLoad, boolean masters) {
-        Competition competition = createDefaultCompetition(masters);
+    protected static void setupDemoData(EntityManager em, int liftersToLoad, EnumSet<AgeDivision> ageDivisions) {
+        Competition competition = createDefaultCompetition(ageDivisions);
 
         LocalDateTime w = LocalDateTime.now();
         LocalDateTime c = w.plusHours((long) 2.0);
@@ -331,7 +332,7 @@ public class DemoData {
         em.persist(platform2);
         em.persist(competition);
 
-        insertSampleLifters(em, liftersToLoad, groupM1, groupM2, groupF1, groupY1, masters);
+        insertSampleLifters(em, liftersToLoad, groupM1, groupM2, groupF1, groupY1, ageDivisions);
         em.flush();
     }
 

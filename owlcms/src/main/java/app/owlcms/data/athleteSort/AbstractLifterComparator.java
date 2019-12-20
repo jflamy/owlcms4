@@ -8,8 +8,6 @@ package app.owlcms.data.athleteSort;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,25 +23,6 @@ import app.owlcms.data.group.Group;
  */
 public class AbstractLifterComparator {
     final private static Logger logger = LoggerFactory.getLogger(AbstractLifterComparator.class);
-
-    // grab the first part of a category code, prior to the weight
-    static Pattern pattern = Pattern.compile("^([A-Za-z0-9-_ ]*?)[+>]{0,1}[0-9]+[^0-9]*$");
-
-    /**
-     * Gets the category prefix.
-     *
-     * @param categoryName the category name
-     * @return the first part of a category code, prior to the weight
-     * @see AbstractLifterComparatorTest for details
-     */
-    public static String getCategoryPrefix(String categoryName) {
-        Matcher m = pattern.matcher(categoryName);
-        String prefix = categoryName;
-        if (m.find()) {
-            prefix = m.replaceFirst("$1");
-        }
-        return prefix;
-    }
 
     /**
      * Compare age group.

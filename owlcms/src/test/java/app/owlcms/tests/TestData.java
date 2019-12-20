@@ -7,6 +7,7 @@
 package app.owlcms.tests;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 
@@ -19,6 +20,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -64,7 +66,7 @@ public class TestData {
 	    // needed because some classes such as Athlete refer to the current competition
         Competition.setCurrent(new Competition());
         
-		AgeGroupRepository.insertStandardAgeGroups(em, false);
+		AgeGroupRepository.insertAgeGroups(em, EnumSet.of(AgeDivision.IWF));
 
 		LocalDateTime w = LocalDateTime.now();
 		LocalDateTime c = w.plusHours((long) 2.0);

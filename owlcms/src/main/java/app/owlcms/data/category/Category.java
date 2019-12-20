@@ -77,7 +77,10 @@ public class Category implements Serializable, Comparable<Category> {
     @Column(columnDefinition = "boolean default false")
     private boolean active;
 
-    private Integer wr;
+    private Integer wrSr;
+    private Integer wrJr;
+    private Integer wrYth;
+
     private String code;
 
     /**
@@ -154,7 +157,7 @@ public class Category implements Serializable, Comparable<Category> {
                 && gender == other.gender && Objects.equals(id, other.id)
                 && Objects.equals(maximumWeight, other.maximumWeight)
                 && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
-                && Objects.equals(robiA, other.robiA) && Objects.equals(wr, other.wr);
+                && Objects.equals(robiA, other.robiA) && Objects.equals(wrSr, other.wrSr);
     }
 
     /**
@@ -252,12 +255,34 @@ public class Category implements Serializable, Comparable<Category> {
      *
      * @return the wr
      */
-    //TODO: get world records from configuration file
     public Integer getWr() {
-        if (wr == null) {
+        if (ageGroup == null) {
             return 0;
         }
-        return wr;
+        if (ageGroup.getAgeDivision() != AgeDivision.IWF) {
+            return 0;
+        }
+        if (ageGroup.getMinAge() == 15 && ageGroup.getMaxAge() == 999) {
+            return wrSr;
+        } else if (ageGroup.getMinAge() == 15 && ageGroup.getMaxAge() == 20) {
+            return wrJr;
+        } else if (ageGroup.getMinAge() == 13 && ageGroup.getMaxAge() == 17) {
+            return wrYth;
+        } else {
+            return 0;
+        }
+    }
+
+    public Integer getWrJr() {
+        return wrJr;
+    }
+
+    public Integer getWrSr() {
+        return wrSr;
+    }
+
+    public Integer getWrYth() {
+        return wrYth;
     }
 
     /**
@@ -265,7 +290,7 @@ public class Category implements Serializable, Comparable<Category> {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(active, ageGroup, gender, id, maximumWeight, minimumWeight, name, robiA, wr);
+        return Objects.hash(active, ageGroup, gender, id, maximumWeight, minimumWeight, name, robiA, wrSr);
     }
 
     /**
@@ -275,6 +300,14 @@ public class Category implements Serializable, Comparable<Category> {
      */
     public Boolean isActive() {
         return active;
+    }
+
+    public String longDump() {
+        return "Category [name=" + getName() + ", active=" + active + ", id=" + id
+                + ", minimumWeight=" + minimumWeight
+                + ", maximumWeight=" + maximumWeight + ", ageGroup=" + ageGroup.getName() + ", athletes=" + athletes
+                + ", gender="
+                + gender + ", wr=" + wrSr + ", code=" + code + ", robiA=" + robiA + "]";
     }
 
     /**
@@ -329,15 +362,6 @@ public class Category implements Serializable, Comparable<Category> {
         this.maximumWeight = maximumWeight;
     }
 
-//    /**
-//     * Sets the name.
-//     *
-//     * @param name the name to set
-//     */
-//    public void setName(String name) {
-//        this.name = name;
-//    }
-
     /**
      * Sets the minimum weight.
      *
@@ -356,13 +380,34 @@ public class Category implements Serializable, Comparable<Category> {
         this.robiA = robiA;
     }
 
+//    /**
+//     * Sets the name.
+//     *
+//     * @param name the name to set
+//     */
+//    public void setName(String name) {
+//        this.name = name;
+//    }
+
     /**
      * Sets the wr.
      *
      * @param wr the wr to set
      */
     public void setWr(Integer wr) {
-        this.wr = wr;
+        this.wrSr = wr;
+    }
+
+    public void setWrJr(Integer wrJr) {
+        this.wrJr = wrJr;
+    }
+
+    public void setWrSr(Integer wrSr) {
+        this.wrSr = wrSr;
+    }
+
+    public void setWrYth(Integer wrYth) {
+        this.wrYth = wrYth;
     }
 
     /**
@@ -372,14 +417,6 @@ public class Category implements Serializable, Comparable<Category> {
      */
     public String shortDump() {
         return name + "_" + active + "_" + gender + "_" + ageGroup;
-    }
-
-    public String longDump() {
-        return "Category [name=" + getName() + ", active=" + active  + ", id=" + id
-                + ", minimumWeight=" + minimumWeight
-                + ", maximumWeight=" + maximumWeight + ", ageGroup=" + ageGroup.getName() + ", athletes=" + athletes
-                + ", gender="
-                + gender + ", wr=" + wr + ", code=" + code + ", robiA=" + robiA + "]";
     }
 
     /*

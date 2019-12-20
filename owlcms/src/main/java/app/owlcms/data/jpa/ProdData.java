@@ -118,7 +118,7 @@ public class ProdData {
      */
     public static void insertInitialData(int nbAthletes) {
         JPAService.runInTransaction(em -> {
-            AgeGroupRepository.insertStandardAgeGroups(em, false);
+            AgeGroupRepository.insertAgeGroups(em, null);
             return null;
         });
 //        JPAService.runInTransaction(em -> {

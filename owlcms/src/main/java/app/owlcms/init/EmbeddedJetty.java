@@ -6,6 +6,7 @@
  */
 package app.owlcms.init;
 
+import java.net.BindException;
 import java.net.URI;
 import java.net.URL;
 import java.util.EnumSet;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.server.startup.ServletContextListeners;
 
 import app.owlcms.Main;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -71,10 +73,22 @@ public class EmbeddedJetty {
         scHandler.getServletHandler().addFilterWithMapping(HttpsEnforcer.class, "/*",
                 EnumSet.of(DispatcherType.REQUEST));
 
-        server.start();
-        startLogger.info("started on port {}", port);
-        Main.startBrowser();
-        server.join();
+        try {
+            server.start();
+            startLogger.info("started on port {}", port);
+            Main.startBrowser();
+            server.join();
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof BindException) {
+                logger.error("another server is already running on port {}\n{}", port, LoggerUtils.stackTrace(cause));
+                System.err.println("another program is already using port "+port+"; set the environment variable OWLCMS_PORT to use another port number");
+            } else {
+                logger.error(LoggerUtils.stackTrace());
+                System.err.println("server could not be started");
+                e.printStackTrace();
+            }
+        }
     }
 
 }

@@ -8,10 +8,12 @@ package app.owlcms.data.agegroup;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -27,7 +29,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.config.ExcelReader;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
@@ -43,7 +44,7 @@ public class AgeGroupRepository {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupRepository.class);
 
-    private static void createAgeGroups(Workbook workbook, Map<String, Category> templates, boolean masters) {
+    private static void createAgeGroups(Workbook workbook, Map<String, Category> templates, EnumSet<AgeDivision> es) {
         DataFormatter dataFormatter = new DataFormatter();
 
         JPAService.runInTransaction(em -> {
@@ -97,17 +98,22 @@ public class AgeGroupRepository {
                         break;
                     case 6: {
                         String cellValue = dataFormatter.formatCellValue(cell);
-                        boolean explicitlyActive = cellValue != null ? "true".contentEquals(cellValue.toLowerCase()): false;
-                        ag.setActive(masters ? (ag.getAgeDivision() == AgeDivision.MASTERS ||  ag.getAgeDivision() == AgeDivision.U) : explicitlyActive);
+                        boolean explicitlyActive = cellValue != null ? "true".contentEquals(cellValue.toLowerCase())
+                                : false;
+                        Predicate<AgeDivision> adp = (ad) -> ad.equals(ag.getAgeDivision());
+                        boolean active = es == null ? explicitlyActive : es.stream().anyMatch(adp);
+                        ag.setActive(active);
                     }
                         break;
                     default: {
                         String cellValue = dataFormatter.formatCellValue(cell);
-                        Category cat = createCategoryFromTemplate(cellValue, ag, templates, curMin);
-                        if (cat != null) {
-                            em.persist(cat);
-                            logger.trace(cat.longDump());
-                            curMin = cat.getMaximumWeight();
+                        if (cellValue != null && !cellValue.trim().isEmpty()) {
+                            Category cat = createCategoryFromTemplate(cellValue, ag, templates, curMin);
+                            if (cat != null) {
+                                em.persist(cat);
+                                logger.trace(cat.longDump());
+                                curMin = cat.getMaximumWeight();
+                            }
                         }
                     }
                         break;
@@ -143,6 +149,13 @@ public class AgeGroupRepository {
         }
     }
 
+    /**
+     * Create category templates that will be copied to instantiate the actual categories. The world records are read
+     * and included in the template.
+     * 
+     * @param workbook
+     * @return
+     */
     private static Map<String, Category> createCategoryTemplates(Workbook workbook) {
         Map<String, Category> categoryMap = new HashMap<>();
         DataFormatter dataFormatter = new DataFormatter();
@@ -169,7 +182,6 @@ public class AgeGroupRepository {
                     String cellValue = dataFormatter.formatCellValue(cell);
                     c.setCode(cellValue.trim());
                     categoryMap.put(cellValue, c);
-                    logger.trace("creating template {}", cellValue);
                 }
                     break;
                 case 1: {
@@ -181,6 +193,18 @@ public class AgeGroupRepository {
                     break;
                 case 2: {
                     c.setMaximumWeight(cell.getNumericCellValue());
+                }
+                    break;
+                case 3: {
+                    c.setWrSr((int) Math.round(cell.getNumericCellValue()));
+                }
+                    break;
+                case 4: {
+                    c.setWrJr((int) Math.round(cell.getNumericCellValue()));
+                }
+                    break;
+                case 5: {
+                    c.setWrYth((int) Math.round(cell.getNumericCellValue()));
                 }
                     break;
                 }
@@ -258,11 +282,11 @@ public class AgeGroupRepository {
         return (AgeGroup) query.getResultList().stream().findFirst().orElse(null);
     }
 
-    public static void insertStandardAgeGroups(EntityManager em, boolean masters) {
+    public static void insertAgeGroups(EntityManager em, EnumSet<AgeDivision> es) {
         try {
-            Workbook workbook = WorkbookFactory.create(ExcelReader.class.getResourceAsStream("/config/AgeGroups.xlsx"));
+            Workbook workbook = WorkbookFactory.create(AgeGroupRepository.class.getResourceAsStream("/config/AgeGroups.xlsx"));
             Map<String, Category> templates = createCategoryTemplates(workbook);
-            createAgeGroups(workbook, templates, masters);
+            createAgeGroups(workbook, templates, es);
             workbook.close();
 
         } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
