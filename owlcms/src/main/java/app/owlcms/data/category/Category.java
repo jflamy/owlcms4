@@ -1,9 +1,10 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
+
 package app.owlcms.data.category;
 
 import java.io.Serializable;
@@ -223,8 +224,12 @@ public class Category implements Serializable, Comparable<Category> {
      * @return the name
      */
     public String getName() {
-        if (ageGroup == null) return null;
-        if (maximumWeight == null) return null;
+        if (ageGroup == null) {
+            return null;
+        }
+        if (maximumWeight == null) {
+            return null;
+        }
         String agName = ageGroup.getName();
         String catName = agName + (agName != null && !agName.isEmpty() ? " " : "");
         if (maximumWeight > 110) {
