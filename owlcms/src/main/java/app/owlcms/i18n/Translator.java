@@ -38,13 +38,11 @@ import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 /**
- * This class creates a resource bundle from a CSV file containing the various
- * translations, and provides translations for Components according to the
- * Vaadin translation spec.
+ * This class creates a resource bundle from a CSV file containing the various translations, and provides translations
+ * for Components according to the Vaadin translation spec.
  *
- * Static variations of the translation routines are also provided for
- * translations that do not take place inside Vaadin components (e.g.
- * spreadsheets).
+ * Static variations of the translation routines are also provided for translations that do not take place inside Vaadin
+ * components (e.g. spreadsheets).
  *
  */
 @SuppressWarnings("serial")
@@ -88,12 +86,10 @@ public class Translator implements I18NProvider {
     }
 
     /**
-     * Return a resource bundle created by reading a CSV files. This creates
-     * properties files, and uses the standard caching implementation and bundle
-     * hierarchy as defined by Java.
+     * Return a resource bundle created by reading a CSV files. This creates properties files, and uses the standard
+     * caching implementation and bundle hierarchy as defined by Java.
      *
-     * Resource bundles are cached by the Java implementation, so this method can be
-     * called repeatedly.
+     * Resource bundles are cached by the Java implementation, so this method can be called repeatedly.
      *
      * Adapted from https://hub.jmonkeyengine.org/t/i18n-from-csv-calc/31492
      *
@@ -249,17 +245,17 @@ public class Translator implements I18NProvider {
         return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
     }
 
+    public static String translateOrElseEn(String string, Locale locale) {
+        return helper.getTranslationOrElseEn(string, locale);
+    }
+
     public static String translateOrElseNull(String string, Locale locale) {
         return helper.getTranslationOrElseNull(string, locale);
     }
 
-    private String format(String key, Locale locale, String value, Object... params) {
+    private String format(String value, Object... params) {
         if (params.length > 0) {
-            try {
-                value = MessageFormat.format(value, params);
-            } catch (Exception e) {
-                value = "!" + locale.getLanguage() + ": " + e.getLocalizedMessage() + ": " + key + " " + params;
-            }
+            value = MessageFormat.format(value, params);
         }
         return value;
     }
@@ -276,8 +272,7 @@ public class Translator implements I18NProvider {
     }
 
     /**
-     * @see com.vaadin.flow.i18n.I18NProvider#getTranslation(java.lang.String,
-     *      java.util.Locale, java.lang.Object[])
+     * @see com.vaadin.flow.i18n.I18NProvider#getTranslation(java.lang.String, java.util.Locale, java.lang.Object[])
      */
     @Override
     public String getTranslation(String key, Locale locale, Object... params) {
@@ -296,7 +291,31 @@ public class Translator implements I18NProvider {
         } catch (final MissingResourceException e) {
             return "!" + locale.getLanguage() + ": " + key;
         }
-        value = format(key, locale, value, params);
+        if (params.length > 0) {
+            value = format(value, params);
+        }
+        return value;
+    }
+
+    public String getTranslationOrElseEn(String key, Locale locale, Object... params) {
+        locale = overrideLocale(locale);
+
+        if (key == null) {
+            nullTranslationKey();
+            return "";
+        }
+        final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(locale);
+
+        String value;
+        try {
+            value = (String) bundle.getString(key);
+        } catch (final MissingResourceException e) {
+            PropertyResourceBundle enBundle = (PropertyResourceBundle) getBundleFromCSV(Locale.ENGLISH);
+            value = (String) enBundle.handleGetObject(key);
+        }
+        if (params.length > 0 && value != null) {
+            value = format(value, params);
+        }
         return value;
     }
 
@@ -310,12 +329,10 @@ public class Translator implements I18NProvider {
         final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(locale);
 
         String value;
-        try {
-            value = (String) bundle.handleGetObject(key);
-        } catch (final MissingResourceException e) {
-            return null;
+        value = (String) bundle.handleGetObject(key);
+        if (params.length > 0) {
+            value = format(value, params);
         }
-        value = format(key, locale, value, params);
         return value;
     }
 
@@ -329,4 +346,5 @@ public class Translator implements I18NProvider {
         }
         return locale;
     }
+
 }

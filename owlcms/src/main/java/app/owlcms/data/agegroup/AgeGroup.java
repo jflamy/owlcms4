@@ -13,17 +13,22 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
+import ch.qos.logback.classic.Logger;
 
 @Entity
 @Cacheable
 public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     private static final long serialVersionUID = 8154757158144876816L;
+    Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -120,13 +125,22 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     }
 
     public String getName() {
+        String code2 = this.getCode();
+        String translatedCode = getTranslatedCode();
         if (ageDivision == AgeDivision.MASTERS) {
-            return getCode();
+            return translatedCode != null ? translatedCode : code2;
         } else if (ageDivision == AgeDivision.DEFAULT) {
             return getGender().toString();
         } else {
-            return getCode() + " " + getGender();
+            translatedCode =  translatedCode != null ? translatedCode : code2;
+            return translatedCode + " " + getGender();
         }
+    }
+
+    private String getTranslatedCode() {
+        return Translator.translateOrElseEn(
+                "AgeGroup."+getCode(),
+                OwlcmsSession.getLocale());
     }
 
 //    public void addCategory(Category category) {
@@ -170,7 +184,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     public void setMinAge(Integer minAge) {
         this.minAge = minAge;
     }
-    
+
     @Override
     public String toString() {
         return getName();
