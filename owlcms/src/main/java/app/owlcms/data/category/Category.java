@@ -223,6 +223,8 @@ public class Category implements Serializable, Comparable<Category> {
      * @return the name
      */
     public String getName() {
+        if (ageGroup == null) return null;
+        if (maximumWeight == null) return null;
         String agName = ageGroup.getName();
         String catName = agName + (agName != null && !agName.isEmpty() ? " " : "");
         if (maximumWeight > 110) {
