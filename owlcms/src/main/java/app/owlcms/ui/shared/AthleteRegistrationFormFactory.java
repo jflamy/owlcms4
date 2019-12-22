@@ -285,7 +285,6 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
         Collection<Category> allEligible = CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue());
         ListDataProvider<Category> listDataProvider = new ListDataProvider<>(allEligible);
-        listDataProvider.addSortOrder(Category::getMinimumWeight, SortDirection.ASCENDING);
         categoryField.setDataProvider(listDataProvider);
 
         genderField.addValueChangeListener((vc) -> {
