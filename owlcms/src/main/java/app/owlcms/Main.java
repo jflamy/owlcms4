@@ -159,7 +159,6 @@ public class Main {
             Translator.setForcedLocale(l);
             if (demoMode) {
                 // demoMode forces JPAService to reset.
-
                 DemoData.insertInitialData(20, ageDivisions);
             } else {
                 // the other modes require explicit resetMode. We don't want multiple inserts.

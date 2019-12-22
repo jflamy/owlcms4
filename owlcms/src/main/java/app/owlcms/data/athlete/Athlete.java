@@ -3799,4 +3799,12 @@ public class Athlete {
         }
     }
 
+    public Integer getAge() {
+        LocalDate date = Competition.getCurrent().getCompetitionDate();
+        if (date == null) {
+            date = LocalDate.now();
+        }
+        return date.getYear() - getFullBirthDate().getYear();
+    }
+
 }

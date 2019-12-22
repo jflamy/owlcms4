@@ -216,7 +216,8 @@ th, td {
 }
 
 .medium {
-	width: var(--medium-width);
+	width: var(--narrow-width);
+	white-space: nowrap;
 	text-align: center;
 }
 

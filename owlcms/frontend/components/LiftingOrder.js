@@ -216,7 +216,8 @@ th, td {
 }
 
 .medium {
-	width: var(--medium-width);
+	width: var(--narrow-width);
+	white-space: nowrap;
 	text-align: center;
 }
 
@@ -338,11 +339,11 @@ th, td {
 		<tr>
 			<!--  [[t.x]] is loaded with the translation for key Scoreboard.x in the translation4.csv file -->
 			<th width="5%" style="text-align: center;" inner-h-t-m-l="[[t.Start]]"></th>
-			<th width="30%" inner-h-t-m-l="[[t.Name]]"></th>
-			<th width="9%" class="narrow" inner-h-t-m-l="[[t.RequestedWeight]]"></th>
-			<th width="9%" class="narrow" inner-h-t-m-l="[[t.NextAttempt]]"></th>
-			<th class="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
-			<th width="20%" class='club' inner-h-t-m-l="[[t.Team]]"></th>
+			<th width="35%" inner-h-t-m-l="[[t.Name]]"></th>
+			<th class="narrow" inner-h-t-m-l="[[t.RequestedWeight]]"></th>
+			<th class="narrow" inner-h-t-m-l="[[t.NextAttempt]]"></th>
+			<th class="medium" inner-h-t-m-l="[[t.Category]]"></th>
+			<th width="30%" class='club' inner-h-t-m-l="[[t.Team]]"></th>
 		</tr>
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
@@ -352,11 +353,11 @@ th, td {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td width="5%" style="text-align: center;" class$="[[l.classname]]">[[l.startNumber]]</td>
-				<td width="30%" class$="[[l.classname]] ellipsis">[[l.fullName]]</td>
-				<td width="9%" class$="[[l.classname]]" style="text-align: center;">[[l.requestedWeight]]</td>
-				<td width="9%" class$="[[l.classname]]" style="text-align: center;">[[l.nextAttemptNo]]</td>			
-				<td class="[[_computeCatWidth(wideCategory)]]" style="text-align: center;" >[[l.category]]</td>
-				<td width="20%" class="club ellipsis">[[l.teamName]]</td>	
+				<td width="35%" class$="[[l.classname]] ellipsis">[[l.fullName]]</td>
+				<td class$="[[l.classname]]" style="text-align: center;">[[l.requestedWeight]]</td>
+				<td class$="[[l.classname]]" style="text-align: center; white-space: nowrap">[[l.nextAttemptNo]]</td>			
+				<td class="medium" style="text-align: center; white-space: nowrap" >[[l.category]]</td>
+				<td width="30%" class="club ellipsis">[[l.teamName]]</td>	
 			</tr>
 		</template>
 	</template>

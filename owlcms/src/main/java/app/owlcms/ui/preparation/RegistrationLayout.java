@@ -35,6 +35,8 @@ import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -78,6 +80,21 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
             em.flush();
             return null;
         });
+    }
+    
+    private void resetCategories() {
+        RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+        JPAService.runInTransaction(em -> {
+            List<Athlete> athletes = (List<Athlete>) content.doFindAll(em);
+            for (Athlete a : athletes) {
+                List<Category> categories = CategoryRepository.findByGenderAgeBW(a.getGender(), a.getAge(), a.getBodyWeight());
+                a.setCategory(categories.isEmpty() ? null : categories.get(0));
+                em.merge(a);
+            }
+            em.flush();
+            return null;
+        });
+        content.refreshCrudGrid();
     }
 
     /**
@@ -148,8 +165,16 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         });
         cards.add(cardsButton);
         cardsButton.setEnabled(true);
+        
+        Button resetCats = new Button(getTranslation("ResetCategories.ResetCategories"), (e) -> {
+            new ConfirmationDialog(getTranslation("ClearLifts"), getTranslation("ResetCategories.Warning_ResetCategories"),
+                    getTranslation("ResetCategories.CategoriesReset"), () -> {
+                        resetCategories();
+                    }).open();
+        });
+        deleteAthletes.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
 
-        HorizontalLayout buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingList, cards);
+        HorizontalLayout buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingList, cards, resetCats);
         buttons.setPadding(true);
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);

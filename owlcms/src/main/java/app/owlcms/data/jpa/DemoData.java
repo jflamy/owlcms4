@@ -8,7 +8,7 @@ package app.owlcms.data.jpa;
 
 import static app.owlcms.data.athlete.Gender.F;
 import static app.owlcms.data.athlete.Gender.M;
-import static app.owlcms.data.category.AgeDivision.IWF;
+import static app.owlcms.data.category.AgeDivision.DEFAULT;
 import static app.owlcms.data.category.AgeDivision.MASTERS;
 import static app.owlcms.data.category.AgeDivision.U;
 
@@ -200,6 +200,7 @@ public class DemoData {
             AgeGroupRepository.insertAgeGroups(em, ageDivisions);
             return null;
         });
+        
 //        JPAService.runInTransaction(em -> {
 //            CategoryRepository.insertStandardCategories(em);
 //            return null;
@@ -241,11 +242,17 @@ public class DemoData {
             createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, U, 13, 17, Gender.M);
             createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, U, 13, 17, F);
         } else {
-            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, IWF, 18, 32, M);
-            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, IWF, 18, 32, M);
-            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, IWF, 18, 32, F);
-            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, U, 13, 17, M);
-            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, U, 13, 17, F);
+//            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, IWF, 18, 32, M);
+//            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, IWF, 18, 32, M);
+//            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, IWF, 18, 32, F);
+//            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, U, 13, 17, M);
+//            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, U, 13, 17, F);
+            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, DEFAULT, 18, 32, M);
+            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, DEFAULT, 18, 32, M);
+            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, DEFAULT, 18, 32, F);
+            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, DEFAULT, 13, 17, M);
+            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, DEFAULT, 13, 17, F);
+            
         }
 
         drawLots(em);

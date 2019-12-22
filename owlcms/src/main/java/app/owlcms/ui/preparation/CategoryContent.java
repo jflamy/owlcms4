@@ -22,7 +22,6 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
@@ -104,7 +103,6 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
         captions.add(getTranslation("Name"));
         props.add("ageGroup");
         captions.add(getTranslation("AgeGroup"));
-        ;
         props.add("gender");
         captions.add(getTranslation("Gender"));
         props.add("minimumWeight");
@@ -113,8 +111,8 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
         captions.add(getTranslation("MaximumWeight"));
         props.add("wr");
         captions.add(getTranslation("WorldRecord"));
-        props.add("active");
-        captions.add(getTranslation("Active"));
+//        props.add("active");
+//        captions.add(getTranslation("Active"));
 
         crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
         crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
@@ -130,20 +128,20 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
      */
     protected GridCrud<Category> createGrid(OwlcmsCrudFormFactory<Category> crudFormFactory) {
         Grid<Category> grid = new Grid<>(Category.class, false);
-        grid.addColumn(new ComponentRenderer<>(cat -> {
-            // checkbox to avoid entering in the form
-            Checkbox activeBox = new Checkbox("Name");
-            activeBox.setLabel(null);
-            activeBox.getElement().getThemeList().set("secondary", true);
-            activeBox.setValue(cat.isActive());
-            activeBox.addValueChangeListener(click -> {
-                activeBox.setValue(click.getValue());
-                cat.setActive(click.getValue());
-                CategoryRepository.save(cat);
-                grid.getDataProvider().refreshItem(cat);
-            });
-            return activeBox;
-        })).setHeader(getTranslation("Active")).setWidth("0");
+//        grid.addColumn(new ComponentRenderer<>(cat -> {
+//            // checkbox to avoid entering in the form
+//            Checkbox activeBox = new Checkbox("Name");
+//            activeBox.setLabel(null);
+//            activeBox.getElement().getThemeList().set("secondary", true);
+//            activeBox.setValue(cat.isActive());
+//            activeBox.addValueChangeListener(click -> {
+//                activeBox.setValue(click.getValue());
+//                cat.setActive(click.getValue());
+//                CategoryRepository.save(cat);
+//                grid.getDataProvider().refreshItem(cat);
+//            });
+//            return activeBox;
+//        })).setHeader(getTranslation("Active")).setWidth("0");
         grid.addColumn(Category::getName).setHeader(getTranslation("Name"));
         grid.addColumn(new TextRenderer<Category>(
                 item -> getTranslation("Division." + item.getAgeGroup().getAgeDivision().name())))
