@@ -175,7 +175,7 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 
         ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
         ageDivisionFilter.setItems(AgeDivision.findAll());
-        ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
+        ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division."+ad.name()));
         ageDivisionFilter.setClearButtonVisible(true);
         ageDivisionFilter.addValueChangeListener(e -> {
             crud.refreshGrid();

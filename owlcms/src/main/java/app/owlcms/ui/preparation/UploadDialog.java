@@ -98,6 +98,8 @@ public class UploadDialog extends Dialog {
 
             try (InputStream xlsInputStream = inputStream) {
                 RCompetition c = new RCompetition();
+                RCompetition.resetActiveCategories();
+                
                 List<RAthlete> athletes = new ArrayList<>();
 
                 Map<String, Object> beans = new HashMap<>();

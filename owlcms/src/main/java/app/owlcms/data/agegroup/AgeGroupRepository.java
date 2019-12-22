@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -152,7 +153,7 @@ public class AgeGroupRepository {
     /**
      * Create category templates that will be copied to instantiate the actual categories. The world records are read
      * and included in the template.
-     * 
+     *
      * @param workbook
      * @return
      */
@@ -251,6 +252,49 @@ public class AgeGroupRepository {
         return (AgeGroup) query.getResultList().stream().findFirst().orElse(null);
     }
 
+    private static String filteringSelection(String name, Gender gender, AgeDivision ageDivision, Integer age,
+            Boolean active) {
+        String joins = null;
+        String where = filteringWhere(name, ageDivision, age, gender, active);
+        String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
+        return selection;
+    }
+
+    private static String filteringWhere(String name, AgeDivision ageDivision, Integer age, Gender gender,
+            Boolean active) {
+        List<String> whereList = new LinkedList<>();
+        if (ageDivision != null) {
+            whereList.add("ag.ageDivision = :division");
+        }
+        if (name != null && name.trim().length() > 0) {
+            whereList.add("lower(ag.name) like :name");
+        }
+        if (active != null && active) {
+            whereList.add("ag.active = :active");
+        }
+        if (gender != null) {
+            whereList.add("ag.gender = :gender");
+        }
+
+        if (age != null) {
+            whereList.add("(ag.minAge <= :age) and (ag.maxAge >= :age)");
+        }
+        if (whereList.size() == 0) {
+            return null;
+        } else {
+            return String.join(" and ", whereList);
+        }
+    }
+
+    /**
+     * @return active categories
+     */
+    public static List<AgeGroup> findActive() {
+        List<AgeGroup> findFiltered = findFiltered((String) null, (Gender) null, (AgeDivision) null, (Integer) null,
+                true, -1, -1);
+        return findFiltered;
+    }
+
     /**
      * Find all.
      *
@@ -266,6 +310,36 @@ public class AgeGroupRepository {
         return JPAService.runInTransaction(em -> {
             return doFindByName(name, em);
         });
+    }
+
+    public static List<AgeGroup> findFiltered(String name, Gender gender, AgeDivision ageDivision, Integer age,
+            boolean active, int offset, int limit) {
+
+        List<AgeGroup> findFiltered = JPAService.runInTransaction(em -> {
+            String qlString = "select ag from AgeGroup ag"
+                    + filteringSelection(name, gender, ageDivision, age, active)
+                    + " order by ag.ageDivision, ag.gender, ag.minAge, ag.maxAge";
+            logger.debug("query = {}", qlString);
+
+            Query query = em.createQuery(qlString);
+            setFilteringParameters(name, gender, ageDivision, age, active, query);
+            if (offset >= 0) {
+                query.setFirstResult(offset);
+            }
+            if (limit > 0) {
+                query.setMaxResults(limit);
+            }
+            @SuppressWarnings("unchecked")
+            List<AgeGroup> resultList = query.getResultList();
+            return resultList;
+        });
+        findFiltered.sort((ag1, ag2) -> {
+            int compare = 0;
+            compare = ag1.getAgeDivision().compareTo(ag2.getAgeDivision());
+            if (compare != 0) return -compare; // most generic first
+            return ag1.compareTo(ag2);
+        });
+        return findFiltered;
     }
 
     /**
@@ -284,7 +358,8 @@ public class AgeGroupRepository {
 
     public static void insertAgeGroups(EntityManager em, EnumSet<AgeDivision> es) {
         try {
-            Workbook workbook = WorkbookFactory.create(AgeGroupRepository.class.getResourceAsStream("/config/AgeGroups.xlsx"));
+            Workbook workbook = WorkbookFactory
+                    .create(AgeGroupRepository.class.getResourceAsStream("/config/AgeGroups.xlsx"));
             Map<String, Category> templates = createCategoryTemplates(workbook);
             createAgeGroups(workbook, templates, es);
             workbook.close();
@@ -303,6 +378,26 @@ public class AgeGroupRepository {
      */
     public static AgeGroup save(AgeGroup AgeGroup) {
         return JPAService.runInTransaction(em -> em.merge(AgeGroup));
+    }
+
+    private static void setFilteringParameters(String name, Gender gender, AgeDivision ageDivision, Integer age,
+            Boolean active, Query query) {
+        if (name != null && name.trim().length() > 0) {
+            // starts with
+            query.setParameter("name", "%" + name.toLowerCase() + "%");
+        }
+        if (active != null && active) {
+            query.setParameter("active", active);
+        }
+        if (age != null) {
+            query.setParameter("age", age);
+        }
+        if (ageDivision != null) {
+            query.setParameter("division", ageDivision); // ageDivision is a string
+        }
+        if (gender != null) {
+            query.setParameter("gender", gender);
+        }
     }
 
 }

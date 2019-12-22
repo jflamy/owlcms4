@@ -17,6 +17,7 @@
 			var="a" varType="app.owlcms.spreadsheet.RAthlete">
 			<section startRow="7" endRow="7">
                 <mapping row="7" col="22">a.group</mapping>
+                <mapping row="7" col="8">a.fullBirthDate</mapping>
 				<mapping row="7" col="0">a.membership</mapping>
 				<mapping row="7" col="1">a.lotNumber</mapping>
 				<mapping row="7" col="2">a.lastName</mapping>
@@ -25,7 +26,6 @@
 				<mapping row="7" col="5">a.category</mapping>
                 <mapping row="7" col="6">a.bodyWeight</mapping>
 				<mapping row="7" col="7">a.team</mapping>
-				<mapping row="7" col="8">a.fullBirthDate</mapping>
                 <mapping row="7" col="9">a.snatch1Declaration</mapping>
                 <mapping row="7" col="14">a.cleanJerk1Declaration</mapping>
 				<mapping row="7" col="23">a.qualifyingTotal</mapping>

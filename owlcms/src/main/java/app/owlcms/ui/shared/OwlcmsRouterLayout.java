@@ -143,6 +143,10 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         return layoutComponentContent;
     }
 
+    /**
+     * @param variant
+     * @return
+     */
     protected AppLayout getLayoutConfiguration(Class<? extends AppLayout> variant) {
         if (variant == null) {
             variant = LeftLayouts.LeftResponsive.class;

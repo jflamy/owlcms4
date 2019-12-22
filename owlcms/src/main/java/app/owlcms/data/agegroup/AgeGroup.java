@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2019 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.data.agegroup;
 
 import java.io.Serializable;
@@ -11,6 +17,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -47,6 +54,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
+
+    @Transient
+    public String categoriesAsString;
 
     public AgeGroup() {
     }
@@ -95,13 +105,33 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
      */
     public List<Category> getCategories() {
         // simpler to use a query; it is sufficient to call Category.setAgeGroup()
-        // to manage the relationship.
+        // to manage the relationship. 
         return JPAService
                 .runInTransaction(em -> em
                         .createQuery("select c " + "from Category c "
                                 + "where c.ageGroup.id = :agId order by c.maximumWeight", Category.class)
                         .setParameter("agId", this.getId()).getResultList());
 
+    }
+
+    public String getCategoriesAsString() {
+        List<Category> cats = getCategories();
+        int previousMax = 0;
+        StringBuilder buf = new StringBuilder();
+        for (Category cat : cats) {
+            Double maximumWeight = cat.getMaximumWeight();
+            if (maximumWeight.compareTo(998.9D) > 0) {
+                buf.append(" >");
+                buf.append(previousMax);
+                break;
+            } else {
+                int curMax = (int) Math.round(maximumWeight);
+                buf.append(curMax);
+                buf.append(", ");
+                previousMax = curMax;
+            }
+        }
+        return buf.toString();
     }
 
     public String getCode() {
@@ -124,6 +154,14 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         return minAge;
     }
 
+//    public void addCategory(Category category) {
+//        if (category != null) category.setAgeGroup(this);
+//    }
+//
+//    public void removeCategory(Category category) {
+//        if (category != null) category.setAgeGroup(null);
+//    }
+
     public String getName() {
         String code2 = this.getCode();
         String translatedCode = getTranslatedCode();
@@ -132,24 +170,16 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         } else if (ageDivision == AgeDivision.DEFAULT) {
             return getGender().toString();
         } else {
-            translatedCode =  translatedCode != null ? translatedCode : code2;
+            translatedCode = translatedCode != null ? translatedCode : code2;
             return translatedCode + " " + getGender();
         }
     }
 
     private String getTranslatedCode() {
         return Translator.translateOrElseEn(
-                "AgeGroup."+getCode(),
+                "AgeGroup." + getCode(),
                 OwlcmsSession.getLocale());
     }
-
-//    public void addCategory(Category category) {
-//        if (category != null) category.setAgeGroup(this);
-//    }
-//
-//    public void removeCategory(Category category) {
-//        if (category != null) category.setAgeGroup(null);
-//    }
 
     public boolean isActive() {
         return active;
@@ -168,6 +198,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
             category.setAgeGroup(this);
         }
     }
+
+//    public void setCategoriesAsString(String unused) {
+//    }
 
     public void setCode(String code) {
         this.code = code;

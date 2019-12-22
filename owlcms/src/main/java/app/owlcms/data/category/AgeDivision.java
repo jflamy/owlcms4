@@ -6,8 +6,8 @@
  */
 package app.owlcms.data.category;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,8 @@ public enum AgeDivision {
      * @return the collection
      */
     public static Collection<AgeDivision> findAll() {
-        return Arrays.asList(AgeDivision.values());
+        return EnumSet.of(AgeDivision.DEFAULT, AgeDivision.IWF, AgeDivision.U, AgeDivision.MASTERS);
+        //return Arrays.asList(AgeDivision.values());
     }
 
     /**

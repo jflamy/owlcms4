@@ -9,10 +9,27 @@ package app.owlcms.spreadsheet;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 
 public class RCompetition {
+
+    static Map<String, Category> activeCategories = new HashMap<>();
+
+    public static Map<String, Category> getActiveCategories() {
+        return activeCategories;
+    }
+
+    public static void resetActiveCategories() {
+        activeCategories.clear();
+        CategoryRepository.findActive().forEach(c -> {
+            activeCategories.put(c.getName(), c);
+        });
+    }
 
     Competition c = new Competition();
 

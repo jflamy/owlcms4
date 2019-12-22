@@ -411,7 +411,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             logger.trace("Starting result board on FOP {}", fop.getName());
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
-            getModel().setWideCategory(true); //TODO figure out how to get narrow category if wide not needed
+            getModel().setWideCategory(true); //TODO figure out how to use narrow column if wide not needed
         });
         setTranslationMap();
         order = ImmutableList.of();

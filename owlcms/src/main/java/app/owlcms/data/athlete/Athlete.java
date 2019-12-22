@@ -737,7 +737,7 @@ public class Athlete {
      * Gets the birth date.
      *
      * @return the birthDate
-     * @deprecated use
+     * @deprecated use getYearOfBirth
      */
     @Deprecated
     @Transient
