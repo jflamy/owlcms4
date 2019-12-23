@@ -27,6 +27,8 @@ import org.apache.commons.beanutils.converters.DateConverter;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
@@ -60,8 +62,7 @@ public class Main {
     public static String productionMode;
 
     /**
-     * return true if OWLCMS_KEY = true as an environment variable, and if not, if
-     * -Dkey=true as a system property.
+     * return true if OWLCMS_KEY = true as an environment variable, and if not, if -Dkey=true as a system property.
      *
      * Environment variables are upperCased, system properties are case-sensitive.
      * <ul>
@@ -104,11 +105,10 @@ public class Main {
     /**
      * Prepare owlcms
      *
-     * Reads configuration options, injects data, initializes singletons and
-     * configurations. The embedded web server can then be started.
+     * Reads configuration options, injects data, initializes singletons and configurations. The embedded web server can
+     * then be started.
      *
-     * Sample command line to run on port 80 and in demo mode (automatically
-     * generated fake data, in-memory database)
+     * Sample command line to run on port 80 and in demo mode (automatically generated fake data, in-memory database)
      *
      * <code><pre>java -D"server.port"=80 -DdemoMode=true -jar owlcms-4.0.1-SNAPSHOT.jar app.owlcms.Main</pre></code>
      *
@@ -138,7 +138,6 @@ public class Main {
         System.setProperty("java.net.preferIPv4Stack", "true");
         ConvertUtils.register(new DateConverter(null), java.util.Date.class);
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
-
 
         // setup database
         JPAService.init(demoMode || memoryMode, demoMode || resetMode);
@@ -173,6 +172,14 @@ public class Main {
                     }
                 } else {
                     logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
+                    List<AgeGroup> ags = AgeGroupRepository.findAll();
+                    if (ags.isEmpty()) {
+                        logger.info("updating age groups and categories");
+                        JPAService.runInTransaction(em -> {
+                            AgeGroupRepository.insertAgeGroups(em, null);
+                            return null;
+                        });
+                    }
                 }
             }
         } finally {
@@ -257,8 +264,7 @@ public class Main {
     }
 
     /**
-     * get configuration from environment variables and if not found, from system
-     * properties.
+     * get configuration from environment variables and if not found, from system properties.
      */
     private static void parseConfig() {
         // read server.port parameter from -D"server.port"=9999 on java command line
@@ -310,7 +316,7 @@ public class Main {
     protected static void tearDown() {
         JPAService.close();
     }
-    
+
     public static void disableWarning() {
         // https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
         try {
