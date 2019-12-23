@@ -66,6 +66,8 @@ import ch.qos.logback.classic.Logger;
 @JsModule("@polymer/iron-icons/maps-icons.js")
 @JsModule("@polymer/iron-icons/social-icons.js")
 @JsModule("@polymer/iron-icons/places-icons.js")
+@CssImport(value = "./styles/shared-styles.css", include = "lumo-badge")
+@JsModule("@vaadin/vaadin-lumo-styles/badge")
 
 public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageConfigurator {
 

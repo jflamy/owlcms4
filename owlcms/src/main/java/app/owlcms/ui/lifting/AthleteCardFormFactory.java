@@ -49,7 +49,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.AthleteGridContent;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -109,22 +108,160 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         return athlete;
     }
 
-    private void atRowAndColumn(GridLayout gridLayout, Component component, int row, int column) {
-        atRowAndColumn(gridLayout, component, row, column, RowAlign.CENTER, ColumnAlign.CENTER);
+    /**
+     * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.crud.CrudOperation,
+     *      java.lang.Object)
+     */
+    @Override
+    public String buildCaption(CrudOperation operation, final Athlete aFromDb) {
+        // If getFullId() is null, caller will build a defaut caption, so this is safe
+        Integer startNumber = aFromDb.getStartNumber();
+        return (startNumber != null ? "[" + startNumber + "] " : "") + aFromDb.getFullId();
     }
 
-    private void atRowAndColumn(GridLayout gridLayout, Component component, int row, int column, RowAlign ra,
-            ColumnAlign ca) {
-        gridLayout.add(component);
-        gridLayout.setRowAndColumn(component, new Int(row), new Int(column), new Int(row), new Int(column));
-        gridLayout.setRowAlign(component, ra);
-        gridLayout.setColumnAlign(component, ca);
-        component.getElement().getStyle().set("width", "6em");
-        if (component instanceof TextField) {
-            TextField textField = (TextField) component;
-            textfields[row - 1][column - 1] = textField;
+    /**
+     * We create a copy of the edited object so that we can validate live
+     *
+     * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.crudui.crud.CrudOperation,
+     *      java.lang.Object, boolean, com.vaadin.flow.component.ComponentEventListener,
+     *      com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener)
+     */
+    @Override
+    public Component buildNewForm(CrudOperation operation, Athlete aFromDb, boolean readOnly,
+            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
+            ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
+
+        FormLayout formLayout = new FormLayout();
+        formLayout.setSizeFull();
+        if (this.responsiveSteps != null) {
+            formLayout.setResponsiveSteps(this.responsiveSteps);
         }
 
+        gridLayout = setupGrid();
+        errorLabel = new Label();
+        HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
+        labelWrapper.addClassName("errorMessage");
+        labelWrapper.setWidthFull();
+        labelWrapper.setJustifyContentMode(JustifyContentMode.CENTER);
+
+        // We use a copy so that if the user cancels, we still have the original object.
+        // This allows us to use cleaner validation methods coded in the Athlete class
+        // as opposed to tedious validations on the form fields using getValue().
+        editedAthlete = new Athlete();
+        originalAthlete = aFromDb;
+        Athlete.copy(editedAthlete, originalAthlete);
+        editedAthlete.setValidation(false); // turn off validation in the setters; vaadin will call validation routines
+        // explicitly
+
+        logger.trace("aFromDb = {} {}", System.identityHashCode(aFromDb), aFromDb);
+        logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete), originalAthlete);
+        logger.trace("editedAthlete = {} {}", System.identityHashCode(editedAthlete), editedAthlete);
+
+        bindGridFields(operation);
+
+        Component footerLayout = this.buildFooter(operation, editedAthlete, cancelButtonClickListener,
+                updateButtonClickListener, deleteButtonClickListener);
+
+        VerticalLayout mainLayout = new VerticalLayout(formLayout, gridLayout, errorLabel, footerLayout);
+        gridLayout.setSizeFull();
+        mainLayout.setFlexGrow(1, gridLayout);
+        mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
+        mainLayout.setMargin(false);
+        mainLayout.setPadding(false);
+        return mainLayout;
+    }
+
+    /**
+     * Workaround for the fact that ENTER as keyboard shortcut prevents the value being typed from being set in the
+     * underlying object.
+     *
+     * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but ENTER alone doesn't. We work around
+     * this issue by causing focus to move, and reacting to the focus being set.
+     *
+     * @param operation
+     *
+     * @param operation
+     * @param gridLayout
+     *
+     * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#defineUpdateTrigger(org.vaadin.crudui.crud.CrudOperation,
+     *      com.github.appreciated.layout.GridLayout)
+     */
+    @Override
+    public TextField defineOperationTrigger(CrudOperation operation, Athlete domainObject,
+            ComponentEventListener<ClickEvent<Button>> action) {
+        TextField operationTrigger = new TextField();
+        operationTrigger.setReadOnly(true);
+        operationTrigger.setTabIndex(-1);
+        operationTrigger.addFocusListener((f) -> {
+            if (valid) {
+                logger.debug("updating");
+                doUpdate();
+            } else {
+                logger.debug("not updating");
+            }
+        });
+        // field must visible and added to the layout for focus() to work, so we hide it
+        // brutally
+        atRowAndColumn(gridLayout, operationTrigger, AUTOMATIC, SNATCH1);
+        operationTrigger.getStyle().set("z-index", "-10");
+        return operationTrigger;
+    }
+
+    /**
+     * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
+     */
+    @Override
+    public void delete(Athlete notUsed) {
+        AthleteRepository.delete(originalAthlete);
+    }
+
+    /**
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     */
+    @Override
+    public Collection<Athlete> findAll() {
+        throw new UnsupportedOperationException(); // should be called on the grid
+    }
+
+    public Athlete getEditedAthlete() {
+        return editedAthlete;
+    }
+
+    public Athlete getOriginalAthlete() {
+        return originalAthlete;
+    }
+
+    private void setActualLiftStyle(BindingValidationStatus<?> status) throws NumberFormatException {
+        TextField field = (TextField) status.getField();
+        if (status.isError()) {
+            field.getElement().getClassList().set("error", true);
+            field.getElement().getClassList().set("good", false);
+            field.getElement().getClassList().set("bad", false);
+            field.focus();
+        } else {
+            String value = field.getValue();
+            boolean empty = value == null || value.trim().isEmpty();
+            if (empty) {
+                field.getElement().getClassList().clear();
+            } else if (value.equals("-")) {
+                field.getElement().getClassList().clear();
+                field.getElement().getClassList().set("bad", true);
+            } else {
+                int intValue = Integer.parseInt(value);
+                field.getElement().getClassList().clear();
+                field.getElement().getClassList().set((intValue <= 0 ? "bad" : "good"), true);
+            }
+        }
+    }
+
+    /**
+     * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+     */
+    @Override
+    public Athlete update(Athlete athleteFromDb) {
+        doUpdate();
+        return originalAthlete;
     }
 
     /**
@@ -132,7 +269,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
      * @param operation
      * @param gridLayout
      */
-    protected void bindGridFields(CrudOperation operation) {
+    private void bindGridFields(CrudOperation operation) {
         binder = buildBinder(null, editedAthlete);
 
         TextField snatch1Declaration = createPositiveWeightField(DECLARATION, SNATCH1);
@@ -364,21 +501,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
     }
 
     /**
-     * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildCaption(org.vaadin.crudui.crud.CrudOperation,
-     *      java.lang.Object)
-     */
-    @Override
-    public String buildCaption(CrudOperation operation, final Athlete aFromDb) {
-        // If getFullId() is null, caller will build a defaut caption, so this is safe
-        Integer startNumber = aFromDb.getStartNumber();
-        return (startNumber != null ? "["+startNumber+"] " : "")+aFromDb.getFullId();
-    }
-
-    /**
      * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildFooter(org.vaadin.crudui.crud.CrudOperation,
      *      java.lang.Object, com.vaadin.flow.component.ComponentEventListener,
-     *      com.vaadin.flow.component.ComponentEventListener,
-     *      com.vaadin.flow.component.ComponentEventListener)
+     *      com.vaadin.flow.component.ComponentEventListener, com.vaadin.flow.component.ComponentEventListener)
      */
     @Override
     protected Component buildFooter(CrudOperation operation, Athlete unused,
@@ -432,70 +557,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         return footerLayout;
     }
 
-    private Checkbox buildForcedCurrentCheckbox() {
-        Checkbox checkbox = new Checkbox(Translator.translate("ForcedAsCurrent"));
-        checkbox.getStyle().set("margin-left", "3em");
-        binder.forField(checkbox).bind(Athlete::isForcedAsCurrent, Athlete::setForcedAsCurrent);
-        return checkbox;
-    }
-
-    /**
-     * We create a copy of the edited object so that we can validate live
-     *
-     * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#buildNewForm(org.vaadin.crudui.crud.CrudOperation,
-     *      java.lang.Object, boolean,
-     *      com.vaadin.flow.component.ComponentEventListener,
-     *      com.vaadin.flow.component.ComponentEventListener,
-     *      com.vaadin.flow.component.ComponentEventListener)
-     */
-    @Override
-    public Component buildNewForm(CrudOperation operation, Athlete aFromDb, boolean readOnly,
-            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
-        logger.trace("building athlete card form {}", LoggerUtils.whereFrom());
-        FormLayout formLayout = new FormLayout();
-        formLayout.setSizeFull();
-        if (this.responsiveSteps != null) {
-            formLayout.setResponsiveSteps(this.responsiveSteps);
-        }
-
-        gridLayout = setupGrid();
-        errorLabel = new Label();
-        HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
-        labelWrapper.addClassName("errorMessage");
-        labelWrapper.setWidthFull();
-        labelWrapper.setJustifyContentMode(JustifyContentMode.CENTER);
-
-        // We use a copy so that if the user cancels, we still have the original object.
-        // This allows us to use cleaner validation methods coded in the Athlete class
-        // as opposed to
-        // tedious validations on the form fields using getValue().
-        editedAthlete = new Athlete();
-        originalAthlete = aFromDb;
-        Athlete.copy(editedAthlete, originalAthlete);
-        editedAthlete.setValidation(false); // turn off validation in the setters; vaadin will call validation routines
-        // explicitly
-
-        logger.trace("aFromDb = {} {}", System.identityHashCode(aFromDb), aFromDb);
-        logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete), originalAthlete);
-        logger.trace("editedAthlete = {} {}", System.identityHashCode(editedAthlete), editedAthlete);
-
-        bindGridFields(operation);
-
-        Component footerLayout = this.buildFooter(operation, editedAthlete, cancelButtonClickListener,
-                updateButtonClickListener, deleteButtonClickListener);
-
-        com.vaadin.flow.component.orderedlayout.VerticalLayout mainLayout = new VerticalLayout(formLayout, gridLayout,
-                errorLabel, footerLayout);
-        gridLayout.setSizeFull();
-        mainLayout.setFlexGrow(1, gridLayout);
-        mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
-        mainLayout.setMargin(false);
-        mainLayout.setPadding(false);
-        return mainLayout;
-    }
-
     /**
      * Special version because we use setBean instead of readBean
      *
@@ -520,175 +581,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
 
         button.addClickListener(listener);
         return button;
-    }
-
-    private Button buildWithdrawButton() {
-        Button withdrawalButton = new Button(Translator.translate("Withdrawal"), IronIcons.EXIT_TO_APP.create(),
-                (e) -> {
-                    Athlete.copy(originalAthlete, editedAthlete);
-                    originalAthlete.withdraw();
-                    AthleteRepository.save(originalAthlete);
-                    OwlcmsSession.withFop((fop) -> {
-                        fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
-                        fop.updateGlobalRankings();
-                    });
-                    origin.closeDialog();
-                });
-        withdrawalButton.getElement().setAttribute("theme", "error");
-        return withdrawalButton;
-    }
-
-    public int computeAutomaticProgression(int value) {
-        return value <= 0 ? Math.abs(value) : value + 1;
-    }
-
-    public TextField createActualWeightField(int row, int col) {
-        TextField tf = new TextField();
-        tf.setPattern("^[-]{0,1}\\d*$");
-        tf.setPreventInvalidInput(true);
-        tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
-        return tf;
-    }
-
-    public TextField createPositiveWeightField(int row, int col) {
-        TextField tf = new TextField();
-        tf.setPattern("^\\d*$");
-        tf.setPreventInvalidInput(true);
-        tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
-        return tf;
-    }
-
-    /**
-     * Workaround for the fact that ENTER as keyboard shortcut prevents the value
-     * being typed from being set in the underlying object.
-     *
-     * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but
-     * ENTER alone doesn't. We work around this issue by causing focus to move, and
-     * reacting to the focus being set.
-     *
-     * @param operation
-     *
-     * @param operation
-     * @param gridLayout
-     *
-     * @see app.owlcms.ui.crudui.OwlcmsCrudFormFactory#defineUpdateTrigger(org.vaadin.crudui.crud.CrudOperation,
-     *      com.github.appreciated.layout.GridLayout)
-     */
-    @Override
-    public TextField defineOperationTrigger(CrudOperation operation, Athlete domainObject,
-            ComponentEventListener<ClickEvent<Button>> action) {
-        TextField operationTrigger = new TextField();
-        operationTrigger.setReadOnly(true);
-        operationTrigger.setTabIndex(-1);
-        operationTrigger.addFocusListener((f) -> {
-            if (valid) {
-                logger.debug("updating");
-                doUpdate();
-            } else {
-                logger.debug("not updating");
-            }
-        });
-        // field must visible and added to the layout for focus() to work, so we hide it
-        // brutally
-        atRowAndColumn(gridLayout, operationTrigger, AUTOMATIC, SNATCH1);
-        operationTrigger.getStyle().set("z-index", "-10");
-        return operationTrigger;
-    }
-
-    /**
-     * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
-     */
-    @Override
-    public void delete(Athlete notUsed) {
-        AthleteRepository.delete(originalAthlete);
-    }
-
-    /**
-     * Update the original athlete so that the lifting order picks up the change.
-     */
-    private void doUpdate() {
-        Athlete.copy(originalAthlete, editedAthlete);
-        AthleteRepository.save(originalAthlete);
-        OwlcmsSession.withFop((fop) -> {
-            fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
-        });
-        origin.closeDialog();
-    }
-
-    /**
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-    @Override
-    public Collection<Athlete> findAll() {
-        throw new UnsupportedOperationException(); // should be called on the grid
-    }
-
-    public Athlete getEditedAthlete() {
-        return editedAthlete;
-    }
-
-    private Object getOrigin() {
-        return origin;
-    }
-
-    public Athlete getOriginalAthlete() {
-        return originalAthlete;
-    }
-
-    private void resetReadOnlyFields() {
-        snatch2AutomaticProgression.setReadOnly(true);
-        snatch3AutomaticProgression.setReadOnly(true);
-        cj2AutomaticProgression.setReadOnly(true);
-        cj3AutomaticProgression.setReadOnly(true);
-    }
-
-    public void setActualLiftStyle(BindingValidationStatus<?> status) throws NumberFormatException {
-        TextField field = (TextField) status.getField();
-        if (status.isError()) {
-            field.getElement().getClassList().set("error", true);
-            field.getElement().getClassList().set("good", false);
-            field.getElement().getClassList().set("bad", false);
-            field.focus();
-        } else {
-            String value = field.getValue();
-            boolean empty = value == null || value.trim().isEmpty();
-            if (empty) {
-                field.getElement().getClassList().clear();
-            } else if (value.equals("-")) {
-                field.getElement().getClassList().clear();
-                field.getElement().getClassList().set("bad", true);
-            } else {
-                int intValue = Integer.parseInt(value);
-                field.getElement().getClassList().clear();
-                field.getElement().getClassList().set((intValue <= 0 ? "bad" : "good"), true);
-            }
-        }
-    }
-
-    /**
-     * set the automatic progressions. This is invoked as a validator because we
-     * don't want to be called if the entered value is invalid. Only the side-effect
-     * is interesting, so we return true.
-     *
-     * @param athlete
-     * @return true always
-     */
-    private boolean setAutomaticProgressions(Athlete athlete) {
-        int value = Athlete.zeroIfInvalid(snatch1ActualLift.getValue());
-        int autoVal = computeAutomaticProgression(value);
-        snatch2AutomaticProgression.setValue(Integer.toString(autoVal));
-        value = Athlete.zeroIfInvalid(snatch2ActualLift.getValue());
-        autoVal = computeAutomaticProgression(value);
-        snatch3AutomaticProgression.setValue(Integer.toString(autoVal));
-
-        value = Athlete.zeroIfInvalid(cj1ActualLift.getValue());
-        autoVal = computeAutomaticProgression(value);
-        cj2AutomaticProgression.setValue(Integer.toString(autoVal));
-        value = Athlete.zeroIfInvalid(cj2ActualLift.getValue());
-        autoVal = computeAutomaticProgression(value);
-        cj3AutomaticProgression.setValue(Integer.toString(autoVal));
-
-        return true;
     }
 
     /**
@@ -752,43 +644,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         return hasErrors;
     }
 
-    private void setFocus(Athlete a) {
-        int targetRow = ACTUAL + 1;
-        int targetCol = CJ3 + 1;
-
-        // figure out whether we are searching for snatch or CJ
-        int rightCol;
-        int leftCol;
-        if (a.getAttemptsDone() >= 3) {
-            rightCol = CJ3;
-            leftCol = CJ1;
-        } else {
-            rightCol = SNATCH3;
-            leftCol = SNATCH1;
-        }
-
-        // remember location of last empty cell, going backwards
-        search: for (int col = rightCol; col >= leftCol; col--) {
-            for (int row = ACTUAL; row > AUTOMATIC; row--) {
-                boolean empty = textfields[row - 1][col - 1].isEmpty();
-                if (empty) {
-                    targetRow = row - 1;
-                    targetCol = col - 1;
-                } else {
-                    // don't go back past first non-empty (leave holes)
-                    break search;
-                }
-            }
-        }
-
-        if (targetCol <= CJ3 && targetRow <= ACTUAL) {
-            // a suitable empty cell was found, set focus
-            textfields[targetRow][targetCol].setAutofocus(true);
-            textfields[targetRow][targetCol].setAutoselect(true);
-        }
-    }
-
-    protected GridLayout setupGrid() {
+    private GridLayout setupGrid() {
         GridLayout gridLayout = new GridLayout();
         gridLayout.setTemplateRows(new Repeat(ACTUAL, new Flex(1)));
         gridLayout.setTemplateColumns(new Repeat(CJ3, new Flex(1)));
@@ -823,12 +679,148 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> {
         return gridLayout;
     }
 
+    private void atRowAndColumn(GridLayout gridLayout, Component component, int row, int column) {
+        atRowAndColumn(gridLayout, component, row, column, RowAlign.CENTER, ColumnAlign.CENTER);
+    }
+
+    private void atRowAndColumn(GridLayout gridLayout, Component component, int row, int column, RowAlign ra,
+            ColumnAlign ca) {
+        gridLayout.add(component);
+        gridLayout.setRowAndColumn(component, new Int(row), new Int(column), new Int(row), new Int(column));
+        gridLayout.setRowAlign(component, ra);
+        gridLayout.setColumnAlign(component, ca);
+        component.getElement().getStyle().set("width", "6em");
+        if (component instanceof TextField) {
+            TextField textField = (TextField) component;
+            textfields[row - 1][column - 1] = textField;
+        }
+
+    }
+
+    private Checkbox buildForcedCurrentCheckbox() {
+        Checkbox checkbox = new Checkbox(Translator.translate("ForcedAsCurrent"));
+        checkbox.getStyle().set("margin-left", "3em");
+        binder.forField(checkbox).bind(Athlete::isForcedAsCurrent, Athlete::setForcedAsCurrent);
+        return checkbox;
+    }
+
+    private Button buildWithdrawButton() {
+        Button withdrawalButton = new Button(Translator.translate("Withdrawal"), IronIcons.EXIT_TO_APP.create(),
+                (e) -> {
+                    Athlete.copy(originalAthlete, editedAthlete);
+                    originalAthlete.withdraw();
+                    AthleteRepository.save(originalAthlete);
+                    OwlcmsSession.withFop((fop) -> {
+                        fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
+                        fop.updateGlobalRankings();
+                    });
+                    origin.closeDialog();
+                });
+        withdrawalButton.getElement().setAttribute("theme", "error");
+        return withdrawalButton;
+    }
+
+    private int computeAutomaticProgression(int value) {
+        return value <= 0 ? Math.abs(value) : value + 1;
+    }
+
+    private TextField createActualWeightField(int row, int col) {
+        TextField tf = new TextField();
+        tf.setPattern("^[-]{0,1}\\d*$");
+        tf.setPreventInvalidInput(true);
+        tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
+        return tf;
+    }
+
+    private TextField createPositiveWeightField(int row, int col) {
+        TextField tf = new TextField();
+        tf.setPattern("^\\d*$");
+        tf.setPreventInvalidInput(true);
+        tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
+        return tf;
+    }
+
     /**
-     * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+     * Update the original athlete so that the lifting order picks up the change.
      */
-    @Override
-    public Athlete update(Athlete athleteFromDb) {
-        doUpdate();
-        return originalAthlete;
+    private void doUpdate() {
+        Athlete.copy(originalAthlete, editedAthlete);
+        AthleteRepository.save(originalAthlete);
+        OwlcmsSession.withFop((fop) -> {
+            fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
+        });
+        origin.closeDialog();
+    }
+
+    private Object getOrigin() {
+        return origin;
+    }
+
+    private void resetReadOnlyFields() {
+        snatch2AutomaticProgression.setReadOnly(true);
+        snatch3AutomaticProgression.setReadOnly(true);
+        cj2AutomaticProgression.setReadOnly(true);
+        cj3AutomaticProgression.setReadOnly(true);
+    }
+
+    /**
+     * set the automatic progressions. This is invoked as a validator because we don't want to be called if the entered
+     * value is invalid. Only the side-effect is interesting, so we return true.
+     *
+     * @param athlete
+     * @return true always
+     */
+    private boolean setAutomaticProgressions(Athlete athlete) {
+        int value = Athlete.zeroIfInvalid(snatch1ActualLift.getValue());
+        int autoVal = computeAutomaticProgression(value);
+        snatch2AutomaticProgression.setValue(Integer.toString(autoVal));
+        value = Athlete.zeroIfInvalid(snatch2ActualLift.getValue());
+        autoVal = computeAutomaticProgression(value);
+        snatch3AutomaticProgression.setValue(Integer.toString(autoVal));
+
+        value = Athlete.zeroIfInvalid(cj1ActualLift.getValue());
+        autoVal = computeAutomaticProgression(value);
+        cj2AutomaticProgression.setValue(Integer.toString(autoVal));
+        value = Athlete.zeroIfInvalid(cj2ActualLift.getValue());
+        autoVal = computeAutomaticProgression(value);
+        cj3AutomaticProgression.setValue(Integer.toString(autoVal));
+
+        return true;
+    }
+
+    private void setFocus(Athlete a) {
+        int targetRow = ACTUAL + 1;
+        int targetCol = CJ3 + 1;
+
+        // figure out whether we are searching for snatch or CJ
+        int rightCol;
+        int leftCol;
+        if (a.getAttemptsDone() >= 3) {
+            rightCol = CJ3;
+            leftCol = CJ1;
+        } else {
+            rightCol = SNATCH3;
+            leftCol = SNATCH1;
+        }
+
+        // remember location of last empty cell, going backwards
+        search: for (int col = rightCol; col >= leftCol; col--) {
+            for (int row = ACTUAL; row > AUTOMATIC; row--) {
+                boolean empty = textfields[row - 1][col - 1].isEmpty();
+                if (empty) {
+                    targetRow = row - 1;
+                    targetCol = col - 1;
+                } else {
+                    // don't go back past first non-empty (leave holes)
+                    break search;
+                }
+            }
+        }
+
+        if (targetCol <= CJ3 && targetRow <= ACTUAL) {
+            // a suitable empty cell was found, set focus
+            textfields[targetRow][targetCol].setAutofocus(true);
+            textfields[targetRow][targetCol].setAutoselect(true);
+        }
     }
 }

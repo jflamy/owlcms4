@@ -74,8 +74,8 @@ import ch.qos.logback.classic.Logger;
 /**
  * Class AthleteGridContent.
  *
- * Initialization order is - content class is created - wrapping app layout is
- * created if not present - this content is inserted in the app layout slot
+ * Initialization order is - content class is created - wrapping app layout is created if not present - this content is
+ * inserted in the app layout slot
  *
  */
 @SuppressWarnings("serial")
@@ -126,12 +126,11 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected Button startLiftingButton;
 
     /**
-     * groupFilter points to a hidden field on the crudGrid filtering row, which is
-     * slave to the group selection process. this allows us to use the filtering
-     * logic used everywhere else to change what is shown in the crudGrid.
+     * groupFilter points to a hidden field on the crudGrid filtering row, which is slave to the group selection
+     * process. this allows us to use the filtering logic used everywhere else to change what is shown in the crudGrid.
      *
-     * In the current implementation groupSelect is readOnly. If it is made
-     * editable, it needs to set the value on groupFilter.
+     * In the current implementation groupSelect is readOnly. If it is made editable, it needs to set the value on
+     * groupFilter.
      */
     protected ComboBox<Group> groupFilter = new ComboBox<>();
     private String topBarTitle;
@@ -153,8 +152,8 @@ public abstract class AthleteGridContent extends VerticalLayout
     private H2 firstNameWrapper;
 
     /**
-     * Instantiates a new announcer content. Content is created in
-     * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
+     * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
+     * parameters are parsed.
      */
     public AthleteGridContent() {
         init();
@@ -166,18 +165,6 @@ public abstract class AthleteGridContent extends VerticalLayout
     @Override
     public Athlete add(Athlete athlete) {
         return getAthleteEditingFormFactory().add(athlete);
-    }
-
-    protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
-        return null;
-    }
-
-    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-        breakDialog = new BreakDialog(this, BreakType.TECHNICAL, CountdownType.INDEFINITE);
-        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
-            breakDialog.open();
-        });
-        return layoutBreakButtons();
     }
 
     public void busyBreakButton() {
@@ -199,6 +186,228 @@ public abstract class AthleteGridContent extends VerticalLayout
     public void closeDialog() {
         crudGrid.getCrudLayout().hideForm();
         crudGrid.getGrid().asSingleSelect().clear();
+    }
+
+    public HorizontalLayout createTopBarLeft() {
+        HorizontalLayout topBarLeft = new HorizontalLayout();
+        title = new H3();
+        title.setText(getTopBarTitle());
+        title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
+        topBarLeft.add(title, topBarGroupSelect);
+        topBarLeft.setAlignItems(Alignment.CENTER);
+        topBarLeft.setPadding(true);
+        topBarLeft.setId("topBarLeft");
+        return topBarLeft;
+    }
+
+    /**
+     * Delegate to the form factory which actually implements deletion
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
+     */
+    @Override
+    public void delete(Athlete notUsed) {
+        getAthleteEditingFormFactory().delete(notUsed);
+    }
+
+    /**
+     * Get the content of the crudGrid. Invoked by refreshGrid.
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     */
+    @Override
+    public Collection<Athlete> findAll() {
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        if (fop != null) {
+            logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+                    LoggerUtils.whereFrom());
+            final String filterValue;
+            if (lastNameFilter.getValue() != null) {
+                filterValue = lastNameFilter.getValue().toLowerCase();
+                return fop.getLiftingOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
+                        .collect(Collectors.toList());
+            } else {
+                return fop.getDisplayOrder();
+            }
+        } else {
+            // no field of play, no group, empty list
+            logger.debug("findAll fop==null");
+            return ImmutableList.of();
+        }
+    }
+
+    /**
+     * @return the groupFilter
+     */
+    public ComboBox<Group> getGroupFilter() {
+        return groupFilter;
+    }
+
+    @Override
+    public Location getLocation() {
+        return location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return locationUI;
+    }
+
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
+
+    public void quietBreakButton(boolean b) {
+        breakButton.getStyle().set("color", "var(--lumo-error-color)");
+        breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
+        if (b) {
+            breakButton.getElement().setAttribute("theme", "secondary error");
+            breakButton.setText(getTranslation("BreakButton.JuryDeliberation"));
+            breakButton.getElement().setAttribute("title", getTranslation("BreakButton.JuryDeliberation"));
+        } else {
+            breakButton.getElement().setAttribute("theme", "secondary error icon");
+            breakButton.getElement().setAttribute("title", getTranslation("BreakButton.ToStartCaption"));
+        }
+
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
+    /**
+     * Process URL parameters, including query parameters
+     *
+     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     */
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+        logger.debug("AthleteGridContent parsing URL");
+        QueryParameterReader.super.setParameter(event, parameter);
+        setLocation(event.getLocation());
+        setLocationUI(event.getUI());
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.AppLayoutAware#setRouterLayout(app.owlcms.ui.shared.OwlcmsRouterLayout)
+     */
+    @Override
+    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
+
+    @Subscribe
+    public void slaveBreakDone(UIEvent.BreakDone e) {
+        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
+            logger.debug("stopping break");
+            syncWithFOP(true);
+        });
+    }
+
+    @Subscribe
+    public void slaveBreakStart(UIEvent.BreakStarted e) {
+        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
+            if (e.isDisplayToggle()) {
+                logger.debug("{} ignoring switch to break", this.getClass().getSimpleName());
+                return;
+            }
+
+            if (this instanceof AnnouncerContent) {
+                logger.debug("starting break {}", LoggerUtils.stackTrace());
+            }
+            syncWithFOP(true);
+        });
+    }
+
+    @Subscribe
+    public void slaveGroupDone(UIEvent.GroupDone e) {
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+                this.getOrigin(), e.getOrigin());
+        OwlcmsSession.withFop((fop) -> {
+            UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
+                // doUpdateTopBar(fop.getCurAthlete(), 0);
+                createInitialBar();
+                syncWithFOP(true);
+            });
+        });
+
+    }
+
+    @Subscribe
+    public void slaveStartLifting(UIEvent.StartLifting e) {
+        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, () -> {
+            logger.trace("starting lifting");
+            syncWithFOP(true);
+        });
+    }
+
+    @Subscribe
+    public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBarGroupSelect, uiEventBus, e, this, e.getOrigin(), () -> {
+            syncWithFOP(true);
+            updateURLLocation(getLocationUI(), getLocation(), e.getGroup());
+        });
+    }
+
+    @Subscribe
+    public void slaveUpdateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
+        Athlete athlete = e.getAthlete();
+        OwlcmsSession.withFop(fop -> {
+            uiEventLogger.trace("slaveUpdateAnnouncerBar in {}  origin {}", this, e.getOrigin());
+            // do not send weight change notification if we are the source of the weight
+            // change
+            UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
+                if (e.getOrigin() != this) {
+                    warnOthersIfCurrent(e, athlete, fop);
+                }
+                doUpdateTopBar(athlete, e.getTimeAllowed());
+            });
+        });
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.ui.group.UIEventProcessor#updateGrid(app.owlcms.fieldofplay. UIEvent.LiftingOrderUpdated)
+     */
+    @Subscribe
+    public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
+        if (crudGrid == null) {
+            return;
+        }
+        logger.debug("{} {}", e.getOrigin(), LoggerUtils.whereFrom());
+        UIEventProcessor.uiAccess(crudGrid, uiEventBus, e, () -> {
+            crudGrid.refreshGrid();
+        });
+    }
+
+    /**
+     * Update button and validation logic is in form factory
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+     */
+    @Override
+    public Athlete update(Athlete notUsed) {
+        return athleteEditingFormFactory.update(notUsed);
+    }
+
+    protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
+        return null;
+    }
+
+    protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+        breakDialog = new BreakDialog(this, BreakType.TECHNICAL, CountdownType.INDEFINITE);
+        breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+            breakDialog.open();
+        });
+        return layoutBreakButtons();
     }
 
     /**
@@ -282,12 +491,10 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     /**
-     * The top bar is logically is the master part of a master-detail In the current
-     * implementation, the most convenient place to put it is in the top bar which
-     * is managed by the layout, but this could change. So we change the surrounding
-     * layout from this class. In this way, only one class (the content) listens for
-     * events. Doing it the other way around would require multiple layouts, which
-     * breaks the idea of a single page app.
+     * The top bar is logically is the master part of a master-detail In the current implementation, the most convenient
+     * place to put it is in the top bar which is managed by the layout, but this could change. So we change the
+     * surrounding layout from this class. In this way, only one class (the content) listens for events. Doing it the
+     * other way around would require multiple layouts, which breaks the idea of a single page app.
      */
     protected void createTopBar() {
         logger.debug("AthleteGridContent creating top bar");
@@ -369,18 +576,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         // see AnnouncerContent for an example.
     }
 
-    public HorizontalLayout createTopBarLeft() {
-        HorizontalLayout topBarLeft = new HorizontalLayout();
-        title = new H3();
-        title.setText(getTopBarTitle());
-        title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
-        topBarLeft.add(title, topBarGroupSelect);
-        topBarLeft.setAlignItems(Alignment.CENTER);
-        topBarLeft.setPadding(true);
-        topBarLeft.setId("topBarLeft");
-        return topBarLeft;
-    }
-
     protected HorizontalLayout decisionButtons(FlexLayout topBar2) {
         return null;
     }
@@ -433,16 +628,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         crud.getCrudLayout().addFilterComponent(groupFilter);
     }
 
-    /**
-     * Delegate to the form factory which actually implements deletion
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
-     */
-    @Override
-    public void delete(Athlete notUsed) {
-        getAthleteEditingFormFactory().delete(notUsed);
-    }
-
     protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
         if (title == null) {
             return;
@@ -491,63 +676,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         });
     }
 
-    /**
-     * Get the content of the crudGrid. Invoked by refreshGrid.
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-    @Override
-    public Collection<Athlete> findAll() {
-        FieldOfPlay fop = OwlcmsSession.getFop();
-        if (fop != null) {
-            logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
-                    LoggerUtils.whereFrom());
-            final String filterValue;
-            if (lastNameFilter.getValue() != null) {
-                filterValue = lastNameFilter.getValue().toLowerCase();
-                return fop.getLiftingOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
-                        .collect(Collectors.toList());
-            } else {
-                return fop.getDisplayOrder();
-            }
-        } else {
-            // no field of play, no group, empty list
-            logger.debug("findAll fop==null");
-            return ImmutableList.of();
-        }
-    }
-
-    /**
-     * @return the athleteEditingFormFactory
-     */
-    private AthleteCardFormFactory getAthleteEditingFormFactory() {
-        return athleteEditingFormFactory;
-    }
-
-    /**
-     * @return the groupFilter
-     */
-    public ComboBox<Group> getGroupFilter() {
-        return groupFilter;
-    }
-
-    @Override
-    public Location getLocation() {
-        return location;
-    }
-
-    @Override
-    public UI getLocationUI() {
-        return locationUI;
-    }
-
     protected Object getOrigin() {
         return this;
-    }
-
-    @Override
-    public OwlcmsRouterLayout getRouterLayout() {
-        return routerLayout;
     }
 
     protected String getTopBarTitle() {
@@ -575,8 +705,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     /*
      * (non-Javadoc)
      *
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-     * AttachEvent)
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
@@ -590,143 +719,11 @@ public abstract class AthleteGridContent extends VerticalLayout
         });
     }
 
-    public void quietBreakButton(boolean b) {
-        breakButton.getStyle().set("color", "var(--lumo-error-color)");
-        breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
-        if (b) {
-            breakButton.getElement().setAttribute("theme", "secondary error");
-            breakButton.setText(getTranslation("BreakButton.JuryDeliberation"));
-            breakButton.getElement().setAttribute("title", getTranslation("BreakButton.JuryDeliberation"));
-        } else {
-            breakButton.getElement().setAttribute("theme", "secondary error icon");
-            breakButton.getElement().setAttribute("title", getTranslation("BreakButton.ToStartCaption"));
-        }
-
-    }
-
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
-    }
-
-    /**
-     * Process URL parameters, including query parameters
-     *
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
-     *      java.lang.String)
-     */
-    @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        logger.debug("AthleteGridContent parsing URL");
-        QueryParameterReader.super.setParameter(event, parameter);
-        setLocation(event.getLocation());
-        setLocationUI(event.getUI());
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.AppLayoutAware#setRouterLayout(app.owlcms.ui.shared.OwlcmsRouterLayout)
-     */
-    @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
-        this.routerLayout = routerLayout;
-    }
-
     /**
      * @param topBarTitle the topBarTitle to set
      */
     protected void setTopBarTitle(String title) {
         this.topBarTitle = title;
-    }
-
-    @Subscribe
-    public void slaveBreakDone(UIEvent.BreakDone e) {
-        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
-            logger.debug("stopping break");
-            syncWithFOP(true);
-        });
-    }
-
-    @Subscribe
-    public void slaveBreakStart(UIEvent.BreakStarted e) {
-        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
-            if (e.isDisplayToggle()) {
-                logger.debug("{} ignoring switch to break", this.getClass().getSimpleName());
-                return;
-            }
-
-            if (this instanceof AnnouncerContent) {
-                logger.debug("starting break {}", LoggerUtils.stackTrace());
-            }
-            syncWithFOP(true);
-        });
-    }
-
-    @Subscribe
-    public void slaveGroupDone(UIEvent.GroupDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-                this.getOrigin(), e.getOrigin());
-        OwlcmsSession.withFop((fop) -> {
-            UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
-                // doUpdateTopBar(fop.getCurAthlete(), 0);
-                createInitialBar();
-                syncWithFOP(true);
-            });
-        });
-
-    }
-
-    @Subscribe
-    public void slaveStartLifting(UIEvent.StartLifting e) {
-        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, () -> {
-            logger.trace("starting lifting");
-            syncWithFOP(true);
-        });
-    }
-
-    @Subscribe
-    public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBarGroupSelect, uiEventBus, e, this, e.getOrigin(), () -> {
-            syncWithFOP(true);
-            updateURLLocation(getLocationUI(), getLocation(), e.getGroup());
-        });
-    }
-
-    @Subscribe
-    public void slaveUpdateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
-        Athlete athlete = e.getAthlete();
-        OwlcmsSession.withFop(fop -> {
-            uiEventLogger.trace("slaveUpdateAnnouncerBar in {}  origin {}", this, e.getOrigin());
-            // do not send weight change notification if we are the source of the weight
-            // change
-            UIEventProcessor.uiAccess(topBar, uiEventBus, e, () -> {
-                if (e.getOrigin() != this) {
-                    warnOthersIfCurrent(e, athlete, fop);
-                }
-                doUpdateTopBar(athlete, e.getTimeAllowed());
-            });
-        });
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.ui.group.UIEventProcessor#updateGrid(app.owlcms.fieldofplay.
-     * UIEvent.LiftingOrderUpdated)
-     */
-    @Subscribe
-    public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
-        if (crudGrid == null) {
-            return;
-        }
-        logger.debug("{} {}", e.getOrigin(), LoggerUtils.whereFrom());
-        UIEventProcessor.uiAccess(crudGrid, uiEventBus, e, () -> {
-            crudGrid.refreshGrid();
-        });
     }
 
     /**
@@ -794,17 +791,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         });
     }
 
-    private void topBarMessage(String string, String text) {
-        lastName.setText(text);
-        firstName.setText("");
-        timeField.getElement().getStyle().set("visibility", "hidden");
-        attempt.setText("");
-        weight.setText("");
-        if (warning != null) {
-            warning.setText(string);
-        }
-    }
-
     protected void topBarWarning(Group group, Integer attemptsDone, FOPState state, List<Athlete> liftingOrder) {
         if (group == null) {
             String string = getTranslation("NoGroupSelected");
@@ -853,16 +839,6 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     /**
-     * Update button and validation logic is in form factory
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-     */
-    @Override
-    public Athlete update(Athlete notUsed) {
-        return athleteEditingFormFactory.update(notUsed);
-    }
-
-    /**
      * Update URL location on explicit group selection
      *
      * @param ui       the ui
@@ -882,8 +858,25 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     /**
-     * display a warning to other Technical Officials that marshall has changed
-     * weight for current athlete
+     * @return the athleteEditingFormFactory
+     */
+    private AthleteCardFormFactory getAthleteEditingFormFactory() {
+        return athleteEditingFormFactory;
+    }
+
+    private void topBarMessage(String string, String text) {
+        lastName.setText(text);
+        firstName.setText("");
+        timeField.getElement().getStyle().set("visibility", "hidden");
+        attempt.setText("");
+        weight.setText("");
+        if (warning != null) {
+            warning.setText(string);
+        }
+    }
+
+    /**
+     * display a warning to other Technical Officials that marshall has changed weight for current athlete
      *
      * @param e
      * @param athlete
@@ -893,12 +886,9 @@ public abstract class AthleteGridContent extends VerticalLayout
         // the athlete currently displayed is not necessarily the fop curAthlete,
         // because the lifting order has been recalculated behind the scenes
         Athlete curDisplayAthlete = displayedAthlete;
-        if (curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete())
-        // && e.getOrigin() instanceof MarshallContent
-        ) {
+        if (curDisplayAthlete != null && curDisplayAthlete.equals(e.getChangingAthlete())) {
             Notification n = new Notification();
-            // Notification theme styling is done in
-            // META-INF/resources/frontend/styles/shared-styles.html
+            // Notification theme styling is done in META-INF/resources/frontend/styles/shared-styles.html
             n.getElement().getThemeList().add("warning");
             String text;
             int declaring = curDisplayAthlete.isDeclaring();
