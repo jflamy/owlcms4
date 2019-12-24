@@ -7,8 +7,6 @@
 package app.owlcms.ui.preparation;
 
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -59,142 +57,28 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
     private TextField nameFilter = new TextField();
     private Checkbox activeFilter = new Checkbox();
     private OwlcmsRouterLayout routerLayout;
-    private OwlcmsCrudFormFactory<AgeGroup> crudFormFactory;
+    private OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory;
+    private GridCrud<AgeGroup> crud;
 
     /**
      * Instantiates the ageGroup crudGrid.
      */
     public AgeGroupContent() {
-        crudFormFactory = createFormFactory();
-        GridCrud<AgeGroup> crud = createGrid(crudFormFactory);
+        OwlcmsCrudFormFactory<AgeGroup> editingFormFactory = new AgeGroupEditingFormFactory(AgeGroup.class, this);
+        setAgeGroupEditingFormFactory(editingFormFactory);
+        crud = createGrid(getAgeGroupEditingFormFactory());
         defineFilters(crud);
         fillHW(crud, this);
     }
 
     @Override
-    public AgeGroup add(AgeGroup domainObjectToAdd) {
-        return crudFormFactory.add(domainObjectToAdd);
-    }
-
-    /**
-     * Define the form used to edit a given ageGroup.
-     *
-     * @return the form factory that will create the actual form on demand
-     */
-    private OwlcmsCrudFormFactory<AgeGroup> createFormFactory() {
-        OwlcmsCrudFormFactory<AgeGroup> editingFormFactory = new AgeGroupEditingFormFactory(AgeGroup.class);
-        createFormLayout(editingFormFactory);
-        return editingFormFactory;
-    }
-
-    /**
-     * The content and ordering of the editing form
-     *
-     * @param crudFormFactory the factory that will create the form using this
-     *                        information
-     */
-    protected void createFormLayout(OwlcmsCrudFormFactory<AgeGroup> crudFormFactory) {
-        List<String> props = new LinkedList<>();
-        List<String> captions = new LinkedList<>();
-
-        props.add("name");
-        captions.add(getTranslation("Name"));
-        props.add("gender");
-        captions.add(getTranslation("Gender"));
-        props.add("minAge");
-        captions.add(getTranslation("MinimumAge"));
-        props.add("maxAge");
-        captions.add(getTranslation("MaximumAge"));
-        props.add("active");
-        captions.add(getTranslation("Active"));
-        props.add("categoriesAsString");
-        captions.add(getTranslation("BodyWeightCategories"));
-
-        crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
-        crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
-//        crudFormFactory.setFieldProvider("ageGroup", new OwlcmsComboBoxProvider<>(getTranslation("AgeGroup"),
-//                AgeGroupRepository.findAll(), new TextRenderer<>(AgeGroup::getName), AgeGroup::getName));
-    }
-
-    /**
-     * The columns of the crudGrid
-     *
-     * @param crudFormFactory what to call to create the form for editing an athlete
-     * @return
-     */
-    protected GridCrud<AgeGroup> createGrid(OwlcmsCrudFormFactory<AgeGroup> crudFormFactory) {
-        Grid<AgeGroup> grid = new Grid<>(AgeGroup.class, false);
-        grid.addColumn(new ComponentRenderer<>(cat -> {
-            // checkbox to avoid entering in the form
-            Checkbox activeBox = new Checkbox("Name");
-            activeBox.setLabel(null);
-            activeBox.getElement().getThemeList().set("secondary", true);
-            activeBox.setValue(cat.isActive());
-            activeBox.addValueChangeListener(click -> {
-                activeBox.setValue(click.getValue());
-                cat.setActive(click.getValue());
-                AgeGroupRepository.save(cat);
-                grid.getDataProvider().refreshItem(cat);
-            });
-            return activeBox;
-        })).setHeader(getTranslation("Active")).setWidth("0");
-        grid.addColumn(AgeGroup::getName).setHeader(getTranslation("Name"));
-        grid.addColumn(new TextRenderer<AgeGroup>(
-                item -> getTranslation("Division." + item.getAgeDivision().name())))
-                .setHeader(getTranslation("AgeDivision"));
-        grid.addColumn(AgeGroup::getGender).setHeader(getTranslation("Gender"));
-        grid.addColumn(AgeGroup::getMinAge).setHeader(getTranslation("MinimumAge"));
-        grid.addColumn(AgeGroup::getMaxAge).setHeader(getTranslation("MaximumAge"));
-        grid.addColumn(AgeGroup::getCategoriesAsString).setAutoWidth(true).setHeader(getTranslation("BodyWeightCategories"));
-
-        GridCrud<AgeGroup> crud = new OwlcmsCrudGrid<>(AgeGroup.class, new OwlcmsGridLayout(AgeGroup.class),
-                crudFormFactory, grid);
-        crud.setCrudListener(this);
-        crud.setClickRowToUpdate(true);
-        return crud;
-    }
-
-    /**
-     * The filters at the top of the crudGrid
-     *
-     * @param crudGrid the crudGrid that will be filtered.
-     */
-    protected void defineFilters(GridCrud<AgeGroup> crud) {
-        nameFilter.setPlaceholder(getTranslation("Name"));
-        nameFilter.setClearButtonVisible(true);
-        nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        nameFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
-        });
-        crud.getCrudLayout().addFilterComponent(nameFilter);
-
-        ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
-        ageDivisionFilter.setItems(AgeDivision.findAll());
-        ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division."+ad.name()));
-        ageDivisionFilter.setClearButtonVisible(true);
-        ageDivisionFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
-        });
-        crud.getCrudLayout().addFilterComponent(ageDivisionFilter);
-        crud.getCrudLayout().addToolbarComponent(new Label(""));
-
-        activeFilter.addValueChangeListener(e -> {
-            crud.refreshGrid();
-        });
-        activeFilter.setLabel(getTranslation("Active"));
-        activeFilter.setAriaLabel(getTranslation("ActiveCategoriesOnly"));
-        crud.getCrudLayout().addFilterComponent(activeFilter);
-
-        Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
-        clearFilters.addClickListener(event -> {
-            ageDivisionFilter.clear();
-        });
-        crud.getCrudLayout().addFilterComponent(clearFilters);
+    public AgeGroup add(AgeGroup ageGroup) {
+        return getAgeGroupEditingFormFactory().add(ageGroup);
     }
 
     @Override
     public void delete(AgeGroup domainObjectToDelete) {
-        crudFormFactory.delete(domainObjectToDelete);
+        getAgeGroupEditingFormFactory().delete(domainObjectToDelete);
     }
 
     /**
@@ -228,6 +112,96 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 
     @Override
     public AgeGroup update(AgeGroup domainObjectToUpdate) {
-        return crudFormFactory.update(domainObjectToUpdate);
+        return getAgeGroupEditingFormFactory().update(domainObjectToUpdate);
+    }
+
+    /**
+     * The columns of the crudGrid
+     *
+     * @param crudFormFactory what to call to create the form for editing an athlete
+     * @return
+     */
+    protected GridCrud<AgeGroup> createGrid(OwlcmsCrudFormFactory<AgeGroup> crudFormFactory) {
+        Grid<AgeGroup> grid = new Grid<>(AgeGroup.class, false);
+        grid.addColumn(new ComponentRenderer<>(cat -> {
+            // checkbox to avoid entering in the form
+            Checkbox activeBox = new Checkbox("Name");
+            activeBox.setLabel(null);
+            activeBox.getElement().getThemeList().set("secondary", true);
+            activeBox.setValue(cat.isActive());
+            activeBox.addValueChangeListener(click -> {
+                activeBox.setValue(click.getValue());
+                cat.setActive(click.getValue());
+                AgeGroupRepository.save(cat);
+                grid.getDataProvider().refreshItem(cat);
+            });
+            return activeBox;
+        })).setHeader(getTranslation("Active")).setWidth("0");
+        grid.addColumn(AgeGroup::getName).setHeader(getTranslation("Name"));
+        grid.addColumn(new TextRenderer<AgeGroup>(
+                item -> getTranslation("Division." + item.getAgeDivision().name())))
+                .setHeader(getTranslation("AgeDivision"));
+        grid.addColumn(AgeGroup::getGender).setHeader(getTranslation("Gender"));
+        grid.addColumn(AgeGroup::getMinAge).setHeader(getTranslation("MinimumAge"));
+        grid.addColumn(AgeGroup::getMaxAge).setHeader(getTranslation("MaximumAge"));
+        grid.addColumn(AgeGroup::getCategoriesAsString).setAutoWidth(true)
+                .setHeader(getTranslation("BodyWeightCategories"));
+
+        GridCrud<AgeGroup> crud = new OwlcmsCrudGrid<>(AgeGroup.class, new OwlcmsGridLayout(AgeGroup.class),
+                crudFormFactory, grid);
+        crud.setCrudListener(this);
+        crud.setClickRowToUpdate(true);
+        return crud;
+    }
+
+    /**
+     * The filters at the top of the crudGrid
+     *
+     * @param crudGrid the crudGrid that will be filtered.
+     */
+    protected void defineFilters(GridCrud<AgeGroup> crud) {
+        nameFilter.setPlaceholder(getTranslation("Name"));
+        nameFilter.setClearButtonVisible(true);
+        nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        nameFilter.addValueChangeListener(e -> {
+            crud.refreshGrid();
+        });
+        crud.getCrudLayout().addFilterComponent(nameFilter);
+
+        ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
+        ageDivisionFilter.setItems(AgeDivision.findAll());
+        ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
+        ageDivisionFilter.setClearButtonVisible(true);
+        ageDivisionFilter.addValueChangeListener(e -> {
+            crud.refreshGrid();
+        });
+        crud.getCrudLayout().addFilterComponent(ageDivisionFilter);
+        crud.getCrudLayout().addToolbarComponent(new Label(""));
+
+        activeFilter.addValueChangeListener(e -> {
+            crud.refreshGrid();
+        });
+        activeFilter.setLabel(getTranslation("Active"));
+        activeFilter.setAriaLabel(getTranslation("ActiveCategoriesOnly"));
+        crud.getCrudLayout().addFilterComponent(activeFilter);
+
+        Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
+        clearFilters.addClickListener(event -> {
+            ageDivisionFilter.clear();
+        });
+        crud.getCrudLayout().addFilterComponent(clearFilters);
+    }
+
+    private OwlcmsCrudFormFactory<AgeGroup> getAgeGroupEditingFormFactory() {
+        return ageGroupEditingFormFactory;
+    }
+
+    private void setAgeGroupEditingFormFactory(OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory) {
+        this.ageGroupEditingFormFactory = ageGroupEditingFormFactory;
+    }
+    
+    void closeDialog() {
+        crud.getCrudLayout().hideForm();
+        crud.getGrid().asSingleSelect().clear();
     }
 }

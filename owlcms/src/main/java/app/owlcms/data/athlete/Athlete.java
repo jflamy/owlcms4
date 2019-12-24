@@ -25,8 +25,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 import javax.persistence.Version;
@@ -258,14 +256,10 @@ public class Athlete {
     private Group group;
 
     /* Should check with https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa-and-hibernate/ */
-    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_categ", nullable = true)
     private Category category = null;
-
-    /* https://vladmihalcea.com/the-best-way-to-use-the-manytomany-annotation-with-jpa-and-hibernate/ */
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinTable(name = "athlete_eligiblecat", joinColumns = @JoinColumn(name = "ath_id"), inverseJoinColumns = @JoinColumn(name = "eligiblecat_id"))
-    private List<Category> eligibleCategories = new ArrayList<>();
 
     private String snatch1Declaration;
     private String snatch1Change1;
@@ -350,16 +344,6 @@ public class Athlete {
      */
     public Athlete() {
         super();
-    }
-
-    public void addEligibleCategory(Category cat) {
-        eligibleCategories.add(cat);
-        cat.getAthletes().add(this);
-    }
-
-    public void removeEligibleCategory(Category cat) {
-        eligibleCategories.remove(cat);
-        cat.getAthletes().remove(this);
     }
 
     /**

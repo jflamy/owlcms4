@@ -7,16 +7,22 @@
 package app.owlcms.data.agegroup;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -25,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
@@ -60,6 +65,12 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     public AgeGroup() {
     }
+
+    @OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.REFRESH },
+//        orphanRemoval = true,
+            fetch = FetchType.EAGER)
+    private List<Category> categories = new ArrayList<>();
 
     public AgeGroup(String code, boolean active, Integer minAge, Integer maxAge, Gender gender,
             AgeDivision ageDivision) {
@@ -104,14 +115,17 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
      * @return the categories for which we are the AgeGroup
      */
     public List<Category> getCategories() {
-        // simpler to use a query; it is sufficient to call Category.setAgeGroup()
-        // to manage the relationship. 
-        return JPAService
-                .runInTransaction(em -> em
-                        .createQuery("select c " + "from Category c "
-                                + "where c.ageGroup.id = :agId order by c.maximumWeight", Category.class)
-                        .setParameter("agId", this.getId()).getResultList());
-
+//        // simpler to use a query; it is sufficient to call Category.setAgeGroup()
+//        // to manage the relationship. 
+//        return JPAService
+//                .runInTransaction(em -> em
+//                        .createQuery("select c " + "from Category c "
+//                                + "where c.ageGroup.id = :agId order by c.maximumWeight", Category.class)
+//                        .setParameter("agId", this.getId()).getResultList());
+        return categories.stream().filter(c -> {
+            return !(c.getAgeGroup() == null);
+        }).collect(Collectors.toList());
+//        return categories;
     }
 
     public String getCategoriesAsString() {
@@ -154,13 +168,21 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         return minAge;
     }
 
-//    public void addCategory(Category category) {
-//        if (category != null) category.setAgeGroup(this);
-//    }
-//
-//    public void removeCategory(Category category) {
-//        if (category != null) category.setAgeGroup(null);
-//    }
+    public void addCategory(Category category) {
+        if (category != null) {
+            categories.add(category);
+            category.setAgeGroup(this);
+        }
+    }
+
+    public void removeCategory(Category category) {
+        if (category != null) {
+            logger.warn("ageGroup={} removing {} {}", this.getId(), category.getCode(), category.getId());
+            category.setAgeGroup(null);
+            categories.remove(category);
+            logger.warn("ageGroup={} removed {} {}", this.getId(), category.getCode(), category.getId());
+        }
+    }
 
     public String getName() {
         String code2 = this.getCode();
@@ -193,14 +215,32 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         this.ageDivision = ageDivision;
     }
 
-    public void setCategories(Set<Category> categories) {
-        for (Category category : categories) {
-            category.setAgeGroup(this);
+    /**
+     * Set the categories.
+     * 
+     * We preserve existing category Ids so as not to pollute the database. Categories with no age group will be removed
+     * when saving. New categories will be persisted by the save.
+     * 
+     * @param nCats
+     * @see AgeGroupRepository#save(AgeGroup)
+     */
+    public void setCategories(List<Category> nCats) {
+        logger.warn("ageGroup {} setting categories {}", System.identityHashCode(this), nCats);
+        Map<Long, Category> curCatMap = new HashMap<>();
+        categories.forEach(c -> curCatMap.put(c.getId(), c));
+        for (Category nc : nCats) {
+            Category curCat = curCatMap.get(nc.getId());
+            if (curCat != null) {
+                curCat.setActive(nc.getActive());
+                curCat.setMaximumWeight(nc.getMaximumWeight());
+                curCat.setMinimumWeight(nc.getMinimumWeight());
+                curCat.setAgeGroup(nc.getAgeGroup());
+            } else {
+                categories.add(new Category(nc));
+            }
         }
+        categories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
     }
-
-//    public void setCategoriesAsString(String unused) {
-//    }
 
     public void setCode(String code) {
         this.code = code;
@@ -221,6 +261,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     @Override
     public String toString() {
         return getName();
+    }
+
+    public List<Category> getAllCategories() {
+        return categories;
     }
 
 }

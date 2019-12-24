@@ -156,11 +156,12 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     /**
      * Footer with a Delete button and optional additional buttons
      *
-     * Also adds a shortcut so enter submits.
+     * Also adds optionnaly adds a shortcut so enter submits.
      *
      * @param operation                 the operation
-     * @param domainObject              the domain object
      * @param cancelButtonClickListener the cancel button click listener
+     * @param shortcutEnter             true if ENTER will trigger shortcut
+     * @param domainObject              the domain object
      * @param postOperationCallBack     what to do after the object is
      *                                  created/updated
      * @param deleteButtonClickListener the delete button click listener
@@ -169,7 +170,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     protected Component buildFooter(CrudOperation operation, T domainObject,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> postOperationCallBack,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, boolean shortcutEnter, Button... buttons) {
 
         Button operationButton = null;
         if (operation == CrudOperation.UPDATE) {
@@ -205,7 +206,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 
         if (operationButton != null) {
             footerLayout.add(operationButton);
-            if (operation == CrudOperation.UPDATE) {
+            if (operation == CrudOperation.UPDATE && shortcutEnter) {
                 ShortcutRegistration reg = operationButton.addClickShortcut(Key.ENTER);
                 reg.allowBrowserDefault();
             }
@@ -254,7 +255,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         fields.stream().forEach(field -> formLayout.getElement().appendChild(field.getElement()));
 
         Component footerLayout = this.buildFooter(operation, domainObject, cancelButtonClickListener,
-                operationButtonClickListener, deleteButtonClickListener, buttons);
+                operationButtonClickListener, deleteButtonClickListener, true, buttons);
 
         errorLabel = new Label();
         HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);

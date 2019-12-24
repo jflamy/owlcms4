@@ -92,7 +92,8 @@ public class DemoData {
         
         List<Category> cat = CategoryRepository.findByGenderDivisionAgeBW(gender,ageDivision,age,bodyWeight);
         logger.trace("athlete {} matches {}",p.getFullName(),cat.stream().map(Category::getName).collect(Collectors.joining(", ")));
-        p.setCategory(cat.stream().findFirst().orElse(null));
+        Category categOrNull = cat.stream().findFirst().orElse(null);
+        p.setCategory(categOrNull == null ? null : em.contains(categOrNull) ? categOrNull : em.merge(categOrNull));
         
         // respect 20kg rule
         p.setQualifyingTotal((int) (isd + icjd - 15));
@@ -132,7 +133,8 @@ public class DemoData {
             Athlete p = new Athlete();
             try {
                 p.setLoggerLevel(Level.WARN);
-                p.setGroup(group);
+                Group mg = (em.contains(group) ? group : em.merge(group));
+                p.setGroup(mg);
                 p.setFirstName(fnames[r.nextInt(fnames.length)]);
                 p.setLastName(lnames[r.nextInt(lnames.length)]);
                 p.setGender(gender);

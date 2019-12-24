@@ -8,6 +8,7 @@ package app.owlcms.data.agegroup;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,6 +31,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
@@ -140,7 +142,7 @@ public class AgeGroupRepository {
                 BeanUtils.copyProperties(newCat, template);
                 newCat.setMinimumWeight(curMin);
                 newCat.setCode(ag.getCode() + "_" + template.getCode());
-                newCat.setAgeGroup(ag);
+                ag.addCategory(newCat);
                 newCat.setActive(ag.isActive());
                 return newCat;
             } catch (IllegalAccessException | InvocationTargetException e) {
@@ -223,20 +225,19 @@ public class AgeGroupRepository {
      * @param AgeGroup the group
      */
 
-    public static void delete(AgeGroup groupe) {
-        if (groupe.getId() == null) {
+    public static void delete(AgeGroup ageGroup) {
+        if (ageGroup.getId() == null) {
             return;
         }
         JPAService.runInTransaction(em -> {
             try {
-                List<Category> cats = groupe.getCategories();
+                AgeGroup mAgeGroup = em.contains(ageGroup) ? ageGroup : em.merge(ageGroup);
+                List<Category> cats = ageGroup.getCategories();
                 for (Category c : cats) {
-                    c.setAgeGroup(null);
-                    em.remove(c);
+                    Category mc = em.contains(c) ? c : em.merge(c);
+                    cascadeCategoryRemoval(em, mAgeGroup, mc);
                 }
-                em.remove(groupe);
-                em.flush();
-                em.remove(em.contains(groupe) ? groupe : em.merge(groupe));
+                em.remove(mAgeGroup);
                 em.flush();
             } catch (Exception e) {
                 logger.error(LoggerUtils.stackTrace(e));
@@ -336,7 +337,8 @@ public class AgeGroupRepository {
         findFiltered.sort((ag1, ag2) -> {
             int compare = 0;
             compare = ag1.getAgeDivision().compareTo(ag2.getAgeDivision());
-            if (compare != 0) return -compare; // most generic first
+            if (compare != 0)
+                return -compare; // most generic first
             return ag1.compareTo(ag2);
         });
         return findFiltered;
@@ -376,8 +378,65 @@ public class AgeGroupRepository {
      * @param AgeGroup the group
      * @return the group
      */
-    public static AgeGroup save(AgeGroup AgeGroup) {
-        return JPAService.runInTransaction(em -> em.merge(AgeGroup));
+    public static AgeGroup save(AgeGroup ageGroup) {
+
+        // first clean up the age group
+        AgeGroup nAgeGroup = JPAService.runInTransaction(em -> {
+            // the category objects that have a null age group must be removed.
+            try {
+                AgeGroup mAgeGroup = em.merge(ageGroup);
+                List<Category> ageGroupCategories = mAgeGroup.getAllCategories();
+                logger.warn("saving categories {}", mAgeGroup.getAllCategories());
+                List<Category> obsolete = new ArrayList<>();
+                for (Category c : ageGroupCategories) {
+                    Category nc = em.contains(c) ? c : em.merge(c);
+                    if (nc.getAgeGroup() == null) {
+                        cascadeAthleteCategoryDisconnect(em, nc);
+                        obsolete .add(nc);                       
+                    } else if (nc.getId() == null) {
+                        // new category
+                        logger.warn("creating category for {}-{}",nc.getMinimumWeight(),nc.getMaximumWeight());
+                        em.persist(nc);
+                    } else {
+                        logger.warn("updating category for {}-{}",nc.getMinimumWeight(),nc.getMaximumWeight());
+                    }
+                }
+                
+                for (Category nc : obsolete) {
+                    cascadeCategoryRemoval(em, mAgeGroup, nc);
+                }
+
+                em.flush();
+                return mAgeGroup;
+            } catch (Exception e) {
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+            return null;
+        });
+
+        return nAgeGroup;
+    }
+
+    private static void cascadeCategoryRemoval(EntityManager em, AgeGroup mAgeGroup, Category nc) {
+        // so far we have not categories removed from the age group, time to do so
+        logger.warn("removing category {} from age group", nc.getId());
+        mAgeGroup.removeCategory(nc);
+        em.remove(nc);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void cascadeAthleteCategoryDisconnect(EntityManager em, Category c) {
+        Category nc = em.merge(c);
+        
+        String qlString = "select a from Athlete a where a.category = :category";
+        Query query = em.createQuery(qlString);
+        query.setParameter("category", nc);
+        List<Athlete> as = query.getResultList();
+        for (Athlete a : as) {
+            logger.warn("removing athlete {} from category {}", a, nc.getId());
+            Athlete na = em.contains(a) ? a : em.merge(a);
+            na.setCategory(null);
+        }
     }
 
     private static void setFilteringParameters(String name, Gender gender, AgeDivision ageDivision, Integer age,

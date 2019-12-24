@@ -309,13 +309,14 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         } else {
             Optional<Binding<Athlete, ?>> fbdBinding = binder.getBinding("fullBirthDate");
             HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
-            dateField.addValueChangeListener((vc) -> {
+            ValueChangeListener<ValueChangeEvent<?>> listener = (vc) -> {
                 Category cat = categoryField.getValue();
                 ListDataProvider<Category> listDataProvider2 = new ListDataProvider<>(
                         CategoryRepository.findByGenderAgeBW(genderField.getValue(), getAgeFromFields(), bodyWeightField.getValue()));
                 categoryField.setDataProvider(listDataProvider2);
                 categoryField.setValue(cat); // forces a validation and a meaningful message
-            });
+            };
+            dateField.addValueChangeListener(listener);
         }
 
         bodyWeightField.addValueChangeListener((vc) -> {
@@ -351,7 +352,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             HasValue<?, LocalDate> dateField = (HasValue<?, LocalDate>) fbdBinding.get().getField();
             LocalDate date = dateField.getValue();
             if (date != null) {
-                age = date.getYear() - (LocalDate.now().getYear());
+                age = (LocalDate.now().getYear() - date.getYear());
             }
         }
         return age;
