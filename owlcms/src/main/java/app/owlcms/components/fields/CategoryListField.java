@@ -102,7 +102,9 @@ public class CategoryListField extends CustomField<List<Category>> {
 
             prev = max;
             prevDouble = maximumWeight;
-            aspan.getElement().setAttribute("theme", "badge pill" + (c.getGender() == Gender.F ? " error" : ""));
+            aspan.getElement().setAttribute("theme", "badge pill"
+//                    + (c.getGender() == Gender.F ? " error" : "")
+                    );
             aspan.getStyle().set("font-size", "medium");
             closeIcon.addClickListener(click -> {
                 if (c.getMaximumWeight() >= 998.9D) return; // leave the sentinel.

@@ -51,8 +51,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
                 buttonClickEvent -> UI.getCurrent().navigate(CompetitionContent.class));
         Button ageGroups = new Button(getTranslation("DefineAgeGroups"),
                 buttonClickEvent -> UI.getCurrent().navigate(AgeGroupContent.class));
-        Button categories = new Button(getTranslation("DefineCategories"),
-                buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class));
+//        Button categories = new Button(getTranslation("DefineCategories"),
+//                buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class));
         Button groups = new Button(getTranslation("DefineGroups"),
                 buttonClickEvent -> UI.getCurrent().navigate(GroupContent.class));
         Button platforms = new Button(getTranslation("DefineFOP"),
@@ -74,7 +74,9 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button athletes = new Button(getTranslation("EditAthletes"),
                 buttonClickEvent -> UI.getCurrent().navigate(RegistrationContent.class));
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups, categories, groups, platforms,
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups, 
+//                categories, 
+                groups, platforms,
                 downloadDiv, upload);
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes);
