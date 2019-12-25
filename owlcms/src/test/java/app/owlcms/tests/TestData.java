@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.tests;
@@ -35,113 +35,116 @@ import ch.qos.logback.classic.Logger;
  */
 public class TestData {
 
-	private static Logger logger = (Logger) LoggerFactory.getLogger(TestData.class);
-	static { logger.setLevel(Level.INFO); }
+    private static Logger logger = (Logger) LoggerFactory.getLogger(TestData.class);
+    static {
+        logger.setLevel(Level.INFO);
+    }
 
-	/**
-	 * Insert initial data if the database is empty.
-	 *
-	 * @param nbAthletes how many athletes
-	 * @param testMode   true if creating dummy data
-	 */
-	public static void insertInitialData(int nbAthletes, boolean testMode) {
-		JPAService.runInTransaction(em -> {
-			setupTestData(em, nbAthletes);
-			return null;
-		});
-	}
+    public static void deleteAllLifters(EntityManager em) {
+        List<Athlete> athletes = AthleteRepository.doFindAll(em);
+        for (Athlete a : athletes) {
+            em.remove(a);
+        }
+    }
 
-	/**
-	 * Setup test data.
-	 * 
-	 * @param em
-	 *
-	 * @param competition   the competition
-	 * @param liftersToLoad the lifters to load
-	 * @param w             the w
-	 * @param c             the c
-	 */
-	protected static void setupTestData(EntityManager em, int liftersToLoad) {
-		logger.info("inserting test data.");
-	    // needed because some classes such as Athlete refer to the current competition
+    /**
+     * Insert initial data if the database is empty.
+     *
+     * @param nbAthletes how many athletes
+     * @param testMode   true if creating dummy data
+     */
+    public static void insertInitialData(int nbAthletes, boolean testMode) {
+        JPAService.runInTransaction(em -> {
+            setupTestData(em, nbAthletes);
+            return null;
+        });
+    }
+
+    public static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
+            Group groupB,
+            Group groupC) {
+        final String[] fnames = { "Peter", "Albert", "Joshua", "Mike", "Oliver",
+                "Paul", "Alex", "Richard", "Dan", "Umberto", "Henrik", "Rene",
+                "Fred", "Donald" };
+        final String[] lnames = { "Smith", "Gordon", "Simpson", "Brown",
+                "Clavel", "Simons", "Verne", "Scott", "Allison", "Gates",
+                "Rowling", "Barks", "Ross", "Schneider", "Tate" };
+
+        Random r = new Random(0);
+
+        createGroup(em, groupA, fnames, lnames, r, 81, 73, liftersToLoad);
+        createGroup(em, groupB, fnames, lnames, r, 73, 67, liftersToLoad);
+
+    }
+
+    protected static void assignStartNumbers(EntityManager em, Group groupA) {
+        List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, groupA, true);
+        AthleteSorter.registrationOrder(athletes);
+        AthleteSorter.assignStartNumbers(athletes);
+    }
+
+    protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit) {
+        p.setBodyWeight(81 - nextDouble);
+        Category categ = CategoryRepository.findByGenderAgeBW(Gender.M, 40, p.getBodyWeight()).get(0);
+        p.setCategory(em.contains(categ) ? categ : em.merge(categ));
+    }
+
+    protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
+            Random r,
+            int cat1, int cat2, int liftersToLoad) {
+        for (int i = 0; i < liftersToLoad; i++) {
+            Athlete p = new Athlete();
+            Group mg = (em.contains(group) ? group : em.merge(group));
+            p.setGroup(mg);
+            p.setFirstName(fnames[r.nextInt(fnames.length)]);
+            p.setLastName(lnames[r.nextInt(lnames.length)]);
+            createAthlete(em, r, p, 0.0D, cat1);
+            em.persist(p);
+        }
+    }
+
+    protected static void drawLots(EntityManager em) {
+        List<Athlete> athletes = AthleteRepository.doFindAll(em);
+        AthleteSorter.drawLots(athletes);
+    }
+
+    /**
+     * Setup test data.
+     * 
+     * @param em
+     *
+     * @param competition   the competition
+     * @param liftersToLoad the lifters to load
+     * @param w             the w
+     * @param c             the c
+     */
+    protected static void setupTestData(EntityManager em, int liftersToLoad) {
+        logger.info("inserting test data.");
+        // needed because some classes such as Athlete refer to the current competition
         Competition.setCurrent(new Competition());
-        
-		AgeGroupRepository.insertAgeGroups(em, EnumSet.of(AgeDivision.IWF));
 
-		LocalDateTime w = LocalDateTime.now();
-		LocalDateTime c = w.plusHours((long) 2.0);
+        AgeGroupRepository.insertAgeGroups(em, EnumSet.of(AgeDivision.IWF));
 
-		Platform platform1 = new Platform("Gym 1");
-		Platform platform2 = new Platform("Gym 2");
+        LocalDateTime w = LocalDateTime.now();
+        LocalDateTime c = w.plusHours((long) 2.0);
 
-		Group groupA = new Group("A", w, c);
-		groupA.setPlatform(platform1);
+        Platform platform1 = new Platform("Gym 1");
+        Platform platform2 = new Platform("Gym 2");
 
-		Group groupB = new Group("B", w, c);
-		groupB.setPlatform(platform2);
+        Group groupA = new Group("A", w, c);
+        groupA.setPlatform(platform1);
 
-		Group groupC = new Group("C", w, c);
-		groupC.setPlatform(platform1);
+        Group groupB = new Group("B", w, c);
+        groupB.setPlatform(platform2);
 
-		insertSampleLifters(em, liftersToLoad, groupA, groupB, groupC);
+        Group groupC = new Group("C", w, c);
+        groupC.setPlatform(platform1);
 
-		em.persist(groupA);
-		em.persist(groupB);
-		em.persist(groupC);
-	}
+        insertSampleLifters(em, liftersToLoad, groupA, groupB, groupC);
 
-	public static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupA,
-			Group groupB,
-			Group groupC) {
-		final String[] fnames = { "Peter", "Albert", "Joshua", "Mike", "Oliver",
-				"Paul", "Alex", "Richard", "Dan", "Umberto", "Henrik", "Rene",
-				"Fred", "Donald" };
-		final String[] lnames = { "Smith", "Gordon", "Simpson", "Brown",
-				"Clavel", "Simons", "Verne", "Scott", "Allison", "Gates",
-				"Rowling", "Barks", "Ross", "Schneider", "Tate" };
-
-		Random r = new Random(0);
-
-		createGroup(em, groupA, fnames, lnames, r, 81, 73, liftersToLoad);
-		createGroup(em, groupB, fnames, lnames, r, 73, 67, liftersToLoad);
-
-	}
-
-	protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
-			Random r,
-			int cat1, int cat2, int liftersToLoad) {
-		for (int i = 0; i < liftersToLoad; i++) {
-			Athlete p = new Athlete();
-			p.setGroup(group);
-			p.setFirstName(fnames[r.nextInt(fnames.length)]);
-			p.setLastName(lnames[r.nextInt(lnames.length)]);
-			createAthlete(em, r, p, 0.0D, cat1);
-			em.persist(p);
-		}
-	}
-
-	protected static void drawLots(EntityManager em) {
-		List<Athlete> athletes = AthleteRepository.doFindAll(em);
-		AthleteSorter.drawLots(athletes);
-	}
-
-	protected static void assignStartNumbers(EntityManager em, Group groupA) {
-		List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, groupA, true);
-		AthleteSorter.registrationOrder(athletes);
-		AthleteSorter.assignStartNumbers(athletes);
-	}
-
-	protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit) {
-		p.setBodyWeight(81 - nextDouble);
-		Category categ = ((List<Category>)CategoryRepository.findByGenderAgeBW(Gender.M, 40, p.getBodyWeight())).get(0);
-		p.setCategory(categ);
-	}
-	
-	public static void deleteAllLifters(EntityManager em) {
-		List<Athlete> athletes = AthleteRepository.doFindAll(em);
-		for (Athlete a: athletes) {
-			em.remove(a);
-		}
-	}
+        em.persist(groupA);
+        em.persist(groupB);
+        em.persist(groupC);
+    }
 
 }
