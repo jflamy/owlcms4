@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2019 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.agegroup;
@@ -63,14 +63,14 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     @Transient
     public String categoriesAsString;
 
-    public AgeGroup() {
-    }
-
     @OneToMany(mappedBy = "ageGroup", cascade = { CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH },
 //        orphanRemoval = true,
             fetch = FetchType.EAGER)
     private List<Category> categories = new ArrayList<>();
+
+    public AgeGroup() {
+    }
 
     public AgeGroup(String code, boolean active, Integer minAge, Integer maxAge, Gender gender,
             AgeDivision ageDivision) {
@@ -81,6 +81,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         this.maxAge = maxAge;
         this.ageDivision = ageDivision;
         this.gender = gender;
+    }
+
+    public void addCategory(Category category) {
+        if (category != null) {
+            categories.add(category);
+            category.setAgeGroup(this);
+        }
     }
 
     @Override
@@ -111,12 +118,16 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         return ageDivision;
     }
 
+    public List<Category> getAllCategories() {
+        return categories;
+    }
+
     /**
      * @return the categories for which we are the AgeGroup
      */
     public List<Category> getCategories() {
 //        // simpler to use a query; it is sufficient to call Category.setAgeGroup()
-//        // to manage the relationship. 
+//        // to manage the relationship.
 //        return JPAService
 //                .runInTransaction(em -> em
 //                        .createQuery("select c " + "from Category c "
@@ -124,7 +135,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 //                        .setParameter("agId", this.getId()).getResultList());
         return categories.stream().filter(c -> {
             return !(c.getAgeGroup() == null);
-        }).collect(Collectors.toList());
+        }).sorted().collect(Collectors.toList());
 //        return categories;
     }
 
@@ -168,22 +179,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         return minAge;
     }
 
-    public void addCategory(Category category) {
-        if (category != null) {
-            categories.add(category);
-            category.setAgeGroup(this);
-        }
-    }
-
-    public void removeCategory(Category category) {
-        if (category != null) {
-            logger.warn("ageGroup={} removing {} {}", this.getId(), category.getCode(), category.getId());
-            category.setAgeGroup(null);
-            categories.remove(category);
-            logger.warn("ageGroup={} removed {} {}", this.getId(), category.getCode(), category.getId());
-        }
-    }
-
     public String getName() {
         String code2 = this.getCode();
         String translatedCode = getTranslatedCode();
@@ -197,14 +192,17 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         }
     }
 
-    private String getTranslatedCode() {
-        return Translator.translateOrElseEn(
-                "AgeGroup." + getCode(),
-                OwlcmsSession.getLocale());
-    }
-
     public boolean isActive() {
         return active;
+    }
+
+    public void removeCategory(Category category) {
+        if (category != null) {
+            logger.warn("ageGroup={} removing {} {}", this.getId(), category.getCode(), category.getId());
+            category.setAgeGroup(null);
+            categories.remove(category);
+            logger.warn("ageGroup={} removed {} {}", this.getId(), category.getCode(), category.getId());
+        }
     }
 
     public void setActive(boolean active) {
@@ -217,10 +215,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     /**
      * Set the categories.
-     * 
+     *
      * We preserve existing category Ids so as not to pollute the database. Categories with no age group will be removed
      * when saving. New categories will be persisted by the save.
-     * 
+     *
      * @param nCats
      * @see AgeGroupRepository#save(AgeGroup)
      */
@@ -263,8 +261,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         return getName();
     }
 
-    public List<Category> getAllCategories() {
-        return categories;
+    private String getTranslatedCode() {
+        return Translator.translateOrElseEn(
+                "AgeGroup." + getCode(),
+                OwlcmsSession.getLocale());
     }
 
 }

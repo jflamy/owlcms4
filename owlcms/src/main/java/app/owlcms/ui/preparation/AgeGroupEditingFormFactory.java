@@ -62,9 +62,9 @@ public class AgeGroupEditingFormFactory
     public String buildCaption(CrudOperation operation, AgeGroup domainObject) {
         String name = domainObject.getName();
         if (name == null || name.isEmpty()) {
-            return "";
+            return Translator.translate("AgeGroup");
         } else {
-            return name;
+            return Translator.translate("AgeGroup")+" "+domainObject.getName();
         }
     }
 
@@ -84,7 +84,7 @@ public class AgeGroupEditingFormFactory
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
         FormLayout formLayout = new FormLayout();
-        formLayout.setWidth("500px");
+        formLayout.setWidth("550px");
 //        if (this.responsiveSteps != null) {
 //            formLayout.setResponsiveSteps(this.responsiveSteps);
 //        }

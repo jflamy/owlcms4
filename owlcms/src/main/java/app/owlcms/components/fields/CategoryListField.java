@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.html.Span;
@@ -36,27 +37,38 @@ public class CategoryListField extends CustomField<List<Category>> {
         flex = new FlexLayout();
         flex.setSizeFull();
         flex.getStyle().set("flex-wrap", "wrap");
+        flex.getStyle().set("margin-top", "1em");
         add(flex);
 
         HorizontalLayout adder = new HorizontalLayout();
         adder.getStyle().set("margin-top", "0.5em");
+        adder.getStyle().set("margin-bottom", "1em");
         TextField newCategoryField = new TextField();
+        newCategoryField.setPlaceholder(getTranslation("LimitForCategory"));
         newCategoryField.setPreventInvalidInput(true);
         newCategoryField.setPattern("[0-9]{0,3}");
-        newCategoryField.setWidth("5em");
+      
         Button button = new Button(getTranslation("AddNewCategory"));
         button.addClickListener((click) -> {
-            String value = newCategoryField.getValue();
-            if (value == null) return;
-            double newMax = Double.parseDouble(value);
-            Category newCat = new Category(null, 0.0, newMax, ag.getGender(),
-                    true, 0, 0, 0, ag);
-            presentationCategories.add(newCat);
-            updatePresentation();
-            newCategoryField.clear();
+            react(ag, newCategoryField);
         });
+        button.setIcon(new Icon(VaadinIcon.PLUS));
+        button.setThemeName("primary success");
+        button.addClickShortcut(Key.ENTER);
         adder.add(newCategoryField, button);
         add(adder);
+    }
+
+    private void react(AgeGroup ag, TextField newCategoryField) {
+        String value = newCategoryField.getValue();
+        if (value == null) return;
+        if (value.trim().isEmpty()) return;
+        double newMax = Double.parseDouble(value);
+        Category newCat = new Category(null, 0.0, newMax, ag.getGender(),
+                true, 0, 0, 0, ag);
+        presentationCategories.add(newCat);
+        updatePresentation();
+        newCategoryField.clear();
     }
 
     @Override
@@ -105,6 +117,7 @@ public class CategoryListField extends CustomField<List<Category>> {
 //                    + (c.getGender() == Gender.F ? " error" : "")
                     );
             aspan.getStyle().set("font-size", "medium");
+            aspan.getStyle().set("margin-bottom", "0.5em");
             closeIcon.addClickListener(click -> {
                 if (c.getMaximumWeight() >= 998.9D) return; // leave the sentinel.
                 c.setAgeGroup(null); // disconnect
