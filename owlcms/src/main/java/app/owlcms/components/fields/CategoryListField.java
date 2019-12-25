@@ -17,7 +17,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
 import app.owlcms.data.agegroup.AgeGroup;
-import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import ch.qos.logback.classic.Logger;
 
