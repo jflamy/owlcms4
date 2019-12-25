@@ -113,8 +113,6 @@ public class AgeGroupEditingFormFactory
         
         CategoryListField catField = new CategoryListField(aFromDb);
         
-        //FIXME: this is not a deep copy, so the categories are the same as for the original
-        //age group. We need to clone otherwise if we delete/unlink them we cannot cancel
         binder.forField(catField).bind(AgeGroup::getCategories,AgeGroup::setCategories);
         formLayout.addFormItem(catField, Translator.translate("BodyWeightCategories"));
         
