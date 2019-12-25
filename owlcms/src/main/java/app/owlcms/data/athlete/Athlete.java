@@ -3788,7 +3788,9 @@ public class Athlete {
         if (date == null) {
             date = LocalDate.now();
         }
-        return date.getYear() - getFullBirthDate().getYear();
+        LocalDate fullBirthDate2 = getFullBirthDate();
+        if (fullBirthDate2 == null) return null;
+        return date.getYear() - fullBirthDate2.getYear();
     }
 
 }
