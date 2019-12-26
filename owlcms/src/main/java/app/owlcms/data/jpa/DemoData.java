@@ -202,12 +202,7 @@ public class DemoData {
             AgeGroupRepository.insertAgeGroups(em, ageDivisions);
             return null;
         });
-        
-//        JPAService.runInTransaction(em -> {
-//            CategoryRepository.insertStandardCategories(em);
-//            return null;
-//        });
-        
+
         JPAService.runInTransaction(em -> {
             setupDemoData(em, nbAthletes, ageDivisions);
             return null;

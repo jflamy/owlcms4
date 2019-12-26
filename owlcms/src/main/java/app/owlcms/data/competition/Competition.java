@@ -33,6 +33,8 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
+import app.owlcms.ui.results.Resource;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -358,7 +360,16 @@ public class Competition {
      */
     public String getFinalPackageTemplateFileName() throws IOException {
         if (finalPackageTemplateFileName == null) {
-            return DEFAULT_PACKAGE_NAME;
+            List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/competitionBook",
+                    ResourceWalker::relativeName);
+            for (Resource r : resourceList) {
+                if (this.isMasters() && r.getFileName().startsWith("Masters_")) {
+                    return r.getFileName();
+                } else if (r.getFileName().startsWith("Total_")) {
+                    return r.getFileName();
+                }
+            }
+            return null;
         } else {
             return finalPackageTemplateFileName;
         }
@@ -413,7 +424,16 @@ public class Competition {
      */
     public String getProtocolFileName() throws IOException {
         if (protocolFileName == null) {
-            return DEFAULT_PROTOCOL_NAME;
+            List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/protocol",
+                    ResourceWalker::relativeName);
+            for (Resource r : resourceList) {
+                if (this.isMasters() && r.getFileName().startsWith("Masters_")) {
+                    return r.getFileName();
+                } else if (r.getFileName().startsWith("Protocol_")) {
+                    return r.getFileName();
+                }
+            }
+            return null;
         } else {
             return protocolFileName;
         }

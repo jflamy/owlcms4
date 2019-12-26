@@ -22,19 +22,17 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Locale;
 import java.util.function.BiFunction;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.results.Resource;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Get resource paths recursively from jar or classpath and assign them a short
- * display name for selection by user.
+ * Get resource paths recursively from jar or classpath and assign them a short display name for selection by user.
  *
  * @author owlcms
  *
@@ -42,21 +40,6 @@ import ch.qos.logback.classic.Logger;
 public class ResourceWalker {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(ResourceWalker.class);
-
-    public static void main(String[] args) {
-        new ResourceWalker().getMap("/templates/protocol", (filePath, rootPath) -> {
-            String displayName = relativeName(filePath, rootPath);
-            InputStream is;
-            try {
-                is = Files.newInputStream(filePath);
-                byte[] a = IOUtils.toByteArray(is);
-                System.out.println(displayName + " " + filePath + " " + a.length + "bytes");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            return displayName;
-        });
-    }
 
     /**
      * open the file system for locating resources.
@@ -87,53 +70,16 @@ public class ResourceWalker {
         return filePath.toString().substring(rootPath.toString().length() + 1);
     }
 
-    /**
-     * Walk a resource tree and return the entries. The paths can be inside a jar or
-     * classpath folder. A function is called on the name in order to generate a
-     * display name.
-     *
-     * @param absoluteRoot a starting point (absolute resource name starts with a /)
-     * @param generateName a function that takes the current path and the starting
-     *                     path and returns a (unique) display name.
-     * @return a list of <display name, file path> entries
-     * @throws IOException
-     * @throws URISyntaxException
-     */
-    public Map<String, Path> getMap(String absoluteRoot, BiFunction<Path, Path, String> generateName) {
-        try {
-            URL resources = getClass().getResource(absoluteRoot);
-            URI uri = resources.toURI();
-            Map<String, Path> processedNames = new TreeMap<>();
-            try (FileSystem fileSystem = (uri.getScheme().equals("jar")
-                    ? FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap())
-                    : null)) {
-                Path rootPath = Paths.get(uri);
-                Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-                        String processedName = generateName.apply(filePath, rootPath);
-                        processedNames.put(processedName, filePath);
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
-            }
-            return processedNames;
-        } catch (URISyntaxException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
-     * Walk a resource tree and return the entries. The paths can be inside a jar or
-     * classpath folder. A function is called on the name in order to generate a
-     * display name.
+     * Walk a resource tree and return the entries. The paths can be inside a jar or classpath folder. A function is
+     * called on the name in order to generate a display name.
      *
-     * Assumes that the jar has been opened as a file system (see
-     * {@link #openTemplatesFileSystem(String)}
+     * Assumes that the jar has been opened as a file system (see {@link #openTemplatesFileSystem(String)}
      *
      * @param absoluteRoot a starting point (absolute resource name starts with a /)
-     * @param generateName a function that takes the current path and the starting
-     *                     path and returns a (unique) display name.
+     * @param generateName a function that takes the current path and the starting path and returns a (unique) display
+     *                     name.
      * @return a list of <display name, file path> entries
      * @throws IOException
      * @throws URISyntaxException
@@ -142,19 +88,82 @@ public class ResourceWalker {
         try {
             URL resources = getClass().getResource(absoluteRoot);
             URI resourcesURI = resources.toURI();
-            List<Resource> processedNames = new ArrayList<>();
+            List<Resource> localeNames = new ArrayList<>();
+            List<Resource> englishNames = new ArrayList<>();
+            List<Resource> otherNames = new ArrayList<>();
             Path rootPath = Paths.get(resourcesURI);
             Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-                    String processedName = generateName.apply(filePath, rootPath);
-                    processedNames.add(new Resource(processedName, filePath));
+                    String generatedName = generateName.apply(filePath, rootPath);
+                    if (matchesLocale(filePath, OwlcmsSession.getLocale())) {
+                        localeNames.add(new Resource(generatedName, filePath));
+                    } else if (matchesLocale(filePath, Locale.ENGLISH)) {
+                        englishNames.add(new Resource(generatedName, filePath));
+                    } else {
+                        otherNames.add(new Resource(generatedName, filePath));
+                    }
                     return FileVisitResult.CONTINUE;
                 }
             });
-            return processedNames;
+            localeNames.addAll(englishNames);
+            localeNames.addAll(otherNames);
+
+            return localeNames;
         } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(e);
         }
     }
+
+    protected boolean matchesLocale(Path filePath, Locale locale) {
+        String resourceName = filePath.toString();
+        int extensionPos = resourceName.lastIndexOf('.');
+        String extension = resourceName.substring(extensionPos);
+        
+        String suffix = "_"+locale.getLanguage()+"_"+locale.getCountry()+"_"+locale.getVariant()+extension;
+        boolean result = resourceName.endsWith(suffix);
+        if (result) return true;
+        
+        suffix = "_"+locale.getLanguage()+"_"+locale.getCountry()+extension;
+        result = resourceName.endsWith(suffix);
+        if (result) return true;
+                
+        suffix = "_"+locale.getLanguage()+extension;
+        result = resourceName.endsWith(suffix);
+        if (result) return true;
+        
+        return false;
+    }
+
+    public static InputStream getLocalizedResourceAsStream(String resourceName) {
+        int extensionPos = resourceName.lastIndexOf('.');
+        String extension = resourceName.substring(extensionPos);
+        String baseName = resourceName.substring(0, extensionPos);
+
+        Locale locale = OwlcmsSession.getLocale();
+        String suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant();
+        InputStream result = ResourceWalker.class.getResourceAsStream(baseName + suffix + extension);
+        if (result != null)
+            return result;
+
+        suffix = "_" + locale.getLanguage() + "_" + locale.getCountry();
+        result = ResourceWalker.class.getResourceAsStream(baseName + suffix + extension);
+        if (result != null)
+            return result;
+
+        suffix = "_" + locale.getLanguage();
+        result = ResourceWalker.class.getResourceAsStream(baseName + suffix + extension);
+        if (result != null)
+            return result;
+
+        suffix = "_en";
+        result = ResourceWalker.class.getResourceAsStream(baseName + suffix + extension);
+        if (result != null)
+            return result;
+
+        suffix = "";
+        result = ResourceWalker.class.getResourceAsStream(baseName + suffix + extension);
+        return result;
+    }
+
 }

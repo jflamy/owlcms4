@@ -37,6 +37,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -359,17 +360,14 @@ public class AgeGroupRepository {
     }
 
     public static void insertAgeGroups(EntityManager em, EnumSet<AgeDivision> es) {
-        try {
-            Workbook workbook = WorkbookFactory
-                    .create(AgeGroupRepository.class.getResourceAsStream("/config/AgeGroups.xlsx"));
+        try (Workbook workbook = WorkbookFactory
+                .create(ResourceWalker.getLocalizedResourceAsStream("/config/AgeGroups.xlsx"))) {
             Map<String, Category> templates = createCategoryTemplates(workbook);
             createAgeGroups(workbook, templates, es);
             workbook.close();
-
         } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
             logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
         }
-
     }
 
     /**
@@ -392,16 +390,16 @@ public class AgeGroupRepository {
                     Category nc = em.contains(c) ? c : em.merge(c);
                     if (nc.getAgeGroup() == null) {
                         cascadeAthleteCategoryDisconnect(em, nc);
-                        obsolete .add(nc);                       
+                        obsolete.add(nc);
                     } else if (nc.getId() == null) {
                         // new category
-                        logger.warn("creating category for {}-{}",nc.getMinimumWeight(),nc.getMaximumWeight());
+                        logger.warn("creating category for {}-{}", nc.getMinimumWeight(), nc.getMaximumWeight());
                         em.persist(nc);
                     } else {
-                        logger.warn("updating category for {}-{}",nc.getMinimumWeight(),nc.getMaximumWeight());
+                        logger.warn("updating category for {}-{}", nc.getMinimumWeight(), nc.getMaximumWeight());
                     }
                 }
-                
+
                 for (Category nc : obsolete) {
                     cascadeCategoryRemoval(em, mAgeGroup, nc);
                 }
@@ -427,7 +425,7 @@ public class AgeGroupRepository {
     @SuppressWarnings("unchecked")
     private static void cascadeAthleteCategoryDisconnect(EntityManager em, Category c) {
         Category nc = em.merge(c);
-        
+
         String qlString = "select a from Athlete a where a.category = :category";
         Query query = em.createQuery(qlString);
         query.setParameter("category", nc);

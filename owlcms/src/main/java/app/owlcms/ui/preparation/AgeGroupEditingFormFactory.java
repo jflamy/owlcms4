@@ -26,11 +26,13 @@ import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
+import com.vaadin.flow.data.validator.StringLengthValidator;
 
 import app.owlcms.components.fields.CategoryListField;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
@@ -64,7 +66,7 @@ public class AgeGroupEditingFormFactory
         if (name == null || name.isEmpty()) {
             return Translator.translate("AgeGroup");
         } else {
-            return Translator.translate("AgeGroup")+" "+domainObject.getName();
+            return Translator.translate("AgeGroup") + " " + domainObject.getName();
         }
     }
 
@@ -72,7 +74,8 @@ public class AgeGroupEditingFormFactory
     public Component buildFooter(CrudOperation operation, AgeGroup domainObject,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> postOperationCallBack,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, boolean shortcutEnter, Button... buttons) {
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, boolean shortcutEnter,
+            Button... buttons) {
         return super.buildFooter(operation, domainObject, cancelButtonClickListener, postOperationCallBack,
                 deleteButtonClickListener, false, buttons);
     }
@@ -92,9 +95,22 @@ public class AgeGroupEditingFormFactory
         binder = buildBinder(null, aFromDb);
         String message = Translator.translate("AgeFormat");
 
+        TextField codeField = new TextField();
+        formLayout.addFormItem(codeField, Translator.translate("AgeGroupCode"));
+        binder.forField(codeField)
+                .withNullRepresentation("")
+                .withValidator(new StringLengthValidator(Translator.translate("CodeMustBeShort"), 0, 5))
+                .bind(AgeGroup::getCode, AgeGroup::setCode);
+
+        ComboBox<AgeDivision> ageDivisionField = new ComboBox<>();
+        ageDivisionField.setDataProvider(new ListDataProvider<AgeDivision>(Arrays.asList(AgeDivision.values())));
+        binder.forField(ageDivisionField).bind(AgeGroup::getAgeDivision, AgeGroup::setAgeDivision);
+        formLayout.addFormItem(ageDivisionField, Translator.translate("AgeDivision"));
+
         TextField minAgeField = new TextField();
         formLayout.addFormItem(minAgeField, Translator.translate("MinimumAge"));
         binder.forField(minAgeField)
+                .withNullRepresentation("")
                 .withConverter(new StringToIntegerConverter(message))
                 .withValidator(new IntegerRangeValidator(message, 0, 999))
                 .bind(AgeGroup::getMinAge, AgeGroup::setMinAge);
@@ -102,6 +118,7 @@ public class AgeGroupEditingFormFactory
         TextField maxAgeField = new TextField();
         formLayout.addFormItem(maxAgeField, Translator.translate("MaximumAge"));
         binder.forField(maxAgeField)
+                .withNullRepresentation("")
                 .withConverter(new StringToIntegerConverter(message))
                 .withValidator(new IntegerRangeValidator(message, 0, 999))
                 .bind(AgeGroup::getMaxAge, AgeGroup::setMaxAge);
