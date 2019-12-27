@@ -1,12 +1,14 @@
-* Release Highlights for release 4.3 (alpha1): 
-  - [X] Categories are now created on a new Edit Age Groups and Categories page. This ensures that categories are connected to the right age group and that there are no gaps if category boundaries are created/deleted.
+* Release Highlights for release 4.3 (beta1): 
+  
   - [X] Manage list of age groups with age boundaries ("Edit Age Groups").  Each age group be active or inactive.
-  - [x] Recompute athlete categories from the "Edit Athletes" screen after editing (on demand)
-  - [X] Each age group has its own bodyweight categories
+    - [X] Each age group has its own bodyweight categories
+    - [X] Bodyweight Categories are now created by editing the age group. This ensures that each category is connected to a single age group and that there are no gaps in the body weights for each age group.
+  - [x] The Edit Athletes and Edit Age Groups pages each have a button at the top of the page to reassign athletes to the current categories.
+  - [X] Age Group definitions are loaded when the program is started based to the locale (language_country). It is also possible to load/reload an age group definition page
   - [X] Athlete must select the category they are in (is 36 year old lifting in the senior group or the masters group?)
     - [x] MASTERS, Uxx Age Groups, IWF age groups, All (default) are listed in order of preference (if active).  
     - [x] If all the age groups are active, A 36-year old would be M35 by default, and the other choices, O21, SR, All would be listed in that order.  The default can be overridden to let the 36 year old compete in a senior group.
-  - [X] Registration form is backward compatible, but it is now also possible to give birth+gender+bodyweight category in the 3 columns. Finally, If desired the exact name of category can be used.
+  - [X] The registration form is backward compatible, but it is now also possible to give birth+gender+bodyweight category in the 3 columns. Finally, If desired the exact name of category can be used.
 
 - Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 
