@@ -10,6 +10,7 @@
 * Competition
 
   *	[Preparation](Preparation)
+  *	[Age Groups and Categories](Categories)
   *	[Athlete Registration](Registration)
   *	[Weigh-in and Start Numbers](WeighIn)
   *	[Announcing, Marshalling and Timekeeping](Announcing)

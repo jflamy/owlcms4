@@ -151,7 +151,8 @@ public class Competition {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
         if (athletes.isEmpty()) {
             // prevent outputting silliness.
-            throw new RuntimeException("No athletes.");
+            //throw new RuntimeException("No athletes.");
+            return;
         }
         // extract club lists
         TreeSet<String> teams = new TreeSet<>();

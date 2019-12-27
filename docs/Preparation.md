@@ -25,27 +25,20 @@ In countries where more than one language is spoken, the various computers used 
 
 ![032_Language](img/Preparation/032_Language.png)
 
-## Defining Age Divisions and Categories
+## Defining Age Groups and Categories
 
-OWLCMS, by default, uses the Senior IWF categories. Each category is also associated with an **Age Division**. 
+Different federations have different rules regarding age groups and the bodyweight categories used in each group.
 
-Selecting the `Define Categories` button on the `Prepare Competition` page brings up a list of the defined categories, for all the age divisions.
+By default, OWLCMS is set up for an informal club meeting, with no age restrictions and additional light body weight categories for kids.  We will use this simple setup for most of this tutorial.  
 
-![040_AllCategories](img/Preparation/040_AllCategories.png)
+In the Default setting, athletes are assigned automatically to a category based on their bodyweight.
 
-### Multiple simultaneous age divisions
+OWLCMS also supports the IWF scenarios, and more complex scenarios with multiple age groups, please refer to the [Define Age Groups and Categories](Categories) page for how to proceed for the following cases.
+- Official IWF age groups and bodyweight categories.
+- Masters competitions, where athletes are automatically assigned to an age group based on their birth date according to IWF Masters rules
+- Age Group competitions where regional or national federations define the age group boundaries.
 
-You can have multiple age divisions competing in the same meet and getting different medals by activating categories.  If you want to have Youths getting medals separately from Juniors and from Seniors, you would activate the categories from the Youth, Junior and Senior age divisions, and deactivate the DEFAULT categories.  OWLCMS will then consider M67 Youth different from M67 Junior different from M67 Senior, and award 3 medals. 
 
-The line at the top allows you to search/filter the category list.  You can clear a filter by using the small `x` that appears if you define a value in a filtering box.  In this example we will show the youth categories.
-
-![041_FilterYouth](img/Preparation/041_FilterYouth.png)
-
-If we then select the F45 category by clicking ONCE on it, we can use the checkbox at the bottom left to activate it.
-
-![042_MakeActive](img/Preparation/042_MakeActive.png)
-
-Going back to the full list, we can use the filtering checkbox `Active` to see that the F45 Youth category is indeed active.![043_ShowActive](img/Preparation/043_ShowActive.png)
 
 ### Editing Competition Groups
 
