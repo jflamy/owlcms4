@@ -83,9 +83,9 @@ Finally, including Masters age groups does not automatically activate the Master
 
 ## Changing the Default Age Group Definitions
 
-If you look at the installation directory under the `local/config` directory, you will notice files with the name similar to`AgeGroups.xlsx` .  The content of the file is fairly obvious. The first Tab in the file defines the bodyweight categories in use for a given federation or club.  The second Tab says which bodyweight categories are active for each age group.
+If you look at the installation directory under the `local/config` directory, you will notice files with a name similar to `AgeGroups.xlsx` .  The first Tab in each file defines the bodyweight categories in use for a given federation or club.  The second Tab says which bodyweight categories are active for each age group.
 
-The suffix on each file follows the same conventions as for the [Translation](Translation) files.  You can therefore add a file that will be loaded for your specific language and location and it will be loaded by default when the program is first stated with no database.  You can also add a file and load it at any time -- this will however force a recalculation of the athlete categories, which is most likely what you need.
+The suffix on each file follows the same conventions as for the [Translation](Translation) files.  You can therefore add a file for your specific language and location that will be loaded by default when the program is first started with no database.  You can also add a file to the config directory and load it at any time -- this will however force a recalculation of the athlete categories, which is most likely what you need.
 
 The drop-down at the top of the page shows the available files in the order they would be considered based on your current locale:
 
