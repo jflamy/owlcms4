@@ -2,6 +2,8 @@ package app.owlcms.data.category;
 
 import java.util.Comparator;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import app.owlcms.data.agegroup.AgeGroup;
 
 /**
@@ -47,6 +49,9 @@ public class RegistrationPreferenceComparator implements Comparator<Category> {
         AgeDivision ad2 = (ag2 != null ? ag2.getAgeDivision() : null);
         
         int compare = 0;
+        compare = ObjectUtils.compare(c1.getGender(), c2.getGender());
+        if (compare != 0) return compare;
+        
         // age divisions are in registration preference order
         // U before M before OLY before IWF before DEFAULT
         compare = ad1.compareTo(ad2);

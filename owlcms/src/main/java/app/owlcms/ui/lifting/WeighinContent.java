@@ -30,6 +30,8 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.ValidationTextField;
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -68,6 +70,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
     private TextField lastNameFilter = new TextField();
     private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
+    private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
     private ComboBox<Category> categoryFilter = new ComboBox<>();
     private ComboBox<Group> groupFilter = new ComboBox<>();
 
@@ -229,6 +232,16 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
             crudGrid.refreshGrid();
         });
         crudGrid.getCrudLayout().addFilterComponent(ageDivisionFilter);
+        
+        ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
+        ageGroupFilter.setItems(AgeGroupRepository.findAll());
+        // ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
+        ageGroupFilter.setClearButtonVisible(true);
+        ageGroupFilter.addValueChangeListener(e -> {
+            crudGrid.refreshGrid();
+        });
+        ageGroupFilter.setWidth("10em");
+        crudGrid.getCrudLayout().addFilterComponent(ageGroupFilter);
 
         categoryFilter.setPlaceholder(getTranslation("Category"));
         categoryFilter.setItems(CategoryRepository.findActive());
@@ -287,7 +300,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     @Override
     public Collection<Athlete> findAll() {
         List<Athlete> findFiltered = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
-                categoryFilter.getValue(), ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
+                categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
         AthleteSorter.registrationOrder(findFiltered);
         return findFiltered;
     }

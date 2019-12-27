@@ -14,6 +14,7 @@ import javax.persistence.Query;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
@@ -40,10 +41,10 @@ public class AthleteRepository {
      * @param weighedIn   the weighed in
      * @return the int
      */
-    public static int countFiltered(String lastName, Group group, Category category, AgeDivision ageDivision,
+    public static int countFiltered(String lastName, Group group, Category category, AgeGroup ageGroup, AgeDivision ageDivision,
             Boolean weighedIn) {
         return JPAService.runInTransaction(em -> {
-            return doCountFiltered(lastName, group, category, ageDivision, weighedIn, em);
+            return doCountFiltered(lastName, group, category, ageGroup, ageDivision, weighedIn, em);
         });
     }
 
@@ -59,13 +60,13 @@ public class AthleteRepository {
         });
     }
 
-    public static Integer doCountFiltered(String lastName, Group group, Category category, AgeDivision ageDivision,
+    public static Integer doCountFiltered(String lastName, Group group, Category category, AgeGroup ageGroup, AgeDivision ageDivision,
             Boolean weighedIn, EntityManager em) {
-        String selection = filteringSelection(lastName, group, category, ageDivision, weighedIn);
+        String selection = filteringSelection(lastName, group, category, ageGroup, ageDivision, weighedIn);
         String qlString = "select count(a.id) from Athlete a " + selection;
         logger.trace("count query = {}", qlString);
         Query query = em.createQuery(qlString);
-        setFilteringParameters(lastName, group, category, ageDivision, query);
+        setFilteringParameters(lastName, group, category, ageGroup, ageDivision, query);
         int i = ((Long) query.getSingleResult()).intValue();
         return i;
     }
@@ -76,16 +77,16 @@ public class AthleteRepository {
     }
 
     public static List<Athlete> doFindAllByGroupAndWeighIn(EntityManager em, Group group, Boolean weighedIn) {
-        return doFindFiltered(em, (String) null, group, (Category) null, (AgeDivision) null, weighedIn, -1, -1);
+        return doFindFiltered(em, (String) null, group, (Category) null, (AgeGroup)null, (AgeDivision) null, weighedIn, -1, -1);
     }
 
-    public static List<Athlete> doFindFiltered(EntityManager em, String lastName, Group group, Category category,
+    public static List<Athlete> doFindFiltered(EntityManager em, String lastName, Group group, Category category, AgeGroup ageGroup,
             AgeDivision ageDivision, Boolean weighedIn, int offset, int limit) {
         String qlString = "select a from Athlete a"
-                + filteringSelection(lastName, group, category, ageDivision, weighedIn);
+                + filteringSelection(lastName, group, category, ageGroup, ageDivision, weighedIn);
         logger.debug("find query = {}", qlString);
         Query query = em.createQuery(qlString);
-        setFilteringParameters(lastName, group, category, ageDivision, query);
+        setFilteringParameters(lastName, group, category, ageGroup, ageDivision, query);
         if (offset >= 0) {
             query.setFirstResult(offset);
         }
@@ -97,12 +98,12 @@ public class AthleteRepository {
         return resultList;
     }
 
-    private static String filteringJoins(Group group, Category category) {
+    private static String filteringJoins(Group group, Category category, AgeGroup ageGroup, AgeDivision ageDivision) {
         List<String> fromList = new LinkedList<>();
         if (group != null) {
             fromList.add("join a.group g"); // group is via a relationship, join on id
         }
-        if (category != null) {
+        if (category != null || ageGroup != null || ageDivision != null) {
             fromList.add("join a.category c"); // group is via a relationship, join on id
         }
         if (fromList.size() == 0) {
@@ -112,19 +113,22 @@ public class AthleteRepository {
         }
     }
 
-    private static String filteringSelection(String lastName, Group group, Category category, AgeDivision ageDivision,
+    private static String filteringSelection(String lastName, Group group, Category category, AgeGroup ageGroup, AgeDivision ageDivision,
             Boolean weighedIn) {
-        String joins = filteringJoins(group, category);
-        String where = filteringWhere(lastName, group, category, ageDivision, weighedIn);
+        String joins = filteringJoins(group, category, ageGroup, ageDivision);
+        String where = filteringWhere(lastName, group, category, ageGroup, ageDivision, weighedIn);
         String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
         return selection;
     }
 
-    private static String filteringWhere(String lastName, Group group, Category category, AgeDivision ageDivision,
+    private static String filteringWhere(String lastName, Group group, Category category, AgeGroup ageGroup, AgeDivision ageDivision,
             Boolean weighedIn) {
         List<String> whereList = new LinkedList<>();
+        if (ageGroup != null) {
+            whereList.add("c.ageGroup = :ageGroup");
+        }
         if (ageDivision != null) {
-            whereList.add("a.ageDivision = :division");
+            whereList.add("c.ageGroup.ageDivision = :division");
         }
         if (group != null) {
             whereList.add("g.id = :groupId"); // group is via a relationship, select the joined id.
@@ -162,7 +166,7 @@ public class AthleteRepository {
      * @return the list
      */
     public static List<Athlete> findAllByGroupAndWeighIn(Group group, Boolean weighedIn) {
-        List<Athlete> findFiltered = findFiltered((String) null, group, (Category) null, (AgeDivision) null, weighedIn,
+        List<Athlete> findFiltered = findFiltered((String) null, group, (Category) null, (AgeGroup)null, (AgeDivision) null, weighedIn,
                 -1, -1);
         logger.debug("findFiltered found {}", findFiltered.size());
         return findFiltered;
@@ -185,10 +189,10 @@ public class AthleteRepository {
      * @param limit       the limit
      * @return the list
      */
-    public static List<Athlete> findFiltered(String lastName, Group group, Category category, AgeDivision ageDivision,
+    public static List<Athlete> findFiltered(String lastName, Group group, Category category, AgeGroup ageGroup, AgeDivision ageDivision,
             Boolean weighedIn, int offset, int limit) {
         return JPAService.runInTransaction(em -> {
-            return doFindFiltered(em, lastName, group, category, ageDivision, weighedIn, offset, limit);
+            return doFindFiltered(em, lastName, group, category, ageGroup, ageDivision, weighedIn, offset, limit);
         });
     }
 
@@ -219,7 +223,7 @@ public class AthleteRepository {
         });
     }
 
-    private static void setFilteringParameters(String lastName, Group group, Category category, AgeDivision ageDivision,
+    private static void setFilteringParameters(String lastName, Group group, Category category, AgeGroup ageGroup, AgeDivision ageDivision,
             Query query) {
         if (lastName != null && lastName.trim().length() > 0) {
             // starts with
@@ -232,8 +236,11 @@ public class AthleteRepository {
             query.setParameter("categoryId", category.getId()); // category is via a relationship, we join and select on
                                                                 // id.
         }
+        if (ageGroup != null) {
+            query.setParameter("ageGroup", ageGroup);
+        }
         if (ageDivision != null) {
-            query.setParameter("division", ageDivision); // ageDivision is a string
+            query.setParameter("division", ageDivision);
         }
     }
 

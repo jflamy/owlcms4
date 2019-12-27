@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -33,13 +32,14 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.fields.BodyWeightField;
 import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.ValidationTextField;
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
-import app.owlcms.data.category.MastersAgeGroup;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -71,10 +71,11 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
 
     private TextField lastNameFilter = new TextField();
     private ComboBox<AgeDivision> ageDivisionFilter = new ComboBox<>();
+    private ComboBox<AgeGroup> ageGroupFilter = new ComboBox<>();
     private ComboBox<Category> categoryFilter = new ComboBox<>();
     private ComboBox<Group> groupFilter = new ComboBox<>();
     private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
-    private ComboBox<String> ageGroupFilter = new ComboBox<>();
+
 
     private OwlcmsRouterLayout routerLayout;
     private OwlcmsCrudGrid<Athlete> crudGrid;
@@ -231,20 +232,18 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         ageDivisionFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
         });
-        lastNameFilter.setWidth("10em");
+        ageDivisionFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(ageDivisionFilter);
 
-        if (Competition.getCurrent().isMasters()) {
-            ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
-            ageGroupFilter.setItems(MastersAgeGroup.findAllStrings());
-            // ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
-            ageGroupFilter.setClearButtonVisible(true);
-            ageGroupFilter.addValueChangeListener(e -> {
-                crudGrid.refreshGrid();
-            });
-            ageGroupFilter.setWidth("10em");
-            crudGrid.getCrudLayout().addFilterComponent(ageGroupFilter);
-        }
+        ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
+        ageGroupFilter.setItems(AgeGroupRepository.findAll());
+        // ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
+        ageGroupFilter.setClearButtonVisible(true);
+        ageGroupFilter.addValueChangeListener(e -> {
+            crudGrid.refreshGrid();
+        });
+        ageGroupFilter.setWidth("10em");
+        crudGrid.getCrudLayout().addFilterComponent(ageGroupFilter);
 
         categoryFilter.setPlaceholder(getTranslation("Category"));
         categoryFilter.setItems(CategoryRepository.findActive());
@@ -271,7 +270,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         weighedInFilter.setItemLabelGenerator((i) -> {
             return i ? getTranslation("Weighed") : getTranslation("Not_weighed");
         });
-        categoryFilter.setClearButtonVisible(true);
+        weighedInFilter.setClearButtonVisible(true);
         weighedInFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();
         });
@@ -296,21 +295,21 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         return;
     }
 
-    private Collection<Athlete> doExtraFiltering(List<Athlete> all) {
-        String filterValue = ageGroupFilter != null ? ageGroupFilter.getValue() : null;
-        if (filterValue == null) {
-            return all;
-        } else {
-            List<Athlete> some = all.stream().filter(a -> a.getMastersAgeGroup().startsWith(filterValue))
-                    .collect(Collectors.toList());
-            return some;
-        }
-    }
+//    private Collection<Athlete> doExtraFiltering(List<Athlete> all) {
+//        String filterValue = ageGroupFilter != null ? ageGroupFilter.getValue() : null;
+//        if (filterValue == null) {
+//            return all;
+//        } else {
+//            List<Athlete> some = all.stream().filter(a -> a.getMastersAgeGroup().startsWith(filterValue))
+//                    .collect(Collectors.toList());
+//            return some;
+//        }
+//    }
 
     public Collection<Athlete> doFindAll(EntityManager em) {
         List<Athlete> all = AthleteRepository.doFindFiltered(em, lastNameFilter.getValue(), groupFilter.getValue(),
-                categoryFilter.getValue(), ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
-        return doExtraFiltering(all);
+                categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
+        return all;
     }
 
     /**
@@ -322,8 +321,8 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     @Override
     public Collection<Athlete> findAll() {
         List<Athlete> all = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
-                categoryFilter.getValue(), ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
-        return doExtraFiltering(all);
+                categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
+        return all;
     }
 
     /**
