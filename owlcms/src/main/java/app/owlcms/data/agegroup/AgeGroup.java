@@ -201,10 +201,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     public void removeCategory(Category category) {
         if (category != null) {
-            logger.warn("ageGroup={} removing {} {}", this.getId(), category.getCode(), category.getId());
+            //logger.warn("ageGroup={} removing {} {}", this.getId(), category.getCode(), category.getId());
             category.setAgeGroup(null);
             categories.remove(category);
-            logger.warn("ageGroup={} removed {} {}", this.getId(), category.getCode(), category.getId());
+            //logger.warn("ageGroup={} removed {} {}", this.getId(), category.getCode(), category.getId());
         }
     }
 
@@ -226,7 +226,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
      * @see AgeGroupRepository#save(AgeGroup)
      */
     public void setCategories(List<Category> nCats) {
-        logger.warn("ageGroup {} setting categories {}", System.identityHashCode(this), nCats);
+        logger.debug("ageGroup {} setting categories {}", System.identityHashCode(this), nCats);
         Map<Long, Category> curCatMap = new HashMap<>();
         categories.forEach(c -> curCatMap.put(c.getId(), c));
         for (Category nc : nCats) {

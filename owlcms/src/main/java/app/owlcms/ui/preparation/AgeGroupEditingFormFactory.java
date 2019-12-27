@@ -9,6 +9,7 @@ package app.owlcms.ui.preparation;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 
 import com.vaadin.flow.component.ClickEvent;
@@ -36,6 +37,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
+import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class AgeGroupEditingFormFactory
@@ -43,6 +45,8 @@ public class AgeGroupEditingFormFactory
         implements CustomFormFactory<AgeGroup> {
 
     private AgeGroupContent origin;
+    @SuppressWarnings("unused")
+    private Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupRepository.class);
 
     AgeGroupEditingFormFactory(Class<AgeGroup> domainType, AgeGroupContent origin) {
         super(domainType);
@@ -128,12 +132,12 @@ public class AgeGroupEditingFormFactory
         genderField.setDataProvider(new ListDataProvider<Gender>(Arrays.asList(Gender.values())));
         binder.forField(genderField).bind(AgeGroup::getGender, AgeGroup::setGender);
         formLayout.addFormItem(genderField, Translator.translate("Gender"));
-        
+
         CategoryListField catField = new CategoryListField(aFromDb);
-        
-        binder.forField(catField).bind(AgeGroup::getCategories,AgeGroup::setCategories);
+
+        binder.forField(catField).bind(AgeGroup::getCategories, AgeGroup::setCategories);
         formLayout.addFormItem(catField, Translator.translate("BodyWeightCategories"));
-        
+
         binder.readBean(aFromDb);
         if (minAgeField.getValue().isEmpty()) {
             minAgeField.setValue("0");
@@ -190,6 +194,7 @@ public class AgeGroupEditingFormFactory
     public AgeGroup update(AgeGroup ageGroup) {
         AgeGroup saved = AgeGroupRepository.save(ageGroup);
         origin.closeDialog();
+        origin.highlightResetButton();
         return saved;
     }
 

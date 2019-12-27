@@ -418,16 +418,8 @@ BreakButton.ToStartCaption,Countdown to start / Break Timer,Décompte avant déb
 StartNumbersNotSet,Start numbers were not assigned. Use the Weigh-in page.,Les numéros de départ n'ont pas été attribués. Utiliser la page de pesée.,,,Startnumre er ikke tildelt. Brug Invejningssiden.,Стартовые номера не назначены. Используйте страницу взвешивания.,Startnummer tilldelas inte. Använd vägningssidan.,Startnummern nicht zugeordnet. Benutze die Seite für Wiegen.,Los números de partida no han sido asignados. Utilice la página de pesaje.,Os números iniciais dos atletas não foram atribuídos. Use a página de pesagem.,Los números de inicio no están asignados. Use la página de pesaje.,Os números iniciais dos atletas não foram atribuídos. Use a página de pesagem.
 Competition.mastersGenderEquality,Masters: use W75 and W80+ age groups,Masters: utiliser groupes d'âge W75 et W80+,,,Masters: Brug aldersgrupper W75 og W80+,Ветераны: используйте возрастные группы M/W75 и M/W80+,Masters: använd åldersgrupper W75 och W80+,Masters: benutze W75 und W80+ Altersklassen,Masters: use los grupos de edad W75 y W80+,Masters: use as faixas etárias W75 e W80+,Masters: use as faixas etárias W75 e W80+,
 Division.DEFAULT,DEFAULT,Par défaut,,,DEFAULT,DEFAULT(по умолчанию),DEFAULT,STANDARD,DEFAULT,PADRÃO,DEFAULT,PADRÃO
-Division.SENIOR,SENIOR,SENIOR,,SENIOR,SENIOR,SENIOR,SENIOR,SENIOR,SENIOR,ADULTO,SENIOR,ADULTO
-Division.JUNIOR,JUNIOR,JUNIOR,,U20,JUNIOR,JUNIOR,JUNIOR,JUNIOR,JUNIOR,SUB-20,JUNIOR,SUB-20
-Division.YOUTH,YOUTH,JEUNESSE,,U17,UNGDOM,YOUTH,YOUTH,JUGEND,YOUTH,SUB-17,YOUTH,SUB-17
-Division.KIDS,KIDS,ENFANTS,,U15,BØRN,KIDS,KIDS,KINDER,KIDS,CRIANÇAS,KIDS,CRIANÇAS
-Division.MASTERS,MASTERS,MASTERS,,,MASTERS,MASTERS,MASTERS,MASTERS,MASTERS,MASTERS,MASTERS,
-Division.TRADITIONAL,TRADITIONAL,TRADITIONNEL,,,TRADITIONEL,TRADITIONAL,TRADITIONAL,TRADITIONELL,TRADITIONAL,TRADICIONAL,TRADITIONAL,TRADICIONAL
-Division.A,A,A,,U13,A,A,A,A,A,A,A,
-Division.B,B,B,,U10,B,B,B,B,B,B,B,
-Division.C,C,C,,A,C,C,C,C,C,C,C,
-Division.D,D,D,,B,D,D,D,D,D,D,D,
+Division.MASTERS,Masters,Masters,Masters,Masters,Masters,Masters,Masters,Masters,Masters,Masters,Masters,
+Division.Special,Special,Spécial,,B,Special,Special,Special,Special,Special,Special,Special,
 Division.U,By Age Group,Par groupes d'âge,,,Aldersinddelt,Возрастная кат.,Åldersdelning,Altersklasse,Age Groups,Divisão de idade,Divisão de idade,Divisão de idade
 Division.IWF,IWF,IWF,,,IWF,IWF,IWF,IWF,IWF,IWF,IWF,
 Division.OLY,Olympics,Olympiques,,,Olympisk,Olympics,Olympics,Olympisch,Olympics,Olympics,Olympics,
@@ -451,4 +443,5 @@ AddNewCategory,Add Category,Ajouter catégorie,,,Tilføj kategori,Add Category,A
 LimitForCategory,≤ max kg,≤ max kg,≤ max kg,≤ max kg,≤ max kg,≤ max kg,≤ max kg,≤ max kg,≤ max kg,≤ max kg,≤ max kg,
 AgeGroupCode,Display Short Code,Code d'affichage bref,,,Display Short Code,Display Short Code,Display Short Code,Display Short Code,Display Short Code,Display Short Code,Display Short Code,
 CodeMustBeShort,Code should have less than 5 characters,Le code devrait avoir moins de 5 caractères.,,,Code should have less than 5 characters,Code should have less than 5 characters,Code should have less than 5 characters,Code should have less than 5 characters,Code should have less than 5 characters,Code should have less than 5 characters,Code should have less than 5 characters,
-ReloadAgeGroups,Load Definition File,Charger fichier de définition,,,Load Definition File,Load Definition File,Load Definition File,Load Definition File,Load Definition File,Load Definition File,Load Definition File,
+ResetCategories.ReloadAgeGroups,Load Definition File,Charger fichier de définition,,,Load Definition File,Load Definition File,Load Definition File,Load Definition File,Load Definition File,Load Definition File,Load Definition File,
+ResetCategories.AvailableDefinitions,Available Definitions,Définitions disponibles,,,Available Definitions,Available Definitions,Available Definitions,Available Definitions,Available Definitions,Available Definitions,Available Definitions,

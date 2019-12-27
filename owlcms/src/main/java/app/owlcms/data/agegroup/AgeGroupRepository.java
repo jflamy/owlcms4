@@ -145,7 +145,7 @@ public class AgeGroupRepository {
             double curMin) {
         Category template = templates.get(cellValue);
         if (template == null) {
-            logger.warn("template {} not found", cellValue);
+            logger.error("template {} not found", cellValue);
             return null;
         } else {
             try {
@@ -409,7 +409,6 @@ public class AgeGroupRepository {
             try {
                 AgeGroup mAgeGroup = em.merge(ageGroup);
                 List<Category> ageGroupCategories = mAgeGroup.getAllCategories();
-                logger.warn("saving categories {}", mAgeGroup.getAllCategories());
                 List<Category> obsolete = new ArrayList<>();
                 for (Category c : ageGroupCategories) {
                     Category nc = em.contains(c) ? c : em.merge(c);
@@ -418,10 +417,10 @@ public class AgeGroupRepository {
                         obsolete.add(nc);
                     } else if (nc.getId() == null) {
                         // new category
-                        logger.warn("creating category for {}-{}", nc.getMinimumWeight(), nc.getMaximumWeight());
+                        logger.debug("creating category for {}-{}", nc.getMinimumWeight(), nc.getMaximumWeight());
                         em.persist(nc);
                     } else {
-                        logger.warn("updating category for {}-{}", nc.getMinimumWeight(), nc.getMaximumWeight());
+                        logger.debug("updating category for {}-{}", nc.getMinimumWeight(), nc.getMaximumWeight());
                     }
                 }
 
@@ -442,7 +441,7 @@ public class AgeGroupRepository {
 
     private static void cascadeCategoryRemoval(EntityManager em, AgeGroup mAgeGroup, Category nc) {
         // so far we have not categories removed from the age group, time to do so
-        logger.warn("removing category {} from age group", nc.getId());
+        logger.debug("removing category {} from age group", nc.getId());
         mAgeGroup.removeCategory(nc);
         em.remove(nc);
     }
@@ -456,7 +455,7 @@ public class AgeGroupRepository {
         query.setParameter("category", nc);
         List<Athlete> as = query.getResultList();
         for (Athlete a : as) {
-            logger.warn("removing athlete {} from category {}", a, nc.getId());
+            logger.debug("removing athlete {} from category {}", a, nc.getId());
             Athlete na = em.contains(a) ? a : em.merge(a);
             na.setCategory(null);
         }

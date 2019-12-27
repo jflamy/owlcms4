@@ -79,6 +79,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
     private FlexLayout topBar;
     private ComboBox<Resource> ageGroupDefinitionSelect;
     private GridCrud<AgeGroup> crud;
+    private Button resetCats;
 
     /**
      * Instantiates the ageGroup crudGrid.
@@ -145,7 +146,8 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 
     @Override
     public AgeGroup update(AgeGroup domainObjectToUpdate) {
-        return getAgeGroupEditingFormFactory().update(domainObjectToUpdate);
+        AgeGroup ageGroup = getAgeGroupEditingFormFactory().update(domainObjectToUpdate);
+        return ageGroup;
     }
 
     /**
@@ -203,11 +205,13 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 
         topBar = getAppLayout().getAppBarElementWrapper();
 
-        Button resetCats = new Button(getTranslation("ResetCategories.ResetCategories"), (e) -> {
-            new ConfirmationDialog(getTranslation("ClearLifts"),
+        resetCats = new Button(getTranslation("ResetCategories.ResetAthletes"), (e) -> {
+            new ConfirmationDialog(
+                    getTranslation("ResetCategories.ResetCategories"),
                     getTranslation("ResetCategories.Warning_ResetCategories"),
                     getTranslation("ResetCategories.CategoriesReset"), () -> {
                         resetCategories();
+                        unHighlightResetButton();
                     }).open();
         });
         resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
@@ -243,6 +247,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
+
 
     private void resetCategories() {
         JPAService.runInTransaction(em -> {
@@ -347,4 +352,13 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         crud.getCrudLayout().hideForm();
         crud.getGrid().asSingleSelect().clear();
     }
+
+    public void highlightResetButton() {
+        resetCats.setThemeName("primary error");
+    }
+    
+    private void unHighlightResetButton() {
+        resetCats.setThemeName("");
+    }
+
 }
