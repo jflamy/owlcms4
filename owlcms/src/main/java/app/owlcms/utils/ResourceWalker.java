@@ -6,6 +6,7 @@
  */
 package app.owlcms.utils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -84,7 +85,7 @@ public class ResourceWalker {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> generateName) {
+    public List<Resource> getResourceList(String absoluteRoot, BiFunction<Path, Path, String> generateName, String startsWith) {
         try {
             URL resources = getClass().getResource(absoluteRoot);
             URI resourcesURI = resources.toURI();
@@ -96,6 +97,10 @@ public class ResourceWalker {
                 @Override
                 public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
                     String generatedName = generateName.apply(filePath, rootPath);
+                    if (startsWith != null) {
+//                        String baseName = FilenameUtils.getBaseName(filePath.toString());
+                        if (!generatedName.startsWith(startsWith)) return FileVisitResult.CONTINUE;
+                    }
                     if (matchesLocale(filePath, OwlcmsSession.getLocale())) {
                         localeNames.add(new Resource(generatedName, filePath));
                     } else if (matchesLocale(filePath, Locale.ENGLISH)) {
@@ -164,6 +169,45 @@ public class ResourceWalker {
         suffix = "";
         result = ResourceWalker.class.getResourceAsStream(baseName + suffix + extension);
         return result;
+    }
+    
+    public static String getLocalizedResourceName(String rawName) throws FileNotFoundException {
+        int extensionPos = rawName.lastIndexOf('.');
+        String extension = rawName.substring(extensionPos);
+        String baseName = rawName.substring(0, extensionPos);
+
+        Locale locale = OwlcmsSession.getLocale();
+        String suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant();
+        String name = baseName + suffix + extension;
+        InputStream result = ResourceWalker.class.getResourceAsStream(name);
+        if (result != null)
+            return name;
+
+        suffix = "_" + locale.getLanguage() + "_" + locale.getCountry();
+        name = baseName + suffix + extension;
+        result = ResourceWalker.class.getResourceAsStream(name);
+        if (result != null)
+            return name;
+
+        suffix = "_" + locale.getLanguage();
+        name = baseName + suffix + extension;
+        result = ResourceWalker.class.getResourceAsStream(name);
+        if (result != null)
+            return name;
+
+        suffix = "_en";
+        name = baseName + suffix + extension;
+        result = ResourceWalker.class.getResourceAsStream(name);
+        if (result != null)
+            return name;
+
+        suffix = "";
+        name = baseName + suffix + extension;
+        result = ResourceWalker.class.getResourceAsStream(name);
+        if (result != null)
+            return name;
+        else
+            throw new FileNotFoundException(rawName);
     }
 
 }

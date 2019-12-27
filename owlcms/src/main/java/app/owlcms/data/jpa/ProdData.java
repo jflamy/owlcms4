@@ -6,10 +6,6 @@
  */
 package app.owlcms.data.jpa;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.util.Locale;
 
@@ -29,6 +25,7 @@ import ch.qos.logback.classic.Logger;
  */
 public class ProdData {
 
+    @SuppressWarnings("unused")
     private static Logger logger = (Logger) LoggerFactory.getLogger(ProdData.class);
 
     protected static Competition createDefaultCompetition() {
@@ -101,12 +98,6 @@ public class ProdData {
         platform1.setNbL_25(3);
     }
 
-    private static String getDefaultLanguage() {
-        // default language as defined in properties file (not the JVM).
-        // this will typically be en.
-        return getLocale().getLanguage();
-    }
-
     private static Locale getLocale() {
         return Locale.ENGLISH;
     }
@@ -118,53 +109,15 @@ public class ProdData {
      */
     public static void insertInitialData(int nbAthletes) {
         JPAService.runInTransaction(em -> {
+            Competition competition = createDefaultCompetition();
+            em.persist(competition);
             AgeGroupRepository.insertAgeGroups(em, null);
             return null;
         });
-//        JPAService.runInTransaction(em -> {
-//            CategoryRepository.insertStandardCategories(em);
-//            return null;
-//        });
         JPAService.runInTransaction(em -> {
             setupEmptyCompetition(em);
             return null;
         });
-    }
-
-    protected static void setupCompetitionDocuments(Competition competition, Platform platform1) {
-        // competition template
-        File templateFile;
-        String defaultLanguage = getDefaultLanguage();
-        String templateName;
-        if (!defaultLanguage.equals("fr")) {
-            templateName = "/templates/protocolSheet/ProtocolSheetTemplate_" + defaultLanguage + ".xls";
-        } else {
-            // historical kludge for Québec
-            templateName = "/templates/protocolSheet/Quebec_" + defaultLanguage + ".xls";
-        }
-        URL templateUrl = platform1.getClass().getResource(templateName);
-        try {
-            templateFile = new File(templateUrl.toURI());
-            competition.setProtocolFileName(templateFile.getCanonicalPath());
-        } catch (URISyntaxException e) {
-            templateFile = new File(templateUrl.getPath());
-        } catch (IOException e) {
-        } catch (Exception e) {
-            logger.debug("templateName = {}", templateName);
-        }
-
-        // competition book template
-        templateUrl = platform1.getClass()
-                .getResource("/templates/competitionBook/CompetitionBook_Total_" + defaultLanguage + ".xls");
-        try {
-            templateFile = new File(templateUrl.toURI());
-            competition.setFinalPackageTemplateFileName(templateFile.getCanonicalPath());
-        } catch (URISyntaxException e) {
-            templateFile = new File(templateUrl.getPath());
-        } catch (IOException e) {
-        } catch (Exception e) {
-            logger.debug("templateUrl = {}", templateUrl);
-        }
     }
 
     /**
@@ -174,11 +127,8 @@ public class ProdData {
      * @param em
      */
     protected static void setupEmptyCompetition(EntityManager em) {
-        Competition competition = createDefaultCompetition();
-        em.persist(competition);
         Platform platform1 = new Platform("A");
         defaultPlates(platform1);
-        setupCompetitionDocuments(competition, platform1);
 
         em.persist(new Group("M1", null, null));
         em.persist(new Group("M2", null, null));

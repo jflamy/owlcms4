@@ -21,15 +21,12 @@ import ch.qos.logback.classic.Logger;
 public enum AgeDivision {
 
     /* the divisions are listed in preference order, from more specific to more generic*/
-    A, // custom divisions (unlikely to be used)
-    B,
-    C,
-    D,
     MASTERS, /** 35+ (30+ in some federations) */
     U, /** for age groups */
     OLY,
     IWF,
-    DEFAULT, /* All ages */;
+    DEFAULT, /* All ages */
+    SPECIAL;
 
     @SuppressWarnings("unused")
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AgeDivision.class);

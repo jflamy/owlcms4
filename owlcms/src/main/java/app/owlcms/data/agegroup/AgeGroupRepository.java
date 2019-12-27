@@ -6,7 +6,9 @@
  */
 package app.owlcms.data.agegroup;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -21,6 +23,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -35,6 +38,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
@@ -48,7 +52,8 @@ public class AgeGroupRepository {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupRepository.class);
 
-    private static void createAgeGroups(Workbook workbook, Map<String, Category> templates, EnumSet<AgeDivision> es) {
+    private static void createAgeGroups(Workbook workbook, Map<String, Category> templates, EnumSet<AgeDivision> ageDivisionOverride,
+            String localizedName) {
         DataFormatter dataFormatter = new DataFormatter();
 
         JPAService.runInTransaction(em -> {
@@ -101,11 +106,12 @@ public class AgeGroupRepository {
                     }
                         break;
                     case 6: {
-                        String cellValue = dataFormatter.formatCellValue(cell);
-                        boolean explicitlyActive = cellValue != null ? "true".contentEquals(cellValue.toLowerCase())
-                                : false;
-                        Predicate<AgeDivision> adp = (ad) -> ad.equals(ag.getAgeDivision());
-                        boolean active = es == null ? explicitlyActive : es.stream().anyMatch(adp);
+                        boolean explicitlyActive = cell.getBooleanCellValue();
+                        // age division is active according to spreadsheet, unless we are given an explicit
+                        // list of age divisions as override (e.g. to setup tests or demos)
+                        boolean active = ageDivisionOverride == null ? explicitlyActive
+                                : ageDivisionOverride.stream()
+                                        .anyMatch((Predicate<AgeDivision>) (ad) -> ad.equals(ag.getAgeDivision()));
                         ag.setActive(active);
                     }
                         break;
@@ -127,6 +133,10 @@ public class AgeGroupRepository {
                 em.persist(ag);
                 iRow++;
             }
+            Competition comp = Competition.getCurrent();
+            Competition comp2 = em.contains(comp) ? comp : em.merge(comp);
+            comp2.setAgeGroupsFileName(localizedName);
+
             return null;
         });
     }
@@ -302,10 +312,13 @@ public class AgeGroupRepository {
      *
      * @return the list
      */
-    @SuppressWarnings("unchecked")
     public static List<AgeGroup> findAll() {
-        return JPAService.runInTransaction(em -> em
-                .createQuery("select c from AgeGroup c order by c.ageDivision,c.minAge,c.maxAge").getResultList());
+        return JPAService.runInTransaction(em -> doFindAll(em));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<AgeGroup> doFindAll(EntityManager em) {
+        return em.createQuery("select c from AgeGroup c order by c.ageDivision,c.minAge,c.maxAge").getResultList();
     }
 
     public static AgeGroup findByName(String name) {
@@ -337,7 +350,7 @@ public class AgeGroupRepository {
         });
         findFiltered.sort((ag1, ag2) -> {
             int compare = 0;
-            compare = ag1.getAgeDivision().compareTo(ag2.getAgeDivision());
+            ObjectUtils.compare(ag1.getAgeDivision(), ag2.getAgeDivision());
             if (compare != 0)
                 return -compare; // most generic first
             return ag1.compareTo(ag2);
@@ -360,10 +373,22 @@ public class AgeGroupRepository {
     }
 
     public static void insertAgeGroups(EntityManager em, EnumSet<AgeDivision> es) {
+        try {
+            String localizedName = ResourceWalker.getLocalizedResourceName("/config/AgeGroups.xlsx");
+            doInsertAgeGroup(es, localizedName);
+        } catch (FileNotFoundException e1) {
+            throw new RuntimeException(e1);
+        }
+
+    }
+
+    private static void doInsertAgeGroup(EnumSet<AgeDivision> es, String localizedName) {
+        InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory
-                .create(ResourceWalker.getLocalizedResourceAsStream("/config/AgeGroups.xlsx"))) {
+                .create(localizedResourceAsStream)) {
+            logger.info("loading configuration file {}", localizedName);
             Map<String, Category> templates = createCategoryTemplates(workbook);
-            createAgeGroups(workbook, templates, es);
+            createAgeGroups(workbook, templates, es, localizedName);
             workbook.close();
         } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
             logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
@@ -455,6 +480,24 @@ public class AgeGroupRepository {
         if (gender != null) {
             query.setParameter("gender", gender);
         }
+    }
+
+    public static void reloadDefinitions(String localizedFileName) {
+        JPAService.runInTransaction(em -> {
+            try {
+                Query upd = em.createQuery("update Athlete set category = null");
+                upd.executeUpdate();
+                upd = em.createQuery("delete from Category");
+                upd.executeUpdate();
+                upd = em.createQuery("delete from AgeGroup");
+                upd.executeUpdate();
+                em.flush();
+            } catch (Exception e) {
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+            return null;
+        });
+        doInsertAgeGroup(null, "/config/" + localizedFileName);
     }
 
 }

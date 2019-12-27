@@ -226,7 +226,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
         ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
         ageDivisionFilter.setItems(AgeDivision.findAll());
-        ageDivisionFilter.setItemLabelGenerator(AgeDivision::name);
+        ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
         ageDivisionFilter.setClearButtonVisible(true);
         ageDivisionFilter.addValueChangeListener(e -> {
             crudGrid.refreshGrid();

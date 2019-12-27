@@ -30,6 +30,7 @@ public class ConfirmationDialog extends Dialog {
 
         Paragraph paragraph = new Paragraph();
         paragraph.getElement().setProperty("innerHTML", question);
+        paragraph.setWidth("550px");
         content.add(title1, paragraph);
 
         HorizontalLayout buttons = new HorizontalLayout();

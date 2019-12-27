@@ -12,15 +12,10 @@ import static app.owlcms.data.category.AgeDivision.DEFAULT;
 import static app.owlcms.data.category.AgeDivision.MASTERS;
 import static app.owlcms.data.category.AgeDivision.U;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -180,16 +175,6 @@ public class DemoData {
         AthleteSorter.drawLots(athletes);
     }
 
-    private static String getDefaultLanguage() {
-        // default language as defined in properties file (not the JVM).
-        // this will typically be en.
-        return getLocale().getLanguage();
-    }
-
-    private static Locale getLocale() {
-        return Locale.ENGLISH;
-    }
-
     /**
      * Insert initial data if the database is empty.
      *
@@ -199,6 +184,8 @@ public class DemoData {
     public static void insertInitialData(int nbAthletes, EnumSet<AgeDivision> ageDivisions) {
         logger.info("inserting initial data");
         JPAService.runInTransaction(em -> {
+            Competition competition = createDefaultCompetition(ageDivisions);
+            em.persist(competition);
             AgeGroupRepository.insertAgeGroups(em, ageDivisions);
             return null;
         });
@@ -239,11 +226,6 @@ public class DemoData {
             createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, U, 13, 17, Gender.M);
             createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, U, 13, 17, F);
         } else {
-//            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, IWF, 18, 32, M);
-//            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, IWF, 18, 32, M);
-//            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, IWF, 18, 32, F);
-//            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, U, 13, 17, M);
-//            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, U, 13, 17, F);
             createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, DEFAULT, 18, 32, M);
             createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, DEFAULT, 18, 32, M);
             createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, DEFAULT, 18, 32, F);
@@ -260,41 +242,6 @@ public class DemoData {
         assignStartNumbers(em, groupY1);
     }
 
-    protected static void setupCompetitionDocuments(Competition competition, Platform platform1) {
-        // competition template
-        File templateFile;
-        String defaultLanguage = getDefaultLanguage();
-        String templateName;
-        if (!defaultLanguage.equals("fr")) {
-            templateName = "/templates/protocolSheet/ProtocolSheetTemplate_" + defaultLanguage + ".xls";
-        } else {
-            // historical kludge for Québec
-            templateName = "/templates/protocolSheet/Quebec_" + defaultLanguage + ".xls";
-        }
-        URL templateUrl = platform1.getClass().getResource(templateName);
-        try {
-            templateFile = new File(templateUrl.toURI());
-            competition.setProtocolFileName(templateFile.getCanonicalPath());
-        } catch (URISyntaxException e) {
-            templateFile = new File(templateUrl.getPath());
-        } catch (IOException e) {
-        } catch (Exception e) {
-            logger.debug("templateName = {}", templateName);
-        }
-
-        // competition book template
-        templateUrl = platform1.getClass()
-                .getResource("/templates/competitionBook/CompetitionBook_Total_" + defaultLanguage + ".xls");
-        try {
-            templateFile = new File(templateUrl.toURI());
-            competition.setFinalPackageTemplateFileName(templateFile.getCanonicalPath());
-        } catch (URISyntaxException e) {
-            templateFile = new File(templateUrl.getPath());
-        } catch (IOException e) {
-        } catch (Exception e) {
-            logger.debug("templateUrl = {}", templateUrl);
-        }
-    }
 
     /**
      * Setup demo data.
@@ -308,7 +255,6 @@ public class DemoData {
      * @param c             the c
      */
     protected static void setupDemoData(EntityManager em, int liftersToLoad, EnumSet<AgeDivision> ageDivisions) {
-        Competition competition = createDefaultCompetition(ageDivisions);
 
         LocalDateTime w = LocalDateTime.now();
         LocalDateTime c = w.plusHours((long) 2.0);
@@ -340,7 +286,6 @@ public class DemoData {
 
         em.persist(platform1);
         em.persist(platform2);
-        em.persist(competition);
 
         insertSampleLifters(em, liftersToLoad, groupM1, groupM2, groupF1, groupY1, ageDivisions);
         em.flush();

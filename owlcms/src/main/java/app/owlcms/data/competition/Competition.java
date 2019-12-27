@@ -102,11 +102,13 @@ public class Competition {
     private byte[] protocolTemplate;
     private String finalPackageTemplateFileName;
 
+    private String ageGroupsFileName;
+
     @Lob
     private byte[] finalPackageTemplate;
+
     private boolean enforce20kgRule;
     private boolean masters;
-
     /**
      * Add W75 and W80+ masters categories
      */
@@ -120,15 +122,13 @@ public class Competition {
     private boolean useBirthYear = true;
 
     /**
-     * Idiosyncratic rule in Québec federation computes best lifter using Sinclair
-     * at bodyweight boundary.
+     * Idiosyncratic rule in Québec federation computes best lifter using Sinclair at bodyweight boundary.
      */
     @Column(columnDefinition = "boolean default false")
     private boolean useCategorySinclair = false;
 
     /**
-     * For traditional competitions that have lower body weight comes out first. Tie
-     * breaker for identical Sinclair.
+     * For traditional competitions that have lower body weight comes out first. Tie breaker for identical Sinclair.
      */
     @Column(columnDefinition = "boolean default false")
     private boolean useOldBodyWeightTieBreak = false;
@@ -258,6 +258,10 @@ public class Competition {
         reportingBeans2.put("mwTeam", sortedAthletes);
     }
 
+    public String getAgeGroupsFileName() {
+        return ageGroupsFileName;
+    }
+
     /**
      * Gets the competition city.
      *
@@ -361,7 +365,7 @@ public class Competition {
     public String getFinalPackageTemplateFileName() throws IOException {
         if (finalPackageTemplateFileName == null) {
             List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/competitionBook",
-                    ResourceWalker::relativeName);
+                    ResourceWalker::relativeName,  null);
             for (Resource r : resourceList) {
                 if (this.isMasters() && r.getFileName().startsWith("Masters_")) {
                     return r.getFileName();
@@ -425,7 +429,7 @@ public class Competition {
     public String getProtocolFileName() throws IOException {
         if (protocolFileName == null) {
             List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/protocol",
-                    ResourceWalker::relativeName);
+                    ResourceWalker::relativeName, null);
             for (Resource r : resourceList) {
                 if (this.isMasters() && r.getFileName().startsWith("Masters_")) {
                     return r.getFileName();
@@ -450,6 +454,10 @@ public class Competition {
      */
     public boolean isEnforce20kgRule() {
         return enforce20kgRule;
+    }
+
+    public boolean isGenderOrder() {
+        return Main.getBooleanParam("genderOrder");
     }
 
     /**
@@ -507,6 +515,10 @@ public class Competition {
     @Deprecated
     public boolean isUseRegistrationCategory() {
         return false;
+    }
+
+    public void setAgeGroupsFileName(String localizedName) {
+        this.ageGroupsFileName = localizedName;
     }
 
     /**
@@ -661,17 +673,13 @@ public class Competition {
     }
 
     /**
-     * Sets the use registration category. No longer used. We always use the
-     * category. Only kept for backward compatibility.
+     * Sets the use registration category. No longer used. We always use the category. Only kept for backward
+     * compatibility.
      *
      * @param useRegistrationCategory the useRegistrationCategory to set
      */
     @Deprecated
     public void setUseRegistrationCategory(boolean useRegistrationCategory) {
         this.useRegistrationCategory = false;
-    }
-
-    public boolean isGenderOrder() {
-        return Main.getBooleanParam("genderOrder");
     }
 }

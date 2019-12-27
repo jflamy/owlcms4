@@ -212,7 +212,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         templateSelect = new ComboBox<>();
         templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
         List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/competitionBook",
-                ResourceWalker::relativeName);
+                ResourceWalker::relativeName, null);
         templateSelect.setItems(resourceList);
         templateSelect.setValue(null);
         templateSelect.setWidth("15em");

@@ -22,6 +22,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Gender;
 
@@ -118,12 +120,13 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
             return 1; // we are greater than null;
         }
 
-        int compare = this.ageGroup.compareTo(o.getAgeGroup());
+        
+        int compare = ObjectUtils.compare(this.ageGroup,o.getAgeGroup());
         if (compare != 0) {
             return compare;
         }
 
-        compare = this.gender.compareTo(o.getGender());
+        compare = ObjectUtils.compare(this.gender,o.getGender());
         if (compare != 0) {
             return compare;
         }
@@ -131,7 +134,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         // same division, same gender, rank according to maximumWeight.
         Double value1 = this.getMaximumWeight();
         Double value2 = o.getMaximumWeight();
-        compare = value1.compareTo(value2);
+        compare = ObjectUtils.compare(value1,value2);
         return compare;
     }
 

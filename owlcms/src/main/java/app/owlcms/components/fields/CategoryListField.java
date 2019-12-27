@@ -13,11 +13,14 @@ import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import ch.qos.logback.classic.Logger;
 
@@ -27,7 +30,7 @@ public class CategoryListField extends CustomField<List<Category>> {
     Logger logger = (Logger) LoggerFactory.getLogger(CategoryListField.class);
 
     private FlexLayout flex;
-    private List<Category> presentationCategories;
+    private List<Category> presentationCategories = new ArrayList<>();
 
     private AgeGroup ageGroup;
 
@@ -56,11 +59,17 @@ public class CategoryListField extends CustomField<List<Category>> {
         button.setThemeName("primary success");
         button.addClickShortcut(Key.ENTER);
         adder.add(newCategoryField, button);
+        updatePresentation();
         add(adder);
     }
 
     private void react(AgeGroup ag, TextField newCategoryField) {
         String value = newCategoryField.getValue();
+        if (ag == null) {
+            Notification notif = new Notification();
+            notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notif.setText(getTranslation("SaveAgeGroupBefore"));
+        }
         if (value == null) return;
         if (value.trim().isEmpty()) return;
         double newMax = Double.parseDouble(value);
@@ -99,8 +108,10 @@ public class CategoryListField extends CustomField<List<Category>> {
         }
         
         for (Category c : presentationCategories) {
-            if (c.getAgeGroup() == null)
+            AgeGroup ageGroup2 = c.getAgeGroup();
+            if (ageGroup2 == null)
                 continue;
+            c.setGender(ageGroup2.getGender() != null ? ageGroup2.getGender() : Gender.F);
 
             Double maximumWeight = c.getMaximumWeight();
             c.setMinimumWeight(prevDouble); // cover the gap if intervening weights have been skipped...

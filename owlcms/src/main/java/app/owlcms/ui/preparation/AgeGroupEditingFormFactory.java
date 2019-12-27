@@ -104,6 +104,7 @@ public class AgeGroupEditingFormFactory
 
         ComboBox<AgeDivision> ageDivisionField = new ComboBox<>();
         ageDivisionField.setDataProvider(new ListDataProvider<AgeDivision>(Arrays.asList(AgeDivision.values())));
+        ageDivisionField.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
         binder.forField(ageDivisionField).bind(AgeGroup::getAgeDivision, AgeGroup::setAgeDivision);
         formLayout.addFormItem(ageDivisionField, Translator.translate("AgeDivision"));
 
@@ -134,6 +135,18 @@ public class AgeGroupEditingFormFactory
         formLayout.addFormItem(catField, Translator.translate("BodyWeightCategories"));
         
         binder.readBean(aFromDb);
+        if (minAgeField.getValue().isEmpty()) {
+            minAgeField.setValue("0");
+        }
+        if (maxAgeField.getValue().isEmpty()) {
+            maxAgeField.setValue("999");
+        }
+        if (genderField.getValue() == null) {
+            genderField.setValue(Gender.F);
+        }
+        if (ageDivisionField.getValue() == null) {
+            ageDivisionField.setValue(AgeDivision.U);
+        }
 
         Component footerLayout = this.buildFooter(operation, aFromDb, cancelButtonClickListener,
                 updateButtonClickListener, deleteButtonClickListener, false);
