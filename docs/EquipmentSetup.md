@@ -4,11 +4,11 @@ OWLCMS4 is a web-based application. This means that each screen or display is at
 
 The program is extremely scalable.  You can start by using a single laptop to run a club meet (see below for [examples](#local-access-over-a-local-network).) 
 
-At the opposite end, a setup for a state competition using refereeing devices might look as follows:
+At the opposite end, a full setup for a state competition using refereeing devices might look as follows:
 
-![StateCompetition](img/equipment/StateCompetition.png)
+![StateCompetition](img/equipment/FullCompetition.svg)
 
-You can also add a jury laptop with 5 refereeing devices, or add additional results displays, as many as you want.  You can replicate the full setup on multiple platforms, all running at once.  In all cases, there is only one OWLCMS master server (either a laptop running locally, or a cloud application) 
+You can also add a jury laptop with 5 refereeing devices, add additional results displays, as many as you want.  You can even replicate the full setup on multiple platforms, all running at once.  In all cases, there is only one OWLCMS master server (either a laptop running locally, or a cloud application) 
 
 ## Computer Requirements
 
