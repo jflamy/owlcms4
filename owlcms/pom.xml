@@ -5,7 +5,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.3.0.1-beta1</version>
+        <version>4.3.0-rc1</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System</name>
@@ -226,6 +226,7 @@
             <artifactId>heroku-javaagent</artifactId>
             <version>2.0</version>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -256,6 +257,11 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

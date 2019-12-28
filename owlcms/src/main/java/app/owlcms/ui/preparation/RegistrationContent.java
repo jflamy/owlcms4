@@ -195,9 +195,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         grid.addColumn("yearOfBirth").setHeader(getTranslation("BirthDate"));
         grid.addColumn("gender").setHeader(getTranslation("Gender"));
         grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup"));
-        if (Competition.getCurrent().isMasters()) {
-            grid.addColumn("mastersAgeGroup").setHeader(getTranslation("AgeGroup"));
-        }
         grid.addColumn("category").setHeader(getTranslation("Category"));
         grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
                 .setHeader(getTranslation("BodyWeight"));

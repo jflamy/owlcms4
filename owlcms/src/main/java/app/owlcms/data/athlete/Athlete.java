@@ -32,6 +32,7 @@ import javax.persistence.Version;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -547,16 +548,21 @@ public class Athlete {
      * @return the 20 kg rule value
      */
     public int get20kgRuleValue() {
-        if (Competition.getCurrent().isMasters()) {
-            if (Gender.M.equals(this.getGender())) {
-                return 15;
-            } else {
-                return 10;
+        Category cat = getCategory();
+        if (cat != null) {
+            AgeGroup ag = cat.getAgeGroup();
+            if (ag != null) {
+                AgeDivision ad = ag.getAgeDivision();
+                if (ad != null && ad == AgeDivision.MASTERS) {
+                    if (Gender.M.equals(this.getGender())) {
+                        return 15;
+                    } else {
+                        return 10;
+                    }
+                }
             }
-        } else {
-            return 20;
         }
-
+        return 20;
     }
 
     /**

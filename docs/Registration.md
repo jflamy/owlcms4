@@ -51,7 +51,7 @@ After all athletes have been entered, you should draw the lot numbers.  You can 
 
 ## Producing the Start List
 
-The start list shows all the athletes that will compete, in which group, and the order in which the athletes will be weighed-in.  The button for producing the starting list is at the top of the page.
+The starting list shows all the athletes that will compete, in which group, and the order in which the athletes will be weighed-in.  The button for producing the starting list is at the top of the page.
 
 ![092_starting](img/Preparation/092_starting.png)
 
@@ -59,8 +59,10 @@ The start list shows all the athletes that will compete, in which group, and the
 
 Athlete Cards are the cards that will be used by the Marshall to record changes.  In many federations, they are printed out in advance, because the athletes will be asked to write down their starting weights and counter-sign their body weight at weigh-in.  
 
-If athlete cards are printed in advance of the weigh-in, it is necessary to write down the start numbers on the cards after they have been assigned at weigh-in.  This is usually done by the competition secretary, comparing the [Starting Weight List](#starting-weight-list) as a reference and cross-check.
+If athlete cards are printed in advance of the weigh-in, the start numbers are not known.  They are written by hand on the cards after they have been assigned at weigh-in.  This is usually done by the competition secretary, comparing the [Starting Weight List](#starting-weight-list) as a reference and cross-check.
 
- The button for producing the athlete cards is at the top of the page.  You can restrict the printing to a group by selecting it in the drop-down.
+ The button for producing the athlete cards is at the top of the page.  You can restrict the printing to a group by selecting it in the drop-down.  The cards are printed two to a page.
+
+Note that if a printer and laptop is available at the weigh-in room, it is also possible to print individual weigh-in sheets one athlete at a time.
 
 ![94_cards](img/Preparation/94_cards.png)

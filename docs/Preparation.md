@@ -17,7 +17,7 @@ The `Edit Competition Information` button leads to a page where the information 
 
 ## Masters
 
-The `Masters` checkbox determines whether there is an automatic classification of athletes according to the masters age groups, and whether Sinclair-Malone-Meltzer coefficients (SMM) are used for overall rankings.  *Note that the Masters setting currently applies to all groups -- it is a global setting for a meet.*
+The `Masters` checkbox determines whether whether Sinclair-Meltzer-Faber coefficients (SMF) are used for overall rankings and values used for the Initial Total requirements.  *Note that the Masters setting currently applies to all groups -- it is a global setting for a meet.*
 
 ## Display Language
 
@@ -42,7 +42,7 @@ OWLCMS also supports the IWF scenarios, and more complex scenarios with multiple
 
 ### Editing Competition Groups
 
-From the `Prepare Competition` page, clicking `Edit Groups` allows you to create or edit competition groups.  You can use the `+` on the list of groups to create additional groups.
+From the `Prepare Competition` page, clicking `Define Groups` allows you to create or edit competition groups.  You can use the `+` on the list of groups to create additional groups.
 
 ![050_EditGroups](img/Preparation/050_EditGroups.png)
 
@@ -52,15 +52,13 @@ Clicking on a group enables you to define a starting time (remove the informatio
 
 ## Defining Fields of Play (Platforms)
 
-OWLCMS supports multiple competition fields of play used at the same time.  Each field of play corresponds to a platform and warm-up area with the associated displays and technical officials.
+OWLCMS supports multiple competition fields of play used at the same time.  A field of play corresponds to a platform and the corresponding warm-up area.   Displays and officials are associated with a field of play.
 
-The `Define Fields of Play` button on the home page allows you to list the platforms. 
+The `Define Fields of Play` button on the prepare competition page allows you to list the platforms. 
 
 ![060_EditFOP](img/Preparation/060_EditFOP.png)
 
- Using the `+` button allows you to create additional ones.
-
-Clicking ONCE on a platform in the list allows you to edit it.
+ Using the `+` button allows you to create additional fields of play.  Clicking once on a platform in the list allows you to edit it.  This is useful if you want to rename the platform, or if you want to change the way sound is handled on that platform.
 
 ![061_SelectFOP](img/Preparation/061_SelectFOP.png)
 
