@@ -2,7 +2,7 @@ To prepare for a competition, select the `Prepare Competition` menu entry from t
 
 ![010_Home](img/Preparation/010_Home.png)
 
-This gives  you access to the the `Prepare Competition` page.  You may go to any other navigation page by using the menu at the left.  Using the buttons on the page allows you to setup each of the various aspects required for a meet.
+ Using the buttons on the page allows you to setup each of the various aspects required for a meet.
 
 ![020_Preparation](img/Preparation/020_Preparation.png)
 
@@ -17,7 +17,11 @@ The `Edit Competition Information` button leads to a page where the information 
 
 ## Masters
 
-The `Masters` checkbox determines whether whether Sinclair-Meltzer-Faber coefficients (SMF) are used for overall rankings and values used for the Initial Total requirements.  *Note that the Masters setting currently applies to all groups -- it is a global setting for a meet.*
+The Masters settings changes the sorting order for displays and weigh-ins -- Masters traditionally start with the older lifters, whereas in an age-group competition the younger age groups are typically listed and weighed-in first.  *Note that the Masters setting currently applies to all groups -- it is a global setting for a meet.*
+
+The setting also changes which template is used by default when producing results.  Masters use the Sinclair-Meltzer-Faber (SMF) age-ratio rankings to determine the best-in-competition lifter.
+
+Since version 4.3, the determination to apply the IWF 20kg or the IWF Masters 15/10kg rule is individual, based on whether the athlete is registered in a regular or Masters category.  So unless running an official "Masters-only" competition, it is not necessary to select the Masters setting to run a meet with Masters lifters.
 
 ## Display Language
 
