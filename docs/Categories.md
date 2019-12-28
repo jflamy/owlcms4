@@ -12,6 +12,10 @@ This leads to a list of currently defined age groups.
 
 ![020_ageGroupList](img/Categories/020_ageGroupList.png)
 
+## Default Age Groups and Categories
+
+In order to keep things simple for club or regional meets, by default there are two active age groups which actually include all ages, and a full range of bodyweight categories.  So most simple meets can use these groups, and only edit the bodyweight categories according to local customs.
+
 ## Editing the Categories
 
 For the sake of the example, let's assume that we want to change the default age group so that our male categories to stop at >102. Let's select the `M` age group and notice that the categories are listed as tags.
