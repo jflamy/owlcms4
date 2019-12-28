@@ -10,26 +10,32 @@ The **announcer** screen acts as a master to select which group is competing.  W
 
 ![012_SelectGroup](img/Lifting/012_SelectGroup.png)
 
+However, before lifting starts for a group, there is normally an official protocol followed, where athletes and officials are introduced, and a warm-up period is given after the introduction.  Applying this protocol for intermissions and breaks is explained on the [Intermissions and Breaks](Breaks) page.
+
+Let's assume we are running an informal club meet and we want to start lifting right away.  We select the green `Start Lifting` button.
+
+![012a_StartLifting](img/Lifting/012a_StartLifting.png)
+
 ## Announcing an athlete
 
-OWLCMS automatically shows the next athlete to lift. 
+The display shifts to the lifting order and announcing mode.  The next athlete to lift is displayed.
 
 ![013_ShowCurrent](img/Lifting/013_ShowCurrent.png)
 
-Following the IWF rules, the following events should take place
+Following the IWF rules, the announcer should then proceed as follows
 
-1. The announcer asks: "Loaders, please load 62kg on the bar"
-2. Once the platform is clear, the announcer says, in the local language then in English: "The bar is now loaded with 62kg for the first attempt of Larry BROWN"
-3. When pronouncing the family name of the athlete in English, [start the clock](#starting-the-clock)
+1. The announcer says: "**Loaders, please load 62kg on the ba**r"
+2. Once the platform is clear, the announcer says, in the local language then in English: "**The bar is now loaded with 62kg for the first attempt of Larry BROWN**"
+3. When pronouncing the **family name of the athlete in English**, [start the clock](#starting-the-clock) -- see the next section -- by using the `Play` (triangle)button.
 ## Starting the clock
 
-3. Click on the Right-Arrow button to start the clock.  The announcer can act as timekeeper and start the clock herself, or alternately a separate person acting as timekeeper can do so.  We recommend that the announcer start time even when a separate person is acting as timekeeper, since that eliminates confusion.
+3. Either the announcer or the timekeeper can start the clock.  In most meets, in fact, it is probably more convenient that the announcer starts the clock.   We recommend that the announcer start time even when a separate person is acting as timekeeper, since that eliminates confusion.  
 
 ![014_StartClock](img/Lifting/014_StartClock.png)
 
 ## Stopping/Restarting the clock
 
-The announcer (if acting as timekeeper), or the timekeeper (using the timekeeper screen), can stop the clock when the bar leaves ground.  They both can restart the clock if the bar is put down not having travelled above the knee.
+The announcer (if acting as timekeeper), or the timekeeper (using the timekeeper screen), can stop the clock when the bar leaves ground.  Either person can restart the clock if the bar is put down not having travelled above the knee.
 
 ![016_StopClock](img/Lifting/016_StopClock.png)
 
@@ -47,12 +53,14 @@ When a decision is entered (whether manually by the announcer, or automatically 
 
 ## Declarations and Weight Changes
 
-The announcer may act as marshall and handle declarations and changes herself.  Weight changes are entered by clicking ONCE on the the athlete's name.  The athlete's card then pops up. Hitting "Enter" is the same as clicking "Update".
+Announcers may act as marshall and handle declarations and changes themselves.  Weight changes are entered by clicking once on the the athlete's name.  The athlete's card then pops up and can be edited. Hitting "Enter" is the same as clicking "Update".
 
 Notes:
 
-- In order to reverse a ruling, edit the bottom row which is the actual weight that was lifted or failed (negative number).  Changing "62" to "-62" would mark the lift as failed.
-- In order to mark a lift not taken (such as a withdrawal), put "0" in the bottom row.
+- The first time an athlete or coach indicates a weight should always be noted in the Declaration row. It is *not* the first change.  The official should pay attention and refuse a declaration after the first 30 seconds have elapsed. In a two-minute situation, further changes cannot be made if a declaration has not been given.
+- In order to reverse a ruling, edit the bottom row which is the actual weight that was lifted or failed (negative number).  In the screen shot below, changing the snatch 1 from "62" to "**-62**" <u>on the bottom row</u> would mark the lift as <u>failed</u>.
+- In order to mark a lift as <u>not taken</u> (such as a withdrawal), put "**0**" in the bottom row.
+- The withdrawal button is a shortcut and marks all the remaining lifts as not taken (0).
 
 ![020_EditLifterCard](img/Lifting/020_EditLifterCard.png)
 
@@ -64,33 +72,35 @@ If a [marshall](#marshall) is present, it is possible that a weight change occur
 
 ## Forcing the current athlete
 
-In some small competitions, the official lifting order is not followed.  For example, all athletes may take their first attempts before their second, or the official two-minute rules for lifting order are not followed strictly. It is possible to force an athlete to become the current athlete using a checkbox on the athlete card.  In the example below, using the checkbox means that Jackson is lifting even though Brown has a lower requested weight.
+In some small competitions, the official lifting order is not followed.  For example, all athletes may take their first attempts before their second, or the official two-minute rules for lifting order are not followed strictly. It is possible to force an athlete to become the current athlete using a checkbox on the athlete card.  In the example below, using the checkbox means that Jackson will be lifting next even though Brown has a lower requested weight.
 
 ![021_ForcedAsCurrent-](img/Lifting/021_ForcedAsCurrent-.png)
 
 ## Breaks
 
-In order to change the displays to show countdown timers for a break (time before introduction, time before first lift, time before first clean-and-jerk, etc.), use the Break button.
+If there is a technical difficulty (blood on the bar, problem with the platform, etc.) use the Break button.  By default, it will enter the `Technical Issue` mode if invoked during lifting.
 
 ![030_Break](img/Lifting/030_Break.png)
 
-Select which type of break. For time before start and time before C&J you can select a statutory duration.  If instead you are calling time before the next introduction according to schedule, you may use the TARGET option and set time.  
+You can resume competition by using the `End Break` button.
 
-![032_Intermission](img/Lifting/032_Intermission.png)
+![031_endTechnicalIssue](img/Lifting/031_endTechnicalIssue.png)
+
+## Intermissions
+
+See the [Intermissions and Breaks](Breaks) page for how to manage the timers before introduction, before the first snatch, and before clean&jerk.
 
 ## Marshall
 
-In larger competitions, a separate Marshall desk is set up in the warm-up area.  The Marshall screen is identical in operation to the announcer screen, except that the Marshall cannot start/stop the clock and manage breaks.  
+In larger competitions, a separate Marshall desk is set up in the warm-up area.  The Marshall screen is identical in operation to the announcer screen, except that the Marshall cannot start/stop the clock and manage breaks.  As explained in the [Weight Change for Current Athlete](#weight-change-for-current-athlete) section, a notification is shown on the announcer screen if a change is made for the current athlete.  The other technical officials are also notified when a declaration is posted.
 
-Useful tip: you can use the filtering box to quickly locate an athlete (here we have three lifters with Jackson as the last name)
-
-As explained in the [Weight Change for Current Athlete](#weight-change-for-current-athlete) section, a notification is shown on the announcer screen if a change is made for the current athlete.
+Useful tip: you can use the filtering box to quickly locate an athlete -- the screenshot below shows that there are three athletes with the same last name.
 
 ![040_Marshall](img/Lifting/040_Marshall.png)
 
 ## Timekeeper
 
-The timekeeper screen operates like the announcer screen.  Both the announcer and timekeeper can start and stop time.  It is often less confusing if the announcer makes sure the platform is clear before announcing, and starts time herself.  The timekeeper can then take over and watch for the bar leaving the plaform and going above the knees.
+The timekeeper screen operates like the announcer screen.  Both the announcer and timekeeper can start and stop time.  It is often less confusing if the announcer makes sure the platform is clear before announcing, and starts time herself.  The timekeeper can then take over and watch for the bar leaving the platform and going above the knees.
 
 ![050_Timekeeper](img/Lifting/050_Timekeeper.png)
 
@@ -101,6 +111,8 @@ In school-age kids competitions, it is often the case that a non-standard bar is
 The technical controller screen is used to match what is on the platform.  Once `Apply` is clicked the attempt board(s) is updated with the proper graphics.
 
 This has no incidence other than the graphics shown on the attempt board.
+
+In the following example, younger boys are using a 15kg bar instead of the regular 20kg bar.  This fact has been noted by clicking on `Non-standard Bar` and entering the weight of the bar.  For even smaller kids, it is possible to enter even smaller bars (10kg) and use no collars (enter 0).  Kids competitions also sometimes use 5kg and 2.5kg large plates in addition to the small metal plates.
 
 ![060_Technical](img/Lifting/060_Technical.png)
 
