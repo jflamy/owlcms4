@@ -225,7 +225,7 @@
                         <configuration>
                             <gitFlowConfig>
                                 <productionBranch>master</productionBranch>
-                                <developmentBranch>support/4.2</developmentBranch>
+                                <developmentBranch>develop</developmentBranch>
                             </gitFlowConfig>
                             <allowSnapshots>true</allowSnapshots>
                             <postReleaseGoals>github-release:github-release</postReleaseGoals>
