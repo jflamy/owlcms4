@@ -67,7 +67,7 @@ In order to hold a competition with age groups, you can select the predefined ag
 
 ## Adding an Age Group
 
-Let's assume we need a U23 age groups (one for female, the other for male).  In order to add a group, we use the `+` icon at the top of the table.
+Let's assume we need U23 age groups (one for female, the other for male).  In order to add a group, we use the `+` icon at the top of the table.  Let's add the Female U23 group:
 
 ![071_addAgegrou](img/Categories/071_addAgegrou.png)
 
@@ -81,9 +81,9 @@ This situation often arises when a Masters championship takes place together wit
 
 ## Notes for Masters Age Groups
 
-The default list contains non-standard age groups.  Some federations accept 30-34 year-olds in their master meets. Simply leave them unselected.   Similarly, some federations have gender-equality rules and include the same age groups for women as for men.  Simply select whether W70 means 70-74 and if W75 means 75 and above.
+The default list contains non-standard age groups.  Some federations accept 30-34 year-olds in their Masters meets. If you don't want these age groups, simply leave them unselected.   Similarly, some federations have gender-equality rules and include the same age groups for women as for men.  The default list allows you to select a W70 for 70-74 and a W75 group if you so desire..
 
-Finally, including Masters age groups does not automatically activate the Masters rules for 15/10kg -- this needs to be done on the `Competition Information` page.
+The applicability of the 15/10kg rule (as opposed to the 20kg rule) is based on the category in which the athlete is registered.
 
 ## Changing the Default Age Group Definitions
 
