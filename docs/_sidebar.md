@@ -16,6 +16,7 @@
   *	[Announcing, Marshalling and Timekeeping](Announcing)
   *	[Scoreboards and Displays](Displays)
   *	[Refereeing](Refereeing)
+  *	[Intermissions and Breaks](Breaks)
   *	[Result Documents](Documents)
 
 * Downloads
