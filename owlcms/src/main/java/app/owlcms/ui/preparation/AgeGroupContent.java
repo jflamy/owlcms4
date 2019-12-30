@@ -36,15 +36,11 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
-import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.AgeDivision;
-import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
-import app.owlcms.data.jpa.JPAService;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
@@ -250,17 +246,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 
 
     private void resetCategories() {
-        JPAService.runInTransaction(em -> {
-            List<Athlete> athletes = (List<Athlete>) AthleteRepository.doFindAll(em);
-            for (Athlete a : athletes) {
-                List<Category> categories = CategoryRepository.findByGenderAgeBW(a.getGender(), a.getAge(),
-                        a.getBodyWeight());
-                a.setCategory(categories.isEmpty() ? null : categories.get(0));
-                em.merge(a);
-            }
-            em.flush();
-            return null;
-        });
+        AthleteRepository.resetCategories();
         crud.refreshGrid();
     }
 
