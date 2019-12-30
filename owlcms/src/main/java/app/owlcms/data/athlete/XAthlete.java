@@ -720,16 +720,6 @@ public class XAthlete extends Athlete {
 
     /**
      * @return
-     * @see app.owlcms.data.athlete.Athlete#getMastersLongRegistrationCategoryName()
-     */
-    @Override
-    @Deprecated
-    public String getMastersLongRegistrationCategoryName() {
-        return a.getMastersLongRegistrationCategoryName();
-    }
-
-    /**
-     * @return
      * @see app.owlcms.data.athlete.Athlete#getMedalRank()
      */
     @Override
@@ -782,14 +772,6 @@ public class XAthlete extends Athlete {
         return a.getRank();
     }
 
-    /**
-     * @return
-     * @see app.owlcms.data.athlete.Athlete#getRegistrationCategory()
-     */
-    @Override
-    public Category getRegistrationCategory() {
-        return a.getRegistrationCategory();
-    }
 
     /**
      * @param attempt
@@ -881,15 +863,6 @@ public class XAthlete extends Athlete {
         return a.getShortCategory(gender1);
     }
 
-    /**
-     * @param gender1
-     * @return
-     * @see app.owlcms.data.athlete.Athlete#getShortRegistrationCategory(java.lang.String)
-     */
-    @Override
-    public String getShortRegistrationCategory(String gender1) {
-        return a.getShortRegistrationCategory(gender1);
-    }
 
     /**
      * @return
@@ -1721,15 +1694,6 @@ public class XAthlete extends Athlete {
     }
 
     /**
-     * @param d
-     * @see app.owlcms.data.athlete.Athlete#setLastLiftTime(java.sql.Date)
-     */
-    @Override
-    public void setLastLiftTime(Date d) {
-        a.setLastLiftTime(d);
-    }
-
-    /**
      * @param lastName
      * @see app.owlcms.data.athlete.Athlete#setLastName(java.lang.String)
      */
@@ -1790,16 +1754,6 @@ public class XAthlete extends Athlete {
     @Override
     public void setRank(Integer i) {
         a.setRank(i);
-    }
-
-    /**
-     * @param registrationCategory
-     * @see app.owlcms.data.athlete.Athlete#setRegistrationCategory(app.owlcms.data.category.Category)
-     */
-    @Deprecated
-    @Override
-    public void setRegistrationCategory(Category registrationCategory) {
-        a.setRegistrationCategory(registrationCategory);
     }
 
     /**
