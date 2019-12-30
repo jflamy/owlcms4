@@ -624,7 +624,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 ComboBox<Category> categoryCombo = (ComboBox<Category>) catBinding.getField();
                 Category category = categoryCombo.getValue();
                 Gender catGender = category != null ? category.getGender() : null;
-                logger.warn("genderValidation: validating gender {} vs category {}: {}", g, catGender, catGender == g);
+                logger.trace("genderValidation: validating gender {} vs category {}: {}", g, catGender, catGender == g);
                 genderCatOk = catGender == null || catGender == g;
                 if (genderCatOk && !catGenderOk) {
                     // turn off message if present.

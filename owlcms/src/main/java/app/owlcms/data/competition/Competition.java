@@ -151,13 +151,15 @@ public class Competition {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
         if (athletes.isEmpty()) {
             // prevent outputting silliness.
-            //throw new RuntimeException("No athletes.");
+            // throw new RuntimeException("No athletes.");
             return;
         }
         // extract club lists
         TreeSet<String> teams = new TreeSet<>();
         for (Athlete curAthlete : athletes) {
-            teams.add(curAthlete.getTeam());
+            if (curAthlete.getTeam() != null) {
+                teams.add(curAthlete.getTeam());
+            }
         }
         reportingBeans2.put("clubs", teams);
         logger.debug("teams {}", teams);
@@ -366,7 +368,7 @@ public class Competition {
     public String getFinalPackageTemplateFileName() throws IOException {
         if (finalPackageTemplateFileName == null) {
             List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/competitionBook",
-                    ResourceWalker::relativeName,  null);
+                    ResourceWalker::relativeName, null);
             for (Resource r : resourceList) {
                 if (this.isMasters() && r.getFileName().startsWith("Masters_")) {
                     return r.getFileName();

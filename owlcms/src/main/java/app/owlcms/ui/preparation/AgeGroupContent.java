@@ -18,11 +18,15 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -48,6 +52,7 @@ import app.owlcms.ui.results.Resource;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.ui.shared.RequireLogin;
+import app.owlcms.utils.NotificationUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -105,18 +110,23 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
      */
     @Override
     public Collection<AgeGroup> findAll() {
-        List<AgeGroup> all = AgeGroupRepository.findFiltered(nameFilter.getValue(), (Gender) null, ageDivisionFilter.getValue(),
+        List<AgeGroup> all = AgeGroupRepository.findFiltered(nameFilter.getValue(), (Gender) null,
+                ageDivisionFilter.getValue(),
                 (Integer) null, activeFilter.getValue(), -1, -1);
-        all.sort((ag1,ag2)->{
+        all.sort((ag1, ag2) -> {
             int compare = 0;
-            compare = ObjectUtils.compare(ag1.getAgeDivision(),ag2.getAgeDivision());
-            if (compare != 0) return -compare; // DEFAULT first.
-            compare = ObjectUtils.compare(ag1.getGender(),ag2.getGender());
-            if (compare != 0) return compare;
-            compare = ObjectUtils.compare(ag1.getMinAge(),ag2.getMinAge());
-            if (compare != 0) return compare;
-            compare = ObjectUtils.compare(ag1.getMaxAge(),ag2.getMaxAge());
-            if (compare != 0) return compare;
+            compare = ObjectUtils.compare(ag1.getAgeDivision(), ag2.getAgeDivision());
+            if (compare != 0)
+                return -compare; // DEFAULT first.
+            compare = ObjectUtils.compare(ag1.getGender(), ag2.getGender());
+            if (compare != 0)
+                return compare;
+            compare = ObjectUtils.compare(ag1.getMinAge(), ag2.getMinAge());
+            if (compare != 0)
+                return compare;
+            compare = ObjectUtils.compare(ag1.getMaxAge(), ag2.getMaxAge());
+            if (compare != 0)
+                return compare;
             return 0;
         });
         return all;
@@ -187,12 +197,10 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 
     /**
      * Create the top bar.
-     *
+     * 
      * Note: the top bar is created before the content.
      *
      * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
-     *
-     * @param topBar
      */
     protected void createTopBar() {
         // show arrow but close menu
@@ -225,13 +233,18 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         setTemplateSelectionListener(resourceList);
 
         Button reload = new Button(getTranslation("ResetCategories.ReloadAgeGroups"), (e) -> {
-            new ConfirmationDialog(getTranslation("ClearLifts"),
-                    getTranslation("ResetCategories.Warning_ResetCategories"),
-                    getTranslation("ResetCategories.CategoriesReset"), () -> {
-                        AgeGroupRepository
-                                .reloadDefinitions(ageGroupDefinitionSelect.getValue().getFileName());
-                        resetCategories();
-                    }).open();
+            Resource definitions = ageGroupDefinitionSelect.getValue();
+            if (definitions == null) {
+                String labelText = getTranslation("ResetCategories.PleaseSelectDefinitionFile");
+                NotificationUtils.errorNotification(labelText);
+            } else {
+                new ConfirmationDialog(getTranslation("ResetCategories.ResetCategories"),
+                        getTranslation("ResetCategories.Warning_ResetCategories"),
+                        getTranslation("ResetCategories.CategoriesReset"), () -> {
+                            AgeGroupRepository.reloadDefinitions(definitions.getFileName());
+                            resetCategories();
+                        }).open();
+            }
         });
         HorizontalLayout reloadDefinition = new HorizontalLayout(ageGroupDefinitionSelect, reload);
         reloadDefinition.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -239,10 +252,11 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         reloadDefinition.setSpacing(false);
 
 //        topBar.getStyle().set("flex", "100 1");
-        topBar.add(resetButton,reloadDefinition);
+        topBar.add(resetButton, reloadDefinition);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
+
 
 
     private void resetCategories() {
@@ -342,7 +356,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
     public void highlightResetButton() {
         resetCats.setThemeName("primary error");
     }
-    
+
     private void unHighlightResetButton() {
         resetCats.setThemeName("");
     }
