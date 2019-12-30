@@ -117,11 +117,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     @Override
     public int compareTo(Category o) {
         if (o == null) {
-            return 1; // we are greater than null;
+            return -1; // we are smaller than null -- null goes to the end;
         }
 
-        
-        int compare = ObjectUtils.compare(this.ageGroup,o.getAgeGroup());
+        int compare = ObjectUtils.compare(this.ageGroup,o.getAgeGroup(),true);
         if (compare != 0) {
             return compare;
         }
