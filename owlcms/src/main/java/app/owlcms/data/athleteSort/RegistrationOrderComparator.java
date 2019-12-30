@@ -8,6 +8,8 @@ package app.owlcms.data.athleteSort;
 
 import java.util.Comparator;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 
@@ -35,9 +37,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
         }
 
         // in the unlikely event that two competition groups are weighed-in at the same
-        // time.
-        // don't mix the groups, the weigh-ins are likely male vs female in separate
-        // rooms...
+        // time. Don't mix the groups.
         compare = compareGroup(lifter1, lifter2);
         if (compare != 0) {
             return compare;
@@ -50,7 +50,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
             }
         }
 
-        compare = compareRegistrationCategory(lifter1, lifter2);
+        compare = ObjectUtils.compare(lifter1.getCategory(), lifter2.getCategory(), true); // null weighed after
         if (compare != 0) {
             return compare;
         }
