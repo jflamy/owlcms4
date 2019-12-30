@@ -347,12 +347,10 @@ public class AbstractLifterComparator {
 
         Group lifter1Group = lifter1.getGroup();
         Group lifter2Group = lifter2.getGroup();
-        if (lifter1Group == null && lifter2Group == null) {
-            return 0;
-        }
 
         int compare = ObjectUtils.compare(lifter1Group, lifter2Group, true);
-        if (compare != 0) {
+        if (compare == 0) {
+            // same group, or both null
             return compare;
         }
 
