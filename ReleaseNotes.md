@@ -1,11 +1,12 @@
 
-* Release Highlights for release 4.3 (release candidate 1): 
+* Release Highlights for release 4.3 (Release Candidate 1): 
   
   - [X] Manage a list of age groups with age boundaries ("Edit Age Groups").  Each age group be active or inactive.
     - [X] Each age group has its own bodyweight categories
     - [X] Bodyweight Categories are now created/modified by editing the age group. This ensures that each category is connected to a single age group and that there are no gaps in the body weights for each age group.
   - [x] The Edit Athletes and Edit Age Groups pages each have a button at the top of the page to reassign athletes if the age groups or categories are edited.
-    - [x] Until actual weigh-in has taken place, the presumed body weight is inferred from the category assigned manually to the athlete using the interface or read through a registration file.  In this way, it is possible to reload the definition files or play with age group categories without losing information about the athlete categories.
+    - [x] Until actual weigh-in has taken place, the category is assigned based on the presumed body weight. The presumed body weight is taken from the category information in the registration file, or from category information entered explicitly in the program.  In other words, if you the athlete is registered as a 61kg, you will be assume to weigh 61kg until which time you are actually weighed in, or if someone explicitly changes your category using the user interface.
+      In this way, it is possible to reload the definition files or play with age group categories without losing information about the athlete categories.
   - [X] Age Group definitions are loaded when the program is started based to the locale (language_country). It is also possible to load/reload an age group definition page
   - [X] Athlete must select the category they are in (is 36 year old lifting in the senior group or the masters group?)
     - [x] MASTERS, Uxx Age Groups, IWF age groups, All (default) are listed in order of preference (if active).  

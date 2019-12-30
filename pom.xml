@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.3.0-beta4-SNAPSHOT</version>
+    <version>4.3.0-rc1</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -32,7 +32,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
         <!-- Library versions -->
-        <vaadin.version>14.1.2</vaadin.version>
+        <vaadin.version>14.1.3</vaadin.version>
         <logback.version>1.2.3</logback.version>
         <slf4j.version>1.7.26</slf4j.version>
         <hibernate.version>5.4.3.Final</hibernate.version>
