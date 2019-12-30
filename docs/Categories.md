@@ -44,9 +44,9 @@ The list is updated with the new bodyweight category. We can now update the defi
 
 ## Reassigning the athletes
 
-After updating an age group with new categories, the program highlights the `Reassign Athletes` button at the top.  It is usually wise to determine age groups and categories prior to importing or entering athletes, but you can re-compute the categories for athletes that are already weighed in.
+After updating an age group with new categories, the program highlights the `Reassign Athletes` button at the top.  It is usually wise to determine age groups and categories prior to importing or entering athletes, but you can actually change the categories and re-compute the categories for each athlete at anytime.
 
-In a real competition it is unlikely that you would change the categories after weighing the athletes, but good to know that you always can.
+For athletes that have not been weighed-in, the program records the presumed weight for the athlete based on the information read from the registration file, or the category information explicitly entered for the athlete.  For example, if you enter a kid in a 40kg category, and later delete the 40kg category, the program remembers that the best weight information available is 40kg.  So the athlete will be placed "as best as possible" using the 40kg information until someone changes the category manually, or the athlete is weighed in.
 
 ![050_afterUpdate](img/Categories/050_afterUpdate.png)
 
@@ -85,7 +85,7 @@ The default list contains non-standard age groups.  Some federations accept 30-3
 
 The applicability of the 15/10kg rule (as opposed to the 20kg rule) is based on the category in which the athlete is registered.
 
-## Changing the Default Age Group Definitions
+## Changing the Age Group Definitions
 
 If you look at the installation directory under the `local/config` directory, you will notice files with a name similar to `AgeGroups.xlsx` .  The first Tab in each file defines the bodyweight categories in use for a given federation or club.  The second Tab says which bodyweight categories are active for each age group.
 
