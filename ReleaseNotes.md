@@ -5,6 +5,7 @@
     - [X] Each age group has its own bodyweight categories
     - [X] Bodyweight Categories are now created/modified by editing the age group. This ensures that each category is connected to a single age group and that there are no gaps in the body weights for each age group.
   - [x] The Edit Athletes and Edit Age Groups pages each have a button at the top of the page to reassign athletes if the age groups or categories are edited.
+    - [x] Until actual weigh-in has taken place, the presumed body weight is inferred from the category assigned manually to the athlete using the interface or read through a registration file.  In this way, it is possible to reload the definition files or play with age group categories without losing information about the athlete categories.
   - [X] Age Group definitions are loaded when the program is started based to the locale (language_country). It is also possible to load/reload an age group definition page
   - [X] Athlete must select the category they are in (is 36 year old lifting in the senior group or the masters group?)
     - [x] MASTERS, Uxx Age Groups, IWF age groups, All (default) are listed in order of preference (if active).  

@@ -188,12 +188,6 @@ public class CategoryRepository {
 
     public static List<Category> findByGenderAgeBW(Gender gender, Integer age, Double bodyWeight) {
         Boolean active = true;
-//      List<Category> findFiltered = findFiltered((String)null, gender, ageDivision, (AgeGroup)null, age, bodyWeight, true, -1, -1);
-//      gender = null;
-//      ageDivision = null;
-//      age = (Integer) null;
-//      bodyWeight = (Double) null;
-//      active = null;
         List<Category> findFiltered = findFiltered((String) null, gender, (AgeDivision) null, (AgeGroup) null, age,
                 bodyWeight, active, -1, -1);
         // sort comparison to put more specific category age before. M30 before O21, O21 also before SR (MASTERS, then
@@ -205,12 +199,6 @@ public class CategoryRepository {
     public static List<Category> findByGenderDivisionAgeBW(Gender gender, AgeDivision ageDivision, Integer age,
             Double bodyWeight) {
         Boolean active = true;
-//        List<Category> findFiltered = findFiltered((String)null, gender, ageDivision, (AgeGroup)null, age, bodyWeight, true, -1, -1);
-//        gender = null;
-//        ageDivision = null;
-//        age = (Integer) null;
-//        bodyWeight = (Double) null;
-//          active = null;
         List<Category> findFiltered = findFiltered((String) null, gender, ageDivision, (AgeGroup) null, age, bodyWeight,
                 active, -1, -1);
         findFiltered.sort(new RegistrationPreferenceComparator());

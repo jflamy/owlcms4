@@ -537,7 +537,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         Validator<Category> v11 = Validator.from((category) -> {
             try {
                 Binding<Athlete, ?> catBinding = binder.getBinding("category").get();
-                Category cat = (Category) catBinding.getField().getValue();;
+                Category cat = (Category) catBinding.getField().getValue();
                 Integer age = getAgeFromFields();
                 if (category == null && age == null) {
                     logger.debug("1 category {} {} age {}", category, cat, age);
@@ -546,14 +546,19 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                     logger.debug("2 category {} {} age {}", category.getName(), cat, age);
                     // no body weight - no contradiction
                     return true;
-                } else if (age != null && category == null) {
-                    logger.debug("3 category {} {} age {}", category, cat, age);
-                    return false;
                 }
-                int min = category.getAgeGroup().getMinAge();
-                int max = category.getAgeGroup().getMaxAge();
-                logger.debug("comparing {} ]{},{}] with age {}", category.getName(), min, max, age);
-                return (age >= min && age <= max);
+//                else if (age != null && category == null) {
+//                    logger.debug("3 category {} {} age {}", category, cat, age);
+//                    return false;
+//                }
+                if (category != null && age != null) {
+                    int min = category.getAgeGroup().getMinAge();
+                    int max = category.getAgeGroup().getMaxAge();
+                    logger.debug("comparing {} ]{},{}] with age {}", category.getName(), min, max, age);
+                    return (age >= min && age <= max);
+                } else {
+                    return true;
+                }
             } catch (Exception e) {
                 logger.error(LoggerUtils.stackTrace(e));
             }
@@ -619,7 +624,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 ComboBox<Category> categoryCombo = (ComboBox<Category>) catBinding.getField();
                 Category category = categoryCombo.getValue();
                 Gender catGender = category != null ? category.getGender() : null;
-                logger.debug("genderValidation: validating gender {} vs category {}: {}", g, catGender, catGender == g);
+                logger.trace("genderValidation: validating gender {} vs category {}: {}", g, catGender, catGender == g);
                 genderCatOk = catGender == null || catGender == g;
                 if (genderCatOk && !catGenderOk) {
                     // turn off message if present.
@@ -657,7 +662,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void validateYearOfBirth(Binder.BindingBuilder bindingBuilder) {
         String message = Translator.translate("InvalidYearFormat");
-        RegexpValidator re = new RegexpValidator(message, "(19|20)[0-9][0-9]");
+        RegexpValidator re = new RegexpValidator(message, "|((19|20)[0-9][0-9])");
+        bindingBuilder.withNullRepresentation("");
         bindingBuilder.withValidator(re);
         yobConverter = new StringToIntegerConverter(message) {
             @Override
