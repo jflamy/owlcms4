@@ -9,6 +9,7 @@ package app.owlcms.data.athleteSort;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
@@ -109,18 +110,6 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      */
     public int compareCleanJerkResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
-        
-        if (Competition.getCurrent().isMasters()) {
-            compare = compareGender(lifter1, lifter2);
-            if (compare != 0) {
-                return compare;
-            }
-
-            compare = compareAgeGroup(lifter1, lifter2);
-            if (compare != 0) {
-                return -compare;
-            }
-        }
 
         compare = compareCategory(lifter1, lifter2);
         if (compare != 0) {
@@ -175,7 +164,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      * reached total first is ranked first.
      *
      * This variant allows judges to award a score based on a formula, with bonuses
-     * or penalties, manually. Used for the under-12 championship in Quebec.
+     * or penalties, manually. Used for the U12 championship in Quebec.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2
@@ -184,19 +173,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     public int compareCustomResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
-        if (Competition.getCurrent().isMasters()) {
-            compare = compareGender(lifter1, lifter2);
-            if (compare != 0) {
-                return compare;
-            }
-
-            compare = compareAgeGroup(lifter1, lifter2);
-            if (compare != 0) {
-                return -compare;
-            }
-        }
-
-        compare = compareRegistrationCategory(lifter1, lifter2);
+        compare = ObjectUtils.compare(lifter1.getCategory(),lifter2.getCategory(),true);
         if (compare != 0) {
             return compare;
         }
@@ -292,19 +269,6 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         if (trace) {
             logger.trace("lifter1 {};  lifter2 {}", lifter1.getFirstName(), lifter2.getFirstName());
         }
-
-        if (Competition.getCurrent().isMasters()) {
-            compare = compareGender(lifter1, lifter2);
-            if (compare != 0) {
-                return compare;
-            }
-
-            compare = compareAgeGroup(lifter1, lifter2);
-            if (compare != 0) {
-                return -compare;
-            }
-        }
-
         
         compare = compareCategory(lifter1, lifter2);
         if (trace) {
@@ -382,18 +346,6 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      */
     public int compareTotalResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
-
-        if (Competition.getCurrent().isMasters()) {
-            compare = compareGender(lifter1, lifter2);
-            if (compare != 0) {
-                return compare;
-            }
-
-            compare = compareAgeGroup(lifter1, lifter2);
-            if (compare != 0) {
-                return -compare;
-            }
-        }
 
         compare = compareCategory(lifter1, lifter2);
         if (compare != 0) {
