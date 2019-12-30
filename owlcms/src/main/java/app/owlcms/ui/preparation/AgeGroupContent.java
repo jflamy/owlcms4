@@ -211,7 +211,6 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
                     getTranslation("ResetCategories.Warning_ResetCategories"),
                     getTranslation("ResetCategories.CategoriesReset"), () -> {
                         resetCategories();
-                        unHighlightResetButton();
                     }).open();
         });
         resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
@@ -258,6 +257,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
     private void resetCategories() {
         AthleteRepository.resetCategories();
         crud.refreshGrid();
+        unHighlightResetButton();
     }
 
     private void setTemplateSelectionListener(List<Resource> resourceList) {
