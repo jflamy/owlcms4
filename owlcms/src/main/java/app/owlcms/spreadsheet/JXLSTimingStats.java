@@ -48,8 +48,10 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         }
 
         public Double getAthletesPerHour() {
-            Double hours = getHours();
-            return hours > 0 ? (nbAthletes / hours) : null;
+            Double hours = getHoursForGroup();
+            Double athleteEquivalents = ((double)getNbAttemptedLifts())/6.0D;
+            
+            return hours > 0 ? athleteEquivalents/hours : null;
         }
 
         /**
@@ -149,12 +151,13 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
         }
 
-        private Double getHours() {
+        private Double getHoursForGroup() {
             Duration delta = Duration.between(minTime, maxTime);
             if (delta.isNegative()) {
                 delta = Duration.ZERO;
             }
             Double hours = delta.getSeconds() / 3600.0D;
+            logger.warn("getHours: {}",hours);
             return hours;
         }
     }
