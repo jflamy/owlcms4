@@ -47,16 +47,13 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
      */
     public PreparationNavigationContent() {
 
-        Button competition = new Button(getTranslation("CompetitionInformation"),
-                buttonClickEvent -> UI.getCurrent().navigate(CompetitionContent.class));
-        Button ageGroups = new Button(getTranslation("DefineAgeGroups"),
-                buttonClickEvent -> UI.getCurrent().navigate(AgeGroupContent.class));
+        Button competition = openInNewTabNoParam(CompetitionContent.class, getTranslation("CompetitionInformation"));
+        Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
+        Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
+        Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
+
 //        Button categories = new Button(getTranslation("DefineCategories"),
 //                buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class));
-        Button groups = new Button(getTranslation("DefineGroups"),
-                buttonClickEvent -> UI.getCurrent().navigate(GroupContent.class));
-        Button platforms = new Button(getTranslation("DefineFOP"),
-                buttonClickEvent -> UI.getCurrent().navigate(PlatformContent.class));
 
         StreamResource href = new StreamResource("registration.xls",
                 () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
@@ -68,15 +65,12 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         download.setWidth("100%");
         Div downloadDiv = new Div(download);
         downloadDiv.setWidthFull();
-
         Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
                 buttonClickEvent -> new UploadDialog().open());
-        Button athletes = new Button(getTranslation("EditAthletes"),
-                buttonClickEvent -> UI.getCurrent().navigate(RegistrationContent.class));
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups,
-//                categories,
-                groups, platforms,
+        Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
+
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups, groups, platforms,
                 downloadDiv, upload);
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes);

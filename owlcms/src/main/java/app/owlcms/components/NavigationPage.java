@@ -84,4 +84,18 @@ public interface NavigationPage extends OwlcmsContent {
         return button;
     }
 
+    public default <T extends Component> Button openInNewTabNoParam(Class<T> targetClass,
+            String label) {
+        Button button = new Button(label);
+        button.getElement().setAttribute("onClick", getWindowOpenerFromClassNoParam(targetClass));
+        return button;
+    }
+
+    public default <T extends Component> String getWindowOpenerFromClassNoParam(Class<T> targetClass) {
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        String name = fop == null ? "" : "_" + fop.getName();
+        return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "','"
+                + targetClass.getSimpleName() + name + "')";
+    }
+
 }

@@ -48,11 +48,10 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
     public LiftingNavigationContent() {
         logger.trace("LiftingNavigationContent constructor start");
 
-        Button weighIn = new Button(getTranslation("WeighIn_StartNumbers"),
-                buttonClickEvent -> UI.getCurrent().navigate(WeighinContent.class));
+        Button weighIn = openInNewTabNoParam(WeighinContent.class, getTranslation("WeighIn_StartNumbers"));
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
         doGroup(getTranslation("WeighIn"), grid3, this);
-
+        
         Button announcer = openInNewTab(AnnouncerContent.class, getTranslation("Announcer"));
         announcer.setAutofocus(true);
 
