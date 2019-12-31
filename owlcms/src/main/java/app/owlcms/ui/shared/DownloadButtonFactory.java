@@ -29,21 +29,6 @@ public class DownloadButtonFactory {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DownloadButtonFactory.class);
 
-    private static Div buildButton(String prefix, String label, StreamResource href) {
-        Anchor finalResults = new Anchor(href, "");
-        Button finalResultsButton = new Button(label, new Icon(VaadinIcon.DOWNLOAD_ALT));
-        finalResultsButton.addFocusListener(e -> {
-            String dlName = prefix + "_" + LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE) + ".xls";
-            finalResults.getElement().setAttribute("download", dlName);
-        });
-        finalResultsButton.setWidth("93%"); // don't ask. this is a kludge.
-        finalResults.add(finalResultsButton);
-        finalResults.setWidth("100%");
-        Div finalResultsDiv = new Div(finalResults);
-        finalResultsDiv.setWidthFull();
-        return finalResultsDiv;
-    }
-
     /**
      * Creates a new DownloadButton object for a dynamically created file.
      *
@@ -71,6 +56,21 @@ public class DownloadButtonFactory {
         StreamResource href = new StreamResource(prefix + ".xls",
                 () -> OwlcmsSession.class.getResourceAsStream(templateFileName));
         return buildButton(prefix, label, href);
+    }
+
+    private static Div buildButton(String prefix, String label, StreamResource href) {
+        Anchor finalResults = new Anchor(href, "");
+        Button finalResultsButton = new Button(label, new Icon(VaadinIcon.DOWNLOAD_ALT));
+        finalResultsButton.addFocusListener(e -> {
+            String dlName = prefix + "_" + LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE) + ".xls";
+            finalResults.getElement().setAttribute("download", dlName);
+        });
+        finalResultsButton.setWidth("93%"); // don't ask. this is a kludge.
+        finalResults.add(finalResultsButton);
+        finalResults.setWidth("100%");
+        Div finalResultsDiv = new Div(finalResults);
+        finalResultsDiv.setWidthFull();
+        return finalResultsDiv;
     }
 
 }

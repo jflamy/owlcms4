@@ -129,20 +129,26 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         settings.addInlineWithContents("<link rel=\"icon\" href=\"./frontend/images/owlcms.ico\">",
                 InitialPageSettings.WrapMode.NONE);
     }
-    
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        ThemeList themeList = UI.getCurrent().getElement().getThemeList();
-        themeList.remove(Lumo.DARK);
-        themeList.add(Lumo.LIGHT);
-        super.onAttach(attachEvent);
-    }
 
     /**
      * @return the layoutComponentContent
      */
     public HasElement getLayoutComponentContent() {
         return layoutComponentContent;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#
+     * showRouterLayoutContent(com.vaadin.flow.component.HasElement)
+     */
+    @Override
+    public void showRouterLayoutContent(HasElement content) {
+        logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName());
+        ((AppLayoutAware) content).setRouterLayout(this);
+        super.showRouterLayoutContent(content);
+        this.setLayoutComponentContent(content);
     }
 
     /**
@@ -181,6 +187,14 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         return appLayout;
     }
 
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        ThemeList themeList = UI.getCurrent().getElement().getThemeList();
+        themeList.remove(Lumo.DARK);
+        themeList.add(Lumo.LIGHT);
+        super.onAttach(attachEvent);
+    }
+
     @SuppressWarnings("unused")
     private void openModeSelector(Class<? extends AppLayout> variant) {
         new BehaviourSelector(variant, this::setDrawerVariant).open();
@@ -196,19 +210,5 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 
     private void setLayoutComponentContent(HasElement layoutContent) {
         this.layoutComponentContent = layoutContent;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#
-     * showRouterLayoutContent(com.vaadin.flow.component.HasElement)
-     */
-    @Override
-    public void showRouterLayoutContent(HasElement content) {
-        logger.debug("showRouterLayoutContent {}", content.getClass().getSimpleName());
-        ((AppLayoutAware) content).setRouterLayout(this);
-        super.showRouterLayoutContent(content);
-        this.setLayoutComponentContent(content);
     }
 }

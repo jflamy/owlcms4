@@ -79,8 +79,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
     }
 
     /**
-     * Do nothing. Initialization must wait for crudGrid to be constructed,
-     * constuctor calls {@link #initLayoutGrid()} instead.
+     * Do nothing. Initialization must wait for crudGrid to be constructed, constuctor calls {@link #initLayoutGrid()}
+     * instead.
      *
      * @see org.vaadin.crudui.crud.impl.GridCrud#initLayout()
      */
@@ -89,8 +89,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
     }
 
     /**
-     * Replacement initialization We do not create the crudGrid automatically, but
-     * instead receive the crudGrid pre-populated.
+     * Replacement initialization We do not create the crudGrid automatically, but instead receive the crudGrid
+     * pre-populated.
      */
     protected void initLayoutGrid() {
         initToolbar();
@@ -140,9 +140,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
     /**
      * Show form with a delete button.
      *
-     * @see org.vaadin.crudui.crud.impl.GridCrud#showForm(org.vaadin.crudui.crud.CrudOperation,
-     *      java.lang.Object, boolean, java.lang.String,
-     *      com.vaadin.flow.component.ComponentEventListener)
+     * @see org.vaadin.crudui.crud.impl.GridCrud#showForm(org.vaadin.crudui.crud.CrudOperation, java.lang.Object,
+     *      boolean, java.lang.String, com.vaadin.flow.component.ComponentEventListener)
      */
     @Override
     protected void showForm(CrudOperation operation, T domainObject, boolean readOnly, String successMessage,

@@ -37,14 +37,14 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
     }
 
     @Override
-    protected List<Athlete> getSortedAthletes() {
-        return AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
-                .filter((a) -> a.getGroup() != null).collect(Collectors.toList());
+    public InputStream getTemplate(Locale locale) throws IOException {
+        return getLocalizedTemplate("/templates/start/StartSheetTemplate", ".xls", locale);
     }
 
     @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/start/StartSheetTemplate", ".xls", locale);
+    protected List<Athlete> getSortedAthletes() {
+        return AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
+                .filter((a) -> a.getGroup() != null).collect(Collectors.toList());
     }
 
 }

@@ -61,62 +61,6 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
         return editingFormFactory.add(domainObjectToAdd);
     }
 
-    /**
-     * Define the form used to edit a given Platform.
-     *
-     * @return the form factory that will create the actual form on demand
-     */
-    private OwlcmsCrudFormFactory<Platform> createFormFactory() {
-        editingFormFactory = createPlatformEditingFactory();
-        createFormLayout(editingFormFactory);
-        return editingFormFactory;
-    }
-
-    /**
-     * The content and ordering of the editing form.
-     *
-     * @param crudFormFactory the factory that will create the form using this
-     *                        information
-     */
-    protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-        crudFormFactory.setVisibleProperties("name", "soundMixerName");
-        crudFormFactory.setFieldCaptions(getTranslation("PlatformName"), getTranslation("Speakers"));
-        List<String> outputNames = Speakers.getOutputNames();
-        outputNames.add(0, getTranslation("UseBrowserSound"));
-        crudFormFactory.setFieldProvider("soundMixerName", new OwlcmsComboBoxProvider<>(outputNames));
-    }
-
-    /**
-     * The columns of the crudGrid
-     *
-     * @param crudFormFactory what to call to create the form for editing an athlete
-     * @return
-     */
-    protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-        Grid<Platform> grid = new Grid<>(Platform.class, false);
-        grid.addColumn(Platform::getName).setHeader(getTranslation("Name"));
-        grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers"));
-
-        GridCrud<Platform> crud = new OwlcmsCrudGrid<>(Platform.class, new OwlcmsGridLayout(Platform.class),
-                crudFormFactory, grid);
-        crud.setCrudListener(this);
-        crud.setClickRowToUpdate(true);
-        return crud;
-    }
-
-    /**
-     * Create the actual form generator with all the conversions and validations
-     * required
-     *
-     * {@link RegistrationContent#createAthleteEditingFormFactory} for example of
-     * redefinition of bindField
-     *
-     * @return the actual factory, with the additional mechanisms to do validation
-     */
-    private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
-        return new PlatformEditingFormFactory(Platform.class);
-    }
-
     @Override
     public void delete(Platform domainObjectToDelete) {
         editingFormFactory.delete(domainObjectToDelete);
@@ -153,5 +97,58 @@ public class PlatformContent extends VerticalLayout implements CrudListener<Plat
     @Override
     public Platform update(Platform domainObjectToUpdate) {
         return editingFormFactory.update(domainObjectToUpdate);
+    }
+
+    /**
+     * The content and ordering of the editing form.
+     *
+     * @param crudFormFactory the factory that will create the form using this information
+     */
+    protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
+        crudFormFactory.setVisibleProperties("name", "soundMixerName");
+        crudFormFactory.setFieldCaptions(getTranslation("PlatformName"), getTranslation("Speakers"));
+        List<String> outputNames = Speakers.getOutputNames();
+        outputNames.add(0, getTranslation("UseBrowserSound"));
+        crudFormFactory.setFieldProvider("soundMixerName", new OwlcmsComboBoxProvider<>(outputNames));
+    }
+
+    /**
+     * The columns of the crudGrid
+     *
+     * @param crudFormFactory what to call to create the form for editing an athlete
+     * @return
+     */
+    protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
+        Grid<Platform> grid = new Grid<>(Platform.class, false);
+        grid.addColumn(Platform::getName).setHeader(getTranslation("Name"));
+        grid.addColumn(Platform::getSoundMixerName).setHeader(getTranslation("Speakers"));
+
+        GridCrud<Platform> crud = new OwlcmsCrudGrid<>(Platform.class, new OwlcmsGridLayout(Platform.class),
+                crudFormFactory, grid);
+        crud.setCrudListener(this);
+        crud.setClickRowToUpdate(true);
+        return crud;
+    }
+
+    /**
+     * Define the form used to edit a given Platform.
+     *
+     * @return the form factory that will create the actual form on demand
+     */
+    private OwlcmsCrudFormFactory<Platform> createFormFactory() {
+        editingFormFactory = createPlatformEditingFactory();
+        createFormLayout(editingFormFactory);
+        return editingFormFactory;
+    }
+
+    /**
+     * Create the actual form generator with all the conversions and validations required
+     *
+     * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
+     *
+     * @return the actual factory, with the additional mechanisms to do validation
+     */
+    private OwlcmsCrudFormFactory<Platform> createPlatformEditingFactory() {
+        return new PlatformEditingFormFactory(Platform.class);
     }
 }

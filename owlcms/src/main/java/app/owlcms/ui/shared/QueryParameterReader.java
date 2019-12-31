@@ -95,9 +95,8 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
 
     /*
      * Process query parameters
-     * 
-     * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router.
-     * BeforeEvent, java.lang.String)
+     *
+     * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router. BeforeEvent, java.lang.String)
      */
     @Override
     public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {

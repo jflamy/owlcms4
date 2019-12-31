@@ -49,6 +49,46 @@ public class SinclairCoefficients {
         return smm.get(age);
     }
 
+    /**
+     * @return
+     */
+    public static Double menCoefficient() {
+        if (menCoefficient == null) {
+            loadCoefficients();
+        }
+        return menCoefficient;
+    }
+
+    /**
+     * @return
+     */
+    public static Double menMaxWeight() {
+        if (menMaxWeight == null) {
+            loadCoefficients();
+        }
+        return menMaxWeight;
+    }
+
+    /**
+     * @return
+     */
+    public static Double womenCoefficient() {
+        if (womenCoefficient == null) {
+            loadCoefficients();
+        }
+        return womenCoefficient;
+    }
+
+    /**
+     * @return
+     */
+    public static Double womenMaxWeight() {
+        if (womenMaxWeight == null) {
+            loadCoefficients();
+        }
+        return womenMaxWeight;
+    }
+
     private static void loadCoefficients() {
         if (props == null) {
             loadProps();
@@ -91,45 +131,5 @@ public class SinclairCoefficients {
             }
         }
         return smm;
-    }
-
-    /**
-     * @return
-     */
-    public static Double menCoefficient() {
-        if (menCoefficient == null) {
-            loadCoefficients();
-        }
-        return menCoefficient;
-    }
-
-    /**
-     * @return
-     */
-    public static Double menMaxWeight() {
-        if (menMaxWeight == null) {
-            loadCoefficients();
-        }
-        return menMaxWeight;
-    }
-
-    /**
-     * @return
-     */
-    public static Double womenCoefficient() {
-        if (womenCoefficient == null) {
-            loadCoefficients();
-        }
-        return womenCoefficient;
-    }
-
-    /**
-     * @return
-     */
-    public static Double womenMaxWeight() {
-        if (womenMaxWeight == null) {
-            loadCoefficients();
-        }
-        return womenMaxWeight;
     }
 }

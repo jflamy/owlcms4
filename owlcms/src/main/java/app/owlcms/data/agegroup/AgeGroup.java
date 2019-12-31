@@ -184,7 +184,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         if (code2 == null) {
             return "";
         }
-        
+
         String translatedCode = getTranslatedCode(code2);
         if (ageDivision == AgeDivision.MASTERS) {
             return translatedCode;
@@ -201,10 +201,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     public void removeCategory(Category category) {
         if (category != null) {
-            //logger.warn("ageGroup={} removing {} {}", this.getId(), category.getCode(), category.getId());
+            // logger.warn("ageGroup={} removing {} {}", this.getId(), category.getCode(), category.getId());
             category.setAgeGroup(null);
             categories.remove(category);
-            //logger.warn("ageGroup={} removed {} {}", this.getId(), category.getCode(), category.getId());
+            // logger.warn("ageGroup={} removed {} {}", this.getId(), category.getCode(), category.getId());
         }
     }
 

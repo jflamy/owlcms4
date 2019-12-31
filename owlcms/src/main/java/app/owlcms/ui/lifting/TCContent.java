@@ -72,6 +72,42 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
     }
 
     @Override
+    public void delete(Athlete Athlete) {
+
+        // do nothing;
+    }
+
+    public OwlcmsCrudFormFactory<Athlete> getCrudFormFactory() {
+        return crudFormFactory;
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("TechnicalController");
+    }
+
+    public void setCrudFormFactory(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+        this.crudFormFactory = crudFormFactory;
+    }
+
+    @Override
+    @Subscribe
+    public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
+        OwlcmsSession.withFop((fop) -> UIEventProcessor.uiAccess(plates, uiEventBus, () -> {
+            plates.computeImageArea(fop, false);
+        }));
+    }
+
+    @Override
+    public Athlete update(Athlete athlete) {
+        // do nothing
+        return athlete;
+    }
+
+    @Override
     protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
         return null;
     }
@@ -92,24 +128,6 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
     protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
         HorizontalLayout decisions = new HorizontalLayout();
         return decisions;
-    }
-
-    @Override
-    public void delete(Athlete Athlete) {
-
-        // do nothing;
-    }
-
-    public OwlcmsCrudFormFactory<Athlete> getCrudFormFactory() {
-        return crudFormFactory;
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("TechnicalController");
     }
 
     @Override
@@ -218,24 +236,6 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
         fillHW(leftRight, this);
         binder.readBean(platform);
-    }
-
-    public void setCrudFormFactory(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-        this.crudFormFactory = crudFormFactory;
-    }
-
-    @Override
-    @Subscribe
-    public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
-        OwlcmsSession.withFop((fop) -> UIEventProcessor.uiAccess(plates, uiEventBus, () -> {
-            plates.computeImageArea(fop, false);
-        }));
-    }
-
-    @Override
-    public Athlete update(Athlete athlete) {
-        // do nothing
-        return athlete;
     }
 
 }

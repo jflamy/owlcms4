@@ -64,22 +64,48 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
         return editingFormFactory.add(domainObjectToAdd);
     }
 
+    @Override
+    public void delete(Group domainObjectToDelete) {
+        editingFormFactory.delete(domainObjectToDelete);
+    }
+
     /**
-     * Define the form used to edit a given Group.
+     * The refresh button on the toolbar
      *
-     * @return the form factory that will create the actual form on demand
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
      */
-    private OwlcmsCrudFormFactory<Group> createFormFactory() {
-        editingFormFactory = createGroupEditingFormFactory();
-        createFormLayout(editingFormFactory);
-        return editingFormFactory;
+    @Override
+    public Collection<Group> findAll() {
+        return GroupRepository.findAll();
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Preparation_Groups");
+    }
+
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
+
+    @Override
+    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
+
+    @Override
+    public Group update(Group domainObjectToUpdate) {
+        return editingFormFactory.update(domainObjectToUpdate);
     }
 
     /**
      * The content and ordering of the editing form.
      *
-     * @param crudFormFactory the factory that will create the form using this
-     *                        information
+     * @param crudFormFactory the factory that will create the form using this information
      */
     protected void createFormLayout(OwlcmsCrudFormFactory<Group> crudFormFactory) {
         crudFormFactory.setVisibleProperties("name", "platform", "weighInTime", "competitionTime", "announcer",
@@ -120,53 +146,24 @@ public class GroupContent extends VerticalLayout implements CrudListener<Group>,
     }
 
     /**
-     * Create the actual form generator with all the conversions and validations
-     * required
+     * Define the form used to edit a given Group.
      *
-     * {@link RegistrationContent#createAthleteEditingFormFactory} for example of
-     * redefinition of bindField
+     * @return the form factory that will create the actual form on demand
+     */
+    private OwlcmsCrudFormFactory<Group> createFormFactory() {
+        editingFormFactory = createGroupEditingFormFactory();
+        createFormLayout(editingFormFactory);
+        return editingFormFactory;
+    }
+
+    /**
+     * Create the actual form generator with all the conversions and validations required
+     *
+     * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
      *
      * @return the actual factory, with the additional mechanisms to do validation
      */
     private OwlcmsCrudFormFactory<Group> createGroupEditingFormFactory() {
         return new GroupEditingFormFactory(Group.class);
-    }
-
-    @Override
-    public void delete(Group domainObjectToDelete) {
-        editingFormFactory.delete(domainObjectToDelete);
-    }
-
-    /**
-     * The refresh button on the toolbar
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-    @Override
-    public Collection<Group> findAll() {
-        return GroupRepository.findAll();
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Preparation_Groups");
-    }
-
-    @Override
-    public OwlcmsRouterLayout getRouterLayout() {
-        return routerLayout;
-    }
-
-    @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
-        this.routerLayout = routerLayout;
-    }
-
-    @Override
-    public Group update(Group domainObjectToUpdate) {
-        return editingFormFactory.update(domainObjectToUpdate);
     }
 }

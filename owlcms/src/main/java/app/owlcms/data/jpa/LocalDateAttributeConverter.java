@@ -20,9 +20,8 @@ public class LocalDateAttributeConverter implements AttributeConverter<LocalDate
 
     /*
      * (non-Javadoc)
-     * 
-     * @see javax.persistence.AttributeConverter#convertToDatabaseColumn(java.lang.
-     * Object)
+     *
+     * @see javax.persistence.AttributeConverter#convertToDatabaseColumn(java.lang. Object)
      */
     @Override
     public Date convertToDatabaseColumn(LocalDate locDate) {
@@ -31,9 +30,8 @@ public class LocalDateAttributeConverter implements AttributeConverter<LocalDate
 
     /*
      * (non-Javadoc)
-     * 
-     * @see javax.persistence.AttributeConverter#convertToEntityAttribute(java.lang.
-     * Object)
+     *
+     * @see javax.persistence.AttributeConverter#convertToEntityAttribute(java.lang. Object)
      */
     @Override
     public LocalDate convertToEntityAttribute(Date sqlDate) {

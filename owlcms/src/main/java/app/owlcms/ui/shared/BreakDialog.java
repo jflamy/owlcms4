@@ -25,8 +25,7 @@ public class BreakDialog extends Dialog {
     }
 
     /**
-     * Used by the announcer -- tries to guess what type of break is pertinent based
-     * on field of play.
+     * Used by the announcer -- tries to guess what type of break is pertinent based on field of play.
      *
      * @param origin the origin
      */

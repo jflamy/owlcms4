@@ -73,10 +73,8 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * javax.persistence.spi.PersistenceUnitInfo#addTransformer(javax.persistence.
-     * spi.ClassTransformer)
+     *
+     * @see javax.persistence.spi.PersistenceUnitInfo#addTransformer(javax.persistence. spi.ClassTransformer)
      */
     @Override
     public void addTransformer(ClassTransformer transformer) {
@@ -85,7 +83,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#excludeUnlistedClasses()
      */
     @Override
@@ -95,7 +93,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getClassLoader()
      */
     @Override
@@ -105,7 +103,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getJarFileUrls()
      */
     @Override
@@ -115,7 +113,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getJtaDataSource()
      */
     @Override
@@ -125,7 +123,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getManagedClassNames()
      */
     @Override
@@ -135,7 +133,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getMappingFileNames()
      */
     @Override
@@ -145,7 +143,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getNewTempClassLoader()
      */
     @Override
@@ -155,7 +153,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getNonJtaDataSource()
      */
     @Override
@@ -165,9 +163,8 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * javax.persistence.spi.PersistenceUnitInfo#getPersistenceProviderClassName()
+     *
+     * @see javax.persistence.spi.PersistenceUnitInfo#getPersistenceProviderClassName()
      */
     @Override
     public String getPersistenceProviderClassName() {
@@ -176,7 +173,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getPersistenceUnitName()
      */
     @Override
@@ -186,7 +183,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getPersistenceUnitRootUrl()
      */
     @Override
@@ -196,9 +193,8 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * javax.persistence.spi.PersistenceUnitInfo#getPersistenceXMLSchemaVersion()
+     *
+     * @see javax.persistence.spi.PersistenceUnitInfo#getPersistenceXMLSchemaVersion()
      */
     @Override
     public String getPersistenceXMLSchemaVersion() {
@@ -207,7 +203,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getProperties()
      */
     @Override
@@ -217,7 +213,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getSharedCacheMode()
      */
     @Override
@@ -227,7 +223,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getTransactionType()
      */
     @Override
@@ -237,7 +233,7 @@ public class PersistenceUnitInfoImpl implements PersistenceUnitInfo {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.persistence.spi.PersistenceUnitInfo#getValidationMode()
      */
     @Override

@@ -43,6 +43,14 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
     }
 
     /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Marshall");
+    }
+
+    /**
      * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
      */
     @Override
@@ -73,13 +81,5 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
     protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
         HorizontalLayout decisions = new HorizontalLayout();
         return decisions;
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Marshall");
     }
 }

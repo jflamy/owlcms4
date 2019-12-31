@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2019 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.ui.preparation;
 
 import java.util.Collection;
@@ -24,6 +30,22 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
         return platform;
     }
 
+    @Override
+    public void delete(Platform platform) {
+        PlatformRepository.delete(platform);
+    }
+
+    @Override
+    public Collection<Platform> findAll() {
+        // implemented on grid
+        return null;
+    }
+
+    @Override
+    public Platform update(Platform platform) {
+        return PlatformRepository.save(platform);
+    }
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     protected void bindField(HasValue field, String property, Class<?> propertyType) {
@@ -42,21 +64,5 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
             });
         }
         super.bindField(field, property, propertyType);
-    }
-
-    @Override
-    public void delete(Platform platform) {
-        PlatformRepository.delete(platform);
-    }
-
-    @Override
-    public Collection<Platform> findAll() {
-        // implemented on grid
-        return null;
-    }
-
-    @Override
-    public Platform update(Platform platform) {
-        return PlatformRepository.save(platform);
     }
 }

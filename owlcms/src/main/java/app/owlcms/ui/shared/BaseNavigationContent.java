@@ -64,8 +64,8 @@ public abstract class BaseNavigationContent extends VerticalLayout
     protected OwlcmsRouterLayout routerLayout;
 
     /**
-     * Instantiates a new announcer content. Content is created in
-     * {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
+     * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
+     * parameters are parsed.
      */
     public BaseNavigationContent() {
     }
@@ -76,9 +76,59 @@ public abstract class BaseNavigationContent extends VerticalLayout
         topBar.setJustifyContentMode(JustifyContentMode.START);
     }
 
+    public ComboBox<Group> createGroupSelect(String placeHolder) {
+        groupSelect = new ComboBox<>();
+        groupSelect.setPlaceholder(placeHolder);
+        groupSelect.setItems(GroupRepository.findAll());
+        groupSelect.setItemLabelGenerator(Group::getName);
+        groupSelect.setWidth("10rem");
+        return groupSelect;
+    }
+
+    @Override
+    final public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
+
+    /**
+     * Process URL parameters, including query parameters
+     *
+     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     */
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+        QueryParameterReader.super.setParameter(event, parameter);
+        location = event.getLocation();
+        locationUI = event.getUI();
+    }
+
+    @Override
+    final public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
+
+    /**
+     * Update URL location. This method is called when we set the group explicitly via a dropdown.
+     *
+     * @param ui       the ui
+     * @param location the location
+     * @param newGroup the new group
+     */
+    public void updateURLLocation(UI ui, Location location, Group newGroup) {
+        // change the URL to reflect fop group
+        HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
+        params.put("fop", Arrays.asList(OwlcmsSession.getFop().getName()));
+        if (newGroup != null && !isIgnoreGroupFromURL()) {
+            params.put("group", Arrays.asList(newGroup.getName()));
+        } else {
+            params.remove("group");
+        }
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
+    }
+
     /**
      * The left part of the top bar.
-     * 
+     *
      * @param topBarTitle
      * @param appLayoutComponent
      */
@@ -91,7 +141,7 @@ public abstract class BaseNavigationContent extends VerticalLayout
 
     /**
      * The middle part of the top bar.
-     * 
+     *
      * @param fopField
      * @param groupField
      * @param appLayoutComponent
@@ -118,22 +168,11 @@ public abstract class BaseNavigationContent extends VerticalLayout
         return fopSelect;
     }
 
-    public ComboBox<Group> createGroupSelect(String placeHolder) {
-        groupSelect = new ComboBox<>();
-        groupSelect.setPlaceholder(placeHolder);
-        groupSelect.setItems(GroupRepository.findAll());
-        groupSelect.setItemLabelGenerator(Group::getName);
-        groupSelect.setWidth("10rem");
-        return groupSelect;
-    }
-
     /**
-     * The top bar is logically is the master part of a master-detail In the current
-     * implementation, the most convenient place to put it is in the top bar which
-     * is managed by the layout, but this could change. So we change the surrounding
-     * layout from this class. In this way, only one class (the content) listens for
-     * events. Doing it the other way around would require multiple layouts, which
-     * breaks the idea of a single page app.
+     * The top bar is logically is the master part of a master-detail In the current implementation, the most convenient
+     * place to put it is in the top bar which is managed by the layout, but this could change. So we change the
+     * surrounding layout from this class. In this way, only one class (the content) listens for events. Doing it the
+     * other way around would require multiple layouts, which breaks the idea of a single page app.
      */
     protected void createTopBar(String title) {
         configureTopBar();
@@ -192,18 +231,12 @@ public abstract class BaseNavigationContent extends VerticalLayout
         return this;
     }
 
-    @Override
-    final public OwlcmsRouterLayout getRouterLayout() {
-        return routerLayout;
-    }
-
     protected abstract String getTitle();
 
     /*
      * (non-Javadoc)
-     * 
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-     * AttachEvent)
+     *
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
@@ -216,24 +249,6 @@ public abstract class BaseNavigationContent extends VerticalLayout
             uiEventBus = uiEventBusRegister(this, fop);
 
         });
-    }
-
-    /**
-     * Process URL parameters, including query parameters
-     * 
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
-     *      java.lang.String)
-     */
-    @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        QueryParameterReader.super.setParameter(event, parameter);
-        location = event.getLocation();
-        locationUI = event.getUI();
-    }
-
-    @Override
-    final public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
-        this.routerLayout = routerLayout;
     }
 
     protected void switchGroup(Group group2, FieldOfPlay fop) {
@@ -250,25 +265,5 @@ public abstract class BaseNavigationContent extends VerticalLayout
                 groupSelect.setValue(group);
             }
         }
-    }
-
-    /**
-     * Update URL location. This method is called when we set the group explicitly
-     * via a dropdown.
-     *
-     * @param ui       the ui
-     * @param location the location
-     * @param newGroup the new group
-     */
-    public void updateURLLocation(UI ui, Location location, Group newGroup) {
-        // change the URL to reflect fop group
-        HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
-        params.put("fop", Arrays.asList(OwlcmsSession.getFop().getName()));
-        if (newGroup != null && !isIgnoreGroupFromURL()) {
-            params.put("group", Arrays.asList(newGroup.getName()));
-        } else {
-            params.remove("group");
-        }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 }

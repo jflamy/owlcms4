@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2019 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.components.fields;
 
 import java.util.ArrayList;
@@ -50,7 +56,7 @@ public class CategoryListField extends CustomField<List<Category>> {
         newCategoryField.setPlaceholder(getTranslation("LimitForCategory"));
         newCategoryField.setPreventInvalidInput(true);
         newCategoryField.setPattern("[0-9]{0,3}");
-      
+
         Button button = new Button(getTranslation("AddNewCategory"));
         button.addClickListener((click) -> {
             react(ag, newCategoryField);
@@ -61,23 +67,6 @@ public class CategoryListField extends CustomField<List<Category>> {
         adder.add(newCategoryField, button);
         updatePresentation();
         add(adder);
-    }
-
-    private void react(AgeGroup ag, TextField newCategoryField) {
-        String value = newCategoryField.getValue();
-        if (ag == null) {
-            Notification notif = new Notification();
-            notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notif.setText(getTranslation("SaveAgeGroupBefore"));
-        }
-        if (value == null) return;
-        if (value.trim().isEmpty()) return;
-        double newMax = Double.parseDouble(value);
-        Category newCat = new Category(null, 0.0, newMax, ag.getGender(),
-                true, 0, 0, 0, ag);
-        presentationCategories.add(newCat);
-        updatePresentation();
-        newCategoryField.clear();
     }
 
     @Override
@@ -94,23 +83,51 @@ public class CategoryListField extends CustomField<List<Category>> {
         updatePresentation();
     }
 
+    private void addSentinel() {
+        Category newCat = new Category(null, 0.0, 999.0D, ageGroup.getGender(),
+                true, 0, 0, 0, ageGroup);
+        presentationCategories.add(newCat);
+    }
+
+    private void react(AgeGroup ag, TextField newCategoryField) {
+        String value = newCategoryField.getValue();
+        if (ag == null) {
+            Notification notif = new Notification();
+            notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notif.setText(getTranslation("SaveAgeGroupBefore"));
+        }
+        if (value == null) {
+            return;
+        }
+        if (value.trim().isEmpty()) {
+            return;
+        }
+        double newMax = Double.parseDouble(value);
+        Category newCat = new Category(null, 0.0, newMax, ag.getGender(),
+                true, 0, 0, 0, ag);
+        presentationCategories.add(newCat);
+        updatePresentation();
+        newCategoryField.clear();
+    }
+
     private void updatePresentation() {
         flex.removeAll();
         int prev = 0;
         double prevDouble = 0.0;
-        presentationCategories.sort((c1,c2)->ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
-        
-        //last category must be 999, create one if not the case. the loop below will sort out the labels.
+        presentationCategories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
+
+        // last category must be 999, create one if not the case. the loop below will sort out the labels.
         if (presentationCategories.size() == 0) {
             addSentinel();
-        } else if (presentationCategories.get(presentationCategories.size()-1).getMaximumWeight() <= 998.9D) {
+        } else if (presentationCategories.get(presentationCategories.size() - 1).getMaximumWeight() <= 998.9D) {
             addSentinel();
         }
-        
+
         for (Category c : presentationCategories) {
             AgeGroup ageGroup2 = c.getAgeGroup();
-            if (ageGroup2 == null)
+            if (ageGroup2 == null) {
                 continue;
+            }
             c.setGender(ageGroup2.getGender() != null ? ageGroup2.getGender() : Gender.F);
 
             Double maximumWeight = c.getMaximumWeight();
@@ -126,23 +143,19 @@ public class CategoryListField extends CustomField<List<Category>> {
             prevDouble = maximumWeight;
             aspan.getElement().setAttribute("theme", "badge pill"
 //                    + (c.getGender() == Gender.F ? " error" : "")
-                    );
+            );
             aspan.getStyle().set("font-size", "medium");
             aspan.getStyle().set("margin-bottom", "0.5em");
             closeIcon.addClickListener(click -> {
-                if (c.getMaximumWeight() >= 998.9D) return; // leave the sentinel.
+                if (c.getMaximumWeight() >= 998.9D) {
+                    return; // leave the sentinel.
+                }
                 c.setAgeGroup(null); // disconnect
                 updatePresentation();
                 updateValue();
             });
             flex.add(aspan, new Span("\u00a0"));
         }
-    }
-
-    private void addSentinel() {
-        Category newCat = new Category(null, 0.0, 999.0D, ageGroup.getGender(),
-                true, 0, 0, 0, ageGroup);
-        presentationCategories.add(newCat);
     }
 
 }

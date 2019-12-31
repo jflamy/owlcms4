@@ -18,18 +18,16 @@ import ch.qos.logback.classic.Logger;
  *
  * Used to avoid repetitive error-prone boiler-plate code.
  *
- * LiftDefinition ls1 = liftDefinitions[0] contains a
- * {@link #LiftDefinition(int, Stage)} with a list of getters and a list of
- * setters, one for each Change (AUTOMATIC, DECLARATION, etc.).
+ * LiftDefinition ls1 = liftDefinitions[0] contains a {@link #LiftDefinition(int, Stage)} with a list of getters and a
+ * list of setters, one for each Change (AUTOMATIC, DECLARATION, etc.).
  *
  * There is a LiftDefinition for each lift, in the array {@link #lifts}
  *
- * ls1.stage returns Stage.SNATCH ls1.getters[1] is a reference to
- * Athlete.getSnatch1Declaration, so that Method.invoke(ls1.getters[1]) returns
- * the value.
+ * ls1.stage returns Stage.SNATCH ls1.getters[1] is a reference to Athlete.getSnatch1Declaration, so that
+ * Method.invoke(ls1.getters[1]) returns the value.
  *
- * It is also possible to iterate over the athlete's card by using the
- * changeGetters[lifts][changes] methods (and the corresponding changeSetters).
+ * It is also possible to iterate over the athlete's card by using the changeGetters[lifts][changes] methods (and the
+ * corresponding changeSetters).
  *
  * @author Jean-François Lamy
  *

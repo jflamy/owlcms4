@@ -78,15 +78,6 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         DebugUtils.gc();
     }
 
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String,
-     *      java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
-    }
-
     @Override
     public Location getLocation() {
         return this.location;
@@ -105,14 +96,6 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         return getTranslation("OWLCMS_Displays");
     }
 
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
-     */
-    @Override
-    protected String getTitle() {
-        return getTranslation("StartDisplays");
-    }
-
     @Override
     public void setLocation(Location location) {
         this.location = location;
@@ -121,6 +104,22 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String, java.lang.String)
+     */
+    @Override
+    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
+        return null;
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
+     */
+    @Override
+    protected String getTitle() {
+        return getTranslation("StartDisplays");
     }
 
 }

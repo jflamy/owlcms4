@@ -28,11 +28,15 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 
     Logger logger = LoggerFactory.getLogger(JXLSJurySheet.class);
 
+    @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        return getLocalizedTemplate("/templates/jury/JurySheetTemplate", ".xls", locale);
+    }
+
     /*
      * (non-Javadoc)
      *
-     * @see
-     * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
      * configureTransformer(net.sf.jxls.transformer.XLSTransformer )
      */
     @Override
@@ -44,11 +48,6 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
     protected List<Athlete> getSortedAthletes() {
         return AthleteSorter
                 .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), isExcludeNotWeighed()));
-    }
-
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/jury/JurySheetTemplate", ".xls", locale);
     }
 
 }

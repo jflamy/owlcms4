@@ -29,6 +29,22 @@ public class Plates extends FlexLayout {
         this.getClassNames().add("loadChart");
     }
 
+    public void computeImageArea(FieldOfPlay fop, boolean showCaption) {
+        if (fop == null) {
+            return;
+        }
+
+        final Athlete currentAthlete = fop.getCurAthlete();
+        final Integer barWeight = computeBarWeight(fop);
+        if (currentAthlete == null) {
+            return;
+        }
+        weight = currentAthlete.getNextAttemptRequestedWeight();
+        final String caption = getTranslation("Kg", weight);
+
+        createImageArea(fop, barWeight, (showCaption ? caption : ""));
+    }
+
     /**
      * @param availablePlates
      * @param style
@@ -64,22 +80,6 @@ public class Plates extends FlexLayout {
         } else {
             return computeOfficialBarWeight(fop, platform);
         }
-    }
-
-    public void computeImageArea(FieldOfPlay fop, boolean showCaption) {
-        if (fop == null) {
-            return;
-        }
-
-        final Athlete currentAthlete = fop.getCurAthlete();
-        final Integer barWeight = computeBarWeight(fop);
-        if (currentAthlete == null) {
-            return;
-        }
-        weight = currentAthlete.getNextAttemptRequestedWeight();
-        final String caption = getTranslation("Kg", weight);
-
-        createImageArea(fop, barWeight, (showCaption ? caption : ""));
     }
 
     /**

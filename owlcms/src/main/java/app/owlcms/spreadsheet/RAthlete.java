@@ -32,7 +32,9 @@ import ch.qos.logback.classic.Logger;
  */
 public class RAthlete {
 
+    static Pattern legacyPattern = Pattern.compile("([mMfF]?)(>?)(\\d+)");
     final Logger logger = (Logger) LoggerFactory.getLogger(RAthlete.class);
+
     {
         logger.setLevel(Level.INFO);
     }
@@ -49,8 +51,6 @@ public class RAthlete {
     public void setBodyWeight(Double bodyWeight) {
         a.setBodyWeight(bodyWeight);
     }
-
-    static Pattern legacyPattern = Pattern.compile("([mMfF]?)(>?)(\\d+)");
 
     /**
      * @param category
@@ -75,19 +75,20 @@ public class RAthlete {
                 throw new Exception("Category " + categoryName + " is not defined.");
             }
             if (category.getGender() != a.getGender()) {
-                throw new Exception("Gender for category " + categoryName + " does not match athlete gender "+a.getGender());
+                throw new Exception(
+                        "Gender for category " + categoryName + " does not match athlete gender " + a.getGender());
             }
             a.setCategory(category);
             return;
         } else {
             fixLegacyGender(legacyResult);
             if (!legacyResult.group(2).isEmpty()) {
-                searchBodyWeight = 998.0D;    
+                searchBodyWeight = 998.0D;
             } else {
-                searchBodyWeight = Integer.parseInt(legacyResult.group(3))-0.1D;
+                searchBodyWeight = Integer.parseInt(legacyResult.group(3)) - 0.1D;
             }
         }
-        
+
         int age;
         // if no birth date, try with 0 and see if we get the default group.
         if (a.getFullBirthDate() == null) {
@@ -95,32 +96,14 @@ public class RAthlete {
         } else {
             age = LocalDate.now().getYear() - a.getYearOfBirth();
         }
-        
+
         List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
         Category category = found.size() > 0 ? found.get(0) : null;
         if (category == null) {
-            throw new Exception("Category cannot be found using age="+age+", gender="+a.getGender()+", weight="+legacyResult.group(2)+legacyResult.group(3));
+            throw new Exception("Category cannot be found using age=" + age + ", gender=" + a.getGender() + ", weight="
+                    + legacyResult.group(2) + legacyResult.group(3));
         }
         a.setCategory(category);
-    }
-
-    private void fixLegacyGender(Matcher result) throws Exception {
-        String genderLetter = result.group(1);
-        if (a.getGender() == null) {
-            if (genderLetter.equalsIgnoreCase("f")) {
-                a.setGender(Gender.F);
-            } else if (genderLetter.equalsIgnoreCase("m")) {
-                a.setGender(Gender.M);
-            }
-        } else if (!genderLetter.isEmpty()) {
-            // letter present, should match gender
-            if ((genderLetter.equalsIgnoreCase("f") && a.getGender() != Gender.F)
-                    ||(genderLetter.equalsIgnoreCase("m") && a.getGender() != Gender.M)) {
-                throw new Exception("Inconsistency between gender and category.");
-            }
-        } else {
-            // nothing to do gender is known and consistent.
-        }
     }
 
     /**
@@ -128,6 +111,14 @@ public class RAthlete {
      */
     public void setCleanJerk1Declaration(String cleanJerk1Declaration) {
         a.setCleanJerk1Declaration(cleanJerk1Declaration);
+    }
+
+    /**
+     * @param firstName
+     * @see app.owlcms.data.athlete.Athlete#setFirstName(java.lang.String)
+     */
+    public void setFirstName(String firstName) {
+        a.setFirstName(firstName);
     }
 
 //	/**
@@ -144,17 +135,9 @@ public class RAthlete {
 //	}
 
     /**
-     * @param firstName
-     * @see app.owlcms.data.athlete.Athlete#setFirstName(java.lang.String)
-     */
-    public void setFirstName(String firstName) {
-        a.setFirstName(firstName);
-    }
-
-    /**
-     * Note the mapping file must process the birth date before the category,
-     * as it is a required input to determine the category.
-     * 
+     * Note the mapping file must process the birth date before the category, as it is a required input to determine the
+     * category.
+     *
      * @param category
      * @throws Exception
      * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
@@ -191,7 +174,7 @@ public class RAthlete {
      * @see app.owlcms.data.athlete.Athlete#setLastName(java.lang.String)
      */
     public void setGender(String gender) {
-        logger.trace("setting gender {} for athlete {}",gender,a.getLastName());
+        logger.trace("setting gender {} for athlete {}", gender, a.getLastName());
         if (gender == null) {
             return;
         }
@@ -262,6 +245,25 @@ public class RAthlete {
      */
     public void setTeam(String club) {
         a.setTeam(club);
+    }
+
+    private void fixLegacyGender(Matcher result) throws Exception {
+        String genderLetter = result.group(1);
+        if (a.getGender() == null) {
+            if (genderLetter.equalsIgnoreCase("f")) {
+                a.setGender(Gender.F);
+            } else if (genderLetter.equalsIgnoreCase("m")) {
+                a.setGender(Gender.M);
+            }
+        } else if (!genderLetter.isEmpty()) {
+            // letter present, should match gender
+            if ((genderLetter.equalsIgnoreCase("f") && a.getGender() != Gender.F)
+                    || (genderLetter.equalsIgnoreCase("m") && a.getGender() != Gender.M)) {
+                throw new Exception("Inconsistency between gender and category.");
+            }
+        } else {
+            // nothing to do gender is known and consistent.
+        }
     }
 
 }

@@ -50,10 +50,11 @@ public class DebugUtils {
      * @param lifterList
      * @return ordered printout of lifters, one per line.
      */
-    static String longDump(List<Athlete> lifterList, boolean includeTimeStamp) {
+    public static String shortDump(List<? extends Athlete> lifterList) {
         StringBuffer sb = new StringBuffer();
         for (Athlete lifter : lifterList) {
-            sb.append(lifter.longDump());
+            sb.append(lifter.getLastName() + " " + lifter.getFirstName() + " " + lifter.getNextAttemptRequestedWeight()
+                    + " " + (lifter.getAttemptsDone() + 1) + " " + lifter.getLotNumber());
             sb.append(LINESEPARATOR);
         }
         return sb.toString();
@@ -63,11 +64,10 @@ public class DebugUtils {
      * @param lifterList
      * @return ordered printout of lifters, one per line.
      */
-    public static String shortDump(List<? extends Athlete> lifterList) {
+    static String longDump(List<Athlete> lifterList, boolean includeTimeStamp) {
         StringBuffer sb = new StringBuffer();
         for (Athlete lifter : lifterList) {
-            sb.append(lifter.getLastName() + " " + lifter.getFirstName() + " " + lifter.getNextAttemptRequestedWeight()
-                    + " " + (lifter.getAttemptsDone() + 1) + " " + lifter.getLotNumber());
+            sb.append(lifter.longDump());
             sb.append(LINESEPARATOR);
         }
         return sb.toString();

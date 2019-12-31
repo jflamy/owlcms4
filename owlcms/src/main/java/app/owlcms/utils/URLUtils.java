@@ -21,8 +21,7 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Utilities to deal with reverse proxies/balancers/forwarders when
- * reconstructing URLs
+ * Utilities to deal with reverse proxies/balancers/forwarders when reconstructing URLs
  *
  * This deals correctly with Heroku, mileage may vary.
  *

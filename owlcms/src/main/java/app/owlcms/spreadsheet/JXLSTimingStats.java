@@ -68,15 +68,6 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             return groupName;
         }
 
-        private Double getHours() {
-            Duration delta = Duration.between(minTime, maxTime);
-            if (delta.isNegative()) {
-                delta = Duration.ZERO;
-            }
-            Double hours = delta.getSeconds() / 3600.0D;
-            return hours;
-        }
-
         public LocalDateTime getMaxTime() {
             return maxTime;
         }
@@ -157,6 +148,15 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             }
 
         }
+
+        private Double getHours() {
+            Duration delta = Duration.between(minTime, maxTime);
+            if (delta.isNegative()) {
+                delta = Duration.ZERO;
+            }
+            Double hours = delta.getSeconds() / 3600.0D;
+            return hours;
+        }
     }
 
     public static String formatDuration(Duration duration) {
@@ -174,6 +174,11 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
     public JXLSTimingStats(Group group, boolean excludeNotWeighed) {
         super();
+    }
+
+    @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        return getLocalizedTemplate("/templates/timing/TimingStats", ".xls", locale);
     }
 
     @Override
@@ -223,11 +228,6 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         }
         reportingBeans.put("groups", sessions);
         return athletes;
-    }
-
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/timing/TimingStats", ".xls", locale);
     }
 
     private void processGroup(List<SessionStats> sessions, SessionStats curStat) {

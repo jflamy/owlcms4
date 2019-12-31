@@ -20,7 +20,7 @@ public class GroupLayout extends OwlcmsRouterLayout {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see app.owlcms.ui.home.OwlcmsRouterLayout#getLayoutConfiguration(com.github.
      * appreciated.app.layout.behaviour.Behaviour)
      */

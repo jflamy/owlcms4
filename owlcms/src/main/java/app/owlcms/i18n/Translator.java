@@ -85,6 +85,56 @@ public class Translator implements I18NProvider {
         return helper.getProvidedLocales();
     }
 
+    public static Enumeration<String> getKeys() {
+        return Translator.getBundleFromCSV(Locale.ENGLISH).getKeys();
+    }
+
+    public static List<String> readLine(ICsvListReader listReader) throws IOException {
+        line++;
+        return listReader.read();
+    }
+
+    /**
+     * Force a reload of the translation files
+     */
+    public static void reset() {
+        locales = null;
+        i18nloader = null;
+        logger.debug("cleared translation class loader");
+    }
+
+    public static void setForcedLocale(Locale locale) {
+        if (locale != null && getAvailableLocales().contains(locale)) {
+            Translator.forcedLocale = locale;
+        } else {
+            Translator.forcedLocale = null; // default behaviour, first forcedLocale in list will be used
+        }
+    }
+
+    public static String translate(String string) {
+        return helper.getTranslation(string, OwlcmsSession.getLocale());
+    }
+
+    public static String translate(String string, Locale locale) {
+        return helper.getTranslation(string, locale);
+    }
+
+    public static String translate(String string, Locale locale, Object... params) {
+        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
+    }
+
+    public static String translate(String string, Object... params) {
+        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
+    }
+
+    public static String translateOrElseEn(String string, Locale locale) {
+        return helper.getTranslationOrElseEn(string, locale);
+    }
+
+    public static String translateOrElseNull(String string, Locale locale) {
+        return helper.getTranslationOrElseNull(string, locale);
+    }
+
     /**
      * Return a resource bundle created by reading a CSV files. This creates properties files, and uses the standard
      * caching implementation and bundle hierarchy as defined by Java.
@@ -197,67 +247,10 @@ public class Translator implements I18NProvider {
         return ResourceBundle.getBundle(baseName, locale, i18nloader);
     }
 
-    public static Enumeration<String> getKeys() {
-        return Translator.getBundleFromCSV(Locale.ENGLISH).getKeys();
-    }
-
-    public static List<String> readLine(ICsvListReader listReader) throws IOException {
-        line++;
-        return listReader.read();
-    }
-
-    /**
-     * Force a reload of the translation files
-     */
-    public static void reset() {
-        locales = null;
-        i18nloader = null;
-        logger.debug("cleared translation class loader");
-    }
-
-    public static void setForcedLocale(Locale locale) {
-        if (locale != null && getAvailableLocales().contains(locale)) {
-            Translator.forcedLocale = locale;
-        } else {
-            Translator.forcedLocale = null; // default behaviour, first forcedLocale in list will be used
-        }
-    }
-
     private static void throwInvalidLocale(String localeString) {
         String message = MessageFormat.format("invalid locale: {0}", localeString);
         logger.error(message);
         throw new RuntimeException(message);
-    }
-
-    public static String translate(String string) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale());
-    }
-
-    public static String translate(String string, Locale locale) {
-        return helper.getTranslation(string, locale);
-    }
-
-    public static String translate(String string, Locale locale, Object... params) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
-    }
-
-    public static String translate(String string, Object... params) {
-        return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
-    }
-
-    public static String translateOrElseEn(String string, Locale locale) {
-        return helper.getTranslationOrElseEn(string, locale);
-    }
-
-    public static String translateOrElseNull(String string, Locale locale) {
-        return helper.getTranslationOrElseNull(string, locale);
-    }
-
-    private String format(String value, Object... params) {
-        if (params.length > 0) {
-            value = MessageFormat.format(value, params);
-        }
-        return value;
     }
 
     @Override
@@ -308,7 +301,7 @@ public class Translator implements I18NProvider {
 
         String value;
         try {
-            value = (String) bundle.getString(key);
+            value = bundle.getString(key);
         } catch (final MissingResourceException e) {
             PropertyResourceBundle enBundle = (PropertyResourceBundle) getBundleFromCSV(Locale.ENGLISH);
             value = (String) enBundle.handleGetObject(key);
@@ -338,6 +331,13 @@ public class Translator implements I18NProvider {
 
     public void nullTranslationKey() {
         logger/**/.warn("null translation key");
+    }
+
+    private String format(String value, Object... params) {
+        if (params.length > 0) {
+            value = MessageFormat.format(value, params);
+        }
+        return value;
     }
 
     private Locale overrideLocale(Locale locale) {

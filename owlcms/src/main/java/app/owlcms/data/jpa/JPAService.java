@@ -80,75 +80,6 @@ public class JPAService {
     }
 
     /**
-     * Entity class names.
-     *
-     * @return the list
-     */
-    protected static List<String> entityClassNames() {
-        ImmutableList<String> vals = new ImmutableList.Builder<String>().add(Group.class.getName())
-                .add(Category.class.getName()).add(Athlete.class.getName()).add(Platform.class.getName())
-                .add(Competition.class.getName()).add(AgeGroup.class.getName()).build();
-        return vals;
-    }
-
-    /**
-     * Gets the factory from code (without a persistance.xml file)
-     *
-     * @param memoryMode run from memory if true
-     * @return an entity manager factory
-     */
-    private static EntityManagerFactory getFactory(boolean memoryMode, boolean reset) {
-        Properties properties = processSettings(memoryMode, reset);
-
-        PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(JPAService.class.getSimpleName(),
-                entityClassNames(), properties);
-        Map<String, Object> configuration = new HashMap<>();
-
-        factory = new EntityManagerFactoryBuilderImpl(new PersistenceUnitInfoDescriptor(persistenceUnitInfo),
-                configuration).build();
-        return factory;
-    }
-
-    private static Properties h2FileProperties(String schemaGeneration) {
-        ImmutableMap<String, Object> vals = jpaProperties();
-        Properties props = new Properties();
-        props.putAll(vals);
-
-        props.put(JPA_JDBC_URL,
-                (dbUrl != null ? dbUrl : "jdbc:h2:file:./database/owlcms") + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
-        startLogger.debug("Starting in directory {}", System.getProperty("user.dir"));
-        props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
-        props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
-
-        props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
-        props.put(DIALECT, H2Dialect.class.getName());
-        props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
-
-        return props;
-    }
-
-    /**
-     * Properties for running in memory (used for tests and demos)
-     *
-     * @return the properties
-     */
-    protected static Properties h2MemProperties(String schemaGeneration) {
-        ImmutableMap<String, Object> vals = jpaProperties();
-        Properties props = new Properties();
-        props.putAll(vals);
-
-        // keep the database even if all the connections have timed out
-        props.put(JPA_JDBC_URL, "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
-        props.put(JPA_JDBC_USER, "sa");
-        props.put(JPA_JDBC_PASSWORD, "");
-
-        props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
-        props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
-        props.put(DIALECT, H2Dialect.class.getName());
-        return props;
-    }
-
-    /**
      * Inits the database
      *
      * @param inMemory if true, start with in-memory database
@@ -157,40 +88,6 @@ public class JPAService {
         if (factory == null) {
             factory = getFactory(inMemory, reset);
         }
-    }
-
-    private static ImmutableMap<String, Object> jpaProperties() {
-        ImmutableMap<String, Object> vals = new ImmutableMap.Builder<String, Object>().put(HBM2DDL_AUTO, "update")
-                .put(SHOW_SQL, false).put(QUERY_STARTUP_CHECKING, false).put(GENERATE_STATISTICS, false)
-                .put(USE_REFLECTION_OPTIMIZER, false).put(USE_SECOND_LEVEL_CACHE, true).put(USE_QUERY_CACHE, false)
-                .put(USE_STRUCTURED_CACHE, false).put(STATEMENT_BATCH_SIZE, 20)
-                .put(CACHE_REGION_FACTORY, "org.hibernate.cache.jcache.JCacheRegionFactory")
-                .put("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider")
-                .put("hibernate.javax.cache.missing_cache_strategy", "create")
-                .put("javax.persistence.sharedCache.mode", "ALL").put("hibernate.c3p0.min_size", 5)
-                .put("hibernate.c3p0.max_size", 20).put("hibernate.c3p0.acquire_increment", 5)
-                .put("hibernate.c3p0.timeout", 84200).put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
-                .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
-                .build();
-        return vals;
-    }
-
-    private static Properties pgProperties(String schemaGeneration) {
-        ImmutableMap<String, Object> vals = jpaProperties();
-        Properties props = new Properties();
-        props.putAll(vals);
-
-        // if running on Heroku, the following three settings will come from the
-        // environment (see processSettings)
-        props.put(JPA_JDBC_URL, dbUrl != null ? dbUrl : "jdbc:postgresql://localhost:5432/owlcms");
-        props.put(JPA_JDBC_USER, userName != null ? userName : "owlcms");
-        props.put(JPA_JDBC_PASSWORD, password != null ? password : "db_owlcms");
-
-        props.put(JPA_JDBC_DRIVER, org.postgresql.Driver.class.getName());
-        props.put(DIALECT, org.hibernate.dialect.PostgreSQL95Dialect.class.getName());
-        props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
-
-        return props;
     }
 
     public static Properties processSettings(boolean inMemory, boolean reset) throws RuntimeException {
@@ -239,6 +136,109 @@ public class JPAService {
                 entityManager.close();
             }
         }
+    }
+
+    /**
+     * Entity class names.
+     *
+     * @return the list
+     */
+    protected static List<String> entityClassNames() {
+        ImmutableList<String> vals = new ImmutableList.Builder<String>().add(Group.class.getName())
+                .add(Category.class.getName()).add(Athlete.class.getName()).add(Platform.class.getName())
+                .add(Competition.class.getName()).add(AgeGroup.class.getName()).build();
+        return vals;
+    }
+
+    /**
+     * Properties for running in memory (used for tests and demos)
+     *
+     * @return the properties
+     */
+    protected static Properties h2MemProperties(String schemaGeneration) {
+        ImmutableMap<String, Object> vals = jpaProperties();
+        Properties props = new Properties();
+        props.putAll(vals);
+
+        // keep the database even if all the connections have timed out
+        props.put(JPA_JDBC_URL, "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
+        props.put(JPA_JDBC_USER, "sa");
+        props.put(JPA_JDBC_PASSWORD, "");
+
+        props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
+        props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
+        props.put(DIALECT, H2Dialect.class.getName());
+        return props;
+    }
+
+    /**
+     * Gets the factory from code (without a persistance.xml file)
+     *
+     * @param memoryMode run from memory if true
+     * @return an entity manager factory
+     */
+    private static EntityManagerFactory getFactory(boolean memoryMode, boolean reset) {
+        Properties properties = processSettings(memoryMode, reset);
+
+        PersistenceUnitInfo persistenceUnitInfo = new PersistenceUnitInfoImpl(JPAService.class.getSimpleName(),
+                entityClassNames(), properties);
+        Map<String, Object> configuration = new HashMap<>();
+
+        factory = new EntityManagerFactoryBuilderImpl(new PersistenceUnitInfoDescriptor(persistenceUnitInfo),
+                configuration).build();
+        return factory;
+    }
+
+    private static Properties h2FileProperties(String schemaGeneration) {
+        ImmutableMap<String, Object> vals = jpaProperties();
+        Properties props = new Properties();
+        props.putAll(vals);
+
+        props.put(JPA_JDBC_URL,
+                (dbUrl != null ? dbUrl : "jdbc:h2:file:./database/owlcms") + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
+        startLogger.debug("Starting in directory {}", System.getProperty("user.dir"));
+        props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
+        props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
+
+        props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
+        props.put(DIALECT, H2Dialect.class.getName());
+        props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
+
+        return props;
+    }
+
+    private static ImmutableMap<String, Object> jpaProperties() {
+        ImmutableMap<String, Object> vals = new ImmutableMap.Builder<String, Object>().put(HBM2DDL_AUTO, "update")
+                .put(SHOW_SQL, false).put(QUERY_STARTUP_CHECKING, false).put(GENERATE_STATISTICS, false)
+                .put(USE_REFLECTION_OPTIMIZER, false).put(USE_SECOND_LEVEL_CACHE, true).put(USE_QUERY_CACHE, false)
+                .put(USE_STRUCTURED_CACHE, false).put(STATEMENT_BATCH_SIZE, 20)
+                .put(CACHE_REGION_FACTORY, "org.hibernate.cache.jcache.JCacheRegionFactory")
+                .put("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider")
+                .put("hibernate.javax.cache.missing_cache_strategy", "create")
+                .put("javax.persistence.sharedCache.mode", "ALL").put("hibernate.c3p0.min_size", 5)
+                .put("hibernate.c3p0.max_size", 20).put("hibernate.c3p0.acquire_increment", 5)
+                .put("hibernate.c3p0.timeout", 84200).put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
+                .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
+                .build();
+        return vals;
+    }
+
+    private static Properties pgProperties(String schemaGeneration) {
+        ImmutableMap<String, Object> vals = jpaProperties();
+        Properties props = new Properties();
+        props.putAll(vals);
+
+        // if running on Heroku, the following three settings will come from the
+        // environment (see processSettings)
+        props.put(JPA_JDBC_URL, dbUrl != null ? dbUrl : "jdbc:postgresql://localhost:5432/owlcms");
+        props.put(JPA_JDBC_USER, userName != null ? userName : "owlcms");
+        props.put(JPA_JDBC_PASSWORD, password != null ? password : "db_owlcms");
+
+        props.put(JPA_JDBC_DRIVER, org.postgresql.Driver.class.getName());
+        props.put(DIALECT, org.hibernate.dialect.PostgreSQL95Dialect.class.getName());
+        props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
+
+        return props;
     }
 
 }

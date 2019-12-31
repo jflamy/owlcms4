@@ -14,8 +14,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 
 /**
- * This comparator is used for the technical meeting sheet. It is based on the
- * registration category
+ * This comparator is used for the technical meeting sheet. It is based on the registration category
  *
  * @author jflamy
  *
@@ -24,7 +23,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @Override

@@ -26,13 +26,6 @@ class CategoryEditingFormFactory extends OwlcmsCrudFormFactory<Category> {
         return Category;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-    protected void bindField(HasValue field, String property, Class<?> propertyType) {
-        binder.forField(field);
-        super.bindField(field, property, propertyType);
-    }
-
     @Override
     public void delete(Category Category) {
         CategoryRepository.delete(Category);
@@ -47,6 +40,13 @@ class CategoryEditingFormFactory extends OwlcmsCrudFormFactory<Category> {
     @Override
     public Category update(Category Category) {
         return CategoryRepository.save(Category);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    protected void bindField(HasValue field, String property, Class<?> propertyType) {
+        binder.forField(field);
+        super.bindField(field, property, propertyType);
     }
 
 }

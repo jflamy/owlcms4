@@ -38,7 +38,7 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @Override
@@ -118,8 +118,7 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
     }
 
     /**
-     * Determine who ranks first. If the body weights are the same, the Athlete who
-     * reached total first is ranked first.
+     * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2
@@ -179,8 +178,7 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
     }
 
     /**
-     * Determine who ranks first. If the body weights are the same, the Athlete who
-     * reached total first is ranked first.
+     * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2
@@ -316,8 +314,7 @@ public class CombinedPointsOrderComparator extends AbstractLifterComparator impl
     }
 
     /**
-     * Determine who ranks first. If the body weights are the same, the Athlete who
-     * reached total first is ranked first.
+     * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2

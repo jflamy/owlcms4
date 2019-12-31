@@ -63,7 +63,7 @@ public class RuleViolationException extends RuntimeException {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Throwable#getLocalizedMessage()
      */
     @Override
@@ -84,7 +84,7 @@ public class RuleViolationException extends RuntimeException {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Throwable#getMessage()
      */
     @Override

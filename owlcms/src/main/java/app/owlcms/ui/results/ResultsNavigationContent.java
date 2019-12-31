@@ -63,16 +63,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     }
 
     @Override
-    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
-        return null;
-    }
-
-    @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
-    }
-
-    @Override
     public Location getLocation() {
         return this.location;
     }
@@ -88,11 +78,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     }
 
     @Override
-    protected String getTitle() {
-        return getTranslation("ResultDocuments");
-    }
-
-    @Override
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -100,6 +85,21 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+        return null;
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
+        return null;
+    }
+
+    @Override
+    protected String getTitle() {
+        return getTranslation("ResultDocuments");
     }
 
 }

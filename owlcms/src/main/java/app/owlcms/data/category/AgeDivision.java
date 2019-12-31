@@ -15,14 +15,16 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * The Enum AgeDivision.
- * 
+ *
  * Divisions are listed in registration preference order.
  */
 public enum AgeDivision {
 
-    /* the divisions are listed in preference order, from more specific to more generic*/
-    MASTERS, /** 35+ (30+ in some federations) */
-    U, /** for age groups */
+    /* the divisions are listed in preference order, from more specific to more generic */
+    MASTERS,
+    /** 35+ (30+ in some federations) */
+    U,
+    /** for age groups */
     OLY,
     IWF,
     DEFAULT, /* All ages */
@@ -30,7 +32,7 @@ public enum AgeDivision {
 
     @SuppressWarnings("unused")
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AgeDivision.class);
-    
+
     /**
      * Find all.
      *
@@ -38,7 +40,7 @@ public enum AgeDivision {
      */
     public static Collection<AgeDivision> findAll() {
         return EnumSet.of(AgeDivision.DEFAULT, AgeDivision.IWF, AgeDivision.U, AgeDivision.MASTERS);
-        //return Arrays.asList(AgeDivision.values());
+        // return Arrays.asList(AgeDivision.values());
     }
 
     /**
@@ -48,7 +50,9 @@ public enum AgeDivision {
      * @return the age division from code
      */
     static public AgeDivision getAgeDivisionFromCode(String code) {
-        if (code == null) return null;
+        if (code == null) {
+            return null;
+        }
         for (AgeDivision curAD : AgeDivision.values()) {
             if (code.equalsIgnoreCase(curAD.name())) {
                 return curAD;

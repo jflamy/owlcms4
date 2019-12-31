@@ -44,9 +44,15 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
         logger.debug("created AthleteGridLayout");
     }
 
+    @Override
+    public void showRouterLayoutContent(HasElement content) {
+        logger.debug("AthleteGridLayout setting bi-directional link");
+        super.showRouterLayoutContent(content);
+    }
+
     /**
      * Hide the menu and the default title
-     * 
+     *
      * @see app.owlcms.ui.shared.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
      */
     @Override
@@ -58,11 +64,5 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
         appLayout.getTitleWrapper().getElement().getStyle().set("display", "none");
         // .set("flex", "0 1 0px");
         return appLayout;
-    }
-
-    @Override
-    public void showRouterLayoutContent(HasElement content) {
-        logger.debug("AthleteGridLayout setting bi-directional link");
-        super.showRouterLayoutContent(content);
     }
 }

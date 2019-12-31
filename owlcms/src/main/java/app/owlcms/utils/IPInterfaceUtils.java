@@ -43,14 +43,12 @@ public class IPInterfaceUtils {
     /**
      * Try to guess URLs that can reach the system.
      *
-     * The browser on the master laptop most likely uses "localhost" in its URL. We
-     * can't know which of its available IP addresses can actually reach the
-     * application. We scan the network addresses, and try the URLs one by one,
-     * listing wired interfaces first, and wireless interfaces second (in as much as
-     * we can guess).
+     * The browser on the master laptop most likely uses "localhost" in its URL. We can't know which of its available IP
+     * addresses can actually reach the application. We scan the network addresses, and try the URLs one by one, listing
+     * wired interfaces first, and wireless interfaces second (in as much as we can guess).
      *
-     * We rely on the URL used to reach the "about" screen to know how the
-     * application is named, what port is used, and which protocol works.
+     * We rely on the URL used to reach the "about" screen to know how the application is named, what port is used, and
+     * which protocol works.
      *
      * @return HTML ("a" tags) for the various URLs that appear to work.
      */
@@ -123,13 +121,6 @@ public class IPInterfaceUtils {
         logger.trace("wireless = {} {}", wireless, wireless.size());
     }
 
-    private void checkTargetFileOk(String prefix, String targetFile) {
-        InputStream targetResource = this.getClass().getResourceAsStream(prefix + targetFile); // $NON-NLS-1$
-        if (targetResource == null) {
-            throw new RuntimeException("test resource not found " + targetFile);
-        }
-    }
-
     /**
      * @return the loopback
      */
@@ -176,10 +167,16 @@ public class IPInterfaceUtils {
         return wireless;
     }
 
+    private void checkTargetFileOk(String prefix, String targetFile) {
+        InputStream targetResource = this.getClass().getResourceAsStream(prefix + targetFile); // $NON-NLS-1$
+        if (targetResource == null) {
+            throw new RuntimeException("test resource not found " + targetFile);
+        }
+    }
+
     /**
      * @param serverString
-     * @return true if address on a local network (not routed to the internet, not a
-     *         loopback)
+     * @return true if address on a local network (not routed to the internet, not a loopback)
      */
     private boolean isLocalAddress(String serverString) {
         boolean isLocal = false;

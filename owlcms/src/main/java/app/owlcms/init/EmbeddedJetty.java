@@ -81,7 +81,8 @@ public class EmbeddedJetty {
             Throwable cause = e.getCause();
             if (cause instanceof BindException) {
                 logger.error("another server is already running on port {}\n{}", port, LoggerUtils.stackTrace(cause));
-                System.err.println("another program is already using port "+port+"; set the environment variable OWLCMS_PORT to use another port number");
+                System.err.println("another program is already using port " + port
+                        + "; set the environment variable OWLCMS_PORT to use another port number");
             } else {
                 logger.error(LoggerUtils.stackTrace());
                 System.err.println("server could not be started");

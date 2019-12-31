@@ -1511,7 +1511,6 @@ public class Athlete {
         return category;
     }
 
-
     /**
      * Gets the requested weight for attempt.
      *

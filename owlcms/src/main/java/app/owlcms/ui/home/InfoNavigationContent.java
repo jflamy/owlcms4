@@ -83,6 +83,79 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
         DebugUtils.gc();
     }
 
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("OWLCMS_Info");
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.QueryParameterReader#isIgnoreFopFromURL()
+     */
+    @Override
+    public boolean isIgnoreFopFromURL() {
+        return true;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
+    /**
+     * The left part of the top bar.
+     *
+     * @see app.owlcms.ui.shared.BaseNavigationContent#configureTopBarTitle(java.lang.String)
+     */
+    @Override
+    protected void configureTopBarTitle(String topBarTitle) {
+        AbstractLeftAppLayoutBase appLayout = getAppLayout();
+        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 40em");
+        Label label = new Label(getTitle());
+        appLayout.setTitleComponent(label);
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarFopField(java.lang.String, java.lang.String)
+     */
+    @Override
+    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+        return null;
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String, java.lang.String)
+     */
+    @Override
+    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
+        return null;
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
+     */
+    @Override
+    protected String getTitle() {
+        return getTranslation("OWLCMS_Top");
+    }
+
     private VerticalLayout buildLicense() {
         VerticalLayout license = new VerticalLayout();
         license.add(
@@ -110,81 +183,6 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
         doGroup(getTranslation("reloadTranslationInfo"), grid1, license);
 
         return license;
-    }
-
-    /**
-     * The left part of the top bar.
-     * 
-     * @see app.owlcms.ui.shared.BaseNavigationContent#configureTopBarTitle(java.lang.String)
-     */
-    @Override
-    protected void configureTopBarTitle(String topBarTitle) {
-        AbstractLeftAppLayoutBase appLayout = getAppLayout();
-        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 40em");
-        Label label = new Label(getTitle());
-        appLayout.setTitleComponent(label);
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarFopField(java.lang.String,
-     *      java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
-        return null;
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String,
-     *      java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
-    }
-
-    @Override
-    public Location getLocation() {
-        return this.location;
-    }
-
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("OWLCMS_Info");
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
-     */
-    @Override
-    protected String getTitle() {
-        return getTranslation("OWLCMS_Top");
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.QueryParameterReader#isIgnoreFopFromURL()
-     */
-    @Override
-    public boolean isIgnoreFopFromURL() {
-        return true;
-    }
-
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
     }
 
 }

@@ -37,20 +37,19 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
         return Boolean.TRUE.equals(getModel().isPublicFacing());
     }
 
+    public void setPublicFacing(boolean publicFacing) {
+        getModel().setPublicFacing(publicFacing);
+    }
+
     /*
      * (non-Javadoc)
-     * 
-     * @see app.owlcms.displays.attemptboard.AttemptBoard#onAttach(com.vaadin.flow.
-     * component.AttachEvent)
+     *
+     * @see app.owlcms.displays.attemptboard.AttemptBoard#onAttach(com.vaadin.flow. component.AttachEvent)
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         decisions.setPublicFacing(false);
-    }
-
-    public void setPublicFacing(boolean publicFacing) {
-        getModel().setPublicFacing(publicFacing);
     }
 
     private void setShowBarbell(boolean b) {

@@ -23,8 +23,7 @@ import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Play a sampled sound. Requires an uncompressed format (WAV), not a compressed
- * (MP3) format.
+ * Play a sampled sound. Requires an uncompressed format (WAV), not a compressed (MP3) format.
  *
  * @author jflamy
  */

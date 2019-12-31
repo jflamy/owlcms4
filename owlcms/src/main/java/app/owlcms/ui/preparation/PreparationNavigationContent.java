@@ -74,8 +74,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button athletes = new Button(getTranslation("EditAthletes"),
                 buttonClickEvent -> UI.getCurrent().navigate(RegistrationContent.class));
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups, 
-//                categories, 
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups,
+//                categories,
                 groups, platforms,
                 downloadDiv, upload);
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
@@ -86,16 +86,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         doGroup(getTranslation("EditAthletes_Groups"), grid3, this);
 
         DebugUtils.gc();
-    }
-
-    @Override
-    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
-        return null;
-    }
-
-    @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
     }
 
     @Override
@@ -117,11 +107,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
     }
 
     @Override
-    protected String getTitle() {
-        return getTranslation("PrepareCompetition");
-    }
-
-    @Override
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -129,6 +114,21 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+        return null;
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
+        return null;
+    }
+
+    @Override
+    protected String getTitle() {
+        return getTranslation("PrepareCompetition");
     }
 
 }

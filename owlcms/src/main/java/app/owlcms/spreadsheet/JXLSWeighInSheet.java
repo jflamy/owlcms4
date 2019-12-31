@@ -41,6 +41,11 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
     }
 
     @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        return getLocalizedTemplate("/templates/weighin/WeighInSheetTemplate", ".xls", locale);
+    }
+
+    @Override
     protected List<Athlete> getSortedAthletes() {
         final Group currentGroup = getGroup();
         if (currentGroup != null) {
@@ -50,11 +55,6 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
             return AthleteSorter
                     .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed()));
         }
-    }
-
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/weighin/WeighInSheetTemplate", ".xls", locale);
     }
 
 }

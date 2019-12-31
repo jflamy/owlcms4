@@ -33,9 +33,8 @@ import ch.qos.logback.classic.Logger;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
- * Encapsulate a spreadsheet as a StreamSource so that it can be used as a
- * source of data when the user clicks on a link. This class converts the output
- * stream to an input stream that the vaadin framework can consume.
+ * Encapsulate a spreadsheet as a StreamSource so that it can be used as a source of data when the user clicks on a
+ * link. This class converts the output stream to an input stream that the vaadin framework can consume.
  */
 @SuppressWarnings("serial")
 public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
@@ -62,7 +61,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     /**
      * Read the xls template and write the processed XLS file out.
-     * 
+     *
      * @see com.vaadin.flow.server.StreamResourceWriter#accept(java.io.OutputStream,
      *      com.vaadin.flow.server.VaadinSession)
      */
@@ -94,43 +93,13 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         }
     }
 
-    protected void configureTransformer(XLSTransformer transformer) {
-        // do nothing, to be overridden as needed,
-    }
-
     public Group getGroup() {
         return group;
-    }
-
-    /**
-     * Try the possible variations of a template based on locale. For
-     * "/templates/start/startList", ".xls", and a locale of fr_CA, the following
-     * names will be tried /templates/start/startList_fr_CA.xls
-     * /templates/start/startList_fr.xls /templates/start/startList_en.xls
-     *
-     * @param templateName
-     * @param extension
-     * @param locale
-     * @return
-     * @throws IOException
-     */
-    protected InputStream getLocalizedTemplate(String templateName, String extension, Locale locale)
-            throws IOException {
-        List<String> tryList = getSuffixes(locale);
-        for (String suffix : tryList) {
-            final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName + suffix + extension);
-            if (resourceAsStream != null) {
-                return resourceAsStream;
-            }
-        }
-        throw new IOException("no template found for : " + templateName + extension + " tried with suffix " + tryList);
     }
 
     public HashMap<String, Object> getReportingBeans() {
         return reportingBeans;
     }
-
-    protected abstract List<Athlete> getSortedAthletes();
 
     public List<String> getSuffixes(Locale locale) {
         List<String> tryList = new ArrayList<>();
@@ -155,16 +124,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     abstract public InputStream getTemplate(Locale locale) throws IOException;
 
-    protected void init() {
-        setReportingBeans(new HashMap<String, Object>());
-    }
-
     public boolean isExcludeNotWeighed() {
         return excludeNotWeighed;
-    }
-
-    protected void postProcess(Workbook workbook) {
-        // do nothing, to be overridden as needed,
     }
 
     public void setExcludeNotWeighed(boolean excludeNotWeighed) {
@@ -177,22 +138,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
 
     public void setReportingBeans(HashMap<String, Object> jXLSBeans) {
         this.reportingBeans = jXLSBeans;
-    }
-
-    /**
-     * Return athletes as required by the template.
-     */
-    protected void setReportingInfo() {
-        List<Athlete> athletes = getSortedAthletes();
-        if (athletes != null) {
-            getReportingBeans().put("athletes", athletes);
-            getReportingBeans().put("lifters", athletes); // legacy
-        }
-        Competition competition = Competition.getCurrent();
-        getReportingBeans().put("competition", competition);
-        getReportingBeans().put("session", getGroup()); // legacy
-        getReportingBeans().put("group", getGroup());
-        getReportingBeans().put("masters", Competition.getCurrent().isMasters());
     }
 
     /**
@@ -222,5 +167,58 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         blank.setBorderBottom(BorderStyle.NONE);
         cellLeft.setCellStyle(blank);
         cellRight.setCellStyle(blank);
+    }
+
+    protected void configureTransformer(XLSTransformer transformer) {
+        // do nothing, to be overridden as needed,
+    }
+
+    /**
+     * Try the possible variations of a template based on locale. For "/templates/start/startList", ".xls", and a locale
+     * of fr_CA, the following names will be tried /templates/start/startList_fr_CA.xls
+     * /templates/start/startList_fr.xls /templates/start/startList_en.xls
+     *
+     * @param templateName
+     * @param extension
+     * @param locale
+     * @return
+     * @throws IOException
+     */
+    protected InputStream getLocalizedTemplate(String templateName, String extension, Locale locale)
+            throws IOException {
+        List<String> tryList = getSuffixes(locale);
+        for (String suffix : tryList) {
+            final InputStream resourceAsStream = this.getClass().getResourceAsStream(templateName + suffix + extension);
+            if (resourceAsStream != null) {
+                return resourceAsStream;
+            }
+        }
+        throw new IOException("no template found for : " + templateName + extension + " tried with suffix " + tryList);
+    }
+
+    protected abstract List<Athlete> getSortedAthletes();
+
+    protected void init() {
+        setReportingBeans(new HashMap<String, Object>());
+    }
+
+    protected void postProcess(Workbook workbook) {
+        // do nothing, to be overridden as needed,
+    }
+
+    /**
+     * Return athletes as required by the template.
+     */
+    protected void setReportingInfo() {
+        List<Athlete> athletes = getSortedAthletes();
+        if (athletes != null) {
+            getReportingBeans().put("athletes", athletes);
+            getReportingBeans().put("lifters", athletes); // legacy
+        }
+        Competition competition = Competition.getCurrent();
+        getReportingBeans().put("competition", competition);
+        getReportingBeans().put("session", getGroup()); // legacy
+        getReportingBeans().put("group", getGroup());
+        getReportingBeans().put("masters", Competition.getCurrent().isMasters());
     }
 }

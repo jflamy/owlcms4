@@ -61,6 +61,21 @@ public class Main {
 
     public static String productionMode;
 
+    public static void disableWarning() {
+        // https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
+        try {
+            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
+            Unsafe u = (Unsafe) theUnsafe.get(null);
+
+            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            Field logger = cls.getDeclaredField("logger");
+            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
     /**
      * return true if OWLCMS_KEY = true as an environment variable, and if not, if -Dkey=true as a system property.
      *
@@ -68,7 +83,7 @@ public class Main {
      * <ul>
      * <li>OWMCMS_PORT=80 is the same as -Dport=80
      * </ul>
-     * 
+     *
      * @param key
      * @return true if value is found and exactly "true"
      */
@@ -99,6 +114,63 @@ public class Main {
             return val;
         } else {
             return System.getProperty(key);
+        }
+    }
+
+    /**
+     * The main method.
+     *
+     * @param args the arguments
+     * @throws Exception the exception
+     */
+    public static void main(String... args) throws Exception {
+
+        try {
+            init();
+            new EmbeddedJetty().run(serverPort, "/");
+        } finally {
+            tearDown();
+        }
+    }
+
+    public static boolean openBrowser(Desktop desktop, String hostName)
+            throws MalformedURLException, IOException, ProtocolException, URISyntaxException {
+        if (hostName == null) {
+            return false;
+        }
+
+        int response;
+        URL testingURL = new URL("http", hostName, serverPort, "/sounds/timeOver.mp3");
+        HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
+        logger.debug("checking for {}", testingURL.toExternalForm());
+        huc.setRequestMethod("GET");
+        huc.connect();
+        int response1 = huc.getResponseCode();
+        response = response1;
+        if (response == 200) {
+            URL appURL = new URL("http", hostName, serverPort, "");
+            desktop.browse(appURL.toURI());
+            return true;
+        }
+        return false;
+    }
+
+    public static void startBrowser() {
+        if (Desktop.isDesktopSupported()) {
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                InetAddress localMachine = InetAddress.getLocalHost();
+                String hostName = localMachine.getHostName();
+
+                boolean opened = openBrowser(desktop, hostName);
+                if (!opened) {
+                    openBrowser(desktop, "127.0.0.1");
+                }
+            } catch (Exception e) {
+                logger.error(LoggerUtils.stackTrace(e));
+            }
+        } else {
+            logger.debug("no browser support");
         }
     }
 
@@ -150,6 +222,22 @@ public class Main {
         return;
     }
 
+    protected static void logStart() throws IOException, ParseException {
+        InputStream in = Main.class.getResourceAsStream("/build.properties");
+        Properties props = new Properties();
+        props.load(in);
+        String version = props.getProperty("version");
+        OwlcmsFactory.setVersion(version);
+        String buildTimestamp = props.getProperty("buildTimestamp");
+        OwlcmsFactory.setBuildTimestamp(buildTimestamp);
+        String buildZone = props.getProperty("buildZone");
+        logger.info("owlcms {} built {} ({})", version, buildTimestamp, buildZone);
+    }
+
+    protected static void tearDown() {
+        JPAService.close();
+    }
+
     private static void injectData(boolean demoMode, boolean devMode, boolean testMode, boolean masters,
             Locale locale) {
         Locale l = (locale == null ? Locale.ENGLISH : locale);
@@ -185,56 +273,6 @@ public class Main {
         } finally {
             Translator.setForcedLocale(locale);
         }
-    }
-
-    protected static void logStart() throws IOException, ParseException {
-        InputStream in = Main.class.getResourceAsStream("/build.properties");
-        Properties props = new Properties();
-        props.load(in);
-        String version = props.getProperty("version");
-        OwlcmsFactory.setVersion(version);
-        String buildTimestamp = props.getProperty("buildTimestamp");
-        OwlcmsFactory.setBuildTimestamp(buildTimestamp);
-        String buildZone = props.getProperty("buildZone");
-        logger.info("owlcms {} built {} ({})", version, buildTimestamp, buildZone);
-    }
-
-    /**
-     * The main method.
-     *
-     * @param args the arguments
-     * @throws Exception the exception
-     */
-    public static void main(String... args) throws Exception {
-
-        try {
-            init();
-            new EmbeddedJetty().run(serverPort, "/");
-        } finally {
-            tearDown();
-        }
-    }
-
-    public static boolean openBrowser(Desktop desktop, String hostName)
-            throws MalformedURLException, IOException, ProtocolException, URISyntaxException {
-        if (hostName == null) {
-            return false;
-        }
-
-        int response;
-        URL testingURL = new URL("http", hostName, serverPort, "/sounds/timeOver.mp3");
-        HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
-        logger.debug("checking for {}", testingURL.toExternalForm());
-        huc.setRequestMethod("GET");
-        huc.connect();
-        int response1 = huc.getResponseCode();
-        response = response1;
-        if (response == 200) {
-            URL appURL = new URL("http", hostName, serverPort, "");
-            desktop.browse(appURL.toURI());
-            return true;
-        }
-        return false;
     }
 
     private static Locale overrideDisplayLanguage() {
@@ -292,44 +330,6 @@ public class Main {
         productionMode = npmMode ? "false" : "true";
 
         masters = getBooleanParam("masters");
-    }
-
-    public static void startBrowser() {
-        if (Desktop.isDesktopSupported()) {
-            Desktop desktop = Desktop.getDesktop();
-            try {
-                InetAddress localMachine = InetAddress.getLocalHost();
-                String hostName = localMachine.getHostName();
-
-                boolean opened = openBrowser(desktop, hostName);
-                if (!opened) {
-                    openBrowser(desktop, "127.0.0.1");
-                }
-            } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
-            }
-        } else {
-            logger.debug("no browser support");
-        }
-    }
-
-    protected static void tearDown() {
-        JPAService.close();
-    }
-
-    public static void disableWarning() {
-        // https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
-        try {
-            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-            theUnsafe.setAccessible(true);
-            Unsafe u = (Unsafe) theUnsafe.get(null);
-
-            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
-            Field logger = cls.getDeclaredField("logger");
-            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
-        } catch (Exception e) {
-            // ignore
-        }
     }
 
 }

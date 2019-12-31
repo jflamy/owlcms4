@@ -40,6 +40,11 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
     }
 
     @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        return getLocalizedTemplate("/templates/cards/CardTemplate", ".xls", locale);
+    }
+
+    @Override
     protected List<Athlete> getSortedAthletes() {
         if (getGroup() != null) {
             List<Athlete> registrationOrderCopy = AthleteSorter
@@ -52,16 +57,10 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
         }
     }
 
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/cards/CardTemplate", ".xls", locale);
-    }
-
     /*
      * (non-Javadoc)
      *
-     * @see
-     * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
      * postProcess(org.apache.poi.ss.usermodel.Workbook)
      */
     @Override

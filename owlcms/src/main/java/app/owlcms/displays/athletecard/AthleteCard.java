@@ -58,12 +58,10 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
     /**
      * AthleteCardModel
      *
-     * Vaadin Flow propagates these variables to the corresponding Polymer template
-     * JavaScript properties. When the JS properties are changed, a
-     * "propname-changed" event is triggered.
+     * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS
+     * properties are changed, a "propname-changed" event is triggered.
      *
-     * {@link Element.#addPropertyChangeListener(String, String,
-     * com.vaadin.flow.dom.PropertyChangeListener)}
+     * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
      */
     public interface AthleteCardModel extends TemplateModel {
 
@@ -154,22 +152,35 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
         return getTranslation("AthleteCard");
     }
 
-    private void init() {
-        setTranslationMap();
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
 
-        Button button = new Button(getTranslation("Print"));
-        button.setThemeName("primary success");
-        button.getElement().setAttribute("onClick", "window.print()");
-        HorizontalLayout banner = new HorizontalLayout(button);
-        banner.setJustifyContentMode(JustifyContentMode.END);
-        banner.setPadding(true);
-        banner.setClassName("printing");
-        getElement().getParent().appendChild(banner.getElement());
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     */
+    @Override
+    public void setParameter(BeforeEvent event, String parameter) {
+        long id = Long.parseLong(parameter);
+        this.athlete = AthleteRepository.findById(id);
+    }
+
+    public int zeroIfInvalid(String v) {
+        try {
+            return Integer.parseInt(v);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-     * AttachEvent)
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
@@ -181,7 +192,7 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
         model.setBodyWeight(String.format("%.2f", athlete.getBodyWeight()));
         AgeGroup ageGroup = athlete.getAgeGroup();
         model.setAgeGroup(ageGroup != null ? ageGroup.getName() : "");
-        model.setAgeDivision(ageGroup != null ? getTranslation("Division."+ageGroup.getAgeDivision().name()) : "");
+        model.setAgeDivision(ageGroup != null ? getTranslation("Division." + ageGroup.getAgeDivision().name()) : "");
         Integer yearOfBirth = athlete.getYearOfBirth();
         if (yearOfBirth != null && yearOfBirth > 1900) {
             model.setBirth(yearOfBirth.toString());
@@ -232,26 +243,6 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
         }
     }
 
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
-     *      java.lang.String)
-     */
-    @Override
-    public void setParameter(BeforeEvent event, String parameter) {
-        long id = Long.parseLong(parameter);
-        this.athlete = AthleteRepository.findById(id);
-    }
-
     protected void setTranslationMap() {
         JsonObject translations = Json.createObject();
         Enumeration<String> keys = Translator.getKeys();
@@ -264,12 +255,17 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
         this.getElement().setPropertyJson("t", translations);
     }
 
-    public int zeroIfInvalid(String v) {
-        try {
-            return Integer.parseInt(v);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+    private void init() {
+        setTranslationMap();
+
+        Button button = new Button(getTranslation("Print"));
+        button.setThemeName("primary success");
+        button.getElement().setAttribute("onClick", "window.print()");
+        HorizontalLayout banner = new HorizontalLayout(button);
+        banner.setJustifyContentMode(JustifyContentMode.END);
+        banner.setPadding(true);
+        banner.setClassName("printing");
+        getElement().getParent().appendChild(banner.getElement());
     }
 
 }

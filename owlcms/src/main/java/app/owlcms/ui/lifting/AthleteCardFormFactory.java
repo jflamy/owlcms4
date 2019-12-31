@@ -310,18 +310,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
     }
 
     /**
-     * Update the original athlete so that the lifting order picks up the change.
-     */
-    private void doUpdate() {
-        Athlete.copy(originalAthlete, getEditedAthlete());
-        AthleteRepository.save(originalAthlete);
-        OwlcmsSession.withFop((fop) -> {
-            fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
-        });
-        origin.closeDialog();
-    }
-
-    /**
      * @see app.owlcms.ui.shared.CustomFormFactory#findAll()
      */
     @Override
@@ -692,6 +680,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         tf.setPreventInvalidInput(true);
         tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
         return tf;
+    }
+
+    /**
+     * Update the original athlete so that the lifting order picks up the change.
+     */
+    private void doUpdate() {
+        Athlete.copy(originalAthlete, getEditedAthlete());
+        AthleteRepository.save(originalAthlete);
+        OwlcmsSession.withFop((fop) -> {
+            fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
+        });
+        origin.closeDialog();
     }
 
     private Athlete getEditedAthlete() {

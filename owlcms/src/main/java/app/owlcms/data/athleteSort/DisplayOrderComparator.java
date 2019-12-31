@@ -12,8 +12,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 
 /**
- * This comparator is used for the standard display board. It returns the same
- * order throughout the competition.
+ * This comparator is used for the standard display board. It returns the same order throughout the competition.
  *
  * @author jflamy
  *
@@ -22,7 +21,7 @@ public class DisplayOrderComparator extends AbstractLifterComparator implements 
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @Override

@@ -69,20 +69,18 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
     private Anchor jury;
     private Button juryButton;
 
-    private void clearStartNumbers() {
-        Group group = groupSelect.getValue();
-        if (group == null) {
-            errorNotification();
-            return;
-        }
-        JPAService.runInTransaction((em) -> {
-            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null);
-            for (Athlete a : currentGroupAthletes) {
-                a.setStartNumber(0);
-            }
-            return currentGroupAthletes;
-        });
-        ((WeighinContent) getLayoutComponentContent()).refresh();
+    /**
+     * The layout is created before the content. This routine has created the content, we can refer to the content using
+     * {@link #getLayoutComponentContent()} and the content can refer to us via
+     * {@link AppLayoutContent#getParentLayout()}
+     *
+     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
+     */
+    @Override
+    public void showRouterLayoutContent(HasElement content) {
+        super.showRouterLayoutContent(content);
+        WeighinContent weighinContent = (WeighinContent) getLayoutComponentContent();
+        gridGroupFilter = weighinContent.getGroupFilter();
     }
 
     /**
@@ -90,8 +88,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
      *
      * Note: the top bar is created before the content.
      *
-     * @see #showRouterLayoutContent(HasElement) for how to content to layout and
-     *      vice-versa
+     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
      *
      * @param topBar
      */
@@ -186,21 +183,6 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         notification.open();
     }
 
-    private void generateStartNumbers() {
-        Group group = groupSelect.getValue();
-        if (group == null) {
-            errorNotification();
-            return;
-        }
-        JPAService.runInTransaction((em) -> {
-            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true);
-            AthleteSorter.displayOrder(currentGroupAthletes);
-            AthleteSorter.assignStartNumbers(currentGroupAthletes);
-            return currentGroupAthletes;
-        });
-        ((WeighinContent) getLayoutComponentContent()).refresh();
-    }
-
     /*
      * (non-Javadoc)
      *
@@ -223,18 +205,34 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         gridGroupFilter.setValue(e.getValue());
     }
 
-    /**
-     * The layout is created before the content. This routine has created the
-     * content, we can refer to the content using
-     * {@link #getLayoutComponentContent()} and the content can refer to us via
-     * {@link AppLayoutContent#getParentLayout()}
-     *
-     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
-     */
-    @Override
-    public void showRouterLayoutContent(HasElement content) {
-        super.showRouterLayoutContent(content);
-        WeighinContent weighinContent = (WeighinContent) getLayoutComponentContent();
-        gridGroupFilter = weighinContent.getGroupFilter();
+    private void clearStartNumbers() {
+        Group group = groupSelect.getValue();
+        if (group == null) {
+            errorNotification();
+            return;
+        }
+        JPAService.runInTransaction((em) -> {
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null);
+            for (Athlete a : currentGroupAthletes) {
+                a.setStartNumber(0);
+            }
+            return currentGroupAthletes;
+        });
+        ((WeighinContent) getLayoutComponentContent()).refresh();
+    }
+
+    private void generateStartNumbers() {
+        Group group = groupSelect.getValue();
+        if (group == null) {
+            errorNotification();
+            return;
+        }
+        JPAService.runInTransaction((em) -> {
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true);
+            AthleteSorter.displayOrder(currentGroupAthletes);
+            AthleteSorter.assignStartNumbers(currentGroupAthletes);
+            return currentGroupAthletes;
+        });
+        ((WeighinContent) getLayoutComponentContent()).refresh();
     }
 }

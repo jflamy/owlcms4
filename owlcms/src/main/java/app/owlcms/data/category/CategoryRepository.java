@@ -97,63 +97,6 @@ public class CategoryRepository {
         return resultList;
     }
 
-    private static String filteringJoins(AgeGroup ag, Integer age) {
-        List<String> fromList = new LinkedList<>();
-        //if (ag != null || age != null) {
-            fromList.add("join c.ageGroup ag"); // group is via a relationship, join on id
-        //}
-        if (fromList.size() == 0) {
-            return "";
-        } else {
-            return String.join(" ", fromList);
-        }
-    }
-
-    private static String filteringSelection(String name, Gender gender, AgeDivision ageDivision, AgeGroup ageGroup,
-            Integer age, Double bodyWeight, Boolean active) {
-        String joins = filteringJoins(ageGroup, age);
-        String where = filteringWhere(name, ageDivision, ageGroup, age, bodyWeight, gender, active);
-        String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
-        return selection;
-    }
-
-    private static String filteringWhere(String name, AgeDivision ageDivision, AgeGroup ageGroup, Integer age,
-            Double bodyWeight, Gender gender, Boolean active) {
-        List<String> whereList = new LinkedList<>();
-        if (ageDivision != null) {
-            whereList.add("c.ageGroup.ageDivision = :division");
-        }
-        if (name != null && name.trim().length() > 0) {
-            whereList.add("lower(c.name) like :name");
-        }
-        if (active != null && active) {
-            // must be active in an active age group
-            //whereList.add("(c.active = :active) and (ag.active = :active)");
-            whereList.add("(ag.active = :active)");
-        }
-        if (gender != null) {
-            whereList.add("c.gender = :gender");
-        }
-        // because there is exactly one ageGroup following could be done with
-        // c.ageGroup.id = :ageGroupId
-        if (ageGroup != null) {
-            whereList.add("ag.id = :ageGroupId"); // group is via a relationship, select the joined id.
-        }
-        // because there is exactly one ageGroup following could test on
-        // c.ageGroup.minAge and maxAge
-        if (age != null) {
-            whereList.add("(ag.minAge <= :age) and (ag.maxAge >= :age)");
-        }
-        if (bodyWeight != null) {
-            whereList.add("(c.minimumWeight < :bodyWeight) and (c.maximumWeight >= :bodyWeight)");
-        }
-        if (whereList.size() == 0) {
-            return null;
-        } else {
-            return String.join(" and ", whereList);
-        }
-    }
-
     /**
      * @return active categories
      */
@@ -262,6 +205,63 @@ public class CategoryRepository {
      */
     public static Category save(Category Category) {
         return JPAService.runInTransaction(em -> em.merge(Category));
+    }
+
+    private static String filteringJoins(AgeGroup ag, Integer age) {
+        List<String> fromList = new LinkedList<>();
+        // if (ag != null || age != null) {
+        fromList.add("join c.ageGroup ag"); // group is via a relationship, join on id
+        // }
+        if (fromList.size() == 0) {
+            return "";
+        } else {
+            return String.join(" ", fromList);
+        }
+    }
+
+    private static String filteringSelection(String name, Gender gender, AgeDivision ageDivision, AgeGroup ageGroup,
+            Integer age, Double bodyWeight, Boolean active) {
+        String joins = filteringJoins(ageGroup, age);
+        String where = filteringWhere(name, ageDivision, ageGroup, age, bodyWeight, gender, active);
+        String selection = (joins != null ? " " + joins : "") + (where != null ? " where " + where : "");
+        return selection;
+    }
+
+    private static String filteringWhere(String name, AgeDivision ageDivision, AgeGroup ageGroup, Integer age,
+            Double bodyWeight, Gender gender, Boolean active) {
+        List<String> whereList = new LinkedList<>();
+        if (ageDivision != null) {
+            whereList.add("c.ageGroup.ageDivision = :division");
+        }
+        if (name != null && name.trim().length() > 0) {
+            whereList.add("lower(c.name) like :name");
+        }
+        if (active != null && active) {
+            // must be active in an active age group
+            // whereList.add("(c.active = :active) and (ag.active = :active)");
+            whereList.add("(ag.active = :active)");
+        }
+        if (gender != null) {
+            whereList.add("c.gender = :gender");
+        }
+        // because there is exactly one ageGroup following could be done with
+        // c.ageGroup.id = :ageGroupId
+        if (ageGroup != null) {
+            whereList.add("ag.id = :ageGroupId"); // group is via a relationship, select the joined id.
+        }
+        // because there is exactly one ageGroup following could test on
+        // c.ageGroup.minAge and maxAge
+        if (age != null) {
+            whereList.add("(ag.minAge <= :age) and (ag.maxAge >= :age)");
+        }
+        if (bodyWeight != null) {
+            whereList.add("(c.minimumWeight < :bodyWeight) and (c.maximumWeight >= :bodyWeight)");
+        }
+        if (whereList.size() == 0) {
+            return null;
+        } else {
+            return String.join(" and ", whereList);
+        }
     }
 
     private static void setFilteringParameters(String name, Gender gender, AgeDivision ageDivision, AgeGroup ageGroup,

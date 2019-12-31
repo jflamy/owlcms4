@@ -30,8 +30,8 @@ public enum FOPState {
 //	TIMEKEEPER_WAITING_FOR_ANNOUNCER,
 
     /**
-     * time is running. Either automatically started on announce (if using the
-     * default "start on announce", or manually by timekeeper (in traditional mode)
+     * time is running. Either automatically started on announce (if using the default "start on announce", or manually
+     * by timekeeper (in traditional mode)
      */
     TIME_RUNNING,
 

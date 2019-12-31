@@ -77,11 +77,35 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         logger.trace("LiftingNavigationContent constructor stop");
     }
 
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("OWLCMS_Lifting");
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
     /*
      * (non-Javadoc)
      *
-     * @see app.owlcms.ui.home.BaseNavigationContent#createTopBarFopField(java.lang.
-     * String, java.lang.String)
+     * @see app.owlcms.ui.home.BaseNavigationContent#createTopBarFopField(java.lang. String, java.lang.String)
      */
     @Override
     protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
@@ -102,33 +126,8 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
     }
 
     @Override
-    public Location getLocation() {
-        return this.location;
-    }
-
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
-
-    @Override
-    public String getPageTitle() {
-        return getTranslation("OWLCMS_Lifting");
-    }
-
-    @Override
     protected String getTitle() {
         return getTranslation("RunLiftingGroup");
-    }
-
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
     }
 
 }

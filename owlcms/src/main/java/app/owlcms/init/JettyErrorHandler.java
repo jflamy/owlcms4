@@ -22,9 +22,8 @@ public class JettyErrorHandler extends DefaultErrorHandler {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see com.vaadin.flow.server.DefaultErrorHandler#error(com.vaadin.flow.server.
-     * ErrorEvent)
+     *
+     * @see com.vaadin.flow.server.DefaultErrorHandler#error(com.vaadin.flow.server. ErrorEvent)
      */
     @Override
     public void error(ErrorEvent event) {

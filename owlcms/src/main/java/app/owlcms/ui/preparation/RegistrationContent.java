@@ -76,7 +76,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     private ComboBox<Group> groupFilter = new ComboBox<>();
     private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
 
-
     private OwlcmsRouterLayout routerLayout;
     private OwlcmsCrudGrid<Athlete> crudGrid;
     private OwlcmsCrudFormFactory<Athlete> crudFormFactory;
@@ -97,6 +96,81 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         return Athlete;
     }
 
+    @Override
+    public void delete(Athlete Athlete) {
+        crudFormFactory.delete(Athlete);
+        return;
+    }
+
+    public Collection<Athlete> doFindAll(EntityManager em) {
+        List<Athlete> all = AthleteRepository.doFindFiltered(em, lastNameFilter.getValue(), groupFilter.getValue(),
+                categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
+                weighedInFilter.getValue(), -1, -1);
+        return all;
+    }
+
+    /**
+     * The refresh button on the toolbar; also called by refreshGrid when the group is changed.
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     */
+    @Override
+    public Collection<Athlete> findAll() {
+        List<Athlete> all = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
+                categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
+                weighedInFilter.getValue(), -1, -1);
+        return all;
+    }
+
+    /**
+     * @return the groupFilter
+     */
+    public ComboBox<Group> getGroupFilter() {
+        return groupFilter;
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Preparation_Registration");
+    }
+
+//    private Collection<Athlete> doExtraFiltering(List<Athlete> all) {
+//        String filterValue = ageGroupFilter != null ? ageGroupFilter.getValue() : null;
+//        if (filterValue == null) {
+//            return all;
+//        } else {
+//            List<Athlete> some = all.stream().filter(a -> a.getMastersAgeGroup().startsWith(filterValue))
+//                    .collect(Collectors.toList());
+//            return some;
+//        }
+//    }
+
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
+
+    public void refresh() {
+        crudGrid.refreshGrid();
+    }
+
+    public void refreshCrudGrid() {
+        crudGrid.refreshGrid();
+    }
+
+    @Override
+    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
+
+    @Override
+    public Athlete update(Athlete Athlete) {
+        return crudFormFactory.update(Athlete);
+    }
+
     /**
      * Define the form used to edit a given athlete.
      *
@@ -106,78 +180,6 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         OwlcmsCrudFormFactory<Athlete> athleteEditingFormFactory = new AthleteRegistrationFormFactory(Athlete.class);
         createFormLayout(athleteEditingFormFactory);
         return athleteEditingFormFactory;
-    }
-
-    /**
-     * The content and ordering of the editing form
-     *
-     * @param crudFormFactory the factory that will create the form using this
-     *                        information
-     */
-    private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-        List<String> props = new LinkedList<>();
-        List<String> captions = new LinkedList<>();
-
-        props.add("lastName");
-        captions.add(getTranslation("LastName"));
-        props.add("firstName");
-        captions.add(getTranslation("FirstName"));
-        props.add("gender");
-        captions.add(getTranslation("Gender"));
-        props.add("team");
-        captions.add(getTranslation("Team"));
-
-        Competition competition = Competition.getCurrent();
-        if (competition.isUseBirthYear()) {
-            props.add("yearOfBirth");
-            captions.add(getTranslation("YearOfBirth"));
-        } else {
-            props.add("fullBirthDate");
-            captions.add(getTranslation("BirthDate_yyyy"));
-        }
-        props.add("membership");
-        captions.add(getTranslation("Membership"));
-
-        props.add("bodyWeight");
-        captions.add(getTranslation("BodyWeight"));
-        props.add("category");
-        captions.add(getTranslation("Category"));
-        props.add("snatch1Declaration");
-        captions.add(getTranslation("SnatchDecl_"));
-        props.add("cleanJerk1Declaration");
-        captions.add(getTranslation("C_and_J_decl"));
-        props.add("group");
-        captions.add(getTranslation("Group"));
-        props.add("qualifyingTotal");
-        captions.add(getTranslation("EntryTotal"));
-
-        props.add("lotNumber");
-        captions.add(getTranslation("Lot"));
-        props.add("eligibleForIndividualRanking");
-        captions.add(getTranslation("Eligible for Individual Ranking?"));
-
-        crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
-        crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
-
-        crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
-                Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
-        crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
-                GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
-        crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
-                CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
-        crudFormFactory.setFieldProvider("ageDivision",
-                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
-                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
-
-        crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
-        crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
-
-        // ValidationTextField (or a wrapper) must be used as workaround for unexplained
-        // validation behaviour
-        crudFormFactory.setFieldType("snatch1Declaration", ValidationTextField.class);
-        crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
-        crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
-        crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
     }
 
     /**
@@ -287,82 +289,79 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     }
 
     @Override
-    public void delete(Athlete Athlete) {
-        crudFormFactory.delete(Athlete);
-        return;
-    }
-
-//    private Collection<Athlete> doExtraFiltering(List<Athlete> all) {
-//        String filterValue = ageGroupFilter != null ? ageGroupFilter.getValue() : null;
-//        if (filterValue == null) {
-//            return all;
-//        } else {
-//            List<Athlete> some = all.stream().filter(a -> a.getMastersAgeGroup().startsWith(filterValue))
-//                    .collect(Collectors.toList());
-//            return some;
-//        }
-//    }
-
-    public Collection<Athlete> doFindAll(EntityManager em) {
-        List<Athlete> all = AthleteRepository.doFindFiltered(em, lastNameFilter.getValue(), groupFilter.getValue(),
-                categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
-        return all;
-    }
-
-    /**
-     * The refresh button on the toolbar; also called by refreshGrid when the group
-     * is changed.
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-    @Override
-    public Collection<Athlete> findAll() {
-        List<Athlete> all = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
-                categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
-        return all;
-    }
-
-    /**
-     * @return the groupFilter
-     */
-    public ComboBox<Group> getGroupFilter() {
-        return groupFilter;
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Preparation_Registration");
-    }
-
-    @Override
-    public OwlcmsRouterLayout getRouterLayout() {
-        return routerLayout;
-    }
-
-    @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         getRouterLayout().closeDrawer();
     }
 
-    public void refresh() {
-        crudGrid.refreshGrid();
-    }
+    /**
+     * The content and ordering of the editing form
+     *
+     * @param crudFormFactory the factory that will create the form using this information
+     */
+    private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+        List<String> props = new LinkedList<>();
+        List<String> captions = new LinkedList<>();
 
-    public void refreshCrudGrid() {
-        crudGrid.refreshGrid();
-    }
+        props.add("lastName");
+        captions.add(getTranslation("LastName"));
+        props.add("firstName");
+        captions.add(getTranslation("FirstName"));
+        props.add("gender");
+        captions.add(getTranslation("Gender"));
+        props.add("team");
+        captions.add(getTranslation("Team"));
 
-    @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
-        this.routerLayout = routerLayout;
-    }
+        Competition competition = Competition.getCurrent();
+        if (competition.isUseBirthYear()) {
+            props.add("yearOfBirth");
+            captions.add(getTranslation("YearOfBirth"));
+        } else {
+            props.add("fullBirthDate");
+            captions.add(getTranslation("BirthDate_yyyy"));
+        }
+        props.add("membership");
+        captions.add(getTranslation("Membership"));
 
-    @Override
-    public Athlete update(Athlete Athlete) {
-        return crudFormFactory.update(Athlete);
+        props.add("bodyWeight");
+        captions.add(getTranslation("BodyWeight"));
+        props.add("category");
+        captions.add(getTranslation("Category"));
+        props.add("snatch1Declaration");
+        captions.add(getTranslation("SnatchDecl_"));
+        props.add("cleanJerk1Declaration");
+        captions.add(getTranslation("C_and_J_decl"));
+        props.add("group");
+        captions.add(getTranslation("Group"));
+        props.add("qualifyingTotal");
+        captions.add(getTranslation("EntryTotal"));
+
+        props.add("lotNumber");
+        captions.add(getTranslation("Lot"));
+        props.add("eligibleForIndividualRanking");
+        captions.add(getTranslation("Eligible for Individual Ranking?"));
+
+        crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
+        crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
+
+        crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
+                Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
+        crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
+                GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
+        crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
+                CategoryRepository.findActive(), new TextRenderer<>(Category::getName), Category::getName));
+        crudFormFactory.setFieldProvider("ageDivision",
+                new OwlcmsComboBoxProvider<>(getTranslation("AgeDivision"), Arrays.asList(AgeDivision.values()),
+                        new TextRenderer<>(ad -> getTranslation("Division." + ad.name())), AgeDivision::name));
+
+        crudFormFactory.setFieldType("bodyWeight", BodyWeightField.class);
+        crudFormFactory.setFieldType("fullBirthDate", LocalDateField.class);
+
+        // ValidationTextField (or a wrapper) must be used as workaround for unexplained
+        // validation behaviour
+        crudFormFactory.setFieldType("snatch1Declaration", ValidationTextField.class);
+        crudFormFactory.setFieldType("cleanJerk1Declaration", ValidationTextField.class);
+        crudFormFactory.setFieldType("qualifyingTotal", ValidationTextField.class);
+        crudFormFactory.setFieldType("yearOfBirth", ValidationTextField.class);
     }
 }

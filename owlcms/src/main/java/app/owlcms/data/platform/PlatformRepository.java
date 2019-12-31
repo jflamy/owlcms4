@@ -75,8 +75,7 @@ public class PlatformRepository {
     }
 
     /**
-     * Save. The 1:1 relationship with FOP is managed manually since FOP is not
-     * persisted.
+     * Save. The 1:1 relationship with FOP is managed manually since FOP is not persisted.
      *
      * @param platform the platform
      * @return the platform

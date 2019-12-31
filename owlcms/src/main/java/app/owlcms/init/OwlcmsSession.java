@@ -24,11 +24,9 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Store the current user's settings and choices, across the multiple pages that
- * may be opened.
+ * Store the current user's settings and choices, across the multiple pages that may be opened.
  *
- * This class is either stored in a the Vaadin session shared between pages, or
- * used as a singleton for testing.
+ * This class is either stored in a the Vaadin session shared between pages, or used as a singleton for testing.
  *
  * @author Jean-François Lamy
  */
@@ -77,9 +75,8 @@ public class OwlcmsSession {
     }
 
     /**
-     * Copied from Vaadin {@link Component} to ensure consistent behavior.
-     * {@link Translator} will enforce a language if the competition screens must
-     * ignore browser settings
+     * Copied from Vaadin {@link Component} to ensure consistent behavior. {@link Translator} will enforce a language if
+     * the competition screens must ignore browser settings
      *
      * @return
      */

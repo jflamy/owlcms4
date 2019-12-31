@@ -78,22 +78,49 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
         return crudFormFactory.add(domainObjectToAdd);
     }
 
+    @Override
+    public void delete(Category domainObjectToDelete) {
+        crudFormFactory.delete(domainObjectToDelete);
+    }
+
     /**
-     * Define the form used to edit a given category.
+     * The refresh button on the toolbar
      *
-     * @return the form factory that will create the actual form on demand
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
      */
-    private OwlcmsCrudFormFactory<Category> createFormFactory() {
-        OwlcmsCrudFormFactory<Category> editingFormFactory = new CategoryEditingFormFactory(Category.class);
-        createFormLayout(editingFormFactory);
-        return editingFormFactory;
+    @Override
+    public Collection<Category> findAll() {
+        return CategoryRepository.findFiltered(nameFilter.getValue(), (Gender) null, ageDivisionFilter.getValue(),
+                ageGroupFilter.getValue(), (Integer) null, (Double) null, activeFilter.getValue(), -1, -1);
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Preparation_Categories");
+    }
+
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
+
+    @Override
+    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
+
+    @Override
+    public Category update(Category domainObjectToUpdate) {
+        return crudFormFactory.update(domainObjectToUpdate);
     }
 
     /**
      * The content and ordering of the editing form
      *
-     * @param crudFormFactory the factory that will create the form using this
-     *                        information
+     * @param crudFormFactory the factory that will create the form using this information
      */
     protected void createFormLayout(OwlcmsCrudFormFactory<Category> crudFormFactory) {
         List<String> props = new LinkedList<>();
@@ -173,7 +200,7 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
 
         ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
         ageDivisionFilter.setItems(AgeDivision.findAll());
-        ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division."+ad.name()));
+        ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
         ageDivisionFilter.setClearButtonVisible(true);
         ageDivisionFilter.addValueChangeListener(e -> {
             crud.refreshGrid();
@@ -205,42 +232,14 @@ public class CategoryContent extends VerticalLayout implements CrudListener<Cate
         crud.getCrudLayout().addFilterComponent(clearFilters);
     }
 
-    @Override
-    public void delete(Category domainObjectToDelete) {
-        crudFormFactory.delete(domainObjectToDelete);
-    }
-
     /**
-     * The refresh button on the toolbar
+     * Define the form used to edit a given category.
      *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     * @return the form factory that will create the actual form on demand
      */
-    @Override
-    public Collection<Category> findAll() {
-        return CategoryRepository.findFiltered(nameFilter.getValue(), (Gender) null, ageDivisionFilter.getValue(),
-                ageGroupFilter.getValue(), (Integer) null, (Double) null, activeFilter.getValue(), -1, -1);
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Preparation_Categories");
-    }
-
-    @Override
-    public OwlcmsRouterLayout getRouterLayout() {
-        return routerLayout;
-    }
-
-    @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
-        this.routerLayout = routerLayout;
-    }
-
-    @Override
-    public Category update(Category domainObjectToUpdate) {
-        return crudFormFactory.update(domainObjectToUpdate);
+    private OwlcmsCrudFormFactory<Category> createFormFactory() {
+        OwlcmsCrudFormFactory<Category> editingFormFactory = new CategoryEditingFormFactory(Category.class);
+        createFormLayout(editingFormFactory);
+        return editingFormFactory;
     }
 }

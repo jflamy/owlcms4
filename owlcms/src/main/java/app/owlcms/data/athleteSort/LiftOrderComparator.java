@@ -18,7 +18,7 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @Override
@@ -50,7 +50,7 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
                 return compare;
             }
         }
-        
+
         compare = compareRequestedWeight(lifter1, lifter2);
         if (compare != 0) {
             return compare;

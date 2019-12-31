@@ -15,9 +15,8 @@ import com.vaadin.flow.function.SerializablePredicate;
 public class ValidationUtils {
 
     /**
-     * Builds a validator out of a conditional function and an error message If the
-     * function returns true, the validator returns {@code Result.ok()}; if it
-     * returns false or throws an exception, {@code Result.error()} is returned with
+     * Builds a validator out of a conditional function and an error message If the function returns true, the validator
+     * returns {@code Result.ok()}; if it returns false or throws an exception, {@code Result.error()} is returned with
      * the message from the exception using getLocalizedMessage().
      *
      * @param <T>          the value type

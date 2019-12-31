@@ -87,7 +87,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     public Category() {
     }
 
-
     public Category(Category c) {
         this(c.id, c.minimumWeight, c.maximumWeight, c.gender, c.active, c.wrYth, c.wrJr, c.wrSr, c.ageGroup);
     }
@@ -120,12 +119,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
             return -1; // we are smaller than null -- null goes to the end;
         }
 
-        int compare = ObjectUtils.compare(this.ageGroup,o.getAgeGroup(),true);
+        int compare = ObjectUtils.compare(this.ageGroup, o.getAgeGroup(), true);
         if (compare != 0) {
             return compare;
         }
 
-        compare = ObjectUtils.compare(this.gender,o.getGender());
+        compare = ObjectUtils.compare(this.gender, o.getGender());
         if (compare != 0) {
             return compare;
         }
@@ -133,7 +132,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         // same division, same gender, rank according to maximumWeight.
         Double value1 = this.getMaximumWeight();
         Double value2 = o.getMaximumWeight();
-        compare = ObjectUtils.compare(value1,value2);
+        compare = ObjectUtils.compare(value1, value2);
         return compare;
     }
 
@@ -168,7 +167,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     public AgeGroup getAgeGroup() {
         return ageGroup;
     }
-
 
     public String getCode() {
         return code;
