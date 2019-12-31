@@ -1,6 +1,9 @@
 
 * Release Highlights for release 4.3 (Release Candidate 1): 
   
+  - [ ] Timing stats to measure the rate of lifting (athletes per hour) were wrong (#257)
+  - [ ] All windows open in a new tab, this is more convenient for preparing a meet (#258)
+  
   - [X] Manage a list of age groups with age boundaries ("Edit Age Groups").  Each age group be active or inactive.
     - [X] Each age group has its own bodyweight categories
     - [X] Bodyweight Categories are now created/modified by editing the age group. This ensures that each category is connected to a single age group and that there are no gaps in the body weights for each age group.
