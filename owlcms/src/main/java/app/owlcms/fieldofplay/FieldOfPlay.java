@@ -18,11 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
 
 import javax.sound.sampled.Mixer;
 
 import org.slf4j.LoggerFactory;
 
+import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.notification.Notification;
@@ -145,7 +147,8 @@ public class FieldOfPlay {
     public FieldOfPlay(Group group, Platform platform2) {
         this.name = platform2.getName();
         this.fopEventBus = new EventBus("FOP-" + name);
-        this.uiEventBus = new EventBus("UI-" + name);
+        //this.uiEventBus = new EventBus("UI-" + name);
+        this.uiEventBus = new AsyncEventBus(Executors.newCachedThreadPool());
         this.athleteTimer = null;
         this.breakTimer = new ProxyBreakTimer(this);
         this.setPlatform(platform2);
