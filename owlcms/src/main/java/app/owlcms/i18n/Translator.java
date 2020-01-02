@@ -134,6 +134,11 @@ public class Translator implements I18NProvider {
     public static String translateOrElseNull(String string, Locale locale) {
         return helper.getTranslationOrElseNull(string, locale);
     }
+    
+
+    public static String translateNoOverrideOrElseNull(String string, Locale locale) {
+        return helper.getTranslationNoOverrideOrElseNull(string, locale);
+    }
 
     /**
      * Return a resource bundle created by reading a CSV files. This creates properties files, and uses the standard
@@ -314,7 +319,10 @@ public class Translator implements I18NProvider {
 
     public String getTranslationOrElseNull(String key, Locale locale, Object... params) {
         locale = overrideLocale(locale);
+        return getTranslationNoOverrideOrElseNull(key, locale, params);
+    }
 
+    public String getTranslationNoOverrideOrElseNull(String key, Locale locale, Object... params) {
         if (key == null) {
             nullTranslationKey();
             return "";
@@ -328,6 +336,8 @@ public class Translator implements I18NProvider {
         }
         return value;
     }
+    
+
 
     public void nullTranslationKey() {
         logger/**/.warn("null translation key");

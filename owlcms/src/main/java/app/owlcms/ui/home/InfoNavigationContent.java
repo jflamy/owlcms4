@@ -7,6 +7,13 @@
 package app.owlcms.ui.home;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +40,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.NavigationPage;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.utils.DebugUtils;
@@ -172,7 +180,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
                 + getTranslation("UseAtYourOwnRisk"));
 
         license.add(new H3(getTranslation("Credits")));
-        addP(license, getTranslation("WrittenJFL") + getTranslation("ThanksToAll") + getTranslation("ThanksToFHQ"));
+        addP(license, getTranslation("WrittenJFL") + getTranslation("ThanksToAll") + getTranslation("ThanksToTranslators") + translators());
 
         Button resetTranslation = new Button(getTranslation("reloadTranslation"),
                 buttonClickEvent -> Translator.reset());
@@ -183,6 +191,34 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
         doGroup(getTranslation("reloadTranslationInfo"), grid1, license);
 
         return license;
+    }
+
+    private String translators() {
+        Map<String,List<Locale>> translatorToLocales = new HashMap<>();
+        for (Locale l : Translator.getAllAvailableLocales()) {
+            String translator = Translator.translateNoOverrideOrElseNull("Translator", l);
+            if (translator != null) {
+                List<Locale> list = translatorToLocales.get(translator);
+                if (list == null) {
+                    list = new ArrayList<>();
+                    list.add(l);
+                    translatorToLocales.put(translator,list);
+                } else {
+                    list.add(l);
+                }
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Entry<String, List<Locale>> entry: translatorToLocales.entrySet()) {
+            if (!(sb.length() == 0)) {
+                sb.append(", ");
+            }
+            sb.append(entry.getKey());
+            sb.append(" (");
+            sb.append(entry.getValue().stream().map(l -> l.getDisplayName(OwlcmsSession.getLocale())).collect(Collectors.joining(", ")));
+            sb.append(")");
+        }
+        return sb.toString();
     }
 
 }
