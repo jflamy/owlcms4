@@ -6,9 +6,9 @@ The age groups and categories are fully customizable.  This section explains the
 
 ## Default Age Groups and Categories
 
-In order to keep things simple for club or regional meets, by default there are are only two divisions, one for men and one for women. These divisions include all ages, and all bodyweight categories.  
+In order to keep things simple for club or regional meets, by default there are are two divisions active by default, one for men and one for women. These divisions include all ages, and all bodyweight categories.  
 
-So most simple meets can use these two divisions, You would only need to adjust the bodyweight categories in each of the two age groups.
+Many meets can start with this default setting and only adjust the bodyweight categories.  We start with this situation and discuss more sophisticated situations further on.
 
 ## Editing Age Groups
 
