@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.utils;
@@ -79,6 +79,15 @@ public class URLUtils {
         return port != null ? Integer.parseInt(port) : request.getServerPort();
     }
 
+    public static <T extends Component> String getUrlFromTargetClass(Class<T> class1) {
+        RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
+        String relativeURL;
+        relativeURL = routeResolver.getUrl(class1);
+        String absoluteURL = URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
+                relativeURL);
+        return absoluteURL;
+    }
+
     public static <T extends Component & HasUrlParameter<String>> String getUrlFromTargetClass(Class<T> class1,
             String parameter) {
         RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
@@ -99,15 +108,6 @@ public class URLUtils {
             String headerName = headerNames.nextElement();
             logger.debug("{}: {}", headerName, request.getHeader(headerName));
         }
-    }
-
-    public static <T extends Component> String getUrlFromTargetClass(Class<T> class1) {
-        RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
-        String relativeURL;
-        relativeURL = routeResolver.getUrl(class1);
-        String absoluteURL = URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
-                relativeURL);
-        return absoluteURL;
     }
 
 }

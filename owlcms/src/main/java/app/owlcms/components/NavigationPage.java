@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components;
@@ -72,6 +72,13 @@ public interface NavigationPage extends OwlcmsContent {
                 + targetClass.getSimpleName() + name + "')";
     }
 
+    public default <T extends Component> String getWindowOpenerFromClassNoParam(Class<T> targetClass) {
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        String name = fop == null ? "" : "_" + fop.getName();
+        return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "','"
+                + targetClass.getSimpleName() + name + "')";
+    }
+
     public default <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,
             String label) {
         return openInNewTab(targetClass, label, null);
@@ -89,13 +96,6 @@ public interface NavigationPage extends OwlcmsContent {
         Button button = new Button(label);
         button.getElement().setAttribute("onClick", getWindowOpenerFromClassNoParam(targetClass));
         return button;
-    }
-
-    public default <T extends Component> String getWindowOpenerFromClassNoParam(Class<T> targetClass) {
-        FieldOfPlay fop = OwlcmsSession.getFop();
-        String name = fop == null ? "" : "_" + fop.getName();
-        return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "','"
-                + targetClass.getSimpleName() + name + "')";
     }
 
 }

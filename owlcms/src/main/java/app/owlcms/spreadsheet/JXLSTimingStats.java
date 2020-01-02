@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -49,9 +49,9 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
         public Double getAthletesPerHour() {
             Double hours = getHoursForGroup();
-            Double athleteEquivalents = ((double)getNbAttemptedLifts())/6.0D;
-            
-            return hours > 0 ? athleteEquivalents/hours : null;
+            Double athleteEquivalents = (getNbAttemptedLifts()) / 6.0D;
+
+            return hours > 0 ? athleteEquivalents / hours : null;
         }
 
         /**
@@ -157,7 +157,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
                 delta = Duration.ZERO;
             }
             Double hours = delta.getSeconds() / 3600.0D;
-            logger.warn("getHours: {}",hours);
+            logger.warn("getHours: {}", hours);
             return hours;
         }
     }

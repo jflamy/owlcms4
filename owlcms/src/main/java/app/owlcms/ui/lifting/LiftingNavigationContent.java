@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.lifting;
@@ -51,7 +51,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         Button weighIn = openInNewTabNoParam(WeighinContent.class, getTranslation("WeighIn_StartNumbers"));
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
         doGroup(getTranslation("WeighIn"), grid3, this);
-        
+
         Button announcer = openInNewTab(AnnouncerContent.class, getTranslation("Announcer"));
         announcer.setAutofocus(true);
 

@@ -6,6 +6,8 @@
   - [X] The 20kg or the Masters 15/10 rules is now applied based on the category of the athlete.  You can therefore mix and match Masters and non-Masters athletes in the same group.
   - [X] Timing stats to measure the rate of lifting (athletes per hour) were wrong (#257)
   - [x] All windows open in a new tab, this is more convenient for preparing a meet (#258)
+  - [x] Scoreboards did not remember their field of play in their URL, causing confusion if there were multiple sessions going on concurrently and page was refreshed (#260)
+  - [x] Fixed counter-intuitive context menu on scoreboards -- black-on-white and white-on-black cues now shown according to current selection and with matching colors (#261)
 
 - Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 

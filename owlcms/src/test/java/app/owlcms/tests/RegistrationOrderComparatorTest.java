@@ -1,5 +1,5 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
+ * Copyright (c) 2009-2020 Jean-François Lamy
  * 
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
@@ -28,8 +28,6 @@ import app.owlcms.data.jpa.JPAService;
 
 public class RegistrationOrderComparatorTest {
 
-    List<Athlete> athletes = null;
-
     @BeforeClass
     public static void setupTests() {
         JPAService.init(true, true);
@@ -45,8 +43,12 @@ public class RegistrationOrderComparatorTest {
         JPAService.close();
     }
 
-    @Before
-    public void setupTest() {
+    List<Athlete> athletes = null;
+
+    @Test
+    public void checkJr() {
+        Collection<Category> cats = CategoryRepository.findByGenderAgeBW(Gender.M, 20, 66.0D);
+        assertEquals("[U20 M 67, JR M 67, SR M 67]", cats.toString());
     }
 
     @Test
@@ -60,10 +62,8 @@ public class RegistrationOrderComparatorTest {
         Collection<Category> cats = CategoryRepository.findByGenderAgeBW(Gender.M, 15, 66.0D);
         assertEquals("[U15 M 67, YTH M 67, JR M 67, SR M 67]", cats.toString());
     }
-    
-    @Test
-    public void checkJr() {
-        Collection<Category> cats = CategoryRepository.findByGenderAgeBW(Gender.M, 20, 66.0D);
-        assertEquals("[U20 M 67, JR M 67, SR M 67]", cats.toString());
+
+    @Before
+    public void setupTest() {
     }
 }
