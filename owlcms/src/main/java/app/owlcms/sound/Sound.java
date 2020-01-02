@@ -17,8 +17,6 @@ import javax.sound.sampled.Mixer;
 
 import org.slf4j.LoggerFactory;
 
-import com.sun.media.sound.WaveFileReader;
-
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -27,7 +25,6 @@ import ch.qos.logback.classic.Logger;
  *
  * @author jflamy
  */
-@SuppressWarnings("restriction")
 public class Sound {
     static final String SOUND_PREFIX = "/META-INF/resources/sounds/";
 
