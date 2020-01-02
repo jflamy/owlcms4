@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -52,6 +52,17 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     }
 
     @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        Competition current = Competition.getCurrent();
+        finalPackageTemplate = current.getFinalPackageTemplate();
+        if (finalPackageTemplate == null) {
+            finalPackageTemplate = loadDefaultPackageTemplate(locale, current);
+        }
+        InputStream stream = new ByteArrayInputStream(finalPackageTemplate);
+        return stream;
+    }
+
+    @Override
     protected void configureTransformer(XLSTransformer transformer) {
         super.configureTransformer(transformer);
         transformer.markAsFixedSizeCollection("clubs");
@@ -70,40 +81,10 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         return null;
     }
 
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        Competition current = Competition.getCurrent();
-        finalPackageTemplate = current.getFinalPackageTemplate();
-        if (finalPackageTemplate == null) {
-            finalPackageTemplate = loadDefaultPackageTemplate(locale, current);
-        }
-        InputStream stream = new ByteArrayInputStream(finalPackageTemplate);
-        return stream;
-    }
-
-    private byte[] loadDefaultPackageTemplate(Locale locale, Competition current) {
-        JPAService.runInTransaction((em) -> {
-            String protocolTemplateFileName = "/templates/competitionBook/CompetitionBook_Total_" + locale.getLanguage()
-                    + ".xls";
-            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
-            try {
-                finalPackageTemplate = ByteStreams.toByteArray(stream);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            current.setFinalPackageTemplate(finalPackageTemplate);
-            Competition merge = em.merge(current);
-            Competition.setCurrent(merge);
-            return merge;
-        });
-        return finalPackageTemplate;
-    }
-
     /*
      * team result sheets need columns hidden, print area fixed
      *
-     * @see
-     * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
      * postProcess(org.apache.poi.ss.usermodel.Workbook)
      */
     @Override
@@ -134,6 +115,24 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         HashMap<String, Object> reportingBeans = getReportingBeans();
 
         Competition.getCurrent().computeGlobalRankings(reportingBeans);
+    }
+
+    private byte[] loadDefaultPackageTemplate(Locale locale, Competition current) {
+        JPAService.runInTransaction((em) -> {
+            String protocolTemplateFileName = "/templates/competitionBook/CompetitionBook_Total_" + locale.getLanguage()
+                    + ".xls";
+            InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
+            try {
+                finalPackageTemplate = ByteStreams.toByteArray(stream);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            current.setFinalPackageTemplate(finalPackageTemplate);
+            Competition merge = em.merge(current);
+            Competition.setCurrent(merge);
+            return merge;
+        });
+        return finalPackageTemplate;
     }
 
     private void setTeamSheetPrintArea(Workbook workbook, String sheetName, int nbClubs) {

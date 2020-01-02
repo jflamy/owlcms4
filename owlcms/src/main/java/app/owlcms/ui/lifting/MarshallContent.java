@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
@@ -43,6 +43,14 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
     }
 
     /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Marshall");
+    }
+
+    /**
      * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.HorizontalLayout)
      */
     @Override
@@ -73,13 +81,5 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
     protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
         HorizontalLayout decisions = new HorizontalLayout();
         return decisions;
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Marshall");
     }
 }

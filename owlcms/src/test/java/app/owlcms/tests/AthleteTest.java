@@ -1,5 +1,5 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
+ * Copyright (c) 2009-2020 Jean-François Lamy
  * 
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
@@ -31,38 +31,42 @@ public class AthleteTest {
         athlete.setSnatch1Declaration("60");
         athlete.setCleanJerk1Declaration("80");
         athlete.setYearOfBirth(1900);
-        Category registrationCategory = new Category(0L, 67.0, 73.0, Gender.M, true, 0, 0, 348, new AgeGroup("SR", true, 15, 999, Gender.M, AgeDivision.IWF));
+        Category registrationCategory = new Category(0L, 67.0, 73.0, Gender.M, true, 0, 0, 348,
+                new AgeGroup("SR", true, 15, 999, Gender.M, AgeDivision.IWF));
         athlete.setCategory(registrationCategory);
     }
 
-
     /**
-     * Test method for
-     * {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
+     * Test method for {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
      */
     @Test
-    public void testGetTotalNoData() {
-        assertEquals("total without any results", 0, (long) athlete.getTotal());
+    public void testGetTotalBombOut() {
+        athlete.setSnatch1ActualLift("-60");
+        athlete.setSnatch2ActualLift("-60");
+        athlete.setSnatch3ActualLift("-60");
+        athlete.setCleanJerk1ActualLift("-80");
+        athlete.setCleanJerk2ActualLift("-80");
+        athlete.setCleanJerk3ActualLift("-80");
+        assertEquals("total with full bomb out", 0, (long) athlete.getTotal());
     }
 
     /**
-     * Test method for
-     * {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
+     * Test method for {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
      */
     @Test
-    public void testGetTotalNoSnatchData() {
-        athlete.setSnatch1ActualLift(null);
-        athlete.setSnatch2ActualLift(null);
-        athlete.setSnatch3ActualLift(null);
+    public void testGetTotalHappyPath() {
+        athlete.setSnatch1ActualLift("60");
+        athlete.setSnatch2ActualLift("61");
+        athlete.setSnatch3ActualLift("62");
         athlete.setCleanJerk1ActualLift("80");
         athlete.setCleanJerk2ActualLift("81");
         athlete.setCleanJerk3ActualLift("82");
-        assertEquals("total with no snatch results", 0L, (long) athlete.getTotal());
+        assertEquals("total with all values", 144, (long) athlete.getTotal());
+        assertEquals("robi score", 53.33D, athlete.getRobi(), 0.005);
     }
 
     /**
-     * Test method for
-     * {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
+     * Test method for {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
      */
     @Test
     public void testGetTotalNoCleanJerkData() {
@@ -76,8 +80,29 @@ public class AthleteTest {
     }
 
     /**
-     * Test method for
-     * {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
+     * Test method for {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
+     */
+    @Test
+    public void testGetTotalNoData() {
+        assertEquals("total without any results", 0, (long) athlete.getTotal());
+    }
+
+    /**
+     * Test method for {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
+     */
+    @Test
+    public void testGetTotalNoSnatchData() {
+        athlete.setSnatch1ActualLift(null);
+        athlete.setSnatch2ActualLift(null);
+        athlete.setSnatch3ActualLift(null);
+        athlete.setCleanJerk1ActualLift("80");
+        athlete.setCleanJerk2ActualLift("81");
+        athlete.setCleanJerk3ActualLift("82");
+        assertEquals("total with no snatch results", 0L, (long) athlete.getTotal());
+    }
+
+    /**
+     * Test method for {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
      */
     @Test
     public void testGetTotalPartialData() {
@@ -91,24 +116,7 @@ public class AthleteTest {
     }
 
     /**
-     * Test method for
-     * {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
-     */
-    @Test
-    public void testGetTotalHappyPath() {
-        athlete.setSnatch1ActualLift("60");
-        athlete.setSnatch2ActualLift("61");
-        athlete.setSnatch3ActualLift("62");
-        athlete.setCleanJerk1ActualLift("80");
-        athlete.setCleanJerk2ActualLift("81");
-        athlete.setCleanJerk3ActualLift("82");
-        assertEquals("total with all values", 144, (long) athlete.getTotal());
-        assertEquals("robi score", 53.33D, athlete.getRobi(),0.005);
-    }
-
-    /**
-     * Test method for
-     * {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
+     * Test method for {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
      */
     @Test
     public void testGetTotalSnatchBombOut() {
@@ -120,21 +128,5 @@ public class AthleteTest {
         athlete.setCleanJerk3ActualLift("-");
         assertEquals("total with snatch bomb out", 0, (long) athlete.getTotal());
     }
-
-    /**
-     * Test method for
-     * {@link org.concordiainternational.competition.data.Athlete#getTotal()}.
-     */
-    @Test
-    public void testGetTotalBombOut() {
-        athlete.setSnatch1ActualLift("-60");
-        athlete.setSnatch2ActualLift("-60");
-        athlete.setSnatch3ActualLift("-60");
-        athlete.setCleanJerk1ActualLift("-80");
-        athlete.setCleanJerk2ActualLift("-80");
-        athlete.setCleanJerk3ActualLift("-80");
-        assertEquals("total with full bomb out", 0, (long) athlete.getTotal());
-    }
-
 
 }

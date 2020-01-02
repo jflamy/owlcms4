@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.displays.liftingorder;
@@ -69,11 +69,9 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     /**
      * LiftingOrderModel
      *
-     * Vaadin Flow propagates these variables to the corresponding Polymer template
-     * JavaScript properties. When the JS properties are changed, a
-     * "propname-changed" event is triggered.
-     * {@link Element.#addPropertyChangeListener(String, String,
-     * com.vaadin.flow.dom.PropertyChangeListener)}
+     * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS
+     * properties are changed, a "propname-changed" event is triggered.
+     * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
      *
      */
     public interface LiftingOrderModel extends TemplateModel {
@@ -101,13 +99,13 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
 
         void setLiftsDone(String formattedDone);
 
-        void setWideCategory(boolean b);
-
         void setStartNumber(Integer integer);
 
         void setTeamName(String teamName);
 
         void setWeight(Integer weight);
+
+        void setWideCategory(boolean b);
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(LiftingOrder.class);
@@ -138,15 +136,6 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         setDarkMode(true);
     }
 
-    private String computeLiftType(Athlete a) {
-        if (a == null) {
-            return "";
-        }
-        String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-                : Translator.translate("Snatch");
-        return liftType;
-    }
-
     @Override
     public void doBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
@@ -155,77 +144,6 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             model.setHidden(false);
             doUpdate(fop.getCurAthlete(), null);
         }));
-    }
-
-    private void doDone(Group g) {
-        if (g == null) {
-            return;
-        } else {
-            getModel().setFullName(getTranslation("Group_number_done", g.toString()));
-            this.getElement().callJsFunction("groupDone");
-        }
-    }
-
-    protected void doEmpty() {
-        logger.trace("doEmpty");
-        this.getModel().setHidden(true);
-    }
-
-    protected void doUpdate(Athlete a, UIEvent e) {
-        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
-        LiftingOrderModel model = getModel();
-
-//            model.setHidden(a == null);
-        if (a != null) {
-            model.setFullName(getTranslation("Scoreboard.LiftingOrder"));
-            updateBottom(model, computeLiftType(a));
-        }
-        if (a == null || a.getAttemptsDone() >= 6) {
-            OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
-            return;
-        }
-    }
-
-    private void doUpdateBottomPart(Decision e) {
-        LiftingOrderModel model = getModel();
-        Athlete a = e.getAthlete();
-        updateBottom(model, computeLiftType(a));
-    }
-
-    private JsonValue getAthletesJson(List<Athlete> list2) {
-        JsonArray jath = Json.createArray();
-        int athx = 0;
-        List<Athlete> list3 = Collections.unmodifiableList(list2);
-        for (Athlete a : list3) {
-            JsonObject ja = Json.createObject();
-            Category curCat = a.getCategory();
-            String category;
-            if (Competition.getCurrent().isMasters()) {
-                category = a.getShortCategory();
-            } else {
-                category = curCat != null ? curCat.getName() : "";
-            }
-            ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
-            ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
-            ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
-            Integer startNumber = a.getStartNumber();
-            ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-            String mastersAgeGroup = a.getMastersAgeGroup();
-            ja.put("mastersAgeGroup", mastersAgeGroup != null ? mastersAgeGroup : "");
-            ja.put("category", category != null ? category : "");
-            ja.put("nextAttemptNo", AthleteGridContent.formatAttemptNumber(a));
-            Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
-            ja.put("requestedWeight", nextAttemptRequestedWeight == 0 ? "-" : nextAttemptRequestedWeight.toString());
-            Integer liftOrderRank = a.getLiftOrderRank();
-            boolean notDone = a.getAttemptsDone() < 6;
-            String blink = (notDone ? " blink" : "");
-            if (notDone) {
-                ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
-            }
-            jath.set(athx, ja);
-            athx++;
-        }
-        return jath;
     }
 
     @Override
@@ -243,24 +161,9 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
         return this.locationUI;
     }
 
-    private Object getOrigin() {
-        return this;
-    }
-
     @Override
     public String getPageTitle() {
         return getTranslation("Scoreboard.LiftingOrder");
-    }
-
-    private void init() {
-        OwlcmsSession.withFop(fop -> {
-            logger.trace("Starting result board on FOP {}", fop.getName());
-            setId("scoreboard-" + fop.getName());
-            curGroup = fop.getGroup();
-            getModel().setWideCategory(true);
-        });
-        setTranslationMap();
-        order = ImmutableList.of();
     }
 
     @Override
@@ -271,26 +174,6 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     @Override
     public boolean isIgnoreGroupFromURL() {
         return true;
-    }
-
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-     * AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        // fop obtained via QueryParameterReader interface default methods.
-        OwlcmsSession.withFop(fop -> {
-            init();
-            // sync with current status of FOP
-            order = fop.getLiftingOrder();
-            liftsDone = AthleteSorter.countLiftsDone(order);
-            syncWithFOP(null);
-            // we listen on uiEventBus.
-            uiEventBus = uiEventBusRegister(this, fop);
-        });
-        buildContextMenu(this);
-        setDarkMode(this, isDarkMode(), false);
     }
 
     /**
@@ -318,18 +201,6 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
-    }
-
-    protected void setTranslationMap() {
-        JsonObject translations = Json.createObject();
-        Enumeration<String> keys = Translator.getKeys();
-        while (keys.hasMoreElements()) {
-            String curKey = keys.nextElement();
-            if (curKey.startsWith("Scoreboard.")) {
-                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-            }
-        }
-        this.getElement().setPropertyJson("t", translations);
     }
 
     @Subscribe
@@ -440,6 +311,131 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
     public void uiLog(UIEvent e) {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
+    }
+
+    protected void doEmpty() {
+        logger.trace("doEmpty");
+        this.getModel().setHidden(true);
+    }
+
+    protected void doUpdate(Athlete a, UIEvent e) {
+        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+        LiftingOrderModel model = getModel();
+
+//            model.setHidden(a == null);
+        if (a != null) {
+            model.setFullName(getTranslation("Scoreboard.LiftingOrder"));
+            updateBottom(model, computeLiftType(a));
+        }
+        if (a == null || a.getAttemptsDone() >= 6) {
+            OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+            return;
+        }
+    }
+
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        // fop obtained via QueryParameterReader interface default methods.
+        OwlcmsSession.withFop(fop -> {
+            init();
+            // sync with current status of FOP
+            order = fop.getLiftingOrder();
+            liftsDone = AthleteSorter.countLiftsDone(order);
+            syncWithFOP(null);
+            // we listen on uiEventBus.
+            uiEventBus = uiEventBusRegister(this, fop);
+        });
+        setDarkMode(this, isDarkMode(), false);
+    }
+
+    protected void setTranslationMap() {
+        JsonObject translations = Json.createObject();
+        Enumeration<String> keys = Translator.getKeys();
+        while (keys.hasMoreElements()) {
+            String curKey = keys.nextElement();
+            if (curKey.startsWith("Scoreboard.")) {
+                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+            }
+        }
+        this.getElement().setPropertyJson("t", translations);
+    }
+
+    private String computeLiftType(Athlete a) {
+        if (a == null) {
+            return "";
+        }
+        String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+                : Translator.translate("Snatch");
+        return liftType;
+    }
+
+    private void doDone(Group g) {
+        if (g == null) {
+            return;
+        } else {
+            getModel().setFullName(getTranslation("Group_number_done", g.toString()));
+            this.getElement().callJsFunction("groupDone");
+        }
+    }
+
+    private void doUpdateBottomPart(Decision e) {
+        LiftingOrderModel model = getModel();
+        Athlete a = e.getAthlete();
+        updateBottom(model, computeLiftType(a));
+    }
+
+    private JsonValue getAthletesJson(List<Athlete> list2) {
+        JsonArray jath = Json.createArray();
+        int athx = 0;
+        List<Athlete> list3 = Collections.unmodifiableList(list2);
+        for (Athlete a : list3) {
+            JsonObject ja = Json.createObject();
+            Category curCat = a.getCategory();
+            String category;
+            if (Competition.getCurrent().isMasters()) {
+                category = a.getShortCategory();
+            } else {
+                category = curCat != null ? curCat.getName() : "";
+            }
+            ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+            ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
+            ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
+            Integer startNumber = a.getStartNumber();
+            ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
+            String mastersAgeGroup = a.getMastersAgeGroup();
+            ja.put("mastersAgeGroup", mastersAgeGroup != null ? mastersAgeGroup : "");
+            ja.put("category", category != null ? category : "");
+            ja.put("nextAttemptNo", AthleteGridContent.formatAttemptNumber(a));
+            Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+            ja.put("requestedWeight", nextAttemptRequestedWeight == 0 ? "-" : nextAttemptRequestedWeight.toString());
+            Integer liftOrderRank = a.getLiftOrderRank();
+            boolean notDone = a.getAttemptsDone() < 6;
+            String blink = (notDone ? " blink" : "");
+            if (notDone) {
+                ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
+            }
+            jath.set(athx, ja);
+            athx++;
+        }
+        return jath;
+    }
+
+    private Object getOrigin() {
+        return this;
+    }
+
+    private void init() {
+        OwlcmsSession.withFop(fop -> {
+            logger.trace("Starting result board on FOP {}", fop.getName());
+            setId("scoreboard-" + fop.getName());
+            curGroup = fop.getGroup();
+            getModel().setWideCategory(true);
+        });
+        setTranslationMap();
+        order = ImmutableList.of();
     }
 
     private void updateBottom(LiftingOrderModel model, String liftType) {

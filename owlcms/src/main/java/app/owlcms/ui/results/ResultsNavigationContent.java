@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.results;
@@ -44,9 +44,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
      */
     public ResultsNavigationContent() {
         Button groupResults = openInNewTab(ResultsContent.class, getTranslation("GroupResults"));
-
-        Button finalPackage = new Button(getTranslation("FinalResultsPackage"),
-                buttonClickEvent -> UI.getCurrent().navigate(PackageContent.class));
+        Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("FinalResultsPackage"));
 
         Div timingStats = DownloadButtonFactory.createDynamicDownloadButton("timingStats",
                 getTranslation("TimingStatistics"), new JXLSTimingStats());
@@ -60,16 +58,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
         doGroup(getTranslation("EndOfCompetitionDocuments"), grid2, this);
 
         DebugUtils.gc();
-    }
-
-    @Override
-    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
-        return null;
-    }
-
-    @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
     }
 
     @Override
@@ -88,11 +76,6 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     }
 
     @Override
-    protected String getTitle() {
-        return getTranslation("ResultDocuments");
-    }
-
-    @Override
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -100,6 +83,21 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+        return null;
+    }
+
+    @Override
+    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
+        return null;
+    }
+
+    @Override
+    protected String getTitle() {
+        return getTranslation("ResultDocuments");
     }
 
 }

@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athleteSort;
@@ -82,8 +82,8 @@ public class AthleteSorter implements Serializable {
             }
 
             if (curLifter.isInvited() || !curLifter.getTeamMember()) {
-                logger.trace("not counted {}  {}Rank={} total={} {}",
-                        new Object[] { curLifter, rankingType, -1, curLifter.getTotal(), curLifter.isInvited() });
+                logger.trace("not counted {}  {}Rank={} total={} {}", curLifter, rankingType, -1, curLifter.getTotal(),
+                        curLifter.isInvited());
                 setRank(curLifter, -1, rankingType);
                 setPoints(curLifter, 0, rankingType);
             } else {
@@ -93,12 +93,11 @@ public class AthleteSorter implements Serializable {
                 final double rankingTotal = getRankingTotal(curLifter, rankingType);
                 if (rankingTotal > 0) {
                     setRank(curLifter, rank, rankingType);
-                    logger.trace("Athlete {}  {}rank={} total={}",
-                            new Object[] { curLifter, rankingType, getRank(curLifter, rankingType), rankingTotal });
+                    logger.trace("Athlete {}  {}rank={} total={}", curLifter, rankingType,
+                            getRank(curLifter, rankingType), rankingTotal);
                     rank++;
                 } else {
-                    logger.trace("Athlete {}  {}rank={} total={}",
-                            new Object[] { curLifter, rankingType, 0, rankingTotal });
+                    logger.trace("Athlete {}  {}rank={} total={}", curLifter, rankingType, 0, rankingTotal);
                     setRank(curLifter, 0, rankingType);
                     rank++;
                 }
@@ -144,8 +143,8 @@ public class AthleteSorter implements Serializable {
             }
 
             if (curLifter.isInvited() || !curLifter.getTeamMember()) {
-                logger.trace("invited {}  {}rank={} total={} {}",
-                        new Object[] { curLifter, rankingType, -1, curLifter.getTotal(), curLifter.isInvited() });
+                logger.trace("invited {}  {}rank={} total={} {}", curLifter, rankingType, -1, curLifter.getTotal(),
+                        curLifter.isInvited());
                 setRank(curLifter, -1, rankingType);
                 setPoints(curLifter, 0, rankingType);
             } else {
@@ -153,12 +152,10 @@ public class AthleteSorter implements Serializable {
                 final double rankingTotal = getRankingTotal(curLifter, rankingType);
                 if (rankingTotal > 0) {
                     setRank(curLifter, rank, rankingType);
-                    logger.trace("Athlete {}  {}rank={} {}={} total={}",
-                            new Object[] { curLifter, rankingType, rank, rankingTotal });
+                    logger.trace("Athlete {}  {}rank={} {}={} total={}", curLifter, rankingType, rank, rankingTotal);
                     rank++;
                 } else {
-                    logger.trace("Athlete {}  {}rank={} total={}",
-                            new Object[] { curLifter, rankingType, 0, rankingTotal });
+                    logger.trace("Athlete {}  {}rank={} total={}", curLifter, rankingType, 0, rankingTotal);
                     setRank(curLifter, 0, rankingType);
                     rank++;
                 }
@@ -189,53 +186,6 @@ public class AthleteSorter implements Serializable {
     }
 
     /**
-     * @param curLifter
-     * @param rankingType
-     * @return
-     */
-    private static float computePoints(Athlete curLifter, Ranking rankingType) {
-        switch (rankingType) {
-        case SNATCH:
-            return pointsFormula(curLifter.getSnatchRank(), curLifter);
-        case CLEANJERK:
-            return pointsFormula(curLifter.getCleanJerkRank(), curLifter);
-        case TOTAL:
-            return pointsFormula(curLifter.getTotalRank(), curLifter);
-        case CUSTOM:
-            return pointsFormula(curLifter.getCustomRank(), curLifter);
-        case COMBINED:
-            return pointsFormula(curLifter.getSnatchRank(), curLifter)
-                    + pointsFormula(curLifter.getCleanJerkRank(), curLifter)
-                    + pointsFormula(curLifter.getTotalRank(), curLifter);
-        default:
-            break;
-        }
-        return 0;
-    }
-
-    // /**
-    // * Sort athletes according to official rules (in place) for the technical
-    // * meeting <tableToolbar> <li>by registration category</li> <li>by lot
-    // * number</li> </tableToolbar>
-    // */
-    // static public void weighInOrder(List<Athlete> toBeSorted) {
-    // Collections.sort(toBeSorted, new WeighInOrderComparator());
-    // }
-    //
-    // /**
-    // * Sort athletes according to official rules, creating a new list.
-    // *
-    // * @see #liftingOrder(List)
-    // * @return athletes, ordered according to their standard order for the
-    // * technical meeting
-    // */
-    // static public List<Athlete> weighInOrderCopy(List<Athlete> toBeSorted) {
-    // List<Athlete> sorted = new ArrayList<Athlete>(toBeSorted);
-    // weighInOrder(sorted);
-    // return sorted;
-    // }
-
-    /**
      * Compute the number of lifts already done. During snatch, exclude cj
      *
      * @param lifters the athletes in the group
@@ -262,6 +212,28 @@ public class AthleteSorter implements Serializable {
             return 0;
         }
     }
+
+    // /**
+    // * Sort athletes according to official rules (in place) for the technical
+    // * meeting <tableToolbar> <li>by registration category</li> <li>by lot
+    // * number</li> </tableToolbar>
+    // */
+    // static public void weighInOrder(List<Athlete> toBeSorted) {
+    // Collections.sort(toBeSorted, new WeighInOrderComparator());
+    // }
+    //
+    // /**
+    // * Sort athletes according to official rules, creating a new list.
+    // *
+    // * @see #liftingOrder(List)
+    // * @return athletes, ordered according to their standard order for the
+    // * technical meeting
+    // */
+    // static public List<Athlete> weighInOrderCopy(List<Athlete> toBeSorted) {
+    // List<Athlete> sorted = new ArrayList<Athlete>(toBeSorted);
+    // weighInOrder(sorted);
+    // return sorted;
+    // }
 
     /**
      * Sort athletes according to official rules (in place) <tableToolbar>
@@ -300,16 +272,6 @@ public class AthleteSorter implements Serializable {
         return shuffled;
     }
 
-    static private boolean equals(Object o1, Object o2) {
-        if (o1 == null && o2 == null) {
-            return true;
-        }
-        if (o1 != null) {
-            return o1.equals(o2);
-        }
-        return false; // o1 is null but not o2
-    }
-
     /**
      * Gets the rank.
      *
@@ -335,39 +297,6 @@ public class AthleteSorter implements Serializable {
             break;
         }
         return 0;
-    }
-
-    /**
-     * @param curLifter
-     * @param rankingType
-     * @return
-     */
-    private static double getRankingTotal(Athlete curLifter, Ranking rankingType) {
-        switch (rankingType) {
-        case SNATCH:
-            return curLifter.getBestSnatch();
-        case CLEANJERK:
-            return curLifter.getBestCleanJerk();
-        case TOTAL:
-            return curLifter.getTotal();
-        case SINCLAIR:
-            return curLifter.getSinclair();
-        case ROBI:
-            return curLifter.getRobi();
-        case CUSTOM:
-            return curLifter.getCustomScore();
-        case COMBINED:
-            return 0D; // no such thing
-        case BW_SINCLAIR:
-            return curLifter.getSinclair();
-        case CAT_SINCLAIR:
-            return curLifter.getCategorySinclair();
-        case SMM:
-            return curLifter.getSmm();
-        default:
-            break;
-        }
-        return 0D;
     }
 
     /**
@@ -444,24 +373,6 @@ public class AthleteSorter implements Serializable {
     }
 
     /**
-     * @param rank
-     * @param curLifter
-     * @return
-     */
-    private static float pointsFormula(Integer rank, Athlete curLifter) {
-        if (rank == null || rank <= 0) {
-            return 0;
-        }
-        if (rank == 1) {
-            return 28;
-        }
-        if (rank == 2) {
-            return 25;
-        }
-        return 26 - rank;
-    }
-
-    /**
      * Sort athletes according to official rules (in place) for the technical meeting <tableToolbar>
      * <li>by registration category</li>
      * <li>by lot number</li> </tableToolbar>.
@@ -512,31 +423,6 @@ public class AthleteSorter implements Serializable {
         List<Athlete> sorted = new ArrayList<>(toBeSorted);
         resultsOrder(sorted, rankingType);
         return sorted;
-    }
-
-    /**
-     * @param curLifter
-     * @param points
-     * @param rankingType
-     */
-    private static void setPoints(Athlete curLifter, float points, Ranking rankingType) {
-        logger.trace(curLifter + " " + rankingType + " points=" + points);
-        switch (rankingType) {
-        case SNATCH:
-            curLifter.setSnatchPoints(points);
-            break;
-        case CLEANJERK:
-            curLifter.setCleanJerkPoints(points);
-            break;
-        case TOTAL:
-            curLifter.setTotalPoints(points);
-            break;
-        case CUSTOM:
-            curLifter.setCustomPoints(points);
-            break;
-        default:
-            break;// computed
-        }
     }
 
     /**
@@ -647,6 +533,117 @@ public class AthleteSorter implements Serializable {
         List<Athlete> sorted = new ArrayList<>(toBeSorted);
         teamRankingOrder(sorted, rankingType);
         return sorted;
+    }
+
+    /**
+     * @param curLifter
+     * @param rankingType
+     * @return
+     */
+    private static float computePoints(Athlete curLifter, Ranking rankingType) {
+        switch (rankingType) {
+        case SNATCH:
+            return pointsFormula(curLifter.getSnatchRank(), curLifter);
+        case CLEANJERK:
+            return pointsFormula(curLifter.getCleanJerkRank(), curLifter);
+        case TOTAL:
+            return pointsFormula(curLifter.getTotalRank(), curLifter);
+        case CUSTOM:
+            return pointsFormula(curLifter.getCustomRank(), curLifter);
+        case COMBINED:
+            return pointsFormula(curLifter.getSnatchRank(), curLifter)
+                    + pointsFormula(curLifter.getCleanJerkRank(), curLifter)
+                    + pointsFormula(curLifter.getTotalRank(), curLifter);
+        default:
+            break;
+        }
+        return 0;
+    }
+
+    static private boolean equals(Object o1, Object o2) {
+        if (o1 == null && o2 == null) {
+            return true;
+        }
+        if (o1 != null) {
+            return o1.equals(o2);
+        }
+        return false; // o1 is null but not o2
+    }
+
+    /**
+     * @param curLifter
+     * @param rankingType
+     * @return
+     */
+    private static double getRankingTotal(Athlete curLifter, Ranking rankingType) {
+        switch (rankingType) {
+        case SNATCH:
+            return curLifter.getBestSnatch();
+        case CLEANJERK:
+            return curLifter.getBestCleanJerk();
+        case TOTAL:
+            return curLifter.getTotal();
+        case SINCLAIR:
+            return curLifter.getSinclair();
+        case ROBI:
+            return curLifter.getRobi();
+        case CUSTOM:
+            return curLifter.getCustomScore();
+        case COMBINED:
+            return 0D; // no such thing
+        case BW_SINCLAIR:
+            return curLifter.getSinclair();
+        case CAT_SINCLAIR:
+            return curLifter.getCategorySinclair();
+        case SMM:
+            return curLifter.getSmm();
+        default:
+            break;
+        }
+        return 0D;
+    }
+
+    /**
+     * @param rank
+     * @param curLifter
+     * @return
+     */
+    private static float pointsFormula(Integer rank, Athlete curLifter) {
+        if (rank == null || rank <= 0) {
+            return 0;
+        }
+        if (rank == 1) {
+            return 28;
+        }
+        if (rank == 2) {
+            return 25;
+        }
+        return 26 - rank;
+    }
+
+    /**
+     * @param curLifter
+     * @param points
+     * @param rankingType
+     */
+    private static void setPoints(Athlete curLifter, float points, Ranking rankingType) {
+        logger.trace(curLifter + " " + rankingType + " points=" + points);
+        switch (rankingType) {
+        case SNATCH:
+            curLifter.setSnatchPoints(points);
+            break;
+        case CLEANJERK:
+            curLifter.setCleanJerkPoints(points);
+            break;
+        case TOTAL:
+            curLifter.setTotalPoints(points);
+            break;
+        case CUSTOM:
+            curLifter.setCustomPoints(points);
+            break;
+        default:
+            break;// computed
+        }
     }
 
     /**

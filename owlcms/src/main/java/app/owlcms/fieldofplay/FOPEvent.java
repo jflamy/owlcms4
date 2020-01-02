@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.fieldofplay;
@@ -17,8 +17,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The subclasses of FOPEvent are all the events that can take place on the
- * field of play.
+ * The subclasses of FOPEvent are all the events that can take place on the field of play.
  *
  * @author owlcms
  */
@@ -115,8 +114,7 @@ public class FOPEvent {
     /**
      * Report an individual decision.
      *
-     * No subclassing relationship with {@link ExplicitDecision} because of
-     * different @Subscribe requirements
+     * No subclassing relationship with {@link ExplicitDecision} because of different @Subscribe requirements
      */
     static public class DecisionFullUpdate extends FOPEvent {
         public Boolean ref1;
@@ -310,11 +308,10 @@ public class FOPEvent {
     }
 
     /**
-     * When a FOPEvent (for example stopping the clock) is handled, it is often
-     * reflected as a series of UIEvents (for example, all the displays running the
-     * clock get told to stop it). The user interface that gave the order doesn't
-     * want to be notified again, so we memorize which user interface element
-     * created the original order so it can ignore it.
+     * When a FOPEvent (for example stopping the clock) is handled, it is often reflected as a series of UIEvents (for
+     * example, all the displays running the clock get told to stop it). The user interface that gave the order doesn't
+     * want to be notified again, so we memorize which user interface element created the original order so it can
+     * ignore it.
      */
     protected Object origin;
 

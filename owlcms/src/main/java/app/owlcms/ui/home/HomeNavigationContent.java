@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.home;
@@ -107,6 +107,79 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
         DebugUtils.gc();
     }
 
+    @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public UI getLocationUI() {
+        return this.locationUI;
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("OWLCMS_Home");
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.QueryParameterReader#isIgnoreFopFromURL()
+     */
+    @Override
+    public boolean isIgnoreFopFromURL() {
+        return true;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    @Override
+    public void setLocationUI(UI locationUI) {
+        this.locationUI = locationUI;
+    }
+
+    /**
+     * The left part of the top bar.
+     *
+     * @see app.owlcms.ui.shared.BaseNavigationContent#configureTopBarTitle(java.lang.String)
+     */
+    @Override
+    protected void configureTopBarTitle(String topBarTitle) {
+        AbstractLeftAppLayoutBase appLayout = getAppLayout();
+        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 40em");
+        Label label = new Label(getTitle());
+        appLayout.setTitleComponent(label);
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarFopField(java.lang.String, java.lang.String)
+     */
+    @Override
+    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+        return null;
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String, java.lang.String)
+     */
+    @Override
+    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
+        return null;
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
+     */
+    @Override
+    protected String getTitle() {
+        return getTranslation("OWLCMS_Top");
+    }
+
     private VerticalLayout buildIntro() {
         VerticalLayout intro = new VerticalLayout();
         IPInterfaceUtils urlFinder = new IPInterfaceUtils();
@@ -134,81 +207,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
                         + getTranslation("SeparateLaptops"));
         intro.getStyle().set("margin-bottom", "-1em");
         return intro;
-    }
-
-    /**
-     * The left part of the top bar.
-     *
-     * @see app.owlcms.ui.shared.BaseNavigationContent#configureTopBarTitle(java.lang.String)
-     */
-    @Override
-    protected void configureTopBarTitle(String topBarTitle) {
-        AbstractLeftAppLayoutBase appLayout = getAppLayout();
-        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 40em");
-        Label label = new Label(getTitle());
-        appLayout.setTitleComponent(label);
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarFopField(java.lang.String,
-     *      java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
-        return null;
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String,
-     *      java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
-    }
-
-    @Override
-    public Location getLocation() {
-        return this.location;
-    }
-
-    @Override
-    public UI getLocationUI() {
-        return this.locationUI;
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("OWLCMS_Home");
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
-     */
-    @Override
-    protected String getTitle() {
-        return getTranslation("OWLCMS_Top");
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.QueryParameterReader#isIgnoreFopFromURL()
-     */
-    @Override
-    public boolean isIgnoreFopFromURL() {
-        return true;
-    }
-
-    @Override
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    @Override
-    public void setLocationUI(UI locationUI) {
-        this.locationUI = locationUI;
     }
 
 }

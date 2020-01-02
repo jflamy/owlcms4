@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.init;
@@ -17,11 +17,9 @@ import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Automatic configuration at startup of the various listeners for sessions,
- * etc.
+ * Automatic configuration at startup of the various listeners for sessions, etc.
  *
- * The fully qualified name of this class
- * (app.owlcms.ui.uiEvents.ServiceListener) must appear on single line in file
+ * The fully qualified name of this class (app.owlcms.ui.uiEvents.ServiceListener) must appear on single line in file
  * src/main/resources/META-INF/services/com.vaadin.flow.server.VaadinServiceInitListener
  *
  * @author owlcms
@@ -39,10 +37,8 @@ public class ServiceListener implements VaadinServiceInitListener {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * com.vaadin.flow.server.VaadinServiceInitListener#serviceInit(com.vaadin.flow.
-     * server.ServiceInitEvent)
+     *
+     * @see com.vaadin.flow.server.VaadinServiceInitListener#serviceInit(com.vaadin.flow. server.ServiceInitEvent)
      */
     @Override
     public void serviceInit(ServiceInitEvent event) {
@@ -64,7 +60,7 @@ public class ServiceListener implements VaadinServiceInitListener {
 
 //		// ignore browser-specific settings based on configuration
 //		session.setLocale(Locale.ENGLISH);
-//		
+//
     }
 
 }

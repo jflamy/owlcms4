@@ -1,12 +1,19 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.home;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +40,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.NavigationPage;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.utils.DebugUtils;
@@ -83,66 +91,6 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
         DebugUtils.gc();
     }
 
-    private VerticalLayout buildLicense() {
-        VerticalLayout license = new VerticalLayout();
-        license.add(
-                new H3(getTranslation("OwlcmsBuild", OwlcmsFactory.getVersion(), OwlcmsFactory.getBuildTimestamp())));
-        license.add(new H3(getTranslation("CopyrightLicense")));
-        addP(license, getTranslation("Copyright2009") + LocalDate.now().getYear() + " " + getTranslation("JFL"));
-        addP(license, getTranslation("LicenseUsed"));
-        license.add(new H3(getTranslation("SourceDocumentation")));
-        addP(license, getTranslation("ProjectRepository") + getTranslation("Documentation")
-                + getTranslation("InstallationConfiguration"));
-
-        license.add(new H3(getTranslation("Notes")));
-        addP(license, getTranslation("TCRRCompliance") + getTranslation("AtTimeOfRelease")
-                + getTranslation("UseAtYourOwnRisk"));
-
-        license.add(new H3(getTranslation("Credits")));
-        addP(license, getTranslation("WrittenJFL") + getTranslation("ThanksToAll") + getTranslation("ThanksToFHQ"));
-
-        Button resetTranslation = new Button(getTranslation("reloadTranslation"),
-                buttonClickEvent -> Translator.reset());
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(resetTranslation);
-
-        license.add(new H3(getTranslation("Translation")));
-        addP(license, getTranslation("TranslationDocumentation"));
-        doGroup(getTranslation("reloadTranslationInfo"), grid1, license);
-
-        return license;
-    }
-
-    /**
-     * The left part of the top bar.
-     * 
-     * @see app.owlcms.ui.shared.BaseNavigationContent#configureTopBarTitle(java.lang.String)
-     */
-    @Override
-    protected void configureTopBarTitle(String topBarTitle) {
-        AbstractLeftAppLayoutBase appLayout = getAppLayout();
-        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 40em");
-        Label label = new Label(getTitle());
-        appLayout.setTitleComponent(label);
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarFopField(java.lang.String,
-     *      java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
-        return null;
-    }
-
-    /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String,
-     *      java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
-        return null;
-    }
-
     @Override
     public Location getLocation() {
         return this.location;
@@ -162,14 +110,6 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
     }
 
     /**
-     * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
-     */
-    @Override
-    protected String getTitle() {
-        return getTranslation("OWLCMS_Top");
-    }
-
-    /**
      * @see app.owlcms.ui.shared.QueryParameterReader#isIgnoreFopFromURL()
      */
     @Override
@@ -185,6 +125,106 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /**
+     * The left part of the top bar.
+     *
+     * @see app.owlcms.ui.shared.BaseNavigationContent#configureTopBarTitle(java.lang.String)
+     */
+    @Override
+    protected void configureTopBarTitle(String topBarTitle) {
+        AbstractLeftAppLayoutBase appLayout = getAppLayout();
+        appLayout.getTitleWrapper().getElement().getStyle().set("flex", "0 1 40em");
+        Label label = new Label(getTitle());
+        appLayout.setTitleComponent(label);
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarFopField(java.lang.String, java.lang.String)
+     */
+    @Override
+    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+        return null;
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String, java.lang.String)
+     */
+    @Override
+    protected HorizontalLayout createTopBarGroupField(String label, String placeHolder) {
+        return null;
+    }
+
+    /**
+     * @see app.owlcms.ui.shared.BaseNavigationContent#getTitle()
+     */
+    @Override
+    protected String getTitle() {
+        return getTranslation("OWLCMS_Top");
+    }
+
+    private VerticalLayout buildLicense() {
+        VerticalLayout license = new VerticalLayout();
+        license.add(
+                new H3(getTranslation("OwlcmsBuild", OwlcmsFactory.getVersion(), OwlcmsFactory.getBuildTimestamp())));
+        license.add(new H3(getTranslation("CopyrightLicense")));
+        addP(license, getTranslation("Copyright2009") + LocalDate.now().getYear() + " " + getTranslation("JFL"));
+        addP(license, getTranslation("LicenseUsed"));
+        license.add(new H3(getTranslation("SourceDocumentation")));
+        addUL(license,
+                getTranslation("ProjectRepository"),
+                getTranslation("Documentation"),
+                getTranslation("InstallationConfiguration"));
+
+        license.add(new H3(getTranslation("Notes")));
+        addP(license, getTranslation("TCRRCompliance") + getTranslation("AtTimeOfRelease")
+                + getTranslation("UseAtYourOwnRisk"));
+
+        license.add(new H3(getTranslation("Credits")));
+        addUL(license, getTranslation("WrittenJFL"), getTranslation("ThanksToAll"));
+
+        Button resetTranslation = new Button(getTranslation("reloadTranslation"),
+                buttonClickEvent -> Translator.reset());
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(resetTranslation);
+
+        license.add(new H3(getTranslation("Translation")));
+        addUL(license, 
+                getTranslation("ThanksToTranslators") + translators(),
+                getTranslation("TranslationDocumentation"));
+        
+        doGroup(getTranslation("reloadTranslationInfo"), grid1, license);
+
+        return license;
+    }
+
+    private String translators() {
+        Map<String, List<Locale>> translatorToLocales = new HashMap<>();
+        for (Locale l : Translator.getAllAvailableLocales()) {
+            String translator = Translator.translateNoOverrideOrElseNull("Translator", l);
+            if (translator != null) {
+                List<Locale> list = translatorToLocales.get(translator);
+                if (list == null) {
+                    list = new ArrayList<>();
+                    list.add(l);
+                    translatorToLocales.put(translator, list);
+                } else {
+                    list.add(l);
+                }
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Entry<String, List<Locale>> entry : translatorToLocales.entrySet()) {
+            if (!(sb.length() == 0)) {
+                sb.append(", ");
+            }
+            sb.append(entry.getKey());
+            sb.append(" (");
+            sb.append(entry.getValue().stream().map(l -> l.getDisplayName(OwlcmsSession.getLocale()))
+                    .collect(Collectors.joining(", ")));
+            sb.append(")");
+        }
+        return sb.toString();
     }
 
 }

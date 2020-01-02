@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
@@ -307,18 +307,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
     @Override
     public void delete(Athlete notUsed) {
         AthleteRepository.delete(originalAthlete);
-    }
-
-    /**
-     * Update the original athlete so that the lifting order picks up the change.
-     */
-    private void doUpdate() {
-        Athlete.copy(originalAthlete, getEditedAthlete());
-        AthleteRepository.save(originalAthlete);
-        OwlcmsSession.withFop((fop) -> {
-            fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
-        });
-        origin.closeDialog();
     }
 
     /**
@@ -692,6 +680,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         tf.setPreventInvalidInput(true);
         tf.setValueChangeMode(ValueChangeMode.ON_BLUR);
         return tf;
+    }
+
+    /**
+     * Update the original athlete so that the lifting order picks up the change.
+     */
+    private void doUpdate() {
+        Athlete.copy(originalAthlete, getEditedAthlete());
+        AthleteRepository.save(originalAthlete);
+        OwlcmsSession.withFop((fop) -> {
+            fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
+        });
+        origin.closeDialog();
     }
 
     private Athlete getEditedAthlete() {

@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.preparation;
@@ -112,17 +112,21 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         all.sort((ag1, ag2) -> {
             int compare = 0;
             compare = ObjectUtils.compare(ag1.getAgeDivision(), ag2.getAgeDivision());
-            if (compare != 0)
+            if (compare != 0) {
                 return -compare; // DEFAULT first.
+            }
             compare = ObjectUtils.compare(ag1.getGender(), ag2.getGender());
-            if (compare != 0)
+            if (compare != 0) {
                 return compare;
+            }
             compare = ObjectUtils.compare(ag1.getMinAge(), ag2.getMinAge());
-            if (compare != 0)
+            if (compare != 0) {
                 return compare;
+            }
             compare = ObjectUtils.compare(ag1.getMaxAge(), ag2.getMaxAge());
-            if (compare != 0)
+            if (compare != 0) {
                 return compare;
+            }
             return 0;
         });
         return all;
@@ -139,6 +143,10 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
     @Override
     public OwlcmsRouterLayout getRouterLayout() {
         return routerLayout;
+    }
+
+    public void highlightResetButton() {
+        resetCats.setThemeName("primary error");
     }
 
     @Override
@@ -193,7 +201,7 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
 
     /**
      * Create the top bar.
-     * 
+     *
      * Note: the top bar is created before the content.
      *
      * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
@@ -252,52 +260,6 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
-
-
-    private void resetCategories() {
-        AthleteRepository.resetCategories();
-        crud.refreshGrid();
-        unHighlightResetButton();
-    }
-
-    private void setTemplateSelectionListener(List<Resource> resourceList) {
-        try {
-            String curTemplateName = Competition.getCurrent().getProtocolFileName();
-            Resource found = searchMatch(resourceList, curTemplateName);
-            ageGroupDefinitionSelect.addValueChangeListener((e) -> {
-                Competition.getCurrent().setProtocolFileName(e.getValue().getFileName());
-                CompetitionRepository.save(Competition.getCurrent());
-            });
-            ageGroupDefinitionSelect.setValue(found);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
-        Resource found = null;
-        for (Resource curResource : resourceList) {
-            String fileName = curResource.getFileName();
-            if (fileName.equals(curTemplateName)) {
-                found = curResource;
-                break;
-            }
-        }
-        return found;
-    }
-
-    /**
-     * We do not connect to the event bus, and we do not track a field of play (non-Javadoc)
-     *
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        createTopBar();
-        Competition competition = Competition.getCurrent();
-        competition.computeGlobalRankings();
-    }
-
     /**
      * The filters at the top of the crudGrid
      *
@@ -336,12 +298,16 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         crud.getCrudLayout().addFilterComponent(clearFilters);
     }
 
-    private OwlcmsCrudFormFactory<AgeGroup> getAgeGroupEditingFormFactory() {
-        return ageGroupEditingFormFactory;
-    }
-
-    private void setAgeGroupEditingFormFactory(OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory) {
-        this.ageGroupEditingFormFactory = ageGroupEditingFormFactory;
+    /**
+     * We do not connect to the event bus, and we do not track a field of play (non-Javadoc)
+     *
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        createTopBar();
+        Competition competition = Competition.getCurrent();
+        competition.computeGlobalRankings();
     }
 
     void closeDialog() {
@@ -349,8 +315,44 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
         crud.getGrid().asSingleSelect().clear();
     }
 
-    public void highlightResetButton() {
-        resetCats.setThemeName("primary error");
+    private OwlcmsCrudFormFactory<AgeGroup> getAgeGroupEditingFormFactory() {
+        return ageGroupEditingFormFactory;
+    }
+
+    private void resetCategories() {
+        AthleteRepository.resetCategories();
+        crud.refreshGrid();
+        unHighlightResetButton();
+    }
+
+    private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
+        Resource found = null;
+        for (Resource curResource : resourceList) {
+            String fileName = curResource.getFileName();
+            if (fileName.equals(curTemplateName)) {
+                found = curResource;
+                break;
+            }
+        }
+        return found;
+    }
+
+    private void setAgeGroupEditingFormFactory(OwlcmsCrudFormFactory<AgeGroup> ageGroupEditingFormFactory) {
+        this.ageGroupEditingFormFactory = ageGroupEditingFormFactory;
+    }
+
+    private void setTemplateSelectionListener(List<Resource> resourceList) {
+        try {
+            String curTemplateName = Competition.getCurrent().getProtocolFileName();
+            Resource found = searchMatch(resourceList, curTemplateName);
+            ageGroupDefinitionSelect.addValueChangeListener((e) -> {
+                Competition.getCurrent().setProtocolFileName(e.getValue().getFileName());
+                CompetitionRepository.save(Competition.getCurrent());
+            });
+            ageGroupDefinitionSelect.setValue(found);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void unHighlightResetButton() {

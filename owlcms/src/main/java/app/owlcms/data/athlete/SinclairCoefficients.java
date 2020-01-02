@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athlete;
@@ -49,6 +49,46 @@ public class SinclairCoefficients {
         return smm.get(age);
     }
 
+    /**
+     * @return
+     */
+    public static Double menCoefficient() {
+        if (menCoefficient == null) {
+            loadCoefficients();
+        }
+        return menCoefficient;
+    }
+
+    /**
+     * @return
+     */
+    public static Double menMaxWeight() {
+        if (menMaxWeight == null) {
+            loadCoefficients();
+        }
+        return menMaxWeight;
+    }
+
+    /**
+     * @return
+     */
+    public static Double womenCoefficient() {
+        if (womenCoefficient == null) {
+            loadCoefficients();
+        }
+        return womenCoefficient;
+    }
+
+    /**
+     * @return
+     */
+    public static Double womenMaxWeight() {
+        if (womenMaxWeight == null) {
+            loadCoefficients();
+        }
+        return womenMaxWeight;
+    }
+
     private static void loadCoefficients() {
         if (props == null) {
             loadProps();
@@ -91,45 +131,5 @@ public class SinclairCoefficients {
             }
         }
         return smm;
-    }
-
-    /**
-     * @return
-     */
-    public static Double menCoefficient() {
-        if (menCoefficient == null) {
-            loadCoefficients();
-        }
-        return menCoefficient;
-    }
-
-    /**
-     * @return
-     */
-    public static Double menMaxWeight() {
-        if (menMaxWeight == null) {
-            loadCoefficients();
-        }
-        return menMaxWeight;
-    }
-
-    /**
-     * @return
-     */
-    public static Double womenCoefficient() {
-        if (womenCoefficient == null) {
-            loadCoefficients();
-        }
-        return womenCoefficient;
-    }
-
-    /**
-     * @return
-     */
-    public static Double womenMaxWeight() {
-        if (womenMaxWeight == null) {
-            loadCoefficients();
-        }
-        return womenMaxWeight;
     }
 }

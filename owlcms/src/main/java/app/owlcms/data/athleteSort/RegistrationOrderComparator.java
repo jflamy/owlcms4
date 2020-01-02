@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athleteSort;
@@ -14,8 +14,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 
 /**
- * This comparator is used for the technical meeting sheet. It is based on the
- * registration category
+ * This comparator is used for the technical meeting sheet. It is based on the registration category
  *
  * @author jflamy
  *
@@ -24,7 +23,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @Override

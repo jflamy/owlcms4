@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.elements;
@@ -49,8 +49,7 @@ public class BreakTimerElement extends TimerElement {
     }
 
     /**
-     * Set the remaining time when the timer element has been hidden for a long
-     * time.
+     * Set the remaining time when the timer element has been hidden for a long time.
      */
     @Override
     @ClientCallable
@@ -65,7 +64,7 @@ public class BreakTimerElement extends TimerElement {
 
     /**
      * Timer stopped
-     * 
+     *
      * @param remaining Time the remaining time
      */
     @Override
@@ -86,45 +85,6 @@ public class BreakTimerElement extends TimerElement {
     @ClientCallable
     public void clientTimerStopped(double remainingTime) {
         logger.trace("timer stopped from client" + remainingTime);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see app.owlcms.displays.attemptboard.TimerElement#init()
-     */
-    @Override
-    protected void init() {
-        super.init();
-        getModel().setSilent(true); // do not emit sounds
-    }
-
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-     * AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        init();
-        OwlcmsSession.withFop(fop -> {
-            // sync with current status of FOP
-            ProxyBreakTimer breakTimer = fop.getBreakTimer();
-            if (breakTimer.isRunning()) {
-                if (breakTimer.isIndefinite()) {
-                    doStartTimer(null, fop.isEmitSoundsOnServer());
-                } else {
-                    doStartTimer(breakTimer.computeTimeRemaining(), fop.isEmitSoundsOnServer());
-                }
-            } else {
-                if (breakTimer.isIndefinite()) {
-                    doSetTimer(null);
-                } else {
-                    doSetTimer(breakTimer.getTimeRemainingAtLastStop());
-                }
-            }
-            // we listen on uiEventBus; this method ensures we stop when detached.
-            uiEventBusRegister(this, fop);
-        });
     }
 
     @Subscribe
@@ -154,6 +114,44 @@ public class BreakTimerElement extends TimerElement {
         }
         uiEventLogger.debug("&&& breakTimer start {} {} {}", e.getClass().getSimpleName(), null, e.getOrigin());
         doStartTimer(e.getTimeRemaining(), true); // true means "silent".
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.displays.attemptboard.TimerElement#init()
+     */
+    @Override
+    protected void init() {
+        super.init();
+        getModel().setSilent(true); // do not emit sounds
+    }
+
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        init();
+        OwlcmsSession.withFop(fop -> {
+            // sync with current status of FOP
+            ProxyBreakTimer breakTimer = fop.getBreakTimer();
+            if (breakTimer.isRunning()) {
+                if (breakTimer.isIndefinite()) {
+                    doStartTimer(null, fop.isEmitSoundsOnServer());
+                } else {
+                    doStartTimer(breakTimer.computeTimeRemaining(), fop.isEmitSoundsOnServer());
+                }
+            } else {
+                if (breakTimer.isIndefinite()) {
+                    doSetTimer(null);
+                } else {
+                    doSetTimer(breakTimer.getTimeRemainingAtLastStop());
+                }
+            }
+            // we listen on uiEventBus; this method ensures we stop when detached.
+            uiEventBusRegister(this, fop);
+        });
     }
 
 }

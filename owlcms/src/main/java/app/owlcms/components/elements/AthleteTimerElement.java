@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.elements;
@@ -72,7 +72,7 @@ public class AthleteTimerElement extends TimerElement {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see app.owlcms.displays.attemptboard.TimerElement#clientSyncTime()
      */
     @Override
@@ -100,7 +100,7 @@ public class AthleteTimerElement extends TimerElement {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double)
      */
     @Override
@@ -116,33 +116,6 @@ public class AthleteTimerElement extends TimerElement {
      */
     public Object getOrigin() {
         return origin;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see app.owlcms.displays.attemptboard.TimerElement#init()
-     */
-    @Override
-    protected void init() {
-        super.init();
-        getModel().setSilent(false); // emit sounds
-    }
-
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-     * AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        logger.debug("attaching to {}", this.getOrigin());
-        init();
-        OwlcmsSession.withFop(fop -> {
-            // sync with current status of FOP
-            doSetTimer(fop.getAthleteTimer().getTimeRemaining());
-            // we listen on uiEventBus; this method ensures we stop when detached.
-            uiEventBusRegister(this, fop);
-        });
     }
 
     public void setOrigin(Object origin) {
@@ -183,6 +156,32 @@ public class AthleteTimerElement extends TimerElement {
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         doStopTimer();
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.displays.attemptboard.TimerElement#init()
+     */
+    @Override
+    protected void init() {
+        super.init();
+        getModel().setSilent(false); // emit sounds
+    }
+
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        logger.debug("attaching to {}", this.getOrigin());
+        init();
+        OwlcmsSession.withFop(fop -> {
+            // sync with current status of FOP
+            doSetTimer(fop.getAthleteTimer().getTimeRemaining());
+            // we listen on uiEventBus; this method ensures we stop when detached.
+            uiEventBusRegister(this, fop);
+        });
     }
 
 }

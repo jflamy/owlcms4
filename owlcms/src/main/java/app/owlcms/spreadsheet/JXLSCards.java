@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -40,6 +40,11 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
     }
 
     @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        return getLocalizedTemplate("/templates/cards/CardTemplate", ".xls", locale);
+    }
+
+    @Override
     protected List<Athlete> getSortedAthletes() {
         if (getGroup() != null) {
             List<Athlete> registrationOrderCopy = AthleteSorter
@@ -52,16 +57,10 @@ public class JXLSCards extends JXLSWorkbookStreamSource {
         }
     }
 
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/cards/CardTemplate", ".xls", locale);
-    }
-
     /*
      * (non-Javadoc)
      *
-     * @see
-     * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
      * postProcess(org.apache.poi.ss.usermodel.Workbook)
      */
     @Override

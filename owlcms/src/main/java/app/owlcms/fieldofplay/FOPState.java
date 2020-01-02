@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.fieldofplay;
@@ -30,8 +30,8 @@ public enum FOPState {
 //	TIMEKEEPER_WAITING_FOR_ANNOUNCER,
 
     /**
-     * time is running. Either automatically started on announce (if using the
-     * default "start on announce", or manually by timekeeper (in traditional mode)
+     * time is running. Either automatically started on announce (if using the default "start on announce", or manually
+     * by timekeeper (in traditional mode)
      */
     TIME_RUNNING,
 

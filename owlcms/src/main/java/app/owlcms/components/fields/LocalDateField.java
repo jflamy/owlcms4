@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.fields;
@@ -39,24 +39,6 @@ public class LocalDateField extends WrappedTextField<LocalDate> {
         return new LocalDateRenderer<>(v, FORMATTER.withLocale(locale));
     }
 
-    private Result<LocalDate> doParse(String content, Locale locale, DateTimeFormatter formatter) {
-        LocalDate parse;
-        try {
-            if ((content == null || content.trim().isEmpty()) && !this.isRequired()) {
-                // field is not required, accept empty content
-                setFormatValidationStatus(true, locale);
-                return Result.ok(null);
-            }
-            parse = LocalDate.parse(content, formatter);
-            setFormatValidationStatus(true, locale);
-            return Result.ok(parse);
-        } catch (DateTimeParseException e) {
-            String m = invalidFormatErrorMessage(locale);
-            setFormatValidationStatus(false, locale);
-            return Result.error(m);
-        }
-    }
-
     @Override
     public Converter<String, LocalDate> getConverter() {
         return new Converter<String, LocalDate>() {
@@ -75,6 +57,11 @@ public class LocalDateField extends WrappedTextField<LocalDate> {
     }
 
     @Override
+    public String toString() {
+        return FORMATTER.format(getValue());
+    }
+
+    @Override
     protected void initLoggers() {
         setLogger((Logger) LoggerFactory.getLogger(LocalDateField.class));
         getLogger().setLevel(Level.INFO);
@@ -87,9 +74,22 @@ public class LocalDateField extends WrappedTextField<LocalDate> {
                 + DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale).format(sampleDate) + ")";
     }
 
-    @Override
-    public String toString() {
-        return FORMATTER.format(getValue());
+    private Result<LocalDate> doParse(String content, Locale locale, DateTimeFormatter formatter) {
+        LocalDate parse;
+        try {
+            if ((content == null || content.trim().isEmpty()) && !this.isRequired()) {
+                // field is not required, accept empty content
+                setFormatValidationStatus(true, locale);
+                return Result.ok(null);
+            }
+            parse = LocalDate.parse(content, formatter);
+            setFormatValidationStatus(true, locale);
+            return Result.ok(parse);
+        } catch (DateTimeParseException e) {
+            String m = invalidFormatErrorMessage(locale);
+            setFormatValidationStatus(false, locale);
+            return Result.error(m);
+        }
     }
 
 }

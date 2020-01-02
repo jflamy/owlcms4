@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athleteSort;
@@ -11,9 +11,8 @@ import java.util.Comparator;
 import app.owlcms.data.athlete.Athlete;
 
 /**
- * This comparator is used to highlight the athletes that have lifted recently,
- * and are likely to request changes to the automatic progression. It simply
- * sorts according to time stamp, if available. Else lot number is used.
+ * This comparator is used to highlight the athletes that have lifted recently, and are likely to request changes to the
+ * automatic progression. It simply sorts according to time stamp, if available. Else lot number is used.
  *
  * @author jflamy
  *
@@ -28,7 +27,7 @@ public class LiftTimeStampComparator extends AbstractLifterComparator implements
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @Override

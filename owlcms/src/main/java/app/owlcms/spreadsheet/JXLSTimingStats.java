@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -48,8 +48,10 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         }
 
         public Double getAthletesPerHour() {
-            Double hours = getHours();
-            return hours > 0 ? (nbAthletes / hours) : null;
+            Double hours = getHoursForGroup();
+            Double athleteEquivalents = (getNbAttemptedLifts()) / 6.0D;
+
+            return hours > 0 ? athleteEquivalents / hours : null;
         }
 
         /**
@@ -66,15 +68,6 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
         public String getGroupName() {
             return groupName;
-        }
-
-        private Double getHours() {
-            Duration delta = Duration.between(minTime, maxTime);
-            if (delta.isNegative()) {
-                delta = Duration.ZERO;
-            }
-            Double hours = delta.getSeconds() / 3600.0D;
-            return hours;
         }
 
         public LocalDateTime getMaxTime() {
@@ -157,6 +150,16 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             }
 
         }
+
+        private Double getHoursForGroup() {
+            Duration delta = Duration.between(minTime, maxTime);
+            if (delta.isNegative()) {
+                delta = Duration.ZERO;
+            }
+            Double hours = delta.getSeconds() / 3600.0D;
+            logger.warn("getHours: {}", hours);
+            return hours;
+        }
     }
 
     public static String formatDuration(Duration duration) {
@@ -174,6 +177,11 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
     public JXLSTimingStats(Group group, boolean excludeNotWeighed) {
         super();
+    }
+
+    @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        return getLocalizedTemplate("/templates/timing/TimingStats", ".xls", locale);
     }
 
     @Override
@@ -223,11 +231,6 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
         }
         reportingBeans.put("groups", sessions);
         return athletes;
-    }
-
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/timing/TimingStats", ".xls", locale);
     }
 
     private void processGroup(List<SessionStats> sessions, SessionStats curStat) {

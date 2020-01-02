@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.elements;
@@ -35,11 +35,9 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         implements SafeEventBusRegistration {
 
     /**
-     * TimerModel Vaadin Flow propagates these variables to the corresponding
-     * Polymer template JavaScript properties. When the JS properties are changed, a
-     * "propname-changed" event is triggered.
-     * {@link Element.#addPropertyChangeListener(String, String,
-     * com.vaadin.flow.dom.PropertyChangeListener)}
+     * TimerModel Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties.
+     * When the JS properties are changed, a "propname-changed" event is triggered.
+     * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
      */
     public interface TimerModel extends TemplateModel {
 
@@ -95,9 +93,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         void setCurrentTime(double seconds);
 
         /**
-         * If indefinite, the timer doesn't start or stop, it just stays there with
-         * --:--
-         * 
+         * If indefinite, the timer doesn't start or stop, it just stays there with --:--
+         *
          * @param b
          */
         void setIndefinite(boolean b);
@@ -111,7 +108,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 
         /**
          * Determine whether sounds are emitted at 90, 30 and 0 seconds
-         * 
+         *
          * @param quiet true indicates no sound
          */
         void setSilent(boolean quiet);
@@ -148,8 +145,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     abstract public void clientInitialWarning();
 
     /**
-     * Client requests that the server send back the remaining time. Intended to be
-     * used after client has been hidden and is made visible again.
+     * Client requests that the server send back the remaining time. Intended to be used after client has been hidden
+     * and is made visible again.
      */
     @ClientCallable
     abstract public void clientSyncTime();
@@ -162,7 +159,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 
     /**
      * Timer has been stopped on the client side.
-     * 
+     *
      * @param remainingTime
      */
     @ClientCallable
@@ -206,8 +203,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-     * AttachEvent)
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {

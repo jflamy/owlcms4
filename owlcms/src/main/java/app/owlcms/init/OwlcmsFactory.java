@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.init;
@@ -25,13 +25,11 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Singleton, one per running JVM (i.e. one instance of owlcms, or one unit
- * test)
+ * Singleton, one per running JVM (i.e. one instance of owlcms, or one unit test)
  *
- * This class allows a web session to locate the event bus on which information
- * will be broacast. All web pages talk to one another via the event bus. The
- * {@link OwlcmsSession} class is used to remember the current field of play for
- * the user.
+ * This class allows a web session to locate the event bus on which information will be broacast. All web pages talk to
+ * one another via the event bus. The {@link OwlcmsSession} class is used to remember the current field of play for the
+ * user.
  *
  * @author owlcms
  */
@@ -101,6 +99,14 @@ public class OwlcmsFactory {
         return version;
     }
 
+    public static void setBuildTimestamp(String sBuildTimestamp) {
+        buildTimestamp = sBuildTimestamp;
+    }
+
+    public static void setVersion(String sVersion) {
+        version = sVersion;
+    }
+
     private static void initFOPByName() {
         fopByName = new HashMap<>();
         for (Platform platform : PlatformRepository.findAll()) {
@@ -111,13 +117,5 @@ public class OwlcmsFactory {
             fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop));
             fopByName.put(name, fop);
         }
-    }
-
-    public static void setBuildTimestamp(String sBuildTimestamp) {
-        buildTimestamp = sBuildTimestamp;
-    }
-
-    public static void setVersion(String sVersion) {
-        version = sVersion;
     }
 }

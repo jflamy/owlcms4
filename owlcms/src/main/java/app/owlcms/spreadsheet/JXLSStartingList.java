@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -37,14 +37,14 @@ public class JXLSStartingList extends JXLSWorkbookStreamSource {
     }
 
     @Override
-    protected List<Athlete> getSortedAthletes() {
-        return AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
-                .filter((a) -> a.getGroup() != null).collect(Collectors.toList());
+    public InputStream getTemplate(Locale locale) throws IOException {
+        return getLocalizedTemplate("/templates/start/StartSheetTemplate", ".xls", locale);
     }
 
     @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/start/StartSheetTemplate", ".xls", locale);
+    protected List<Athlete> getSortedAthletes() {
+        return AthleteSorter.registrationOrderCopy(AthleteRepository.findAll()).stream()
+                .filter((a) -> a.getGroup() != null).collect(Collectors.toList());
     }
 
 }

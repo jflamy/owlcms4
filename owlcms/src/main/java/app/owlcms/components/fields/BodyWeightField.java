@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.fields;
@@ -33,6 +33,10 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class BodyWeightField extends WrappedTextField<Double> {
 
+    public static <SOURCE> Renderer<SOURCE> getRenderer(ValueProvider<SOURCE, Number> v, Locale locale) {
+        return new NumberRenderer<>(v, getFormatter(locale));
+    }
+
     private static NumberFormat getFormatter(Locale locale) {
         NumberFormat formatter = new DecimalFormat("0.00");
         formatter.setMaximumFractionDigits(2);
@@ -41,38 +45,8 @@ public class BodyWeightField extends WrappedTextField<Double> {
         return formatter;
     }
 
-    public static <SOURCE> Renderer<SOURCE> getRenderer(ValueProvider<SOURCE, Number> v, Locale locale) {
-        return new NumberRenderer<>(v, getFormatter(locale));
-    }
-
     @SuppressWarnings("unused")
     private Logger logger = (Logger) LoggerFactory.getLogger(BodyWeightField.class);
-
-    private Result<Double> doParse(String content, Locale locale, NumberFormat formatter) {
-        if ((content == null || content.trim().isEmpty()) && !this.isRequired()) {
-            // field is not required, accept empty content
-            setFormatValidationStatus(true, locale);
-            return Result.ok(null);
-        }
-        // we ignore the provided formatter, and we try both "," and "." as decimal
-        // separator, as per ISO 30-1
-        DecimalFormatSymbols dc = new DecimalFormatSymbols(locale);
-        char decimalSeparator = dc.getDecimalSeparator();
-        char alternateSeparator = (decimalSeparator == '.' ? ',' : '.');
-
-        // first try with locale decimal separator
-        Result<Double> r = parseWithSeparator(content, locale, decimalSeparator);
-        if (!r.isError()) {
-            return r;
-        }
-        // then try with alternate
-        r = parseWithSeparator(content, locale, alternateSeparator);
-        if (!r.isError()) {
-            return r;
-        }
-        setFormatValidationStatus(false, locale);
-        return r;
-    }
 
     @Override
     public void focus() {
@@ -95,17 +69,6 @@ public class BodyWeightField extends WrappedTextField<Double> {
                 return (value != null ? getFormatter(locale).format(value) : "");
             }
         };
-    }
-
-    @Override
-    protected void initLoggers() {
-        setLogger((Logger) LoggerFactory.getLogger(BodyWeightField.class));
-        getLogger().setLevel(Level.INFO);
-    }
-
-    @Override
-    protected String invalidFormatErrorMessage(Locale locale) {
-        return "Please enter a valid number (for example " + getFormatter(locale).format(64.56) + ")";
     }
 
     public Result<Double> parseWithSeparator(String content, Locale locale, char separator) {
@@ -131,6 +94,43 @@ public class BodyWeightField extends WrappedTextField<Double> {
     @Override
     public String toString() {
         return this.getValue().toString();
+    }
+
+    @Override
+    protected void initLoggers() {
+        setLogger((Logger) LoggerFactory.getLogger(BodyWeightField.class));
+        getLogger().setLevel(Level.INFO);
+    }
+
+    @Override
+    protected String invalidFormatErrorMessage(Locale locale) {
+        return "Please enter a valid number (for example " + getFormatter(locale).format(64.56) + ")";
+    }
+
+    private Result<Double> doParse(String content, Locale locale, NumberFormat formatter) {
+        if ((content == null || content.trim().isEmpty()) && !this.isRequired()) {
+            // field is not required, accept empty content
+            setFormatValidationStatus(true, locale);
+            return Result.ok(null);
+        }
+        // we ignore the provided formatter, and we try both "," and "." as decimal
+        // separator, as per ISO 30-1
+        DecimalFormatSymbols dc = new DecimalFormatSymbols(locale);
+        char decimalSeparator = dc.getDecimalSeparator();
+        char alternateSeparator = (decimalSeparator == '.' ? ',' : '.');
+
+        // first try with locale decimal separator
+        Result<Double> r = parseWithSeparator(content, locale, decimalSeparator);
+        if (!r.isError()) {
+            return r;
+        }
+        // then try with alternate
+        r = parseWithSeparator(content, locale, alternateSeparator);
+        if (!r.isError()) {
+            return r;
+        }
+        setFormatValidationStatus(false, locale);
+        return r;
     }
 
 }

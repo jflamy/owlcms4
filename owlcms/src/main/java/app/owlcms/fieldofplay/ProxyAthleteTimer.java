@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.fieldofplay;
@@ -13,9 +13,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Class ProxyBreakTimer. Relay timer instructions from {@link FieldOfPlay} to
- * the actual timers associated with each screen. Memorize the elapsed time and
- * timer state.
+ * Class ProxyBreakTimer. Relay timer instructions from {@link FieldOfPlay} to the actual timers associated with each
+ * screen. Memorize the elapsed time and timer state.
  *
  * @author Jean-François Lamy
  */
@@ -40,15 +39,6 @@ public class ProxyAthleteTimer implements IProxyTimer {
      */
     public ProxyAthleteTimer(FieldOfPlay fop) {
         this.fop = fop;
-    }
-
-    /**
-     * Compute time elapsed since start and adjust time remaining accordingly.
-     */
-    private void computeTimeRemaining() {
-        stopMillis = System.currentTimeMillis();
-        long elapsed = stopMillis - startMillis;
-        timeRemaining = (int) (timeRemaining - elapsed);
     }
 
     @Override
@@ -137,6 +127,15 @@ public class ProxyAthleteTimer implements IProxyTimer {
         }
         fop.emitTimeOver();
         fop.getFopEventBus().post(new FOPEvent.TimeOver(origin));
+    }
+
+    /**
+     * Compute time elapsed since start and adjust time remaining accordingly.
+     */
+    private void computeTimeRemaining() {
+        stopMillis = System.currentTimeMillis();
+        long elapsed = stopMillis - startMillis;
+        timeRemaining = (int) (timeRemaining - elapsed);
     }
 
 }

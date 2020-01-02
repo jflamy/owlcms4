@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athlete;
@@ -54,7 +54,7 @@ public class XAthlete extends Athlete {
     }
 
     /**
-     * 
+     *
      * @see app.owlcms.data.athlete.Athlete#failedLift()
      */
     @Override
@@ -120,32 +120,6 @@ public class XAthlete extends Athlete {
             logger.error(e.getLocalizedMessage(), e);
         }
         return null;
-    }
-
-    protected LiftInfo getBest(LiftDefinition.Changes change, Stage stage) {
-        try {
-            int liftNo = stage.inclUpper;
-            int changeNo = 0;
-            String stringValue = null;
-            boolean found = false;
-            while (!found && liftNo > stage.inclLower) {
-                changeNo = change.ordinal();
-                stringValue = (String) LiftDefinition.lifts[liftNo].getters[changeNo].invoke(a);
-                if (stringValue != null) {
-                    found = true;
-                } else {
-                    liftNo--;
-                }
-            }
-            if (found) {
-                return new LiftInfo(stage, liftNo, changeNo, stringValue);
-            } else {
-                return new LiftInfo(stage, -1, changeNo, null);
-            }
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            logger.error(e.getLocalizedMessage(), e);
-            throw new RuntimeException(e);
-        }
     }
 
     /**
@@ -772,7 +746,6 @@ public class XAthlete extends Athlete {
         return a.getRank();
     }
 
-
     /**
      * @param attempt
      * @return
@@ -781,32 +754,6 @@ public class XAthlete extends Athlete {
     @Override
     public Integer getRequestedWeightForAttempt(int attempt) {
         return a.getRequestedWeightForAttempt(attempt);
-    }
-
-    private LiftInfo getRequestInfo(Integer liftNo) {
-        try {
-            int changeNo = LiftDefinition.NBCHANGES - 1;
-            String stringValue = null;
-            boolean found = false;
-            while (!found && changeNo >= 0) {
-                Method method = LiftDefinition.lifts[liftNo].getters[changeNo];
-                stringValue = (String) method.invoke(a);
-                boolean zeroKgAutomaticChange = (changeNo == 0 && "0".equals(stringValue));
-                if (stringValue != null && !stringValue.isEmpty() && !zeroKgAutomaticChange) {
-                    found = true;
-                } else {
-                    changeNo--;
-                }
-            }
-            if (found) {
-                return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, changeNo, stringValue);
-            } else {
-                return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, -1, null);
-            }
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            logger.error(e.getLocalizedMessage(), e);
-            throw new RuntimeException(e);
-        }
     }
 
     public LiftInfo[] getRequestInfoArray() {
@@ -862,7 +809,6 @@ public class XAthlete extends Athlete {
     public String getShortCategory(String gender1) {
         return a.getShortCategory(gender1);
     }
-
 
     /**
      * @return
@@ -1349,7 +1295,7 @@ public class XAthlete extends Athlete {
     }
 
     /**
-     * 
+     *
      * @see app.owlcms.data.athlete.Athlete#resetForcedAsCurrent()
      */
     @Override
@@ -1819,16 +1765,6 @@ public class XAthlete extends Athlete {
         a.setSnatch1Declaration(snatch1Declaration);
     }
 
-//	/**
-//	 * @param resultOrderRank
-//	 * @param rankingType
-//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
-//	 */
-//	@Override
-//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//		a.setResultOrderRank(resultOrderRank, rankingType);
-//	}
-
     /**
      * @param snatch1LiftTime
      * @see app.owlcms.data.athlete.Athlete#setSnatch1LiftTime(java.sql.Date)
@@ -1846,6 +1782,16 @@ public class XAthlete extends Athlete {
     public void setSnatch2ActualLift(String snatch2ActualLift) {
         a.setSnatch2ActualLift(snatch2ActualLift);
     }
+
+//	/**
+//	 * @param resultOrderRank
+//	 * @param rankingType
+//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
+//	 */
+//	@Override
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		a.setResultOrderRank(resultOrderRank, rankingType);
+//	}
 
     /**
      * @param s
@@ -2087,7 +2033,7 @@ public class XAthlete extends Athlete {
     }
 
     /**
-     * 
+     *
      * @see app.owlcms.data.athlete.Athlete#successfulLift()
      */
     @Override
@@ -2111,9 +2057,8 @@ public class XAthlete extends Athlete {
      * @param change1
      * @param change2
      * @param actualLift
-     * @see app.owlcms.data.athlete.Athlete#validateActualLift(int,
-     *      java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-     *      java.lang.String)
+     * @see app.owlcms.data.athlete.Athlete#validateActualLift(int, java.lang.String, java.lang.String,
+     *      java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
     public void validateActualLift(int curLift, String automaticProgression, String declaration, String change1,
@@ -2361,12 +2306,64 @@ public class XAthlete extends Athlete {
     }
 
     /**
-     * 
+     *
      * @see app.owlcms.data.athlete.Athlete#withdraw()
      */
     @Override
     public void withdraw() {
         a.withdraw();
+    }
+
+    protected LiftInfo getBest(LiftDefinition.Changes change, Stage stage) {
+        try {
+            int liftNo = stage.inclUpper;
+            int changeNo = 0;
+            String stringValue = null;
+            boolean found = false;
+            while (!found && liftNo > stage.inclLower) {
+                changeNo = change.ordinal();
+                stringValue = (String) LiftDefinition.lifts[liftNo].getters[changeNo].invoke(a);
+                if (stringValue != null) {
+                    found = true;
+                } else {
+                    liftNo--;
+                }
+            }
+            if (found) {
+                return new LiftInfo(stage, liftNo, changeNo, stringValue);
+            } else {
+                return new LiftInfo(stage, -1, changeNo, null);
+            }
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            logger.error(e.getLocalizedMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private LiftInfo getRequestInfo(Integer liftNo) {
+        try {
+            int changeNo = LiftDefinition.NBCHANGES - 1;
+            String stringValue = null;
+            boolean found = false;
+            while (!found && changeNo >= 0) {
+                Method method = LiftDefinition.lifts[liftNo].getters[changeNo];
+                stringValue = (String) method.invoke(a);
+                boolean zeroKgAutomaticChange = (changeNo == 0 && "0".equals(stringValue));
+                if (stringValue != null && !stringValue.isEmpty() && !zeroKgAutomaticChange) {
+                    found = true;
+                } else {
+                    changeNo--;
+                }
+            }
+            if (found) {
+                return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, changeNo, stringValue);
+            } else {
+                return new LiftInfo(LiftDefinition.lifts[liftNo].stage, liftNo, -1, null);
+            }
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            logger.error(e.getLocalizedMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
 }

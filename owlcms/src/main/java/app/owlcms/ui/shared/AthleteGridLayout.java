@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.shared;
@@ -44,9 +44,15 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
         logger.debug("created AthleteGridLayout");
     }
 
+    @Override
+    public void showRouterLayoutContent(HasElement content) {
+        logger.debug("AthleteGridLayout setting bi-directional link");
+        super.showRouterLayoutContent(content);
+    }
+
     /**
      * Hide the menu and the default title
-     * 
+     *
      * @see app.owlcms.ui.shared.OwlcmsRouterLayout#getLayoutConfiguration(com.github.appreciated.app.layout.behaviour.Behaviour)
      */
     @Override
@@ -58,11 +64,5 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
         appLayout.getTitleWrapper().getElement().getStyle().set("display", "none");
         // .set("flex", "0 1 0px");
         return appLayout;
-    }
-
-    @Override
-    public void showRouterLayoutContent(HasElement content) {
-        logger.debug("AthleteGridLayout setting bi-directional link");
-        super.showRouterLayoutContent(content);
     }
 }

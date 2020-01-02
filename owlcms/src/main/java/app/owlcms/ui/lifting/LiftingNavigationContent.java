@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.lifting;
@@ -48,8 +48,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
     public LiftingNavigationContent() {
         logger.trace("LiftingNavigationContent constructor start");
 
-        Button weighIn = new Button(getTranslation("WeighIn_StartNumbers"),
-                buttonClickEvent -> UI.getCurrent().navigate(WeighinContent.class));
+        Button weighIn = openInNewTabNoParam(WeighinContent.class, getTranslation("WeighIn_StartNumbers"));
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
         doGroup(getTranslation("WeighIn"), grid3, this);
 
@@ -77,30 +76,6 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         logger.trace("LiftingNavigationContent constructor stop");
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.ui.home.BaseNavigationContent#createTopBarFopField(java.lang.
-     * String, java.lang.String)
-     */
-    @Override
-    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
-        Label fopLabel = new Label(label);
-        formatLabel(fopLabel);
-
-        ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
-        OwlcmsSession.withFop((fop) -> {
-            fopSelect.setValue(fop);
-        });
-        fopSelect.addValueChangeListener(e -> {
-            OwlcmsSession.setFop(e.getValue());
-        });
-
-        HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
-        fopField.setAlignItems(Alignment.CENTER);
-        return fopField;
-    }
-
     @Override
     public Location getLocation() {
         return this.location;
@@ -117,11 +92,6 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
     }
 
     @Override
-    protected String getTitle() {
-        return getTranslation("RunLiftingGroup");
-    }
-
-    @Override
     public void setLocation(Location location) {
         this.location = location;
     }
@@ -129,6 +99,35 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.ui.home.BaseNavigationContent#createTopBarFopField(java.lang. String, java.lang.String)
+     */
+    @Override
+    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+        Label fopLabel = new Label(label);
+        formatLabel(fopLabel);
+
+        ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
+        OwlcmsSession.withFop((fop) -> {
+            fopSelect.setValue(fop);
+        });
+        fopSelect.addValueChangeListener(e -> {
+            OwlcmsSession.setFop(e.getValue());
+            updateURLLocation(getLocationUI(), getLocation(), null);
+        });
+
+        HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
+        fopField.setAlignItems(Alignment.CENTER);
+        return fopField;
+    }
+
+    @Override
+    protected String getTitle() {
+        return getTranslation("RunLiftingGroup");
     }
 
 }

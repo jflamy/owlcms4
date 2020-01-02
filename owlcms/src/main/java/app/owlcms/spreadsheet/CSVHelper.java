@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -37,17 +37,15 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 
 /**
- * Read registration data in CSV format. The file is expected to contain a
- * header line, as illustrated:
+ * Read registration data in CSV format. The file is expected to contain a header line, as illustrated:
  *
  * <pre>
  * lastName,firstName,gender,club,fullBirthDate,category,group,qualifyingTotal
  * Lamy,Jean-François,M,C-I,1961-12-02,m69,H1,140
  * </pre>
  *
- * (the date is expected in ISO international format YYYY-MM-dd : 4 digit year -
- * month - day). If you are forcing owlcms.useBirthYear=true then your header
- * and format should be as follows.
+ * (the date is expected in ISO international format YYYY-MM-dd : 4 digit year - month - day). If you are forcing
+ * owlcms.useBirthYear=true then your header and format should be as follows.
  *
  * <pre>
  * lastName,firstName,gender,club,yearOfBirth,category,group,qualifyingTotal
@@ -57,9 +55,8 @@ import app.owlcms.data.group.GroupRepository;
  *
  *
  *
- * 
- * registrationCategory and competitionSession must be valid entries in the
- * database.
+ *
+ * registrationCategory and competitionSession must be valid entries in the database.
  *
  * @author Jean-François Lamy
  *
@@ -151,6 +148,10 @@ public class CSVHelper {
         return groupAthletes;
     }
 
+    public void readHeader(InputStream is, Session session) {
+        // do nothing
+    }
+
     /**
      * Configure the cell validators and value converters.
      *
@@ -182,10 +183,6 @@ public class CSVHelper {
                 new IsIncludedIn(sessionNameSet, new AsGroup()), // sessionName
                 new Optional(new ParseInt()), // registration total
         };
-    }
-
-    public void readHeader(InputStream is, Session session) {
-        // do nothing
     }
 
 }

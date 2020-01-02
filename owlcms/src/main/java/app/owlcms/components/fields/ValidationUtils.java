@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.fields;
@@ -15,9 +15,8 @@ import com.vaadin.flow.function.SerializablePredicate;
 public class ValidationUtils {
 
     /**
-     * Builds a validator out of a conditional function and an error message If the
-     * function returns true, the validator returns {@code Result.ok()}; if it
-     * returns false or throws an exception, {@code Result.error()} is returned with
+     * Builds a validator out of a conditional function and an error message If the function returns true, the validator
+     * returns {@code Result.ok()}; if it returns false or throws an exception, {@code Result.error()} is returned with
      * the message from the exception using getLocalizedMessage().
      *
      * @param <T>          the value type

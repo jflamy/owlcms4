@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athleteSort;
@@ -18,7 +18,7 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @Override
@@ -50,7 +50,7 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
                 return compare;
             }
         }
-        
+
         compare = compareRequestedWeight(lifter1, lifter2);
         if (compare != 0) {
             return compare;

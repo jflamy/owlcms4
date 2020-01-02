@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.jpa;
@@ -27,6 +27,24 @@ public class ProdData {
 
     @SuppressWarnings("unused")
     private static Logger logger = (Logger) LoggerFactory.getLogger(ProdData.class);
+
+    /**
+     * Insert initial data if the database is empty.
+     *
+     * @param nbAthletes how many athletes
+     */
+    public static void insertInitialData(int nbAthletes) {
+        JPAService.runInTransaction(em -> {
+            Competition competition = createDefaultCompetition();
+            em.persist(competition);
+            AgeGroupRepository.insertAgeGroups(em, null);
+            return null;
+        });
+        JPAService.runInTransaction(em -> {
+            setupEmptyCompetition(em);
+            return null;
+        });
+    }
 
     protected static Competition createDefaultCompetition() {
         Competition competition = new Competition();
@@ -98,32 +116,9 @@ public class ProdData {
         platform1.setNbL_25(3);
     }
 
-    private static Locale getLocale() {
-        return Locale.ENGLISH;
-    }
-
     /**
-     * Insert initial data if the database is empty.
+     * Create an empty competition. Set-up the defaults for using the timekeeping and refereeing features.
      *
-     * @param nbAthletes how many athletes
-     */
-    public static void insertInitialData(int nbAthletes) {
-        JPAService.runInTransaction(em -> {
-            Competition competition = createDefaultCompetition();
-            em.persist(competition);
-            AgeGroupRepository.insertAgeGroups(em, null);
-            return null;
-        });
-        JPAService.runInTransaction(em -> {
-            setupEmptyCompetition(em);
-            return null;
-        });
-    }
-
-    /**
-     * Create an empty competition. Set-up the defaults for using the timekeeping
-     * and refereeing features.
-     * 
      * @param em
      */
     protected static void setupEmptyCompetition(EntityManager em) {
@@ -141,6 +136,10 @@ public class ProdData {
 
         em.persist(platform1);
 
+    }
+
+    private static Locale getLocale() {
+        return Locale.ENGLISH;
     }
 
 }

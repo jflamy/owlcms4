@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -28,11 +28,15 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 
     Logger logger = LoggerFactory.getLogger(JXLSJurySheet.class);
 
+    @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        return getLocalizedTemplate("/templates/jury/JurySheetTemplate", ".xls", locale);
+    }
+
     /*
      * (non-Javadoc)
      *
-     * @see
-     * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
      * configureTransformer(net.sf.jxls.transformer.XLSTransformer )
      */
     @Override
@@ -44,11 +48,6 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
     protected List<Athlete> getSortedAthletes() {
         return AthleteSorter
                 .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), isExcludeNotWeighed()));
-    }
-
-    @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        return getLocalizedTemplate("/templates/jury/JurySheetTemplate", ".xls", locale);
     }
 
 }

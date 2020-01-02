@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athleteSort;
@@ -83,8 +83,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     }
 
     /**
-     * Determine who ranks first. If the body weights are the same, the Athlete who
-     * reached total first is ranked first.
+     * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2
@@ -125,46 +124,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     }
 
     /**
-     * Compare competition session start times for two athletes. A null session time
-     * is considered to be at the beginning of time, earlier than any non-null time.
+     * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
-     * @param lifter1
-     * @param lifter2
-     * @return -1 if lifter1 was part of earlier group, 0 if same group, 1 if
-     *         lifter1 lifted in later group
-     */
-    private int compareCompetitionSessionTime(Athlete lifter1, Athlete lifter2) {
-        Group group1 = lifter1.getGroup();
-        Group group2 = lifter2.getGroup();
-        if (group1 == null && group2 == null) {
-            return 0;
-        }
-        if (group1 == null) {
-            return -1;
-        }
-        if (group2 == null) {
-            return 1;
-        }
-        LocalDateTime competitionTime1 = group1.getCompetitionTime();
-        LocalDateTime competitionTime2 = group2.getCompetitionTime();
-        if (competitionTime1 == null && competitionTime2 == null) {
-            return 0;
-        }
-        if (competitionTime1 == null) {
-            return -1;
-        }
-        if (competitionTime2 == null) {
-            return 1;
-        }
-        return competitionTime1.compareTo(competitionTime2);
-    }
-
-    /**
-     * Determine who ranks first. If the body weights are the same, the Athlete who
-     * reached total first is ranked first.
-     *
-     * This variant allows judges to award a score based on a formula, with bonuses
-     * or penalties, manually. Used for the U12 championship in Quebec.
+     * This variant allows judges to award a score based on a formula, with bonuses or penalties, manually. Used for the
+     * U12 championship in Quebec.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2
@@ -173,7 +136,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     public int compareCustomResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
-        compare = ObjectUtils.compare(lifter1.getCategory(),lifter2.getCategory(),true);
+        compare = ObjectUtils.compare(lifter1.getCategory(), lifter2.getCategory(), true);
         if (compare != 0) {
             return compare;
         }
@@ -237,8 +200,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     }
 
     /**
-     * Determine who ranks first. If the body weights are the same, the Athlete who
-     * reached total first is ranked first.
+     * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2
@@ -269,7 +231,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         if (trace) {
             logger.trace("lifter1 {};  lifter2 {}", lifter1.getFirstName(), lifter2.getFirstName());
         }
-        
+
         compare = compareCategory(lifter1, lifter2);
         if (trace) {
             logger.trace("compareCategory {}", compare);
@@ -337,8 +299,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     }
 
     /**
-     * Determine who ranks first. If the body weights are the same, the Athlete who
-     * reached total first is ranked first.
+     * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2
@@ -359,6 +320,40 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         }
 
         return tieBreak(lifter1, lifter2, Competition.getCurrent().isUseOldBodyWeightTieBreak());
+    }
+
+    /**
+     * Compare competition session start times for two athletes. A null session time is considered to be at the
+     * beginning of time, earlier than any non-null time.
+     *
+     * @param lifter1
+     * @param lifter2
+     * @return -1 if lifter1 was part of earlier group, 0 if same group, 1 if lifter1 lifted in later group
+     */
+    private int compareCompetitionSessionTime(Athlete lifter1, Athlete lifter2) {
+        Group group1 = lifter1.getGroup();
+        Group group2 = lifter2.getGroup();
+        if (group1 == null && group2 == null) {
+            return 0;
+        }
+        if (group1 == null) {
+            return -1;
+        }
+        if (group2 == null) {
+            return 1;
+        }
+        LocalDateTime competitionTime1 = group1.getCompetitionTime();
+        LocalDateTime competitionTime2 = group2.getCompetitionTime();
+        if (competitionTime1 == null && competitionTime2 == null) {
+            return 0;
+        }
+        if (competitionTime1 == null) {
+            return -1;
+        }
+        if (competitionTime2 == null) {
+            return 1;
+        }
+        return competitionTime1.compareTo(competitionTime2);
     }
 
     /**

@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components;
@@ -11,7 +11,9 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasUrlParameter;
 
@@ -41,6 +43,19 @@ public interface NavigationPage extends OwlcmsContent {
         paragraph.getStyle().set("margin-bottom", "0");
         intro.add(paragraph);
         return paragraph;
+    }
+    
+    public default UnorderedList addUL(HasComponents intro, String... bullets) {
+        UnorderedList ul = new UnorderedList();
+        for (String b: bullets) {
+            ListItem item = new ListItem(b);
+            item.getElement().setProperty("innerHTML", b);
+            ul.add(item);
+        }
+        ul.getStyle().set("margin-bottom", "0");
+        ul.getStyle().set("margin-top", "0");
+        intro.add(ul);
+        return ul;
     }
 
     public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper) {
@@ -72,6 +87,13 @@ public interface NavigationPage extends OwlcmsContent {
                 + targetClass.getSimpleName() + name + "')";
     }
 
+    public default <T extends Component> String getWindowOpenerFromClassNoParam(Class<T> targetClass) {
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        String name = fop == null ? "" : "_" + fop.getName();
+        return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "','"
+                + targetClass.getSimpleName() + name + "')";
+    }
+
     public default <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,
             String label) {
         return openInNewTab(targetClass, label, null);
@@ -81,6 +103,13 @@ public interface NavigationPage extends OwlcmsContent {
             String label, String parameter) {
         Button button = new Button(label);
         button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+        return button;
+    }
+
+    public default <T extends Component> Button openInNewTabNoParam(Class<T> targetClass,
+            String label) {
+        Button button = new Button(label);
+        button.getElement().setAttribute("onClick", getWindowOpenerFromClassNoParam(targetClass));
         return button;
     }
 

@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.data.category;
 
 import java.util.Comparator;
@@ -47,31 +53,43 @@ public class RegistrationPreferenceComparator implements Comparator<Category> {
         AgeDivision ad1 = (ag1 != null ? ag1.getAgeDivision() : null);
         AgeGroup ag2 = c2.getAgeGroup();
         AgeDivision ad2 = (ag2 != null ? ag2.getAgeDivision() : null);
-        
+
         int compare = 0;
         compare = ObjectUtils.compare(c1.getGender(), c2.getGender());
-        if (compare != 0) return compare;
-        
+        if (compare != 0) {
+            return compare;
+        }
+
         // age divisions are in registration preference order
         // U before M before OLY before IWF before DEFAULT
         compare = ad1.compareTo(ad2);
-        if (compare != 0) return compare;
-                
+        if (compare != 0) {
+            return compare;
+        }
+
         // athlete will be placed in youngest age group by default
         compare = Integer.compare(ag1.getMinAge(), ag2.getMinAge());
-        if (compare != 0) return compare;
-        
+        if (compare != 0) {
+            return compare;
+        }
+
         // same minimum age, listed in most specific age category
         compare = Integer.compare(ag1.getMaxAge(), ag2.getMaxAge());
-        if (compare != 0) return compare;
-        
+        if (compare != 0) {
+            return compare;
+        }
+
         // compare age divisions -- grasping at straws to get a total order.
         compare = ad1.compareTo(ad2);
-        if (compare != 0) return compare;
-        
+        if (compare != 0) {
+            return compare;
+        }
+
         // compare max body weights
         compare = Double.compare(c1.getMaximumWeight(), c2.getMaximumWeight());
-        if (compare != 0) return compare;
+        if (compare != 0) {
+            return compare;
+        }
 
         return 0;
     }

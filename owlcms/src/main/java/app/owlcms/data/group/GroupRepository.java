@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.group;
@@ -71,7 +71,8 @@ public class GroupRepository {
      */
     @SuppressWarnings("unchecked")
     public static List<Group> findAll() {
-        return JPAService.runInTransaction(em -> em.createQuery("select c from CompetitionGroup c order by c.name").getResultList());
+        return JPAService.runInTransaction(
+                em -> em.createQuery("select c from CompetitionGroup c order by c.name").getResultList());
     }
 
     public static Group findByName(String name) {

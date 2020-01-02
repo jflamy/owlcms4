@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.preparation;
@@ -67,23 +67,18 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
     private Anchor startingList;
     private Button startingListButton;
 
-    private void clearLifts() {
-        JPAService.runInTransaction(em -> {
-            RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
-            List<Athlete> athletes = (List<Athlete>) content.doFindAll(em);
-            for (Athlete a : athletes) {
-                a.clearLifts();
-                em.merge(a);
-            }
-            em.flush();
-            return null;
-        });
-    }
-    
-    private void resetCategories() {
-        RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
-        AthleteRepository.resetCategories();
-        content.refreshCrudGrid();
+    /**
+     * The layout is created before the content. This routine has created the content, we can refer to the content using
+     * {@link #getLayoutComponentContent()} and the content can refer to us via
+     * {@link AppLayoutContent#getParentLayout()}
+     *
+     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
+     */
+    @Override
+    public void showRouterLayoutContent(HasElement content) {
+        super.showRouterLayoutContent(content);
+        RegistrationContent weighinContent = (RegistrationContent) getLayoutComponentContent();
+        gridGroupFilter = weighinContent.getGroupFilter();
     }
 
     /**
@@ -91,8 +86,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
      *
      * Note: the top bar is created before the content.
      *
-     * @see #showRouterLayoutContent(HasElement) for how to content to layout and
-     *      vice-versa
+     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
      *
      * @param topBar
      */
@@ -154,7 +148,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         });
         cards.add(cardsButton);
         cardsButton.setEnabled(true);
-        
+
         Button resetCats = new Button(getTranslation("ResetCategories.ResetCategories"), (e) -> {
             new ConfirmationDialog(getTranslation(""), getTranslation("ResetCategories.Warning_ResetCategories"),
                     getTranslation("ResetCategories.CategoriesReset"), () -> {
@@ -163,9 +157,8 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         });
         resetCats.getElement().setAttribute("title", getTranslation("ResetCategories.ResetCategoriesMouseOver"));
 
-        HorizontalLayout buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingList, cards 
-                ,resetCats
-                );
+        HorizontalLayout buttons = new HorizontalLayout(drawLots, deleteAthletes, clearLifts, startingList, cards,
+                resetCats);
         buttons.setPadding(true);
         buttons.setSpacing(true);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -175,33 +168,6 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         topBar.add(title, groupSelect, buttons);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-    }
-
-    private void deleteAthletes() {
-        RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
-        JPAService.runInTransaction(em -> {
-            List<Athlete> athletes = (List<Athlete>) content.doFindAll(em);
-            for (Athlete a : athletes) {
-                em.remove(a);
-            }
-            em.flush();
-            return null;
-        });
-        content.refreshCrudGrid();
-    }
-
-    private void drawLots() {
-        RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
-        JPAService.runInTransaction(em -> {
-            List<Athlete> toBeShuffled = AthleteRepository.doFindAll(em);
-            AthleteSorter.drawLots(toBeShuffled);
-            for (Athlete a : toBeShuffled) {
-                em.merge(a);
-            }
-            em.flush();
-            return null;
-        });
-        content.refreshCrudGrid();
     }
 
     protected void errorNotification() {
@@ -240,18 +206,49 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         gridGroupFilter.setValue(e.getValue());
     }
 
-    /**
-     * The layout is created before the content. This routine has created the
-     * content, we can refer to the content using
-     * {@link #getLayoutComponentContent()} and the content can refer to us via
-     * {@link AppLayoutContent#getParentLayout()}
-     *
-     * @see com.github.appreciated.app.layout.router.AppLayoutRouterLayoutBase#showRouterLayoutContent(com.vaadin.flow.component.HasElement)
-     */
-    @Override
-    public void showRouterLayoutContent(HasElement content) {
-        super.showRouterLayoutContent(content);
-        RegistrationContent weighinContent = (RegistrationContent) getLayoutComponentContent();
-        gridGroupFilter = weighinContent.getGroupFilter();
+    private void clearLifts() {
+        JPAService.runInTransaction(em -> {
+            RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+            List<Athlete> athletes = (List<Athlete>) content.doFindAll(em);
+            for (Athlete a : athletes) {
+                a.clearLifts();
+                em.merge(a);
+            }
+            em.flush();
+            return null;
+        });
+    }
+
+    private void deleteAthletes() {
+        RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+        JPAService.runInTransaction(em -> {
+            List<Athlete> athletes = (List<Athlete>) content.doFindAll(em);
+            for (Athlete a : athletes) {
+                em.remove(a);
+            }
+            em.flush();
+            return null;
+        });
+        content.refreshCrudGrid();
+    }
+
+    private void drawLots() {
+        RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+        JPAService.runInTransaction(em -> {
+            List<Athlete> toBeShuffled = AthleteRepository.doFindAll(em);
+            AthleteSorter.drawLots(toBeShuffled);
+            for (Athlete a : toBeShuffled) {
+                em.merge(a);
+            }
+            em.flush();
+            return null;
+        });
+        content.refreshCrudGrid();
+    }
+
+    private void resetCategories() {
+        RegistrationContent content = (RegistrationContent) getLayoutComponentContent();
+        AthleteRepository.resetCategories();
+        content.refreshCrudGrid();
     }
 }

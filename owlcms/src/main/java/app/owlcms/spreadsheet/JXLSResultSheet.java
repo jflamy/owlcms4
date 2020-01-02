@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.spreadsheet;
@@ -50,6 +50,17 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
     }
 
     @Override
+    public InputStream getTemplate(Locale locale) throws IOException {
+        Competition current = Competition.getCurrent();
+        protocolTemplate = current.getProtocolTemplate();
+        if (protocolTemplate == null) {
+            protocolTemplate = loadDefaultProtocolTemplate(locale, current);
+        }
+        InputStream stream = new ByteArrayInputStream(protocolTemplate);
+        return stream;
+    }
+
+    @Override
     protected List<Athlete> getSortedAthletes() {
         final Group currentGroup = getGroup();
         List<Athlete> athletes;
@@ -64,15 +75,18 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
         return athletes;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
+     * postProcess(org.apache.poi.ss.usermodel.Workbook)
+     */
     @Override
-    public InputStream getTemplate(Locale locale) throws IOException {
-        Competition current = Competition.getCurrent();
-        protocolTemplate = current.getProtocolTemplate();
-        if (protocolTemplate == null) {
-            protocolTemplate = loadDefaultProtocolTemplate(locale, current);
+    protected void postProcess(Workbook workbook) {
+        final Group currentCompetitionSession = getGroup();
+        if (currentCompetitionSession == null) {
+            zapCellPair(workbook, 3, 9);
         }
-        InputStream stream = new ByteArrayInputStream(protocolTemplate);
-        return stream;
     }
 
     private byte[] loadDefaultProtocolTemplate(Locale locale, Competition current) {
@@ -91,21 +105,6 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
             return merge;
         });
         return protocolTemplate;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.concordiainternational.competition.spreadsheet.JXLSWorkbookStreamSource#
-     * postProcess(org.apache.poi.ss.usermodel.Workbook)
-     */
-    @Override
-    protected void postProcess(Workbook workbook) {
-        final Group currentCompetitionSession = getGroup();
-        if (currentCompetitionSession == null) {
-            zapCellPair(workbook, 3, 9);
-        }
     }
 
 }

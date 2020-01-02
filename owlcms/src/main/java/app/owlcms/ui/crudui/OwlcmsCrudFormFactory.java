@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.crudui;
@@ -89,8 +89,111 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     }
 
     /**
-     * Creates a new dialog that executes the original listener after asking for
-     * confirmation
+     * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildNewForm(org.vaadin.crudui.crud.CrudOperation,
+     *      java.lang.Object, boolean, com.vaadin.flow.component.ComponentEventListener,
+     *      com.vaadin.flow.component.ComponentEventListener)
+     */
+    @Override
+    public Component buildNewForm(CrudOperation operation, T domainObject, boolean readOnly,
+            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
+            ComponentEventListener<ClickEvent<Button>> operationButtonClickListener) {
+        return buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener, operationButtonClickListener,
+                null);
+    }
+
+    /**
+     * Form with a Delete button
+     *
+     * @param operation                    the operation
+     * @param domainObject                 the domain object
+     * @param readOnly                     the read only
+     * @param cancelButtonClickListener    the cancel button click listener
+     * @param operationButtonClickListener the update button click listener
+     * @param deleteButtonClickListener    the delete button click listener
+     * @return the component
+     */
+    @SuppressWarnings("rawtypes")
+    public Component buildNewForm(CrudOperation operation, T domainObject, boolean readOnly,
+            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
+            ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
+        FormLayout formLayout = new FormLayout();
+        formLayout.setSizeFull();
+        if (this.responsiveSteps != null) {
+            formLayout.setResponsiveSteps(this.responsiveSteps);
+        }
+
+        List<HasValueAndElement> fields = buildFields(operation, domainObject, readOnly);
+        fields.stream().forEach(field -> formLayout.getElement().appendChild(field.getElement()));
+
+        Component footerLayout = this.buildFooter(operation, domainObject, cancelButtonClickListener,
+                operationButtonClickListener, deleteButtonClickListener, true, buttons);
+
+        errorLabel = new Label();
+        HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
+        labelWrapper.addClassName("errorMessage");
+        labelWrapper.setWidthFull();
+        labelWrapper.setJustifyContentMode(JustifyContentMode.CENTER);
+
+        VerticalLayout mainLayout = new VerticalLayout(formLayout, labelWrapper, footerLayout);
+        mainLayout.setFlexGrow(1, formLayout);
+        mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
+        mainLayout.setMargin(false);
+        mainLayout.setPadding(false);
+        mainLayout.setSpacing(true);
+
+        return mainLayout;
+    }
+
+    public Button doBuildButton(CrudOperation operation) {
+        String caption = buttonCaptions.get(operation);
+        Icon icon = buttonIcons.get(operation);
+        Button button = icon != null ? new Button(caption, icon) : new Button(caption);
+        if (buttonStyleNames.containsKey(operation)) {
+            buttonStyleNames.get(operation).stream().filter(styleName -> styleName != null)
+                    .forEach(styleName -> button.addClassName(styleName));
+        }
+        if (buttonThemes.containsKey(operation)) {
+            button.getElement().setAttribute("theme", buttonThemes.get(operation));
+        }
+        return button;
+    }
+
+    /**
+     * Utility method to avoid unreadable cast (Class<? extends HasValueAndElement<?, ?>>) when using WrappedTextField
+     * subclasses
+     *
+     * @see org.vaadin.crudui.form.AbstractCrudFormFactory#setFieldType(java.lang.String, java.lang.Class)
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    public void setFieldType(String property, Class class1) {
+        super.setFieldType(property, class1);
+    }
+
+    public void setValidationStatusHandler(boolean showErrorsOnFields) {
+        binder.setValidationStatusHandler((s) -> {
+            valid = !s.hasErrors();
+            if (showErrorsOnFields) {
+                s.notifyBindingValidationStatusHandlers();
+            }
+            if (!valid) {
+                logger.debug("validationStatusHandler updateFieldErrors={} {}", showErrorsOnFields,
+                        LoggerUtils.whereFrom());
+                if (errorLabel != null) {
+                    setErrorLabel(s, showErrorsOnFields);
+                }
+            } else {
+                if (errorLabel != null) {
+                    setErrorLabel(s, showErrorsOnFields);
+                    errorLabel.setVisible(false);
+                }
+            }
+        });
+    }
+
+    /**
+     * Creates a new dialog that executes the original listener after asking for confirmation
      *
      * @param operation
      * @param domainObject
@@ -162,15 +265,15 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
      * @param cancelButtonClickListener the cancel button click listener
      * @param shortcutEnter             true if ENTER will trigger shortcut
      * @param domainObject              the domain object
-     * @param postOperationCallBack     what to do after the object is
-     *                                  created/updated
+     * @param postOperationCallBack     what to do after the object is created/updated
      * @param deleteButtonClickListener the delete button click listener
      * @return the component
      */
     protected Component buildFooter(CrudOperation operation, T domainObject,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> postOperationCallBack,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, boolean shortcutEnter, Button... buttons) {
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, boolean shortcutEnter,
+            Button... buttons) {
 
         Button operationButton = null;
         if (operation == CrudOperation.UPDATE) {
@@ -216,66 +319,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     }
 
     /**
-     * @see org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory#buildNewForm(org.vaadin.crudui.crud.CrudOperation,
-     *      java.lang.Object, boolean,
-     *      com.vaadin.flow.component.ComponentEventListener,
-     *      com.vaadin.flow.component.ComponentEventListener)
-     */
-    @Override
-    public Component buildNewForm(CrudOperation operation, T domainObject, boolean readOnly,
-            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> operationButtonClickListener) {
-        return buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener, operationButtonClickListener,
-                null);
-    }
-
-    /**
-     * Form with a Delete button
-     *
-     * @param operation                    the operation
-     * @param domainObject                 the domain object
-     * @param readOnly                     the read only
-     * @param cancelButtonClickListener    the cancel button click listener
-     * @param operationButtonClickListener the update button click listener
-     * @param deleteButtonClickListener    the delete button click listener
-     * @return the component
-     */
-    @SuppressWarnings("rawtypes")
-    public Component buildNewForm(CrudOperation operation, T domainObject, boolean readOnly,
-            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
-        FormLayout formLayout = new FormLayout();
-        formLayout.setSizeFull();
-        if (this.responsiveSteps != null) {
-            formLayout.setResponsiveSteps(this.responsiveSteps);
-        }
-
-        List<HasValueAndElement> fields = buildFields(operation, domainObject, readOnly);
-        fields.stream().forEach(field -> formLayout.getElement().appendChild(field.getElement()));
-
-        Component footerLayout = this.buildFooter(operation, domainObject, cancelButtonClickListener,
-                operationButtonClickListener, deleteButtonClickListener, true, buttons);
-
-        errorLabel = new Label();
-        HorizontalLayout labelWrapper = new HorizontalLayout(errorLabel);
-        labelWrapper.addClassName("errorMessage");
-        labelWrapper.setWidthFull();
-        labelWrapper.setJustifyContentMode(JustifyContentMode.CENTER);
-
-        VerticalLayout mainLayout = new VerticalLayout(formLayout, labelWrapper, footerLayout);
-        mainLayout.setFlexGrow(1, formLayout);
-        mainLayout.setHorizontalComponentAlignment(Alignment.END, footerLayout);
-        mainLayout.setMargin(false);
-        mainLayout.setPadding(false);
-        mainLayout.setSpacing(true);
-
-        return mainLayout;
-    }
-
-    /**
-     * Special button that uses an auxilliary field focus trigger to perform the
-     * operation.
+     * Special button that uses an auxilliary field focus trigger to perform the operation.
      *
      * @see org.vaadin.crudui.form.AbstractAutoGeneratedCrudFormFactory#buildOperationButton(org.vaadin.crudui.crud.CrudOperation,
      *      java.lang.Object, com.vaadin.flow.component.ComponentEventListener)
@@ -302,14 +346,12 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
     }
 
     /**
-     * Workaround for the fact that ENTER as keyboard shortcut prevents the value
-     * being typed from being set in the underlying object.
+     * Workaround for the fact that ENTER as keyboard shortcut prevents the value being typed from being set in the
+     * underlying object.
      *
-     * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but
-     * ENTER alone doesn't.
+     * i.e. Typing TAB followed by ENTER works (because tab causes ON_BLUR), but ENTER alone doesn't.
      *
-     * So we cause ENTER to move focus, which forces an ON_BLUR, and we do the
-     * processing in the focus handler.
+     * So we cause ENTER to move focus, which forces an ON_BLUR, and we do the processing in the focus handler.
      *
      * @param operation
      * @param action
@@ -328,29 +370,6 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         // brutally
         updateTrigger.getStyle().set("z-index", "-10");
         return updateTrigger;
-    }
-
-    public Button doBuildButton(CrudOperation operation) {
-        String caption = buttonCaptions.get(operation);
-        Icon icon = buttonIcons.get(operation);
-        Button button = icon != null ? new Button(caption, icon) : new Button(caption);
-        if (buttonStyleNames.containsKey(operation)) {
-            buttonStyleNames.get(operation).stream().filter(styleName -> styleName != null)
-                    .forEach(styleName -> button.addClassName(styleName));
-        }
-        if (buttonThemes.containsKey(operation)) {
-            button.getElement().setAttribute("theme", buttonThemes.get(operation));
-        }
-        return button;
-    }
-
-    private void init() {
-        setButtonCaption(CrudOperation.READ, Translator.translate("Ok"));
-        setButtonCaption(CrudOperation.ADD, Translator.translate("Add"));
-        setButtonCaption(CrudOperation.UPDATE, Translator.translate("Update"));
-        setButtonCaption(CrudOperation.DELETE, Translator.translate("Delete"));
-        cancelButtonCaption = Translator.translate("Cancel");
-        validationErrorMessage = Translator.translate("PleaseFix");
     }
 
     protected void performOperationAndCallback(CrudOperation operation, T domainObject,
@@ -427,37 +446,12 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
         return hasErrors;
     }
 
-    /**
-     * Utility method to avoid unreadable cast (Class<? extends
-     * HasValueAndElement<?, ?>>) when using WrappedTextField subclasses
-     *
-     * @see org.vaadin.crudui.form.AbstractCrudFormFactory#setFieldType(java.lang.String,
-     *      java.lang.Class)
-     */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-    public void setFieldType(String property, Class class1) {
-        super.setFieldType(property, class1);
-    }
-
-    public void setValidationStatusHandler(boolean showErrorsOnFields) {
-        binder.setValidationStatusHandler((s) -> {
-            valid = !s.hasErrors();
-            if (showErrorsOnFields) {
-                s.notifyBindingValidationStatusHandlers();
-            }
-            if (!valid) {
-                logger.debug("validationStatusHandler updateFieldErrors={} {}", showErrorsOnFields,
-                        LoggerUtils.whereFrom());
-                if (errorLabel != null) {
-                    setErrorLabel(s, showErrorsOnFields);
-                }
-            } else {
-                if (errorLabel != null) {
-                    setErrorLabel(s, showErrorsOnFields);
-                    errorLabel.setVisible(false);
-                }
-            }
-        });
+    private void init() {
+        setButtonCaption(CrudOperation.READ, Translator.translate("Ok"));
+        setButtonCaption(CrudOperation.ADD, Translator.translate("Add"));
+        setButtonCaption(CrudOperation.UPDATE, Translator.translate("Update"));
+        setButtonCaption(CrudOperation.DELETE, Translator.translate("Delete"));
+        cancelButtonCaption = Translator.translate("Cancel");
+        validationErrorMessage = Translator.translate("PleaseFix");
     }
 }

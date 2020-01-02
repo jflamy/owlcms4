@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.init;
@@ -81,7 +81,8 @@ public class EmbeddedJetty {
             Throwable cause = e.getCause();
             if (cause instanceof BindException) {
                 logger.error("another server is already running on port {}\n{}", port, LoggerUtils.stackTrace(cause));
-                System.err.println("another program is already using port "+port+"; set the environment variable OWLCMS_PORT to use another port number");
+                System.err.println("another program is already using port " + port
+                        + "; set the environment variable OWLCMS_PORT to use another port number");
             } else {
                 logger.error(LoggerUtils.stackTrace());
                 System.err.println("server could not be started");

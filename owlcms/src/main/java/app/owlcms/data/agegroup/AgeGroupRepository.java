@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.agegroup;
@@ -255,7 +255,6 @@ public class AgeGroupRepository {
     private static void createAgeGroups(Workbook workbook, Map<String, Category> templates,
             EnumSet<AgeDivision> ageDivisionOverride,
             String localizedName) {
-        DataFormatter dataFormatter = new DataFormatter();
 
         JPAService.runInTransaction(em -> {
             Sheet sheet = workbook.getSheetAt(1);
@@ -278,19 +277,20 @@ public class AgeGroupRepository {
                     Cell cell = cellIterator.next();
                     switch (iColumn) {
                     case 0: {
-                        String cellValue = dataFormatter.formatCellValue(cell);
-                        ag.setCode(cellValue.trim());
+                        String cellValue = cell.getStringCellValue();
+                        String trim = cellValue.trim();
+                        ag.setCode(trim);
                     }
                         break;
                     case 1:
                         break;
                     case 2: {
-                        String cellValue = dataFormatter.formatCellValue(cell);
+                        String cellValue = cell.getStringCellValue();
                         ag.setAgeDivision(AgeDivision.getAgeDivisionFromCode(cellValue));
                     }
                         break;
                     case 3: {
-                        String cellValue = dataFormatter.formatCellValue(cell);
+                        String cellValue = cell.getStringCellValue();
                         if (cellValue != null && !cellValue.trim().isEmpty()) {
                             ag.setGender(cellValue.contentEquals("F") ? Gender.F : Gender.M);
                         }
@@ -317,7 +317,7 @@ public class AgeGroupRepository {
                     }
                         break;
                     default: {
-                        String cellValue = dataFormatter.formatCellValue(cell);
+                        String cellValue = cell.getStringCellValue();
                         if (cellValue != null && !cellValue.trim().isEmpty()) {
                             Category cat = createCategoryFromTemplate(cellValue, ag, templates, curMin);
                             if (cat != null) {

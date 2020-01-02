@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.platform;
@@ -34,11 +34,10 @@ import ch.qos.logback.classic.Logger;
  * Groups are associated with a lifting platformName.
  * </p>
  * <p>
- * Projectors and officials are associated with a lifting platformName so there
- * is no need to refresh their setup during a competition. The name of the
- * platformName is used as a key in the ServletContext so other sessions and
- * other kinds of pages (such as JSP) can locate the information about that
- * platformName. See in particular the {@link LiftList#updateTable()} method
+ * Projectors and officials are associated with a lifting platformName so there is no need to refresh their setup during
+ * a competition. The name of the platformName is used as a key in the ServletContext so other sessions and other kinds
+ * of pages (such as JSP) can locate the information about that platformName. See in particular the
+ * {@link LiftList#updateTable()} method
  * </p>
  *
  * @author jflamy
@@ -94,8 +93,8 @@ public class Platform implements Serializable {
     String name;
 
     /**
-     * true if the referee use this application to give decisions, and decision
-     * lights need to be shown on the attempt and result boards.
+     * true if the referee use this application to give decisions, and decision lights need to be shown on the attempt
+     * and result boards.
      */
     private Boolean showDecisionLights = false;
     /**
@@ -583,12 +582,6 @@ public class Platform implements Serializable {
         this.lightBar = lightBar;
     }
 
-    private void setMixer(Mixer soundMixer) {
-        logger.debug("SETTING platform {}: soundMixer={}", System.identityHashCode(this),
-                soundMixer == null ? null : soundMixer.getLineInfo());
-        this.mixer = soundMixer;
-    }
-
     /**
      * Sets the name.
      *
@@ -778,6 +771,12 @@ public class Platform implements Serializable {
     @Override
     public String toString() {
         return name; // $NON-NLS-1$
+    }
+
+    private void setMixer(Mixer soundMixer) {
+        logger.debug("SETTING platform {}: soundMixer={}", System.identityHashCode(this),
+                soundMixer == null ? null : soundMixer.getLineInfo());
+        this.mixer = soundMixer;
     }
 
 }

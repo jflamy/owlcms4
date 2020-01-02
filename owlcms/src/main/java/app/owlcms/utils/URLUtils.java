@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.utils;
@@ -21,8 +21,7 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Utilities to deal with reverse proxies/balancers/forwarders when
- * reconstructing URLs
+ * Utilities to deal with reverse proxies/balancers/forwarders when reconstructing URLs
  *
  * This deals correctly with Heroku, mileage may vary.
  *
@@ -78,6 +77,15 @@ public class URLUtils {
     public static int getServerPort(HttpServletRequest request) {
         String port = request.getHeader("X-Forwarded-Port");
         return port != null ? Integer.parseInt(port) : request.getServerPort();
+    }
+
+    public static <T extends Component> String getUrlFromTargetClass(Class<T> class1) {
+        RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
+        String relativeURL;
+        relativeURL = routeResolver.getUrl(class1);
+        String absoluteURL = URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
+                relativeURL);
+        return absoluteURL;
     }
 
     public static <T extends Component & HasUrlParameter<String>> String getUrlFromTargetClass(Class<T> class1,

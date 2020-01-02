@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.jpa;
@@ -50,6 +50,27 @@ public class DemoData {
         logger.setLevel(Level.INFO);
     }
 
+    /**
+     * Insert initial data if the database is empty.
+     *
+     * @param nbAthletes   how many athletes
+     * @param ageDivisions
+     */
+    public static void insertInitialData(int nbAthletes, EnumSet<AgeDivision> ageDivisions) {
+        logger.info("inserting initial data");
+        JPAService.runInTransaction(em -> {
+            Competition competition = createDefaultCompetition(ageDivisions);
+            em.persist(competition);
+            AgeGroupRepository.insertAgeGroups(em, ageDivisions);
+            return null;
+        });
+
+        JPAService.runInTransaction(em -> {
+            setupDemoData(em, nbAthletes, ageDivisions);
+            return null;
+        });
+    }
+
     protected static void assignStartNumbers(EntityManager em, Group groupA) {
         List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, groupA, true);
         AthleteSorter.registrationOrder(athletes);
@@ -60,7 +81,7 @@ public class DemoData {
             AgeDivision ageDivision, int minAge, int maxAge, Gender gender) {
         int referenceYear = LocalDate.now().getYear();
         LocalDate baseDate = LocalDate.of(referenceYear, 12, 31);
-        
+
         Double catLimit = (double) catMax;
         double bodyWeight = catLimit - (nextDouble * 2.0);
         p.setBodyWeight(bodyWeight);
@@ -84,12 +105,13 @@ public class DemoData {
         LocalDate fullBirthDate = baseDate.minusWeeks(weeksToSubtract);
         p.setFullBirthDate(fullBirthDate);
         int age = LocalDate.now().getYear() - fullBirthDate.getYear();
-        
-        List<Category> cat = CategoryRepository.findByGenderDivisionAgeBW(gender,ageDivision,age,bodyWeight);
-        logger.trace("athlete {} matches {}",p.getFullName(),cat.stream().map(Category::getName).collect(Collectors.joining(", ")));
+
+        List<Category> cat = CategoryRepository.findByGenderDivisionAgeBW(gender, ageDivision, age, bodyWeight);
+        logger.trace("athlete {} matches {}", p.getFullName(),
+                cat.stream().map(Category::getName).collect(Collectors.joining(", ")));
         Category categOrNull = cat.stream().findFirst().orElse(null);
         p.setCategory(categOrNull == null ? null : em.contains(categOrNull) ? categOrNull : em.merge(categOrNull));
-        
+
         // respect 20kg rule
         p.setQualifyingTotal((int) (isd + icjd - 15));
 
@@ -121,8 +143,9 @@ public class DemoData {
     protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
             Random r, int cat1, int cat2, int liftersToLoad, AgeDivision ageDivision, int min, int max,
             Gender gender) {
-        if (liftersToLoad < 1)
+        if (liftersToLoad < 1) {
             liftersToLoad = 1;
+        }
 
         for (int i = 0; i < liftersToLoad; i++) {
             Athlete p = new Athlete();
@@ -176,76 +199,8 @@ public class DemoData {
     }
 
     /**
-     * Insert initial data if the database is empty.
-     *
-     * @param nbAthletes how many athletes
-     * @param ageDivisions
-     */
-    public static void insertInitialData(int nbAthletes, EnumSet<AgeDivision> ageDivisions) {
-        logger.info("inserting initial data");
-        JPAService.runInTransaction(em -> {
-            Competition competition = createDefaultCompetition(ageDivisions);
-            em.persist(competition);
-            AgeGroupRepository.insertAgeGroups(em, ageDivisions);
-            return null;
-        });
-
-        JPAService.runInTransaction(em -> {
-            setupDemoData(em, nbAthletes, ageDivisions);
-            return null;
-        });
-    }
-
-    private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupM1, Group groupM2,
-            Group groupF1, Group groupY1, EnumSet<AgeDivision> ageDivisions) {
-        final String[] lnames = { "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson",
-                "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia",
-                "Martinez", "Robinson", "Clark", "Rodriguez", "Lewis", "Lee", "Walker", "Hall", "Allen", "Young",
-                "Hernandez", "King", "Wright", "Lopez", "Hill", "Scott", "Green", "Adams", "Baker", "Gonzalez",
-                "Nelson", "Carter", "Mitchell", "Perez", "Roberts", "Turner", "Phillips", "Campbell", "Parker", "Evans",
-                "Edwards", "Collins", };
-        final String[] mNames = { "James", "John", "Robert", "Michael", "William", "David", "Richard", "Joseph",
-                "Thomas", "Charles", "Christopher", "Daniel", "Matthew", "Anthony", "Donald", "Mark", "Paul", "Steven",
-                "Andrew", "Kenneth", "George", "Joshua", "Kevin", "Brian", "Edward", "Ronald", "Timothy", "Jason",
-                "Jeffrey", "Ryan", "Jacob", "Gary", "Nicholas", "Eric", "Stephen", "Jonathan", "Larry", "Justin",
-                "Scott", "Brandon", "Frank", "Benjamin", "Gregory", "Raymond", "Samuel", "Patrick", "Alexander", "Jack",
-                "Dennis", "Jerry", };
-        final String[] fNames = { "Emily", "Abigail", "Alexis", "Alyssa", "Angela", "Ashley", "Brianna", "Cynthia",
-                "Deborah", "Donna", "Elizabeth", "Elizabeth", "Emma", "Grace", "Hannah", "Jennifer", "Jessica", "Julie",
-                "Karen", "Kayla", "Kimberly", "Laura", "Lauren", "Linda", "Lisa", "Lori", "Madison", "Mary", "Megan",
-                "Michelle", "Olivia", "Pamela", "Patricia", "Samantha", "Sandra", "Sarah", "Susan", "Tammy", "Taylor",
-                "Victoria", };
-
-        Random r = new Random(0);
-        Random r2 = new Random(0);
-
-        if (ageDivisions != null && ageDivisions.contains(MASTERS)) {
-            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, MASTERS, 35, 45, M);
-            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, MASTERS, 35, 50, M);
-            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, MASTERS, 35, 45, F);
-            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, U, 13, 17, Gender.M);
-            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, U, 13, 17, F);
-        } else {
-            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, DEFAULT, 18, 32, M);
-            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, DEFAULT, 18, 32, M);
-            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, DEFAULT, 18, 32, F);
-            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, DEFAULT, 13, 17, M);
-            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, DEFAULT, 13, 17, F);
-            
-        }
-
-        drawLots(em);
-
-        assignStartNumbers(em, groupM1);
-        assignStartNumbers(em, groupM2);
-        assignStartNumbers(em, groupF1);
-        assignStartNumbers(em, groupY1);
-    }
-
-
-    /**
      * Setup demo data.
-     * 
+     *
      * @param em
      *
      * @param competition   the competition
@@ -289,6 +244,52 @@ public class DemoData {
 
         insertSampleLifters(em, liftersToLoad, groupM1, groupM2, groupF1, groupY1, ageDivisions);
         em.flush();
+    }
+
+    private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupM1, Group groupM2,
+            Group groupF1, Group groupY1, EnumSet<AgeDivision> ageDivisions) {
+        final String[] lnames = { "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson",
+                "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia",
+                "Martinez", "Robinson", "Clark", "Rodriguez", "Lewis", "Lee", "Walker", "Hall", "Allen", "Young",
+                "Hernandez", "King", "Wright", "Lopez", "Hill", "Scott", "Green", "Adams", "Baker", "Gonzalez",
+                "Nelson", "Carter", "Mitchell", "Perez", "Roberts", "Turner", "Phillips", "Campbell", "Parker", "Evans",
+                "Edwards", "Collins", };
+        final String[] mNames = { "James", "John", "Robert", "Michael", "William", "David", "Richard", "Joseph",
+                "Thomas", "Charles", "Christopher", "Daniel", "Matthew", "Anthony", "Donald", "Mark", "Paul", "Steven",
+                "Andrew", "Kenneth", "George", "Joshua", "Kevin", "Brian", "Edward", "Ronald", "Timothy", "Jason",
+                "Jeffrey", "Ryan", "Jacob", "Gary", "Nicholas", "Eric", "Stephen", "Jonathan", "Larry", "Justin",
+                "Scott", "Brandon", "Frank", "Benjamin", "Gregory", "Raymond", "Samuel", "Patrick", "Alexander", "Jack",
+                "Dennis", "Jerry", };
+        final String[] fNames = { "Emily", "Abigail", "Alexis", "Alyssa", "Angela", "Ashley", "Brianna", "Cynthia",
+                "Deborah", "Donna", "Elizabeth", "Elizabeth", "Emma", "Grace", "Hannah", "Jennifer", "Jessica", "Julie",
+                "Karen", "Kayla", "Kimberly", "Laura", "Lauren", "Linda", "Lisa", "Lori", "Madison", "Mary", "Megan",
+                "Michelle", "Olivia", "Pamela", "Patricia", "Samantha", "Sandra", "Sarah", "Susan", "Tammy", "Taylor",
+                "Victoria", };
+
+        Random r = new Random(0);
+        Random r2 = new Random(0);
+
+        if (ageDivisions != null && ageDivisions.contains(MASTERS)) {
+            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, MASTERS, 35, 45, M);
+            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, MASTERS, 35, 50, M);
+            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, MASTERS, 35, 45, F);
+            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, U, 13, 17, Gender.M);
+            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, U, 13, 17, F);
+        } else {
+            createGroup(em, groupM1, mNames, lnames, r, 81, 73, liftersToLoad, DEFAULT, 18, 32, M);
+            createGroup(em, groupM2, mNames, lnames, r, 73, 67, liftersToLoad, DEFAULT, 18, 32, M);
+            createGroup(em, groupF1, fNames, lnames, r2, 59, 59, liftersToLoad / 2, DEFAULT, 18, 32, F);
+            createGroup(em, groupY1, mNames, lnames, r2, 55, 61, liftersToLoad / 4, DEFAULT, 13, 17, M);
+            createGroup(em, groupY1, fNames, lnames, r2, 45, 49, liftersToLoad / 4, DEFAULT, 13, 17, F);
+
+        }
+
+        drawLots(em);
+
+        assignStartNumbers(em, groupM1);
+        assignStartNumbers(em, groupM2);
+        assignStartNumbers(em, groupF1);
+        assignStartNumbers(em, groupY1);
     }
 
 }

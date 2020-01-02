@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.preparation;
@@ -107,7 +107,7 @@ public class AgeGroupEditingFormFactory
                 .bind(AgeGroup::getCode, AgeGroup::setCode);
 
         ComboBox<AgeDivision> ageDivisionField = new ComboBox<>();
-        ageDivisionField.setDataProvider(new ListDataProvider<AgeDivision>(Arrays.asList(AgeDivision.values())));
+        ageDivisionField.setDataProvider(new ListDataProvider<>(Arrays.asList(AgeDivision.values())));
         ageDivisionField.setItemLabelGenerator((ad) -> Translator.translate("Division." + ad.name()));
         binder.forField(ageDivisionField).bind(AgeGroup::getAgeDivision, AgeGroup::setAgeDivision);
         formLayout.addFormItem(ageDivisionField, Translator.translate("AgeDivision"));
@@ -129,7 +129,7 @@ public class AgeGroupEditingFormFactory
                 .bind(AgeGroup::getMaxAge, AgeGroup::setMaxAge);
 
         ComboBox<Gender> genderField = new ComboBox<>();
-        genderField.setDataProvider(new ListDataProvider<Gender>(Arrays.asList(Gender.values())));
+        genderField.setDataProvider(new ListDataProvider<>(Arrays.asList(Gender.values())));
         binder.forField(genderField).bind(AgeGroup::getGender, AgeGroup::setGender);
         formLayout.addFormItem(genderField, Translator.translate("Gender"));
 

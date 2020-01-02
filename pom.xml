@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.3.0-beta3</version>
+    <version>4.3.0</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -21,25 +21,27 @@
         <!-- hard-coded paths -->
         <!-- jre location for bundling with windows installer -->
         <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>
+        
+        <!-- setting below is for JDK 11 -->
+        <!-- <jre.directory>C:\Dev\Java\java-runtime</jre.directory> -->
+        
         <!-- windows installer compiler -->
         <innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
 
         <!-- maven configs -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
         <!-- Library versions -->
-        <vaadin.version>14.1.2</vaadin.version>
+        <vaadin.version>14.1.3</vaadin.version>
         <logback.version>1.2.3</logback.version>
         <slf4j.version>1.7.26</slf4j.version>
         <hibernate.version>5.4.3.Final</hibernate.version>
         <guava.version>27.1-jre</guava.version>
 
         <!-- Plugins -->
-        <jetty.version>9.4.24.v20191120</jetty.version>
+        <jetty.version>9.4.25.v20191220</jetty.version>
 
         <rootOutputDir>${project.build.directory}</rootOutputDir>
     </properties>
@@ -165,6 +167,22 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                        <!-- <compilerArgs> should no longer be needed when moving to JDK 11 -->
+                        <!-- <arg>- -add-exports=java.desktop/com.sun.media.sound=ALL-UNNAMED</arg> -->
+                        <!-- </compilerArgs> -->
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>com.amashchenko.maven.plugin</groupId>
@@ -177,8 +195,8 @@
                     </gitFlowConfig>
                     <allowSnapshots>true</allowSnapshots>
                     <postReleaseGoals>github-release:github-release</postReleaseGoals>
-                    <skipTag>false</skipTag><!-- github-release creates the 
-                        tag -->
+                    <!-- github-release creates the tag -->
+                    <skipTag>false</skipTag>
                     <skipTestProject>true</skipTestProject>
                     <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
                     <verbose>true</verbose>

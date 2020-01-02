@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.preparation;
@@ -59,44 +59,6 @@ public class CompetitionContent extends Composite<VerticalLayout> implements Cru
     }
 
     /**
-     * Define the form used to edit a given athlete.
-     * 
-     * @return the form factory that will create the actual form on demand
-     */
-    protected CompetitionEditingFormFactory createFormFactory() {
-        CompetitionEditingFormFactory competitionEditingFormFactory = new CompetitionEditingFormFactory(
-                Competition.class);
-        createFormLayout(competitionEditingFormFactory);
-        return competitionEditingFormFactory;
-    }
-
-    /**
-     * The content and ordering of the editing form
-     * 
-     * @param crudFormFactory the factory that will create the form using this information
-     */
-    private void createFormLayout(DefaultCrudFormFactory<Competition> crudFormFactory) {
-        crudFormFactory.setVisibleProperties("competitionName", "competitionDate", "competitionOrganizer",
-                "competitionSite", "competitionCity", "federation", "federationAddress", "federationEMail",
-                "federationWebSite", "defaultLocale", "enforce20kgRule", "masters", "useBirthYear");
-        crudFormFactory.setFieldCaptions(Translator.translate("Competition.competitionName"),
-                Translator.translate("Competition.competitionDate"),
-                Translator.translate("Competition.competitionOrganizer"),
-                Translator.translate("Competition.competitionSite"),
-                Translator.translate("Competition.competitionCity"), Translator.translate("Competition.federation"),
-                Translator.translate("Competition.federationAddress"),
-                Translator.translate("Competition.federationEMail"),
-                Translator.translate("Competition.federationWebSite"),
-                Translator.translate("Competition.defaultLocale"),
-                Translator.translate("Competition.enforce20kgRule"), Translator.translate("Competition.masters"),
-                Translator.translate("Competition.useBirthYear"));
-        ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(locale);
-        crudFormFactory.setFieldProvider("defaultLocale", new OwlcmsComboBoxProvider<>(getTranslation("Locale"),
-                Translator.getAllAvailableLocales(), new TextRenderer<>(nameGenerator), nameGenerator));
-        crudFormFactory.setFieldType("competitionDate", DatePicker.class);
-    }
-
-    /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
     @Override
@@ -139,5 +101,43 @@ public class CompetitionContent extends Composite<VerticalLayout> implements Cru
     public void showForm(CrudOperation operation, Component form, String caption) {
         getContent().removeAll();
         getContent().add(form);
+    }
+
+    /**
+     * Define the form used to edit a given athlete.
+     *
+     * @return the form factory that will create the actual form on demand
+     */
+    protected CompetitionEditingFormFactory createFormFactory() {
+        CompetitionEditingFormFactory competitionEditingFormFactory = new CompetitionEditingFormFactory(
+                Competition.class);
+        createFormLayout(competitionEditingFormFactory);
+        return competitionEditingFormFactory;
+    }
+
+    /**
+     * The content and ordering of the editing form
+     *
+     * @param crudFormFactory the factory that will create the form using this information
+     */
+    private void createFormLayout(DefaultCrudFormFactory<Competition> crudFormFactory) {
+        crudFormFactory.setVisibleProperties("competitionName", "competitionDate", "competitionOrganizer",
+                "competitionSite", "competitionCity", "federation", "federationAddress", "federationEMail",
+                "federationWebSite", "defaultLocale", "enforce20kgRule", "masters", "useBirthYear");
+        crudFormFactory.setFieldCaptions(Translator.translate("Competition.competitionName"),
+                Translator.translate("Competition.competitionDate"),
+                Translator.translate("Competition.competitionOrganizer"),
+                Translator.translate("Competition.competitionSite"),
+                Translator.translate("Competition.competitionCity"), Translator.translate("Competition.federation"),
+                Translator.translate("Competition.federationAddress"),
+                Translator.translate("Competition.federationEMail"),
+                Translator.translate("Competition.federationWebSite"),
+                Translator.translate("Competition.defaultLocale"),
+                Translator.translate("Competition.enforce20kgRule"), Translator.translate("Competition.masters"),
+                Translator.translate("Competition.useBirthYear"));
+        ItemLabelGenerator<Locale> nameGenerator = (locale) -> locale.getDisplayName(locale);
+        crudFormFactory.setFieldProvider("defaultLocale", new OwlcmsComboBoxProvider<>(getTranslation("Locale"),
+                Translator.getAllAvailableLocales(), new TextRenderer<>(nameGenerator), nameGenerator));
+        crudFormFactory.setFieldType("competitionDate", DatePicker.class);
     }
 }

@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
@@ -55,6 +55,35 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
      */
     @Override
     public Athlete add(Athlete athlete) {
+        // do nothing
+        return athlete;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
+     */
+    @Override
+    public void delete(Athlete Athlete) {
+        // do nothing;
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Timekeeper");
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
+     */
+    @Override
+    public Athlete update(Athlete athlete) {
         // do nothing
         return athlete;
     }
@@ -148,35 +177,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
     protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
         HorizontalLayout decisions = new HorizontalLayout();
         return decisions;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#delete(java.lang.Object)
-     */
-    @Override
-    public void delete(Athlete Athlete) {
-        // do nothing;
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Timekeeper");
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#update(java.lang.Object)
-     */
-    @Override
-    public Athlete update(Athlete athlete) {
-        // do nothing
-        return athlete;
     }
 
 }

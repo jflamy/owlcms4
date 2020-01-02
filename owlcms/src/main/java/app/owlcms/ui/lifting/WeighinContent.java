@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.lifting;
@@ -95,6 +95,60 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         return Athlete;
     }
 
+    @Override
+    public void delete(Athlete Athlete) {
+        crudFormFactory.delete(Athlete);
+        return;
+    }
+
+    /**
+     * The refresh button on the toolbar calls this.
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
+     */
+    @Override
+    public Collection<Athlete> findAll() {
+        List<Athlete> findFiltered = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
+                categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
+                weighedInFilter.getValue(), -1, -1);
+        AthleteSorter.registrationOrder(findFiltered);
+        return findFiltered;
+    }
+
+    /**
+     * @return the groupFilter
+     */
+    public ComboBox<Group> getGroupFilter() {
+        return groupFilter;
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("WeighIn");
+    }
+
+    @Override
+    public OwlcmsRouterLayout getRouterLayout() {
+        return routerLayout;
+    }
+
+    public void refresh() {
+        crudGrid.refreshGrid();
+    }
+
+    @Override
+    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
+        this.routerLayout = routerLayout;
+    }
+
+    @Override
+    public Athlete update(Athlete Athlete) {
+        return crudFormFactory.update(Athlete);
+    }
+
     /**
      * Define the form used to edit a given athlete.
      *
@@ -107,10 +161,113 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
     }
 
     /**
+     * The columns of the crudGrid
+     *
+     * @param crudFormFactory what to call to create the form for editing an athlete
+     * @return
+     */
+    protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
+        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+        grid.addColumn("startNumber").setHeader(getTranslation("Start_"));
+        grid.addColumn("lastName").setHeader(getTranslation("LastName"));
+        grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
+        grid.addColumn("team").setHeader(getTranslation("Team"));
+        grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup"));
+        grid.addColumn("category").setHeader(getTranslation("Category"));
+        grid.addColumn("group").setHeader(getTranslation("Group"));
+        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
+                .setHeader(getTranslation("BodyWeight"));
+        grid.addColumn("snatch1Declaration").setHeader(getTranslation("SnatchDecl_"));
+        grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
+
+        grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
+        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class),
+                crudFormFactory, grid);
+        crudGrid.setCrudListener(this);
+        crudGrid.setClickRowToUpdate(true);
+        return crudGrid;
+    }
+
+    /**
+     * The filters at the top of the crudGrid
+     *
+     * @param crudGrid the crudGrid that will be filtered.
+     */
+    protected void defineFilters(GridCrud<Athlete> crudGrid) {
+        lastNameFilter.setPlaceholder(getTranslation("LastName"));
+        lastNameFilter.setClearButtonVisible(true);
+        lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        lastNameFilter.addValueChangeListener(e -> {
+            crudGrid.refreshGrid();
+        });
+        crudGrid.getCrudLayout().addFilterComponent(lastNameFilter);
+
+        ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
+        ageDivisionFilter.setItems(AgeDivision.findAll());
+        ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
+        ageDivisionFilter.setClearButtonVisible(true);
+        ageDivisionFilter.addValueChangeListener(e -> {
+            crudGrid.refreshGrid();
+        });
+        crudGrid.getCrudLayout().addFilterComponent(ageDivisionFilter);
+
+        ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
+        ageGroupFilter.setItems(AgeGroupRepository.findAll());
+        // ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
+        ageGroupFilter.setClearButtonVisible(true);
+        ageGroupFilter.addValueChangeListener(e -> {
+            crudGrid.refreshGrid();
+        });
+        ageGroupFilter.setWidth("10em");
+        crudGrid.getCrudLayout().addFilterComponent(ageGroupFilter);
+
+        categoryFilter.setPlaceholder(getTranslation("Category"));
+        categoryFilter.setItems(CategoryRepository.findActive());
+        categoryFilter.setItemLabelGenerator(Category::getName);
+        categoryFilter.setClearButtonVisible(true);
+        categoryFilter.addValueChangeListener(e -> {
+            crudGrid.refreshGrid();
+        });
+        crudGrid.getCrudLayout().addFilterComponent(categoryFilter);
+
+        groupFilter.setPlaceholder(getTranslation("Group"));
+        groupFilter.setItems(GroupRepository.findAll());
+        groupFilter.setItemLabelGenerator(Group::getName);
+        groupFilter.setClearButtonVisible(true);
+        groupFilter.addValueChangeListener(e -> {
+            crudGrid.refreshGrid();
+        });
+        // hide because the top bar has it
+        groupFilter.getStyle().set("display", "none");
+
+        crudGrid.getCrudLayout().addFilterComponent(groupFilter);
+
+        weighedInFilter.setPlaceholder(getTranslation("Weighed_in_p"));
+        weighedInFilter.setItems(Boolean.TRUE, Boolean.FALSE);
+        weighedInFilter.setItemLabelGenerator((i) -> {
+            return i ? getTranslation("Weighed") : getTranslation("Not_weighed");
+        });
+        weighedInFilter.setClearButtonVisible(true);
+        weighedInFilter.addValueChangeListener(e -> {
+            crudGrid.refreshGrid();
+        });
+        crudGrid.getCrudLayout().addFilterComponent(weighedInFilter);
+
+        Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
+        clearFilters.addClickListener(event -> {
+            lastNameFilter.clear();
+            ageDivisionFilter.clear();
+            categoryFilter.clear();
+            // groupFilter.clear();
+            weighedInFilter.clear();
+        });
+        crudGrid.getCrudLayout().addFilterComponent(clearFilters);
+    }
+
+    /**
      * The content and ordering of the editing form
      *
-     * @param crudFormFactory the factory that will create the form using this
-     *                        information
+     * @param crudFormFactory the factory that will create the form using this information
      */
     private void createFormLayout(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
         List<String> props = new LinkedList<>();
@@ -180,162 +337,5 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory.setFieldCreationListener("bodyWeight", (e) -> {
             ((BodyWeightField) e).focus();
         });
-    }
-
-    /**
-     * The columns of the crudGrid
-     *
-     * @param crudFormFactory what to call to create the form for editing an athlete
-     * @return
-     */
-    protected OwlcmsCrudGrid<Athlete> createGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
-        grid.addColumn("startNumber").setHeader(getTranslation("Start_"));
-        grid.addColumn("lastName").setHeader(getTranslation("LastName"));
-        grid.addColumn("firstName").setHeader(getTranslation("FirstName"));
-        grid.addColumn("team").setHeader(getTranslation("Team"));
-        grid.addColumn("ageGroup").setHeader(getTranslation("AgeGroup"));
-        grid.addColumn("category").setHeader(getTranslation("Category"));
-        grid.addColumn("group").setHeader(getTranslation("Group"));
-        grid.addColumn(new NumberRenderer<>(Athlete::getBodyWeight, "%.2f", this.getLocale()), "bodyWeight")
-                .setHeader(getTranslation("BodyWeight"));
-        grid.addColumn("snatch1Declaration").setHeader(getTranslation("SnatchDecl_"));
-        grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
-
-        grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
-        OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class),
-                crudFormFactory, grid);
-        crudGrid.setCrudListener(this);
-        crudGrid.setClickRowToUpdate(true);
-        return crudGrid;
-    }
-
-    /**
-     * The filters at the top of the crudGrid
-     *
-     * @param crudGrid the crudGrid that will be filtered.
-     */
-    protected void defineFilters(GridCrud<Athlete> crudGrid) {
-        lastNameFilter.setPlaceholder(getTranslation("LastName"));
-        lastNameFilter.setClearButtonVisible(true);
-        lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-        lastNameFilter.addValueChangeListener(e -> {
-            crudGrid.refreshGrid();
-        });
-        crudGrid.getCrudLayout().addFilterComponent(lastNameFilter);
-
-        ageDivisionFilter.setPlaceholder(getTranslation("AgeDivision"));
-        ageDivisionFilter.setItems(AgeDivision.findAll());
-        ageDivisionFilter.setItemLabelGenerator((ad) -> getTranslation("Division." + ad.name()));
-        ageDivisionFilter.setClearButtonVisible(true);
-        ageDivisionFilter.addValueChangeListener(e -> {
-            crudGrid.refreshGrid();
-        });
-        crudGrid.getCrudLayout().addFilterComponent(ageDivisionFilter);
-        
-        ageGroupFilter.setPlaceholder(getTranslation("AgeGroup"));
-        ageGroupFilter.setItems(AgeGroupRepository.findAll());
-        // ageGroupFilter.setItemLabelGenerator(AgeDivision::name);
-        ageGroupFilter.setClearButtonVisible(true);
-        ageGroupFilter.addValueChangeListener(e -> {
-            crudGrid.refreshGrid();
-        });
-        ageGroupFilter.setWidth("10em");
-        crudGrid.getCrudLayout().addFilterComponent(ageGroupFilter);
-
-        categoryFilter.setPlaceholder(getTranslation("Category"));
-        categoryFilter.setItems(CategoryRepository.findActive());
-        categoryFilter.setItemLabelGenerator(Category::getName);
-        categoryFilter.setClearButtonVisible(true);
-        categoryFilter.addValueChangeListener(e -> {
-            crudGrid.refreshGrid();
-        });
-        crudGrid.getCrudLayout().addFilterComponent(categoryFilter);
-
-        groupFilter.setPlaceholder(getTranslation("Group"));
-        groupFilter.setItems(GroupRepository.findAll());
-        groupFilter.setItemLabelGenerator(Group::getName);
-        groupFilter.setClearButtonVisible(true);
-        groupFilter.addValueChangeListener(e -> {
-            crudGrid.refreshGrid();
-        });
-        // hide because the top bar has it
-        groupFilter.getStyle().set("display", "none");
-
-        crudGrid.getCrudLayout().addFilterComponent(groupFilter);
-
-        weighedInFilter.setPlaceholder(getTranslation("Weighed_in_p"));
-        weighedInFilter.setItems(Boolean.TRUE, Boolean.FALSE);
-        weighedInFilter.setItemLabelGenerator((i) -> {
-            return i ? getTranslation("Weighed") : getTranslation("Not_weighed");
-        });
-        weighedInFilter.setClearButtonVisible(true);
-        weighedInFilter.addValueChangeListener(e -> {
-            crudGrid.refreshGrid();
-        });
-        crudGrid.getCrudLayout().addFilterComponent(weighedInFilter);
-
-        Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
-        clearFilters.addClickListener(event -> {
-            lastNameFilter.clear();
-            ageDivisionFilter.clear();
-            categoryFilter.clear();
-            // groupFilter.clear();
-            weighedInFilter.clear();
-        });
-        crudGrid.getCrudLayout().addFilterComponent(clearFilters);
-    }
-
-    @Override
-    public void delete(Athlete Athlete) {
-        crudFormFactory.delete(Athlete);
-        return;
-    }
-
-    /**
-     * The refresh button on the toolbar calls this.
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-    @Override
-    public Collection<Athlete> findAll() {
-        List<Athlete> findFiltered = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
-                categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(), weighedInFilter.getValue(), -1, -1);
-        AthleteSorter.registrationOrder(findFiltered);
-        return findFiltered;
-    }
-
-    /**
-     * @return the groupFilter
-     */
-    public ComboBox<Group> getGroupFilter() {
-        return groupFilter;
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("WeighIn");
-    }
-
-    @Override
-    public OwlcmsRouterLayout getRouterLayout() {
-        return routerLayout;
-    }
-
-    public void refresh() {
-        crudGrid.refreshGrid();
-    }
-
-    @Override
-    public void setRouterLayout(OwlcmsRouterLayout routerLayout) {
-        this.routerLayout = routerLayout;
-    }
-
-    @Override
-    public Athlete update(Athlete Athlete) {
-        return crudFormFactory.update(Athlete);
     }
 }

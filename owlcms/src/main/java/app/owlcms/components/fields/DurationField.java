@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.fields;
@@ -52,26 +52,6 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
 
     Level overrideLoggerLevel = Level.INFO;
 
-    private Result<Duration> doParse(String string, Locale locale, DateTimeFormatter formatter) {
-        LocalTime parsedTime;
-        try {
-            if ((string == null || string.trim().isEmpty()) && !this.isRequired()) {
-                // field is not required, accept empty content
-                setFormatValidationStatus(true, locale);
-                return Result.ok(null);
-            }
-            parsedTime = LocalTime.parse(string, formatter);
-            setFormatValidationStatus(true, locale);
-            Duration between = Duration.between(LocalTime.MIN, parsedTime);
-            getLogger().debug("parsed duration = {}", between);
-            return Result.ok(between);
-        } catch (DateTimeParseException e) {
-            getLogger().error(e.getLocalizedMessage());
-            setFormatValidationStatus(false, locale);
-            return Result.error(invalidFormatErrorMessage(locale));
-        }
-    }
-
     @Override
     public Converter<String, Duration> getConverter() {
         return new Converter<String, Duration>() {
@@ -113,6 +93,11 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
         };
     }
 
+    @Override
+    public String toString() {
+        return getConverter().convertToPresentation(getValue(), new ValueContext(getLocale()));
+    }
+
     protected LocalTime getValueAsLocalTime() {
         return LocalTime.MIN.plus(getValue());
     }
@@ -137,9 +122,24 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
         setValue(Duration.between(min, hhmmss));
     }
 
-    @Override
-    public String toString() {
-        return getConverter().convertToPresentation(getValue(), new ValueContext(getLocale()));
+    private Result<Duration> doParse(String string, Locale locale, DateTimeFormatter formatter) {
+        LocalTime parsedTime;
+        try {
+            if ((string == null || string.trim().isEmpty()) && !this.isRequired()) {
+                // field is not required, accept empty content
+                setFormatValidationStatus(true, locale);
+                return Result.ok(null);
+            }
+            parsedTime = LocalTime.parse(string, formatter);
+            setFormatValidationStatus(true, locale);
+            Duration between = Duration.between(LocalTime.MIN, parsedTime);
+            getLogger().debug("parsed duration = {}", between);
+            return Result.ok(between);
+        } catch (DateTimeParseException e) {
+            getLogger().error(e.getLocalizedMessage());
+            setFormatValidationStatus(false, locale);
+            return Result.error(invalidFormatErrorMessage(locale));
+        }
     }
 
 }

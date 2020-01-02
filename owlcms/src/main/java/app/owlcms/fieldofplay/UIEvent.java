@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.fieldofplay;
@@ -17,9 +17,8 @@ import app.owlcms.data.group.Group;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 
 /**
- * UIEvents are triggered in response to field of play events (FOPEvents). Each
- * field of play has an associated uiEventBus on which the user interface
- * commands are posted. The various browsers subscribe to UIEvents and react
+ * UIEvents are triggered in response to field of play events (FOPEvents). Each field of play has an associated
+ * uiEventBus on which the user interface commands are posted. The various browsers subscribe to UIEvents and react
  * accordingly.
  *
  * @author owlcms
@@ -167,8 +166,7 @@ public class UIEvent {
         }
 
         /**
-         * @return true if is a request for toggling display (and not an actual break
-         *         start)
+         * @return true if is a request for toggling display (and not an actual break start)
          */
         public boolean isDisplayToggle() {
             return displayToggle;
@@ -311,16 +309,13 @@ public class UIEvent {
          * Instantiates a new lifting order updated command.
          *
          * @param athlete         the current athlete after recalculation
-         * @param nextAthlete     the next athlete that will lift (cannot be the same as
-         *                        athlete)
-         * @param previousAthlete the last athlete to have lifted (can be the same as
-         *                        athlete)
+         * @param nextAthlete     the next athlete that will lift (cannot be the same as athlete)
+         * @param previousAthlete the last athlete to have lifted (can be the same as athlete)
          * @param changingAthlete the athlete who triggered the lifting update
          * @param liftingOrder    the lifting order
          * @param displayOrder    the display order
          * @param timeAllowed     the time allowed
-         * @param displayToggle   if true, just update display according to lifting
-         *                        order.
+         * @param displayToggle   if true, just update display according to lifting order.
          * @param origin          the origin
          */
         public LiftingOrderUpdated(Athlete athlete, Athlete nextAthlete, Athlete previousAthlete,

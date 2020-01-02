@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
@@ -93,28 +93,107 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     /**
-     * @return true if the current group is safe for editing -- i.e. not lifting
-     *         currently
+     * Get the content of the crudGrid. Invoked by refreshGrid.
+     *
+     * @see org.vaadin.crudui.crud.CrudListener#findAll()
      */
-    private boolean checkFOP() {
-        Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
-        FieldOfPlay liftingFop = null;
-        search: for (FieldOfPlay fop : fops) {
-            if (fop.getGroup() != null && fop.getGroup().equals(currentGroup)) {
-                liftingFop = fop;
-                break search;
-            }
-        }
-        if (liftingFop != null) {
-            Notification.show(
-                    getTranslation("Warning_GroupLifting") + liftingFop.getName() + getTranslation("CannotEditResults"),
-                    3000, Position.MIDDLE);
-            logger.debug(getTranslation("CannotEditResults_logging"), currentGroup, liftingFop);
-            subscribeIfLifting(currentGroup);
+    @Override
+    public Collection<Athlete> findAll() {
+        List<Athlete> athletes = AthleteSorter.resultsOrderCopy(
+                AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(), true), Ranking.TOTAL);
+        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
+        AthleteSorter.resultsOrder(athletes, Ranking.SNATCH);
+        AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
+        AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK);
+        AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
+        return athletes;
+    }
+
+    public Group getGridGroup() {
+        return groupFilter.getValue();
+    }
+
+    /**
+     * @return the groupFilter
+     */
+    @Override
+    public ComboBox<Group> getGroupFilter() {
+        return groupFilter;
+    }
+
+    /**
+     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
+     */
+    @Override
+    public String getPageTitle() {
+        return getTranslation("Results");
+    }
+
+    @Override
+    public boolean isIgnoreGroupFromURL() {
+        return false;
+    }
+
+    public void refresh() {
+        crudGrid.refreshGrid();
+    }
+
+    public void setGridGroup(Group group) {
+        subscribeIfLifting(group);
+        groupFilter.setValue(group);
+        refresh();
+    }
+
+    /**
+     * Parse the http query parameters
+     *
+     * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
+     *
+     * @param event     Vaadin navigation event
+     * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
+     *                  parameters instead.
+     *
+     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     */
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+        setLocation(event.getLocation());
+        setLocationUI(event.getUI());
+        QueryParameters queryParameters = getLocation().getQueryParameters();
+        Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
+        HashMap<String, List<String>> params = new HashMap<>(parametersMap);
+
+        logger.debug("parsing query parameters");
+        List<String> groupNames = params.get("group");
+        if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
+            String groupName = groupNames.get(0);
+            currentGroup = GroupRepository.findByName(groupName);
         } else {
-            logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
+            currentGroup = null;
         }
-        return liftingFop != null;
+        if (currentGroup != null) {
+            params.put("group", Arrays.asList(currentGroup.getName()));
+        } else {
+            params.remove("group");
+        }
+        params.remove("fop");
+
+        // change the URL to reflect group
+        event.getUI().getPage().getHistory().replaceState(null,
+                new Location(getLocation().getPath(), new QueryParameters(params)));
+    }
+
+    @Override
+    public void updateURLLocation(UI ui, Location location, Group newGroup) {
+        // change the URL to reflect fop group
+        HashMap<String, List<String>> params = new HashMap<>(
+                location.getQueryParameters().getParameters());
+        if (!isIgnoreGroupFromURL() && newGroup != null) {
+            params.put("group", Arrays.asList(newGroup.getName()));
+        } else {
+            params.remove("group");
+        }
+        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 
     /**
@@ -176,8 +255,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      *
      * Note: the top bar is created before the content.
      *
-     * @see #showRouterLayoutContent(HasElement) for how to content to layout and
-     *      vice-versa
+     * @see #showRouterLayoutContent(HasElement) for how to content to layout and vice-versa
      *
      * @param topBar
      */
@@ -253,78 +331,13 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     /**
-     * Get the content of the crudGrid. Invoked by refreshGrid.
-     *
-     * @see org.vaadin.crudui.crud.CrudListener#findAll()
-     */
-    @Override
-    public Collection<Athlete> findAll() {
-        List<Athlete> athletes = AthleteSorter.resultsOrderCopy(
-                AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(), true), Ranking.TOTAL);
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
-        AthleteSorter.resultsOrder(athletes, Ranking.SNATCH);
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
-        AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK);
-        AthleteSorter.assignCategoryRanks(athletes, Ranking.CLEANJERK);
-        return athletes;
-    }
-
-    public Group getGridGroup() {
-        return groupFilter.getValue();
-    }
-
-    /**
-     * @return the groupFilter
-     */
-    @Override
-    public ComboBox<Group> getGroupFilter() {
-        return groupFilter;
-    }
-
-    /**
-     * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
-     */
-    @Override
-    public String getPageTitle() {
-        return getTranslation("Results");
-    }
-
-    @Override
-    public boolean isIgnoreGroupFromURL() {
-        return false;
-    }
-
-    /**
-     * We do not connect to the event bus, and we do not track a field of play
-     * (non-Javadoc)
+     * We do not connect to the event bus, and we do not track a field of play (non-Javadoc)
      *
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         createTopBar();
-    }
-
-    public void refresh() {
-        crudGrid.refreshGrid();
-    }
-
-    private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
-        Resource found = null;
-        for (Resource curResource : resourceList) {
-            String fileName = curResource.getFileName();
-            if (fileName.equals(curTemplateName)) {
-                found = curResource;
-                break;
-            }
-        }
-        return found;
-    }
-
-    public void setGridGroup(Group group) {
-        subscribeIfLifting(group);
-        groupFilter.setValue(group);
-        refresh();
     }
 
     protected void setGroupSelectionListener() {
@@ -342,44 +355,39 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     /**
-     * Parse the http query parameters
-     *
-     * Note: because we have the @Route, the parameters are parsed *before* our
-     * parent layout is created.
-     *
-     * @param event     Vaadin navigation event
-     * @param parameter null in this case -- we don't want a vaadin "/" parameter.
-     *                  This allows us to add query parameters instead.
-     *
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
-     *      java.lang.String)
+     * @return true if the current group is safe for editing -- i.e. not lifting currently
      */
-    @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        setLocation(event.getLocation());
-        setLocationUI(event.getUI());
-        QueryParameters queryParameters = getLocation().getQueryParameters();
-        Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
-        HashMap<String, List<String>> params = new HashMap<>(parametersMap);
-
-        logger.debug("parsing query parameters");
-        List<String> groupNames = params.get("group");
-        if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
-            String groupName = groupNames.get(0);
-            currentGroup = GroupRepository.findByName(groupName);
-        } else {
-            currentGroup = null;
+    private boolean checkFOP() {
+        Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
+        FieldOfPlay liftingFop = null;
+        search: for (FieldOfPlay fop : fops) {
+            if (fop.getGroup() != null && fop.getGroup().equals(currentGroup)) {
+                liftingFop = fop;
+                break search;
+            }
         }
-        if (currentGroup != null) {
-            params.put("group", Arrays.asList(currentGroup.getName()));
+        if (liftingFop != null) {
+            Notification.show(
+                    getTranslation("Warning_GroupLifting") + liftingFop.getName() + getTranslation("CannotEditResults"),
+                    3000, Position.MIDDLE);
+            logger.debug(getTranslation("CannotEditResults_logging"), currentGroup, liftingFop);
+            subscribeIfLifting(currentGroup);
         } else {
-            params.remove("group");
+            logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
         }
-        params.remove("fop");
+        return liftingFop != null;
+    }
 
-        // change the URL to reflect group
-        event.getUI().getPage().getHistory().replaceState(null,
-                new Location(getLocation().getPath(), new QueryParameters(params)));
+    private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
+        Resource found = null;
+        for (Resource curResource : resourceList) {
+            String fileName = curResource.getFileName();
+            if (fileName.equals(curTemplateName)) {
+                found = curResource;
+                break;
+            }
+        }
+        return found;
     }
 
     private void setTemplateSelectionListener(List<Resource> resourceList) {
@@ -431,19 +439,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
                 }
             }
         }
-    }
-
-    @Override
-    public void updateURLLocation(UI ui, Location location, Group newGroup) {
-        // change the URL to reflect fop group
-        HashMap<String, List<String>> params = new HashMap<>(
-                location.getQueryParameters().getParameters());
-        if (!isIgnoreGroupFromURL() && newGroup != null) {
-            params.put("group", Arrays.asList(newGroup.getName()));
-        } else {
-            params.remove("group");
-        }
-        ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
     }
 
 }

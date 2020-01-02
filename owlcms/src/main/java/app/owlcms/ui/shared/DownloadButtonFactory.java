@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.shared;
@@ -28,21 +28,6 @@ import ch.qos.logback.classic.Logger;
 public class DownloadButtonFactory {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(DownloadButtonFactory.class);
-
-    private static Div buildButton(String prefix, String label, StreamResource href) {
-        Anchor finalResults = new Anchor(href, "");
-        Button finalResultsButton = new Button(label, new Icon(VaadinIcon.DOWNLOAD_ALT));
-        finalResultsButton.addFocusListener(e -> {
-            String dlName = prefix + "_" + LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE) + ".xls";
-            finalResults.getElement().setAttribute("download", dlName);
-        });
-        finalResultsButton.setWidth("93%"); // don't ask. this is a kludge.
-        finalResults.add(finalResultsButton);
-        finalResults.setWidth("100%");
-        Div finalResultsDiv = new Div(finalResults);
-        finalResultsDiv.setWidthFull();
-        return finalResultsDiv;
-    }
 
     /**
      * Creates a new DownloadButton object for a dynamically created file.
@@ -71,6 +56,21 @@ public class DownloadButtonFactory {
         StreamResource href = new StreamResource(prefix + ".xls",
                 () -> OwlcmsSession.class.getResourceAsStream(templateFileName));
         return buildButton(prefix, label, href);
+    }
+
+    private static Div buildButton(String prefix, String label, StreamResource href) {
+        Anchor finalResults = new Anchor(href, "");
+        Button finalResultsButton = new Button(label, new Icon(VaadinIcon.DOWNLOAD_ALT));
+        finalResultsButton.addFocusListener(e -> {
+            String dlName = prefix + "_" + LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE) + ".xls";
+            finalResults.getElement().setAttribute("download", dlName);
+        });
+        finalResultsButton.setWidth("93%"); // don't ask. this is a kludge.
+        finalResults.add(finalResultsButton);
+        finalResults.setWidth("100%");
+        Div finalResultsDiv = new Div(finalResults);
+        finalResultsDiv.setWidthFull();
+        return finalResultsDiv;
     }
 
 }

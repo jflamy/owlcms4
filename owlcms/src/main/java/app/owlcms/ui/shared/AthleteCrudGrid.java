@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.shared;
@@ -20,15 +20,12 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
- * This class attempts to locate the selected athlete from the in the lifting
- * order.
+ * This class attempts to locate the selected athlete from the in the lifting order.
  *
  * <p>
  * This is a workaround for two issues:
- * <li>Why does getValue() return a different object than that in the lifting
- * order (initialization issue?)
- * <li>Why do we have to get the same object anyway (spurious comparison with ==
- * instead of getId() or .equals)
+ * <li>Why does getValue() return a different object than that in the lifting order (initialization issue?)
+ * <li>Why do we have to get the same object anyway (spurious comparison with == instead of getId() or .equals)
  * </p>
  *
  * @author Jean-François Lamy
@@ -50,7 +47,7 @@ public class AthleteCrudGrid extends OwlcmsCrudGrid<Athlete> {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.vaadin.crudui.crud.impl.GridCrud#updateButtonClicked()
      */
     @Override

@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.elements;
@@ -67,40 +67,13 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     public DecisionElement() {
     }
 
-    protected Object getOrigin() {
-        // we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard
-        // to identify
-        // our actions.
-        return this.getParent().get();
-    }
-
-    private void init() {
-        DecisionModel model = getModel();
-        model.setPublicFacing(true);
-
-        Element elem = this.getElement();
-        elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
-            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-        });
-        elem.addPropertyChangeListener("ref2", "ref2-changed", (e) -> {
-            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-        });
-        elem.addPropertyChangeListener("ref3", "ref3-changed", (e) -> {
-            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-        });
-        elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
-            uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
-        });
-    }
-
     public boolean isPublicFacing() {
         return Boolean.TRUE.equals(getModel().isPublicFacing());
     }
 
     @ClientCallable
     /**
-     * client side only sends after timer has been started until decision reset or
-     * break
+     * client side only sends after timer has been started until decision reset or break
      *
      * @param ref1
      * @param ref2
@@ -124,8 +97,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     @ClientCallable
     /**
-     * client side only sends after timer has been started until decision reset or
-     * break
+     * client side only sends after timer has been started until decision reset or break
      *
      * @param decision
      * @param ref1
@@ -137,21 +109,6 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         logger.debug("=== master {} down: decision={} ({} {} {})", origin, decision.getClass().getSimpleName(), ref1,
                 ref2, ref3);
         fopEventBus.post(new FOPEvent.DownSignal(origin));
-    }
-
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
-     * AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
-        init();
-        OwlcmsSession.withFop(fop -> {
-            // we send on fopEventBus, listen on uiEventBus.
-            fopEventBus = fop.getFopEventBus();
-            uiEventBus = uiEventBusRegister(this, fop);
-        });
     }
 
     public void setJury(boolean juryMode) {
@@ -210,6 +167,46 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             logger.debug("slaveStopTimer enable");
             getModel().setEnabled(true);
+        });
+    }
+
+    protected Object getOrigin() {
+        // we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard
+        // to identify
+        // our actions.
+        return this.getParent().get();
+    }
+
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        init();
+        OwlcmsSession.withFop(fop -> {
+            // we send on fopEventBus, listen on uiEventBus.
+            fopEventBus = fop.getFopEventBus();
+            uiEventBus = uiEventBusRegister(this, fop);
+        });
+    }
+
+    private void init() {
+        DecisionModel model = getModel();
+        model.setPublicFacing(true);
+
+        Element elem = this.getElement();
+        elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
+            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
+        });
+        elem.addPropertyChangeListener("ref2", "ref2-changed", (e) -> {
+            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
+        });
+        elem.addPropertyChangeListener("ref3", "ref3-changed", (e) -> {
+            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
+        });
+        elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
+            uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
         });
     }
 }

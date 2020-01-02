@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.shared;
@@ -42,11 +42,14 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
         FieldOfPlay fop = null;
         if (!isIgnoreFopFromURL()) {
             List<String> fopNames = parametersMap.get("fop");
-            if (fopNames != null && fopNames.get(0) == null) {
+            if (fopNames != null && fopNames.get(0) != null) {
+                logger.trace("fopNames {}",fopNames);
                 fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
             } else if (OwlcmsSession.getFop() != null) {
+                logger.trace("OwlcmsSession.getFop() {}",OwlcmsSession.getFop());
                 fop = OwlcmsSession.getFop();
             } else {
+                logger.trace("OwlcmsFactory.getDefaultFOP() {}",OwlcmsFactory.getDefaultFOP());
                 fop = OwlcmsFactory.getDefaultFOP();
             }
             params.put("fop", Arrays.asList(fop.getName()));
@@ -95,9 +98,8 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
 
     /*
      * Process query parameters
-     * 
-     * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router.
-     * BeforeEvent, java.lang.String)
+     *
+     * @see app.owlcms.ui.group.URLParameter#setParameter(com.vaadin.flow.router. BeforeEvent, java.lang.String)
      */
     @Override
     public default void setParameter(BeforeEvent event, @OptionalParameter String parameter) {

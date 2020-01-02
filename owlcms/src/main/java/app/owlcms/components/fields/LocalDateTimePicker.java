@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.components.fields;
 
 import java.time.LocalDate;
@@ -19,19 +25,19 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
         add(datePicker, timePicker);
     }
 
-    @Override
-    protected LocalDateTime generateModelValue() {
-        final LocalDate date = datePicker.getValue();
-        final LocalTime time = timePicker.getValue();
-        return date != null && time != null ? LocalDateTime.of(date, time) : null;
-    }
-
     /**
      * @see com.vaadin.flow.component.AbstractField#getValue()
      */
     @Override
     public LocalDateTime getValue() {
         return generateModelValue();
+    }
+
+    @Override
+    protected LocalDateTime generateModelValue() {
+        final LocalDate date = datePicker.getValue();
+        final LocalTime time = timePicker.getValue();
+        return date != null && time != null ? LocalDateTime.of(date, time) : null;
     }
 
     @Override

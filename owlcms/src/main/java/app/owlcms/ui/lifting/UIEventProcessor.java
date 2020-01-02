@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.lifting;
@@ -19,53 +19,17 @@ import app.owlcms.fieldofplay.UIEvent;
 public interface UIEventProcessor {
 
     /**
-     * Access the UI safely.
-     * 
-     * This version does not care about events.
-     * 
-     * @param attachedComponent the component we are updating (any of them if
-     *                          several)
-     * @param uiEventBus
-     * @param command
-     */
-    static void uiAccess(Component attachedComponent, EventBus uiEventBus, Command command) {
-        // The use of different numbers as selfOrigin and eventOrigin implies that we
-        // always execute the command.
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(attachedComponent, uiEventBus, null, 1, 2, command);
-    }
-
-    /**
-     * Access the UI safely, as a result of an event.
-     * 
-     * The command is performed even if it results from ourself.
-     * 
-     * @param attachedComponent the component we are updating (any of them if
-     *                          several)
-     * @param uiEventBus
-     * @param e
-     * @param command
-     */
-    static void uiAccess(Component attachedComponent, EventBus uiEventBus, UIEvent e, Command command) {
-        // The use of a number as selfOrigin means that we always execute the command.
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(attachedComponent, uiEventBus, e, 1,
-                (e != null ? e.getOrigin() : null), command);
-    }
-
-    /**
      * Access the ui safely
-     * 
-     * Do nothing if the event originates from ourselves -- if we stop the clock on
-     * the timekeeper device, there is no need to obey the command to stop the clock
-     * on all the other devices, since we are the cause of that event.
-     * 
-     * @param attachedComponent the component we are updating (any of them if
-     *                          several)
+     *
+     * Do nothing if the event originates from ourselves -- if we stop the clock on the timekeeper device, there is no
+     * need to obey the command to stop the clock on all the other devices, since we are the cause of that event.
+     *
+     * @param attachedComponent the component we are updating (any of them if several)
      * @param uiEventBus        the bus on which we are listening
      * @param e                 the event we received
-     * @param selfOrigin        our reference element -- for composite objects, we
-     *                          will likely use the parent of the hierarchy
-     * @param eventOrigin       the element on which the action that triggered the
-     *                          event chain occurred.
+     * @param selfOrigin        our reference element -- for composite objects, we will likely use the parent of the
+     *                          hierarchy
+     * @param eventOrigin       the element on which the action that triggered the event chain occurred.
      * @param command
      */
     public static void uiAccessIgnoreIfSelfOrigin(Component attachedComponent, EventBus uiEventBus, UIEvent e,
@@ -95,6 +59,37 @@ public interface UIEventProcessor {
                 // ignore
             }
         }
+    }
+
+    /**
+     * Access the UI safely.
+     *
+     * This version does not care about events.
+     *
+     * @param attachedComponent the component we are updating (any of them if several)
+     * @param uiEventBus
+     * @param command
+     */
+    static void uiAccess(Component attachedComponent, EventBus uiEventBus, Command command) {
+        // The use of different numbers as selfOrigin and eventOrigin implies that we
+        // always execute the command.
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(attachedComponent, uiEventBus, null, 1, 2, command);
+    }
+
+    /**
+     * Access the UI safely, as a result of an event.
+     *
+     * The command is performed even if it results from ourself.
+     *
+     * @param attachedComponent the component we are updating (any of them if several)
+     * @param uiEventBus
+     * @param e
+     * @param command
+     */
+    static void uiAccess(Component attachedComponent, EventBus uiEventBus, UIEvent e, Command command) {
+        // The use of a number as selfOrigin means that we always execute the command.
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(attachedComponent, uiEventBus, e, 1,
+                (e != null ? e.getOrigin() : null), command);
     }
 
 }

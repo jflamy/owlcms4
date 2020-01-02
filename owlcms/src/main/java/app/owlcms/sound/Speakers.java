@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.sound;
@@ -55,6 +55,22 @@ public class Speakers {
     }
 
     /**
+     * @param mixer
+     */
+    public static synchronized void testSound(Mixer mixer) {
+        try {
+            if (mixer == null) {
+                return;
+            }
+            // both sounds should be heard simultaneously
+            new Sound(mixer, "initialWarning2.wav").emit();
+            new Tone(mixer, 1100, 1200, 1.0).emit();
+        } catch (Exception e) {
+            logger.error("failed sound test\n" + LoggerUtils.stackTrace(e));
+        }
+    }
+
+    /**
      * @param defaultMixer
      * @param infos
      */
@@ -93,22 +109,6 @@ public class Speakers {
                 }
                 port.close();
             }
-        }
-    }
-
-    /**
-     * @param mixer
-     */
-    public static synchronized void testSound(Mixer mixer) {
-        try {
-            if (mixer == null) {
-                return;
-            }
-            // both sounds should be heard simultaneously
-            new Sound(mixer, "initialWarning2.wav").emit();
-            new Tone(mixer, 1100, 1200, 1.0).emit();
-        } catch (Exception e) {
-            logger.error("failed sound test\n" + LoggerUtils.stackTrace(e));
         }
     }
 }

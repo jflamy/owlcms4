@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.fieldofplay;
@@ -186,7 +186,7 @@ public class ProxyBreakTimer implements IProxyTimer {
             return;
         }
         logger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
-        
+
         // should emit sound at end of break
         fop.getUiEventBus().post(new UIEvent.BreakDone(origin));
 
