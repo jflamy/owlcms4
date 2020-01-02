@@ -507,7 +507,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> impl
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        buildContextMenu(this);
         setDarkMode(this, isDarkMode(), false);
     }
 

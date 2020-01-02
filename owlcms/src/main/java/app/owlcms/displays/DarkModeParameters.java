@@ -32,6 +32,7 @@ import app.owlcms.ui.shared.QueryParameterReader;
  */
 public interface DarkModeParameters extends QueryParameterReader {
 
+    public static final String LIGHT = "light";
     public static final String DARK = "dark";
 
     public default void buildContextMenu(Component target) {
@@ -39,24 +40,27 @@ public interface DarkModeParameters extends QueryParameterReader {
         if (oldContextMenu != null) {
             oldContextMenu.setTarget(null);
         }
+        setContextMenu(null);
 
         ContextMenu contextMenu = new ContextMenu();
 
         if (isDarkMode()) {
-            Button darkButton = new Button(contextMenu.getTranslation(DARK), e -> setDarkMode(target, true, false));
-            darkButton.setThemeName("secondary contrast");
+            Button darkButton = new Button(contextMenu.getTranslation(DARK),
+                    e -> setDarkMode(target, true, false));
+            darkButton.setThemeName("light primary contrast");
             contextMenu.addItem(darkButton);
-            Button lightButton = new Button(contextMenu.getTranslation("light"),
+            Button lightButton = new Button(contextMenu.getTranslation(LIGHT),
                     e -> setDarkMode(target, false, false));
-            lightButton.setThemeName("primary contrast");
+            lightButton.setThemeName("light secondary contrast");
             contextMenu.addItem(lightButton);
         } else {
-            Button lightButton = new Button(contextMenu.getTranslation("light"),
+            Button lightButton = new Button(contextMenu.getTranslation(LIGHT),
                     e -> setDarkMode(target, false, false));
-            lightButton.setThemeName("primary contrast");
+            lightButton.setThemeName("light secondary contrast");
             contextMenu.addItem(lightButton);
-            Button darkButton = new Button(contextMenu.getTranslation(DARK), e -> setDarkMode(target, true, false));
-            darkButton.setThemeName("secondary contrast");
+            Button darkButton = new Button(contextMenu.getTranslation(DARK),
+                    e -> setDarkMode(target, true, false));
+            darkButton.setThemeName("light primary contrast");
             contextMenu.addItem(darkButton);
         }
         contextMenu.setOpenOnClick(true);
@@ -67,7 +71,7 @@ public interface DarkModeParameters extends QueryParameterReader {
     public default void doNotification(boolean dark) {
         Notification n = new Notification();
         H2 h2 = new H2();
-        h2.setText(h2.getTranslation("darkMode." + (dark ? DARK : "light")));
+        h2.setText(h2.getTranslation("darkMode." + (dark ? DARK : LIGHT)));
         h2.getStyle().set("margin", "0");
         n.add(h2);
         n.setDuration(3000);
@@ -90,13 +94,14 @@ public interface DarkModeParameters extends QueryParameterReader {
 
     public default void setDarkMode(Component target, boolean dark, boolean notify) {
         target.getElement().getClassList().set(DARK, dark);
-        target.getElement().getClassList().set("light", !dark);
+        target.getElement().getClassList().set(LIGHT, !dark);
         setDarkMode(dark);
+        buildContextMenu(target);
         updateURLLocation(getLocationUI(), getLocation(), dark ? null : "false");
 
-        if (notify) {
-            doNotification(dark);
-        }
+//        if (notify) {
+//            doNotification(dark);
+//        }
     }
 
     /*

@@ -370,7 +370,6 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         logger.debug("onAttach start");
-        buildContextMenu(this);
         setDarkMode(this, isDarkMode(), false);
         getModel().setWideCategory(true);
         setTranslationMap();

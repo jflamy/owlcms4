@@ -348,7 +348,6 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
-        buildContextMenu(this);
         setDarkMode(this, isDarkMode(), false);
     }
 
