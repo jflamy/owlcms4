@@ -128,8 +128,9 @@ public interface DarkModeParameters extends QueryParameterReader {
 
     public default void updateURLLocation(UI ui, Location location, String mode) {
         // change the URL to reflect fop group
-        HashMap<String, List<String>> params = new HashMap<>(
+        HashMap<String, List<String>> parametersMap = new HashMap<>(
                 location.getQueryParameters().getParameters());
+        HashMap<String, List<String>> params = computeParams(location, parametersMap);
         if (mode != null) {
             params.put(DARK, Arrays.asList(mode));
         } else {

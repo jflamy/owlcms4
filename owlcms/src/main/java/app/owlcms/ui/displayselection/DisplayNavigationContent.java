@@ -1,7 +1,7 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.displayselection;
@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -24,6 +26,8 @@ import app.owlcms.displays.attemptboard.AttemptBoard;
 import app.owlcms.displays.liftingorder.LiftingOrder;
 import app.owlcms.displays.scoreboard.Scoreboard;
 import app.owlcms.displays.topathletes.TopSinclair;
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -106,6 +110,30 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         this.locationUI = locationUI;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.ui.home.BaseNavigationContent#createTopBarFopField(java.lang. String, java.lang.String)
+     */
+    @Override
+    protected HorizontalLayout createTopBarFopField(String label, String placeHolder) {
+        Label fopLabel = new Label(label);
+        formatLabel(fopLabel);
+
+        ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
+        OwlcmsSession.withFop((fop) -> {
+            fopSelect.setValue(fop);
+        });
+        fopSelect.addValueChangeListener(e -> {
+            OwlcmsSession.setFop(e.getValue());
+            updateURLLocation(getLocationUI(), getLocation(), null);
+        });
+
+        HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);
+        fopField.setAlignItems(Alignment.CENTER);
+        return fopField;
+    }
+
     /**
      * @see app.owlcms.ui.shared.BaseNavigationContent#createTopBarGroupField(java.lang.String, java.lang.String)
      */
@@ -121,5 +149,4 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
     protected String getTitle() {
         return getTranslation("StartDisplays");
     }
-
 }

@@ -117,6 +117,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
         });
         fopSelect.addValueChangeListener(e -> {
             OwlcmsSession.setFop(e.getValue());
+            updateURLLocation(getLocationUI(), getLocation(), null);
         });
 
         HorizontalLayout fopField = new HorizontalLayout(fopLabel, fopSelect);

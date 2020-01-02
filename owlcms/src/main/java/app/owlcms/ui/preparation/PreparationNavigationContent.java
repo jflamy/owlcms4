@@ -1,11 +1,16 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
- *
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
 package app.owlcms.ui.preparation;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
@@ -17,12 +22,17 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.components.NavigationPage;
+import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
@@ -41,6 +51,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
     static {
         logger.setLevel(Level.INFO);
     }
+
+    private Group currentGroup;
 
     /**
      * Instantiates a new preparation navigation content.
@@ -100,6 +112,16 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         return getTranslation("OWLCMS_Preparation");
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see app.owlcms.ui.shared.QueryParameterReader#isIgnoreGroupFromURL()
+     */
+    @Override
+    public boolean isIgnoreGroupFromURL() {
+        return true;
+    }
+
     @Override
     public void setLocation(Location location) {
         this.location = location;
@@ -108,6 +130,45 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    /**
+     * Parse the http query parameters
+     *
+     * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
+     *
+     * @param event     Vaadin navigation event
+     * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
+     *                  parameters instead.
+     *
+     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     */
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+        setLocation(event.getLocation());
+        setLocationUI(event.getUI());
+        QueryParameters queryParameters = getLocation().getQueryParameters();
+        Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
+        HashMap<String, List<String>> params = new HashMap<>(parametersMap);
+
+        logger.debug("parsing query parameters");
+        List<String> groupNames = params.get("group");
+        if (!isIgnoreGroupFromURL() && groupNames != null && !groupNames.isEmpty()) {
+            String groupName = groupNames.get(0);
+            currentGroup = GroupRepository.findByName(groupName);
+        } else {
+            currentGroup = null;
+        }
+        if (currentGroup != null) {
+            params.put("group", Arrays.asList(currentGroup.getName()));
+        } else {
+            params.remove("group");
+        }
+        params.remove("fop");
+
+        // change the URL to reflect group
+        event.getUI().getPage().getHistory().replaceState(null,
+                new Location(getLocation().getPath(), new QueryParameters(params)));
     }
 
     @Override

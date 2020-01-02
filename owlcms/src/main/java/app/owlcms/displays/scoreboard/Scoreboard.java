@@ -50,6 +50,7 @@ import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
+import app.owlcms.ui.shared.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;
@@ -72,7 +73,7 @@ import elemental.json.JsonValue;
 @Route("displays/scoreboard")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> implements DarkModeParameters,
+public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel> implements QueryParameterReader, DarkModeParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
 
     /**
