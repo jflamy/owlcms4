@@ -26,10 +26,10 @@ For the sake of the example, let's assume that we want to change the settings so
 
 ![030_beforeRemoveCategory](img/Categories/030_beforeRemoveCategory.png)
 
-First, what we want to doremove the 109kg category to have 102kg as the last category with an upper limit.   This is actually very simple: it is sufficient to click on the `X` next to 109.  If we do so,
+The first thing we want is to remove the 109kg category so we have 102kg as the last category with an upper limit.   This is actually very simple: just click on the `X` next to 109.  If we do so,
 
 - the 109 category is removed,
-- the heaviest category is automatically changed to >102 (because the last category with a limit is now 102).  The system always adjust the last "X and above" category automatically.
+- the heaviest category is automatically changed to >102. The system always adjust the last "X and above" category based on the heaviest category with an upper limit.
 
 So there is nothing else to do, as shown on the next screen shot.
 
