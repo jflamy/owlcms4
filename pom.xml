@@ -21,7 +21,10 @@
         <!-- hard-coded paths -->
         <!-- jre location for bundling with windows installer -->
         <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>
+        
+        <!-- setting below is for JDK 11 -->
         <!-- <jre.directory>C:\Dev\Java\java-runtime</jre.directory> -->
+        
         <!-- windows installer compiler -->
         <innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
 
@@ -173,7 +176,7 @@
                     <configuration>
                         <source>1.8</source>
                         <target>1.8</target>
-                        <!-- <compilerArgs> -->
+                        <!-- <compilerArgs> should no longer be needed when moving to JDK 11 -->
                         <!-- <arg>- -add-exports=java.desktop/com.sun.media.sound=ALL-UNNAMED</arg> -->
                         <!-- </compilerArgs> -->
                     </configuration>
