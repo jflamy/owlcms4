@@ -234,6 +234,12 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     public boolean isIgnoreGroupFromURL() {
         return true;
     }
+    
+    @Override
+    public boolean isIgnoreFopFromURL() {
+        return true;
+    }
+
 
     @Override
     public void setContextMenu(ContextMenu contextMenu) {

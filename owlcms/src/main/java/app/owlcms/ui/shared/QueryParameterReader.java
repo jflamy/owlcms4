@@ -42,11 +42,14 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
         FieldOfPlay fop = null;
         if (!isIgnoreFopFromURL()) {
             List<String> fopNames = parametersMap.get("fop");
-            if (fopNames != null && fopNames.get(0) == null) {
+            if (fopNames != null && fopNames.get(0) != null) {
+                logger.trace("fopNames {}",fopNames);
                 fop = OwlcmsFactory.getFOPByName(fopNames.get(0));
             } else if (OwlcmsSession.getFop() != null) {
+                logger.trace("OwlcmsSession.getFop() {}",OwlcmsSession.getFop());
                 fop = OwlcmsSession.getFop();
             } else {
+                logger.trace("OwlcmsFactory.getDefaultFOP() {}",OwlcmsFactory.getDefaultFOP());
                 fop = OwlcmsFactory.getDefaultFOP();
             }
             params.put("fop", Arrays.asList(fop.getName()));
