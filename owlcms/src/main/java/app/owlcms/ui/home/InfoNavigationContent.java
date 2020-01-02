@@ -172,29 +172,34 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
         addP(license, getTranslation("Copyright2009") + LocalDate.now().getYear() + " " + getTranslation("JFL"));
         addP(license, getTranslation("LicenseUsed"));
         license.add(new H3(getTranslation("SourceDocumentation")));
-        addP(license, getTranslation("ProjectRepository") + getTranslation("Documentation")
-                + getTranslation("InstallationConfiguration"));
+        addUL(license,
+                getTranslation("ProjectRepository"),
+                getTranslation("Documentation"),
+                getTranslation("InstallationConfiguration"));
 
         license.add(new H3(getTranslation("Notes")));
         addP(license, getTranslation("TCRRCompliance") + getTranslation("AtTimeOfRelease")
                 + getTranslation("UseAtYourOwnRisk"));
 
         license.add(new H3(getTranslation("Credits")));
-        addP(license, getTranslation("WrittenJFL") + getTranslation("ThanksToAll") + getTranslation("ThanksToTranslators") + translators());
+        addUL(license, getTranslation("WrittenJFL"), getTranslation("ThanksToAll"));
 
         Button resetTranslation = new Button(getTranslation("reloadTranslation"),
                 buttonClickEvent -> Translator.reset());
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(resetTranslation);
 
         license.add(new H3(getTranslation("Translation")));
-        addP(license, getTranslation("TranslationDocumentation"));
+        addUL(license, 
+                getTranslation("ThanksToTranslators") + translators(),
+                getTranslation("TranslationDocumentation"));
+        
         doGroup(getTranslation("reloadTranslationInfo"), grid1, license);
 
         return license;
     }
 
     private String translators() {
-        Map<String,List<Locale>> translatorToLocales = new HashMap<>();
+        Map<String, List<Locale>> translatorToLocales = new HashMap<>();
         for (Locale l : Translator.getAllAvailableLocales()) {
             String translator = Translator.translateNoOverrideOrElseNull("Translator", l);
             if (translator != null) {
@@ -202,20 +207,21 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
                 if (list == null) {
                     list = new ArrayList<>();
                     list.add(l);
-                    translatorToLocales.put(translator,list);
+                    translatorToLocales.put(translator, list);
                 } else {
                     list.add(l);
                 }
             }
         }
         StringBuilder sb = new StringBuilder();
-        for (Entry<String, List<Locale>> entry: translatorToLocales.entrySet()) {
+        for (Entry<String, List<Locale>> entry : translatorToLocales.entrySet()) {
             if (!(sb.length() == 0)) {
                 sb.append(", ");
             }
             sb.append(entry.getKey());
             sb.append(" (");
-            sb.append(entry.getValue().stream().map(l -> l.getDisplayName(OwlcmsSession.getLocale())).collect(Collectors.joining(", ")));
+            sb.append(entry.getValue().stream().map(l -> l.getDisplayName(OwlcmsSession.getLocale()))
+                    .collect(Collectors.joining(", ")));
             sb.append(")");
         }
         return sb.toString();

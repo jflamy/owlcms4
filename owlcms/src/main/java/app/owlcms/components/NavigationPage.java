@@ -11,7 +11,9 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasUrlParameter;
 
@@ -41,6 +43,19 @@ public interface NavigationPage extends OwlcmsContent {
         paragraph.getStyle().set("margin-bottom", "0");
         intro.add(paragraph);
         return paragraph;
+    }
+    
+    public default UnorderedList addUL(HasComponents intro, String... bullets) {
+        UnorderedList ul = new UnorderedList();
+        for (String b: bullets) {
+            ListItem item = new ListItem(b);
+            item.getElement().setProperty("innerHTML", b);
+            ul.add(item);
+        }
+        ul.getStyle().set("margin-bottom", "0");
+        ul.getStyle().set("margin-top", "0");
+        intro.add(ul);
+        return ul;
     }
 
     public default void doGroup(String label, FlexibleGridLayout grid1, VerticalLayout wrapper) {
