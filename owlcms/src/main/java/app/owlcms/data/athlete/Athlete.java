@@ -510,7 +510,8 @@ public class Athlete {
     }
 
     public Integer getAge() {
-        LocalDate date = Competition.getCurrent().getCompetitionDate();
+        //LocalDate date = Competition.getCurrent().getCompetitionDate();
+        LocalDate date = null;
         if (date == null) {
             date = LocalDate.now();
         }
@@ -1584,50 +1585,37 @@ public class Athlete {
      * @return the short category
      */
     public String getShortCategory() {
-        String gender1 = getGender().name();
-        return getShortCategory(gender1);
-    }
-
-    /**
-     * Create a category acronym without gender.
-     *
-     * @param gender1 the gender 1
-     * @return the short category
-     */
-    public String getShortCategory(String gender1) {
         final Category category = getCategory();
         if (category == null) {
             return "";
         }
+        return category.getLimitString();
+    }
 
-        String shortCategory = category.getName();
-        int gtPos = shortCategory.indexOf(">");
-        if (gtPos > 0) {
-            return shortCategory.substring(gtPos);
-        } else {
-            return shortCategory.substring(1);
-        }
+    /**
+     * Create a category acronym without gender.
+     * 
+     * Deprecated. Use {@link #getShortCategory()} -- gender is no longer needed.
+     *
+     * @param gender1 the gender 1
+     * @return the short category
+     */
+    @Deprecated
+    public String getShortCategory(String gender1) {
+        return getShortCategory();
     }
 
     /**
      * Gets the short registration category.
+     * 
+     * Deprecated: we no longer use registration categories
      *
      * @param gender1 the gender 1
      * @return registration category stripped of gender prefix.
      */
+    @Deprecated
     public String getShortRegistrationCategory(String gender1) {
-        final Category category = getRegistrationCategory();
-        if (category == null) {
-            return "?";
-        }
-
-        String shortCategory = category.getName();
-        int gtPos = shortCategory.indexOf(">");
-        if (gtPos > 0) {
-            return shortCategory.substring(gtPos);
-        } else {
-            return shortCategory.substring(1);
-        }
+        return getShortCategory();
     }
 
     /**

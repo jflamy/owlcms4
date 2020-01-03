@@ -174,8 +174,7 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
         license.add(new H3(getTranslation("SourceDocumentation")));
         addUL(license,
                 getTranslation("ProjectRepository"),
-                getTranslation("Documentation"),
-                getTranslation("InstallationConfiguration"));
+                getTranslation("Documentation"));
 
         license.add(new H3(getTranslation("Notes")));
         addP(license, getTranslation("TCRRCompliance") + getTranslation("AtTimeOfRelease")
