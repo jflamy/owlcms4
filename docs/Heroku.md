@@ -1,3 +1,5 @@
+
+
 Heroku is a cloud service provider that provides an attractive free (0$) pricing plan for running programs like OWLCMS4.  When running on Heroku you only need a good Internet connection, and do not need to configure a master laptop.
 
 ## Read this first!
@@ -55,11 +57,13 @@ Logging is useful is problems arise, in order to allow the application maintaine
 
   ![7-papertrail](img/Heroku/7-papertrail.png)
 
-- Click on `Papertrail`. In order to see the application logs, go to the bottom of the page and click on the Saved searches bullet list icon. You will be using the `Web app output` entry in the future to see the logs 
+- Click on `Papertrail`. You also need configure your Time Zone on PaperTrail.  Use the Settings link at the top of the page, and then access your Profile.![A_TZ](img/Heroku/A_TZ.png)
+
+- In order to see the application logs, go to the bottom of the page and click on the looking glass icon at the bottom. You will be using the `Web app output` entry in the future to see the logs 
 
   ![8-appLog](img/Heroku/8-appLog.png)
-  
-- You also need configure your Time Zone on PaperTrail.  Use the Settings link at the top of the page, and then access your Profile.
+
+  - 
 
 
 ## Install and configure the deployment tools
