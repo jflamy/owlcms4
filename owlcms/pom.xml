@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -17,8 +16,7 @@
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-core</artifactId>
             <exclusions>
-                <!-- Webjars are only needed when running in Vaadin 13 compatibility 
-                    mode -->
+                <!-- Webjars are only needed when running in Vaadin 13 compatibility mode -->
                 <exclusion>
                     <groupId>com.vaadin.webjar</groupId>
                     <artifactId>*</artifactId>
@@ -242,9 +240,8 @@
         </resources>
 
         <plugins>
-            <!-- Take care of synchronizing java dependencies and imports 
-                in package.json and main.js files. It also creates webpack.config.js if not 
-                exists yet. -->
+            <!-- Take care of synchronizing java dependencies and imports in package.json and main.js files. It also creates webpack.config.js 
+                if not exists yet. -->
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
@@ -261,7 +258,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.1.0</version>
-                </plugin>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -369,11 +366,14 @@
                         <configuration>
                             <headerType>console</headerType>
                             <outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
-                            <!-- fake jar; the one we actually run is in postCp below; 
-                                we want the local directory to be before the owlcms jar we run from, but the plugin puts the 
-                                value of jar at the beginning of classpath, which is not what we want. So 
-                                we put a dummy jar at the front... -->
-                                <jar>jre/lib/charsets.jar</jar>
+                            <!-- fake jar; the one we actually run is in postCp below; we want the local directory to be before the owlcms 
+                                jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. 
+                                So we put a dummy jar at the front... -->
+                                
+                            <!-- dummy jar for JDK 8 -->
+                            <jar>jre/lib/charsets.jar</jar>
+                            
+                            <!-- dummy jar for JDK 11 -->
                             <!-- jar>jre/lib/jrt-fs.jar</jar -->
                             <dontWrapJar>true</dontWrapJar>
                             <errTitle>owlcms</errTitle>
@@ -637,12 +637,9 @@
                                 <include>target/heroku-javaagent-2.0.jar</include>
                             </includes>
                             <processTypes>
-                                <!-- following must be a single command line, 
-                                    cdata used to prevent xml formatters from splitting it -->
-                                <!-- reset on every restart, populate data 
-                                    after manual reset (devMode), run on postgres database -->
-                                <!-- no memory settings, set using configuration 
-                                    variables on application -->
+                                <!-- following must be a single command line, cdata used to prevent xml formatters from splitting it -->
+                                <!-- reset on every restart, populate data after manual reset (devMode), run on postgres database -->
+                                <!-- no memory settings, set using configuration variables on application -->
                                 <web><![CDATA[java -javaagent:target/heroku-javaagent-2.0.jar=stdout=true,lxmem=true -Dport=$PORT -Dlogback.configurationFile=logback-console.xml -DdevMode=true -DresetMode=true -DmemoryMode=false -XX:+UseG1GC -XX:GCTimeRatio=39 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -XX:MaxMetaspaceSize=80m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -cp target/owlcms.jar app.owlcms.Main]]></web>
                             </processTypes>
                         </configuration>
@@ -658,6 +655,11 @@
                         <groupId>com.heroku.sdk</groupId>
                         <artifactId>heroku-maven-plugin</artifactId>
                         <version>2.0.6</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                            </execution>
+                        </executions>
                         <configuration>
                             <appName>fhq</appName>
                             <includeTarget>false</includeTarget>
@@ -665,9 +667,8 @@
                                 <include>target/owlcms.jar</include>
                             </includes>
                             <processTypes>
-                                <!-- do not reset on restart(no resetMode), 
-                                    populate data after manual reset (devMode), run on postgres database (memoryMode=false, 
-                                    JDBC url provided by Heroku) -->
+                                <!-- do not reset on restart(no resetMode), populate data after manual reset (devMode), run on postgres database 
+                                    (memoryMode=false, JDBC url provided by Heroku) -->
                                 <web><![CDATA[java -Dport=$PORT -Dlogback.configurationFile=logback-console.xml -DdevMode=true -DresetMode=false -DmemoryMode=false -Dlogback.configurationFile=logback-console.xml -XX:+UseG1GC -Xmx512m -Xms128m -XX:+UseG1GC -XX:GCTimeRatio=39 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -XX:MaxMetaspaceSize=80m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar target/owlcms.jar]]></web>
                             </processTypes>
                         </configuration>
