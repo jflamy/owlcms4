@@ -373,7 +373,8 @@
                                 we want the local directory to be before the owlcms jar we run from, but the plugin puts the 
                                 value of jar at the beginning of classpath, which is not what we want. So 
                                 we put a dummy jar at the front... -->
-                            <jar>jre/lib/jrt-fs.jar</jar>
+                                <jar>jre/lib/charsets.jar</jar>
+                            <!-- jar>jre/lib/jrt-fs.jar</jar -->
                             <dontWrapJar>true</dontWrapJar>
                             <errTitle>owlcms</errTitle>
                             <classPath>
