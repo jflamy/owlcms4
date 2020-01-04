@@ -385,7 +385,7 @@ table#leaders-table thead tr.hide th {
 		<tr>
 			<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Start]]"></th>
-			<th inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
+			<th style="width:23%" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
 			<th class$="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
 			<th class="club ellipsis" inner-h-t-m-l="[[t.Team]]"></th>
@@ -404,7 +404,7 @@ table#leaders-table thead tr.hide th {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class$="[[l.classname]] veryNarrow"><div>[[l.startNumber]]</div></td>
-				<td class$="ellipsis [[l.classname]]"><div>[[l.fullName]]</div></td>
+				<td style="width:23%" class$="ellipsis [[l.classname]]"><div>[[l.fullName]]</div></td>
 				<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
 				<td class="ellipsis club">[[l.teamName]]</td>
@@ -430,7 +430,7 @@ table#leaders-table thead tr.hide th {
 		<tr class="hide">
 			<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Start]]"></th>
-			<th inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
+			<th style="width:23%" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
 			<th class$="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
 			<th class="club ellipsis" inner-h-t-m-l="[[t.Team]]"></th>
@@ -450,7 +450,7 @@ table#leaders-table thead tr.hide th {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class$="[[l.classname]] veryNarrow"><div>[[l.group]]</div></td>
-				<td class$="ellipsis [[l.classname]]"><div>[[l.fullName]]</div></td>
+				<td style="width:23%" class$="ellipsis [[l.classname]]"><div>[[l.fullName]]</div></td>
 				<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
 				<td class="ellipsis club">[[l.teamName]]</td>

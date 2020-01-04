@@ -439,7 +439,7 @@ public class Competition {
     }
     
     @SuppressWarnings("unchecked")
-    public List<Athlete> getGroupRankings(Group group) {
+    public List<Athlete> getCategoryRankingsForGroup(Group group) {
         if (group == null) {
             return null;
         }
