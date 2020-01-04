@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.fieldofplay;
@@ -136,6 +136,8 @@ public class FieldOfPlay {
     private boolean testingMode;
 
     private CountdownType countdownType;
+
+    private boolean cjStarted;
 
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
@@ -569,6 +571,10 @@ public class FieldOfPlay {
         logger.trace("end of init state=" + state);
     }
 
+    public boolean isCjStarted() {
+        return cjStarted;
+    }
+
     public boolean isEmitSoundsOnServer() {
         return getSoundMixer() != null;
     }
@@ -604,6 +610,10 @@ public class FieldOfPlay {
 
     public void setBreakType(BreakType breakType) {
         this.breakType = breakType;
+    }
+
+    public void setCjStarted(boolean cjStarted) {
+        this.cjStarted = cjStarted;
     }
 
     public void setDisplayOrder(List<Athlete> displayOrder) {
@@ -994,9 +1004,11 @@ public class FieldOfPlay {
 
         if (nbWhite >= 2) {
             goodLift = true;
+            this.setCjStarted((curAthlete.getAttemptsDone() > 3));
             curAthlete.successfulLift();
         } else {
             goodLift = false;
+            this.setCjStarted((curAthlete.getAttemptsDone() > 3));
             curAthlete.failedLift();
         }
         curAthlete.resetForcedAsCurrent();

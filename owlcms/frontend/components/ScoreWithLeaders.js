@@ -15,8 +15,8 @@ class ScoreLeader extends PolymerElement {
   --medium-width: 9%;
   --narrow-width: 6%;
   --veryNarrow-width: 4%;
-  --fontSizeRank-height: 0.95em;
-  --fontSizeRows-height: 1.15em;
+  --fontSizeRank-height: 1.05em;
+  --fontSizeRows-height: 1.16em;
   --fontSizeRank-heightXGA: 0.9em;
   --fontSizeRows-heightXGA: 1.1em;
 }
@@ -27,7 +27,7 @@ class ScoreLeader extends PolymerElement {
 	background-color: black;
 	min-height: 100vh;
 	padding: 2vmin 2vmin 2vmin 2vmin;
-	overflow-y: hidden;
+	overflow: hidden;
 	display: flex;
 	flex-direction: column;
 	flex-wrap: no-wrap;
@@ -301,12 +301,18 @@ th, td {
 	font-weight: bold;
 }
 
+
 .blink {
 	animation: blink 1.5s step-start 0s infinite;
 	-webkit-animation: blink 1.5s step-start 0s infinite;
 }
-@keyframes blink { 50% {opacity: 0.0;}}
-@-webkit-keyframes blink { 50% {opacity: 0.0;}}
+@keyframes blink {
+ 50% {opacity: 0.0;}
+}
+@-webkit-keyframes blink {
+ 50% {opacity: 0.0;}
+}
+
 
 :host(.dark) .next {
 	color: orange;
@@ -339,6 +345,14 @@ th, td {
 
 .v-system-error {
 	display: none;
+}
+
+
+table#leaders-table thead tr.hide {
+	visibility: hidden; height:1px; line-height: 1px; font-size:1px;
+}
+table#leaders-table thead tr.hide th {
+	visibility: hidden; height:1px; line-height: 1px; font-size:1px; padding:0;
 }
 </style>
 <div class="wrapper">
@@ -390,7 +404,7 @@ th, td {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class$="[[l.classname]] veryNarrow"><div>[[l.startNumber]]</div></td>
-				<td width="30%" class$="ellipsis [[l.classname]]"><div class$="">[[l.fullName]]</div></td>
+				<td class$="ellipsis [[l.classname]]"><div>[[l.fullName]]</div></td>
 				<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
 				<td class="ellipsis club">[[l.teamName]]</td>
@@ -409,10 +423,11 @@ th, td {
 	</template>
 </table>
 </div>
+<template is="dom-if" if="[[leaders]]">
 <div id="leaders">
-<table class="results" style$="[[_computeHidden(hidden)]]">
+<table class="results" id="leaders-table" style$="[[_computeHidden(hidden)]]">
 	<thead>
-		<tr>
+		<tr class="hide">
 			<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Start]]"></th>
 			<th inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
@@ -426,6 +441,7 @@ th, td {
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
 			<th class="thRank" inner-h-t-m-l="[[t.Rank]]"></th>
 		</tr>
+		<tr><td colspan="100%" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]"></td></tr>
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
 		<template is="dom-if" if="[[l.isSpacer]]">
@@ -433,8 +449,8 @@ th, td {
 		</template>
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
-				<td class$="[[l.classname]] veryNarrow"><div>[[l.startNumber]]</div></td>
-				<td width="30%" class$="ellipsis [[l.classname]]"><div class$="">[[l.fullName]]</div></td>
+				<td class$="[[l.classname]] veryNarrow"><div>[[l.group]]</div></td>
+				<td class$="ellipsis [[l.classname]]"><div>[[l.fullName]]</div></td>
 				<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
 				<td class="ellipsis club">[[l.teamName]]</td>
@@ -454,6 +470,7 @@ th, td {
 </table>
 </div>
 </div>
+</template>
 </div>`;
 	}
 

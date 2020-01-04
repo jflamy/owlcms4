@@ -7,10 +7,11 @@
 <listEntry value="1"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="OWLCMS_LOCALE" value="fr_CA"/>
+<mapEntry key="OWLCMS_DEMOMODE" value="true"/>
+<mapEntry key="OWLCMS_LOCALE" value="en"/>
 <mapEntry key="OWLCMS_MEMORYMODE" value="false"/>
 <mapEntry key="OWLCMS_RESETMODE" value="true"/>
-<mapEntry key="OWLCMS_TESTMODE" value="true"/>
+<mapEntry key="OWLCMS_TESTMODE" value="false"/>
 <mapEntry key="_IP" value="127.0.0.1,10.0.2.2"/>
 <mapEntry key="_OWLCMS_PIN" value="0000"/>
 <mapEntry key="_OWLCMS_PORT" value="8080"/>

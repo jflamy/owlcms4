@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.displays.scoreboard;
@@ -89,6 +89,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     public interface ScoreboardModel extends TemplateModel {
         String getAttempt();
 
+        String getCategoryName();
+
         String getFullName();
 
         Integer getStartNumber();
@@ -102,6 +104,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         Boolean isWideCategory();
 
         void setAttempt(String formattedAttempt);
+
+        void setCategoryName(String categoryName);
 
         void setFullName(String lastName);
 
@@ -195,6 +199,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         ja.put("snatchRank", formatInt(a.getSnatchRank()));
         ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
         ja.put("totalRank", formatInt(a.getTotalRank()));
+        ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
         Integer liftOrderRank = a.getLiftOrderRank();
         boolean notDone = a.getAttemptsDone() < 6;
         String blink = (notDone ? " blink" : "");
@@ -220,7 +225,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Override
     public String getPageTitle() {
-        return getTranslation("Scoreboard");
+        return getTranslation("ScoreboardWLeadersTitle");
     }
 
     @Override
@@ -306,6 +311,46 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
             getModel().setHidden(false);
             this.getElement().callJsFunction("down");
+        });
+    }
+
+    @Subscribe
+    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
+        uiLog(e);
+        Competition competition = Competition.getCurrent();
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            computeLeaders(competition);
+        });
+    }
+
+    private void computeLeaders(Competition competition) {
+        OwlcmsSession.withFop(fop -> {
+            Athlete curAthlete = fop.getCurAthlete();
+            if (curAthlete != null && curAthlete.getGender() != null) {
+                getModel().setCategoryName(curAthlete.getCategory().getName());
+                order = competition.getGlobalTotalRanking(curAthlete.getGender());
+                order = filterToCategory(curAthlete.getCategory(), order);
+                order = order.stream().filter(a -> a.getTotal() > 0).collect(Collectors.toList());
+                if (order.size() > 0) {
+                    this.getElement().setPropertyJson("leaders", getAthletesJson(order));
+                } else {
+                    // no one has totaled, so we show the snatch stats
+                    if (!fop.isCjStarted()) {
+                        order = Competition.getCurrent().getGlobalSnatchRanking(curAthlete.getGender());
+                        order = filterToCategory(curAthlete.getCategory(), order);
+                        order = order.stream().filter(a -> a.getSnatchTotal() > 0).collect(Collectors.toList());
+                        if (order.size() > 0) {
+                            this.getElement().setPropertyJson("leaders", getAthletesJson(order));
+                        } else {
+                            // nothing to show
+                            this.getElement().setPropertyJson("leaders", Json.createNull());
+                        }
+                    } else {
+                        // nothing to show
+                        this.getElement().setPropertyJson("leaders", Json.createNull());
+                    }
+                }
+            }
         });
     }
 
@@ -512,6 +557,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         setDarkMode(this, isDarkMode(), false);
         Competition competition = Competition.getCurrent();
         competition.computeGlobalRankings();
+        computeLeaders(competition);
     }
 
     protected void setTranslationMap() {
@@ -552,6 +598,14 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         ScoreboardModel model = getModel();
         Athlete a = e.getAthlete();
         updateBottom(model, computeLiftType(a));
+    }
+
+    private List<Athlete> filterToCategory(Category category, List<Athlete> order) {
+        return order
+                .stream()
+                .filter(a -> category != null && category.equals(a.getCategory()))
+                .limit(3)
+                .collect(Collectors.toList());
     }
 
     private String formatAttempt(Integer attemptNo) {
@@ -627,26 +681,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             order = fop.getDisplayOrder();
             model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
             this.getElement().setPropertyJson("athletes", getAthletesJson(order));
-
-            Athlete curAthlete = fop.getCurAthlete();
-            if (curAthlete != null && curAthlete.getGender() != null) {
-                order = Competition.getCurrent().getGlobalTotalRanking(curAthlete.getGender());
-                model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
-                order = order
-                        .stream()
-                        .peek(a -> { 
-                            logger.warn("{} {} {}",
-                                a.getCategory(),
-                                curAthlete.getCategory(),
-                                a.getCategory().equals(curAthlete.getCategory())
-                                ); 
-                            })
-                        .filter(a -> a.getCategory().equals(curAthlete.getCategory()))
-                        .limit(3)
-                        .collect(Collectors.toList());
-                };
-                this.getElement().setPropertyJson("leaders", getAthletesJson(order));
-            });
-        }
+        });
+    }
 
 }

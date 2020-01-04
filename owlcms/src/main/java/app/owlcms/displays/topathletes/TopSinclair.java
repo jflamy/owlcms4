@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -130,8 +131,9 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
-        setSortedMen(competition.getGlobalSinclairRanking(Gender.M));
-        setSortedWomen(competition.getGlobalSinclairRanking(Gender.F));
+        // create copies because we want to change the list
+        setSortedMen(competition.getGlobalSinclairRanking(Gender.M).stream().collect(Collectors.toList()));
+        setSortedWomen(competition.getGlobalSinclairRanking(Gender.F).stream().collect(Collectors.toList()));
 
         topManSinclair = 0.0D;
         List<Athlete> sortedMen2 = getSortedMen();

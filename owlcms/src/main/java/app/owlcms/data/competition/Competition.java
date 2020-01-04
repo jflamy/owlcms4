@@ -391,6 +391,11 @@ public class Competition {
     public List<Athlete> getGlobalTotalRanking(Gender gender) {
         return (List<Athlete>) reportingBeans.get(gender == Gender.F ? "wTot" : "mTot");
     }
+    
+    @SuppressWarnings("unchecked")
+    public List<Athlete> getGlobalSnatchRanking(Gender gender) {
+        return (List<Athlete>) reportingBeans.get(gender == Gender.F ? "wSn" : "mSn");
+    }
 
     /**
      * Gets the id.

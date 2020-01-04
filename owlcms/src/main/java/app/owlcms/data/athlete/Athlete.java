@@ -1585,8 +1585,10 @@ public class Athlete {
      * @return the short category
      */
     public String getShortCategory() {
+        logger.warn("getShortCategory {}",this.getFullName());
         final Category category = getCategory();
         if (category == null) {
+            logger.warn("category null");
             return "";
         }
         return category.getLimitString();
