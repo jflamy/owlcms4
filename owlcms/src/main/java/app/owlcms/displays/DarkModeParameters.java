@@ -44,23 +44,22 @@ public interface DarkModeParameters extends QueryParameterReader {
 
         ContextMenu contextMenu = new ContextMenu();
 
-        if (isDarkMode()) {
-            Button darkButton = new Button(contextMenu.getTranslation(DARK),
-                    e -> setDarkMode(target, true, false));
-            darkButton.setThemeName("light primary contrast");
+        boolean darkMode = isDarkMode();
+        Button darkButton = new Button(contextMenu.getTranslation(DARK),
+                e -> setDarkMode(target, true, false));
+        darkButton.getStyle().set("color", "white");
+        darkButton.getStyle().set("background-color", "black");
+        
+        Button lightButton = new Button(contextMenu.getTranslation(LIGHT),
+                e -> setDarkMode(target, false, false));
+        lightButton.getStyle().set("color", "black");
+        lightButton.getStyle().set("background-color", "white");
+        
+        if (darkMode) {
             contextMenu.addItem(darkButton);
-            Button lightButton = new Button(contextMenu.getTranslation(LIGHT),
-                    e -> setDarkMode(target, false, false));
-            lightButton.setThemeName("light secondary contrast");
             contextMenu.addItem(lightButton);
         } else {
-            Button lightButton = new Button(contextMenu.getTranslation(LIGHT),
-                    e -> setDarkMode(target, false, false));
-            lightButton.setThemeName("light secondary contrast");
             contextMenu.addItem(lightButton);
-            Button darkButton = new Button(contextMenu.getTranslation(DARK),
-                    e -> setDarkMode(target, true, false));
-            darkButton.setThemeName("light primary contrast");
             contextMenu.addItem(darkButton);
         }
         contextMenu.setOpenOnClick(true);
