@@ -127,6 +127,10 @@ public class Athlete {
             dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
 
             dest.setForcedAsCurrent(src.getForcedAsCurrent());
+            
+            dest.setSnatchRank(src.getSnatchRank());
+            dest.setCleanJerkRank(src.getCleanJerkRank());
+            dest.setTotalRank(src.getTotalRank());
         } finally {
             dest.setValidation(validation);
             dest.resetLoggerLevel();
@@ -1942,6 +1946,7 @@ public class Athlete {
      * @return the snatch rank
      */
     public Integer getSnatchRank() {
+//        if(getFullName().equalsIgnoreCase("Edwards, Christopher")) logger.warn("getSnatchRank {} {} {}", System.identityHashCode(this), snatchRank, LoggerUtils.stackTrace());
         return snatchRank;
     }
 

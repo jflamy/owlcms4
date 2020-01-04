@@ -306,8 +306,8 @@ public class AgeGroupContent extends VerticalLayout implements CrudListener<AgeG
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         createTopBar();
-        Competition competition = Competition.getCurrent();
-        competition.computeGlobalRankings();
+//        Competition competition = Competition.getCurrent();
+//        competition.computeGlobalRankings();
     }
 
     void closeDialog() {

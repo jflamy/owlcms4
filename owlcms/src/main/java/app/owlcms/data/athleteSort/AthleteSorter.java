@@ -54,6 +54,7 @@ public class AthleteSorter implements Serializable {
      * @param athletes the list of athletes to sort
      */
     public static void assignCategoryRanks(List<Athlete> athletes) {
+        logger.warn("group ranks {}");
         List<Athlete> sortedAthletes;
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
         AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);

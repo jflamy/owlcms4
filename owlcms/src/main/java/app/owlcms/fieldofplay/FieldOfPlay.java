@@ -618,7 +618,10 @@ public class FieldOfPlay {
 
     public void setDisplayOrder(List<Athlete> displayOrder) {
         this.displayOrder = displayOrder;
-        AthleteSorter.assignCategoryRanks(displayOrder);
+        if (!Competition.getCurrent().isGlobalRankingRecompute()) {
+            logger.warn("setDisplayOrder group rank");
+            AthleteSorter.assignCategoryRanks(displayOrder);
+        }
     }
 
     /**
@@ -698,7 +701,7 @@ public class FieldOfPlay {
         logger.trace("update rankings {}", LoggerUtils.whereFrom());
         Competition competition = Competition.getCurrent();
         if (competition.isGlobalRankingRecompute()) {
-            competition.computeGlobalRankings();
+            competition.computeGlobalRankings(false);
             uiShowUpdatedRankings();
         }
 

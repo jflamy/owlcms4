@@ -545,18 +545,21 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         // fop obtained via QueryParameterReader interface default methods.
+        Competition competition = Competition.getCurrent();
         OwlcmsSession.withFop(fop -> {
             init();
             // sync with current status of FOP
-            order = fop.getDisplayOrder();
+            competition.computeGlobalRankings(false);
+            // order does not reflect the global rankings, the objects are distinct copies.
+            //order = fop.getDisplayOrder();
+            order = competition.getGroupRankings(fop.getGroup());
+            
             liftsDone = AthleteSorter.countLiftsDone(order);
             syncWithFOP(null);
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
         setDarkMode(this, isDarkMode(), false);
-        Competition competition = Competition.getCurrent();
-        competition.computeGlobalRankings();
         computeLeaders(competition);
     }
 
@@ -678,7 +681,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             model.setGroupName(
                     curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
                             : "");
-            order = fop.getDisplayOrder();
+            //order = fop.getDisplayOrder();
+            order = Competition.getCurrent().getGroupRankings(curGroup);
             model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
             this.getElement().setPropertyJson("athletes", getAthletesJson(order));
         });
