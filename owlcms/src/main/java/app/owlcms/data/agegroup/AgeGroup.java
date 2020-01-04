@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.agegroup;
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.persistence.Cacheable;
@@ -40,12 +41,12 @@ import ch.qos.logback.classic.Logger;
 public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     private static final long serialVersionUID = 8154757158144876816L;
+
     Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
-
     boolean active;
 
     String code;
@@ -112,6 +113,18 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         compare = ObjectUtils.compare(maxAge, o.getMaxAge());
 
         return compare;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AgeGroup other = (AgeGroup) obj;
+        return Objects.equals(id, other.id);
     }
 
     public AgeDivision getAgeDivision() {
@@ -193,6 +206,11 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         } else {
             return translatedCode + " " + getGender();
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     public boolean isActive() {

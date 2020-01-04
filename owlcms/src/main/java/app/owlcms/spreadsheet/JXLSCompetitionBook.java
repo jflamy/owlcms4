@@ -114,7 +114,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
         super.setReportingInfo();
         HashMap<String, Object> reportingBeans = getReportingBeans();
 
-        Competition.getCurrent().computeGlobalRankings(reportingBeans);
+        Competition.getCurrent().computeGlobalRankings(reportingBeans, true);
     }
 
     private byte[] loadDefaultPackageTemplate(Locale locale, Competition current) {

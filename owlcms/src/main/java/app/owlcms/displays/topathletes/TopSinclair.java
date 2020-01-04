@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -130,8 +131,9 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
-        setSortedMen(competition.getGlobalSinclairRanking(Gender.M));
-        setSortedWomen(competition.getGlobalSinclairRanking(Gender.F));
+        // create copies because we want to change the list
+        setSortedMen(competition.getGlobalSinclairRanking(Gender.M).stream().collect(Collectors.toList()));
+        setSortedWomen(competition.getGlobalSinclairRanking(Gender.F).stream().collect(Collectors.toList()));
 
         topManSinclair = 0.0D;
         List<Athlete> sortedMen2 = getSortedMen();
@@ -183,18 +185,12 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
 
     public void getAthleteJson(Athlete a, JsonObject ja, Gender g, int needed) {
         String category;
-        if (Competition.getCurrent().isMasters()) {
-            category = a.getShortCategory();
-        } else {
-            category = a.getCategory() != null ? a.getCategory().getName() : "";
-        }
+        category = a.getCategory() != null ? a.getCategory().getName() : "";
         ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
         ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
         ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
         Integer startNumber = a.getStartNumber();
         ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-        String mastersAgeGroup = a.getMastersAgeGroup();
-        ja.put("mastersAgeGroup", mastersAgeGroup != null ? mastersAgeGroup : "");
         ja.put("category", category != null ? category : "");
         getAttemptsJson(a);
         ja.put("sattempts", sattempts);
@@ -234,12 +230,11 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     public boolean isIgnoreGroupFromURL() {
         return true;
     }
-    
+
     @Override
     public boolean isIgnoreFopFromURL() {
         return true;
     }
-
 
     @Override
     public void setContextMenu(ContextMenu contextMenu) {
@@ -384,7 +379,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
             uiEventBus = uiEventBusRegister(this, fop);
         }
         Competition competition = Competition.getCurrent();
-        competition.computeGlobalRankings();
+        competition.computeGlobalRankings(false);
         doUpdate(competition);
         logger.debug("onAttach end");
     }
@@ -421,7 +416,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     private JsonValue getAthletesJson(List<Athlete> list2) {
         JsonArray jath = Json.createArray();
         int athx = 0;
-        List<Athlete> list3 = Collections.unmodifiableList(list2);
+        List<Athlete> list3 = list2 != null ? Collections.unmodifiableList(list2) : Collections.emptyList();
         for (Athlete a : list3) {
             JsonObject ja = Json.createObject();
             Gender curGender = a.getGender();

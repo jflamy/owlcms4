@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athlete;
@@ -127,6 +127,10 @@ public class Athlete {
             dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
 
             dest.setForcedAsCurrent(src.getForcedAsCurrent());
+
+            dest.setSnatchRank(src.getSnatchRank());
+            dest.setCleanJerkRank(src.getCleanJerkRank());
+            dest.setTotalRank(src.getTotalRank());
         } finally {
             dest.setValidation(validation);
             dest.resetLoggerLevel();
@@ -510,7 +514,8 @@ public class Athlete {
     }
 
     public Integer getAge() {
-        LocalDate date = Competition.getCurrent().getCompetitionDate();
+        // LocalDate date = Competition.getCurrent().getCompetitionDate();
+        LocalDate date = null;
         if (date == null) {
             date = LocalDate.now();
         }
@@ -1584,50 +1589,39 @@ public class Athlete {
      * @return the short category
      */
     public String getShortCategory() {
-        String gender1 = getGender().name();
-        return getShortCategory(gender1);
+        logger.warn("getShortCategory {}", this.getFullName());
+        final Category category = getCategory();
+        if (category == null) {
+            logger.warn("category null");
+            return "";
+        }
+        return category.getLimitString();
     }
 
     /**
      * Create a category acronym without gender.
      *
+     * Deprecated. Use {@link #getShortCategory()} -- gender is no longer needed.
+     *
      * @param gender1 the gender 1
      * @return the short category
      */
+    @Deprecated
     public String getShortCategory(String gender1) {
-        final Category category = getCategory();
-        if (category == null) {
-            return "";
-        }
-
-        String shortCategory = category.getName();
-        int gtPos = shortCategory.indexOf(">");
-        if (gtPos > 0) {
-            return shortCategory.substring(gtPos);
-        } else {
-            return shortCategory.substring(1);
-        }
+        return getShortCategory();
     }
 
     /**
      * Gets the short registration category.
      *
+     * Deprecated: we no longer use registration categories
+     *
      * @param gender1 the gender 1
      * @return registration category stripped of gender prefix.
      */
+    @Deprecated
     public String getShortRegistrationCategory(String gender1) {
-        final Category category = getRegistrationCategory();
-        if (category == null) {
-            return "?";
-        }
-
-        String shortCategory = category.getName();
-        int gtPos = shortCategory.indexOf(">");
-        if (gtPos > 0) {
-            return shortCategory.substring(gtPos);
-        } else {
-            return shortCategory.substring(1);
-        }
+        return getShortCategory();
     }
 
     /**
@@ -1952,6 +1946,7 @@ public class Athlete {
      * @return the snatch rank
      */
     public Integer getSnatchRank() {
+//        if(getFullName().equalsIgnoreCase("Edwards, Christopher")) logger.warn("getSnatchRank {} {} {}", System.identityHashCode(this), snatchRank, LoggerUtils.stackTrace());
         return snatchRank;
     }
 

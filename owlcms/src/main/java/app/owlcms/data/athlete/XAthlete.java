@@ -801,16 +801,6 @@ public class XAthlete extends Athlete {
     }
 
     /**
-     * @param gender1
-     * @return
-     * @see app.owlcms.data.athlete.Athlete#getShortCategory(java.lang.String)
-     */
-    @Override
-    public String getShortCategory(String gender1) {
-        return a.getShortCategory(gender1);
-    }
-
-    /**
      * @return
      * @see app.owlcms.data.athlete.Athlete#getSinclair()
      */

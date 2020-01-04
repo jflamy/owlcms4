@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
@@ -26,6 +26,7 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.i18n.Translator;
 
 /**
  * Contains information regarding each competition category.
@@ -136,23 +137,19 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         return compare;
     }
 
-    /**
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof Category)) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
             return false;
         }
         Category other = (Category) obj;
-        return Objects.equals(active, other.active) && Objects.equals(ageGroup, other.ageGroup)
-                && gender == other.gender && Objects.equals(id, other.id)
-                && Objects.equals(maximumWeight, other.maximumWeight)
-                && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
-                && Objects.equals(robiA, other.robiA) && Objects.equals(wrSr, other.wrSr);
+        return Objects.equals(id, other.id);
     }
 
     /**
@@ -190,6 +187,14 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         return id;
     }
 
+    public String getLimitString() {
+        if (maximumWeight > 110) {
+            return Translator.translate("catAboveFormat", String.valueOf((int) (Math.round(minimumWeight))));
+        } else {
+            return String.valueOf((int) (Math.round(maximumWeight)));
+        }
+    }
+
     /**
      * Gets the maximum weight.
      *
@@ -221,13 +226,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
             return null;
         }
         String agName = ageGroup.getName();
-        String catName = agName + (agName != null && !agName.isEmpty() ? " " : "");
-        if (maximumWeight > 110) {
-            catName = catName + ">" + (int) (Math.round(minimumWeight));
+        String catName = getLimitString();
+        if (agName == null || agName.isEmpty()) {
+            return catName;
         } else {
-            catName = catName + (int) (Math.round(maximumWeight));
+            return agName + " " + catName;
         }
-        return catName;
     }
 
     /**
@@ -283,12 +287,9 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         return wrYth;
     }
 
-    /**
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
-        return Objects.hash(active, ageGroup, gender, id, maximumWeight, minimumWeight, name, robiA, wrSr);
+        return Objects.hash(id);
     }
 
     /**
@@ -323,6 +324,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     public void setAgeGroup(AgeGroup ageGroup) {
         this.ageGroup = ageGroup;
+    }
+
+    public void setCategoryName(Double minimumWeight, Double maximumWeight, Gender enumGender, AgeGroup ageGroup) {
+        // does nothing
     }
 
     public void setCode(String cellValue) {
@@ -364,6 +369,15 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         this.name = name;
     }
 
+//    /**
+//     * Sets the name.
+//     *
+//     * @param name the name to set
+//     */
+//    public void setName(String name) {
+//        this.name = name;
+//    }
+
     /**
      * Sets the robi A.
      *
@@ -381,15 +395,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     public void setWr(Integer wr) {
         this.wrSr = wr;
     }
-
-//    /**
-//     * Sets the name.
-//     *
-//     * @param name the name to set
-//     */
-//    public void setName(String name) {
-//        this.name = name;
-//    }
 
     public void setWrJr(Integer wrJr) {
         this.wrJr = wrJr;
@@ -422,14 +427,4 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         return getName();
     }
 
-    private void setCategoryName(Double minimumWeight, Double maximumWeight, Gender enumGender, AgeGroup ageGroup) {
-        String agName = (ageGroup != null ? ageGroup.getName() : "?");
-        String catName = agName + " ";
-        if (maximumWeight > 110) {
-            catName = catName + ">" + (int) (Math.round(minimumWeight));
-        } else {
-            catName = catName + (int) (Math.round(maximumWeight));
-        }
-        // this.setName(catName);
-    }
 }

@@ -13,13 +13,14 @@ You can also add a jury laptop with 5 refereeing devices, add additional results
 ## Computer Requirements
 
 - The server software will run either 
-  - on any reasonably recent laptop (this laptop will act as a master in a local networking setup, see [below](#local-access-over-a-local-network) for details.
-  - or on a cloud service. We test and support the Heroku cloud service, which has a free tier suitable for owlcms. See [below](#cloud-access-over-the-internet) for more info.
+  - on any reasonably recent laptop (this laptop will act as a master in a local networking setup, see [below](#local-access-over-a-local-network) for details.  In our experience, a Core i5 or equivalent is plenty.
+  - or on a cloud service. We test and support the [Heroku cloud service](Heroku), which has a free tier suitable for owlcms. See [below](#cloud-access-over-the-internet) for more info.
 - For the user interface and displays,  It is recommended to use a recent version of **Chrome** or **Firefox** on a **laptop** or **miniPC** (Windows, Mac, Linux, ChromeOS). 
 
-  - You can use just about any laptop.  Refurbished Chromebooks or Windows laptops work well.
-  - You can even use [Raspberry Pi 3B](https://www.canakit.com/raspberry-pi-3-model-b-plus-starter-kit.html) that cost less than 75$ each fully configured including cables and storage.  Refer to this [section](RaspberryPi) for tips .
-  - Apple iPhones and iPads are supported as [mobile refereeing devices](Refereeing#mobile-device-refereeing).  Display features such as the Scoreboard do work.
+  - The cheapest solution to drive TVs and projectors is a [**Raspberry Pi** 3B](https://www.canakit.com/raspberry-pi-3-model-b-plus-starter-kit.html) that costs less than 75$ fully configured including cables and storage.  Refer to this [section](RaspberryPi) for tips .
+  - For the officials, you can use just about any laptop.  Refurbished Chromebooks or refurbished Windows laptops work well -- all that is needed is the ability to run a recent version of Chrome or Firefox.
+  - Apple iPhones and iPads are ok as [mobile refereeing devices](Refereeing#mobile-device-refereeing).   Display features such as the Scoreboard do work.
+  - Android phones and tablets work fine for all features (just install Chrome)
 
 ## Sound Requirements
 

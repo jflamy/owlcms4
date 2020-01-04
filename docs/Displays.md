@@ -18,9 +18,21 @@ The scoreboard can be used both for the main platform and in the warm-up room.
 
 ![022_Scoreboard_Decision](img/Displays/022_Scoreboard_Decision.png)
 
+## Scoreboard with Leaderboard
+
+This scoreboard should be used in meets where the same category is split in several lifting groups.
+
+The `Scoreboard with Leadboard` button opens a scoreboard that also shows the leaderboard for the currently lifting athlete's category at the bottom (in a large meet, a group is usually a single category, so the leaderboard is the same for the whole session).
+
+The other difference with the ordinary scoreboard is that the rankings shown are those across all lifting groups, including those that have lifted earlier (in the image below, the athlete Williams has lifted 70, which currently puts him third, because the 70 from Scott in group M2 shown at the bottom was achieved earlier.)
+
+The image also shows that it is possible, depending on the lighting conditions, to select a white background. This is true for all scoreboards and is selected by clicking on the screen, which brings up a selection menu.
+
+![024_Scoreboard_Leaders](img/Displays/024_Scoreboard_Leaders.png)
+
 ## Lifting Order
 
-In regional meets, not all coaches are able to figure out the lifting order or how many attempts remain for their athletes.  The lifting order screen is a non-official screen that is useful in these situations.  It is normaly used in the warm-up area.
+In regional meets, some novice coaches may have difficulty tracking the the lifting order to determine how many attempts remain for their athletes.  The lifting order screen is a non-official screen that is useful in these situations.  It is normally used in the warm-up area.
 
 ![025_LiftingOrder](img/Displays/025_LiftingOrder.png)
 

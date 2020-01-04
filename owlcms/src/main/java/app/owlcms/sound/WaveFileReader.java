@@ -182,7 +182,6 @@ public final class WaveFileReader extends SunFileReader {
 
     // --------------------------------------------------------------------
 
-    @SuppressWarnings("unused")
     private AudioFileFormat getFMT(InputStream stream, boolean doReset)
             throws UnsupportedAudioFileException, IOException {
 

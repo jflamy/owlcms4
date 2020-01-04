@@ -56,7 +56,7 @@ public class Main {
     private static boolean memoryMode;
     private static boolean resetMode;
     private static boolean devMode;
-    private static boolean testMode;
+    private static boolean smallMode;
     private static boolean masters;
 
     public static String productionMode;
@@ -212,11 +212,13 @@ public class Main {
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 
         // setup database
-        JPAService.init(demoMode || memoryMode, demoMode || resetMode);
+        boolean inMemory = demoMode || memoryMode;
+        boolean reset = demoMode || resetMode;
+        JPAService.init(inMemory, reset);
 
         // read locale from database and overrrde if needed
         Locale l = overrideDisplayLanguage();
-        injectData(demoMode, devMode, testMode, masters, l);
+        injectData(demoMode, devMode, smallMode, masters, l);
 
         OwlcmsFactory.getDefaultFOP();
         return;
@@ -238,7 +240,7 @@ public class Main {
         JPAService.close();
     }
 
-    private static void injectData(boolean demoMode, boolean devMode, boolean testMode, boolean masters,
+    private static void injectData(boolean demoMode, boolean devMode, boolean smallMode, boolean masters,
             Locale locale) {
         Locale l = (locale == null ? Locale.ENGLISH : locale);
         EnumSet<AgeDivision> ageDivisions = masters ? EnumSet.of(AgeDivision.MASTERS, AgeDivision.U) : null;
@@ -251,7 +253,7 @@ public class Main {
                 // the other modes require explicit resetMode. We don't want multiple inserts.
                 List<Competition> allCompetitions = CompetitionRepository.findAll();
                 if (allCompetitions.isEmpty()) {
-                    if (testMode) {
+                    if (smallMode) {
                         DemoData.insertInitialData(1, ageDivisions);
                     } else if (devMode) {
                         DemoData.insertInitialData(20, ageDivisions);
@@ -323,7 +325,7 @@ public class Main {
         devMode = getBooleanParam("devMode");
 
         // load small dummy data if empty
-        testMode = getBooleanParam("testMode");
+        smallMode = getBooleanParam("smallMode");
 
         // productionMode required to tell vaadin to skip npm
         boolean npmMode = getBooleanParam("npmMode");

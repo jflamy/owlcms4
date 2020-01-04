@@ -424,7 +424,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     protected void onAttach(AttachEvent attachEvent) {
         createTopBar();
         Competition competition = Competition.getCurrent();
-        competition.computeGlobalRankings();
+        competition.computeGlobalRankings(false);
     }
 
     protected void setGroupSelectionListener() {
