@@ -64,7 +64,7 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
             List<String> groupNames = parametersMap.get("group");
             if (groupNames != null && groupNames.get(0) != null) {
                 group = GroupRepository.findByName(groupNames.get(0));
-                fop.setGroup(group);
+                fop.loadGroup(group, this);
             } else {
                 group = (fop != null ? fop.getGroup() : null);
             }

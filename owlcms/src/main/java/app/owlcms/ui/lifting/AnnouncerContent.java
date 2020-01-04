@@ -208,6 +208,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         reset = new Button(IronIcons.REFRESH.create(), (e) -> OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
             logger.info("resetting {} from database", group);
+            fop.loadGroup(null, this);
             fop.loadGroup(group, this);
             syncWithFOP(true); // loadgroup does not refresh grid, true=ask for refresh
         }));
