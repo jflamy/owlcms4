@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.competition;
@@ -156,8 +156,6 @@ public class Competition {
             // throw new RuntimeException("No athletes.");
             return;
         }
-
-        logger.warn("global compute");
         sortGroupResults(athletes, reports);
         if (full) {
             sortTeamResults(athletes, reports);
@@ -165,145 +163,16 @@ public class Competition {
 
     }
 
-    void sortGroupResults(List<Athlete> athletes, Map<String, Object> reports) {
-        List<Athlete> sortedAthletes;
-        List<Athlete> sortedMen = null;
-        List<Athlete> sortedWomen = null;
-
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
-        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);
-        sortedMen = new ArrayList<>(sortedAthletes.size());
-        sortedWomen = new ArrayList<>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reports.put("mSn", sortedMen);
-        reports.put("wSn", sortedWomen);
-//        logger.warn("snatch ranks {}",
-//                sortedMen
-//                .stream()
-//                //.filter(a->a.getSnatchTotal()>0)
-//                .map(a->{
-//                    return a.getFullName()+" "+a.getCategory()+" "+a.getSnatchTotal()+" "+a.getSnatchRank();
-//                    }).collect(Collectors.joining(", ")));
-
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK);
-        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
-        sortedMen = new ArrayList<>(sortedAthletes.size());
-        sortedWomen = new ArrayList<>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reports.put("mCJ", sortedMen);
-        reports.put("wCJ", sortedWomen);
-
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL);
-        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.TOTAL);
-        sortedMen = new ArrayList<>(sortedAthletes.size());
-        sortedWomen = new ArrayList<>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reports.put("mTot", sortedMen);
-        reports.put("wTot", sortedWomen);
-
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SINCLAIR);
-        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.SINCLAIR);
-        sortedMen = new ArrayList<>(sortedAthletes.size());
-        sortedWomen = new ArrayList<>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reports.put("mSinclair", sortedMen);
-        reports.put("wSinclair", sortedWomen);
-        logger.debug("mSinclair {}", sortedMen);
-        logger.debug("wSinclair {}", sortedWomen);
-
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.ROBI);
-        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.ROBI);
-        sortedMen = new ArrayList<>(sortedAthletes.size());
-        sortedWomen = new ArrayList<>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reports.put("mRobi", sortedMen);
-        reports.put("wRobi", sortedWomen);
-
-        // create one list per competition group
-        AthleteSorter.displayOrder(athletes);
-        for (Athlete a : athletes) {
-            Group group = a.getGroup();
-            if (group == null) {
-                continue;
-            }
-            String groupName = group.getName();
-            @SuppressWarnings("unchecked")
-            ArrayList<Athlete> list = (ArrayList<Athlete>) reports.get(groupName);
-            if (list == null) {
-                list = new ArrayList<Athlete>(20);
-                reports.put(groupName, list);
-            }
-            list.add(a);
-        }
-    }
-
-    void sortTeamResults(List<Athlete> athletes, Map<String, Object> reports) {
-        List<Athlete> sortedAthletes;
-        List<Athlete> sortedMen = null;
-        List<Athlete> sortedWomen = null;
-
-        // extract club lists
-        TreeSet<String> teams = new TreeSet<>();
-        for (Athlete curAthlete : athletes) {
-            if (curAthlete.getTeam() != null) {
-                teams.add(curAthlete.getTeam());
-            }
-        }
-        reports.put("clubs", teams);
-
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CUSTOM);
-        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CUSTOM);
-        sortedMen = new ArrayList<>(sortedAthletes.size());
-        sortedWomen = new ArrayList<>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reports.put("mCus", sortedMen);
-        reports.put("wCus", sortedWomen);
-
-        // only needed once
-        reports.put("nbMen", sortedMen.size());
-        reports.put("nbWomen", sortedWomen.size());
-        reports.put("nbAthletes", sortedAthletes.size());
-        reports.put("nbClubs", teams.size());
-        if (sortedMen.size() > 0) {
-            reports.put("mClubs", teams);
-        } else {
-            reports.put("mClubs", new ArrayList<String>());
-        }
-        if (sortedWomen.size() > 0) {
-            reports.put("wClubs", teams);
-        } else {
-            reports.put("wClubs", new ArrayList<String>());
-        }
-
-        // team-oriented rankings. These put all the athletes from the same team
-        // together,
-        // sorted from best to worst, so that the top "n" can be given points
-        sortedAthletes = AthleteSorter.teamRankingOrderCopy(athletes, Ranking.CUSTOM);
-        sortedMen = new ArrayList<>(sortedAthletes.size());
-        sortedWomen = new ArrayList<>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reports.put("mCustom", sortedMen);
-        reports.put("wCustom", sortedWomen);
-
-        sortedAthletes = AthleteSorter.teamRankingOrderCopy(athletes, Ranking.COMBINED);
-        sortedMen = new ArrayList<>(sortedAthletes.size());
-        sortedWomen = new ArrayList<>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reports.put("mCombined", sortedMen);
-        reports.put("wCombined", sortedWomen);
-        reports.put("mwCombined", sortedAthletes);
-
-        AthleteSorter.teamRankingOrder(sortedAthletes, Ranking.TOTAL);
-        sortedMen = new ArrayList<>(sortedAthletes.size());
-        sortedWomen = new ArrayList<>(sortedAthletes.size());
-        splitByGender(sortedAthletes, sortedMen, sortedWomen);
-        reports.put("mTeam", sortedMen);
-        reports.put("wTeam", sortedWomen);
-        reports.put("mwTeam", sortedAthletes);
-    }
-
     public String getAgeGroupsFileName() {
         return ageGroupsFileName;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Athlete> getCategoryRankingsForGroup(Group group) {
+        if (group == null) {
+            return null;
+        }
+        return (List<Athlete>) reportingBeans.get(group.getName());
     }
 
     /**
@@ -429,21 +298,13 @@ public class Competition {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Athlete> getGlobalTotalRanking(Gender gender) {
-        return (List<Athlete>) reportingBeans.get(gender == Gender.F ? "wTot" : "mTot");
-    }
-
-    @SuppressWarnings("unchecked")
     public List<Athlete> getGlobalSnatchRanking(Gender gender) {
         return (List<Athlete>) reportingBeans.get(gender == Gender.F ? "wSn" : "mSn");
     }
-    
+
     @SuppressWarnings("unchecked")
-    public List<Athlete> getCategoryRankingsForGroup(Group group) {
-        if (group == null) {
-            return null;
-        }
-        return (List<Athlete>) reportingBeans.get(group.getName());
+    public List<Athlete> getGlobalTotalRanking(Gender gender) {
+        return (List<Athlete>) reportingBeans.get(gender == Gender.F ? "wTot" : "mTot");
     }
 
     /**
@@ -743,5 +604,142 @@ public class Competition {
     @Deprecated
     public void setUseRegistrationCategory(boolean useRegistrationCategory) {
         this.useRegistrationCategory = false;
+    }
+
+    void sortGroupResults(List<Athlete> athletes, Map<String, Object> reports) {
+        List<Athlete> sortedAthletes;
+        List<Athlete> sortedMen = null;
+        List<Athlete> sortedWomen = null;
+
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reports.put("mSn", sortedMen);
+        reports.put("wSn", sortedWomen);
+//        logger.warn("snatch ranks {}",
+//                sortedMen
+//                .stream()
+//                //.filter(a->a.getSnatchTotal()>0)
+//                .map(a->{
+//                    return a.getFullName()+" "+a.getCategory()+" "+a.getSnatchTotal()+" "+a.getSnatchRank();
+//                    }).collect(Collectors.joining(", ")));
+
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reports.put("mCJ", sortedMen);
+        reports.put("wCJ", sortedWomen);
+
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.TOTAL);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.TOTAL);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reports.put("mTot", sortedMen);
+        reports.put("wTot", sortedWomen);
+
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SINCLAIR);
+        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.SINCLAIR);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reports.put("mSinclair", sortedMen);
+        reports.put("wSinclair", sortedWomen);
+        logger.debug("mSinclair {}", sortedMen);
+        logger.debug("wSinclair {}", sortedWomen);
+
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.ROBI);
+        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.ROBI);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reports.put("mRobi", sortedMen);
+        reports.put("wRobi", sortedWomen);
+
+        // create one list per competition group
+        AthleteSorter.displayOrder(athletes);
+        for (Athlete a : athletes) {
+            Group group = a.getGroup();
+            if (group == null) {
+                continue;
+            }
+            String groupName = group.getName();
+            @SuppressWarnings("unchecked")
+            ArrayList<Athlete> list = (ArrayList<Athlete>) reports.get(groupName);
+            if (list == null) {
+                list = new ArrayList<>(20);
+                reports.put(groupName, list);
+            }
+            list.add(a);
+        }
+    }
+
+    void sortTeamResults(List<Athlete> athletes, Map<String, Object> reports) {
+        List<Athlete> sortedAthletes;
+        List<Athlete> sortedMen = null;
+        List<Athlete> sortedWomen = null;
+
+        // extract club lists
+        TreeSet<String> teams = new TreeSet<>();
+        for (Athlete curAthlete : athletes) {
+            if (curAthlete.getTeam() != null) {
+                teams.add(curAthlete.getTeam());
+            }
+        }
+        reports.put("clubs", teams);
+
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CUSTOM);
+        AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CUSTOM);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reports.put("mCus", sortedMen);
+        reports.put("wCus", sortedWomen);
+
+        // only needed once
+        reports.put("nbMen", sortedMen.size());
+        reports.put("nbWomen", sortedWomen.size());
+        reports.put("nbAthletes", sortedAthletes.size());
+        reports.put("nbClubs", teams.size());
+        if (sortedMen.size() > 0) {
+            reports.put("mClubs", teams);
+        } else {
+            reports.put("mClubs", new ArrayList<String>());
+        }
+        if (sortedWomen.size() > 0) {
+            reports.put("wClubs", teams);
+        } else {
+            reports.put("wClubs", new ArrayList<String>());
+        }
+
+        // team-oriented rankings. These put all the athletes from the same team
+        // together,
+        // sorted from best to worst, so that the top "n" can be given points
+        sortedAthletes = AthleteSorter.teamRankingOrderCopy(athletes, Ranking.CUSTOM);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reports.put("mCustom", sortedMen);
+        reports.put("wCustom", sortedWomen);
+
+        sortedAthletes = AthleteSorter.teamRankingOrderCopy(athletes, Ranking.COMBINED);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reports.put("mCombined", sortedMen);
+        reports.put("wCombined", sortedWomen);
+        reports.put("mwCombined", sortedAthletes);
+
+        AthleteSorter.teamRankingOrder(sortedAthletes, Ranking.TOTAL);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reports.put("mTeam", sortedMen);
+        reports.put("wTeam", sortedWomen);
+        reports.put("mwTeam", sortedAthletes);
     }
 }

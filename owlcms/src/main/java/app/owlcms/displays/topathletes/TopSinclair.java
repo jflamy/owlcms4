@@ -185,18 +185,12 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
 
     public void getAthleteJson(Athlete a, JsonObject ja, Gender g, int needed) {
         String category;
-        if (Competition.getCurrent().isMasters()) {
-            category = a.getShortCategory();
-        } else {
-            category = a.getCategory() != null ? a.getCategory().getName() : "";
-        }
+        category = a.getCategory() != null ? a.getCategory().getName() : "";
         ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
         ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
         ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
         Integer startNumber = a.getStartNumber();
         ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-        String mastersAgeGroup = a.getMastersAgeGroup();
-        ja.put("mastersAgeGroup", mastersAgeGroup != null ? mastersAgeGroup : "");
         ja.put("category", category != null ? category : "");
         getAttemptsJson(a);
         ja.put("sattempts", sattempts);
@@ -236,12 +230,11 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     public boolean isIgnoreGroupFromURL() {
         return true;
     }
-    
+
     @Override
     public boolean isIgnoreFopFromURL() {
         return true;
     }
-
 
     @Override
     public void setContextMenu(ContextMenu contextMenu) {
@@ -423,7 +416,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     private JsonValue getAthletesJson(List<Athlete> list2) {
         JsonArray jath = Json.createArray();
         int athx = 0;
-        List<Athlete> list3 = Collections.unmodifiableList(list2);
+        List<Athlete> list3 = list2 != null ? Collections.unmodifiableList(list2) : Collections.emptyList();
         for (Athlete a : list3) {
             JsonObject ja = Json.createObject();
             Gender curGender = a.getGender();

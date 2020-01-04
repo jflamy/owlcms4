@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athlete;
@@ -127,7 +127,7 @@ public class Athlete {
             dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
 
             dest.setForcedAsCurrent(src.getForcedAsCurrent());
-            
+
             dest.setSnatchRank(src.getSnatchRank());
             dest.setCleanJerkRank(src.getCleanJerkRank());
             dest.setTotalRank(src.getTotalRank());
@@ -514,7 +514,7 @@ public class Athlete {
     }
 
     public Integer getAge() {
-        //LocalDate date = Competition.getCurrent().getCompetitionDate();
+        // LocalDate date = Competition.getCurrent().getCompetitionDate();
         LocalDate date = null;
         if (date == null) {
             date = LocalDate.now();
@@ -1589,7 +1589,7 @@ public class Athlete {
      * @return the short category
      */
     public String getShortCategory() {
-        logger.warn("getShortCategory {}",this.getFullName());
+        logger.warn("getShortCategory {}", this.getFullName());
         final Category category = getCategory();
         if (category == null) {
             logger.warn("category null");
@@ -1600,7 +1600,7 @@ public class Athlete {
 
     /**
      * Create a category acronym without gender.
-     * 
+     *
      * Deprecated. Use {@link #getShortCategory()} -- gender is no longer needed.
      *
      * @param gender1 the gender 1
@@ -1613,7 +1613,7 @@ public class Athlete {
 
     /**
      * Gets the short registration category.
-     * 
+     *
      * Deprecated: we no longer use registration categories
      *
      * @param gender1 the gender 1

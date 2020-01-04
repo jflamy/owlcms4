@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.displays.scoreboard;
@@ -39,7 +39,6 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.DarkModeParameters;
 import app.owlcms.displays.attemptboard.BreakDisplay;
@@ -174,18 +173,12 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
     public void getAthleteJson(Athlete a, JsonObject ja, Category curCat) {
         String category;
-        if (Competition.getCurrent().isMasters()) {
-            category = a.getShortCategory();
-        } else {
-            category = curCat != null ? curCat.getName() : "";
-        }
+        category = curCat != null ? curCat.getName() : "";
         ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
         ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
         ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
         Integer startNumber = a.getStartNumber();
         ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-        String mastersAgeGroup = a.getMastersAgeGroup();
-        ja.put("mastersAgeGroup", mastersAgeGroup != null ? mastersAgeGroup : "");
         ja.put("category", category != null ? category : "");
         getAttemptsJson(a);
         ja.put("sattempts", sattempts);
@@ -581,7 +574,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         JsonArray jath = Json.createArray();
         int athx = 0;
         Category prevCat = null;
-        List<Athlete> list3 = Collections.unmodifiableList(list2);
+        List<Athlete> list3 = list2 != null ? Collections.unmodifiableList(list2) : Collections.emptyList();
         for (Athlete a : list3) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();

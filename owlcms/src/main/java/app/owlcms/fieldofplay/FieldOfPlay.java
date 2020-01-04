@@ -618,10 +618,8 @@ public class FieldOfPlay {
 
     public void setDisplayOrder(List<Athlete> displayOrder) {
         this.displayOrder = displayOrder;
-        if (!Competition.getCurrent().isGlobalRankingRecompute()) {
-            logger.warn("setDisplayOrder group rank");
-            AthleteSorter.assignCategoryRanks(displayOrder);
-        }
+        // this sets the order within the currenlty lifting group only
+        AthleteSorter.assignCategoryRanks(displayOrder);
     }
 
     /**

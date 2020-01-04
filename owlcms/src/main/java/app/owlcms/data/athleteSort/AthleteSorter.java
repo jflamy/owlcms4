@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athleteSort;
@@ -54,7 +54,6 @@ public class AthleteSorter implements Serializable {
      * @param athletes the list of athletes to sort
      */
     public static void assignCategoryRanks(List<Athlete> athletes) {
-        logger.warn("group ranks {}");
         List<Athlete> sortedAthletes;
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
         AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);
