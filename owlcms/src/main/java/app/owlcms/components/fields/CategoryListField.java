@@ -112,7 +112,6 @@ public class CategoryListField extends CustomField<List<Category>> {
 
     private void updatePresentation() {
         flex.removeAll();
-        int prev = 0;
         double prevDouble = 0.0;
         presentationCategories.sort((c1, c2) -> ObjectUtils.compare(c1.getMaximumWeight(), c2.getMaximumWeight()));
 
@@ -132,18 +131,20 @@ public class CategoryListField extends CustomField<List<Category>> {
 
             Double maximumWeight = c.getMaximumWeight();
             c.setMinimumWeight(prevDouble); // cover the gap if intervening weights have been skipped...
-            int max = (int) Math.round(maximumWeight);
             Icon closeIcon = new Icon(VaadinIcon.CLOSE_CIRCLE_O);
             closeIcon.getStyle().set("font-size", "small");
-            Span textSpan = new Span((max >= 200) ? ">" + prev : "" + max);
+            Span textSpan = new Span(c.getLimitString());
             Span spacer = new Span("\u00a0");
-            Span aspan = new Span(textSpan, spacer, closeIcon);
+            Span aspan;
+            if (c.getMaximumWeight() >= 998.9D) {
+                aspan = new Span(textSpan);
+            } else {
+                aspan = new Span(textSpan, spacer, closeIcon);
+            }
+            
 
-            prev = max;
             prevDouble = maximumWeight;
-            aspan.getElement().setAttribute("theme", "badge pill"
-//                    + (c.getGender() == Gender.F ? " error" : "")
-            );
+            aspan.getElement().setAttribute("theme", "badge pill");
             aspan.getStyle().set("font-size", "medium");
             aspan.getStyle().set("margin-bottom", "0.5em");
             closeIcon.addClickListener(click -> {
