@@ -597,7 +597,7 @@ public class FieldOfPlay {
         this.setGroup(group);
         if (group != null) {
             logger.debug("{} loading data for group {} [{} {} ]",
-                    this.getName(), 
+                    this.getName(),
                     (group != null ? group.getName() : group),
                     origin.getClass().getSimpleName(),
                     LoggerUtils.whereFrom());
@@ -708,14 +708,11 @@ public class FieldOfPlay {
                 getAthleteTimer().getTimeRemainingAtLastStop());
     }
 
-    public void updateGlobalRankings() {
+    private void updateGlobalRankings() {
         logger.trace("update rankings {}", LoggerUtils.whereFrom());
         Competition competition = Competition.getCurrent();
-        if (competition.isGlobalRankingRecompute()) {
-            competition.computeGlobalRankings(false);
-            uiShowUpdatedRankings();
-        }
-
+        competition.computeGlobalRankings(false);
+        uiShowUpdatedRankings();
     }
 
     /**
@@ -1096,6 +1093,7 @@ public class FieldOfPlay {
     private void transitionToLifting(FOPEvent e, boolean stopBreakTimer) {
         logger.trace("transitionToLifting {} {} {}", e.getAthlete(), stopBreakTimer, LoggerUtils.whereFrom());
         recomputeLiftingOrder();
+        updateGlobalRankings();
         Athlete clockOwner = getClockOwner();
         if (curAthlete != null && curAthlete.equals(clockOwner)) {
             setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which
@@ -1109,7 +1107,6 @@ public class FieldOfPlay {
         }
         uiStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e, false);
-        updateGlobalRankings();
     }
 
     private void transitionToTimeRunning() {
@@ -1204,6 +1201,7 @@ public class FieldOfPlay {
         AthleteSorter.liftingOrder(this.liftingOrder);
         this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
         uiDisplayCurrentAthleteAndTime(false, e, false);
+        updateGlobalRankings();
     }
 
 }

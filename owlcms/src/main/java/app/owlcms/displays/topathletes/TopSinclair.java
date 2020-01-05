@@ -379,7 +379,6 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
             uiEventBus = uiEventBusRegister(this, fop);
         }
         Competition competition = Competition.getCurrent();
-        competition.computeGlobalRankings(false);
         doUpdate(competition);
         logger.debug("onAttach end");
     }

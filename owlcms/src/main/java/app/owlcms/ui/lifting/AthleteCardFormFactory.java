@@ -654,7 +654,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                     AthleteRepository.save(originalAthlete);
                     OwlcmsSession.withFop((fop) -> {
                         fop.getFopEventBus().post(new FOPEvent.WeightChange(this.getOrigin(), originalAthlete));
-                        fop.updateGlobalRankings();
                     });
                     origin.closeDialog();
                 });

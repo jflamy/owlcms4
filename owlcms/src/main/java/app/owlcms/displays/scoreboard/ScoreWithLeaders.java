@@ -338,7 +338,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
-            globalRankingsForCurrentGroup = Competition.getCurrent().getCategoryRankingsForGroup(curGroup);
+            globalRankingsForCurrentGroup = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
             liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
             doUpdate(a, e);
         });
@@ -516,14 +516,9 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         Competition competition = Competition.getCurrent();
         OwlcmsSession.withFop(fop -> {
             init();
-            // sync with current status of FOP
-            competition.computeGlobalRankings(false);
-
-            // getDisplayOrder athletes contain the group ranking only.
-            // order = fop.getDisplayOrder();
-
+            
             // get the global category rankings for the group
-            globalRankingsForCurrentGroup = competition.getCategoryRankingsForGroup(fop.getGroup());
+            globalRankingsForCurrentGroup = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
 
             liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
             syncWithFOP(null);
@@ -696,7 +691,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             model.setGroupName(
                     curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
                             : "");
-            globalRankingsForCurrentGroup = Competition.getCurrent().getCategoryRankingsForGroup(curGroup);
+            globalRankingsForCurrentGroup = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
             model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
             this.getElement().setPropertyJson("athletes",
                     getAthletesJson(globalRankingsForCurrentGroup, fop.getLiftingOrder()));
