@@ -12,13 +12,29 @@ class Scoreboard extends PolymerElement {
 }
 
 :root {
-  --medium-width: 9%;
   --narrow-width: 6%;
   --veryNarrow-width: 4%;
-  --fontSizeRank-height: 0.95em;
-  --fontSizeRows-height: 1.15em;
+  --group-width: 7ch;
+  --category-width: 6ch;
+  
+  --fontSizeRank-height: 1.05em;
+  --fontSizeRows-height: 1.16em;
   --fontSizeRank-heightXGA: 0.9em;
   --fontSizeRows-heightXGA: 1.1em;
+}
+
+@media screen and (min-width:1401px) {
+	:root {  
+	  --name-width: 20vw;
+	  --club-width: 15vw;
+	}
+}
+
+@media screen and (max-width:1400px) {
+	:root {  
+	  --name-width: 22vw;
+	  --club-width: 8vw;
+	}
 }
 
 .wrapper {
@@ -66,8 +82,6 @@ class Scoreboard extends PolymerElement {
 	font-weight: bold;
 	flex: 0 0 35%;
 	text-align: left;
-/* 	margin-left: 1em; */
-	/*margin-right: auto;*/
 	flex-grow: 0.5;
 }
 
@@ -135,6 +149,36 @@ th, td {
 
 :host(.light) th, td {
 	font-weight: bold;
+}
+
+.name {
+	width: var(--name-width);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.name div {
+	width: calc(var(--name-width)*1.2);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.club {
+	width: var(--club-width);
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.club div {
+	width: var(--club-width);
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .ellipsis {
@@ -215,13 +259,18 @@ th, td {
 	text-align: center;
 }
 
-.medium {
-	width: var(--narrow-width);
+.groupCol {
+	width: var(--group-width);
 	white-space: nowrap;
 	text-align: center;
 }
+.groupCol div {
+	width: var(--group-width);
+}
 
-.club {
+.category {
+	width: var(--category-width);
+	white-space: nowrap;
 	text-align: center;
 }
 
@@ -289,8 +338,12 @@ th, td {
 	animation: blink 1.5s step-start 0s infinite;
 	-webkit-animation: blink 1.5s step-start 0s infinite;
 }
-@keyframes blink { 50% {opacity: 0.0;}}
-@-webkit-keyframes blink { 50% {opacity: 0.0;}}
+@keyframes blink {
+ 50% {opacity: 0.0;}
+}
+@-webkit-keyframes blink {
+ 50% {opacity: 0.0;}
+}
 
 :host(.dark) .next {
 	color: orange;
