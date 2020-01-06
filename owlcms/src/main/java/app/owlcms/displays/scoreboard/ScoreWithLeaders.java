@@ -179,18 +179,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     public void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
         String category;
-//        if (Competition.getCurrent().isMasters()) {
-//            category = a.getShortCategory();
-//        } else {
         category = curCat != null ? curCat.getName() : "";
-//        }
         ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
         ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
         ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
         Integer startNumber = a.getStartNumber();
         ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-//        String mastersAgeGroup = a.getMastersAgeGroup();
-//        ja.put("mastersAgeGroup", mastersAgeGroup != null ? mastersAgeGroup : "");
         ja.put("category", category != null ? category : "");
         getAttemptsJson(a, liftOrderRank);
         ja.put("sattempts", sattempts);
@@ -544,6 +538,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private void computeLeaders(Competition competition) {
         OwlcmsSession.withFop(fop -> {
             Athlete curAthlete = fop.getCurAthlete();
+            logger.warn("computeLeaders {}",curAthlete);
             if (curAthlete != null && curAthlete.getGender() != null) {
                 getModel().setCategoryName(curAthlete.getCategory().getName());
                 globalRankingsForCurrentGroup = competition.getGlobalTotalRanking(curAthlete.getGender());

@@ -386,6 +386,7 @@ public class FieldOfPlay {
             loadGroup((Group) null, this);
             loadGroup(((SwitchGroup) e).getGroup(), this);
             recomputeLiftingOrder();
+            updateGlobalRankings();
             getUiEventBus().post(new UIEvent.SwitchGroup(((SwitchGroup) e).getGroup(), e.getOrigin()));
             return;
         }
@@ -1093,7 +1094,6 @@ public class FieldOfPlay {
     private void transitionToLifting(FOPEvent e, boolean stopBreakTimer) {
         logger.trace("transitionToLifting {} {} {}", e.getAthlete(), stopBreakTimer, LoggerUtils.whereFrom());
         recomputeLiftingOrder();
-//        updateGlobalRankings();
         Athlete clockOwner = getClockOwner();
         if (curAthlete != null && curAthlete.equals(clockOwner)) {
             setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which

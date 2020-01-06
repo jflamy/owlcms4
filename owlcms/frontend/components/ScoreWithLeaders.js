@@ -12,13 +12,29 @@ class ScoreLeader extends PolymerElement {
 }
 
 :root {
-  --medium-width: 9%;
   --narrow-width: 6%;
   --veryNarrow-width: 4%;
+  --group-width: 7ch;
+  --category-width: 6ch;
+  
   --fontSizeRank-height: 1.05em;
   --fontSizeRows-height: 1.16em;
   --fontSizeRank-heightXGA: 0.9em;
   --fontSizeRows-heightXGA: 1.1em;
+}
+
+@media screen and (min-width:1401px) {
+	:root {  
+	  --name-width: 20vw;
+	  --club-width: 15vw;
+	}
+}
+
+@media screen and (max-width:1400px) {
+	:root {  
+	  --name-width: 22vw;
+	  --club-width: 8vw;
+	}
 }
 
 .wrapper {
@@ -153,6 +169,36 @@ th, td {
 	font-weight: bold;
 }
 
+.name {
+	width: var(--name-width);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.name div {
+	width: calc(var(--name-width)*1.2);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.club {
+	width: var(--club-width);
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.club div {
+	width: var(--club-width);
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 .ellipsis {
   white-space: nowrap;
   overflow: hidden;
@@ -231,14 +277,22 @@ th, td {
 	text-align: center;
 }
 
-.medium {
-	width: var(--narrow-width);
+.groupCol {
+	width: var(--group-width);
 	white-space: nowrap;
 	text-align: center;
 }
+.groupCol div {
+	width: var(--group-width);
+}
 
-.club {
+.category {
+	width: var(--category-width);
+	white-space: nowrap;
 	text-align: center;
+}
+.medium div {
+	width: var(--category-width);
 }
 
 .narrow {
@@ -384,11 +438,11 @@ table#leaders-table thead tr.hide th {
 	<thead>
 		<tr>
 			<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Start]]"></th>
-			<th style="width:23%" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
-			<th class$="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
+			<th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
+			<th inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
+			<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-			<th class="club ellipsis" inner-h-t-m-l="[[t.Team]]"></th>
+			<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
@@ -403,11 +457,11 @@ table#leaders-table thead tr.hide th {
 		</template>
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
-				<td class$="[[l.classname]] veryNarrow"><div>[[l.startNumber]]</div></td>
-				<td style="width:23%" class$="ellipsis [[l.classname]]"><div>[[l.fullName]]</div></td>
-				<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
+				<td class$="groupCol [[l.classname]] "><div>[[l.startNumber]]</div></td>
+				<td class$="name [[l.classname]]"><div>[[l.fullName]]</div></td>
+				<td class="category"><div>[[l.category]]</div></td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
-				<td class="ellipsis club">[[l.teamName]]</td>
+				<td class="club"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
 				</template>
@@ -429,11 +483,11 @@ table#leaders-table thead tr.hide th {
 	<thead>
 		<tr class="hide">
 			<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Start]]"></th>
-			<th style="width:23%" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
-			<th class$="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
+			<th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
+			<th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
+			<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-			<th class="club ellipsis" inner-h-t-m-l="[[t.Team]]"></th>
+			<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
@@ -449,11 +503,11 @@ table#leaders-table thead tr.hide th {
 		</template>
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
-				<td class$="[[l.classname]] veryNarrow"><div>[[l.group]]</div></td>
-				<td style="width:23%" class$="ellipsis [[l.classname]]"><div>[[l.fullName]]</div></td>
-				<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
+				<td class="groupCol"><div>[[l.group]]</div></td>
+				<td class="name"><div class="ellipsis">[[l.fullName]]</div></td>
+				<td class="category">[[l.category]]</td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
-				<td class="ellipsis club">[[l.teamName]]</td>
+				<td class="club"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
 				</template>
