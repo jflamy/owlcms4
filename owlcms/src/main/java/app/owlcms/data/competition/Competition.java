@@ -679,7 +679,7 @@ public class Competition {
                 list.add(a);
             }
         }
-        logger.warn("updated reports");
+        logger.debug("updated reports");
     }
 
     private void sortTeamResults(List<Athlete> athletes) {

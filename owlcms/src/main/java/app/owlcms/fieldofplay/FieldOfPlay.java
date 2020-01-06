@@ -709,7 +709,7 @@ public class FieldOfPlay {
     }
 
     private void updateGlobalRankings() {
-        logger.trace("update rankings {}", LoggerUtils.whereFrom());
+        logger.debug("update rankings {}", LoggerUtils.whereFrom());
         Competition competition = Competition.getCurrent();
         competition.computeGlobalRankings(false);
         uiShowUpdatedRankings();
@@ -1093,7 +1093,7 @@ public class FieldOfPlay {
     private void transitionToLifting(FOPEvent e, boolean stopBreakTimer) {
         logger.trace("transitionToLifting {} {} {}", e.getAthlete(), stopBreakTimer, LoggerUtils.whereFrom());
         recomputeLiftingOrder();
-        updateGlobalRankings();
+//        updateGlobalRankings();
         Athlete clockOwner = getClockOwner();
         if (curAthlete != null && curAthlete.equals(clockOwner)) {
             setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which
