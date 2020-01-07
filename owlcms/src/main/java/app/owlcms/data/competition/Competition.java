@@ -331,9 +331,9 @@ public class Competition {
                 logger.error(error);
                 throw new RuntimeException(error);
             }
-            logger.warn("recomputed {} size {}", listName, athletes != null ? athletes.size() : null);
+            logger.debug("recomputed {} size {}", listName, athletes != null ? athletes.size() : null);
         } else {
-            logger.warn("found {} size {}", listName, athletes != null ? athletes.size() : null);
+            logger.debug("found {} size {}", listName, athletes != null ? athletes.size() : null);
         }
         return athletes;
     }
