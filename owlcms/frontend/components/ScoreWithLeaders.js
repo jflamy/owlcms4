@@ -98,8 +98,6 @@ class ScoreLeader extends PolymerElement {
 	font-weight: bold;
 	flex: 0 0 35%;
 	text-align: left;
-/* 	margin-left: 1em; */
-	/*margin-right: auto;*/
 	flex-grow: 0.5;
 }
 
@@ -291,7 +289,8 @@ th, td {
 	white-space: nowrap;
 	text-align: center;
 }
-.medium div {
+
+.category div {
 	width: var(--category-width);
 }
 
@@ -505,7 +504,7 @@ table#leaders-table thead tr.hide th {
 			<tr>
 				<td class="groupCol"><div>[[l.group]]</div></td>
 				<td class="name"><div class="ellipsis">[[l.fullName]]</div></td>
-				<td class="category">[[l.category]]</td>
+				<td class="category"><div>[[l.category]]</div></td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
 				<td class="club"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">

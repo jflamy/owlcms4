@@ -32,8 +32,8 @@ class Scoreboard extends PolymerElement {
 
 @media screen and (max-width:1400px) {
 	:root {  
-	  --name-width: 22vw;
-	  --club-width: 8vw;
+	  --name-width: 18vw;
+	  --club-width: 12vw;
 	}
 }
 
@@ -159,7 +159,7 @@ th, td {
 }
 
 .name div {
-	width: calc(var(--name-width)*1.2);
+	width: calc(var(--name-width)*1.4);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -272,6 +272,9 @@ th, td {
 	width: var(--category-width);
 	white-space: nowrap;
 	text-align: center;
+}
+.category div {
+	width: var(--category-width);
 }
 
 .narrow {
@@ -408,9 +411,9 @@ th, td {
 			<!--  [[t.x]] references the translation for key Scoreboard.x in the translation4.csv file -->
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Start]]"></th>
 			<th inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
-			<th class$="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
+			<th class="category"  inner-h-t-m-l="[[t.Category]]"></th>
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-			<th class="club ellipsis" inner-h-t-m-l="[[t.Team]]"></th>
+			<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
@@ -426,10 +429,10 @@ th, td {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class$="[[l.classname]] veryNarrow"><div>[[l.startNumber]]</div></td>
-				<td width="30%" class$="ellipsis [[l.classname]]"><div class$="">[[l.fullName]]</div></td>
-				<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
+				<td class$="name [[l.classname]]"><div>[[l.fullName]]</div></td>
+				<td class="category"><div>[[l.category]]</div></td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
-				<td class="ellipsis club">[[l.teamName]]</td>
+				<td class="club"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
 				</template>
