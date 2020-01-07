@@ -4,7 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.3.1-beta2</version>
+        <version>4.3.1-rc1</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System</name>
@@ -367,12 +367,12 @@
                             <headerType>console</headerType>
                             <outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
                             <!-- fake jar; the one we actually run is in postCp below; we want the local directory to be before the owlcms 
-                                jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. 
-                                So we put a dummy jar at the front... -->
-                                
+                                jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy jar at 
+                                the front... -->
+
                             <!-- dummy jar for JDK 8 -->
                             <jar>jre/lib/charsets.jar</jar>
-                            
+
                             <!-- dummy jar for JDK 11 -->
                             <!-- jar>jre/lib/jrt-fs.jar</jar -->
                             <dontWrapJar>true</dontWrapJar>
@@ -473,6 +473,19 @@
                             </descriptors>
                         </configuration>
                     </execution>
+                    <!-- <execution> -->
+                    <!-- <id>zip_version</id> -->
+                    <!-- <phase>package</phase> -->
+                    <!-- <goals> -->
+                    <!-- <goal>single</goal> -->
+                    <!-- </goals> -->
+                    <!-- <configuration> -->
+                    <!-- <finalName>${project.artifactId}_${projet.version}</finalName> -->
+                    <!-- <descriptors> -->
+                    <!-- <descriptor>src/main/assembly/zip.xml</descriptor> -->
+                    <!-- </descriptors> -->
+                    <!-- </configuration> -->
+                    <!-- </execution> -->
                     <execution>
                         <id>windows_jdk</id>
                         <phase>package</phase>
@@ -529,6 +542,35 @@
                                     <value>true</value>
                                 </systemProperty>
                             </systemProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.coderplus.maven.plugins</groupId>
+                <artifactId>copy-rename-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-zip</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <sourceFile>${project.build.directory}/${project.artifactId}.zip</sourceFile>
+                            <destinationFile>${project.build.directory}/${project.artifactId}_${project.version}.zip</destinationFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-exe</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <sourceFile>${project.build.directory}/owlcms_setup/${project.artifactId}.exe</sourceFile>
+                            <destinationFile>${project.build.directory}/${project.artifactId}_${project.version}.exe</destinationFile>
                         </configuration>
                     </execution>
                 </executions>
