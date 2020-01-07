@@ -37,6 +37,7 @@ import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.utils.DebugUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -160,7 +161,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
             currentGroup = null;
         }
         if (currentGroup != null) {
-            params.put("group", Arrays.asList(currentGroup.getName()));
+            params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
         } else {
             params.remove("group");
         }

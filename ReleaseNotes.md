@@ -1,11 +1,12 @@
 
 
-Version 4.3.1-beta1 is a *new* release that introduces a *much* cleaner way to manage age groups and categories. *[Click here to read the documentation](https://jflamy.github.io/owlcms4/#/Categories)* 
+Version 4.3.1-rc1is a *new* release that introduces a *much* cleaner way to manage age groups and categories. *[Click here to read the documentation](https://jflamy.github.io/owlcms4/#/Categories)* 
 
 The previous  4.2.11 release is still available [below](https://github.com/jflamy/owlcms4/releases/tag/4.2.11) but you should certainly consider using this newer release if you have a little time to test beforehand to make yourself comfortable.
 
-* Release Highlights for release 4.3.1-beta1: 
+* Release Highlights for release 4.3.1-rc1: 
   - [x] Enhancement: Scoreboard with leaderboard. A new scoreboard is available that shows the top 3 athletes for the current category at the bottom.  This is mostly useful when a competition has multiple groups for the same category. (#241)
+  - [x] Enhancement: better handling of very long names (... ellipsis done automatically) for athletes and for teams.  A narrow column is used for teams if all the teams in a group have short names (such is country codes or team codes) (#266)
   - [X] Enhancement: It is now possible for the translator to select the style in which the heavyweight category is shown for a given locale (>109 vs 109+ or some other convention) (#263)
 
 

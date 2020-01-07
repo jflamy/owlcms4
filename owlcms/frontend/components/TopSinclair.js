@@ -103,7 +103,7 @@ class TopSinclair extends PolymerElement {
 }
 
 table.results {
-    table-layout: auto;
+    table-layout: fixed;
 	width: 100%;
 	border-collapse: collapse;
 	border: none;
@@ -136,7 +136,8 @@ th, td {
 	font-weight: bold;
 }
 
-.ellipsis {
+.name {
+  width: 22%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -215,14 +216,17 @@ th, td {
 }
 
 .medium {
-	width: 4%;
+	width: var(--narrow-width);
 	white-space: nowrap;
 	text-align: center;
 }
 
 .club {
 	text-align: center;
-	width: 8%;
+	white-space: nowrap;
+	width: 15%;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .narrow {
@@ -339,10 +343,10 @@ h2 {
 		<table class="results" id="orderDiv" style$="">
 			<thead>
 				<tr>
-					<th inner-h-t-m-l="[[t.Name]]"></th>
+					<th class="name" inner-h-t-m-l="[[t.Name]]"></th>
 					<th class$="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
 					<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-					<th class="club ellipsis" inner-h-t-m-l="[[t.Team]]"></th>
+					<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
 					<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
@@ -353,10 +357,10 @@ h2 {
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedWomen]]" as="l">
 				<tr>
-					<td width="20%" class="ellipsis">[[l.fullName]]</td>
+					<td class="name">[[l.fullName]]</td>
 					<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
 					<td class="veryNarrow">[[l.yearOfBirth]]</td>
-					<td class="club ellipsis">[[l.teamName]]</td>
+					<td class="club">[[l.teamName]]</td>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</td>
 					</template>
@@ -377,10 +381,10 @@ h2 {
 		<table class="results" id="orderDiv" style$="">
 			<thead>
 				<tr>
-					<th inner-h-t-m-l="[[t.Name]]"></th>
+					<th class="name" inner-h-t-m-l="[[t.Name]]"></th>
 					<th class$="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
 					<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-					<th class="club ellipsis" inner-h-t-m-l="[[t.Team]]"></th>
+					<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
 					<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
@@ -391,7 +395,7 @@ h2 {
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedMen]]" as="l">
 				<tr>
-					<td width="20%" class="ellipsis">[[l.fullName]]</td>
+					<td class="name">[[l.fullName]]</td>
 					<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
 					<td class="veryNarrow">[[l.yearOfBirth]]</td>
 					<td class="club">[[l.teamName]]</td>

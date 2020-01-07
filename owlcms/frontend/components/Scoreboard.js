@@ -12,13 +12,29 @@ class Scoreboard extends PolymerElement {
 }
 
 :root {
-  --medium-width: 9%;
   --narrow-width: 6%;
   --veryNarrow-width: 4%;
-  --fontSizeRank-height: 0.95em;
-  --fontSizeRows-height: 1.15em;
+  --group-width: 7ch;
+  --category-width: 6ch;
+  
+  --fontSizeRank-height: 1.05em;
+  --fontSizeRows-height: 1.16em;
   --fontSizeRank-heightXGA: 0.9em;
   --fontSizeRows-heightXGA: 1.1em;
+}
+
+@media screen and (min-width:1401px) {
+	:root {  
+	  --name-width: 20vw;
+	  --club-width: 15vw;
+	}
+}
+
+@media screen and (max-width:1400px) {
+	:root {  
+	  --name-width: 18vw;
+	  --club-width: 12vw;
+	}
 }
 
 .wrapper {
@@ -66,8 +82,6 @@ class Scoreboard extends PolymerElement {
 	font-weight: bold;
 	flex: 0 0 35%;
 	text-align: left;
-/* 	margin-left: 1em; */
-	/*margin-right: auto;*/
 	flex-grow: 0.5;
 }
 
@@ -135,6 +149,36 @@ th, td {
 
 :host(.light) th, td {
 	font-weight: bold;
+}
+
+.name {
+	width: var(--name-width);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.name div {
+	width: calc(var(--name-width)*1.4);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.club {
+	width: var(--club-width);
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.club div {
+	width: var(--club-width);
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .ellipsis {
@@ -215,14 +259,22 @@ th, td {
 	text-align: center;
 }
 
-.medium {
-	width: var(--narrow-width);
+.groupCol {
+	width: var(--group-width);
 	white-space: nowrap;
 	text-align: center;
 }
+.groupCol div {
+	width: var(--group-width);
+}
 
-.club {
+.category {
+	width: var(--category-width);
+	white-space: nowrap;
 	text-align: center;
+}
+.category div {
+	width: var(--category-width);
 }
 
 .narrow {
@@ -289,8 +341,12 @@ th, td {
 	animation: blink 1.5s step-start 0s infinite;
 	-webkit-animation: blink 1.5s step-start 0s infinite;
 }
-@keyframes blink { 50% {opacity: 0.0;}}
-@-webkit-keyframes blink { 50% {opacity: 0.0;}}
+@keyframes blink {
+ 50% {opacity: 0.0;}
+}
+@-webkit-keyframes blink {
+ 50% {opacity: 0.0;}
+}
 
 :host(.dark) .next {
 	color: orange;
@@ -355,9 +411,9 @@ th, td {
 			<!--  [[t.x]] references the translation for key Scoreboard.x in the translation4.csv file -->
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Start]]"></th>
 			<th inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
-			<th class$="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
+			<th class="category"  inner-h-t-m-l="[[t.Category]]"></th>
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-			<th class="club ellipsis" inner-h-t-m-l="[[t.Team]]"></th>
+			<th class$="[[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Team]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
@@ -373,10 +429,10 @@ th, td {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class$="[[l.classname]] veryNarrow"><div>[[l.startNumber]]</div></td>
-				<td width="30%" class$="ellipsis [[l.classname]]"><div class$="">[[l.fullName]]</div></td>
-				<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
+				<td class$="name [[l.classname]]"><div>[[l.fullName]]</div></td>
+				<td class="category"><div>[[l.category]]</div></td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
-				<td class="ellipsis club">[[l.teamName]]</td>
+				<td class$="[[_computeTeamWidth(wideTeamNames)]]"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
 				</template>
@@ -490,8 +546,8 @@ th, td {
 		return hidden ? 'display:none' : 'display:block';
 	}
 
-	_computeCatWidth(wideCategory) {
-		return wideCategory ? 'medium' : 'narrow';
+	_computeTeamWidth(w) {
+		return w ? 'club' : 'narrow';
 	}
 }
 

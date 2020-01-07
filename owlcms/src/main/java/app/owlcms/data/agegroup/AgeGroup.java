@@ -117,12 +117,15 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         AgeGroup other = (AgeGroup) obj;
         return Objects.equals(id, other.id);
     }
@@ -153,23 +156,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
     }
 
     public String getCategoriesAsString() {
-        List<Category> cats = getCategories();
-        int previousMax = 0;
-        StringBuilder buf = new StringBuilder();
-        for (Category cat : cats) {
-            Double maximumWeight = cat.getMaximumWeight();
-            if (maximumWeight.compareTo(998.9D) > 0) {
-                buf.append(" >");
-                buf.append(previousMax);
-                break;
-            } else {
-                int curMax = (int) Math.round(maximumWeight);
-                buf.append(curMax);
-                buf.append(", ");
-                previousMax = curMax;
-            }
+        if (categories == null || categories.size() == 0) {
+            return "";
         }
-        return buf.toString();
+        return getCategories().stream().map(c -> c.getLimitString()).collect(Collectors.joining(", "));
     }
 
     public String getCode() {

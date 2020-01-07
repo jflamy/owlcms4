@@ -386,6 +386,7 @@ public class FieldOfPlay {
             loadGroup((Group) null, this);
             loadGroup(((SwitchGroup) e).getGroup(), this);
             recomputeLiftingOrder();
+            updateGlobalRankings();
             getUiEventBus().post(new UIEvent.SwitchGroup(((SwitchGroup) e).getGroup(), e.getOrigin()));
             return;
         }
@@ -597,7 +598,7 @@ public class FieldOfPlay {
         this.setGroup(group);
         if (group != null) {
             logger.debug("{} loading data for group {} [{} {} ]",
-                    this.getName(), 
+                    this.getName(),
                     (group != null ? group.getName() : group),
                     origin.getClass().getSimpleName(),
                     LoggerUtils.whereFrom());
@@ -708,14 +709,11 @@ public class FieldOfPlay {
                 getAthleteTimer().getTimeRemainingAtLastStop());
     }
 
-    public void updateGlobalRankings() {
-        logger.trace("update rankings {}", LoggerUtils.whereFrom());
+    private void updateGlobalRankings() {
+        logger.debug("update rankings {}", LoggerUtils.whereFrom());
         Competition competition = Competition.getCurrent();
-        if (competition.isGlobalRankingRecompute()) {
-            competition.computeGlobalRankings(false);
-            uiShowUpdatedRankings();
-        }
-
+        competition.computeGlobalRankings(false);
+        uiShowUpdatedRankings();
     }
 
     /**
@@ -1109,7 +1107,6 @@ public class FieldOfPlay {
         }
         uiStartLifting(getGroup(), e.getOrigin());
         uiDisplayCurrentAthleteAndTime(true, e, false);
-        updateGlobalRankings();
     }
 
     private void transitionToTimeRunning() {
@@ -1204,6 +1201,7 @@ public class FieldOfPlay {
         AthleteSorter.liftingOrder(this.liftingOrder);
         this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
         uiDisplayCurrentAthleteAndTime(false, e, false);
+        updateGlobalRankings();
     }
 
 }

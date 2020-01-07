@@ -85,6 +85,7 @@ public class TestData {
 
     protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit) {
         p.setBodyWeight(81 - nextDouble);
+        p.setGender(Gender.M);
         Category categ = CategoryRepository.findByGenderAgeBW(Gender.M, 40, p.getBodyWeight()).get(0);
         p.setCategory(em.contains(categ) ? categ : em.merge(categ));
     }

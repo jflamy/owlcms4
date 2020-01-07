@@ -9,7 +9,6 @@ package app.owlcms.spreadsheet;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -112,9 +111,9 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     @Override
     protected void setReportingInfo() {
         super.setReportingInfo();
-        HashMap<String, Object> reportingBeans = getReportingBeans();
-
-        Competition.getCurrent().computeGlobalRankings(reportingBeans, true);
+        Competition competition = Competition.getCurrent();
+        competition.computeGlobalRankings(true);
+        setReportingBeans(competition.getReportingBeans());
     }
 
     private byte[] loadDefaultPackageTemplate(Locale locale, Competition current) {
