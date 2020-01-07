@@ -546,61 +546,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.coderplus.maven.plugins</groupId>
-                <artifactId>copy-rename-maven-plugin</artifactId>
-                <version>1.0</version>
-                <executions>
-                    <execution>
-                        <id>copy-zip</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <sourceFile>${project.build.directory}/${project.artifactId}.zip</sourceFile>
-                            <destinationFile>${project.build.directory}/${project.artifactId}_${project.version}.zip</destinationFile>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-exe</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <sourceFile>${project.build.directory}/owlcms_setup/${project.artifactId}.exe</sourceFile>
-                            <destinationFile>${project.build.directory}/${project.artifactId}_${project.version}.exe</destinationFile>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.ragedunicorn.tools.maven</groupId>
-                <artifactId>github-release-maven-plugin</artifactId>
-                <version>1.0.4.owlcms</version>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>default-cli</id>
-                        <configuration>
-                            <skip>true</skip>
-                            <owner>jflamy</owner>
-                            <repository>owlcms4</repository>
-                            <server>github-oauth</server>
-                            <tagName>${project.version}</tagName>
-                            <name>${project.version}</name>
-                            <targetCommitish>master</targetCommitish>
-                            <body>${project.version}</body>
-                            <releaseNotes>ReleaseNotes.md</releaseNotes>
-                            <assets>
-                                <!-- <asset>owlcms/target/owlcms.zip</asset> -->
-                                <!-- <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset> -->
-                            </assets>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -651,6 +596,58 @@
                                     <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
                                     <storepass>${codeSigning}</storepass>
                                     <storetype>PKCS12</storetype>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.coderplus.maven.plugins</groupId>
+                        <artifactId>copy-rename-maven-plugin</artifactId>
+                        <version>1.0</version>
+                        <executions>
+                            <execution>
+                                <id>copy-prerelease</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <fileSets>
+                                        <fileSet>
+                                            <sourceFile>${project.build.directory}/${project.artifactId}.zip</sourceFile>
+                                            <destinationFile>${project.build.directory}/prerelease/${project.artifactId}_${project.version}.zip</destinationFile>
+                                        </fileSet>
+                                        <fileSet>
+                                            <sourceFile>${project.build.directory}/owlcms_setup/${project.artifactId}_setup.exe</sourceFile>
+                                            <destinationFile>${project.build.directory}/prerelease/${project.artifactId}_setup_${project.version}.exe</destinationFile>
+                                        </fileSet>
+                                    </fileSets>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.ragedunicorn.tools.maven</groupId>
+                        <artifactId>github-release-maven-plugin</artifactId>
+                        <version>1.0.4.owlcms</version>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>default-cli</id>
+                                <configuration>
+                                    <skip>true</skip>
+                                    <owner>jflamy</owner>
+                                    <repository>owlcms4</repository>
+                                    <server>github-oauth</server>
+                                    <tagName>${project.version}</tagName>
+                                    <name>${project.version}</name>
+                                    <targetCommitish>master</targetCommitish>
+                                    <body>${project.version}</body>
+                                    <releaseNotes>ReleaseNotes.md</releaseNotes>
+                                    <assets>
+                                        <!-- <asset>owlcms/target/owlcms.zip</asset> -->
+                                        <!-- <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset> -->
+                                    </assets>
                                 </configuration>
                             </execution>
                         </executions>
