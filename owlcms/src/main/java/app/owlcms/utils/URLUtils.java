@@ -6,7 +6,10 @@
  */
 package app.owlcms.utils;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
@@ -108,6 +111,14 @@ public class URLUtils {
             String headerName = headerNames.nextElement();
             logger.debug("{}: {}", headerName, request.getHeader(headerName));
         }
+    }
+    
+    public static String urlEncode(String name) {
+        try {
+            name = URLEncoder.encode(name, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+        }
+        return name;
     }
 
 }

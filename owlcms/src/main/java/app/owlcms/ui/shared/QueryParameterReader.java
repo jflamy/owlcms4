@@ -26,6 +26,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -52,7 +53,7 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
                 logger.trace("OwlcmsFactory.getDefaultFOP() {}",OwlcmsFactory.getDefaultFOP());
                 fop = OwlcmsFactory.getDefaultFOP();
             }
-            params.put("fop", Arrays.asList(fop.getName()));
+            params.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
             OwlcmsSession.setFop(fop);
         } else {
             params.remove("fop");
@@ -69,7 +70,7 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
                 group = (fop != null ? fop.getGroup() : null);
             }
             if (group != null) {
-                params.put("group", Arrays.asList(group.getName()));
+                params.put("group", Arrays.asList(URLUtils.urlEncode(group.getName())));
             }
         } else {
             params.remove("group");

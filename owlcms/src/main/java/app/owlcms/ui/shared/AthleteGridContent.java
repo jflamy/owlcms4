@@ -68,6 +68,7 @@ import app.owlcms.ui.lifting.JuryContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -850,9 +851,10 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected void updateURLLocation(UI ui, Location location, Group newGroup) {
         // change the URL to reflect fop group
         HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
-        params.put("fop", Arrays.asList(OwlcmsSession.getFop().getName()));
+        params.put("fop", Arrays.asList(URLUtils.urlEncode(OwlcmsSession.getFop().getName())));
+
         if (newGroup != null && !isIgnoreGroupFromURL()) {
-            params.put("group", Arrays.asList(newGroup.getName()));
+            params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
         } else {
             params.remove("group");
         }

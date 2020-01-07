@@ -64,6 +64,7 @@ import app.owlcms.ui.shared.AthleteCrudGrid;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -282,7 +283,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             currentGroup = null;
         }
         if (currentGroup != null) {
-            params.put("group", Arrays.asList(currentGroup.getName()));
+            params.put("group", Arrays.asList(URLUtils.urlEncode(currentGroup.getName())));
         } else {
             params.remove("group");
         }
@@ -299,7 +300,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         HashMap<String, List<String>> params = new HashMap<>(
                 location.getQueryParameters().getParameters());
         if (!isIgnoreGroupFromURL() && newGroup != null) {
-            params.put("group", Arrays.asList(newGroup.getName()));
+            params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
         } else {
             params.remove("group");
         }
