@@ -413,7 +413,7 @@ th, td {
 			<th inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
 			<th class="category"  inner-h-t-m-l="[[t.Category]]"></th>
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-			<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
+			<th class$="[[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Team]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
@@ -432,7 +432,7 @@ th, td {
 				<td class$="name [[l.classname]]"><div>[[l.fullName]]</div></td>
 				<td class="category"><div>[[l.category]]</div></td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
-				<td class="club"><div>[[l.teamName]]</div></td>
+				<td class$="[[_computeTeamWidth(wideTeamNames)]]"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
 				</template>
@@ -546,8 +546,8 @@ th, td {
 		return hidden ? 'display:none' : 'display:block';
 	}
 
-	_computeCatWidth(wideCategory) {
-		return wideCategory ? 'medium' : 'narrow';
+	_computeTeamWidth(w) {
+		return w ? 'club' : 'narrow';
 	}
 }
 

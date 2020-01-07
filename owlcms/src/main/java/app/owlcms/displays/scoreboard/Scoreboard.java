@@ -97,7 +97,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
         Boolean isHidden();
 
-        Boolean isWideCategory();
+        Boolean isWideTeamNames();
 
         void setAttempt(String formattedAttempt);
 
@@ -115,7 +115,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 
         void setWeight(Integer weight);
 
-        void setWideCategory(boolean b);
+        void setWideTeamNames(boolean b);
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(Scoreboard.class);
@@ -575,6 +575,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         int athx = 0;
         Category prevCat = null;
         List<Athlete> list3 = list2 != null ? Collections.unmodifiableList(list2) : Collections.emptyList();
+        getModel().setWideTeamNames(false);
         for (Athlete a : list3) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
@@ -587,6 +588,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 athx++;
             }
             getAthleteJson(a, ja, curCat);
+            String team = a.getTeam();
+            if (team != null && team.length() > 5) {
+                getModel().setWideTeamNames(true);
+            }
             jath.set(athx, ja);
             athx++;
         }
@@ -602,7 +607,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             logger.trace("Starting result board on FOP {}", fop.getName());
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
-            getModel().setWideCategory(true);
+            getModel().setWideTeamNames(false);
         });
         setTranslationMap();
         order = ImmutableList.of();

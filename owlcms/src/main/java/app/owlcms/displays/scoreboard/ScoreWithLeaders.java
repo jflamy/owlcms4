@@ -101,7 +101,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
         Boolean isHidden();
 
-        Boolean isWideCategory();
+        Boolean isWideTeamNames();
 
         void setAttempt(String formattedAttempt);
 
@@ -121,7 +121,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
         void setWeight(Integer weight);
 
-        void setWideCategory(boolean b);
+        void setWideTeamNames(boolean b);
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(ScoreWithLeaders.class);
@@ -659,6 +659,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                     : ((a.getId() == nextId)
                             ? 2
                             : 0));
+            String team = a.getTeam();
+            if (team != null && team.length() > 5) {
+                getModel().setWideTeamNames(true);
+            }
             jath.set(athx, ja);
             athx++;
         }
@@ -674,7 +678,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             logger.trace("Starting result board on FOP {}", fop.getName());
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
-            getModel().setWideCategory(true);
+            getModel().setWideTeamNames(false);
         });
         setTranslationMap();
         globalRankingsForCurrentGroup = ImmutableList.of();
