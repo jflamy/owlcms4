@@ -11,7 +11,7 @@ class TopSinclair extends PolymerElement {
 }
 
 :root {
-  --medium-width: 9%;
+  --medium-width: 8%;
   --narrow-width: 6%;
   --veryNarrow-width: 4%;
   --fontSizeRank-height: 0.95em;
@@ -216,8 +216,7 @@ th, td {
 }
 
 .medium {
-	width: var(--narrow-width);
-	white-space: nowrap;
+	width: var(--medium-width);
 	text-align: center;
 }
 
@@ -349,10 +348,10 @@ h2 {
 					<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-					<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
+					<th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
 					<th class="narrow" inner-h-t-m-l="[[t.BodyWeight]]"></th>
 					<th class="narrow" inner-h-t-m-l="[[t.Sinclair]]"></th>
-					<th class="narrow" inner-h-t-m-l="[[t.Needed]]"></th>
+					<th class="medium" inner-h-t-m-l="[[t.Needed]]"></th>
 				</tr>
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedWomen]]" as="l">
@@ -367,10 +366,10 @@ h2 {
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</td>
 					</template>
-					<td class="veryNarrow">[[l.total]]</td>
+					<td class="narrow">[[l.total]]</td>
 					<td class="narrow">[[l.bw]]</td>
 					<td class="narrow sinclair">[[l.sinclair]]</td>
-					<td class="narrow">[[l.needed]]</td>
+					<td class="medium">[[l.needed]]</td>
 				</tr>
 			</template>
 		</table>
@@ -387,10 +386,10 @@ h2 {
 					<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-					<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
+					<th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
 					<th class="narrow" inner-h-t-m-l="[[t.BodyWeight]]"></th>
 					<th class="narrow" inner-h-t-m-l="[[t.Sinclair]]"></th>
-					<th class="narrow" inner-h-t-m-l="[[t.Needed]]"></th>
+					<th class="medium" inner-h-t-m-l="[[t.Needed]]"></th>
 				</tr>
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedMen]]" as="l">
@@ -405,10 +404,10 @@ h2 {
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</td>
 					</template>
-					<td class="veryNarrow">[[l.total]]</td>
+					<td class="narrow">[[l.total]]</td>
 					<td class="narrow">[[l.bw]]</td>
 					<td class="narrow sinclair">[[l.sinclair]]</td>
-					<td class="narrow">[[l.needed]]</td>
+					<td class="medium">[[l.needed]]</td>
 				</tr>
 			</template>
 		</table>
