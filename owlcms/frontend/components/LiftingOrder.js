@@ -11,13 +11,46 @@ class Scoreboard extends PolymerElement {
 }
 
 :root {
-  --medium-width: 9%;
-  --narrow-width: 6%;
   --veryNarrow-width: 4%;
-  --fontSizeRank-height: 0.95em;
-  --fontSizeRows-height: 1.15em;
-  --fontSizeRank-heightXGA: 0.9em;
-  --fontSizeRows-heightXGA: 1.1em;
+  --narrow-width: 6%;
+  --group-width: 7ch;
+  --category-width: 6ch;
+}
+
+/* header cells for rank in the main table, wide screen */
+@media screen and (min-width: 1401px) {
+	:root {
+	  --fontSizeRank-height: 0.95em;
+	  --fontSizeRows-height: 1.15em;
+	  --name-width: 20vw;
+	  --club-width: 15vw;
+	}
+}
+
+/* header cells for rank in the main table, 720 screen or 1366 laptop */
+@media screen and (max-width: 1400px) {
+	:root {
+	  --fontSizeRank-height: 0.9em;
+	  --fontSizeRows-height: 1.1em;
+	  --name-width: 20vw;
+	  --club-width: 15vw;
+	}
+}
+
+/* header cells for rank in the main table, 1024 projector */
+@media screen and (max-width: 1024px) {
+	:root {
+	  --narrow-width: 7%;
+	  --veryNarrow-width: 4.5ch;
+	  --medium-width: 9%;
+	  --category-width: 6ch;
+	  --team-width: 10%;
+	  --name-width: 16vw;
+	  --club-width: 10vw;
+	  
+	  --fontSizeRank-height: 0.8em;
+	  --fontSizeRows-height: 0.9em;
+	}
 }
 
 .wrapper {
@@ -203,10 +236,10 @@ th, td {
 		width: 0px;
 		padding: 0 0 0 0;
 		margin: 0 0 0 0;
-		font-size: var(--fontSizeRows-heightXGA);
+		font-size: var(--fontSizeRows-height);
 	}
 	th,td {
-		font-size: var(--fontSizeRows-heightXGA);
+		font-size: var(--fontSizeRows-height);
 	}
 }
 

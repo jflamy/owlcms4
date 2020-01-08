@@ -12,28 +12,46 @@ class Scoreboard extends PolymerElement {
 }
 
 :root {
-  --narrow-width: 6%;
   --veryNarrow-width: 4%;
+  --narrow-width: 6%;
   --group-width: 7ch;
   --category-width: 6ch;
-  
-  --fontSizeRank-height: 1.05em;
-  --fontSizeRows-height: 1.16em;
-  --fontSizeRank-heightXGA: 0.9em;
-  --fontSizeRows-heightXGA: 1.1em;
 }
 
-@media screen and (min-width:1401px) {
-	:root {  
-	  --name-width: 20vw;
-	  --club-width: 15vw;
+/* header cells for rank in the main table, wide screen */
+@media screen and (min-width: 1401px) {
+	:root {
+	  --narrow-width: 5%;
+	  --fontSizeRank-height: 0.95em;
+	  --fontSizeRows-height: 1.15em;
+	  --name-width: 16vw;
+	  --club-width: 10vw;
 	}
 }
 
-@media screen and (max-width:1400px) {
-	:root {  
+/* header cells for rank in the main table, 720 screen or 1366 laptop */
+@media screen and (max-width: 1400px) {
+	:root {
+	  --fontSizeRank-height: 0.9em;
+	  --fontSizeRows-height: 1.1em;
 	  --name-width: 18vw;
-	  --club-width: 12vw;
+	  --club-width: 14vw;
+	}
+}
+
+/* header cells for rank in the main table, 1024 projector */
+@media screen and (max-width: 1024px) {
+	:root {
+	  --narrow-width: 7%;
+	  --veryNarrow-width: 4.5ch;
+	  --medium-width: 9%;
+	  --category-width: 6ch;
+	  --team-width: 10%;
+	  --name-width: 16vw;
+	  --club-width: 10vw;
+	  
+	  --fontSizeRank-height: 0.8em;
+	  --fontSizeRows-height: 0.9em;
 	}
 }
 
@@ -187,6 +205,24 @@ th, td {
   text-overflow: ellipsis;
 }
 
+
+.thRank {
+	border-collapse: collapse;
+	border: solid 1px DarkGray;
+	border-left-style: none;
+	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
+	font-weight: normal;
+	font-style: italic;
+	width: var(--veryNarrow-width);
+	text-align: center;
+	font-size: var(--fontSizeRows-height);
+}
+
+.thRank div{
+	width: var(--veryNarrow-width);
+	text-align: center;
+}
+
 /* header cells for rank in the main table, wide screen */
 @media screen and (min-width: 1401px) {
 	.showThRank {
@@ -199,6 +235,7 @@ th, td {
 		font-style: italic;
 		width: 4vw;
 		text-align: center;
+		font-size: var(--fontSizeRank-height);
 	}
 }
 
@@ -209,25 +246,8 @@ th, td {
 		width: 0px;
 		padding: 0 0 0 0;
 		margin: 0 0 0 0;
-		font-size: var(--fontSizeRank-heightXGA);
+		font-size: var(--fontSizeRank-height);
 	}
-}
-
-.thRank {
-	border-collapse: collapse;
-	border: solid 1px DarkGray;
-	border-left-style: none;
-	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-	font-size: var(--fontSizeRows-height);
-	font-weight: normal;
-	font-style: italic;
-	width: var(--veryNarrow-width);
-	text-align: center;
-}
-
-.narrow {
-	width: var(--narrow-width);
-	text-align: center;
 }
 
 /* rank cells in the main table, wide screen */
@@ -238,6 +258,9 @@ th, td {
 		font-size: var(--fontSizeRows-height);
 		text-align: center;
 	}
+	th,td {
+		font-size: var(--fontSizeRows-height);
+	}
 }
 
 /* rank cells in the main table, XGA projector */
@@ -247,14 +270,24 @@ th, td {
 		width: 0px;
 		padding: 0 0 0 0;
 		margin: 0 0 0 0;
-		font-size: var(--fontSizeRows-heightXGA);
+		font-size: var(--fontSizeRows-height);
 	}
 	th,td {
-		font-size: var(--fontSizeRows-heightXGA);
+		font-size: var(--fontSizeRows-height);
 	}
 }
 
+.narrow {
+	width: var(--narrow-width);
+	text-align: center;
+}
+
 .veryNarrow {
+	width: var(--veryNarrow-width);
+	text-align: center;
+}
+
+.veryNarrow div {
 	width: var(--veryNarrow-width);
 	text-align: center;
 }
@@ -266,6 +299,7 @@ th, td {
 }
 .groupCol div {
 	width: var(--group-width);
+	text-align: center;
 }
 
 .category {
@@ -275,11 +309,6 @@ th, td {
 }
 .category div {
 	width: var(--category-width);
-}
-
-.narrow {
-	width: var(--narrow-width);
-	text-align: center;
 }
 
 :host(.dark) .good {
@@ -428,17 +457,17 @@ th, td {
 		</template>
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
-				<td class$="[[l.classname]] veryNarrow"><div>[[l.startNumber]]</div></td>
+				<td class$="[[l.classname]] veryNarrow">[[l.startNumber]]</td>
 				<td class$="name [[l.classname]]"><div>[[l.fullName]]</div></td>
 				<td class="category"><div>[[l.category]]</div></td>
-				<td class="veryNarrow">[[l.yearOfBirth]]</td>
+				<td class="veryNarrow"><div>[[l.yearOfBirth]]</div></td>
 				<td class$="[[_computeTeamWidth(wideTeamNames)]]"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
+					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank">[[l.snatchRank]]</td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
+					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank">[[l.cleanJerkRank]]</td>		
 				<td class="veryNarrow">[[l.total]]</td>
