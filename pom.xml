@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.3.1-rc1</version>
+    <version>4.3.1-rc3</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -64,6 +64,13 @@
         <!-- <id>flow-prerelease</id> -->
         <!-- <url>https://maven.vaadin.com/vaadin-prereleases</url> -->
         <!-- </repository> -->
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/jflamy/owlcms4/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <pluginRepositories>

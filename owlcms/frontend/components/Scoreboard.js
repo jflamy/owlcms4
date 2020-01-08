@@ -289,7 +289,6 @@ th, td {
 
 .veryNarrow div {
 	width: var(--veryNarrow-width);
-	text-align: center;
 }
 
 .groupCol {
@@ -299,7 +298,7 @@ th, td {
 }
 .groupCol div {
 	width: var(--group-width);
-	text-align: center;
+	display: inline-block;
 }
 
 .category {
@@ -309,6 +308,7 @@ th, td {
 }
 .category div {
 	width: var(--category-width);
+	display: inline-block;
 }
 
 :host(.dark) .good {

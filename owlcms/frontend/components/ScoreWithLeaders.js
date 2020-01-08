@@ -27,6 +27,9 @@ class ScoreLeader extends PolymerElement {
 	  --name-width: 16vw;
 	  --club-width: 10vw;
 	}
+	.name div {
+		width: calc(var(--name-width)*1.5);
+	}
 }
 
 /* header cells for rank in the main table, 720 screen or 1366 laptop */
@@ -34,8 +37,11 @@ class ScoreLeader extends PolymerElement {
 	:root {
 	  --fontSizeRank-height: 0.9em;
 	  --fontSizeRows-height: 1.1em;
-	  --name-width: 19vw;
-	  --club-width: 13vw;
+	  --name-width: 16vw;
+	  --club-width: 12vw;
+	}
+	.name div {
+		width: calc(var(--name-width)*1.2);
 	}
 }
 
@@ -52,6 +58,12 @@ class ScoreLeader extends PolymerElement {
 	  
 	  --fontSizeRank-height: 0.8em;
 	  --fontSizeRows-height: 0.9em;
+	}
+	.name {
+		width: var(--name-width);
+	}
+	.name div {
+		width: calc(var(--name-width)*1.2);
 	}
 }
 
@@ -193,7 +205,7 @@ th, td {
 }
 
 .name div {
-	width: calc(var(--name-width)*1.4);
+	width: calc(var(--name-width)*1.5);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -233,8 +245,7 @@ th, td {
 	font-size: var(--fontSizeRows-height);
 }
 .thRank div{
-	width: var(--veryNarrow-width);
-	text-align: center;
+	display: inline-block;
 }
 
 /* header cells for rank in the main table, wide screen */
@@ -297,14 +308,16 @@ th, td {
 	width: var(--narrow-width);
 	text-align: center;
 }
+.narrow div {
+	display: inline-block;
+}
 
 .veryNarrow {
 	width: var(--veryNarrow-width);
 	text-align: center;
 }
 .veryNarrow div {
-	width: var(--veryNarrow-width);
-	text-align: center;
+	display: inline-block;
 }
 
 .groupCol {
@@ -314,7 +327,7 @@ th, td {
 }
 .groupCol div {
 	width: var(--group-width);
-	text-align: center;
+	display: inline-block;
 }
 
 .category {
@@ -325,9 +338,8 @@ th, td {
 
 .category div {
 	width: var(--category-width);
+	display: inline-block;
 }
-
-
 
 :host(.dark) .good {
 	background-color: green;
@@ -468,7 +480,7 @@ table#leaders-table thead tr.hide th {
 		<tr>
 			<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
 			<th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
-			<th inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
+			<th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
 			<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
 			<th class$="[[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Team]]"></th>
@@ -510,20 +522,6 @@ table#leaders-table thead tr.hide th {
 <div id="leaders">
 <table class="results" id="leaders-table" style$="[[_computeHidden(hidden)]]">
 	<thead>
-		<tr class="hide">
-			<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
-			<th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
-			<th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
-			<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-			<th class$="[[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Team]]"></th>
-			<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
-			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
-			<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
-			<th class="thRank" inner-h-t-m-l="[[t.Rank]]"></th>
-		</tr>
 		<tr><td colspan="100%" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]"></td></tr>
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
@@ -533,7 +531,7 @@ table#leaders-table thead tr.hide th {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class="groupCol"><div>[[l.group]]</div></td>
-				<td class="name"><div class="ellipsis">[[l.fullName]]</div></td>
+				<td class="name"><div>[[l.fullName]]</div></td>
 				<td class="category"><div>[[l.category]]</div></td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
 				<td class$="[[_computeTeamWidth(wideTeamNames)]]"><div>[[l.teamName]]</div></td>
