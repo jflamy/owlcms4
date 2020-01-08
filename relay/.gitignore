@@ -2,3 +2,4 @@
 /node_modules/
 /webpack.generated.js
 /package-lock.json
+/logs/

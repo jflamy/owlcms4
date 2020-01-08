@@ -12,28 +12,58 @@ class ScoreLeader extends PolymerElement {
 }
 
 :root {
-  --narrow-width: 6%;
   --veryNarrow-width: 4%;
+  --narrow-width: 6%;
   --group-width: 7ch;
   --category-width: 6ch;
-  
-  --fontSizeRank-height: 1.05em;
-  --fontSizeRows-height: 1.16em;
-  --fontSizeRank-heightXGA: 0.9em;
-  --fontSizeRows-heightXGA: 1.1em;
 }
 
-@media screen and (min-width:1401px) {
-	:root {  
-	  --name-width: 20vw;
-	  --club-width: 15vw;
+/* header cells for rank in the main table, wide screen */
+@media screen and (min-width: 1401px) {
+	:root {
+	  --narrow-width: 5%;
+	  --fontSizeRank-height: 0.95em;
+	  --fontSizeRows-height: 1.15em;
+	  --name-width: 16vw;
+	  --club-width: 10vw;
+	}
+	.name div {
+		width: calc(var(--name-width)*1.5);
 	}
 }
 
-@media screen and (max-width:1400px) {
-	:root {  
-	  --name-width: 22vw;
-	  --club-width: 8vw;
+/* header cells for rank in the main table, 720 screen or 1366 laptop */
+@media screen and (max-width: 1400px) {
+	:root {
+	  --fontSizeRank-height: 0.9em;
+	  --fontSizeRows-height: 1.1em;
+	  --name-width: 16vw;
+	  --club-width: 12vw;
+	}
+	.name div {
+		width: calc(var(--name-width)*1.2);
+	}
+}
+
+/* header cells for rank in the main table, 1024 projector */
+@media screen and (max-width: 1024px) {
+	:root {
+	  --narrow-width: 7%;
+	  --veryNarrow-width: 4.5ch;
+	  --medium-width: 9%;
+	  --category-width: 6ch;
+	  --team-width: 10%;
+	  --name-width: 16vw;
+	  --club-width: 10vw;
+	  
+	  --fontSizeRank-height: 0.8em;
+	  --fontSizeRows-height: 0.9em;
+	}
+	.name {
+		width: var(--name-width);
+	}
+	.name div {
+		width: calc(var(--name-width)*1.2);
 	}
 }
 
@@ -175,7 +205,7 @@ th, td {
 }
 
 .name div {
-	width: calc(var(--name-width)*1.2);
+	width: calc(var(--name-width)*1.5);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -203,6 +233,21 @@ th, td {
   text-overflow: ellipsis;
 }
 
+.thRank {
+	border-collapse: collapse;
+	border: solid 1px DarkGray;
+	border-left-style: none;
+	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
+	font-weight: normal;
+	font-style: italic;
+	width: var(--veryNarrow-width);
+	text-align: center;
+	font-size: var(--fontSizeRows-height);
+}
+.thRank div{
+	display: inline-block;
+}
+
 /* header cells for rank in the main table, wide screen */
 @media screen and (min-width: 1401px) {
 	.showThRank {
@@ -215,6 +260,7 @@ th, td {
 		font-style: italic;
 		width: 4vw;
 		text-align: center;
+		font-size: var(--fontSizeRank-height);
 	}
 }
 
@@ -225,26 +271,10 @@ th, td {
 		width: 0px;
 		padding: 0 0 0 0;
 		margin: 0 0 0 0;
-		font-size: var(--fontSizeRank-heightXGA);
+		font-size: var(--fontSizeRank-height);
 	}
 }
 
-.thRank {
-	border-collapse: collapse;
-	border: solid 1px DarkGray;
-	border-left-style: none;
-	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-	font-size: var(--fontSizeRows-height);
-	font-weight: normal;
-	font-style: italic;
-	width: var(--veryNarrow-width);
-	text-align: center;
-}
-
-.narrow {
-	width: var(--narrow-width);
-	text-align: center;
-}
 
 /* rank cells in the main table, wide screen */
 @media screen and (min-width: 1401px) {
@@ -254,7 +284,11 @@ th, td {
 		font-size: var(--fontSizeRows-height);
 		text-align: center;
 	}
+	th,td {
+		font-size: var(--fontSizeRows-height);
+	}
 }
+
 
 /* rank cells in the main table, XGA projector */
 @media screen and (max-width: 1400px) {
@@ -263,16 +297,27 @@ th, td {
 		width: 0px;
 		padding: 0 0 0 0;
 		margin: 0 0 0 0;
-		font-size: var(--fontSizeRows-heightXGA);
+		font-size: var(--fontSizeRows-height);
 	}
 	th,td {
-		font-size: var(--fontSizeRows-heightXGA);
+		font-size: var(--fontSizeRows-height);
 	}
+}
+
+.narrow {
+	width: var(--narrow-width);
+	text-align: center;
+}
+.narrow div {
+	display: inline-block;
 }
 
 .veryNarrow {
 	width: var(--veryNarrow-width);
 	text-align: center;
+}
+.veryNarrow div {
+	display: inline-block;
 }
 
 .groupCol {
@@ -282,6 +327,7 @@ th, td {
 }
 .groupCol div {
 	width: var(--group-width);
+	display: inline-block;
 }
 
 .category {
@@ -292,11 +338,7 @@ th, td {
 
 .category div {
 	width: var(--category-width);
-}
-
-.narrow {
-	width: var(--narrow-width);
-	text-align: center;
+	display: inline-block;
 }
 
 :host(.dark) .good {
@@ -438,7 +480,7 @@ table#leaders-table thead tr.hide th {
 		<tr>
 			<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
 			<th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
-			<th inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
+			<th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
 			<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
 			<th class$="[[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Team]]"></th>
@@ -462,11 +504,11 @@ table#leaders-table thead tr.hide th {
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
 				<td class$="[[_computeTeamWidth(wideTeamNames)]]"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
+					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank">[[l.snatchRank]]</td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
+					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank">[[l.cleanJerkRank]]</td>		
 				<td class="veryNarrow">[[l.total]]</td>
@@ -480,20 +522,6 @@ table#leaders-table thead tr.hide th {
 <div id="leaders">
 <table class="results" id="leaders-table" style$="[[_computeHidden(hidden)]]">
 	<thead>
-		<tr class="hide">
-			<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
-			<th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
-			<th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
-			<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-			<th class$="[[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Team]]"></th>
-			<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
-			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
-			<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
-			<th class="thRank" inner-h-t-m-l="[[t.Rank]]"></th>
-		</tr>
 		<tr><td colspan="100%" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]"></td></tr>
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
@@ -503,20 +531,20 @@ table#leaders-table thead tr.hide th {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class="groupCol"><div>[[l.group]]</div></td>
-				<td class="name"><div class="ellipsis">[[l.fullName]]</div></td>
+				<td class="name"><div>[[l.fullName]]</div></td>
 				<td class="category"><div>[[l.category]]</div></td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
 				<td class$="[[_computeTeamWidth(wideTeamNames)]]"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
+					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank">[[l.snatchRank]]</td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div class$="">[[attempt.stringValue]]</div></td>
+					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank">[[l.cleanJerkRank]]</td>		
-				<td class="veryNarrow">[[l.total]]</td>
-				<td class="veryNarrow">[[l.totalRank]]</td>
+				<td class="veryNarrow"><div>[[l.total]]</div></td>
+				<td class="thRank"><div>[[l.totalRank]]</div></td>
 			</tr>
 		</template>
 	</template>
@@ -613,10 +641,6 @@ table#leaders-table thead tr.hide th {
 	_isEqualTo(title, string) {
 		return title == string;
 	}
-
-//	clear() {
-//		this.$.resultBoardDiv.style.display="none";
-//	}
 
 	_computeHidden(hidden) {
 		return hidden ? 'display:none' : 'display:block';

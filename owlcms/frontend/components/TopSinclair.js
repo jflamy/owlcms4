@@ -11,13 +11,42 @@ class TopSinclair extends PolymerElement {
 }
 
 :root {
-  --medium-width: 9%;
+  --medium-width: 8%;
   --narrow-width: 6%;
+  --category-width: 8%;
+  --name-width: 23%;
   --veryNarrow-width: 4%;
-  --fontSizeRank-height: 0.95em;
-  --fontSizeRows-height: 1.15em;
-  --fontSizeRank-heightXGA: 0.9em;
-  --fontSizeRows-heightXGA: 1.1em;
+  --team-width: 15%;
+
+}
+
+/* header cells for rank in the main table, wide screen */
+@media screen and (min-width: 1401px) {
+	:root {
+	  --fontSizeRank-height: 0.95em;
+	  --fontSizeRows-height: 1.15em;
+	}
+}
+
+/* header cells for rank in the main table, 720 screen or 1366 laptop */
+@media screen and (max-width: 1400px) {
+	:root {
+	  --fontSizeRank-height: 0.8em;
+	  --fontSizeRows-height: 0.9em;
+	}
+}
+
+/* header cells for rank in the main table, 1024 projector */
+@media screen and (max-width: 1024px) {
+	:root {
+	  --narrow-width: 7%;
+	  --veryNarrow-width: 5%;
+	  --medium-width: 9%;
+	  --category-width: 7%;
+	  --team-width: 10%;
+	  --fontSizeRank-height: 0.7em;
+	  --fontSizeRows-height: 0.8em;
+	}
 }
 
 .wrapper {
@@ -137,7 +166,7 @@ th, td {
 }
 
 .name {
-  width: 22%;
+  width: var(--name-width);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -150,11 +179,11 @@ th, td {
 		border: solid 1px DarkGray;
 		border-left-style: none;
 		padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-		font-size: var(--fontSizeRank-height);
 		font-weight: normal;
 		font-style: italic;
 		width: 4vw;
 		text-align: center;
+		font-size: var(--fontSizeRank-height);
 	}
 }
 
@@ -165,7 +194,7 @@ th, td {
 		width: 0px;
 		padding: 0 0 0 0;
 		margin: 0 0 0 0;
-		font-size: var(--fontSizeRank-heightXGA);
+		font-size: var(--fontSizeRank-height);
 	}
 }
 
@@ -174,7 +203,6 @@ th, td {
 	border: solid 1px DarkGray;
 	border-left-style: none;
 	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-	font-size: var(--fontSizeRows-height);
 	font-weight: normal;
 	font-style: italic;
 	width: var(--veryNarrow-width);
@@ -191,7 +219,6 @@ th, td {
 	.showRank {
 		display: table-cell;
 		width: var(--veryNarrow-width);
-		font-size: var(--fontSizeRows-height);
 		text-align: center;
 	}
 }
@@ -203,10 +230,6 @@ th, td {
 		width: 0px;
 		padding: 0 0 0 0;
 		margin: 0 0 0 0;
-		font-size: var(--fontSizeRows-heightXGA);
-	}
-	th,td {
-		font-size: var(--fontSizeRows-heightXGA);
 	}
 }
 
@@ -215,16 +238,20 @@ th, td {
 	text-align: center;
 }
 
+.category {
+	width: var(--category-width);
+	text-align: center;
+}
+
 .medium {
-	width: var(--narrow-width);
-	white-space: nowrap;
+	width: var(--medium-width);
 	text-align: center;
 }
 
 .club {
 	text-align: center;
 	white-space: nowrap;
-	width: 15%;
+	width: var(--team-width);
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
@@ -344,21 +371,21 @@ h2 {
 			<thead>
 				<tr>
 					<th class="name" inner-h-t-m-l="[[t.Name]]"></th>
-					<th class$="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
+					<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
 					<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
 					<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-					<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
+					<th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
 					<th class="narrow" inner-h-t-m-l="[[t.BodyWeight]]"></th>
 					<th class="narrow" inner-h-t-m-l="[[t.Sinclair]]"></th>
-					<th class="narrow" inner-h-t-m-l="[[t.Needed]]"></th>
+					<th class="medium" inner-h-t-m-l="[[t.Needed]]"></th>
 				</tr>
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedWomen]]" as="l">
 				<tr>
 					<td class="name">[[l.fullName]]</td>
-					<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
+					<td class="category">[[l.category]]</td>
 					<td class="veryNarrow">[[l.yearOfBirth]]</td>
 					<td class="club">[[l.teamName]]</td>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
@@ -367,10 +394,10 @@ h2 {
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</td>
 					</template>
-					<td class="veryNarrow">[[l.total]]</td>
+					<td class="narrow">[[l.total]]</td>
 					<td class="narrow">[[l.bw]]</td>
 					<td class="narrow sinclair">[[l.sinclair]]</td>
-					<td class="narrow">[[l.needed]]</td>
+					<td class="medium">[[l.needed]]</td>
 				</tr>
 			</template>
 		</table>
@@ -382,21 +409,21 @@ h2 {
 			<thead>
 				<tr>
 					<th class="name" inner-h-t-m-l="[[t.Name]]"></th>
-					<th class$="[[_computeCatWidth(wideCategory)]]" inner-h-t-m-l="[[t.Category]]"></th>
+					<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
 					<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
 					<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-					<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
+					<th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
 					<th class="narrow" inner-h-t-m-l="[[t.BodyWeight]]"></th>
 					<th class="narrow" inner-h-t-m-l="[[t.Sinclair]]"></th>
-					<th class="narrow" inner-h-t-m-l="[[t.Needed]]"></th>
+					<th class="medium" inner-h-t-m-l="[[t.Needed]]"></th>
 				</tr>
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedMen]]" as="l">
 				<tr>
 					<td class="name">[[l.fullName]]</td>
-					<td class$="[[_computeCatWidth(wideCategory)]]">[[l.category]]</td>
+					<td class="category">[[l.category]]</td>
 					<td class="veryNarrow">[[l.yearOfBirth]]</td>
 					<td class="club">[[l.teamName]]</td>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
@@ -405,10 +432,10 @@ h2 {
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</td>
 					</template>
-					<td class="veryNarrow">[[l.total]]</td>
+					<td class="narrow">[[l.total]]</td>
 					<td class="narrow">[[l.bw]]</td>
 					<td class="narrow sinclair">[[l.sinclair]]</td>
-					<td class="narrow">[[l.needed]]</td>
+					<td class="medium">[[l.needed]]</td>
 				</tr>
 			</template>
 		</table>
@@ -460,9 +487,6 @@ h2 {
 		return hidden ? 'display:none' : 'display:block';
 	}
 
-	_computeCatWidth(wideCategory) {
-		return wideCategory ? 'medium' : 'narrow';
-	}
 }
 
 customElements.define(TopSinclair.is, TopSinclair);

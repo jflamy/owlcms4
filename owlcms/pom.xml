@@ -4,7 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.3.1-rc1</version>
+        <version>4.3.1-rc3</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System</name>
@@ -120,12 +120,12 @@
         <dependency>
             <groupId>net.sf.jxls</groupId>
             <artifactId>jxls-core</artifactId>
-            <version>1.0.7.owlcms</version>
+            <version>1.0.8.2</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jxls</groupId>
             <artifactId>jxls-reader</artifactId>
-            <version>1.0.7.owlcms</version>
+            <version>1.0.8.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -546,6 +546,34 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <!-- Only used in production, but cannot be removed or moved to production profile because of the way it is invoked by the gitflow plugin -->
+                <groupId>com.ragedunicorn.tools.maven</groupId>
+                <artifactId>github-release-maven-plugin</artifactId>
+                <version>1.0.4.owlcms</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <configuration>
+                            <skip>true</skip>
+                            <!-- all other parameters are fake -->
+                            <owner>jflamy</owner>
+                            <repository>owlcms4</repository>
+                            <server>github-oauth</server>
+                            <tagName>${project.version}</tagName>
+                            <name>${project.version}</name>
+                            <targetCommitish>master</targetCommitish>
+                            <body>${project.version}</body>
+                            <releaseNotes>ReleaseNotes.md</releaseNotes>
+                            <assets>
+                                <!-- <asset>owlcms/target/owlcms.zip</asset> -->
+                                <!-- <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset> -->
+                            </assets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -622,32 +650,6 @@
                                             <destinationFile>${project.build.directory}/prerelease/${project.artifactId}_setup_${project.version}.exe</destinationFile>
                                         </fileSet>
                                     </fileSets>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.ragedunicorn.tools.maven</groupId>
-                        <artifactId>github-release-maven-plugin</artifactId>
-                        <version>1.0.4.owlcms</version>
-                        <inherited>false</inherited>
-                        <executions>
-                            <execution>
-                                <id>default-cli</id>
-                                <configuration>
-                                    <skip>true</skip>
-                                    <owner>jflamy</owner>
-                                    <repository>owlcms4</repository>
-                                    <server>github-oauth</server>
-                                    <tagName>${project.version}</tagName>
-                                    <name>${project.version}</name>
-                                    <targetCommitish>master</targetCommitish>
-                                    <body>${project.version}</body>
-                                    <releaseNotes>ReleaseNotes.md</releaseNotes>
-                                    <assets>
-                                        <!-- <asset>owlcms/target/owlcms.zip</asset> -->
-                                        <!-- <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset> -->
-                                    </assets>
                                 </configuration>
                             </execution>
                         </executions>
