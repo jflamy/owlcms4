@@ -11,6 +11,7 @@ class ScoreLeader extends PolymerElement {
 	box-sizing: border-box;
 }
 
+/* shared default sizes */
 :root {
 	  --narrow-width: 5ch;
 	  --max-narrow-width: 5ch;
@@ -20,7 +21,7 @@ class ScoreLeader extends PolymerElement {
 	  --category-width: 6ch;
 }
 
-/* header cells for rank in the main table, wide screen */
+/* wide screen */
 @media screen and (max-width: 1920px) {
 	:root {  
 	  --fontSizeRank-height: 0.95em;
@@ -36,6 +37,8 @@ class ScoreLeader extends PolymerElement {
 	  --rank-width: 5ch;	  
 	}
 	.narrowTeams {
+	  --narrow-width: 7ch;
+	  --max-narrow-width: 7ch;
       --name-width: 75vh;
 	  --name-max-width: 72vh;
 	  --club-width: 20vh;
@@ -44,7 +47,7 @@ class ScoreLeader extends PolymerElement {
 	}
 }
 
-/* header cells for rank in the main table, 720 screen or 1366 laptop */
+/* 720 screen or 1366 laptop */
 @media screen and (max-width: 1400px) {
 	:root {	
 	  --fontSizeRank-height: 0.9em;
@@ -66,7 +69,7 @@ class ScoreLeader extends PolymerElement {
 	}
 }
 
-/* header cells for rank in the main table, 1024 projector */
+/* 1024 projector */
 @media screen and (max-width: 1024px) {
 	:root {
 	  --fontSizeRank-height: 0.8em;
@@ -87,7 +90,6 @@ class ScoreLeader extends PolymerElement {
 	  --rank-width: 5ch;		
 	}
 }
-
 
 .wrapper {
 	font-family: Arial, Helvetica, sans-serif;
@@ -244,6 +246,7 @@ th, td {
 .club div {
 	max-width: var(--club-max-width);
 	text-align: center;
+	margin: auto;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
