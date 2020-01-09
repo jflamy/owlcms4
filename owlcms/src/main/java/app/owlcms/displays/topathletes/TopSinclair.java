@@ -27,6 +27,8 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.InitialPageSettings;
+import com.vaadin.flow.server.PageConfigurator;
 import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -67,8 +69,8 @@ import elemental.json.JsonValue;
 @Route("displays/topsinclair")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> implements DarkModeParameters,
-        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin {
+public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> implements DarkModeParameters,
+        SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin, PageConfigurator {
 
     /**
      * LiftingOrderModel
@@ -78,19 +80,19 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
      * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
      *
      */
-    public interface LiftingOrderModel extends TemplateModel {
+    public interface TopSinclairModel extends TemplateModel {
 
         String getFullName();
 
         Boolean isHidden();
 
-        Boolean isWideCategory();
+        Boolean isWideTeamNames();
 
         void setFullName(String lastName);
 
         void setHidden(boolean b);
 
-        void setWideCategory(boolean b);
+        void setWideTeamNames(boolean b);
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TopSinclair.class);
@@ -296,7 +298,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     protected void doUpdate(Athlete a, UIEvent e) {
         logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            LiftingOrderModel model = getModel();
+            TopSinclairModel model = getModel();
             if (a != null) {
                 model.setFullName(getTranslation("Scoreboard.TopSinclair"));
                 updateBottom(model);
@@ -372,7 +374,7 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
     protected void onAttach(AttachEvent attachEvent) {
         logger.debug("onAttach start");
         setDarkMode(this, isDarkMode(), false);
-        getModel().setWideCategory(true);
+        setWide(false);
         setTranslationMap();
         for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
             // we listen on all the uiEventBus.
@@ -381,6 +383,10 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         Competition competition = Competition.getCurrent();
         doUpdate(competition);
         logger.debug("onAttach end");
+    }
+
+    private void setWide(boolean b) {
+        getModel().setWideTeamNames(b);
     }
 
     protected void setTranslationMap() {
@@ -412,10 +418,25 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
     }
 
-    private JsonValue getAthletesJson(List<Athlete> list2) {
+    @Override
+    public void configurePage(InitialPageSettings settings) {
+        settings.addMetaTag("mobile-web-app-capable", "yes");
+        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
+        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
+        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
+        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
+    }
+    
+    private JsonValue getAthletesJson(List<Athlete> list2, boolean overrideTeamWidth) {
         JsonArray jath = Json.createArray();
         int athx = 0;
         List<Athlete> list3 = list2 != null ? Collections.unmodifiableList(list2) : Collections.emptyList();
+        if (overrideTeamWidth) {
+            // when we are called for the second time, and there was a wide team in the top section.
+            // we use the wide team setting for the remaining sections.
+            setWide(false);
+        }
+
         for (Athlete a : list3) {
             JsonObject ja = Json.createObject();
             Gender curGender = a.getGender();
@@ -429,6 +450,10 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
                         .round(Math.ceil((topManSinclair - a.getSinclairForDelta()) / a.getSinclairFactor()));
             }
             getAthleteJson(a, ja, curGender, needed);
+            String team = a.getTeam();
+            if (team != null && team.length() > Competition.SHORT_TEAM_LENGTH) {
+                setWide(true);
+            }
             jath.set(athx, ja);
             athx++;
         }
@@ -458,17 +483,17 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.LiftingOrderModel> 
         logger.debug("sortedWomen = {} -- {}", getSortedWomen(), LoggerUtils.whereFrom());
     }
 
-    private void updateBottom(LiftingOrderModel model) {
+    private void updateBottom(TopSinclairModel model) {
         getModel().setFullName(getTranslation("Scoreboard.TopSinclair"));
         List<Athlete> sortedMen2 = getSortedMen();
         logger.debug("updateBottom {}", sortedMen2);
         this.getElement().setProperty("topSinclairMen",
                 sortedMen2 != null && sortedMen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairMen") : "");
-        this.getElement().setPropertyJson("sortedMen", getAthletesJson(sortedMen2));
+        this.getElement().setPropertyJson("sortedMen", getAthletesJson(sortedMen2, true));
         List<Athlete> sortedWomen2 = getSortedWomen();
         this.getElement().setProperty("topSinclairWomen",
                 sortedWomen2 != null && sortedWomen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairWomen") : "");
-        this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2));
+        this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2, false));
     }
 
 }

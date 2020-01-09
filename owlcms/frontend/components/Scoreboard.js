@@ -20,26 +20,6 @@ class Scoreboard extends PolymerElement {
 	  --category-width: 6ch;
 }
 
-///* header cells for rank in the main table, reduced wide screen */
-//@media screen and (min-width: 1921px) {
-//	:root {
-//	  --fontSizeRank-height: 0.95em;
-//	  --fontSizeRows-height: 1.15em;
-//	}
-//	.wideTeams {
-//	  --name-width: 40vh;
-//	  --name-max-width: 35vh;
-//	  --club-width: 40vh;
-//	  --club-max-width: 35vh;
-//	}
-//	.narrowTeams {
-//      --name-width: 75vh;
-//	  --name-max-width: 72vh;
-//	  --club-width: 20vh;
-//	  --club-max-width: 10vh;
-//	}
-//}
-
 /* header cells for rank in the main table, wide screen */
 @media screen and (max-width: 1920px) {
 	:root {  

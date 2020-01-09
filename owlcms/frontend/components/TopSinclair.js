@@ -10,42 +10,190 @@ class TopSinclair extends PolymerElement {
 	box-sizing: border-box;
 }
 
+/* shared default sizes */
 :root {
-  --medium-width: 8%;
-  --narrow-width: 6%;
-  --category-width: 8%;
-  --name-width: 23%;
-  --veryNarrow-width: 4%;
-  --team-width: 15%;
-
+	--narrow-width: 4.5vw;
+	--max-narrow-width: 5ch;
+	--veryNarrow-width: 4vw;
+	--max-veryNarrow-width: 4ch;
+	--medium-width: 6.5vw;
+	--max-medium-width: 7ch;
+	--category-width: 8ch;
+	--max-category-width: 100%;
 }
 
-/* header cells for rank in the main table, wide screen */
+/* wide screen */
 @media screen and (min-width: 1401px) {
-	:root {
-	  --fontSizeRank-height: 0.95em;
-	  --fontSizeRows-height: 1.15em;
+	.wideTeams {
+		--fontSizeRank-height: 1.1em;
+		--fontSizeRows-height: 1.1em;
+		--narrow-width: 5vw;
+		--max-narrow-width: 100%;
+		--veryNarrow-width: 4vw;
+		--max-veryNarrow-width: 100%;
+		--medium-width: 5.5vw;
+		--max-medium-width: 100%;
+		--needed-width: 8vw;
+		--max-needed-width: 100%;
+		--name-width: 20vw;
+		--name-max-width: 100%;
+		--club-width: 20vw;
+		--club-max-width: 100%;
+		--rank-width: 5ch;
+	}
+	.narrowTeams {
+		--fontSizeRank-height: 1.1em;
+		--fontSizeRows-height: 1.2em;
+		--narrow-width: 6vw;
+		--max-narrow-width: 100%;
+		--veryNarrow-width: 6vw;
+		--max-veryNarrow-width: 100%;
+		--medium-width: 8vw;
+		--max-medium-width: 100%;
+		--needed-width: 8vw;
+		--max-needed-width: 100%;
+		--name-width: 20vw;
+		--name-max-width: 100%;
+		--club-width: 8vw;
+		--club-max-width: 8ch;
+		--rank-width: 5ch;
+	}
+	.showThRank {
+		border-collapse: collapse;
+		border: solid 1px DarkGray;
+		border-left-style: none;
+		padding: 0.5vmin 1vmin 0.5vmin 1vmin;
+		font-size: var(--fontSizeRank-height);
+		font-weight: normal;
+		font-style: italic;
+		width: 4vw;
+		text-align: center;
+		font-size: var(--fontSizeRank-height);
+	}
+	.showRank {
+		display: table-cell;
+		font-size: var(--fontSizeRows-height);
+		text-align: center;
+		width: var(--rank-width);
+	}
+	.showRank div {
+		width: var(--rank-width);
+		margin: auto;
+	}
+	th,td {
+		font-size: var(--fontSizeRows-height);
 	}
 }
 
-/* header cells for rank in the main table, 720 screen or 1366 laptop */
-@media screen and (max-width: 1400px) {
-	:root {
+/* 720 screen or 1366 laptop */
+@media screen and (max-width: 1400px) and (min-width: 1025px) {
+	.wideTeams {
+		--fontSizeRank-height: 0.90em;
+		--fontSizeRows-height: 0.90em;
+		--narrow-width: 5vw;
+		--max-narrow-width: 100%;
+		--veryNarrow-width: 4vw;
+		--max-veryNarrow-width: 100%;
+		--medium-width: 5.5vw;
+		--max-medium-width: 100%;
+		--needed-width: 8vw;
+		--max-needed-width: 100%;
+		--name-width: 20vw;
+		--name-max-width: 100%;
+		--club-width: 20vw;
+		--club-max-width: 100%;
+		--rank-width: 5ch;
+	}
+	.narrowTeams {
+		--fontSizeRank-height: 1.1em;
+		--fontSizeRows-height: 1.2em;
+		--narrow-width: 6vw;
+		--max-narrow-width: 100%;
+		--veryNarrow-width: 6vw;
+		--max-veryNarrow-width: 100%;
+		--medium-width: 9vw;
+		--max-medium-width: 100%;
+		--needed-width: 8vw;
+		--max-needed-width: 100%;
+		--name-width: 20vw;
+		--name-max-width: 100%;
+		--club-width: 8vw;
+		--club-max-width: 8ch;
+--rank-width: 5ch;
+	}
+	.showThRank {
+		display: none;
+		width: 0px;
+		padding: 0 0 0 0;
+		margin: 0 0 0 0;
+		font-size: var(--fontSizeRank-height);
+	}
+	.showRank {
+		display: none;
+		width: 0px;
+		padding: 0 0 0 0;
+		margin: 0 0 0 0;
+		font-size: var(--fontSizeRows-height);
+	}
+	th,td {
+		font-size: var(--fontSizeRows-height);
+	}
+}
+
+/* 1024 projector */
+@media screen and (max-width: 1024px) {
+	.wideTeams {
+		--fontSizeRank-height: 0.75em;
+		--fontSizeRows-height: 0.75em;
+		--narrow-width: 5vw;
+		--max-narrow-width: 100%;
+		--veryNarrow-width: 4vw;
+		--max-veryNarrow-width: 100%;
+		--medium-width: 6vw;
+		--max-medium-width: 100%;
+		--needed-width: 8vw;
+		--max-needed-width: 100%;
+		--name-width: 16vw;
+		--name-max-width: 100%;
+		--club-width: 16vw;
+		--club-max-width: 100%;
+		--rank-width: 5ch;
+	}
+	.narrowTeams {
 	  --fontSizeRank-height: 0.8em;
 	  --fontSizeRows-height: 0.9em;
+	  --narrow-width: 6vw;
+	  --max-narrow-width: 100%;
+	  --veryNarrow-width: 6vw;
+	  --max-veryNarrow-width: 100%;
+	  --medium-width: 8vw;
+	  --max-medium-width: 100%;
+	  --needed-width: 8vw;
+	  --max-needed-width: 100%;
+      --name-width: 20vw;
+	  --name-max-width: 100%;
+	  --club-width: 8vw;
+	  --club-max-width: 8ch;
+	  --rank-width: 5ch;
 	}
-}
-
-/* header cells for rank in the main table, 1024 projector */
-@media screen and (max-width: 1024px) {
-	:root {
-	  --narrow-width: 7%;
-	  --veryNarrow-width: 5%;
-	  --medium-width: 9%;
-	  --category-width: 7%;
-	  --team-width: 10%;
-	  --fontSizeRank-height: 0.7em;
-	  --fontSizeRows-height: 0.8em;
+	/* hide the snatch and cj ranks, no room */
+	.showThRank {
+		display: none;
+		width: 0px;
+		padding: 0 0 0 0;
+		margin: 0 0 0 0;
+		font-size: var(--fontSizeRank-height);
+	}
+	/* hide the snatch and cj ranks, no room */
+	.showRank {
+		display: none;
+		width: 0px;
+		padding: 0 0 0 0;
+		margin: 0 0 0 0;
+		font-size: var(--fontSizeRows-height);
+	}
+	th,td {
+		font-size: var(--fontSizeRows-height);
 	}
 }
 
@@ -53,9 +201,25 @@ class TopSinclair extends PolymerElement {
 	font-family: Arial, Helvetica, sans-serif;
 	color: white;
 	background-color: black;
-	height: 100vh;
+	min-height: 100vh;
 	padding: 2vmin 2vmin 2vmin 2vmin;
-	overflow-y: hidden;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: no-wrap;
+	justify-content: flex-start;
+}
+
+#results {
+	flex: 1 0 auto;
+}
+
+#leaders {
+	flex: 0 0 auto;
+	width: 100%;
+	min-height: 0;
+	align-self: flex-end;
+	background-color: blue;
 }
 
 .attemptBar {
@@ -94,8 +258,6 @@ class TopSinclair extends PolymerElement {
 	font-weight: bold;
 	flex: 0 0 35%;
 	text-align: left;
-/* 	margin-left: 1em; */
-	/*margin-right: auto;*/
 	flex-grow: 0.5;
 }
 
@@ -166,36 +328,40 @@ th, td {
 }
 
 .name {
-  width: var(--name-width);
+	width: var(--name-width);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.name div {
+	max-width: calc(var(--name-max-width));
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.club {
+	width: var(--club-width);
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.club div {
+	max-width: var(--club-max-width);
+	text-align: center;
+	margin: auto;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ellipsis {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-/* header cells for rank in the main table, wide screen */
-@media screen and (min-width: 1401px) {
-	.showThRank {
-		border-collapse: collapse;
-		border: solid 1px DarkGray;
-		border-left-style: none;
-		padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-		font-weight: normal;
-		font-style: italic;
-		width: 4vw;
-		text-align: center;
-		font-size: var(--fontSizeRank-height);
-	}
-}
-
-/* header cells for rank in the main table, XGA projector */
-@media screen and (max-width: 1400px) {
-	.showThRank {
-		display: none;
-		width: 0px;
-		padding: 0 0 0 0;
-		margin: 0 0 0 0;
-		font-size: var(--fontSizeRank-height);
-	}
 }
 
 .thRank {
@@ -205,60 +371,73 @@ th, td {
 	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
 	font-weight: normal;
 	font-style: italic;
-	width: var(--veryNarrow-width);
+	width: var(--rank-width);
 	text-align: center;
+	font-size: var(--fontSizeRank-height);
+}
+.thRank div{
+	width: var(--rank-width);
+	margin: auto;
 }
 
 .narrow {
 	width: var(--narrow-width);
 	text-align: center;
 }
-
-/* rank cells in the main table, wide screen */
-@media screen and (min-width: 1401px) {
-	.showRank {
-		display: table-cell;
-		width: var(--veryNarrow-width);
-		text-align: center;
-	}
-}
-
-/* rank cells in the main table, XGA projector */
-@media screen and (max-width: 1400px) {
-	.showRank {
-		display: none;
-		width: 0px;
-		padding: 0 0 0 0;
-		margin: 0 0 0 0;
-	}
+.narrow div {
+	width: var(--max-narrow-width);
+	text-align: center;
+	margin: auto;
 }
 
 .veryNarrow {
 	width: var(--veryNarrow-width);
 	text-align: center;
 }
-
-.category {
-	width: var(--category-width);
+.veryNarrow div {
+	width: var(--max-veryNarrow-width);
 	text-align: center;
+	margin: auto;
 }
 
 .medium {
 	width: var(--medium-width);
+}
+.medium div {
+	width: var(--max-medium-width);
 	text-align: center;
+	margin: auto;
 }
 
-.club {
+.needed {
+	width: var(--needed-width);
+}
+.needed div {
+	width: var(--max-needed-width);
 	text-align: center;
+	margin: auto;
+}
+
+.groupCol {
+	width: var(--group-width);
 	white-space: nowrap;
-	width: var(--team-width);
-	overflow: hidden;
-	text-overflow: ellipsis;
+	text-align: center;
+	font-size: var(--fontSizeRank-height)
+}
+.groupCol div {
+	width: var(--group-width);
+	display: inline-block;
 }
 
-.narrow {
-	width: var(--narrow-width);
+.category {
+	width: var(--category-width);
+	white-space: nowrap;
 	text-align: center;
+}
+
+.category div {
+	width: var(--category-width);
+	display: inline-block;
 }
 
 :host(.dark) .good {
@@ -320,8 +499,13 @@ th, td {
 	animation: blink 1.5s step-start 0s infinite;
 	-webkit-animation: blink 1.5s step-start 0s infinite;
 }
-@keyframes blink { 50% {opacity: 0.0;}}
-@-webkit-keyframes blink { 50% {opacity: 0.0;}}
+@keyframes blink {
+ 50% {opacity: 0.0;}
+}
+@-webkit-keyframes blink {
+ 50% {opacity: 0.0;}
+}
+
 
 :host(.dark) .next {
 	color: orange;
@@ -356,6 +540,14 @@ th, td {
 	display: none;
 }
 
+
+table#leaders-table thead tr.hide {
+	visibility: hidden; height:1px; line-height: 1px; font-size:1px;
+}
+table#leaders-table thead tr.hide th {
+	visibility: hidden; height:1px; line-height: 1px; font-size:1px; padding:0;
+}
+
 .sinclair {
 	font-weight: bold;
 }
@@ -364,7 +556,7 @@ h2 {
   font-size: 3.0vh;
 }
 </style>
-<div class="wrapper" id="resultBoardDiv">
+<div class$="wrapper [[_computeTeamWidth(wideTeamNames)]]" id="resultBoardDiv">
 	<template is="dom-if" if="[[topSinclairWomen]]">
 		<h2 class="fullName" id="fullNameDiv" inner-h-t-m-l="[[topSinclairWomen]]"></h2>
 		<table class="results" id="orderDiv" style$="">
@@ -376,28 +568,30 @@ h2 {
 					<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-					<th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
-					<th class="narrow" inner-h-t-m-l="[[t.BodyWeight]]"></th>
-					<th class="narrow" inner-h-t-m-l="[[t.Sinclair]]"></th>
-					<th class="medium" inner-h-t-m-l="[[t.Needed]]"></th>
+					<th class="narrow"  inner-h-t-m-l="[[t.Total]]"></th>
+					<th class="medium" inner-h-t-m-l="[[t.BodyWeight]]"></th>
+					<th class="medium sinclair" inner-h-t-m-l="[[t.Sinclair]]"></th>
+					<th class="needed" inner-h-t-m-l="[[t.Needed]]"></th>
 				</tr>
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedWomen]]" as="l">
 				<tr>
-					<td class="name">[[l.fullName]]</td>
+					<td class$="name [[l.classname]]">
+						<div>[[l.fullName]]</div>
+					</td>
 					<td class="category">[[l.category]]</td>
-					<td class="veryNarrow">[[l.yearOfBirth]]</td>
-					<td class="club">[[l.teamName]]</td>
+					<td class="veryNarrow"><div>[[l.yearOfBirth]]</div></td>
+					<td class="club"><div>[[l.teamName]]</div></td>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</td>
+						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 					</template>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</td>
+						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 					</template>
-					<td class="narrow">[[l.total]]</td>
-					<td class="narrow">[[l.bw]]</td>
-					<td class="narrow sinclair">[[l.sinclair]]</td>
-					<td class="medium">[[l.needed]]</td>
+					<td class="narrow"><div>[[l.total]]</div></td>	
+					<td class="medium"><div>[[l.bw]]</div></td>
+					<td class="medium sinclair"><div>[[l.sinclair]]</div></td>
+					<td class="needed"><div>[[l.needed]]</div></td>
 				</tr>
 			</template>
 		</table>
@@ -415,27 +609,29 @@ h2 {
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
 					<th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
-					<th class="narrow" inner-h-t-m-l="[[t.BodyWeight]]"></th>
-					<th class="narrow" inner-h-t-m-l="[[t.Sinclair]]"></th>
-					<th class="medium" inner-h-t-m-l="[[t.Needed]]"></th>
+					<th class="medium" inner-h-t-m-l="[[t.BodyWeight]]"></th>
+					<th class="medium sinclair" inner-h-t-m-l="[[t.Sinclair]]"></th>
+					<th class="needed" inner-h-t-m-l="[[t.Needed]]"></th>
 				</tr>
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedMen]]" as="l">
 				<tr>
-					<td class="name">[[l.fullName]]</td>
+					<td class$="name [[l.classname]]">
+						<div>[[l.fullName]]</div>
+					</td>
 					<td class="category">[[l.category]]</td>
-					<td class="veryNarrow">[[l.yearOfBirth]]</td>
-					<td class="club">[[l.teamName]]</td>
+					<td class="veryNarrow"><div>[[l.yearOfBirth]]</div></td>
+					<td class="club"><div>[[l.teamName]]</div></td>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</td>
+						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 					</template>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</td>
+						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 					</template>
-					<td class="narrow">[[l.total]]</td>
-					<td class="narrow">[[l.bw]]</td>
-					<td class="narrow sinclair">[[l.sinclair]]</td>
-					<td class="medium">[[l.needed]]</td>
+					<td class="narrow"><div>[[l.total]]</div></td>	
+					<td class="medium"><div>[[l.bw]]</div></td>
+					<td class="medium sinclair"><div>[[l.sinclair]]</div></td>
+					<td class="needed"><div>[[l.needed]]</div></td>
 				</tr>
 			</template>
 		</table>
@@ -483,8 +679,8 @@ h2 {
 		this.$.resultBoardDiv.style.display="none";
 	}
 
-	_computeHidden(hidden) {
-		return hidden ? 'display:none' : 'display:block';
+	_computeTeamWidth(w) {
+		return w ? 'wideTeams' : 'narrowTeams';
 	}
 
 }
