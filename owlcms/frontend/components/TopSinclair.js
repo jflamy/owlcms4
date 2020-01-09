@@ -42,21 +42,21 @@ class TopSinclair extends PolymerElement {
 		--rank-width: 5ch;
 	}
 	.narrowTeams {
-	  --fontSizeRank-height: 1.1em;
-	  --fontSizeRows-height: 1.5em;
-	  --narrow-width: 6vw;
-	  --max-narrow-width: 100%;
-	  --veryNarrow-width: 6vw;
-	  --max-veryNarrow-width: 100%;
-	  --medium-width: 8vw;
-	  --max-medium-width: 100%;
-	  --needed-width: 8vw;
-	  --max-needed-width: 100%;
-      --name-width: 20vw;
-	  --name-max-width: 100%;
-	  --club-width: 8vw;
-	  --club-max-width: 8ch;
-	  --rank-width: 5ch;
+		--fontSizeRank-height: 1.1em;
+		--fontSizeRows-height: 1.2em;
+		--narrow-width: 6vw;
+		--max-narrow-width: 100%;
+		--veryNarrow-width: 6vw;
+		--max-veryNarrow-width: 100%;
+		--medium-width: 8vw;
+		--max-medium-width: 100%;
+		--needed-width: 8vw;
+		--max-needed-width: 100%;
+		--name-width: 20vw;
+		--name-max-width: 100%;
+		--club-width: 8vw;
+		--club-max-width: 8ch;
+		--rank-width: 5ch;
 	}
 	.showThRank {
 		border-collapse: collapse;
@@ -105,21 +105,21 @@ class TopSinclair extends PolymerElement {
 		--rank-width: 5ch;
 	}
 	.narrowTeams {
-	  --fontSizeRank-height: 1.0em;
-	  --fontSizeRows-height: 1.0em;
-	  --narrow-width: 6vw;
-	  --max-narrow-width: 100%;
-	  --veryNarrow-width: 6vw;
-	  --max-veryNarrow-width: 100%;
-	  --medium-width: 9vw;
-	  --max-medium-width: 100%;
-	  --needed-width: 8vw;
-	  --max-needed-width: 100%;
-      --name-width: 20vw;
-	  --name-max-width: 100%;
-	  --club-width: 8vw;
-	  --club-max-width: 8ch;
-	  --rank-width: 5ch;
+		--fontSizeRank-height: 1.1em;
+		--fontSizeRows-height: 1.2em;
+		--narrow-width: 6vw;
+		--max-narrow-width: 100%;
+		--veryNarrow-width: 6vw;
+		--max-veryNarrow-width: 100%;
+		--medium-width: 9vw;
+		--max-medium-width: 100%;
+		--needed-width: 8vw;
+		--max-needed-width: 100%;
+		--name-width: 20vw;
+		--name-max-width: 100%;
+		--club-width: 8vw;
+		--club-max-width: 8ch;
+--rank-width: 5ch;
 	}
 	.showThRank {
 		display: none;
@@ -576,7 +576,7 @@ h2 {
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedWomen]]" as="l">
 				<tr>
-					<td class="name [[l.classname]]">
+					<td class$="name [[l.classname]]">
 						<div>[[l.fullName]]</div>
 					</td>
 					<td class="category">[[l.category]]</td>
