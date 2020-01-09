@@ -39,6 +39,7 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.DarkModeParameters;
 import app.owlcms.displays.attemptboard.BreakDisplay;
@@ -589,7 +590,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             }
             getAthleteJson(a, ja, curCat);
             String team = a.getTeam();
-            if (team != null && team.length() > 5) {
+            if (team != null && team.length() > Competition.SHORT_TEAM_LENGTH) {
                 getModel().setWideTeamNames(true);
             }
             jath.set(athx, ja);

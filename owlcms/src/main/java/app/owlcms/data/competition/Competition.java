@@ -46,10 +46,9 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 @Entity
 public class Competition {
-    public static final String DEFAULT_PROTOCOL_NAME = "Protocol_en.xls";
-    public static final String DEFAULT_PACKAGE_NAME = "Total_en.xls";
 
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
+    public static final int SHORT_TEAM_LENGTH = 6;
 
     private static Competition competition;
 

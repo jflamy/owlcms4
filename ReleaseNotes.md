@@ -1,12 +1,10 @@
 
 
-Version 4.3.1 is a *new* release that introduces a *much* cleaner way to manage age groups and categories. *[Click here to read the documentation](https://jflamy.github.io/owlcms4/#/Categories)* 
-
-The previous  4.2.11 release is still available [below](https://github.com/jflamy/owlcms4/releases/tag/4.2.11) but you should certainly consider using this newer release if you have a little time to test beforehand to make yourself comfortable.
+Version 4.3 is the new official owlcms4 and all development work builds on 4.3.   This new branch introduces an improved way to manage age groups and categories. *[Click here to read the documentation](https://jflamy.github.io/owlcms4/#/Categories)* .
 
 * Release Highlights for release 4.3.1: 
-  - [x] Enhancement: Scoreboard with leaderboard. A new scoreboard is available that shows the top 3 athletes for the current category at the bottom.  This is mostly useful when a competition has multiple groups for the same category. (#241)
-  - [x] Enhancement: better handling of very long names (... ellipsis done automatically) for athletes and for teams.  A narrow column is used for teams if all the teams in a group have short names (such is country codes or team codes).  If you have extremely long names, you may try using the zoom function of the browser to go to 90% and fit the name. (#266)
+  - [x] Enhancement: Scoreboard with *leaderboard*. A new scoreboard is available that also shows the top 3 athletes for the current category at the bottom.  This is useful for large competitions that have multiple groups for the same category. (#241)
+  - [x] Enhancement: better handling of very long names for athletes and for teams.  A narrow column is used for teams if all the teams in a group have short names (such is country codes or team codes). If the names of teams are long, the system will switch to using a wider column, and abbreviate ("...") automatically names that exceed the available width. If you have extremely long names, you may try using the zoom function of the browser to go down to 90%, this often allows the browser to fit the name. (#266)
   - [X] Enhancement: It is now possible for the translator to select the style in which the heavyweight category is shown for a given locale (>109 vs 109+ or some other convention) (#263)
 
 
