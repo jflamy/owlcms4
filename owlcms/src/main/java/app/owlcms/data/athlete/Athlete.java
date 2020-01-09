@@ -27,7 +27,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
-import javax.persistence.Version;
 
 import org.slf4j.LoggerFactory;
 
@@ -229,9 +228,9 @@ public class Athlete {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    /** used internally by JPA */
-    @Version
-    private Long version;
+//    /** used internally by JPA */
+//    @Version
+//    private Long version;
 
     private Integer lotNumber = null;
 

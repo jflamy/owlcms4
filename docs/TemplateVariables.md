@@ -58,7 +58,7 @@
 | firstAttemptedLiftTime         |                                                              |
 | firstName                      |                                                              |
 | forcedAsCurrent                | not relevant for reports                                     |
-| formattedBirth                 | should be used for Excel if you need the full birth date and you have not checked "use the year of birth only" |
+| formattedBirth                 | should be used for Excel if you need the full birth date (as on a starting/registration list) -- use yearOfBirth if dealing with a narrow column and where the full birth date is not essential. |
 | fullBirthDate                  | see formattedBirth                                           |
 | fullId                         | full identification of the athlete with start number and category, as a single string |
 | fullName                       | lastname, firstname as a single string                       |
@@ -128,6 +128,6 @@
 | total                          |                                                              |
 | totalPoints                    |                                                              |
 | totalRank                      |                                                              |
-| yearOfBirth                    |                                                              |
+| yearOfBirth                    | 4-digit year of birth                                        |
 | isEligibleForIndividualRanking | false if athlete is competing out-of-competition (as invited lifter from another state in a state championship, for example) |
 | isEligibleForTeamRanking       | unused so far                                                |

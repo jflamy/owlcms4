@@ -217,7 +217,7 @@ Jury4,Jury 4,Jury 4,,,Jury 4,Жюри 4,Jury 4,Jury 4,Jury 4,Jury 4
 Jury5,Jury 5,Jury 5,,,Jury 5,Жюри 5,Jury 5,Jury 5,Jury 5,júri 5
 JuryDecisions,Jury Decisions,Décisions du jury,,,Jury Afgørelse,Решение жюри,Jury Beslut,Jury Entscheidung,Decisiones del jurado,As decisões do júri
 Kg,"{0,number,#.#}kg","{0,number,#.#}kg",,,"{0,number,#.#}kg","{0,number,#.#} кг","{0,nummer,#.#}kg","{0,number,#.#}kg","{0,number,#.#}kg","{0, number, #. #} Kg"
-KgSymbol,kg,kg,,,kg,\u0020кг,kg,Kg,kg,kg
+KgSymbol,kg,kg,,,kg,\u00a0кг,kg,Kg,kg,kg
 LastName,Last Name,Nom,,,Efternavn,Фамилия,Efternamn,Nachname,Apellido,Último nome
 LeftMenuNavigate,Use the menu at the left to navigate to the various screens:<ul>,Utilisez le menu à gauche pour naviguer,,,Brug menuen til venstre for at navigere til de forskellige skærme:<ul>,Используйте меню слева для навигации:<ul>,Använd menyn till vänster för att navigera till de olika skärmarna:<ul>,Benutze das Menü auf der linken Seite für die verschiedenen Anzeigen:<ul>,Use the menu at the left to navigate to the various screens:<ul>,Use o menu à esquerda para navegar para as várias telas: <ul>
 LicenseUsed,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Ce logiciel est disponible selon les termes de la licence <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,,,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Это программное обеспечение доступно под лицензией <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Diese Software wird bereitgestellt unter der <a href='https://opensource.org/licenses/NPOSL-3.0'>Gemeinnützigen offenen Softwarelizenz 3.0</a>.,This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.,Este software é disponibilizado sob a <a href='https://opensource.org/licenses/NPOSL-3.0'> Non-Profit Open Software License 3.0 </a>.
@@ -304,7 +304,7 @@ Scoreboard.BodyWeight,B.W.,Poids,,,Vægt,С.В.,B.W.,Kgw.,B.W.,B. W.
 Scoreboard.Category,Cat.,Cat.,Cat.,,Vægtklasse,Кат.,Klass,Gwkl.,Cat.,Gato.
 Scoreboard.Clean_and_Jerk,Clean&amp;Jerk,Épaulé-jeté,Épaulé-jeté<div class='english'>Clean&amp;Jerk</div>,,Stød,Толчок,Stöt,Stossen,Stød,Clean & amp; Jerk
 Scoreboard.GroupLiftType,Group {0} {1},Groupe {0} {1},,,Gruppe {0} {1},Поток {0}. {1},Grupp{0} {1},Gruppe {0} {1},Group {0} {1},Grupo {0} {1}
-Scoreboard.KgSymbol,kg,kg,,,kg,\u0020кг,kg,kg,kg,kg
+Scoreboard.KgSymbol,kg,kg,,,kg,\u00a0кг,kg,kg,kg,kg
 Scoreboard.LiftingOrder,Lifting Order,Ordre de passage,,,Rækkefølge,Очередность выполнения попыток,Lyftordning,Reihenfolge,Orden en competencia,Lifting Order
 Scoreboard.Name,Name,Nom,Nom<div class='english'>Name</div>,,Navn,"Фамилия, Имя",Namn,Name,Nombre,Nome
 Scoreboard.Needed,Kg Needed,Kg Requis,,,Kg fra 1. plads,Кг Необходимо,Kg behövs,Kg wird benötigt,Kg Needed,kg Needed
