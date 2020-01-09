@@ -12,14 +12,14 @@ class TopSinclair extends PolymerElement {
 
 /* shared default sizes */
 :root {
-	  --narrow-width: 4.5vw;
-	  --max-narrow-width: 5ch;
-	  --veryNarrow-width: 4vw;
-	  --max-veryNarrow-width: 4ch;
-	  --medium-width: 6.5vw;
-	  --max-medium-width: 7ch;
-	  --category-width: 6.5vw;
-	  --max-category-width: 7ch;
+	--narrow-width: 4.5vw;
+	--max-narrow-width: 5ch;
+	--veryNarrow-width: 4vw;
+	--max-veryNarrow-width: 4ch;
+	--medium-width: 6.5vw;
+	--max-medium-width: 7ch;
+	--category-width: 8ch;
+	--max-category-width: 100%;
 }
 
 /* wide screen */
@@ -40,8 +40,6 @@ class TopSinclair extends PolymerElement {
 		--club-width: 20vw;
 		--club-max-width: 100%;
 		--rank-width: 5ch;
-		--category-width: 4vw;
-		--max-category-width: 7ch;
 	}
 	.narrowTeams {
 	  --fontSizeRank-height: 1.1em;
@@ -105,8 +103,6 @@ class TopSinclair extends PolymerElement {
 		--club-width: 20vw;
 		--club-max-width: 100%;
 		--rank-width: 5ch;
-		--category-width: 4vw;
-		--max-category-width: 7ch;
 	}
 	.narrowTeams {
 	  --fontSizeRank-height: 1.0em;
@@ -162,8 +158,6 @@ class TopSinclair extends PolymerElement {
 		--club-width: 16vw;
 		--club-max-width: 100%;
 		--rank-width: 5ch;
-		--category-width: 4vw;
-		--max-category-width: 7ch;
 	}
 	.narrowTeams {
 	  --fontSizeRank-height: 0.8em;
@@ -568,36 +562,36 @@ h2 {
 		<table class="results" id="orderDiv" style$="">
 			<thead>
 				<tr>
-					<th class$="name [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Name]]"></th>
+					<th class="name" inner-h-t-m-l="[[t.Name]]"></th>
 					<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
-					<th class$="veryNarrow [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Birth]]"></th>
-					<th class$="club [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Team]]"></th>
+					<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
+					<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-					<th class$="narrow [[_computeTeamWidth(wideTeamNames)]]"  inner-h-t-m-l="[[t.Total]]"></th>
-					<th class$="medium [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.BodyWeight]]"></th>
-					<th class$="medium sinclair [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Sinclair]]"></th>
-					<th class$="needed [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Needed]]"></th>
+					<th class="narrow"  inner-h-t-m-l="[[t.Total]]"></th>
+					<th class="medium" inner-h-t-m-l="[[t.BodyWeight]]"></th>
+					<th class="medium sinclair" inner-h-t-m-l="[[t.Sinclair]]"></th>
+					<th class="needed" inner-h-t-m-l="[[t.Needed]]"></th>
 				</tr>
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedWomen]]" as="l">
 				<tr>
-					<td class$="name [[_computeTeamWidth(wideTeamNames)]] [[l.classname]]">
+					<td class="name [[l.classname]]">
 						<div>[[l.fullName]]</div>
 					</td>
 					<td class="category">[[l.category]]</td>
-					<td class$="veryNarrow [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.yearOfBirth]]</div></td>
-					<td class$="club [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.teamName]]</div></td>
+					<td class="veryNarrow"><div>[[l.yearOfBirth]]</div></td>
+					<td class="club"><div>[[l.teamName]]</div></td>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 					</template>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
 						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 					</template>
-					<td class$="narrow [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.total]]</div></td>	
-					<td class$="medium [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.bw]]</div></td>
-					<td class$="medium sinclair [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.sinclair]]</div></td>
-					<td class$="needed [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.needed]]</div></td>
+					<td class="narrow"><div>[[l.total]]</div></td>	
+					<td class="medium"><div>[[l.bw]]</div></td>
+					<td class="medium sinclair"><div>[[l.sinclair]]</div></td>
+					<td class="needed"><div>[[l.needed]]</div></td>
 				</tr>
 			</template>
 		</table>
@@ -608,36 +602,36 @@ h2 {
 		<table class="results" id="orderDiv" style$="">
 			<thead>
 				<tr>
-					<th class$="name [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Name]]"></th>
+					<th class="name" inner-h-t-m-l="[[t.Name]]"></th>
 					<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
-					<th class$="veryNarrow [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Birth]]"></th>
-					<th class$="club [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Team]]"></th>
+					<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
+					<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-					<th class$="narrow [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Total]]"></th>
-					<th class$="medium [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.BodyWeight]]"></th>
-					<th class$="medium sinclair [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Sinclair]]"></th>
-					<th class$="needed [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Needed]]"></th>
+					<th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
+					<th class="medium" inner-h-t-m-l="[[t.BodyWeight]]"></th>
+					<th class="medium sinclair" inner-h-t-m-l="[[t.Sinclair]]"></th>
+					<th class="needed" inner-h-t-m-l="[[t.Needed]]"></th>
 				</tr>
 			</thead>
 			<template is="dom-repeat" id="result-table" items="[[sortedMen]]" as="l">
 				<tr>
-					<td class$="name [[_computeTeamWidth(wideTeamNames)]] [[l.classname]]">
+					<td class$="name [[l.classname]]">
 						<div>[[l.fullName]]</div>
 					</td>
 					<td class="category">[[l.category]]</td>
-					<td class$="veryNarrow [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.yearOfBirth]]</div></td>
-					<td class$="club [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.teamName]]</div></td>
+					<td class="veryNarrow"><div>[[l.yearOfBirth]]</div></td>
+					<td class="club"><div>[[l.teamName]]</div></td>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 					</template>
 					<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
 						<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 					</template>
-					<td class$="narrow [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.total]]</div></td>	
-					<td class$="medium [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.bw]]</div></td>
-					<td class$="medium sinclair [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.sinclair]]</div></td>
-					<td class$="needed [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.needed]]</div></td>
+					<td class="narrow"><div>[[l.total]]</div></td>	
+					<td class="medium"><div>[[l.bw]]</div></td>
+					<td class="medium sinclair"><div>[[l.sinclair]]</div></td>
+					<td class="needed"><div>[[l.needed]]</div></td>
 				</tr>
 			</template>
 		</table>
