@@ -173,16 +173,6 @@ public class XAthlete extends Athlete {
         return liftNo + 1;
     }
 
-    /**
-     * @return
-     * @deprecated
-     * @see app.owlcms.data.athlete.Athlete#getBirthDate()
-     */
-    @Deprecated
-    @Override
-    public Integer getBirthDate() {
-        return a.getBirthDate();
-    }
 
     /**
      * @return
@@ -793,11 +783,11 @@ public class XAthlete extends Athlete {
 
     /**
      * @return
-     * @see app.owlcms.data.athlete.Athlete#getShortCategory()
+     * @see app.owlcms.data.athlete.Athlete#getBWCategory()
      */
     @Override
-    public String getShortCategory() {
-        return a.getShortCategory();
+    public String getBWCategory() {
+        return a.getBWCategory();
     }
 
     /**
@@ -1127,15 +1117,6 @@ public class XAthlete extends Athlete {
 
     /**
      * @return
-     * @see app.owlcms.data.athlete.Athlete#getTeamMember()
-     */
-    @Override
-    public Boolean getTeamMember() {
-        return a.getTeamMember();
-    }
-
-    /**
-     * @return
      * @see app.owlcms.data.athlete.Athlete#getTeamRobiRank()
      */
     @Override
@@ -1199,15 +1180,6 @@ public class XAthlete extends Athlete {
 
     /**
      * @return
-     * @see app.owlcms.data.athlete.Athlete#getVersion()
-     */
-    @Override
-    public Long getVersion() {
-        return a.getVersion();
-    }
-
-    /**
-     * @return
      * @see app.owlcms.data.athlete.Athlete#getYearOfBirth()
      */
     @Override
@@ -1222,15 +1194,6 @@ public class XAthlete extends Athlete {
     @Override
     public int hashCode() {
         return a.hashCode();
-    }
-
-    /**
-     * @return
-     * @see app.owlcms.data.athlete.Athlete#isATeamMember()
-     */
-    @Override
-    public boolean isATeamMember() {
-        return a.isATeamMember();
     }
 
     /**
@@ -1259,15 +1222,6 @@ public class XAthlete extends Athlete {
     @Override
     public boolean isForcedAsCurrent() {
         return a.isForcedAsCurrent();
-    }
-
-    /**
-     * @return
-     * @see app.owlcms.data.athlete.Athlete#isInvited()
-     */
-    @Override
-    public boolean isInvited() {
-        return a.isInvited();
     }
 
     @Override
@@ -1320,16 +1274,6 @@ public class XAthlete extends Athlete {
         a.setBestSnatch(i);
     }
 
-    /**
-     * @param birthYear
-     * @deprecated
-     * @see app.owlcms.data.athlete.Athlete#setBirthDate(java.lang.Integer)
-     */
-    @Deprecated
-    @Override
-    public void setBirthDate(Integer birthYear) {
-        a.setBirthDate(birthYear);
-    }
 
     /**
      * @param bodyWeight

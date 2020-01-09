@@ -27,7 +27,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
-import javax.persistence.Version;
 
 import org.slf4j.LoggerFactory;
 
@@ -229,24 +228,15 @@ public class Athlete {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Long version;
+//    /** used internally by JPA */
+//    @Version
+//    private Long version;
 
     private Integer lotNumber = null;
 
     private Integer startNumber = null;
 
     private String firstName = "";
-
-    // This is brute force, but having embedded classes does not bring much
-    // and we don't want joins or other such logic for the Athlete card.
-    // Since the Athlete card is 6 x 4 items, we take the simple route.
-
-    // Note: we use Strings because we need to distinguish actually entered
-    // values (such as 0)
-    // from empty cells. Using Integers or Doubles would work as well, but many
-    // people want to type
-    // "-" or other things in the cells, so Strings are actually easier.
-
     private String lastName = "";
     private String team = "";
     private Gender gender = null; // $NON-NLS-1$
@@ -266,6 +256,12 @@ public class Athlete {
     @JoinColumn(name = "fk_categ", nullable = true)
     private Category category = null;
 
+    /**
+     * Using separate fileds is brute force, but having embedded classes does not bring much and we don't want joins or other such logic
+     * for the Athlete card. Since the Athlete card is 6 x 4 items, we take the simple route.
+     * 
+     * The use of Strings is historical.  It was extremely cumbersome to handle conversions to/from Integer in Vaadin 6 circa 2009
+     */
     private String snatch1Declaration;
     private String snatch1Change1;
     private String snatch1Change2;
@@ -513,6 +509,9 @@ public class Athlete {
         return 20;
     }
 
+    /**
+     * @return age as of current day
+     */
     public Integer getAge() {
         // LocalDate date = Competition.getCurrent().getCompetitionDate();
         LocalDate date = null;
@@ -1120,11 +1119,7 @@ public class Athlete {
      * @return the display category
      */
     public String getDisplayCategory() {
-        if (Competition.getCurrent().isMasters()) {
-            return getShortCategory();
-        } else {
-            return getLongCategory();
-        }
+        return getLongCategory();
     }
 
     /**
@@ -1584,12 +1579,12 @@ public class Athlete {
     }
 
     /**
-     * Create a category acronym without gender.
+     * Athlete's bodyweight category, without gender (examples: 67, >109)
      *
      * @return the short category
      */
-    public String getShortCategory() {
-        logger.warn("getShortCategory {}", this.getFullName());
+    public String getBWCategory() {
+        logger.warn("getBWCategory {}", this.getFullName());
         final Category category = getCategory();
         if (category == null) {
             logger.warn("category null");
@@ -1599,30 +1594,13 @@ public class Athlete {
     }
 
     /**
-     * Create a category acronym without gender.
-     *
-     * Deprecated. Use {@link #getShortCategory()} -- gender is no longer needed.
-     *
-     * @param gender1 the gender 1
-     * @return the short category
+     * @see #getBWCategory()
      */
     @Deprecated
-    public String getShortCategory(String gender1) {
-        return getShortCategory();
+    public String getShortCategory() {
+        return getBWCategory();
     }
 
-    /**
-     * Gets the short registration category.
-     *
-     * Deprecated: we no longer use registration categories
-     *
-     * @param gender1 the gender 1
-     * @return registration category stripped of gender prefix.
-     */
-    @Deprecated
-    public String getShortRegistrationCategory(String gender1) {
-        return getShortCategory();
-    }
 
     /**
      * Compute the Sinclair total for the Athlete, that is, the total multiplied by a value that depends on the
@@ -1656,7 +1634,7 @@ public class Athlete {
      * @return the sinclair factor
      */
     public Double getSinclairFactor() {
-        if (gender == Gender.M) { // $NON-NLS-1$
+        if (gender == Gender.M) {
             return sinclairFactor(this.bodyWeight, SinclairCoefficients.menCoefficient(),
                     SinclairCoefficients.menMaxWeight());
         } else {
@@ -2002,6 +1980,7 @@ public class Athlete {
      *
      * @return the team member
      */
+    @Deprecated
     public Boolean getTeamMember() {
         return isEligibleForTeamRanking();
     }
@@ -2083,16 +2062,6 @@ public class Athlete {
     }
 
     /**
-     * Gets the version.
-     *
-     * @return the version
-     */
-    @Version
-    public Long getVersion() {
-        return version;
-    }
-
-    /**
      * Gets the year of birth.
      *
      * @return the year of birth
@@ -2126,6 +2095,7 @@ public class Athlete {
      *
      * @return true, if is a team member
      */
+    @Deprecated
     public boolean isATeamMember() {
         return isEligibleForTeamRanking();
     }
@@ -2238,9 +2208,11 @@ public class Athlete {
 
     /**
      * Checks if is invited.
-     *
+     * 
+     * @see #isEligibleForIndividualRanking()
      * @return true, if is invited
      */
+    @Deprecated
     public boolean isInvited() {
         return !isEligibleForIndividualRanking();
     }

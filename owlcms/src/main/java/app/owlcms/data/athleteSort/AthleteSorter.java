@@ -81,9 +81,9 @@ public class AthleteSorter implements Serializable {
                 rank = 1;
             }
 
-            if (curLifter.isInvited() || !curLifter.getTeamMember()) {
+            if (!curLifter.isEligibleForIndividualRanking() || !curLifter.isEligibleForTeamRanking()) {
                 logger.trace("not counted {}  {}Rank={} total={} {}", curLifter, rankingType, -1, curLifter.getTotal(),
-                        curLifter.isInvited());
+                        !curLifter.isEligibleForIndividualRanking());
                 setRank(curLifter, -1, rankingType);
                 setPoints(curLifter, 0, rankingType);
             } else {
@@ -142,9 +142,9 @@ public class AthleteSorter implements Serializable {
                 rank = 1;
             }
 
-            if (curLifter.isInvited() || !curLifter.getTeamMember()) {
+            if (!curLifter.isEligibleForIndividualRanking() || !curLifter.isEligibleForTeamRanking()) {
                 logger.trace("invited {}  {}rank={} total={} {}", curLifter, rankingType, -1, curLifter.getTotal(),
-                        curLifter.isInvited());
+                        !curLifter.isEligibleForIndividualRanking());
                 setRank(curLifter, -1, rankingType);
                 setPoints(curLifter, 0, rankingType);
             } else {
@@ -666,7 +666,7 @@ public class AthleteSorter implements Serializable {
                 rank = 1;
             }
 
-            if (curLifter.isInvited() || !curLifter.getTeamMember()) {
+            if (!curLifter.isEligibleForIndividualRanking() || !curLifter.isEligibleForTeamRanking()) {
                 setTeamRank(curLifter, -1, rankingType);
             } else {
                 if (getRankingTotal(curLifter, rankingType) > 0) {

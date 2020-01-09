@@ -11,59 +11,83 @@ class ScoreLeader extends PolymerElement {
 	box-sizing: border-box;
 }
 
+/* shared default sizes */
 :root {
-  --veryNarrow-width: 4%;
-  --narrow-width: 6%;
-  --group-width: 7ch;
-  --category-width: 6ch;
+	  --narrow-width: 5ch;
+	  --max-narrow-width: 5ch;
+	  --veryNarrow-width: 4.5ch;
+	  --max-veryNarrow-width: 4.5ch;
+	  --medium-width: 6ch;
+	  --category-width: 6ch;
 }
 
-/* header cells for rank in the main table, wide screen */
-@media screen and (min-width: 1401px) {
-	:root {
-	  --narrow-width: 5%;
+/* wide screen */
+@media screen and (max-width: 1920px) {
+	:root {  
 	  --fontSizeRank-height: 0.95em;
 	  --fontSizeRows-height: 1.15em;
-	  --name-width: 16vw;
-	  --club-width: 10vw;
 	}
-	.name div {
-		width: calc(var(--name-width)*1.5);
+	.wideTeams {
+	  --name-width: 40vh;
+	  --name-max-width: 100%;
+	  --club-width: 50vh;
+	  --club-max-width: 40vh;
+	  --veryNarrow-width: 8ch;
+	  --max-veryNarrow-width: 8ch;
+	  --rank-width: 5ch;	  
+	}
+	.narrowTeams {
+	  --narrow-width: 7ch;
+	  --max-narrow-width: 7ch;
+      --name-width: 75vh;
+	  --name-max-width: 72vh;
+	  --club-width: 20vh;
+	  --club-max-width: 10vh;
+	  --rank-width: 5ch;
 	}
 }
 
-/* header cells for rank in the main table, 720 screen or 1366 laptop */
+/* 720 screen or 1366 laptop */
 @media screen and (max-width: 1400px) {
-	:root {
+	:root {	
 	  --fontSizeRank-height: 0.9em;
 	  --fontSizeRows-height: 1.1em;
-	  --name-width: 16vw;
-	  --club-width: 12vw;
 	}
-	.name div {
-		width: calc(var(--name-width)*1.2);
+	.wideTeams {
+	  --name-width: 40vh;
+	  --name-max-width: 35vh;
+	  --club-width: 40vh;
+	  --club-max-width: 35vh;
+	  --rank-width: 5ch;
+	}
+	.narrowTeams {
+      --name-width: 75vh;
+	  --name-max-width: 72vh;
+	  --club-width: 20vh;
+	  --club-max-width: 10vh;
+	  --rank-width: 5ch;
 	}
 }
 
-/* header cells for rank in the main table, 1024 projector */
+/* 1024 projector */
 @media screen and (max-width: 1024px) {
 	:root {
-	  --narrow-width: 7%;
-	  --veryNarrow-width: 4.5ch;
-	  --medium-width: 9%;
-	  --category-width: 6ch;
-	  --team-width: 10%;
-	  --name-width: 16vw;
-	  --club-width: 10vw;
-	  
 	  --fontSizeRank-height: 0.8em;
 	  --fontSizeRows-height: 0.9em;
 	}
-	.name {
-		width: var(--name-width);
+	.wideTeams {
+      --name-width: 30vh;
+	  --name-max-width: 26vh;
+	  --club-width: 15vh;
+	  --club-max-width: 13vh;
+	  --rank-width: 5ch;
 	}
-	.name div {
-		width: calc(var(--name-width)*1.2);
+	.narrowTeams {
+      --name-width: 40vh;
+	  --name-max-width: 38vh;
+	  --club-width: 16vh;
+	  --club-max-width: 14vh;
+	  --rank-width: 5ch;		
 	}
 }
 
@@ -205,7 +229,7 @@ th, td {
 }
 
 .name div {
-	width: calc(var(--name-width)*1.5);
+	max-width: calc(var(--name-max-width));
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -220,8 +244,9 @@ th, td {
 }
 
 .club div {
-	width: var(--club-width);
+	max-width: var(--club-max-width);
 	text-align: center;
+	margin: auto;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -240,15 +265,16 @@ th, td {
 	padding: 0.5vmin 1vmin 0.5vmin 1vmin;
 	font-weight: normal;
 	font-style: italic;
-	width: var(--veryNarrow-width);
+	width: var(--rank-width);
 	text-align: center;
-	font-size: var(--fontSizeRows-height);
+	font-size: var(--fontSizeRank-height);
 }
 .thRank div{
-	display: inline-block;
+	width: var(--rank-width);
+	margin: auto;
 }
 
-/* header cells for rank in the main table, wide screen */
+/* visible header cells for rank in the main table, wide screen */
 @media screen and (min-width: 1401px) {
 	.showThRank {
 		border-collapse: collapse;
@@ -264,7 +290,7 @@ th, td {
 	}
 }
 
-/* header cells for rank in the main table, XGA projector */
+/* hide header cells for rank in the main table, XGA projector */
 @media screen and (max-width: 1400px) {
 	.showThRank {
 		display: none;
@@ -276,13 +302,17 @@ th, td {
 }
 
 
-/* rank cells in the main table, wide screen */
+/* visible rank cells in the main table, wide screen */
 @media screen and (min-width: 1401px) {
 	.showRank {
 		display: table-cell;
-		width: var(--veryNarrow-width);
 		font-size: var(--fontSizeRows-height);
 		text-align: center;
+		width: var(--rank-width);
+	}
+	.showRank div {
+		width: var(--rank-width);
+		margin: auto;
 	}
 	th,td {
 		font-size: var(--fontSizeRows-height);
@@ -290,7 +320,7 @@ th, td {
 }
 
 
-/* rank cells in the main table, XGA projector */
+/* hidden rank cells in the main table, XGA projector */
 @media screen and (max-width: 1400px) {
 	.showRank {
 		display: none;
@@ -309,6 +339,7 @@ th, td {
 	text-align: center;
 }
 .narrow div {
+	width: var(--max-narrow-width);
 	display: inline-block;
 }
 
@@ -317,6 +348,7 @@ th, td {
 	text-align: center;
 }
 .veryNarrow div {
+	width: var(--max-veryNarrow-width);
 	display: inline-block;
 }
 
@@ -324,6 +356,7 @@ th, td {
 	width: var(--group-width);
 	white-space: nowrap;
 	text-align: center;
+	font-size: var(--fontSizeRank-height)
 }
 .groupCol div {
 	width: var(--group-width);
@@ -480,16 +513,16 @@ table#leaders-table thead tr.hide th {
 		<tr>
 			<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
 			<th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
-			<th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
+			<th class$="name [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
 			<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-			<th class$="[[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Team]]"></th>
+			<th class$="club [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Team]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
-			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
+			<th class$="showThRank [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Rank]]"></th>
 			<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
+			<th class$="showThRank [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Rank]]"></th>
 			<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
-			<th class="thRank" inner-h-t-m-l="[[t.Rank]]"></th>
+			<th class$="thRank [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Rank]]"></th>
 		</tr>
 	</thead>
 	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
@@ -499,20 +532,22 @@ table#leaders-table thead tr.hide th {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class$="groupCol [[l.classname]] "><div>[[l.startNumber]]</div></td>
-				<td class$="name [[l.classname]]"><div>[[l.fullName]]</div></td>
+				<td class$="name [[_computeTeamWidth(wideTeamNames)]] [[l.classname]]">
+					<div>[[l.fullName]]</div>
+				</td>
 				<td class="category"><div>[[l.category]]</div></td>
-				<td class="veryNarrow">[[l.yearOfBirth]]</td>
-				<td class$="[[_computeTeamWidth(wideTeamNames)]]"><div>[[l.teamName]]</div></td>
+				<td class="veryNarrow"><div>[[l.yearOfBirth]]</div></td>
+				<td class$="club [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 				</template>
-				<td class="showRank">[[l.snatchRank]]</td>
+				<td class$="showRank [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.snatchRank]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 				</template>
-				<td class="showRank">[[l.cleanJerkRank]]</td>		
+				<td class$="showRank [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.cleanJerkRank]]</div></td>		
 				<td class="veryNarrow">[[l.total]]</td>
-				<td class="veryNarrow">[[l.totalRank]]</td>
+				<td class="veryNarrow"><div>[[l.totalRank]]</div></td>
 			</tr>
 		</template>
 	</template>
@@ -531,20 +566,22 @@ table#leaders-table thead tr.hide th {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class="groupCol"><div>[[l.group]]</div></td>
-				<td class="name"><div>[[l.fullName]]</div></td>
+				<td class$="name [[_computeTeamWidth(wideTeamNames)]] [[l.classname]]">
+					<div>[[l.fullName]]</div>
+				</td>
 				<td class="category"><div>[[l.category]]</div></td>
 				<td class="veryNarrow">[[l.yearOfBirth]]</td>
-				<td class$="[[_computeTeamWidth(wideTeamNames)]]"><div>[[l.teamName]]</div></td>
+				<td class$="club [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 				</template>
-				<td class="showRank">[[l.snatchRank]]</td>
+				<td class$="showRank [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.snatchRank]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
 					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 				</template>
-				<td class="showRank">[[l.cleanJerkRank]]</td>		
+				<td class$="showRank [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.cleanJerkRank]]</div></td>	
 				<td class="veryNarrow"><div>[[l.total]]</div></td>
-				<td class="thRank"><div>[[l.totalRank]]</div></td>
+				<td class$="thRank [[_computeTeamWidth(wideTeamNames)]]"><div>[[l.totalRank]]</div></td>
 			</tr>
 		</template>
 	</template>
@@ -647,7 +684,7 @@ table#leaders-table thead tr.hide th {
 	}
 
 	_computeTeamWidth(w) {
-		return w ? 'club' : 'narrow';
+		return w ? 'wideTeams' : 'narrowTeams';
 	}
 }
 

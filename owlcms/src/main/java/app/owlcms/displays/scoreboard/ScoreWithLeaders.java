@@ -659,7 +659,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                             ? 2
                             : 0));
             String team = a.getTeam();
-            if (team != null && team.length() > 5) {
+            if (team != null && team.trim().length() > 5) {
+                logger.warn("long team {}", team);
                 getModel().setWideTeamNames(true);
             }
             jath.set(athx, ja);

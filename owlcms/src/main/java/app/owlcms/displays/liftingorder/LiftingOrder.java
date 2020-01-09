@@ -396,7 +396,7 @@ public class LiftingOrder extends PolymerTemplate<LiftingOrder.LiftingOrderModel
             Category curCat = a.getCategory();
             String category;
             if (Competition.getCurrent().isMasters()) {
-                category = a.getShortCategory();
+                category = a.getBWCategory();
             } else {
                 category = curCat != null ? curCat.getName() : "";
             }
