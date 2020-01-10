@@ -2,7 +2,7 @@
 
 Version 4.3 is the new official owlcms4 and all development work will now take place on this branch.   This new version introduces an improved way to manage age groups and categories. *[Click here to read the documentation](https://jflamy.github.io/owlcms4/#/Categories)* .
 
-* Version 4.3.1.1 fixes two small bugs in 4.3.1: wide category names were not displayed correctly (#269) and category names were not shown on the starting list (#270)
+* Version 4.3.1.2 fixes small bugs in 4.3.1: wide category names were not displayed correctly (#269), category names were not shown on the starting list (#270), and saving an edited age group had been broken (#271)
 * Release Highlights for release 4.3.1: 
   - [x] Enhancement: Scoreboard with *leaderboard*. A new scoreboard is available that also shows the top 3 athletes for the current category at the bottom.  This is primarily useful for larger competitions that have a single category split over several (A, B, ...) groups based on entry total. (#241)
   - [x] Enhancement: better handling of very long names for athletes and for teams.  A narrow column is used for teams if all the teams in a group have short names (such is country codes or team codes). If the names of teams are long, the system will switch to using a wider column, and abbreviate ("...") automatically names that exceed the available width. If you have extremely long names, you may try using the zoom function of the browser to go down to 90%, this often allows the browser to fit the name. (#266)
