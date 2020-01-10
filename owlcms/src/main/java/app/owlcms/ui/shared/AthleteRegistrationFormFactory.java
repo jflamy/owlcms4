@@ -362,7 +362,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
                 if (category != null && age != null) {
                     int min = category.getAgeGroup().getMinAge();
                     int max = category.getAgeGroup().getMaxAge();
-                    logger.warn("comparing {} [{},{}] with age {}", category.getName(), min, max, age);
+                    logger.debug("comparing {} [{},{}] with age {}", category.getName(), min, max, age);
                     return (age >= min && age <= max);
                 } else {
                     return true;
