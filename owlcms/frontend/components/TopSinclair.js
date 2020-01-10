@@ -39,6 +39,7 @@ class TopSinclair extends PolymerElement {
 		--name-max-width: 100%;
 		--club-width: 20vw;
 		--club-max-width: 100%;
+		--category-width: 12ch;
 		--rank-width: 5ch;
 	}
 	.narrowTeams {
@@ -56,6 +57,7 @@ class TopSinclair extends PolymerElement {
 		--name-max-width: 100%;
 		--club-width: 8vw;
 		--club-max-width: 8ch;
+		--category-width: 12ch;
 		--rank-width: 5ch;
 	}
 	.showThRank {
@@ -86,7 +88,7 @@ class TopSinclair extends PolymerElement {
 }
 
 /* 720 screen or 1366 laptop */
-@media screen and (max-width: 1400px) and (min-width: 1025px) {
+@media screen and (max-width: 1400px) and (min-width: 1279px) {
 	.wideTeams {
 		--fontSizeRank-height: 0.90em;
 		--fontSizeRows-height: 0.90em;
@@ -102,6 +104,7 @@ class TopSinclair extends PolymerElement {
 		--name-max-width: 100%;
 		--club-width: 20vw;
 		--club-max-width: 100%;
+		--category-width: 12ch;
 		--rank-width: 5ch;
 	}
 	.narrowTeams {
@@ -119,7 +122,8 @@ class TopSinclair extends PolymerElement {
 		--name-max-width: 100%;
 		--club-width: 8vw;
 		--club-max-width: 8ch;
---rank-width: 5ch;
+		--category-width: 12ch;
+		--rank-width: 5ch;
 	}
 	.showThRank {
 		display: none;
@@ -141,13 +145,13 @@ class TopSinclair extends PolymerElement {
 }
 
 /* 1024 projector */
-@media screen and (max-width: 1024px) {
+@media screen  and (max-width: 1024px) {
 	.wideTeams {
 		--fontSizeRank-height: 0.75em;
 		--fontSizeRows-height: 0.75em;
 		--narrow-width: 5vw;
 		--max-narrow-width: 100%;
-		--veryNarrow-width: 4vw;
+		--veryNarrow-width: 6ch;
 		--max-veryNarrow-width: 100%;
 		--medium-width: 6vw;
 		--max-medium-width: 100%;
@@ -157,6 +161,7 @@ class TopSinclair extends PolymerElement {
 		--name-max-width: 100%;
 		--club-width: 16vw;
 		--club-max-width: 100%;
+		--category-width: 12ch;
 		--rank-width: 5ch;
 	}
 	.narrowTeams {
@@ -174,6 +179,7 @@ class TopSinclair extends PolymerElement {
 	  --name-max-width: 100%;
 	  --club-width: 8vw;
 	  --club-max-width: 8ch;
+	  --category-width: 12ch;
 	  --rank-width: 5ch;
 	}
 	/* hide the snatch and cj ranks, no room */

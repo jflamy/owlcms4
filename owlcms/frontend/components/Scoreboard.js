@@ -17,46 +17,69 @@ class Scoreboard extends PolymerElement {
 	  --veryNarrow-width: 4.5ch;
 	  --max-veryNarrow-width: 4.5ch;
 	  --medium-width: 6ch;
-	  --category-width: 6ch;
 }
 
-/* header cells for rank in the main table, wide screen */
-@media screen and (max-width: 1920px) {
+/* wide screen */
+@media screen and (min-width: 1401px) {
 	:root {  
 	  --fontSizeRank-height: 0.95em;
 	  --fontSizeRows-height: 1.15em;
 	}
 	.wideTeams {
-	  --name-width: 40vh;
+	  --name-width: 20vw;
 	  --name-max-width: 100%;
-	  --club-width: 50vh;
-	  --club-max-width: 40vh;
+	  --club-width: 20vw;
+	  --club-max-width: 100%;
+	  --category-width: 100%;
+	  --category-max-width: 100%  
 	}
 	.narrowTeams {
-      --name-width: 75vh;
-	  --name-max-width: 72vh;
-	  --club-width: 20vh;
-	  --club-max-width: 10vh;
+	  --name-width: 35vw;
+	  --name-max-width: 100%;
+	  --club-width: 8vw;
+	  --club-max-width: 100%;
+	  --category-width: 8vw;
+	  --category-max-width: 100%  
+	}
+	.showRank {
+		display: table-cell;
+		width: var(--veryNarrow-width);
+		font-size: var(--fontSizeRows-height);
+		text-align: center;
+	}
+	th,td {
+		font-size: var(--fontSizeRows-height);
 	}
 }
 
-/* header cells for rank in the main table, 720 screen or 1366 laptop */
-@media screen and (max-width: 1400px) {
+/* 720 screen or 1366 laptop */
+@media screen and (max-width: 1400px) and (min-width: 1025px) {
 	:root {	
 	  --fontSizeRank-height: 0.9em;
 	  --fontSizeRows-height: 1.1em;
 	}
 	.wideTeams {
-	  --name-width: 40vh;
-	  --name-max-width: 35vh;
-	  --club-width: 40vh;
-	  --club-max-width: 35vh;
+	  --name-width: 20vw;
+	  --name-max-width: 100%;
+	  --club-width: 20vw;
+	  --club-max-width: 100%;
+	  --category-width: 100%;
 	}
 	.narrowTeams {
-      --name-width: 75vh;
-	  --name-max-width: 72vh;
-	  --club-width: 20vh;
-	  --club-max-width: 10vh;
+	  --name-width: 35vw;
+	  --name-max-width: 100%;
+	  --club-width: 12ch;
+	  --club-max-width: 100%;
+	  --category-width: inherit;
+	}
+	.showRank {
+		display: table-cell;
+		width: var(--veryNarrow-width);
+		font-size: var(--fontSizeRows-height);
+		text-align: center;
+	}
+	th,td {
+		font-size: var(--fontSizeRows-height);
 	}
 }
 
@@ -71,12 +94,31 @@ class Scoreboard extends PolymerElement {
 	  --name-max-width: 26vh;
 	  --club-width: 30vh;
 	  --club-max-width: 26vh;
+	  --category-width: inherit; 
 	}
 	.narrowTeams {
-      --name-width: 40vh;
-	  --name-max-width: 38vh;
-	  --club-width: 16vh;
-	  --club-max-width: 14vh;
+	  --name-width: 35vw;
+	  --name-max-width: 100%;
+	  --club-width: 12ch;
+	  --club-max-width: 100%;
+	  --category-width: inherit; 
+	}
+	.showThRank {
+		display: none;
+		width: 0px;
+		padding: 0 0 0 0;
+		margin: 0 0 0 0;
+		font-size: var(--fontSizeRank-height);
+	}	
+	.showRank {
+		display: none;
+		width: 0px;
+		padding: 0 0 0 0;
+		margin: 0 0 0 0;
+		font-size: var(--fontSizeRows-height);
+	}
+	th,td {
+		font-size: var(--fontSizeRows-height);
 	}
 }
 
@@ -210,7 +252,7 @@ td.club {
 }
 
 td.club div {
-	max-width: var(--club-max-width);
+	width: var(--club-max-width);
 	text-align: center;
 	white-space: nowrap;
 	overflow: hidden;
@@ -239,60 +281,6 @@ td.club div {
 
 .thRank div{
 	display: inline-block;
-}
-
-/* header cells for rank in the main table, wide screen */
-@media screen and (min-width: 1401px) {
-	.showThRank {
-		border-collapse: collapse;
-		border: solid 1px DarkGray;
-		border-left-style: none;
-		padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-		font-size: var(--fontSizeRank-height);
-		font-weight: normal;
-		font-style: italic;
-		width: 4vw;
-		text-align: center;
-		font-size: var(--fontSizeRank-height);
-	}
-}
-
-/* header cells for rank in the main table, XGA projector */
-@media screen and (max-width: 1400px) {
-	.showThRank {
-		display: none;
-		width: 0px;
-		padding: 0 0 0 0;
-		margin: 0 0 0 0;
-		font-size: var(--fontSizeRank-height);
-	}
-}
-
-/* rank cells in the main table, wide screen */
-@media screen and (min-width: 1401px) {
-	.showRank {
-		display: table-cell;
-		width: var(--veryNarrow-width);
-		font-size: var(--fontSizeRows-height);
-		text-align: center;
-	}
-	th,td {
-		font-size: var(--fontSizeRows-height);
-	}
-}
-
-/* rank cells in the main table, XGA projector */
-@media screen and (max-width: 1400px) {
-	.showRank {
-		display: none;
-		width: 0px;
-		padding: 0 0 0 0;
-		margin: 0 0 0 0;
-		font-size: var(--fontSizeRows-height);
-	}
-	th,td {
-		font-size: var(--fontSizeRows-height);
-	}
 }
 
 .narrow {
@@ -325,7 +313,6 @@ td.club div {
 }
 
 .category {
-	width: var(--category-width);
 	white-space: nowrap;
 	text-align: center;
 }
@@ -433,7 +420,7 @@ td.club div {
 	display: none;
 }
 </style>
-<div class="wrapper">
+<div class$="wrapper [[_computeTeamWidth(wideTeamNames)]]" >
 <div class="attemptBar" style$="[[_computeHidden(hidden)]]">
 	<div class="athleteInfo" id="athleteInfoDiv">
 		<div class="startNumber" id="startNumberDiv"><span>[[startNumber]]</span></div>
