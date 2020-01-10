@@ -8,6 +8,7 @@ package app.owlcms.data.platform;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
@@ -154,157 +155,25 @@ public class Platform implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         Platform other = (Platform) obj;
-        if (id == null) {
-            if (other.id != null) {
-                return false;
-            }
-        } else if (!id.equals(other.id)) {
-            return false;
-        }
-        if (lightBar == null) {
-            if (other.lightBar != null) {
-                return false;
-            }
-        } else if (!lightBar.equals(other.lightBar)) {
-            return false;
-        }
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        if (nbC_2_5 == null) {
-            if (other.nbC_2_5 != null) {
-                return false;
-            }
-        } else if (!nbC_2_5.equals(other.nbC_2_5)) {
-            return false;
-        }
-        if (nbL_10 == null) {
-            if (other.nbL_10 != null) {
-                return false;
-            }
-        } else if (!nbL_10.equals(other.nbL_10)) {
-            return false;
-        }
-        if (nbL_15 == null) {
-            if (other.nbL_15 != null) {
-                return false;
-            }
-        } else if (!nbL_15.equals(other.nbL_15)) {
-            return false;
-        }
-        if (nbL_20 == null) {
-            if (other.nbL_20 != null) {
-                return false;
-            }
-        } else if (!nbL_20.equals(other.nbL_20)) {
-            return false;
-        }
-        if (nbL_25 == null) {
-            if (other.nbL_25 != null) {
-                return false;
-            }
-        } else if (!nbL_25.equals(other.nbL_25)) {
-            return false;
-        }
-        if (nbL_2_5 == null) {
-            if (other.nbL_2_5 != null) {
-                return false;
-            }
-        } else if (!nbL_2_5.equals(other.nbL_2_5)) {
-            return false;
-        }
-        if (nbL_5 == null) {
-            if (other.nbL_5 != null) {
-                return false;
-            }
-        } else if (!nbL_5.equals(other.nbL_5)) {
-            return false;
-        }
-        if (nbS_0_5 == null) {
-            if (other.nbS_0_5 != null) {
-                return false;
-            }
-        } else if (!nbS_0_5.equals(other.nbS_0_5)) {
-            return false;
-        }
-        if (nbS_1 == null) {
-            if (other.nbS_1 != null) {
-                return false;
-            }
-        } else if (!nbS_1.equals(other.nbS_1)) {
-            return false;
-        }
-        if (nbS_1_5 == null) {
-            if (other.nbS_1_5 != null) {
-                return false;
-            }
-        } else if (!nbS_1_5.equals(other.nbS_1_5)) {
-            return false;
-        }
-        if (nbS_2 == null) {
-            if (other.nbS_2 != null) {
-                return false;
-            }
-        } else if (!nbS_2.equals(other.nbS_2)) {
-            return false;
-        }
-        if (nbS_2_5 == null) {
-            if (other.nbS_2_5 != null) {
-                return false;
-            }
-        } else if (!nbS_2_5.equals(other.nbS_2_5)) {
-            return false;
-        }
-        if (nbS_5 == null) {
-            if (other.nbS_5 != null) {
-                return false;
-            }
-        } else if (!nbS_5.equals(other.nbS_5)) {
-            return false;
-        }
-        if (officialBar == null) {
-            if (other.officialBar != null) {
-                return false;
-            }
-        } else if (!officialBar.equals(other.officialBar)) {
-            return false;
-        }
-        if (showDecisionLights == null) {
-            if (other.showDecisionLights != null) {
-                return false;
-            }
-        } else if (!showDecisionLights.equals(other.showDecisionLights)) {
-            return false;
-        }
-        if (showTimer == null) {
-            if (other.showTimer != null) {
-                return false;
-            }
-        } else if (!showTimer.equals(other.showTimer)) {
-            return false;
-        }
-        if (soundMixerName == null) {
-            if (other.soundMixerName != null) {
-                return false;
-            }
-        } else if (!soundMixerName.equals(other.soundMixerName)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(id, other.id) && Objects.equals(lightBar, other.lightBar)
+                && mixerChecked == other.mixerChecked && Objects.equals(name, other.name)
+                && Objects.equals(nbC_2_5, other.nbC_2_5) && Objects.equals(nbL_10, other.nbL_10)
+                && Objects.equals(nbL_15, other.nbL_15) && Objects.equals(nbL_20, other.nbL_20)
+                && Objects.equals(nbL_25, other.nbL_25) && Objects.equals(nbL_2_5, other.nbL_2_5)
+                && Objects.equals(nbL_5, other.nbL_5) && Objects.equals(nbS_0_5, other.nbS_0_5)
+                && Objects.equals(nbS_1, other.nbS_1) && Objects.equals(nbS_1_5, other.nbS_1_5)
+                && Objects.equals(nbS_2, other.nbS_2) && Objects.equals(nbS_2_5, other.nbS_2_5)
+                && Objects.equals(nbS_5, other.nbS_5) && nonStandardBar == other.nonStandardBar
+                && Objects.equals(officialBar, other.officialBar)
+                && Objects.equals(showDecisionLights, other.showDecisionLights)
+                && Objects.equals(showTimer, other.showTimer) && Objects.equals(soundMixerName, other.soundMixerName);
     }
 
     /**
@@ -544,29 +413,9 @@ public class Platform implements Serializable {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((lightBar == null) ? 0 : lightBar.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((nbC_2_5 == null) ? 0 : nbC_2_5.hashCode());
-        result = prime * result + ((nbL_10 == null) ? 0 : nbL_10.hashCode());
-        result = prime * result + ((nbL_15 == null) ? 0 : nbL_15.hashCode());
-        result = prime * result + ((nbL_20 == null) ? 0 : nbL_20.hashCode());
-        result = prime * result + ((nbL_25 == null) ? 0 : nbL_25.hashCode());
-        result = prime * result + ((nbL_2_5 == null) ? 0 : nbL_2_5.hashCode());
-        result = prime * result + ((nbL_5 == null) ? 0 : nbL_5.hashCode());
-        result = prime * result + ((nbS_0_5 == null) ? 0 : nbS_0_5.hashCode());
-        result = prime * result + ((nbS_1 == null) ? 0 : nbS_1.hashCode());
-        result = prime * result + ((nbS_1_5 == null) ? 0 : nbS_1_5.hashCode());
-        result = prime * result + ((nbS_2 == null) ? 0 : nbS_2.hashCode());
-        result = prime * result + ((nbS_2_5 == null) ? 0 : nbS_2_5.hashCode());
-        result = prime * result + ((nbS_5 == null) ? 0 : nbS_5.hashCode());
-        result = prime * result + ((officialBar == null) ? 0 : officialBar.hashCode());
-        result = prime * result + ((showDecisionLights == null) ? 0 : showDecisionLights.hashCode());
-        result = prime * result + ((showTimer == null) ? 0 : showTimer.hashCode());
-        result = prime * result + ((soundMixerName == null) ? 0 : soundMixerName.hashCode());
-        return result;
+        return Objects.hash(id, lightBar, mixerChecked, name, nbC_2_5, nbL_10, nbL_15, nbL_20, nbL_25, nbL_2_5, nbL_5,
+                nbS_0_5, nbS_1, nbS_1_5, nbS_2, nbS_2_5, nbS_5, nonStandardBar, officialBar, showDecisionLights,
+                showTimer, soundMixerName);
     }
 
     public boolean isNonStandardBar() {

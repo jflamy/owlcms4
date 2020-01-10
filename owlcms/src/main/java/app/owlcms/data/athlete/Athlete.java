@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -404,73 +405,18 @@ public class Athlete {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         Athlete other = (Athlete) obj;
-
-        if (fullBirthDate == null) {
-            if (other.fullBirthDate != null) {
-                return false;
-            }
-        } else if (!fullBirthDate.equals(other.fullBirthDate)) {
-            return false;
-        }
-
-        if (firstName == null) {
-            if (other.firstName != null) {
-                return false;
-            }
-        } else if (!firstName.equals(other.firstName)) {
-            return false;
-        }
-
-        if (lastName == null) {
-            if (other.lastName != null) {
-                return false;
-            }
-        } else if (!lastName.equals(other.lastName)) {
-            return false;
-        }
-
-        if (team == null) {
-            if (other.team != null) {
-                return false;
-            }
-        } else if (!team.equals(other.team)) {
-            return false;
-        }
-
-        if (gender == null) {
-            if (other.gender != null) {
-                return false;
-            }
-        } else if (!gender.equals(other.gender)) {
-            return false;
-        }
-
-        if (membership == null) {
-            if (other.membership != null) {
-                return false;
-            }
-        } else if (!membership.equals(other.membership)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(firstName, other.firstName) && Objects.equals(fullBirthDate, other.fullBirthDate)
+                && gender == other.gender && Objects.equals(id, other.id) && Objects.equals(lastName, other.lastName)
+                && Objects.equals(membership, other.membership) && Objects.equals(team, other.team);
     }
 
     /**
@@ -2074,20 +2020,9 @@ public class Athlete {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((team == null) ? 0 : team.hashCode());
-        result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
-        result = prime * result + ((gender == null) ? 0 : gender.hashCode());
-        result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
-        return result;
+        return Objects.hash(firstName, fullBirthDate, gender, id, lastName, membership, team);
     }
 
     /**

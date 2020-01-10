@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -132,31 +133,25 @@ public class Group implements Comparable<Group> {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         Group other = (Group) obj;
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(name, other.name)
+                && Objects.equals(announcer, other.announcer) && Objects.equals(competitionTime, other.competitionTime)
+                && Objects.equals(id, other.id) && Objects.equals(jury1, other.jury1)
+                && Objects.equals(jury2, other.jury2) && Objects.equals(jury3, other.jury3)
+                && Objects.equals(jury4, other.jury4) && Objects.equals(jury5, other.jury5)
+                && Objects.equals(marshall, other.marshall) && Objects.equals(platform, other.platform)
+                && Objects.equals(referee1, other.referee1)
+                && Objects.equals(referee2, other.referee2) && Objects.equals(referee3, other.referee3)
+                && Objects.equals(technicalController, other.technicalController)
+                && Objects.equals(timeKeeper, other.timeKeeper) && Objects.equals(weighInTime, other.weighInTime);
     }
 
     /**
@@ -363,17 +358,10 @@ public class Group implements Comparable<Group> {
         return weighInTime;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        return result;
+        return Objects.hash(announcer, competitionTime, id, jury1, jury2, jury3, jury4, jury5, marshall, name, platform,
+                referee1, referee2, referee3, technicalController, timeKeeper, weighInTime);
     }
 
     /**
