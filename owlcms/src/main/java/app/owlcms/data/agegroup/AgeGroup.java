@@ -117,17 +117,17 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         AgeGroup other = (AgeGroup) obj;
-        return Objects.equals(id, other.id);
+        return active == other.active && ageDivision == other.ageDivision
+                && Objects.equals(categories, other.categories) && Objects.equals(code, other.code)
+                && gender == other.gender && Objects.equals(id, other.id) && Objects.equals(maxAge, other.maxAge)
+                && Objects.equals(minAge, other.minAge);
     }
 
     public AgeDivision getAgeDivision() {
@@ -200,7 +200,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(active, ageDivision, categories, code, gender, id, maxAge, minAge);
     }
 
     public boolean isActive() {

@@ -139,17 +139,19 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         Category other = (Category) obj;
-        return Objects.equals(id, other.id);
+        return active == other.active && Objects.equals(ageGroup, other.ageGroup) && Objects.equals(code, other.code)
+                && gender == other.gender && Objects.equals(id, other.id)
+                && Objects.equals(maximumWeight, other.maximumWeight)
+                && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
+                && Objects.equals(robiA, other.robiA) && Objects.equals(wrJr, other.wrJr)
+                && Objects.equals(wrSr, other.wrSr) && Objects.equals(wrYth, other.wrYth);
     }
 
     /**
@@ -289,7 +291,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(active, ageGroup, code, gender, id, maximumWeight, minimumWeight, name, robiA, wrJr, wrSr,
+                wrYth);
     }
 
     /**
