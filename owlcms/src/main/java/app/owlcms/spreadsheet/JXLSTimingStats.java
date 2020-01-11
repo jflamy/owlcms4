@@ -157,7 +157,6 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
                 delta = Duration.ZERO;
             }
             Double hours = delta.getSeconds() / 3600.0D;
-            logger.warn("getHours: {}", hours);
             return hours;
         }
     }

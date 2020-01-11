@@ -536,13 +536,16 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     private void computeLeaders(Competition competition) {
+        logger.debug("computeLeaders");
         OwlcmsSession.withFop(fop -> {
             Athlete curAthlete = fop.getCurAthlete();
             if (curAthlete != null && curAthlete.getGender() != null) {
                 getModel().setCategoryName(curAthlete.getCategory().getName());
                 globalRankingsForCurrentGroup = competition.getGlobalTotalRanking(curAthlete.getGender());
+                //logger.debug("rankings for current gender {}  size={}",curAthlete.getGender(),globalRankingsForCurrentGroup.size());
                 globalRankingsForCurrentGroup = filterToCategory(curAthlete.getCategory(),
                         globalRankingsForCurrentGroup);
+                //logger.debug("rankings for current category {}  size={}",curAthlete.getCategory(),globalRankingsForCurrentGroup.size());
                 globalRankingsForCurrentGroup = globalRankingsForCurrentGroup.stream().filter(a -> a.getTotal() > 0)
                         .collect(Collectors.toList());
                 if (globalRankingsForCurrentGroup.size() > 0) {

@@ -258,10 +258,11 @@ public class Athlete {
     private Category category = null;
 
     /**
-     * Using separate fileds is brute force, but having embedded classes does not bring much and we don't want joins or other such logic
-     * for the Athlete card. Since the Athlete card is 6 x 4 items, we take the simple route.
-     * 
-     * The use of Strings is historical.  It was extremely cumbersome to handle conversions to/from Integer in Vaadin 6 circa 2009
+     * Using separate fileds is brute force, but having embedded classes does not bring much and we don't want joins or
+     * other such logic for the Athlete card. Since the Athlete card is 6 x 4 items, we take the simple route.
+     *
+     * The use of Strings is historical. It was extremely cumbersome to handle conversions to/from Integer in Vaadin 6
+     * circa 2009
      */
     private String snatch1Declaration;
     private String snatch1Change1;
@@ -407,12 +408,15 @@ public class Athlete {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Athlete other = (Athlete) obj;
         return Objects.equals(firstName, other.firstName) && Objects.equals(fullBirthDate, other.fullBirthDate)
                 && gender == other.gender && Objects.equals(id, other.id) && Objects.equals(lastName, other.lastName)
@@ -648,6 +652,21 @@ public class Athlete {
      */
     public Double getBodyWeight() {
         return bodyWeight;
+    }
+
+    /**
+     * Athlete's bodyweight category, without gender (examples: 67, >109)
+     *
+     * @return the short category
+     */
+    public String getBWCategory() {
+        // logger./**/warn("getBWCategory {}", this.getFullName());
+        final Category category = getCategory();
+        if (category == null) {
+            // logger./**/warn("category null");
+            return "";
+        }
+        return category.getLimitString();
     }
 
     /**
@@ -1066,6 +1085,10 @@ public class Athlete {
      */
     public String getDisplayCategory() {
         return getLongCategory();
+    }
+
+    public Integer getEntryTotal() {
+        return getQualifyingTotal();
     }
 
     /**
@@ -1525,28 +1548,12 @@ public class Athlete {
     }
 
     /**
-     * Athlete's bodyweight category, without gender (examples: 67, >109)
-     *
-     * @return the short category
-     */
-    public String getBWCategory() {
-        logger.warn("getBWCategory {}", this.getFullName());
-        final Category category = getCategory();
-        if (category == null) {
-            logger.warn("category null");
-            return "";
-        }
-        return category.getLimitString();
-    }
-
-    /**
      * @see #getBWCategory()
      */
     @Deprecated
     public String getShortCategory() {
         return getBWCategory();
     }
-
 
     /**
      * Compute the Sinclair total for the Athlete, that is, the total multiplied by a value that depends on the
@@ -1870,7 +1877,7 @@ public class Athlete {
      * @return the snatch rank
      */
     public Integer getSnatchRank() {
-//        if(getFullName().equalsIgnoreCase("Edwards, Christopher")) logger.warn("getSnatchRank {} {} {}", System.identityHashCode(this), snatchRank, LoggerUtils.stackTrace());
+//        if(getFullName().equalsIgnoreCase("Edwards, Christopher")) logger./**/warn("getSnatchRank {} {} {}", System.identityHashCode(this), snatchRank, LoggerUtils.stackTrace());
         return snatchRank;
     }
 
@@ -2143,7 +2150,7 @@ public class Athlete {
 
     /**
      * Checks if is invited.
-     * 
+     *
      * @see #isEligibleForIndividualRanking()
      * @return true, if is invited
      */

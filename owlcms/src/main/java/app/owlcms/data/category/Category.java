@@ -23,10 +23,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.i18n.Translator;
+import ch.qos.logback.classic.Logger;
 
 /**
  * Contains information regarding each competition category.
@@ -47,6 +49,9 @@ import app.owlcms.i18n.Translator;
 @Cacheable
 public class Category implements Serializable, Comparable<Category>, Cloneable {
 
+    @SuppressWarnings("unused")
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(Category.class);
+    
     private final static Double ROBI_B = 3.321928095;
 
     private Double robiA = 0.0D;
@@ -146,7 +151,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         if (getClass() != obj.getClass())
             return false;
         Category other = (Category) obj;
-        return active == other.active && Objects.equals(ageGroup, other.ageGroup) && Objects.equals(code, other.code)
+        
+        // other is not null, and neither are we
+        // don't compare the categories inside age group, this gets circular.
+        boolean ageGroupEquals = AgeGroup.looseEquals(this.ageGroup, other.ageGroup);
+                
+        return active == other.active && ageGroupEquals && Objects.equals(code, other.code)
                 && gender == other.gender && Objects.equals(id, other.id)
                 && Objects.equals(maximumWeight, other.maximumWeight)
                 && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)

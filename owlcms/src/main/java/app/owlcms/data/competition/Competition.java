@@ -148,7 +148,7 @@ public class Competition {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
         if (athletes.isEmpty()) {
             // prevent outputting silliness.
-            logger.warn("no athletes");
+            logger./**/warn("no athletes");
             reportingBeans.clear();
             return;
         }
@@ -619,7 +619,7 @@ public class Competition {
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
         reportingBeans.put("mSn", sortedMen);
         reportingBeans.put("wSn", sortedWomen);
-//        logger.warn("snatch ranks {}",
+//        logger./**/warn("snatch ranks {}",
 //                sortedMen
 //                .stream()
 //                //.filter(a->a.getSnatchTotal()>0)
