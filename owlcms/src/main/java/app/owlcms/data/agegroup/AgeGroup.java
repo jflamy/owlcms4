@@ -42,11 +42,37 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     private static final long serialVersionUID = 8154757158144876816L;
 
-    Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
+    /**
+     * don't deep compare the categories inside age group, this gets circular. This method is used when comparing
+     * categories (which compares the code)
+     *
+     * @param firstAgeGroup
+     * @param otherAgeGroup
+     * @return
+     */
+    public static boolean looseEquals(AgeGroup firstAgeGroup, AgeGroup otherAgeGroup) {
+        boolean ageGroupEquals;
 
+        if (firstAgeGroup == null && otherAgeGroup == null) {
+            ageGroupEquals = true;
+        } else if (firstAgeGroup == null) {
+            ageGroupEquals = false;
+        } else if (otherAgeGroup == null) {
+            ageGroupEquals = false;
+        } else {
+            ageGroupEquals = Objects.equals(firstAgeGroup.getCode(), otherAgeGroup.getCode())
+                    && Objects.equals(firstAgeGroup.getGender(), otherAgeGroup.getGender())
+                    && Objects.equals(firstAgeGroup.getMinAge(), otherAgeGroup.getMinAge())
+                    && Objects.equals(firstAgeGroup.getMaxAge(), otherAgeGroup.getMaxAge());
+        }
+        return ageGroupEquals;
+    }
+
+    Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
+
     boolean active;
 
     String code;
@@ -117,13 +143,18 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         AgeGroup other = (AgeGroup) obj;
+        // logger./**/warn("categories {} .equals(other.categories {}) = {}", categories, other.categories,
+        // Objects.equals(categories, other.categories));
         return active == other.active && ageDivision == other.ageDivision
                 && Objects.equals(categories, other.categories) && Objects.equals(code, other.code)
                 && gender == other.gender && Objects.equals(id, other.id) && Objects.equals(maxAge, other.maxAge)
@@ -209,10 +240,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
     public void removeCategory(Category category) {
         if (category != null) {
-            // logger.warn("ageGroup={} removing {} {}", this.getId(), category.getCode(), category.getId());
             category.setAgeGroup(null);
             categories.remove(category);
-            // logger.warn("ageGroup={} removed {} {}", this.getId(), category.getCode(), category.getId());
         }
     }
 
