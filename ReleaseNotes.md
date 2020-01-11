@@ -4,6 +4,8 @@ Version 4.3 is the new official owlcms4 and all development work will now take p
 
 * Release Highlights for release 4.3.2: 
   - [x] Fix: New-style long category names with age groups like `U17 M >96` did not fit on the athlete card. Also allowed long team/club names.
+  - [x] Fix: collected the various bug fixes for 4.3.1 related to long categories fitting correctly on the scoreboards/leaderboards.
+  - [x] Fix: Leaderboard did not appear in v4.3.1.2 due to an unforeseen consequence of optimizing the way categories are compared with one another (categories refer to age groups which refer back to categories) (#274)
 
 - Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 
