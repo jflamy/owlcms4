@@ -1437,6 +1437,10 @@ public class Athlete {
         }
         return qualifyingTotal;
     }
+    
+    public Integer getEntryTotal() {
+        return getQualifyingTotal();
+    }
 
     /**
      * Gets the rank.
