@@ -621,7 +621,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                         updateURLLocation(getLocationUI(), getLocation(), newGroup);
                     } else {
                         // samegroup as already loaded; should go to null before switching back
-                        //logger.warn("fop {} fop.oldgroup = {}, dropdown.oldGroup={}, newGroup = {}", fop.getName(), oldGroup, e.getOldValue(), newGroup);
+                        //logger./**/warn("fop {} fop.oldgroup = {}, dropdown.oldGroup={}, newGroup = {}", fop.getName(), oldGroup, e.getOldValue(), newGroup);
                         fop.loadGroup(newGroup, this);
                         syncWithFOP(true);
                     }
