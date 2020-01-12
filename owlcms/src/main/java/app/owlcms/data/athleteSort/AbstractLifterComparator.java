@@ -353,6 +353,11 @@ public class AbstractLifterComparator {
             // same group, or both null
             return compare;
         }
+        if (lifter1Group == null || lifter2Group == null) {
+            // a non-null group will sort before null
+            return compare;
+        }
+
 
         LocalDateTime lifter1Date = lifter1Group.getWeighInTime();
         LocalDateTime lifter2Date = lifter2Group.getWeighInTime();
