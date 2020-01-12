@@ -1151,7 +1151,7 @@ public class FieldOfPlay {
     }
 
     private void uiShowUpdatedRankings() {
-        Relay.listenToFOP(this);
+        // Relay.listenToFOP(this);
         uiEventBus.post(new UIEvent.GlobalRankingUpdated(this));
     }
 
