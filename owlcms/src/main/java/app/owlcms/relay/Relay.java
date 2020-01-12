@@ -10,8 +10,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,10 +29,12 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -57,9 +61,11 @@ public class Relay {
     private List<Athlete> categoryRankings;
     private boolean wideTeamNames;
     private JsonValue leaders;
+    private JsonValue groupAthletes;
     private JsonArray sattempts;
     private JsonArray cattempts;
     private Logger logger = (Logger) LoggerFactory.getLogger(Relay.class);
+    private String liftsDone;
 
     public Relay(FieldOfPlay emittingFop) {
         this.fop = emittingFop;
@@ -75,52 +81,41 @@ public class Relay {
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
         Competition competition = Competition.getCurrent();
         computeLeaders(competition);
+        computeCurrentGroup(competition);
         pushToRemote();
     }
 
-    private void pushToRemote() {
-        String url = "https://httpbin.org/post";
-        String urlParameters = "name=Jack&occupation=programmer";
-//        byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
-        URL myurl = null;
-        HttpURLConnection con = null;
-
-        try {
-            myurl = new URL(url);
-            con = (HttpURLConnection) myurl.openConnection();
-            con.setDoOutput(true);
-            con.setRequestMethod("POST");
-            con.setRequestProperty("User-Agent", "Java client");
-            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
-            try (OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), StandardCharsets.UTF_8)) {
-                wr.write("leaders=");
-                wr.write(leaders.asString());
-            }
-
-            StringBuilder content;
-
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(con.getInputStream()))) {
-
-                String line;
-                content = new StringBuilder();
-
-                while ((line = br.readLine()) != null) {
-                    content.append(line);
-                    content.append(System.lineSeparator());
-                }
-            }
-
-            logger.warn("response={}",content.toString());
-
-        } catch (IOException e) {
-            logger.error(LoggerUtils.stackTrace(e));
-        } finally {
-            con.disconnect();
-        }
+    void setAttempt(String formattedAttempt) {
     }
 
+    void setFullName(String lastName) {
+    }
+
+    void setGroupName(String name) {
+    }
+
+    void setHidden(boolean b) {
+    }
+
+    void setLiftsDone(String formattedDone) {
+        this.liftsDone = formattedDone;
+    }
+
+    void setStartNumber(Integer integer) {
+    }
+
+    void setTeamName(String teamName) {
+    }
+
+    void setWeight(Integer weight) {
+    }
+
+    private void computeCurrentGroup(Competition competition) {
+        List<Athlete> globalRankingsForCurrentGroup = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
+        int liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
+        setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+        setGroupAthletes(getAthletesJson(globalRankingsForCurrentGroup, fop.getLiftingOrder()));
+    }
 
     private void computeLeaders(Competition competition) {
         logger.debug("computeLeaders");
@@ -314,8 +309,63 @@ public class Relay {
         }
     }
 
+    private void pushToRemote() {
+        String url;
+        // url = "https://httpbin.org/post";
+        url = "http://127.0.0.1:8080/hello";
+
+        HttpURLConnection con = null;
+
+        try {
+            URL myurl = new URL(url);
+            con = (HttpURLConnection) myurl.openConnection();
+            con.setDoOutput(true);
+            con.setRequestMethod("POST");
+            con.setRequestProperty("User-Agent", "Java client");
+            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+            try (OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), StandardCharsets.UTF_8)) {
+                writeKeyValue("categoryName", categoryName, wr);
+                wr.write("&");
+                writeKeyValue("wideTeamsName", Boolean.toString(wideTeamNames), wr);
+                wr.write("&");
+                writeKeyValue("groupAthletes", groupAthletes.toJson(), wr);
+                wr.write("&");
+                writeKeyValue("leaders", leaders.toJson(), wr);
+                wr.write("&");
+                writeKeyValue("liftsDone", liftsDone, wr);
+            }
+
+            StringBuilder content;
+
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()))) {
+
+                String line;
+                content = new StringBuilder();
+
+                while ((line = br.readLine()) != null) {
+                    content.append(line);
+                    content.append(System.lineSeparator());
+                }
+            }
+
+            logger.warn("response={}", content.toString());
+
+        } catch (IOException e) {
+            logger.error(LoggerUtils.stackTrace(e));
+        } finally {
+            con.disconnect();
+        }
+    }
+
     private void setCategoryName(String name) {
         this.categoryName = name;
+    }
+
+    private void setGroupAthletes(JsonValue athletesJson) {
+        this.groupAthletes = athletesJson;
+
     }
 
     private void setLeaders(JsonValue athletesJson) {
@@ -326,4 +376,12 @@ public class Relay {
     private void setWideTeamNames(boolean b) {
         wideTeamNames = b;
     }
+
+    private void writeKeyValue(String key, String value, OutputStreamWriter wr)
+            throws IOException, UnsupportedEncodingException {
+        wr.write(key);
+        wr.write("=");
+        wr.write(URLEncoder.encode(value, StandardCharsets.UTF_8.name()));
+    }
+
 }

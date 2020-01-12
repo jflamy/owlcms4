@@ -1,11 +1,9 @@
 package publish;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -34,19 +32,9 @@ public class HelloServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(req.getInputStream(), StandardCharsets.UTF_8));
-                PrintWriter osw = new PrintWriter(new OutputStreamWriter(resp.getOutputStream(), StandardCharsets.UTF_8))) {
-
-            String line;
-            StringBuilder content = new StringBuilder();
-
-            while ((line = br.readLine()) != null) {
-                content.append(line);
-                logger.warn("{}", line);
-                content.append(System.lineSeparator());
-            }
-            osw.print("parameter length="+content.length());
+        Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
+        for (Entry<String, String[]> pair : pairs) {
+            logger.warn("{} = {}", pair.getKey(), pair.getValue()[0]);
         }
     }
 
