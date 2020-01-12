@@ -53,6 +53,7 @@ import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
 import app.owlcms.i18n.Translator;
+import app.owlcms.relay.Relay;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
@@ -1150,6 +1151,7 @@ public class FieldOfPlay {
     }
 
     private void uiShowUpdatedRankings() {
+        Relay.listenToFOP(this);
         uiEventBus.post(new UIEvent.GlobalRankingUpdated(this));
     }
 

@@ -177,30 +177,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         }));
     }
 
-    public void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
-        String category;
-        category = curCat != null ? curCat.getName() : "";
-        ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
-        ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
-        ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
-        Integer startNumber = a.getStartNumber();
-        ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-        ja.put("category", category != null ? category : "");
-        getAttemptsJson(a, liftOrderRank);
-        ja.put("sattempts", sattempts);
-        ja.put("cattempts", cattempts);
-        ja.put("total", formatInt(a.getTotal()));
-        ja.put("snatchRank", formatInt(a.getSnatchRank()));
-        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-        ja.put("totalRank", formatInt(a.getTotalRank()));
-        ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
-        boolean notDone = a.getAttemptsDone() < 6;
-        String blink = (notDone ? " blink" : "");
-        if (notDone) {
-            ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
-        }
-    }
-
     @Override
     public ContextMenu getContextMenu() {
         return contextMenu;
@@ -440,67 +416,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         }
     }
 
-    /**
-     * Compute Json string ready to be used by web component template
-     *
-     * CSS classes are pre-computed and passed along with the values; weights are formatted.
-     *
-     * @param a
-     * @param liftOrderRank2
-     * @return json string with nested attempts values
-     */
-    protected void getAttemptsJson(Athlete a, int liftOrderRank) {
-        sattempts = Json.createArray();
-        cattempts = Json.createArray();
-        XAthlete x = new XAthlete(a);
-        Integer curLift = x.getAttemptsDone();
-        int ix = 0;
-        for (LiftInfo i : x.getRequestInfoArray()) {
-            JsonObject jri = Json.createObject();
-            String stringValue = i.getStringValue();
-            boolean notDone = x.getAttemptsDone() < 6;
-            String blink = (notDone ? " blink" : "");
-
-            jri.put("goodBadClassName", "narrow empty");
-            jri.put("stringValue", "");
-            if (i.getChangeNo() >= 0) {
-                String trim = stringValue != null ? stringValue.trim() : "";
-                switch (Changes.values()[i.getChangeNo()]) {
-                case ACTUAL:
-                    if (!trim.isEmpty()) {
-                        if (trim.contentEquals("-") || trim.contentEquals("0")) {
-                            jri.put("goodBadClassName", "narrow fail");
-                            jri.put("stringValue", "-");
-                        } else {
-                            boolean failed = stringValue.startsWith("-");
-                            jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
-                            jri.put("stringValue", formatKg(stringValue));
-                        }
-                    }
-                    break;
-                default:
-                    if (stringValue != null && !trim.isEmpty()) {
-                        String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
-                                : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
-                        jri.put("goodBadClassName", "narrow request");
-                        if (notDone) {
-                            jri.put("className", highlight);
-                        }
-                        jri.put("stringValue", stringValue);
-                    }
-                    break;
-                }
-            }
-
-            if (ix < 3) {
-                sattempts.set(ix, jri);
-            } else {
-                cattempts.set(ix % 3, jri);
-            }
-            ix++;
-        }
-    }
-
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
      */
@@ -510,7 +425,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         Competition competition = Competition.getCurrent();
         OwlcmsSession.withFop(fop -> {
             init();
-            
+
             // get the global category rankings for the group
             globalRankingsForCurrentGroup = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
 
@@ -542,10 +457,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             if (curAthlete != null && curAthlete.getGender() != null) {
                 getModel().setCategoryName(curAthlete.getCategory().getName());
                 globalRankingsForCurrentGroup = competition.getGlobalTotalRanking(curAthlete.getGender());
-                //logger.debug("rankings for current gender {}  size={}",curAthlete.getGender(),globalRankingsForCurrentGroup.size());
+                // logger.debug("rankings for current gender {}
+                // size={}",curAthlete.getGender(),globalRankingsForCurrentGroup.size());
                 globalRankingsForCurrentGroup = filterToCategory(curAthlete.getCategory(),
                         globalRankingsForCurrentGroup);
-                //logger.debug("rankings for current category {}  size={}",curAthlete.getCategory(),globalRankingsForCurrentGroup.size());
+                // logger.debug("rankings for current category {}
+                // size={}",curAthlete.getCategory(),globalRankingsForCurrentGroup.size());
                 globalRankingsForCurrentGroup = globalRankingsForCurrentGroup.stream().filter(a -> a.getTotal() > 0)
                         .collect(Collectors.toList());
                 if (globalRankingsForCurrentGroup.size() > 0) {
@@ -634,6 +551,30 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
     }
 
+    private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
+        String category;
+        category = curCat != null ? curCat.getName() : "";
+        ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+        ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
+        ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
+        Integer startNumber = a.getStartNumber();
+        ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
+        ja.put("category", category != null ? category : "");
+        getAttemptsJson(a, liftOrderRank);
+        ja.put("sattempts", sattempts);
+        ja.put("cattempts", cattempts);
+        ja.put("total", formatInt(a.getTotal()));
+        ja.put("snatchRank", formatInt(a.getSnatchRank()));
+        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
+        ja.put("totalRank", formatInt(a.getTotalRank()));
+        ja.put("group", a.getGroup() != null ? a.getGroup().getName() : "");
+        boolean notDone = a.getAttemptsDone() < 6;
+        String blink = (notDone ? " blink" : "");
+        if (notDone) {
+            ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
+        }
+    }
+
     /**
      * @param groupAthletes, List<Athlete> liftOrder
      * @return
@@ -644,7 +585,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         Category prevCat = null;
         long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
         long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
-        List<Athlete> athletes = groupAthletes != null ? Collections.unmodifiableList(groupAthletes) : Collections.emptyList();
+        List<Athlete> athletes = groupAthletes != null ? Collections.unmodifiableList(groupAthletes)
+                : Collections.emptyList();
         for (Athlete a : athletes) {
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
@@ -670,6 +612,67 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             athx++;
         }
         return jath;
+    }
+
+    /**
+     * Compute Json string ready to be used by web component template
+     *
+     * CSS classes are pre-computed and passed along with the values; weights are formatted.
+     *
+     * @param a
+     * @param liftOrderRank2
+     * @return json string with nested attempts values
+     */
+    private void getAttemptsJson(Athlete a, int liftOrderRank) {
+        sattempts = Json.createArray();
+        cattempts = Json.createArray();
+        XAthlete x = new XAthlete(a);
+        Integer curLift = x.getAttemptsDone();
+        int ix = 0;
+        for (LiftInfo i : x.getRequestInfoArray()) {
+            JsonObject jri = Json.createObject();
+            String stringValue = i.getStringValue();
+            boolean notDone = x.getAttemptsDone() < 6;
+            String blink = (notDone ? " blink" : "");
+
+            jri.put("goodBadClassName", "narrow empty");
+            jri.put("stringValue", "");
+            if (i.getChangeNo() >= 0) {
+                String trim = stringValue != null ? stringValue.trim() : "";
+                switch (Changes.values()[i.getChangeNo()]) {
+                case ACTUAL:
+                    if (!trim.isEmpty()) {
+                        if (trim.contentEquals("-") || trim.contentEquals("0")) {
+                            jri.put("goodBadClassName", "narrow fail");
+                            jri.put("stringValue", "-");
+                        } else {
+                            boolean failed = stringValue.startsWith("-");
+                            jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
+                            jri.put("stringValue", formatKg(stringValue));
+                        }
+                    }
+                    break;
+                default:
+                    if (stringValue != null && !trim.isEmpty()) {
+                        String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
+                                : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
+                        jri.put("goodBadClassName", "narrow request");
+                        if (notDone) {
+                            jri.put("className", highlight);
+                        }
+                        jri.put("stringValue", stringValue);
+                    }
+                    break;
+                }
+            }
+
+            if (ix < 3) {
+                sattempts.set(ix, jri);
+            } else {
+                cattempts.set(ix % 3, jri);
+            }
+            ix++;
+        }
     }
 
     private Object getOrigin() {
