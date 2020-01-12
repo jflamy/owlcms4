@@ -9,7 +9,7 @@
     </parent>
 
     <name>Olympic Weightlifting Competition Management System Public Viewer</name>
-    <artifactId>relay</artifactId>
+    <artifactId>public</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
