@@ -43,14 +43,14 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
-public class Relay {
+public class ScoreboardUpdateRelayer {
 
-    private static HashMap<String, Relay> registeredFop = new HashMap<>();
+    private static HashMap<String, ScoreboardUpdateRelayer> registeredFop = new HashMap<>();
 
     public static void listenToFOP(FieldOfPlay fop) {
         String fopName = fop.getName();
         if (registeredFop.get(fopName) == null) {
-            registeredFop.put(fopName, new Relay(fop));
+            registeredFop.put(fopName, new ScoreboardUpdateRelayer(fop));
         }
     }
 
@@ -64,10 +64,10 @@ public class Relay {
     private JsonValue groupAthletes;
     private JsonArray sattempts;
     private JsonArray cattempts;
-    private Logger logger = (Logger) LoggerFactory.getLogger(Relay.class);
+    private Logger logger = (Logger) LoggerFactory.getLogger(ScoreboardUpdateRelayer.class);
     private String liftsDone;
 
-    public Relay(FieldOfPlay emittingFop) {
+    public ScoreboardUpdateRelayer(FieldOfPlay emittingFop) {
         this.fop = emittingFop;
 
         fopEventBus = fop.getFopEventBus();
@@ -312,7 +312,7 @@ public class Relay {
     private void pushToRemote() {
         String url;
         // url = "https://httpbin.org/post";
-        url = "http://127.0.0.1:8080/hello";
+        url = "http://127.0.0.1:8080/results";
 
         HttpURLConnection con = null;
 

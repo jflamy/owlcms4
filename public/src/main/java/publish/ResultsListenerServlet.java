@@ -3,6 +3,7 @@ package publish;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map.Entry;
+import java.util.concurrent.Executors;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -13,12 +14,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.EventBus;
+
 import ch.qos.logback.classic.Logger;
 
-@WebServlet("/hello")
-public class HelloServlet extends HttpServlet {
+@WebServlet("/results")
+public class ResultsListenerServlet extends HttpServlet {
 
-    Logger logger = (Logger) LoggerFactory.getLogger(HelloServlet.class);
+    Logger logger = (Logger) LoggerFactory.getLogger(ResultsListenerServlet.class);
+    static EventBus eventBus = new AsyncEventBus(Executors.newCachedThreadPool());
+    
+    public static EventBus getEventBus() {
+        return eventBus;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -36,6 +45,10 @@ public class HelloServlet extends HttpServlet {
         for (Entry<String, String[]> pair : pairs) {
             logger.warn("{} = {}", pair.getKey(), pair.getValue()[0]);
         }
+        
+        eventBus.post(new UpdateEvent(req.getParameter("leaders")));
     }
+    
+    
 
 }
