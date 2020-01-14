@@ -85,6 +85,8 @@ public class ScoreboardUpdateRelayer {
 
         uiEventBus = fop.getUiEventBus();
         uiEventBus.register(this);
+
+        setTranslationMap();
     }
 
     public JsonObject getTranslationMap() {
@@ -96,6 +98,21 @@ public class ScoreboardUpdateRelayer {
         Competition competition = Competition.getCurrent();
         computeLeaders(competition);
         computeCurrentGroup(competition);
+        pushToRemote();
+    }
+
+    @Subscribe
+    public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+        logger.warn("*****order updated");
+        Athlete a = e.getAthlete();
+        Competition competition = Competition.getCurrent();
+        computeCurrentGroup(competition);
+        setFullName(a.getFullName());
+        setTeamName(a.getTeam());
+        setStartNumber(a.getStartNumber());
+        String formattedAttempt = formatAttempt(a.getAttemptsDone());
+        setAttempt(formattedAttempt);
+        setWeight(a.getNextAttemptRequestedWeight());
         pushToRemote();
     }
 
@@ -199,6 +216,11 @@ public class ScoreboardUpdateRelayer {
                 .filter(a -> category != null && category.equals(a.getCategory()))
                 .limit(3)
                 .collect(Collectors.toList());
+    }
+
+    private String formatAttempt(Integer attemptNo) {
+        String translate = Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
+        return translate;
     }
 
     private String formatInt(Integer total) {
@@ -359,35 +381,20 @@ public class ScoreboardUpdateRelayer {
             con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
             try (OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), StandardCharsets.UTF_8)) {
-                writeKeyValue("attempt", attempt, wr);
-                wr.write("&");
-                writeKeyValue("categoryName", categoryName, wr);
-                wr.write("&");
-                writeKeyValue("fullName", fullName, wr);
-                wr.write("&");
-                writeKeyValue("groupName", groupName, wr);
-                wr.write("&");
-                writeKeyValue("hidden", String.valueOf(hidden), wr);
-                if (startNumber != null) {
-                    wr.write("&");
-                    writeKeyValue("startNumber", startNumber.toString(), wr);
-                }
-                wr.write("&");
-                writeKeyValue("teamName", teamName, wr);
-                if (weight != null) {
-                    wr.write("&");
-                    writeKeyValue("weight", weight.toString(), wr);
-                }
-                wr.write("&");
-                writeKeyValue("wideTeamNames", String.valueOf(wideTeamNames), wr);
-                wr.write("&");
-                writeKeyValue("groupAthletes", groupAthletes.toJson(), wr);
-                wr.write("&");
-                writeKeyValue("leaders", leaders.toJson(), wr);
-                wr.write("&");
-                writeKeyValue("liftsDone", liftsDone, wr);
-                wr.write("&");
-                writeKeyValue("translationMap", translationMap.toJson(), wr);
+                writeKeyValue("attempt", attempt, wr, false);
+                writeKeyValue("categoryName", categoryName, wr, true);
+                writeKeyValue("fullName", fullName, wr, true);
+                writeKeyValue("groupName", groupName, wr, true);
+                writeKeyValue("hidden", String.valueOf(hidden), wr, true);
+                writeKeyValue("startNumber", startNumber != null ? startNumber.toString() : null, wr, true);
+                writeKeyValue("teamName", teamName, wr, true);
+                writeKeyValue("weight", weight != null ? weight.toString() : null, wr, true);
+                writeKeyValue("wideTeamNames", String.valueOf(wideTeamNames), wr, true);
+                writeKeyValue("groupAthletes", groupAthletes.toJson(), wr, true);
+                writeKeyValue("leaders", leaders.toJson(), wr, true);
+                writeKeyValue("liftsDone", liftsDone, wr, true);
+                writeKeyValue("translationMap", translationMap.toJson(), wr, true);
+
             }
 
             StringBuilder content;
@@ -407,7 +414,7 @@ public class ScoreboardUpdateRelayer {
             logger.warn("response={}", content.toString());
 
         } catch (ConnectException c) {
-            logger.debug("cannot push: {} {}", url, c.getMessage());
+            logger.warn("cannot push: {} {}", url, c.getMessage());
         } catch (IOException e) {
             logger.error(LoggerUtils.stackTrace(e));
         } finally {
@@ -426,7 +433,6 @@ public class ScoreboardUpdateRelayer {
 
     private void setLeaders(JsonValue athletesJson) {
         this.leaders = athletesJson;
-
     }
 
     private void setTranslationMap(JsonObject translations) {
@@ -437,8 +443,14 @@ public class ScoreboardUpdateRelayer {
         wideTeamNames = b;
     }
 
-    private void writeKeyValue(String key, String value, OutputStreamWriter wr)
+    private void writeKeyValue(String key, String value, OutputStreamWriter wr, boolean ampersand)
             throws IOException, UnsupportedEncodingException {
+        if (value == null) {
+            return;
+        }
+        if (ampersand) {
+            wr.write("&");
+        }
         wr.write(key);
         wr.write("=");
         wr.write(URLEncoder.encode(value, StandardCharsets.UTF_8.name()));
