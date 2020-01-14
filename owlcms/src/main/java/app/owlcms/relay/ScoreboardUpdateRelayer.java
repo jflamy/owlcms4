@@ -11,11 +11,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,6 +68,14 @@ public class ScoreboardUpdateRelayer {
     private JsonArray cattempts;
     private Logger logger = (Logger) LoggerFactory.getLogger(ScoreboardUpdateRelayer.class);
     private String liftsDone;
+    private String attempt;
+    private String fullName;
+    private String groupName;
+    private boolean hidden;
+    private Integer startNumber;
+    private String teamName;
+    private Integer weight;
+    private JsonObject translationMap;
 
     public ScoreboardUpdateRelayer(FieldOfPlay emittingFop) {
         this.fop = emittingFop;
@@ -77,6 +87,10 @@ public class ScoreboardUpdateRelayer {
         uiEventBus.register(this);
     }
 
+    public JsonObject getTranslationMap() {
+        return translationMap;
+    }
+
     @Subscribe
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
         Competition competition = Competition.getCurrent();
@@ -85,16 +99,32 @@ public class ScoreboardUpdateRelayer {
         pushToRemote();
     }
 
-    void setAttempt(String formattedAttempt) {
+    protected void setTranslationMap() {
+        JsonObject translations = Json.createObject();
+        Enumeration<String> keys = Translator.getKeys();
+        while (keys.hasMoreElements()) {
+            String curKey = keys.nextElement();
+            if (curKey.startsWith("Scoreboard.")) {
+                translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
+            }
+        }
+        setTranslationMap(translations);
     }
 
-    void setFullName(String lastName) {
+    void setAttempt(String formattedAttempt) {
+        this.attempt = formattedAttempt;
+    }
+
+    void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     void setGroupName(String name) {
+        this.groupName = name;
     }
 
     void setHidden(boolean b) {
+        this.hidden = b;
     }
 
     void setLiftsDone(String formattedDone) {
@@ -102,12 +132,15 @@ public class ScoreboardUpdateRelayer {
     }
 
     void setStartNumber(Integer integer) {
+        this.startNumber = integer;
     }
 
     void setTeamName(String teamName) {
+        this.teamName = teamName;
     }
 
     void setWeight(Integer weight) {
+        this.weight = weight;
     }
 
     private void computeCurrentGroup(Competition competition) {
@@ -312,6 +345,7 @@ public class ScoreboardUpdateRelayer {
     private void pushToRemote() {
         String url;
         // url = "https://httpbin.org/post";
+        // FIXME: get URL from config.
         url = "http://127.0.0.1:8080/results";
 
         HttpURLConnection con = null;
@@ -325,15 +359,35 @@ public class ScoreboardUpdateRelayer {
             con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
             try (OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), StandardCharsets.UTF_8)) {
+                writeKeyValue("attempt", attempt, wr);
+                wr.write("&");
                 writeKeyValue("categoryName", categoryName, wr);
                 wr.write("&");
-                writeKeyValue("wideTeamsName", Boolean.toString(wideTeamNames), wr);
+                writeKeyValue("fullName", fullName, wr);
+                wr.write("&");
+                writeKeyValue("groupName", groupName, wr);
+                wr.write("&");
+                writeKeyValue("hidden", String.valueOf(hidden), wr);
+                if (startNumber != null) {
+                    wr.write("&");
+                    writeKeyValue("startNumber", startNumber.toString(), wr);
+                }
+                wr.write("&");
+                writeKeyValue("teamName", teamName, wr);
+                if (weight != null) {
+                    wr.write("&");
+                    writeKeyValue("weight", weight.toString(), wr);
+                }
+                wr.write("&");
+                writeKeyValue("wideTeamNames", String.valueOf(wideTeamNames), wr);
                 wr.write("&");
                 writeKeyValue("groupAthletes", groupAthletes.toJson(), wr);
                 wr.write("&");
                 writeKeyValue("leaders", leaders.toJson(), wr);
                 wr.write("&");
                 writeKeyValue("liftsDone", liftsDone, wr);
+                wr.write("&");
+                writeKeyValue("translationMap", translationMap.toJson(), wr);
             }
 
             StringBuilder content;
@@ -352,6 +406,8 @@ public class ScoreboardUpdateRelayer {
 
             logger.warn("response={}", content.toString());
 
+        } catch (ConnectException c) {
+            logger.debug("cannot push: {} {}", url, c.getMessage());
         } catch (IOException e) {
             logger.error(LoggerUtils.stackTrace(e));
         } finally {
@@ -371,6 +427,10 @@ public class ScoreboardUpdateRelayer {
     private void setLeaders(JsonValue athletesJson) {
         this.leaders = athletesJson;
 
+    }
+
+    private void setTranslationMap(JsonObject translations) {
+        this.translationMap = translations;
     }
 
     private void setWideTeamNames(boolean b) {

@@ -24,7 +24,7 @@ public class ResultsListenerServlet extends HttpServlet {
 
     Logger logger = (Logger) LoggerFactory.getLogger(ResultsListenerServlet.class);
     static EventBus eventBus = new AsyncEventBus(Executors.newCachedThreadPool());
-    
+
     public static EventBus getEventBus() {
         return eventBus;
     }
@@ -45,10 +45,26 @@ public class ResultsListenerServlet extends HttpServlet {
         for (Entry<String, String[]> pair : pairs) {
             logger.warn("{} = {}", pair.getKey(), pair.getValue()[0]);
         }
-        
-        eventBus.post(new UpdateEvent(req.getParameter("leaders")));
+
+        UpdateEvent updateEvent = new UpdateEvent();
+
+        updateEvent.setAttempt(req.getParameter("attempt"));
+        updateEvent.setCategoryName(req.getParameter("categoryName"));
+        updateEvent.setFullName(req.getParameter("fullName"));
+        updateEvent.setGroupName(req.getParameter("groupName"));
+
+        updateEvent.setHidden(req.getParameter("hidden"));
+        updateEvent.setStartNumber(req.getParameter("startNumber"));
+        updateEvent.setTeamName(req.getParameter("teamName"));
+        updateEvent.setWeight(req.getParameter("weight"));
+
+        updateEvent.setAthletes(req.getParameter("groupAthletes"));
+        updateEvent.setLeaders(req.getParameter("leaders"));
+        updateEvent.setLiftsDone(req.getParameter("liftsDone"));
+        updateEvent.setTranslationMap(req.getParameter("translationMap"));
+        updateEvent.setWideTeamNames(Boolean.parseBoolean(req.getParameter("wideTeamNames")));
+
+        eventBus.post(updateEvent);
     }
-    
-    
 
 }
