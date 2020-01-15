@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.3.2.2-SNAPSHOT</version>
+    <version>4.3.2.2</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -59,13 +59,10 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <!-- <repository> -->
-        <!-- <id>flow-prerelease</id> -->
-        <!-- <url>https://maven.vaadin.com/vaadin-prereleases</url> -->
-        <!-- </repository> -->
         <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/jflamy/owlcms4/</url>
+            <id>bintray-owlcms-owlcms-maven</id>
+            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
+            <name>bintray</name>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -80,10 +77,14 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-        <!-- <pluginRepository> -->
-        <!-- <id>flow-internal-release</id> -->
-        <!-- <url>https://maven.vaadin.com/vaadin-prereleases</url> -->
-        <!-- </pluginRepository> -->
+        <pluginRepository>
+            <id>bintray-owlcms-owlcms-maven</id>
+            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
+            <name>bintray</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
     </pluginRepositories>
 
     <dependencyManagement>
