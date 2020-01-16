@@ -40,7 +40,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.QueryParameterReader;
+import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;

@@ -34,7 +34,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
-import app.owlcms.ui.shared.QueryParameterReader;
+import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
@@ -163,7 +163,7 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
     }
 
     /**
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
      */
     @Override
     public void setParameter(BeforeEvent event, String parameter) {

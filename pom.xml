@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.3.2.2-SNAPSHOT</version>
+    <version>4.3.2.2</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -21,10 +20,10 @@
         <!-- hard-coded paths -->
         <!-- jre location for bundling with windows installer -->
         <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>
-        
+
         <!-- setting below is for JDK 11 -->
         <!-- <jre.directory>C:\Dev\Java\java-runtime</jre.directory> -->
-        
+
         <!-- windows installer compiler -->
         <innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
 
@@ -60,13 +59,10 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <!-- <repository> -->
-        <!-- <id>flow-prerelease</id> -->
-        <!-- <url>https://maven.vaadin.com/vaadin-prereleases</url> -->
-        <!-- </repository> -->
         <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/jflamy/owlcms4/</url>
+            <id>bintray-owlcms-owlcms-maven</id>
+            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
+            <name>bintray</name>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -81,10 +77,14 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-        <!-- <pluginRepository> -->
-        <!-- <id>flow-internal-release</id> -->
-        <!-- <url>https://maven.vaadin.com/vaadin-prereleases</url> -->
-        <!-- </pluginRepository> -->
+        <pluginRepository>
+            <id>bintray-owlcms-owlcms-maven</id>
+            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
+            <name>bintray</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
     </pluginRepositories>
 
     <dependencyManagement>
@@ -146,6 +146,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>app.owlcms</groupId>
+                <artifactId>owlcms</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -254,8 +259,7 @@
                             </gitFlowConfig>
                             <allowSnapshots>true</allowSnapshots>
                             <postReleaseGoals>github-release:github-release</postReleaseGoals>
-                            <skipTag>false</skipTag><!-- github-release creates 
-                                the tag -->
+                            <skipTag>false</skipTag><!-- github-release creates the tag -->
                             <skipTestProject>true</skipTestProject>
                             <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
                             <verbose>true</verbose>
