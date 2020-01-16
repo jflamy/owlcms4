@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.3.2.2</version>
+    <version>4.4.0</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
-        <module>public</module>
+        <module>publisher</module>
     </modules>
 
     <organization>

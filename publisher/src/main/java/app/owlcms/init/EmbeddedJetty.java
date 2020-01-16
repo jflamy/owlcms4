@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.startup.ServletContextListeners;
 
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 import publish.Main;
 
@@ -81,7 +82,7 @@ public class EmbeddedJetty {
 
         server.start();
         startLogger.info("started on port {}", port);
-        Main.startBrowser();
+        StartupUtils.startBrowser();
         server.join();
     }
 

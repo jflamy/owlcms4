@@ -33,6 +33,7 @@ import com.vaadin.flow.server.startup.ServletContextListeners;
 
 import app.owlcms.Main;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -75,7 +76,7 @@ public class EmbeddedJetty {
         try {
             server.start();
             startLogger.info("started on port {}", port);
-            Main.startBrowser();
+            StartupUtils.startBrowser();
             server.join();
         } catch (Exception e) {
             Throwable cause = e.getCause();
