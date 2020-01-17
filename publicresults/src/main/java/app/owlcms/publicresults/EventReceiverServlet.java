@@ -46,7 +46,7 @@ public class EventReceiverServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
         for (Entry<String, String[]> pair : pairs) {
-            logger.warn("{} = {}", pair.getKey(), pair.getValue()[0]);
+            logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
         }
         
         String updateKey = req.getParameter("updateKey");
