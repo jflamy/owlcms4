@@ -223,8 +223,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         UpdateEvent initEvent = EventReceiverServlet.sync(getFopName());
         if (initEvent != null) {
             slaveGlobalRankingUpdated(initEvent);
+            timer.slaveOrderUpdated(initEvent);
         } else {
             getModel().setFullName("Waiting for update from competition site.");
+            getModel().setGroupName("");
+            getElement().callJsFunction("doBreakNoTimer");
         }
     }
 
