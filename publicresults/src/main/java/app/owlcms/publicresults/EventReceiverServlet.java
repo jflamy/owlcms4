@@ -1,6 +1,10 @@
 package app.owlcms.publicresults;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 import javax.servlet.ServletException;
@@ -22,12 +26,14 @@ public class EventReceiverServlet extends HttpServlet {
 
     Logger logger = (Logger) LoggerFactory.getLogger(EventReceiverServlet.class);
     private String secret = StartupUtils.getStringParam("UPDATEKEY");
+    private static String defaultFopName;
     static EventBus eventBus = new AsyncEventBus(Executors.newCachedThreadPool());
 
     public static EventBus getEventBus() {
         return eventBus;
     }
 
+    /** @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse) */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -35,12 +41,13 @@ public class EventReceiverServlet extends HttpServlet {
         resp.sendError(405);
     }
 
+    /** @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse) */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-//        for (Entry<String, String[]> pair : pairs) {
-//            logger.warn("{} = {}", pair.getKey(), pair.getValue()[0]);
-//        }
+        Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
+        for (Entry<String, String[]> pair : pairs) {
+            logger.warn("{} = {}", pair.getKey(), pair.getValue()[0]);
+        }
         
         String updateKey = req.getParameter("updateKey");
         if (updateKey == null || !updateKey.equals(secret)) {
@@ -50,6 +57,9 @@ public class EventReceiverServlet extends HttpServlet {
         }
 
         UpdateEvent updateEvent = new UpdateEvent();
+        
+        updateEvent.setFopName(req.getParameter("fop"));
+        updateEvent.setFopState(req.getParameter("fopState"));
 
         updateEvent.setAttempt(req.getParameter("attempt"));
         updateEvent.setCategoryName(req.getParameter("categoryName"));
@@ -66,12 +76,31 @@ public class EventReceiverServlet extends HttpServlet {
         updateEvent.setAthletes(req.getParameter("groupAthletes"));
         updateEvent.setLeaders(req.getParameter("leaders"));
         updateEvent.setLiftsDone(req.getParameter("liftsDone"));
-        updateEvent.setTranslationMap(req.getParameter("translationMap"));
+
         updateEvent.setWideTeamNames(Boolean.parseBoolean(req.getParameter("wideTeamNames")));
         String timeAllowed = req.getParameter("timeAllowed");
         updateEvent.setTimeAllowed(timeAllowed != null ? Integer.parseInt(req.getParameter("timeAllowed")) : null);
+        
+        updateEvent.setTranslationMap(req.getParameter("translationMap"));
 
         eventBus.post(updateEvent);
+        String fopName = updateEvent.getFopName();
+        updateCache.put(fopName,updateEvent);
+        if (defaultFopName == null) {
+            defaultFopName = fopName;
+        }
+    }
+
+    static Map <String, UpdateEvent> updateCache = new HashMap<>();
+    public static UpdateEvent sync(String fopName) {
+        if (fopName == null) {
+            fopName = defaultFopName;
+        }
+        UpdateEvent updateEvent = updateCache.get(fopName);
+        if (updateEvent != null) {
+            return updateEvent;
+        }
+        return null;
     }
 
 }

@@ -13,6 +13,8 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +22,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -34,8 +38,12 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.group.Group;
+import app.owlcms.displays.attemptboard.BreakDisplay;
+import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
+import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
@@ -46,7 +54,7 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
-public class EventForwarder {
+public class EventForwarder implements BreakDisplay {
 
     private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
 
@@ -80,6 +88,10 @@ public class EventForwarder {
     private Integer timeAllowed;
     private final String updateKey = StartupUtils.getStringParam("UPDATEKEY");
     private final String url = StartupUtils.getStringParam("REMOTE");
+    private int previousHashCode = 0;
+    private long previousMillis = 0L;
+    private boolean warnedNoRemote = false;
+    private boolean breakMode;
 
     public EventForwarder(FieldOfPlay emittingFop) {
         this.fop = emittingFop;
@@ -126,9 +138,97 @@ public class EventForwarder {
                         (fop.isCjStarted() ? Translator.translate("Clean_and_Jerk")
                                 : Translator.translate("Snatch")))
                 : "";
-        setGroupName(
-                computedName);
+        setGroupName(computedName);
         pushToRemote();
+    }
+    
+    @Subscribe
+    public void slaveStartBreak(UIEvent.BreakStarted e) {
+        setHidden(false);
+        doBreak();
+        pushToRemote();
+    }
+
+    @Subscribe
+    public void slaveStartLifting(UIEvent.StartLifting e) {
+        setHidden(false);
+        pushToRemote();
+    }
+    
+    @Subscribe
+    public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
+        switch (e.getState()) {
+        case INACTIVE:
+            setHidden(true);
+            break;
+        case BREAK:
+            doUpdate(e.getAthlete(), e);
+            doBreak();
+            break;
+        default:
+            doUpdate(e.getAthlete(), e);
+        }
+    }
+    
+    public void doBreak() {
+        OwlcmsSession.withFop(fop -> {
+            BreakType breakType = fop.getBreakType();
+            logger.warn("doBreak {}", breakType);
+            Group group = fop.getGroup();
+            setFullName( (group != null ? (Translator.translate("Group_number",group.getName()) + " &ndash; ") : "") + inferMessage(breakType));
+            setTeamName("");
+            setAttempt("");
+            setBreak(true);
+            setHidden(false);
+        });
+    }
+    
+
+    private void setBreak(boolean b) {
+        this.breakMode = b;
+    }
+
+    private void doUpdate(Athlete a, UIEvent e) {
+        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+        boolean leaveTopAlone = false;
+        if (e instanceof UIEvent.LiftingOrderUpdated) {
+            LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
+            if (e2.isInBreak()) {
+                leaveTopAlone = !e2.isDisplayToggle();
+            } else {
+                leaveTopAlone = !e2.isCurrentDisplayAffected();
+            }
+        }
+
+        logger.debug("doUpdate a={} leaveTopAlone={}", a, leaveTopAlone);
+        if (a != null && a.getAttemptsDone() < 6) {
+            if (!leaveTopAlone) {
+                logger.debug("updating top {}", a.getFullName());
+                setFullName(a.getFullName());
+                setTeamName(a.getTeam());
+                setStartNumber(a.getStartNumber());
+                String formattedAttempt = formatAttempt(a.getAttemptsDone());
+                setAttempt(formattedAttempt);
+                setWeight(a.getNextAttemptRequestedWeight());
+            }
+        } else {
+            if (!leaveTopAlone) {
+                logger.debug("doUpdate doDone");
+                OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+            }
+            return;
+        }
+    }
+    
+    private void doDone(Group g) {
+        logger.debug("doDone {}", g == null ? null : g.getName());
+        if (g == null) {
+            setHidden(true);
+        } else {
+            OwlcmsSession.withFop(fop -> {
+                setFullName(Translator.translate("Group_number_results", g.toString()));
+            });
+        }
     }
 
     protected void setTranslationMap() {
@@ -179,7 +279,11 @@ public class EventForwarder {
         List<Athlete> globalRankingsForCurrentGroup = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
         int liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
         setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
-        setGroupAthletes(getAthletesJson(globalRankingsForCurrentGroup, fop.getLiftingOrder()));
+        if (globalRankingsForCurrentGroup != null && globalRankingsForCurrentGroup.size() > 0) {
+            setGroupAthletes(getAthletesJson(globalRankingsForCurrentGroup, fop.getLiftingOrder()));
+        } else {
+            setGroupAthletes(null);
+        }
     }
 
     private void computeLeaders(Competition competition) {
@@ -195,29 +299,34 @@ public class EventForwarder {
                 categoryRankings = filterToCategory(curAthlete.getCategory(), categoryRankings);
                 // logger.debug("rankings for current category {}
                 // size={}",curAthlete.getCategory(),globalRankingsForCurrentGroup.size());
-                categoryRankings = categoryRankings.stream().filter(a -> a.getTotal() > 0).collect(Collectors.toList());
+                categoryRankings = categoryRankings.stream().filter(a -> a.getTotal() > 0).limit(3)
+                        .collect(Collectors.toList());
 
-                if (categoryRankings.size() > 0) {
+                if (categoryRankings.size() > 15) {
+                    // no room on screens
+                    // TODO make leaders collapsible
+                    setLeaders(null);
+                } else if (categoryRankings.size() > 0) {
                     // null as second argument because we do not highlight current athletes in the leaderboard
                     setLeaders(getAthletesJson(categoryRankings, null));
                 } else {
-                    // no one has totaled, so we show the snatch stats
+                    // no one has totaled, so we show the snatch leaders
                     if (!fop.isCjStarted()) {
                         categoryRankings = Competition.getCurrent()
                                 .getGlobalSnatchRanking(curAthlete.getGender());
                         categoryRankings = filterToCategory(curAthlete.getCategory(),
                                 categoryRankings);
                         categoryRankings = categoryRankings.stream()
-                                .filter(a -> a.getSnatchTotal() > 0).collect(Collectors.toList());
+                                .filter(a -> a.getSnatchTotal() > 0).limit(3).collect(Collectors.toList());
                         if (categoryRankings.size() > 0) {
                             setLeaders(getAthletesJson(categoryRankings, null));
                         } else {
                             // nothing to show
-                            setLeaders(Json.createNull());
+                            setLeaders(null);
                         }
                     } else {
                         // nothing to show
-                        setLeaders(Json.createNull());
+                        setLeaders(null);
                     }
                 }
             }
@@ -382,70 +491,108 @@ public class EventForwarder {
     private void pushToRemote() {
         // url = "https://httpbin.org/post";
         HttpURLConnection con = null;
-        //OWLCMS_PUBLISHER enables this feature
-        if (url == null) {
-            logger.trace("url is null, configure OWLCMS_REMOTE in the environment");
+        // OWLCMS_PUBLISHER enables this feature
+        if (url == null && warnedNoRemote == false) {
+            logger.warn("no URL_REMOTE url specified, not pushing to remote scoreboard.");
+            warnedNoRemote = true;
             return;
         }
         if (updateKey == null) {
             logger.error("updateKey is null, configure OWLCMS_UPDATEKEY in the environment");
             return;
         }
-        
+
         try {
-            URL myurl = new URL(url);
-            con = (HttpURLConnection) myurl.openConnection();
-            logger.warn("updateKey  {}", updateKey);
+            Map<String, String> updateString = createUpdate();
 
-            con.setDoOutput(true);
-            con.setRequestMethod("POST");
-            con.setRequestProperty("User-Agent", "Java client");
-            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
-            try (OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), StandardCharsets.UTF_8)) {
-                // false only on first key 
-                writeKeyValue("updateKey", updateKey, wr, false);
-                // all other keys need true for & joiner.
-                writeKeyValue("attempt", attempt, wr, true);
-                writeKeyValue("categoryName", categoryName, wr, true);
-                writeKeyValue("fullName", fullName, wr, true);
-                writeKeyValue("groupName", groupName, wr, true);
-                writeKeyValue("hidden", String.valueOf(hidden), wr, true);
-                writeKeyValue("startNumber", startNumber != null ? startNumber.toString() : null, wr, true);
-                writeKeyValue("teamName", teamName, wr, true);
-                writeKeyValue("weight", weight != null ? weight.toString() : null, wr, true);
-                writeKeyValue("wideTeamNames", String.valueOf(wideTeamNames), wr, true);
-                writeKeyValue("groupAthletes", groupAthletes.toJson(), wr, true);
-                writeKeyValue("leaders", leaders.toJson(), wr, true);
-                writeKeyValue("liftsDone", liftsDone, wr, true);
-                writeKeyValue("translationMap", translationMap.toJson(), wr, true);
-                writeKeyValue("timeAllowed", timeAllowed != null ? timeAllowed.toString() : null, wr, true);
-
+            long deltaMillis = System.currentTimeMillis() - previousMillis;
+            logger.warn("*** {} {} {}", deltaMillis, updateString, previousHashCode);
+            int hashCode = updateString.hashCode();
+            if (hashCode != previousHashCode || (deltaMillis > 1000)) {
+                // sometimes several identical updates in a row
+                con = sendUpdate(updateString);
+                previousHashCode = hashCode;
+                previousMillis = System.currentTimeMillis();
             }
-
-            StringBuilder content;
-
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(con.getInputStream()))) {
-
-                String line;
-                content = new StringBuilder();
-
-                while ((line = br.readLine()) != null) {
-                    content.append(line);
-                    content.append(System.lineSeparator());
-                }
-            }
-
-            logger.warn("response={}", content.toString());
+            logger.warn("response={}", readResponse(con));
 
         } catch (ConnectException c) {
             logger.warn("cannot push: {} {}", url, c.getMessage());
         } catch (IOException e) {
             logger.error(LoggerUtils.stackTrace(e));
         } finally {
-            if (con != null) con.disconnect();
+            if (con != null)
+                con.disconnect();
         }
+    }
+
+    private String readResponse(HttpURLConnection con) throws IOException {
+        StringBuilder content;
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(con.getInputStream()))) {
+
+            String line;
+            content = new StringBuilder();
+
+            while ((line = br.readLine()) != null) {
+                content.append(line);
+                content.append(System.lineSeparator());
+            }
+        }
+        return content.toString();
+    }
+
+    private HttpURLConnection sendUpdate(Map<String, String> parameters)
+            throws MalformedURLException, IOException, ProtocolException {
+        logger.warn("sending {}", parameters);
+        HttpURLConnection con;
+        URL myurl = new URL(url);
+        con = (HttpURLConnection) myurl.openConnection();
+        con.setDoOutput(true);
+        con.setRequestMethod("POST");
+        con.setRequestProperty("User-Agent", "Java client");
+        con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+        int count = 0;
+        try (OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), StandardCharsets.UTF_8)) {
+            for (Entry<String, String> pair : parameters.entrySet()) {
+                wr.write(URLEncoder.encode(pair.getKey(), StandardCharsets.UTF_8.name()));
+                wr.write("=");
+                wr.write(URLEncoder.encode(pair.getValue(), StandardCharsets.UTF_8.name()));
+                if (count++ < parameters.size())
+                    wr.write("&");
+            }
+        }
+
+        logger.warn("sent {}", parameters.toString());
+        return con;
+    }
+
+    private Map<String, String> createUpdate() throws IOException, UnsupportedEncodingException {
+        Map<String, String> sb = new HashMap<>();
+        mapPut(sb, "updateKey", updateKey);
+        mapPut(sb, "fop", fop.getName());
+        mapPut(sb, "fopState", fop.getState().toString());
+        mapPut(sb, "attempt", attempt);
+        mapPut(sb, "categoryName", categoryName);
+        mapPut(sb, "fullName", fullName);
+        mapPut(sb, "groupName", groupName);
+        mapPut(sb, "hidden", String.valueOf(hidden));
+        mapPut(sb, "startNumber", startNumber != null ? startNumber.toString() : null);
+        mapPut(sb, "teamName", teamName);
+        mapPut(sb, "weight", weight != null ? weight.toString() : null);
+        mapPut(sb, "wideTeamNames", String.valueOf(wideTeamNames));
+        if (groupAthletes != null) {
+            mapPut(sb, "groupAthletes", groupAthletes.toJson());
+        }
+        if (leaders != null) {
+            mapPut(sb, "leaders", leaders.toJson());
+        }
+        mapPut(sb, "liftsDone", liftsDone);
+        mapPut(sb, "translationMap", translationMap.toJson());
+        mapPut(sb, "timeAllowed", timeAllowed != null ? timeAllowed.toString() : null);
+        mapPut(sb, "break", String.valueOf(breakMode));
+        return sb;
     }
 
     private void setCategoryName(String name) {
@@ -474,17 +621,12 @@ public class EventForwarder {
         wideTeamNames = b;
     }
 
-    private void writeKeyValue(String key, String value, OutputStreamWriter wr, boolean ampersand)
+    private void mapPut(Map<String, String> wr, String key, String value)
             throws IOException, UnsupportedEncodingException {
         if (value == null) {
             return;
         }
-        if (ampersand) {
-            wr.write("&");
-        }
-        wr.write(key);
-        wr.write("=");
-        wr.write(URLEncoder.encode(value, StandardCharsets.UTF_8.name()));
+        wr.put(key, value);
     }
 
 }
