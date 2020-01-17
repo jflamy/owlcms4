@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.relay;
+package forwarder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,20 +39,21 @@ import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
-public class ScoreboardUpdateRelayer {
+public class EventForwarder {
 
-    private static HashMap<String, ScoreboardUpdateRelayer> registeredFop = new HashMap<>();
+    private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
 
     public static void listenToFOP(FieldOfPlay fop) {
         String fopName = fop.getName();
         if (registeredFop.get(fopName) == null) {
-            registeredFop.put(fopName, new ScoreboardUpdateRelayer(fop));
+            registeredFop.put(fopName, new EventForwarder(fop));
         }
     }
 
@@ -66,7 +67,7 @@ public class ScoreboardUpdateRelayer {
     private JsonValue groupAthletes;
     private JsonArray sattempts;
     private JsonArray cattempts;
-    private Logger logger = (Logger) LoggerFactory.getLogger(ScoreboardUpdateRelayer.class);
+    private Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
     private String liftsDone;
     private String attempt;
     private String fullName;
@@ -76,8 +77,11 @@ public class ScoreboardUpdateRelayer {
     private String teamName;
     private Integer weight;
     private JsonObject translationMap;
+    private Integer timeAllowed;
+    private final String updateKey = StartupUtils.getStringParam("UPDATEKEY");
+    private final String url = StartupUtils.getStringParam("REMOTE");
 
-    public ScoreboardUpdateRelayer(FieldOfPlay emittingFop) {
+    public EventForwarder(FieldOfPlay emittingFop) {
         this.fop = emittingFop;
 
         fopEventBus = fop.getFopEventBus();
@@ -87,6 +91,10 @@ public class ScoreboardUpdateRelayer {
         uiEventBus.register(this);
 
         setTranslationMap();
+    }
+
+    public Integer getTimeAllowed() {
+        return timeAllowed;
     }
 
     public JsonObject getTranslationMap() {
@@ -103,7 +111,6 @@ public class ScoreboardUpdateRelayer {
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-        logger.warn("*****order updated");
         Athlete a = e.getAthlete();
         Competition competition = Competition.getCurrent();
         computeCurrentGroup(competition);
@@ -113,6 +120,14 @@ public class ScoreboardUpdateRelayer {
         String formattedAttempt = formatAttempt(a.getAttemptsDone());
         setAttempt(formattedAttempt);
         setWeight(a.getNextAttemptRequestedWeight());
+        setTimeAllowed(e.getTimeAllowed());
+        String computedName = fop.getGroup() != null
+                ? Translator.translate("Scoreboard.GroupLiftType", fop.getGroup().getName(),
+                        (fop.isCjStarted() ? Translator.translate("Clean_and_Jerk")
+                                : Translator.translate("Snatch")))
+                : "";
+        setGroupName(
+                computedName);
         pushToRemote();
     }
 
@@ -365,23 +380,33 @@ public class ScoreboardUpdateRelayer {
     }
 
     private void pushToRemote() {
-        String url;
         // url = "https://httpbin.org/post";
-        // FIXME: get URL from config.
-        url = "http://127.0.0.1:8080/results";
-
         HttpURLConnection con = null;
-
+        //OWLCMS_PUBLISHER enables this feature
+        if (url == null) {
+            logger.trace("url is null, configure OWLCMS_REMOTE in the environment");
+            return;
+        }
+        if (updateKey == null) {
+            logger.error("updateKey is null, configure OWLCMS_UPDATEKEY in the environment");
+            return;
+        }
+        
         try {
             URL myurl = new URL(url);
             con = (HttpURLConnection) myurl.openConnection();
+            logger.warn("updateKey  {}", updateKey);
+
             con.setDoOutput(true);
             con.setRequestMethod("POST");
             con.setRequestProperty("User-Agent", "Java client");
             con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
             try (OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), StandardCharsets.UTF_8)) {
-                writeKeyValue("attempt", attempt, wr, false);
+                // false only on first key 
+                writeKeyValue("updateKey", updateKey, wr, false);
+                // all other keys need true for & joiner.
+                writeKeyValue("attempt", attempt, wr, true);
                 writeKeyValue("categoryName", categoryName, wr, true);
                 writeKeyValue("fullName", fullName, wr, true);
                 writeKeyValue("groupName", groupName, wr, true);
@@ -394,6 +419,7 @@ public class ScoreboardUpdateRelayer {
                 writeKeyValue("leaders", leaders.toJson(), wr, true);
                 writeKeyValue("liftsDone", liftsDone, wr, true);
                 writeKeyValue("translationMap", translationMap.toJson(), wr, true);
+                writeKeyValue("timeAllowed", timeAllowed != null ? timeAllowed.toString() : null, wr, true);
 
             }
 
@@ -418,7 +444,7 @@ public class ScoreboardUpdateRelayer {
         } catch (IOException e) {
             logger.error(LoggerUtils.stackTrace(e));
         } finally {
-            con.disconnect();
+            if (con != null) con.disconnect();
         }
     }
 
@@ -433,6 +459,11 @@ public class ScoreboardUpdateRelayer {
 
     private void setLeaders(JsonValue athletesJson) {
         this.leaders = athletesJson;
+    }
+
+    private void setTimeAllowed(Integer timeAllowed) {
+        this.timeAllowed = timeAllowed;
+
     }
 
     private void setTranslationMap(JsonObject translations) {

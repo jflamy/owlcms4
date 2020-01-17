@@ -8,9 +8,8 @@
     </parent>
 
     <name>Olympic Weightlifting Competition Management System Public Viewer</name>
-    <artifactId>public</artifactId>
+    <artifactId>publicresults</artifactId>
     <packaging>jar</packaging>
-    <version>4.3.3.0</version>
 
     <dependencies>
         <dependency>

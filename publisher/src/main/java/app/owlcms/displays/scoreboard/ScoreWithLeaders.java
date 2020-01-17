@@ -10,11 +10,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
@@ -23,12 +25,14 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import app.owlcms.components.elements.AthleteTimerElement;
+import app.owlcms.publicresults.EventReceiverServlet;
+import app.owlcms.publicresults.UpdateEvent;
 import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.parameters.QueryParameterReader;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import publish.ResultsListenerServlet;
-import publish.UpdateEvent;
+import elemental.json.impl.JreJsonFactory;
 
 /**
  * Class Scoreboard
@@ -98,12 +102,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         uiEventLogger.setLevel(Level.INFO);
     }
 
-//    @Id("timer")
-//    private AthleteTimerElement timer; // Flow creates it
-//
+    @Id("timer")
+    private AthleteTimerElement timer; // Flow creates it
+
 //    @Id("breakTimer")
 //    private BreakTimerElement breakTimer; // Flow creates it
-//
+
 //    @Id("decisions")
 //    private DecisionElement decisions; // Flow creates it
 
@@ -111,12 +115,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private ContextMenu contextMenu;
     private Location location;
     private UI locationUI;
+    private UI ui;
 
     /**
      * Instantiates a new results board.
      */
     public ScoreWithLeaders() {
-        ResultsListenerServlet.getEventBus().register(this);
         setDarkMode(true);
     }
 
@@ -172,10 +176,20 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveGlobalRankingUpdated(UpdateEvent e) {
-        UI.getCurrent().access(() -> {
-            this.getElement().setProperty("leaders", e.getLeaders());
-            this.getElement().setProperty("athletes", e.getAthletes());
-            this.getElement().setProperty("t", e.getTranslationMap());
+        ui.access(() -> {     
+            JreJsonFactory jreJsonFactory = new JreJsonFactory();
+            
+            this.getElement().setPropertyJson("leaders", jreJsonFactory.parse(e.getAthletes()));
+            this.getElement().setPropertyJson("athletes", jreJsonFactory.parse(e.getAthletes()));
+            this.getElement().setPropertyJson("t", jreJsonFactory.parse(e.getTranslationMap()));
+            
+            getModel().setAttempt(e.getAttempt());
+            getModel().setFullName(e.getFullName());
+            getModel().setGroupName(e.getGroupName());
+            getModel().setHidden(e.getHidden());
+            getModel().setStartNumber(e.getStartNumber());
+            getModel().setTeamName(e.getTeamName());
+            getModel().setWeight(e.getWeight());
             getModel().setCategoryName(e.getCategoryName());
             getModel().setWideTeamNames(e.getWideTeamNames());
             getModel().setLiftsDone(e.getLiftsDone());
@@ -191,6 +205,15 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        EventReceiverServlet.getEventBus().register(this);
+        ui = UI.getCurrent();
+        setDarkMode(this, isDarkMode(), false);
+    }
+    
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+        EventReceiverServlet.getEventBus().unregister(this);
     }
 
 

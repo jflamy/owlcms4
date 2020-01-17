@@ -53,13 +53,13 @@ import app.owlcms.fieldofplay.FOPEvent.TimeStarted;
 import app.owlcms.fieldofplay.FOPEvent.TimeStopped;
 import app.owlcms.fieldofplay.FOPEvent.WeightChange;
 import app.owlcms.i18n.Translator;
-import app.owlcms.relay.ScoreboardUpdateRelayer;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import forwarder.EventForwarder;
 
 /**
  * This class describes one field of play at runtime.
@@ -1151,7 +1151,7 @@ public class FieldOfPlay {
     }
 
     private void uiShowUpdatedRankings() {
-        ScoreboardUpdateRelayer.listenToFOP(this);
+        EventForwarder.listenToFOP(this);
         uiEventBus.post(new UIEvent.GlobalRankingUpdated(this));
     }
 

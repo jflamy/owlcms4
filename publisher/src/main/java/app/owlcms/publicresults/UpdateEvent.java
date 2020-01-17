@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package publish;
+package app.owlcms.publicresults;
 
 public class UpdateEvent {
 
@@ -17,10 +17,11 @@ public class UpdateEvent {
     private String attempt;
     private String fullName;
     private String groupName;
-    private String hidden;
-    private String startNumber;
+    private boolean hidden;
+    private Integer startNumber;
     private String teamName;
-    private String weight;
+    private Integer weight;
+    private Integer timeAllowed;
 
     public UpdateEvent() {
         setLeaders(leaders);
@@ -30,8 +31,24 @@ public class UpdateEvent {
         return this.athletes;
     }
 
+    public String getAttempt() {
+        return attempt;
+    }
+
     public String getCategoryName() {
         return this.categoryName;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public boolean getHidden() {
+        return hidden;
     }
 
     public String getLeaders() {
@@ -42,8 +59,24 @@ public class UpdateEvent {
         return this.liftsDone;
     }
 
+    public Integer getStartNumber() {
+        return startNumber;
+    }
+
+    public String getTeamName() {
+        return teamName;
+    }
+
+    public Integer getTimeAllowed() {
+        return this.timeAllowed;
+    }
+
     public String getTranslationMap() {
         return this.translationMap;
+    }
+
+    public Integer getWeight() {
+        return weight;
     }
 
     public boolean getWideTeamNames() {
@@ -70,35 +103,7 @@ public class UpdateEvent {
         this.groupName = parameter;
     }
 
-    public String getAttempt() {
-        return attempt;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public String getGroupName() {
-        return groupName;
-    }
-
-    public String getHidden() {
-        return hidden;
-    }
-
-    public String getStartNumber() {
-        return startNumber;
-    }
-
-    public String getTeamName() {
-        return teamName;
-    }
-
-    public String getWeight() {
-        return weight;
-    }
-
-    public void setHidden(String parameter) {
+    public void setHidden(boolean parameter) {
         this.hidden = parameter;
     }
 
@@ -110,7 +115,7 @@ public class UpdateEvent {
         this.liftsDone = liftsDone;
     }
 
-    public void setStartNumber(String parameter) {
+    public void setStartNumber(Integer parameter) {
         this.startNumber = parameter;
     }
 
@@ -118,12 +123,16 @@ public class UpdateEvent {
         this.teamName = parameter;
     }
 
+    public void setTimeAllowed(Integer integer) {
+        this.timeAllowed = integer;
+    }
+
     public void setTranslationMap(String translationMap) {
         this.translationMap = translationMap;
     }
 
-    public void setWeight(String parameter) {
-        this.weight = parameter;
+    public void setWeight(Integer integer) {
+        this.weight = integer;
     }
 
     public void setWideTeamNames(boolean wideTeamNames) {
