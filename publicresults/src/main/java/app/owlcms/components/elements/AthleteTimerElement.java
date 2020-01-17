@@ -157,11 +157,6 @@ public class AthleteTimerElement extends TimerElement {
 
         EventReceiverServlet.getEventBus().register(this);
         ui = UI.getCurrent();
-        // FIXME get current state
-//        OwlcmsSession.withFop(fop -> {
-//            // sync with current status of FOP
-//            doSetTimer(fop.getAthleteTimer().getTimeRemaining()););
-//        });
     }
 
 
@@ -170,4 +165,5 @@ public class AthleteTimerElement extends TimerElement {
         super.onDetach(detachEvent);
         EventReceiverServlet.getEventBus().unregister(this);
     }
+    
 }
