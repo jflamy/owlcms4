@@ -614,7 +614,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                         logger.debug("filter switching group from {} to {}",
                                 oldGroup != null ? oldGroup.getName() : null,
                                 newGroup != null ? newGroup.getName() : null);
-                        fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
+                        fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, fop.getState(), null, this));
                         oldGroup = newGroup;
                         // this assumes that SwitchGroup post is synchronous and has loaded.
                         // otherwise we should listen for UI SwitchGroup event.

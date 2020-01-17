@@ -385,10 +385,11 @@ public class FieldOfPlay {
             }
             // force the switch/reload by going to null
             loadGroup((Group) null, this);
-            loadGroup(((SwitchGroup) e).getGroup(), this);
+            SwitchGroup switchGroup = (SwitchGroup) e;
+            loadGroup(switchGroup.getGroup(), this);
             recomputeLiftingOrder();
             updateGlobalRankings();
-            getUiEventBus().post(new UIEvent.SwitchGroup(((SwitchGroup) e).getGroup(), e.getOrigin()));
+            getUiEventBus().post(new UIEvent.SwitchGroup(switchGroup.getGroup(), switchGroup.getState(), switchGroup.getCurAthlete(), e.getOrigin()));
             return;
         }
 

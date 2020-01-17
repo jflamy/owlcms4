@@ -354,22 +354,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         });
     }
 
-    public void syncWithFOP(UIEvent.SwitchGroup e) {
-        OwlcmsSession.withFop(fop -> {
-            switch (fop.getState()) {
-            case INACTIVE:
-                doEmpty();
-                break;
-            case BREAK:
-                doUpdate(fop.getCurAthlete(), e);
-                doBreak();
-                break;
-            default:
-                doUpdate(fop.getCurAthlete(), e);
-            }
-        });
-    }
-
     public void uiLog(UIEvent e) {
         uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
@@ -430,7 +414,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             globalRankingsForCurrentGroup = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
 
             liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
-            syncWithFOP(null);
+            syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
@@ -688,6 +672,20 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         });
         setTranslationMap();
         globalRankingsForCurrentGroup = ImmutableList.of();
+    }
+
+    private void syncWithFOP(UIEvent.SwitchGroup e) {
+        switch (e.getState()) {
+        case INACTIVE:
+            doEmpty();
+            break;
+        case BREAK:
+            doUpdate(e.getAthlete(), e);
+            doBreak();
+            break;
+        default:
+            doUpdate(e.getAthlete(), e);
+        }
     }
 
     private void updateBottom(ScoreboardModel model, String liftType) {
