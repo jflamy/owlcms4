@@ -98,7 +98,7 @@ public class StartupUtils {
         }
     
         int response;
-        URL testingURL = new URL("http", hostName, serverPort, "/sounds/timeOver.mp3");
+        URL testingURL = new URL("http", hostName, serverPort, "/frontend/images/owlcms.ico");
         HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
         logger.debug("checking for {}", testingURL.toExternalForm());
         huc.setRequestMethod("GET");
@@ -128,7 +128,7 @@ public class StartupUtils {
                 mainLogger.error(LoggerUtils.stackTrace(e));
             }
         } else {
-            logger.debug("no browser support");
+            logger.warn("no browser support");
         }
     }
 

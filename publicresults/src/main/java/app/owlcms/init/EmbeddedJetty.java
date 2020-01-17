@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.startup.ServletContextListeners;
 
-import app.owlcms.publicresults.Main;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -40,7 +39,7 @@ import ch.qos.logback.classic.Logger;
 public class EmbeddedJetty {
 	@SuppressWarnings("unused")
     private final static Logger logger = (Logger) LoggerFactory.getLogger(EmbeddedJetty.class);
-	private final static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
+	private final static Logger startLogger = (Logger) LoggerFactory.getLogger("app.owlcms.Main");
 	
 	/**
 	 * Run.
