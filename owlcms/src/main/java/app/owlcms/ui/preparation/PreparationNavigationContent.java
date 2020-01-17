@@ -64,10 +64,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
         Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
         Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
-
-//        Button categories = new Button(getTranslation("DefineCategories"),
-//                buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class));
-
+        
         StreamResource href = new StreamResource("registration.xls",
                 () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
         Anchor download = new Anchor(href, "");
