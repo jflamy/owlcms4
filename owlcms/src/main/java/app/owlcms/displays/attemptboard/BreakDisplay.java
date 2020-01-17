@@ -23,6 +23,7 @@ public interface BreakDisplay {
 
     public default String inferGroupName() {
         FieldOfPlay fop = OwlcmsSession.getFop();
+        if (fop == null) return "";
         Group group = fop.getGroup();
         String groupName = group != null ? group.getName() : "";
         return Translator.translate("Group_number", groupName);
