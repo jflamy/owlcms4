@@ -32,6 +32,7 @@ import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.parameters.QueryParameterReader;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import elemental.json.Json;
 import elemental.json.impl.JreJsonFactory;
 
 /**
@@ -116,6 +117,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private Location location;
     private UI locationUI;
     private UI ui;
+    private String fopName;
+    private boolean needReset = false;
 
     /**
      * Instantiates a new results board.
@@ -176,13 +179,15 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveGlobalRankingUpdated(UpdateEvent e) {
-        ui.access(() -> {     
+        ui.access(() -> {
+            String athletes = e.getAthletes();
+            String leaders = e.getLeaders();
+
             JreJsonFactory jreJsonFactory = new JreJsonFactory();
-            
-            this.getElement().setPropertyJson("leaders", jreJsonFactory.parse(e.getAthletes()));
-            this.getElement().setPropertyJson("athletes", jreJsonFactory.parse(e.getAthletes()));
+            this.getElement().setPropertyJson("leaders", leaders != null ? jreJsonFactory.parse(leaders) : Json.createNull());
+            this.getElement().setPropertyJson("athletes", athletes != null ? jreJsonFactory.parse(athletes) : Json.createNull());
             this.getElement().setPropertyJson("t", jreJsonFactory.parse(e.getTranslationMap()));
-            
+
             getModel().setAttempt(e.getAttempt());
             getModel().setFullName(e.getFullName());
             getModel().setGroupName(e.getGroupName());
@@ -193,6 +198,14 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             getModel().setCategoryName(e.getCategoryName());
             getModel().setWideTeamNames(e.getWideTeamNames());
             getModel().setLiftsDone(e.getLiftsDone());
+            
+            if ("BREAK".equals(e.getFopState())) {
+                this.getElement().callJsFunction("doBreakNoTimer");
+                needReset = true;
+            } else if (needReset ) {
+                this.getElement().callJsFunction("reset");
+                needReset = false;
+            }
         });
     }
 
@@ -200,21 +213,36 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         this.getModel().setHidden(true);
     }
 
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
-     */
+
+    /** @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         EventReceiverServlet.getEventBus().register(this);
         ui = UI.getCurrent();
         setDarkMode(this, isDarkMode(), false);
+        UpdateEvent initEvent = EventReceiverServlet.sync(getFopName());
+        if (initEvent != null) {
+            slaveGlobalRankingUpdated(initEvent);
+        } else {
+            getModel().setFullName("Waiting for update from competition site.");
+        }
     }
-    
+
+    /** @see com.vaadin.flow.component.Component#onDetach(com.vaadin.flow.component.DetachEvent) */
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
         EventReceiverServlet.getEventBus().unregister(this);
     }
 
+    /** @see app.owlcms.ui.parameters.QueryParameterReader#setFopName(java.lang.String) */
+    @Override
+    public void setFopName(String fopName) {
+        this.fopName = fopName;
+    }
+
+    private String getFopName() {
+        return fopName;
+    }
 
 }

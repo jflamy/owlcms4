@@ -533,6 +533,7 @@ table#leaders-table thead tr.hide th {
 <div class="group" id="groupDiv" style$="[[_computeHidden(hidden)]]">
 <span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
 </div>
+<template is="dom-if" if="[[athletes]]">
 <div id="results">
 <table class="results" style$="[[_computeHidden(hidden)]]">
 	<thead>
@@ -579,6 +580,7 @@ table#leaders-table thead tr.hide th {
 	</template>
 </table>
 </div>
+</template>
 <template is="dom-if" if="[[leaders]]">
 <div id="leaders">
 <table class="results" id="leaders-table" style$="[[_computeHidden(hidden)]]">
@@ -676,6 +678,12 @@ table#leaders-table thead tr.hide th {
 		this.$.timerDiv.style.display="none";
 		this.$.breakTimerDiv.style.display="flex";
 		this.$.decisionDiv.style.display="none";
+	}
+	
+	doBreakNoTimer() {
+		console.debug("break");
+		this.doBreak();
+		this.$.breakTimerDiv.style.visibility="hidden";
 	}
 
 	groupDone() {

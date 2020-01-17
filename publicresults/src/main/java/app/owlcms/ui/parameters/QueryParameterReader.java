@@ -46,7 +46,7 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
                 fopName = (fopNames.get(0));
             }
             if (fopName != null) {
-                // FIXME: load data for Fop
+                setFopName(fopName);
                 try {
                     params.put("fop", Arrays.asList(URLEncoder.encode(fopName, StandardCharsets.UTF_8.name())));
                 } catch (UnsupportedEncodingException e) {
@@ -94,6 +94,8 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
     public void setLocation(Location location);
 
     public void setLocationUI(UI locationUI);
+    
+    public void setFopName(String fopName);
 
     /*
      * Process query parameters

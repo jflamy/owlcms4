@@ -1,5 +1,8 @@
 package app.owlcms.publicresults;
 
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
@@ -18,6 +21,7 @@ import ch.qos.logback.classic.Logger;
 public class MainView extends VerticalLayout {
 
     static Text text;
+    @SuppressWarnings("unused")
     private static Logger logger = (Logger) LoggerFactory.getLogger(MainView.class);
     private UI ui;
 
@@ -32,24 +36,21 @@ public class MainView extends VerticalLayout {
         ui = UI.getCurrent();
         EventReceiverServlet.getEventBus().register(this);
     }
-    
+
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
         EventReceiverServlet.getEventBus().unregister(this);
         ui = null;
     }
-    
+
     @Subscribe
     public void update(UpdateEvent e) {
-        if (ui == null) return;
-        
-        String leaders = e.getLeaders();
-        logger.warn("updating {}", leaders);
-        logger.warn("current {}", ui);
+        if (ui == null)
+            return;
         ui.access(() -> {
-            text.setText(leaders);
-            logger.warn("updated {}", leaders);
+            text.setText(MessageFormat.format("{0}: update received for platform {1}", LocalDateTime.now().toString(),
+                    e.getFopName()));
         });
     }
 
