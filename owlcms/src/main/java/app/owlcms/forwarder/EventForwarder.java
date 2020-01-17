@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package forwarder;
+package app.owlcms.forwarder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -87,7 +87,7 @@ public class EventForwarder implements BreakDisplay {
     private JsonObject translationMap;
     private Integer timeAllowed;
     private final String updateKey = StartupUtils.getStringParam("UPDATEKEY");
-    private final String url = StartupUtils.getStringParam("REMOTE");
+    private String url = StartupUtils.getStringParam("REMOTE");
     private int previousHashCode = 0;
     private long previousMillis = 0L;
     private boolean warnedNoRemote = false;
@@ -135,13 +135,13 @@ public class EventForwarder implements BreakDisplay {
         setTimeAllowed(e.getTimeAllowed());
         String computedName = fop.getGroup() != null
                 ? Translator.translate("Scoreboard.GroupLiftType", fop.getGroup().getName(),
-                        (fop.isCjStarted() ? Translator.translate("Clean_and_Jerk")
+                        (a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
                                 : Translator.translate("Snatch")))
                 : "";
         setGroupName(computedName);
         pushToRemote();
     }
-    
+
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         setHidden(false);
@@ -154,7 +154,7 @@ public class EventForwarder implements BreakDisplay {
         setHidden(false);
         pushToRemote();
     }
-    
+
     @Subscribe
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
         switch (e.getState()) {
@@ -169,20 +169,19 @@ public class EventForwarder implements BreakDisplay {
             doUpdate(e.getAthlete(), e);
         }
     }
-    
+
     public void doBreak() {
         OwlcmsSession.withFop(fop -> {
             BreakType breakType = fop.getBreakType();
-            logger.warn("doBreak {}", breakType);
             Group group = fop.getGroup();
-            setFullName( (group != null ? (Translator.translate("Group_number",group.getName()) + " &ndash; ") : "") + inferMessage(breakType));
+            setFullName((group != null ? (Translator.translate("Group_number", group.getName()) + " &ndash; ") : "")
+                    + inferMessage(breakType));
             setTeamName("");
             setAttempt("");
             setBreak(true);
             setHidden(false);
         });
     }
-    
 
     private void setBreak(boolean b) {
         this.breakMode = b;
@@ -219,7 +218,7 @@ public class EventForwarder implements BreakDisplay {
             return;
         }
     }
-    
+
     private void doDone(Group g) {
         logger.debug("doDone {}", g == null ? null : g.getName());
         if (g == null) {
@@ -489,11 +488,11 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void pushToRemote() {
-        // url = "https://httpbin.org/post";
+        //url = "https://httpbin.org/post";
         HttpURLConnection con = null;
         // OWLCMS_PUBLISHER enables this feature
         if (url == null && warnedNoRemote == false) {
-            logger.warn("no URL_REMOTE url specified, not pushing to remote scoreboard.");
+            logger./**/warn("no URL_REMOTE url specified, not pushing to remote scoreboard.");
             warnedNoRemote = true;
             return;
         }
@@ -506,7 +505,7 @@ public class EventForwarder implements BreakDisplay {
             Map<String, String> updateString = createUpdate();
 
             long deltaMillis = System.currentTimeMillis() - previousMillis;
-            logger.warn("*** {} {} {}", deltaMillis, updateString, previousHashCode);
+
             int hashCode = updateString.hashCode();
             if (hashCode != previousHashCode || (deltaMillis > 1000)) {
                 // sometimes several identical updates in a row
@@ -514,10 +513,9 @@ public class EventForwarder implements BreakDisplay {
                 previousHashCode = hashCode;
                 previousMillis = System.currentTimeMillis();
             }
-            logger.warn("response={}", readResponse(con));
-
+            logger./**/warn("response={}", readResponse(con));
         } catch (ConnectException c) {
-            logger.warn("cannot push: {} {}", url, c.getMessage());
+            logger./**/warn("cannot push: {} {}", url, c.getMessage());
         } catch (IOException e) {
             logger.error(LoggerUtils.stackTrace(e));
         } finally {
@@ -526,6 +524,7 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
+    @SuppressWarnings("unused")
     private String readResponse(HttpURLConnection con) throws IOException {
         StringBuilder content;
         try (BufferedReader br = new BufferedReader(
@@ -544,7 +543,6 @@ public class EventForwarder implements BreakDisplay {
 
     private HttpURLConnection sendUpdate(Map<String, String> parameters)
             throws MalformedURLException, IOException, ProtocolException {
-        logger.warn("sending {}", parameters);
         HttpURLConnection con;
         URL myurl = new URL(url);
         con = (HttpURLConnection) myurl.openConnection();
@@ -556,6 +554,7 @@ public class EventForwarder implements BreakDisplay {
         int count = 0;
         try (OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), StandardCharsets.UTF_8)) {
             for (Entry<String, String> pair : parameters.entrySet()) {
+                logger.warn("sending {}",pair.getKey());
                 wr.write(URLEncoder.encode(pair.getKey(), StandardCharsets.UTF_8.name()));
                 wr.write("=");
                 wr.write(URLEncoder.encode(pair.getValue(), StandardCharsets.UTF_8.name()));
@@ -563,8 +562,6 @@ public class EventForwarder implements BreakDisplay {
                     wr.write("&");
             }
         }
-
-        logger.warn("sent {}", parameters.toString());
         return con;
     }
 
