@@ -75,8 +75,8 @@ class ScoreLeader extends PolymerElement {
 /* 720 screen or 1366 laptop */
 @media screen and (max-width: 1400px) and (min-width: 1280px) {
 	.wideTeams {
-	  --fontSizeRank-height: 0.9em;
-	  --fontSizeRows-height: 0.9em;
+	  --fontSizeRank-height: 0.8em;
+	  --fontSizeRows-height: 0.8em;
 	  --name-width: 20vw;
 	  --name-max-width: 20vw;
 	  --club-width: 25vw;
@@ -87,10 +87,11 @@ class ScoreLeader extends PolymerElement {
 	  --group-width: 5vw;
 	}
 	.narrowTeams {
-	  --fontSizeRank-height: 0.9em;
-	  --fontSizeRows-height: 1.1em;
+	  --fontSizeRank-height: 0.8em;
+	  --fontSizeRows-height: 0.8em;
 	  --name-width: 35vw;
 	  --name-max-width: 23vw;
+	  --max-narrow-width: 6ch;
 	  --club-width: 12ch;
 	  --club-max-width: 100%;
 	  --category-width: 12ch;
@@ -124,7 +125,7 @@ class ScoreLeader extends PolymerElement {
 	}
 }
 
-/* header cells for rank in the main table, 1024 projector */
+/* 1024 projector */
 @media screen and (max-width: 1279px) {
 	.wideTeams {
 	  --fontSizeRank-height: 0.8em;
@@ -531,7 +532,9 @@ table#leaders-table thead tr.hide th {
 	</div>
 </div>
 <div class="group" id="groupDiv" style$="[[_computeHidden(hidden)]]">
+<template is="dom-if" if="[[groupName]]">
 <span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
+</template>
 </div>
 <template is="dom-if" if="[[athletes]]">
 <div id="results">
