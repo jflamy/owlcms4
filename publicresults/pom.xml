@@ -10,6 +10,7 @@
     <name>Olympic Weightlifting Competition Management System Public Viewer</name>
     <artifactId>publicresults</artifactId>
     <packaging>jar</packaging>
+    <version>${project.parent.version}.4</version>
 
     <dependencies>
         <dependency>
@@ -95,30 +96,6 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.2.5</version>
-        </dependency>
-
-        <!-- jpa using hibernate -->
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${hibernate.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-c3p0</artifactId>
-            <version>${hibernate.version}</version>
-        </dependency>
-
-        <!-- 2nd-level caching -->
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-jcache</artifactId>
-            <version>${hibernate.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>3.7.0</version>
         </dependency>
 
         <!-- event bus -->
@@ -228,6 +205,7 @@
     </distributionManagement>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -238,6 +216,15 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>3.0.0-M1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
         <plugins>
             <!-- Take care of synchronizing java dependencies and imports in package.json and main.js files. It also creates webpack.config.js 
@@ -323,7 +310,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <!-- finalName>${project.artifactId}</finalName -->
+                            <finalName>${project.artifactId}-${project.version}</finalName>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <artifactSet>
@@ -386,6 +373,31 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-install</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>install-file</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <file>target/${project.artifactId}-${project.version}.jar</file>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>${project.artifactId}</artifactId>
+                            <version>${project.version}</version>
+                            <packaging>jar</packaging>
+                            <pomFile>target/classes/deployment-pom.xml</pomFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.8.2</version>
                 <executions>
@@ -395,7 +407,7 @@
                     </execution>
                     <execution>
                         <id>deploy-file</id>
-                        <phase>deploy</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>deploy-file</goal>
                         </goals>
@@ -407,6 +419,7 @@
                             <artifactId>${project.artifactId}</artifactId>
                             <version>${project.version}</version>
                             <packaging>jar</packaging>
+                            <generatePom>false</generatePom>
                             <pomFile>target/classes/deployment-pom.xml</pomFile>
                         </configuration>
                     </execution>

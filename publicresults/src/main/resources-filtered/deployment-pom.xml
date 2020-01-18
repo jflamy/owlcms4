@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>app.owlcms</groupId>
-  <artifactId>public</artifactId>
+  <artifactId>${project.artifactId}</artifactId>
   <version>${project.version}</version>
   <name>public</name>
   <packaging>jar</packaging>
