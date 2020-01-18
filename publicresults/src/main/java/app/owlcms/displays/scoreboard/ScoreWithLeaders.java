@@ -182,11 +182,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         ui.access(() -> {
             String athletes = e.getAthletes();
             String leaders = e.getLeaders();
+            String translationMap = e.getTranslationMap();
 
             JreJsonFactory jreJsonFactory = new JreJsonFactory();
             this.getElement().setPropertyJson("leaders", leaders != null ? jreJsonFactory.parse(leaders) : Json.createNull());
             this.getElement().setPropertyJson("athletes", athletes != null ? jreJsonFactory.parse(athletes) : Json.createNull());
-            this.getElement().setPropertyJson("t", jreJsonFactory.parse(e.getTranslationMap()));
+            this.getElement().setPropertyJson("t", translationMap != null ? jreJsonFactory.parse(translationMap) : Json.createNull());
 
             getModel().setAttempt(e.getAttempt());
             getModel().setFullName(e.getFullName());

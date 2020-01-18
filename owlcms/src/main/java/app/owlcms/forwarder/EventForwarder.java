@@ -9,6 +9,7 @@ package app.owlcms.forwarder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
@@ -16,8 +17,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -48,6 +47,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -86,12 +86,14 @@ public class EventForwarder implements BreakDisplay {
     private Integer weight;
     private JsonObject translationMap;
     private Integer timeAllowed;
-    private final String updateKey = StartupUtils.getStringParam("UPDATEKEY");
-    private String url = StartupUtils.getStringParam("REMOTE");
     private int previousHashCode = 0;
     private long previousMillis = 0L;
     private boolean warnedNoRemote = false;
     private boolean breakMode;
+
+    private final String updateKey = StartupUtils.getStringParam("UPDATEKEY");
+    private String url = StartupUtils.getStringParam("REMOTE");
+    private boolean debugMode = StartupUtils.getBooleanParam("DEBUG");
 
     public EventForwarder(FieldOfPlay emittingFop) {
         this.fop = emittingFop;
@@ -103,6 +105,20 @@ public class EventForwarder implements BreakDisplay {
         uiEventBus.register(this);
 
         setTranslationMap();
+    }
+
+    @Override
+    public void doBreak() {
+        OwlcmsSession.withFop(fop -> {
+            BreakType breakType = fop.getBreakType();
+            Group group = fop.getGroup();
+            setFullName((group != null ? (Translator.translate("Group_number", group.getName()) + " &ndash; ") : "")
+                    + inferMessage(breakType));
+            setTeamName("");
+            setAttempt("");
+            setBreak(true);
+            setHidden(false);
+        });
     }
 
     public Integer getTimeAllowed() {
@@ -167,66 +183,6 @@ public class EventForwarder implements BreakDisplay {
             break;
         default:
             doUpdate(e.getAthlete(), e);
-        }
-    }
-
-    public void doBreak() {
-        OwlcmsSession.withFop(fop -> {
-            BreakType breakType = fop.getBreakType();
-            Group group = fop.getGroup();
-            setFullName((group != null ? (Translator.translate("Group_number", group.getName()) + " &ndash; ") : "")
-                    + inferMessage(breakType));
-            setTeamName("");
-            setAttempt("");
-            setBreak(true);
-            setHidden(false);
-        });
-    }
-
-    private void setBreak(boolean b) {
-        this.breakMode = b;
-    }
-
-    private void doUpdate(Athlete a, UIEvent e) {
-        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
-        boolean leaveTopAlone = false;
-        if (e instanceof UIEvent.LiftingOrderUpdated) {
-            LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
-            if (e2.isInBreak()) {
-                leaveTopAlone = !e2.isDisplayToggle();
-            } else {
-                leaveTopAlone = !e2.isCurrentDisplayAffected();
-            }
-        }
-
-        logger.debug("doUpdate a={} leaveTopAlone={}", a, leaveTopAlone);
-        if (a != null && a.getAttemptsDone() < 6) {
-            if (!leaveTopAlone) {
-                logger.debug("updating top {}", a.getFullName());
-                setFullName(a.getFullName());
-                setTeamName(a.getTeam());
-                setStartNumber(a.getStartNumber());
-                String formattedAttempt = formatAttempt(a.getAttemptsDone());
-                setAttempt(formattedAttempt);
-                setWeight(a.getNextAttemptRequestedWeight());
-            }
-        } else {
-            if (!leaveTopAlone) {
-                logger.debug("doUpdate doDone");
-                OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
-            }
-            return;
-        }
-    }
-
-    private void doDone(Group g) {
-        logger.debug("doDone {}", g == null ? null : g.getName());
-        if (g == null) {
-            setHidden(true);
-        } else {
-            OwlcmsSession.withFop(fop -> {
-                setFullName(Translator.translate("Group_number_results", g.toString()));
-            });
         }
     }
 
@@ -331,6 +287,76 @@ public class EventForwarder implements BreakDisplay {
             }
         });
 
+    }
+
+    private Map<String, String> createUpdate() throws IOException, UnsupportedEncodingException {
+        Map<String, String> sb = new HashMap<>();
+        mapPut(sb, "updateKey", updateKey);
+        mapPut(sb, "fop", fop.getName());
+        mapPut(sb, "fopState", fop.getState().toString());
+        mapPut(sb, "attempt", attempt);
+        mapPut(sb, "categoryName", categoryName);
+        mapPut(sb, "fullName", fullName);
+        mapPut(sb, "groupName", groupName);
+        mapPut(sb, "hidden", String.valueOf(hidden));
+        mapPut(sb, "startNumber", startNumber != null ? startNumber.toString() : null);
+        mapPut(sb, "teamName", teamName);
+        mapPut(sb, "weight", weight != null ? weight.toString() : null);
+        mapPut(sb, "wideTeamNames", String.valueOf(wideTeamNames));
+        if (groupAthletes != null) {
+            mapPut(sb, "groupAthletes", groupAthletes.toJson());
+        }
+        if (leaders != null) {
+            mapPut(sb, "leaders", leaders.toJson());
+        }
+        mapPut(sb, "liftsDone", liftsDone);
+        mapPut(sb, "translationMap", translationMap.toJson());
+        mapPut(sb, "timeAllowed", timeAllowed != null ? timeAllowed.toString() : null);
+        mapPut(sb, "break", String.valueOf(breakMode));
+        return sb;
+    }
+
+    private void doDone(Group g) {
+        logger.debug("doDone {}", g == null ? null : g.getName());
+        if (g == null) {
+            setHidden(true);
+        } else {
+            OwlcmsSession.withFop(fop -> {
+                setFullName(Translator.translate("Group_number_results", g.toString()));
+            });
+        }
+    }
+
+    private void doUpdate(Athlete a, UIEvent e) {
+        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+        boolean leaveTopAlone = false;
+        if (e instanceof UIEvent.LiftingOrderUpdated) {
+            LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
+            if (e2.isInBreak()) {
+                leaveTopAlone = !e2.isDisplayToggle();
+            } else {
+                leaveTopAlone = !e2.isCurrentDisplayAffected();
+            }
+        }
+
+        logger.debug("doUpdate a={} leaveTopAlone={}", a, leaveTopAlone);
+        if (a != null && a.getAttemptsDone() < 6) {
+            if (!leaveTopAlone) {
+                logger.debug("updating top {}", a.getFullName());
+                setFullName(a.getFullName());
+                setTeamName(a.getTeam());
+                setStartNumber(a.getStartNumber());
+                String formattedAttempt = formatAttempt(a.getAttemptsDone());
+                setAttempt(formattedAttempt);
+                setWeight(a.getNextAttemptRequestedWeight());
+            }
+        } else {
+            if (!leaveTopAlone) {
+                logger.debug("doUpdate doDone");
+                OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+            }
+            return;
+        }
     }
 
     private List<Athlete> filterToCategory(Category category, List<Athlete> order) {
@@ -487,8 +513,16 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
+    private void mapPut(Map<String, String> wr, String key, String value)
+            throws IOException, UnsupportedEncodingException {
+        if (value == null) {
+            return;
+        }
+        wr.put(key, value);
+    }
+
     private void pushToRemote() {
-        //url = "https://httpbin.org/post";
+        // url = "https://httpbin.org/post";
         HttpURLConnection con = null;
         // OWLCMS_PUBLISHER enables this feature
         if (url == null && warnedNoRemote == false) {
@@ -508,23 +542,24 @@ public class EventForwarder implements BreakDisplay {
 
             int hashCode = updateString.hashCode();
             if (hashCode != previousHashCode || (deltaMillis > 1000)) {
-                // sometimes several identical updates in a row
+                // debounce, sometimes several identical updates in a rapid succession
                 con = sendUpdate(updateString);
                 previousHashCode = hashCode;
                 previousMillis = System.currentTimeMillis();
             }
-            logger./**/warn("response={}", readResponse(con));
+            // beware: must read response.
+            readResponse(con);
         } catch (ConnectException c) {
             logger./**/warn("cannot push: {} {}", url, c.getMessage());
         } catch (IOException e) {
             logger.error(LoggerUtils.stackTrace(e));
         } finally {
-            if (con != null)
+            if (con != null) {
                 con.disconnect();
+            }
         }
     }
 
-    @SuppressWarnings("unused")
     private String readResponse(HttpURLConnection con) throws IOException {
         StringBuilder content;
         try (BufferedReader br = new BufferedReader(
@@ -552,44 +587,29 @@ public class EventForwarder implements BreakDisplay {
         con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
         int count = 0;
-        try (OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), StandardCharsets.UTF_8)) {
+        try (OutputStream outputStream = con.getOutputStream();
+                OutputStreamWriter wr = new OutputStreamWriter(outputStream)) {
             for (Entry<String, String> pair : parameters.entrySet()) {
-                logger.warn("sending {}",pair.getKey());
-                wr.write(URLEncoder.encode(pair.getKey(), StandardCharsets.UTF_8.name()));
+                wr.write(URLUtils.urlEncode(pair.getKey()));
                 wr.write("=");
-                wr.write(URLEncoder.encode(pair.getValue(), StandardCharsets.UTF_8.name()));
-                if (count++ < parameters.size())
+                wr.write(URLUtils.urlEncode(pair.getValue()));
+                if (debugMode) {
+                    logger/**/.warn("{}={}", pair.getKey(), pair.getValue());
+                }
+                if (count < parameters.size() - 1) {
                     wr.write("&");
+                    if (debugMode) {
+                        logger/**/.warn("&");
+                    }
+                    count++;
+                }
             }
         }
         return con;
     }
 
-    private Map<String, String> createUpdate() throws IOException, UnsupportedEncodingException {
-        Map<String, String> sb = new HashMap<>();
-        mapPut(sb, "updateKey", updateKey);
-        mapPut(sb, "fop", fop.getName());
-        mapPut(sb, "fopState", fop.getState().toString());
-        mapPut(sb, "attempt", attempt);
-        mapPut(sb, "categoryName", categoryName);
-        mapPut(sb, "fullName", fullName);
-        mapPut(sb, "groupName", groupName);
-        mapPut(sb, "hidden", String.valueOf(hidden));
-        mapPut(sb, "startNumber", startNumber != null ? startNumber.toString() : null);
-        mapPut(sb, "teamName", teamName);
-        mapPut(sb, "weight", weight != null ? weight.toString() : null);
-        mapPut(sb, "wideTeamNames", String.valueOf(wideTeamNames));
-        if (groupAthletes != null) {
-            mapPut(sb, "groupAthletes", groupAthletes.toJson());
-        }
-        if (leaders != null) {
-            mapPut(sb, "leaders", leaders.toJson());
-        }
-        mapPut(sb, "liftsDone", liftsDone);
-        mapPut(sb, "translationMap", translationMap.toJson());
-        mapPut(sb, "timeAllowed", timeAllowed != null ? timeAllowed.toString() : null);
-        mapPut(sb, "break", String.valueOf(breakMode));
-        return sb;
+    private void setBreak(boolean b) {
+        this.breakMode = b;
     }
 
     private void setCategoryName(String name) {
@@ -616,14 +636,6 @@ public class EventForwarder implements BreakDisplay {
 
     private void setWideTeamNames(boolean b) {
         wideTeamNames = b;
-    }
-
-    private void mapPut(Map<String, String> wr, String key, String value)
-            throws IOException, UnsupportedEncodingException {
-        if (value == null) {
-            return;
-        }
-        wr.put(key, value);
     }
 
 }

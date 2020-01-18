@@ -33,31 +33,39 @@ public class EventReceiverServlet extends HttpServlet {
         return eventBus;
     }
 
-    /** @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse) */
+    /**
+     * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
+     *      javax.servlet.http.HttpServletResponse)
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // get makes no sense on this URL.  Standard says there shouldn't be a 405 on a get. Sue me.
+        // get makes no sense on this URL. Standard says there shouldn't be a 405 on a get. Sue me.
         resp.sendError(405);
     }
 
-    /** @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse) */
+    /**
+     * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest,
+     *      javax.servlet.http.HttpServletResponse)
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-        for (Entry<String, String[]> pair : pairs) {
-            logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
+        if (StartupUtils.getBooleanParam("DEBUG")) {
+            Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
+            for (Entry<String, String[]> pair : pairs) {
+                logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
+            }
         }
-        
+
         String updateKey = req.getParameter("updateKey");
         if (updateKey == null || !updateKey.equals(secret)) {
             logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), secret, updateKey);
-            resp.sendError(401,"Denied, wrong credentials");
+            resp.sendError(401, "Denied, wrong credentials");
             return;
         }
 
         UpdateEvent updateEvent = new UpdateEvent();
-        
+
         updateEvent.setFopName(req.getParameter("fop"));
         updateEvent.setFopState(req.getParameter("fopState"));
 
@@ -80,18 +88,21 @@ public class EventReceiverServlet extends HttpServlet {
         updateEvent.setWideTeamNames(Boolean.parseBoolean(req.getParameter("wideTeamNames")));
         String timeAllowed = req.getParameter("timeAllowed");
         updateEvent.setTimeAllowed(timeAllowed != null ? Integer.parseInt(req.getParameter("timeAllowed")) : null);
-        
+
         updateEvent.setTranslationMap(req.getParameter("translationMap"));
 
-        eventBus.post(updateEvent);
         String fopName = updateEvent.getFopName();
-        updateCache.put(fopName,updateEvent);
+        // put in the cache first so events can know which FOPs are active;
+        updateCache.put(fopName, updateEvent);
+        eventBus.post(updateEvent);
+
         if (defaultFopName == null) {
             defaultFopName = fopName;
         }
     }
 
-    static Map <String, UpdateEvent> updateCache = new HashMap<>();
+    static Map<String, UpdateEvent> updateCache = new HashMap<>();
+
     public static UpdateEvent sync(String fopName) {
         if (fopName == null) {
             fopName = defaultFopName;

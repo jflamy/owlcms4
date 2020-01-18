@@ -1,7 +1,5 @@
 package app.owlcms.publicresults;
 
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -29,29 +27,39 @@ import ch.qos.logback.classic.Logger;
 public class MainView extends VerticalLayout {
 
     static Text text;
-    @SuppressWarnings("unused")
+
     private static Logger logger = (Logger) LoggerFactory.getLogger(MainView.class);
     private UI ui;
 
     public MainView() {
 
+        text = new Text("Waiting for updates from competition site.");
+        buildHomePage();
+    }
+
+    private void buildHomePage() {
         Set<String> fopNames = EventReceiverServlet.updateCache.keySet();
         if (fopNames.size() == 0) {
-            text = new Text("Waiting for updates from competition site.");
+            removeAll();
             add(text);
         } else {
-            fopNames.stream().sorted().forEach(fopName -> {
-                Button fopButton = new Button(getTranslation("Platform") + " " + fopName,
-                        buttonClickEvent -> {
-                            String url = URLUtils.getRelativeURLFromTargetClass(ScoreWithLeaders.class);
-                            HashMap<String, List<String>> params = new HashMap<>();
-                            params.put("fop", Arrays.asList(fopName));
-                            QueryParameters parameters = new QueryParameters(params);
-                            UI.getCurrent().navigate(url, parameters);
-                        });
-                add(fopButton);
-            });
+            createButtons(fopNames);
         }
+    }
+
+    private void createButtons(Set<String> fopNames) {
+        removeAll();
+        fopNames.stream().sorted().forEach(fopName -> {
+            Button fopButton = new Button(getTranslation("Platform") + " " + fopName,
+                    buttonClickEvent -> {
+                        String url = URLUtils.getRelativeURLFromTargetClass(ScoreWithLeaders.class);
+                        HashMap<String, List<String>> params = new HashMap<>();
+                        params.put("fop", Arrays.asList(fopName));
+                        QueryParameters parameters = new QueryParameters(params);
+                        UI.getCurrent().navigate(url, parameters);
+                    });
+            add(fopButton);
+        });
     }
 
     @Override
@@ -65,16 +73,16 @@ public class MainView extends VerticalLayout {
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
         EventReceiverServlet.getEventBus().unregister(this);
-        ui = null;
     }
-
+    
     @Subscribe
     public void update(UpdateEvent e) {
-        if (ui == null)
+        if (ui == null) {
+            logger.error("ui is null!?");
             return;
-        UI.getCurrent().access(() -> {
-            text.setText(MessageFormat.format("{0}: update received for platform {1}", LocalDateTime.now().toString(),
-                    e.getFopName()));
+        }
+       ui.access(() -> {
+            buildHomePage();
         });
     }
 
