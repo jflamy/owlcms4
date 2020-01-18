@@ -72,7 +72,6 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientSyncTime() {
-        //FIXME : needed on public version?
 //        OwlcmsSession.withFop(fop -> {
 //            int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
 //            logger.trace("Fetched time = {} for {}", timeRemaining, fop.getCurAthlete());
