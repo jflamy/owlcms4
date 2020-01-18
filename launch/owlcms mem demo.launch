@@ -7,10 +7,11 @@
 <listEntry value="1"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="OWLCMS_GENDERORDER" value="true"/>
+<mapEntry key="OWLCMS_GENDERORDER" value="false"/>
 <mapEntry key="OWLCMS_LOCALE" value="en"/>
 <mapEntry key="OWLCMS_MASTERS" value="false"/>
-<mapEntry key="OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
+<mapEntry key="OWLCMS_REMOTE" value="https://owlcms-results01.herokuapp.com/update"/>
+<mapEntry key="OWLCMS_REMOTE1" value="http://127.0.0.1:8081/update"/>
 <mapEntry key="OWLCMS_UPDATEKEY" value="abracadabra"/>
 </mapAttribute>
 <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
