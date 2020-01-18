@@ -8,6 +8,7 @@ package app.owlcms.forwarder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -562,8 +563,12 @@ public class EventForwarder implements BreakDisplay {
 
     private String readResponse(HttpURLConnection con) throws IOException {
         StringBuilder content;
+        InputStream inputStream = con.getInputStream();
+        if (inputStream == null) {
+            return "";
+        }
         try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream()))) {
+                new InputStreamReader(inputStream))) {
 
             String line;
             content = new StringBuilder();
