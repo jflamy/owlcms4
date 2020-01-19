@@ -82,13 +82,31 @@ public class URLUtils {
         return port != null ? Integer.parseInt(port) : request.getServerPort();
     }
 
+    public static String getClientIp(HttpServletRequest request) {
+        String remoteAddr = "";
+
+        if (request != null) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
+
+        return remoteAddr;
+    }
+
     public static <T extends Component> String getUrlFromTargetClass(Class<T> class1) {
-        RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
-        String relativeURL;
-        relativeURL = routeResolver.getUrl(class1);
+        String relativeURL = getRelativeURLFromTargetClass(class1);
         String absoluteURL = URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
                 relativeURL);
         return absoluteURL;
+    }
+
+    public static <T extends Component> String getRelativeURLFromTargetClass(Class<T> class1) {
+        RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
+        String relativeURL;
+        relativeURL = routeResolver.getUrl(class1);
+        return relativeURL;
     }
 
     public static <T extends Component & HasUrlParameter<String>> String getUrlFromTargetClass(Class<T> class1,

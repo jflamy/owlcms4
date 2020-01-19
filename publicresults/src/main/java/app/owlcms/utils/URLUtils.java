@@ -82,6 +82,19 @@ public class URLUtils {
         String port = request.getHeader("X-Forwarded-Port");
         return port != null ? Integer.parseInt(port) : request.getServerPort();
     }
+    
+    public static String getClientIp(HttpServletRequest request) {
+        String remoteAddr = "";
+
+        if (request != null) {
+            remoteAddr = request.getHeader("X-Forwarded-For");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
+
+        return remoteAddr;
+    }
 
     public static <T extends Component> String getUrlFromTargetClass(Class<T> class1) {
         String relativeURL = getRelativeURLFromTargetClass(class1);
