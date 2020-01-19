@@ -1,12 +1,10 @@
 * [Home](index)
-
 * Getting Started
 
   *	[Windows Installation](LocalWindowsSetup)
   * [Linux or Mac Installation](LocalLinuxMacSetup)
   *	[Cloud Installation](Heroku)
   *	[Equipment Setup](EquipmentSetup)
-  
 * Competition
 
   *	[Preparation](Preparation)
@@ -18,6 +16,9 @@
   *	[Refereeing](Refereeing)
   *	[Intermissions and Breaks](Breaks)
   *	[Result Documents](Documents)
+
+* Advanced Topics
+  *	[Public Results Display](Remote)
 
 * Downloads
 

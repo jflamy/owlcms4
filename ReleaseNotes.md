@@ -1,11 +1,7 @@
 
 
-Version 4.3 is the new official owlcms4 and all development work will now take place on this branch.   This new version introduces an improved way to manage age groups and categories. *[Click here to read the documentation](https://jflamy.github.io/owlcms4/#/Categories)* .
-
-* Release Highlights for release 4.3.2 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-  - [x] Fix: New-style long category names with age groups like `U17 M >96` did not fit on the athlete card. Also allowed long team/club names.
-  - [x] Fix: collected the various bug fixes for 4.3.1 related to long categories fitting correctly on the scoreboards/leaderboards.
-  - [x] Fix: Leaderboard did not appear in v4.3.1.2 due to an unforeseen consequence of optimizing the way categories are compared with one another (categories refer to age groups which refer back to categories) (#274)
+* Release Highlights for release 4.4.0 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+  - [x] Experimental: Remote scoreboard.  The competition site sends updates to a separate scoreboard application that provides the scoreboard/leaderboard to the public.  
 
 - Installation Instructions :
   
