@@ -4,13 +4,13 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.4.0.4</version>
+        <version>4.4.0.5</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System</name>
     <artifactId>owlcms</artifactId>
     <packaging>jar</packaging>
-    <version>${project.parent.version}.1</version>
+    <!-- version>${project.parent.version}</version>  -->
 
     <dependencies>
         <dependency>
