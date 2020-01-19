@@ -92,9 +92,9 @@ public class EventForwarder implements BreakDisplay {
     private boolean warnedNoRemote = false;
     private boolean breakMode;
 
-    private final String updateKey = StartupUtils.getStringParam("UPDATEKEY");
-    private String url = StartupUtils.getStringParam("REMOTE");
-    private boolean debugMode = StartupUtils.getBooleanParam("DEBUG");
+    private final String updateKey = StartupUtils.getStringParam("updateKey");
+    private String url = StartupUtils.getStringParam("remote");
+    private boolean debugMode = StartupUtils.getBooleanParam("debug");
 
     public EventForwarder(FieldOfPlay emittingFop) {
         this.fop = emittingFop;
@@ -525,16 +525,19 @@ public class EventForwarder implements BreakDisplay {
     private void pushToRemote() {
         // url = "https://httpbin.org/post";
         HttpURLConnection con = null;
-        // OWLCMS_PUBLISHER enables this feature
+        // OWLCMS_REMOTE enables this feature
         if (url == null && warnedNoRemote == false) {
             logger./**/warn("no URL_REMOTE url specified, not pushing to remote scoreboard.");
             warnedNoRemote = true;
+            return;
+        } else if (url == null) {
             return;
         }
         if (updateKey == null) {
             logger.error("updateKey is null, configure OWLCMS_UPDATEKEY in the environment");
             return;
         }
+
 
         try {
             Map<String, String> updateString = createUpdate();
@@ -553,7 +556,7 @@ public class EventForwarder implements BreakDisplay {
         } catch (ConnectException c) {
             logger./**/warn("cannot push: {} {}", url, c.getMessage());
         } catch (IOException e) {
-            logger.error(LoggerUtils.stackTrace(e));
+            logger.error("{} {}",url,LoggerUtils.stackTrace(e));
         } finally {
             if (con != null) {
                 con.disconnect();
