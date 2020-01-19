@@ -19,6 +19,7 @@ import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 
 import app.owlcms.utils.StartupUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @WebServlet("/update")
@@ -52,6 +53,7 @@ public class EventReceiverServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (StartupUtils.getBooleanParam("DEBUG")) {
             Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
+            logger./**/warn("---- update received from {}", URLUtils.getClientIp(req));
             for (Entry<String, String[]> pair : pairs) {
                 logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
             }
