@@ -10,7 +10,6 @@
     <name>Olympic Weightlifting Competition Management System</name>
     <artifactId>owlcms</artifactId>
     <packaging>jar</packaging>
-    <!-- version>${project.parent.version}</version>  -->
 
     <dependencies>
         <dependency>
@@ -548,8 +547,7 @@
                 </executions>
             </plugin>
             <plugin>
-                <!-- Only used in production, but cannot be removed or moved to production profile because of the way it is invoked by the 
-                    gitflow plugin -->
+                <!-- Only used in production, but cannot be removed or moved to production profile because of the way it is invoked by the gitflow plugin -->
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
                 <version>1.0.4.owlcms</version>
