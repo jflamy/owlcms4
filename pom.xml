@@ -20,10 +20,10 @@
         <!-- hard-coded paths -->
         <!-- jre location for bundling with windows installer -->
         <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>
-
+        
         <!-- setting below is for JDK 11 -->
         <!-- <jre.directory>C:\Dev\Java\java-runtime</jre.directory> -->
-
+        
         <!-- windows installer compiler -->
         <innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
 
@@ -197,6 +197,24 @@
         </pluginManagement>
         <plugins>
             <plugin>
+                <groupId>com.amashchenko.maven.plugin</groupId>
+                <artifactId>gitflow-maven-plugin</artifactId>
+                <version>1.12.0</version>
+                <configuration>
+                    <gitFlowConfig>
+                        <productionBranch>master</productionBranch>
+                        <developmentBranch>develop</developmentBranch>
+                    </gitFlowConfig>
+                    <allowSnapshots>true</allowSnapshots>
+                    <postReleaseGoals>github-release:github-release</postReleaseGoals>
+                    <!-- github-release creates the tag -->
+                    <skipTag>false</skipTag>
+                    <skipTestProject>true</skipTestProject>
+                    <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
+                    <verbose>true</verbose>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
                 <version>1.0.4.owlcms</version>
@@ -237,7 +255,7 @@
                         <configuration>
                             <gitFlowConfig>
                                 <productionBranch>master</productionBranch>
-                                <developmentBranch>support/4.3</developmentBranch>
+                                <developmentBranch>develop</developmentBranch>
                             </gitFlowConfig>
                             <allowSnapshots>true</allowSnapshots>
                             <postReleaseGoals>github-release:github-release</postReleaseGoals>
