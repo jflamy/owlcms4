@@ -66,6 +66,7 @@ import app.owlcms.ui.lifting.AnnouncerContent;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
 import app.owlcms.ui.lifting.JuryContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
+import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
@@ -286,7 +287,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     /**
      * Process URL parameters, including query parameters
      *
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
      */
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
@@ -613,7 +614,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                         logger.debug("filter switching group from {} to {}",
                                 oldGroup != null ? oldGroup.getName() : null,
                                 newGroup != null ? newGroup.getName() : null);
-                        fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
+                        fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, fop.getState(), null, this));
                         oldGroup = newGroup;
                         // this assumes that SwitchGroup post is synchronous and has loaded.
                         // otherwise we should listen for UI SwitchGroup event.

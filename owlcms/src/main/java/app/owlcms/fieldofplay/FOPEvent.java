@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.fieldofplay;
@@ -238,14 +238,26 @@ public class FOPEvent {
     static public class SwitchGroup extends FOPEvent {
 
         private Group group;
+        private FOPState state;
+        private Athlete curAthlete;
 
-        public SwitchGroup(Group g, Object origin) {
+        public SwitchGroup(Group g, FOPState state, Athlete curAthlete, Object origin) {
             super(origin);
             this.group = g;
+            this.state = state;
+            this.curAthlete = curAthlete;
+        }
+
+        public Athlete getCurAthlete() {
+            return curAthlete;
         }
 
         public Group getGroup() {
             return group;
+        }
+
+        public FOPState getState() {
+            return state;
         }
     }
 

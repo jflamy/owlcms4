@@ -24,12 +24,12 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServletRequest;
 
-import app.owlcms.Main;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.ContentWrapping;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.ui.shared.RequireLogin;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -95,7 +95,7 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
     }
 
     public static String getPin() {
-        String pin = Main.getStringParam("pin");
+        String pin = StartupUtils.getStringParam("pin");
         if (pin == null) {
             pin = System.getenv("PIN");
         }
@@ -106,7 +106,7 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
     }
 
     public static String getWhitelist() {
-        String whiteList = Main.getStringParam("ip");
+        String whiteList = StartupUtils.getStringParam("ip");
         if (whiteList == null) {
             whiteList = System.getenv("IP");
         }

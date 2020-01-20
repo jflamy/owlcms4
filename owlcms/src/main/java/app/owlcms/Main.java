@@ -6,21 +6,11 @@
  */
 package app.owlcms;
 
-import java.awt.Desktop;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.ParseException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
@@ -38,15 +28,13 @@ import app.owlcms.data.jpa.ProdData;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.EmbeddedJetty;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
-import sun.misc.Unsafe;
 
 /**
  * Main.
  */
-@SuppressWarnings("restriction")
 public class Main {
 
     public final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
@@ -61,62 +49,6 @@ public class Main {
 
     public static String productionMode;
 
-    public static void disableWarning() {
-        // https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
-        try {
-            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-            theUnsafe.setAccessible(true);
-            Unsafe u = (Unsafe) theUnsafe.get(null);
-
-            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
-            Field logger = cls.getDeclaredField("logger");
-            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
-        } catch (Exception e) {
-            // ignore
-        }
-    }
-
-    /**
-     * return true if OWLCMS_KEY = true as an environment variable, and if not, if -Dkey=true as a system property.
-     *
-     * Environment variables are upperCased, system properties are case-sensitive.
-     * <ul>
-     * <li>OWMCMS_PORT=80 is the same as -Dport=80
-     * </ul>
-     *
-     * @param key
-     * @return true if value is found and exactly "true"
-     */
-    public static boolean getBooleanParam(String key) {
-        String envVar = "OWLCMS_" + key.toUpperCase();
-        String val = System.getenv(envVar);
-        if (val != null) {
-            return val.equals("true");
-        } else {
-            return Boolean.getBoolean(key);
-        }
-    }
-
-    public static Integer getIntegerParam(String key, Integer defaultValue) {
-        String envVar = "OWLCMS_" + key.toUpperCase();
-        String val = System.getenv(envVar);
-        if (val != null) {
-            return Integer.parseInt(val);
-        } else {
-            return Integer.getInteger(key, defaultValue);
-        }
-    }
-
-    public static String getStringParam(String key) {
-        String envVar = "OWLCMS_" + key.toUpperCase();
-        String val = System.getenv(envVar);
-        if (val != null) {
-            return val;
-        } else {
-            return System.getProperty(key);
-        }
-    }
-
     /**
      * The main method.
      *
@@ -130,47 +62,6 @@ public class Main {
             new EmbeddedJetty().run(serverPort, "/");
         } finally {
             tearDown();
-        }
-    }
-
-    public static boolean openBrowser(Desktop desktop, String hostName)
-            throws MalformedURLException, IOException, ProtocolException, URISyntaxException {
-        if (hostName == null) {
-            return false;
-        }
-
-        int response;
-        URL testingURL = new URL("http", hostName, serverPort, "/sounds/timeOver.mp3");
-        HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
-        logger.debug("checking for {}", testingURL.toExternalForm());
-        huc.setRequestMethod("GET");
-        huc.connect();
-        int response1 = huc.getResponseCode();
-        response = response1;
-        if (response == 200) {
-            URL appURL = new URL("http", hostName, serverPort, "");
-            desktop.browse(appURL.toURI());
-            return true;
-        }
-        return false;
-    }
-
-    public static void startBrowser() {
-        if (Desktop.isDesktopSupported()) {
-            Desktop desktop = Desktop.getDesktop();
-            try {
-                InetAddress localMachine = InetAddress.getLocalHost();
-                String hostName = localMachine.getHostName();
-
-                boolean opened = openBrowser(desktop, hostName);
-                if (!opened) {
-                    openBrowser(desktop, "127.0.0.1");
-                }
-            } catch (Exception e) {
-                logger.error(LoggerUtils.stackTrace(e));
-            }
-        } else {
-            logger.debug("no browser support");
         }
     }
 
@@ -194,11 +85,12 @@ public class Main {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
         // disable poixml warning
-        disableWarning();
+        StartupUtils.disableWarning();
 
         // read command-line and environment variable parameters
         parseConfig();
-        logStart();
+        StartupUtils.setServerPort(serverPort);
+        StartupUtils.logStart("owlcms", serverPort);
 
         // open resource subdirectories as filesystems
         ResourceWalker.openTemplatesFileSystem("/templates");
@@ -222,18 +114,6 @@ public class Main {
 
         OwlcmsFactory.getDefaultFOP();
         return;
-    }
-
-    protected static void logStart() throws IOException, ParseException {
-        InputStream in = Main.class.getResourceAsStream("/build.properties");
-        Properties props = new Properties();
-        props.load(in);
-        String version = props.getProperty("version");
-        OwlcmsFactory.setVersion(version);
-        String buildTimestamp = props.getProperty("buildTimestamp");
-        OwlcmsFactory.setBuildTimestamp(buildTimestamp);
-        String buildZone = props.getProperty("buildZone");
-        logger.info("owlcms {} built {} ({})", version, buildTimestamp, buildZone);
     }
 
     protected static void tearDown() {
@@ -286,7 +166,7 @@ public class Main {
         }
 
         // check OWLCMS_LOCALE, then -Dlocale, then LOCALE
-        String localeEnvStr = getStringParam("locale");
+        String localeEnvStr = StartupUtils.getStringParam("locale");
         if (localeEnvStr != null) {
             l = Translator.createLocale(localeEnvStr);
         } else {
@@ -310,28 +190,29 @@ public class Main {
         // read server.port parameter from -D"server.port"=9999 on java command line
         // this is required for running on Heroku which assigns us the port at run time.
         // default is 8080
-        serverPort = getIntegerParam("port", 8080);
+        serverPort = StartupUtils.getIntegerParam("port", 8080);
+        StartupUtils.setServerPort(serverPort);
 
         // same as devMode + resetMode + memoryMode
-        demoMode = getBooleanParam("demoMode");
+        demoMode = StartupUtils.getBooleanParam("demoMode");
 
         // run in memory
-        memoryMode = getBooleanParam("memoryMode");
+        memoryMode = StartupUtils.getBooleanParam("memoryMode");
 
         // drop the schema first
-        resetMode = getBooleanParam("resetMode");
+        resetMode = StartupUtils.getBooleanParam("resetMode");
 
         // load large demo data if empty
-        devMode = getBooleanParam("devMode");
+        devMode = StartupUtils.getBooleanParam("devMode");
 
         // load small dummy data if empty
-        smallMode = getBooleanParam("smallMode");
+        smallMode = StartupUtils.getBooleanParam("smallMode");
 
         // productionMode required to tell vaadin to skip npm
-        boolean npmMode = getBooleanParam("npmMode");
+        boolean npmMode = StartupUtils.getBooleanParam("npmMode");
         productionMode = npmMode ? "false" : "true";
 
-        masters = getBooleanParam("masters");
+        masters = StartupUtils.getBooleanParam("masters");
     }
 
 }

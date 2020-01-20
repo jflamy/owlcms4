@@ -13,6 +13,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
@@ -192,14 +193,15 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 
     protected void init() {
         double seconds = 0.00D;
-        TimerModel model = getModel();
-        model.setStartTime(0.0D);
-        model.setCurrentTime(seconds);
-        model.setCountUp(false);
-        model.setRunning(false);
-        model.setSilent(true);
-
-        setTimerElement(this.getElement());
+        UI.getCurrent().access(() -> {
+            TimerModel model = getModel();
+            model.setStartTime(0.0D);
+            model.setCurrentTime(seconds);
+            model.setCountUp(false);
+            model.setRunning(false);
+            model.setSilent(true);
+            setTimerElement(this.getElement());
+        });
     }
 
     /*

@@ -27,7 +27,6 @@ import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -38,6 +37,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
 import app.owlcms.ui.results.Resource;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -396,7 +396,7 @@ public class Competition {
     }
 
     public boolean isGenderOrder() {
-        return Main.getBooleanParam("genderOrder");
+        return StartupUtils.getBooleanParam("genderOrder");
     }
 
     /**

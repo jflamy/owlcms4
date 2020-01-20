@@ -64,10 +64,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
         Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
         Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
-
-//        Button categories = new Button(getTranslation("DefineCategories"),
-//                buttonClickEvent -> UI.getCurrent().navigate(CategoryContent.class));
-
+        
         StreamResource href = new StreamResource("registration.xls",
                 () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
         Anchor download = new Anchor(href, "");
@@ -142,7 +139,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
      * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
      *                  parameters instead.
      *
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
      */
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {

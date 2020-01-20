@@ -44,7 +44,7 @@ import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
-import app.owlcms.ui.shared.QueryParameterReader;
+import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;
@@ -131,7 +131,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
      * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
      *                  parameters instead.
      *
-     * @see app.owlcms.ui.shared.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
      */
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {

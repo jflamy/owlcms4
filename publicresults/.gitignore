@@ -1,4 +1,13 @@
+<<<<<<< HEAD
 /bin/
 /node_modules/**
 /target/**
 /logs/
+=======
+/target/
+/node_modules/
+/webpack.generated.js
+/package-lock.json
+/logs/
+/dependency-reduced-pom.xml
+>>>>>>> refs/heads/develop

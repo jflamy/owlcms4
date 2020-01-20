@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.fieldofplay;
@@ -546,18 +546,29 @@ public class UIEvent {
 
     public static class SwitchGroup extends UIEvent {
         private Group group;
+        private FOPState state;
 
-        public SwitchGroup(Group group, Object object) {
-            super(object);
-            this.setGroup(group);
+        public SwitchGroup(Group group2, FOPState state, Athlete curAthlete, Object origin) {
+            super(curAthlete, origin);
+            this.setGroup(group2);
+            this.setAthlete(curAthlete);
+            this.setState(state);
         }
 
         public Group getGroup() {
             return group;
         }
 
+        public FOPState getState() {
+            return state;
+        }
+
         public void setGroup(Group group) {
             this.group = group;
+        }
+
+        public void setState(FOPState state) {
+            this.state = state;
         }
     }
 
@@ -590,6 +601,14 @@ public class UIEvent {
      */
     public Object getOrigin() {
         return origin;
+    }
+
+    public void setAthlete(Athlete athlete) {
+        this.athlete = athlete;
+    }
+
+    public void setOrigin(Object origin) {
+        this.origin = origin;
     }
 
 }
