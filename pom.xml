@@ -197,24 +197,6 @@
         </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>com.amashchenko.maven.plugin</groupId>
-                <artifactId>gitflow-maven-plugin</artifactId>
-                <version>1.12.0</version>
-                <configuration>
-                    <gitFlowConfig>
-                        <productionBranch>master</productionBranch>
-                        <developmentBranch>develop</developmentBranch>
-                    </gitFlowConfig>
-                    <allowSnapshots>true</allowSnapshots>
-                    <postReleaseGoals>github-release:github-release</postReleaseGoals>
-                    <!-- github-release creates the tag -->
-                    <skipTag>false</skipTag>
-                    <skipTestProject>true</skipTestProject>
-                    <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
-                    <verbose>true</verbose>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
                 <version>1.0.4.owlcms</version>
@@ -255,7 +237,7 @@
                         <configuration>
                             <gitFlowConfig>
                                 <productionBranch>master</productionBranch>
-                                <developmentBranch>develop</developmentBranch>
+                                <developmentBranch>support/4.3</developmentBranch>
                             </gitFlowConfig>
                             <allowSnapshots>true</allowSnapshots>
                             <postReleaseGoals>github-release:github-release</postReleaseGoals>
