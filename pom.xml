@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
@@ -60,13 +59,10 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <!-- <repository> -->
-        <!-- <id>flow-prerelease</id> -->
-        <!-- <url>https://maven.vaadin.com/vaadin-prereleases</url> -->
-        <!-- </repository> -->
         <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/jflamy/owlcms4/</url>
+            <id>bintray-owlcms-owlcms-maven</id>
+            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
+            <name>bintray</name>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -81,10 +77,14 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-        <!-- <pluginRepository> -->
-        <!-- <id>flow-internal-release</id> -->
-        <!-- <url>https://maven.vaadin.com/vaadin-prereleases</url> -->
-        <!-- </pluginRepository> -->
+        <pluginRepository>
+            <id>bintray-owlcms-owlcms-maven</id>
+            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
+            <name>bintray</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
     </pluginRepositories>
 
     <dependencyManagement>
@@ -147,6 +147,11 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.1.0</version>
             </dependency>
+            <dependency>
+                <groupId>app.owlcms</groupId>
+                <artifactId>owlcms</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -192,6 +197,24 @@
         </pluginManagement>
         <plugins>
             <plugin>
+                <groupId>com.amashchenko.maven.plugin</groupId>
+                <artifactId>gitflow-maven-plugin</artifactId>
+                <version>1.12.0</version>
+                <configuration>
+                    <gitFlowConfig>
+                        <productionBranch>master</productionBranch>
+                        <developmentBranch>develop</developmentBranch>
+                    </gitFlowConfig>
+                    <allowSnapshots>true</allowSnapshots>
+                    <postReleaseGoals>github-release:github-release</postReleaseGoals>
+                    <!-- github-release creates the tag -->
+                    <skipTag>false</skipTag>
+                    <skipTestProject>true</skipTestProject>
+                    <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
+                    <verbose>true</verbose>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
                 <version>1.0.4.owlcms</version>
@@ -232,12 +255,11 @@
                         <configuration>
                             <gitFlowConfig>
                                 <productionBranch>master</productionBranch>
-                                <developmentBranch>support/4.3</developmentBranch>
+                                <developmentBranch>develop</developmentBranch>
                             </gitFlowConfig>
                             <allowSnapshots>true</allowSnapshots>
                             <postReleaseGoals>github-release:github-release</postReleaseGoals>
-                            <skipTag>false</skipTag><!-- github-release creates 
-                                the tag -->
+                            <skipTag>false</skipTag><!-- github-release creates the tag -->
                             <skipTestProject>true</skipTestProject>
                             <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
                             <verbose>true</verbose>
