@@ -17,6 +17,7 @@ pipeline {
 
                 bat 'git pull origin develop'
                 bat 'git checkout develop'
+                bat 'git pull'
 
                 dir('owlcms-publicresults/..') {
                     bat 'git submodule foreach "git fetch && git reset --hard origin/master"'
