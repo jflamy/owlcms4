@@ -1,0 +1,16 @@
+pipeline {
+    agent any
+    tools { 
+        maven '362' 
+        jdk 'JDK8' 
+    }
+    stages {
+        stage('Build owlcms') {
+            steps {
+                dir('owlcms') {
+                    bat 'mvn -B -DskipTests clean compile'
+                }
+            }
+        }
+    }
+}
