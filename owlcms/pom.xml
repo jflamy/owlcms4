@@ -4,7 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.4.0.6-SNAPSHOT</version>
+        <version>4.4.0.6</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System</name>
@@ -571,6 +571,16 @@
                                 <!-- <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset> -->
                             </assets>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.0.0-M1</version>
+                <executions>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>
