@@ -1,19 +1,43 @@
 pipeline {
     agent any
-    tools { 
-        maven '362' 
-        jdk 'JDK8' 
-    }
+//    tools { 
+//        maven '362' 
+//        jdk 'JDK8' 
+//    }
     stages {
         stage('Build owlcms') {
             steps {
                 dir('owlcms') {
                     bat 'mvn -B clean package'
                 }
+            }
+        }
+        stage('Build publicresults') {
+            steps {
                 dir('publicresults') {
-                    bat 'mvn -B clean compile'
+                    bat 'mvn -B clean install'
                 }
             }
         }
+//        stage('Build owlcms-publicresults wrapper') {
+//            steps {
+//                dir('owlcms-publicresults') {
+//                    bat 'mvn -B clean package'
+//                }
+//            }
+//        }
+//        stage('release') {
+//            steps {
+//                dir('.') {
+//                    bat 'mvn -B gitflow:release-start'
+//                }
+//                dir('publicresults') {
+//                    bat 'mvn -B deploy:deploy-file@deploy-file'
+//                }
+//                dir('.') {
+//                    bat 'mvn -B release finish'
+//                }
+//            }
+//        }
     }
 }
