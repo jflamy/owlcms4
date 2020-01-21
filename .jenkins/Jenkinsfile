@@ -54,10 +54,7 @@ pipeline {
         stage('Release owlcms to github') {
             steps {
                 dir('.') {
-                    bat 'mvn -B gitflow:release-start'
-                }
-                dir('.') {
-                    bat 'mvn -B gitflow:release-finish'
+                    bat 'mvn -B gitflow:release'
                 }
             }
         }
