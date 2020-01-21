@@ -14,7 +14,7 @@ pipeline {
             steps {
                 dir('owlcms-publicresults') {
                     bat 'git submodule update --init --recursive'
-                    bat 'git submodule foreach git pull origin master'
+                    bat 'git submodule foreach "git fetch && git reset --hard origin/master"'
                 }
             }
         }
