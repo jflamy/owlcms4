@@ -1,7 +1,6 @@
 ## First-time Install of the Public Results Application
 
-1. Get a free Heroku account -- go to [https://heroku.com](https://heroku.com) and sign up
-    ![005_herokuAccount](img/PublicResults/005_herokuAccount.png)
+1. Get a free Heroku account -- go to [https://heroku.com](https://heroku.com) and sign up!
 2. Go to the github repository for the public results application [https://github.com/jflamy/owlcms-publicresults](https://github.com/jflamy/owlcms-publicresults) and scroll all the way down to the end of the page.
     ![010_github](img/PublicResults/010_github.png)
 3. Use the `Deploy to Heroku` button.  Enter your Heroku account (or create one if you haven't)
@@ -57,9 +56,9 @@ In order to update the public results server, use the following process
 ![061_DeployPage](img/PublicResults/061_DeployPage.png)
 3. (First time only) The *first* time you want to update, you will need to connect your application with the master.  The first time around, when using the deploy button, only created a copy, but did not link it back permanently to the source.  Click on the "Connect to Github" button
 ![062_connectToGithub](img/PublicResults/062_connectToGithub.png)
-1. (First time only) If you have not done so previously, create your free github account and perform the confirmation steps required (typically, confirm your email)
+1. (First time only) If you have not done so previously, create your free github account (needed to connect to the current version of the code) and perform the confirmation steps required (typically, confirm your email)
 ![064_gitHubAccount](img/PublicResults/064_gitHubAccount.png)
-1. (First time only) You will now be allowed to select the master repository for the Public Results application.  Choose it as illustrated (under jflamy, choose the owlcms-publicresults repository)
+1. (First time only) You will now be allowed to select the repository for the Public Results application.  Choose it as illustrated (under jflamy, choose the owlcms-publicresults repository)
 ![065_selectRepo](img/PublicResults/065_selectRepo.png)
 1. Go down the page and click `Deploy`
 ![070_deployMaster](img/PublicResults/070_deployMaster.png)
