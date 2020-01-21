@@ -35,7 +35,7 @@ pipeline {
         stage('release') {
             steps {
                 dir('publicresults') {
-                    bat 'mvn --settings ${M2}/settings.xml -B deploy:deploy-file@deploy-file'
+                    bat 'mvn --settings ${env.M2}/settings.xml -B deploy:deploy-file@deploy-file'
                 }
                 dir('.') {
                     bat 'mvn -B gitflow:release'
