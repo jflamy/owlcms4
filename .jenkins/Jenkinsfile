@@ -8,7 +8,10 @@ pipeline {
         stage('Build owlcms') {
             steps {
                 dir('owlcms') {
-                    bat 'mvn -B -DskipTests clean compile'
+                    bat 'mvn -B clean package'
+                }
+                dir('publicresults') {
+                    bat 'mvn -B clean compile'
                 }
             }
         }
