@@ -8,8 +8,15 @@ pipeline {
     environment {
         M2 = 'c:/dev/.m2'
     }
-    
+                    
     stages {
+        stage('Update submodules') {
+            steps {
+                dir('owlcms-publicresults') {
+                    bat 'git submodule update --init --recursive'
+                }
+            }
+        }
         stage('Build owlcms') {
             steps {
                 dir('owlcms') {
@@ -26,7 +33,6 @@ pipeline {
         }
         stage('Build owlcms-publicresults wrapper') {
             steps {
-                bat 'git submodule update --init --recursive'
                 dir('owlcms-publicresults') {
                     bat 'mvn -B clean package'
                 }
