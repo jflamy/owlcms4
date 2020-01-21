@@ -33,11 +33,19 @@ pipeline {
             }
         }
         
-        stage('release') {
+        stage('Deploy publicresults to bintray') {
             steps {
                 dir('publicresults') {
                     bat 'mvn --settings %M2%/settings.xml -B deploy:deploy-file@deploy-file'
                 }
+                dir('.') {
+                    bat 'mvn -B gitflow:release'
+                }
+            }
+        }
+        
+        stage('Release owlcms to github') {
+            steps {
                 dir('.') {
                     bat 'mvn -B gitflow:release'
                 }
