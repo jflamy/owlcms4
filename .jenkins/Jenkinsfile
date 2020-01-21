@@ -19,13 +19,13 @@ pipeline {
                 }
             }
         }
-//        stage('Build owlcms-publicresults wrapper') {
-//            steps {
-//                dir('owlcms-publicresults') {
-//                    bat 'mvn -B clean package'
-//                }
-//            }
-//        }
+        stage('Build owlcms-publicresults wrapper') {
+            steps {
+                dir('owlcms-publicresults') {
+                    bat 'mvn -B clean package'
+                }
+            }
+        }
 //        stage('release') {
 //            steps {
 //                dir('.') {
