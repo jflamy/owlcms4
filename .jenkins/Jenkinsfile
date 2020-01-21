@@ -4,6 +4,11 @@ pipeline {
         maven '3.6.2' 
         jdk 'jdk8' 
     }
+    
+    environment {
+        M2 = 'c:/dev/.m2'
+    }
+    
     stages {
         stage('Build owlcms') {
             steps {
@@ -29,14 +34,11 @@ pipeline {
         }
         stage('release') {
             steps {
-                dir('.') {
-                    bat 'mvn -B gitflow:release-start'
-                }
                 dir('publicresults') {
                     bat 'mvn -B deploy:deploy-file@deploy-file'
                 }
                 dir('.') {
-                    bat 'mvn -B release finish'
+                    bat 'mvn -B gitflow:release'
                 }
             }
         }
