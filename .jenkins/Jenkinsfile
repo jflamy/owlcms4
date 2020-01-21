@@ -29,14 +29,14 @@ pipeline {
         stage('Build owlcms') {
             steps {
                 dir('owlcms') {
-                    bat 'mvn -B clean package'
+                    bat 'mvn -B clean package -P production'
                 }
             }
         }
         stage('Build publicresults') {
             steps {
                 dir('publicresults') {
-                    bat 'mvn -B clean install'
+                    bat 'mvn -B clean install -P production'
                 }
             }
         }

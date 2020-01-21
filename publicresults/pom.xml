@@ -4,7 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.4.0.15</version>
+        <version>4.4.0.16</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System Public Viewer</name>
@@ -430,7 +430,7 @@
                     gitflow plugin -->
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
-                <version>1.0.4.owlcms</version>
+                <version>1.0.4.1</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
