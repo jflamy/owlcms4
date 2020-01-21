@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.4.0.13-SNAPSHOT</version>
+    <version>4.4.0.12</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -156,6 +156,7 @@
         </dependencies>
     </dependencyManagement>
 
+
     <distributionManagement>
         <repository>
             <id>bintray-owlcms-owlcms-maven</id>
@@ -200,6 +201,16 @@
                         <!-- <compilerArgs> should no longer be needed when moving to JDK 11 -->
                         <!-- <arg>- -add-exports=java.desktop/com.sun.media.sound=ALL-UNNAMED</arg> -->
                         <!-- </compilerArgs> -->
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>2.7</version>
+                    <configuration>
+                        <processAllModules>true</processAllModules>
+                        <allowAnyUpdates>true</allowAnyUpdates>
+                        <allowDowngrade>true</allowDowngrade>
                     </configuration>
                 </plugin>
             </plugins>
