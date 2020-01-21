@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Update submodules') {
             steps {
-                dir('owlcms-publicresults') {
+                dir('owlcms-publicresults/..') {
                     bat 'git submodule update --init --recursive'
                     bat 'git submodule foreach "git fetch && git reset --hard origin/master"'
                 }
