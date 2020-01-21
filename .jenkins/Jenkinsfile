@@ -21,6 +21,7 @@ pipeline {
 //        }
         stage('Build owlcms-publicresults wrapper') {
             steps {
+                git submodule update --init --recursive
                 dir('owlcms-publicresults') {
                     bat 'mvn -B clean package'
                 }
