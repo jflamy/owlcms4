@@ -1,9 +1,9 @@
 pipeline {
     agent any
-//    tools { 
-//        maven '362' 
-//        jdk 'JDK8' 
-//    }
+    tools { 
+        maven '3.6.2' 
+        jdk 'jdk8' 
+    }
     stages {
         stage('Build owlcms') {
             steps {
