@@ -14,20 +14,7 @@ pipeline {
             steps {
                 dir('owlcms-publicresults') {
                     bat 'git submodule update --init --recursive'
-                }
-            }
-        }
-        stage('Build owlcms') {
-            steps {
-                dir('owlcms') {
-                    bat 'mvn -B clean package'
-                }
-            }
-        }
-        stage('Build publicresults') {
-            steps {
-                dir('publicresults') {
-                    bat 'mvn -B clean install'
+                    bat 'git submodule foreach git pull origin master'
                 }
             }
         }
@@ -39,26 +26,49 @@ pipeline {
             }
         }
         
-        stage('Deploy publicresults to bintray') {
-            steps {
-                dir('publicresults') {
-                    bat 'mvn --settings %M2%/settings.xml -B deploy:deploy-file@deploy-file'
-                }
-                dir('.') {
-                    bat 'mvn -B gitflow:release'
-                }
-            }
-        }
         
-        stage('Release owlcms to github') {
-            steps {
-                dir('.') {
-                    bat 'mvn -B gitflow:release-start'
-                }
-                dir('.') {
-                    bat 'mvn -B gitflow:release-finish'
-                }
-            }
-        }
+//        stage('Build owlcms') {
+//            steps {
+//                dir('owlcms') {
+//                    bat 'mvn -B clean package'
+//                }
+//            }
+//        }
+//        stage('Build publicresults') {
+//            steps {
+//                dir('publicresults') {
+//                    bat 'mvn -B clean install'
+//                }
+//            }
+//        }
+//        stage('Build owlcms-publicresults wrapper') {
+//            steps {
+//                dir('owlcms-publicresults') {
+//                    bat 'mvn -B clean package'
+//                }
+//            }
+//        }
+//        
+//        stage('Deploy publicresults to bintray') {
+//            steps {
+//                dir('publicresults') {
+//                    bat 'mvn --settings %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+//                }
+//                dir('.') {
+//                    bat 'mvn -B gitflow:release'
+//                }
+//            }
+//        }
+//        
+//        stage('Release owlcms to github') {
+//            steps {
+//                dir('.') {
+//                    bat 'mvn -B gitflow:release-start'
+//                }
+//                dir('.') {
+//                    bat 'mvn -B gitflow:release-finish'
+//                }
+//            }
+//        }
     }
 }
