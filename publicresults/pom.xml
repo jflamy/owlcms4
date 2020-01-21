@@ -4,7 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.4.0.14</version>
+        <version>4.4.0.15</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System Public Viewer</name>
