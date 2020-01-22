@@ -50,7 +50,7 @@ pipeline {
         stage('Release owlcms to github') {
             steps {
                 dir('.') {
-                    bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
+                    bat 'mvn -s %M2%/settings.xml -B gitflow:release github-release:github-release -P %RELEASE%'
                 }
             }
         }
