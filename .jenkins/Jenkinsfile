@@ -1,11 +1,14 @@
 pipeline {
     agent any
+    
     tools { 
         maven '3.6.2' 
         jdk 'jdk8' 
     }
     
     environment {
+        // maven profile to select destination repository (release|prerelease)
+        RELEASE = 'prerelease'
         M2 = 'c:/dev/.m2'
     }
                     
@@ -20,6 +23,9 @@ pipeline {
                 bat 'git pull'
 
                 dir('owlcms-publicresults/..') {
+                    // clone the submodules
+                    bat 'git submodule update --init --recursive'
+                    // don't trust the commit pointer, hard reset to master
                     bat 'git submodule foreach "git fetch && git reset --hard origin/master"'
                 }
 
@@ -59,7 +65,7 @@ pipeline {
         stage('Release owlcms to github') {
             steps {
                 dir('.') {
-                    bat 'mvn -B gitflow:release'
+                    bat 'mvn -B gitflow:release -P %RELEASE%'
                 }
             }
         }
