@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.4.0.21</version>
+    <version>4.4.0.23</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -226,9 +226,7 @@
                         <developmentBranch>develop</developmentBranch>
                     </gitFlowConfig>
                     <allowSnapshots>true</allowSnapshots>
-                    <postReleaseGoals>github-release:github-release</postReleaseGoals>
-                    <!-- github-release creates the tag -->
-                    <skipTag>true</skipTag>
+                    <skipTag>false</skipTag>
                     <skipTestProject>true</skipTestProject>
                     <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
                     <verbose>true</verbose>
