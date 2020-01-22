@@ -21,8 +21,10 @@ pipeline {
                 bat 'git pull origin develop'
                 bat 'git checkout develop'
                 bat 'git pull'
+                bat 'git remote set-url origin https://jflamy@github.com/jflamy/owlcms4.git'
 
                 dir('owlcms-publicresults/..') {
+                    bat 'git remote set-url origin https://jflamy@github.com/jflamy/owlcms-publicresults.git'
                     // clone the submodules
                     bat 'git submodule update --init --recursive'
                     // don't trust the commit pointer, hard reset to develop and pull
@@ -31,13 +33,13 @@ pipeline {
             }
         }
         
-        stage('Build owlcms') {
-            steps {
-                dir('owlcms') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
-                }
-            }
-        }
+//        stage('Build owlcms') {
+//            steps {
+//                dir('owlcms') {
+//                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+//                }
+//            }
+//        }
         
         stage('Build publicresults') {
             steps {
@@ -47,13 +49,13 @@ pipeline {
             }
         }
         
-        stage('Release publicresults jar to bintray') {
-            steps {
-                dir('publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
-                }
-            }
-        }
+//        stage('Release publicresults jar to bintray') {
+//            steps {
+//                dir('publicresults') {
+//                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+//                }
+//            }
+//        }
         
        stage('Release owlcms-publicresults to Heroku') {
             steps {
@@ -68,19 +70,19 @@ pipeline {
                     bat 'git merge develop'
                     // the build does not create any files
                     //bat 'git commit -m "successful build merged to master"'
-                    bat 'git push'
+                    bat 'git push origin'
                 }
             }
         }
 
-        // keep this stage for last because gitflow:release updates the project version numbers
-        stage('Release owlcms to github') {
-            steps {
-                dir('.') {
-                    bat 'mvn -s %M2%/settings.xml -B gitflow:release github-release:github-release -P %RELEASE%'
-                }
-            }
-        }
+//        // keep this stage for last because gitflow:release updates the project version numbers
+//        stage('Release owlcms to github') {
+//            steps {
+//                dir('.') {
+//                    bat 'mvn -s %M2%/settings.xml -B gitflow:release github-release:github-release -P %RELEASE%'
+//                }
+//            }
+//        }
         
 
     }
