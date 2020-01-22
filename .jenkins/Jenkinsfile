@@ -59,7 +59,7 @@ pipeline {
         
        stage('Release owlcms-publicresults to Heroku') {
             environment {
-                TOKEN = credentials('github-jflamy')
+                TOKEN = credentials('github-jf')
             }
             steps {
                 dir('owlcms-publicresults') {
