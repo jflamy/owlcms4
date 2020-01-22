@@ -20,6 +20,9 @@ pipeline {
                 bat 'git pull'
 
                 dir('owlcms-publicresults/..') {
+                    // clone the submodules
+                    bat 'git submodule update --init --recursive'
+                    // don't trust the commit pointer, hard reset to master
                     bat 'git submodule foreach "git fetch && git reset --hard origin/master"'
                 }
 
