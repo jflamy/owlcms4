@@ -1,11 +1,13 @@
 pipeline {
     agent any
+    
     tools { 
         maven '3.6.2' 
         jdk 'jdk8' 
     }
     
     environment {
+        RELEASE = 'prerelease'
         M2 = 'c:/dev/.m2'
     }
                     
@@ -62,7 +64,7 @@ pipeline {
         stage('Release owlcms to github') {
             steps {
                 dir('.') {
-                    bat 'mvn -B gitflow:release'
+                    bat 'mvn -B gitflow:release -P %RELEASE%'
                 }
             }
         }
