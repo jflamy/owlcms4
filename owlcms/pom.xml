@@ -4,7 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.4.0.17</version>
+        <version>4.4.0.18</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System</name>
@@ -550,7 +550,7 @@
                 <!-- Only used in production, but cannot be removed or moved to production profile because of the way it is invoked by the gitflow plugin -->
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
-                <version>1.0.4.1</version>
+                <version>1.0.4.2</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
