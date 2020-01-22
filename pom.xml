@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.4.0.18</version>
+    <version>4.4.0.19</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -251,6 +251,7 @@
                             <targetCommitish>master</targetCommitish>
                             <body>${project.version}</body>
                             <releaseNotes>ReleaseNotes.md</releaseNotes>
+                            <prerelease>${github.prerelease}</prerelease>
                             <assets>
                                 <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
                                 <asset>owlcms/target/owlcms.zip</asset>
