@@ -7,6 +7,7 @@ pipeline {
     }
     
     environment {
+        // maven profile to select destination repository (release|prerelease)
         RELEASE = 'prerelease'
         M2 = 'c:/dev/.m2'
     }
