@@ -30,14 +30,14 @@ pipeline {
                 }
             }
         }
-//        
-//        stage('Build owlcms') {
-//            steps {
-//                dir('owlcms') {
-//                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
-//                }
-//            }
-//        }
+        
+        stage('Build owlcms') {
+            steps {
+                dir('owlcms') {
+                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+                }
+            }
+        }
         
         stage('Build publicresults') {
             steps {
@@ -46,8 +46,16 @@ pipeline {
                 }
             }
         }
+
+        stage('Release owlcms to github') {
+            steps {
+                dir('.') {
+                    bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
+                }
+            }
+        }
         
-        stage('Deploy publicresults to bintray') {
+        stage('Release publicresults jar to bintray') {
             steps {
                 dir('publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
@@ -55,15 +63,7 @@ pipeline {
             }
         }
         
-//        stage('Release owlcms to github') {
-//            steps {
-//                dir('.') {
-//                    bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
-//                }
-//            }
-//        }
-        
-        stage('Build owlcms-publicresults wrapper') {
+       stage('Release owlcms-publicresults to Heroku') {
             steps {
                 dir('owlcms-publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
