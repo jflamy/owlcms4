@@ -1,7 +1,10 @@
+The remote Public Results application is used to make applications results available to the public at large.
+
+The information is sent from the competition site to an application running on the cloud.  The general public, whether at the competition site or anywhere on the internet, can access the scoreboards via their phone or laptop.  There is no load put on the competition site other than sending an update to the remote application.  The remote application takes all the load for the public queries.
+
 ## First-time Install of the Public Results Application
 
-1. Get a free Heroku account -- go to [https://heroku.com](https://heroku.com) and sign up
-    ![005_herokuAccount](img/PublicResults/005_herokuAccount.png)
+1. Get a free Heroku account -- go to [https://heroku.com](https://heroku.com) and sign up!
 2. Go to the github repository for the public results application [https://github.com/jflamy/owlcms-publicresults](https://github.com/jflamy/owlcms-publicresults) and scroll all the way down to the end of the page.
     ![010_github](img/PublicResults/010_github.png)
 3. Use the `Deploy to Heroku` button.  Enter your Heroku account (or create one if you haven't)
@@ -30,11 +33,13 @@
 -Dremote=https://owlcms-test-publicresults.herokuapp.com/update
 -DupdateKey=abracadabra
 ```
-- Notes:
-  ​    **use your own site** -- replace `https://owlcms-test-publicresults.herokuapp.com` with your own application.
-  ​    Make sure that the value for `-Dremote=` **ends with `/update`** 
-  ​    **use your own secret** that you defined on the server application
-- You should therefore have something similar to the following in your file
+> ##### Notes:
+>
+> - **use your own site** -- replace `https://owlcms-test-publicresults.herokuapp.com` with your own application.
+> - Make sure that the value for `-Dremote=` **ends with `/update`** 
+> - **use your own secret** that you defined on the server application earlier (the value of the Heroku variable `OWLCMS_UPDATEKEY` is the secret)
+
+You should therefore have something similar to the following in your file
 
 ![052_clientKeyValues](img/PublicResults/052_clientKeyValues.png)
 ## Running a competition with a remote public scoreboard
@@ -57,9 +62,9 @@ In order to update the public results server, use the following process
 ![061_DeployPage](img/PublicResults/061_DeployPage.png)
 3. (First time only) The *first* time you want to update, you will need to connect your application with the master.  The first time around, when using the deploy button, only created a copy, but did not link it back permanently to the source.  Click on the "Connect to Github" button
 ![062_connectToGithub](img/PublicResults/062_connectToGithub.png)
-1. (First time only) If you have not done so previously, create your free github account and perform the confirmation steps required (typically, confirm your email)
+1. (First time only) If you have not done so previously, create your free github account (needed to connect to the current version of the code) and perform the confirmation steps required (typically, confirm your email)
 ![064_gitHubAccount](img/PublicResults/064_gitHubAccount.png)
-1. (First time only) You will now be allowed to select the master repository for the Public Results application.  Choose it as illustrated (under jflamy, choose the owlcms-publicresults repository)
+1. (First time only) You will now be allowed to select the repository for the Public Results application.  Choose it as illustrated (under jflamy, choose the owlcms-publicresults repository)
 ![065_selectRepo](img/PublicResults/065_selectRepo.png)
 1. Go down the page and click `Deploy`
 ![070_deployMaster](img/PublicResults/070_deployMaster.png)

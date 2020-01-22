@@ -4,7 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.4.0.5</version>
+        <version>4.4.0.17</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System</name>
@@ -550,7 +550,7 @@
                 <!-- Only used in production, but cannot be removed or moved to production profile because of the way it is invoked by the gitflow plugin -->
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
-                <version>1.0.4.owlcms</version>
+                <version>1.0.4.1</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
@@ -571,6 +571,16 @@
                                 <!-- <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset> -->
                             </assets>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.0.0-M1</version>
+                <executions>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>

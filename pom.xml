@@ -4,11 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.4.0.5</version>
+    <version>4.4.0.17</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
         <module>publicresults</module>
+        <module>owlcms-publicresults</module>
     </modules>
 
     <organization>
@@ -20,10 +21,10 @@
         <!-- hard-coded paths -->
         <!-- jre location for bundling with windows installer -->
         <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>
-        
+
         <!-- setting below is for JDK 11 -->
         <!-- <jre.directory>C:\Dev\Java\java-runtime</jre.directory> -->
-        
+
         <!-- windows installer compiler -->
         <innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
 
@@ -155,6 +156,15 @@
         </dependencies>
     </dependencyManagement>
 
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-owlcms-owlcms-maven</id>
+            <name>owlcms-owlcms-maven</name>
+            <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+        </repository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -193,6 +203,16 @@
                         <!-- </compilerArgs> -->
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>2.7</version>
+                    <configuration>
+                        <processAllModules>true</processAllModules>
+                        <allowAnyUpdates>true</allowAnyUpdates>
+                        <allowDowngrade>true</allowDowngrade>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -217,14 +237,16 @@
             <plugin>
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
-                <version>1.0.4.owlcms</version>
+                <version>1.0.4.1</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
                         <id>default-cli</id>
                         <configuration>
-                            <owner>jflamy</owner>
-                            <repository>owlcms4</repository>
+<!--                             <owner>jflamy</owner> -->
+<!--                             <repository>owlcms4</repository> -->
+                            <owner>owlcms</owner>
+                            <repository>owlcms-prerelease</repository>
                             <server>github-oauth</server>
                             <tagName>${project.version}</tagName>
                             <name>${project.version}</name>
@@ -232,10 +254,20 @@
                             <body>${project.version}</body>
                             <releaseNotes>ReleaseNotes.md</releaseNotes>
                             <assets>
-                                <asset>owlcms/target/owlcms.zip</asset>
                                 <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
+                                <asset>owlcms/target/owlcms.zip</asset>
                             </assets>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.0.0-M1</version>
+                <executions>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>

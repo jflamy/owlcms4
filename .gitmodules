@@ -1,0 +1,3 @@
+[submodule "owlcms-publicresults"]
+	path = owlcms-publicresults
+	url = https://github.com/jflamy/owlcms-publicresults.git

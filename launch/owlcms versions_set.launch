@@ -12,9 +12,10 @@
 <booleanAttribute key="M2_UPDATE_SNAPSHOTS" value="false"/>
 <stringAttribute key="M2_USER_SETTINGS" value=""/>
 <booleanAttribute key="M2_WORKSPACE_RESOLUTION" value="false"/>
+<stringAttribute key="org.eclipse.debug.core.ATTR_REFRESH_SCOPE" value="${working_set:&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#13;&#10;&lt;resources&gt;&#13;&#10;&lt;item path=&quot;/owlcms4top&quot; type=&quot;4&quot;/&gt;&#13;&#10;&lt;/resources&gt;}"/>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DnewVersion=${string_prompt:New version number?}"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DnewVersion=${string_prompt:New version number?} -DoldVersion=* -DgroupId=* -DartifactId=*"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${project_loc:owlcms4top}"/>
 </launchConfiguration>
