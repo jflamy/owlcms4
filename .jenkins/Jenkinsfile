@@ -33,13 +33,13 @@ pipeline {
             }
         }
         
-//        stage('Build owlcms') {
-//            steps {
-//                dir('owlcms') {
-//                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
-//                }
-//            }
-//        }
+        stage('Build owlcms') {
+            steps {
+                dir('owlcms') {
+                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+                }
+            }
+        }
         
         stage('Build publicresults') {
             steps {
@@ -49,13 +49,13 @@ pipeline {
             }
         }
         
-//        stage('Release publicresults jar to bintray') {
-//            steps {
-//                dir('publicresults') {
-//                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
-//                }
-//            }
-//        }
+        stage('Release publicresults jar to bintray') {
+            steps {
+                dir('publicresults') {
+                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+                }
+            }
+        }
         
        stage('Release owlcms-publicresults to Heroku') {
             environment {
@@ -63,7 +63,6 @@ pipeline {
             }
             steps {
                 dir('owlcms-publicresults') {
-                    bat 'echo %TOKEN%'
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
                     // the build does not create any files
@@ -79,14 +78,14 @@ pipeline {
             }
         }
 
-//        // keep this stage for last because gitflow:release updates the project version numbers
-//        stage('Release owlcms to github') {
-//            steps {
-//                dir('.') {
-//                    bat 'mvn -s %M2%/settings.xml -B gitflow:release github-release:github-release -P %RELEASE%'
-//                }
-//            }
-//        }
+        // keep this stage for last because gitflow:release updates the project version numbers
+        stage('Release owlcms to github') {
+            steps {
+                dir('.') {
+                    bat 'mvn -s %M2%/settings.xml -B gitflow:release github-release:github-release -P %RELEASE%'
+                }
+            }
+        }
         
 
     }
