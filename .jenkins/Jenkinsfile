@@ -26,7 +26,7 @@ pipeline {
                     // clone the submodules
                     bat 'git submodule update --init --recursive'
                     // don't trust the commit pointer, hard reset to develop and pull
-                    bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git pull && git checkout develop"'
+                    bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git checkout develop && git pull "'
                 }
             }
         }
