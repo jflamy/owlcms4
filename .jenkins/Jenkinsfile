@@ -73,7 +73,7 @@ pipeline {
                     bat 'git merge develop'
                     // the build does not create any files
                     //bat 'git commit -m "successful build merged to master"'
-                    bat 'git push https://${TOKEN}@github.com/jflamy/owlcms-publicresults.git'
+                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
                 }
             }
         }
