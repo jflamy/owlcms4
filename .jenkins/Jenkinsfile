@@ -26,19 +26,20 @@ pipeline {
                     // clone the submodules
                     bat 'git submodule update --init --recursive'
                     // don't trust the commit pointer, hard reset to master
-                    bat 'git submodule foreach "git fetch && git reset --hard origin/master"'
+                    bat 'git submodule foreach "git fetch && git reset --hard origin/develop"'
                 }
 
             }
         }
+//        
+//        stage('Build owlcms') {
+//            steps {
+//                dir('owlcms') {
+//                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+//                }
+//            }
+//        }
         
-        stage('Build owlcms') {
-            steps {
-                dir('owlcms') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
-                }
-            }
-        }
         stage('Build publicresults') {
             steps {
                 dir('publicresults') {
@@ -46,26 +47,34 @@ pipeline {
                 }
             }
         }
+        
+//        stage('Deploy publicresults to bintray') {
+//            steps {
+//                dir('publicresults') {
+//                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+//                }
+//            }
+//        }
+//        
+//        stage('Release owlcms to github') {
+//            steps {
+//                dir('.') {
+//                    bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
+//                }
+//            }
+//        }
+        
         stage('Build owlcms-publicresults wrapper') {
             steps {
                 dir('owlcms-publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
-                }
-            }
-        }
-        
-        stage('Deploy publicresults to bintray') {
-            steps {
-                dir('publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
-                }
-            }
-        }
-        
-        stage('Release owlcms to github') {
-            steps {
-                dir('.') {
-                    bat 'mvn -B gitflow:release -P %RELEASE%'
+                    bat 'git -A -m "successful build"'
+                    bat 'git commit'
+                    bat 'git checkout master'
+                    bat 'git pull'
+                    bat 'git merge develop'
+                    bat 'git commit'
+                    bat 'git push'
                 }
             }
         }
