@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.4.0.17</version>
+    <version>4.4.0.18</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -228,7 +228,7 @@
                     <allowSnapshots>true</allowSnapshots>
                     <postReleaseGoals>github-release:github-release</postReleaseGoals>
                     <!-- github-release creates the tag -->
-                    <skipTag>false</skipTag>
+                    <skipTag>true</skipTag>
                     <skipTestProject>true</skipTestProject>
                     <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
                     <verbose>true</verbose>
@@ -237,7 +237,7 @@
             <plugin>
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
-                <version>1.0.4.1</version>
+                <version>1.0.4.2</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
@@ -246,6 +246,11 @@
                             <owner>${github.owner}</owner>
                             <repository>${github.repository}</repository>
                             <server>${github.token}</server>
+                            <tagName>${project.version}</tagName>
+                            <name>${project.version}</name>
+                            <targetCommitish>master</targetCommitish>
+                            <body>${project.version}</body>
+                            <releaseNotes>ReleaseNotes.md</releaseNotes>
                             <assets>
                                 <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
                                 <asset>owlcms/target/owlcms.zip</asset>
