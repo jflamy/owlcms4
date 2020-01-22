@@ -63,6 +63,7 @@ pipeline {
             }
             steps {
                 dir('owlcms-publicresults') {
+                    bat 'echo %TOKEN%'
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
                     // the build does not create any files
