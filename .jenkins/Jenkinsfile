@@ -74,8 +74,9 @@ pipeline {
                 dir('owlcms-publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
-                    bat 'git add -A'
-                    bat 'git commit -m "successful build"'
+                    // the build does not create any files
+                    //bat 'git add -A'
+                    //bat 'git commit -m "successful build"'
                     bat 'git checkout master'
                     bat 'git merge develop'
                     bat 'git commit -m "successful build merged to master"'
