@@ -73,10 +73,10 @@ pipeline {
             steps {
                 dir('owlcms-publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
+                    bat 'git pull'
                     bat 'git add -A'
                     bat 'git commit -m "successful build"'
                     bat 'git checkout master'
-                    bat 'git pull'
                     bat 'git merge develop'
                     bat 'git commit -m "successful build merged to master"'
                     bat 'git push'
