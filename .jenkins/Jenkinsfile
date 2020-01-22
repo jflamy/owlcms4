@@ -28,6 +28,11 @@ pipeline {
                     // don't trust the commit pointer, hard reset to master
                     bat 'git submodule foreach "git fetch && git reset --hard origin/develop"'
                 }
+                
+                dir('owlcms-publicresults') {
+                    bat 'git checkout develop'
+                }
+
 
             }
         }
@@ -68,12 +73,12 @@ pipeline {
             steps {
                 dir('owlcms-publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
-                    bat 'git -A -m "successful build"'
-                    bat 'git commit'
+                    bat 'git add -A'
+                    bat 'git commit -m "successful build"'
                     bat 'git checkout master'
                     bat 'git pull'
                     bat 'git merge develop'
-                    bat 'git commit'
+                    bat 'git commit -m "successful build merged to master"'
                     bat 'git push'
                 }
             }
