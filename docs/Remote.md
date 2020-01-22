@@ -1,3 +1,7 @@
+The remote Public Results application is used to make applications results available to the public at large.
+
+The information is sent from the competition site to an application running on the cloud.  The general public, whether at the competition site or anywhere on the internet, can access the scoreboards via their phone or laptop.  There is no load put on the competition site other than sending an update to the remote application.  The remote application takes all the load for the public queries.
+
 ## First-time Install of the Public Results Application
 
 1. Get a free Heroku account -- go to [https://heroku.com](https://heroku.com) and sign up!
