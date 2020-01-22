@@ -33,11 +33,13 @@ The information is sent from the competition site to an application running on t
 -Dremote=https://owlcms-test-publicresults.herokuapp.com/update
 -DupdateKey=abracadabra
 ```
-- Notes:
-  ​    **use your own site** -- replace `https://owlcms-test-publicresults.herokuapp.com` with your own application.
-  ​    Make sure that the value for `-Dremote=` **ends with `/update`** 
-  ​    **use your own secret** that you defined on the server application
-- You should therefore have something similar to the following in your file
+> ##### Notes:
+>
+> - **use your own site** -- replace `https://owlcms-test-publicresults.herokuapp.com` with your own application.
+> - Make sure that the value for `-Dremote=` **ends with `/update`** 
+> - **use your own secret** that you defined on the server application earlier (the value of the Heroku variable `OWLCMS_UPDATEKEY` is the secret)
+
+You should therefore have something similar to the following in your file
 
 ![052_clientKeyValues](img/PublicResults/052_clientKeyValues.png)
 ## Running a competition with a remote public scoreboard
