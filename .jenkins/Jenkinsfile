@@ -72,8 +72,10 @@ pipeline {
                     //bat 'git add -A'
                     //bat 'git commit -m "successful build"'
                     bat 'git checkout master'
+                    // bring back the updated pom with the correct version numbers
                     bat 'git merge develop'
-                    bat 'git commit -m "successful build merged to master"'
+                    // the build does not create any files
+                    //bat 'git commit -m "successful build merged to master"'
                     bat 'git push'
                 }
             }
