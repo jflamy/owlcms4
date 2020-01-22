@@ -58,6 +58,9 @@ pipeline {
 //        }
         
        stage('Release owlcms-publicresults to Heroku') {
+            environment {
+                TOKEN = credentials('github-jflamy')
+            }
             steps {
                 dir('owlcms-publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
@@ -70,7 +73,7 @@ pipeline {
                     bat 'git merge develop'
                     // the build does not create any files
                     //bat 'git commit -m "successful build merged to master"'
-                    bat 'git push https://jflamy@github.com/jflamy/owlcms-publicresults.git'
+                    bat 'git push https://${TOKEN}@github.com/jflamy/owlcms-publicresults.git'
                 }
             }
         }
