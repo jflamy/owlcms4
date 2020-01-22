@@ -243,8 +243,10 @@
                     <execution>
                         <id>default-cli</id>
                         <configuration>
-                            <owner>jflamy</owner>
-                            <repository>owlcms4</repository>
+<!--                             <owner>jflamy</owner> -->
+<!--                             <repository>owlcms4</repository> -->
+                            <owner>owlcms</owner>
+                            <repository>owlcms-prerelease</repository>
                             <server>github-oauth</server>
                             <tagName>${project.version}</tagName>
                             <name>${project.version}</name>
