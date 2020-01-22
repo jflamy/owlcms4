@@ -25,10 +25,9 @@ pipeline {
                 dir('owlcms-publicresults/..') {
                     // clone the submodules
                     bat 'git submodule update --init --recursive'
-                    // don't trust the commit pointer, hard reset to master
-                    bat 'git submodule foreach "git fetch && git reset --hard origin/master"'
+                    // don't trust the commit pointer, hard reset to develop and pull
+                    bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git checkout develop && git pull "'
                 }
-
             }
         }
         
@@ -39,6 +38,7 @@ pipeline {
                 }
             }
         }
+        
         stage('Build publicresults') {
             steps {
                 dir('publicresults') {
@@ -46,15 +46,16 @@ pipeline {
                 }
             }
         }
-        stage('Build owlcms-publicresults wrapper') {
+
+        stage('Release owlcms to github') {
             steps {
-                dir('owlcms-publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package'
+                dir('.') {
+                    bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
                 }
             }
         }
         
-        stage('Deploy publicresults to bintray') {
+        stage('Release publicresults jar to bintray') {
             steps {
                 dir('publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
@@ -62,10 +63,20 @@ pipeline {
             }
         }
         
-        stage('Release owlcms to github') {
+       stage('Release owlcms-publicresults to Heroku') {
             steps {
-                dir('.') {
-                    bat 'mvn -B gitflow:release -P %RELEASE%'
+                dir('owlcms-publicresults') {
+                    bat 'mvn -s %M2%/settings.xml -B clean package'
+                    bat 'git pull'
+                    // the build does not create any files
+                    //bat 'git add -A'
+                    //bat 'git commit -m "successful build"'
+                    bat 'git checkout master'
+                    // bring back the updated pom with the correct version numbers
+                    bat 'git merge develop'
+                    // the build does not create any files
+                    //bat 'git commit -m "successful build merged to master"'
+                    bat 'git push'
                 }
             }
         }
