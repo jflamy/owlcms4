@@ -62,16 +62,16 @@ pipeline {
             }
         }
         
-       stage('Release develop owlcms-publicresults to Heroku') {
+       stage('Prerelease owlcms-publicresults to Heroku') {
             environment {
-                TOKEN = credentials('jflamy-pw')
+                TOKEN = credentials('jflamy-dev-pw')
             }
             steps {
                 dir('owlcms-publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
-                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git'
                     bat 'git push origin'
                 }         
             }
@@ -91,7 +91,7 @@ pipeline {
                     bat 'git pull'
                     bat 'git merge develop'
                     bat 'git add -A && git commit -m "merging develop" --allow-empty' 
-                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git'
                     bat 'git push origin'
                 }           
             }
@@ -102,10 +102,11 @@ pipeline {
                 dir('.') {
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty'
-                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4'
                     bat 'git push origin'                   
                 }
                 dir('.') {
+                    // the profile determines what repo will be used to push
                     bat 'mvn -s %M2%/settings.xml -B github-release:github-release -P %RELEASE%'
                 }
             }
