@@ -65,6 +65,7 @@ pipeline {
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
+                    bat 'git push'
                     bat 'git checkout master'
                     // bring back the updated pom with the correct version numbers
                     bat 'git merge develop'
@@ -72,6 +73,7 @@ pipeline {
                     //bat 'git commit -m "successful build merged to master"'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
+                    bat 'git push'
                 }
             }
         }
@@ -85,6 +87,7 @@ pipeline {
                     //bat 'git reset --soft origin/develop'
                     bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
+                    bat 'git push'
                 }
             }
         }
