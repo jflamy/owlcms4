@@ -84,6 +84,7 @@ pipeline {
                     bat 'git pull'
                     //bat 'git reset --soft origin/develop'
                     bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
+                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
                 }
             }
         }
