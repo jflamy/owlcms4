@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage('Reset workspace') {
             steps {
-               bat 'git fetch && git reset --hard origin/develop'
+               bat 'git checkout origin/develop && git reset --hard origin/develop'
             }
         }
         stage('Update git & submodules') {
@@ -68,50 +68,49 @@ pipeline {
                 dir('owlcms-publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
-                    
-                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
-                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
-                    bat 'git push origin'
-                    
-                    bat 'git checkout master'
-                    bat 'git pull'
-                    
-                    // develop has the most up-to-date files, now master needs them
-                    bat 'git merge develop'
-
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
                     bat 'git push origin'
                 }
-                
+                    
+                dir('owlcms-publicresults') {
+                    bat 'git checkout master'
+                    bat 'git pull'                   
+                    
+                    // develop has the most up-to-date files, now master needs them (heroku syncs on master)
+                    bat 'git merge develop'
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
+                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
+                    bat 'git push origin'
+                }           
             }
         }
         
-        stage('Commit and merge with master') {
+        stage('Release owlcms to github') {
             steps {
                 dir('.') {
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty'
-                    // push all our changes so gitflow does not get confused
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
-                    bat 'git push origin'
-                    
-                    bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
-                    
-                    // check if necessary, gitflow most likely pushes the updated branches
-//                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
-//                    bat 'git push origin'
+                    bat 'git push origin'                   
                 }
-            }
-        }
-        
-        // keep this stage for last because gitflow:release updates the project version numbers
-        stage('Release owlcms to github') {
-            steps {
                 dir('.') {
                     bat 'mvn -s %M2%/settings.xml -B github-release:github-release -P %RELEASE%'
                 }
             }
         }
+        
+        stage('Sync master') {
+            steps {
+                dir('.') {
+                    bat 'git checkout master'
+                    bat 'git pull'
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty'
+                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
+                    bat 'git push origin'
+                }                
+            }
+        }
+        
     }
 }
