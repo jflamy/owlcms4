@@ -7,4 +7,4 @@ cd ..
 git commit -a -m "%1%
 git push
 echo Done.
-curl -X POST http://owlcms:owlcms@localhost:8080/job/build%20owlcms/job/develop/build
+curl -X POST http://owlcms:owlcms@localhost:8080/job/build%%20owlcms/job/develop/build
