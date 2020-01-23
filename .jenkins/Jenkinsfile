@@ -1,18 +1,24 @@
 pipeline {
     agent any
-    
     tools { 
         maven '3.6.2' 
         jdk 'jdk8' 
     }
     
+    options { skipDefaultCheckout() }
+
     environment {
         // maven profile to select destination repository (release|prerelease)
         RELEASE = 'prerelease'
         M2 = 'c:/dev/.m2'
     }
-                    
+      
     stages {
+        stage('Reset workspace') {
+            steps {
+               bat 'git fetch && git reset --hard origin/develop'
+            }
+        }
         stage('Update git & submodules') {
             steps {
                 bat 'git config --global user.email "jf@jflamy.dev"'
@@ -21,11 +27,10 @@ pipeline {
                 bat 'git checkout develop'
                 bat 'git pull'
 
-                dir('owlcms-publicresults/..') {
-                    bat 'del owlcms-publicresults\\pom.xml'
+                dir('.') {
+                    //bat 'del owlcms-publicresults\\pom.xml'
                     // clone the submodules
                     bat 'git submodule update --init --recursive'
-                    // don't trust the commit pointer, hard reset to develop and pull
                     bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git checkout develop && git pull "'
                 }
             }
@@ -63,15 +68,20 @@ pipeline {
                 dir('owlcms-publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
+                    
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
+                    bat 'git push origin'
+                    
                     bat 'git checkout master'
-                    // bring back the updated pom with the correct version numbers
+                    bat 'git pull'
+                    
+                    // develop has the most up-to-date files, now master needs them
                     bat 'git merge develop'
-                    // the build does not create any files
-                    //bat 'git commit -m "successful build merged to master"'
+
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
+                    bat 'git push origin'
                 }
             }
         }
@@ -83,8 +93,10 @@ pipeline {
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     //bat 'git reset --soft origin/develop'
+                    
                     bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
+                    bat 'git push origin'
                 }
             }
         }
