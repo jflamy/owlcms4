@@ -1,24 +1,28 @@
 pipeline {
     agent any
-    
     tools { 
         maven '3.6.2' 
         jdk 'jdk8' 
     }
     
+    options { skipDefaultCheckout() }
+
     environment {
         // maven profile to select destination repository (release|prerelease)
         RELEASE = 'prerelease'
         M2 = 'c:/dev/.m2'
     }
-                    
+      
     stages {
+        stage('Reset workspace') {
+            steps {
+               bat 'git fetch && git reset --hard origin/develop'
+            }
+        }
         stage('Update git & submodules') {
             steps {
                 bat 'git config --global user.email "jf@jflamy.dev"'
                 bat 'git config --global user.name "Jean-François Lamy"'
-                // remove any leftovers
-                bat 'git clean -x -f'
 
                 bat 'git checkout develop'
                 bat 'git pull'
@@ -27,7 +31,7 @@ pipeline {
                     //bat 'del owlcms-publicresults\\pom.xml'
                     // clone the submodules
                     bat 'git submodule update --init --recursive'
-                    bat 'git submodule foreach "git checkout develop && git pull "'
+                    bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git checkout develop && git pull "'
                 }
             }
         }
