@@ -12,8 +12,6 @@ pipeline {
         maven '3.6.2' 
         jdk 'jdk8' 
     }
-    
-    options { skipDefaultCheckout() }
 
     stages {
         stage('Reset workspace') {
