@@ -79,34 +79,25 @@ pipeline {
         
         stage('Release master owlcms-publicresults to Heroku') {
             when {
-                expression { '${RELEASE}' != 'release' }
+                expression { '${RELEASE}' == 'release' }
             }
             environment {
                 TOKEN = credentials('jflamy-pw')
             }
             steps {
                 dir('owlcms-publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package'
-                    bat 'git pull'
-                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
-                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
-                    bat 'git push origin'
-                }
-   
-                dir('owlcms-publicresults') {
-                    bat 'git checkout master'
-                    bat 'git pull'                   
-                    
                     // develop has the most up-to-date files, now master needs them (heroku syncs on master)
+                    bat 'git checkout master'
+                    bat 'git pull'
                     bat 'git merge develop'
-                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
+                    bat 'git add -A && git commit -m "merging develop" --allow-empty' 
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
                     bat 'git push origin'
                 }           
             }
         }
         
-        stage('Create owlcms release on master or prerelease repo') {
+        stage('GitHub release (on correct repo)') {
             steps {
                 dir('.') {
                     bat 'git pull'
