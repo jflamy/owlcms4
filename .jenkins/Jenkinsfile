@@ -77,7 +77,7 @@ pipeline {
                     bat 'git checkout master'
                     bat 'git pull'                   
                     
-                    // develop has the most up-to-date files, now master needs them
+                    // develop has the most up-to-date files, now master needs them (heroku syncs on master)
                     bat 'git merge develop'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
@@ -86,16 +86,22 @@ pipeline {
             }
         }
         
-        stage('Push changes to branches') {
+        stage('Release owlcms to github') {
             steps {
-                //simulate 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
                 dir('.') {
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty'
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
                     bat 'git push origin'                   
                 }
-                
+                dir('.') {
+                    bat 'mvn -s %M2%/settings.xml -B github-release:github-release -P %RELEASE%'
+                }
+            }
+        }
+        
+        stage('Sync master') {
+            steps {
                 dir('.') {
                     bat 'git checkout master'
                     bat 'git pull'
@@ -106,12 +112,5 @@ pipeline {
             }
         }
         
-        stage('Release owlcms to github') {
-            steps {
-                dir('.') {
-                    bat 'mvn -s %M2%/settings.xml -B github-release:github-release -P %RELEASE%'
-                }
-            }
-        }
     }
 }
