@@ -68,44 +68,44 @@ pipeline {
                 dir('owlcms-publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
-                    
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
                     bat 'git push origin'
+                }
                     
+                dir('owlcms-publicresults') {
                     bat 'git checkout master'
-                    bat 'git pull'
+                    bat 'git pull'                   
                     
                     // develop has the most up-to-date files, now master needs them
                     bat 'git merge develop'
-
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
                     bat 'git push origin'
-                }
-                
+                }           
             }
         }
         
-        stage('Commit and merge with master') {
+        stage('Push changes to branches') {
             steps {
+                //simulate 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
                 dir('.') {
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty'
-                    // push all our changes so gitflow does not get confused
+                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
+                    bat 'git push origin'                   
+                }
+                
+                dir('.') {
+                    bat 'git checkout master'
+                    bat 'git pull'
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty'
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
                     bat 'git push origin'
-                    
-                    bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
-                    
-                    // check if necessary, gitflow most likely pushes the updated branches
-//                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
-//                    bat 'git push origin'
-                }
+                }                
             }
         }
         
-        // keep this stage for last because gitflow:release updates the project version numbers
         stage('Release owlcms to github') {
             steps {
                 dir('.') {
