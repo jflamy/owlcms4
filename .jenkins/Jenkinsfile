@@ -69,7 +69,7 @@ pipeline {
             steps {
                 dir('owlcms-publicresults') {
                     // heroku prerelease deployments trigger on push to develop
-                    bat 'mvn -s %M2%/settings.xml -B clean package'
+//                    bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git develop'
