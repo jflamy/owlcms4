@@ -32,58 +32,57 @@ pipeline {
                 }
             }
         }
-        
-        stage('Build owlcms') {
-            steps {
-                dir('owlcms') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
-                }
-            }
-        }
-        
-        stage('Build publicresults') {
-            steps {
-                dir('publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B clean install -P production'
-                }
-            }
-        }
-        
-        stage('Release publicresults jar to bintray') {
-            steps {
-                dir('publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
-                }
-            }
-        }
-        
-       stage('Release owlcms-publicresults to Heroku') {
-            environment {
-                TOKEN = credentials('jflamy-pw')
-            }
-            steps {
-                dir('owlcms-publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package'
-                    bat 'git pull'
-                    // the build does not create any files
-                    //bat 'git add -A'
-                    //bat 'git commit -m "successful build"'
-                    bat 'git checkout master'
-                    // bring back the updated pom with the correct version numbers
-                    bat 'git merge develop'
-                    // the build does not create any files
-                    //bat 'git commit -m "successful build merged to master"'
-                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
-                }
-            }
-        }
+//        
+//        stage('Build owlcms') {
+//            steps {
+//                dir('owlcms') {
+//                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+//                }
+//            }
+//        }
+//        
+//        stage('Build publicresults') {
+//            steps {
+//                dir('publicresults') {
+//                    bat 'mvn -s %M2%/settings.xml -B clean install -P production'
+//                }
+//            }
+//        }
+//        
+//        stage('Release publicresults jar to bintray') {
+//            steps {
+//                dir('publicresults') {
+//                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+//                }
+//            }
+//        }
+//        
+//       stage('Release owlcms-publicresults to Heroku') {
+//            environment {
+//                TOKEN = credentials('jflamy-pw')
+//            }
+//            steps {
+//                dir('owlcms-publicresults') {
+//                    bat 'mvn -s %M2%/settings.xml -B clean package'
+//                    bat 'git pull'
+//                    // the build does not create any files
+//                    //bat 'git add -A'
+//                    //bat 'git commit -m "successful build"'
+//                    bat 'git checkout master'
+//                    // bring back the updated pom with the correct version numbers
+//                    bat 'git merge develop'
+//                    // the build does not create any files
+//                    //bat 'git commit -m "successful build merged to master"'
+//                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
+//                }
+//            }
+//        }
 
         // keep this stage for last because gitflow:release updates the project version numbers
         stage('Release owlcms to github') {
             steps {
                 dir('.') {
-                    bat 'git pull origin develop'
-                    bat 'git pull origin master'
+                    bat 'git pull'
                     bat 'mvn -s %M2%/settings.xml -B gitflow:release github-release:github-release -P %RELEASE%'
                 }
             }
