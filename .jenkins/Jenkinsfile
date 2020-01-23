@@ -63,14 +63,14 @@ pipeline {
                 dir('owlcms-publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
-                    // the build does not create any files
-                    //bat 'git add -A'
-                    //bat 'git commit -m "successful build"'
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
+                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
                     bat 'git checkout master'
                     // bring back the updated pom with the correct version numbers
                     bat 'git merge develop'
                     // the build does not create any files
                     //bat 'git commit -m "successful build merged to master"'
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
                 }
             }
@@ -80,8 +80,8 @@ pipeline {
         stage('Commit and merge with master') {
             steps {
                 dir('.') {
-                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git pull'
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     //bat 'git reset --soft origin/develop'
                     bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
