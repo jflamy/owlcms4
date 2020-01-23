@@ -64,6 +64,7 @@ pipeline {
         
        stage('Prerelease owlcms-publicresults to Heroku') {
             environment {
+                TOKEN = credentials('jflamy-pw')
                 TOKEN2 = credentials('jflamy-dev-pw')
             }
             steps {
@@ -73,7 +74,7 @@ pipeline {
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git develop'
-                    bat 'git push origin develop'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git develop'
                 }         
             }
         }
