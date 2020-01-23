@@ -19,6 +19,7 @@ pipeline {
                 bat 'git config --global user.name "Jean-François Lamy"'
 
                 bat 'git checkout develop'
+                bat 'git pull'
 
                 dir('owlcms-publicresults/..') {
                     // clone the submodules
