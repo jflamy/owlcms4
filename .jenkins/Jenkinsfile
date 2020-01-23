@@ -22,6 +22,7 @@ pipeline {
                 bat 'git pull'
 
                 dir('owlcms-publicresults/..') {
+                    bat 'delete owlcms-publicresults\\pom.xml'
                     // clone the submodules
                     bat 'git submodule update --init --recursive'
                     // don't trust the commit pointer, hard reset to develop and pull
