@@ -68,11 +68,12 @@ pipeline {
             }
             steps {
                 dir('owlcms-publicresults') {
+                    // heroku prerelease deployments trigger on push to develop
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git'
-                    bat 'git push origin'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults-prerelease.git develop'
+                    bat 'git push origin develop'
                 }         
             }
         }
@@ -86,13 +87,14 @@ pipeline {
             }
             steps {
                 dir('owlcms-publicresults') {
-                    // develop has the most up-to-date files, now master needs them (heroku syncs on master)
+                    // develop has the most up-to-date files, now master needs them
+                    // heroku official releases trigger on push to master.
                     bat 'git checkout master'
                     bat 'git pull'
                     bat 'git merge develop'
                     bat 'git add -A && git commit -m "merging develop" --allow-empty' 
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git'
-                    bat 'git push origin'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git master'
+                    bat 'git push origin master'
                 }           
             }
         }
