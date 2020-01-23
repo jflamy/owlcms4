@@ -30,7 +30,6 @@ pipeline {
                 bat 'git pull'
 
                 dir('.') {
-                    //bat 'del owlcms-publicresults\\pom.xml'
                     // clone the submodules
                     bat 'git submodule update --init --recursive'
                     bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git checkout develop && git pull "'
@@ -64,16 +63,18 @@ pipeline {
         
        stage('Prerelease owlcms-publicresults to Heroku') {
             environment {
-                TOKEN = credentials('jflamy-dev-pw')
+                TOKEN = credentials('jflamy-pw')
+                TOKEN2 = credentials('jflamy-dev-pw')
             }
             steps {
                 dir('owlcms-publicresults') {
-                    // heroku prerelease deployments trigger on push to develop
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
-                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults-prerelease.git develop'
-                    bat 'git push origin develop'
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty'
+                    // heroku prerelease deployments trigger on push to develop
+                    bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git develop'
+                    // the submodule has a remote origin
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git develop'
                 }         
             }
         }
@@ -100,6 +101,9 @@ pipeline {
         }
         
         stage('GitHub release (on correct repo)') {
+            environment {
+                TOKEN = credentials('jflamy-pw')
+            }
             steps {
                 dir('.') {
                     bat 'git pull'
