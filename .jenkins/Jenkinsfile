@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage('Reset workspace') {
             steps {
-               bat 'git fetch && git reset --hard origin/develop'
+               bat 'git checkout origin/develop && git reset --hard origin/develop'
             }
         }
         stage('Update git & submodules') {
