@@ -21,7 +21,7 @@ pipeline {
         }
         stage('Update git & submodules') {
             when {
-                expression { ${RELEASE} == 'release' }
+                expression { '${RELEASE}' == 'release' }
             }        
             steps {
                 bat 'git config --global user.email "jf@jflamy.dev"'
