@@ -19,7 +19,6 @@ pipeline {
         stage('CleanWorkspace') {
             steps {
                 cleanWs()
-                checkout()
             }
         }
         stage('Update git & submodules') {
