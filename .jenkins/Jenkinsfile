@@ -1,5 +1,13 @@
 pipeline {
     agent any
+    
+    environment {
+        // release|prerelease   
+        // also the name of maven profile that determines the target repository for artifacts
+        RELEASE = 'prerelease'
+        M2 = 'c:/dev/.m2'
+    }
+    
     tools { 
         maven '3.6.2' 
         jdk 'jdk8' 
@@ -7,19 +15,13 @@ pipeline {
     
     options { skipDefaultCheckout() }
 
-    environment {
-        // maven profile to select destination repository (release|prerelease)
-        RELEASE = 'prerelease'
-        M2 = 'c:/dev/.m2'
-    }
-      
     stages {
         stage('Reset workspace') {
             steps {
                bat 'git checkout origin/develop && git reset --hard origin/develop'
             }
         }
-        stage('Update git & submodules') {
+        stage('Update git & submodules') {      
             steps {
                 bat 'git config --global user.email "jf@jflamy.dev"'
                 bat 'git config --global user.name "Jean-François Lamy"'
@@ -60,7 +62,7 @@ pipeline {
             }
         }
         
-       stage('Release owlcms-publicresults to Heroku') {
+       stage('Release develop owlcms-publicresults to Heroku') {
             environment {
                 TOKEN = credentials('jflamy-pw')
             }
@@ -71,22 +73,31 @@ pipeline {
                     bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
                     bat 'git push origin'
-                }
-                    
+                }         
+            }
+        }
+        
+        stage('Release master owlcms-publicresults to Heroku') {
+            when {
+                expression { '${RELEASE}' == 'release' }
+            }
+            environment {
+                TOKEN = credentials('jflamy-pw')
+            }
+            steps {
                 dir('owlcms-publicresults') {
-                    bat 'git checkout master'
-                    bat 'git pull'                   
-                    
                     // develop has the most up-to-date files, now master needs them (heroku syncs on master)
+                    bat 'git checkout master'
+                    bat 'git pull'
                     bat 'git merge develop'
-                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
+                    bat 'git add -A && git commit -m "merging develop" --allow-empty' 
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
                     bat 'git push origin'
                 }           
             }
         }
         
-        stage('Release owlcms to github') {
+        stage('GitHub release (on correct repo)') {
             steps {
                 dir('.') {
                     bat 'git pull'
@@ -100,11 +111,15 @@ pipeline {
             }
         }
         
-        stage('Sync master') {
+        stage('Sync master with develop') {
+            when {
+                expression { '${RELEASE}' == 'release' }
+            }
             steps {
                 dir('.') {
                     bat 'git checkout master'
                     bat 'git pull'
+                    bat 'git merge develop'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty'
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
                     bat 'git push origin'
