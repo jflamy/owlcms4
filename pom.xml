@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.4.0.35</version>
+    <version>4.4.0.37</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -219,7 +219,7 @@
             <plugin>
                 <groupId>com.amashchenko.maven.plugin</groupId>
                 <artifactId>gitflow-maven-plugin</artifactId>
-                <version>1.12.0</version>
+                <version>1.14.0</version>
                 <configuration>
                     <gitFlowConfig>
                         <productionBranch>master</productionBranch>
