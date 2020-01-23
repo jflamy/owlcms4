@@ -83,20 +83,24 @@ pipeline {
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
                     bat 'git push origin'
                 }
+                
             }
         }
-
-        // keep this stage for last because gitflow:release updates the project version numbers
+        
         stage('Commit and merge with master') {
             steps {
                 dir('.') {
                     bat 'git pull'
-                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
-                    //bat 'git reset --soft origin/develop'
-                    
-                    bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty'
+                    // push all our changes so gitflow does not get confused
                     bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
                     bat 'git push origin'
+                    
+                    bat 'mvn -s %M2%/settings.xml -B gitflow:release -P %RELEASE%'
+                    
+                    // check if necessary, gitflow most likely pushes the updated branches
+//                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
+//                    bat 'git push origin'
                 }
             }
         }
