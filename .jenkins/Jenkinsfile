@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label any
-    }
+    agent any
     tools { 
         maven '3.6.2' 
         jdk 'jdk8' 
@@ -16,9 +14,9 @@ pipeline {
     }
       
     stages {
-        stage('CleanWorkspace') {
+        stage('Reset workspace') {
             steps {
-                cleanWs()
+               bat 'git fetch && git reset --hard origin/develop'
             }
         }
         stage('Update git & submodules') {
@@ -33,7 +31,7 @@ pipeline {
                     //bat 'del owlcms-publicresults\\pom.xml'
                     // clone the submodules
                     bat 'git submodule update --init --recursive'
-                    bat 'git submodule foreach "git checkout develop && git pull "'
+                    bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git checkout develop && git pull "'
                 }
             }
         }
