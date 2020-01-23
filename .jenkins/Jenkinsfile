@@ -101,6 +101,9 @@ pipeline {
         }
         
         stage('GitHub release (on correct repo)') {
+            environment {
+                TOKEN = credentials('jflamy-pw')
+            }
             steps {
                 dir('.') {
                     bat 'git pull'
