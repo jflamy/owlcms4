@@ -34,7 +34,6 @@ pipeline {
             steps {
                 dir('owlcms') {
                     bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
-                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                 }
             }
         }
@@ -80,6 +79,7 @@ pipeline {
         stage('Release owlcms to github') {
             steps {
                 dir('.') {
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
                     bat 'git pull'
                     //bat 'git reset --soft origin/develop'
                     bat 'mvn -s %M2%/settings.xml -B gitflow:release github-release:github-release -P %RELEASE%'
