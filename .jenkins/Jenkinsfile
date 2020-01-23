@@ -83,7 +83,6 @@ pipeline {
             steps {
                 dir('.') {
                     bat 'git checkout develop'
-                    bat 'git pull'
                     bat 'mvn -s %M2%/settings.xml -B gitflow:release github-release:github-release -P %RELEASE%'
                 }
             }
