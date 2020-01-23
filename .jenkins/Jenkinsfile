@@ -1,28 +1,37 @@
 pipeline {
     agent any
+    
+    environment {
+        // release|prerelease   
+        // also the name of maven profile that determines the target repository for artifacts
+        RELEASE = 'prerelease'
+        M2 = 'c:/dev/.m2'
+    }
+    
     tools { 
         maven '3.6.2' 
         jdk 'jdk8' 
     }
-    
-    environment {
-        M2 = 'c:/dev/.m2'
-    }
-                    
+
     stages {
-        stage('Update git & submodules') {
+        stage('Reset workspace') {
+            steps {
+               bat 'git checkout origin/develop && git reset --hard origin/develop'
+            }
+        }
+        stage('Update git & submodules') {      
             steps {
                 bat 'git config --global user.email "jf@jflamy.dev"'
                 bat 'git config --global user.name "Jean-François Lamy"'
 
-                bat 'git pull origin develop'
                 bat 'git checkout develop'
                 bat 'git pull'
 
-                dir('owlcms-publicresults/..') {
-                    bat 'git submodule foreach "git fetch && git reset --hard origin/master"'
+                dir('.') {
+                    // clone the submodules
+                    bat 'git submodule update --init --recursive'
+                    bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git checkout develop && git pull "'
                 }
-
             }
         }
         
@@ -33,6 +42,7 @@ pipeline {
                 }
             }
         }
+        
         stage('Build publicresults') {
             steps {
                 dir('publicresults') {
@@ -40,15 +50,8 @@ pipeline {
                 }
             }
         }
-        stage('Build owlcms-publicresults wrapper') {
-            steps {
-                dir('owlcms-publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package'
-                }
-            }
-        }
         
-        stage('Deploy publicresults to bintray') {
+        stage('Release publicresults jar to bintray') {
             steps {
                 dir('publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
@@ -56,12 +59,78 @@ pipeline {
             }
         }
         
-        stage('Release owlcms to github') {
+       stage('Prerelease owlcms-publicresults to Heroku') {
+            environment {
+                TOKEN = credentials('jflamy-pw')
+                TOKEN2 = credentials('jflamy-dev-pw')
+            }
+            steps {
+                dir('owlcms-publicresults') {
+                    bat 'mvn -s %M2%/settings.xml -B clean package'
+                    bat 'git pull'
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty'
+                    // heroku prerelease deployments trigger on push to develop
+                    bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git develop'
+                    // the submodule has a remote origin
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git develop'
+                }         
+            }
+        }
+        
+        stage('Release master owlcms-publicresults to Heroku') {
+            when {
+                expression { '${RELEASE}' == 'release' }
+            }
+            environment {
+                TOKEN = credentials('jflamy-pw')
+            }
+            steps {
+                dir('owlcms-publicresults') {
+                    // develop has the most up-to-date files, now master needs them
+                    // heroku official releases trigger on push to master.
+                    bat 'git checkout master'
+                    bat 'git pull'
+                    bat 'git merge develop'
+                    bat 'git add -A && git commit -m "merging develop" --allow-empty' 
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git master'
+                    bat 'git push origin master'
+                }           
+            }
+        }
+        
+        stage('GitHub release (on correct repo)') {
+            environment {
+                TOKEN = credentials('jflamy-pw')
+            }
             steps {
                 dir('.') {
-                    bat 'mvn -B gitflow:release'
+                    bat 'git pull'
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4'
+                    bat 'git push origin'                   
+                }
+                dir('.') {
+                    // the profile determines what repo will be used to push
+                    bat 'mvn -s %M2%/settings.xml -B github-release:github-release -P %RELEASE%'
                 }
             }
         }
+        
+        stage('Sync master with develop') {
+            when {
+                expression { '${RELEASE}' == 'release' }
+            }
+            steps {
+                dir('.') {
+                    bat 'git checkout master'
+                    bat 'git pull'
+                    bat 'git merge develop'
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty'
+                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
+                    bat 'git push origin'
+                }                
+            }
+        }
+        
     }
 }
