@@ -84,6 +84,7 @@ pipeline {
                 dir('.') {
                     bat 'git checkout develop'
                     bat 'git reset --hard origin/develop'
+                    bat 'git pull develop'
                     bat 'mvn -s %M2%/settings.xml -B gitflow:release github-release:github-release -P %RELEASE%'
                 }
             }
