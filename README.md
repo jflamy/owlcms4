@@ -1,8 +1,10 @@
 # OWLCMS4 (Prerelease Repository)
 
-> The master branch of this repository is a copy of the [development branch of OWLCMS4](https://github.com/jflamy/owlcms4/tree/develop).  This is done in order to 
-> give public access to the [prerelease version of the documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/index), which cannot be done from the development branch.  The [Releases](https://github.com/jflamy-dev/owlcms4-prerelease/releases) page of this repository also contains the actual prereleases versions.
-> This copy is synchronized every 30 minutes.
+> This prerelease repository has two purposes
+> 1.  The [Releases](https://github.com/jflamy-dev/owlcms4-prerelease/releases) page contains the prerelease versions (leaving the master repository clean)
+> 2.  This copy is used to publish the [prerelease version of the documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/index) on a separate site from the current documentation.
+>
+>The master branch on this repository (a requirement for publishing the documentation site) is synchronized from the development branch every 30 minutes.
 
 ## Olympic Weightlifting Competition Management System 
 
