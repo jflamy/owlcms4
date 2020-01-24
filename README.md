@@ -1,4 +1,4 @@
-# OWLCMS4 (Prerelease Repository)
+## OWLCMS4 (Prerelease Repository)
 
 > This prerelease repository has two purposes
 > 1.  The [Releases](https://github.com/jflamy-dev/owlcms4-prerelease/releases) page contains the prerelease versions (leaving the master repository clean)
