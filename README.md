@@ -1,4 +1,9 @@
-# owlcms4
+# OWLCMS4 (Prerelease Repository)
+
+> The master branch of this repository is a copy of the [evelopment branch of OWLCMS4](https://github.com/jflamy/owlcms4/tree/develop).  This is done in order to 
+> give access to the prerelease version of the documentation, which cannot be done from the development branch).
+> This copy is synchronized every 30 minutes.
+
 ## Olympic Weightlifting Competition Management System 
 
 This software is a new generation of `owlcms` which has been used to manage Olympic Weightlifting competitions since 2009. 
