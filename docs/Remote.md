@@ -1,3 +1,4 @@
+
 The remote Public Results application is used to make applications results available to the public at large.
 
 The information is sent from the competition site to an application running on the cloud.  The general public, whether at the competition site or anywhere on the internet, can access the scoreboards via their phone or laptop.  There is no load put on the competition site other than sending an update to the remote application.  The remote application takes all the load for the public queries.
@@ -5,21 +6,20 @@ The information is sent from the competition site to an application running on t
 ## First-time Install of the Public Results Application
 
 1. Get a free Heroku account -- go to [https://heroku.com](https://heroku.com) and sign up!
-2. Go to the github repository for the public results application [https://github.com/jflamy/owlcms-publicresults](https://github.com/jflamy/owlcms-publicresults) and scroll all the way down to the end of the page.
-    ![010_github](img/PublicResults/010_github.png)
+2. Go to the github repository for the public results application [https://github.com/jflamy/owlcms-publicresults](https://github.com/jflamy/owlcms-publicresults) and <u>scroll all the way down to the end of the page</u>.
 3. Use the `Deploy to Heroku` button.  Enter your Heroku account (or create one if you haven't)
     ![011_deployButton](img/PublicResults/011_deployButton.png)
 4. Choose a meaningful application name.  This is what the public will see (unless you use the Heroku options to map your application to a name your club or federation owns, but this is beyond the scope of this tutorial)
     ![020_appName](img/PublicResults/020_appName.png)
-5. Deploy the application. "Deploy" means : copy the code for the application from the master repository, fetch the required libraries, build everything, and make the result available.
+5. Deploy the application. This will magically copy the application from the owlcms-publicresults site, install it, and make it available to the public.
     ![030_deploy](img/PublicResults/030_deploy.png)
 6. You can now view the public results application
     ![031_viewApp](img/PublicResults/031_viewApp.png)
 7. The application is just sitting there, waiting.
     ![032_viewApp1](img/PublicResults/032_viewApp1.png)
-8. In order for the public results application to display anything, it expects a secret code to be sent by the competition site.  We now configure the secret code that will be required as a configuration variable.  This is done on the `Settings` screen.
+8. The public results application expects a secret code to be sent by the competition site in order to do anything.   We now configure the secret code that will be expected (later we will configure owlcms to send that value.)  Go to the `Settings` page for the application.
     ![040_configureServerKey](img/PublicResults/040_configureServerKey.png)
-9. We define a configuration variable `OWLCMS_UPDATEKEY` to contain the expected secret.  **Use something easy to type, but very long**, and not easily guessed.  `abracadabra` is therefore **NOT** a good real-life example.
+9. We define a configuration variable `OWLCMS_UPDATEKEY` to contain the expected secret.  **Use something easy to type, but quite long**, and not easily guessed -- a sentence from your favorite song, for example.  `abracadabra` is therefore **NOT** a good real-life example.
     ![041_configureServerKey2](img/PublicResults/041_configureServerKey2.png)
 
 ## Configure the competition site to send updates
@@ -44,29 +44,36 @@ You should therefore have something similar to the following in your file
 ![052_clientKeyValues](img/PublicResults/052_clientKeyValues.png)
 ## Running a competition with a remote public scoreboard
 
-1. Start the remote application.  Just accessing the URL will restart the application if it was dormant (on the free Heroku subscription, the remote application will go to sleep if unused for an hour).  During a competition, there will be frequent updates, so there is no chance of this happening. 
+1. Start the remote application.  Just accessing the URL is enough -- it will restart the application if it was shut down due to inactivity (on the free Heroku subscription, the remote application will go to sleep if unused for an hour).  During a competition, there will be frequent updates, so there is no chance of this happening. 
 2. Start the competition site application as usual, and get the the announcer to select a group,
    ![057_startLifting](img/PublicResults/057_startLifting.png)
 1. The public results application will now show that there is a platform active.
 ![055_updateReceivedHome](img/PublicResults/055_updateReceivedHome.png)
-1. Clicking on that link leads to the blank scoreboard, since there is neither a break neither lifting going on. 
+1. Clicking on the `Platform A` link leads to the blank scoreboard, since the announcer has not started a countdown and has not started the lifting. 
 ![056_updateReceivedFOP](img/PublicResults/056_updateReceivedFOP.png)
-1. As soon as a break or lifting starts, the competition site updates the remote application accordingly every time something pertinent happens.
+1. As soon as a break or lifting starts, the competition site updates the remote application.  From then on the scoreboard updates whenever a pertinent change happens.  Note that in the first release the scoreboard clock only shows the time allocated for the lift, and does not count down, and that decision lights are not shown.
 ![058_liftingStarted](img/PublicResults/058_liftingStarted.png)
 ## Updating the application
 When testing in the days leading to a competition, it is wise to update both the OWLCMS4 application and the remote public results server.
-In order to update the public results server, use the following process
-1. Log on to Heroku
-![060_backToHeroku](img/PublicResults/060_backToHeroku.png)
-2. Go back to the Deploy page
-![061_DeployPage](img/PublicResults/061_DeployPage.png)
-3. (First time only) The *first* time you want to update, you will need to connect your application with the master.  The first time around, when using the deploy button, only created a copy, but did not link it back permanently to the source.  Click on the "Connect to Github" button
-![062_connectToGithub](img/PublicResults/062_connectToGithub.png)
-1. (First time only) If you have not done so previously, create your free github account (needed to connect to the current version of the code) and perform the confirmation steps required (typically, confirm your email)
-![064_gitHubAccount](img/PublicResults/064_gitHubAccount.png)
-1. (First time only) You will now be allowed to select the repository for the Public Results application.  Choose it as illustrated (under jflamy, choose the owlcms-publicresults repository)
-![065_selectRepo](img/PublicResults/065_selectRepo.png)
-1. Go down the page and click `Deploy`
-![070_deployMaster](img/PublicResults/070_deployMaster.png)
-1. The application will be rebuilt and deployed.
-![071_rebuild](img/PublicResults/072_done.png)
+
+We suggest the following procedure
+
+1. Go to the installation folder for owlcms and copy the `owlcms.l4j.ini` file to your desktop (click on the file, Copy with Ctrl-C or ⌘C, go to the desktop, Paste with Ctrl-V or ⌘V) .
+
+2. Open a tab on the Heroku site  [https://heroku.com](https://heroku.com) and log in.
+
+3. Open a second tab to the [https://github.com/jflamy/owlcms-publicresults](https://github.com/jflamy/owlcms-publicresults) public results application home page
+
+4. When you are ready, edit the name of your current application and change it, for example by adding _old to the name (in this way, you keep the current settings for reference).
+
+![060_HerokuSettings_Edit](img/PublicResults/060_HerokuSettings_Edit.png)
+
+ 
+
+ Ignore the warning given.
+![061_rename](img/PublicResults/061_rename.png)
+
+5. Go to the  [https://github.com/jflamy/owlcms-publicresults](https://github.com/jflamy/owlcms-publicresults) public results application home page and use the `Deploy to Heroku` button found at the bottom of the page <u>to deploy again</u>.   Because you renamed your old application, you are now able to reuse the same application name you had before.
+6. Follow the same steps as you did before to add the `OWLCMS_UPDATEKEY` shared secret to the new application.  You can refer to the old application, or look inside your .ini file to get the old value.
+7. Install the new version of owlcms.  Stop the program. Copy your saved `owlcms.l4j.ini` file back to the installation folder (overwrite the file).
+8. Once you have checked that things work with the new versions, you may delete the old Heroku application.  Go to its settings page and scroll all the way down, and use the `Delete` button.
