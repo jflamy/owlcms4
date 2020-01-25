@@ -27,7 +27,7 @@ pipeline {
                 dir('.') {
                     // clone the submodules
                     bat 'git submodule update --init --recursive'
-                    bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git checkout develop && git pull "'
+                    bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git checkout develop && git pull"'
                 }
             }
         }
@@ -66,10 +66,11 @@ pipeline {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty'
-                    // push changes back to development env.
+                    // push changes back to origin repo.
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git develop'
                     // push new prerelease version for heroku testers
-                    bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git master'
+                    // we push local develop to remote master
+                    bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git develop:master'
                 }         
             }
         }
@@ -85,12 +86,7 @@ pipeline {
                 dir('owlcms-publicresults') {
                     // develop has the most up-to-date files, now master needs them
                     // heroku official releases trigger on push to master.
-                    bat 'git checkout master'
-                    bat 'git pull'
-                    bat 'git merge develop'
-                    bat 'git add -A && git commit -m "merging develop" --allow-empty' 
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git master'
-                    bat 'git push origin master'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git --force-with-lease=develop:master'
                 }           
             }
         }
