@@ -182,6 +182,8 @@ public class FieldOfPlay {
 
     public void emitDown(FOPEvent e) {
         getAthleteTimer().stop(); // paranoia
+        this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
+        setClockOwner(null); // athlete has lifted, time does not keep running for them
         uiShowDownSignalOnSlaveDisplays(e.origin);
         setState(DOWN_SIGNAL_VISIBLE);
     }
@@ -322,7 +324,7 @@ public class FieldOfPlay {
             // the clock was started for us. we own the clock, clock is set to what time was
             // left
             timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
-            logger.trace("timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
+            logger.debug("*** timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
         } else if (previousAthlete != null && previousAthlete.equals(a)) {
             resetDecisions();
             if (owner != null || a.getAttemptNumber() == 1) {
@@ -511,8 +513,8 @@ public class FieldOfPlay {
             break;
 
         case DOWN_SIGNAL_VISIBLE:
-            this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
-            this.setClockOwner(null);
+//            this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
+//            this.setClockOwner(null);
             if (e instanceof ExplicitDecision) {
                 getAthleteTimer().stop();
                 showExplicitDecision(((ExplicitDecision) e), e.origin);
@@ -756,26 +758,26 @@ public class FieldOfPlay {
     private void doWeightChange(WeightChange wc) {
         Athlete changingAthlete = wc.getAthlete();
         Integer newWeight = changingAthlete.getNextAttemptRequestedWeight();
-        logger.trace("&&1 cur={} curWeight={} changing={} newWeight={}", curAthlete, curWeight, changingAthlete,
+        logger.debug("&&1 cur={} curWeight={} changing={} newWeight={}", curAthlete, curWeight, changingAthlete,
                 newWeight);
-        logger.trace("&&2 clockOwner={} clockLastStopped={} state={}", clockOwner,
+        logger.debug("&&2 clockOwner={} clockLastStopped={} state={}", clockOwner,
                 getAthleteTimer().getTimeRemainingAtLastStop(), state);
 
         boolean stopAthleteTimer = false;
         if (clockOwner != null && getAthleteTimer().isRunning()) {
             // time is running
             if (changingAthlete.equals(clockOwner)) {
-                logger.trace("&&3.A clock IS running for changing athlete {}", changingAthlete);
+                logger.debug("&&3.A clock IS running for changing athlete {}", changingAthlete);
                 // X is the current lifter
                 // if a real change (and not simply a declaration that does not change weight),
                 // make sure clock is stopped.
                 if (curWeight != newWeight) {
-                    logger.trace("&&3.A.A1 weight change for clock owner: clock running: stop clock");
+                    logger.debug("&&3.A.A1 weight change for clock owner: clock running: stop clock");
                     getAthleteTimer().stop(); // memorize time
                     stopAthleteTimer = true; // make sure we broacast to clients
                     doWeightChange(wc, changingAthlete, clockOwner, stopAthleteTimer);
                 } else {
-                    logger.trace("&&3.A.B declaration at same weight for clock owner: leave clock running");
+                    logger.debug("&&3.A.B declaration at same weight for clock owner: leave clock running");
                     // no actual weight change. this is most likely a declaration.
                     // we do the call to trigger a notification on official's screens, but request
                     // that the clock keep running
@@ -783,21 +785,21 @@ public class FieldOfPlay {
                     return;
                 }
             } else {
-                logger.trace("&&3.B clock running, but NOT for changing athlete, do not update attempt board");
+                logger.debug("&&3.B clock running, but NOT for changing athlete, do not update attempt board");
                 weightChangeDoNotDisturb(wc);
                 return;
             }
         } else if (clockOwner != null && !getAthleteTimer().isRunning()) {
-            logger.trace("&&3.B clock NOT running for changing athlete {}", changingAthlete);
+            logger.debug("&&3.B clock NOT running for changing athlete {}", changingAthlete);
             // time was started (there is an owner) but is not currently running
             // time was likely stopped by timekeeper because coach signaled change of weight
             doWeightChange(wc, changingAthlete, clockOwner, true);
         } else {
-            logger.trace("&&3.C1 no clock owner, time is not running");
+            logger.debug("&&3.C1 no clock owner, time is not running");
             // time is not running
             recomputeLiftingOrder();
             setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
-            logger.trace("&&3.C2 displaying, curAthlete={}, state={}", curAthlete, state);
+            logger.debug("&&3.C2 displaying, curAthlete={}, state={}", curAthlete, state);
             uiDisplayCurrentAthleteAndTime(true, wc, false);
             updateGlobalRankings();
         }
@@ -926,7 +928,7 @@ public class FieldOfPlay {
     }
 
     private void setClockOwner(Athlete athlete) {
-        logger.trace("***setting clock owner to {} [{}]", athlete, LoggerUtils.whereFrom());
+        logger.debug("***setting clock owner to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.clockOwner = athlete;
     }
 
