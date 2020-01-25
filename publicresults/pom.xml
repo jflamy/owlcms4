@@ -44,13 +44,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <!-- user interface -->
-        <!-- <dependency> -->
-        <!-- <groupId>app.owlcms</groupId> -->
-        <!-- <artifactId>owlcms</artifactId> -->
-        <!-- <version>${project.version}</version> -->
-        <!-- </dependency> -->
         <dependency>
             <groupId>com.github.appreciated</groupId>
             <artifactId>app-layout-addon</artifactId>
@@ -426,8 +419,7 @@
                 </executions>
             </plugin>
             <plugin>
-                <!-- Only used in production, but cannot be removed or moved to production profile because of the way it is invoked by the 
-                    gitflow plugin -->
+                <!-- Skip execution - top level project does all the release handling -->
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
                 <version>1.0.4.2</version>
@@ -437,19 +429,6 @@
                         <id>default-cli</id>
                         <configuration>
                             <skip>true</skip>
-                            <!-- all other parameters are fake -->
-                            <owner>jflamy</owner>
-                            <repository>owlcms4</repository>
-                            <server>github-oauth</server>
-                            <tagName>${project.version}</tagName>
-                            <name>${project.version}</name>
-                            <targetCommitish>master</targetCommitish>
-                            <body>${project.version}</body>
-                            <releaseNotes>ReleaseNotes.md</releaseNotes>
-                            <assets>
-                                <!-- <asset>owlcms/target/owlcms.zip</asset> -->
-                                <!-- <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset> -->
-                            </assets>
                         </configuration>
                     </execution>
                 </executions>
