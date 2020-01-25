@@ -62,7 +62,7 @@ We suggest the following procedure
 
 2. Open a tab on the Heroku site  [https://heroku.com](https://heroku.com) and log in.
 
-3. Open a second tab to the [https://github.com/jflamy/owlcms-publicresults](https://github.com/jflamy/owlcms-publicresults) public results application home page
+3. Open a second tab to the [https://github.com/jflamy/owlcms-publicresults](https://github.com/jflamy/owlcms-publicresults/blob/master/README.md) public results application readme page
 
 4. When you are ready, edit the name of your current application and change it, for example by adding _old to the name (in this way, you keep the current settings for reference).
 
