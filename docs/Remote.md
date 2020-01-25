@@ -6,20 +6,30 @@ The information is sent from the competition site to an application running on t
 ## First-time Install of the Public Results Application
 
 1. Get a free Heroku account -- go to [https://heroku.com](https://heroku.com) and sign up!
-2. Go to the github repository for the public results application [https://github.com/jflamy/owlcms-publicresults](https://github.com/jflamy/owlcms-publicresults) and <u>scroll all the way down to the end of the page</u>.
-3. Use the `Deploy to Heroku` button.  Enter your Heroku account (or create one if you haven't)
-    ![011_deployButton](img/PublicResults/011_deployButton.png)
-4. Choose a meaningful application name.  This is what the public will see (unless you use the Heroku options to map your application to a name your club or federation owns, but this is beyond the scope of this tutorial)
+
+2. Click on this Button [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/jflamy/owlcms-publicresults)
+
+3. Enter your Heroku account (or create one if you haven't)
+
+4. Enter a meaningful application name.  If you type`myclub-results` the public will later use `myclub-results.herokuapp.com`  to see the results.
+
+    *(Reminder: You can click on the images to make them bigger)*
+
     ![020_appName](img/PublicResults/020_appName.png)
+
 5. Deploy the application. This will magically copy the application from the owlcms-publicresults site, install it, and make it available to the public.
     ![030_deploy](img/PublicResults/030_deploy.png)
+
 6. You can now view the public results application
     ![031_viewApp](img/PublicResults/031_viewApp.png)
-7. The application is just sitting there, waiting.
+
+7. The application is just sitting there, waiting. People can't use it yet, we need to configure a couple more things.
     ![032_viewApp1](img/PublicResults/032_viewApp1.png)
-8. The public results application expects a secret code to be sent by the competition site in order to do anything.   We now configure the secret code that will be expected (later we will configure owlcms to send that value.)  Go to the `Settings` page for the application.
+
+8. The public results application expects a *secret code* to be sent by the competition site in order to do anything.   We now configure the secret code that will be expected.  Go to the `Settings` page for the application.
     ![040_configureServerKey](img/PublicResults/040_configureServerKey.png)
-9. We define a configuration variable `OWLCMS_UPDATEKEY` to contain the expected secret.  **Use something easy to type, but quite long**, and not easily guessed -- a sentence from your favorite song, for example.  `abracadabra` is therefore **NOT** a good real-life example.
+
+9. The  configuration variable `OWLCMS_UPDATEKEY` should contain the expected secret.  **Use something easy to type, but quite long**, and not easily guessed -- a sentence from your favorite song, for example.  `abracadabra` is therefore **NOT** a good real-life example.
     ![041_configureServerKey2](img/PublicResults/041_configureServerKey2.png)
 
 ## Configure the competition site to send updates
@@ -39,7 +49,7 @@ The information is sent from the competition site to an application running on t
 > - Make sure that the value for `-Dremote=` **ends with `/update`** 
 > - **use your own secret** that you defined on the server application earlier (the value of the Heroku variable `OWLCMS_UPDATEKEY` is the secret)
 
-You should therefore have something similar to the following in your file
+You should therefore have something similar to the following in your file.  On a Mac or Linux, add the options to your command line immediately after `java` when starting the program.
 
 ![052_clientKeyValues](img/PublicResults/052_clientKeyValues.png)
 ## Running a competition with a remote public scoreboard
