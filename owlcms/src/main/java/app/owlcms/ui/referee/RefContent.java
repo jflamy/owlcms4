@@ -29,6 +29,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.dom.DomEvent;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterListener;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
@@ -41,6 +43,7 @@ import com.vaadin.flow.server.PageConfigurator;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
@@ -58,7 +61,7 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "ref")
 @Push
 public class RefContent extends VerticalLayout implements QueryParameterReader, SafeEventBusRegistration,
-        UIEventProcessor, HasDynamicTitle, RequireLogin, PageConfigurator {
+        UIEventProcessor, HasDynamicTitle, RequireLogin, PageConfigurator, BeforeEnterListener {
 
     private static final String REF_INDEX = "num";
     final private static Logger logger = (Logger) LoggerFactory.getLogger(RefContent.class);
@@ -104,12 +107,18 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         return this.locationUI;
     }
 
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        RequireLogin.super.beforeEnter(event);
+        UI.getCurrent().getPage().setTitle(getPageTitle());
+    }
+    
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Referee");
+        return Translator.translate("Referee")+(refIndex != null ? (" " + refIndex) : "");
     }
 
     @Override
@@ -379,6 +388,7 @@ public class RefContent extends VerticalLayout implements QueryParameterReader, 
         Location location2 = new Location(location.getPath(), new QueryParameters(urlParams));
         locationUI.getPage().getHistory().replaceState(null, location2);
         logger.trace("changed location to {}", location2.getPathWithQueryParameters());
+        UI.getCurrent().getPage().setTitle(getPageTitle());
     }
 
     private void vibrate() {
