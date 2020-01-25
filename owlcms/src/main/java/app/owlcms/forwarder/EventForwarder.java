@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -46,7 +45,6 @@ import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
@@ -89,12 +87,11 @@ public class EventForwarder implements BreakDisplay {
     private Integer timeAllowed;
     private int previousHashCode = 0;
     private long previousMillis = 0L;
-    private boolean warnedNoRemote = false;
     private boolean breakMode;
 
-    private final String updateKey = StartupUtils.getStringParam("updateKey");
-    private String url = StartupUtils.getStringParam("remote");
-    private boolean debugMode = StartupUtils.getBooleanParam("debug");
+    private String updateKey;
+    private String url;
+    private Boolean debugMode;
 
     public EventForwarder(FieldOfPlay emittingFop) {
         this.fop = emittingFop;
@@ -106,6 +103,15 @@ public class EventForwarder implements BreakDisplay {
         uiEventBus.register(this);
 
         setTranslationMap();
+
+        updateKey = StartupUtils.getStringParam("updateKey");
+        url = StartupUtils.getStringParam("remote");
+        debugMode = StartupUtils.getBooleanParam("debug");
+        if (url == null || updateKey == null || url.trim().isEmpty() || updateKey.trim().isEmpty()) {
+            logger.info("Pushing results to remote site not enabled.");
+        } else {
+            logger.info("Pushing to remote site {}", url);
+        }
     }
 
     @Override
@@ -525,19 +531,10 @@ public class EventForwarder implements BreakDisplay {
     private void pushToRemote() {
         // url = "https://httpbin.org/post";
         HttpURLConnection con = null;
-        // OWLCMS_REMOTE enables this feature
-        if (url == null && warnedNoRemote == false) {
-            logger./**/warn("no URL_REMOTE url specified, not pushing to remote scoreboard.");
-            warnedNoRemote = true;
-            return;
-        } else if (url == null) {
-            return;
-        }
-        if (updateKey == null) {
-            logger.error("updateKey is null, configure OWLCMS_UPDATEKEY in the environment");
-            return;
-        }
 
+        if (url == null) {
+            return;
+        }
 
         try {
             Map<String, String> updateString = createUpdate();
@@ -552,11 +549,11 @@ public class EventForwarder implements BreakDisplay {
                 previousMillis = System.currentTimeMillis();
             }
             // beware: must read response.
+
             readResponse(con);
-        } catch (ConnectException c) {
+
+        } catch (IOException c) {
             logger./**/warn("cannot push: {} {}", url, c.getMessage());
-        } catch (IOException e) {
-            logger.error("{} {}",url,LoggerUtils.stackTrace(e));
         } finally {
             if (con != null) {
                 con.disconnect();
@@ -566,22 +563,26 @@ public class EventForwarder implements BreakDisplay {
 
     private String readResponse(HttpURLConnection con) throws IOException {
         StringBuilder content;
-        InputStream inputStream = con.getInputStream();
-        if (inputStream == null) {
-            return "";
-        }
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(inputStream))) {
-
-            String line;
-            content = new StringBuilder();
-
-            while ((line = br.readLine()) != null) {
-                content.append(line);
-                content.append(System.lineSeparator());
+        try {
+            InputStream inputStream = con.getInputStream();
+            if (inputStream == null) {
+                return "";
             }
+
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(inputStream))) {
+                String line;
+                content = new StringBuilder();
+                while ((line = br.readLine()) != null) {
+                    content.append(line);
+                    content.append(System.lineSeparator());
+                }
+            }
+            return content.toString();
+        } catch (Exception e) {
+            logger.error("{} {}", url, e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+            return null;
         }
-        return content.toString();
     }
 
     private HttpURLConnection sendUpdate(Map<String, String> parameters)
@@ -595,6 +596,7 @@ public class EventForwarder implements BreakDisplay {
         con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
         int count = 0;
+        // connection is opened by getOutputStream
         try (OutputStream outputStream = con.getOutputStream();
                 OutputStreamWriter wr = new OutputStreamWriter(outputStream)) {
             for (Entry<String, String> pair : parameters.entrySet()) {
