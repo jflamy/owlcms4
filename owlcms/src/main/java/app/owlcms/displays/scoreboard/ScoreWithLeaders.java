@@ -298,7 +298,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
-            doDone(e.getGroup());
         });
     }
 
@@ -376,7 +375,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             }
         }
 
-        logger.debug("doUpdate a={} leaveTopAlone={}", a, leaveTopAlone);
+        logger.warn("$$$$$doUpdate a={} leaveTopAlone={}", a, leaveTopAlone);
         if (a != null && a.getAttemptsDone() < 6) {
             if (!leaveTopAlone) {
                 logger.debug("updating top {}", a.getFullName());
