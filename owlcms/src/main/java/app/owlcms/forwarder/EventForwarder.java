@@ -137,6 +137,19 @@ public class EventForwarder implements BreakDisplay {
     }
 
     @Subscribe
+    public void slaveGroupDone(UIEvent.GroupDone e) {
+        Group g = e.getGroup();
+        if (g == null) {
+            setHidden(true);
+        } else {
+            // done is a special kind of break.
+            doBreak();
+            setFullName(Translator.translate("Group_number_results", g.toString()));
+            pushToRemote();
+        }
+    }
+
+    @Subscribe
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
         Competition competition = Competition.getCurrent();
         computeLeaders(competition);
@@ -149,19 +162,20 @@ public class EventForwarder implements BreakDisplay {
         Athlete a = e.getAthlete();
         Competition competition = Competition.getCurrent();
         computeCurrentGroup(competition);
-        setFullName(a.getFullName());
-        setTeamName(a.getTeam());
-        setStartNumber(a.getStartNumber());
-        String formattedAttempt = formatAttempt(a.getAttemptsDone());
-        setAttempt(formattedAttempt);
-        setWeight(a.getNextAttemptRequestedWeight());
-        setTimeAllowed(e.getTimeAllowed());
-        String computedName = fop.getGroup() != null
-                ? Translator.translate("Scoreboard.GroupLiftType", fop.getGroup().getName(),
-                        (a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-                                : Translator.translate("Snatch")))
-                : "";
-        setGroupName(computedName);
+        doUpdate(a, e);
+//        setFullName(a.getFullName());
+//        setTeamName(a.getTeam());
+//        setStartNumber(a.getStartNumber());
+//        String formattedAttempt = formatAttempt(a.getAttemptsDone());
+//        setAttempt(formattedAttempt);
+//        setWeight(a.getNextAttemptRequestedWeight());
+//        setTimeAllowed(e.getTimeAllowed());
+//        String computedName = fop.getGroup() != null
+//                ? Translator.translate("Scoreboard.GroupLiftType", fop.getGroup().getName(),
+//                        (a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+//                                : Translator.translate("Snatch")))
+//                : "";
+//        setGroupName(computedName);
         pushToRemote();
     }
 
@@ -170,6 +184,13 @@ public class EventForwarder implements BreakDisplay {
         setHidden(false);
         doBreak();
         pushToRemote();
+    }
+
+    @Subscribe
+    public void slaveBreakDone(UIEvent.BreakDone e) {
+        Athlete a = e.getAthlete();
+        setHidden(false);
+        doUpdate(a, e);
     }
 
     @Subscribe
@@ -185,8 +206,12 @@ public class EventForwarder implements BreakDisplay {
             setHidden(true);
             break;
         case BREAK:
-            doUpdate(e.getAthlete(), e);
-            doBreak();
+            if (e.getAthlete() == null) {
+                setHidden(true);
+            } else {
+                doUpdate(e.getAthlete(), e);
+                doBreak();
+            }
             break;
         default:
             doUpdate(e.getAthlete(), e);
@@ -328,9 +353,8 @@ public class EventForwarder implements BreakDisplay {
         if (g == null) {
             setHidden(true);
         } else {
-            OwlcmsSession.withFop(fop -> {
-                setFullName(Translator.translate("Group_number_results", g.toString()));
-            });
+            setFullName(Translator.translate("Group_number_results", g.toString()));
+            setGroupName("");
         }
     }
 
@@ -346,7 +370,7 @@ public class EventForwarder implements BreakDisplay {
             }
         }
 
-        logger.debug("doUpdate a={} leaveTopAlone={}", a, leaveTopAlone);
+        logger.warn("%%%doUpdate a={} leaveTopAlone={}", a, leaveTopAlone);
         if (a != null && a.getAttemptsDone() < 6) {
             if (!leaveTopAlone) {
                 logger.debug("updating top {}", a.getFullName());
@@ -356,11 +380,21 @@ public class EventForwarder implements BreakDisplay {
                 String formattedAttempt = formatAttempt(a.getAttemptsDone());
                 setAttempt(formattedAttempt);
                 setWeight(a.getNextAttemptRequestedWeight());
+                if (e instanceof UIEvent.LiftingOrderUpdated) {
+                    setTimeAllowed(((LiftingOrderUpdated) e).getTimeAllowed());
+                }
+                String computedName = fop.getGroup() != null
+                        ? Translator.translate("Scoreboard.GroupLiftType", fop.getGroup().getName(),
+                                (a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+                                        : Translator.translate("Snatch")))
+                        : "";
+                setGroupName(computedName);
             }
         } else {
             if (!leaveTopAlone) {
                 logger.debug("doUpdate doDone");
-                OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+                Group g = (a != null ? a.getGroup() : null);
+                doDone(g);
             }
             return;
         }
@@ -637,7 +671,6 @@ public class EventForwarder implements BreakDisplay {
 
     private void setTimeAllowed(Integer timeAllowed) {
         this.timeAllowed = timeAllowed;
-
     }
 
     private void setTranslationMap(JsonObject translations) {
