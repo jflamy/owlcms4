@@ -181,6 +181,7 @@ public class EventForwarder implements BreakDisplay {
 
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
+        logger.warn("break started !");
         setHidden(false);
         doBreak();
         pushToRemote();
@@ -201,6 +202,9 @@ public class EventForwarder implements BreakDisplay {
 
     @Subscribe
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
+        Competition competition = Competition.getCurrent();
+        computeLeaders(competition);
+        computeCurrentGroup(competition);
         switch (e.getState()) {
         case INACTIVE:
             setHidden(true);
@@ -216,6 +220,7 @@ public class EventForwarder implements BreakDisplay {
         default:
             doUpdate(e.getAthlete(), e);
         }
+        pushToRemote();
     }
 
     protected void setTranslationMap() {
@@ -324,27 +329,38 @@ public class EventForwarder implements BreakDisplay {
     private Map<String, String> createUpdate() throws IOException, UnsupportedEncodingException {
         Map<String, String> sb = new HashMap<>();
         mapPut(sb, "updateKey", updateKey);
+        
+        // competition state
         mapPut(sb, "fop", fop.getName());
         mapPut(sb, "fopState", fop.getState().toString());
-        mapPut(sb, "attempt", attempt);
+        mapPut(sb, "break", String.valueOf(breakMode));
+
+        // current athlete & attempt
+        mapPut(sb, "startNumber", startNumber != null ? startNumber.toString() : null);
         mapPut(sb, "categoryName", categoryName);
         mapPut(sb, "fullName", fullName);
-        mapPut(sb, "groupName", groupName);
-        mapPut(sb, "hidden", String.valueOf(hidden));
-        mapPut(sb, "startNumber", startNumber != null ? startNumber.toString() : null);
         mapPut(sb, "teamName", teamName);
+        mapPut(sb, "attempt", attempt);
         mapPut(sb, "weight", weight != null ? weight.toString() : null);
-        mapPut(sb, "wideTeamNames", String.valueOf(wideTeamNames));
+        mapPut(sb, "timeAllowed", timeAllowed != null ? timeAllowed.toString() : null);
+        
+        // current group
+        mapPut(sb, "groupName", groupName);
+        mapPut(sb, "liftsDone", liftsDone);
+
+        // bottom tables
         if (groupAthletes != null) {
             mapPut(sb, "groupAthletes", groupAthletes.toJson());
         }
         if (leaders != null) {
             mapPut(sb, "leaders", leaders.toJson());
         }
-        mapPut(sb, "liftsDone", liftsDone);
+
+        // presentation information
         mapPut(sb, "translationMap", translationMap.toJson());
-        mapPut(sb, "timeAllowed", timeAllowed != null ? timeAllowed.toString() : null);
-        mapPut(sb, "break", String.valueOf(breakMode));
+        mapPut(sb, "hidden", String.valueOf(hidden));
+        mapPut(sb, "wideTeamNames", String.valueOf(wideTeamNames));
+
         return sb;
     }
 
@@ -390,6 +406,7 @@ public class EventForwarder implements BreakDisplay {
                         : "";
                 setGroupName(computedName);
             }
+            // FIXME: set bottom part.
         } else {
             if (!leaveTopAlone) {
                 logger.debug("doUpdate doDone");
