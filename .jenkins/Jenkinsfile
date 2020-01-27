@@ -66,11 +66,13 @@ pipeline {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty'
-                    // push changes back to origin repo.
+                    // push changes back to upstream repo.
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git develop'
                     // push new prerelease version for heroku testers
                     // we push local develop to remote master
-                    bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git --force-with-lease=develop:master'
+                    bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git develop:master --force'
+                    // push back to local
+                    bat 'git push'
                 }         
             }
         }
