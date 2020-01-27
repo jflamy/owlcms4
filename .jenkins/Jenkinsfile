@@ -20,6 +20,12 @@ pipeline {
 
     stages {
         stage('test') {
+            environment {
+                VERSION = """${bat(
+                    returnStdout: true,
+                    script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout'
+                )}"""
+            }
             steps {
                bat 'echo ( %VERSION% )'
             }
