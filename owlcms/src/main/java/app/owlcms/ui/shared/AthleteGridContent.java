@@ -467,7 +467,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     protected void createInitialBar() {
-        logger.debug("AthleteGridContent creating top bar");
+        logger.debug("AthleteGridContent creating top bar {}", LoggerUtils.whereFrom());
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
         initialBar = true;
@@ -616,15 +616,10 @@ public abstract class AthleteGridContent extends VerticalLayout
                                 newGroup != null ? newGroup.getName() : null);
                         fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, fop.getState(), null, this));
                         oldGroup = newGroup;
-                        // this assumes that SwitchGroup post is synchronous and has loaded.
-                        // otherwise we should listen for UI SwitchGroup event.
-                        syncWithFOP(true);
-                        updateURLLocation(getLocationUI(), getLocation(), newGroup);
+                        // we listen to the UI switch group that will result from the FOP switchgroup
                     } else {
-                        // samegroup as already loaded; should go to null before switching back
-                        //logger./**/warn("fop {} fop.oldgroup = {}, dropdown.oldGroup={}, newGroup = {}", fop.getName(), oldGroup, e.getOldValue(), newGroup);
+                        // loadGroup will emit FOP SwitchGroup which will emit UI switchgroup that we listen to .
                         fop.loadGroup(newGroup, this);
-                        syncWithFOP(true);
                     }
                 });
             });
@@ -713,7 +708,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        logger.trace("attaching {} initial={}", System.identityHashCode(attachEvent.getSource()),
+        logger.debug("attaching {} initial={}", System.identityHashCode(attachEvent.getSource()),
                 attachEvent.isInitialAttach());
         OwlcmsSession.withFop(fop -> {
             // create the top bar.
@@ -735,7 +730,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected void syncWithFOP(boolean refreshGrid) {
         OwlcmsSession.withFop((fop) -> {
             Group fopGroup = fop.getGroup();
-            logger.debug("syncing FOP, group = {}", fopGroup);
+            logger.warn("syncing FOP, group = {}, {}", fopGroup, LoggerUtils.whereFrom(2));
             createTopBarGroupSelect();
 
             if (refreshGrid) {
@@ -748,7 +743,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             Athlete curAthlete2 = fop.getCurAthlete();
             FOPState state = fop.getState();
             if (state == FOPState.INACTIVE) {
-                logger.debug("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2,
+                logger.warn("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2,
                         curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 createInitialBar();
                 warning.setText(getTranslation("IdlePlatform"));
