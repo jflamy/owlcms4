@@ -564,6 +564,7 @@ public class FieldOfPlay {
         this.breakTimer = breakTimer;
         this.fopEventBus = getFopEventBus();
         this.fopEventBus.register(this);
+        EventForwarder.listenToFOP(this);
         this.curAthlete = null;
         this.setClockOwner(null);
         this.previousAthlete = null;
@@ -575,9 +576,12 @@ public class FieldOfPlay {
             // state.
             recomputeLiftingOrder();
         }
+        logger.warn("group {} athletes {}",getGroup(), athletes.size());
         if (state == null) {
             this.setState(INACTIVE);
         }
+        // force a wake up on user interfaces
+        getUiEventBus().post(new UIEvent.SwitchGroup(getGroup(), getState(), getCurAthlete(), this));
         logger.trace("end of init state=" + state);
     }
 
@@ -1154,7 +1158,6 @@ public class FieldOfPlay {
     }
 
     private void uiShowUpdatedRankings() {
-        EventForwarder.listenToFOP(this);
         uiEventBus.post(new UIEvent.GlobalRankingUpdated(this));
     }
 
