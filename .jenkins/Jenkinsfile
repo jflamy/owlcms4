@@ -70,7 +70,7 @@ pipeline {
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git develop'
                     // push new prerelease version for heroku testers
                     // we push local develop to remote master
-                    bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git develop:master'
+                    bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git --force-with-lease=develop:master'
                 }         
             }
         }
