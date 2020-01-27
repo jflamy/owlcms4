@@ -71,8 +71,6 @@ pipeline {
                     // push new prerelease version for heroku testers
                     // we push local develop to remote master
                     bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git develop:master --force'
-                    // push back to local
-                    bat 'git push'
                 }         
             }
         }
