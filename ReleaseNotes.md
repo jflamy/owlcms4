@@ -2,6 +2,7 @@
   - [x] Experimental: Remote scoreboard.  The competition site sends updates to a separate scoreboard application that provides the scoreboard/leaderboard to the public. (#139, #292)
   - [x] Fix: Allowed time not updated correctly after decision when using the phone refereeing interface (#291)
   - [x] Fix: after several group changes, there could be a spinning wait indicator on group selection menu , and a need to click twice to start the intro countdown or go to lifting (#294)
+  - [x] Enhancement: Portuguese translations (as of 2020-01-27 17:00 BRT)
 
 Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 
