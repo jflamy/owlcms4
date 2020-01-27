@@ -160,7 +160,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
      */
     @Override
     protected void createInitialBar() {
-        logger.debug("AnnouncerContent creating top bar");
+        logger.debug("AnnouncerContent creating top bar {}", LoggerUtils.whereFrom());
         topBar = getAppLayout().getAppBarElementWrapper();
         topBar.removeAll();
         initialBar = true;
@@ -170,7 +170,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
         introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(), (e) -> {
             BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
-
             dialog.open();
         });
         introCountdownButton.getElement().setAttribute("theme", "primary contrast");

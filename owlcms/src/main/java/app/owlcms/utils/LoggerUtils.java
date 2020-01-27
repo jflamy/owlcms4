@@ -54,4 +54,13 @@ public class LoggerUtils {
     public static String whereFrom() {
         return Thread.currentThread().getStackTrace()[3].toString();
     }
+    
+    /**
+     * Where from, additional depth
+     *
+     * @return the string
+     */
+    public static String whereFrom(int depth) {
+        return Thread.currentThread().getStackTrace()[3+depth].toString();
+    }
 }

@@ -7,15 +7,11 @@
 package app.owlcms.forwarder;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -136,6 +132,49 @@ public class EventForwarder implements BreakDisplay {
         return translationMap;
     }
 
+    /**
+     * Change the messages because we are not showing live timers
+     * 
+     * @see app.owlcms.displays.attemptboard.BreakDisplay#inferMessage(app.owlcms.fieldofplay.BreakType)
+     */
+    @Override
+    public String inferMessage(BreakType bt) {
+        if (bt == null) {
+            return Translator.translate("BreakType.TECHNICAL");
+        }
+        switch (bt) {
+        case FIRST_CJ:
+            return Translator.translate("BreakType.FIRST_CJ");
+        case FIRST_SNATCH:
+            return Translator.translate("BreakType.FIRST_SNATCH");
+        case BEFORE_INTRODUCTION:
+            return Translator.translate("BreakType.BEFORE_INTRODUCTION");
+        case DURING_INTRODUCTION:
+            return Translator.translate("BreakType.DURING_INTRODUCTION");
+        case TECHNICAL:
+            return Translator.translate("BreakType.TECHNICAL");
+        case JURY:
+            return Translator.translate("BreakType.JURY");
+        default:
+            return "";
+        }
+    }
+
+    @Subscribe
+    public void slaveBreakDone(UIEvent.BreakDone e) {
+        Athlete a = e.getAthlete();
+        setHidden(false);
+        doUpdate(a, e);
+    }
+
+    @Subscribe
+    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
+        Competition competition = Competition.getCurrent();
+        computeLeaders(competition);
+        computeCurrentGroup(competition);
+        pushToRemote();
+    }
+
     @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
         Group g = e.getGroup();
@@ -150,48 +189,19 @@ public class EventForwarder implements BreakDisplay {
     }
 
     @Subscribe
-    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
-        Competition competition = Competition.getCurrent();
-        computeLeaders(competition);
-        computeCurrentGroup(competition);
-        pushToRemote();
-    }
-
-    @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
         Athlete a = e.getAthlete();
         Competition competition = Competition.getCurrent();
         computeCurrentGroup(competition);
         doUpdate(a, e);
-//        setFullName(a.getFullName());
-//        setTeamName(a.getTeam());
-//        setStartNumber(a.getStartNumber());
-//        String formattedAttempt = formatAttempt(a.getAttemptsDone());
-//        setAttempt(formattedAttempt);
-//        setWeight(a.getNextAttemptRequestedWeight());
-//        setTimeAllowed(e.getTimeAllowed());
-//        String computedName = fop.getGroup() != null
-//                ? Translator.translate("Scoreboard.GroupLiftType", fop.getGroup().getName(),
-//                        (a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-//                                : Translator.translate("Snatch")))
-//                : "";
-//        setGroupName(computedName);
         pushToRemote();
     }
 
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
-        logger.warn("break started !");
         setHidden(false);
         doBreak();
         pushToRemote();
-    }
-
-    @Subscribe
-    public void slaveBreakDone(UIEvent.BreakDone e) {
-        Athlete a = e.getAthlete();
-        setHidden(false);
-        doUpdate(a, e);
     }
 
     @Subscribe
@@ -326,10 +336,10 @@ public class EventForwarder implements BreakDisplay {
 
     }
 
-    private Map<String, String> createUpdate() throws IOException, UnsupportedEncodingException {
+    private Map<String, String> createUpdate() {
         Map<String, String> sb = new HashMap<>();
         mapPut(sb, "updateKey", updateKey);
-        
+
         // competition state
         mapPut(sb, "fop", fop.getName());
         mapPut(sb, "fopState", fop.getState().toString());
@@ -343,7 +353,7 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "attempt", attempt);
         mapPut(sb, "weight", weight != null ? weight.toString() : null);
         mapPut(sb, "timeAllowed", timeAllowed != null ? timeAllowed.toString() : null);
-        
+
         // current group
         mapPut(sb, "groupName", groupName);
         mapPut(sb, "liftsDone", liftsDone);
@@ -385,8 +395,6 @@ public class EventForwarder implements BreakDisplay {
                 leaveTopAlone = !e2.isCurrentDisplayAffected();
             }
         }
-
-        logger.warn("%%%doUpdate a={} leaveTopAlone={}", a, leaveTopAlone);
         if (a != null && a.getAttemptsDone() < 6) {
             if (!leaveTopAlone) {
                 logger.debug("updating top {}", a.getFullName());
@@ -406,7 +414,6 @@ public class EventForwarder implements BreakDisplay {
                         : "";
                 setGroupName(computedName);
             }
-            // FIXME: set bottom part.
         } else {
             if (!leaveTopAlone) {
                 logger.debug("doUpdate doDone");
@@ -571,8 +578,7 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
-    private void mapPut(Map<String, String> wr, String key, String value)
-            throws IOException, UnsupportedEncodingException {
+    private void mapPut(Map<String, String> wr, String key, String value) {
         if (value == null) {
             return;
         }
@@ -582,29 +588,24 @@ public class EventForwarder implements BreakDisplay {
     private void pushToRemote() {
         // url = "https://httpbin.org/post";
         HttpURLConnection con = null;
-
         if (url == null) {
             return;
         }
-
         try {
             Map<String, String> updateString = createUpdate();
-
             long deltaMillis = System.currentTimeMillis() - previousMillis;
-
             int hashCode = updateString.hashCode();
+            // debounce, sometimes several identical updates in a rapid succession
+            // identical updates are ok after 1 sec.
             if (hashCode != previousHashCode || (deltaMillis > 1000)) {
-                // debounce, sometimes several identical updates in a rapid succession
                 con = sendUpdate(updateString);
                 previousHashCode = hashCode;
                 previousMillis = System.currentTimeMillis();
             }
-            // beware: must read response.
-
-            readResponse(con);
-
-        } catch (IOException c) {
-            logger./**/warn("cannot push: {} {}", url, c.getMessage());
+            // contrary to documentatin con can be null with no exception thrown.
+            if (con != null) {
+                readResponse(con);
+            }
         } finally {
             if (con != null) {
                 con.disconnect();
@@ -612,7 +613,7 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
-    private String readResponse(HttpURLConnection con) throws IOException {
+    private String readResponse(HttpURLConnection con) {
         StringBuilder content;
         try {
             InputStream inputStream = con.getInputStream();
@@ -631,42 +632,46 @@ public class EventForwarder implements BreakDisplay {
             }
             return content.toString();
         } catch (Exception e) {
-            logger.error("{} {}", url, e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+            logger.error("{} {}", url, e.getCause() != null ? e.getCause().getMessage() : e);
             return null;
         }
     }
 
-    private HttpURLConnection sendUpdate(Map<String, String> parameters)
-            throws MalformedURLException, IOException, ProtocolException {
-        HttpURLConnection con;
-        URL myurl = new URL(url);
-        con = (HttpURLConnection) myurl.openConnection();
-        con.setDoOutput(true);
-        con.setRequestMethod("POST");
-        con.setRequestProperty("User-Agent", "Java client");
-        con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+    private HttpURLConnection sendUpdate(Map<String, String> parameters) {
+        HttpURLConnection con = null;
+        try {
+            URL myurl = new URL(url);
+            con = (HttpURLConnection) myurl.openConnection();
+            con.setDoOutput(true);
+            con.setRequestMethod("POST");
+            con.setRequestProperty("User-Agent", "Java client");
+            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-        int count = 0;
-        // connection is opened by getOutputStream
-        try (OutputStream outputStream = con.getOutputStream();
-                OutputStreamWriter wr = new OutputStreamWriter(outputStream)) {
-            for (Entry<String, String> pair : parameters.entrySet()) {
-                wr.write(URLUtils.urlEncode(pair.getKey()));
-                wr.write("=");
-                wr.write(URLUtils.urlEncode(pair.getValue()));
-                if (debugMode) {
-                    logger/**/.warn("{}={}", pair.getKey(), pair.getValue());
-                }
-                if (count < parameters.size() - 1) {
-                    wr.write("&");
+            int count = 0;
+            // connection is opened by getOutputStream
+            try (OutputStream outputStream = con.getOutputStream();
+                    OutputStreamWriter wr = new OutputStreamWriter(outputStream)) {
+                for (Entry<String, String> pair : parameters.entrySet()) {
+                    wr.write(URLUtils.urlEncode(pair.getKey()));
+                    wr.write("=");
+                    wr.write(URLUtils.urlEncode(pair.getValue()));
                     if (debugMode) {
-                        logger/**/.warn("&");
+                        logger/**/.warn("{}={}", pair.getKey(), pair.getValue());
                     }
-                    count++;
+                    if (count < parameters.size() - 1) {
+                        wr.write("&");
+                        if (debugMode) {
+                            logger/**/.warn("&");
+                        }
+                        count++;
+                    }
                 }
             }
+        } catch (Exception e) {
+            logger./**/warn("cannot push: {} {}", url, e.getMessage());
         }
         return con;
+
     }
 
     private void setBreak(boolean b) {

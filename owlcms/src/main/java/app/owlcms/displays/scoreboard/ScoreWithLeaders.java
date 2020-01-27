@@ -374,8 +374,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 leaveTopAlone = !e2.isCurrentDisplayAffected();
             }
         }
-
-        logger.warn("$$$$$doUpdate a={} leaveTopAlone={}", a, leaveTopAlone);
         if (a != null && a.getAttemptsDone() < 6) {
             if (!leaveTopAlone) {
                 logger.debug("updating top {}", a.getFullName());
@@ -386,7 +384,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 model.setAttempt(formattedAttempt);
                 model.setWeight(a.getNextAttemptRequestedWeight());
                 this.getElement().callJsFunction("reset");
-                logger.debug("updated top {}", a.getFullName());
             }
             logger.debug("updating bottom");
             updateBottom(model, computeLiftType(a));
