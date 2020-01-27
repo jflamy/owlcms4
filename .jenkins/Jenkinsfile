@@ -6,10 +6,6 @@ pipeline {
         // also the name of maven profile that determines the target repository for artifacts
         RELEASE = 'prerelease'
         M2 = 'c:/dev/.m2'
-        VERSION = """${bat(
-                returnStdout: true,
-                script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout'
-            )}"""
     }
     
     tools { 
@@ -21,7 +17,7 @@ pipeline {
     stages {
         stage('test') {
             environment {
-                VERSION = """${bat(
+                VERSION = """${sh(
                     returnStdout: true,
                     script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout'
                 )}"""
