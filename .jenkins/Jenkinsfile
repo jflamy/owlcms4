@@ -13,27 +13,19 @@ pipeline {
         jdk 'jdk8' 
     }
 
-
     stages {
-        stage('test') {
-            environment {
-                VERSION = """${bash(
-                    returnStdout: true,
-                    script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout'
-                )}"""
-            }
+        stage('Reset workspace') {
             steps {
-               bat 'echo ( %VERSION% )'
+               bat 'git checkout origin/develop && git reset --hard origin/develop'
             }
         }
-
-
-//    stages {
-//        stage('Reset workspace') {
-//            steps {
-//               bat 'git checkout origin/develop && git reset --hard origin/develop'
-//            }
-//        }
+        
+        stage('test') {
+            steps {
+               bat 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout -Doutput=version.txt'
+               bat 'set /p VERSION=<version.txt && echo %VERSION%'
+            }
+        }
 //        stage('Update git & submodules') {      
 //            steps {
 //                bat 'git checkout develop'
