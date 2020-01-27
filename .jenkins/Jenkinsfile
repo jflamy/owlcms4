@@ -17,7 +17,7 @@ pipeline {
     stages {
         stage('test') {
             environment {
-                VERSION = """${sh(
+                VERSION = """${bash(
                     returnStdout: true,
                     script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout'
                 )}"""
