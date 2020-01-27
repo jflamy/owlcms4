@@ -21,14 +21,9 @@ pipeline {
         }
         
         stage('test') {
-            environment {
-                VERSION = """${bat(
-                    returnStdout: true,
-                    script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout'
-                )}"""
-            }
             steps {
-               bat 'echo %VERSION%'
+               bat 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout -Doutput=version.txt'
+               bat 'set /p VERSION=<version.txt && echo %VERSION%'
             }
         }
 //        stage('Update git & submodules') {      
