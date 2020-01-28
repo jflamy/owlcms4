@@ -16,6 +16,7 @@ pipeline {
     stages {
         stage('Reset workspace') {
             steps {
+               echo "${params.VERSION} World!"
                bat 'git checkout origin/develop && git reset --hard origin/develop'
             }
         }
@@ -68,7 +69,7 @@ pipeline {
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty'
                     // create a branch with the current release number
-                    bat 'mvn -s %M2%/settings.xml -B release:branch'
+                    bat 'mvn -s %M2%/settings.xml -B gitflow:release'
                     // push changes back to upstream repo.
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git develop'
                     // push new prerelease version for heroku testers
