@@ -20,12 +20,6 @@ pipeline {
             }
         }
         
-        stage('test') {
-            steps {
-               bat 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout -Doutput=version.txt'
-               bat 'set /p VERSION=<version.txt && echo %VERSION%'
-            }
-        }
 //        stage('Update git & submodules') {      
 //            steps {
 //                bat 'git checkout develop'
@@ -63,25 +57,26 @@ pipeline {
 //            }
 //        }
 //        
-//       stage('Prerelease owlcms-publicresults to Heroku') {
-//            environment {
-//                TOKEN = credentials('jflamy-pw')
-//                TOKEN2 = credentials('jflamy-dev-pw')
-//            }
-//            steps {
-//                dir('owlcms-publicresults') {
-//                    bat 'mvn -s %M2%/settings.xml -B clean package'
-//                    bat 'git pull'
-//                    bat 'git add -A && git commit -m "modified by build" --allow-empty'
-//                    bat 
-//                    // push changes back to upstream repo.
-//                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git develop'
-//                    // push new prerelease version for heroku testers
-//                    // we push local develop to remote master
-//                    bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git develop:master --force'
-//                }         
-//            }
-//        }
+       stage('Prerelease owlcms-publicresults to Heroku') {
+            environment {
+                TOKEN = credentials('jflamy-pw')
+                TOKEN2 = credentials('jflamy-dev-pw')
+            }
+            steps {
+                dir('owlcms-publicresults') {
+                    bat 'mvn -s %M2%/settings.xml -B clean package'
+                    bat 'git pull'
+                    bat 'git add -A && git commit -m "modified by build" --allow-empty'
+                    // create a branch with the current release number
+                    bat 'mvn -s %M2%/settings.xml -B release:branch'
+                    // push changes back to upstream repo.
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git develop'
+                    // push new prerelease version for heroku testers
+                    // we push local develop to remote master
+                    bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git develop:master --force'
+                }         
+            }
+        }
 //        
 //        stage('Release master owlcms-publicresults to Heroku') {
 //            when {
