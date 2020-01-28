@@ -38,31 +38,31 @@ pipeline {
                 }
             }
         }
-//        
-//        stage('Build owlcms') {
-//            steps {
-//                dir('owlcms') {
-//                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
-//                }
-//            }
-//        }
-//        
-//        stage('Build publicresults') {
-//            steps {
-//                dir('publicresults') {
-//                    bat 'mvn -s %M2%/settings.xml -B clean install -P production'
-//                }
-//            }
-//        }
-//        
-//        stage('Release publicresults jar to bintray') {
-//            steps {
-//                dir('publicresults') {
-//                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
-//                }
-//            }
-//        }
-//        
+        
+        stage('Build owlcms') {
+            steps {
+                dir('owlcms') {
+                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+                }
+            }
+        }
+        
+        stage('Build publicresults') {
+            steps {
+                dir('publicresults') {
+                    bat 'mvn -s %M2%/settings.xml -B clean install -P production'
+                }
+            }
+        }
+        
+        stage('Release publicresults jar to bintray') {
+            steps {
+                dir('publicresults') {
+                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+                }
+            }
+        }
+        
        stage('Prerelease owlcms-publicresults to Heroku') {
             environment {
                 TOKEN = credentials('jflamy-pw')
