@@ -9,7 +9,7 @@ pipeline {
     }
     
     parameters {
-        string(name: 'VERSION', defaultValue: 'Mr Jenkins', description: 'used for tagging')
+        string(name: 'VERSION', defaultValue: 'Missing', description: 'used for tagging')
     }
     
     tools { 
@@ -21,6 +21,7 @@ pipeline {
         stage('Reset workspace') {
             steps {
                echo "${params.VERSION} World!"
+               bat "echo %VERSION% !!!"
                bat 'git checkout origin/develop && git reset --hard origin/develop'
             }
         }

@@ -9,6 +9,4 @@ git commit -a -m "%1%
 git pull
 git push
 echo Done.
-rem wsl curl -X POST "http://owlcms:owlcms@localhost:8080/job/owlcms/job/develop/buildWithParameters" --data-urlencode json='{"parameter": [{"name":"VERSION", "value":"%1%"}]}'
-                  
 curl -X POST http://owlcms:owlcms@localhost:8080/job/owlcms/job/develop/buildWithParameters?VERSION=%1%
