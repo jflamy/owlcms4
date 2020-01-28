@@ -25,18 +25,18 @@ pipeline {
             }
         }
         
-//        stage('Update git & submodules') {      
-//            steps {
-//                bat 'git checkout develop'
-//                bat 'git pull'
-//
-//                dir('.') {
-//                    // clone the submodules
-//                    bat 'git submodule update --init --recursive'
-//                    bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git checkout develop && git pull"'
-//                }
-//            }
-//        }
+        stage('Update git & submodules') {      
+            steps {
+                bat 'git checkout develop'
+                bat 'git pull'
+
+                dir('.') {
+                    // clone the submodules
+                    bat 'git submodule update --init --recursive'
+                    bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git checkout develop && git pull"'
+                }
+            }
+        }
 //        
 //        stage('Build owlcms') {
 //            steps {
