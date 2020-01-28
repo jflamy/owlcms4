@@ -8,6 +8,10 @@ pipeline {
         M2 = 'c:/dev/.m2'
     }
     
+    parameters {
+        string(name: 'VERSION', defaultValue: 'Mr Jenkins', description: 'used for tagging')
+    }
+    
     tools { 
         maven '3.6.2' 
         jdk 'jdk8' 
