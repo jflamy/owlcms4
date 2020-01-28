@@ -9,7 +9,7 @@ pipeline {
     }
     
     parameters {
-        string(name: 'VERSION', defaultValue: 'Mr Jenkins', description: 'used for tagging')
+        string(name: 'VERSION', defaultValue: 'Missing', description: 'used for tagging')
     }
     
     tools { 
@@ -21,6 +21,7 @@ pipeline {
         stage('Reset workspace') {
             steps {
                echo "${params.VERSION} World!"
+               bat "echo %VERSION% !!!"
                bat 'git checkout origin/develop && git reset --hard origin/develop'
             }
         }
@@ -37,31 +38,31 @@ pipeline {
                 }
             }
         }
-//        
-//        stage('Build owlcms') {
-//            steps {
-//                dir('owlcms') {
-//                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
-//                }
-//            }
-//        }
-//        
-//        stage('Build publicresults') {
-//            steps {
-//                dir('publicresults') {
-//                    bat 'mvn -s %M2%/settings.xml -B clean install -P production'
-//                }
-//            }
-//        }
-//        
-//        stage('Release publicresults jar to bintray') {
-//            steps {
-//                dir('publicresults') {
-//                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
-//                }
-//            }
-//        }
-//        
+        
+        stage('Build owlcms') {
+            steps {
+                dir('owlcms') {
+                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+                }
+            }
+        }
+        
+        stage('Build publicresults') {
+            steps {
+                dir('publicresults') {
+                    bat 'mvn -s %M2%/settings.xml -B clean install -P production'
+                }
+            }
+        }
+        
+        stage('Release publicresults jar to bintray') {
+            steps {
+                dir('publicresults') {
+                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+                }
+            }
+        }
+        
        stage('Prerelease owlcms-publicresults to Heroku') {
             environment {
                 TOKEN = credentials('jflamy-pw')
@@ -72,13 +73,15 @@ pipeline {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty'
-                    // create a branch with the current release number
-                    bat 'mvn -s %M2%/settings.xml -B gitflow:release'
+                    // create a tag with the current version number
+                    bat 'git tag %VERSION% -a -m "%RELEASE% %VERSION" '
                     // push changes back to upstream repo.
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git develop'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %VERSION%'
                     // push new prerelease version for heroku testers
                     // we push local develop to remote master
                     bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git develop:master --force'
+                    bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git %VERSION%'
                 }         
             }
         }
