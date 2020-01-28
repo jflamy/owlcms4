@@ -73,13 +73,15 @@ pipeline {
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty'
-                    // create a branch with the current release number
-                    bat 'mvn -s %M2%/settings.xml -B gitflow:release'
+                    // create a tag with the current version number
+                    bat 'git tag %VERSION% -a -m "%RELEASE% %VERSION" '
                     // push changes back to upstream repo.
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git develop'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %VERSION%'
                     // push new prerelease version for heroku testers
                     // we push local develop to remote master
                     bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git develop:master --force'
+                    bat 'git push https://%TOKEN2%@github.com/%TOKEN2_USR%/owlcms-publicresults-prerelease.git %VERSION%'
                 }         
             }
         }
