@@ -191,7 +191,7 @@
 
     <distributionManagement>
         <repository>
-            <id>bintray-owlcms-owlcms-maven</id>
+            <id>bintray-owlcms-maven</id>
             <name>owlcms-owlcms-maven</name>
             <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
         </repository>
@@ -406,7 +406,7 @@
                         </goals>
                         <configuration>
                             <file>target/${project.artifactId}-${project.version}.jar</file>
-                            <repositoryId>bintray-owlcms-owlcms-maven</repositoryId>
+                            <repositoryId>bintray-owlcms-maven</repositoryId>
                             <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>${project.artifactId}</artifactId>
