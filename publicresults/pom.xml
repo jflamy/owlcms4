@@ -192,7 +192,7 @@
     <distributionManagement>
         <repository>
             <id>bintray-owlcms-maven</id>
-            <name>owlcms-owlcms-maven</name>
+            <name>owlcms-maven</name>
             <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
         </repository>
     </distributionManagement>
