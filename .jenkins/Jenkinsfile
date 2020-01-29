@@ -78,7 +78,7 @@ pipeline {
                     bat 'git stash'
 
                     // create a tag with the current version number, but not the locally built files
-                    bat 'git tag %VERSION% -a -m "%VERSION%"'
+                    bat 'git tag %VERSION% -f -a -m "%VERSION%"'
                     // push changes and tag back to upstream master repo
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %GIT_BRANCH%'
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %VERSION%'
