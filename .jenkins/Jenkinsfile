@@ -24,8 +24,8 @@ pipeline {
                 TOKEN = credentials('jflamy-pw')
             }
             steps {
-               bat "echo %VERSION% %GIT_BRANCH% %BRANCH%!!!"
-               bat 'echo git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %GIT_BRANCH%:master --force'
+               bat "echo %VERSION% %GIT_BRANCH% %BRANCH%"
+//               bat 'echo git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %GIT_BRANCH%:master --force'
                bat 'git checkout origin/%GIT_BRANCH% && git reset --hard origin/%GIT_BRANCH%'
             }
         }
