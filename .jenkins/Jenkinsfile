@@ -1,16 +1,14 @@
 pipeline {
     agent any
     
-    environment {
-        // where to find the settings and Maven secrets
-        M2 = 'c:/dev/.m2'
-    }
-    
     parameters {
+        string(name: 'M2', defaultValue: 'c:/dev/.m2', description: 'where to find the Maven settings and Maven secrets')
         string(name: 'VERSION', defaultValue: 'Missing', description: 'used for tagging')
         string(name: 'REPO_OWNER', defaultValue: 'owlcms', description: 'owlcms or jflamy-dev')
         string(name: 'O_REPO_NAME', defaultValue: 'owlcms4', description: 'owlcms4 or owlcms4-prerelease')
         string(name: 'P_REPO_NAME', defaultValue: 'owlcms-publicresults', description: 'owlcms-publicresults or owlcms-publicresults-prerelease')
+        string(name: 'PRERELEASE', defaultValue: 'true', description: 'true or false')
+        string(name: 'REPO_TOKEN_NAME', defaultValue: 'github-oauth', description: 'from Maven settings')
     }
     
     tools { 
@@ -104,7 +102,7 @@ pipeline {
                 }
                 dir('.') {
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
-                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%O_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=false'
+                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%O_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
                 }
             }
         }
