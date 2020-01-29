@@ -22,7 +22,7 @@ pipeline {
                 TOKEN = credentials('jflamy-pw')
             }
             steps {
-               bat "echo %VERSION% %GIT_BRANCH% %BRANCH%"
+               bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %GIT_BRANCH% %BRANCH%"
 //               bat 'echo git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %GIT_BRANCH%:master --force'
                bat 'git checkout origin/%GIT_BRANCH% && git reset --hard origin/%GIT_BRANCH%'
             }
@@ -80,7 +80,9 @@ pipeline {
                     // push changes back to upstream master repo with all the branches
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %GIT_BRANCH%'
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %VERSION%'
-                    // push new version to heroku testers (on master)
+                    // push new version to heroku testers (on master). Use updated Heroku button
+                    bat 'del README.md && copy target\\README.md .'
+                    bat 'git commit -m "Heroku Deploy" --allow-empty'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %GIT_BRANCH%:master --force'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %VERSION%'
                 }         
