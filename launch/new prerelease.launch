@@ -2,6 +2,7 @@
 <launchConfiguration type="org.eclipse.ui.externaltools.ProgramLaunchConfigurationType">
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="O_REPO_NAME" value="owlcms4-prerelease"/>
+<mapEntry key="PRERELEASE" value="true"/>
 <mapEntry key="P_REPO_NAME" value="owlcms4-publicresults-prerelease"/>
 <mapEntry key="REPO_OWNER" value="jflamy-dev"/>
 </mapAttribute>
