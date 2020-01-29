@@ -79,14 +79,14 @@ pipeline {
                     bat 'git stash'
 
                     // create a tag with the current version number, but not the locally built files
-                    bat 'git tag %VERSION% -f -a -m "%VERSION%"'
+                    bat 'git tag %VERSION% -f -a -m "%VERSION% owlcms-publicresults"'
                     // push changes and tag back to upstream master repo
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %GIT_BRANCH%'
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %VERSION%'
 
                     // push new version and tag to heroku users (on master). Use updated Heroku button
                     bat 'git stash pop'
-                    bat 'git add -A && git commit -m "%VERSION%" --allow-empty'
+                    bat 'git add -A && git commit -m "%VERSION% heroku" --allow-empty'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %GIT_BRANCH%:master --force'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %VERSION%'
                 }         
@@ -101,7 +101,7 @@ pipeline {
                 dir('.') {
                     bat 'git pull'
                     // create a tag with the current version number, but not the locally built files
-                    bat 'git tag %VERSION% -f -a -m "%VERSION%"'
+                    bat 'git tag %VERSION% -f -a -m "%VERSION% owlcms4"'
                     
                     bat 'git add -A && git commit -m "%VERSION%" --allow-empty'
                     
