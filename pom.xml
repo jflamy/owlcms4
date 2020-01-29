@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.4.0.48</version>
+    <version>4.4.1-beta11</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -61,7 +61,7 @@
             </snapshots>
         </repository>
         <repository>
-            <id>bintray-owlcms-owlcms-maven</id>
+            <id>bintray-owlcms-maven</id>
             <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
             <name>bintray</name>
             <snapshots>
@@ -79,7 +79,7 @@
             </snapshots>
         </pluginRepository>
         <pluginRepository>
-            <id>bintray-owlcms-owlcms-maven</id>
+            <id>bintray-owlcms-maven</id>
             <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
             <name>bintray</name>
             <snapshots>
@@ -159,7 +159,7 @@
 
     <distributionManagement>
         <repository>
-            <id>bintray-owlcms-owlcms-maven</id>
+            <id>bintray-owlcms-maven</id>
             <name>owlcms-owlcms-maven</name>
             <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
         </repository>

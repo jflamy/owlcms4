@@ -1,37 +1,43 @@
 pipeline {
     agent any
+    
+    parameters {
+        string(name: 'M2', defaultValue: 'c:/dev/.m2', description: 'where to find the Maven settings and Maven secrets')
+        string(name: 'VERSION', defaultValue: 'Missing', description: 'used for tagging')
+        string(name: 'REPO_OWNER', defaultValue: 'owlcms', description: 'owlcms or jflamy-dev')
+        string(name: 'O_REPO_NAME', defaultValue: 'owlcms4', description: 'owlcms4 or owlcms4-prerelease')
+        string(name: 'P_REPO_NAME', defaultValue: 'owlcms-publicresults', description: 'owlcms-publicresults or owlcms-publicresults-prerelease')
+        string(name: 'PRERELEASE', defaultValue: 'true', description: 'true or false')
+        string(name: 'REPO_TOKEN_NAME', defaultValue: 'github-oauth', description: 'from Maven settings')
+    }
+    
     tools { 
         maven '3.6.2' 
         jdk 'jdk8' 
     }
-    
-    options { skipDefaultCheckout() }
 
-    environment {
-        // maven profile to select destination repository (release|prerelease)
-        RELEASE = 'prerelease'
-        M2 = 'c:/dev/.m2'
-    }
-      
     stages {
         stage('Reset workspace') {
+            environment {
+                TOKEN = credentials('jflamy-pw')
+            }
             steps {
-               bat 'git checkout origin/develop && git reset --hard origin/develop'
+                bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %GIT_BRANCH% %BRANCH%"
+                dir ('owlcms-publicresults') {
+                    bat 'del README.md'
+                }
             }
         }
-        stage('Update git & submodules') {
+        
+        stage('Update git & submodules') {      
             steps {
-                bat 'git config --global user.email "jf@jflamy.dev"'
-                bat 'git config --global user.name "Jean-François Lamy"'
-
-                bat 'git checkout develop'
+                bat 'git checkout %GIT_BRANCH%'
                 bat 'git pull'
 
                 dir('.') {
-                    //bat 'del owlcms-publicresults\\pom.xml'
                     // clone the submodules
                     bat 'git submodule update --init --recursive'
-                    bat 'git submodule foreach "git fetch && git reset --hard origin/develop && git checkout develop && git pull "'
+                    bat 'git submodule foreach "git fetch && git reset --hard origin/%GIT_BRANCH% && git checkout %GIT_BRANCH% && git pull"'
                 }
             }
         }
@@ -63,52 +69,47 @@ pipeline {
        stage('Release owlcms-publicresults to Heroku') {
             environment {
                 TOKEN = credentials('jflamy-pw')
+                TOKEN2 = credentials('jflamy-dev-pw')
             }
             steps {
                 dir('owlcms-publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git pull'
-                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
-                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
-                    bat 'git push origin'
-                }
-                    
-                dir('owlcms-publicresults') {
-                    bat 'git checkout master'
-                    bat 'git pull'                   
-                    
-                    // develop has the most up-to-date files, now master needs them (heroku syncs on master)
-                    bat 'git merge develop'
-                    bat 'git add -A && git commit -m "modified by build" --allow-empty' 
-                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms-publicresults.git'
-                    bat 'git push origin'
-                }           
+                    bat 'mvn -s %M2%/settings.xml -B clean package'
+                    // save the locally built files
+                    bat 'git stash'
+
+                    // create a tag with the current version number, but not the locally built files
+                    bat 'git tag %VERSION% -f -a -m "%VERSION%"'
+                    // push changes and tag back to upstream master repo
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %GIT_BRANCH%'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %VERSION%'
+
+                    // push new version and tag to heroku users (on master). Use updated Heroku button
+                    bat 'git stash pop'
+                    bat 'git add -A && git commit -m "%VERSION%" --allow-empty'
+                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %GIT_BRANCH%:master --force'
+                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %VERSION%'
+                }         
             }
         }
         
-        stage('Release owlcms to github') {
+        stage('GitHub release') {
+            environment {
+                TOKEN = credentials('jflamy-pw')
+            }
             steps {
                 dir('.') {
                     bat 'git pull'
                     bat 'git add -A && git commit -m "modified by build" --allow-empty'
-                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
+                    // push new files to upstream
+                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%O_REPO_NAME%'
+                    // push new files to dev environment (eclipse)
                     bat 'git push origin'                   
                 }
                 dir('.') {
-                    bat 'mvn -s %M2%/settings.xml -B github-release:github-release -P %RELEASE%'
+                    // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
+                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%O_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
                 }
-            }
-        }
-        
-        stage('Sync master') {
-            steps {
-                dir('.') {
-                    bat 'git checkout master'
-                    bat 'git pull'
-                    bat 'git add -A && git commit -m "modified by build" --allow-empty'
-                    bat 'git push https://%TOKEN%@github.com/jflamy/owlcms4'
-                    bat 'git push origin'
-                }                
             }
         }
         

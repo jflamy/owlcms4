@@ -182,6 +182,8 @@ public class FieldOfPlay {
 
     public void emitDown(FOPEvent e) {
         getAthleteTimer().stop(); // paranoia
+        this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
+        setClockOwner(null); // athlete has lifted, time does not keep running for them
         uiShowDownSignalOnSlaveDisplays(e.origin);
         setState(DOWN_SIGNAL_VISIBLE);
     }
@@ -322,7 +324,7 @@ public class FieldOfPlay {
             // the clock was started for us. we own the clock, clock is set to what time was
             // left
             timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
-            logger.trace("timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
+            logger.debug("*** timeAllowed = timeRemaining = {}, clock owner = {}", timeAllowed, a);
         } else if (previousAthlete != null && previousAthlete.equals(a)) {
             resetDecisions();
             if (owner != null || a.getAttemptNumber() == 1) {
@@ -511,8 +513,8 @@ public class FieldOfPlay {
             break;
 
         case DOWN_SIGNAL_VISIBLE:
-            this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
-            this.setClockOwner(null);
+//            this.setPreviousAthlete(curAthlete); // would be safer to use past lifting order
+//            this.setClockOwner(null);
             if (e instanceof ExplicitDecision) {
                 getAthleteTimer().stop();
                 showExplicitDecision(((ExplicitDecision) e), e.origin);
@@ -562,6 +564,7 @@ public class FieldOfPlay {
         this.breakTimer = breakTimer;
         this.fopEventBus = getFopEventBus();
         this.fopEventBus.register(this);
+        EventForwarder.listenToFOP(this);
         this.curAthlete = null;
         this.setClockOwner(null);
         this.previousAthlete = null;
@@ -573,9 +576,12 @@ public class FieldOfPlay {
             // state.
             recomputeLiftingOrder();
         }
+        logger.warn("group {} athletes {}",getGroup(), athletes.size());
         if (state == null) {
             this.setState(INACTIVE);
         }
+        // force a wake up on user interfaces
+        getUiEventBus().post(new UIEvent.SwitchGroup(getGroup(), getState(), getCurAthlete(), this));
         logger.trace("end of init state=" + state);
     }
 
@@ -926,7 +932,7 @@ public class FieldOfPlay {
     }
 
     private void setClockOwner(Athlete athlete) {
-        logger.trace("***setting clock owner to {} [{}]", athlete, LoggerUtils.whereFrom());
+        logger.debug("***setting clock owner to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.clockOwner = athlete;
     }
 
@@ -1152,7 +1158,6 @@ public class FieldOfPlay {
     }
 
     private void uiShowUpdatedRankings() {
-        EventForwarder.listenToFOP(this);
         uiEventBus.post(new UIEvent.GlobalRankingUpdated(this));
     }
 
