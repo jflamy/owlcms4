@@ -1,9 +1,10 @@
-Releases are no longer kept on this project.
+**For current and older releases, please scroll down.**
 
-There are now four release channels for this project.  Clicking on the link will get you to the correct location for downloading or installing.
+in a few days new releases will be in separate release channels, to keep stable releases separate from potentially less stable preliminary releases used for testing and translation.  Once that change is done, clicking on the link of your choice in the table will get you to the correct location for downloading or installing.
 
-| Channel                                                      | Competition Site Software <br />(OWLCMS4)                    | Cloud-based Public Results                                   |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| STABLE releases                                              | **https://owlcms.github.com/owlcms4/releases**               | https://owlcms.github.com/owlcms-publicresults/releases      |
-| PRELIMINARY releases (new features, for early adopters, can present small bugs) | *https://jflamy-dev.github.com/owlcms4-prereleases/releases* | *https://jflamy-dev.github.com/owlcms-publicresults-prereleases/releases* |
+|                                     | STABLE releases                                              | PRELIMINARY releases                                         |
+| ----------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Competition site software (OWLCMS4) | [Downloads](https://github.com/owlcms/owlcms-publicresults/releases) | [Downloads](https://github.com/jflamy-dev/owlcms4-prerelease) |
+| Cloud-based public results relay    | [Cloud installer](https://github.com/owlcms/owlcms-publicresults/blob/master/README.md) | [Cloud installer](https://github.com/jflamy-dev/owlcms-publicresults-prerelease/blob/master/README.md) |
+| Documentation                       | [Documentation site](https://owlcms.github.io/owlcms4/#/index) | [Documentation Site](https://jflamy-dev.github.io/owlcms4-prerelease/#/index) |
 
