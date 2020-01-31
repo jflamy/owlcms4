@@ -1,6 +1,3 @@
-[submodule "owlcms-publicresults"]
-	path = owlcms-publicresults
-	url = https://github.com/jflamy/owlcms-publicresults.git
 [submodule "publicresults-heroku"]
 	path = publicresults-heroku
 	url = https://github.com/jflamy/publicresults-heroku.git
