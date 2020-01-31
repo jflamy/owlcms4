@@ -6,7 +6,7 @@ pipeline {
         string(name: 'VERSION', defaultValue: 'Missing', description: 'used for tagging')
         string(name: 'REPO_OWNER', defaultValue: 'owlcms', description: 'owlcms or jflamy-dev')
         string(name: 'O_REPO_NAME', defaultValue: 'owlcms4', description: 'owlcms4 or owlcms4-prerelease')
-        string(name: 'P_REPO_NAME', defaultValue: 'owlcms-publicresults', description: 'owlcms-publicresults or owlcms-publicresults-prerelease')
+        string(name: 'P_REPO_NAME', defaultValue: 'publicresults-heroku', description: 'publicresults-heroku or publicresults-heroku-prerelease')
         string(name: 'PRERELEASE', defaultValue: 'true', description: 'true or false')
         string(name: 'REPO_TOKEN_NAME', defaultValue: 'github-oauth', description: 'from Maven settings')
     }
@@ -23,7 +23,7 @@ pipeline {
             }
             steps {
                 bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %GIT_BRANCH% %BRANCH%"
-                dir ('owlcms-publicresults') {
+                dir ('publicresults-heroku') {
                     bat 'del README.md'
                 }
             }
@@ -66,23 +66,23 @@ pipeline {
             }
         }
         
-       stage('Release owlcms-publicresults to Heroku') {
+       stage('Release publicresults-heroku to Heroku') {
             environment {
                 TOKEN = credentials('jflamy-pw')
                 TOKEN2 = credentials('jflamy-dev-pw')
             }
             steps {
-                dir('owlcms-publicresults') {
+                dir('publicresults-heroku') {
                     bat 'git pull'
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     // save the locally built files
                     bat 'git stash'
 
                     // create a tag with the current version number, but not the locally built files
-                    bat 'git tag %VERSION% -f -a -m "%VERSION% owlcms-publicresults"'
+                    bat 'git tag %VERSION% -f -a -m "%VERSION% publicresults-heroku"'
                     // push changes and tag back to upstream master repo
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %GIT_BRANCH%'
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %VERSION%'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/publicresults-heroku.git %GIT_BRANCH%'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/publicresults-heroku.git %VERSION%'
 
                     // push new version and tag to the repo used by heroku as a cloning reference.
                     bat 'git stash pop'
