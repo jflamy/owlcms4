@@ -24,7 +24,7 @@ pipeline {
             steps {
                 bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %GIT_BRANCH% %BRANCH%"
                 dir ('publicresults-heroku') {
-                    bat 'del README.md'
+//                    bat 'del README.md'
                 }
             }
         }
@@ -104,14 +104,11 @@ pipeline {
             steps {
                 dir('.') {
                     bat 'git pull'
-                    // create a tag with the current version number, but not the locally built files
-                    bat 'git tag %VERSION% -f -a -m "%VERSION% owlcms4"'
-                    
+                    // add newly created release files if any
                     bat 'git add -A && git commit -m "%VERSION%" --allow-empty'
-                    
-                    // push new files and tag to dev environment (eclipse)
-                    bat 'git push origin %GIT_BRANCH%'
-                    bat 'git push origin %VERSION%'
+                    // create a tag with the current version number
+                    bat 'git tag %VERSION% -f -a -m "%VERSION% owlcms4"'
+
                     // push changes back to upstream master repo
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %GIT_BRANCH%'
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %VERSION%'
