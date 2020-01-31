@@ -4,11 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-<<<<<<< HEAD
-        <version>4.4.1.1</version>
-=======
         <version>4.4.2-beta2</version>
->>>>>>> refs/heads/develop
     </parent>
 
     <name>Olympic Weightlifting Competition Management System</name>
