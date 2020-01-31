@@ -4,7 +4,6 @@ in a few days new releases will be in separate release channels, to keep stable 
 
 |                                     | STABLE releases                                              | PRELIMINARY releases                                         |
 | ----------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Competition site software (OWLCMS4) | [Downloads](https://github.com/owlcms/owlcms-publicresults/releases) | [Downloads](https://github.com/jflamy-dev/owlcms4-prerelease) |
-| Cloud-based public results relay    | [Cloud installer](https://github.com/owlcms/owlcms-publicresults/blob/master/README.md) | [Cloud installer](https://github.com/jflamy-dev/owlcms-publicresults-prerelease/blob/master/README.md) |
+| Competition site software (OWLCMS4) | [Downloads](https://github.com/owlcms/owlcms4/releases) | [Downloads](https://github.com/jflamy-dev/owlcms4-prerelease) |
+| Cloud-based public results relay    | [Cloud installer](https://github.com/owlcms/publicresults-heroku/blob/master/README.md) | [Cloud installer](https://github.com/jflamy-dev/publicresults-heroku-prerelease/blob/master/README.md) |
 | Documentation                       | [Documentation site](https://owlcms.github.io/owlcms4/#/index) | [Documentation Site](https://jflamy-dev.github.io/owlcms4-prerelease/#/index) |
-
