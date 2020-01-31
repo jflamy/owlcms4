@@ -148,7 +148,6 @@
             <version>1.9.3</version>
         </dependency>
 
-
         <!-- event bus -->
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -224,7 +223,6 @@
             <artifactId>heroku-javaagent</artifactId>
             <version>2.0</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -473,19 +471,6 @@
                             </descriptors>
                         </configuration>
                     </execution>
-                    <!-- <execution> -->
-                    <!-- <id>zip_version</id> -->
-                    <!-- <phase>package</phase> -->
-                    <!-- <goals> -->
-                    <!-- <goal>single</goal> -->
-                    <!-- </goals> -->
-                    <!-- <configuration> -->
-                    <!-- <finalName>${project.artifactId}_${projet.version}</finalName> -->
-                    <!-- <descriptors> -->
-                    <!-- <descriptor>src/main/assembly/zip.xml</descriptor> -->
-                    <!-- </descriptors> -->
-                    <!-- </configuration> -->
-                    <!-- </execution> -->
                     <execution>
                         <id>windows_jdk</id>
                         <phase>package</phase>
