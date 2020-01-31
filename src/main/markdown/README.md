@@ -1,4 +1,4 @@
-# owlcms4
+# OWLCMS4
 ## Olympic Weightlifting Competition Management System 
 
 This software is a new generation of `owlcms` which has been used to manage Olympic Weightlifting competitions since 2009. 
