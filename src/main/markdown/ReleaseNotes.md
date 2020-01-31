@@ -1,4 +1,4 @@
-* Release Highlights for release 4.4.2-beta2 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Release Highlights for release ${project.version} ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   - [x] Internal change: the way the releases are built has been redone to use the [Jenkins](https://jenkins.io/) tool.
     - [ ] From now on, the stable official owlcms4 releases will be at https://github.com/owlcms/owlcms4 and the public results relay will be available from https://github.com/owlcms/owlcms-publicresults
     - [ ] The pre-releases (for early adopters) will be at https://github.com/jflamy-dev/owlcms4-prerelease and the matching public results relay at https://github.com/jflamy-dev/owlcms-publicresults-prerelease

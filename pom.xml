@@ -4,7 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
+<<<<<<< HEAD
     <version>4.4.1.1</version>
+=======
+    <version>4.4.2-beta2</version>
+>>>>>>> refs/heads/develop
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -266,6 +270,29 @@
                     <execution>
                         <id>default-deploy</id>
                         <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/markdown</directory>
+                                    <exclude>.*</exclude>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
