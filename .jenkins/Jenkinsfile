@@ -84,12 +84,16 @@ pipeline {
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %GIT_BRANCH%'
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %VERSION%'
 
-                    // push new version and tag to heroku users (on master). Use updated Heroku button
+                    // push new version and tag to the repo used by heroku as a cloning reference.
                     bat 'git stash pop'
                     bat 'git add -A && git commit -m "%VERSION% heroku" --allow-empty'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %GIT_BRANCH%:master --force'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %VERSION%'
-                }         
+
+                    // The heroku deploy button pointing to the proper tagged version is part of the release notes.
+                    // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
+                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%P_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
+                }       
             }
         }
         
