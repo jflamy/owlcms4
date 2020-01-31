@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.4.2-beta2</version>
+    <version>4.4.2-beta4</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -239,6 +239,8 @@
                     </execution>
                 </executions>
             </plugin>
+<!--
+Not used anymore. Kept for reference.           
             <plugin>
                 <groupId>com.amashchenko.maven.plugin</groupId>
                 <artifactId>gitflow-maven-plugin</artifactId>
@@ -256,6 +258,7 @@
                     <skipUpdateVersion>true</skipUpdateVersion>
                 </configuration>
             </plugin>
+-->
             <plugin>
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
@@ -292,7 +295,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 </project>

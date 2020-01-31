@@ -6,7 +6,7 @@ pipeline {
         string(name: 'VERSION', defaultValue: 'Missing', description: 'used for tagging')
         string(name: 'REPO_OWNER', defaultValue: 'owlcms', description: 'owlcms or jflamy-dev')
         string(name: 'O_REPO_NAME', defaultValue: 'owlcms4', description: 'owlcms4 or owlcms4-prerelease')
-        string(name: 'P_REPO_NAME', defaultValue: 'owlcms-publicresults', description: 'owlcms-publicresults or owlcms-publicresults-prerelease')
+        string(name: 'P_REPO_NAME', defaultValue: 'publicresults-heroku', description: 'publicresults-heroku or publicresults-heroku-prerelease')
         string(name: 'PRERELEASE', defaultValue: 'true', description: 'true or false')
         string(name: 'REPO_TOKEN_NAME', defaultValue: 'github-oauth', description: 'from Maven settings')
     }
@@ -23,7 +23,7 @@ pipeline {
             }
             steps {
                 bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %GIT_BRANCH% %BRANCH%"
-                dir ('owlcms-publicresults') {
+                dir ('publicresults-heroku') {
                     bat 'del README.md'
                 }
             }
@@ -42,13 +42,13 @@ pipeline {
             }
         }
         
-        stage('Build owlcms') {
-            steps {
-                dir('owlcms') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
-                }
-            }
-        }
+//        stage('Build owlcms') {
+//            steps {
+//                dir('owlcms') {
+//                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+//                }
+//            }
+//        }
         
         stage('Build publicresults') {
             steps {
@@ -66,62 +66,66 @@ pipeline {
             }
         }
         
-       stage('Release owlcms-publicresults to Heroku') {
+       stage('Release publicresults-heroku to Heroku') {
             environment {
                 TOKEN = credentials('jflamy-pw')
                 TOKEN2 = credentials('jflamy-dev-pw')
             }
             steps {
-                dir('owlcms-publicresults') {
+                dir('publicresults-heroku') {
                     bat 'git pull'
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     // save the locally built files
                     bat 'git stash'
 
                     // create a tag with the current version number, but not the locally built files
-                    bat 'git tag %VERSION% -f -a -m "%VERSION% owlcms-publicresults"'
+                    bat 'git tag %VERSION% -f -a -m "%VERSION% publicresults-heroku"'
                     // push changes and tag back to upstream master repo
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %GIT_BRANCH%'
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms-publicresults.git %VERSION%'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/publicresults-heroku.git %GIT_BRANCH%'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/publicresults-heroku.git %VERSION%'
 
-                    // push new version and tag to heroku users (on master). Use updated Heroku button
+                    // push new version and tag to the repo used by heroku as a cloning reference.
                     bat 'git stash pop'
                     bat 'git add -A && git commit -m "%VERSION% heroku" --allow-empty'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %GIT_BRANCH%:master --force'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %VERSION%'
-                }         
+
+                    // The heroku deploy button pointing to the proper tagged version is part of the release notes.
+                    // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
+                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%P_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
+                }       
             }
         }
         
-        stage('GitHub release') {
-            environment {
-                TOKEN = credentials('jflamy-pw')
-            }
-            steps {
-                dir('.') {
-                    bat 'git pull'
-                    // create a tag with the current version number, but not the locally built files
-                    bat 'git tag %VERSION% -f -a -m "%VERSION% owlcms4"'
-                    
-                    bat 'git add -A && git commit -m "%VERSION%" --allow-empty'
-                    
-                    // push new files and tag to dev environment (eclipse)
-                    bat 'git push origin %GIT_BRANCH%'
-                    bat 'git push origin %VERSION%'
-                    // push changes back to upstream master repo
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %GIT_BRANCH%'
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %VERSION%'
-                    
-                    // push new files to downstream where executables will be added (a tag will be added by github)
-                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%O_REPO_NAME% %GIT_BRANCH%'
-                   
-                }
-                dir('.') {
-                    // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
-                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%O_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
-                }
-            }
-        }
+//        stage('GitHub release') {
+//            environment {
+//                TOKEN = credentials('jflamy-pw')
+//            }
+//            steps {
+//                dir('.') {
+//                    bat 'git pull'
+//                    // create a tag with the current version number, but not the locally built files
+//                    bat 'git tag %VERSION% -f -a -m "%VERSION% owlcms4"'
+//                    
+//                    bat 'git add -A && git commit -m "%VERSION%" --allow-empty'
+//                    
+//                    // push new files and tag to dev environment (eclipse)
+//                    bat 'git push origin %GIT_BRANCH%'
+//                    bat 'git push origin %VERSION%'
+//                    // push changes back to upstream master repo
+//                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %GIT_BRANCH%'
+//                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %VERSION%'
+//                    
+//                    // push new files to downstream where executables will be added (a tag will be added by github)
+//                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%O_REPO_NAME% %GIT_BRANCH%'
+//                   
+//                }
+//                dir('.') {
+//                    // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
+//                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%O_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
+//                }
+//            }
+//        }
         
     }
 }
