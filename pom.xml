@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.4.2-beta6</version>
+    <version>4.4.2-beta8</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
         <module>publicresults</module>
-        <module>owlcms-publicresults</module>
+        <module>publicresults-heroku</module>
     </modules>
 
     <organization>
