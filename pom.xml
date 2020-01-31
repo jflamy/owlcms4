@@ -9,7 +9,7 @@
     <modules>
         <module>owlcms</module>
         <module>publicresults</module>
-        <module>owlcms-publicresults</module>
+        <module>publicresults-heroku</module>
     </modules>
 
     <organization>
