@@ -1,11 +1,4 @@
-## OWLCMS4 (Prerelease Repository)
-
-> This prerelease repository has two purposes
-> 1.  The [Releases](https://github.com/jflamy-dev/owlcms4-prerelease/releases) page contains the prerelease versions (only stable releases are now put in the  [official releases](https://github.com/owlcms/owlcms4/releases))
-> 2.  This copy is used to publish the [prerelease version of the documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/index) on a separate site from the current documentation.
->
->The master branch on this repository (a requirement for publishing the documentation site) is synchronized from the development branch every 30 minutes (and on every prerelease build, of course).
-
+# OWLCMS4 - Olympic Weightlifting Competition Management System 
 This software is a new generation of `owlcms` which has been used to manage Olympic Weightlifting competitions since 2009. 
 
 ### Features and Demo
@@ -13,9 +6,6 @@ This software is a new generation of `owlcms` which has been used to manage Olym
 See the application [Web Site](https://jflamy.github.io/owlcms4/) for a full overview.  See [this page](https://jflamy.github.io/owlcms4/#/Demo) for accessing a live demo.
 
 ### Installation
-
-> Please note that in the first week of February, 2020 we will split our releases to separate release repositories, in order to distinguish stable releases from preliminary releases meant for testing.
-
 Setup packages are available from [https://github.com/jflamy/owlcms4/releases](https://github.com/jflamy/owlcms4/releases) .  Refer to the following for instructions:
 
   * [Windows Stand-alone Installation](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup)
