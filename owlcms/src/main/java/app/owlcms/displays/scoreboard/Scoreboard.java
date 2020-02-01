@@ -88,6 +88,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     public interface ScoreboardModel extends TemplateModel {
         String getAttempt();
 
+        String getCategoryName();
+
+        String getCompetitionName();
+
         String getFullName();
 
         Integer getStartNumber();
@@ -101,6 +105,10 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         Boolean isWideTeamNames();
 
         void setAttempt(String formattedAttempt);
+
+        void setCategoryName(String categoryName);
+
+        void setCompetitionName(String competitionName);
 
         void setFullName(String lastName);
 
@@ -170,30 +178,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
             this.getElement().callJsFunction("doBreak");
         }));
-    }
-
-    public void getAthleteJson(Athlete a, JsonObject ja, Category curCat) {
-        String category;
-        category = curCat != null ? curCat.getName() : "";
-        ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
-        ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
-        ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
-        Integer startNumber = a.getStartNumber();
-        ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
-        ja.put("category", category != null ? category : "");
-        getAttemptsJson(a);
-        ja.put("sattempts", sattempts);
-        ja.put("cattempts", cattempts);
-        ja.put("total", formatInt(a.getTotal()));
-        ja.put("snatchRank", formatInt(a.getSnatchRank()));
-        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
-        ja.put("totalRank", formatInt(a.getTotalRank()));
-        Integer liftOrderRank = a.getLiftOrderRank();
-        boolean notDone = a.getAttemptsDone() < 6;
-        String blink = (notDone ? " blink" : "");
-        if (notDone) {
-            ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
-        }
     }
 
     @Override
@@ -364,22 +348,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         });
     }
 
-    public void syncWithFOP(UIEvent.SwitchGroup e) {
-        OwlcmsSession.withFop(fop -> {
-            switch (fop.getState()) {
-            case INACTIVE:
-                doEmpty();
-                break;
-            case BREAK:
-                doUpdate(fop.getCurAthlete(), e);
-                doBreak();
-                break;
-            default:
-                doUpdate(fop.getCurAthlete(), e);
-            }
-        });
-    }
-
     public void uiLog(UIEvent e) {
         uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin(), LoggerUtils.whereFrom());
@@ -401,8 +369,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 leaveTopAlone = !e2.isCurrentDisplayAffected();
             }
         }
-
-        logger.debug("doUpdate a={} leaveTopAlone={}", a, leaveTopAlone);
         if (a != null && a.getAttemptsDone() < 6) {
             if (!leaveTopAlone) {
                 logger.debug("updating top {}", a.getFullName());
@@ -413,7 +379,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 model.setAttempt(formattedAttempt);
                 model.setWeight(a.getNextAttemptRequestedWeight());
                 this.getElement().callJsFunction("reset");
-                logger.debug("updated top {}", a.getFullName());
             }
             logger.debug("updating bottom");
             updateBottom(model, computeLiftType(a));
@@ -423,67 +388,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
             }
             return;
-        }
-    }
-
-    /**
-     * Compute Json string ready to be used by web component template
-     *
-     * CSS classes are pre-computed and passed along with the values; weights are formatted.
-     *
-     * @param a
-     * @return json string with nested attempts values
-     */
-    protected void getAttemptsJson(Athlete a) {
-        sattempts = Json.createArray();
-        cattempts = Json.createArray();
-        XAthlete x = new XAthlete(a);
-        Integer liftOrderRank = x.getLiftOrderRank();
-        Integer curLift = x.getAttemptsDone();
-        int ix = 0;
-        for (LiftInfo i : x.getRequestInfoArray()) {
-            JsonObject jri = Json.createObject();
-            String stringValue = i.getStringValue();
-            boolean notDone = x.getAttemptsDone() < 6;
-            String blink = (notDone ? " blink" : "");
-
-            jri.put("goodBadClassName", "narrow empty");
-            jri.put("stringValue", "");
-            if (i.getChangeNo() >= 0) {
-                String trim = stringValue != null ? stringValue.trim() : "";
-                switch (Changes.values()[i.getChangeNo()]) {
-                case ACTUAL:
-                    if (!trim.isEmpty()) {
-                        if (trim.contentEquals("-") || trim.contentEquals("0")) {
-                            jri.put("goodBadClassName", "narrow fail");
-                            jri.put("stringValue", "-");
-                        } else {
-                            boolean failed = stringValue.startsWith("-");
-                            jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
-                            jri.put("stringValue", formatKg(stringValue));
-                        }
-                    }
-                    break;
-                default:
-                    if (stringValue != null && !trim.isEmpty()) {
-                        String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
-                                : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
-                        jri.put("goodBadClassName", "narrow request");
-                        if (notDone) {
-                            jri.put("className", highlight);
-                        }
-                        jri.put("stringValue", stringValue);
-                    }
-                    break;
-                }
-            }
-
-            if (ix < 3) {
-                sattempts.set(ix, jri);
-            } else {
-                cattempts.set(ix % 3, jri);
-            }
-            ix++;
         }
     }
 
@@ -567,6 +471,30 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
     }
 
+    private void getAthleteJson(Athlete a, JsonObject ja, Category curCat) {
+        String category;
+        category = curCat != null ? curCat.getName() : "";
+        ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
+        ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
+        ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
+        Integer startNumber = a.getStartNumber();
+        ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
+        ja.put("category", category != null ? category : "");
+        getAttemptsJson(a);
+        ja.put("sattempts", sattempts);
+        ja.put("cattempts", cattempts);
+        ja.put("total", formatInt(a.getTotal()));
+        ja.put("snatchRank", formatInt(a.getSnatchRank()));
+        ja.put("cleanJerkRank", formatInt(a.getCleanJerkRank()));
+        ja.put("totalRank", formatInt(a.getTotalRank()));
+        Integer liftOrderRank = a.getLiftOrderRank();
+        boolean notDone = a.getAttemptsDone() < 6;
+        String blink = (notDone ? " blink" : "");
+        if (notDone) {
+            ja.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
+        }
+    }
+
     /**
      * @param list2
      * @return
@@ -599,6 +527,67 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         return jath;
     }
 
+    /**
+     * Compute Json string ready to be used by web component template
+     *
+     * CSS classes are pre-computed and passed along with the values; weights are formatted.
+     *
+     * @param a
+     * @return json string with nested attempts values
+     */
+    private void getAttemptsJson(Athlete a) {
+        sattempts = Json.createArray();
+        cattempts = Json.createArray();
+        XAthlete x = new XAthlete(a);
+        Integer liftOrderRank = x.getLiftOrderRank();
+        Integer curLift = x.getAttemptsDone();
+        int ix = 0;
+        for (LiftInfo i : x.getRequestInfoArray()) {
+            JsonObject jri = Json.createObject();
+            String stringValue = i.getStringValue();
+            boolean notDone = x.getAttemptsDone() < 6;
+            String blink = (notDone ? " blink" : "");
+
+            jri.put("goodBadClassName", "narrow empty");
+            jri.put("stringValue", "");
+            if (i.getChangeNo() >= 0) {
+                String trim = stringValue != null ? stringValue.trim() : "";
+                switch (Changes.values()[i.getChangeNo()]) {
+                case ACTUAL:
+                    if (!trim.isEmpty()) {
+                        if (trim.contentEquals("-") || trim.contentEquals("0")) {
+                            jri.put("goodBadClassName", "narrow fail");
+                            jri.put("stringValue", "-");
+                        } else {
+                            boolean failed = stringValue.startsWith("-");
+                            jri.put("goodBadClassName", failed ? "narrow fail" : "narrow good");
+                            jri.put("stringValue", formatKg(stringValue));
+                        }
+                    }
+                    break;
+                default:
+                    if (stringValue != null && !trim.isEmpty()) {
+                        String highlight = i.getLiftNo() == curLift && liftOrderRank == 1 ? (" current" + blink)
+                                : (i.getLiftNo() == curLift && liftOrderRank == 2) ? " next" : "";
+                        jri.put("goodBadClassName", "narrow request");
+                        if (notDone) {
+                            jri.put("className", highlight);
+                        }
+                        jri.put("stringValue", stringValue);
+                    }
+                    break;
+                }
+            }
+
+            if (ix < 3) {
+                sattempts.set(ix, jri);
+            } else {
+                cattempts.set(ix % 3, jri);
+            }
+            ix++;
+        }
+    }
+
     private Object getOrigin() {
         return this;
     }
@@ -609,9 +598,26 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
             getModel().setWideTeamNames(false);
+            getModel().setCompetitionName(Competition.getCurrent().getCompetitionName());
         });
         setTranslationMap();
         order = ImmutableList.of();
+    }
+
+    private void syncWithFOP(UIEvent.SwitchGroup e) {
+        OwlcmsSession.withFop(fop -> {
+            switch (fop.getState()) {
+            case INACTIVE:
+                doEmpty();
+                break;
+            case BREAK:
+                doUpdate(fop.getCurAthlete(), e);
+                doBreak();
+                break;
+            default:
+                doUpdate(fop.getCurAthlete(), e);
+            }
+        });
     }
 
     private void updateBottom(ScoreboardModel model, String liftType) {
