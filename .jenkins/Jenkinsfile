@@ -33,12 +33,9 @@ pipeline {
             steps {
                 bat 'git checkout %GIT_BRANCH%'
                 bat 'git pull'
-
-                dir('.') {
-                    // clone the submodules
-                    bat 'git submodule update --init --recursive'
-                    bat 'git submodule foreach "git fetch && git reset --hard origin/%GIT_BRANCH% && git checkout %GIT_BRANCH% && git pull"'
-                }
+                bat 'git submodule sync'
+                bat 'git submodule update --init --recursive'
+                bat 'git submodule foreach "git fetch && git reset --hard origin/%GIT_BRANCH% && git checkout %GIT_BRANCH% && git pull"'
             }
         }
         
@@ -114,10 +111,8 @@ pipeline {
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %VERSION%'
                     
                     // push new files to downstream where executables will be added (a tag will be added by github)
-                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%O_REPO_NAME% %GIT_BRANCH%'
-                   
-                }
-                dir('.') {
+                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%O_REPO_NAME% %GIT_BRANCH%'                  
+
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
                     bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%O_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
                 }
