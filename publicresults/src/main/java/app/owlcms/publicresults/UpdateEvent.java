@@ -24,6 +24,7 @@ public class UpdateEvent {
     private Integer timeAllowed;
     private String fopName;
     private String fopState;
+    private String competitionName;
 
     public UpdateEvent() {
         setLeaders(leaders);
@@ -39,6 +40,10 @@ public class UpdateEvent {
 
     public String getCategoryName() {
         return this.categoryName;
+    }
+
+    public String getCompetitionName() {
+        return this.competitionName;
     }
 
     public String getFopName() {
@@ -103,6 +108,10 @@ public class UpdateEvent {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public void setCompetitionName(String competitionName) {
+        this.competitionName = competitionName;
     }
 
     public void setFopName(String parameter) {
