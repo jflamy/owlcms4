@@ -10,6 +10,7 @@ import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -486,26 +487,7 @@ public class AthleteSorterTest {
             Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        switch (lifter.getAttemptsDone() + 1) {
-        case 1:
-            lifter.setSnatch1ActualLift(weight);
-            break;
-        case 2:
-            lifter.setSnatch2ActualLift(weight);
-            break;
-        case 3:
-            lifter.setSnatch3ActualLift(weight);
-            break;
-        case 4:
-            lifter.setCleanJerk1ActualLift(weight);
-            break;
-        case 5:
-            lifter.setCleanJerk2ActualLift(weight);
-            break;
-        case 6:
-            lifter.setCleanJerk3ActualLift(weight);
-            break;
-        }
+        lifter.doLift(weight);
         AthleteSorter.liftingOrder(lifters1);
     }
 

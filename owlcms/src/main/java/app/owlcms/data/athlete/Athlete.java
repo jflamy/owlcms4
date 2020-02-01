@@ -6,7 +6,6 @@
  */
 package app.owlcms.data.athlete;
 
-import java.sql.Date;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -96,35 +95,41 @@ public class Athlete {
             dest.setSnatch1Change1(src.getSnatch1Change1());
             dest.setSnatch1Change2(src.getSnatch1Change2());
             dest.setSnatch1ActualLift(src.getSnatch1ActualLift());
+            dest.setSnatch1LiftTime(src.getSnatch1LiftTime());
 
             dest.setSnatch2AutomaticProgression(src.getSnatch2AutomaticProgression());
             dest.setSnatch2Declaration(src.getSnatch2Declaration());
             dest.setSnatch2Change1(src.getSnatch2Change1());
             dest.setSnatch2Change2(src.getSnatch2Change2());
             dest.setSnatch2ActualLift(src.getSnatch2ActualLift());
+            dest.setSnatch2LiftTime(src.getSnatch2LiftTime());
 
             dest.setSnatch3AutomaticProgression(src.getSnatch3AutomaticProgression());
             dest.setSnatch3Declaration(src.getSnatch3Declaration());
             dest.setSnatch3Change1(src.getSnatch3Change1());
             dest.setSnatch3Change2(src.getSnatch3Change2());
             dest.setSnatch3ActualLift(src.getSnatch3ActualLift());
+            dest.setSnatch3LiftTime(src.getSnatch3LiftTime());
 
             dest.setCleanJerk1Declaration(src.getCleanJerk1Declaration());
             dest.setCleanJerk1Change1(src.getCleanJerk1Change1());
             dest.setCleanJerk1Change2(src.getCleanJerk1Change2());
             dest.setCleanJerk1ActualLift(src.getCleanJerk1ActualLift());
+            dest.setCleanJerk1LiftTime(src.getCleanJerk1LiftTime());
 
             dest.setCleanJerk2AutomaticProgression(src.getCleanJerk2AutomaticProgression());
             dest.setCleanJerk2Declaration(src.getCleanJerk2Declaration());
             dest.setCleanJerk2Change1(src.getCleanJerk2Change1());
             dest.setCleanJerk2Change2(src.getCleanJerk2Change2());
             dest.setCleanJerk2ActualLift(src.getCleanJerk2ActualLift());
+            dest.setCleanJerk2LiftTime(src.getCleanJerk2LiftTime());
 
             dest.setCleanJerk3AutomaticProgression(src.getCleanJerk3AutomaticProgression());
             dest.setCleanJerk3Declaration(src.getCleanJerk3Declaration());
             dest.setCleanJerk3Change1(src.getCleanJerk3Change1());
             dest.setCleanJerk3Change2(src.getCleanJerk3Change2());
             dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
+            dest.setCleanJerk3LiftTime(src.getCleanJerk3LiftTime());
 
             dest.setForcedAsCurrent(src.getForcedAsCurrent());
 
@@ -297,8 +302,8 @@ public class Athlete {
     private String cleanJerk3Declaration;
     private String cleanJerk3Change1;
     private String cleanJerk3Change2;
-    private String cleanJerk3ActualLift;
 
+    private String cleanJerk3ActualLift;
     private LocalDateTime cleanJerk3LiftTime;
     private Integer snatchRank;
     private Integer cleanJerkRank;
@@ -367,36 +372,42 @@ public class Athlete {
             this.setCleanJerk1Change1("");
             this.setCleanJerk1Change2("");
             this.setCleanJerk1ActualLift("");
+            this.setCleanJerk1LiftTime(null);
 
             this.setCleanJerk2Declaration("");
             this.setCleanJerk2AutomaticProgression("");
             this.setCleanJerk2Change1("");
             this.setCleanJerk2Change2("");
             this.setCleanJerk2ActualLift("");
+            this.setCleanJerk2LiftTime(null);
 
             this.setCleanJerk3Declaration("");
             this.setCleanJerk3AutomaticProgression("");
             this.setCleanJerk3Change1("");
             this.setCleanJerk3Change2("");
             this.setCleanJerk3ActualLift("");
+            this.setCleanJerk3LiftTime(null);
 
             this.setSnatch1Declaration("");
             this.setSnatch1AutomaticProgression("");
             this.setSnatch1Change1("");
             this.setSnatch1Change2("");
             this.setSnatch1ActualLift("");
+            this.setSnatch1LiftTime(null);
 
             this.setSnatch2Declaration("");
             this.setSnatch2AutomaticProgression("");
             this.setSnatch2Change1("");
             this.setSnatch2Change2("");
             this.setSnatch2ActualLift("");
+            this.setSnatch2LiftTime(null);
 
             this.setSnatch3Declaration("");
             this.setSnatch3AutomaticProgression("");
             this.setSnatch3Change1("");
             this.setSnatch3Change2("");
             this.setSnatch3ActualLift("");
+            this.setSnatch3LiftTime(null);
 
             this.setSnatch1Declaration(sn1Decl);
             this.setCleanJerk1Declaration(cj1Decl);
@@ -1097,25 +1108,21 @@ public class Athlete {
      * @return the first attempted lift time
      */
     public LocalDateTime getFirstAttemptedLiftTime() {
+        LocalDateTime attemptTime = LocalDateTime.MAX;// forever in the future
         if (zeroIfInvalid(snatch1ActualLift) != 0) {
-            return getSnatch1LiftTime();
+            attemptTime = getSnatch1LiftTime();
+        } else if (zeroIfInvalid(snatch2ActualLift) != 0) {
+            attemptTime = getSnatch2LiftTime();
+        } else if (zeroIfInvalid(snatch3ActualLift) != 0) {
+            attemptTime = getSnatch3LiftTime();
+        } else if (zeroIfInvalid(cleanJerk1ActualLift) != 0) {
+            attemptTime = getCleanJerk1LiftTime();
+        } else if (zeroIfInvalid(cleanJerk2ActualLift) != 0) {
+            attemptTime = getCleanJerk2LiftTime();
+        } else if (zeroIfInvalid(cleanJerk3ActualLift) != 0) {
+            attemptTime = getCleanJerk3LiftTime();
         }
-        if (zeroIfInvalid(snatch2ActualLift) != 0) {
-            return getSnatch2LiftTime();
-        }
-        if (zeroIfInvalid(snatch3ActualLift) != 0) {
-            return getSnatch3LiftTime();
-        }
-        if (zeroIfInvalid(cleanJerk1ActualLift) != 0) {
-            return getCleanJerk1LiftTime();
-        }
-        if (zeroIfInvalid(cleanJerk2ActualLift) != 0) {
-            return getCleanJerk2LiftTime();
-        }
-        if (zeroIfInvalid(cleanJerk3ActualLift) != 0) {
-            return getCleanJerk3LiftTime();
-        }
-        return LocalDateTime.MAX; // forever in the future
+        return attemptTime;
     }
 
     /**
@@ -1407,38 +1414,38 @@ public class Athlete {
         LocalDateTime max = null; // long ago
 
         if (getAttemptsDone() <= 3) {
-            final LocalDateTime sn1 = snatch1LiftTime;
+            final LocalDateTime sn1 = getSnatch1LiftTime();
             if (sn1 != null) {
                 max = sn1;
             } else {
                 return max;
             }
-            final LocalDateTime sn2 = snatch2LiftTime;
+            final LocalDateTime sn2 = getSnatch2LiftTime();
             if (sn2 != null) {
                 max = (max.isAfter(sn2) ? max : sn2);
             } else {
                 return max;
             }
-            final LocalDateTime sn3 = snatch3LiftTime;
+            final LocalDateTime sn3 = getSnatch3LiftTime();
             if (sn3 != null) {
                 max = (max.isAfter(sn3) ? max : sn3);
             } else {
                 return max;
             }
         } else {
-            final LocalDateTime cj1 = cleanJerk1LiftTime;
+            final LocalDateTime cj1 = getCleanJerk1LiftTime();
             if (cj1 != null) {
                 max = cj1;
             } else {
                 return max;
             }
-            final LocalDateTime cj2 = cleanJerk2LiftTime;
+            final LocalDateTime cj2 = getCleanJerk2LiftTime();
             if (cj2 != null) {
                 max = (max.isAfter(cj2) ? max : cj2);
             } else {
                 return max;
             }
-            final LocalDateTime cj3 = cleanJerk3LiftTime;
+            final LocalDateTime cj3 = getCleanJerk3LiftTime();
             if (cj3 != null) {
                 max = (max.isAfter(cj3) ? max : cj3);
             } else {
@@ -2271,11 +2278,11 @@ public class Athlete {
         }
         this.cleanJerk1ActualLift = cleanJerk1ActualLift;
         logger.info("{} cleanJerk1ActualLift={}", this, cleanJerk1ActualLift);
-        if (zeroIfInvalid(cleanJerk1ActualLift) == 0) {
-            this.cleanJerk1LiftTime = (null);
-        } else {
-            this.cleanJerk1LiftTime = sqlNow();
-        }
+//        if (zeroIfInvalid(cleanJerk1ActualLift) == 0) {
+//            this.setCleanJerk1LiftTime((null));
+//        } else {
+//            this.setCleanJerk1LiftTime(LocalDateTime.now());
+//        }
 
     }
 
@@ -2353,12 +2360,8 @@ public class Athlete {
         logger.info("{} cleanJerk1Declaration={}", this, cleanJerk1Declaration);
     }
 
-    /**
-     * Sets the clean jerk 1 lift time.
-     *
-     * @param date the new clean jerk 1 lift time
-     */
-    public void setCleanJerk1LiftTime(java.util.Date date) {
+    public void setCleanJerk1LiftTime(LocalDateTime cleanJerk1LiftTime) {
+        this.cleanJerk1LiftTime = cleanJerk1LiftTime;
     }
 
     /**
@@ -2373,11 +2376,11 @@ public class Athlete {
         this.cleanJerk2ActualLift = cleanJerk2ActualLift;
         logger.info("{} cleanJerk2ActualLift={}", this, cleanJerk2ActualLift);
 
-        if (zeroIfInvalid(cleanJerk2ActualLift) == 0) {
-            this.cleanJerk2LiftTime = (null);
-        } else {
-            this.cleanJerk2LiftTime = sqlNow();
-        }
+//        if (zeroIfInvalid(cleanJerk2ActualLift) == 0) {
+//            this.setCleanJerk2LiftTime((LocalDateTime) null);
+//        } else {
+//            this.setCleanJerk2LiftTime(LocalDateTime.now());
+//        }
     }
 
     /**
@@ -2446,12 +2449,8 @@ public class Athlete {
         logger.info("{} cleanJerk2Declaration={}", this, cleanJerk2Declaration);
     }
 
-    /**
-     * Sets the clean jerk 2 lift time.
-     *
-     * @param cleanJerk2LiftTime the new clean jerk 2 lift time
-     */
-    public void setCleanJerk2LiftTime(Date cleanJerk2LiftTime) {
+    public void setCleanJerk2LiftTime(LocalDateTime cleanJerk2LiftTime) {
+        this.cleanJerk2LiftTime = cleanJerk2LiftTime;
     }
 
     /**
@@ -2466,11 +2465,11 @@ public class Athlete {
         this.cleanJerk3ActualLift = cleanJerk3ActualLift;
         logger.info("{} cleanJerk3ActualLift={}", this, cleanJerk3ActualLift);
 
-        if (zeroIfInvalid(cleanJerk3ActualLift) == 0) {
-            this.cleanJerk3LiftTime = (null);
-        } else {
-            this.cleanJerk3LiftTime = sqlNow();
-        }
+//        if (zeroIfInvalid(cleanJerk3ActualLift) == 0) {
+//            this.setCleanJerk3LiftTime((null));
+//        } else {
+//            this.setCleanJerk3LiftTime(LocalDateTime.now());
+//        }
     }
 
     /**
@@ -2540,12 +2539,8 @@ public class Athlete {
         logger.info("{} cleanJerk3Declaration={}", this, cleanJerk3Declaration);
     }
 
-    /**
-     * Sets the clean jerk 3 lift time.
-     *
-     * @param cleanJerk3LiftTime the new clean jerk 3 lift time
-     */
-    public void setCleanJerk3LiftTime(Date cleanJerk3LiftTime) {
+    public void setCleanJerk3LiftTime(LocalDateTime cleanJerk3LiftTime) {
+        this.cleanJerk3LiftTime = cleanJerk3LiftTime;
     }
 
     /**
@@ -2614,6 +2609,16 @@ public class Athlete {
         this.eligibleForIndividualRanking = eligibleForIndividualRanking;
     }
 
+//	/**
+//	 * Sets the result order rank.
+//	 *
+//	 * @param resultOrderRank the result order rank
+//	 * @param rankingType     the ranking type
+//	 */
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		this.resultOrderRank = resultOrderRank;
+//	}
+
     public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
         this.eligibleForTeamRanking = eligibleForTeamRanking;
     }
@@ -2636,16 +2641,6 @@ public class Athlete {
         logger.trace("setForcedAsCurrent({})", forcedAsCurrent);
         this.forcedAsCurrent = forcedAsCurrent;
     }
-
-//	/**
-//	 * Sets the result order rank.
-//	 *
-//	 * @param resultOrderRank the result order rank
-//	 * @param rankingType     the ranking type
-//	 */
-//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//		this.resultOrderRank = resultOrderRank;
-//	}
 
     /**
      * Sets the full birth date.
@@ -2692,6 +2687,12 @@ public class Athlete {
         this.liftOrderRank = liftOrder;
     }
 
+    /*
+     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
+     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
+     * register/unregister itself.
+     */
+
     public void setLoggerLevel(Level newLevel) {
         logger.setLevel(newLevel);
     }
@@ -2713,12 +2714,6 @@ public class Athlete {
     public void setMembership(String membership) {
         this.membership = membership;
     }
-
-    /*
-     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
-     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
-     * register/unregister itself.
-     */
 
     /**
      * Sets the next attempt requested weight.
@@ -2807,11 +2802,11 @@ public class Athlete {
         }
         this.snatch1ActualLift = snatch1ActualLift;
         logger.info("{} snatch1ActualLift={} - {}", this, snatch1ActualLift);
-        if (zeroIfInvalid(snatch1ActualLift) == 0) {
-            this.snatch1LiftTime = null;
-        } else {
-            this.snatch1LiftTime = sqlNow();
-        }
+//        if (zeroIfInvalid(snatch1ActualLift) == 0) {
+//            this.setSnatch1LiftTime(null);
+//        } else {
+//            this.setSnatch1LiftTime(LocalDateTime.now());
+//        }
     }
 
     /**
@@ -2887,12 +2882,8 @@ public class Athlete {
         logger.info("{} snatch1Declaration={}", this, snatch1Declaration);
     }
 
-    /**
-     * Sets the snatch 1 lift time.
-     *
-     * @param snatch1LiftTime the new snatch 1 lift time
-     */
-    public void setSnatch1LiftTime(Date snatch1LiftTime) {
+    public void setSnatch1LiftTime(LocalDateTime snatch1LiftTime) {
+        this.snatch1LiftTime = snatch1LiftTime;
     }
 
     /**
@@ -2906,11 +2897,11 @@ public class Athlete {
         }
         this.snatch2ActualLift = snatch2ActualLift;
         logger.info("{} snatch2ActualLift={}", this, snatch2ActualLift);
-        if (zeroIfInvalid(snatch2ActualLift) == 0) {
-            this.snatch2LiftTime = (null);
-        } else {
-            this.snatch2LiftTime = sqlNow();
-        }
+//        if (zeroIfInvalid(snatch2ActualLift) == 0) {
+//            this.setSnatch2LiftTime((LocalDateTime)null);
+//        } else {
+//            this.setSnatch2LiftTime(LocalDateTime.now());
+//        }
     }
 
     /**
@@ -2979,12 +2970,8 @@ public class Athlete {
         logger.info("{} snatch2Declaration={}", this, snatch2Declaration);
     }
 
-    /**
-     * Sets the snatch 2 lift time.
-     *
-     * @param snatch2LiftTime the new snatch 2 lift time
-     */
-    public void setSnatch2LiftTime(Date snatch2LiftTime) {
+    public void setSnatch2LiftTime(LocalDateTime snatch2LiftTime) {
+        this.snatch2LiftTime = snatch2LiftTime;
     }
 
     /**
@@ -2998,12 +2985,11 @@ public class Athlete {
         }
         this.snatch3ActualLift = snatch3ActualLift;
         logger.info("{} snatch3ActualLift={}", this, snatch3ActualLift);
-        if (zeroIfInvalid(snatch3ActualLift) == 0) {
-            this.snatch3LiftTime = (null);
-        } else {
-            this.snatch3LiftTime = sqlNow();
-        }
-
+//        if (zeroIfInvalid(snatch3ActualLift) == 0) {
+//            this.setSnatch3LiftTime((LocalDateTime)null);
+//        } else {
+//            this.setSnatch3LiftTime(LocalDateTime.now());
+//        }
     }
 
     /**
@@ -3072,12 +3058,8 @@ public class Athlete {
         logger.info("{} snatch3Declaration={}", this, snatch3Declaration);
     }
 
-    /**
-     * Sets the snatch 3 lift time.
-     *
-     * @param snatch3LiftTime the new snatch 3 lift time
-     */
-    public void setSnatch3LiftTime(Date snatch3LiftTime) {
+    public void setSnatch3LiftTime(LocalDateTime snatch3LiftTime) {
+        this.snatch3LiftTime = snatch3LiftTime;
     }
 
     /**
@@ -3488,21 +3470,27 @@ public class Athlete {
     public void withdraw() {
         if (snatch1ActualLift != null && snatch1ActualLift.trim().isEmpty()) {
             setSnatch1ActualLift("0");
+            setSnatch1LiftTime(null);
         }
         if (snatch2ActualLift != null && snatch2ActualLift.trim().isEmpty()) {
             setSnatch2ActualLift("0");
+            setSnatch2LiftTime(null);
         }
         if (snatch3ActualLift != null && snatch3ActualLift.trim().isEmpty()) {
             setSnatch3ActualLift("0");
+            setSnatch3LiftTime(null);
         }
         if (cleanJerk1ActualLift != null && cleanJerk1ActualLift.trim().isEmpty()) {
             setCleanJerk1ActualLift("0");
+            setCleanJerk1LiftTime(null);
         }
         if (cleanJerk2ActualLift != null && cleanJerk2ActualLift.trim().isEmpty()) {
             setCleanJerk2ActualLift("0");
+            setCleanJerk2LiftTime(null);
         }
         if (cleanJerk3ActualLift != null && cleanJerk3ActualLift.trim().isEmpty()) {
             setCleanJerk3ActualLift("0");
+            setCleanJerk3LiftTime(null);
         }
     }
 
@@ -3536,29 +3524,37 @@ public class Athlete {
     }
 
     /**
+     * Public for testing purposes only.
+     * 
      * @param Athlete
      * @param athletes
      * @param weight
      */
-    private void doLift(final String weight) {
+    public void doLift(final String weight) {
         switch (this.getAttemptsDone() + 1) {
         case 1:
             this.setSnatch1ActualLift(weight);
+            this.setSnatch1LiftTime(LocalDateTime.now());
             break;
         case 2:
             this.setSnatch2ActualLift(weight);
+            this.setSnatch2LiftTime(LocalDateTime.now());
             break;
         case 3:
             this.setSnatch3ActualLift(weight);
+            this.setSnatch3LiftTime(LocalDateTime.now());
             break;
         case 4:
             this.setCleanJerk1ActualLift(weight);
+            this.setCleanJerk1LiftTime(LocalDateTime.now());
             break;
         case 5:
             this.setCleanJerk2ActualLift(weight);
+            this.setCleanJerk2LiftTime(LocalDateTime.now());
             break;
         case 6:
             this.setCleanJerk3ActualLift(weight);
+            this.setCleanJerk3LiftTime(LocalDateTime.now());
             break;
         }
     }
@@ -3645,10 +3641,6 @@ public class Athlete {
         } else {
             return Math.pow(10.0, coefficient * (Math.pow(Math.log10(bodyWeight1 / maxWeight), 2)));
         }
-    }
-
-    private LocalDateTime sqlNow() {
-        return LocalDateTime.now();
     }
 
     /**
