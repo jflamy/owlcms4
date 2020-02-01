@@ -632,7 +632,7 @@ public class EventForwarder implements BreakDisplay {
             }
             return content.toString();
         } catch (Exception e) {
-            logger.error("{} {}", url, e.getCause() != null ? e.getCause().getMessage() : e);
+            //logger.error("{} {}", url, e.getCause() != null ? e.getCause().getMessage() : e);
             return null;
         }
     }
