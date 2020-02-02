@@ -23,19 +23,17 @@ pipeline {
             }
             steps {
                 bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %GIT_BRANCH% %BRANCH%"
-                dir ('publicresults-heroku') {
-                    bat 'del README.md ReleaseNotes.md'
-                }
+                bat 'rmdir /s publicresults-heroku'
             }
         }
         
         stage('Update git & submodules') {      
             steps {
-                bat 'git checkout %GIT_BRANCH%'
+                bat 'git checkout --recursive %GIT_BRANCH%'
                 bat 'git pull'
-                bat 'git submodule sync'
-                bat 'git submodule update --init --recursive'
-                bat 'git submodule foreach "git fetch && git reset --hard origin/%GIT_BRANCH% && git checkout %GIT_BRANCH% && git pull"'
+//                bat 'git submodule sync'
+//                bat 'git submodule update --init --recursive'
+//                bat 'git submodule foreach "git fetch && git reset --hard origin/%GIT_BRANCH% && git checkout %GIT_BRANCH% && git pull"'
             }
         }
         
