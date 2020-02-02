@@ -29,11 +29,11 @@ pipeline {
         
         stage('Update git & submodules') {      
             steps {
-                bat 'git checkout --recursive %GIT_BRANCH%'
+                bat 'git checkout %GIT_BRANCH%'
                 bat 'git pull'
-//                bat 'git submodule sync'
-//                bat 'git submodule update --init --recursive'
-//                bat 'git submodule foreach "git fetch && git reset --hard origin/%GIT_BRANCH% && git checkout %GIT_BRANCH% && git pull"'
+                bat 'git submodule sync'
+                bat 'git submodule update --init --recursive'
+                bat 'git submodule foreach "git fetch && git reset --hard origin/%GIT_BRANCH% && git checkout %GIT_BRANCH% && git pull"'
             }
         }
         
