@@ -36,7 +36,7 @@ pipeline {
 //                bat 'git submodule sync'
 //                bat 'git submodule update --init --recursive'
 //                bat 'git submodule foreach "git fetch && git reset --hard origin/%GIT_BRANCH% && git checkout %GIT_BRANCH% && git pull"'
-                bat 'git clone --recursive https://%TOKEN%@github.com/%TOKEN_USR%/publicresults-heroku.git --branch %BRANCH% --single-branch'
+                bat 'git clone --recursive https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git --branch %BRANCH% --single-branch'
             }
         }
         
