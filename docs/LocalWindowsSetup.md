@@ -20,6 +20,8 @@
 
 ## Initial Startup
 
+> The following instructions assume that you are connected to a network.  If you are running a competition with several laptops, plug in your router, and *connect your laptop to the router prior to starting OWLCMS*. In that way OWLCMS will be able to tell you what network address it is getting from the router.  If you forget, simply stop OWLCMS and restart it.
+
 When OWLCMS4 is started on a laptop, two windows are visible:  a command-line window, and an internet browser
 
 ![040_starting](img\LocalInstall\040_starting.png)
