@@ -23,7 +23,7 @@ pipeline {
             }
             steps {
                 bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %GIT_BRANCH% %BRANCH%"
-                bat 'rmdir /s publicresults-heroku'
+                bat 'rmdir /s /q publicresults-heroku'
             }
         }
         
