@@ -34,14 +34,9 @@ pipeline {
                 TOKEN = credentials('jflamy-pw')
             }    
             steps {
-//                bat 'git checkout %BRANCH%'
-//                bat 'git pull'
-//                bat 'git submodule sync'
-//                bat 'git submodule update --init --recursive'
-//                bat 'git submodule foreach "git fetch && git reset --hard origin/%BRANCH% && git checkout %BRANCH% && git pull"'
                 bat 'git clone --recursive https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git --single-branch --branch %BRANCH% '
-                bat 'move ..\\n1 owlcms4\\owlcms\\node_modules '
-                bat 'move ..\\n2 owlcms4\\publicresults\\node_modules '
+//                bat 'move ..\\n1 owlcms4\\owlcms\\node_modules '
+//                bat 'move ..\\n2 owlcms4\\publicresults\\node_modules '
             }
         }
         
