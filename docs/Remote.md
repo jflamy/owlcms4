@@ -57,11 +57,11 @@ You should therefore have something similar to the following in your file.  On a
 1. Start the remote application.  Just accessing the URL is enough -- it will restart the application if it was shut down due to inactivity (on the free Heroku subscription, the remote application will go to sleep if unused for an hour).  During a competition, there will be frequent updates, so there is no chance of this happening. 
 2. Start the competition site application as usual, and get the the announcer to select a group,
    ![057_startLifting](img/PublicResults/057_startLifting.png)
-1. The public results application will now show that there is a platform active.
+1. The public results application will now show that there are active platforms.
 ![055_updateReceivedHome](img/PublicResults/055_updateReceivedHome.png)
-1. Clicking on the `Platform A` link leads to the blank scoreboard, since the announcer has not started a countdown and has not started lifting. 
+1. Clicking on the `Platform A` link leads to a generic waiting page, until the announcer starts the countdown to the introduction or starts the competition group. 
 ![056_updateReceivedFOP](img/PublicResults/056_updateReceivedFOP.png)
-1. As soon as a break or lifting starts, the competition site updates the remote application.  From then on the scoreboard updates whenever a pertinent change happens.  Note that in the first release the scoreboard clock only shows the time allocated for the lift, and does not count down, and that decision lights are not shown.
+1. As soon as a break or lifting event happens, the competition site updates the remote application.  From then on the scoreboard updates whenever a pertinent change happens.  Note that in the first release the scoreboard clock only shows the time allocated for the lift, and does not count down, and that decision lights are not shown.
 ![058_liftingStarted](img/PublicResults/058_liftingStarted.png)
 ## Updating the application
 When testing in the days leading to a competition, it is wise to update both the OWLCMS4 application and the remote public results server.
