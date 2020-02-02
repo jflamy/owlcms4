@@ -126,9 +126,25 @@ class Scoreboard extends PolymerElement {
 	font-family: Arial, Helvetica, sans-serif;
 	color: white;
 	background-color: black;
-	height: 100vh;
+	min-height: 100vh;
 	padding: 2vmin 2vmin 2vmin 2vmin;
-	overflow-y: hidden;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: no-wrap;
+	justify-content: flex-start;
+}
+
+#results {
+	flex: 1 0 auto;
+}
+
+#leaders {
+	flex: 0 0 auto;
+	width: 100%;
+	min-height: 0;
+	align-self: flex-end;
+	background-color: blue;
 }
 
 .attemptBar {
@@ -419,8 +435,27 @@ td.club div {
 .v-system-error {
 	display: none;
 }
+
+.hiddenTitle {
+	display: none;
+}
+.bigTitle {
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+.competitionName {
+	font-size: 4em;
+}
+.nextGroup {
+	font-size: 2em;
+}
 </style>
-<div class$="wrapper [[_computeTeamWidth(wideTeamNames)]]" >
+<div class$="wrapper [[_computeTeamWidth(wideTeamNames)]] [[_computeInactiveClass(hidden)]]">
+<div style$="[[_computeInactive(hidden)]]">
+	<div class="competitionName">[[competitionName]]</div><br>
+	<div class="nextGroup">[[t.WaitingNextGroup]]</div>
+</div>
 <div class="attemptBar" style$="[[_computeHidden(hidden)]]">
 	<div class="athleteInfo" id="athleteInfoDiv">
 		<div class="startNumber" id="startNumberDiv"><span>[[startNumber]]</span></div>
@@ -579,14 +614,15 @@ td.club div {
 		return title == string;
 	}
 
-//	clear() {
-//		this.$.resultBoardDiv.style.display="none";
-//	}
-
 	_computeHidden(hidden) {
 		return hidden ? 'display:none' : 'display:block';
 	}
-
+	_computeInactive(hidden) {
+		return hidden ? 'display:block' : 'display:none' ;
+	}
+	_computeInactiveClass(hidden) {
+		return hidden ? 'bigTitle' : '';
+	}
 	_computeTeamWidth(w) {
 		return w ? 'wideTeams' : 'narrowTeams';
 	}

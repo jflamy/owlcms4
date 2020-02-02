@@ -36,6 +36,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.BreakType;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
@@ -108,6 +109,7 @@ public class EventForwarder implements BreakDisplay {
         } else {
             logger.info("Pushing to remote site {}", url);
         }
+        pushToRemote();
     }
 
     @Override
@@ -341,8 +343,10 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "updateKey", updateKey);
 
         // competition state
+        mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
         mapPut(sb, "fop", fop.getName());
-        mapPut(sb, "fopState", fop.getState().toString());
+        FOPState state = fop.getState();
+        mapPut(sb, "fopState", state != null ? state.toString() : FOPState.INACTIVE.name());
         mapPut(sb, "break", String.valueOf(breakMode));
 
         // current athlete & attempt
@@ -632,7 +636,7 @@ public class EventForwarder implements BreakDisplay {
             }
             return content.toString();
         } catch (Exception e) {
-            logger.error("{} {}", url, e.getCause() != null ? e.getCause().getMessage() : e);
+            //logger.error("{} {}", url, e.getCause() != null ? e.getCause().getMessage() : e);
             return null;
         }
     }

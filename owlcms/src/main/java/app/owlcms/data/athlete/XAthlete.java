@@ -1,14 +1,13 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athlete;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -69,6 +68,11 @@ public class XAthlete extends Athlete {
     @Override
     public int get20kgRuleValue() {
         return a.get20kgRuleValue();
+    }
+
+    @Override
+    public Integer getAge() {
+        return super.getAge();
     }
 
     /**
@@ -173,7 +177,6 @@ public class XAthlete extends Athlete {
         return liftNo + 1;
     }
 
-
     /**
      * @return
      * @see app.owlcms.data.athlete.Athlete#getBodyWeight()
@@ -181,6 +184,15 @@ public class XAthlete extends Athlete {
     @Override
     public Double getBodyWeight() {
         return a.getBodyWeight();
+    }
+
+    /**
+     * @return
+     * @see app.owlcms.data.athlete.Athlete#getBWCategory()
+     */
+    @Override
+    public String getBWCategory() {
+        return a.getBWCategory();
     }
 
     /**
@@ -511,6 +523,11 @@ public class XAthlete extends Athlete {
         return a.getDisplayCategory();
     }
 
+    @Override
+    public Integer getEntryTotal() {
+        return super.getEntryTotal();
+    }
+
     /**
      * @return
      * @see app.owlcms.data.athlete.Athlete#getFirstAttemptedLiftTime()
@@ -536,6 +553,11 @@ public class XAthlete extends Athlete {
     @Override
     public boolean getForcedAsCurrent() {
         return a.getForcedAsCurrent();
+    }
+
+    @Override
+    public String getFormattedBirth() {
+        return super.getFormattedBirth();
     }
 
     /**
@@ -628,6 +650,11 @@ public class XAthlete extends Athlete {
         return a.getLiftOrderRank();
     }
 
+    @Override
+    public Logger getLogger() {
+        return super.getLogger();
+    }
+
     /**
      * @return
      * @see app.owlcms.data.athlete.Athlete#getLongCategory()
@@ -709,6 +736,11 @@ public class XAthlete extends Athlete {
         return a.getNextAttemptRequestedWeight();
     }
 
+    @Override
+    public Double getPresumedBodyWeight() {
+        return super.getPresumedBodyWeight();
+    }
+
     /**
      * @return
      * @see app.owlcms.data.athlete.Athlete#getPreviousLiftTime()
@@ -779,15 +811,6 @@ public class XAthlete extends Athlete {
     @Override
     public String getRoundedBodyWeight() {
         return a.getRoundedBodyWeight();
-    }
-
-    /**
-     * @return
-     * @see app.owlcms.data.athlete.Athlete#getBWCategory()
-     */
-    @Override
-    public String getBWCategory() {
-        return a.getBWCategory();
     }
 
     /**
@@ -1274,7 +1297,6 @@ public class XAthlete extends Athlete {
         a.setBestSnatch(i);
     }
 
-
     /**
      * @param bodyWeight
      * @see app.owlcms.data.athlete.Athlete#setBodyWeight(java.lang.Double)
@@ -1338,13 +1360,9 @@ public class XAthlete extends Athlete {
         a.setCleanJerk1Declaration(cleanJerk1Declaration);
     }
 
-    /**
-     * @param date
-     * @see app.owlcms.data.athlete.Athlete#setCleanJerk1LiftTime(java.util.Date)
-     */
     @Override
-    public void setCleanJerk1LiftTime(java.util.Date date) {
-        a.setCleanJerk1LiftTime(date);
+    public void setCleanJerk1LiftTime(LocalDateTime cleanJerk1LiftTime) {
+        super.setCleanJerk1LiftTime(cleanJerk1LiftTime);
     }
 
     /**
@@ -1392,13 +1410,9 @@ public class XAthlete extends Athlete {
         a.setCleanJerk2Declaration(cleanJerk2Declaration);
     }
 
-    /**
-     * @param cleanJerk2LiftTime
-     * @see app.owlcms.data.athlete.Athlete#setCleanJerk2LiftTime(java.sql.Date)
-     */
     @Override
-    public void setCleanJerk2LiftTime(Date cleanJerk2LiftTime) {
-        a.setCleanJerk2LiftTime(cleanJerk2LiftTime);
+    public void setCleanJerk2LiftTime(LocalDateTime cleanJerk2LiftTime) {
+        super.setCleanJerk2LiftTime(cleanJerk2LiftTime);
     }
 
     /**
@@ -1446,13 +1460,9 @@ public class XAthlete extends Athlete {
         a.setCleanJerk3Declaration(cleanJerk3Declaration);
     }
 
-    /**
-     * @param cleanJerk3LiftTime
-     * @see app.owlcms.data.athlete.Athlete#setCleanJerk3LiftTime(java.sql.Date)
-     */
     @Override
-    public void setCleanJerk3LiftTime(Date cleanJerk3LiftTime) {
-        a.setCleanJerk3LiftTime(cleanJerk3LiftTime);
+    public void setCleanJerk3LiftTime(LocalDateTime cleanJerk3LiftTime) {
+        super.setCleanJerk3LiftTime(cleanJerk3LiftTime);
     }
 
     /**
@@ -1618,6 +1628,16 @@ public class XAthlete extends Athlete {
         a.setNextAttemptRequestedWeight(i);
     }
 
+    @Override
+    public void setPresumedBodyWeight(Double presumedBodyWeight) {
+        super.setPresumedBodyWeight(presumedBodyWeight);
+    }
+
+    @Override
+    public void setPresumedCategory(Category category) {
+        super.setPresumedCategory(category);
+    }
+
     /**
      * @param qualifyingTotal
      * @see app.owlcms.data.athlete.Athlete#setQualifyingTotal(java.lang.Integer)
@@ -1699,13 +1719,9 @@ public class XAthlete extends Athlete {
         a.setSnatch1Declaration(snatch1Declaration);
     }
 
-    /**
-     * @param snatch1LiftTime
-     * @see app.owlcms.data.athlete.Athlete#setSnatch1LiftTime(java.sql.Date)
-     */
     @Override
-    public void setSnatch1LiftTime(Date snatch1LiftTime) {
-        a.setSnatch1LiftTime(snatch1LiftTime);
+    public void setSnatch1LiftTime(LocalDateTime snatch1LiftTime) {
+        super.setSnatch1LiftTime(snatch1LiftTime);
     }
 
     /**
@@ -1716,16 +1732,6 @@ public class XAthlete extends Athlete {
     public void setSnatch2ActualLift(String snatch2ActualLift) {
         a.setSnatch2ActualLift(snatch2ActualLift);
     }
-
-//	/**
-//	 * @param resultOrderRank
-//	 * @param rankingType
-//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
-//	 */
-//	@Override
-//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//		a.setResultOrderRank(resultOrderRank, rankingType);
-//	}
 
     /**
      * @param s
@@ -1754,6 +1760,16 @@ public class XAthlete extends Athlete {
         a.setSnatch2Change2(snatch2Change2);
     }
 
+//	/**
+//	 * @param resultOrderRank
+//	 * @param rankingType
+//	 * @see app.owlcms.data.athlete.Athlete#setResultOrderRank(java.lang.Integer, app.owlcms.data.athleteSort.AthleteSorter.Ranking)
+//	 */
+//	@Override
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		a.setResultOrderRank(resultOrderRank, rankingType);
+//	}
+
     /**
      * @param snatch2Declaration
      * @see app.owlcms.data.athlete.Athlete#setSnatch2Declaration(java.lang.String)
@@ -1763,13 +1779,9 @@ public class XAthlete extends Athlete {
         a.setSnatch2Declaration(snatch2Declaration);
     }
 
-    /**
-     * @param snatch2LiftTime
-     * @see app.owlcms.data.athlete.Athlete#setSnatch2LiftTime(java.sql.Date)
-     */
     @Override
-    public void setSnatch2LiftTime(Date snatch2LiftTime) {
-        a.setSnatch2LiftTime(snatch2LiftTime);
+    public void setSnatch2LiftTime(LocalDateTime snatch2LiftTime) {
+        super.setSnatch2LiftTime(snatch2LiftTime);
     }
 
     /**
@@ -1817,13 +1829,9 @@ public class XAthlete extends Athlete {
         a.setSnatch3Declaration(snatch3Declaration);
     }
 
-    /**
-     * @param snatch3LiftTime
-     * @see app.owlcms.data.athlete.Athlete#setSnatch3LiftTime(java.sql.Date)
-     */
     @Override
-    public void setSnatch3LiftTime(Date snatch3LiftTime) {
-        a.setSnatch3LiftTime(snatch3LiftTime);
+    public void setSnatch3LiftTime(LocalDateTime snatch3LiftTime) {
+        super.setSnatch3LiftTime(snatch3LiftTime);
     }
 
     /**
@@ -2246,6 +2254,11 @@ public class XAthlete extends Athlete {
     @Override
     public void withdraw() {
         a.withdraw();
+    }
+
+    @Override
+    protected Integer asInteger(String stringValue) {
+        return super.asInteger(stringValue);
     }
 
     protected LiftInfo getBest(LiftDefinition.Changes change, Stage stage) {

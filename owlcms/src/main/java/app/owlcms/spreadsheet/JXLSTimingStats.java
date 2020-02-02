@@ -222,7 +222,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
             int nbAttemptedLifts = curAthlete.getAttemptedLifts();
             curStat.setNbAttemptedLifts(curStat.getNbAttemptedLifts() + nbAttemptedLifts);
-            logger.debug(curStat.toString());
+            logger.warn(curStat.toString());
             prevGroup = curGroup;
         }
         if (curStat.getNbAthletes() > 0) {

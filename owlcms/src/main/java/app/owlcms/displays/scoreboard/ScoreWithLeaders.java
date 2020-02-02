@@ -90,6 +90,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         String getAttempt();
 
         String getCategoryName();
+        
+        String getCompetitionName();
 
         String getFullName();
 
@@ -106,6 +108,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         void setAttempt(String formattedAttempt);
 
         void setCategoryName(String categoryName);
+        
+        void setCompetitionName(String competitionName);
 
         void setFullName(String lastName);
 
@@ -142,7 +146,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private DecisionElement decisions; // Flow creates it
 
     private EventBus uiEventBus;
-    private List<Athlete> globalRankingsForCurrentGroup;
+    private List<Athlete> order;
     private Group curGroup;
     private int liftsDone;
 
@@ -211,7 +215,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
      * Reset.
      */
     public void reset() {
-        globalRankingsForCurrentGroup = ImmutableList.of();
+        order = ImmutableList.of();
     }
 
     @Override
@@ -241,12 +245,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             Athlete a = e.getAthlete();
             getModel().setHidden(false);
             if (a == null) {
-                globalRankingsForCurrentGroup = fop.getLiftingOrder();
-                a = globalRankingsForCurrentGroup.size() > 0 ? globalRankingsForCurrentGroup.get(0) : null;
-                liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
+                order = fop.getLiftingOrder();
+                a = order.size() > 0 ? order.get(0) : null;
+                liftsDone = AthleteSorter.countLiftsDone(order);
                 doUpdate(a, e);
             } else {
-                liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
+                liftsDone = AthleteSorter.countLiftsDone(order);
                 doUpdate(a, e);
             }
         }));
@@ -307,8 +311,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             Athlete a = e.getAthlete();
-            globalRankingsForCurrentGroup = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
-            liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
+            order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
+            liftsDone = AthleteSorter.countLiftsDone(order);
             doUpdate(a, e);
         });
     }
@@ -407,9 +411,9 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             init();
 
             // get the global category rankings for the group
-            globalRankingsForCurrentGroup = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
+            order = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
 
-            liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
+            liftsDone = AthleteSorter.countLiftsDone(order);
             syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this));
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
@@ -436,30 +440,30 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             Athlete curAthlete = fop.getCurAthlete();
             if (curAthlete != null && curAthlete.getGender() != null) {
                 getModel().setCategoryName(curAthlete.getCategory().getName());
-                globalRankingsForCurrentGroup = competition.getGlobalTotalRanking(curAthlete.getGender());
+                order = competition.getGlobalTotalRanking(curAthlete.getGender());
                 // logger.debug("rankings for current gender {}
                 // size={}",curAthlete.getGender(),globalRankingsForCurrentGroup.size());
-                globalRankingsForCurrentGroup = filterToCategory(curAthlete.getCategory(),
-                        globalRankingsForCurrentGroup);
+                order = filterToCategory(curAthlete.getCategory(),
+                        order);
                 // logger.debug("rankings for current category {}
                 // size={}",curAthlete.getCategory(),globalRankingsForCurrentGroup.size());
-                globalRankingsForCurrentGroup = globalRankingsForCurrentGroup.stream().filter(a -> a.getTotal() > 0)
+                order = order.stream().filter(a -> a.getTotal() > 0)
                         .collect(Collectors.toList());
-                if (globalRankingsForCurrentGroup.size() > 0) {
+                if (order.size() > 0) {
                     // null as second argument because we do not highlight current athletes in the leaderboard
-                    this.getElement().setPropertyJson("leaders", getAthletesJson(globalRankingsForCurrentGroup, null));
+                    this.getElement().setPropertyJson("leaders", getAthletesJson(order, null));
                 } else {
                     // no one has totaled, so we show the snatch stats
                     if (!fop.isCjStarted()) {
-                        globalRankingsForCurrentGroup = Competition.getCurrent()
+                        order = Competition.getCurrent()
                                 .getGlobalSnatchRanking(curAthlete.getGender());
-                        globalRankingsForCurrentGroup = filterToCategory(curAthlete.getCategory(),
-                                globalRankingsForCurrentGroup);
-                        globalRankingsForCurrentGroup = globalRankingsForCurrentGroup.stream()
+                        order = filterToCategory(curAthlete.getCategory(),
+                                order);
+                        order = order.stream()
                                 .filter(a -> a.getSnatchTotal() > 0).collect(Collectors.toList());
-                        if (globalRankingsForCurrentGroup.size() > 0) {
+                        if (order.size() > 0) {
                             this.getElement().setPropertyJson("leaders",
-                                    getAthletesJson(globalRankingsForCurrentGroup, null));
+                                    getAthletesJson(order, null));
                         } else {
                             // nothing to show
                             this.getElement().setPropertyJson("leaders", Json.createNull());
@@ -578,6 +582,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 prevCat = curCat;
                 athx++;
             }
+            // compute the blinking rank
             getAthleteJson(a, ja, curCat, (a.getId() == currentId)
                     ? 1
                     : ((a.getId() == nextId)
@@ -665,9 +670,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             setId("scoreboard-" + fop.getName());
             curGroup = fop.getGroup();
             getModel().setWideTeamNames(false);
+            getModel().setCompetitionName(Competition.getCurrent().getCompetitionName());
         });
         setTranslationMap();
-        globalRankingsForCurrentGroup = ImmutableList.of();
+        order = ImmutableList.of();
     }
 
     private void syncWithFOP(UIEvent.SwitchGroup e) {
@@ -690,10 +696,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             model.setGroupName(
                     curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
                             : "");
-            globalRankingsForCurrentGroup = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
+            order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
             model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
             this.getElement().setPropertyJson("athletes",
-                    getAthletesJson(globalRankingsForCurrentGroup, fop.getLiftingOrder()));
+                    getAthletesJson(order, fop.getLiftingOrder()));
         });
     }
 

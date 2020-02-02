@@ -124,7 +124,7 @@ class ScoreLeader extends PolymerElement {
 	}
 }
 
-/* header cells for rank in the main table, 1024 projector */
+/* 1024 projector */
 @media screen and (max-width: 1279px) {
 	.wideTeams {
 	  --fontSizeRank-height: 0.8em;
@@ -508,8 +508,27 @@ table#leaders-table thead tr.hide th {
     margin: auto;
     text-align: left;
 }
+
+.hiddenTitle {
+	display: none;
+}
+.bigTitle {
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+.competitionName {
+	font-size: 4em;
+}
+.nextGroup {
+	font-size: 2em;
+}
 </style>
-<div class$="wrapper [[_computeTeamWidth(wideTeamNames)]]">
+<div class$="wrapper [[_computeTeamWidth(wideTeamNames)]] [[_computeInactiveClass(hidden)]]">
+<div style$="[[_computeInactive(hidden)]]">
+	<div class="competitionName">[[competitionName]]</div><br>
+	<div class="nextGroup">[[t.WaitingNextGroup]]</div>
+</div>
 <div class="attemptBar" style$="[[_computeHidden(hidden)]]">
 	<div class="athleteInfo" id="athleteInfoDiv">
 		<div class="startNumber" id="startNumberDiv"><span>[[startNumber]]</span></div>
@@ -533,7 +552,7 @@ table#leaders-table thead tr.hide th {
 <div class="group" id="groupDiv" style$="[[_computeHidden(hidden)]]">
 <span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
 </div>
-<div id="results">
+<div id="results" style$="[[_computeHidden(hidden)]]">
 <table class="results" style$="[[_computeHidden(hidden)]]">
 	<thead>
 		<tr>
@@ -580,7 +599,7 @@ table#leaders-table thead tr.hide th {
 </table>
 </div>
 <template is="dom-if" if="[[leaders]]">
-<div id="leaders">
+<div id="leaders" style$="[[_computeHidden(hidden)]]">
 <table class="results" id="leaders-table" style$="[[_computeHidden(hidden)]]">
 	<thead>
 		<tr><td colspan="100%" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]"></td></tr>
@@ -612,7 +631,6 @@ table#leaders-table thead tr.hide th {
 		</template>
 	</template>
 </table>
-</div>
 </div>
 </template>
 </div>`;
@@ -708,7 +726,12 @@ table#leaders-table thead tr.hide th {
 	_computeHidden(hidden) {
 		return hidden ? 'display:none' : 'display:block';
 	}
-
+	_computeInactive(hidden) {
+		return hidden ? 'display:block' : 'display:none' ;
+	}
+	_computeInactiveClass(hidden) {
+		return hidden ? 'bigTitle' : '';
+	}
 	_computeTeamWidth(w) {
 		return w ? 'wideTeams' : 'narrowTeams';
 	}

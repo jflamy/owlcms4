@@ -62,6 +62,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
         String getCategoryName();
 
+        String getCompetitionName();
+
         String getFullName();
 
         Integer getStartNumber();
@@ -77,6 +79,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         void setAttempt(String formattedAttempt);
 
         void setCategoryName(String categoryName);
+
+        void setCompetitionName(String competitionName);
 
         void setFullName(String lastName);
 
@@ -189,6 +193,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             this.getElement().setPropertyJson("athletes", athletes != null ? jreJsonFactory.parse(athletes) : Json.createNull());
             this.getElement().setPropertyJson("t", translationMap != null ? jreJsonFactory.parse(translationMap) : Json.createNull());
 
+            getModel().setCompetitionName(e.getCompetitionName());
             getModel().setAttempt(e.getAttempt());
             getModel().setFullName(e.getFullName());
             getModel().setGroupName(e.getGroupName());
