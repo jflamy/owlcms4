@@ -22,8 +22,8 @@ pipeline {
     stages {
         stage('Reset workspace') {
             steps {
-                bat 'wsl mv owlcms4/owlcms/node_modules ../n1'
-                bat 'wsl mv owlcms4/publicresults/node_modules ../n2'
+                bat 'rename owlcms4\\owlcms\\node_modules ..\\n1'
+                bat 'rename owlcms4\\publicresults\\node_modules ..\\n2'
                 bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %BRANCH%"
                 cleanWs()
             }
@@ -40,8 +40,8 @@ pipeline {
 //                bat 'git submodule update --init --recursive'
 //                bat 'git submodule foreach "git fetch && git reset --hard origin/%BRANCH% && git checkout %BRANCH% && git pull"'
                 bat 'git clone --recursive https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git --single-branch --branch %BRANCH% '
-                bat 'wsl mv ../n1 owlcms4/owlcms/node_modules '
-                bat 'wsl mv ../n2 owlcms4/publicresults/node_modules '
+                bat 'rename ..\\n1 owlcms4\\owlcms\\node_modules '
+                bat 'rename ..\\n2 owlcms4\\publicresults\\node_modules '
             }
         }
         
