@@ -22,8 +22,8 @@ pipeline {
     stages {
         stage('Reset workspace') {
             steps {
-                bat 'move owlcms4\\owlcms\\node_modules ..\\n1'
-                bat 'move owlcms4\\publicresults\\node_modules ..\\n2'
+//                bat 'move owlcms4\\owlcms\\node_modules ..\\n1'
+//                bat 'move owlcms4\\publicresults\\node_modules ..\\n2'
                 bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %BRANCH%"
                 cleanWs()
             }
