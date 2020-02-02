@@ -24,7 +24,7 @@ pipeline {
             steps {
                 bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %GIT_BRANCH% %BRANCH%"
                 dir ('publicresults-heroku') {
-//                    bat 'del README.md'
+                    bat 'del README.md README.md'
                 }
             }
         }
