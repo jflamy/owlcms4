@@ -5,6 +5,7 @@
   - [x] Fix: after several group changes, there could be a spinning wait indicator on group selection menu , and a need to click twice to start the intro countdown or go to lifting (#294)
   - [x] Enhancement: Portuguese translations
   - [X] Fix: Lift times were not reliably recorded, which could lead to misleading timing statistics (#288)
+  - [X] Enhancement: when the platform is inactive (no group waiting for introduction) show the competition name on scoreboards instead of empty (#295)
 
 Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 
