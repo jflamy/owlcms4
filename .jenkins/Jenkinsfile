@@ -72,7 +72,7 @@ pipeline {
             }
             steps {
                 dir('owlcms4/publicresults-heroku') {
-                    bat 'git pull origin %BRANCH%'
+                    bat 'git checkout %BRANCH%'
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     // save the locally built files
                     bat 'git stash'
