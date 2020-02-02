@@ -13,6 +13,7 @@ import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.QueryParameters;
@@ -32,12 +33,12 @@ public class MainView extends VerticalLayout {
     private UI ui;
 
     public MainView() {
-
-        text = new Text("Waiting for updates from competition site.");
+        text = new Text(getTranslation("WaitingForSite"));
         buildHomePage();
     }
 
     private void buildHomePage() {
+        // we cache the last update received for each field of play, indexed by fop name
         Set<String> fopNames = EventReceiverServlet.updateCache.keySet();
         if (fopNames.size() == 0) {
             removeAll();
@@ -49,6 +50,11 @@ public class MainView extends VerticalLayout {
 
     private void createButtons(Set<String> fopNames) {
         removeAll();
+        UpdateEvent updateEvent = EventReceiverServlet.updateCache.entrySet().stream().findFirst().orElse(null).getValue();
+        if (updateEvent == null) return;
+        
+        H3 title = new H3(updateEvent.getCompetitionName());
+        add(title);
         fopNames.stream().sorted().forEach(fopName -> {
             Button fopButton = new Button(getTranslation("Platform") + " " + fopName,
                     buttonClickEvent -> {

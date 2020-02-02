@@ -445,10 +445,10 @@ td.club div {
 	text-align: center;
 }
 .competitionName {
-	font-size: 5em;
+	font-size: 4em;
 }
 .nextGroup {
-	font-size: 3em;
+	font-size: 2em;
 }
 </style>
 <div class$="wrapper [[_computeTeamWidth(wideTeamNames)]] [[_computeInactiveClass(hidden)]]">
