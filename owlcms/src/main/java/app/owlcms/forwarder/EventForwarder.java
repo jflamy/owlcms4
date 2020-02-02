@@ -6,21 +6,23 @@
  */
 package app.owlcms.forwarder;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -43,7 +45,6 @@ import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.StartupUtils;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -61,7 +62,7 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
-    private EventBus uiEventBus;
+    private EventBus postBus;
     private EventBus fopEventBus;
     private FieldOfPlay fop;
     private String categoryName;
@@ -88,6 +89,7 @@ public class EventForwarder implements BreakDisplay {
 
     private String updateKey;
     private String url;
+    @SuppressWarnings("unused")
     private Boolean debugMode;
 
     public EventForwarder(FieldOfPlay emittingFop) {
@@ -96,8 +98,8 @@ public class EventForwarder implements BreakDisplay {
         fopEventBus = fop.getFopEventBus();
         fopEventBus.register(this);
 
-        uiEventBus = fop.getUiEventBus();
-        uiEventBus.register(this);
+        postBus = fop.getPostEventBus();
+        postBus.register(this);
 
         setTranslationMap();
 
@@ -136,7 +138,7 @@ public class EventForwarder implements BreakDisplay {
 
     /**
      * Change the messages because we are not showing live timers
-     * 
+     *
      * @see app.owlcms.displays.attemptboard.BreakDisplay#inferMessage(app.owlcms.fieldofplay.BreakType)
      */
     @Override
@@ -582,6 +584,34 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
+//    private void javaNetHttpPost() {
+//        // url = "https://httpbin.org/post";
+//        HttpURLConnection con = null;
+//        if (url == null) {
+//            return;
+//        }
+//        try {
+//            Map<String, String> updateString = createUpdate();
+//            long deltaMillis = System.currentTimeMillis() - previousMillis;
+//            int hashCode = updateString.hashCode();
+//            // debounce, sometimes several identical updates in a rapid succession
+//            // identical updates are ok after 1 sec.
+//            if (hashCode != previousHashCode || (deltaMillis > 1000)) {
+//                con = sendUpdate(updateString);
+//                previousHashCode = hashCode;
+//                previousMillis = System.currentTimeMillis();
+//            }
+//            // contrary to documentation con can be null with no exception thrown.
+//            if (con != null) {
+//                readResponse(con);
+//            }
+//        } finally {
+//            if (con != null) {
+//                con.disconnect();
+//            }
+//        }
+//    }
+
     private void mapPut(Map<String, String> wr, String key, String value) {
         if (value == null) {
             return;
@@ -590,93 +620,104 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void pushToRemote() {
-        // url = "https://httpbin.org/post";
-        HttpURLConnection con = null;
         if (url == null) {
             return;
         }
         try {
-            Map<String, String> updateString = createUpdate();
-            long deltaMillis = System.currentTimeMillis() - previousMillis;
-            int hashCode = updateString.hashCode();
-            // debounce, sometimes several identical updates in a rapid succession
-            // identical updates are ok after 1 sec.
-            if (hashCode != previousHashCode || (deltaMillis > 1000)) {
-                con = sendUpdate(updateString);
-                previousHashCode = hashCode;
-                previousMillis = System.currentTimeMillis();
-            }
-            // contrary to documentatin con can be null with no exception thrown.
-            if (con != null) {
-                readResponse(con);
-            }
-        } finally {
-            if (con != null) {
-                con.disconnect();
-            }
-        }
-    }
-
-    private String readResponse(HttpURLConnection con) {
-        StringBuilder content;
-        try {
-            InputStream inputStream = con.getInputStream();
-            if (inputStream == null) {
-                return "";
-            }
-
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(inputStream))) {
-                String line;
-                content = new StringBuilder();
-                while ((line = br.readLine()) != null) {
-                    content.append(line);
-                    content.append(System.lineSeparator());
-                }
-            }
-            return content.toString();
-        } catch (Exception e) {
-            //logger.error("{} {}", url, e.getCause() != null ? e.getCause().getMessage() : e);
-            return null;
-        }
-    }
-
-    private HttpURLConnection sendUpdate(Map<String, String> parameters) {
-        HttpURLConnection con = null;
-        try {
-            URL myurl = new URL(url);
-            con = (HttpURLConnection) myurl.openConnection();
-            con.setDoOutput(true);
-            con.setRequestMethod("POST");
-            con.setRequestProperty("User-Agent", "Java client");
-            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
-            int count = 0;
-            // connection is opened by getOutputStream
-            try (OutputStream outputStream = con.getOutputStream();
-                    OutputStreamWriter wr = new OutputStreamWriter(outputStream)) {
-                for (Entry<String, String> pair : parameters.entrySet()) {
-                    wr.write(URLUtils.urlEncode(pair.getKey()));
-                    wr.write("=");
-                    wr.write(URLUtils.urlEncode(pair.getValue()));
-                    if (debugMode) {
-                        logger/**/.warn("{}={}", pair.getKey(), pair.getValue());
-                    }
-                    if (count < parameters.size() - 1) {
-                        wr.write("&");
-                        if (debugMode) {
-                            logger/**/.warn("&");
-                        }
-                        count++;
-                    }
-                }
-            }
-        } catch (Exception e) {
+            sendPost(url, createUpdate());
+        } catch (IOException e) {
             logger./**/warn("cannot push: {} {}", url, e.getMessage());
         }
-        return con;
+        // javaNetHttpPost();
+    }
+
+//    private String readResponse(HttpURLConnection con) {
+//        StringBuilder content;
+//        try {
+//            InputStream inputStream = con.getInputStream();
+//            if (inputStream == null) {
+//                return "";
+//            }
+//
+//            try (BufferedReader br = new BufferedReader(
+//                    new InputStreamReader(inputStream))) {
+//                String line;
+//                content = new StringBuilder();
+//                while ((line = br.readLine()) != null) {
+//                    content.append(line);
+//                    content.append(System.lineSeparator());
+//                }
+//            }
+//            return content.toString();
+//        } catch (Exception e) {
+//            // logger.error("{} {}", url, e.getCause() != null ? e.getCause().getMessage() : e);
+//            return null;
+//        }
+//    }
+
+    private void sendPost(String url, Map<String, String> parameters) throws IOException {
+        HttpPost post = new HttpPost(url);
+
+        long deltaMillis = System.currentTimeMillis() - previousMillis;
+        int hashCode = parameters.hashCode();
+        // debounce, sometimes several identical updates in a rapid succession
+        // identical updates are ok after 1 sec.
+        if (hashCode != previousHashCode || (deltaMillis > 1000)) {
+            // add request parameters or form parameters
+            List<NameValuePair> urlParameters = new ArrayList<>();
+            parameters.entrySet().stream()
+                    .forEach((e) -> urlParameters.add(new BasicNameValuePair(e.getKey(), e.getValue())));
+
+            post.setEntity(new UrlEncodedFormEntity(urlParameters));
+
+            try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                    CloseableHttpResponse response = httpClient.execute(post)) {
+                
+                EntityUtils.toString(response.getEntity());
+            }
+
+            previousHashCode = hashCode;
+            previousMillis = System.currentTimeMillis();
+        }
 
     }
+
+//    private HttpURLConnection sendUpdate(Map<String, String> parameters) {
+//        HttpURLConnection con = null;
+//        try {
+//            URL myurl = new URL(url);
+//            con = (HttpURLConnection) myurl.openConnection();
+//            con.setDoOutput(true);
+//            con.setRequestMethod("POST");
+//            con.setRequestProperty("User-Agent", "Java client");
+//            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+//
+//            int count = 0;
+//            // connection is opened by getOutputStream
+//            try (OutputStream outputStream = con.getOutputStream();
+//                    OutputStreamWriter wr = new OutputStreamWriter(outputStream)) {
+//                for (Entry<String, String> pair : parameters.entrySet()) {
+//                    wr.write(URLUtils.urlEncode(pair.getKey()));
+//                    wr.write("=");
+//                    wr.write(URLUtils.urlEncode(pair.getValue()));
+//                    if (debugMode) {
+//                        logger/**/.warn("{}={}", pair.getKey(), pair.getValue());
+//                    }
+//                    if (count < parameters.size() - 1) {
+//                        wr.write("&");
+//                        if (debugMode) {
+//                            logger/**/.warn("&");
+//                        }
+//                        count++;
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            logger./**/warn("cannot push: {} {}", url, e.getMessage());
+//        }
+//        return con;
+//
+//    }
 
     private void setBreak(boolean b) {
         this.breakMode = b;

@@ -6,6 +6,7 @@
   - [x] Enhancement: Portuguese translations
   - [X] Fix: Lift times were not reliably recorded, which could lead to misleading timing statistics (#288)
   - [X] Enhancement: when the platform is inactive (no group waiting for introduction) show the competition name on scoreboards instead of empty (#295)
+  - [X] Enhancement: make it clear that the remote scoreboard only shows the Allowed time and does not count down (#296)
 
 Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 

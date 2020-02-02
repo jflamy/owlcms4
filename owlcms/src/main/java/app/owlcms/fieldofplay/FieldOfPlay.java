@@ -113,6 +113,7 @@ public class FieldOfPlay {
     private Athlete curAthlete;
     private EventBus fopEventBus = null;
     private EventBus uiEventBus = null;
+    private EventBus postBus = null;
     private Group group = null;
     private String name;
     private Platform platform = null;
@@ -151,6 +152,7 @@ public class FieldOfPlay {
     public FieldOfPlay(Group group, Platform platform2) {
         this.name = platform2.getName();
         this.fopEventBus = new EventBus("FOP-" + name);
+        this.postBus = new EventBus("POST-" + name);
         // this.uiEventBus = new EventBus("UI-" + name);
         this.uiEventBus = new AsyncEventBus(Executors.newCachedThreadPool());
         this.athleteTimer = null;
@@ -168,6 +170,7 @@ public class FieldOfPlay {
         this.name = "test";
         this.fopEventBus = new EventBus("FOP-" + this.name);
         this.uiEventBus = new EventBus("UI-" + this.name);
+        this.postBus = new EventBus("POST-" + name);
         this.setTestingMode(testingMode);
         init(athletes, timer1, breakTimer1);
     }
@@ -391,7 +394,7 @@ public class FieldOfPlay {
             loadGroup(switchGroup.getGroup(), this);
             recomputeLiftingOrder();
             updateGlobalRankings();
-            getUiEventBus().post(new UIEvent.SwitchGroup(switchGroup.getGroup(), switchGroup.getState(), switchGroup.getCurAthlete(), e.getOrigin()));
+            pushOut(new UIEvent.SwitchGroup(switchGroup.getGroup(), switchGroup.getState(), switchGroup.getCurAthlete(), e.getOrigin()));
             return;
         }
 
@@ -415,7 +418,7 @@ public class FieldOfPlay {
                 transitionToLifting(e, true);
             } else if (e instanceof BreakPaused) {
                 getBreakTimer().stop();
-                getUiEventBus().post(new UIEvent.BreakPaused(e.getOrigin()));
+                pushOut(new UIEvent.BreakPaused(e.getOrigin()));
             } else if (e instanceof BreakStarted) {
                 transitionToBreak((BreakStarted) e);
             } else if (e instanceof WeightChange) {
@@ -548,7 +551,7 @@ public class FieldOfPlay {
                 setState(DECISION_VISIBLE);
             } else if (e instanceof DecisionReset) {
                 logger.debug("{} resetting decisions", getName());
-                uiEventBus.post(new UIEvent.DecisionReset(e.origin));
+                pushOut(new UIEvent.DecisionReset(e.origin));
                 setClockOwner(null);
                 displayOrBreakIfDone(e);
             } else {
@@ -562,7 +565,6 @@ public class FieldOfPlay {
         logger.trace("start of init state=" + state);
         this.athleteTimer = timer;
         this.breakTimer = breakTimer;
-        this.fopEventBus = getFopEventBus();
         this.fopEventBus.register(this);
         EventForwarder.listenToFOP(this);
         this.curAthlete = null;
@@ -580,8 +582,9 @@ public class FieldOfPlay {
         if (state == null) {
             this.setState(INACTIVE);
         }
+        
         // force a wake up on user interfaces
-        getUiEventBus().post(new UIEvent.SwitchGroup(getGroup(), getState(), getCurAthlete(), this));
+        pushOut(new UIEvent.SwitchGroup(getGroup(), getState(), getCurAthlete(), this));
         logger.trace("end of init state=" + state);
     }
 
@@ -709,7 +712,7 @@ public class FieldOfPlay {
         if (state == FOPState.BREAK) {
             inBreak = ((breakTimer != null && breakTimer.isRunning()));
         }
-        uiEventBus.post(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, changingAthlete,
+        pushOut(new UIEvent.LiftingOrderUpdated(curAthlete, nextAthlete, previousAthlete, changingAthlete,
                 liftingOrder, getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(), inBreak));
 
         logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
@@ -743,7 +746,7 @@ public class FieldOfPlay {
             setState(CURRENT_ATHLETE_DISPLAYED);
         } else {
             UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
-            uiEventBus.post(event);
+            pushOut(event);
             // special kind of break that allows moving back in case of jury reversal
             setBreakType(BreakType.GROUP_DONE);
             setState(BREAK);
@@ -1143,32 +1146,37 @@ public class FieldOfPlay {
             }).start();
             setDownEmitted(true);
         }
-        uiEventBus.post(new UIEvent.DownSignal(origin2));
+        pushOut(new UIEvent.DownSignal(origin2));
     }
 
     private void uiShowPlates(BarbellOrPlatesChanged e) {
-        uiEventBus.post(new UIEvent.BarbellOrPlatesChanged(e.getOrigin()));
+        pushOut(new UIEvent.BarbellOrPlatesChanged(e.getOrigin()));
     }
 
     private void uiShowRefereeDecisionOnSlaveDisplays(Athlete athlete2, Boolean goodLift2, Boolean[] refereeDecision2,
             Integer[] shownTimes, Object origin2) {
         uiEventLogger.trace("showRefereeDecisionOnSlaveDisplays");
-        uiEventBus.post(new UIEvent.Decision(athlete2, goodLift2, refereeDecision2[0], refereeDecision2[1],
+        pushOut(new UIEvent.Decision(athlete2, goodLift2, refereeDecision2[0], refereeDecision2[1],
                 refereeDecision2[2], origin2));
     }
 
     private void uiShowUpdatedRankings() {
-        uiEventBus.post(new UIEvent.GlobalRankingUpdated(this));
+        pushOut(new UIEvent.GlobalRankingUpdated(this));
     }
 
     private void uiShowUpdateOnJuryScreen() {
         uiEventLogger.trace("uiShowUpdateOnJuryScreen");
-        uiEventBus.post(new UIEvent.RefereeUpdate(curAthlete, refereeDecision[0], refereeDecision[1],
+        pushOut(new UIEvent.RefereeUpdate(curAthlete, refereeDecision[0], refereeDecision[1],
                 refereeDecision[2], refereeTime[0], refereeTime[1], refereeTime[2], this));
     }
 
     private void uiStartLifting(Group group2, Object origin) {
-        getUiEventBus().post(new UIEvent.StartLifting(group2, origin));
+        pushOut(new UIEvent.StartLifting(group2, origin));
+    }
+
+    public void pushOut(app.owlcms.fieldofplay.UIEvent event) {
+        getUiEventBus().post(event);
+        getPostEventBus().post(event);
     }
 
     private void unexpectedEventInState(FOPEvent e, FOPState state) {
@@ -1210,6 +1218,10 @@ public class FieldOfPlay {
         this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.liftingOrder));
         uiDisplayCurrentAthleteAndTime(false, e, false);
         updateGlobalRankings();
+    }
+
+    public EventBus getPostEventBus() {
+        return postBus;
     }
 
 }
