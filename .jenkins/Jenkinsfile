@@ -16,14 +16,13 @@ pipeline {
         jdk 'jdk8' 
     }
 
+    options { skipDefaultCheckout() }
+
     stages {
         stage('Reset workspace') {
-            environment {
-                TOKEN = credentials('jflamy-pw')
-            }
             steps {
                 bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %GIT_BRANCH% %BRANCH%"
-                bat 'rmdir /s /q publicresults-heroku'
+                cleanWs()
             }
         }
         
