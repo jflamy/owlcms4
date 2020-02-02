@@ -526,38 +526,37 @@ table#leaders-table thead tr.hide th {
 }
 </style>
 <div class$="wrapper [[_computeTeamWidth(wideTeamNames)]] [[_computeInactiveClass(hidden)]]">
-<div style$="[[_computeInactive(hidden)]]">
-	<div class="competitionName">[[competitionName]]</div><br>
-	<div class="nextGroup">[[t.WaitingNextGroup]]</div>
-</div>
-<div class="attemptBar" style$="[[_computeHidden(hidden)]]">
-	<div class="athleteInfo" id="athleteInfoDiv">
-		<div class="startNumber" id="startNumberDiv"><span>[[startNumber]]</span></div>
-		<div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[fullName]]">[[fullName]]</div>
-		<div class="clubName ellipsis" id="teamNameDiv"><div class="clubNameEllipsis">[[teamName]]</div></div>
-		<div class="attempt" id="attemptDiv"><span inner-h-t-m-l="[[attempt]]"></span></div>
-		<div class="weight" id="weightDiv">
-			[[weight]]<span style="font-size: 75%">[[t.KgSymbol]]</span>
-		</div>
-		<div class="timer athleteTimer" id="timerDiv">
-			<timer-element id="timer"></timer-element>
-		</div>
-		<div class="timer breakTime" id="breakTimerDiv">
-			<timer-element id="breakTimer"></timer-element>
-		</div>		
-		<div class="decisionBox" id="decisionDiv">
-			<decision-element style="width: 100%" id="decisions"></decision-element>
+	<div style$="[[_computeInactive(hidden)]]">
+		<div class="competitionName">[[competitionName]]</div><br>
+		<div class="nextGroup">[[t.WaitingNextGroup]]</div>
+	</div>
+	<div class="attemptBar" style$="[[_computeHidden(hidden)]]">
+		<div class="athleteInfo" id="athleteInfoDiv">
+			<div class="startNumber" id="startNumberDiv"><span>[[startNumber]]</span></div>
+			<div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[fullName]]">[[fullName]]</div>
+			<div class="clubName ellipsis" id="teamNameDiv"><div class="clubNameEllipsis">[[teamName]]</div></div>
+			<div class="attempt" id="attemptDiv"><span inner-h-t-m-l="[[attempt]]"></span></div>
+			<div class="weight" id="weightDiv">
+				[[weight]]<span style="font-size: 75%">[[t.KgSymbol]]</span>
+			</div>
+			<div class="timer athleteTimer" id="timerDiv">
+				<span style="font-weight: normal;">[[t.TimeAllowed]]</span>&nbsp;<timer-element id="timer"></timer-element>
+			</div>
+			<div class="timer breakTime" id="breakTimerDiv">
+				<timer-element id="breakTimer"></timer-element>
+			</div>		
+			<div class="decisionBox" id="decisionDiv">
+				<decision-element style="width: 100%" id="decisions"></decision-element>
+			</div>
 		</div>
 	</div>
-</div>
-<div class="group" id="groupDiv" style$="[[_computeHidden(hidden)]]">
-<template is="dom-if" if="[[groupName]]">
-	<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
-</template>
-</div>
-<div id="results" style$="[[_computeHidden(hidden)]]">
+	<div class="group" id="groupDiv" style$="[[_computeHidden(hidden)]]">
+		<template is="dom-if" if="[[groupName]]">
+			<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
+		</template>
+	</div>
 	<template is="dom-if" if="[[athletes]]">
-		<div id="results">
+		<div id="results" style$="[[_computeHidden(hidden)]]">
 			<table class="results" style$="[[_computeHidden(hidden)]]">
 				<thead>
 					<tr>
