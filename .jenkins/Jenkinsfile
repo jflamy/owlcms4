@@ -20,50 +20,54 @@ pipeline {
     options { skipDefaultCheckout() }
 
     stages {
-//        stage('Reset workspace') {
-//            steps {
-//                bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %BRANCH%"
-//                cleanWs()
-//            }
-//        }
-//        
-//        stage('Get repo & submodules') {  
-//            environment {
-//                TOKEN = credentials('jflamy-pw')
-//            }    
-//            steps {
-////                bat 'git checkout %BRANCH%'
-////                bat 'git pull'
-////                bat 'git submodule sync'
-////                bat 'git submodule update --init --recursive'
-////                bat 'git submodule foreach "git fetch && git reset --hard origin/%BRANCH% && git checkout %BRANCH% && git pull"'
-//                bat 'git clone --recursive https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git --single-branch --branch %BRANCH% '
-//            }
-//        }
-//        
-//        stage('Build owlcms') {
-//            steps {
-//                dir('owlcms4/owlcms') {
-//                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
-//                }
-//            }
-//        }
-//        
-//        stage('Build publicresults') {
-//            steps {
-//                dir('owlcms4/publicresults') {
-//                    bat 'mvn -s %M2%/settings.xml -B clean install -P production'
-//                }
-//            }
-//        }
-//        
-//        stage('Release publicresults jar to bintray') {
-//            steps {
-//                dir('owlcms4/publicresults') {
-//                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
-//                }
-//            }
-//        }
+        stage('Reset workspace') {
+            steps {
+                bat 'wsl mv owlcms4/owlcms/node_modules ../n1'
+                bat 'wsl mv owlcms4/publicresults/node_modules ../n2'
+                bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %BRANCH%"
+                cleanWs()
+            }
+        }
+        
+        stage('Get repo & submodules') {  
+            environment {
+                TOKEN = credentials('jflamy-pw')
+            }    
+            steps {
+//                bat 'git checkout %BRANCH%'
+//                bat 'git pull'
+//                bat 'git submodule sync'
+//                bat 'git submodule update --init --recursive'
+//                bat 'git submodule foreach "git fetch && git reset --hard origin/%BRANCH% && git checkout %BRANCH% && git pull"'
+                bat 'git clone --recursive https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git --single-branch --branch %BRANCH% '
+                bat 'wsl mv ../n1 owlcms4/owlcms/node_modules '
+                bat 'wsl mv ../n2 owlcms4/publicresults/node_modules '
+            }
+        }
+        
+        stage('Build owlcms') {
+            steps {
+                dir('owlcms4/owlcms') {
+                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+                }
+            }
+        }
+        
+        stage('Build publicresults') {
+            steps {
+                dir('owlcms4/publicresults') {
+                    bat 'mvn -s %M2%/settings.xml -B clean install -P production'
+                }
+            }
+        }
+        
+        stage('Release publicresults jar to bintray') {
+            steps {
+                dir('owlcms4/publicresults') {
+                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+                }
+            }
+        }
         
        stage('Release publicresults-heroku to Heroku') {
             environment {
