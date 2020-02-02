@@ -454,7 +454,7 @@ td.club div {
 <div class$="wrapper [[_computeTeamWidth(wideTeamNames)]] [[_computeInactiveClass(hidden)]]">
 <div style$="[[_computeInactive(hidden)]]">
 	<div class="competitionName">[[competitionName]]</div><br>
-	<div class="nextGroup">[[t.WaitingNextGroup]]Waiting for next group.</div>
+	<div class="nextGroup">[[t.WaitingNextGroup]]</div>
 </div>
 <div class="attemptBar" style$="[[_computeHidden(hidden)]]">
 	<div class="athleteInfo" id="athleteInfoDiv">

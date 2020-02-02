@@ -599,7 +599,7 @@ table#leaders-table thead tr.hide th {
 </table>
 </div>
 <template is="dom-if" if="[[leaders]]">
-<div id="leaders">
+<div id="leaders" style$="[[_computeHidden(hidden)]]">
 <table class="results" id="leaders-table" style$="[[_computeHidden(hidden)]]">
 	<thead>
 		<tr><td colspan="100%" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]"></td></tr>
@@ -631,7 +631,6 @@ table#leaders-table thead tr.hide th {
 		</template>
 	</template>
 </table>
-</div>
 </div>
 </template>
 </div>`;

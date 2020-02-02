@@ -68,9 +68,10 @@ public class EventReceiverServlet extends HttpServlet {
 
         UpdateEvent updateEvent = new UpdateEvent();
 
+        updateEvent.setCompetitionName(req.getParameter("competitionName"));
         updateEvent.setFopName(req.getParameter("fop"));
         updateEvent.setFopState(req.getParameter("fopState"));
-
+        
         updateEvent.setAttempt(req.getParameter("attempt"));
         updateEvent.setCategoryName(req.getParameter("categoryName"));
         updateEvent.setFullName(req.getParameter("fullName"));

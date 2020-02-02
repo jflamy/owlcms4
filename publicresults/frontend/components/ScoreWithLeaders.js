@@ -552,93 +552,93 @@ table#leaders-table thead tr.hide th {
 </div>
 <div class="group" id="groupDiv" style$="[[_computeHidden(hidden)]]">
 <template is="dom-if" if="[[groupName]]">
-<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
+	<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
 </template>
 </div>
-<template is="dom-if" if="[[athletes]]">
-<div id="results">
-<table class="results" style$="[[_computeHidden(hidden)]]">
-	<thead>
-		<tr>
-			<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
-			<th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
-			<th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
-			<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
-			<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
-			<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
-			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
-			<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-			<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
-			<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
-			<th class="thRank" inner-h-t-m-l="[[t.Rank]]"></th>
-		</tr>
-	</thead>
-	<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
-		<template is="dom-if" if="[[l.isSpacer]]">
-			<tr><td colspan="100%" style="height:0.1ex; border:none" class="spacer"></td></tr>
-		</template>
-		<template is="dom-if" if="[[!l.isSpacer]]">
-			<tr>
-				<td class$="groupCol [[l.classname]] "><div>[[l.startNumber]]</div></td>
-				<td class$="name [[l.classname]]">
-					<div>[[l.fullName]]</div>
-				</td>
-				<td class="category"><div>[[l.category]]</div></td>
-				<td class="veryNarrow"><div>[[l.yearOfBirth]]</div></td>
-				<td class="club"><div>[[l.teamName]]</div></td>
-				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
+<div id="results" style$="[[_computeHidden(hidden)]]">
+	<template is="dom-if" if="[[athletes]]">
+		<div id="results">
+			<table class="results" style$="[[_computeHidden(hidden)]]">
+				<thead>
+					<tr>
+						<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
+						<th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
+						<th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
+						<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
+						<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
+						<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
+						<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
+						<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
+						<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
+						<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
+						<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
+						<th class="thRank" inner-h-t-m-l="[[t.Rank]]"></th>
+					</tr>
+				</thead>
+				<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
+					<template is="dom-if" if="[[l.isSpacer]]">
+						<tr><td colspan="100%" style="height:0.1ex; border:none" class="spacer"></td></tr>
+					</template>
+					<template is="dom-if" if="[[!l.isSpacer]]">
+						<tr>
+							<td class$="groupCol [[l.classname]] "><div>[[l.startNumber]]</div></td>
+							<td class$="name [[l.classname]]">
+								<div>[[l.fullName]]</div>
+							</td>
+							<td class="category"><div>[[l.category]]</div></td>
+							<td class="veryNarrow"><div>[[l.yearOfBirth]]</div></td>
+							<td class="club"><div>[[l.teamName]]</div></td>
+							<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
+								<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
+							</template>
+							<td class="showRank"><div>[[l.snatchRank]]</div></td>
+							<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
+								<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
+							</template>
+							<td class="showRank"><div>[[l.cleanJerkRank]]</div></td>		
+							<td class="veryNarrow">[[l.total]]</td>
+							<td class="veryNarrow"><div>[[l.totalRank]]</div></td>
+						</tr>
+					</template>
 				</template>
-				<td class="showRank"><div>[[l.snatchRank]]</div></td>
-				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
-				</template>
-				<td class="showRank"><div>[[l.cleanJerkRank]]</div></td>		
-				<td class="veryNarrow">[[l.total]]</td>
-				<td class="veryNarrow"><div>[[l.totalRank]]</div></td>
-			</tr>
-		</template>
+			</table>
+		</div>
 	</template>
-</table>
-</div>
-</template>
-<template is="dom-if" if="[[leaders]]">
-<div id="leaders">
-<table class="results" id="leaders-table" style$="[[_computeHidden(hidden)]]">
-	<thead>
-		<tr><td colspan="100%" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]"></td></tr>
-	</thead>
-	<template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
-		<template is="dom-if" if="[[l.isSpacer]]">
-			<tr><td colspan="100%" style="height:0.1ex; border:none" class="spacer"></td></tr>
-		</template>
-		<template is="dom-if" if="[[!l.isSpacer]]">
-			<tr>
-				<td class="groupCol"><div>[[l.group]]</div></td>
-				<td class$="name [[l.classname]]">
-					<div>[[l.fullName]]</div>
-				</td>
-				<td class="category"><div>[[l.category]]</div></td>
-				<td class="veryNarrow">[[l.yearOfBirth]]</td>
-				<td class="club"><div>[[l.teamName]]</div></td>
-				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
+	<template is="dom-if" if="[[leaders]]">
+		<div id="leaders" style$="[[_computeHidden(hidden)]]">
+			<table class="results" id="leaders-table" style$="[[_computeHidden(hidden)]]">
+				<thead>
+					<tr><td colspan="100%" inner-h-t-m-l="[[t.Leaders]] [[categoryName]]"></td></tr>
+				</thead>
+				<template is="dom-repeat" id="result-table" items="[[leaders]]" as="l">
+					<template is="dom-if" if="[[l.isSpacer]]">
+						<tr><td colspan="100%" style="height:0.1ex; border:none" class="spacer"></td></tr>
+					</template>
+					<template is="dom-if" if="[[!l.isSpacer]]">
+						<tr>
+							<td class="groupCol"><div>[[l.group]]</div></td>
+							<td class$="name [[l.classname]]">
+								<div>[[l.fullName]]</div>
+							</td>
+							<td class="category"><div>[[l.category]]</div></td>
+							<td class="veryNarrow">[[l.yearOfBirth]]</td>
+							<td class="club"><div>[[l.teamName]]</div></td>
+							<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
+								<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
+							</template>
+							<td class="showRank"><div>[[l.snatchRank]]</div></td>
+							<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
+								<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
+							</template>
+							<td class="showRank"><div>[[l.cleanJerkRank]]</div></td>	
+							<td class="veryNarrow"><div>[[l.total]]</div></td>
+							<td class="thRank"><div>[[l.totalRank]]</div></td>
+						</tr>
+					</template>
 				</template>
-				<td class="showRank"><div>[[l.snatchRank]]</div></td>
-				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
-				</template>
-				<td class="showRank"><div>[[l.cleanJerkRank]]</div></td>	
-				<td class="veryNarrow"><div>[[l.total]]</div></td>
-				<td class="thRank"><div>[[l.totalRank]]</div></td>
-			</tr>
-		</template>
+			</table>
+		</div>
 	</template>
-</table>
-</div>
-</div>
-</template>
 </div>`;
 	}
 
