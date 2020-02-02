@@ -119,7 +119,7 @@ public class ProxyBreakTimer implements IProxyTimer {
         indefinite = true;
         logger.debug("setting break indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
         this.timeRemaining = 0;
-        fop.getUiEventBus().post(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining,
+        fop.pushOut(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining,
                 this.indefinite, this));
         running = false;
     }
@@ -135,7 +135,7 @@ public class ProxyBreakTimer implements IProxyTimer {
         }
         logger.debug("setting break timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
         this.timeRemaining = timeRemaining;
-        fop.getUiEventBus().post(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining,
+        fop.pushOut(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining,
                 this.indefinite, this));
         running = false;
     }
@@ -153,7 +153,7 @@ public class ProxyBreakTimer implements IProxyTimer {
         UIEvent.BreakStarted event = new UIEvent.BreakStarted(isIndefinite() ? null : timeRemaining, null, false,
                 fop.getBreakType(), fop.getCountdownType());
         logger.debug("posting {}", event);
-        fop.getUiEventBus().post(event);
+        fop.pushOut(event);
         running = true;
     }
 
@@ -168,7 +168,7 @@ public class ProxyBreakTimer implements IProxyTimer {
         logger.debug("***stopping Break -- timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
         timeRemainingAtLastStop = timeRemaining;
         logger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
-        fop.getUiEventBus().post(new UIEvent.BreakPaused(this));
+        fop.pushOut(new UIEvent.BreakPaused(this));
         running = false;
     }
 
@@ -188,7 +188,7 @@ public class ProxyBreakTimer implements IProxyTimer {
         logger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
 
         // should emit sound at end of break
-        fop.getUiEventBus().post(new UIEvent.BreakDone(origin));
+        fop.pushOut(new UIEvent.BreakDone(origin));
 
         EventBus fopEventBus = fop.getFopEventBus();
         BreakType breakType = fop.getBreakType();

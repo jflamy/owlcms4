@@ -21,6 +21,7 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
+import app.owlcms.fieldofplay.UIEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -44,6 +45,7 @@ public class OwlcmsFactory {
     static Map<String, FieldOfPlay> fopByName = null;
     private static String version;
     private static String buildTimestamp;
+    private static FieldOfPlay defaultFOP;
 
     public static String getBuildTimestamp() {
         return buildTimestamp;
@@ -53,12 +55,25 @@ public class OwlcmsFactory {
      * @return first field of play, sorted alphabetically
      */
     public static FieldOfPlay getDefaultFOP() {
-        if (fopByName == null) {
-            initFOPByName();
+        if (defaultFOP != null) {
+            return defaultFOP;
+        } else {
+            if (fopByName == null) {
+                initFOPByName();
+            }
+            Optional<FieldOfPlay> fop = fopByName.entrySet().stream().sorted(Comparator.comparing(x -> x.getKey()))
+                    .map(x -> x.getValue())
+                    .findFirst();
+            defaultFOP = fop.orElse(null);
+            // it is possible to have default FOP being null because getDefaultFop is called recursively
+            // during the init of the FOPs.  This is innocuous.
+            if (defaultFOP != null) {
+                // force a wake up on user interfaces
+                defaultFOP.pushOut(new UIEvent.SwitchGroup(defaultFOP.getGroup(), defaultFOP.getState(), defaultFOP.getCurAthlete(), null));
+            }
+            return defaultFOP;
         }
-        Optional<FieldOfPlay> fop = fopByName.entrySet().stream().sorted(Comparator.comparing(x -> x.getKey()))
-                .map(x -> x.getValue()).findFirst();
-        return fop.orElseThrow(() -> new RuntimeException("no default platform"));
+
     }
 
     public static FieldOfPlay getFOPByGroupName(String name) {
@@ -112,7 +127,7 @@ public class OwlcmsFactory {
         for (Platform platform : PlatformRepository.findAll()) {
             String name = platform.getName();
             FieldOfPlay fop = new FieldOfPlay(null, platform);
-            logger.trace("fop {}", fop.getName());
+            logger.warn("fop {}", fop.getName());
             // no group selected, no athletes, announcer will need to pick a group.
             fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop));
             fopByName.put(name, fop);

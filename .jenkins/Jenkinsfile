@@ -9,6 +9,7 @@ pipeline {
         string(name: 'P_REPO_NAME', defaultValue: 'publicresults-heroku', description: 'publicresults-heroku or publicresults-heroku-prerelease')
         string(name: 'PRERELEASE', defaultValue: 'true', description: 'true or false')
         string(name: 'REPO_TOKEN_NAME', defaultValue: 'github-oauth', description: 'from Maven settings')
+        string(name: 'BRANCH', defaultValue: 'mandatory', description: 'from Maven settings')
     }
     
     tools { 
@@ -16,32 +17,37 @@ pipeline {
         jdk 'jdk8' 
     }
 
+    options { skipDefaultCheckout() }
+
     stages {
         stage('Reset workspace') {
-            environment {
-                TOKEN = credentials('jflamy-pw')
-            }
             steps {
-                bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %GIT_BRANCH% %BRANCH%"
-                dir ('publicresults-heroku') {
-//                    bat 'del README.md'
-                }
+                bat 'move owlcms4\\owlcms\\node_modules ..\\n1'
+                bat 'move owlcms4\\publicresults\\node_modules ..\\n2'
+                bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %BRANCH%"
+                cleanWs()
             }
         }
         
-        stage('Update git & submodules') {      
+        stage('Get repo & submodules') {  
+            environment {
+                TOKEN = credentials('jflamy-pw')
+            }    
             steps {
-                bat 'git checkout %GIT_BRANCH%'
-                bat 'git pull'
-                bat 'git submodule sync'
-                bat 'git submodule update --init --recursive'
-                bat 'git submodule foreach "git fetch && git reset --hard origin/%GIT_BRANCH% && git checkout %GIT_BRANCH% && git pull"'
+//                bat 'git checkout %BRANCH%'
+//                bat 'git pull'
+//                bat 'git submodule sync'
+//                bat 'git submodule update --init --recursive'
+//                bat 'git submodule foreach "git fetch && git reset --hard origin/%BRANCH% && git checkout %BRANCH% && git pull"'
+                bat 'git clone --recursive https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git --single-branch --branch %BRANCH% '
+                bat 'move ..\\n1 owlcms4\\owlcms\\node_modules '
+                bat 'move ..\\n2 owlcms4\\publicresults\\node_modules '
             }
         }
         
         stage('Build owlcms') {
             steps {
-                dir('owlcms') {
+                dir('owlcms4/owlcms') {
                     bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
                 }
             }
@@ -49,7 +55,7 @@ pipeline {
         
         stage('Build publicresults') {
             steps {
-                dir('publicresults') {
+                dir('owlcms4/publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean install -P production'
                 }
             }
@@ -57,7 +63,7 @@ pipeline {
         
         stage('Release publicresults jar to bintray') {
             steps {
-                dir('publicresults') {
+                dir('owlcms4/publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
                 }
             }
@@ -69,8 +75,8 @@ pipeline {
                 TOKEN2 = credentials('jflamy-dev-pw')
             }
             steps {
-                dir('publicresults-heroku') {
-                    bat 'git pull'
+                dir('owlcms4/publicresults-heroku') {
+                    bat 'git checkout %BRANCH%'
                     bat 'mvn -s %M2%/settings.xml -B clean package'
                     // save the locally built files
                     bat 'git stash'
@@ -78,13 +84,13 @@ pipeline {
                     // create a tag with the current version number, but not the locally built files
                     bat 'git tag %VERSION% -f -a -m "%VERSION% publicresults-heroku"'
                     // push changes and tag back to upstream master repo
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/publicresults-heroku.git %GIT_BRANCH%'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/publicresults-heroku.git %BRANCH%'
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/publicresults-heroku.git %VERSION%'
 
                     // push new version and tag to the repo used by heroku as a cloning reference.
                     bat 'git stash pop'
                     bat 'git add -A && git commit -m "%VERSION% heroku" --allow-empty'
-                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %GIT_BRANCH%:master --force'
+                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %BRANCH%:master --force'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %VERSION%'
 
                     // The heroku deploy button pointing to the proper tagged version is part of the release notes.
@@ -99,7 +105,7 @@ pipeline {
                 TOKEN = credentials('jflamy-pw')
             }
             steps {
-                dir('.') {
+                dir('owlcms4') {
                     bat 'git pull'
                     // create release files
                     bat 'mvn -s c:/dev/.m2/settings.xml -B package --non-recursive'
@@ -108,11 +114,11 @@ pipeline {
                     bat 'git tag %VERSION% -f -a -m "%VERSION% owlcms4"'
 
                     // push changes back to upstream master repo
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %GIT_BRANCH%'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %BRANCH%'
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %VERSION%'
                     
                     // push new files to downstream release channel repo where executables will be added (a remote tag will be added by github)
-                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%O_REPO_NAME% %GIT_BRANCH%'                  
+                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%O_REPO_NAME% %BRANCH%'                  
 
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access using the API
                     bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%O_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE% --non-recursive'
