@@ -136,11 +136,11 @@ pipeline {
                     
                     // push changes and tag back to upstream master repo
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4-heroku.git %BRANCH%'
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4-heroku.git %VERSION%'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4-heroku.git %VERSION% --force'
 
                     // push new version and tag to the release repo
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git %BRANCH%:master --force'
-                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git %VERSION%'
+                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git %VERSION% --force'
 
                     // The heroku deploy button pointing to the proper tagged version is part of the release notes.
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
