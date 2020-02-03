@@ -128,7 +128,7 @@ pipeline {
                 dir('owlcms4/owlcms4-heroku') {
                     bat 'git checkout %BRANCH%'
                     bat 'git pull'
-                    bat 'mvn -U -s %M2%/settings.xml -B clean package'
+                    bat 'mvn -s %M2%/settings.xml -B clean package'
                     bat 'git add -A && git commit -m "%VERSION% heroku" --allow-empty'
 
                     // create a tag with the current version number
