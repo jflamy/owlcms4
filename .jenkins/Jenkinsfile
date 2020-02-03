@@ -73,18 +73,16 @@ pipeline {
                 dir('owlcms4/publicresults-heroku') {
                     bat 'git checkout %BRANCH%'
                     bat 'mvn -s %M2%/settings.xml -B clean package'
-                    // save the locally built files
-                    bat 'git stash'
+                    bat 'git add -A && git commit -m "%VERSION% heroku" --allow-empty'
 
-                    // create a tag with the current version number, but not the locally built files
+                    // create a tag with the current version number
                     bat 'git tag %VERSION% -f -a -m "%VERSION% publicresults-heroku"'
+                    
                     // push changes and tag back to upstream master repo
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/publicresults-heroku.git %BRANCH%'
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/publicresults-heroku.git %VERSION%'
 
                     // push new version and tag to the repo used by heroku as a cloning reference.
-                    bat 'git stash pop'
-                    bat 'git add -A && git commit -m "%VERSION% heroku" --allow-empty'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %BRANCH%:master --force'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %VERSION%'
 
