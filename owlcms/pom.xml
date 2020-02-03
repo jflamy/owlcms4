@@ -11,6 +11,14 @@
     <artifactId>owlcms</artifactId>
     <packaging>jar</packaging>
 
+    <distributionManagement>
+        <repository>
+            <id>bintray-owlcms-maven</id>
+            <name>owlcms-maven</name>
+            <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+        </repository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -539,6 +547,34 @@
                 </executions>
             </plugin>
             <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.0.0-M1</version>
+                <executions>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>deploy-file</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy-file</goal>
+                        </goals>
+                        <configuration>
+                            <file>target/${project.artifactId}-${project.version}.jar</file>
+                            <repositoryId>bintray-owlcms-maven</repositoryId>
+                            <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>${project.artifactId}</artifactId>
+                            <version>${project.version}</version>
+                            <packaging>jar</packaging>
+                            <generatePom>false</generatePom>
+                            <pomFile>target/classes/deployment-pom.xml</pomFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <!-- Skip execution - top level project does all the release handling -->
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
@@ -550,16 +586,6 @@
                         <configuration>
                             <skip>true</skip>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.0.0-M1</version>
-                <executions>
-                    <execution>
-                        <id>default-deploy</id>
-                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>
