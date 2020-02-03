@@ -4,6 +4,11 @@ git commit -a -m "%1"
 git pull
 git push
 cd ..
+cd owlcms4-heroku
+git commit -a -m "%1"
+git pull
+git push
+cd ..
 git commit -a -m "%1"
 git pull
 git push
