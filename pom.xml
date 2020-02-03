@@ -10,6 +10,7 @@
         <module>owlcms</module>
         <module>publicresults</module>
         <module>publicresults-heroku</module>
+        <module>owlcms4-heroku</module>
     </modules>
 
     <organization>
