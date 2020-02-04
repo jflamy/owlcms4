@@ -1,4 +1,4 @@
-* Release Highlights for release 4.4.3-rc2 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Release Highlights for release 4.4.3 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   - [x] Distribution change: separate release channels for releases and pre-releases. See [this table](https://github.com/jflamy/owlcms4/releases/tag/4.4.2-rc2) for details.
   - [x] Enhancement: Remote public results scoreboard.  The competition site sends updates to a separate scoreboard application that provides the scoreboard/leaderboard to the public. (#139, #292)
   - [x] Fix: Allowed time not updated correctly after decision when using the phone refereeing interface (#291)
