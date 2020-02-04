@@ -7,6 +7,7 @@ pipeline {
         string(name: 'REPO_OWNER', defaultValue: 'owlcms', description: 'owlcms or jflamy-dev')
         string(name: 'O_REPO_NAME', defaultValue: 'owlcms4', description: 'owlcms4 or owlcms4-prerelease')
         string(name: 'P_REPO_NAME', defaultValue: 'publicresults-heroku', description: 'publicresults-heroku or publicresults-heroku-prerelease')
+        string(name: 'H_REPO_NAME', defaultValue: 'owlcms4-heroku', description: 'owlcms4-heroku or owlcms4-heroku-prerelease')
         string(name: 'PRERELEASE', defaultValue: 'true', description: 'true or false')
         string(name: 'REPO_TOKEN_NAME', defaultValue: 'github-oauth', description: 'from Maven settings')
         string(name: 'BRANCH', defaultValue: 'mandatory', description: 'from Maven settings')
@@ -56,20 +57,15 @@ pipeline {
             }
         }
         
-        stage('Release publicresults jar to bintray') {
-            steps {
-                dir('owlcms4/publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
-                }
-            }
-        }
-        
-       stage('Release publicresults-heroku to Heroku') {
+       stage('Release publicresults-heroku') {
             environment {
                 TOKEN = credentials('jflamy-pw')
                 TOKEN2 = credentials('jflamy-dev-pw')
             }
             steps {
+                 dir('owlcms4/publicresults') {
+                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+                }
                 dir('owlcms4/publicresults-heroku') {
                     bat 'git checkout %BRANCH%'
                     bat 'mvn -s %M2%/settings.xml -B clean package'
@@ -82,7 +78,7 @@ pipeline {
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/publicresults-heroku.git %BRANCH%'
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/publicresults-heroku.git %VERSION%'
 
-                    // push new version and tag to the repo used by heroku as a cloning reference.
+                    // push new version and tag to the release repo
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %BRANCH%:master --force'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %VERSION%'
 
@@ -93,7 +89,7 @@ pipeline {
             }
         }
         
-        stage('GitHub release') {
+        stage('Release owlcms4') {
             environment {
                 TOKEN = credentials('jflamy-pw')
             }
@@ -105,17 +101,51 @@ pipeline {
                     bat 'git add -A && git commit -m "%VERSION%" --allow-empty'
                     // create a local tag with the current version number
                     bat 'git tag %VERSION% -f -a -m "%VERSION% owlcms4"'
-
+                    
                     // push changes back to upstream master repo
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %BRANCH%'
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %VERSION%'
                     
                     // push new files to downstream release channel repo where executables will be added (a remote tag will be added by github)
-                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%O_REPO_NAME% %BRANCH%:master --force'                  
+                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%O_REPO_NAME% %BRANCH%:master --force'              
 
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access using the API
                     bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%O_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE% --non-recursive'
                 }
+            }
+        }
+        
+        stage('Release owlcms4-heroku') {
+            environment {
+                TOKEN = credentials('jflamy-pw')
+                TOKEN2 = credentials('jflamy-dev-pw')
+            }
+            steps {
+                dir('owlcms4/owlcms') {
+                    // release uber-jar to bintray
+                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+                }
+                dir('owlcms4/owlcms4-heroku') {
+                    bat 'git checkout %BRANCH%'
+                    bat 'git pull'
+                    bat 'mvn -s %M2%/settings.xml -B clean package'
+                    bat 'git add -A && git commit -m "%VERSION% heroku" --allow-empty'
+
+                    // create a tag with the current version number
+                    bat 'git tag %VERSION% -f -a -m "%VERSION% owlcms4-heroku"'
+                    
+                    // push changes and tag back to upstream master repo
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4-heroku.git %BRANCH%'
+                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4-heroku.git %VERSION% --force'
+
+                    // push new version and tag to the release repo
+                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git %BRANCH%:master --force'
+                    bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git %VERSION% --force'
+
+                    // The heroku deploy button pointing to the proper tagged version is part of the release notes.
+                    // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
+                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%H_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
+                }       
             }
         }
         
