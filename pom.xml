@@ -281,6 +281,8 @@ Not used anymore. Kept for reference.
                             <assets>
                                 <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
                                 <asset>owlcms/target/owlcms.zip</asset>
+                                <asset>publicresults/target/publicresults_setup/publicresults_setup.exe</asset>
+                                <asset>publicresults/target/publicresults.zip</asset>
                             </assets>
                         </configuration>
                     </execution>
