@@ -12,7 +12,7 @@ Stable installation packages are downloaded from [the release repository](https:
 * [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
 * [Heroku Cloud Installation](https://owlcms.github.io/owlcms4/#/Heroku)
 
-Note: *Additional modules and pre-releases are also available.*  Refer to [this page](Releases.md) for downloads.
+Additional modules and pre-releases are also available.  Refer to [this page](https://github.com/jflamy/owlcms4/releases) for downloads.
 
 ### Support
 
