@@ -1,4 +1,4 @@
-- **Get the installation zip archive**: Go to the releases location (https://github.com/jflamy/owlcms4/releases) and get the current `zip` file from the `assets` section at the bottom of the release entry.
+- **Get the installation zip archive**: Go to the releases location (https://github.com/owlcms/owlcms4/releases/latest) and get the current `zip` file from the `assets` section at the bottom of the release entry.
 
 - Double-click on the zip file, and extract the files to a directory.  We suggest you use `~/owlcms4` as the unzipped location.
 
@@ -21,7 +21,6 @@
   java -DdemoMode=true -jar owlcms.jar
   ```
 
-  
 
 ## Initial Startup
 
