@@ -23,8 +23,8 @@ pipeline {
     stages {
         stage('Reset workspace') {
             steps {
-//                bat 'move owlcms4\\owlcms\\node_modules ..\\n1'
-//                bat 'move owlcms4\\publicresults\\node_modules ..\\n2'
+                bat 'move owlcms4\\owlcms\\node_modules ..\\n1'
+                bat 'move owlcms4\\publicresults\\node_modules ..\\n2'
                 bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %BRANCH%"
                 cleanWs()
             }
@@ -36,8 +36,8 @@ pipeline {
             }    
             steps {
                 bat 'git clone --recursive https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git --single-branch --branch %BRANCH% '
-//                bat 'move ..\\n1 owlcms4\\owlcms\\node_modules '
-//                bat 'move ..\\n2 owlcms4\\publicresults\\node_modules '
+                bat 'move ..\\n1 owlcms4\\owlcms\\node_modules '
+                bat 'move ..\\n2 owlcms4\\publicresults\\node_modules '
             }
         }
           
@@ -52,7 +52,7 @@ pipeline {
         stage('Build publicresults') {
             steps {
                 dir('owlcms4/publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B clean install -P production,signing'
+                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
                 }
             }
         }
