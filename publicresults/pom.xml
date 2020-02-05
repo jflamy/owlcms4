@@ -18,7 +18,7 @@
             <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
         </repository>
     </distributionManagement>
-    
+
     <dependencies>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -214,7 +214,6 @@
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -324,8 +323,8 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>${project.artifactId}-${project.version}</finalName>
-                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <finalName>${project.artifactId}</finalName>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <artifactSet>
                                 <includes>
@@ -349,7 +348,7 @@
                     </execution>
                 </executions>
             </plugin>
-                        <plugin>
+            <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
                 <version>1.7.25</version>
@@ -445,32 +444,52 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>            
+            </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
                 <executions>
                     <execution>
-                        <id>default-install</id>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>install-file</id>
+                        <id>windows_jdk_package</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>install-file</goal>
+                            <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <file>target/${project.artifactId}-${project.version}.jar</file>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>${project.artifactId}</artifactId>
-                            <version>${project.version}</version>
-                            <packaging>jar</packaging>
-                            <pomFile>target/classes/deployment-pom.xml</pomFile>
+                            <executable>${innosetup.exe}</executable>
+                            <workingDirectory></workingDirectory>
+                            <arguments>
+                                <argument>/Q</argument>
+                                <argument>src\main\install\${project.artifactId}.iss</argument>
+                            </arguments>
+                            <environmentVariables>
+                                <versionNumber>${project.version}</versionNumber>
+                            </environmentVariables>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>default-cli</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>app.owlcms.publicresults.Main</mainClass>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>demoMode</key>
+                                    <value>true</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>memoryMode</key>
+                                    <value>true</value>
+                                </systemProperty>
+                            </systemProperties>
+                        </configuration>
+                    </execution>                    
                 </executions>
-            </plugin>
+            </plugin>            
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>3.0.0-M1</version>
@@ -486,7 +505,7 @@
                             <goal>deploy-file</goal>
                         </goals>
                         <configuration>
-                            <file>target/${project.artifactId}-${project.version}.jar</file>
+                            <file>target/${project.artifactId}.jar</file>
                             <repositoryId>bintray-owlcms-maven</repositoryId>
                             <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
                             <groupId>${project.groupId}</groupId>
@@ -557,8 +576,8 @@
                                 </goals>
                                 <phase>package</phase>
                                 <configuration>
-                                    <file>target/owlcms_setup/owlcms_setup.exe</file>
-                                    <name>owlcms</name>
+                                    <file>target/${project.artifactId}_setup/${project.artifactId}_setup.exe</file>
+                                    <name>${project.artifactId}</name>
                                     <url>http://jflamy.github.io/owlcms4</url>
                                     <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
                                     <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
@@ -586,14 +605,14 @@
                                             <destinationFile>${project.build.directory}/prerelease/${project.artifactId}_${project.version}.zip</destinationFile>
                                         </fileSet>
                                         <fileSet>
-                                            <sourceFile>${project.build.directory}/owlcms_setup/${project.artifactId}_setup.exe</sourceFile>
+                                            <sourceFile>${project.build.directory}/${project.artifactId}_setup/${project.artifactId}_setup.exe</sourceFile>
                                             <destinationFile>${project.build.directory}/prerelease/${project.artifactId}_setup_${project.version}.exe</destinationFile>
                                         </fileSet>
                                     </fileSets>
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>                    
+                    </plugin>
                 </plugins>
             </build>
         </profile>

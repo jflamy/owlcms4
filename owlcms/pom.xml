@@ -357,6 +357,7 @@
                         <configuration>
                             <finalName>${project.artifactId}</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
                             <artifactSet>
                                 <includes>
                                     <include>*:*</include>
@@ -531,7 +532,7 @@
                             <workingDirectory></workingDirectory>
                             <arguments>
                                 <argument>/Q</argument>
-                                <argument>src\main\install\owlcms.iss</argument>
+                                <argument>src\main\install\${project.artifactId}.iss</argument>
                             </arguments>
                             <environmentVariables>
                                 <versionNumber>${project.version}</versionNumber>
