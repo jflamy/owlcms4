@@ -10,7 +10,14 @@
     <name>Olympic Weightlifting Competition Management System Public Viewer</name>
     <artifactId>publicresults</artifactId>
     <packaging>jar</packaging>
-    <!-- version>${project.parent.version}.4</version>  -->
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-owlcms-maven</id>
+            <name>owlcms-maven</name>
+            <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+        </repository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
@@ -44,15 +51,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!-- user interface -->
         <dependency>
             <groupId>com.github.appreciated</groupId>
             <artifactId>app-layout-addon</artifactId>
-            <version>4.0.0.beta5</version>
+            <version>4.0.0.rc1</version>
         </dependency>
         <dependency>
             <groupId>com.github.appreciated</groupId>
             <artifactId>vaadin-css-grid</artifactId>
-            <version>2.0.0.beta1</version>
+            <version>2.0.0.beta2</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.vaadin</groupId>
@@ -63,7 +72,7 @@
         <dependency>
             <groupId>org.vaadin.crudui</groupId>
             <artifactId>crudui</artifactId>
-            <version>4.0.1</version>
+            <version>4.1.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -76,7 +85,7 @@
         <dependency>
             <groupId>com.flowingcode.addons</groupId>
             <artifactId>iron-icons</artifactId>
-            <version>1.0.1</version>
+            <version>2.0.1</version>
         </dependency>
 
         <!-- database -->
@@ -91,6 +100,37 @@
             <version>42.2.5</version>
         </dependency>
 
+        <!-- spreadsheets -->
+        <dependency>
+            <groupId>net.sf.jxls</groupId>
+            <artifactId>jxls-core</artifactId>
+            <version>1.0.8.5</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jxls</groupId>
+            <artifactId>jxls-reader</artifactId>
+            <version>1.0.8.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.17</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.supercsv</groupId>
+            <artifactId>super-csv</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.3</version>
+        </dependency>
         <!-- event bus -->
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -165,40 +205,15 @@
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>javax-websocket-server-impl</artifactId>
             <version>${jetty.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.websocket</groupId>
-                    <artifactId>javax.websocket-client-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>flow-push</artifactId>
         </dependency>
         <dependency>
             <groupId>com.heroku.agent</groupId>
             <artifactId>heroku-javaagent</artifactId>
             <version>2.0</version>
         </dependency>
-
-        <dependency>
-            <groupId>net.sf.supercsv</groupId>
-            <artifactId>super-csv</artifactId>
-            <version>2.4.0</version>
-        </dependency>
     </dependencies>
 
-    <distributionManagement>
-        <repository>
-            <id>bintray-owlcms-maven</id>
-            <name>owlcms-maven</name>
-            <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
-        </repository>
-    </distributionManagement>
-
     <build>
-        <finalName>${project.artifactId}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -233,6 +248,11 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -303,8 +323,8 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>${project.artifactId}-${project.version}</finalName>
-                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <finalName>${project.artifactId}</finalName>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <artifactSet>
                                 <includes>
@@ -319,43 +339,6 @@
                                         <exclude>META-INF/LICENSE.txt</exclude>
                                     </excludes>
                                 </filter>
-                                <!-- exclude the MANIFEST.MF entries that will cause problems -->
-                                <filter>
-                                    <artifact>javax.annotation:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>javax.servlet:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>javax.websocket:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>org.eclipse.jetty:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>org.eclipse.jetty.websocket:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>org.ow2.asm:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
                             </filters>
                             <transformers>
                                 <transformer
@@ -366,30 +349,147 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
+                <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                <artifactId>launch4j-maven-plugin</artifactId>
+                <version>1.7.25</version>
                 <executions>
                     <execution>
-                        <id>default-install</id>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>install-file</id>
+                        <id>l4j</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>install-file</goal>
+                            <goal>launch4j</goal>
                         </goals>
                         <configuration>
-                            <file>target/${project.artifactId}-${project.version}.jar</file>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>${project.artifactId}</artifactId>
-                            <version>${project.version}</version>
-                            <packaging>jar</packaging>
-                            <pomFile>target/classes/deployment-pom.xml</pomFile>
+                            <headerType>console</headerType>
+                            <outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
+                            <!-- fake jar; the one we actually run is in postCp below; we want the local directory to be before the owlcms 
+                                jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy jar at 
+                                the front... -->
+
+                            <!-- dummy jar for JDK 8 -->
+                            <jar>jre/lib/charsets.jar</jar>
+
+                            <!-- dummy jar for JDK 11 -->
+                            <!-- jar>jre/lib/jrt-fs.jar</jar -->
+                            <dontWrapJar>true</dontWrapJar>
+                            <errTitle>owlcms</errTitle>
+                            <classPath>
+                                <mainClass>app.owlcms.publicresults.Main</mainClass>
+                                <addDependencies>false</addDependencies>
+                                <preCp>local</preCp>
+                                <postCp>${project.artifactId}.jar</postCp>
+                            </classPath>
+                            <icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
+                            <jre>
+                                <minVersion>1.8.0</minVersion>
+                                <path>jre</path>
+                                <bundledJreAsFallback>false</bundledJreAsFallback>
+                            </jre>
+                            <versionInfo>
+                                <fileVersion>1.0.0.0</fileVersion>
+                                <txtFileVersion>${project.version}</txtFileVersion>
+                                <fileDescription>${project.name}</fileDescription>
+                                <copyright>...</copyright>
+                                <productVersion>1.0.0.0</productVersion>
+                                <txtProductVersion>1.0.0.0</txtProductVersion>
+                                <productName>${project.name}</productName>
+                                <companyName>...</companyName>
+                                <internalName>...</internalName>
+                                <originalFilename>${executable.name}.exe</originalFilename>
+                            </versionInfo>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>plain</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${project.artifactId}</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/plain.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>zip</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${project.artifactId}</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/zip.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>windows_jdk</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${project.artifactId}-win32</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/win32.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>windows_jdk_package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${innosetup.exe}</executable>
+                            <workingDirectory></workingDirectory>
+                            <arguments>
+                                <argument>/Q</argument>
+                                <argument>src\main\install\${project.artifactId}.iss</argument>
+                            </arguments>
+                            <environmentVariables>
+                                <versionNumber>${project.version}</versionNumber>
+                            </environmentVariables>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-cli</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>app.owlcms.publicresults.Main</mainClass>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>demoMode</key>
+                                    <value>true</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>memoryMode</key>
+                                    <value>true</value>
+                                </systemProperty>
+                            </systemProperties>
+                        </configuration>
+                    </execution>                    
+                </executions>
+            </plugin>            
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>3.0.0-M1</version>
@@ -405,7 +505,7 @@
                             <goal>deploy-file</goal>
                         </goals>
                         <configuration>
-                            <file>target/${project.artifactId}-${project.version}.jar</file>
+                            <file>target/${project.artifactId}.jar</file>
                             <repositoryId>bintray-owlcms-maven</repositoryId>
                             <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
                             <groupId>${project.groupId}</groupId>
@@ -462,6 +562,54 @@
                                     <goal>build-frontend</goal>
                                 </goals>
                                 <phase>compile</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>net.jsign</groupId>
+                        <artifactId>jsign-maven-plugin</artifactId>
+                        <version>2.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <file>target/${project.artifactId}_setup/${project.artifactId}_setup.exe</file>
+                                    <name>${project.artifactId}</name>
+                                    <url>http://jflamy.github.io/owlcms4</url>
+                                    <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
+                                    <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
+                                    <storepass>${codeSigning}</storepass>
+                                    <storetype>PKCS12</storetype>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.coderplus.maven.plugins</groupId>
+                        <artifactId>copy-rename-maven-plugin</artifactId>
+                        <version>1.0</version>
+                        <executions>
+                            <execution>
+                                <id>copy-prerelease</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <fileSets>
+                                        <fileSet>
+                                            <sourceFile>${project.build.directory}/${project.artifactId}.zip</sourceFile>
+                                            <destinationFile>${project.build.directory}/prerelease/${project.artifactId}_${project.version}.zip</destinationFile>
+                                        </fileSet>
+                                        <fileSet>
+                                            <sourceFile>${project.build.directory}/${project.artifactId}_setup/${project.artifactId}_setup.exe</sourceFile>
+                                            <destinationFile>${project.build.directory}/prerelease/${project.artifactId}_setup_${project.version}.exe</destinationFile>
+                                        </fileSet>
+                                    </fileSets>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

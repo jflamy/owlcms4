@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "owlcms4"
-#define MyAppPublisher "Jean-François Lamy"
+#define MyAppPublisher "Jean-FranÃ§ois Lamy"
 #define MyAppURL "https://jflamy.github.io/owlcms4"
 #define MyAppExeName "owlcms.exe"
 

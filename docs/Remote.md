@@ -1,9 +1,13 @@
+The remote Public Results application is used to make applications results available to the public at large.  There are two possible configurations:
 
-The remote Public Results application is used to make applications results available to the public at large.
+- If there is an internet connection at the competition site, you can send the updates to the cloud application.  Users can then use the wifi connection at the competition site to get their own copy of the scoreboard.
+- If there is no internet connection, you would use a second router and a second laptop to isolate from your competition software.  See the configuration at the bottom of this page.
+
+
+
+## Cloud Installation of the Public Results Application
 
 The information is sent from the competition site to an application running on the cloud.  The general public, whether at the competition site or anywhere on the internet, can access the scoreboards via their phone or laptop.  There is no load put on the competition site other than sending an update to the remote application.  The remote application takes all the load for the public queries.
-
-## First-time Install of the Public Results Application
 
 1. Get a free Heroku account -- go to [https://heroku.com](https://heroku.com) and sign up!
 
@@ -63,7 +67,7 @@ You should therefore have something similar to the following in your file.  On a
 ![056_updateReceivedFOP](img/PublicResults/056_updateReceivedFOP.png)
 1. As soon as a break or lifting event happens, the competition site updates the remote application.  From then on the scoreboard updates whenever a pertinent change happens.  Note that in the first release the scoreboard clock only shows the time allocated for the lift, and does not count down, and that decision lights are not shown.
 ![058_liftingStarted](img/PublicResults/058_liftingStarted.png)
-## Updating the application
+## Updating the cloud application
 When testing in the days leading to a competition, it is wise to update both the OWLCMS4 application and the remote public results server.
 
 We suggest the following procedure
@@ -77,3 +81,14 @@ We suggest the following procedure
 6. Follow the same steps as you did before to add the `OWLCMS_UPDATEKEY` shared secret to the new application.
 7. Go to the installation folder for owlcms and copy the `owlcms.l4j.ini` file to your desktop (click on the file, Copy with Ctrl-C or ⌘C, go to the desktop, Paste with Ctrl-V or ⌘V) .
 8. Install the new version of owlcms.  Stop the program. Copy your saved `owlcms.l4j.ini` file back to the installation folder (overwrite the file).
+
+## Local Installation of the Public Results Application
+
+1. If the competition site does not have an Internet link, you can setup a second laptop and use the `publicresults.exe` package from the release repository. 
+2. To be safe, you should isolate the second laptop and the coaches from the competition network
+   1. Get a second router and configure its DHCP address range to be different than your main router (do not connect it to the main router)
+   2. Install a wire from one of the LAN ports of the main router to the WLAN port of a second router.
+   3. Connect the second laptop to the second router using a wire.  It will be able to see the master laptop via the wire.
+   4. Note that if your main router has internet access the coaches will likely be blocked from reaching it unless you add additional default routes (or your router does it on its own).  But since this configuration is meant for the case where there is no internet access, that's probably just fine.
+
+You will then edit the `publicresults.l4j.ini` in the installation directory, and uncomment the `-DupdateKey`  The rest of the setup is the same as for the cloud configuration.

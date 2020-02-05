@@ -1,0 +1,4 @@
+DATABASE_URL='postgres://pkzmrpsrqkkcap:ec878b2f3209a541322e09a7bd5e133db709516519e6051846bc3b83d44f3d0c@ec2-3-220-86-239.compute-1.amazonaws.com:5432/d9oq2ovghgvqqa'
+JAVA_OPTS='-XX:+UseCompressedOops'
+PAPERTRAIL_API_TOKEN=Dl26S0u6ipf7TeGTF0dS
+PIN=786565
