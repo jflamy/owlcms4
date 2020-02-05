@@ -41,14 +41,6 @@ pipeline {
             }
         }
         
-        stage('Build owlcms') {
-            steps {
-                dir('owlcms4/owlcms') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
-                }
-            }
-        }
-        
         stage('Build publicresults') {
             steps {
                 dir('owlcms4/publicresults') {
@@ -89,7 +81,16 @@ pipeline {
             }
         }
         
-        stage('Release owlcms4') {
+        stage('Build owlcms') {
+            steps {
+                dir('owlcms4/owlcms') {
+                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+                }
+            }
+        }
+        
+        
+        stage('Release owlcms4 and publicresults installers') {
             environment {
                 TOKEN = credentials('jflamy-pw')
             }
@@ -104,8 +105,7 @@ pipeline {
                     
                     // push changes back to upstream master repo
                     bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %BRANCH%'
-                    bat 'git push https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git %VERSION%'
-                    
+                      
                     // push new files to downstream release channel repo where executables will be added (a remote tag will be added by github)
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%O_REPO_NAME% %BRANCH%:master --force'              
 
@@ -147,7 +147,8 @@ pipeline {
                     bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%H_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
                 }       
             }
-        }
+        }        
+
         
     }
 }
