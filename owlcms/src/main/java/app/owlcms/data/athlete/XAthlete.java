@@ -61,15 +61,6 @@ public class XAthlete extends Athlete {
         a.failedLift();
     }
 
-    /**
-     * @return
-     * @see app.owlcms.data.athlete.Athlete#get20kgRuleValue()
-     */
-    @Override
-    public int get20kgRuleValue() {
-        return a.get20kgRuleValue();
-    }
-
     @Override
     public Integer getAge() {
         return super.getAge();

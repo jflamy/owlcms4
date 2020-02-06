@@ -189,7 +189,7 @@ public class Athlete {
         curStartingTotal = snatch1Request + cleanJerk1Request;
         int delta = qualTotal - curStartingTotal;
         String message = null;
-        int _20kgRuleValue = a.get20kgRuleValue();
+        int _20kgRuleValue = getStartingTotalMargin(a.getCategory(), qualTotal);
 
         logger.debug("{} validate20kgRule {} {} {}, {}, {}, {}", a, snatch1Request, cleanJerk1Request, curStartingTotal,
                 qualTotal, delta, LoggerUtils.whereFrom());
@@ -228,27 +228,54 @@ public class Athlete {
         }
     }
 
-    private final Level NORMAL_LEVEL = Level.INFO;
+    /**
+     * 20kg rule or 80% rule for Masters
+     * 
+     * @param cat
+     * @param entryTotal
+     * @return the allowed gap (inclusive) between sum of initial declarations and entry total.
+     */
+    private static int getStartingTotalMargin(Category cat, Integer entryTotal) {
+        if (cat != null) {
+            AgeGroup ag = cat.getAgeGroup();
+            if (ag != null) {
+                AgeDivision ad = ag.getAgeDivision();
+                if (ad != null) {
+                    if (ad == AgeDivision.MASTERS) {
+                        double margin = 0.2D * entryTotal;
+                        // we would round up the required total, so we round down the allowed margin
+                        double floor = Math.floor(margin);
+                        int asInt = (int) Math.round(floor);                        
+                        logger.debug("margin = {} floor = {} asInt = {} required = {}",margin, floor, asInt, entryTotal - asInt);
+                        return asInt;
+                    }
+                }
+            }
+        }
+        return 20;
+    }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private final Level NORMAL_LEVEL = Level.INFO;
 
 //    /** used internally by JPA */
 //    @Version
 //    private Long version;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
     private Integer lotNumber = null;
 
     private Integer startNumber = null;
-
     private String firstName = "";
     private String lastName = "";
     private String team = "";
     private Gender gender = null; // $NON-NLS-1$
-    private LocalDate fullBirthDate = null;
 
+    private LocalDate fullBirthDate = null;
     private Double bodyWeight = null;
+
     private String membership = "";
 
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
@@ -261,7 +288,6 @@ public class Athlete {
             CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_categ", nullable = true)
     private Category category = null;
-
     /**
      * Using separate fileds is brute force, but having embedded classes does not bring much and we don't want joins or
      * other such logic for the Athlete card. Since the Athlete card is 6 x 4 items, we take the simple route.
@@ -271,63 +297,64 @@ public class Athlete {
      */
     private String snatch1Declaration;
     private String snatch1Change1;
-    private String snatch1Change2;
 
+    private String snatch1Change2;
     private String snatch1ActualLift;
     private LocalDateTime snatch1LiftTime;
     private String snatch2Declaration;
     private String snatch2Change1;
-    private String snatch2Change2;
 
+    private String snatch2Change2;
     private String snatch2ActualLift;
     private LocalDateTime snatch2LiftTime;
     private String snatch3Declaration;
     private String snatch3Change1;
-    private String snatch3Change2;
 
+    private String snatch3Change2;
     private String snatch3ActualLift;
     private LocalDateTime snatch3LiftTime;
     private String cleanJerk1Declaration;
     private String cleanJerk1Change1;
-    private String cleanJerk1Change2;
 
+    private String cleanJerk1Change2;
     private String cleanJerk1ActualLift;
     private LocalDateTime cleanJerk1LiftTime;
     private String cleanJerk2Declaration;
     private String cleanJerk2Change1;
-    private String cleanJerk2Change2;
 
+    private String cleanJerk2Change2;
     private String cleanJerk2ActualLift;
     private LocalDateTime cleanJerk2LiftTime;
     private String cleanJerk3Declaration;
     private String cleanJerk3Change1;
-    private String cleanJerk3Change2;
 
+    private String cleanJerk3Change2;
     private String cleanJerk3ActualLift;
     private LocalDateTime cleanJerk3LiftTime;
     private Integer snatchRank;
     private Integer cleanJerkRank;
     private Integer totalRank;
-    private Integer sinclairRank;
 
+    private Integer sinclairRank;
     private Integer robiRank;
     private Integer customRank;
     private Float snatchPoints;
+
     private Float cleanJerkPoints;
-
     private Float totalPoints; // points based on totalRank
-    private Float sinclairPoints;
 
+    private Float sinclairPoints;
     private Float customPoints;
     private Integer teamSinclairRank;
     private Integer teamRobiRank;
     private Integer teamSnatchRank;
     private Integer teamCleanJerkRank;
-    private Integer teamTotalRank;
 
+    private Integer teamTotalRank;
     private Integer teamCombinedRank;
     private Integer qualifyingTotal = 0;
     private Double customScore;
+
     private boolean eligibleForIndividualRanking = true;
 
     private boolean eligibleForTeamRanking = true;
@@ -417,6 +444,42 @@ public class Athlete {
         }
     }
 
+    /**
+     * Public for testing purposes only.
+     *
+     * @param Athlete
+     * @param athletes
+     * @param weight
+     */
+    public void doLift(final String weight) {
+        switch (this.getAttemptsDone() + 1) {
+        case 1:
+            this.setSnatch1ActualLift(weight);
+            this.setSnatch1LiftTime(LocalDateTime.now());
+            break;
+        case 2:
+            this.setSnatch2ActualLift(weight);
+            this.setSnatch2LiftTime(LocalDateTime.now());
+            break;
+        case 3:
+            this.setSnatch3ActualLift(weight);
+            this.setSnatch3LiftTime(LocalDateTime.now());
+            break;
+        case 4:
+            this.setCleanJerk1ActualLift(weight);
+            this.setCleanJerk1LiftTime(LocalDateTime.now());
+            break;
+        case 5:
+            this.setCleanJerk2ActualLift(weight);
+            this.setCleanJerk2LiftTime(LocalDateTime.now());
+            break;
+        case 6:
+            this.setCleanJerk3ActualLift(weight);
+            this.setCleanJerk3LiftTime(LocalDateTime.now());
+            break;
+        }
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -445,29 +508,6 @@ public class Athlete {
         } catch (Exception e) {
             logger.error(e.getLocalizedMessage());
         }
-    }
-
-    /**
-     * Gets the 20 kg rule value.
-     *
-     * @return the 20 kg rule value
-     */
-    public int get20kgRuleValue() {
-        Category cat = getCategory();
-        if (cat != null) {
-            AgeGroup ag = cat.getAgeGroup();
-            if (ag != null) {
-                AgeDivision ad = ag.getAgeDivision();
-                if (ad != null && ad == AgeDivision.MASTERS) {
-                    if (Gender.M.equals(this.getGender())) {
-                        return 15;
-                    } else {
-                        return 10;
-                    }
-                }
-            }
-        }
-        return 20;
     }
 
     /**
@@ -2605,10 +2645,6 @@ public class Athlete {
         this.customScore = customScore;
     }
 
-    public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
-        this.eligibleForIndividualRanking = eligibleForIndividualRanking;
-    }
-
 //	/**
 //	 * Sets the result order rank.
 //	 *
@@ -2618,6 +2654,10 @@ public class Athlete {
 //	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
 //		this.resultOrderRank = resultOrderRank;
 //	}
+
+    public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
+        this.eligibleForIndividualRanking = eligibleForIndividualRanking;
+    }
 
     public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
         this.eligibleForTeamRanking = eligibleForTeamRanking;
@@ -2678,6 +2718,12 @@ public class Athlete {
         this.lastName = lastName;
     }
 
+    /*
+     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
+     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
+     * register/unregister itself.
+     */
+
     /**
      * Sets the lift order rank.
      *
@@ -2686,12 +2732,6 @@ public class Athlete {
     public void setLiftOrderRank(Integer liftOrder) {
         this.liftOrderRank = liftOrder;
     }
-
-    /*
-     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
-     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
-     * register/unregister itself.
-     */
 
     public void setLoggerLevel(Level newLevel) {
         logger.setLevel(newLevel);
@@ -3520,42 +3560,6 @@ public class Athlete {
             return Integer.toString(prevVal + 1);
         } else {
             return Integer.toString(Math.abs(prevVal));
-        }
-    }
-
-    /**
-     * Public for testing purposes only.
-     * 
-     * @param Athlete
-     * @param athletes
-     * @param weight
-     */
-    public void doLift(final String weight) {
-        switch (this.getAttemptsDone() + 1) {
-        case 1:
-            this.setSnatch1ActualLift(weight);
-            this.setSnatch1LiftTime(LocalDateTime.now());
-            break;
-        case 2:
-            this.setSnatch2ActualLift(weight);
-            this.setSnatch2LiftTime(LocalDateTime.now());
-            break;
-        case 3:
-            this.setSnatch3ActualLift(weight);
-            this.setSnatch3LiftTime(LocalDateTime.now());
-            break;
-        case 4:
-            this.setCleanJerk1ActualLift(weight);
-            this.setCleanJerk1LiftTime(LocalDateTime.now());
-            break;
-        case 5:
-            this.setCleanJerk2ActualLift(weight);
-            this.setCleanJerk2LiftTime(LocalDateTime.now());
-            break;
-        case 6:
-            this.setCleanJerk3ActualLift(weight);
-            this.setCleanJerk3LiftTime(LocalDateTime.now());
-            break;
         }
     }
 

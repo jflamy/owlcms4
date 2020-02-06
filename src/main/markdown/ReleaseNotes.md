@@ -1,5 +1,5 @@
 * Release Highlights for release ${project.version} ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-  - [x] Enhancement: public results scoreboard can be run locally at competition site (installer now available) (#299)
+  - [x] Enhancement: Implement new 2019 Masters 2.4 Entry Total Rule (sum of initial weights attempted must exceed 80% of entry total)
 
 Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 
