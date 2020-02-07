@@ -69,7 +69,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
     }
 
     @Override
-    public void slaveMajorityDecision(Decision e) {
+    public void slaveShowDecision(Decision e) {
         // ignore
     }
 

@@ -111,18 +111,24 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
      */
     @Override
     protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
-        Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
+        final Button start = new Button(AvIcons.PLAY_ARROW.create());
+        final Button stop = new Button(AvIcons.PAUSE.create());
+        start.addClickListener(e -> {
             OwlcmsSession.withFop(fop -> {
                 fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
+                start.getElement().setAttribute("theme", "secondary icon");
+                stop.getElement().setAttribute("theme", "primary error icon");
             });
         });
-        start.getElement().setAttribute("theme", "primary icon");
-        Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
+        start.getElement().setAttribute("theme", "primary success icon");
+        stop.addClickListener(e -> {
             OwlcmsSession.withFop(fop -> {
                 fop.getFopEventBus().post(new FOPEvent.TimeStopped(this.getOrigin()));
+                start.getElement().setAttribute("theme", "primary success icon");
+                stop.getElement().setAttribute("theme", "secondary icon");
             });
         });
-        stop.getElement().setAttribute("theme", "primary icon");
+        stop.getElement().setAttribute("theme", "secondary icon");
         Button _1min = new Button("1:00", (e) -> {
             OwlcmsSession.withFop(fop -> {
                 fop.getFopEventBus().post(new FOPEvent.ForceTime(60000, this.getOrigin()));

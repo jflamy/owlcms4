@@ -137,7 +137,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     @Subscribe
-    public void slaveMajorityDecision(UIEvent.Decision e) {
+    public void slaveShowDecision(UIEvent.Decision e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
             uiEventLogger.debug("*** {} majority decision ({})", this.getOrigin(),
                     this.getParent().get().getClass().getSimpleName());
