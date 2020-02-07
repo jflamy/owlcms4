@@ -26,7 +26,7 @@ import ch.qos.logback.classic.Logger;
 public class EventReceiverServlet extends HttpServlet {
 
     Logger logger = (Logger) LoggerFactory.getLogger(EventReceiverServlet.class);
-    private String secret = StartupUtils.getStringParam("UPDATEKEY");
+    private String secret = StartupUtils.getStringParam("updateKey");
     private static String defaultFopName;
     static EventBus eventBus = new AsyncEventBus(Executors.newCachedThreadPool());
 
