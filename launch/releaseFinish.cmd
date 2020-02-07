@@ -4,18 +4,18 @@ cd publicresults-heroku
 git checkout develop
 git pull
 git merge origin/master
-git commit -a -m "%1"
-git push
+git commit -a -m "develop"
+git push origin develop
 cd ..
 cd owlcms4-heroku
 git checkout develop
 git pull
 git merge origin/master
-git commit -a -m "%1"
-git push
+git commit -a -m "develop"
+git push origin develop
 cd ..
 git checkout develop
 git pull
 git merge origin/master
-git commit -a -m "%1"
-git push
+git commit -a -m "develop"
+git push origin develop
