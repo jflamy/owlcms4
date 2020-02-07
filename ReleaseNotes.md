@@ -1,5 +1,6 @@
-* Release Highlights for release 4.4.5 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-  - [x] Enhancement: Implement new 2019 Masters 2.4 Entry Total Rule (sum of initial weights attempted must exceed 80% of entry total)
+* Release Highlights for release 4.4.6 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+  - [x] Enhancement: provide better visual feedback when starting/stopping clock (#280)
+  - [x] Fix: -DupdateKey was not being recognized when running publicresults standalone (#301)
 
 Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 
