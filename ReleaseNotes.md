@@ -1,4 +1,4 @@
-* Release Highlights for release 4.4.6-beta2 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Release Highlights for release 4.5.0-alpha1 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   - [x] Enhancement: Implement new 2019 Masters 2.4 Entry Total Rule (sum of initial weights attempted must exceed 80% of entry total)
 
 Installation Instructions :
