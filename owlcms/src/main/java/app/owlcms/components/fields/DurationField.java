@@ -136,7 +136,7 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
             getLogger().debug("parsed duration = {}", between);
             return Result.ok(between);
         } catch (DateTimeParseException e) {
-            getLogger().error(e.getLocalizedMessage());
+//            getLogger().error(e.getLocalizedMessage());
             setFormatValidationStatus(false, locale);
             return Result.error(invalidFormatErrorMessage(locale));
         }
