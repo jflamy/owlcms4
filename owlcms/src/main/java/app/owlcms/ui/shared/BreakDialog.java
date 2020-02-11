@@ -9,7 +9,6 @@ package app.owlcms.ui.shared;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.init.OwlcmsSession;
@@ -44,10 +43,11 @@ public class BreakDialog extends Dialog {
      * @param cdt
      */
     public BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
-        VerticalLayout content = new BreakManagement(origin, brt, cdt, this);
+        BreakManagement content = new BreakManagement(origin, brt, cdt, this);
         this.add(content);
         this.addDialogCloseActionListener((e) -> {
             OwlcmsSession.getFop().getUiEventBus().unregister(content);
+            content.cleanup();
             this.close();
         });
     }

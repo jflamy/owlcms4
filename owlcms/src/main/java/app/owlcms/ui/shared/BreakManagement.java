@@ -412,6 +412,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     private void createTimerDisplay() {
         breakTimerElement = new BreakTimerElement();
+        breakTimerElement.setParent("BreakManagement");
         Div countdown = new Div(breakTimerElement);
         countdown.getStyle().set("font-size", "x-large");
         countdown.getStyle().set("font-weight", "bold");
@@ -581,6 +582,13 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     break;
                 }
             }
+        });
+    }
+
+    public void cleanup() {
+        OwlcmsSession.withFop(fop -> {
+            fop.getUiEventBus().unregister(breakTimerElement);
+            this.breakTimerElement = null;
         });
     }
 
