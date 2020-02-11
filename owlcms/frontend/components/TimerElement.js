@@ -100,17 +100,18 @@ class TimerElement extends PolymerElement {
 
 	ready() {
 		super.ready();
+		console.log("timer ready")
 		this._init();
 	}
 
 	start() {
 		if (this.indefinite) {
-			// console.debug("timer indefinite "+this.startTime);
+			console.log("timer indefinite "+this.startTime);
 			this._indefinite()
 			return;
 		}
 
-		console.debug("timer start "+this.startTime);
+		console.log("timer start "+this.startTime);
 		if ((this.currentTime <= 0 && !this.countUp) 
 				|| (this.currentTime >= this.startTime && this.countUp) ) {
 			// timer is over
@@ -120,6 +121,7 @@ class TimerElement extends PolymerElement {
 		if (!this.startTime 
 				// || this.running /* start should not result in pause() ! */
 		) {
+			console.log("pausing in start?")
 			this.pause();
 			return;
 		}
@@ -138,7 +140,6 @@ class TimerElement extends PolymerElement {
 			this._indefinite()
 			return;
 		} 
-		console.debug("timer pause");
 		this.running = false;
 		if (this.$server != null) {
 			this.$server.clientTimerStopped(this.currentTime);      
@@ -148,7 +149,7 @@ class TimerElement extends PolymerElement {
 	}
 
 	reset() {
-		console.debug("timer reset");
+		console.log("timer reset");
 		this.pause();
 		this._init();
 	}
@@ -159,7 +160,7 @@ class TimerElement extends PolymerElement {
 
 	_init() {
 		this.running = false;
-		// console.debug("init timer "+this.indefinite);
+		console.log("init timer "+this.indefinite);
 		if (this.indefinite) {
 			this.set('currentTime', this.startTime);
 			this._indefinite()
@@ -231,6 +232,7 @@ class TimerElement extends PolymerElement {
 		var seconds = ntime - ((hours*3600)+(minutes*60));
 		return (hours > 0 ? hours + ":" : "")+(minutes+":"+ (seconds < 10 ? "0"+seconds : seconds));
 	}
+
 }
 
 customElements.define(TimerElement.is, TimerElement);
