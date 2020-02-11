@@ -245,7 +245,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             model.setSilent(true);
         }
         // should not be necessary
-        getTimerElement().callJsFunction("reset");
+//        getTimerElement().callJsFunction("reset");
     }
 
     private void start() {

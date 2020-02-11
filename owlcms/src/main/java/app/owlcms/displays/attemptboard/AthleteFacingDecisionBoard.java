@@ -26,6 +26,7 @@ public class AthleteFacingDecisionBoard extends AttemptBoard {
         super();
         setPublicFacing(false);
         setShowBarbell(false);
+        breakTimer.setParent("DecisionBoard");
     }
 
     @Override

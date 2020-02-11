@@ -120,10 +120,10 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     @Id("athleteTimer")
-    private AthleteTimerElement athleteTimer; // created by Flow during template instanciation
+    protected AthleteTimerElement athleteTimer; // created by Flow during template instanciation
 
     @Id("breakTimer")
-    private BreakTimerElement breakTimer; // created by Flow during template instanciation
+    protected BreakTimerElement breakTimer; // created by Flow during template instanciation
 
     @Id("decisions")
     protected DecisionElement decisions; // created by Flow during template instanciation
@@ -141,6 +141,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         athleteTimer.setOrigin(this);
         getModel().setJavaComponentId(this.toString());
         getModel().setKgSymbol(getTranslation("KgSymbol"));
+        breakTimer.setParent("attemptBoard");
     }
 
     @Override
@@ -324,13 +325,18 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
                     doEmpty();
                     break;
                 case BREAK:
-                    doBreak();
+                    if (e.getGroup() == null) {
+                        doEmpty();
+                    } else {
+                        doBreak();
+                    }
                     break;
                 default:
                     doAthleteUpdate(fop.getCurAthlete());
                 }
             });
-
+            //uiEventLogger./**/warn("#### reloading {}", this.getElement().getClass());
+            //this.getElement().callJsFunction("reload");
         });
     }
 

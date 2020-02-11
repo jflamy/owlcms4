@@ -388,8 +388,8 @@ public class FieldOfPlay {
                 setState(INACTIVE);
                 athleteTimer.stop();
             }
-            // force the switch/reload by going to null
-            loadGroup((Group) null, this);
+//            // force the switch/reload by going to null
+//            loadGroup((Group) null, this);
             SwitchGroup switchGroup = (SwitchGroup) e;
             loadGroup(switchGroup.getGroup(), this);
             recomputeLiftingOrder();

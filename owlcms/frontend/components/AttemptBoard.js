@@ -329,6 +329,11 @@ class CurrentAttempt extends PolymerElement {
     	this.$.attemptBoardDiv.style.display="none";
     	console.debug("attemptBoard end clear "+this.javaComponentId);
     }
+    
+	reload() {
+		console.log("reloading")
+		window.location.reload();
+	}
 }
 
 customElements.define(CurrentAttempt.is, CurrentAttempt);

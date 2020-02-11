@@ -742,7 +742,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
             Athlete curAthlete2 = fop.getCurAthlete();
             FOPState state = fop.getState();
-            if (state == FOPState.INACTIVE) {
+            if (state == FOPState.INACTIVE || (state == FOPState.BREAK && fop.getGroup() == null)) {
                 logger.warn("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2,
                         curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 createInitialBar();
@@ -752,7 +752,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                             fop.getState(), fop.getLiftingOrder());
                 }
             } else {
-                logger.debug("active: {}", state);
+                logger.warn("active: {}", state);
                 createTopBar();
                 if (state == FOPState.BREAK) {
                     if (buttons != null) {

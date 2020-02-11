@@ -117,6 +117,7 @@ class DecisionBoard extends PolymerElement {
 
 	ready() {
 		super.ready();
+		console.log("decision board ready.")
 		this.doBreak(); 
 		this.$.athleteTimerDiv.style.display="none";
 		this.$.barbellDiv.style.display="none";
@@ -160,6 +161,11 @@ class DecisionBoard extends PolymerElement {
 
 	clear() {
 		this.$.decisionBoardDiv.style.display="none";
+	}
+	
+	reload() {
+		console.log("reloading");
+		window.location.reload();
 	}
 }
 
