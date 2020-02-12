@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>app.owlcms</groupId>
+    <artifactId>owlcms4top</artifactId>
+    <version>4.5.0-alpha1</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>owlcms</module>
+        <module>publicresults</module>
+        <module>publicresults-heroku</module>
+        <module>owlcms4-heroku</module>
+    </modules>
+
+    <organization>
+        <name>Jean-François Lamy</name>
+        <url>https://github.com/jflamy</url>
+    </organization>
+
+    <properties>
+        <!-- hard-coded paths -->
+        <!-- jre location for bundling with windows installer -->
+        <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>
+
+        <!-- setting below is for JDK 11 -->
+        <!-- <jre.directory>C:\Dev\Java\java-runtime</jre.directory> -->
+
+        <!-- windows installer compiler -->
+        <innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
+
+        <!-- maven configs -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+
+        <!-- Library versions -->
+        <vaadin.version>14.1.17</vaadin.version>
+        <logback.version>1.2.3</logback.version>
+        <slf4j.version>1.7.26</slf4j.version>
+        <hibernate.version>5.4.3.Final</hibernate.version>
+        <guava.version>27.1-jre</guava.version>
+
+        <!-- Plugins -->
+        <jetty.version>9.4.25.v20191220</jetty.version>
+
+        <rootOutputDir>${project.build.directory}</rootOutputDir>
+    </properties>
+    <repositories>
+        <repository>
+            <id>vaadin-addons</id>
+            <url>http://vaadin.com/nexus/content/repositories/vaadin-addons/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>vaadin-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>bintray-owlcms-maven</id>
+            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
+            <name>bintray</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>vaadin-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>bintray-owlcms-maven</id>
+            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
+            <name>bintray</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-bom</artifactId>
+                <type>pom</type>
+                <scope>import</scope>
+                <version>${vaadin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-access</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-ext</artifactId>
+                <version>${slf4j.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jul-to-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>app.owlcms</groupId>
+                <artifactId>owlcms</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-owlcms-maven</id>
+            <name>owlcms-owlcms-maven</name>
+            <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+        </repository>
+    </distributionManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>flow-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>flow-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>flow-push</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>flow-html-components</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                        <!-- <compilerArgs> should no longer be needed when moving to JDK 11 -->
+                        <!-- <arg>- -add-exports=java.desktop/com.sun.media.sound=ALL-UNNAMED</arg> -->
+                        <!-- </compilerArgs> -->
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>2.7</version>
+                    <configuration>
+                        <processAllModules>true</processAllModules>
+                        <allowAnyUpdates>true</allowAnyUpdates>
+                        <allowDowngrade>true</allowDowngrade>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/markdown</directory>
+                                    <exclude>.*</exclude>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+<!--
+Not used anymore. Kept for reference.           
+            <plugin>
+                <groupId>com.amashchenko.maven.plugin</groupId>
+                <artifactId>gitflow-maven-plugin</artifactId>
+                <version>1.14.0</version>
+                <configuration>
+                    <gitFlowConfig>
+                        <productionBranch>master</productionBranch>
+                        <developmentBranch>develop</developmentBranch>
+                    </gitFlowConfig>
+                    <allowSnapshots>true</allowSnapshots>
+                    <skipTag>true</skipTag>
+                    <skipTestProject>true</skipTestProject>
+                    <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
+                    <verbose>true</verbose>
+                    <skipUpdateVersion>true</skipUpdateVersion>
+                </configuration>
+            </plugin>
+-->
+            <plugin>
+                <groupId>com.ragedunicorn.tools.maven</groupId>
+                <artifactId>github-release-maven-plugin</artifactId>
+                <version>1.0.4.2</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <configuration>
+                            <owner>${github.owner}</owner>
+                            <repository>${github.repository}</repository>
+                            <server>${github.token}</server>
+                            <tagName>${project.version}</tagName>
+                            <name>${project.version}</name>
+                            <targetCommitish>master</targetCommitish>
+                            <body>${project.version}</body>
+                            <releaseNotes>ReleaseNotes.md</releaseNotes>
+                            <prerelease>${github.prerelease}</prerelease>
+                            <assets>
+                                <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
+                                <asset>owlcms/target/owlcms.zip</asset>
+                                <asset>publicresults/target/publicresults_setup/publicresults_setup.exe</asset>
+                                <asset>publicresults/target/publicresults.zip</asset>
+                            </assets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.0.0-M1</version>
+                <executions>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
