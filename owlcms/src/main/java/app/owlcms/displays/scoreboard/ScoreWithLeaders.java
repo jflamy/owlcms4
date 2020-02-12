@@ -302,6 +302,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
+            doDone(e.getGroup());
         });
     }
 
@@ -389,11 +390,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 model.setWeight(a.getNextAttemptRequestedWeight());
                 this.getElement().callJsFunction("reset");
             }
-            logger.debug("updating bottom");
+            logger.warn("updating bottom");
             updateBottom(model, computeLiftType(a));
         } else {
             if (!leaveTopAlone) {
-                logger.debug("doUpdate doDone");
+                logger.warn("doUpdate doDone");
                 OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
             }
             return;
@@ -478,8 +479,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     private String computeLiftType(Athlete a) {
-        if (a == null) {
-            return "";
+        if (a == null || a.getAttemptsDone() > 6) {
+            return null;
         }
         String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
                 : Translator.translate("Snatch");
@@ -492,7 +493,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             doEmpty();
         } else {
             OwlcmsSession.withFop(fop -> {
-                updateBottom(getModel(), computeLiftType(fop.getCurAthlete()));
+                updateBottom(getModel(), null);
                 getModel().setFullName(getTranslation("Group_number_results", g.toString()));
                 this.getElement().callJsFunction("groupDone");
             });
@@ -682,8 +683,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             doEmpty();
             break;
         case BREAK:
-            doUpdate(e.getAthlete(), e);
-            doBreak();
+            if (e.getGroup() == null) {
+                doEmpty();
+            } else {
+                doUpdate(e.getAthlete(), e);
+                doBreak();
+            }
             break;
         default:
             doUpdate(e.getAthlete(), e);
@@ -693,11 +698,18 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private void updateBottom(ScoreboardModel model, String liftType) {
         OwlcmsSession.withFop((fop) -> {
             curGroup = fop.getGroup();
-            model.setGroupName(
-                    curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
-                            : "");
-            order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
-            model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+            if (liftType != null) {
+                model.setGroupName(
+                        curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
+                                : "");
+                order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
+                liftsDone = AthleteSorter.countLiftsDone(order);
+                model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+            } else {
+                model.setGroupName("X");
+                model.setLiftsDone("Y");
+                this.getElement().callJsFunction("groupDone");
+            }
             this.getElement().setPropertyJson("athletes",
                     getAthletesJson(order, fop.getLiftingOrder()));
         });
