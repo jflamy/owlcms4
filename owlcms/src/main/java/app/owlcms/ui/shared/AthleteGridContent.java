@@ -743,7 +743,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             Athlete curAthlete2 = fop.getCurAthlete();
             FOPState state = fop.getState();
             if (state == FOPState.INACTIVE || (state == FOPState.BREAK && fop.getGroup() == null)) {
-                logger.warn("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2,
+                logger.debug("initial: {} {} {} {}", state, fop.getGroup(), curAthlete2,
                         curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone());
                 createInitialBar();
                 warning.setText(getTranslation("IdlePlatform"));
