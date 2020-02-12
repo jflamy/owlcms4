@@ -390,11 +390,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 model.setWeight(a.getNextAttemptRequestedWeight());
                 this.getElement().callJsFunction("reset");
             }
-            logger.warn("updating bottom");
+            logger.debug("updating bottom");
             updateBottom(model, computeLiftType(a));
         } else {
             if (!leaveTopAlone) {
-                logger.warn("doUpdate doDone");
+                logger.debug("doUpdate doDone");
                 OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
             }
             return;

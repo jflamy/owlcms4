@@ -128,7 +128,7 @@ public class StartupUtils {
                 mainLogger.error(LoggerUtils.stackTrace(e));
             }
         } else {
-            logger/**/.warn("no browser support");
+            logger./**/warn("no browser support");
         }
     }
 

@@ -381,7 +381,7 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void doDone(Group g) {
-        logger.warn("forwarding doDone {}", g == null ? null : g.getName());
+        logger.debug("forwarding doDone {}", g == null ? null : g.getName());
         if (g == null) {
             setHidden(true);
         } else {
@@ -423,7 +423,7 @@ public class EventForwarder implements BreakDisplay {
             }
         } else {
             if (!leaveTopAlone) {
-                logger.warn("ef doUpdate doDone");
+                logger.debug("ef doUpdate doDone");
                 Group g = (a != null ? a.getGroup() : null);
                 doDone(g);
             }
@@ -702,12 +702,12 @@ public class EventForwarder implements BreakDisplay {
 //                    wr.write("=");
 //                    wr.write(URLUtils.urlEncode(pair.getValue()));
 //                    if (debugMode) {
-//                        logger/**/.warn("{}={}", pair.getKey(), pair.getValue());
+//                        logger./**/warn("{}={}", pair.getKey(), pair.getValue());
 //                    }
 //                    if (count < parameters.size() - 1) {
 //                        wr.write("&");
 //                        if (debugMode) {
-//                            logger/**/.warn("&");
+//                            logger./**/warn("&");
 //                        }
 //                        count++;
 //                    }

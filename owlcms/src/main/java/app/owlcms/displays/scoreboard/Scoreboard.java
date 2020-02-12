@@ -384,7 +384,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             updateBottom(model, computeLiftType(a));
         } else {
             if (!leaveTopAlone) {
-                logger.warn("doUpdate doDone");
+                logger.debug("doUpdate doDone");
                 OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
             }
             return;

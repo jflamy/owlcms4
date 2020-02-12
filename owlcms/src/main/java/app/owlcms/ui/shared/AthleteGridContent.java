@@ -730,7 +730,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected void syncWithFOP(boolean refreshGrid) {
         OwlcmsSession.withFop((fop) -> {
             Group fopGroup = fop.getGroup();
-            logger.warn("syncing FOP, group = {}, {}", fopGroup, LoggerUtils.whereFrom(2));
+            logger.debug("syncing FOP, group = {}, {}", fopGroup, LoggerUtils.whereFrom(2));
             createTopBarGroupSelect();
 
             if (refreshGrid) {

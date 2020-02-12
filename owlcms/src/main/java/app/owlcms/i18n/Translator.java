@@ -340,7 +340,7 @@ public class Translator implements I18NProvider {
 
 
     public void nullTranslationKey() {
-        logger/**/.warn("null translation key");
+        logger./**/warn("null translation key");
     }
 
     private String format(String value, Object... params) {

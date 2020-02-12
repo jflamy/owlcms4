@@ -578,7 +578,7 @@ public class FieldOfPlay {
             // state.
             recomputeLiftingOrder();
         }
-        logger.warn("group {} athletes {}",getGroup(), athletes.size());
+        logger.debug("group {} athletes {}",getGroup(), athletes.size());
         if (state == null) {
             this.setState(INACTIVE);
         }
@@ -1186,7 +1186,7 @@ public class FieldOfPlay {
             return;
         }
         String text = Translator.translate("Unexpected_Notification", e.getClass().getSimpleName(), state);
-        logger/**/.warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
+        logger./**/warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
         Notification.show(text, 5000, Position.BOTTOM_END);
     }
 
