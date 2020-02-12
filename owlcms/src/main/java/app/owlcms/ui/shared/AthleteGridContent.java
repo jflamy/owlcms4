@@ -752,7 +752,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                             fop.getState(), fop.getLiftingOrder());
                 }
             } else {
-                logger.warn("active: {}", state);
+                logger.debug("active: {}", state);
                 createTopBar();
                 if (state == FOPState.BREAK) {
                     if (buttons != null) {
