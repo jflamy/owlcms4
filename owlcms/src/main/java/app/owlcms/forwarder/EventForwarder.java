@@ -381,12 +381,13 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void doDone(Group g) {
-        logger.debug("doDone {}", g == null ? null : g.getName());
+        logger.warn("forwarding doDone {}", g == null ? null : g.getName());
         if (g == null) {
             setHidden(true);
         } else {
             setFullName(Translator.translate("Group_number_results", g.toString()));
             setGroupName("");
+            setLiftsDone("");
         }
     }
 
@@ -422,7 +423,7 @@ public class EventForwarder implements BreakDisplay {
             }
         } else {
             if (!leaveTopAlone) {
-                logger.debug("doUpdate doDone");
+                logger.warn("ef doUpdate doDone");
                 Group g = (a != null ? a.getGroup() : null);
                 doDone(g);
             }

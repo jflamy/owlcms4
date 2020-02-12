@@ -476,8 +476,8 @@ td.club div {
 		</div>
 	</div>
 </div>
-<div class="group" id="groupDiv" style$="[[_computeHidden(hidden)]]">
-<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
+<div class="group" style$="[[_computeHidden(hidden)]]">
+<div id="groupDiv"><span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]</div>
 </div>
 <table class="results" style$="[[_computeHidden(hidden)]]">
 	<thead>

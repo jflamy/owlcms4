@@ -384,7 +384,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             updateBottom(model, computeLiftType(a));
         } else {
             if (!leaveTopAlone) {
-                logger.debug("doUpdate doDone");
+                logger.warn("doUpdate doDone");
                 OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
             }
             return;
@@ -422,8 +422,8 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     }
 
     private String computeLiftType(Athlete a) {
-        if (a == null) {
-            return "";
+        if (a == null || a.getAttemptsDone() > 6) {
+            return null;
         }
         String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
                 : Translator.translate("Snatch");
@@ -437,7 +437,9 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         } else {
             OwlcmsSession.withFop(fop -> {
                 updateBottom(getModel(), computeLiftType(fop.getCurAthlete()));
-                getModel().setFullName(getTranslation("Group_number_results", g.toString()));
+                String translation = getTranslation("Group_number_results", g.toString());
+                getModel().setFullName(translation);
+                logger.debug("group results = {}", translation);
                 this.getElement().callJsFunction("groupDone");
             });
         }
@@ -611,8 +613,12 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 doEmpty();
                 break;
             case BREAK:
-                doUpdate(fop.getCurAthlete(), e);
-                doBreak();
+                if (fop.getGroup() == null) {
+                    doEmpty();
+                } else {
+                    doUpdate(fop.getCurAthlete(), e);
+                    doBreak();
+                }
                 break;
             default:
                 doUpdate(fop.getCurAthlete(), e);
@@ -623,11 +629,18 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     private void updateBottom(ScoreboardModel model, String liftType) {
         OwlcmsSession.withFop((fop) -> {
             curGroup = fop.getGroup();
-            model.setGroupName(
-                    curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
-                            : "");
-            order = fop.getDisplayOrder();
-            model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+            if (liftType != null) {
+                model.setGroupName(
+                        curGroup != null
+                                ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
+                                : "");
+                order = fop.getDisplayOrder();
+                model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
+            } else {
+                model.setGroupName("A");
+                model.setLiftsDone("B");
+                this.getElement().callJsFunction("groupDone");
+            }
             this.getElement().setPropertyJson("athletes", getAthletesJson(order));
         });
 

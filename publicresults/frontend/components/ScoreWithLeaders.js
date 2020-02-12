@@ -550,10 +550,8 @@ table#leaders-table thead tr.hide th {
 			</div>
 		</div>
 	</div>
-	<div class="group" id="groupDiv" style$="[[_computeHidden(hidden)]]">
-		<template is="dom-if" if="[[groupName]]">
-			<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
-		</template>
+	<div class="group" style$="[[_computeHidden(hidden)]]">
+		<div id="groupDiv"><span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]</div>
 	</div>
 	<template is="dom-if" if="[[athletes]]">
 		<div id="results" style$="[[_computeHidden(hidden)]]">
