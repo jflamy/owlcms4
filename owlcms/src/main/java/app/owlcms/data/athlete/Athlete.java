@@ -1400,6 +1400,7 @@ public class Athlete {
      *
      * @return the masters long category
      */
+    @Deprecated
     public String getMastersLongCategory() {
         return getCategory().getName();
     }

@@ -115,13 +115,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         themes.add("compact");
         themes.add("row-stripes");
 
-        if (Competition.getCurrent().isMasters()) {
-            grid.addColumn("mastersLongCategory").setHeader(getTranslation("Category"))
-                    .setComparator(new WinningOrderComparator(Ranking.TOTAL));
-        } else {
-            grid.addColumn("category").setHeader(getTranslation("Category"))
-                    .setComparator(new WinningOrderComparator(Ranking.TOTAL));
-        }
+        grid.addColumn("category").setHeader(getTranslation("Category"))
+                .setComparator(new WinningOrderComparator(Ranking.TOTAL));
         grid.addColumn("totalRank").setHeader(getTranslation("TotalRank"))
                 .setComparator(new WinningOrderComparator(Ranking.TOTAL));
 
@@ -209,13 +204,9 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         Boolean medals = medalsOnly.getValue();
         if (medals != null && medals) {
             return athletes.stream()
-//                    .peek(a -> System.out.println(a.getMastersLongCategory()))
                     .filter(a -> a.getTotalRank() >= 1 && a.getTotalRank() <= 3)
                     .collect(Collectors.toList());
         } else {
-//            return athletes.stream()
-//                    .peek(a -> System.err .println(a.getMastersLongCategory()))
-//                    .collect(Collectors.toList());
             return athletes;
         }
     }
@@ -264,7 +255,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query
      *                  parameters instead.
      *
-     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+     * @see app.owlcms.ui.parameters.QueryParameterReader#setParameter(com.vaadin.flow.router.BeforeEvent,
+     *      java.lang.String)
      */
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {

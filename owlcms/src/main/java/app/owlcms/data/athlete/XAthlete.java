@@ -693,15 +693,6 @@ public class XAthlete extends Athlete {
 
     /**
      * @return
-     * @see app.owlcms.data.athlete.Athlete#getMastersLongCategory()
-     */
-    @Override
-    public String getMastersLongCategory() {
-        return a.getMastersLongCategory();
-    }
-
-    /**
-     * @return
      * @see app.owlcms.data.athlete.Athlete#getMedalRank()
      */
     @Override
