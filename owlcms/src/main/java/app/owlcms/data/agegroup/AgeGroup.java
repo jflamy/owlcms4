@@ -128,10 +128,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
         if (compare != 0) {
             return compare;
         }
-        compare = ObjectUtils.compare(ageDivision, o.getAgeDivision());
-        if (compare != 0) {
-            return compare;
-        }
+//        compare = ObjectUtils.compare(ageDivision, o.getAgeDivision());
+//        if (compare != 0) {
+//            return compare;
+//        }
         compare = ObjectUtils.compare(minAge, o.getMinAge());
         if (compare != 0) {
             return compare;

@@ -125,12 +125,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
             return -1; // we are smaller than null -- null goes to the end;
         }
 
-        int compare = ObjectUtils.compare(this.ageGroup, o.getAgeGroup(), true);
+        int compare = ObjectUtils.compare(this.gender, o.getGender());
         if (compare != 0) {
             return compare;
         }
-
-        compare = ObjectUtils.compare(this.gender, o.getGender());
+        
+        compare = ObjectUtils.compare(this.ageGroup, o.getAgeGroup(), true);
         if (compare != 0) {
             return compare;
         }
