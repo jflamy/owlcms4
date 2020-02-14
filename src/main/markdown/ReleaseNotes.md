@@ -2,7 +2,7 @@
   - [x] Enhancement: Implement new 2019 Masters 2.4 Entry Total Rule (sum of initial weights attempted must exceed 80% of entry total)
   - [x] Fix: Start Numbers assigned using age group, bodyweight and lot -- removed the division as first criterion (#305)
   - [x] Fix: specific sequence of actions at the end of a group could lead to a loop (#306)
-  - [x] Enhancement: owlcms-heroku and public-results-heroku deployed using the `Deploy to Heroku` button can now be updated on-demand without having to reinstall. See https://github.com/jflamy/owlcms4-heroku-updater (#303)
+  - [x] Prerelease: the cloud versions of the applications (owlcms-heroku and public-results-heroku) deployed using the `Deploy to Heroku` button can, starting with <u>release **4.5</u>**, be updated on-demand without having to reinstall. See https://github.com/jflamy/owlcms4-heroku-updater (#303)
 
 Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 

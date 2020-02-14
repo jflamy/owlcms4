@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.init.OwlcmsSession;
@@ -1565,17 +1566,20 @@ public class Athlete {
      */
     public Double getRobi() {
         Category c = getCategory();
+        if (c == null) {
+            return 0.0;
+        }
+        Integer wr = c.getWr();
+        if (wr == null || wr <= 0.000001) {
+            // not an IWF category, find what the IWF Robi would be for age/body weight
+            Category robiC = RobiCategories.findRobiCategory(this);
+            wr = robiC.getWr(getAge());
+        }
 
-        if (getCategory() == null) {
-            return 0.0;
-        }
-        if (c.getWr() == null || c.getWr() == 0) {
-            return 0.0;
-        }
-        if (c.getRobiA() == null || c.getWr() <= 0.000001) {
-            return 0.0;
-        }
-        double robi = c.getRobiA() * Math.pow(getTotal(), c.getRobiB());
+        // assuming that ROBI_B does not change per age group -- should not
+        // since is same for women and men
+        double robiA = 1000.0D / Math.pow(wr, Category.ROBI_B);
+        double robi =  robiA * Math.pow(getTotal(), Category.ROBI_B);
         return robi;
     }
 

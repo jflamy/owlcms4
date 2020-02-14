@@ -356,6 +356,7 @@ public class AgeGroupRepository {
                 newCat.setCode(ag.getCode() + "_" + template.getCode());
                 ag.addCategory(newCat);
                 newCat.setActive(ag.isActive());
+//                logger.debug(newCat.dump());
                 return newCat;
             } catch (IllegalAccessException | InvocationTargetException e) {
                 logger.error("cannot create category from template\n{}", LoggerUtils.stackTrace(e));
@@ -371,7 +372,7 @@ public class AgeGroupRepository {
      * @param workbook
      * @return
      */
-    private static Map<String, Category> createCategoryTemplates(Workbook workbook) {
+    public static Map<String, Category> createCategoryTemplates(Workbook workbook) {
         Map<String, Category> categoryMap = new HashMap<>();
         DataFormatter dataFormatter = new DataFormatter();
         Sheet sheet = workbook.getSheetAt(0);

@@ -52,9 +52,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     @SuppressWarnings("unused")
     final private static Logger logger = (Logger) LoggerFactory.getLogger(Category.class);
     
-    private final static Double ROBI_B = 3.321928095;
-
-    private Double robiA = 0.0D;
+    public final static Double ROBI_B = 3.321928095;
 
     /** The id. */
     @Id
@@ -94,7 +92,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     }
 
     public Category(Category c) {
-        this(c.id, c.minimumWeight, c.maximumWeight, c.gender, c.active, c.wrYth, c.wrJr, c.wrSr, c.ageGroup);
+        this(c.id, c.minimumWeight, c.maximumWeight, c.gender, c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(), c.ageGroup);
     }
 
     public Category(Long id, Double minimumWeight, Double maximumWeight, Gender gender, boolean active, Integer wrYth,
@@ -108,9 +106,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         this.setWrYth(wrYth);
         this.setWrJr(wrJr);
         this.setWrSr(wrSr);
-        if (wrSr >= 0) {
-            this.setRobiA(1000.0D / Math.pow(wrSr, ROBI_B));
-        }
         setCategoryName(minimumWeight, maximumWeight, gender, ageGroup);
     }
 
@@ -160,8 +155,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
                 && gender == other.gender && Objects.equals(id, other.id)
                 && Objects.equals(maximumWeight, other.maximumWeight)
                 && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
-                && Objects.equals(robiA, other.robiA) && Objects.equals(wrJr, other.wrJr)
-                && Objects.equals(wrSr, other.wrSr) && Objects.equals(wrYth, other.wrYth);
+                && Objects.equals(getWrJr(), other.getWrJr())
+                && Objects.equals(getWrSr(), other.getWrSr()) && Objects.equals(getWrYth(), other.getWrYth());
     }
 
     /**
@@ -246,23 +241,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         }
     }
 
-    /**
-     * Gets the robi A.
-     *
-     * @return the robi A
-     */
-    public Double getRobiA() {
-        return robiA;
-    }
-
-    /**
-     * Gets the robi B.
-     *
-     * @return the robi B
-     */
-    public Double getRobiB() {
-        return ROBI_B;
-    }
 
     /**
      * Gets the wr.
@@ -273,18 +251,37 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         if (ageGroup == null) {
             return 0;
         }
+        int wr = 0;
         if (ageGroup.getAgeDivision() != AgeDivision.IWF) {
-            return 0;
-        }
-        if (ageGroup.getMaxAge() == 999) {
-            return wrSr;
+            wr = 0;
+        } else if (ageGroup.getMaxAge() == 999) {
+            wr = getWrSr();
         } else if (ageGroup.getMaxAge() == 20) {
-            return wrJr;
+            wr = getWrJr();
         } else if (ageGroup.getMaxAge() == 17) {
-            return wrYth;
+            wr = getWrYth();
         } else {
-            return 0;
+            wr = 0;
         }
+        //logger./**/warn("wr({} {} {} {}) = {}",ageGroup, ageGroup.getAgeDivision(), ageGroup.getMaxAge(), getCode(),wr);
+        return wr;
+    }
+    
+    /**
+     * Gets the wr.
+     *
+     * @return the wr
+     */
+    public Integer getWr(int age) {
+        int wr;
+        if (age <= 17) {
+            wr = getWrYth();
+        } else if (age <= 20) {
+            wr = getWrJr();
+        } else {
+            wr = getWrSr();
+        }
+        return wr;
     }
 
     public Integer getWrJr() {
@@ -301,8 +298,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(active, ageGroup, code, gender, id, maximumWeight, minimumWeight, name, robiA, wrJr, wrSr,
-                wrYth);
+        return Objects.hash(active, ageGroup, code, gender, id, maximumWeight, minimumWeight, name, getWrJr(), getWrSr(),
+                getWrYth());
     }
 
     /**
@@ -319,7 +316,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
                 + ", minimumWeight=" + minimumWeight
                 + ", maximumWeight=" + maximumWeight + ", ageGroup=" + ageGroup.getName()
                 + ", gender="
-                + gender + ", wr=" + wrSr + ", code=" + code + ", robiA=" + robiA + "]";
+                + gender + ", wr=" + getWrSr() + ", code=" + code + "]";
     }
 
     public void setActive(boolean active) {
@@ -391,29 +388,13 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 //        this.name = name;
 //    }
 
-    /**
-     * Sets the robi A.
-     *
-     * @param robiA the new robi A
-     */
-    public void setRobiA(Double robiA) {
-        this.robiA = robiA;
-    }
-
-    /**
-     * Sets the wr.
-     *
-     * @param wr the wr to set
-     */
-    public void setWr(Integer wr) {
-        this.wrSr = wr;
-    }
 
     public void setWrJr(Integer wrJr) {
         this.wrJr = wrJr;
     }
 
     public void setWrSr(Integer wrSr) {
+        //logger./**/warn("wrSr={}",wrSr);
         this.wrSr = wrSr;
     }
 
@@ -439,5 +420,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     public String toString() {
         return getName();
     }
+
+    public String dump() {
+        return "Category [code=" + code + ", name=" + name + ", minimumWeight=" + minimumWeight + ", maximumWeight="
+                + maximumWeight + ", ageGroup=" + ageGroup + ", gender=" + gender + ", active=" + active + ", wrSr="
+                + getWrSr() + ", wrJr=" + getWrJr() + ", wrYth=" + getWrYth() + "]";
+    }
+
 
 }
