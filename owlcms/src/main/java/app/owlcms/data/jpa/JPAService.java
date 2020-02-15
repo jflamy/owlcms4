@@ -22,6 +22,8 @@ import static org.hibernate.cfg.AvailableSettings.USE_REFLECTION_OPTIMIZER;
 import static org.hibernate.cfg.AvailableSettings.USE_SECOND_LEVEL_CACHE;
 import static org.hibernate.cfg.AvailableSettings.USE_STRUCTURED_CACHE;
 
+import java.io.File;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import org.h2.tools.Server;
 import org.hibernate.dialect.H2Dialect;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
@@ -47,6 +50,8 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -109,7 +114,32 @@ public class JPAService {
             throw new RuntimeException("Unsupported database: " + dbUrl);
         }
         startLogger.info("Database: {}, inMemory={}, reset={}", properties.get(JPA_JDBC_URL), inMemory, reset);
+        startH2EmbeddedServer();
+
         return properties;
+    }
+
+    /**
+     * H2 can expose its embedded server on demand.
+     * 
+     * <p>Not enabled by default, protected by a feature switch (<code>-DH2ServerPort=9092 or OWLCMS_H2SERVERPORT=9092</code>)
+     * <p>When using a tool to connect (e.g. DBVisualizer) the URL given to the tool must include the absolute
+     * path to the database for example
+     * <pre>
+     * jdbc:h2:tcp:localhost:9092/file:C:\Dev\git\owlcms4\owlcms\database;MODE=PostgreSQL
+     * </pre>
+     */
+    private static void startH2EmbeddedServer() {
+        Server tcpServer;
+        try {
+            String h2ServerPort = StartupUtils.getStringParam("H2ServerPort");
+            if (h2ServerPort != null && Integer.parseInt(h2ServerPort) > 0) {
+                tcpServer = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", h2ServerPort, "-tcpDaemon");
+                tcpServer.start();
+            }
+        } catch (SQLException e) {
+            logger.error(LoggerUtils.stackTrace(e));
+        }
     }
 
     /**
@@ -161,7 +191,9 @@ public class JPAService {
         props.putAll(vals);
 
         // keep the database even if all the connections have timed out
-        props.put(JPA_JDBC_URL, "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
+        // to turn off transactions MVCC=FALSE;MV_STORE=FALSE;LOCK_MODE=0;
+        props.put(JPA_JDBC_URL,
+                "jdbc:h2:mem:owlcms;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
         props.put(JPA_JDBC_USER, "sa");
         props.put(JPA_JDBC_PASSWORD, "");
 
@@ -194,8 +226,11 @@ public class JPAService {
         Properties props = new Properties();
         props.putAll(vals);
 
+        // use an explicit path as this allows connecting to the H2 server running embedded
+        String databasePath = new File("database/owlcms.mv.db").getAbsolutePath();
+        databasePath = databasePath.substring(0, databasePath.length()-".mv.db".length()); 
         props.put(JPA_JDBC_URL,
-                (dbUrl != null ? dbUrl : "jdbc:h2:file:./database/owlcms") + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
+                (dbUrl != null ? dbUrl : "jdbc:h2:file:"+databasePath) + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
         startLogger.debug("Starting in directory {}", System.getProperty("user.dir"));
         props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
         props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
@@ -208,8 +243,10 @@ public class JPAService {
     }
 
     private static ImmutableMap<String, Object> jpaProperties() {
-        ImmutableMap<String, Object> vals = new ImmutableMap.Builder<String, Object>().put(HBM2DDL_AUTO, "update")
-                .put(SHOW_SQL, false).put(QUERY_STARTUP_CHECKING, false).put(GENERATE_STATISTICS, false)
+        ImmutableMap<String, Object> vals = new ImmutableMap.Builder<String, Object>()
+                .put(HBM2DDL_AUTO, "update")
+                .put(SHOW_SQL, false)
+                .put(QUERY_STARTUP_CHECKING, false).put(GENERATE_STATISTICS, false)
                 .put(USE_REFLECTION_OPTIMIZER, false).put(USE_SECOND_LEVEL_CACHE, true).put(USE_QUERY_CACHE, false)
                 .put(USE_STRUCTURED_CACHE, false).put(STATEMENT_BATCH_SIZE, 20)
                 .put(CACHE_REGION_FACTORY, "org.hibernate.cache.jcache.JCacheRegionFactory")
