@@ -256,6 +256,7 @@ public class Athlete {
         return 20;
     }
 
+    @Transient
     private final Level NORMAL_LEVEL = Level.INFO;
 
 //    /** used internally by JPA */
@@ -373,6 +374,7 @@ public class Athlete {
     @Transient
     private boolean validation = true;
 
+    @Transient
     DecimalFormat df = null;
 
     /**
