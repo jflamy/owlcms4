@@ -1573,7 +1573,15 @@ public class Athlete {
         if (wr == null || wr <= 0.000001) {
             // not an IWF category, find what the IWF Robi would be for age/body weight
             Category robiC = RobiCategories.findRobiCategory(this);
-            wr = robiC.getWr(getAge());
+            if (robiC == null) {
+                logger.warn("could not find Robi Category for {}", this.longDump());
+            }
+            Integer age = getAge();
+            if (age != null) {
+                wr = robiC.getWr(age);
+            } else {
+                return robiC.getWr(999)+0.0D;
+            }
         }
 
         // assuming that ROBI_B does not change per age group -- should not

@@ -29,4 +29,13 @@ public class RobiCategoriesTest {
         assertEquals("M55", cat.getCode());
     }
 
+    @Test
+    public void testYoung() {
+        Athlete a = new Athlete();
+        a.setBodyWeight(48.2D);
+        a.setGender(Gender.M);
+        a.setYearOfBirth(2003);
+        Category cat = RobiCategories.findRobiCategory(a);
+        assertEquals("M49", cat.getCode());
+    }
 }

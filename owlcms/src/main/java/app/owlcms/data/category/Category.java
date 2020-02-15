@@ -274,6 +274,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
      */
     public Integer getWr(int age) {
         int wr;
+        //logger./**/warn("{} {} {} {} {}", this.getCode(), age, getWrYth(), getWrJr(), getWrSr());
         if (age <= 17) {
             wr = getWrYth();
         } else if (age <= 20) {

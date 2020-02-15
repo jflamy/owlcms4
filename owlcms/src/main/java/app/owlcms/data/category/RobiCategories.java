@@ -35,25 +35,36 @@ public class RobiCategories {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(RobiCategories.class);
     private static ArrayList<Category> jrSrReferenceCategories = null;
-    private static List<Category> jthReferenceCategories;
-    private static List<Category> ythReferenceCategories;
+    private static ArrayList<Category> ythReferenceCategories;
 
     private class RobiComparator implements Comparator<Category> {
 
         @Override
         public int compare(Category c1, Category c2) {
-            if (c2.getGender() != c1.getGender()) return ObjectUtils.compare(c2, c1);
-            // c2 is a fake category where the upper and lower bounds are the athlete's weight
-            if (c2.getMinimumWeight() >= c1.getMinimumWeight() && c2.getMaximumWeight() <= c1.getMaximumWeight()) {
-//                System.err.println(dumpCat(c2)+" == "+dumpCat(c1));
-                return 0;
-            } else if (c2.getMinimumWeight() > c1.getMaximumWeight()) {
-//                System.err.println(dumpCat(c2)+" >  "+dumpCat(c1));
-                return -1;
-            } else {
-//                System.err.println(dumpCat(c2)+" <  "+dumpCat(c1));
-                return 1;
+            try {
+                // because we are getting c2 as the fake value being searched, we invert the 
+                // return value of comparison.
+                
+                if (c2.getGender() != c1.getGender()) {
+                    int compare =  ObjectUtils.compare(c2, c1);
+//                    System.err.println(dumpCat(c2) + " " + compare + " " + dumpCat(c1));
+                    return -compare;
+                }
+                // c2 is a fake category where the upper and lower bounds are the athlete's weight
+                if (c2.getMinimumWeight() >= c1.getMinimumWeight() && c2.getMaximumWeight() <= c1.getMaximumWeight()) {
+//                    System.err.println(dumpCat(c2)+" == "+dumpCat(c1));
+                    return 0;
+                } else if (c2.getMinimumWeight() > c1.getMaximumWeight()) {
+//                    System.err.println(dumpCat(c2)+" >  "+dumpCat(c1));
+                    return -1;
+                } else {
+//                    System.err.println(dumpCat(c2)+" <  "+dumpCat(c1));
+                    return 1;
+                }
+            } catch (Exception e) {
+//                e.printStackTrace();
             }
+            return 0;
         }
     }
 
@@ -61,14 +72,14 @@ public class RobiCategories {
         String localizedName = "/config/AgeGroups.xlsx";
         InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
-            System.err.println("loaded configuration file "+ localizedName);
+            System.err.println("loaded configuration file " + localizedName);
             Map<String, Category> referenceCategoryMap = AgeGroupRepository.createCategoryTemplates(workbook);
             // get the IWF categories, sorted.
             jrSrReferenceCategories = referenceCategoryMap.values()
                     .stream()
                     .filter(c -> c.getWrSr() > 0)
                     .sorted()
-                    //.peek(c -> {System.err.println(c.getCode());})
+                    // .peek(c -> {System.err.println(c.getCode());})
                     .collect(Collectors.toCollection(ArrayList::new));
             workbook.close();
         } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
@@ -76,7 +87,7 @@ public class RobiCategories {
         }
         Double prevMax = 0.0D;
 //        int i = 0;
-        for (Category refCat: jrSrReferenceCategories) {
+        for (Category refCat : jrSrReferenceCategories) {
             refCat.setMinimumWeight(prevMax);
 //            System.err.println(i + " " + dumpCat(referenceCategories.get(i)));
             prevMax = refCat.getMaximumWeight();
@@ -84,21 +95,21 @@ public class RobiCategories {
                 prevMax = 0.0D;
             }
 //            i++;
-        }  
+        }
     }
 
     private static void loadYthReferenceCategories() {
         String localizedName = "/config/AgeGroups.xlsx";
         InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
-            System.err.println("loaded configuration file "+ localizedName);
+            System.err.println("loaded configuration file " + localizedName);
             Map<String, Category> referenceCategoryMap = AgeGroupRepository.createCategoryTemplates(workbook);
             // get the IWF categories, sorted.
-            jthReferenceCategories = referenceCategoryMap.values()
+            ythReferenceCategories = referenceCategoryMap.values()
                     .stream()
                     .filter(c -> c.getWrYth() > 0)
                     .sorted()
-                    //.peek(c -> {System.err.println(c.getCode());})
+                    // .peek(c -> {System.err.println(c.getCode());})
                     .collect(Collectors.toCollection(ArrayList::new));
             workbook.close();
         } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
@@ -106,17 +117,17 @@ public class RobiCategories {
         }
         Double prevMax = 0.0D;
 //        int i = 0;
-        for (Category refCat: jthReferenceCategories) {
+        for (Category refCat : ythReferenceCategories) {
             refCat.setMinimumWeight(prevMax);
-//            System.err.println(i + " " + dumpCat(referenceCategories.get(i)));
+//            System.err.println(i + " " + dumpCat(ythReferenceCategories.get(i)));
             prevMax = refCat.getMaximumWeight();
             if (prevMax >= 998.00D) {
                 prevMax = 0.0D;
             }
 //            i++;
-        }  
+        }
     }
-    
+
     public static Category findRobiCategory(Athlete a) {
         if (jrSrReferenceCategories == null) {
             loadJrSrReferenceCategories();
@@ -126,26 +137,31 @@ public class RobiCategories {
         }
         RobiCategories x = new RobiCategories();
         List<Category> categories;
-        if (a.getAge() <= 17) {
+        Integer age = a.getAge();
+        if (age != null && age <= 17) {
             categories = ythReferenceCategories;
         } else {
             categories = jrSrReferenceCategories;
         }
-        int index = Collections.binarySearch(categories, 
+//        System.err.println("before search " + categories.size());
+        int index = Collections.binarySearch(categories,
                 new Category(null, a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null),
                 x.new RobiComparator());
+
         if (index >= 0) {
-            return jrSrReferenceCategories.get(index);
+            return categories.get(index);
         } else {
             return null;
         }
     }
-    
+
     @SuppressWarnings("unused")
     private static String dumpCat(Category c) {
         StringBuilder sb = new StringBuilder();
         sb.append("code=");
         sb.append(c.getCode());
+        sb.append(" gender=");
+        sb.append(c.getGender());
         sb.append(" min=");
         sb.append(c.getMinimumWeight());
         sb.append(" max=");
