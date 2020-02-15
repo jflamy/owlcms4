@@ -10,4 +10,6 @@ git pull
 cd ..
 git checkout develop
 git pull
-
+git add .
+git commit -a -m "sync submodules"
+git push
