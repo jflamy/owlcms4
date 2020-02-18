@@ -266,10 +266,10 @@ class CurrentAttempt extends PolymerElement {
     }
 
     reset() {
-    	console.debug("attemptBoard reset "+this.javaComponentId);
+    	console.warn("attemptBoard reset "+this.javaComponentId);
     	this.$.attemptBoardDiv.style.display="grid";
     	this.$.attemptBoardDiv.style.color="white";
-    	this.$.athleteTimer.reset();
+    	this.$.athleteTimer.reset(this.$.athleteTimer);
     	this.$.athleteTimerDiv.style.display="block";
     	this.$.firstNameDiv.style.display="block";
     	this.$.teamNameDiv.style.display="block";

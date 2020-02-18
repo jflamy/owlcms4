@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.elements;
@@ -132,6 +132,9 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 
     private EventBus uiEventBus;
     private Element timerElement;
+    private boolean indefinite;
+    private Integer msRemaining;
+    private boolean silent;
 
     /**
      * Instantiates a new timer element.
@@ -168,22 +171,22 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 
     protected final void doSetTimer(Integer milliseconds) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            stop();
-            setTimeRemaining(milliseconds);
+            stop(getMsRemaining(), isIndefinite(), isSilent());
+            initTime(milliseconds);
         });
     }
 
     protected void doStartTimer(Integer milliseconds, boolean silent) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            setTimeRemaining(milliseconds);
+            initTime(milliseconds);
             getModel().setSilent(silent);
-            start();
+            start(milliseconds, isIndefinite(), isSilent());
         });
     }
 
     protected void doStopTimer() {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            stop();
+            stop(getMsRemaining(), isIndefinite(), isSilent());
         });
     }
 
@@ -192,7 +195,11 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     protected void init() {
+        setTimerElement(this.getElement());
         double seconds = 0.00D;
+        setMsRemaining(0);
+        setSilent(true);
+        setIndefinite(false);
         UI.getCurrent().access(() -> {
             TimerModel model = getModel();
             model.setStartTime(0.0D);
@@ -200,7 +207,6 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             model.setCountUp(false);
             model.setRunning(false);
             model.setSilent(true);
-            setTimerElement(this.getElement());
         });
     }
 
@@ -221,39 +227,73 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         // tell the javascript to stay quiet
+        setSilent(true);
+        setTimerElement(null);
         getModel().setSilent(true);
+    }
+
+    protected void setSilent(boolean b) {
+        silent = b;
     }
 
     protected void setTimerElement(Element timerElement) {
         this.timerElement = timerElement;
     }
 
-    private void setTimeRemaining(Integer milliseconds) {
+    private Integer getMsRemaining() {
+        return msRemaining;
+    }
+
+    private void initTime(Integer milliseconds) {
         logger.trace("=== time remaining = {} from {} ", milliseconds, LoggerUtils.whereFrom());
         TimerModel model = getModel();
-        boolean indefinite = milliseconds == null;
+        setIndefinite(milliseconds == null);
+        setMsRemaining(milliseconds);
 
-        if (!indefinite) {
+        if (!isIndefinite()) {
             logger.trace("not indefinite");
-            double seconds = milliseconds / 1000.0D;
+            double seconds = getMsRemaining() / 1000.0D;
             model.setCurrentTime(seconds);
             model.setStartTime(seconds);
-            model.setIndefinite(false);
+            model.setIndefinite(isIndefinite());
         } else {
             logger.trace("indefinite");
             model.setIndefinite(true);
+            setSilent(true);
             model.setSilent(true);
         }
-        // should not be necessary
-//        getTimerElement().callJsFunction("reset");
     }
 
-    private void start() {
-        getTimerElement().callJsFunction("start");
+    private boolean isIndefinite() {
+        return indefinite;
     }
 
-    private void stop() {
-        getTimerElement().callJsFunction("pause");
+    private boolean isSilent() {
+        return silent;
+    }
+
+    private void setIndefinite(boolean indefinite) {
+        this.indefinite = indefinite;
+    }
+
+    private void setMsRemaining(Integer milliseconds) {
+        msRemaining = milliseconds;
+    }
+
+    private void start(Integer milliseconds, Boolean indefinite, Boolean silent) {
+        Element timerElement2 = getTimerElement();
+        if (timerElement2 != null) {
+            double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
+            timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2);
+        }
+    }
+
+    private void stop(Integer milliseconds, Boolean indefinite, Boolean silent) {
+        Element timerElement2 = getTimerElement();
+        if (timerElement2 != null) {
+            double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
+            timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2);
+        }
     }
 
 }

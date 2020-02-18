@@ -548,7 +548,7 @@ td.club div {
 
 	reset() {
 		console.debug("reset");
-		this.$.timer.reset();
+		this.$.timer.reset(this.$.timer);
 		this.$.groupDiv.style.visibility="visible";
 		this.$.fullNameDiv.style.visibility="visible";
 		this.$.fullNameDiv.style.display="flex";

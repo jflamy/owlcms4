@@ -130,7 +130,7 @@ class DecisionBoard extends PolymerElement {
 	reset() {
 		this.$.decisionBoardDiv.style.display="grid";
 		this.$.decisionBoardDiv.style.color="white";
-		this.$.athleteTimer.reset();
+		this.$.athleteTimer.reset(this.$.athleteTimer);
 		this.$.athleteTimerDiv.style.display="block";
 		this.$.breakTimerDiv.style.display="none";
 		this.$.barbellDiv.style.display="none";

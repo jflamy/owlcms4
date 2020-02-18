@@ -128,15 +128,18 @@ public class ProxyBreakTimer implements IProxyTimer {
      * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int)
      */
     @Override
-    public void setTimeRemaining(int timeRemaining) {
+    public void setTimeRemaining(int timeRemaining2) {
         indefinite = false;
+        
+        this.timeRemaining = timeRemaining2;
         if (running) {
             computeTimeRemaining();
         }
-        logger.debug("setting break timeRemaining = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
-        this.timeRemaining = timeRemaining;
-        fop.pushOut(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining,
-                this.indefinite, this));
+
+        logger.debug("setting break timeRemaining = {} [{}]", this.timeRemaining, LoggerUtils.whereFrom());
+
+//        fop.pushOut(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining,
+//                this.indefinite, this));
         running = false;
     }
 
@@ -185,7 +188,7 @@ public class ProxyBreakTimer implements IProxyTimer {
             // we've already signaled time over.
             return;
         }
-        logger.debug("break stop = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
+        logger.warn("break timeover = {} [{}]", timeRemaining, LoggerUtils.whereFrom());
 
         // should emit sound at end of break
         fop.pushOut(new UIEvent.BreakDone(origin));

@@ -60,7 +60,7 @@ public class BreakTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientSyncTime() {
-        logger.info("timer element fetching time");
+        logger.info("break timer element fetching time");
         OwlcmsSession.withFop(fop -> {
             ProxyBreakTimer breakTimer = fop.getBreakTimer();
             doSetTimer(breakTimer.isIndefinite() ? null : breakTimer.getTimeRemaining());
@@ -108,7 +108,7 @@ public class BreakTimerElement extends TimerElement {
     @Subscribe
     public void slaveBreakSet(UIEvent.BreakSetTime e) {
         Integer milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-        uiEventLogger.debug("&&& breakTimer set {} {} {} {}", parentName, milliseconds,
+        uiEventLogger.warn("&&& breakTimer set {} {} {} {}", parentName, milliseconds,
                 e.isIndefinite(), LoggerUtils.whereFrom());
         doSetTimer(milliseconds);
     }
@@ -118,7 +118,7 @@ public class BreakTimerElement extends TimerElement {
         if (e.isDisplayToggle()) {
             return;
         }
-        uiEventLogger.debug("&&& breakTimer start {} {} {}", parentName ,e.getTimeRemaining(), e.getOrigin());
+        uiEventLogger.warn("&&& breakTimer start {} {} {}", parentName ,e.getTimeRemaining(), e.getOrigin());
         doStartTimer(e.getTimeRemaining(), true); // true means "silent".
     }
 
@@ -130,6 +130,7 @@ public class BreakTimerElement extends TimerElement {
     @Override
     protected void init() {
         super.init();
+        setSilent(true);
         getModel().setSilent(true); // do not emit sounds
     }
 

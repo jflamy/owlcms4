@@ -80,7 +80,7 @@ public class AthleteTimerElement extends TimerElement {
     public void clientSyncTime() {
         OwlcmsSession.withFop(fop -> {
             int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
-            logger.trace("Fetched time = {} for {}", timeRemaining, fop.getCurAthlete());
+            logger.warn("Fetched time = {} for {}", timeRemaining, fop.getCurAthlete());
             doSetTimer(timeRemaining);
         });
         return;
@@ -124,7 +124,7 @@ public class AthleteTimerElement extends TimerElement {
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        uiEventLogger.warn("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 (e.isCurrentDisplayAffected() ? "stop_timer" : "leave_asis"), this.getOrigin(), e.getOrigin());
         if (e.isCurrentDisplayAffected()) {
             clientSyncTime();
@@ -137,7 +137,7 @@ public class AthleteTimerElement extends TimerElement {
     @Subscribe
     public void slaveSetTimer(UIEvent.SetTime e) {
         Integer milliseconds = e.getTimeRemaining();
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         doSetTimer(milliseconds);
     }
@@ -166,6 +166,7 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     protected void init() {
         super.init();
+        setSilent(false);
         getModel().setSilent(false); // emit sounds
     }
 

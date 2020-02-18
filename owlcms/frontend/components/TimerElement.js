@@ -104,27 +104,22 @@ class TimerElement extends PolymerElement {
 		this._init();
 	}
 
-	start() {
-		if (this.indefinite) {
-			console.log("timer indefinite "+this.startTime);
+	start(seconds, indefinite, silent, element) {
+		if (indefinite) {
+			console.warn("timer indefinite "+seconds);
 			this._indefinite()
 			return;
 		}
 
-		console.log("timer start "+this.startTime);
+		console.warn("timer start "+seconds);
+		this.currentTime = seconds;
 		if ((this.currentTime <= 0 && !this.countUp) 
 				|| (this.currentTime >= this.startTime && this.countUp) ) {
 			// timer is over
 			this.currentTime = this.countUp ? this.startTime : 0;
 		}
 
-		if (!this.startTime 
-				// || this.running /* start should not result in pause() ! */
-		) {
-			console.log("pausing in start?")
-			this.pause();
-			return;
-		}
+		this.silent = silent;
 		this._initialWarningGiven = (this.currentTime < 90);
 		this._finalWarningGiven = (this.currentTime < 30);
 		this._timeOverWarningGiven = (this.currentTime < 0);
@@ -135,22 +130,26 @@ class TimerElement extends PolymerElement {
 		window.requestAnimationFrame(this._decreaseTimer.bind(this));
 	}
 
-	pause() {
-		if (this.indefinite) {
+	pause(seconds, indefinite, silent, element) {
+		if (indefinite) {
 			this._indefinite()
 			return;
-		} 
+		}
+
 		this.running = false;
-		if (this.$server != null) {
-			this.$server.clientTimerStopped(this.currentTime);      
+		if (element.$server != null) {
+			element.$server.clientTimerStopped(this.currentTime);      
 		} else {
 			console.log("no server$");
 		}
+		
+		console.warn("timer pause"+seconds);
+		this.currentTime = seconds;
 	}
 
-	reset() {
-		console.log("timer reset");
-		this.pause();
+	reset(element) {
+		console.warn("timer reset");
+		this.pause(this.startTime, false, true, element);
 		this._init();
 	}
 

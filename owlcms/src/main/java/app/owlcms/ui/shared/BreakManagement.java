@@ -227,7 +227,16 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public void startBreak(FieldOfPlay fop) {
         BreakType breakType = bt.getValue();
         CountdownType countdownType = ct.getValue();
-        Integer tr = (countdownType == CountdownType.INDEFINITE ? null : timeRemaining.intValue());
+        Integer tr;
+        if (countdownType == CountdownType.INDEFINITE) {
+            tr = null;
+        } else if (countdownType == CountdownType.TARGET) {
+            // recompute duration, in case there was a pause.
+            setBreakTimeRemaining(CountdownType.TARGET);
+            tr = timeRemaining.intValue();
+        } else {
+            tr = timeRemaining.intValue();
+        }
         fop.getFopEventBus().post(new FOPEvent.BreakStarted(breakType, countdownType, tr, getTarget(), null));
     }
 
