@@ -72,7 +72,6 @@ public class RobiCategories {
         String localizedName = "/config/AgeGroups.xlsx";
         InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
-            System.err.println("loaded configuration file " + localizedName);
             Map<String, Category> referenceCategoryMap = AgeGroupRepository.createCategoryTemplates(workbook);
             // get the IWF categories, sorted.
             jrSrReferenceCategories = referenceCategoryMap.values()
@@ -102,7 +101,6 @@ public class RobiCategories {
         String localizedName = "/config/AgeGroups.xlsx";
         InputStream localizedResourceAsStream = AgeGroupRepository.class.getResourceAsStream(localizedName);
         try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
-            System.err.println("loaded configuration file " + localizedName);
             Map<String, Category> referenceCategoryMap = AgeGroupRepository.createCategoryTemplates(workbook);
             // get the IWF categories, sorted.
             ythReferenceCategories = referenceCategoryMap.values()
