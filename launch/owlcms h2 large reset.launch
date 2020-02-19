@@ -7,7 +7,7 @@
 <listEntry value="1"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="OWLCMS_DEVMODE" value="false"/>
+<mapEntry key="OWLCMS_DEVMODE" value="true"/>
 <mapEntry key="OWLCMS_H2SERVERPORT" value="9092"/>
 <mapEntry key="OWLCMS_LOCALE" value="en"/>
 <mapEntry key="OWLCMS_MEMORYMODE" value="false"/>

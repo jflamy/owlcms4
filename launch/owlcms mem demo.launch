@@ -12,8 +12,8 @@
 <mapEntry key="OWLCMS_LOCALE" value="en"/>
 <mapEntry key="OWLCMS_MASTERS" value="false"/>
 <mapEntry key="OWLCMS_PORT" value="80"/>
-<mapEntry key="OWLCMS_REMOTE" value="https://owlcms-test-publicresults.herokuapp.com/update"/>
-<mapEntry key="OWLCMS_REMOTE1" value="http://127.0.0.1:8081/update"/>
+<mapEntry key="OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
+<mapEntry key="OWLCMS_REMOTE2" value="https://owlcms-test-publicresults.herokuapp.com/update"/>
 <mapEntry key="OWLCMS_UPDATEKEY" value="thisisaverylongsecretstring"/>
 </mapAttribute>
 <mapAttribute key="org.eclipse.debug.core.preferred_launchers">
