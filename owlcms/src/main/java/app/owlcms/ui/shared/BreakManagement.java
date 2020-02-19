@@ -129,6 +129,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     public void cleanup() {
+        logger.warn("removing {}", breakTimerElement);
         OwlcmsSession.withFop(fop -> {
             fop.getUiEventBus().unregister(breakTimerElement);
             this.breakTimerElement = null;
@@ -191,29 +192,39 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     public int readFromRunningTimer(FieldOfPlay fop, ProxyBreakTimer breakTimer) {
+        logger.warn("reading fop breaktimer {}", LoggerUtils.stackTrace());
         BreakType bType = getRequestedBreakType();
         CountdownType cType = getRequestedCountdownType();
 
-        if (bType == null) {
-            bType = fop.getBreakType();
+        // read from running timer if a timer is running.
+        // if not, use the requested values
+
+        bType = fop.getBreakType();
+        if (bType != null) {
+            // use break and countdown type from FOP
+            safeSetBT(bType);
+            cType = fop.getCountdownType();
+            if (cType == null) {
+                // defensive, should not happen
+                cType = mapBreakTypeToCountdownType(bType);
+            }
+            setCtValue(cType);
+        } else {
+            // not in a break, try with requested values if any
+            bType = getRequestedBreakType();
+            cType = getRequestedCountdownType();
             if (bType != null) {
-                // use break type from FOP
                 safeSetBT(bType);
                 if (cType == null) {
                     cType = mapBreakTypeToCountdownType(bType);
                 }
-                setCtValue(cType);
             } else {
-                // no known break type
+                // no requested values, go for simple technical break
                 bType = BreakType.TECHNICAL;
                 cType = CountdownType.INDEFINITE;
+                safeSetBT(bType);
+                setCtValue(cType);
             }
-        } else {
-            safeSetBT(bType);
-            if (cType == null) {
-                cType = mapBreakTypeToCountdownType(bType);
-            }
-            setCtValue(cType);
         }
 
         int milliseconds;
@@ -227,7 +238,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             setDurationField(Duration.ofMillis(milliseconds));
         }
 
-
         startDisabled();
         return milliseconds;
     }
@@ -237,7 +247,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         synchronized (this) {
             try {
                 ignoreListeners = true;
-                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this, e.getOrigin(),
+                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(),
                         () -> parentDialog.close());
             } finally {
                 ignoreListeners = false;
@@ -250,12 +260,13 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         synchronized (this) {
             try {
                 ignoreListeners = true;
-                UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-                    OwlcmsSession.withFop((fop) -> {
-                        readFromRunningTimer(fop, fop.getBreakTimer());
-                    });
-                    startEnabled();
-                });
+                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(),
+                        () -> {
+//                            OwlcmsSession.withFop((fop) -> {
+//                                readFromRunningTimer(fop, fop.getBreakTimer());
+//                            });
+                            startEnabled();
+                        });
             } finally {
                 ignoreListeners = false;
             }
@@ -276,10 +287,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 if (e.isDisplayToggle()) {
                     return;
                 }
-                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this, e.getOrigin(), () -> {
-                    startDisabled();
-                    safeSetBT(e.getBreakType());
-                });
+                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(),
+                        () -> {
+                            startDisabled();
+                            safeSetBT(e.getBreakType());
+                        });
             } finally {
                 ignoreListeners = false;
             }
@@ -287,9 +299,9 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
     }
 
-    public void startBreak() {
+    public void masterStartBreak() {
         OwlcmsSession.withFop(fop -> {
-            startBreak(fop);
+            masterStartBreak(fop);
         });
         // e.getSource().setEnabled(false);
         logger.debug("start break disable start");
@@ -297,20 +309,22 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         return;
     }
 
-    public void startBreak(FieldOfPlay fop) {
+    public void masterStartBreak(FieldOfPlay fop) {
         BreakType breakType = bt.getValue();
         CountdownType countdownType = ct.getValue();
         Integer tr;
+        logger.warn("start break bt={} ct={}", bt, ct);
         if (countdownType == CountdownType.INDEFINITE) {
             tr = null;
         } else if (countdownType == CountdownType.TARGET) {
             // recompute duration, in case there was a pause.
-            updateEditingFields(CountdownType.TARGET);
+            setBreakTimerFromFields(CountdownType.TARGET);
             tr = timeRemaining.intValue();
         } else {
             tr = timeRemaining.intValue();
         }
-        fop.getFopEventBus().post(new FOPEvent.BreakStarted(breakType, countdownType, tr, getTarget(), null));
+        fop.getFopEventBus()
+                .post(new FOPEvent.BreakStarted(breakType, countdownType, tr, getTarget(), this.getOrigin()));
     }
 
     public void startDisabled() {
@@ -333,8 +347,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         setDurationField(DEFAULT_DURATION);
         BreakType breakType = bType != null ? bType : BreakType.TECHNICAL;
         safeSetBT(breakType);
-        startBreak();
-        breakTimerElement.slaveBreakStart(new BreakStarted(null, this, false, breakType, ct.getValue()));
+        masterStartBreak();
+//        breakTimerElement.slaveBreakStart(new BreakStarted(null, this.getOrigin(), false, breakType, ct.getValue()));
     }
 
     /**
@@ -378,12 +392,12 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 logger.debug("starting break from radiobutton setvalue {}", bType);
                 startIndefiniteBreakImmediately(bType);
             } else {
-                updateEditingFields(ct.getValue());
+                setBreakTimerFromFields(ct.getValue());
             }
         });
-        durationField.addValueChangeListener(e -> updateEditingFields(CountdownType.DURATION));
-        timePicker.addValueChangeListener(e -> updateEditingFields(CountdownType.TARGET));
-        datePicker.addValueChangeListener(e -> updateEditingFields(CountdownType.TARGET));
+        durationField.addValueChangeListener(e -> setBreakTimerFromFields(CountdownType.DURATION));
+        timePicker.addValueChangeListener(e -> setBreakTimerFromFields(CountdownType.TARGET));
+        datePicker.addValueChangeListener(e -> setBreakTimerFromFields(CountdownType.TARGET));
         boolean running = syncWithFop();
         if (!running) {
             doSync();
@@ -424,7 +438,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private FlexLayout createButtons(BreakManagement breakManagement) {
-        breakStart = new Button(AvIcons.PLAY_ARROW.create(), (e) -> startBreak());
+        breakStart = new Button(AvIcons.PLAY_ARROW.create(), (e) -> masterStartBreak());
         breakStart.getElement().setAttribute("theme", "primary contrast");
         breakStart.getElement().setAttribute("title", getTranslation("StartCountdown"));
 
@@ -457,8 +471,9 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     OwlcmsSession.withFop(fop -> {
                         fop.recomputeLiftingOrder();
                         OwlcmsSession.getFop().getUiEventBus()
-                        // FIXME: why is this "go back to display the current break"
-                                .post(new UIEvent.BreakStarted(0, this, true, bt.getValue(), ct.getValue()));
+                                // FIXME: does this work ?
+                                .post(new UIEvent.BreakStarted(0, this.getOrigin(), true, bt.getValue(),
+                                        ct.getValue()));
                     });
                 });
         athleteButton.getThemeNames().add("secondary contrast");
@@ -510,7 +525,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             logger.warn("starting break on dialog creation {}", getRequestedBreakType());
             startIndefiniteBreakImmediately(getRequestedBreakType());
         } else {
-            updateEditingFields(ct.getValue());
+            setBreakTimerFromFields(ct.getValue());
         }
     }
 
@@ -561,7 +576,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         durationField.focus();
         durationField.setAutoselect(true);
         startEnabled();
-        updateEditingFields(CountdownType.DURATION);
+        setBreakTimerFromFields(CountdownType.DURATION);
     }
 
     private void switchToIndefinite() {
@@ -570,7 +585,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         datePicker.setEnabled(false);
         timePicker.setEnabled(false);
         startEnabled();
-        updateEditingFields(CountdownType.INDEFINITE);
+        setBreakTimerFromFields(CountdownType.INDEFINITE);
     }
 
     private void switchToTarget() {
@@ -580,73 +595,78 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         timePicker.setEnabled(true);
         timePicker.focus();
         startEnabled();
-        updateEditingFields(CountdownType.TARGET);
+        setBreakTimerFromFields(CountdownType.TARGET);
     }
 
     /**
-     * Set values except for Timer, which will set itself.
+     * Set values based on current state of Field of Play
      *
      * @return
      */
     private boolean syncWithFop() {
         ignoreListeners = true;
-        final boolean[] running = new boolean[1]; // workaround final restriction for lambdas
+        final boolean[] running = new boolean[1]; // wrapper to allow value to be set from lambda
         OwlcmsSession.withFop(fop -> {
             running[0] = false;
             ProxyBreakTimer breakTimer = fop.getBreakTimer();
-
-            if (breakTimer.isRunning()) {
-                int milliseconds = readFromRunningTimer(fop, breakTimer);
-                logger.warn("sync with running break timer");
-                breakTimerElement.slaveBreakStart(
-                        new BreakStarted(milliseconds, this, false, fop.getBreakType(), fop.getCountdownType()));
-                running[0] = true;
-            } else {
-                computeDefaultValues();
-                int milliseconds = readFromRunningTimer(fop, breakTimer);
-                startEnabled();
-                ignoreListeners = false;
-                switch (fop.getState()) {
-                case BREAK:
-                    setDurationField(Duration.ofMillis(milliseconds));
-                    BreakType breakType = fop.getBreakType();
-                    safeSetBT(breakType);
-                    if (breakType == BreakType.JURY || breakType == BreakType.TECHNICAL) {
-                        setCtValue(CountdownType.INDEFINITE);
-                        breakTimerElement.slaveBreakStart(
-                                new BreakStarted(null, this, false, fop.getBreakType(), fop.getCountdownType()));
-                    } else {
-                        updateEditingFields(fop.getCountdownType());
-                    }
-                    break;
-                case CURRENT_ATHLETE_DISPLAYED:
-                    if (fop.getCurAthlete() == null) {
-                        safeSetBT(BreakType.BEFORE_INTRODUCTION);
-                    } else if (fop.getCurAthlete().getAttemptsDone() == 3) {
-                        safeSetBT(BreakType.FIRST_CJ);
-                    } else if (fop.getCurAthlete().getAttemptsDone() == 0) {
-                        safeSetBT(BreakType.FIRST_SNATCH);
-                    } else {
-                        safeSetBT(BreakType.TECHNICAL);
-                        if (getRequestedBreakType() == null) {
-                            setRequestedBreakType(BreakType.TECHNICAL);
-                        }
-                    }
-                    break;
-                case INACTIVE:
+            
+            // default vaules
+            computeDefaultValues();
+            startEnabled();
+            
+            ignoreListeners = false;
+            
+            switch (fop.getState()) {
+            case BREAK:
+                logger.warn("syncWithFOP - break under way");
+                int milliseconds = breakTimer.liveTimeRemaining();
+                setTimingFieldsFromMillis(milliseconds);
+                // override from FOP
+                BreakType breakType = fop.getBreakType();
+                CountdownType countdownType = fop.getCountdownType();
+                safeSetBT(breakType);
+                setCtValue(countdownType);
+                setBreakTimerFromFields(fop.getCountdownType());
+                if (breakTimer.isRunning()) {
+                    startDisabled();
+                    // start only ourself -- the rest of the world is already running
+                    breakTimerElement.slaveBreakStart(new BreakStarted(milliseconds, this.getOrigin(), false, breakType, countdownType));
+                    running[0] = true;
+                }
+                break;
+            case CURRENT_ATHLETE_DISPLAYED:
+                if (fop.getCurAthlete() == null) {
                     safeSetBT(BreakType.BEFORE_INTRODUCTION);
-                    break;
-                default:
+                } else if (fop.getCurAthlete().getAttemptsDone() == 3) {
+                    safeSetBT(BreakType.FIRST_CJ);
+                } else if (fop.getCurAthlete().getAttemptsDone() == 0) {
+                    safeSetBT(BreakType.FIRST_SNATCH);
+                } else {
                     safeSetBT(BreakType.TECHNICAL);
                     if (getRequestedBreakType() == null) {
                         setRequestedBreakType(BreakType.TECHNICAL);
                     }
-                    break;
                 }
+                break;
+            case INACTIVE:
+                safeSetBT(BreakType.BEFORE_INTRODUCTION);
+                break;
+            default:
+                safeSetBT(BreakType.TECHNICAL);
+                if (getRequestedBreakType() == null) {
+                    setRequestedBreakType(BreakType.TECHNICAL);
+                }
+                break;
             }
         });
-        ignoreListeners = false;
         return running[0];
+    }
+
+    private void setTimingFieldsFromMillis(int milliseconds) {
+        setDurationField(milliseconds != 0 ? Duration.ofMillis(milliseconds) : DEFAULT_DURATION);
+        LocalDateTime target = LocalDateTime.now().plus(milliseconds, ChronoUnit.MILLIS);
+        datePicker.setValue(target.toLocalDate());
+        timePicker.setValue(target.toLocalTime());
     }
 
     private void setCtValue(CountdownType ct2) {
@@ -654,49 +674,42 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         ct.setValue(ct2);
     }
 
-    private void updateEditingFields(CountdownType cType) {
-        if (ignoreListeners) return;
-        
+    private void setBreakTimerFromFields(CountdownType cType) {
+        if (ignoreListeners)
+            return;
+        logger.warn("updateEditingFields cType={}", cType);
         LocalDateTime now = LocalDateTime.now();
 
         BreakType bType = bt.getValue();
         if (cType == null) {
             mapBreakTypeToCountdownType(bType);
         }
-
-        final LocalDateTime target;
-        if (cType == CountdownType.DURATION) {
-            Duration value;
-            if (bType == BreakType.JURY || bType == BreakType.TECHNICAL) {
-                value = DEFAULT_DURATION;
-            } else {
-                value = durationField.getValue();
-                value = (value == null ? DEFAULT_DURATION : value);
-            }
-            target = now.plus(value);
-        } else if (cType == CountdownType.TARGET) {
-            target = getTarget();
-        } else { // INDEFINITE
-            target = now;
-        }
-
         OwlcmsSession.withFop(fop -> {
             if (cType == CountdownType.TARGET) {
+                LocalDateTime target = getTarget();
                 timeRemaining = now.until(target, ChronoUnit.MILLIS);
-                logger.warn("target, indefinite {}", DurationFormatUtils.formatDurationHMS(timeRemaining));
-                breakTimerElement.slaveBreakSet(new BreakSetTime(bType, cType, target, this));
-            } else if (target.isBefore(now) || target.isEqual(now)) {
-                logger.warn("duration 0 or target in the past, indefinite");
+                logger.warn("setBreakTimerFromFields target-derived duration {}",
+                        DurationFormatUtils.formatDurationHMS(timeRemaining));
+                breakTimerElement.slaveBreakSet(new BreakSetTime(bType, cType, 0, target, false, this.getOrigin()));
+            } else if (cType == CountdownType.INDEFINITE) {
+                logger.warn("setBreakTimerFromFields indefinite");
                 timeRemaining = null;
-                breakTimerElement.slaveBreakSet(new BreakSetTime(bType, cType, 0, true, this));
+                breakTimerElement.slaveBreakSet(new BreakSetTime(bType, cType, 0, null, true, this));
             } else {
-                logger.warn("duration ok or target in future");
-                Duration value = durationField.getValue();
+                Duration value;
+                if (bType == BreakType.JURY || bType == BreakType.TECHNICAL) {
+                    value = DEFAULT_DURATION;
+                } else {
+                    value = durationField.getValue();
+                    value = (value == null ? DEFAULT_DURATION : value);
+                }
                 timeRemaining = (value != null ? value.toMillis() : 0L);
-                breakTimerElement.slaveBreakSet(new BreakSetTime(bType, cType, timeRemaining.intValue(), false, this));
+                logger.warn("setBreakTimerFromFields explicit duration {}",
+                        DurationFormatUtils.formatDurationHMS(timeRemaining));
+                breakTimerElement.slaveBreakSet(
+                        new BreakSetTime(bType, cType, timeRemaining.intValue(), null, false, this.getOrigin()));
             }
         });
-
         return;
     }
 

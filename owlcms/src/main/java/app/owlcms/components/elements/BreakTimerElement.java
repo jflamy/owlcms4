@@ -42,6 +42,7 @@ public class BreakTimerElement extends TimerElement {
      * Instantiates a new timer element.
      */
     public BreakTimerElement() {
+        //logger./**/warn(LoggerUtils.stackTrace());
     }
 
     @Override
@@ -78,7 +79,10 @@ public class BreakTimerElement extends TimerElement {
     public void clientTimeOver() {
         logger.info("break time over");
         OwlcmsSession.withFop(fop -> {
-            fop.getBreakTimer().timeOver(this);
+            ProxyBreakTimer breakTimer = fop.getBreakTimer();
+            if (!breakTimer.isIndefinite()) {
+                fop.getBreakTimer().timeOver(this);
+            }
         });
     }
 
@@ -117,7 +121,7 @@ public class BreakTimerElement extends TimerElement {
         } else {
             milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
             uiEventLogger.warn("&&& breakTimer set {} {} {} {}", parentName, formatDuration(milliseconds),
-                    e.isIndefinite(), LoggerUtils.whereFrom(2));
+                    e.isIndefinite(), LoggerUtils.whereFrom());
         }
         doSetTimer(milliseconds);
     }
@@ -127,8 +131,8 @@ public class BreakTimerElement extends TimerElement {
         if (e.isDisplayToggle()) {
             return;
         }
-        int tr = e.isIndefinite() ? 0 : e.getMillis();
-        uiEventLogger.warn("&&& breakTimer start {} {} {}", parentName, tr, e.getOrigin());
+        Integer tr = e.isIndefinite() ? null : e.getMillis();
+        uiEventLogger.warn("&&& breakTimer start {} {} {} {}", parentName, tr, e.getOrigin(), LoggerUtils.whereFrom());
         doStartTimer(tr, true); // true means "silent".
     }
 

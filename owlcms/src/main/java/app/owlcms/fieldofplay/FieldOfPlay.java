@@ -153,8 +153,10 @@ public class FieldOfPlay {
         this.name = platform2.getName();
         this.fopEventBus = new EventBus("FOP-" + name);
         this.postBus = new EventBus("POST-" + name);
-        // this.uiEventBus = new EventBus("UI-" + name);
+        
+        //this.uiEventBus = new EventBus("UI-" + name);
         this.uiEventBus = new AsyncEventBus(Executors.newCachedThreadPool());
+        
         this.athleteTimer = null;
         this.breakTimer = new ProxyBreakTimer(this);
         this.setPlatform(platform2);
@@ -1104,6 +1106,7 @@ public class FieldOfPlay {
         }
         // this will broadcast to all slave break timers
         if (!breakTimer2.isRunning()) {
+            breakTimer2.setOrigin(e.getOrigin());
             breakTimer2.start();
         }
         logger.trace("started break timers {}", breakType2);

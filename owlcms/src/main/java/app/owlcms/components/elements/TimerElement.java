@@ -247,13 +247,12 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     private void initTime(Integer milliseconds) {
-        if (this instanceof BreakTimerElement) logger.warn("set time remaining = {} from {} ",DurationFormatUtils.formatDurationHMS(milliseconds), LoggerUtils.whereFrom());
-//        TimerModel model = getModel();
+        if (this instanceof BreakTimerElement) logger.warn("set time remaining = {} from {} ",formatDuration(milliseconds), LoggerUtils.whereFrom());
         setIndefinite(milliseconds == null);
         setMsRemaining(milliseconds);
 
         if (!isIndefinite()) {
-            if (this instanceof BreakTimerElement) logger.warn("not indefinite {}", DurationFormatUtils.formatDurationHMS(milliseconds));
+            if (this instanceof BreakTimerElement) logger.warn("not indefinite {}", formatDuration(milliseconds));
             setDisplay(milliseconds, isIndefinite(), isSilent());
         } else {
             if (this instanceof BreakTimerElement) logger.warn("indefinite");
@@ -261,15 +260,19 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         }
     }
 
-    private boolean isIndefinite() {
+    private String formatDuration(Integer milliseconds) {
+        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : null;
+    }
+
+    protected boolean isIndefinite() {
         return indefinite;
     }
 
-    private boolean isSilent() {
+    protected boolean isSilent() {
         return silent;
     }
 
-    private void setIndefinite(boolean indefinite) {
+    protected void setIndefinite(boolean indefinite) {
         this.indefinite = indefinite;
     }
 

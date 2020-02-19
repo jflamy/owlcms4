@@ -80,36 +80,11 @@ public class UIEvent {
          * @param indefinite
          * @param origin
          */
-        public BreakSetTime(BreakType bt, CountdownType ct, Integer timeRemaining, boolean indefinite, Object origin) {
+        public BreakSetTime(BreakType bt, CountdownType ct, Integer timeRemaining, LocalDateTime end, boolean indefinite, Object origin) {
             super(origin);
-            if (bt == BreakType.TECHNICAL || bt == BreakType.JURY) {
-                this.indefinite = true;
-                this.end = null;
-            } else {
-                this.timeRemaining = timeRemaining;
-                this.indefinite = false;
-                this.end = null;
-            }
-            this.breakType = bt;
-            this.countdownType = ct;
-        }
-
-        /** TARGET break
-         * @param bt
-         * @param ct
-         * @param end
-         * @param origin
-         */
-        public BreakSetTime(BreakType bt, CountdownType ct, LocalDateTime end, Object origin) {
-            super(origin);
-            if (bt == BreakType.TECHNICAL || bt == BreakType.JURY) {
-                this.indefinite = true;
-                this.end = end;
-            } else {
-                timeRemaining = null;
-                this.indefinite = false;
-                this.end = end;
-            }
+            this.timeRemaining = timeRemaining;
+            this.indefinite = indefinite;
+            this.end = end;
             this.breakType = bt;
             this.countdownType = ct;
         }
