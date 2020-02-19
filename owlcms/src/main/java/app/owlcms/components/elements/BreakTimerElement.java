@@ -1,11 +1,15 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.elements;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
@@ -28,7 +32,7 @@ public class BreakTimerElement extends TimerElement {
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
     final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     private String parentName = "";
-    
+
     {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
@@ -40,10 +44,6 @@ public class BreakTimerElement extends TimerElement {
     public BreakTimerElement() {
     }
 
-    public void setParent(String s) {
-        parentName = s;
-    }
-    
     @Override
     public void clientFinalWarning() {
         // ignored
@@ -63,7 +63,7 @@ public class BreakTimerElement extends TimerElement {
         logger.info("break timer element fetching time");
         OwlcmsSession.withFop(fop -> {
             ProxyBreakTimer breakTimer = fop.getBreakTimer();
-            doSetTimer(breakTimer.isIndefinite() ? null : breakTimer.getTimeRemaining());
+            doSetTimer(breakTimer.isIndefinite() ? null : breakTimer.liveTimeRemaining());
         });
         return;
     }
@@ -93,6 +93,10 @@ public class BreakTimerElement extends TimerElement {
         logger.trace("timer stopped from client" + remainingTime);
     }
 
+    public void setParent(String s) {
+        parentName = s;
+    }
+
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
         uiEventLogger.debug("&&& break done {} {}", parentName, e.getOrigin());
@@ -107,9 +111,14 @@ public class BreakTimerElement extends TimerElement {
 
     @Subscribe
     public void slaveBreakSet(UIEvent.BreakSetTime e) {
-        Integer milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-        uiEventLogger.warn("&&& breakTimer set {} {} {} {}", parentName, milliseconds,
-                e.isIndefinite(), LoggerUtils.whereFrom());
+        Integer milliseconds;
+        if (e.getEnd() != null) {
+            milliseconds = (int) LocalDateTime.now().until(e.getEnd(), ChronoUnit.MILLIS);
+        } else {
+            milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
+            uiEventLogger.warn("&&& breakTimer set {} {} {} {}", parentName, formatDuration(milliseconds),
+                    e.isIndefinite(), LoggerUtils.whereFrom(2));
+        }
         doSetTimer(milliseconds);
     }
 
@@ -118,8 +127,9 @@ public class BreakTimerElement extends TimerElement {
         if (e.isDisplayToggle()) {
             return;
         }
-        uiEventLogger.warn("&&& breakTimer start {} {} {}", parentName ,e.getTimeRemaining(), e.getOrigin());
-        doStartTimer(e.getTimeRemaining(), true); // true means "silent".
+        int tr = e.isIndefinite() ? 0 : e.getMillis();
+        uiEventLogger.warn("&&& breakTimer start {} {} {}", parentName, tr, e.getOrigin());
+        doStartTimer(tr, true); // true means "silent".
     }
 
     /*
@@ -147,7 +157,7 @@ public class BreakTimerElement extends TimerElement {
                 if (breakTimer.isIndefinite()) {
                     doStartTimer(null, fop.isEmitSoundsOnServer());
                 } else {
-                    doStartTimer(breakTimer.computeTimeRemaining(), fop.isEmitSoundsOnServer());
+                    doStartTimer(breakTimer.liveTimeRemaining(), fop.isEmitSoundsOnServer());
                 }
             } else {
                 if (breakTimer.isIndefinite()) {
@@ -159,6 +169,10 @@ public class BreakTimerElement extends TimerElement {
             // we listen on uiEventBus; this method ensures we stop when detached.
             uiEventBusRegister(this, fop);
         });
+    }
+
+    private String formatDuration(Integer milliseconds) {
+        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : "null";
     }
 
 }

@@ -6,6 +6,7 @@
  */
 package app.owlcms.components.elements;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -178,7 +179,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
 
     protected void doStartTimer(Integer milliseconds, boolean silent) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            initTime(milliseconds);
+            setIndefinite(milliseconds == null);
+            setMsRemaining(milliseconds);
             getModel().setSilent(silent);
             start(milliseconds, isIndefinite(), isSilent());
         });
@@ -245,22 +247,17 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     private void initTime(Integer milliseconds) {
-        logger.trace("=== time remaining = {} from {} ", milliseconds, LoggerUtils.whereFrom());
-        TimerModel model = getModel();
+        if (this instanceof BreakTimerElement) logger.warn("set time remaining = {} from {} ",DurationFormatUtils.formatDurationHMS(milliseconds), LoggerUtils.whereFrom());
+//        TimerModel model = getModel();
         setIndefinite(milliseconds == null);
         setMsRemaining(milliseconds);
 
         if (!isIndefinite()) {
-            logger.trace("not indefinite");
-            double seconds = getMsRemaining() / 1000.0D;
-            model.setCurrentTime(seconds);
-            model.setStartTime(seconds);
-            model.setIndefinite(isIndefinite());
+            if (this instanceof BreakTimerElement) logger.warn("not indefinite {}", DurationFormatUtils.formatDurationHMS(milliseconds));
+            setDisplay(milliseconds, isIndefinite(), isSilent());
         } else {
-            logger.trace("indefinite");
-            model.setIndefinite(true);
-            setSilent(true);
-            model.setSilent(true);
+            if (this instanceof BreakTimerElement) logger.warn("indefinite");
+            setDisplay(milliseconds, true, true);
         }
     }
 
@@ -293,6 +290,14 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         if (timerElement2 != null) {
             double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
             timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2);
+        }
+    }
+    
+    private void setDisplay(Integer milliseconds, Boolean indefinite, Boolean silent) {
+        Element timerElement2 = getTimerElement();
+        if (timerElement2 != null) {
+            double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
+            timerElement2.callJsFunction("display", seconds, indefinite, silent, timerElement2);
         }
     }
 

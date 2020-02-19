@@ -942,7 +942,7 @@ public class FieldOfPlay {
         this.clockOwner = athlete;
     }
 
-    private void setCountdownType(CountdownType countdownType) {
+    public void setCountdownType(CountdownType countdownType) {
         this.countdownType = countdownType;
     }
 
@@ -1087,6 +1087,7 @@ public class FieldOfPlay {
             breakTimer2.stop();
         }
 
+        logger.warn("transition to break {} {}", breakType2, countdownType2);
         setState(BREAK);
         this.setBreakType(breakType2);
         this.setCountdownType(countdownType2);
@@ -1094,8 +1095,11 @@ public class FieldOfPlay {
 
         if (e.isIndefinite()) {
             breakTimer2.setIndefinite();
-        } else {
+        } else if (countdownType2 == CountdownType.DURATION) {
             breakTimer2.setTimeRemaining(e.getTimeRemaining());
+            breakTimer2.setEnd(null);
+        } else {
+            breakTimer2.setTimeRemaining(0);
             breakTimer2.setEnd(e.getTargetTime());
         }
         // this will broadcast to all slave break timers

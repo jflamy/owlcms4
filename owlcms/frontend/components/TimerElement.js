@@ -146,11 +146,29 @@ class TimerElement extends PolymerElement {
 		console.warn("timer pause"+seconds);
 		this.currentTime = seconds;
 	}
+	
+	display(seconds, indefinite, silent, element) {
+		this.running = false;
+		console.log("display "+indefinite);
+		if (indefinite) {
+			this.set('currentTime', seconds);
+			this._indefinite()
+		} else if (this.countUp) {
+			this.set('currentTime', 0);
+			this.set('_formattedTime', '0:00');
+		} else {
+			this.set('currentTime', seconds);
+			this.set('_formattedTime', this._formatTime(seconds));
+		}
+		this._initialWarningGiven = false;
+		this._finalWarningGiven = false;
+		this._timeOverWarningGiven = false;		
+	}
 
 	reset(element) {
-		console.warn("timer reset");
-		this.pause(this.startTime, false, true, element);
-		this._init();
+//		console.warn("timer reset");
+//		this.pause(this.startTime, false, true, element);
+//		this._init();
 	}
 
 	_indefinite() {

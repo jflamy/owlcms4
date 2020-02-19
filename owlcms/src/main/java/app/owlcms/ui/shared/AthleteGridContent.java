@@ -405,8 +405,10 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-        breakDialog = new BreakDialog(this, BreakType.TECHNICAL, CountdownType.INDEFINITE);
         breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+            if (breakDialog == null) {
+                breakDialog = new BreakDialog(this, BreakType.TECHNICAL, CountdownType.INDEFINITE);
+            }
             breakDialog.open();
         });
         return layoutBreakButtons();

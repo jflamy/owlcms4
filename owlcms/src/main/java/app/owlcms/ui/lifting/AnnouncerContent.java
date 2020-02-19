@@ -154,8 +154,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
      */
     @Override
     protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-        breakDialog = new BreakDialog(this);
+
         breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
+            if (breakDialog == null) {
+                breakDialog = new BreakDialog(this);
+            }
             breakDialog.open();
         });
         return layoutBreakButtons();
@@ -175,6 +178,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         HorizontalLayout topBarLeft = createTopBarLeft();
 
         introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(), (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                fop.setBreakType(BreakType.BEFORE_INTRODUCTION);
+                fop.setCountdownType(CountdownType.TARGET);
+            });
             BreakDialog dialog = new BreakDialog(this, BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET);
             dialog.open();
         });

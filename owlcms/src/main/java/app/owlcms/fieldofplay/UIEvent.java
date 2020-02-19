@@ -7,7 +7,6 @@
 package app.owlcms.fieldofplay;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import com.vaadin.flow.component.UI;
@@ -74,6 +73,13 @@ public class UIEvent {
         protected BreakType breakType;
         protected CountdownType countdownType;
 
+        /** DURATION break
+         * @param bt
+         * @param ct
+         * @param timeRemaining
+         * @param indefinite
+         * @param origin
+         */
         public BreakSetTime(BreakType bt, CountdownType ct, Integer timeRemaining, boolean indefinite, Object origin) {
             super(origin);
             if (bt == BreakType.TECHNICAL || bt == BreakType.JURY) {
@@ -82,19 +88,25 @@ public class UIEvent {
             } else {
                 this.timeRemaining = timeRemaining;
                 this.indefinite = false;
-                this.end = LocalDateTime.now().plusNanos(timeRemaining * 1000);
+                this.end = null;
             }
             this.breakType = bt;
             this.countdownType = ct;
         }
 
+        /** TARGET break
+         * @param bt
+         * @param ct
+         * @param end
+         * @param origin
+         */
         public BreakSetTime(BreakType bt, CountdownType ct, LocalDateTime end, Object origin) {
             super(origin);
             if (bt == BreakType.TECHNICAL || bt == BreakType.JURY) {
                 this.indefinite = true;
                 this.end = end;
             } else {
-                timeRemaining = (int) LocalDateTime.now().until(end, ChronoUnit.MILLIS);
+                timeRemaining = null;
                 this.indefinite = false;
                 this.end = end;
             }
@@ -140,14 +152,11 @@ public class UIEvent {
 
         protected CountdownType countdownType;
 
-        public BreakStarted(Integer timeRemaining, Object origin, boolean displayToggle, BreakType bt,
+        public BreakStarted(Integer millisRemaining, Object origin, boolean displayToggle, BreakType bt,
                 CountdownType ct) {
             super(origin);
-            this.timeRemaining = timeRemaining;
-            this.indefinite = (ct != null && ct == CountdownType.TARGET) || (timeRemaining == null);
-            if (timeRemaining != null) {
-                this.end = LocalDateTime.now().plusNanos(timeRemaining * 1000);
-            }
+            this.timeRemaining = millisRemaining;
+            this.indefinite = (ct != null && ct == CountdownType.INDEFINITE) || (millisRemaining == null);
             this.breakType = bt;
             this.countdownType = ct;
             this.setDisplayToggle(displayToggle);
@@ -157,11 +166,7 @@ public class UIEvent {
             return breakType;
         }
 
-        public LocalDateTime getEnd() {
-            return end;
-        }
-
-        public Integer getTimeRemaining() {
+        private Integer getTimeRemaining() {
             return timeRemaining;
         }
 
@@ -191,6 +196,10 @@ public class UIEvent {
             return "UIEvent.BreakStarted [displayToggle=" + displayToggle + ", timeRemaining=" + timeRemaining
                     + ", indefinite=" + indefinite + ", end=" + end + ", breakType=" + breakType + ", countdownType="
                     + countdownType + "]";
+        }
+
+        public int getMillis() {
+            return (int) (getTimeRemaining());
         }
     }
 

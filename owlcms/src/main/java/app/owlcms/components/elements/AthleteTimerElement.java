@@ -80,7 +80,7 @@ public class AthleteTimerElement extends TimerElement {
     public void clientSyncTime() {
         OwlcmsSession.withFop(fop -> {
             int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
-            logger.warn("Fetched time = {} for {}", timeRemaining, fop.getCurAthlete());
+            //logger./**/warn("Fetched time = {} for {}", timeRemaining, fop.getCurAthlete());
             doSetTimer(timeRemaining);
         });
         return;
@@ -137,7 +137,7 @@ public class AthleteTimerElement extends TimerElement {
     @Subscribe
     public void slaveSetTimer(UIEvent.SetTime e) {
         Integer milliseconds = e.getTimeRemaining();
-        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), milliseconds, e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         doSetTimer(milliseconds);
     }
