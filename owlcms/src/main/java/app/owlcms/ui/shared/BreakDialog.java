@@ -30,7 +30,7 @@ public class BreakDialog extends Dialog {
      * @param origin the origin
      */
     public BreakDialog(Object origin) {
-        this.addOpenedChangeListener((e) -> {
+        this.addAttachListener((e) -> {
             content = new BreakManagement(origin, this);
             this.removeAll();
             this.add(content);
@@ -40,6 +40,7 @@ public class BreakDialog extends Dialog {
             this.removeAll();
             this.close();
             OwlcmsSession.getFop().getUiEventBus().unregister(content);
+            OwlcmsSession.getFop().getFopEventBus().unregister(content);
             content.cleanup();
             content = null;
 
@@ -53,7 +54,7 @@ public class BreakDialog extends Dialog {
      */
     public BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
         
-        this.addOpenedChangeListener((e) -> {
+        this.addAttachListener((e) -> {
             content = new BreakManagement(origin, brt, cdt, this);
             this.removeAll();
             this.add(content);
@@ -63,6 +64,7 @@ public class BreakDialog extends Dialog {
             this.removeAll();
             this.close();
             OwlcmsSession.getFop().getUiEventBus().unregister(content);
+            OwlcmsSession.getFop().getFopEventBus().unregister(content);
             content.cleanup();
             content = null;
         });
