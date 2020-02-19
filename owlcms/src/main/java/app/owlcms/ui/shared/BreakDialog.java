@@ -19,6 +19,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class BreakDialog extends Dialog {
     final private Logger logger = (Logger) LoggerFactory.getLogger(BreakDialog.class);
+    private BreakManagement content;
     {
         logger.setLevel(Level.INFO);
     }
@@ -29,11 +30,19 @@ public class BreakDialog extends Dialog {
      * @param origin the origin
      */
     public BreakDialog(Object origin) {
-        BreakManagement content = new BreakManagement(origin, this);
-        this.add(content);
+        this.addOpenedChangeListener((e) -> {
+            content = new BreakManagement(origin, this);
+            this.removeAll();
+            this.add(content);
+        });
+        
         this.addDialogCloseActionListener((e) -> {
-            OwlcmsSession.getFop().getUiEventBus().unregister(content);
+            this.removeAll();
             this.close();
+            OwlcmsSession.getFop().getUiEventBus().unregister(content);
+            content.cleanup();
+            content = null;
+
         });
     }
 
@@ -43,12 +52,19 @@ public class BreakDialog extends Dialog {
      * @param cdt
      */
     public BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
-        BreakManagement content = new BreakManagement(origin, brt, cdt, this);
-        this.add(content);
+        
+        this.addOpenedChangeListener((e) -> {
+            content = new BreakManagement(origin, brt, cdt, this);
+            this.removeAll();
+            this.add(content);
+        });
+
         this.addDialogCloseActionListener((e) -> {
+            this.removeAll();
+            this.close();
             OwlcmsSession.getFop().getUiEventBus().unregister(content);
             content.cleanup();
-            this.close();
+            content = null;
         });
     }
 

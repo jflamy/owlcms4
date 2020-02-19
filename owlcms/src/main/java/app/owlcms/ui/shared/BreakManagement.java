@@ -40,6 +40,7 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.fields.DurationField;
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -359,6 +360,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        logger.warn("breakManagement attach");
         super.onAttach(attachEvent);
         OwlcmsSession.withFop(fop -> {
             // we listen on uiEventBus.
@@ -398,6 +400,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         durationField.addValueChangeListener(e -> setBreakTimerFromFields(CountdownType.DURATION));
         timePicker.addValueChangeListener(e -> setBreakTimerFromFields(CountdownType.TARGET));
         datePicker.addValueChangeListener(e -> setBreakTimerFromFields(CountdownType.TARGET));
+        
+        
         boolean running = syncWithFop();
         if (!running) {
             doSync();
@@ -604,9 +608,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
      * @return
      */
     private boolean syncWithFop() {
+
         ignoreListeners = true;
         final boolean[] running = new boolean[1]; // wrapper to allow value to be set from lambda
         OwlcmsSession.withFop(fop -> {
+            logger.warn("syncWithFop {} {}", fop.getState());
             running[0] = false;
             ProxyBreakTimer breakTimer = fop.getBreakTimer();
             
@@ -616,6 +622,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             
             ignoreListeners = false;
             
+
             switch (fop.getState()) {
             case BREAK:
                 logger.warn("syncWithFOP - break under way");
@@ -634,27 +641,25 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     running[0] = true;
                 }
                 break;
-            case CURRENT_ATHLETE_DISPLAYED:
-                if (fop.getCurAthlete() == null) {
-                    safeSetBT(BreakType.BEFORE_INTRODUCTION);
-                } else if (fop.getCurAthlete().getAttemptsDone() == 3) {
-                    safeSetBT(BreakType.FIRST_CJ);
-                } else if (fop.getCurAthlete().getAttemptsDone() == 0) {
-                    safeSetBT(BreakType.FIRST_SNATCH);
-                } else {
-                    safeSetBT(BreakType.TECHNICAL);
-                    if (getRequestedBreakType() == null) {
-                        setRequestedBreakType(BreakType.TECHNICAL);
-                    }
-                }
-                break;
             case INACTIVE:
                 safeSetBT(BreakType.BEFORE_INTRODUCTION);
+                setCtValue(CountdownType.TARGET);
                 break;
             default:
-                safeSetBT(BreakType.TECHNICAL);
-                if (getRequestedBreakType() == null) {
-                    setRequestedBreakType(BreakType.TECHNICAL);
+                Athlete curAthlete = fop.getCurAthlete();
+                logger.warn("syncWithFOP currentAthlete {}", curAthlete);
+                if (curAthlete == null) {
+                    safeSetBT(BreakType.BEFORE_INTRODUCTION);
+                    setCtValue(CountdownType.TARGET);
+                } else if (curAthlete.getAttemptsDone() == 3) {
+                    safeSetBT(BreakType.FIRST_CJ);
+                    setCtValue(CountdownType.DURATION);
+                } else if (curAthlete.getAttemptsDone() == 0) {
+                    safeSetBT(BreakType.FIRST_SNATCH);
+                    setCtValue(CountdownType.DURATION);
+                } else {
+                    safeSetBT(BreakType.TECHNICAL);
+                    setCtValue(CountdownType.INDEFINITE);
                 }
                 break;
             }
