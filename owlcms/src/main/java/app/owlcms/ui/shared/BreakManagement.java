@@ -400,8 +400,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         durationField.addValueChangeListener(e -> setBreakTimerFromFields(CountdownType.DURATION));
         timePicker.addValueChangeListener(e -> setBreakTimerFromFields(CountdownType.TARGET));
         datePicker.addValueChangeListener(e -> setBreakTimerFromFields(CountdownType.TARGET));
-        
-        
+
         boolean running = syncWithFop();
         if (!running) {
             doSync();
@@ -609,24 +608,28 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
      */
     private boolean syncWithFop() {
 
-        ignoreListeners = true;
         final boolean[] running = new boolean[1]; // wrapper to allow value to be set from lambda
         OwlcmsSession.withFop(fop -> {
+
+            ignoreListeners = true;
             logger.warn("syncWithFop {} {}", fop.getState());
             running[0] = false;
             ProxyBreakTimer breakTimer = fop.getBreakTimer();
-            
+
             // default vaules
             computeDefaultValues();
             startEnabled();
-            
             ignoreListeners = false;
-            
 
             switch (fop.getState()) {
             case BREAK:
                 logger.warn("syncWithFOP - break under way");
                 int milliseconds = breakTimer.liveTimeRemaining();
+                if (fop.getCountdownType() == CountdownType.INDEFINITE) {
+                    ignoreListeners = true;
+                    milliseconds = (int) DEFAULT_DURATION.toMillis();
+                    ignoreListeners = false;
+                }
                 setTimingFieldsFromMillis(milliseconds);
                 // override from FOP
                 BreakType breakType = fop.getBreakType();
@@ -637,7 +640,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 if (breakTimer.isRunning()) {
                     startDisabled();
                     // start only ourself -- the rest of the world is already running
-                    breakTimerElement.slaveBreakStart(new BreakStarted(milliseconds, this.getOrigin(), false, breakType, countdownType));
+                    breakTimerElement.slaveBreakStart(
+                            new BreakStarted(milliseconds, this.getOrigin(), false, breakType, countdownType));
                     running[0] = true;
                 }
                 break;
