@@ -287,6 +287,7 @@ th, td {
 	border-collapse: collapse;
 	border: solid 1px DarkGray;
 	padding: 0.4vmin 1vmin 0.4vmin 1vmin;
+	background-clip: padding-box;
 	font-size: var(--fontSizeRows-height);
 }
 
@@ -437,12 +438,12 @@ th, td {
 	font-style: italic;
 }
 
-:host(.dark) .current {
+:host(.dark) td.current {
 	color: yellow;
 	font-weight: bold;
 }
 
-:host(.light) .current {
+:host(.light) td.current {
 	background-color: yellow;
 	font-weight: bold;
 }
@@ -464,7 +465,12 @@ th, td {
 	font-weight: bold;
 }
 
-:host(.light) .next {
+:host(.dark) td.next {
+	color: gold;
+	font-weight: bold;
+}
+
+:host(.light) td.next {
 	background-color: gold;
 	font-weight: bold;
 }
@@ -576,19 +582,19 @@ table#leaders-table thead tr.hide th {
 		</template>
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
-				<td class$="groupCol"><div class$="[[l.classname]]">[[l.startNumber]]</div></td>
-				<td class$="name">
-					<div class$="[[l.classname]]">[[l.fullName]]</div>
+				<td class$="groupCol [[l.classname]]"><div class$="[[l.classname]]">[[l.startNumber]]</div></td>
+				<td class$="[[l.classname]]" class$="name">
+					<div>[[l.fullName]]</div>
 				</td>
 				<td class="category"><div>[[l.category]]</div></td>
 				<td class="veryNarrow"><div>[[l.yearOfBirth]]</div></td>
 				<td class="club"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-					<td><div class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</div></td>
+					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank"><div>[[l.snatchRank]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-					<td><div class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</div></td>
+					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank"><div>[[l.cleanJerkRank]]</div></td>		
 				<td class="veryNarrow">[[l.total]]</td>

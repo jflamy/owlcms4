@@ -242,6 +242,7 @@ th, td {
 	border: solid 1px DarkGray;
 	padding: 0.4vmin 1vmin 0.4vmin 1vmin;
 	font-size: var(--fontSizeRows-height);
+	background-clip: padding-box;
 }
 
 :host(.dark) th, td {

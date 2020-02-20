@@ -158,6 +158,7 @@ th, td {
 	border-collapse: collapse;
 	border: solid 1px DarkGray;
 	padding: 0.4vmin 1vmin 0.4vmin 1vmin;
+	background-clip: padding-box;
 	font-size: var(--fontSizeRows-height);
 }
 
