@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.agegroup;
@@ -52,6 +52,73 @@ import ch.qos.logback.classic.Logger;
 public class AgeGroupRepository {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupRepository.class);
+
+    /**
+     * Create category templates that will be copied to instantiate the actual categories. The world records are read
+     * and included in the template.
+     *
+     * @param workbook
+     * @return
+     */
+    public static Map<String, Category> createCategoryTemplates(Workbook workbook) {
+        Map<String, Category> categoryMap = new HashMap<>();
+        DataFormatter dataFormatter = new DataFormatter();
+        Sheet sheet = workbook.getSheetAt(0);
+        Iterator<Row> rowIterator = sheet.rowIterator();
+        int iRow = 0;
+        while (rowIterator.hasNext()) {
+            int iColumn = 0;
+            Row row;
+            if (iRow == 0) {
+                // process header
+                row = rowIterator.next();
+            }
+            row = rowIterator.next();
+
+            Category c = new Category();
+
+            Iterator<Cell> cellIterator = row.cellIterator();
+
+            while (cellIterator.hasNext()) {
+                Cell cell = cellIterator.next();
+                switch (iColumn) {
+                case 0: {
+                    String cellValue = dataFormatter.formatCellValue(cell);
+                    c.setCode(cellValue.trim());
+                    categoryMap.put(cellValue, c);
+                }
+                    break;
+                case 1: {
+                    String cellValue = dataFormatter.formatCellValue(cell);
+                    if (cellValue != null && !cellValue.trim().isEmpty()) {
+                        c.setGender(cellValue.contentEquals("F") ? Gender.F : Gender.M);
+                    }
+                }
+                    break;
+                case 2: {
+                    c.setMaximumWeight(cell.getNumericCellValue());
+                }
+                    break;
+                case 3: {
+                    c.setWrSr((int) Math.round(cell.getNumericCellValue()));
+                }
+                    break;
+                case 4: {
+                    c.setWrJr((int) Math.round(cell.getNumericCellValue()));
+                }
+                    break;
+                case 5: {
+                    c.setWrYth((int) Math.round(cell.getNumericCellValue()));
+                }
+                    break;
+                }
+                iColumn++;
+            }
+            iRow++;
+
+        }
+        return categoryMap;
+    }
 
     /**
      * Delete.
@@ -363,73 +430,6 @@ public class AgeGroupRepository {
                 return null;
             }
         }
-    }
-
-    /**
-     * Create category templates that will be copied to instantiate the actual categories. The world records are read
-     * and included in the template.
-     *
-     * @param workbook
-     * @return
-     */
-    public static Map<String, Category> createCategoryTemplates(Workbook workbook) {
-        Map<String, Category> categoryMap = new HashMap<>();
-        DataFormatter dataFormatter = new DataFormatter();
-        Sheet sheet = workbook.getSheetAt(0);
-        Iterator<Row> rowIterator = sheet.rowIterator();
-        int iRow = 0;
-        while (rowIterator.hasNext()) {
-            int iColumn = 0;
-            Row row;
-            if (iRow == 0) {
-                // process header
-                row = rowIterator.next();
-            }
-            row = rowIterator.next();
-
-            Category c = new Category();
-
-            Iterator<Cell> cellIterator = row.cellIterator();
-
-            while (cellIterator.hasNext()) {
-                Cell cell = cellIterator.next();
-                switch (iColumn) {
-                case 0: {
-                    String cellValue = dataFormatter.formatCellValue(cell);
-                    c.setCode(cellValue.trim());
-                    categoryMap.put(cellValue, c);
-                }
-                    break;
-                case 1: {
-                    String cellValue = dataFormatter.formatCellValue(cell);
-                    if (cellValue != null && !cellValue.trim().isEmpty()) {
-                        c.setGender(cellValue.contentEquals("F") ? Gender.F : Gender.M);
-                    }
-                }
-                    break;
-                case 2: {
-                    c.setMaximumWeight(cell.getNumericCellValue());
-                }
-                    break;
-                case 3: {
-                    c.setWrSr((int) Math.round(cell.getNumericCellValue()));
-                }
-                    break;
-                case 4: {
-                    c.setWrJr((int) Math.round(cell.getNumericCellValue()));
-                }
-                    break;
-                case 5: {
-                    c.setWrYth((int) Math.round(cell.getNumericCellValue()));
-                }
-                    break;
-                }
-                iColumn++;
-            }
-            iRow++;
-
-        }
-        return categoryMap;
     }
 
     @SuppressWarnings("unchecked")

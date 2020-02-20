@@ -73,14 +73,17 @@ public class UIEvent {
         protected BreakType breakType;
         protected CountdownType countdownType;
 
-        /** DURATION break
+        /**
+         * DURATION break
+         * 
          * @param bt
          * @param ct
          * @param timeRemaining
          * @param indefinite
          * @param origin
          */
-        public BreakSetTime(BreakType bt, CountdownType ct, Integer timeRemaining, LocalDateTime end, boolean indefinite, Object origin) {
+        public BreakSetTime(BreakType bt, CountdownType ct, Integer timeRemaining, LocalDateTime end,
+                boolean indefinite, Object origin) {
             super(origin);
             this.timeRemaining = timeRemaining;
             this.indefinite = indefinite;
@@ -141,8 +144,8 @@ public class UIEvent {
             return breakType;
         }
 
-        private Integer getTimeRemaining() {
-            return timeRemaining;
+        public int getMillis() {
+            return (getTimeRemaining());
         }
 
         /**
@@ -173,8 +176,8 @@ public class UIEvent {
                     + countdownType + "]";
         }
 
-        public int getMillis() {
-            return (int) (getTimeRemaining());
+        private Integer getTimeRemaining() {
+            return timeRemaining;
         }
     }
 

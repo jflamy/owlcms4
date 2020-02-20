@@ -153,10 +153,10 @@ public class FieldOfPlay {
         this.name = platform2.getName();
         this.fopEventBus = new EventBus("FOP-" + name);
         this.postBus = new EventBus("POST-" + name);
-        
-        //this.uiEventBus = new EventBus("UI-" + name);
+
+        // this.uiEventBus = new EventBus("UI-" + name);
         this.uiEventBus = new AsyncEventBus(Executors.newCachedThreadPool());
-        
+
         this.athleteTimer = null;
         this.breakTimer = new ProxyBreakTimer(this);
         this.setPlatform(platform2);
@@ -303,6 +303,10 @@ public class FieldOfPlay {
         return platform;
     }
 
+    public EventBus getPostEventBus() {
+        return postBus;
+    }
+
     /**
      * @return the previous athlete to have lifted (can be the same as current)
      */
@@ -396,7 +400,8 @@ public class FieldOfPlay {
             loadGroup(switchGroup.getGroup(), this);
             recomputeLiftingOrder();
             updateGlobalRankings();
-            pushOut(new UIEvent.SwitchGroup(switchGroup.getGroup(), switchGroup.getState(), switchGroup.getCurAthlete(), e.getOrigin()));
+            pushOut(new UIEvent.SwitchGroup(switchGroup.getGroup(), switchGroup.getState(), switchGroup.getCurAthlete(),
+                    e.getOrigin()));
             return;
         }
 
@@ -577,11 +582,11 @@ public class FieldOfPlay {
             // SwitchGroup will also recompute if needed. Innocuous.
             recomputeLiftingOrder();
         }
-        logger.debug("group {} athletes {}",getGroup(), athletes.size());
+        logger.debug("group {} athletes {}", getGroup(), athletes.size());
         if (state == null) {
             this.setState(INACTIVE);
         }
-        
+
         // force a wake up on user interfaces
         pushOut(new UIEvent.SwitchGroup(getGroup(), getState(), getCurAthlete(), this));
         logger.trace("end of init state=" + state);
@@ -601,7 +606,7 @@ public class FieldOfPlay {
 
     /**
      * all grids get their athletes from this method.
-     * 
+     *
      * @param group
      * @param origin
      */
@@ -625,6 +630,11 @@ public class FieldOfPlay {
         }
     }
 
+    public void pushOut(app.owlcms.fieldofplay.UIEvent event) {
+        getUiEventBus().post(event);
+        getPostEventBus().post(event);
+    }
+
     public synchronized void recomputeLiftingOrder() {
         recomputeLiftingOrder(true);
     }
@@ -644,6 +654,10 @@ public class FieldOfPlay {
 
     public void setCjStarted(boolean cjStarted) {
         this.cjStarted = cjStarted;
+    }
+
+    public void setCountdownType(CountdownType countdownType) {
+        this.countdownType = countdownType;
     }
 
     public void setDisplayOrder(List<Athlete> displayOrder) {
@@ -718,18 +732,13 @@ public class FieldOfPlay {
             inBreak = ((breakTimer != null && breakTimer.isRunning()));
         }
         pushOut(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, previousAthlete, changingAthlete,
-                getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(), inBreak));
+                getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
+                inBreak));
 
         logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
-                getCurAthlete(), getCurAthlete() != null ? getCurAthlete().getAttemptedLifts() + 1 : 0, curWeight, clock,
+                getCurAthlete(), getCurAthlete() != null ? getCurAthlete().getAttemptedLifts() + 1 : 0, curWeight,
+                clock,
                 getAthleteTimer().getTimeRemainingAtLastStop());
-    }
-
-    private void updateGlobalRankings() {
-        logger.debug("update rankings {}", LoggerUtils.whereFrom());
-        Competition competition = Competition.getCurrent();
-        competition.computeGlobalRankings(false);
-        uiShowUpdatedRankings();
     }
 
     /**
@@ -944,10 +953,6 @@ public class FieldOfPlay {
         this.clockOwner = athlete;
     }
 
-    public void setCountdownType(CountdownType countdownType) {
-        this.countdownType = countdownType;
-    }
-
     private void setCurAthlete(Athlete athlete) {
         logger.trace("changing curAthlete to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.curAthlete = athlete;
@@ -970,6 +975,10 @@ public class FieldOfPlay {
     private synchronized void setInitialWarningEmitted(boolean initialWarningEmitted) {
         logger.trace("initialWarningEmitted {}", initialWarningEmitted);
         this.initialWarningEmitted = initialWarningEmitted;
+    }
+
+    private void setLiftingOrder(List<Athlete> liftingOrder) {
+        this.liftingOrder = liftingOrder;
     }
 
     private void setPreviousAthlete(Athlete athlete) {
@@ -1184,11 +1193,6 @@ public class FieldOfPlay {
         pushOut(new UIEvent.StartLifting(group2, origin));
     }
 
-    public void pushOut(app.owlcms.fieldofplay.UIEvent event) {
-        getUiEventBus().post(event);
-        getPostEventBus().post(event);
-    }
-
     private void unexpectedEventInState(FOPEvent e, FOPState state) {
         // events not worth signaling
         if (e instanceof DecisionReset || e instanceof DecisionFullUpdate) {
@@ -1198,6 +1202,13 @@ public class FieldOfPlay {
         String text = Translator.translate("Unexpected_Notification", e.getClass().getSimpleName(), state);
         logger./**/warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
         Notification.show(text, 5000, Position.BOTTOM_END);
+    }
+
+    private void updateGlobalRankings() {
+        logger.debug("update rankings {}", LoggerUtils.whereFrom());
+        Competition competition = Competition.getCurrent();
+        competition.computeGlobalRankings(false);
+        uiShowUpdatedRankings();
     }
 
     private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
@@ -1228,14 +1239,6 @@ public class FieldOfPlay {
         this.setDisplayOrder(AthleteSorter.displayOrderCopy(this.getLiftingOrder()));
         uiDisplayCurrentAthleteAndTime(false, e, false);
         updateGlobalRankings();
-    }
-
-    public EventBus getPostEventBus() {
-        return postBus;
-    }
-
-    private void setLiftingOrder(List<Athlete> liftingOrder) {
-        this.liftingOrder = liftingOrder;
     }
 
 }

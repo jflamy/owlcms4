@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.displays.topathletes;
@@ -123,6 +123,15 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     }
 
     @Override
+    public void configurePage(InitialPageSettings settings) {
+        settings.addMetaTag("mobile-web-app-capable", "yes");
+        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
+        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
+        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
+        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
+    }
+
+    @Override
     public void doBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             // just update the display
@@ -229,12 +238,12 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     }
 
     @Override
-    public boolean isIgnoreGroupFromURL() {
+    public boolean isIgnoreFopFromURL() {
         return true;
     }
 
     @Override
-    public boolean isIgnoreFopFromURL() {
+    public boolean isIgnoreGroupFromURL() {
         return true;
     }
 
@@ -258,6 +267,10 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         this.locationUI = locationUI;
     }
 
+//    private String formatAttempt(Integer attemptNo) {
+//        return Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
+//    }
+
     @Subscribe
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
         uiLog(e);
@@ -267,10 +280,6 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
             doUpdate(competition);
         });
     }
-
-//    private String formatAttempt(Integer attemptNo) {
-//        return Translator.translate("AttemptBoard_attempt_number", (attemptNo % 3) + 1);
-//    }
 
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
@@ -385,10 +394,6 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         logger.debug("onAttach end");
     }
 
-    private void setWide(boolean b) {
-        getModel().setWideTeamNames(b);
-    }
-
     protected void setTranslationMap() {
         JsonObject translations = Json.createObject();
         Enumeration<String> keys = Translator.getKeys();
@@ -418,15 +423,6 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
                 : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
     }
 
-    @Override
-    public void configurePage(InitialPageSettings settings) {
-        settings.addMetaTag("mobile-web-app-capable", "yes");
-        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
-        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
-        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
-        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
-    }
-    
     private JsonValue getAthletesJson(List<Athlete> list2, boolean overrideTeamWidth) {
         JsonArray jath = Json.createArray();
         int athx = 0;
@@ -481,6 +477,10 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     private void setSortedWomen(List<Athlete> sortedWomen) {
         this.sortedWomen = sortedWomen;
         logger.debug("sortedWomen = {} -- {}", getSortedWomen(), LoggerUtils.whereFrom());
+    }
+
+    private void setWide(boolean b) {
+        getModel().setWideTeamNames(b);
     }
 
     private void updateBottom(TopSinclairModel model) {

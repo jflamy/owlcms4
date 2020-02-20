@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.fieldofplay;
@@ -55,41 +55,6 @@ public class ProxyBreakTimer implements IProxyTimer {
         this.fop = fop;
     }
 
-    /**
-     * Compute time elapsed since start and adjust time remaining accordingly.
-     */
-    private int computeTimeRemaining() {
-        if (end != null) {
-            setTimeRemaining((int) LocalDateTime.now().until(end, ChronoUnit.MILLIS));
-        } else {
-            stopMillis = System.currentTimeMillis();
-            long elapsed = stopMillis - startMillis;
-            setTimeRemaining((int) (getTimeRemaining() - elapsed));
-        }
-        return getTimeRemaining();
-    }
-
-    /**
-     * Compute time elapsed since start and adjust time remaining accordingly.
-     */
-    public int liveTimeRemaining() {
-        if (end != null) {
-            int until = (int) LocalDateTime.now().until(end, ChronoUnit.MILLIS);
-            logger.debug("liveTimeRemaining target {} {}", DurationFormatUtils.formatDurationHMS(until), LoggerUtils.whereFrom());
-            return until;
-        } else if (running) {
-            stopMillis = System.currentTimeMillis();
-            long elapsed = stopMillis - startMillis;
-            int tr = (int) (getTimeRemaining() - elapsed);
-            logger.debug("liveTimeRemaining running {} {}", DurationFormatUtils.formatDurationHMS(tr), LoggerUtils.whereFrom());
-            return tr;
-        } else {
-            int tr = getTimeRemaining();
-            logger.debug("liveTimeRemaining stopped {} {}", DurationFormatUtils.formatDurationHMS(tr), LoggerUtils.whereFrom());
-            return tr;
-        }
-    }
-
     @Override
     public void finalWarning(Object origin) {
         // ignored
@@ -97,6 +62,10 @@ public class ProxyBreakTimer implements IProxyTimer {
 
     public LocalDateTime getEnd() {
         return end;
+    }
+
+    public Object getOrigin() {
+        return origin;
     }
 
     /**
@@ -138,6 +107,30 @@ public class ProxyBreakTimer implements IProxyTimer {
         return running;
     }
 
+    /**
+     * Compute time elapsed since start and adjust time remaining accordingly.
+     */
+    public int liveTimeRemaining() {
+        if (end != null) {
+            int until = (int) LocalDateTime.now().until(end, ChronoUnit.MILLIS);
+            logger.debug("liveTimeRemaining target {} {}", DurationFormatUtils.formatDurationHMS(until),
+                    LoggerUtils.whereFrom());
+            return until;
+        } else if (running) {
+            stopMillis = System.currentTimeMillis();
+            long elapsed = stopMillis - startMillis;
+            int tr = (int) (getTimeRemaining() - elapsed);
+            logger.debug("liveTimeRemaining running {} {}", DurationFormatUtils.formatDurationHMS(tr),
+                    LoggerUtils.whereFrom());
+            return tr;
+        } else {
+            int tr = getTimeRemaining();
+            logger.debug("liveTimeRemaining stopped {} {}", DurationFormatUtils.formatDurationHMS(tr),
+                    LoggerUtils.whereFrom());
+            return tr;
+        }
+    }
+
     public void setEnd(LocalDateTime targetTime) {
         indefinite = false;
         // end != null overrides duration computation
@@ -150,14 +143,18 @@ public class ProxyBreakTimer implements IProxyTimer {
         logger.debug("setting break indefinite = {} [{}]", indefinite, LoggerUtils.whereFrom());
         this.setTimeRemaining(0);
         this.setEnd(null);
-        fop.pushOut(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), getTimeRemaining(), null, 
+        fop.pushOut(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), getTimeRemaining(), null,
                 true, this));
         running = false;
     }
 
+    public void setOrigin(Object origin) {
+        this.origin = origin;
+    }
+
     /**
      * @see app.owlcms.fieldofplay.IProxyTimer#setTimeRemaining(int)
-     * 
+     *
      */
     @Override
     public void setTimeRemaining(int timeRemaining2) {
@@ -168,7 +165,8 @@ public class ProxyBreakTimer implements IProxyTimer {
 //            computeTimeRemaining();
 //        }
 
-        logger.debug("setting break timeRemaining = {} [{}]", DurationFormatUtils.formatDurationHMS(this.timeRemaining),LoggerUtils.stackTrace());
+        logger.debug("setting break timeRemaining = {} [{}]", DurationFormatUtils.formatDurationHMS(this.timeRemaining),
+                LoggerUtils.stackTrace());
 
 //        fop.pushOut(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining,
 //                this.indefinite, this));
@@ -186,14 +184,6 @@ public class ProxyBreakTimer implements IProxyTimer {
         logger.debug("posting {}", event);
         fop.pushOut(event);
         running = true;
-    }
-
-    public Object getOrigin() {
-        return origin;
-    }
-
-    private int getMillis() {
-        return (int) (this.getEnd() != null ? LocalDateTime.now().until(getEnd(), ChronoUnit.MILLIS) : getTimeRemaining());
     }
 
     /**
@@ -240,8 +230,23 @@ public class ProxyBreakTimer implements IProxyTimer {
         }
     }
 
-    public void setOrigin(Object origin) {
-        this.origin = origin;
+    /**
+     * Compute time elapsed since start and adjust time remaining accordingly.
+     */
+    private int computeTimeRemaining() {
+        if (end != null) {
+            setTimeRemaining((int) LocalDateTime.now().until(end, ChronoUnit.MILLIS));
+        } else {
+            stopMillis = System.currentTimeMillis();
+            long elapsed = stopMillis - startMillis;
+            setTimeRemaining((int) (getTimeRemaining() - elapsed));
+        }
+        return getTimeRemaining();
+    }
+
+    private int getMillis() {
+        return (int) (this.getEnd() != null ? LocalDateTime.now().until(getEnd(), ChronoUnit.MILLIS)
+                : getTimeRemaining());
     }
 
 }

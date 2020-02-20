@@ -51,7 +51,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     @SuppressWarnings("unused")
     final private static Logger logger = (Logger) LoggerFactory.getLogger(Category.class);
-    
+
     public final static Double ROBI_B = 3.321928095;
 
     /** The id. */
@@ -92,7 +92,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     }
 
     public Category(Category c) {
-        this(c.id, c.minimumWeight, c.maximumWeight, c.gender, c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(), c.ageGroup);
+        this(c.id, c.minimumWeight, c.maximumWeight, c.gender, c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(),
+                c.ageGroup);
     }
 
     public Category(Long id, Double minimumWeight, Double maximumWeight, Gender gender, boolean active, Integer wrYth,
@@ -124,7 +125,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         if (compare != 0) {
             return compare;
         }
-        
+
         compare = ObjectUtils.compare(this.ageGroup, o.getAgeGroup(), true);
         if (compare != 0) {
             return compare;
@@ -137,20 +138,29 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         return compare;
     }
 
+    public String dump() {
+        return "Category [code=" + code + ", name=" + name + ", minimumWeight=" + minimumWeight + ", maximumWeight="
+                + maximumWeight + ", ageGroup=" + ageGroup + ", gender=" + gender + ", active=" + active + ", wrSr="
+                + getWrSr() + ", wrJr=" + getWrJr() + ", wrYth=" + getWrYth() + "]";
+    }
+
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Category other = (Category) obj;
-        
+
         // other is not null, and neither are we
         // don't compare the categories inside age group, this gets circular.
         boolean ageGroupEquals = AgeGroup.looseEquals(this.ageGroup, other.ageGroup);
-                
+
         return active == other.active && ageGroupEquals && Objects.equals(code, other.code)
                 && gender == other.gender && Objects.equals(id, other.id)
                 && Objects.equals(maximumWeight, other.maximumWeight)
@@ -241,7 +251,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         }
     }
 
-
     /**
      * Gets the wr.
      *
@@ -263,10 +272,11 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         } else {
             wr = 0;
         }
-        //logger./**/warn("wr({} {} {} {}) = {}",ageGroup, ageGroup.getAgeDivision(), ageGroup.getMaxAge(), getCode(),wr);
+        // logger./**/warn("wr({} {} {} {}) = {}",ageGroup, ageGroup.getAgeDivision(), ageGroup.getMaxAge(),
+        // getCode(),wr);
         return wr;
     }
-    
+
     /**
      * Gets the wr.
      *
@@ -274,7 +284,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
      */
     public Integer getWr(int age) {
         int wr;
-        //logger./**/warn("{} {} {} {} {}", this.getCode(), age, getWrYth(), getWrJr(), getWrSr());
+        // logger./**/warn("{} {} {} {} {}", this.getCode(), age, getWrYth(), getWrJr(), getWrSr());
         if (age <= 17) {
             wr = getWrYth();
         } else if (age <= 20) {
@@ -299,7 +309,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(active, ageGroup, code, gender, id, maximumWeight, minimumWeight, name, getWrJr(), getWrSr(),
+        return Objects.hash(active, ageGroup, code, gender, id, maximumWeight, minimumWeight, name, getWrJr(),
+                getWrSr(),
                 getWrYth());
     }
 
@@ -376,10 +387,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
         this.minimumWeight = minimumWeight;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
 //    /**
 //     * Sets the name.
 //     *
@@ -389,13 +396,16 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 //        this.name = name;
 //    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public void setWrJr(Integer wrJr) {
         this.wrJr = wrJr;
     }
 
     public void setWrSr(Integer wrSr) {
-        //logger./**/warn("wrSr={}",wrSr);
+        // logger./**/warn("wrSr={}",wrSr);
         this.wrSr = wrSr;
     }
 
@@ -421,12 +431,5 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
     public String toString() {
         return getName();
     }
-
-    public String dump() {
-        return "Category [code=" + code + ", name=" + name + ", minimumWeight=" + minimumWeight + ", maximumWeight="
-                + maximumWeight + ", ageGroup=" + ageGroup + ", gender=" + gender + ", active=" + active + ", wrSr="
-                + getWrSr() + ", wrJr=" + getWrJr() + ", wrYth=" + getWrYth() + "]";
-    }
-
 
 }

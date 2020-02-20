@@ -212,6 +212,14 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         });
     }
 
+    protected boolean isIndefinite() {
+        return indefinite;
+    }
+
+    protected boolean isSilent() {
+        return silent;
+    }
+
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
      */
@@ -234,6 +242,10 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         getModel().setSilent(true);
     }
 
+    protected void setIndefinite(boolean indefinite) {
+        this.indefinite = indefinite;
+    }
+
     protected void setSilent(boolean b) {
         silent = b;
     }
@@ -242,38 +254,40 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         this.timerElement = timerElement;
     }
 
+    private String formatDuration(Integer milliseconds) {
+        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : null;
+    }
+
     private Integer getMsRemaining() {
         return msRemaining;
     }
 
     private void initTime(Integer milliseconds) {
-        if (this instanceof BreakTimerElement) logger.debug("set time remaining = {} from {} ",formatDuration(milliseconds), LoggerUtils.whereFrom());
+        if (this instanceof BreakTimerElement) {
+            logger.debug("set time remaining = {} from {} ", formatDuration(milliseconds), LoggerUtils.whereFrom());
+        }
         setIndefinite(milliseconds == null);
         setMsRemaining(milliseconds);
 
         if (!isIndefinite()) {
-            if (this instanceof BreakTimerElement) logger.debug("not indefinite {}", formatDuration(milliseconds));
+            if (this instanceof BreakTimerElement) {
+                logger.debug("not indefinite {}", formatDuration(milliseconds));
+            }
             setDisplay(milliseconds, isIndefinite(), isSilent());
         } else {
-            if (this instanceof BreakTimerElement) logger.debug("indefinite");
+            if (this instanceof BreakTimerElement) {
+                logger.debug("indefinite");
+            }
             setDisplay(milliseconds, true, true);
         }
     }
 
-    private String formatDuration(Integer milliseconds) {
-        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : null;
-    }
-
-    protected boolean isIndefinite() {
-        return indefinite;
-    }
-
-    protected boolean isSilent() {
-        return silent;
-    }
-
-    protected void setIndefinite(boolean indefinite) {
-        this.indefinite = indefinite;
+    private void setDisplay(Integer milliseconds, Boolean indefinite, Boolean silent) {
+        Element timerElement2 = getTimerElement();
+        if (timerElement2 != null) {
+            double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
+            timerElement2.callJsFunction("display", seconds, indefinite, silent, timerElement2);
+        }
     }
 
     private void setMsRemaining(Integer milliseconds) {
@@ -293,14 +307,6 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         if (timerElement2 != null) {
             double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
             timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2);
-        }
-    }
-    
-    private void setDisplay(Integer milliseconds, Boolean indefinite, Boolean silent) {
-        Element timerElement2 = getTimerElement();
-        if (timerElement2 != null) {
-            double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
-            timerElement2.callJsFunction("display", seconds, indefinite, silent, timerElement2);
         }
     }
 

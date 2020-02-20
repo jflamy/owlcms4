@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.init;
@@ -66,10 +66,11 @@ public class OwlcmsFactory {
                     .findFirst();
             defaultFOP = fop.orElse(null);
             // it is possible to have default FOP being null because getDefaultFop is called recursively
-            // during the init of the FOPs.  This is innocuous.
+            // during the init of the FOPs. This is innocuous.
             if (defaultFOP != null) {
                 // force a wake up on user interfaces
-                defaultFOP.pushOut(new UIEvent.SwitchGroup(defaultFOP.getGroup(), defaultFOP.getState(), defaultFOP.getCurAthlete(), null));
+                defaultFOP.pushOut(new UIEvent.SwitchGroup(defaultFOP.getGroup(), defaultFOP.getState(),
+                        defaultFOP.getCurAthlete(), null));
             }
             return defaultFOP;
         }

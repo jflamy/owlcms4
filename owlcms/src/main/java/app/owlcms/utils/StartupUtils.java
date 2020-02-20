@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.utils;
 
 import java.awt.Desktop;
@@ -19,22 +25,13 @@ import app.owlcms.init.OwlcmsFactory;
 import ch.qos.logback.classic.Logger;
 import sun.misc.Unsafe;
 
-
 @SuppressWarnings("restriction")
 public class StartupUtils {
-    
-    static Logger logger = (Logger)LoggerFactory.getLogger(StartupUtils.class);
-    static Logger mainLogger = (Logger)LoggerFactory.getLogger("app.owlcms.Main");
-    
+
+    static Logger logger = (Logger) LoggerFactory.getLogger(StartupUtils.class);
+    static Logger mainLogger = (Logger) LoggerFactory.getLogger("app.owlcms.Main");
+
     static Integer serverPort = null;
-
-    public static Integer getServerPort() {
-        return serverPort;
-    }
-
-    public static void setServerPort(Integer serverPort) {
-        StartupUtils.serverPort = serverPort;
-    }
 
     public static void disableWarning() {
         // https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
@@ -42,7 +39,7 @@ public class StartupUtils {
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
             theUnsafe.setAccessible(true);
             Unsafe u = (Unsafe) theUnsafe.get(null);
-    
+
             Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
             Field logger = cls.getDeclaredField("logger");
             u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
@@ -82,6 +79,10 @@ public class StartupUtils {
         }
     }
 
+    public static Integer getServerPort() {
+        return serverPort;
+    }
+
     public static String getStringParam(String key) {
         String envVar = "OWLCMS_" + key.toUpperCase();
         String val = System.getenv(envVar);
@@ -92,12 +93,24 @@ public class StartupUtils {
         }
     }
 
+    public static void logStart(String appName, Integer serverPort) throws IOException, ParseException {
+        InputStream in = StartupUtils.class.getResourceAsStream("/build.properties");
+        Properties props = new Properties();
+        props.load(in);
+        String version = props.getProperty("version");
+        OwlcmsFactory.setVersion(version);
+        String buildTimestamp = props.getProperty("buildTimestamp");
+        OwlcmsFactory.setBuildTimestamp(buildTimestamp);
+        String buildZone = props.getProperty("buildZone");
+        mainLogger.info("{} {} built {} ({})", appName, version, buildTimestamp, buildZone);
+    }
+
     public static boolean openBrowser(Desktop desktop, String hostName)
             throws MalformedURLException, IOException, ProtocolException, URISyntaxException {
         if (hostName == null) {
             return false;
         }
-    
+
         int response;
         URL testingURL = new URL("http", hostName, serverPort, "/sounds/timeOver.mp3");
         HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
@@ -114,13 +127,17 @@ public class StartupUtils {
         return false;
     }
 
+    public static void setServerPort(Integer serverPort) {
+        StartupUtils.serverPort = serverPort;
+    }
+
     public static void startBrowser() {
         if (Desktop.isDesktopSupported()) {
             Desktop desktop = Desktop.getDesktop();
             try {
                 InetAddress localMachine = InetAddress.getLocalHost();
                 String hostName = localMachine.getHostName();
-    
+
                 boolean opened = openBrowser(desktop, hostName);
                 if (!opened) {
                     openBrowser(desktop, "127.0.0.1");
@@ -131,18 +148,6 @@ public class StartupUtils {
         } else {
             logger.debug("no browser support");
         }
-    }
-
-    public static void logStart(String appName, Integer serverPort) throws IOException, ParseException {
-        InputStream in = StartupUtils.class.getResourceAsStream("/build.properties");
-        Properties props = new Properties();
-        props.load(in);
-        String version = props.getProperty("version");
-        OwlcmsFactory.setVersion(version);
-        String buildTimestamp = props.getProperty("buildTimestamp");
-        OwlcmsFactory.setBuildTimestamp(buildTimestamp);
-        String buildZone = props.getProperty("buildZone");
-        mainLogger.info("{} {} built {} ({})", appName, version, buildTimestamp, buildZone);
     }
 
 }

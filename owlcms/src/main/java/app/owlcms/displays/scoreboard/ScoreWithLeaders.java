@@ -90,7 +90,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         String getAttempt();
 
         String getCategoryName();
-        
+
         String getCompetitionName();
 
         String getFullName();
@@ -108,7 +108,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         void setAttempt(String formattedAttempt);
 
         void setCategoryName(String categoryName);
-        
+
         void setCompetitionName(String competitionName);
 
         void setFullName(String lastName);
@@ -700,7 +700,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             curGroup = fop.getGroup();
             if (liftType != null) {
                 model.setGroupName(
-                        curGroup != null ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
+                        curGroup != null
+                                ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
                                 : "");
                 order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
                 liftsDone = AthleteSorter.countLiftsDone(order);

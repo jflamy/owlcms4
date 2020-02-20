@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.parameters;
@@ -47,12 +47,12 @@ public interface DarkModeParameters extends QueryParameterReader {
                 e -> setDarkMode(target, true, false));
         darkButton.getStyle().set("color", "white");
         darkButton.getStyle().set("background-color", "black");
-        
+
         Button lightButton = new Button(contextMenu.getTranslation(LIGHT),
                 e -> setDarkMode(target, false, false));
         lightButton.getStyle().set("color", "black");
         lightButton.getStyle().set("background-color", "white");
-        
+
         if (darkMode) {
             contextMenu.addItem(darkButton);
             contextMenu.addItem(lightButton);

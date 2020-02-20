@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 
@@ -43,7 +43,7 @@ public final class WaveFileReader extends SunFileReader {
 
     /**
      * Obtains the audio file format of the File provided. The File must point to valid audio file data.
-     * 
+     *
      * @param file the File from which file format information should be extracted
      * @return an <code>AudioFileFormat</code> object describing the audio file format
      * @throws UnsupportedAudioFileException if the File does not point to valid audio file data recognized by the
@@ -70,7 +70,7 @@ public final class WaveFileReader extends SunFileReader {
      * it. These parsers must be able to mark the stream, read enough data to determine whether they support the stream,
      * and, if not, reset the stream's read pointer to its original position. If the input stream does not support this,
      * this method may fail with an IOException.
-     * 
+     *
      * @param stream the input stream from which file format information should be extracted
      * @return an <code>AudioFileFormat</code> object describing the audio file format
      * @throws UnsupportedAudioFileException if the stream does not point to valid audio file data recognized by the
@@ -91,7 +91,7 @@ public final class WaveFileReader extends SunFileReader {
 
     /**
      * Obtains the audio file format of the URL provided. The URL must point to valid audio file data.
-     * 
+     *
      * @param url the URL from which file format information should be extracted
      * @return an <code>AudioFileFormat</code> object describing the audio file format
      * @throws UnsupportedAudioFileException if the URL does not point to valid audio file data recognized by the system
@@ -111,7 +111,7 @@ public final class WaveFileReader extends SunFileReader {
 
     /**
      * Obtains an audio stream from the File provided. The File must point to valid audio file data.
-     * 
+     *
      * @param file the File for which the <code>AudioInputStream</code> should be constructed
      * @return an <code>AudioInputStream</code> object based on the audio file data pointed to by the File
      * @throws UnsupportedAudioFileException if the File does not point to valid audio file data recognized by the
@@ -139,7 +139,7 @@ public final class WaveFileReader extends SunFileReader {
      * it. These parsers must be able to mark the stream, read enough data to determine whether they support the stream,
      * and, if not, reset the stream's read pointer to its original position. If the input stream does not support this,
      * this method may fail with an IOException.
-     * 
+     *
      * @param stream the input stream from which the <code>AudioInputStream</code> should be constructed
      * @return an <code>AudioInputStream</code> object based on the audio file data contained in the input stream.
      * @throws UnsupportedAudioFileException if the stream does not point to valid audio file data recognized by the
@@ -160,7 +160,7 @@ public final class WaveFileReader extends SunFileReader {
 
     /**
      * Obtains an audio stream from the URL provided. The URL must point to valid audio file data.
-     * 
+     *
      * @param url the URL for which the <code>AudioInputStream</code> should be constructed
      * @return an <code>AudioInputStream</code> object based on the audio file data pointed to by the URL
      * @throws UnsupportedAudioFileException if the URL does not point to valid audio file data recognized by the system

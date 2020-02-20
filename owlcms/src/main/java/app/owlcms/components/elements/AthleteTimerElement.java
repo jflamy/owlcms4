@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.elements;
@@ -80,7 +80,7 @@ public class AthleteTimerElement extends TimerElement {
     public void clientSyncTime() {
         OwlcmsSession.withFop(fop -> {
             int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
-            //logger./**/warn("Fetched time = {} for {}", timeRemaining, fop.getCurAthlete());
+            // logger./**/warn("Fetched time = {} for {}", timeRemaining, fop.getCurAthlete());
             doSetTimer(timeRemaining);
         });
         return;
@@ -137,7 +137,8 @@ public class AthleteTimerElement extends TimerElement {
     @Subscribe
     public void slaveSetTimer(UIEvent.SetTime e) {
         Integer milliseconds = e.getTimeRemaining();
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), milliseconds, e.getClass().getSimpleName(),
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), milliseconds,
+                e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         doSetTimer(milliseconds);
     }

@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.athleteSort;
@@ -357,7 +357,6 @@ public class AbstractLifterComparator {
             // a non-null group will sort before null
             return compare;
         }
-
 
         LocalDateTime lifter1Date = lifter1Group.getWeighInTime();
         LocalDateTime lifter2Date = lifter2Group.getWeighInTime();

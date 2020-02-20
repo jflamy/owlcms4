@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.category;
@@ -33,20 +33,16 @@ import ch.qos.logback.classic.Logger;
  */
 public class RobiCategories {
 
-    static Logger logger = (Logger) LoggerFactory.getLogger(RobiCategories.class);
-    private static ArrayList<Category> jrSrReferenceCategories = null;
-    private static ArrayList<Category> ythReferenceCategories;
-
     private class RobiComparator implements Comparator<Category> {
 
         @Override
         public int compare(Category c1, Category c2) {
             try {
-                // because we are getting c2 as the fake value being searched, we invert the 
+                // because we are getting c2 as the fake value being searched, we invert the
                 // return value of comparison.
-                
+
                 if (c2.getGender() != c1.getGender()) {
-                    int compare =  ObjectUtils.compare(c2, c1);
+                    int compare = ObjectUtils.compare(c2, c1);
 //                    System.err.println(dumpCat(c2) + " " + compare + " " + dumpCat(c1));
                     return -compare;
                 }
@@ -66,6 +62,52 @@ public class RobiCategories {
             }
             return 0;
         }
+    }
+
+    static Logger logger = (Logger) LoggerFactory.getLogger(RobiCategories.class);
+    private static ArrayList<Category> jrSrReferenceCategories = null;
+
+    private static ArrayList<Category> ythReferenceCategories;
+
+    public static Category findRobiCategory(Athlete a) {
+        if (jrSrReferenceCategories == null) {
+            loadJrSrReferenceCategories();
+        }
+        if (ythReferenceCategories == null) {
+            loadYthReferenceCategories();
+        }
+        RobiCategories x = new RobiCategories();
+        List<Category> categories;
+        Integer age = a.getAge();
+        if (age != null && age <= 17) {
+            categories = ythReferenceCategories;
+        } else {
+            categories = jrSrReferenceCategories;
+        }
+//        System.err.println("before search " + categories.size());
+        int index = Collections.binarySearch(categories,
+                new Category(null, a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null),
+                x.new RobiComparator());
+
+        if (index >= 0) {
+            return categories.get(index);
+        } else {
+            return null;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private static String dumpCat(Category c) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("code=");
+        sb.append(c.getCode());
+        sb.append(" gender=");
+        sb.append(c.getGender());
+        sb.append(" min=");
+        sb.append(c.getMinimumWeight());
+        sb.append(" max=");
+        sb.append(c.getMaximumWeight());
+        return sb.toString();
     }
 
     private static void loadJrSrReferenceCategories() {
@@ -124,47 +166,6 @@ public class RobiCategories {
             }
 //            i++;
         }
-    }
-
-    public static Category findRobiCategory(Athlete a) {
-        if (jrSrReferenceCategories == null) {
-            loadJrSrReferenceCategories();
-        }
-        if (ythReferenceCategories == null) {
-            loadYthReferenceCategories();
-        }
-        RobiCategories x = new RobiCategories();
-        List<Category> categories;
-        Integer age = a.getAge();
-        if (age != null && age <= 17) {
-            categories = ythReferenceCategories;
-        } else {
-            categories = jrSrReferenceCategories;
-        }
-//        System.err.println("before search " + categories.size());
-        int index = Collections.binarySearch(categories,
-                new Category(null, a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null),
-                x.new RobiComparator());
-
-        if (index >= 0) {
-            return categories.get(index);
-        } else {
-            return null;
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private static String dumpCat(Category c) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("code=");
-        sb.append(c.getCode());
-        sb.append(" gender=");
-        sb.append(c.getGender());
-        sb.append(" min=");
-        sb.append(c.getMinimumWeight());
-        sb.append(" max=");
-        sb.append(c.getMaximumWeight());
-        return sb.toString();
     }
 
 }

@@ -231,7 +231,7 @@ public class Athlete {
 
     /**
      * 20kg rule or 80% rule for Masters
-     * 
+     *
      * @param cat
      * @param entryTotal
      * @return the allowed gap (inclusive) between sum of initial declarations and entry total.
@@ -246,8 +246,9 @@ public class Athlete {
                         double margin = 0.2D * entryTotal;
                         // we would round up the required total, so we round down the allowed margin
                         double floor = Math.floor(margin);
-                        int asInt = (int) Math.round(floor);                        
-                        logger.debug("margin = {} floor = {} asInt = {} required = {}",margin, floor, asInt, entryTotal - asInt);
+                        int asInt = (int) Math.round(floor);
+                        logger.debug("margin = {} floor = {} asInt = {} required = {}", margin, floor, asInt,
+                                entryTotal - asInt);
                         return asInt;
                     }
                 }
@@ -1582,14 +1583,14 @@ public class Athlete {
             if (age != null) {
                 wr = robiC.getWr(age);
             } else {
-                return robiC.getWr(999)+0.0D;
+                return robiC.getWr(999) + 0.0D;
             }
         }
 
         // assuming that ROBI_B does not change per age group -- should not
         // since is same for women and men
         double robiA = 1000.0D / Math.pow(wr, Category.ROBI_B);
-        double robi =  robiA * Math.pow(getTotal(), Category.ROBI_B);
+        double robi = robiA * Math.pow(getTotal(), Category.ROBI_B);
         return robi;
     }
 

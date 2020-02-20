@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.jpa;
@@ -120,29 +120,6 @@ public class JPAService {
     }
 
     /**
-     * H2 can expose its embedded server on demand.
-     * 
-     * <p>Not enabled by default, protected by a feature switch (<code>-DH2ServerPort=9092 or OWLCMS_H2SERVERPORT=9092</code>)
-     * <p>When using a tool to connect (e.g. DBVisualizer) the URL given to the tool must include the absolute
-     * path to the database for example
-     * <pre>
-     * jdbc:h2:tcp:localhost:9092/file:C:\Dev\git\owlcms4\owlcms\database;MODE=PostgreSQL
-     * </pre>
-     */
-    private static void startH2EmbeddedServer() {
-        Server tcpServer;
-        try {
-            String h2ServerPort = StartupUtils.getStringParam("H2ServerPort");
-            if (h2ServerPort != null && Integer.parseInt(h2ServerPort) > 0) {
-                tcpServer = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", h2ServerPort, "-tcpDaemon");
-                tcpServer.start();
-            }
-        } catch (SQLException e) {
-            logger.error(LoggerUtils.stackTrace(e));
-        }
-    }
-
-    /**
      * Run in transaction.
      *
      * @param <T>      the generic type
@@ -228,9 +205,9 @@ public class JPAService {
 
         // use an explicit path as this allows connecting to the H2 server running embedded
         String databasePath = new File("database/owlcms.mv.db").getAbsolutePath();
-        databasePath = databasePath.substring(0, databasePath.length()-".mv.db".length()); 
+        databasePath = databasePath.substring(0, databasePath.length() - ".mv.db".length());
         props.put(JPA_JDBC_URL,
-                (dbUrl != null ? dbUrl : "jdbc:h2:file:"+databasePath) + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
+                (dbUrl != null ? dbUrl : "jdbc:h2:file:" + databasePath) + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
         startLogger.debug("Starting in directory {}", System.getProperty("user.dir"));
         props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
         props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
@@ -276,6 +253,33 @@ public class JPAService {
         props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
 
         return props;
+    }
+
+    /**
+     * H2 can expose its embedded server on demand.
+     *
+     * <p>
+     * Not enabled by default, protected by a feature switch
+     * (<code>-DH2ServerPort=9092 or OWLCMS_H2SERVERPORT=9092</code>)
+     * <p>
+     * When using a tool to connect (e.g. DBVisualizer) the URL given to the tool must include the absolute path to the
+     * database for example
+     * 
+     * <pre>
+     * jdbc:h2:tcp:localhost:9092/file:C:\Dev\git\owlcms4\owlcms\database;MODE=PostgreSQL
+     * </pre>
+     */
+    private static void startH2EmbeddedServer() {
+        Server tcpServer;
+        try {
+            String h2ServerPort = StartupUtils.getStringParam("H2ServerPort");
+            if (h2ServerPort != null && Integer.parseInt(h2ServerPort) > 0) {
+                tcpServer = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", h2ServerPort, "-tcpDaemon");
+                tcpServer.start();
+            }
+        } catch (SQLException e) {
+            logger.error(LoggerUtils.stackTrace(e));
+        }
     }
 
 }

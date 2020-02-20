@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.home;
@@ -188,10 +188,10 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(resetTranslation);
 
         license.add(new H3(getTranslation("Translation")));
-        addUL(license, 
+        addUL(license,
                 getTranslation("ThanksToTranslators") + translators(),
                 getTranslation("TranslationDocumentation"));
-        
+
         doGroup(getTranslation("reloadTranslationInfo"), grid1, license);
 
         return license;

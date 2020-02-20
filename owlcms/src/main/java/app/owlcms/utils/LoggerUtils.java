@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.utils;
@@ -54,13 +54,13 @@ public class LoggerUtils {
     public static String whereFrom() {
         return Thread.currentThread().getStackTrace()[3].toString();
     }
-    
+
     /**
      * Where from, additional depth
      *
      * @return the string
      */
     public static String whereFrom(int depth) {
-        return Thread.currentThread().getStackTrace()[3+depth].toString();
+        return Thread.currentThread().getStackTrace()[3 + depth].toString();
     }
 }

@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.elements;
@@ -68,11 +68,6 @@ public class JuryDisplayDecisionElement extends DecisionElement {
         // ignore
     }
 
-    @Override
-    public void slaveShowDecision(Decision e) {
-        // ignore
-    }
-
     @Subscribe
     public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
@@ -84,6 +79,11 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
     @Override
     public void slaveReset(DecisionReset e) {
+        // ignore
+    }
+
+    @Override
+    public void slaveShowDecision(Decision e) {
         // ignore
     }
 

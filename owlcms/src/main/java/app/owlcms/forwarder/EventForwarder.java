@@ -673,7 +673,7 @@ public class EventForwarder implements BreakDisplay {
 
             try (CloseableHttpClient httpClient = HttpClients.createDefault();
                     CloseableHttpResponse response = httpClient.execute(post)) {
-                
+
                 EntityUtils.toString(response.getEntity());
             }
 

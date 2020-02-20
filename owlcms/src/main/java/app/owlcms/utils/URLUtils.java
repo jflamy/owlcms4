@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.utils;
@@ -66,6 +66,26 @@ public class URLUtils {
         return siteExternalForm;
     }
 
+    public static String getClientIp(HttpServletRequest request) {
+        String remoteAddr = "";
+
+        if (request != null) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
+
+        return remoteAddr;
+    }
+
+    public static <T extends Component> String getRelativeURLFromTargetClass(Class<T> class1) {
+        RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
+        String relativeURL;
+        relativeURL = routeResolver.getUrl(class1);
+        return relativeURL;
+    }
+
     public static String getScheme(HttpServletRequest request) {
         logHeaders(request);
         String scheme = request.getHeader("X-Forwarded-Proto");
@@ -82,31 +102,11 @@ public class URLUtils {
         return port != null ? Integer.parseInt(port) : request.getServerPort();
     }
 
-    public static String getClientIp(HttpServletRequest request) {
-        String remoteAddr = "";
-
-        if (request != null) {
-            remoteAddr = request.getHeader("X-FORWARDED-FOR");
-            if (remoteAddr == null || "".equals(remoteAddr)) {
-                remoteAddr = request.getRemoteAddr();
-            }
-        }
-
-        return remoteAddr;
-    }
-
     public static <T extends Component> String getUrlFromTargetClass(Class<T> class1) {
         String relativeURL = getRelativeURLFromTargetClass(class1);
         String absoluteURL = URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
                 relativeURL);
         return absoluteURL;
-    }
-
-    public static <T extends Component> String getRelativeURLFromTargetClass(Class<T> class1) {
-        RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
-        String relativeURL;
-        relativeURL = routeResolver.getUrl(class1);
-        return relativeURL;
     }
 
     public static <T extends Component & HasUrlParameter<String>> String getUrlFromTargetClass(Class<T> class1,
@@ -130,7 +130,7 @@ public class URLUtils {
             logger.debug("{}: {}", headerName, request.getHeader(headerName));
         }
     }
-    
+
     public static String urlEncode(String name) {
         try {
             name = URLEncoder.encode(name, StandardCharsets.UTF_8.toString());

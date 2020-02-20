@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components;
@@ -44,10 +44,10 @@ public interface NavigationPage extends OwlcmsContent {
         intro.add(paragraph);
         return paragraph;
     }
-    
+
     public default UnorderedList addUL(HasComponents intro, String... bullets) {
         UnorderedList ul = new UnorderedList();
-        for (String b: bullets) {
+        for (String b : bullets) {
             ListItem item = new ListItem(b);
             item.getElement().setProperty("innerHTML", b);
             ul.add(item);

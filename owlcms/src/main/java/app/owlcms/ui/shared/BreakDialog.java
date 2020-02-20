@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.ui.shared;
@@ -35,7 +35,7 @@ public class BreakDialog extends Dialog {
             this.removeAll();
             this.add(content);
         });
-        
+
         this.addDialogCloseActionListener((e) -> {
             this.removeAll();
             this.close();
@@ -53,7 +53,7 @@ public class BreakDialog extends Dialog {
      * @param cdt
      */
     public BreakDialog(Object origin, BreakType brt, CountdownType cdt) {
-        
+
         this.addAttachListener((e) -> {
             content = new BreakManagement(origin, brt, cdt, this);
             this.removeAll();
