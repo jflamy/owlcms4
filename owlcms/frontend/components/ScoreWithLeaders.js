@@ -576,19 +576,19 @@ table#leaders-table thead tr.hide th {
 		</template>
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
-				<td class$="groupCol [[l.classname]] "><div>[[l.startNumber]]</div></td>
-				<td class$="name [[l.classname]]">
-					<div>[[l.fullName]]</div>
+				<td class$="groupCol"><div class$="[[l.classname]]">[[l.startNumber]]</div></td>
+				<td class$="name">
+					<div class$="[[l.classname]]">[[l.fullName]]</div>
 				</td>
 				<td class="category"><div>[[l.category]]</div></td>
 				<td class="veryNarrow"><div>[[l.yearOfBirth]]</div></td>
 				<td class="club"><div>[[l.teamName]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
+					<td><div class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank"><div>[[l.snatchRank]]</div></td>
 				<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-					<td class$="[[attempt.goodBadClassName]] [[attempt.className]]"><div>[[attempt.stringValue]]</div></td>
+					<td><div class$="[[attempt.goodBadClassName]] [[attempt.className]]">[[attempt.stringValue]]</div></td>
 				</template>
 				<td class="showRank"><div>[[l.cleanJerkRank]]</div></td>		
 				<td class="veryNarrow">[[l.total]]</td>
