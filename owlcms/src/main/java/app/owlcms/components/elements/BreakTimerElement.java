@@ -120,7 +120,7 @@ public class BreakTimerElement extends TimerElement {
             milliseconds = (int) LocalDateTime.now().until(e.getEnd(), ChronoUnit.MILLIS);
         } else {
             milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-            uiEventLogger.warn("&&& breakTimer set {} {} {} {}", parentName, formatDuration(milliseconds),
+            uiEventLogger.debug("&&& breakTimer set {} {} {} {}", parentName, formatDuration(milliseconds),
                     e.isIndefinite(), LoggerUtils.whereFrom());
         }
         doSetTimer(milliseconds);
@@ -132,7 +132,7 @@ public class BreakTimerElement extends TimerElement {
             return;
         }
         Integer tr = e.isIndefinite() ? null : e.getMillis();
-        uiEventLogger.warn("&&& breakTimer start {} {} {} {}", parentName, tr, e.getOrigin(), LoggerUtils.whereFrom());
+        uiEventLogger.debug("&&& breakTimer start {} {} {} {}", parentName, tr, e.getOrigin(), LoggerUtils.whereFrom());
         doStartTimer(tr, true); // true means "silent".
     }
 

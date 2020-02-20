@@ -247,15 +247,15 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     private void initTime(Integer milliseconds) {
-        if (this instanceof BreakTimerElement) logger.warn("set time remaining = {} from {} ",formatDuration(milliseconds), LoggerUtils.whereFrom());
+        if (this instanceof BreakTimerElement) logger.debug("set time remaining = {} from {} ",formatDuration(milliseconds), LoggerUtils.whereFrom());
         setIndefinite(milliseconds == null);
         setMsRemaining(milliseconds);
 
         if (!isIndefinite()) {
-            if (this instanceof BreakTimerElement) logger.warn("not indefinite {}", formatDuration(milliseconds));
+            if (this instanceof BreakTimerElement) logger.debug("not indefinite {}", formatDuration(milliseconds));
             setDisplay(milliseconds, isIndefinite(), isSilent());
         } else {
-            if (this instanceof BreakTimerElement) logger.warn("indefinite");
+            if (this instanceof BreakTimerElement) logger.debug("indefinite");
             setDisplay(milliseconds, true, true);
         }
     }

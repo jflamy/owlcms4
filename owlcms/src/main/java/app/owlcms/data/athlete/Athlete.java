@@ -1576,7 +1576,7 @@ public class Athlete {
             // not an IWF category, find what the IWF Robi would be for age/body weight
             Category robiC = RobiCategories.findRobiCategory(this);
             if (robiC == null) {
-                logger.warn("could not find Robi Category for {}", this.longDump());
+                logger.debug("could not find Robi Category for {}", this.longDump());
             }
             Integer age = getAge();
             if (age != null) {

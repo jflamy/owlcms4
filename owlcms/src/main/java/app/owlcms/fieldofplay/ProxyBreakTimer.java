@@ -75,17 +75,17 @@ public class ProxyBreakTimer implements IProxyTimer {
     public int liveTimeRemaining() {
         if (end != null) {
             int until = (int) LocalDateTime.now().until(end, ChronoUnit.MILLIS);
-            logger.warn("liveTimeRemaining target {} {}", DurationFormatUtils.formatDurationHMS(until), LoggerUtils.whereFrom());
+            logger.debug("liveTimeRemaining target {} {}", DurationFormatUtils.formatDurationHMS(until), LoggerUtils.whereFrom());
             return until;
         } else if (running) {
             stopMillis = System.currentTimeMillis();
             long elapsed = stopMillis - startMillis;
             int tr = (int) (getTimeRemaining() - elapsed);
-            logger.warn("liveTimeRemaining running {} {}", DurationFormatUtils.formatDurationHMS(tr), LoggerUtils.whereFrom());
+            logger.debug("liveTimeRemaining running {} {}", DurationFormatUtils.formatDurationHMS(tr), LoggerUtils.whereFrom());
             return tr;
         } else {
             int tr = getTimeRemaining();
-            logger.warn("liveTimeRemaining stopped {} {}", DurationFormatUtils.formatDurationHMS(tr), LoggerUtils.whereFrom());
+            logger.debug("liveTimeRemaining stopped {} {}", DurationFormatUtils.formatDurationHMS(tr), LoggerUtils.whereFrom());
             return tr;
         }
     }
@@ -141,7 +141,7 @@ public class ProxyBreakTimer implements IProxyTimer {
     public void setEnd(LocalDateTime targetTime) {
         indefinite = false;
         // end != null overrides duration computation
-        logger.warn("setting end time = {}", targetTime);
+        logger.debug("setting end time = {}", targetTime);
         this.end = targetTime;
     }
 
@@ -168,8 +168,7 @@ public class ProxyBreakTimer implements IProxyTimer {
 //            computeTimeRemaining();
 //        }
 
-        logger.warn("setting break timeRemaining = {} [{}]", DurationFormatUtils.formatDurationHMS(this.timeRemaining),
-                LoggerUtils.stackTrace());
+        logger.debug("setting break timeRemaining = {} [{}]", DurationFormatUtils.formatDurationHMS(this.timeRemaining),LoggerUtils.stackTrace());
 
 //        fop.pushOut(new UIEvent.BreakSetTime(fop.getBreakType(), fop.getCountdownType(), timeRemaining,
 //                this.indefinite, this));
@@ -184,7 +183,7 @@ public class ProxyBreakTimer implements IProxyTimer {
         startMillis = System.currentTimeMillis();
         UIEvent.BreakStarted event = new UIEvent.BreakStarted(isIndefinite() ? null : getMillis(), getOrigin(), false,
                 fop.getBreakType(), fop.getCountdownType());
-        logger.warn("posting {}", event);
+        logger.debug("posting {}", event);
         fop.pushOut(event);
         running = true;
     }
@@ -226,7 +225,7 @@ public class ProxyBreakTimer implements IProxyTimer {
             // we've already signaled time over.
             return;
         }
-        logger.warn("break timeover = {} [{}]", getTimeRemaining(), LoggerUtils.whereFrom());
+        logger.debug("break timeover = {} [{}]", getTimeRemaining(), LoggerUtils.whereFrom());
 
         // should emit sound at end of break
         fop.pushOut(new UIEvent.BreakDone(origin));

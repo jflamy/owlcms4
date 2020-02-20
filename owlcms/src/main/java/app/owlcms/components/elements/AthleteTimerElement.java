@@ -124,7 +124,7 @@ public class AthleteTimerElement extends TimerElement {
 
     @Subscribe
     public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-        uiEventLogger.warn("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        uiEventLogger.debug("### {} {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 (e.isCurrentDisplayAffected() ? "stop_timer" : "leave_asis"), this.getOrigin(), e.getOrigin());
         if (e.isCurrentDisplayAffected()) {
             clientSyncTime();
@@ -137,7 +137,7 @@ public class AthleteTimerElement extends TimerElement {
     @Subscribe
     public void slaveSetTimer(UIEvent.SetTime e) {
         Integer milliseconds = e.getTimeRemaining();
-        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), milliseconds, e.getClass().getSimpleName(),
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), milliseconds, e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         doSetTimer(milliseconds);
     }

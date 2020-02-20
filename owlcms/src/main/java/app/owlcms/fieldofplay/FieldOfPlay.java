@@ -1089,7 +1089,7 @@ public class FieldOfPlay {
             breakTimer2.stop();
         }
 
-        logger.warn("transition to break {} {}", breakType2, countdownType2);
+        logger.debug("transition to break {} {}", breakType2, countdownType2);
         setState(BREAK);
         this.setBreakType(breakType2);
         this.setCountdownType(countdownType2);
