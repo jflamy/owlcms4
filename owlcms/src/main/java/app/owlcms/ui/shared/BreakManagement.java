@@ -416,7 +416,6 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     OwlcmsSession.withFop(fop -> {
                         fop.recomputeLiftingOrder();
                         OwlcmsSession.getFop().getUiEventBus()
-                                // FIXME: does this work ?
                                 .post(new UIEvent.BreakStarted(0, this.getOrigin(), true, bt.getValue(),
                                         ct.getValue()));
                     });

@@ -1,9 +1,15 @@
 FROM gitpod/workspace-full
+             
+RUN mkdir -p /home/gitpod/lib/java && \
+    cd /home/gitpod/lib/java && \
+    curl -L -O https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases/download/dcevm-11.0.5%2B5/java11-openjdk-dcevm-linux.tar.gz  && \
+    tar xzf java11-openjdk-dcevm-linux.tar.gz 
 
-RUN bash -c ". /home/gitpod/.sdkman/bin/sdkman-init.sh \
-             && sdk install java 8.0.242.hs-adpt"
-
+RUN bash -c ". /home/gitpod/.sdkman/bin/sdkman-init.sh && sdk install java 11.0.5.hs-dcevm /home/gitpod/lib/java/dcevm-11.0.5+5 && sdk upgrade java"
+RUN echo "JAVA_HOME=/home/gitpod/.sdkman/candidates/java/11.0.5.hs-dcevm" > ~/.mavenrc
+             
 USER gitpod
+
 
 # Install custom tools, runtime, etc. using apt-get
 # For example, the command below would install "bastet" - a command line tetris clone:
