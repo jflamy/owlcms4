@@ -18,7 +18,9 @@
   * [Result Documents](Documents)
 
 * Advanced Topics
-  * [Public Results Display](Remote)
+
+*   [Public Results Display](Remote)
+*   [Contributing to the code](Gitpod)
 
 * Downloads
 
