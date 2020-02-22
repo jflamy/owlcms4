@@ -26,9 +26,12 @@ This is free, as-is, no warranty *whatsoever* software. If you just want to run 
 
 If however you wish to provide the software as a service to others (including by hosting it), or if you create a modified version, the license *requires* you to make full sources and building instructions available for free &ndash; just like this software is (see the [License](https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt) for details.)
 
-### Translation to Other Languages
+### Helping out with the project
 
 - You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](https://jflamy.github.io/owlcms4/#/Translation) if you wish to contribute.
+- If you are a programmer, you can actually get a development environment on the cloud up in minutes, for free.  Use the button below and see the guide (coming soon)
+  [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)
+  ](https://gitpod.io/#https://github.com/jflamy/owlcm4/tree/develop)
 
 ### Credits
 
