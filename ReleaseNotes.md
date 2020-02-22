@@ -1,4 +1,4 @@
-* Release Highlights for release 4.5.0-rc2 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Release Highlights for release 4.5.0 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   - [x] Fix: When time is started/stopped on one technical officials screen, change the timer button colors/highlights on all relevant screens (announcer, timekeeper, marshall) (#311)
 * Since last stable release 4.4.5 
   - [x] Fix: When using Firefox for the scoreboards, blinking makes  the right and bottom borders of the blinking cells disappear. (#311)
