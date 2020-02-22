@@ -29,15 +29,17 @@ public interface UIEventProcessor {
      * @param e                 the event we received
      * @param selfOrigin        our reference element -- for composite objects, we will likely use the parent of the
      *                          hierarchy
-     * @param eventOrigin       the element on which the action that triggered the event chain occurred.
      * @param command
      */
     public static void uiAccessIgnoreIfSelfOrigin(Component attachedComponent, EventBus uiEventBus, UIEvent e,
-            Object selfOrigin, Object eventOrigin, Command command) {
+            Object selfOrigin, Command command) {
+        
+        // for locking purposes, we want the UI associated with the component (we don't know who owns
+        // our thread and what UI.getCurrent() is.
         Optional<UI> attachedUI = attachedComponent.getUI();
-        // for locking purposes, we want the UI associated with the component.
         if (attachedUI.isPresent()) {
             try {
+                Object eventOrigin = e != null ? e.getOrigin() : null;
                 if (eventOrigin != null && eventOrigin.equals(selfOrigin)) {
                     return;
                 }
@@ -73,7 +75,7 @@ public interface UIEventProcessor {
     static void uiAccess(Component attachedComponent, EventBus uiEventBus, Command command) {
         // The use of different numbers as selfOrigin and eventOrigin implies that we
         // always execute the command.
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(attachedComponent, uiEventBus, null, 1, 2, command);
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(attachedComponent, uiEventBus, null, 1, command);
     }
 
     /**
@@ -89,7 +91,7 @@ public interface UIEventProcessor {
     static void uiAccess(Component attachedComponent, EventBus uiEventBus, UIEvent e, Command command) {
         // The use of a number as selfOrigin means that we always execute the command.
         UIEventProcessor.uiAccessIgnoreIfSelfOrigin(attachedComponent, uiEventBus, e, 1,
-                (e != null ? e.getOrigin() : null), command);
+                command);
     }
 
 }

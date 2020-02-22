@@ -34,6 +34,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.dom.ThemeList;
@@ -297,6 +298,11 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             params.remove("group");
         }
         ui.getPage().getHistory().replaceState(null, new Location(location.getPath(), new QueryParameters(params)));
+    }
+
+    @Override
+    protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
+        return null;
     }
 
     /**

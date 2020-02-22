@@ -281,7 +281,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         // ignore if the down signal was initiated by this result board.
         // (the timer element on the result board will actually process the keyboard
         // codes if devices are attached)
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(), () -> {
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
             getModel().setHidden(false);
             this.getElement().callJsFunction("down");
         });

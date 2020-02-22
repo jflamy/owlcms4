@@ -220,8 +220,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         synchronized (this) {
             try {
                 ignoreListeners = true;
-                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(),
-                        () -> parentDialog.close());
+                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> parentDialog.close());
             } finally {
                 ignoreListeners = false;
             }
@@ -233,13 +232,12 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         synchronized (this) {
             try {
                 ignoreListeners = true;
-                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(),
-                        () -> {
+                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
 //                            OwlcmsSession.withFop((fop) -> {
 //                                readFromRunningTimer(fop, fop.getBreakTimer());
 //                            });
-                            startEnabled();
-                        });
+                    startEnabled();
+                });
             } finally {
                 ignoreListeners = false;
             }
@@ -260,11 +258,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 if (e.isDisplayToggle()) {
                     return;
                 }
-                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), e.getOrigin(),
-                        () -> {
-                            startDisabled();
-                            safeSetBT(e.getBreakType());
-                        });
+                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+                    startDisabled();
+                    safeSetBT(e.getBreakType());
+                });
             } finally {
                 ignoreListeners = false;
             }

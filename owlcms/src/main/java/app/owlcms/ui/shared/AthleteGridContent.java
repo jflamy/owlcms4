@@ -120,6 +120,8 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected boolean initialBar;
     protected H3 warning;
     protected Button breakButton;
+    protected Button _1min;
+    protected Button _2min;
 
     /*
      * Initial Bar
@@ -152,6 +154,8 @@ public abstract class AthleteGridContent extends VerticalLayout
     private HorizontalLayout breaks;
     protected BreakDialog breakDialog;
     private H2 firstNameWrapper;
+    protected Button startTimeButton;
+    protected Button stopTimeButton;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -344,6 +348,16 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     @Subscribe
+    public void slaveSetTimer(UIEvent.SetTime e) {
+        // we use stop because it is present on most screens; either button ok for locking
+        if (stopTimeButton == null) {
+            return;
+        }
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(stopTimeButton, uiEventBus, e, this.getOrigin(),
+                () -> buttonsTimeStopped());
+    }
+
+    @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
         UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, () -> {
             logger.trace("starting lifting");
@@ -352,8 +366,28 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     @Subscribe
+    public void slaveStartTimer(UIEvent.StartTime e) {
+        // we use stop because it is present on most screens; either button ok for locking
+        if (stopTimeButton == null) {
+            return;
+        }
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(stopTimeButton, uiEventBus, e, this.getOrigin(),
+                () -> buttonsTimeStarted());
+    }
+
+    @Subscribe
+    public void slaveStopTimer(UIEvent.StopTime e) {
+        // we use stop because it is present on most screens; either button ok for locking
+        if (stopTimeButton == null) {
+            return;
+        }
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(stopTimeButton, uiEventBus, e, this.getOrigin(),
+                () -> buttonsTimeStopped());
+    }
+
+    @Subscribe
     public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBarGroupSelect, uiEventBus, e, this, e.getOrigin(), () -> {
+        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(topBarGroupSelect, uiEventBus, e, this, () -> {
             syncWithFOP(true);
             updateURLLocation(getLocationUI(), getLocation(), e.getGroup());
         });
@@ -401,9 +435,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         return athleteEditingFormFactory.update(notUsed);
     }
 
-    protected HorizontalLayout announcerButtons(FlexLayout topBar2) {
-        return null;
-    }
+    protected abstract HorizontalLayout announcerButtons(FlexLayout topBar2);
 
     protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
         breakButton = new Button(AvIcons.AV_TIMER.create(), (e) -> {
@@ -413,6 +445,42 @@ public abstract class AthleteGridContent extends VerticalLayout
             breakDialog.open();
         });
         return layoutBreakButtons();
+    }
+
+    protected void buttonsTimeStarted() {
+        if (startTimeButton != null) {
+            startTimeButton.getElement().setAttribute("theme", "secondary icon");
+        }
+        if (stopTimeButton != null) {
+            stopTimeButton.getElement().setAttribute("theme", "primary error icon");
+        }
+    }
+
+    protected void buttonsTimeStopped() {
+        if (startTimeButton != null) {
+            startTimeButton.getElement().setAttribute("theme", "primary success icon");
+        }
+        if (stopTimeButton != null) {
+            stopTimeButton.getElement().setAttribute("theme", "secondary icon");
+        }
+    }
+
+    protected void create1minButton() {
+        _1min = new Button("1:00", (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                fop.getFopEventBus().post(new FOPEvent.ForceTime(60000, this.getOrigin()));
+            });
+        });
+        _1min.getElement().setAttribute("theme", "icon");
+    }
+
+    protected void create2MinButton() {
+        _2min = new Button("2:00", (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                fop.getFopEventBus().post(new FOPEvent.ForceTime(120000, this.getOrigin()));
+            });
+        });
+        _2min.getElement().setAttribute("theme", "icon");
     }
 
     /**
@@ -493,6 +561,28 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     protected Component createReset() {
         return null;
+    }
+
+    protected void createStartTimeButton() {
+        startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
+        startTimeButton.addClickListener(e -> {
+            OwlcmsSession.withFop(fop -> {
+                fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
+                buttonsTimeStarted();
+            });
+        });
+        startTimeButton.getElement().setAttribute("theme", "primary success icon");
+    }
+
+    protected void createStopTimeButton() {
+        stopTimeButton = new Button(AvIcons.PAUSE.create());
+        stopTimeButton.addClickListener(e -> {
+            OwlcmsSession.withFop(fop -> {
+                fop.getFopEventBus().post(new FOPEvent.TimeStopped(this.getOrigin()));
+                buttonsTimeStopped();
+            });
+        });
+        stopTimeButton.getElement().setAttribute("theme", "secondary icon");
     }
 
     /**

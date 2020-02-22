@@ -20,8 +20,6 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.BreakType;
-import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.ui.shared.BreakDialog;
@@ -90,26 +88,12 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
     @Override
     protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
-
-        Button start = new Button(AvIcons.PLAY_ARROW.create(), (e) -> {
-            OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin())));
-        });
-        start.getElement().setAttribute("theme", "primary");
-        Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
-            OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.TimeStopped(this.getOrigin())));
-        });
-        stop.getElement().setAttribute("theme", "primary");
-        Button _1min = new Button("1:00", (e) -> {
-            OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.ForceTime(60000, this.getOrigin())));
-        });
-        _1min.getElement().setAttribute("theme", "icon");
-        _1min.getElement().setAttribute("title", getTranslation("Reset1min"));
-        Button _2min = new Button("2:00", (e) -> {
-            OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.ForceTime(120000, this.getOrigin())));
-        });
-        _2min.getElement().setAttribute("theme", "icon");
-        _2min.getElement().setAttribute("title", getTranslation("Reset2min"));
-        HorizontalLayout buttons = new HorizontalLayout(start, stop, _1min, _2min);
+        createStartTimeButton();  
+        createStopTimeButton();
+        create1minButton();
+        create2MinButton();
+        
+        HorizontalLayout buttons = new HorizontalLayout(startTimeButton, stopTimeButton, _1min, _2min);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
     }

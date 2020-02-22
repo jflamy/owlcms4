@@ -9,16 +9,12 @@ package app.owlcms.ui.lifting;
 
 import org.slf4j.LoggerFactory;
 
-import com.flowingcode.vaadin.addons.ironicons.AvIcons;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import ch.qos.logback.classic.Level;
@@ -55,11 +51,8 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
      */
     @Override
     protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
-        Button stop = new Button(AvIcons.PAUSE.create(), (e) -> {
-            OwlcmsSession.withFop(fop -> fop.getFopEventBus().post(new FOPEvent.TimeStopped(this.getOrigin())));
-        });
-        stop.getElement().setAttribute("theme", "primary icon");
-        HorizontalLayout buttons = new HorizontalLayout(stop);
+        createStopTimeButton();
+        HorizontalLayout buttons = new HorizontalLayout(stopTimeButton);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
     }

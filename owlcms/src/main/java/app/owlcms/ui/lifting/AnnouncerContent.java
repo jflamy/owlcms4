@@ -111,40 +111,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
      */
     @Override
     protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
-        final Button start = new Button(AvIcons.PLAY_ARROW.create());
-        final Button stop = new Button(AvIcons.PAUSE.create());
-        start.addClickListener(e -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
-                start.getElement().setAttribute("theme", "secondary icon");
-                stop.getElement().setAttribute("theme", "primary error icon");
-            });
-        });
-        start.getElement().setAttribute("theme", "primary success icon");
-        stop.addClickListener(e -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.TimeStopped(this.getOrigin()));
-                start.getElement().setAttribute("theme", "primary success icon");
-                stop.getElement().setAttribute("theme", "secondary icon");
-            });
-        });
-        stop.getElement().setAttribute("theme", "secondary icon");
-        Button _1min = new Button("1:00", (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.ForceTime(60000, this.getOrigin()));
-            });
-        });
-        _1min.getElement().setAttribute("theme", "icon");
-        Button _2min = new Button("2:00", (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.ForceTime(120000, this.getOrigin()));
-            });
-        });
-        _2min.getElement().setAttribute("theme", "icon");
+        createStartTimeButton();
+        createStopTimeButton();
+        create1minButton();
+        create2MinButton();
 
         HorizontalLayout buttons = new HorizontalLayout(
-                // announce,
-                start, stop, _1min, _2min);
+                startTimeButton, stopTimeButton, _1min, _2min);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
     }
