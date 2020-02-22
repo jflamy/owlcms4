@@ -1,7 +1,7 @@
 FROM gitpod/workspace-full
              
-RUN mkdir ~/lib/java && \
-    cd ~/lib/java && \
+RUN mkdir -p /home/gitpod/lib/java && \
+    cd /home/gitpod/lib/java && \
     curl -L -O https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases/download/dcevm-11.0.5%2B5/java11-openjdk-dcevm-linux.tar.gz  && \
     tar xzf java11-openjdk-dcevm-linux.tar.gz 
 
