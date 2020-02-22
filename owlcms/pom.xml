@@ -541,7 +541,6 @@
                     </execution>
                     <execution>
                         <id>default-cli</id>
-                        <phase>verify</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
@@ -556,6 +555,10 @@
                                     <key>memoryMode</key>
                                     <value>true</value>
                                 </systemProperty>
+                                <systemProperty>
+                                    <key>port</key>
+                                    <value>8082</value>
+                                </systemProperty>                                
                             </systemProperties>
                         </configuration>
                     </execution>
