@@ -6,7 +6,7 @@ RUN mkdir -p /home/gitpod/lib/java && \
     tar xzf java11-openjdk-dcevm-linux.tar.gz 
 
 RUN bash -c ". /home/gitpod/.sdkman/bin/sdkman-init.sh && sdk install java 11.0.5.hs-dcevm /home/gitpod/lib/java/dcevm-11.0.5+5 && sdk upgrade java"
-RUN echo "JAVA_HOME=/home/gitpod/.sdkman/candidates/java/11.0.5.hs-dcevm" > ~/.mvnrc
+RUN echo "JAVA_HOME=/home/gitpod/.sdkman/candidates/java/11.0.5.hs-dcevm" > ~/.mavenrc
              
 USER gitpod
 
