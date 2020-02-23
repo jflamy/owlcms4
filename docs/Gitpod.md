@@ -26,7 +26,7 @@ Once the spinner goes away, it is replaced by a "thumbs up" icon.  The Java Depe
 
 #### Starting the application
 
-The workspace contains owlcms and all its siblings.  To get started
+The workspace contains owlcms and all its siblings such as the public results relay, the cloud updater, and the installer.  To get started it is necessary to go to the owlcms directory.
 
 1. go to the owlcms directory `cd owlcms`
 2. Start the application by typing `mvn exec:java`  (`mvn` is short for "Maven", the program that keeps track of all the libraries required and of all the rules for building the package).  
