@@ -19,8 +19,7 @@
 
 * Advanced Topics
   *	[Public Results Display](Remote)
-*	[Contributing to the code](Gitpod)
-  
+  *	[Contributing to the code](Gitpod)
 * Downloads
 
   *	[Releases](https://github.com/jflamy/owlcms4/releases)

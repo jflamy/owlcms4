@@ -1,10 +1,12 @@
 * [Home](index)
+
 * Getting Started
 
   * [Windows Installation](LocalWindowsSetup)
   * [Linux or Mac Installation](LocalLinuxMacSetup)
   * [Cloud Installation](Heroku)
   * [Equipment Setup](EquipmentSetup)
+  
 * Competition
 
   * [Preparation](Preparation)
@@ -19,8 +21,8 @@
 
 * Advanced Topics
 
-*   [Public Results Display](Remote)
-*   [Contributing to the code](Gitpod)
+  * [Public Results Display](Remote)
+  * [Contributing to the code](Gitpod)
 
 * Downloads
 

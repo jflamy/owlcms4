@@ -1,3 +1,9 @@
+OWLCMS is a Java and JavaScript-based project that follows the modern open-source practices.  It relies on Maven and Git for its build and version control.
+
+A complete, fully-functional copy of a development environment can be obtained in the cloud in a matter of minutes using a service called [Gitpod.io](https://www.gitpod.io).  For our purposes, the service is free. Gitpod provides a fully configured environment based on Visual Studio Code and Eclipse and checks out the source from the OWLCMS repository.  Contributors can then create `pull requests` so that their changes are merged with the official release.
+
+Developers more at ease with the desktop versions of Eclipse or VS Code can obviously use these tools instead. The github repository contains the settings files that should work with both these environments with minimal adjustments.  Should anyone provide settings files for other tools like IntelliJ IDEA we would integrate them, of course.
+
 #### Create the GitPod workspace
 
 Click on the following link https://gitpod.io#https://github.com/jflamy/owlcms4/tree/develop 
@@ -36,13 +42,13 @@ After the fetch is done, you will be prompted to let gitpod open a browser windo
 
 #### Seeing the effects of changes
 
-From that point, you can change the Java or Javascript files.  As soon as they are saved, the Java and Javascript compilers are configured to recompile them and reload them.  So you can just reload your browser and check.
+From that point, you can change the Java or JavaScript files.  As soon as they are saved, the Java and JavaScript compilers are configured to recompile them and reload them.  So you can just reload your browser and check.
 
 Some changes, however, are too complex to handle live.  In these cases, you need to kill the mvn process by using Control-C, and relaunch a new `mvn exec:java`
 
 The main locations of interest are as follows
 
 - `src/main/java/app/owlcms/ui` contains the code for the technical officials screens.  This code is written in Java using the Vaadin framework.  See this [introduction](https://vaadin.com/docs/v14/flow/introduction/introduction-overview.html)
-- `frontend/components` contains the JavaScript code for the various displays (the black screens).  Each component is coded as a Web Component.  Web Components are Javascript files that follow a standard understood by all the modern browsers which allows them to display seamlessly.  The Web Components in owlcms are currently written using the [Polymer library from Google](https://polymer-library.polymer-project.org/3.0/docs/devguide/feature-overview). 
+- `frontend/components` contains the JavaScript code for the various displays (the black screens).  Each component is coded as a Web Component.  Web Components are JavaScript files that follow a standard understood by all the modern browsers which allows them to display seamlessly.  The Web Components in owlcms are currently written using the [Polymer library from Google](https://polymer-library.polymer-project.org/3.0/docs/devguide/feature-overview). 
 - Each of the displays has a corresponding Java file in `src/main/java/displays` that provides it with the data it needs.  There are no REST interfaces, the Vaadin framework does this for us, and most importantly, allows the server to push the information to the clients as it is available without us having to do anything.
 
