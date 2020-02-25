@@ -199,7 +199,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
 
     @Override
     public String getPageTitle() {
-        return getTranslation("ScoreboardWLeadersTitle");
+        return getTranslation("CurrentAthleteTitle");
     }
 
     @Override
