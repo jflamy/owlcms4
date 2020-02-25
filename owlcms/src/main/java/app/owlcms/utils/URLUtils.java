@@ -108,7 +108,7 @@ public class URLUtils {
                 relativeURL);
         return absoluteURL;
     }
-
+    
     public static <T extends Component & HasUrlParameter<String>> String getUrlFromTargetClass(Class<T> class1,
             String parameter) {
         RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
@@ -138,5 +138,12 @@ public class URLUtils {
         }
         return name;
     }
+
+    public static String buildAbsoluteURL(String string) {
+        return URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
+                string);
+    }
+
+
 
 }

@@ -1,11 +1,12 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
+ * Copyright (c) 2009-2020 Jean-François Lamy
  * 
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.init;
 
+import java.net.BindException;
 import java.net.URI;
 import java.net.URL;
 import java.util.EnumSet;
@@ -30,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.startup.ServletContextListeners;
 
+import app.owlcms.publicresults.Main;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -37,9 +40,8 @@ import ch.qos.logback.classic.Logger;
  * jetty web server
  */
 public class EmbeddedJetty {
-	@SuppressWarnings("unused")
     private final static Logger logger = (Logger) LoggerFactory.getLogger(EmbeddedJetty.class);
-	private final static Logger startLogger = (Logger) LoggerFactory.getLogger("app.owlcms.Main");
+    private final static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
 	
 	/**
 	 * Run.
@@ -79,10 +81,23 @@ public class EmbeddedJetty {
         scHandler.getServletHandler().addFilterWithMapping(HttpsEnforcer.class, "/*",
             EnumSet.of(DispatcherType.REQUEST));
 
-        server.start();
-        startLogger.info("started on port {}", port);
-        StartupUtils.startBrowser();
-        server.join();
+        try {
+            server.start();
+            startLogger.info("started on port {}", port);
+            StartupUtils.startBrowser();
+            server.join();
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof BindException) {
+                logger.error("another server is already running on port {}\n{}", port, LoggerUtils.stackTrace(cause));
+                System.err.println("another program is already using port " + port
+                        + "; set the environment variable OWLCMS_PORT to use another port number");
+            } else {
+                logger.error(LoggerUtils.stackTrace());
+                System.err.println("server could not be started");
+                e.printStackTrace();
+            }
+        }
     }
 
 }

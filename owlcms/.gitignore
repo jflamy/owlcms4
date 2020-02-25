@@ -8,3 +8,4 @@
 /.apt_generated_tests/
 /package-lock.json
 /package.json
+/local/

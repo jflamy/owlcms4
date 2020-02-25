@@ -60,9 +60,16 @@ public class EmbeddedJetty {
         context.setContextPath(contextPath);
         context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*");
         context.setConfigurationDiscovered(true);
-        context.setConfigurations(new Configuration[] { new AnnotationConfiguration(), new WebInfConfiguration(),
-                new WebXmlConfiguration(), new MetaInfConfiguration(), new FragmentConfiguration(),
-                new EnvConfiguration(), new PlusConfiguration(), new JettyWebXmlConfiguration() });
+        context.setConfigurations(new Configuration[] {
+                new AnnotationConfiguration(), 
+                new WebInfConfiguration(),
+                new WebXmlConfiguration(),
+                new MetaInfConfiguration(), 
+                new FragmentConfiguration(),
+                new EnvConfiguration(), 
+                new PlusConfiguration(), 
+                new JettyWebXmlConfiguration()
+        });
         Context servletContext = context.getServletContext();
         servletContext.setExtendedListenerTypes(true);
         context.addEventListener(new ServletContextListeners());

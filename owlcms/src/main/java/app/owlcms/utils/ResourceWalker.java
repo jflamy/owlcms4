@@ -127,7 +127,7 @@ public class ResourceWalker {
      * @param absoluteRootPath
      * @return an open file system (intentionnaly not closed)
      */
-    public static FileSystem openTemplatesFileSystem(String absoluteRootPath) {
+    public static FileSystem openFileSystem(String absoluteRootPath) {
         URL resources = ResourceWalker.class.getResource(absoluteRootPath);
         try {
             URI resourcesURI = resources.toURI();
@@ -154,7 +154,7 @@ public class ResourceWalker {
      * Walk a resource tree and return the entries. The paths can be inside a jar or classpath folder. A function is
      * called on the name in order to generate a display name.
      *
-     * Assumes that the jar has been opened as a file system (see {@link #openTemplatesFileSystem(String)}
+     * Assumes that the jar has been opened as a file system (see {@link #openFileSystem(String)}
      *
      * @param absoluteRoot a starting point (absolute resource name starts with a /)
      * @param generateName a function that takes the current path and the starting path and returns a (unique) display
