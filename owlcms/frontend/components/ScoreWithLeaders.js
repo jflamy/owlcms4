@@ -287,8 +287,8 @@ th, td {
 	border-collapse: collapse;
 	border: solid 1px DarkGray;
 	padding: 0.4vmin 1vmin 0.4vmin 1vmin;
-	background-clip: padding-box;
 	font-size: var(--fontSizeRows-height);
+	background-clip: padding-box;
 }
 
 :host(.dark) th, td {
@@ -583,7 +583,7 @@ table#leaders-table thead tr.hide th {
 		<template is="dom-if" if="[[!l.isSpacer]]">
 			<tr>
 				<td class$="groupCol [[l.classname]]"><div class$="[[l.classname]]">[[l.startNumber]]</div></td>
-				<td class$="[[l.classname]]" class$="name">
+				<td class$="name [[l.classname]]">
 					<div>[[l.fullName]]</div>
 				</td>
 				<td class="category"><div>[[l.category]]</div></td>

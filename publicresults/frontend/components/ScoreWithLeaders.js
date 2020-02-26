@@ -439,12 +439,12 @@ th, td {
 	font-style: italic;
 }
 
-:host(.dark) .current {
+:host(.dark) td.current {
 	color: yellow;
 	font-weight: bold;
 }
 
-:host(.light) .current {
+:host(.light) td.current {
 	background-color: yellow;
 	font-weight: bold;
 }
@@ -466,7 +466,12 @@ th, td {
 	font-weight: bold;
 }
 
-:host(.light) .next {
+:host(.dark) td.next {
+	color: gold;
+	font-weight: bold;
+}
+
+:host(.light) td.next {
 	background-color: gold;
 	font-weight: bold;
 }
@@ -579,7 +584,7 @@ table#leaders-table thead tr.hide th {
 					</template>
 					<template is="dom-if" if="[[!l.isSpacer]]">
 						<tr>
-							<td class$="groupCol [[l.classname]] "><div>[[l.startNumber]]</div></td>
+							<td class$="groupCol [[l.classname]] "><div class$="[[l.classname]]">[[l.startNumber]]</div></td>
 							<td class$="name [[l.classname]]">
 								<div>[[l.fullName]]</div>
 							</td>
