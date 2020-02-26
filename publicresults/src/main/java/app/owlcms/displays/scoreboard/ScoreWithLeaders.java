@@ -196,16 +196,18 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             getModel().setCompetitionName(e.getCompetitionName());
             getModel().setAttempt(e.getAttempt());
             getModel().setFullName(e.getFullName());
-            getModel().setGroupName(e.getGroupName());
+            String groupName = e.getGroupName();
+            getModel().setGroupName(groupName);
             getModel().setHidden(e.getHidden());
             getModel().setStartNumber(e.getStartNumber());
             getModel().setTeamName(e.getTeamName());
             getModel().setWeight(e.getWeight());
             getModel().setCategoryName(e.getCategoryName());
             getModel().setWideTeamNames(e.getWideTeamNames());
-            getModel().setLiftsDone(e.getLiftsDone());
+            String liftsDone = e.getLiftsDone();
+            getModel().setLiftsDone(liftsDone);
             
-            if ("".contentEquals(e.getLiftsDone()) && "".contentEquals(e.getGroupName())) {
+            if (liftsDone != null && "".contentEquals(liftsDone) && groupName != null && "".contentEquals(groupName)) {
                 // The group can be done and the state be either BREAK (with break type GROUP_DONE)
                 // or CURRENT_ATHLETE_DISPLAYED because we just came back to the group but there
                 // are still all attempts done, prior to erasing an attempt to take it again.
