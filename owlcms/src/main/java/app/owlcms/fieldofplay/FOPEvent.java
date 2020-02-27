@@ -159,6 +159,11 @@ public class FOPEvent {
             this.decision = decision;
         }
 
+        @Override
+        public String toString() {
+            return "[decision=" + decision + ", refIndex=" + refIndex + "]";
+        }
+
     }
 
     /**

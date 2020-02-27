@@ -33,21 +33,22 @@ import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Main.
+ * Main class for launching owlcms through an embedded jetty server.
+ * 
+ * @author Jean-François Lamy
  */
 public class Main {
 
     public final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
 
-    private static Integer serverPort;
-    private static boolean demoMode;
-    private static boolean memoryMode;
-    private static boolean resetMode;
-    private static boolean devMode;
-    private static boolean smallMode;
-    private static boolean masters;
-
-    public static String productionMode;
+    protected static Integer serverPort;
+    protected static boolean demoMode;
+    protected static boolean memoryMode;
+    protected static boolean resetMode;
+    protected static boolean devMode;
+    protected static boolean smallMode;
+    protected static boolean masters;
+    protected static String productionMode;
 
     /**
      * The main method.

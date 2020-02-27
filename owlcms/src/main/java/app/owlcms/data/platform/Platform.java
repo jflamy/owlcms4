@@ -18,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.Transient;
 import javax.sound.sampled.Mixer;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.VaadinSession;
@@ -47,7 +48,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Entity
 @Cacheable
-public class Platform implements Serializable {
+public class Platform implements Serializable, Comparable<Platform> {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Platform.class);
 
@@ -629,6 +630,11 @@ public class Platform implements Serializable {
         logger.debug("SETTING platform {}: soundMixer={}", System.identityHashCode(this),
                 soundMixer == null ? null : soundMixer.getLineInfo());
         this.mixer = soundMixer;
+    }
+
+    @Override
+    public int compareTo(Platform o) {
+        return ObjectUtils.compare(this.getName(), o.getName(), true);
     }
 
 }

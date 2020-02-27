@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 
@@ -1201,7 +1202,9 @@ public class FieldOfPlay {
         }
         String text = Translator.translate("Unexpected_Notification", e.getClass().getSimpleName(), state);
         logger./**/warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
-        Notification.show(text, 5000, Position.BOTTOM_END);
+        if (UI.getCurrent() != null) {
+            Notification.show(text, 5000, Position.BOTTOM_END);
+        }
     }
 
     private void updateGlobalRankings() {

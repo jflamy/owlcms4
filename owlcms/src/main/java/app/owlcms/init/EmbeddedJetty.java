@@ -10,6 +10,7 @@ import java.net.BindException;
 import java.net.URI;
 import java.net.URL;
 import java.util.EnumSet;
+import java.util.concurrent.CountDownLatch;
 
 import javax.servlet.DispatcherType;
 
@@ -42,6 +43,16 @@ import ch.qos.logback.classic.Logger;
 public class EmbeddedJetty {
     private final static Logger logger = (Logger) LoggerFactory.getLogger(EmbeddedJetty.class);
     private final static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
+    
+    private CountDownLatch latch;
+
+    public EmbeddedJetty(CountDownLatch latch) {
+        this.latch = latch;
+    }
+
+    public EmbeddedJetty() {
+        this.latch = new CountDownLatch(0);
+    }
 
     /**
      * Run.
@@ -84,6 +95,7 @@ public class EmbeddedJetty {
             server.start();
             startLogger.info("started on port {}", port);
             StartupUtils.startBrowser();
+            latch.countDown();
             server.join();
         } catch (Exception e) {
             Throwable cause = e.getCause();
