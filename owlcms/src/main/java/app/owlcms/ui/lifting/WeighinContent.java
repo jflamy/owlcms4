@@ -179,8 +179,8 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
                 .setHeader(getTranslation("BodyWeight"));
         grid.addColumn("snatch1Declaration").setHeader(getTranslation("SnatchDecl_"));
         grid.addColumn("cleanJerk1Declaration").setHeader(getTranslation("C_and_J_decl"));
-
         grid.addColumn("eligibleForIndividualRanking").setHeader(getTranslation("Eligible"));
+        grid.addColumn("eligibleForTeamRanking").setHeader(getTranslation("Team Member?"));
         OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class),
                 crudFormFactory, grid);
         crudGrid.setCrudListener(this);
@@ -308,8 +308,12 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
+        
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
+        
+        props.add("eligibleForTeamRanking");
+        captions.add(getTranslation("Team Member?"));
 
         crudFormFactory.setVisibleProperties(props.toArray(new String[0]));
         crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));

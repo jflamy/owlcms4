@@ -19,6 +19,7 @@ import java.util.Objects;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -358,8 +359,10 @@ public class Athlete {
     private Integer qualifyingTotal = 0;
     private Double customScore;
 
+    @Column(columnDefinition = "boolean default true")
     private boolean eligibleForIndividualRanking = true;
 
+    @Column(columnDefinition = "boolean default true")
     private boolean eligibleForTeamRanking = true;
 
     /*
