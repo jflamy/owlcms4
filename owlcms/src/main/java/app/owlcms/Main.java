@@ -93,8 +93,9 @@ public class Main {
         StartupUtils.setServerPort(serverPort);
         StartupUtils.logStart("owlcms", serverPort);
 
-        // open jar as filesystem
-        ResourceWalker.openFileSystem("/");
+        // open jar as filesystem; cannot use /
+        ResourceWalker.openFileSystem("/templates");
+        ResourceWalker.openFileSystem("/styles");
 
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
