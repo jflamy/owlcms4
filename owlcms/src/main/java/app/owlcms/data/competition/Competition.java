@@ -719,17 +719,17 @@ public class Competition {
             reportingBeans.put("wClubs", new ArrayList<String>());
         }
 
-        // team-oriented rankings. These put all the athletes from the same team
-        // together,
-        // sorted from best to worst, so that the top "n" can be given points
-        sortedAthletes = AthleteSorter.teamRankingOrderCopy(athletes, Ranking.CUSTOM);
+        // team-oriented rankings. These rankings put all the athletes from the same team
+        // together, sorted according to their points, so the top n can be kept if needed.
+        // substitutes are not included -- they should be marked as !isEligibleForTeamRanking
+        sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.CUSTOM);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
         reportingBeans.put("mCustom", sortedMen);
         reportingBeans.put("wCustom", sortedWomen);
 
-        sortedAthletes = AthleteSorter.teamRankingOrderCopy(athletes, Ranking.COMBINED);
+        sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.COMBINED);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -737,7 +737,7 @@ public class Competition {
         reportingBeans.put("wCombined", sortedWomen);
         reportingBeans.put("mwCombined", sortedAthletes);
 
-        AthleteSorter.teamRankingOrder(sortedAthletes, Ranking.TOTAL);
+        AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.TOTAL);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
