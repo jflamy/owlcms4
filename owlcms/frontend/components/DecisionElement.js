@@ -292,6 +292,7 @@ class DecisionElement extends PolymerElement {
 		console.debug("showDown");
 		this.downShown = true;
 		this.$.downDiv.style.display = "flex";
+		this.$.decisionsDiv.style.display = "none";
 		// if we are the master, tell the server right away
 		if (isMaster) {
 			this.$server.masterShowDown(this.decision, this.ref1, this.ref2, this.ref3);

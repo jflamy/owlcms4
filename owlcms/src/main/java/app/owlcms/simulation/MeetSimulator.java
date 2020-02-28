@@ -66,26 +66,35 @@ public class MeetSimulator implements Runnable {
 
         boolean done = false;
 
-        // pick a platform at random -- this will go inside the loop
+        // pick a platform at random -- this will eventually go inside the loop
         Platform p = ps.get(0); // only one for now
         FieldOfPlay f = OwlcmsFactory.getFOPByName(p.getName());
         logger.warn("platform {}  fop {}", p, f);
+        
+        try {
+            Thread.sleep(15000);
+        } catch (InterruptedException e) {
+        }
 
         while (!done) {
             // take the first group from the valueset for the platform currently lifting
             List<Group> curGs = p2gs.get(p);
+            
             if (curGs.size() > 0) {
                 Group g = curGs.get(0);
+                logger.warn("got group {} of {}",g, curGs);
+                
                 f.loadGroup(g, this);
                 if (f.getCurAthlete() != null) {
+                    long  millis = System.currentTimeMillis();
                     logger.warn("simulating group {}", g);
-                    f.getFopEventBus().post(new FOPEvent.StartLifting(this));
+                    f.startLifting(g,this);
                     try {
                         Thread.sleep(5000);
+                        logger.warn("after 5 secs {}", System.currentTimeMillis() - millis);
                     } catch (InterruptedException e) {
+                        logger.warn("interrupted 1");
                     }
-
-                    FOPState state = f.getState();
 
                     // do a lift in group g
                     f.getFopEventBus().post(new FOPEvent.TimeStarted(this));
@@ -98,18 +107,22 @@ public class MeetSimulator implements Runnable {
                     f.getFopEventBus().post(new FOPEvent.DecisionUpdate(this, 1, goodLift(r)));
                     f.getFopEventBus().post(new FOPEvent.DecisionUpdate(this, 2, goodLift(r)));
                     try {
-                        Thread.sleep(4000);
+                        Thread.sleep(5000);
                     } catch (InterruptedException e) {
                     }
 
+                    FOPState state = f.getState();
+                    logger.warn("state = {} breakType={}", state, state == FOPState.BREAK ? f.getBreakType() : "not" );
                     if ((state == FOPState.BREAK && f.getBreakType() == BreakType.GROUP_DONE)) {
                         // if the group is done, remove the group from the map
                         curGs.remove(0);
+                        logger.warn("after removal {}", curGs);
                         done = curGs.size() == 0;
                         p2gs.put(p, curGs);
                     }
                 }
             }
+            break;
         }
 
     }
