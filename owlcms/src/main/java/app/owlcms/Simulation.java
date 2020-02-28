@@ -11,7 +11,7 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.init.EmbeddedJetty;
-import app.owlcms.simulation.MeetSimulator;
+import app.owlcms.simulation.FOPSimulator;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -56,7 +56,7 @@ public class Simulation extends Main {
             
             // wait for server to be ready enough
             latch.await();
-            new MeetSimulator().run();
+            FOPSimulator.runSimulation();
             
             // wait for server to exit
             server.join();
