@@ -273,6 +273,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
                 curCat.setMaximumWeight(nc.getMaximumWeight());
                 curCat.setMinimumWeight(nc.getMinimumWeight());
                 curCat.setAgeGroup(nc.getAgeGroup());
+                curCat.setGender(this.getGender()); // category gets gender of age group
             } else {
                 categories.add(new Category(nc));
             }
