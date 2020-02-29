@@ -1,4 +1,4 @@
-* Release Highlights for release 4.5.2-rc1 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Release Highlights for release 4.5.2-rc2 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   - [x] Enhancement: Athlete cards now shows score (total).  The score can be overridden in competitions where bonus points are used (some U13 competitions award points for technique, or 6/6) (#319)
   - [x] Enhancement: Clearer definition of the invited status (not eligible for individual medals) and the team member status (an athlete eligible for medals, and considered for team points.)  In team competitions that allow for substitutes or ordinary lifters, it can happen that non-team members are allowed to lift (eligible), but not score points (not team member). (#316)
   - [x] Fix:  customizable css files introduced in 4.5.1 prevented correct startup on Heroku, now corrected.
