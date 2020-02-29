@@ -38,6 +38,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.binder.BindingValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.converter.StringToDoubleConverter;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.ClassList;
 
@@ -63,6 +64,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
     private static final int CHANGE1 = DECLARATION + 1;
     private static final int CHANGE2 = CHANGE1 + 1;
     private static final int ACTUAL = CHANGE2 + 1;
+    private static final int SCORE = ACTUAL + 1;
 
     private static final int LEFT = 1;
     private static final int SNATCH1 = LEFT + 1;
@@ -86,7 +88,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
     /**
      * text field array to facilitate setting focus when form is opened
      */
-    TextField[][] textfields = new TextField[ACTUAL][CJ3];
+    TextField[][] textfields = new TextField[SCORE][CJ3];
 
     private Athlete editedAthlete;
     private Athlete originalAthlete;
@@ -631,6 +633,14 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 .bind(Athlete::getCleanJerk3ActualLift, Athlete::setCleanJerk3ActualLift);
         atRowAndColumn(gridLayout, cj3ActualLift, ACTUAL, CJ3);
 
+        TextField custom = createPositiveWeightField(SCORE, CJ3);
+        binder.forField(custom)
+                .withConverter(new StringToDoubleConverter(0.0D, Translator.translate("NumberExpected")))
+//                .withValidationStatusHandler(status -> {
+//                })
+                .bind(Athlete::getCustomScore, Athlete::setCustomScore);
+        atRowAndColumn(gridLayout, custom, SCORE, CJ3);
+        
         // use setBean so that changes are immediately reflected to the working copy
         // otherwise the changes are only visible in the fields, and the validation
         // routines in the
@@ -826,6 +836,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Change_2")), CHANGE2, LEFT, RowAlign.CENTER,
                 ColumnAlign.END);
         atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("WeightLifted")), ACTUAL, LEFT, RowAlign.CENTER,
+                ColumnAlign.END);
+        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Score")), SCORE, LEFT, RowAlign.CENTER,
                 ColumnAlign.END);
 
         return gridLayout;

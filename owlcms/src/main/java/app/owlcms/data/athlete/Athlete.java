@@ -132,6 +132,8 @@ public class Athlete {
             dest.setCleanJerk3Change2(src.getCleanJerk3Change2());
             dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
             dest.setCleanJerk3LiftTime(src.getCleanJerk3LiftTime());
+            
+            dest.setCustomScore(src.getCustomScore());
 
             dest.setForcedAsCurrent(src.getForcedAsCurrent());
 
@@ -1130,7 +1132,7 @@ public class Athlete {
      * @return the custom score
      */
     public Double getCustomScore() {
-        if (customScore == null || customScore < 0.01) {
+        if (this.customScore == null || this.customScore < 0.01) {
             return Double.valueOf(getTotal());
         }
         return customScore;

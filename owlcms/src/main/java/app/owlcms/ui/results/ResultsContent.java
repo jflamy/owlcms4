@@ -118,6 +118,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
         grid.addColumn("category").setHeader(getTranslation("Category"))
                 .setComparator(new WinningOrderComparator(Ranking.TOTAL));
+        grid.addColumn("total").setHeader(getTranslation("Total"));
         grid.addColumn("totalRank").setHeader(getTranslation("TotalRank"))
                 .setComparator(new WinningOrderComparator(Ranking.TOTAL));
 
@@ -131,7 +132,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         grid.addColumn("bestCleanJerk").setHeader(getTranslation("Clean_and_Jerk"));
         grid.addColumn("cleanJerkRank").setHeader(getTranslation("Clean_and_Jerk_Rank"))
                 .setComparator(new WinningOrderComparator(Ranking.CLEANJERK));
-        grid.addColumn("total").setHeader(getTranslation("Total"));
+
 
         grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"), "robi")
                 .setHeader(getTranslation("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI));

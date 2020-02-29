@@ -460,4 +460,5 @@ WaitingForSite,Waiting for updates from the competition site.,En attente des inf
 Scoreboard.TimeAllowed,Allowed,Alloué,,,Allokeret,Allowed,Allowed,Allowed,Allowed,Permitido
 PublicMsg.GroupDone,Results,Résultats.,,,resultater.,Результаты,Resultat,Ergebnisse,Resultados.,Resultados
 CurrentAthleteTitle,Current Athlete,Athlète courant,,,Current Athlete,Current Athlete,Current Athlete,Current Athlete,Current Athlete,Current Athlete
-TeamMember?,Team Member?,Membre de l'équipe?,,,Team Member?,Team Member?,Team Member?,Team Member?,Team Member?,Team Member?
+TeamMember?,Team Member?,Membre de l'équipe?,,,Holdmedlem?,Член команды?,Teammedlem?,Teammitglied?,Miembro del equipo?,Membro da equipe?
+Score,Score,Score,,,Score,Оценка,Poäng,Punktzahl,Puntuación,Pontuação
