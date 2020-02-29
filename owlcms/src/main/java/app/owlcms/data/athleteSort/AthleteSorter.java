@@ -128,7 +128,7 @@ public class AthleteSorter implements Serializable {
     }
 
     /**
-     * Assign ranks, sequentially.
+     * Assign sinclair ranks, sequentially for each gender
      *
      * @param sortedList  the sorted list
      * @param rankingType the ranking type
@@ -140,20 +140,16 @@ public class AthleteSorter implements Serializable {
         for (Athlete curLifter : sortedList) {
             final Gender curGender = curLifter.getGender();
             // final Integer curAgeGroup = curLifter.getAgeGroup();
-            if (!equals(curGender, prevGender)
-            // || !equals(curAgeGroup,prevAgeGroup)
-            ) {
-                // category boundary has been crossed
+            if (!equals(curGender, prevGender)) {
+                // different gender
                 rank = 1;
             }
 
-            if (!curLifter.isEligibleForIndividualRanking() || !curLifter.isEligibleForTeamRanking()) {
+            if (!curLifter.isEligibleForIndividualRanking()) {
                 logger.trace("invited {}  {}rank={} total={} {}", curLifter, rankingType, -1, curLifter.getTotal(),
                         !curLifter.isEligibleForIndividualRanking());
                 setRank(curLifter, -1, rankingType);
-                setPoints(curLifter, 0, rankingType);
             } else {
-                setTeamRank(curLifter, 0, rankingType);
                 final double rankingTotal = getRankingValue(curLifter, rankingType);
                 if (rankingTotal > 0) {
                     setRank(curLifter, rank, rankingType);
@@ -164,8 +160,6 @@ public class AthleteSorter implements Serializable {
                     setRank(curLifter, 0, rankingType);
                     rank++;
                 }
-                final float points = computePoints(curLifter, rankingType);
-                setPoints(curLifter, points, rankingType);
             }
             prevGender = curGender;
         }
@@ -457,37 +451,6 @@ public class AthleteSorter implements Serializable {
         case CUSTOM:
             curLifter.setCustomRank(i);
             break;
-        default:
-            break;
-        }
-    }
-
-    /**
-     * Sets the team rank.
-     *
-     * @param curLifter   the cur lifter
-     * @param i           the i
-     * @param rankingType the ranking type
-     */
-    public static void setTeamRank(Athlete curLifter, int i, Ranking rankingType) {
-        switch (rankingType) {
-        case SNATCH:
-            curLifter.setTeamSnatchRank(i);
-            break;
-        case CLEANJERK:
-            curLifter.setTeamCleanJerkRank(i);
-            break;
-        case TOTAL:
-            curLifter.setTeamTotalRank(i);
-            break;
-        case SINCLAIR:
-            curLifter.setTeamSinclairRank(i);
-            break;
-        case ROBI:
-            curLifter.setTeamRobiRank(i);
-            break;
-        case COMBINED:
-            return; // there is no combined rank
         default:
             break;
         }

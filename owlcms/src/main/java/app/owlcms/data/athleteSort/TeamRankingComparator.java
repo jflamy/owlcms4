@@ -69,6 +69,8 @@ public class TeamRankingComparator extends AbstractLifterComparator implements C
             return lifter1.getCleanJerkRank().compareTo(lifter2.getCleanJerkRank());
         case TOTAL:
             return lifter1.getRank().compareTo(lifter2.getRank());
+        case CUSTOM:
+            return lifter1.getRank().compareTo(lifter2.getCustomRank());
         default:
             break;
         }
