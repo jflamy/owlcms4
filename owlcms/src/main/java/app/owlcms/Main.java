@@ -93,9 +93,9 @@ public class Main {
         StartupUtils.setServerPort(serverPort);
         StartupUtils.logStart("owlcms", serverPort);
 
-        // open jar as filesystem; cannot use /
+        // open jar as filesystem; cannot use /; any resource inside the jar will do
+        // cannot open the same jar twice.
         ResourceWalker.openFileSystem("/templates");
-        ResourceWalker.openFileSystem("/styles");
 
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
