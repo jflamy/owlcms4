@@ -239,6 +239,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     public void refresh() {
+        crudGrid.sort(null);
         crudGrid.refreshGrid();
     }
 

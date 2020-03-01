@@ -6,6 +6,8 @@
  */
 package app.owlcms.ui.crudui;
 
+import java.util.List;
+
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.CrudOperationException;
@@ -17,6 +19,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 
@@ -118,7 +121,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
      * Inits the toolbar.
      */
     protected void initToolbar() {
-        findAllButton = new Button(VaadinIcon.REFRESH.create(), e -> findAllButtonClicked());
+        findAllButton = new Button(getTranslation("RefreshList"), VaadinIcon.REFRESH.create(), e -> findAllButtonClicked());
         findAllButton.getElement().setAttribute("title", getTranslation("RefreshList"));
         crudLayout.addToolbarComponent(findAllButton);
 
@@ -135,6 +138,12 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 //        crudLayout.addToolbarComponent(deleteButton);
 
         updateButtons();
+    }
+    
+    @Override
+    protected void findAllButtonClicked() {
+        grid.sort(null); // reset the sorting order to none - use the query result set as is.
+        super.findAllButtonClicked();
     }
 
     /**
@@ -170,6 +179,10 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
         String caption = this.owlcmsCrudFormFactory.buildCaption(operation, domainObject);
         owlcmsGridLayout.showForm(operation, form, caption);
+    }
+
+    public void sort(List<GridSortOrder<T>> sortOrder) {
+        grid.sort(sortOrder);
     }
 
 }

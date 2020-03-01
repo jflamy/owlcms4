@@ -190,7 +190,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
      */
     @Override
     protected Component createReset() {
-        reset = new Button(IronIcons.REFRESH.create(), (e) -> OwlcmsSession.withFop((fop) -> {
+        reset = new Button(getTranslation("RefreshList"), IronIcons.REFRESH.create(), (e) -> OwlcmsSession.withFop((fop) -> {
             Group group = fop.getGroup();
             logger.info("resetting {} from database", group);
             fop.loadGroup(null, this);

@@ -829,6 +829,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             if (refreshGrid) {
                 topBarGroupSelect.setValue(fopGroup);
                 if (crudGrid != null) {
+                    crudGrid.sort(null);
                     crudGrid.refreshGrid();
                 }
             }
