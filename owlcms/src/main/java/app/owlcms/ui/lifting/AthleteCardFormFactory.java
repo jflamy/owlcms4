@@ -638,7 +638,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 .withConverter(new StringToDoubleConverter(0.0D, Translator.translate("NumberExpected")))
 //                .withValidationStatusHandler(status -> {
 //                })
-                .bind(Athlete::getCustomScore, Athlete::setCustomScore);
+                .bind(Athlete::getCustomScoreComputed, Athlete::setCustomScore);
         atRowAndColumn(gridLayout, custom, SCORE, CJ3);
         
         // use setBean so that changes are immediately reflected to the working copy

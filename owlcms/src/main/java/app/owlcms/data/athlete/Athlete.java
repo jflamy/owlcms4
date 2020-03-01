@@ -1131,10 +1131,14 @@ public class Athlete {
      *
      * @return the custom score
      */
-    public Double getCustomScore() {
+    public Double getCustomScoreComputed() {
         if (this.customScore == null || this.customScore < 0.01) {
             return Double.valueOf(getTotal());
         }
+        return customScore;
+    }
+    
+    public Double getCustomScore() {
         return customScore;
     }
 
