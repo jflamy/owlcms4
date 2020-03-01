@@ -111,6 +111,8 @@ public class Competition {
 
     private boolean enforce20kgRule;
     private boolean masters;
+    private boolean customScore;
+    
     /**
      * Add W75 and W80+ masters categories
      */
@@ -744,5 +746,13 @@ public class Competition {
         reportingBeans.put("mTeam", sortedMen);
         reportingBeans.put("wTeam", sortedWomen);
         reportingBeans.put("mwTeam", sortedAthletes);
+    }
+
+    public boolean isCustomScore() {
+        return customScore;
+    }
+
+    public void setCustomScore(boolean customScore) {
+        this.customScore = customScore;
     }
 }

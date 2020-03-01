@@ -45,6 +45,7 @@ import com.vaadin.flow.dom.ClassList;
 import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -633,14 +634,14 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 .bind(Athlete::getCleanJerk3ActualLift, Athlete::setCleanJerk3ActualLift);
         atRowAndColumn(gridLayout, cj3ActualLift, ACTUAL, CJ3);
 
-        TextField custom = createPositiveWeightField(SCORE, CJ3);
-        binder.forField(custom)
-                .withConverter(new StringToDoubleConverter(0.0D, Translator.translate("NumberExpected")))
-//                .withValidationStatusHandler(status -> {
-//                })
-                .bind(Athlete::getCustomScoreComputed, Athlete::setCustomScore);
-        atRowAndColumn(gridLayout, custom, SCORE, CJ3);
-        
+        if (Competition.getCurrent().isCustomScore()) {
+            TextField custom = createPositiveWeightField(SCORE, CJ3);
+            binder.forField(custom)
+                    .withConverter(new StringToDoubleConverter(0.0D, Translator.translate("NumberExpected")))
+                    .bind(Athlete::getCustomScoreComputed, Athlete::setCustomScore);
+            atRowAndColumn(gridLayout, custom, SCORE, CJ3);
+        }
+
         // use setBean so that changes are immediately reflected to the working copy
         // otherwise the changes are only visible in the fields, and the validation
         // routines in the
@@ -837,8 +838,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
                 ColumnAlign.END);
         atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("WeightLifted")), ACTUAL, LEFT, RowAlign.CENTER,
                 ColumnAlign.END);
-        atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Score")), SCORE, LEFT, RowAlign.CENTER,
-                ColumnAlign.END);
+        if (Competition.getCurrent().isCustomScore()) {
+            atRowAndColumn(gridLayout, new Label(gridLayout.getTranslation("Score")), SCORE, LEFT, RowAlign.CENTER,
+                    ColumnAlign.END);
+        }
 
         return gridLayout;
     }
