@@ -520,7 +520,7 @@ public class FileServlet extends HttpServlet {
         Path finalPath;
         try {
             // URL-decode the file name (might contain spaces and on) and prepare file object.
-            logger.warn("requestedFile {}", requestedFile);
+            logger.debug("requestedFile {}", requestedFile);
             String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
             Path relativePath = Paths.get(relativeFileName);
 
@@ -541,7 +541,7 @@ public class FileServlet extends HttpServlet {
                         response.sendError(HttpServletResponse.SC_NOT_FOUND);
                         return null;
                     } else {
-                        logger.warn("found Classpath/Jar File: {}", resourcePath.toRealPath());
+                        logger.debug("found Classpath/Jar File: {}", resourcePath.toRealPath());
                         return resourcePath.toFile();
                     }
                 } else {
@@ -550,7 +550,7 @@ public class FileServlet extends HttpServlet {
                     return null;
                 }
             }
-            logger.warn("found Filesystem File: {}", finalPath.toRealPath());
+            logger.debug("found Filesystem File: {}", finalPath.toRealPath());
             return finalPath.toFile();
         } catch (IllegalArgumentException e) {
             logger.error(e.getLocalizedMessage());

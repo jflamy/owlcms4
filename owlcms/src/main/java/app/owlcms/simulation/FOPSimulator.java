@@ -50,7 +50,6 @@ public class FOPSimulator implements Runnable {
 
     public static void runSimulation() {
         uiEventLogger.setLevel(Level.DEBUG);
-        logger.warn("run simulation");
         try {
             Thread.sleep(15000);
         } catch (InterruptedException e) {
@@ -58,11 +57,9 @@ public class FOPSimulator implements Runnable {
 
         List<Platform> ps = PlatformRepository.findAll().stream().limit(1).collect(Collectors.toList());
         List<Group> gs = GroupRepository.findAll();
-        logger.warn("gs {}", gs);
 
         int i = 0;
         for (Group g : gs) {
-            logger.warn("g {}", g);
             Platform curP = ps.get(i % ps.size());
             List<Group> curGroupList = groupsByPlatform.get(curP);
             if (curGroupList == null) {
