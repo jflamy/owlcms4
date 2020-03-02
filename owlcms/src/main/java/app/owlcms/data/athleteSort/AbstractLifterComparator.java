@@ -218,8 +218,8 @@ public class AbstractLifterComparator {
      * @return the int
      */
     int compareCustomScore(Athlete lifter1, Athlete lifter2) {
-        Double lifter1Value = lifter1.getCustomScore();
-        Double lifter2Value = lifter2.getCustomScore();
+        Double lifter1Value = lifter1.getCustomScoreComputed();
+        Double lifter2Value = lifter2.getCustomScoreComputed();
         final Double notScored = 0D;
         if (lifter1Value == null) {
             lifter1Value = notScored;

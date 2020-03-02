@@ -504,6 +504,15 @@ public class XAthlete extends Athlete {
     public Double getCustomScore() {
         return a.getCustomScore();
     }
+    
+    /**
+     * @return
+     * @see app.owlcms.data.athlete.Athlete#getCustomScoreComputed()
+     */
+    @Override
+    public Double getCustomScoreComputed() {
+        return a.getCustomScoreComputed();
+    }
 
     /**
      * @return

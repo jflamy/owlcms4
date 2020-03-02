@@ -559,7 +559,7 @@ public class AthleteSorter implements Serializable {
         case ROBI:
             return curLifter.getRobi();
         case CUSTOM:
-            return curLifter.getCustomScore();
+            return curLifter.getCustomScoreComputed();
         case COMBINED:
             return 0D; // no such thing
         case BW_SINCLAIR:
