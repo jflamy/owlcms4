@@ -93,6 +93,9 @@ public class FOPSimulator implements Runnable {
         for (Athlete a: as) {
             Category c = a.getCategory();
             Double catLimit = c.getMaximumWeight();
+            if (catLimit > 998) {
+                catLimit = c.getMinimumWeight() * 1.1;
+            }
             double bodyWeight = catLimit - (r.nextDouble() * 2.0);
             a.setBodyWeight(bodyWeight);
             double sd = catLimit * (1 + (r.nextGaussian() / 10));
