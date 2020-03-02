@@ -121,7 +121,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
      * Inits the toolbar.
      */
     protected void initToolbar() {
-        findAllButton = new Button(getTranslation("RefreshList"), VaadinIcon.REFRESH.create(), e -> findAllButtonClicked());
+        findAllButton = new Button(getTranslation("RefreshList"), VaadinIcon.REFRESH.create(),
+                e -> findAllButtonClicked());
         findAllButton.getElement().setAttribute("title", getTranslation("RefreshList"));
         crudLayout.addToolbarComponent(findAllButton);
 
@@ -139,7 +140,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
         updateButtons();
     }
-    
+
     @Override
     protected void findAllButtonClicked() {
         grid.sort(null); // reset the sorting order to none - use the query result set as is.
@@ -160,7 +161,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
                     logger.debug("cancelButtonClickEvent");
                     owlcmsGridLayout.hideForm();
                     grid.asSingleSelect().clear();
-                }, operationButtonClickEvent -> {
+                },
+                operationButtonClickEvent -> {
                     try {
                         logger.debug("postOperation");
                         grid.asSingleSelect().clear();
@@ -171,7 +173,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
                     } catch (Exception e) {
                         logger.error(LoggerUtils.stackTrace(e));
                     }
-                }, deleteButtonClickEvent -> {
+                },
+                deleteButtonClickEvent -> {
                     logger.debug("preDelete");
                     owlcmsGridLayout.hideForm();
                     this.deleteButtonClicked();

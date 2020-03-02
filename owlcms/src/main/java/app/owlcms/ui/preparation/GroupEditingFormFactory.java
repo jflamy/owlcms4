@@ -6,10 +6,15 @@
  */
 package app.owlcms.ui.preparation;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 import org.vaadin.crudui.crud.CrudOperation;
 
+import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.data.binder.Binder.Binding;
+
+import app.owlcms.components.fields.LocalDateTimePicker;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
@@ -54,6 +59,24 @@ class GroupEditingFormFactory extends OwlcmsCrudFormFactory<Group> {
     public Group update(Group group) {
         GroupContent.logger.debug("saving group {} {}", group.getName(), group.getCompetitionTime());
         return GroupRepository.save(group);
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    protected void bindField(HasValue field, String property, Class<?> propertyType) {
+        if (property.equals("weighInTime")) {
+            field.addValueChangeListener(e -> {
+                Binding<Group, ?> ctBinding = binder.getBinding("competitionTime").get();
+                LocalDateTime weighinTime = (LocalDateTime) e.getValue();
+                if (ctBinding != null) {
+                    LocalDateTimePicker field2 = (LocalDateTimePicker) ctBinding.getField();
+                    field2.setValue(weighinTime.plusHours(2));
+                } else {
+                    throw new RuntimeException("competitionTime field not defined");
+                }
+            });
+        } 
+        super.bindField(field, property, propertyType);
     }
 
 }
