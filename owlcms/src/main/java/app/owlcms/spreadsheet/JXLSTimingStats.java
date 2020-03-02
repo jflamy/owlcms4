@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -98,14 +99,14 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
             if (maxTime.isEqual(LocalDateTime.MIN)) {
                 return "-";
             }
-            return maxTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
+            return maxTime.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
         }
 
         public String getSMinTime() {
             if (minTime.isEqual(LocalDateTime.MAX)) {
                 return "-";
             }
-            return minTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
+            return minTime.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
         }
 
         public void setGroupName(String groupName) {
