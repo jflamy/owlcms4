@@ -111,6 +111,11 @@ public class Competition {
 
     private boolean enforce20kgRule;
     private boolean masters;
+    
+    /**
+     * enable overriding total for kids categories with bonus points
+     */
+    @Column(columnDefinition = "boolean default false")
     private boolean customScore;
     
     /**
