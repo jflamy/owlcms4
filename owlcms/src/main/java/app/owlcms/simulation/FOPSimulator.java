@@ -21,6 +21,7 @@ import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
@@ -55,6 +56,7 @@ public class FOPSimulator implements Runnable {
         } catch (InterruptedException e) {
         }
 
+        // only use one platform for now.
         List<Platform> ps = PlatformRepository.findAll().stream().limit(1).collect(Collectors.toList());
         List<Group> gs = GroupRepository.findAll();
 
@@ -65,10 +67,14 @@ public class FOPSimulator implements Runnable {
             if (curGroupList == null) {
                 curGroupList = new ArrayList<>();
             }
-            List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, true); 
+            List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
+            if (as.size() == 0) {
+                as = weighIn(g);
+            }
             if (as.size() > 0) {
                 curGroupList.add(g);
                 groupsByPlatform.put(curP, curGroupList);
+                logger.warn("platform {} groups {}", System.identityHashCode(curP), groupsByPlatform.get(curP));
             }
         }
 
@@ -77,8 +83,26 @@ public class FOPSimulator implements Runnable {
 //            FieldOfPlay f = OwlcmsFactory.getFOPByName(p.getName());
 //            LATER create more listeners.
             FieldOfPlay f = OwlcmsFactory.getFOPByName(ps.get(0).getName());
-            new FOPSimulator(f).run();
+            FOPSimulator fopSimulator = new FOPSimulator(f);
+            fopSimulator.run();
 //        }
+    }
+
+    private static List<Athlete> weighIn(Group g) {
+        List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, null);
+        for (Athlete a: as) {
+            Category c = a.getCategory();
+            Double catLimit = c.getMaximumWeight();
+            double bodyWeight = catLimit - (r.nextDouble() * 2.0);
+            a.setBodyWeight(bodyWeight);
+            double sd = catLimit * (1 + (r.nextGaussian() / 10));
+            long isd = Math.round(sd);
+            a.setSnatch1Declaration(Long.toString(isd));
+            long icjd = Math.round(sd * 1.20D);
+            a.setCleanJerk1Declaration(Long.toString(icjd));
+            AthleteRepository.save(a);
+        }
+        return as;
     }
 
     static <K, V> Map<V, K> invertMap(Map<K, V> map) {
@@ -93,7 +117,7 @@ public class FOPSimulator implements Runnable {
 
     private Object origin;
 
-    private Random r;
+    private static Random r = new Random(0);
 
     private FieldOfPlay fop;
 
@@ -101,7 +125,6 @@ public class FOPSimulator implements Runnable {
 
     public FOPSimulator(FieldOfPlay f) {
         this.fop = f;
-        this.r = new Random(0);//(f.getName().hashCode());
     }
 
     @Override
