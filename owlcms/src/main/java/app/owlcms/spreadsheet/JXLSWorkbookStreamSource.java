@@ -92,16 +92,17 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
                         postProcess(workbook);
                     }
                 } else {
+                    String noAthletes = "No Athletes";
                     ui.access(() -> {
                         Notification notif = new Notification();
                         notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
                         notif.setPosition(Position.TOP_STRETCH);
                         notif.setDuration(3000);
-                        notif.setText("No Athletes");
+                        notif.setText(noAthletes);
                         notif.open();
                     });
                     workbook = new HSSFWorkbook();
-                    workbook.createSheet().createRow(1).createCell(1).setCellValue("No Athletes");
+                    workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
                 }
             } catch (Exception e) {
                 logger.error(LoggerUtils.stackTrace(e));
