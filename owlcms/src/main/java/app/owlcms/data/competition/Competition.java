@@ -661,6 +661,7 @@ public class Competition {
         logger.debug("wSinclair {}", sortedWomen);
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.ROBI);
+        reportingBeans.put("athletes", sortedAthletes);
         AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.ROBI);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
