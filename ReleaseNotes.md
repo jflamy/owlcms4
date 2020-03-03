@@ -1,4 +1,4 @@
-* Release Highlights for release 4.5.2-rc9 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Release Highlights for release 4.5.2-rc10 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   - [x] Fix: publicresults-heroku did not deploy anymore -- error in packaging script (#321)
   - [x] Enhancement: calling the final package with no athletes yielded a cryptic error message in Excel (#322)
 * Since last stable release 4.5.0 
