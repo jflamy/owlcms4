@@ -13,6 +13,8 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -36,8 +38,8 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
         tagLogger.setLevel(Level.ERROR);
     }
 
-    public JXLSWeighInSheet(boolean excludeNotWeighed) {
-        super();
+    public JXLSWeighInSheet(boolean excludeNotWeighed, UI ui) {
+        super(ui);
     }
 
     @Override

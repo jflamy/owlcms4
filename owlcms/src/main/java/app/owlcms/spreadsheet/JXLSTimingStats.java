@@ -19,6 +19,8 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -171,12 +173,12 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
     Logger logger = (Logger) LoggerFactory.getLogger(JXLSTimingStats.class);
 
-    public JXLSTimingStats() {
-        super();
+    public JXLSTimingStats(UI ui) {
+        super(ui);
     }
 
-    public JXLSTimingStats(Group group, boolean excludeNotWeighed) {
-        super();
+    public JXLSTimingStats(Group group, boolean excludeNotWeighed, UI ui) {
+        super(ui);
     }
 
     @Override

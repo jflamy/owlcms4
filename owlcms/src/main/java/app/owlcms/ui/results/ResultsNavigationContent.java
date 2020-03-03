@@ -47,7 +47,7 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
         Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("FinalResultsPackage"));
 
         Div timingStats = DownloadButtonFactory.createDynamicDownloadButton("timingStats",
-                getTranslation("TimingStatistics"), new JXLSTimingStats());
+                getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
 
         finalPackage.setEnabled(true);
         timingStats.setEnabled(true);

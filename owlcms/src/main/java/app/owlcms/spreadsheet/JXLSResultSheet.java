@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
+import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -45,8 +46,8 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
     private byte[] protocolTemplate;
 
-    public JXLSResultSheet() {
-        super();
+    public JXLSResultSheet(UI ui) {
+        super(ui);
     }
 
     @Override

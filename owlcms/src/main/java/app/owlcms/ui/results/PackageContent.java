@@ -288,7 +288,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         topBarGroupSelect.setWidth("8em");
         setGroupSelectionListener();
 
-        xlsWriter = new JXLSCompetitionBook(true);
+        xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
         StreamResource href = new StreamResource("finalResults.xls", xlsWriter);
         finalPackage = new Anchor(href, "");
         finalPackage.getStyle().set("margin-left", "1em");

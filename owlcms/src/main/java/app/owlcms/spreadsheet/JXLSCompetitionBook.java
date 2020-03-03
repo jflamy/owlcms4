@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
+import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
@@ -41,13 +42,14 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
     private byte[] finalPackageTemplate;
 
-    public JXLSCompetitionBook() {
+
+    public JXLSCompetitionBook(UI ui) {
         // by default, we exclude athletes who did not weigh in.
-        super();
+        super(ui);
     }
 
-    public JXLSCompetitionBook(boolean excludeNotWeighed) {
-        super();
+    public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
+        super(ui);
     }
 
     @Override

@@ -15,6 +15,7 @@ import com.github.appreciated.app.layout.component.applayout.AppLayout;
 import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Anchor;
@@ -105,15 +106,15 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
         groupSelect.setItemLabelGenerator(Group::getName);
         groupSelect.setClearButtonVisible(true);
 
-        JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet(true);
+        JXLSWeighInSheet startingWeightsWriter = new JXLSWeighInSheet(true, UI.getCurrent());
         StreamResource href = new StreamResource("startingWeights.xls", startingWeightsWriter);
         startingWeights = new Anchor(href, "");
 
-        JXLSCards cardsWriter = new JXLSCards(true);
+        JXLSCards cardsWriter = new JXLSCards(true, UI.getCurrent());
         StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter);
         cards = new Anchor(href1, "");
 
-        JXLSJurySheet juryWriter = new JXLSJurySheet();
+        JXLSJurySheet juryWriter = new JXLSJurySheet(UI.getCurrent());
         StreamResource href2 = new StreamResource("jury.xls", juryWriter);
         jury = new Anchor(href2, "");
 

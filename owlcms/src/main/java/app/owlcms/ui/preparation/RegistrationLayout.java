@@ -15,6 +15,7 @@ import com.github.appreciated.app.layout.component.applayout.AppLayout;
 import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Anchor;
@@ -103,7 +104,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
         groupSelect.setItemLabelGenerator(Group::getName);
         groupSelect.setClearButtonVisible(true);
 
-        JXLSCards cardsWriter = new JXLSCards(true);
+        JXLSCards cardsWriter = new JXLSCards(true, UI.getCurrent());
         StreamResource href1 = new StreamResource("athleteCards.xls", cardsWriter);
         cards = new Anchor(href1, "");
 
@@ -114,7 +115,7 @@ public class RegistrationLayout extends OwlcmsRouterLayout implements SafeEventB
             cards.getElement().setAttribute("download", "cards" + (group != null ? "_" + group : "_all") + ".xls");
         });
 
-        JXLSStartingList startingListWriter = new JXLSStartingList();
+        JXLSStartingList startingListWriter = new JXLSStartingList(UI.getCurrent());
         StreamResource href2 = new StreamResource("startingList.xls", startingListWriter);
         startingList = new Anchor(href2, "");
         startingListButton = new Button(getTranslation("StartingList"), new Icon(VaadinIcon.DOWNLOAD_ALT));

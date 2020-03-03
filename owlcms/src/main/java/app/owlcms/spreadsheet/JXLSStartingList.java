@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -26,6 +28,10 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public class JXLSStartingList extends JXLSWorkbookStreamSource {
+
+    public JXLSStartingList(UI ui) {
+        super(ui);
+    }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSStartingList.class);
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");

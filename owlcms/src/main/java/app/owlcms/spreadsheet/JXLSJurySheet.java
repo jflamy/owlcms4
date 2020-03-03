@@ -14,6 +14,8 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -25,6 +27,10 @@ import net.sf.jxls.transformer.XLSTransformer;
  */
 @SuppressWarnings("serial")
 public class JXLSJurySheet extends JXLSWorkbookStreamSource {
+
+    public JXLSJurySheet(UI ui) {
+        super(ui);
+    }
 
     Logger logger = LoggerFactory.getLogger(JXLSJurySheet.class);
 

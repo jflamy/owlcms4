@@ -353,7 +353,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         topBarGroupSelect.setWidth("8em");
         setGroupSelectionListener();
 
-        xlsWriter = new JXLSResultSheet();
+        xlsWriter = new JXLSResultSheet(UI.getCurrent());
         StreamResource href = new StreamResource("resultSheet.xls", xlsWriter);
         groupResults = new Anchor(href, "");
         groupResults.getStyle().set("margin-left", "1em");

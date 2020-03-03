@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -21,6 +22,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.server.StreamResourceWriter;
 import com.vaadin.flow.server.VaadinSession;
 
@@ -53,8 +58,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
     private boolean excludeNotWeighed;
 
     private Group group;
+    private UI ui;
 
-    public JXLSWorkbookStreamSource() {
+    public JXLSWorkbookStreamSource(UI ui) {
+        this.ui = ui;
         this.setExcludeNotWeighed(true);
         init();
     }
@@ -65,6 +72,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
      * @see com.vaadin.flow.server.StreamResourceWriter#accept(java.io.OutputStream,
      *      com.vaadin.flow.server.VaadinSession)
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void accept(OutputStream stream, VaadinSession session) throws IOException {
         try {
@@ -76,12 +84,29 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
             try {
                 setReportingInfo();
                 HashMap<String, Object> reportingBeans2 = getReportingBeans();
-                workbook = transformer.transformXLS(getTemplate(locale), reportingBeans2);
+                List<Athlete> athletes = (List<Athlete>) reportingBeans2.get("athletes");
+                if (athletes != null && athletes.size() > 0) {
+                    logger.warn("athletes.size {}", athletes.size());
+                    workbook = transformer.transformXLS(getTemplate(locale), reportingBeans2);
+                    if (workbook != null) {
+                        postProcess(workbook);
+                    }
+                } else {
+                    ui.access(() -> {
+                        Notification notif = new Notification();
+                        notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                        notif.setPosition(Position.TOP_STRETCH);
+                        notif.setDuration(3000);
+                        notif.setText("No Athletes");
+                        notif.open();
+                    });
+                    workbook = new HSSFWorkbook();
+                    workbook.createSheet().createRow(1).createCell(1).setCellValue("No Athletes");
+                }
             } catch (Exception e) {
                 logger.error(LoggerUtils.stackTrace(e));
             }
             if (workbook != null) {
-                postProcess(workbook);
                 workbook.write(stream);
             }
         } catch (IOException e) {
