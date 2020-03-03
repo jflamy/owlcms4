@@ -1,11 +1,13 @@
-* Release Highlights for release 4.5.2-rc7 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Release Highlights for release 4.5.2-rc8 ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+  - [x] Fix: publicresults-heroku did not deploy anymore -- error in packaging script (#321)
+  - [x] Enhancement: calling the final package with no athletes yielded a cryptic error message in Excel (#322)
+* Since last stable release 4.5.0 
   - [x] Enhancement: when entering the competition groups for the start sheet, the start time is automatically calculated to be 2h after weigh-in; it can be edited if needed. (#297)
   - [x] Enhancement: Athlete cards optionally show a score. By default, the score is the total, but can be overridden in competitions where bonus points or penalties are used (some U13 competitions award points for technique, or 6/6), or use some traditional formula (#319).  This is enabled on the competition page.  The variable ${l.customScoreComputed} can then be used in the Excel templates.
   - [x] Enhancement: Clearer definition of the invited status (not eligible for individual medals) and the team member status (an athlete eligible for medals, and considered for team points.)  In team competitions that allow for substitutes or ordinary lifters, it can happen that non-team members are allowed to lift (eligible), but not score points (not team member). (#316)
   - [x] Fix:  customizable css files introduced in 4.5.1 prevented correct startup on Heroku, now corrected.
   - [x] Testing: Ability to run a competition in "simulation mode" (referees make decisions at random, but repeatable from run to run).  Used to test the screen layouts, and to populate the database to test the final package reports. To use, start in demo mode using `-DdemoMode=true`, and setup your browsers.  Stop, then start demo mode again using the Java command line to use `app.owlcms.Simulation` as the main class (#317)
-* Since last stable release 4.5.0 
-  - [x] Fix: Changing the gender of an age group did not correctly reflect on the categories inside. (#318) An age group created via the user interface with the default gender F could not be fixed to be M.
+  - [ ] Fix: Changing the gender of an age group did not correctly reflect on the categories inside. (#318) An age group created via the user interface with the default gender F could not be fixed to be M.
   - [x] Enhancement: In order to facilitate video streaming overlays (e.g. with OBS Studio), the URL http://my.address:8080/displays/currentathlete gives a special screen with only the current athlete shown on the scoreboard.  Edit the file local/styles/currentathlete.css to customize the look and feel. (#312)
 * Workarounds/Known Issues
   - [ ] Workaround: (#304) When the browser screens have already been started and owlcms is restarted, occasionally the *very first* "push" update from the server is not handled by one of the browsers.  A refresh of the page is sufficient to restore things.
