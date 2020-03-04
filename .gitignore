@@ -25,3 +25,4 @@ hs_err_pid*
 # Jenkins
 /*@tmp/
 /target/
+database/owlcms.mv.db
