@@ -8,7 +8,6 @@
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="OWLCMS_DEBUG" value="false"/>
-<mapEntry key="OWLCMS_GENDERORDER" value="false"/>
 <mapEntry key="OWLCMS_LOCALE" value="en"/>
 <mapEntry key="OWLCMS_MASTERS" value="false"/>
 <mapEntry key="OWLCMS_PORT" value="80"/>
@@ -30,5 +29,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="app.owlcms.Main"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="owlcms"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dremote=https://owlcms-results01.herokuapp.com/update -DupdateKey=abracadabra -DdevMode=true -DresetMode=true -DmemoryMode=true -Dlogback.configurationFile=logback-console.xml"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dremote=https://owlcms-results01.herokuapp.com/update -DupdateKey=abracadabra -DdevMode=true -DresetMode=true -DmemoryMode=true -DgenderOrder=true -Dlogback.configurationFile=logback-console.xml"/>
 </launchConfiguration>
