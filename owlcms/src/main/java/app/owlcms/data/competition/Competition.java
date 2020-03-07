@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -112,6 +113,9 @@ public class Competition {
     private boolean enforce20kgRule;
     private boolean masters;
     
+    private Integer mensTeamSize;
+    private Integer womensTeamSize;
+    
     /**
      * enable overriding total for kids categories with bonus points
      */
@@ -150,6 +154,12 @@ public class Competition {
 
     @Transient
     private HashMap<String, Object> reportingBeans = new HashMap<>();
+    
+    /**
+     * In a mixed group, call all female lifters then all male lifters
+     */
+    @Column(columnDefinition = "boolean default false")
+    private boolean genderOrder;
 
     synchronized public void computeGlobalRankings(boolean full) {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
@@ -403,7 +413,10 @@ public class Competition {
     }
 
     public boolean isGenderOrder() {
-        return StartupUtils.getBooleanParam("genderOrder");
+        if (StartupUtils.getBooleanParam("genderOrder")) {
+            setGenderOrder(true);
+        }
+        return genderOrder;
     }
 
     /**
@@ -761,4 +774,43 @@ public class Competition {
     public void setCustomScore(boolean customScore) {
         this.customScore = customScore;
     }
+
+    public Integer getMensTeamSize() {
+        return mensTeamSize;
+    }
+
+    public void setMensTeamSize(Integer mensTeamSize) {
+        this.mensTeamSize = mensTeamSize;
+    }
+
+    public Integer getWomensTeamSize() {
+        return womensTeamSize;
+    }
+
+    public void setWomensTeamSize(Integer womensTeamSize) {
+        this.womensTeamSize = womensTeamSize;
+    }
+
+    @Override
+    public String toString() {
+        return "Competition [id=" + id + ", competitionName=" + competitionName + ", competitionDate=" + competitionDate
+                + ", competitionOrganizer=" + competitionOrganizer + ", competitionSite=" + competitionSite
+                + ", competitionCity=" + competitionCity + ", federation=" + federation + ", federationAddress="
+                + federationAddress + ", federationEMail=" + federationEMail + ", federationWebSite="
+                + federationWebSite + ", defaultLocale=" + defaultLocale + ", protocolFileName=" + protocolFileName
+                + ", protocolTemplate=" + Arrays.toString(protocolTemplate) + ", finalPackageTemplateFileName="
+                + finalPackageTemplateFileName + ", ageGroupsFileName=" + ageGroupsFileName + ", finalPackageTemplate="
+                + Arrays.toString(finalPackageTemplate) + ", enforce20kgRule=" + enforce20kgRule + ", masters="
+                + masters + ", mensTeamSize=" + mensTeamSize + ", womensTeamSize=" + womensTeamSize + ", customScore="
+                + customScore + ", mastersGenderEquality=" + mastersGenderEquality + ", useBirthYear=" + useBirthYear
+                + ", useCategorySinclair=" + useCategorySinclair + ", useOldBodyWeightTieBreak="
+                + useOldBodyWeightTieBreak + ", useRegistrationCategory=" + useRegistrationCategory
+                + ", reportingBeans=" + reportingBeans + "]";
+    }
+
+    public void setGenderOrder(boolean genderOrder) {
+        this.genderOrder = genderOrder;
+    }
+    
+    
 }

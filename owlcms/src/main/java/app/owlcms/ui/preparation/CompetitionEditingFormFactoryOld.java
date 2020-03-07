@@ -18,10 +18,10 @@ import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-class CompetitionEditingFormFactory extends OwlcmsCrudFormFactory<Competition> {
-    Logger logger = (Logger) LoggerFactory.getLogger(CompetitionEditingFormFactory.class);
+class CompetitionEditingFormFactoryOld extends OwlcmsCrudFormFactory<Competition> {
+    Logger logger = (Logger) LoggerFactory.getLogger(CompetitionEditingFormFactoryOld.class);
 
-    CompetitionEditingFormFactory(Class<Competition> domainType) {
+    CompetitionEditingFormFactoryOld(Class<Competition> domainType) {
         super(domainType);
     }
 
