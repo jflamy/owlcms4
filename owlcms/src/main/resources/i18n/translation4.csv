@@ -463,7 +463,7 @@ Score,Score,Score,,,Score,Сумма,Poäng,Punktzahl,Puntuación,Pontuação
 Competition.customScore,Enable custom score? (override total with bonus/penalties),Permettre édition du score? (total modifiable avec pénalités ou bonus),,,Enable custom score? (override total with bonus/penalties),"Включить общий итог (сумма), по результатам (Р+Т)? (отображение в перезаявках)",Enable custom score? (override total with bonus/penalties),Enable custom score? (override total with bonus/penalties),Enable custom score? (override total with bonus/penalties),Ativar pontuação personalizada? (substituição total por bônus / penalidades)
 Competition.informationTitle,Competition,Compétition,,,Competition,Competition,Competition,Competition,Competition,Competition
 Competition.federationTitle,Federation,Fédération,,,Forbund,Федерации,Förbund,Verband,Federación,Federação
-Competition.rulesTitle,Official Rules,Règles officielles,,,Official Rules,Official Rules,Official Rules,Official Rules,Official Rules,Official Rules
+Competition.rulesTitle,Options,Options,,,Options,Options,Options,Options,Options,Options
 Competition.presentationTitle,Display and Printout,Affichage et impression,,,Display and Printout,Display and Printout,Display and Printout,Display and Printout,Display and Printout,Display and Printout
 Competition.specialRulesTitle,Non-standard Rules,Règles particulières,,,Non-standard Rules,Non-standard Rules,Non-standard Rules,Non-standard Rules,Non-standard Rules,Non-standard Rules
 TeamSizeInvalid,Team size must be a number ≤ 99,La taille d'équipe doit être un nombre ≤ 99,,,Team size must be a number ≤ 99,Team size must be a number ≤ 99,Team size must be a number ≤ 99,Team size must be a number ≤ 99,Team size must be a number ≤ 99,Team size must be a number ≤ 99

@@ -291,7 +291,7 @@ public class CompetitionEditingFormFactory
                 .bind(Competition::getMensTeamSize, Competition::setMensTeamSize);
 
         TextField womensTeamSizeField = new TextField();
-        layout.addFormItem(womensTeamSizeField, labelWithHelp("MensTeamSize", "TeamSizeExplanation"));
+        layout.addFormItem(womensTeamSizeField, labelWithHelp("WomensTeamSize", "TeamSizeExplanation"));
         binder.forField(womensTeamSizeField)
                 .withNullRepresentation("")
                 .withConverter(new StringToIntegerConverter(message))
