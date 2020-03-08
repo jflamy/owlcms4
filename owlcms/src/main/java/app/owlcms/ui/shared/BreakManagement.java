@@ -123,7 +123,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     public void cleanup() {
-        logger.warn("removing {}", breakTimerElement);
+        logger.debug("removing {}", breakTimerElement);
         OwlcmsSession.withFop(fop -> {
             fop.getUiEventBus().unregister(breakTimerElement);
             fop.getFopEventBus().unregister(breakTimerElement);
@@ -134,7 +134,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public ComponentEventListener<ClickEvent<Button>> endBreak(Dialog dialog) {
         return (e) -> {
             OwlcmsSession.withFop(fop -> {
-                logger.warn("endBreak start lifting");
+                logger.debug("endBreak start lifting");
                 fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin()));
                 logger.debug("endbreak enabling start");
                 breakStart.setEnabled(true);
@@ -147,7 +147,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     public void init(Object origin, BreakType brt, CountdownType cdt, Dialog parentDialog) {
-        logger.warn("init brt={} cdt={} from {}", brt, cdt, LoggerUtils.whereFrom());
+        logger.debug("init brt={} cdt={} from {}", brt, cdt, LoggerUtils.whereFrom());
         ignoreBreakTypeValueChange = false;
         this.setOrigin(origin);
         this.parentDialog = parentDialog;
@@ -201,7 +201,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         BreakType breakType = bt.getValue();
         CountdownType countdownType = ct.getValue();
         Integer tr;
-        logger.warn("start break bt={} ct={}", bt, ct);
+        logger.debug("start break bt={} ct={}", bt, ct);
         if (countdownType == CountdownType.INDEFINITE) {
             tr = null;
         } else if (countdownType == CountdownType.TARGET) {
@@ -285,7 +285,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         timeRemaining = null;
         ignoreBreakTypeValueChange = true;
         setCtValue(CountdownType.INDEFINITE);
-        logger.warn("setting default duration for indefinite break");
+        logger.debug("setting default duration for indefinite break");
         setDurationField(DEFAULT_DURATION);
         BreakType breakType = bType != null ? bType : BreakType.TECHNICAL;
         safeSetBT(breakType);
@@ -301,7 +301,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        logger.warn("breakManagement attach");
+        logger.debug("breakManagement attach");
         super.onAttach(attachEvent);
         OwlcmsSession.withFop(fop -> {
             // we listen on uiEventBus.
@@ -326,7 +326,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
             BreakType bType = event.getValue();
             CountdownType mapBreakTypeToCountdownType = mapBreakTypeToCountdownType(bType);
-            logger.warn("setting countdown {} ignored={}", mapBreakTypeToCountdownType, ignoreListeners);
+            logger.debug("setting countdown {} ignored={}", mapBreakTypeToCountdownType, ignoreListeners);
             setCtValue(mapBreakTypeToCountdownType);
             masterPauseBreak();
 
@@ -343,7 +343,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         datePicker.addValueChangeListener(e -> setBreakTimerFromFields(CountdownType.TARGET));
 
         boolean running = syncWithFop();
-        logger.warn("running ? = {}", running);
+        logger.debug("running ? = {}", running);
         if (!running) {
             doSync();
         }
@@ -378,7 +378,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         }
         datePicker.setValue(nextDate);
         timePicker.setValue(LocalTime.of(nextHr, nextStepMin));
-        logger.warn("setting default duration as default {}", LoggerUtils.whereFrom());
+        logger.debug("setting default duration as default {}", LoggerUtils.whereFrom());
         setDurationField(DEFAULT_DURATION);
     }
 
@@ -466,7 +466,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     private void doSync() {
         if (getRequestedBreakType() != null
                 && (getRequestedBreakType() == BreakType.JURY || getRequestedBreakType() == BreakType.TECHNICAL)) {
-            logger.warn("starting break on dialog creation {}", getRequestedBreakType());
+            logger.debug("starting break on dialog creation {}", getRequestedBreakType());
             startIndefiniteBreakImmediately(getRequestedBreakType());
         } else {
             setBreakTimerFromFields(ct.getValue());
@@ -502,7 +502,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         if (ignoreListeners) {
             return;
         }
-        logger.warn("updateEditingFields cType={}", cType);
+        logger.debug("updateEditingFields cType={}", cType);
         LocalDateTime now = LocalDateTime.now();
 
         BreakType bType = bt.getValue();
@@ -513,11 +513,11 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             if (cType == CountdownType.TARGET) {
                 LocalDateTime target = getTarget();
                 timeRemaining = now.until(target, ChronoUnit.MILLIS);
-                logger.warn("setBreakTimerFromFields target-derived duration {}",
+                logger.debug("setBreakTimerFromFields target-derived duration {}",
                         DurationFormatUtils.formatDurationHMS(timeRemaining));
                 breakTimerElement.slaveBreakSet(new BreakSetTime(bType, cType, 0, target, false, this.getOrigin()));
             } else if (cType == CountdownType.INDEFINITE) {
-                logger.warn("setBreakTimerFromFields indefinite");
+                logger.debug("setBreakTimerFromFields indefinite");
                 timeRemaining = null;
                 breakTimerElement.slaveBreakSet(new BreakSetTime(bType, cType, 0, null, true, this));
             } else {
@@ -529,7 +529,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                     value = (value == null ? DEFAULT_DURATION : value);
                 }
                 timeRemaining = (value != null ? value.toMillis() : 0L);
-                logger.warn("setBreakTimerFromFields explicit duration {}",
+                logger.debug("setBreakTimerFromFields explicit duration {}",
                         DurationFormatUtils.formatDurationHMS(timeRemaining));
                 breakTimerElement.slaveBreakSet(
                         new BreakSetTime(bType, cType, timeRemaining.intValue(), null, false, this.getOrigin()));
@@ -539,7 +539,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     }
 
     private void setCtValue(CountdownType ct2) {
-        logger.warn("setting ct {}  from {}", ct2, LoggerUtils.whereFrom());
+        logger.debug("setting ct {}  from {}", ct2, LoggerUtils.whereFrom());
         ct.setValue(ct2);
     }
 
@@ -605,7 +605,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         OwlcmsSession.withFop(fop -> {
 
             ignoreListeners = true;
-            logger.warn("syncWithFop {} {}", fop.getState());
+            logger.debug("syncWithFop {} {}", fop.getState());
             running[0] = false;
             ProxyBreakTimer breakTimer = fop.getBreakTimer();
 
@@ -616,7 +616,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
 
             switch (fop.getState()) {
             case BREAK:
-                logger.warn("syncWithFOP - break under way");
+                logger.debug("syncWithFOP - break under way");
                 int milliseconds = breakTimer.liveTimeRemaining();
                 if (fop.getCountdownType() == CountdownType.INDEFINITE) {
                     ignoreListeners = true;
@@ -644,7 +644,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 break;
             default:
                 Athlete curAthlete = fop.getCurAthlete();
-                logger.warn("syncWithFOP currentAthlete {}", curAthlete);
+                logger.debug("syncWithFOP currentAthlete {}", curAthlete);
                 if (curAthlete == null) {
                     safeSetBT(BreakType.BEFORE_INTRODUCTION);
                     setCtValue(CountdownType.TARGET);
