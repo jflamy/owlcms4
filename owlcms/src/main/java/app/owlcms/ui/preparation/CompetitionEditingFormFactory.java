@@ -275,7 +275,7 @@ public class CompetitionEditingFormFactory
     }
 
     private FormLayout specialRulesForm() {
-        String message = Translator.translate("TeamSizeInvalid");
+        String message = Translator.translate("Competition.teamSizeInvalid");
 
         FormLayout layout = createLayout();
         Component title = createTitle("Competition.specialRulesTitle");
@@ -283,7 +283,7 @@ public class CompetitionEditingFormFactory
         layout.setColspan(title, 2);
 
         TextField mensTeamSizeField = new TextField();
-        layout.addFormItem(mensTeamSizeField, labelWithHelp("MensTeamSize", "TeamSizeExplanation"));
+        layout.addFormItem(mensTeamSizeField, labelWithHelp("Competition.mensTeamSize", "Competition.teamSizeExplanation"));
         binder.forField(mensTeamSizeField)
                 .withNullRepresentation("")
                 .withConverter(new StringToIntegerConverter(message))
@@ -291,7 +291,7 @@ public class CompetitionEditingFormFactory
                 .bind(Competition::getMensTeamSize, Competition::setMensTeamSize);
 
         TextField womensTeamSizeField = new TextField();
-        layout.addFormItem(womensTeamSizeField, labelWithHelp("WomensTeamSize", "TeamSizeExplanation"));
+        layout.addFormItem(womensTeamSizeField, labelWithHelp("Competition.womensTeamSize", "Competition.teamSizeExplanation"));
         binder.forField(womensTeamSizeField)
                 .withNullRepresentation("")
                 .withConverter(new StringToIntegerConverter(message))
@@ -299,12 +299,12 @@ public class CompetitionEditingFormFactory
                 .bind(Competition::getWomensTeamSize, Competition::setWomensTeamSize);
 
         Checkbox customScoreField = new Checkbox();
-        layout.addFormItem(customScoreField, Translator.translate("Competition.customScore"));
+        layout.addFormItem(customScoreField, labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
         binder.forField(customScoreField)
                 .bind(Competition::isCustomScore, Competition::setCustomScore);
 
         Checkbox genderOrderField = new Checkbox();
-        layout.addFormItem(genderOrderField, Translator.translate("Competition.genderOrder"));
+        layout.addFormItem(genderOrderField, labelWithHelp("Competition.genderOrder", "Competition.genderOrderExplanation"));
         binder.forField(genderOrderField)
                 .bind(Competition::isGenderOrder, Competition::setGenderOrder);
 
