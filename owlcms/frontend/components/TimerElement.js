@@ -247,7 +247,7 @@ class TimerElement extends PolymerElement {
 		var hours = Math.trunc(ntime / 3600);
 		var minutes = Math.trunc((ntime - (hours*3600)) / 60);
 		var seconds = ntime - ((hours*3600)+(minutes*60));
-		return (hours > 0 ? hours + ":" : "")+(minutes+":"+ (seconds < 10 ? "0"+seconds : seconds));
+		return (hours > 0 ? (hours + ":" + (minutes < 10 ? "0" : "")) : "")+(minutes+":"+ (seconds < 10 ? "0"+seconds : seconds));
 	}
 
 }
