@@ -611,12 +611,12 @@ public class Platform implements Serializable, Comparable<Platform> {
         for (Mixer curMixer : soundMixers) {
             if (curMixer.getMixerInfo().getName().equals(soundMixerName)) {
                 setMixer(curMixer);
-                logger.debug("Platform {}: changing mixer to {}", this.name, curMixer.getMixerInfo().getName());
+                logger.info("Platform {}: changing mixer to {}", this.name, curMixer.getMixerInfo().getName());
                 break;
             }
         }
         if (mixer == null) {
-            logger.debug("Platform: {}: changing mixer to {}", this.name, soundMixerName);
+            logger.info("Platform: {}: changing mixer to {}", this.name, null);
         }
         mixerChecked = true;
     }

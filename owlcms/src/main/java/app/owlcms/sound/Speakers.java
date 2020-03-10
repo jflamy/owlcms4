@@ -81,13 +81,14 @@ public class Speakers {
 
             try {
                 if (!mixer.getMixerInfo().toString().startsWith("Java")) {
-                    AudioFormat af = new AudioFormat(8000f, 8, 1, true, false);
+                    AudioFormat af = new AudioFormat(44100f, 8, 1, true, false);
                     if (AudioSystem.getSourceDataLine(af, info) != null) {
                         mixers.add(mixer);
+                        logger.info("Mixer {} detected", mixer);
                     }
                 }
-            } catch (IllegalArgumentException e) {
-            } catch (LineUnavailableException e) {
+            } catch (LineUnavailableException | IllegalArgumentException e) {
+                logger.warn("Mixer {} not compatible.", mixer);
             }
         }
         return mixers;

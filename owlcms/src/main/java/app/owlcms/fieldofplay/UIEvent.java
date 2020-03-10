@@ -75,7 +75,7 @@ public class UIEvent {
 
         /**
          * DURATION break
-         * 
+         *
          * @param bt
          * @param ct
          * @param timeRemaining
@@ -179,6 +179,25 @@ public class UIEvent {
         private Integer getTimeRemaining() {
             return timeRemaining;
         }
+    }
+
+    static public class Broadcast extends UIEvent {
+
+        private String message;
+
+        public Broadcast(String string, Object origin) {
+            super(origin);
+            this.setMessage(string);
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
     }
 
     /**

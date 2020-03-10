@@ -21,6 +21,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 
 import org.slf4j.LoggerFactory;
@@ -882,7 +883,12 @@ public class FieldOfPlay {
 
     private void prepareDownSignal() {
         if (isEmitSoundsOnServer()) {
-            downSignal = new Tone(getSoundMixer(), 1100, 1200, 1.0);
+            try {
+                downSignal = new Tone(getSoundMixer(), 1100, 1200, 1.0);
+            } catch (IllegalArgumentException | LineUnavailableException e) {
+                logger.error("{}\n{}", e.getCause(),LoggerUtils.stackTrace(e));
+                broadcast("SoundSystemProblem");
+            }
         }
     }
 
@@ -1162,11 +1168,19 @@ public class FieldOfPlay {
         if (emitSoundsOnServer2 && !downEmitted2) {
             // sound is synchronous, we don't want to wait.
             new Thread(() -> {
-                downSignal.emit();
+                try {
+                    downSignal.emit();
+                } catch (IllegalArgumentException | LineUnavailableException e) {
+                    broadcast("SoundSystemProblem");
+                }
             }).start();
             setDownEmitted(true);
         }
         pushOut(new UIEvent.DownSignal(origin2));
+    }
+
+    private void broadcast(String string) {
+        getUiEventBus().post(new UIEvent.Broadcast(string, this));
     }
 
     private void uiShowPlates(BarbellOrPlatesChanged e) {

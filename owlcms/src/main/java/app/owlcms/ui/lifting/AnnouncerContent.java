@@ -14,6 +14,7 @@ import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
@@ -161,7 +162,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         introCountdownButton.getElement().setAttribute("theme", "primary contrast");
         startLiftingButton = new Button(getTranslation("startLifting"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
-                createTopBar();
+                UI.getCurrent().access(() -> createTopBar());
                 fop.getFopEventBus().post(new FOPEvent.StartLifting(this));
             });
         });

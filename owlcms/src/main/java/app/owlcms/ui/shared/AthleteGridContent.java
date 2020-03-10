@@ -32,8 +32,12 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -310,6 +314,25 @@ public abstract class AthleteGridContent extends VerticalLayout
         this.routerLayout = routerLayout;
     }
 
+    @Subscribe
+    public void slaveBroadcast(UIEvent.Broadcast e) {
+        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
+            Icon close = VaadinIcon.CLOSE_CIRCLE_O.create();
+            close.getStyle().set("margin-left", "2em");
+            close.setSize("4em");
+            Notification notification = new Notification();
+            Label label = new Label();
+            label.getElement().setProperty("innerHTML", getTranslation(e.getMessage()));
+            HorizontalLayout content = new HorizontalLayout(label, close);
+            notification.add(content);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setDuration(-1);
+            close.addClickListener(event -> notification.close());
+            notification.setPosition(Position.MIDDLE);
+            notification.open();
+        });
+    }
+    
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
         UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {

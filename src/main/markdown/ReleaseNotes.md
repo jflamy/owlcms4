@@ -1,6 +1,7 @@
 * Release Highlights for release ${project.version} 
   
-  - [x] Enhancement: the Competition Information page has been reorganized to better accommodate non-standard competition options requested by various federations. Mouse-over now describes the options. (#327)
+  - [x] Fix: When using the server-side sound generation, if a problem with the sound card caused the down-signal sound generation to fail, the decisions would not be shown. (#330)  A warning is now shown on the announcer and other TO consoles if this happens so that referees can be told to use hand signals.
+  - [x] Enhancement: the "Competition Information" preparation page has been reorganized to better accommodate non-standard competition options requested by various federations. Mouse-over now describes the options. (#327)
   - [x] Fix: Validation of non-standard bar weight only performed when non-standard bar is selected on the technical controller screen (#324).
   - [x] Fix: Removed spurious 40kg category on Women Masters and other Women age groups. (#325)
   - [x] Fix: Break timer did not correctly display times like 1:05:23 (the leading 0 for minutes was missing) (#326)
