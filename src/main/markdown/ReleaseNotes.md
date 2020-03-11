@@ -4,6 +4,7 @@
   - [x] Enhancement: The weigh-in, registration, group results and final package pages now allow filtering by gender (#284)
   - [x] Enhancement: The final package page contains all the scores (SMM, Sinclair, Robi) same as the group results page.
   - [x] Enhancement: the "Competition Information" preparation page has been reorganized to better accommodate non-standard competition options requested by various federations. Mouse-over now describes the options. (#327)
+  - [x] Fix: Windows installer no longer overwrites .ini files in an existing install. So it is now easier to just update on top of existing installation (Database is updated as needed) (#333)
   - [x] Fix: Excel spreadsheets for Masters now contain SMF ranking pages (#332)
   - [x] Fix: Sinclair, Robi and SMF sorting was sorting both genders together (#331)
   - [x] Fix: Validation of non-standard bar weight only performed when non-standard bar is selected on the technical controller screen (#324).
@@ -21,7 +22,6 @@
   - [x] Enhancement: Athlete cards optionally show a score. By default, the score is the total, but can be overridden in competitions where bonus points or penalties are used (some U13 competitions award points for technique, or 6/6), or use some traditional formula (#319).  This is enabled on the competition page.  The variable ${l.customScoreComputed} can then be used in the Excel templates.
   - [x] Enhancement: Clearer definition of the invited status (not eligible for individual medals) and the team member status (an athlete eligible for medals, and considered for team points.)  In team competitions that allow for substitutes or ordinary lifters, it can happen that non-team members are allowed to lift (eligible), but not score points (not team member). (#316)
   - [x] Testing: Ability to run a competition in "simulation mode" (referees make decisions at random, but repeatable from run to run).  Used to test the screen layouts, and to populate the database to test the final package reports. To use, start in demo mode using `-DdemoMode=true`, and setup your browsers.  Stop, then start demo mode again using the Java command line to use `app.owlcms.Simulation` as the main class (#317)
-  
 * Workarounds/Known Issues
   
   - [ ] Workaround: (#304) When the browser screens have already been started and owlcms is restarted, occasionally the *very first* "push" update from the server is not handled by one of the browsers.  A refresh of the page is sufficient to restore things.
