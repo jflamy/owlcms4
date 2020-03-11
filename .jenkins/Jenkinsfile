@@ -11,6 +11,7 @@ pipeline {
         string(name: 'PRERELEASE', defaultValue: 'true', description: 'true or false')
         string(name: 'REPO_TOKEN_NAME', defaultValue: 'github-oauth', description: 'from Maven settings')
         string(name: 'BRANCH', defaultValue: 'mandatory', description: 'from Maven settings')
+        string(name: 'MAVEN_SKIP_RC', defaultValue: 'true', description: 'do not use regular .mavenrc or mavenrc_pre.cmd')
     }
     
     tools { 
