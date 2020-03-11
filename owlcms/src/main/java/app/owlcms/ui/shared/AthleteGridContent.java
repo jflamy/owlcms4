@@ -37,8 +37,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -54,6 +54,7 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.BreakType;
@@ -141,6 +142,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      * groupFilter.
      */
     protected ComboBox<Group> groupFilter = new ComboBox<>();
+    protected ComboBox<Gender> genderFilter = new ComboBox<>();
     private String topBarTitle;
 
     protected TextField lastNameFilter = new TextField();
