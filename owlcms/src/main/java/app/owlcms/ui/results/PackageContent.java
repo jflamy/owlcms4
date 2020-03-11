@@ -32,7 +32,6 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
@@ -43,6 +42,7 @@ import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.competition.Competition;
@@ -102,7 +102,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     @Override
     public Collection<Athlete> findAll() {
         List<Athlete> athletes = AthleteSorter.resultsOrderCopy(
-                AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(), true), Ranking.TOTAL);
+                AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(), genderFilter.getValue(), true), Ranking.TOTAL);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
         AthleteSorter.resultsOrder(athletes, Ranking.SNATCH);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
@@ -213,22 +213,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     protected AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
-        ThemeList themes = grid.getThemeNames();
-        themes.add("compact");
-        themes.add("row-stripes");
-        grid.setColumns("lastName", "firstName", "team", "category", "bestSnatch", "snatchRank", "bestCleanJerk",
-                "cleanJerkRank", "total", "totalRank");
-        grid.getColumnByKey("lastName").setHeader(getTranslation("LastName"));
-        grid.getColumnByKey("firstName").setHeader(getTranslation("FirstName"));
-        grid.getColumnByKey("team").setHeader(getTranslation("Team"));
-        grid.getColumnByKey("category").setHeader(getTranslation("Category"));
-        grid.getColumnByKey("bestSnatch").setHeader(getTranslation("Snatch"));
-        grid.getColumnByKey("snatchRank").setHeader(getTranslation("SnatchRank"));
-        grid.getColumnByKey("bestCleanJerk").setHeader(getTranslation("Clean_and_Jerk"));
-        grid.getColumnByKey("cleanJerkRank").setHeader(getTranslation("Clean_and_Jerk_Rank"));
-        grid.getColumnByKey("total").setHeader(getTranslation("Total"));
-        grid.getColumnByKey("totalRank").setHeader(getTranslation("Rank"));
+        Grid<Athlete> grid = ResultsContent.createResultGrid();
 
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
         AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
@@ -337,6 +322,18 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             subscribeIfLifting(e.getValue());
         });
         crud.getCrudLayout().addFilterComponent(groupFilter);
+        
+        genderFilter.setPlaceholder(getTranslation("Gender"));
+        genderFilter.setItems(Gender.M, Gender.F);
+        genderFilter.setItemLabelGenerator((i) -> {
+            return i == Gender.M ? getTranslation("Gender.M") : getTranslation("Gender.F");
+        });
+        genderFilter.setClearButtonVisible(true);
+        genderFilter.addValueChangeListener(e -> {
+            crud.refreshGrid();
+        });
+        genderFilter.setWidth("10em");
+        crud.getCrudLayout().addFilterComponent(genderFilter);
     }
 
     /**

@@ -34,6 +34,7 @@ import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -213,7 +214,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
             return;
         }
         JPAService.runInTransaction((em) -> {
-            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null);
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null, (Gender) null);
             for (Athlete a : currentGroupAthletes) {
                 a.setStartNumber(0);
             }
@@ -229,7 +230,7 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
             return;
         }
         JPAService.runInTransaction((em) -> {
-            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true);
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true, (Gender) null);
             AthleteSorter.displayOrder(currentGroupAthletes);
             AthleteSorter.assignStartNumbers(currentGroupAthletes);
             return currentGroupAthletes;

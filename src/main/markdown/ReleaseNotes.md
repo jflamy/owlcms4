@@ -1,5 +1,6 @@
 * Release Highlights for release ${project.version} 
   
+  - [x] Enhancement: Simple team competition scoreboard.  Top 5 men and top 5 women teams are displayed. Shows how many athletes have been tallied and full team size. (#327)
   - [x] Fix: When using the server-side sound generation, if a problem with the sound card caused the down-signal sound generation to fail, the decisions would not be shown. (#330)  A warning is now shown on the announcer and other TO consoles if this happens so that referees can be told to use hand signals.
   - [x] Enhancement: the "Competition Information" preparation page has been reorganized to better accommodate non-standard competition options requested by various federations. Mouse-over now describes the options. (#327)
   - [x] Fix: Validation of non-standard bar weight only performed when non-standard bar is selected on the technical controller screen (#324).
