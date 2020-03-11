@@ -284,6 +284,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         topBarGroupSelect.setPlaceholder(getTranslation("Group"));
         topBarGroupSelect.setItems(GroupRepository.findAll());
         topBarGroupSelect.setItemLabelGenerator(Group::getName);
+        topBarGroupSelect.setClearButtonVisible(true);
         topBarGroupSelect.setValue(null);
         topBarGroupSelect.setWidth("8em");
         setGroupSelectionListener();
