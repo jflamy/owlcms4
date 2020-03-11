@@ -299,7 +299,7 @@ public class Competition {
     }
 
     synchronized public List<Athlete> getGlobalCategoryRankingsForGroup(Group group) {
-        if (group == null) {
+        if (group == null || group.getName() == null) {
             logger.debug("null group");
             return null;
         }

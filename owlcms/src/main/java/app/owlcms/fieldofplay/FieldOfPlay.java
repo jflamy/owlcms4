@@ -176,6 +176,7 @@ public class FieldOfPlay {
         this.uiEventBus = new EventBus("UI-" + this.name);
         this.postBus = new EventBus("POST-" + name);
         this.setTestingMode(testingMode);
+        this.group = new Group();
         init(athletes, timer1, breakTimer1);
     }
 
