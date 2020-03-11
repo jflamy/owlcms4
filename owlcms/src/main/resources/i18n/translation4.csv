@@ -480,3 +480,9 @@ Scoreboard.TopTeamsWomen,Top Teams - Women,Meilleures équipes - Femmes,,,Top Te
 Scoreboard.Done,# Athletes Scored (Done Groups),# Athlètes comptabilisés (groupes terminés),,,# Athletes (Done Groups),# Athletes (Done Groups),# Athletes (Done Groups),# Athletes (Done Groups),# Athletes (Done Groups),# Athletes (Done Groups)
 Scoreboard.TeamSize,# Team Members,# Membres,,,# Team Members,# Team Members,# Team Members,# Team Members,# Team Members,# Team Members
 Scoreboard.Points,Points,Points,,,Points,Points,Points,Points,Points,Points
+CompetitionBook.WSMF,Women's SMF,Femmes SMF,,,SMF Kvinder,"Синклер, женщины",SMF  Damer,weiblich SMF ,SMF Femenino,SMF Feminino
+CompetitionBook.WSMF_LeftHeader,SMF  Ranking,Classement SMF,Classement Sinclair - Sinclair Ranking,,SMF Placering,Рейтинг Синклер,SMF Rankning,Platzierung SMF ,Clasificación SMF ,Classificação SMF 
+CompetitionBook.MSMF,Men's SMF,Hommes SMF,,,SMF Mænd,"Синклер, мужчины",Herrar SMF,männlich SMF,SMF Masculino,SMF Masculino
+CompetitionBook.MSMF_LeftHeader,SMF  Ranking,Classement SMF,Classement SMF - SMF Ranking,,SMF Placering,Рейтинг Синклер,SMFRank,Platzierung SMF,Clasificación SMF,Classificação SMF
+Gender.F,Women,Femmes,,,Kvinder,Женщины,Damer,weiblich,Femenino,Feminino
+Gender.M,Men,Hommes,,,Mænd,Мужчины,Herrar,männlich,Masculino,Masculino
