@@ -27,6 +27,7 @@ import app.owlcms.displays.liftingorder.LiftingOrder;
 import app.owlcms.displays.scoreboard.ScoreWithLeaders;
 import app.owlcms.displays.scoreboard.Scoreboard;
 import app.owlcms.displays.topathletes.TopSinclair;
+import app.owlcms.displays.topteams.TopTeams;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.HomeNavigationContent;
@@ -66,13 +67,14 @@ public class DisplayNavigationContent extends BaseNavigationContent implements N
         scoreboardWLeaders.getElement().setAttribute("title", getTranslation("ScoreboardWLeadersMouseOver"));
         Button liftingOrder = openInNewTab(LiftingOrder.class, getTranslation("Scoreboard.LiftingOrder"));
         Button topSinclair = openInNewTab(TopSinclair.class, getTranslation("Scoreboard.TopSinclair"));
+        Button topTeams = openInNewTab(TopTeams.class, getTranslation("Scoreboard.TopTeams"));
 
         fillH(intro, this);
 
         VerticalLayout intro1 = new VerticalLayout();
         addP(intro1, getTranslation("darkModeSelect"));
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders, liftingOrder,
-                topSinclair);
+                topSinclair, topTeams);
         doGroup(getTranslation("Scoreboards"), intro1, grid1, this);
 
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, athleteFacingAttempt);

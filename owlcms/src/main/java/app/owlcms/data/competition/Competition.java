@@ -11,6 +11,7 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -315,6 +316,26 @@ public class Competition {
 
     synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
         return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
+    }
+    
+    @SuppressWarnings("unchecked")
+    public Collection<Athlete> getGlobalTeamsRanking(Gender gender) {
+        String listName = gender == Gender.F ? "wTeam" : "mTeam";
+        List<Athlete> athletes = (List<Athlete>) reportingBeans.get(listName);
+        if (athletes == null) {
+            // not cached yet (we are likely the first on a reset/restart).
+            computeGlobalRankings(true);
+            athletes = (List<Athlete>) reportingBeans.get(listName);
+            if (athletes == null) {
+                String error = MessageFormat.format("list {0} not found", listName);
+                logger.error(error);
+                throw new RuntimeException(error);
+            }
+            logger.debug("team rankings recomputed {} size {}", listName, athletes != null ? athletes.size() : null);
+        } else {
+            logger.debug("found team rankings {} size {}", listName, athletes != null ? athletes.size() : null);
+        }
+        return athletes;
     }
 
     /**
@@ -639,13 +660,6 @@ public class Competition {
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
         reportingBeans.put("mSn", sortedMen);
         reportingBeans.put("wSn", sortedWomen);
-//        logger./**/warn("snatch ranks {}",
-//                sortedMen
-//                .stream()
-//                //.filter(a->a.getSnatchTotal()>0)
-//                .map(a->{
-//                    return a.getFullName()+" "+a.getCategory()+" "+a.getSnatchTotal()+" "+a.getSnatchRank();
-//                    }).collect(Collectors.joining(", ")));
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK);
         AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);

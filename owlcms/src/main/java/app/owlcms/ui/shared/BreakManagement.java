@@ -161,6 +161,10 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         bt.setValue(brt);
         setCtValue(cdt);
         assembleDialog(this, buttons);
+        OwlcmsSession.withFop(fop -> {
+            fopEventBusRegister(this, fop);
+            uiEventBusRegister(this, fop);
+        });
     }
 
     public CountdownType mapBreakTypeToCountdownType(BreakType bType) {

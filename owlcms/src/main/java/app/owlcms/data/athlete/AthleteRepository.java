@@ -280,4 +280,13 @@ public class AthleteRepository {
         }
     }
 
+    public static long countTeamMembers(String curTeamName, Gender gender) {
+        return JPAService.runInTransaction(em -> {
+            Query query = em.createQuery("select count(distinct a.id) from Athlete a where a.team=:team and a.gender=:gender and a.eligibleForTeamRanking=true");
+            query.setParameter("team", curTeamName);
+            query.setParameter("gender", gender);
+            return (long) query.getFirstResult();
+        });
+    }
+
 }

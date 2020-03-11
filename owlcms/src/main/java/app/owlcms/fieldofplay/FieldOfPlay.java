@@ -753,6 +753,11 @@ public class FieldOfPlay {
         // if (state == INACTIVE) {
         // logger.debug("entering inactive {}",LoggerUtils.stackTrace());
         // }
+        if (state == CURRENT_ATHLETE_DISPLAYED) {
+            group.setDone(getCurAthlete() == null || getCurAthlete().getAttemptsDone() >= 6);
+        } else if (state == BREAK) {
+            group.setDone(breakType == BreakType.GROUP_DONE);
+        }
         this.state = state;
     }
 
@@ -760,12 +765,14 @@ public class FieldOfPlay {
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
             uiDisplayCurrentAthleteAndTime(true, e, false);
             setState(CURRENT_ATHLETE_DISPLAYED);
+            group.setDone(false);
         } else {
             UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
             pushOut(event);
             // special kind of break that allows moving back in case of jury reversal
             setBreakType(BreakType.GROUP_DONE);
             setState(BREAK);
+            group.setDone(true);
         }
     }
 
@@ -886,7 +893,7 @@ public class FieldOfPlay {
             try {
                 downSignal = new Tone(getSoundMixer(), 1100, 1200, 1.0);
             } catch (IllegalArgumentException | LineUnavailableException e) {
-                logger.error("{}\n{}", e.getCause(),LoggerUtils.stackTrace(e));
+                logger.error("{}\n{}", e.getCause(), LoggerUtils.stackTrace(e));
                 broadcast("SoundSystemProblem");
             }
         }
@@ -930,13 +937,19 @@ public class FieldOfPlay {
         setDisplayOrder(AthleteSorter.displayOrderCopy(this.getLiftingOrder()));
         this.setCurAthlete(this.getLiftingOrder().isEmpty() ? null : this.getLiftingOrder().get(0));
         int timeAllowed = getTimeAllowed();
-        logger.debug("{} recomputed lifting order curAthlete={} prevlifter={} time={} [{}]",
+        Integer attemptsDone = curAthlete.getAttemptsDone();
+        logger.debug("{} recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
                 getName(),
                 getCurAthlete() != null ? getCurAthlete().getFullName() : "",
-                previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed, LoggerUtils.whereFrom());
+                previousAthlete != null ? previousAthlete.getFullName() : "",
+                timeAllowed,
+                attemptsDone,
+                LoggerUtils.whereFrom());
         if (currentDisplayAffected) {
             getAthleteTimer().setTimeRemaining(timeAllowed);
         }
+        // for the purpose of counting team scores, this is good enough.
+        group.setDone(attemptsDone >= 6);
     }
 
     /**

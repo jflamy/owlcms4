@@ -179,7 +179,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     public void busyBreakButton() {
         if (breakButton == null) {
-            logger.error("breakButton is null\n{}", LoggerUtils.stackTrace());
+//            logger.error("breakButton is null\n{}", LoggerUtils.stackTrace());
             return;
         }
         breakButton.getElement().setAttribute("theme", "primary error");
