@@ -36,7 +36,8 @@ public class AthleteSorter implements Serializable {
     public enum Ranking {
         SNATCH, CLEANJERK, TOTAL,
         /** combined (men + women). */
-        COMBINED, SINCLAIR, // cat, bw or smm depending on competition parameters
+        COMBINED, 
+//        SINCLAIR, // cat, bw or smm depending on competition parameters
         CAT_SINCLAIR, // legacy Quebec federation, Sinclair computed at category boundary
         BW_SINCLAIR, // normal sinclair
         SMM, // Sinclair Malone-Meltzer
@@ -284,8 +285,12 @@ public class AthleteSorter implements Serializable {
             return curLifter.getSnatchRank();
         case CLEANJERK:
             return curLifter.getCleanJerkRank();
-        case SINCLAIR:
+        case SMM:
+            return curLifter.getSmmRank();
+        case BW_SINCLAIR:
             return curLifter.getSinclairRank();
+        case CAT_SINCLAIR:
+            return curLifter.getCatSinclairRank();
         case ROBI:
             return curLifter.getRobiRank();
         case TOTAL:
@@ -442,15 +447,23 @@ public class AthleteSorter implements Serializable {
         case TOTAL:
             curLifter.setTotalRank(i);
             break;
-        case SINCLAIR:
+        case BW_SINCLAIR:
             curLifter.setSinclairRank(i);
             break;
+        case CAT_SINCLAIR:
+            curLifter.setCatSinclairRank(i);
+            break;   
         case ROBI:
             curLifter.setRobiRank(i);
             break;
         case CUSTOM:
             curLifter.setCustomRank(i);
             break;
+        case COMBINED:
+            curLifter.setCombinedRank(i);
+            break;
+        case SMM:
+            curLifter.setSmmRank(i);
         default:
             break;
         }
@@ -554,8 +567,6 @@ public class AthleteSorter implements Serializable {
             return curLifter.getBestCleanJerk();
         case TOTAL:
             return curLifter.getTotal();
-        case SINCLAIR:
-            return curLifter.getSinclair();
         case ROBI:
             return curLifter.getRobi();
         case CUSTOM:

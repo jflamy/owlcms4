@@ -132,7 +132,7 @@ public class Athlete {
             dest.setCleanJerk3Change2(src.getCleanJerk3Change2());
             dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
             dest.setCleanJerk3LiftTime(src.getCleanJerk3LiftTime());
-            
+
             dest.setCustomScore(src.getCustomScore());
 
             dest.setForcedAsCurrent(src.getForcedAsCurrent());
@@ -387,6 +387,13 @@ public class Athlete {
      * body weight inferred from category, used until real bodyweight is known.
      */
     private Double presumedBodyWeight;
+    
+    @Column(columnDefinition = "integer default 0")
+    private int catSinclairRank;
+    @Column(columnDefinition = "integer default 0")
+    private int combinedRank;
+    @Column(columnDefinition = "integer default 0")
+    private int smmRank;
 
     /**
      * Instantiates a new athlete.
@@ -771,6 +778,10 @@ public class Athlete {
         return getSinclair(categoryWeight);
     }
 
+    public int getCatSinclairRank() {
+        return catSinclairRank;
+    }
+
     /**
      * Gets the clean jerk 1 actual lift.
      *
@@ -1039,6 +1050,10 @@ public class Athlete {
         return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
     }
 
+    public int getCombinedRank() {
+        return combinedRank;
+    }
+
     /**
      * Gets the current automatic.
      *
@@ -1126,6 +1141,10 @@ public class Athlete {
         return this.customRank;
     }
 
+    public Double getCustomScore() {
+        return customScore;
+    }
+
     /**
      * Gets the custom score.
      *
@@ -1135,10 +1154,6 @@ public class Athlete {
         if (this.customScore == null || this.customScore < 0.01) {
             return Double.valueOf(getTotal());
         }
-        return customScore;
-    }
-    
-    public Double getCustomScore() {
         return customScore;
     }
 
@@ -1711,6 +1726,10 @@ public class Athlete {
             return 0.0;
         }
         return getSinclair() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1);
+    }
+
+    public int getSmmRank() {
+        return smmRank;
     }
 
     /**
@@ -2332,6 +2351,10 @@ public class Athlete {
         this.category = category;
     }
 
+    public void setCatSinclairRank(int i) {
+        catSinclairRank = i;
+    }
+
     /**
      * Sets the clean jerk 1 actual lift.
      *
@@ -2634,6 +2657,16 @@ public class Athlete {
         this.cleanJerkRank = cleanJerkRank;
     }
 
+//	/**
+//	 * Sets the result order rank.
+//	 *
+//	 * @param resultOrderRank the result order rank
+//	 * @param rankingType     the ranking type
+//	 */
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		this.resultOrderRank = resultOrderRank;
+//	}
+
     /**
      * Sets the club.
      *
@@ -2643,12 +2676,20 @@ public class Athlete {
         setTeam(club);
     }
 
+    public void setCombinedRank(int i) {
+        combinedRank = i;
+    }
+
     /**
      * Sets the custom points.
      *
      * @param customPoints the new custom points
      */
     public void setCustomPoints(float customPoints) {
+        this.customPoints = customPoints;
+    }
+
+    public void setCustomPoints(Float customPoints) {
         this.customPoints = customPoints;
     }
 
@@ -2670,16 +2711,6 @@ public class Athlete {
         this.customScore = customScore;
     }
 
-//	/**
-//	 * Sets the result order rank.
-//	 *
-//	 * @param resultOrderRank the result order rank
-//	 * @param rankingType     the ranking type
-//	 */
-//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//		this.resultOrderRank = resultOrderRank;
-//	}
-
     public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
         this.eligibleForIndividualRanking = eligibleForIndividualRanking;
     }
@@ -2687,6 +2718,12 @@ public class Athlete {
     public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
         this.eligibleForTeamRanking = eligibleForTeamRanking;
     }
+
+    /*
+     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
+     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
+     * register/unregister itself.
+     */
 
     /**
      * Sets the first name.
@@ -2742,12 +2779,6 @@ public class Athlete {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
-    /*
-     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
-     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
-     * register/unregister itself.
-     */
 
     /**
      * Sets the lift order rank.
@@ -2847,6 +2878,10 @@ public class Athlete {
         this.robiRank = robiRank;
     }
 
+    public void setSinclairPoints(Float sinclairPoints) {
+        this.sinclairPoints = sinclairPoints;
+    }
+
     /**
      * Sets the sinclair rank.
      *
@@ -2854,6 +2889,11 @@ public class Athlete {
      */
     public void setSinclairRank(Integer sinclairRank) {
         this.sinclairRank = sinclairRank;
+    }
+
+    public void setSmmRank(int i) {
+        smmRank = i;
+
     }
 
     /**
@@ -3144,6 +3184,10 @@ public class Athlete {
         this.snatchPoints = snatchPoints;
     }
 
+    public void setSnatchPoints(Float snatchPoints) {
+        this.snatchPoints = snatchPoints;
+    }
+
     /**
      * Sets the snatch rank.
      *
@@ -3239,6 +3283,10 @@ public class Athlete {
      * @param totalPoints the new total points
      */
     public void setTotalPoints(float totalPoints) {
+        this.totalPoints = totalPoints;
+    }
+
+    public void setTotalPoints(Float totalPoints) {
         this.totalPoints = totalPoints;
     }
 

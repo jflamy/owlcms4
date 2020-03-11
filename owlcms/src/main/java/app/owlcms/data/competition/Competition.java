@@ -677,8 +677,8 @@ public class Competition {
         reportingBeans.put("mTot", sortedMen);
         reportingBeans.put("wTot", sortedWomen);
 
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SINCLAIR);
-        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.SINCLAIR);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.BW_SINCLAIR);
+        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.BW_SINCLAIR);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -686,6 +686,26 @@ public class Competition {
         reportingBeans.put("wSinclair", sortedWomen);
         logger.debug("mSinclair {}", sortedMen);
         logger.debug("wSinclair {}", sortedWomen);
+        
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CAT_SINCLAIR);
+        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.CAT_SINCLAIR);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans.put("mCatSinclair", sortedMen);
+        reportingBeans.put("wCatSinclair", sortedWomen);
+        logger.debug("mCatSinclair {}", sortedMen);
+        logger.debug("wCatSinclair {}", sortedWomen);
+        
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SMM);
+        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.SMM);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans.put("mSmm", sortedMen);
+        reportingBeans.put("wSmm", sortedWomen);
+        logger.debug("mSmm {}", sortedMen);
+        logger.debug("wSmm {}", sortedWomen);
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.ROBI);
         reportingBeans.put("athletes", sortedAthletes);

@@ -61,21 +61,21 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
         case ROBI:
             return compareRobiResultOrder(lifter1, lifter2);
         case CAT_SINCLAIR:
-            return compareCategorySinclairResultOrder(lifter1, lifter2);
+            return compareCatSinclairResultOrder(lifter1, lifter2);
         case BW_SINCLAIR:
             return compareSinclairResultOrder(lifter1, lifter2);
         case SMM:
             return compareSmmResultOrder(lifter1, lifter2);
-        case SINCLAIR:
-            if (Competition.getCurrent().isMasters()) {
-                return compareSmmResultOrder(lifter1, lifter2);
-            } else {
-                if (Competition.getCurrent().isUseCategorySinclair()) {
-                    return compareCategorySinclairResultOrder(lifter1, lifter2);
-                } else {
-                    return compareSinclairResultOrder(lifter1, lifter2);
-                }
-            }
+//        case SINCLAIR:
+//            if (Competition.getCurrent().isMasters()) {
+//                return compareSmmResultOrder(lifter1, lifter2);
+//            } else {
+//                if (Competition.getCurrent().isUseCategorySinclair()) {
+//                    return compareCategorySinclairResultOrder(lifter1, lifter2);
+//                } else {
+//                    return compareSinclairResultOrder(lifter1, lifter2);
+//                }
+//            }
         default:
             break;
         }
@@ -83,13 +83,13 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     }
 
     /**
-     * Determine who ranks first. If the body weights are the same, the Athlete who reached total first is ranked first.
+     * Determine who ranks first. the Athlete who reached total first is ranked first.
      *
      * @param lifter1 the lifter 1
      * @param lifter2 the lifter 2
      * @return the int
      */
-    public int compareCategorySinclairResultOrder(Athlete lifter1, Athlete lifter2) {
+    public int compareCatSinclairResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
         compare = compareCategorySinclair(lifter1, lifter2);
@@ -164,6 +164,11 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
     public int compareRobiResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
 
+        compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
+        if (compare != 0) {
+            return compare;
+        }
+
         compare = compareRobi(lifter1, lifter2);
         if (compare != 0) {
             return compare;
@@ -182,6 +187,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      */
     public int compareSinclairResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
+        compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
+        if (compare != 0) {
+            return compare;
+        }
         if ((lifter1 != null && lifter1.getAttemptsDone() <= 3)
                 && (lifter2 != null && lifter2.getAttemptsDone() <= 3)) {
             // compare tentative sinclair
@@ -208,6 +217,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
      */
     public int compareSmmResultOrder(Athlete lifter1, Athlete lifter2) {
         int compare = 0;
+        compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
+        if (compare != 0) {
+            return compare;
+        }
 
         compare = compareSmm(lifter1, lifter2);
         if (compare != 0) {

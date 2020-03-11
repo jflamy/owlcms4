@@ -284,7 +284,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     @Subscribe
-    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
+    public void slaveGroupDone(UIEvent.GroupDone e) {
         uiLog(e);
         Competition competition = Competition.getCurrent();
 
@@ -292,6 +292,16 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
             doUpdate(competition);
         });
     }
+    
+//    @Subscribe
+//    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
+//        uiLog(e);
+//        Competition competition = Competition.getCurrent();
+//
+//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+//            doUpdate(competition);
+//        });
+//    }
 
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {

@@ -150,7 +150,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         }
         grid.addColumn(new NumberRenderer<>(Athlete::getSinclair, "%.3f", OwlcmsSession.getLocale(), "0.000"),
                 "sinclair").setHeader(getTranslation("sinclair"))
-                .setComparator(new WinningOrderComparator(Ranking.SINCLAIR));
+                .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR));
         grid.addColumn(new NumberRenderer<>(Athlete::getSmm, "%.3f", OwlcmsSession.getLocale(), "-"), "smm")
                 .setHeader(getTranslation("smm")).setSortProperty("smm")
                 .setComparator(new WinningOrderComparator(Ranking.SMM));
