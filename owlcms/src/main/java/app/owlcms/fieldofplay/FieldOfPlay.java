@@ -767,13 +767,17 @@ public class FieldOfPlay {
             setState(CURRENT_ATHLETE_DISPLAYED);
             group.setDone(false);
         } else {
-            UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
-            pushOut(event);
+            pushOutDone();
             // special kind of break that allows moving back in case of jury reversal
             setBreakType(BreakType.GROUP_DONE);
             setState(BREAK);
             group.setDone(true);
         }
+    }
+
+    private void pushOutDone() {
+        UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
+        pushOut(event);
     }
 
     /**
@@ -948,8 +952,13 @@ public class FieldOfPlay {
         if (currentDisplayAffected) {
             getAthleteTimer().setTimeRemaining(timeAllowed);
         }
-        // for the purpose of counting team scores, this is good enough.
-        group.setDone(attemptsDone >= 6);
+        // for the purpose of showing team scores, this is good enough.
+        // if the current athlete has done all lifts, the group is marked as done.
+        // if editing the athlete later gives back an attempt, then the state change will take
+        // place and subscribers will revert to current athlete display.
+        boolean done = attemptsDone >= 6;
+        if (done) {pushOutDone();}
+        group.setDone(done);
     }
 
     /**
