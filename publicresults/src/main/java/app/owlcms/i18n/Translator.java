@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.i18n;
@@ -45,11 +45,11 @@ import ch.qos.logback.classic.Logger;
  * components (e.g. spreadsheets).
  *
  */
-//@SuppressWarnings("serial")
+@SuppressWarnings("serial")
 public class Translator implements I18NProvider {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Translator.class);
-    private static final Translator helper = new Translator();
+    private static Translator helper = new Translator();
     private static final String BUNDLE_BASE = "translation4";
     private static final String BUNDLE_PACKAGE_SLASH = "/i18n/";
 
@@ -100,6 +100,7 @@ public class Translator implements I18NProvider {
     public static void reset() {
         locales = null;
         i18nloader = null;
+        helper = new Translator();
         logger.debug("cleared translation class loader");
     }
 
@@ -107,7 +108,7 @@ public class Translator implements I18NProvider {
         if (locale != null && getAvailableLocales().contains(locale)) {
             Translator.forcedLocale = locale;
         } else {
-            Translator.forcedLocale = null; // default behaviour, first forcedLocale in list will be used
+            Translator.forcedLocale = null; // default behaviour, first locale in list will be used
         }
     }
 
@@ -127,17 +128,16 @@ public class Translator implements I18NProvider {
         return helper.getTranslation(string, OwlcmsSession.getLocale(), params);
     }
 
+    public static String translateNoOverrideOrElseNull(String string, Locale locale) {
+        return helper.getTranslationNoOverrideOrElseNull(string, locale);
+    }
+
     public static String translateOrElseEn(String string, Locale locale) {
         return helper.getTranslationOrElseEn(string, locale);
     }
 
     public static String translateOrElseNull(String string, Locale locale) {
         return helper.getTranslationOrElseNull(string, locale);
-    }
-    
-
-    public static String translateNoOverrideOrElseNull(String string, Locale locale) {
-        return helper.getTranslationNoOverrideOrElseNull(string, locale);
     }
 
     /**
@@ -295,6 +295,21 @@ public class Translator implements I18NProvider {
         return value;
     }
 
+    public String getTranslationNoOverrideOrElseNull(String key, Locale locale, Object... params) {
+        if (key == null) {
+            nullTranslationKey();
+            return "";
+        }
+        final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(locale);
+
+        String value;
+        value = (String) bundle.handleGetObject(key);
+        if (params.length > 0) {
+            value = format(value, params);
+        }
+        return value;
+    }
+
     public String getTranslationOrElseEn(String key, Locale locale, Object... params) {
         locale = overrideLocale(locale);
 
@@ -321,23 +336,6 @@ public class Translator implements I18NProvider {
         locale = overrideLocale(locale);
         return getTranslationNoOverrideOrElseNull(key, locale, params);
     }
-
-    public String getTranslationNoOverrideOrElseNull(String key, Locale locale, Object... params) {
-        if (key == null) {
-            nullTranslationKey();
-            return "";
-        }
-        final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(locale);
-
-        String value;
-        value = (String) bundle.handleGetObject(key);
-        if (params.length > 0) {
-            value = format(value, params);
-        }
-        return value;
-    }
-    
-
 
     public void nullTranslationKey() {
         logger./**/warn("null translation key");
