@@ -1,4 +1,4 @@
-* Release Highlights for release 4.6.0-alpha2 
+* Release Highlights for release 4.6.0-alpha3 
   
   - [x] Enhancement: Simple team competition scoreboard.  Top 5 men and top 5 women teams are displayed. Shows how many athletes have been tallied and full team size. (#327)
   - [x] Enhancement: The weigh-in, registration, group results and final package pages now allow filtering by gender (#284)
