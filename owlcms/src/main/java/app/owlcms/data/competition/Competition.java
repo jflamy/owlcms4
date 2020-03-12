@@ -318,22 +318,39 @@ public class Competition {
         return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
     }
     
-    @SuppressWarnings("unchecked")
     public Collection<Athlete> getGlobalTeamsRanking(Gender gender) {
-        String listName = gender == Gender.F ? "wTeam" : "mTeam";
-        List<Athlete> athletes = (List<Athlete>) reportingBeans.get(listName);
+        List<Athlete> athletes = getAthletes(gender);
         if (athletes == null) {
             // not cached yet (we are likely the first on a reset/restart).
             computeGlobalRankings(true);
-            athletes = (List<Athlete>) reportingBeans.get(listName);
+            athletes = getAthletes(gender);
             if (athletes == null) {
-                String error = MessageFormat.format("list {0} not found", listName);
+                String error = MessageFormat.format("team list not found for gender {}", gender);
                 logger.error(error);
                 throw new RuntimeException(error);
             }
-            logger.debug("team rankings recomputed {} size {}", listName, athletes != null ? athletes.size() : null);
+            logger.debug("team rankings recomputed {} size {}", gender, athletes != null ? athletes.size() : null);
         } else {
-            logger.debug("found team rankings {} size {}", listName, athletes != null ? athletes.size() : null);
+            logger.debug("found team rankings {} size {}", gender, athletes != null ? athletes.size() : null);
+        }
+        return athletes;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Athlete> getAthletes(Gender gender) {
+        List<Athlete> athletes = null;
+        switch(gender) {
+        case M:
+            athletes = (List<Athlete>) reportingBeans.get("mTeam");
+            break;
+        case F: 
+            athletes = (List<Athlete>) reportingBeans.get("wTeam");
+            break;
+        case MIXED:
+            athletes = new ArrayList<Athlete>();
+            athletes.addAll((List<Athlete>) reportingBeans.get("mTeam"));
+            athletes.addAll((List<Athlete>) reportingBeans.get("wTeam"));
+            break;
         }
         return athletes;
     }

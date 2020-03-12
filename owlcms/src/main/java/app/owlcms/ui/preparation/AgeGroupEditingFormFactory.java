@@ -129,7 +129,7 @@ public class AgeGroupEditingFormFactory
                 .bind(AgeGroup::getMaxAge, AgeGroup::setMaxAge);
 
         ComboBox<Gender> genderField = new ComboBox<>();
-        genderField.setDataProvider(new ListDataProvider<>(Arrays.asList(Gender.values())));
+        genderField.setDataProvider(new ListDataProvider<>(Arrays.asList(Gender.mfValues())));
         binder.forField(genderField).bind(AgeGroup::getGender, AgeGroup::setGender);
         formLayout.addFormItem(genderField, Translator.translate("Gender"));
 

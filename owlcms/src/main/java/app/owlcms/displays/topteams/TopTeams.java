@@ -6,7 +6,6 @@
  */
 package app.owlcms.displays.topteams;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Enumeration;
@@ -35,12 +34,10 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.team.Team;
+import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
@@ -116,9 +113,8 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     private ContextMenu contextMenu;
     private Location location;
     private UI locationUI;
-    private List<Team> mensTeams;
-    private List<Team> womensTeams;
-    private List<Group> doneGroups = null;
+    private List<TeamTreeItem> mensTeams;
+    private List<TeamTreeItem> womensTeams;
 
     /**
      * Instantiates a new results board.
@@ -150,82 +146,30 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         setSortedMen(competition.getGlobalTeamsRanking(Gender.M).stream().collect(Collectors.toList()));
         setSortedWomen(competition.getGlobalTeamsRanking(Gender.F).stream().collect(Collectors.toList()));
 
-        Map<Gender,List<Team>> teamsByGender = new EnumMap<>(Gender.class);
+        Map<Gender, List<TeamTreeItem>> teamsByGender = new EnumMap<>(Gender.class);
 
-        for (Gender gender : Gender.values()) {
-            // check if competition is a "best n results" team comp.
-            Integer maxCount = getTeamSize(gender);
+        TeamTreeItem.buildTeamItemTree(competition, teamsByGender);
 
-            List<Athlete> athletes = competition.getGlobalTeamsRanking(gender).stream().collect(Collectors.toList());
-            String prevTeamName = null;
-            int curTeamCount = 0;
-            Team curTeam = null;
-
-            // count points for each team
-            for (Athlete a : athletes) {
-                String curTeamName = a.getTeam();
-                if (prevTeamName == null || !curTeamName.contentEquals(prevTeamName)) {
-                    curTeamCount = 0;
-                    curTeam = new Team(curTeamName, gender);
-                    curTeam.size = AthleteRepository.countTeamMembers(curTeamName, gender);
-                    List<Team> genderTeams = (List<Team>) teamsByGender.get(gender);
-                    if (genderTeams == null) {
-                        teamsByGender.put(gender,new ArrayList<Team>());
-                    }
-                    teamsByGender.get(gender).add(curTeam);
-                }
-                // results are ordered by total points
-                Float curPoints = a.getTotalPoints();
-                if (groupIsDone(a) && curTeamCount < maxCount && curPoints > 0) {
-                    if (gender == Gender.M) {
-                        curTeam.menScore = curTeam.menScore + Math.round(curPoints);
-                    } else {
-                        curTeam.womenScore = curTeam.womenScore + Math.round(curPoints);
-                    }
-                    curTeam.counted += 1;
-                }
-                curTeamCount += 1;
-                curTeam.size += 1;
-                prevTeamName = curTeamName;
-            }
-        }
-        
         mensTeams = teamsByGender.get(Gender.M);
         if (mensTeams != null) {
             mensTeams.sort(Team.menComparator);
         }
         mensTeams = mensTeams.subList(0, TOP_N);
-        
+
         womensTeams = teamsByGender.get(Gender.F);
         if (womensTeams != null) {
             womensTeams.sort(Team.womenComparator);
         }
         womensTeams = womensTeams.subList(0, TOP_N);
-        
+
         updateBottom(getModel());
-    }
-
-    private Integer getTeamSize(Gender gender) {
-        Integer maxCount = gender == Gender.M ? Competition.getCurrent().getMensTeamSize()
-                : Competition.getCurrent().getWomensTeamSize();
-        // if not, all team member results count
-        maxCount = (maxCount == null ? Integer.MAX_VALUE : maxCount);
-        return maxCount;
-    }
-
-    private boolean groupIsDone(Athlete a) {
-        if (doneGroups  == null) {
-            doneGroups = GroupRepository.findAll().stream().filter(g -> g.isDone()).collect(Collectors.toList());
-        }
-        return doneGroups.contains(a.getGroup());
     }
 
     private void getTeamJson(Team t, JsonObject ja, Gender g) {
         ja.put("team", t.name);
         ja.put("counted", formatInt(t.counted));
-        ja.put("size", formatInt((int)t.size));
+        ja.put("size", formatInt((int) t.size));
         ja.put("points", formatInt(g == Gender.F ? t.womenScore : t.menScore));
-        
     }
 
     @Override
@@ -292,7 +236,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
             doUpdate(competition);
         });
     }
-    
+
 //    @Subscribe
 //    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
 //        uiLog(e);
@@ -377,23 +321,23 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         }
     }
 
-    private JsonValue getTeamsJson(List<Team> list2, boolean overrideTeamWidth) {
+    private JsonValue getTeamsJson(List<TeamTreeItem> teamItems, boolean overrideTeamWidth) {
         JsonArray jath = Json.createArray();
         int athx = 0;
-        List<Team> list3 = list2 != null ? Collections.unmodifiableList(list2) : Collections.emptyList();
+        List<Team> list3 = teamItems != null ? Collections.unmodifiableList(teamItems) : Collections.emptyList();
         if (overrideTeamWidth) {
             // when we are called for the second time, and there was a wide team in the top section.
             // we use the wide team setting for the remaining sections.
             setWide(false);
         }
 
-        for (Team a : list3) {
+        for (Team t : list3) {
             JsonObject ja = Json.createObject();
-            Gender curGender = a.gender;
+            Gender curGender = t.gender;
 
-            getTeamJson(a, ja, curGender);
-            String team = a.name;
-            if (team != null && team.length() > Competition.SHORT_TEAM_LENGTH) {
+            getTeamJson(t, ja, curGender);
+            String teamName = t.name;
+            if (teamName != null && teamName.length() > Competition.SHORT_TEAM_LENGTH) {
                 setWide(true);
             }
             jath.set(athx, ja);

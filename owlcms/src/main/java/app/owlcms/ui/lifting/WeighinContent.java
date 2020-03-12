@@ -333,7 +333,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
         crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
 
         crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
-                Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
+                Arrays.asList(Gender.mfValues()), new TextRenderer<>(Gender::name), Gender::name));
         crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
                 GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),
