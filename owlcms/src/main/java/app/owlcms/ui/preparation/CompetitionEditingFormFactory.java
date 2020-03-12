@@ -107,10 +107,23 @@ public class CompetitionEditingFormFactory
         FormLayout presentationLayout = presentationForm();
         FormLayout specialLayout = specialRulesForm();
 
+        // footerLayout1 callbacks are not actually used -- footerLayout2 overwrites the callbacks.
         Component footerLayout1 = this.buildFooter(operation, competition, cancelButtonClickListener,
-                updateButtonClickListener, deleteButtonClickListener, false);
+                c -> {
+                    this.update(competition);
+                    Locale defaultLocale = competition.getDefaultLocale();
+                    logger.warn("setting forcedlocale to {}", defaultLocale);
+                    Translator.setForcedLocale(defaultLocale);
+                    Translator.reset();
+                }, deleteButtonClickListener, false);
         Component footerLayout2 = this.buildFooter(operation, competition, cancelButtonClickListener,
-                updateButtonClickListener, deleteButtonClickListener, false);
+                c -> {
+                    this.update(competition);
+                    Locale defaultLocale = competition.getDefaultLocale();
+                    logger.warn("setting forcedlocale to {}", defaultLocale);
+                    Translator.setForcedLocale(defaultLocale);
+                    Translator.reset();
+                }, deleteButtonClickListener, false);
 
         VerticalLayout mainLayout = new VerticalLayout(
                 footerLayout2,
@@ -167,7 +180,6 @@ public class CompetitionEditingFormFactory
     @Override
     public Competition update(Competition competition) {
         Competition saved = CompetitionRepository.save(competition);
-        Competition.setCurrent(saved);
         return saved;
     }
 
@@ -330,6 +342,7 @@ public class CompetitionEditingFormFactory
         layout.setColspan(title, 2);
 
         ComboBox<Locale> defaultLocaleField = new ComboBox<>();
+        defaultLocaleField.setClearButtonVisible(true);
         defaultLocaleField.setDataProvider(new ListDataProvider<>(Translator.getAllAvailableLocales()));
         defaultLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
         binder.forField(defaultLocaleField).bind(Competition::getDefaultLocale, Competition::setDefaultLocale);

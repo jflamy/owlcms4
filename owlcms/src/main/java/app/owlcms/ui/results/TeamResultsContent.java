@@ -67,7 +67,7 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  */
 @SuppressWarnings("serial")
-@Route(value = "results/finalpackage", layout = AthleteGridLayout.class)
+@Route(value = "results/teamresults", layout = AthleteGridLayout.class)
 public class TeamResultsContent extends VerticalLayout
         implements CrudListener<TeamTreeItem>, OwlcmsContent, RequireLogin {
 

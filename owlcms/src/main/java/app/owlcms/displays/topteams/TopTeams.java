@@ -154,15 +154,24 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         if (mensTeams != null) {
             mensTeams.sort(Team.menComparator);
         }
-        mensTeams = mensTeams.subList(0, TOP_N);
+        mensTeams = topN(mensTeams);
 
         womensTeams = teamsByGender.get(Gender.F);
         if (womensTeams != null) {
             womensTeams.sort(Team.womenComparator);
         }
-        womensTeams = womensTeams.subList(0, TOP_N);
+        womensTeams = topN(womensTeams);
 
         updateBottom(getModel());
+    }
+
+    private List<TeamTreeItem> topN(List<TeamTreeItem> list) {
+        int size = list.size();
+        if (size > 0) {
+            int min = Math.min(size, TOP_N);
+            list = list.subList(0, min);
+        }
+        return list;
     }
 
     private void getTeamJson(Team t, JsonObject ja, Gender g) {

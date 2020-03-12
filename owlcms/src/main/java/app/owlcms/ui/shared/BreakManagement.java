@@ -23,6 +23,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -162,8 +163,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         setCtValue(cdt);
         assembleDialog(this, buttons);
         OwlcmsSession.withFop(fop -> {
-            fopEventBusRegister(this, fop);
-            uiEventBusRegister(this, fop);
+            fopEventBusRegister((Component) origin, fop);
+            uiEventBusRegister((Component) origin, fop);
         });
     }
 

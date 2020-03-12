@@ -49,7 +49,7 @@ import ch.qos.logback.classic.Logger;
 public class Translator implements I18NProvider {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Translator.class);
-    private static final Translator helper = new Translator();
+    private static Translator helper = new Translator();
     private static final String BUNDLE_BASE = "translation4";
     private static final String BUNDLE_PACKAGE_SLASH = "/i18n/";
 
@@ -100,6 +100,7 @@ public class Translator implements I18NProvider {
     public static void reset() {
         locales = null;
         i18nloader = null;
+        helper = new Translator();
         logger.debug("cleared translation class loader");
     }
 
@@ -107,7 +108,7 @@ public class Translator implements I18NProvider {
         if (locale != null && getAvailableLocales().contains(locale)) {
             Translator.forcedLocale = locale;
         } else {
-            Translator.forcedLocale = null; // default behaviour, first forcedLocale in list will be used
+            Translator.forcedLocale = null; // default behaviour, first locale in list will be used
         }
     }
 
