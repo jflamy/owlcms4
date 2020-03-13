@@ -1,5 +1,7 @@
 * Release Highlights for release ${project.version} 
   
+  - [x] Enhancement:  Changing the display language no longer requires a restart; it is sufficient to save the Competition Information, and reload the pages. (#335)
+  - [x] Fix: Top Sinclair and Top Teams screens would fail under various edge cases (no weighed-in athletes, not enough teams, etc.) (#334)
   - [x] Enhancement: Simple team competition scoreboard.  Top 5 men and top 5 women teams are displayed. Shows how many athletes have been tallied and full team size. (#327)
   - [x] Enhancement: The weigh-in, registration, group results and final package pages now allow filtering by gender (#284)
   - [x] Enhancement: The final package page contains all the scores (SMM, Sinclair, Robi) same as the group results page.
@@ -31,4 +33,4 @@ Installation Instructions :
     
     > If you get a blue window with `Windows protected your PC`, or if your laptop works very hard performing an anti-virus scan that takes very long, see this page : [Make Windows Defender Allow Installation](https://jflamy.github.io/owlcms4/#/DefenderOff)
   - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Local Linux and Mac OS instructions](https://jflamy.github.io/owlcms4/#/LocalLinuxMacSetup.md) 
-  - For **Heroku** cloud, download the `owlcms.zip` file from the Assets section below and follow [Cloud installation instructions](https://jflamy.github.io/owlcms4/#/Heroku.md)
+  - For **Heroku** cloud, no download is necessary. Follow the [Cloud installation instructions](https://jflamy.github.io/owlcms4/#/Heroku.md) to deploy your own copy.

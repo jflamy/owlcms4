@@ -777,6 +777,7 @@ public class FieldOfPlay {
     }
 
     private void pushOutDone() {
+        logger.debug("group {} done", group);
         UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
         pushOut(event);
     }
@@ -941,6 +942,11 @@ public class FieldOfPlay {
         AthleteSorter.liftingOrder(this.getLiftingOrder());
         setDisplayOrder(AthleteSorter.displayOrderCopy(this.getLiftingOrder()));
         this.setCurAthlete(this.getLiftingOrder().isEmpty() ? null : this.getLiftingOrder().get(0));
+        if (curAthlete == null) {
+            pushOutDone();
+            return;
+        }
+
         int timeAllowed = getTimeAllowed();
         Integer attemptsDone = curAthlete.getAttemptsDone();
         logger.debug("{} recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
@@ -958,7 +964,9 @@ public class FieldOfPlay {
         // if editing the athlete later gives back an attempt, then the state change will take
         // place and subscribers will revert to current athlete display.
         boolean done = attemptsDone >= 6;
-        if (done) {pushOutDone();}
+        if (done) {
+            pushOutDone();
+        }
         group.setDone(done);
     }
 
@@ -1035,6 +1043,13 @@ public class FieldOfPlay {
                 // set the state now, otherwise attempt board will ignore request to display if
                 // in a break
                 setState(newState);
+                Competition competition = Competition.getCurrent();
+                competition.computeGlobalRankings(true);
+                if (newState == CURRENT_ATHLETE_DISPLAYED) {
+                    uiStartLifting(group, this);
+                } else {
+                    uiShowUpdatedRankings();
+                }
                 getBreakTimer().stop();
             } else {
                 // remain in break state

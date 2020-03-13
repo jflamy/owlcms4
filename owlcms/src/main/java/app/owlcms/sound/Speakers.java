@@ -88,7 +88,7 @@ public class Speakers {
                     }
                 }
             } catch (LineUnavailableException | IllegalArgumentException e) {
-                logger.warn("Mixer {} not compatible.", mixer);
+                logger.debug("Mixer {} not compatible.", mixer);
             }
         }
         return mixers;

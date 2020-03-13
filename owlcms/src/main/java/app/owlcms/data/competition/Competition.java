@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -325,9 +326,9 @@ public class Competition {
             computeGlobalRankings(true);
             athletes = getAthletes(gender);
             if (athletes == null) {
-                String error = MessageFormat.format("team list not found for gender {}", gender);
-                logger.error(error);
-                throw new RuntimeException(error);
+                String error = MessageFormat.format("team list not found for gender {0}", gender);
+                logger./**/warn(error);
+                athletes = Collections.emptyList();
             }
             logger.debug("team rankings recomputed {} size {}", gender, athletes != null ? athletes.size() : null);
         } else {
@@ -339,17 +340,23 @@ public class Competition {
     @SuppressWarnings("unchecked")
     private List<Athlete> getAthletes(Gender gender) {
         List<Athlete> athletes = null;
+        List<Athlete> mTeam = (List<Athlete>) reportingBeans.get("mTeam");
+        List<Athlete> wTeam = (List<Athlete>) reportingBeans.get("wTeam");
         switch(gender) {
         case M:
-            athletes = (List<Athlete>) reportingBeans.get("mTeam");
+            athletes = mTeam;
             break;
         case F: 
-            athletes = (List<Athlete>) reportingBeans.get("wTeam");
+            athletes = wTeam;
             break;
         case MIXED:
             athletes = new ArrayList<Athlete>();
-            athletes.addAll((List<Athlete>) reportingBeans.get("mTeam"));
-            athletes.addAll((List<Athlete>) reportingBeans.get("wTeam"));
+            if (mTeam != null) {
+                athletes.addAll((List<Athlete>) mTeam);
+            }
+            if (wTeam != null) {
+                athletes.addAll((List<Athlete>) wTeam);
+            }
             break;
         }
         return athletes;
@@ -382,8 +389,8 @@ public class Competition {
             athletes = (List<Athlete>) reportingBeans.get(listName);
             if (athletes == null) {
                 String error = MessageFormat.format("list {0} not found", listName);
-                logger.error(error);
-                throw new RuntimeException(error);
+                logger./**/warn(error);
+                athletes = Collections.emptyList();
             }
             logger.debug("recomputed {} size {}", listName, athletes != null ? athletes.size() : null);
         } else {

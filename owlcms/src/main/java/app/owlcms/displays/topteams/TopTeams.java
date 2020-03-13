@@ -152,13 +152,13 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
 
         mensTeams = teamsByGender.get(Gender.M);
         if (mensTeams != null) {
-            mensTeams.sort(Team.menComparator);
+            mensTeams.sort(Team.scoreComparator);
         }
         mensTeams = topN(mensTeams);
 
         womensTeams = teamsByGender.get(Gender.F);
         if (womensTeams != null) {
-            womensTeams.sort(Team.womenComparator);
+            womensTeams.sort(Team.scoreComparator);
         }
         womensTeams = topN(womensTeams);
 
@@ -178,7 +178,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         ja.put("team", t.name);
         ja.put("counted", formatInt(t.counted));
         ja.put("size", formatInt((int) t.size));
-        ja.put("points", formatInt(g == Gender.F ? t.womenScore : t.menScore));
+        ja.put("points", formatInt(t.score));
     }
 
     @Override
@@ -259,7 +259,9 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
         uiLog(e);
+        Competition competition = Competition.getCurrent();
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            doUpdate(competition);
             getModel().setHidden(false);
             this.getElement().callJsFunction("reset");
         });

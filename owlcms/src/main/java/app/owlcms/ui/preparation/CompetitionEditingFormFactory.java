@@ -54,7 +54,6 @@ public class CompetitionEditingFormFactory
 
     @SuppressWarnings("unused")
     private CompetitionContent origin;
-    @SuppressWarnings("unused")
     private Logger logger = (Logger) LoggerFactory.getLogger(CompetitionRepository.class);
 
     CompetitionEditingFormFactory(Class<Competition> domainType, CompetitionContent origin) {
@@ -112,7 +111,6 @@ public class CompetitionEditingFormFactory
                 c -> {
                     this.update(competition);
                     Locale defaultLocale = competition.getDefaultLocale();
-                    logger.warn("setting forcedlocale to {}", defaultLocale);
                     Translator.setForcedLocale(defaultLocale);
                     Translator.reset();
                 }, deleteButtonClickListener, false);
@@ -120,7 +118,6 @@ public class CompetitionEditingFormFactory
                 c -> {
                     this.update(competition);
                     Locale defaultLocale = competition.getDefaultLocale();
-                    logger.warn("setting forcedlocale to {}", defaultLocale);
                     Translator.setForcedLocale(defaultLocale);
                     Translator.reset();
                 }, deleteButtonClickListener, false);
