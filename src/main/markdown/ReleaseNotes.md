@@ -1,5 +1,9 @@
 * Release Highlights for release ${project.version} 
   
+  This is an early release, with some slightly tricky changes to avoid recalculating things that involve all the athletes too often (Sinclair, Robi, Team points, etc.). 
+  
+  This release fixes most of the things I broke in the previous alpha releases.  It should be good enough for translations.
+  
   - [x] Enhancement:  Changing the display language no longer requires a restart; it is sufficient to save the Competition Information, and reload the pages. (#335)
   - [x] Fix: Top Sinclair and Top Teams screens would fail under various edge cases (no weighed-in athletes, not enough teams, etc.) (#334)
   - [x] Enhancement: Simple team competition scoreboard.  Top 5 men and top 5 women teams are displayed. Shows how many athletes have been tallied and full team size. (#327)
@@ -24,6 +28,7 @@
   - [x] Enhancement: Athlete cards optionally show a score. By default, the score is the total, but can be overridden in competitions where bonus points or penalties are used (some U13 competitions award points for technique, or 6/6), or use some traditional formula (#319).  This is enabled on the competition page.  The variable ${l.customScoreComputed} can then be used in the Excel templates.
   - [x] Enhancement: Clearer definition of the invited status (not eligible for individual medals) and the team member status (an athlete eligible for medals, and considered for team points.)  In team competitions that allow for substitutes or ordinary lifters, it can happen that non-team members are allowed to lift (eligible), but not score points (not team member). (#316)
   - [x] Testing: Ability to run a competition in "simulation mode" (referees make decisions at random, but repeatable from run to run).  Used to test the screen layouts, and to populate the database to test the final package reports. To use, start in demo mode using `-DdemoMode=true`, and setup your browsers.  Stop, then start demo mode again using the Java command line to use `app.owlcms.Simulation` as the main class (#317)
+  
 * Workarounds/Known Issues
   
   - [ ] Workaround: (#304) When the browser screens have already been started and owlcms is restarted, occasionally the *very first* "push" update from the server is not handled by one of the browsers.  A refresh of the page is sufficient to restore things.
