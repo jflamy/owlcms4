@@ -54,6 +54,7 @@ public class CompetitionEditingFormFactory
 
     @SuppressWarnings("unused")
     private CompetitionContent origin;
+    @SuppressWarnings("unused")
     private Logger logger = (Logger) LoggerFactory.getLogger(CompetitionRepository.class);
 
     CompetitionEditingFormFactory(Class<Competition> domainType, CompetitionContent origin) {
