@@ -1,9 +1,6 @@
 * Release Highlights for release ${project.version} 
   
-  This is an early release, with some slightly tricky changes to avoid recalculating things that involve all the athletes too often (Sinclair, Robi, Team points, etc.). 
-  
-  This release fixes most of the things I broke in the previous alpha releases.  It should be good enough for translations.
-  
+  - [x] Enhancement: Team Results page accessible from the "Result Documents" navigation page.  Shows the team points scored by each team (using the IWF scoring 28-25-24...) (#336)  The points are counted only for the groups that are done, not the groups in progress.
   - [x] Enhancement:  Changing the display language no longer requires a restart; it is sufficient to save the Competition Information, and reload the pages. (#335)
   - [x] Fix: Top Sinclair and Top Teams screens would fail under various edge cases (no weighed-in athletes, not enough teams, etc.) (#334)
   - [x] Enhancement: Simple team competition scoreboard.  Top 5 men and top 5 women teams are displayed. Shows how many athletes have been tallied and full team size. (#327)
