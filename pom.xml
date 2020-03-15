@@ -152,7 +152,7 @@
             <dependency>
                 <groupId>app.owlcms</groupId>
                 <artifactId>owlcms</artifactId>
-                <version>${project.version}</version>
+                <version>4.6.0-alpha4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
