@@ -45,7 +45,6 @@ import ch.qos.logback.classic.Logger;
  * components (e.g. spreadsheets).
  *
  */
-@SuppressWarnings("serial")
 public class Translator implements I18NProvider {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Translator.class);
