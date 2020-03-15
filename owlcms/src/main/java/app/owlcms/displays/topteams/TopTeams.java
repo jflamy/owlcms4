@@ -7,11 +7,9 @@
 package app.owlcms.displays.topteams;
 
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +35,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.team.Team;
+import app.owlcms.data.team.TeamTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -107,8 +106,6 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
 
     JsonArray sattempts;
     JsonArray cattempts;
-    private List<Athlete> sortedMen;
-    private List<Athlete> sortedWomen;
     private boolean darkMode;
     private ContextMenu contextMenu;
     private Location location;
@@ -142,13 +139,8 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     public void doUpdate(Competition competition) {
         this.getElement().callJsFunction("reset");
 
-        // create copies because we want to change the list
-        setSortedMen(competition.getGlobalTeamsRanking(Gender.M).stream().collect(Collectors.toList()));
-        setSortedWomen(competition.getGlobalTeamsRanking(Gender.F).stream().collect(Collectors.toList()));
-
-        Map<Gender, List<TeamTreeItem>> teamsByGender = new EnumMap<>(Gender.class);
-
-        TeamTreeItem.buildTeamItemTree(competition, teamsByGender);
+        TeamTreeData teamTreeData = new TeamTreeData();
+        Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamsByGender();
 
         mensTeams = teamsByGender.get(Gender.M);
         if (mensTeams != null) {
@@ -360,24 +352,6 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     @SuppressWarnings("unused")
     private Object getOrigin() {
         return this;
-    }
-
-    private List<Athlete> getSortedMen() {
-        return this.sortedMen;
-    }
-
-    private List<Athlete> getSortedWomen() {
-        return this.sortedWomen;
-    }
-
-    private void setSortedMen(List<Athlete> sortedMen) {
-        this.sortedMen = sortedMen;
-        logger.debug("sortedMen = {} -- {}", getSortedMen(), LoggerUtils.whereFrom());
-    }
-
-    private void setSortedWomen(List<Athlete> sortedWomen) {
-        this.sortedWomen = sortedWomen;
-        logger.debug("sortedWomen = {} -- {}", getSortedWomen(), LoggerUtils.whereFrom());
     }
 
     private void setWide(boolean b) {

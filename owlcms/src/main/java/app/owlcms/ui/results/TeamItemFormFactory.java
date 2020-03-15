@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ * 
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.ui.results;
 
 import java.util.Collection;
@@ -13,13 +19,23 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.team.TeamTreeItem;
+import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
 
-public class TeamItemFormFactory implements CustomFormFactory<TeamTreeItem> {
-    
+@SuppressWarnings("serial")
+
+public class TeamItemFormFactory
+        extends OwlcmsCrudFormFactory<TeamTreeItem>
+        implements CustomFormFactory<TeamTreeItem> {
+
     private AthleteCardFormFactory acff = new AthleteCardFormFactory(Athlete.class, null);
+
+    public TeamItemFormFactory(Class<TeamTreeItem> domainType) {
+        super(domainType);
+    }
 
     @Override
     public TeamTreeItem add(TeamTreeItem athlete) {
@@ -29,13 +45,13 @@ public class TeamItemFormFactory implements CustomFormFactory<TeamTreeItem> {
 
     @Override
     public Binder<TeamTreeItem> buildBinder(CrudOperation operation, TeamTreeItem doNotUse) {
-        return acff.buildBinder(operation, null);
+        // will not be used because we delegate
+        return null;
     }
 
     @Override
     public String buildCaption(CrudOperation operation, TeamTreeItem aFromDb) {
-        // TODO Auto-generated method stub
-        return null;
+        return acff.buildCaption(operation, aFromDb.getAthlete());
     }
 
     @Override
@@ -43,8 +59,7 @@ public class TeamItemFormFactory implements CustomFormFactory<TeamTreeItem> {
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> unused2, ComponentEventListener<ClickEvent<Button>> unused3,
             boolean shortcutEnter, Button... buttons) {
-        // TODO Auto-generated method stub
-        return null;
+        return acff.buildFooter(operation, null, cancelButtonClickListener, null, null, shortcutEnter, buttons);
     }
 
     @Override
@@ -52,46 +67,42 @@ public class TeamItemFormFactory implements CustomFormFactory<TeamTreeItem> {
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
-        // TODO Auto-generated method stub
-        return null;
+        return acff.buildNewForm(operation, aFromDb.getAthlete(), readOnly, cancelButtonClickListener,
+                updateButtonClickListener, deleteButtonClickListener, buttons);
     }
 
     @Override
     public Button buildOperationButton(CrudOperation operation, TeamTreeItem domainObject,
             ComponentEventListener<ClickEvent<Button>> callBack) {
-        // TODO Auto-generated method stub
-        return null;
+        return acff.buildOperationButton(operation, domainObject.getAthlete(), callBack);
     }
 
     @Override
     public TextField defineOperationTrigger(CrudOperation operation, TeamTreeItem domainObject,
             ComponentEventListener<ClickEvent<Button>> action) {
-        // TODO Auto-generated method stub
-        return null;
+        return acff.defineOperationTrigger(operation, domainObject.getAthlete(), action);
     }
 
     @Override
     public void delete(TeamTreeItem notUsed) {
-        // TODO Auto-generated method stub
-        
+        AthleteRepository.delete(notUsed.getAthlete());
     }
 
     @Override
     public Collection<TeamTreeItem> findAll() {
-        // TODO Auto-generated method stub
+        // not used
         return null;
     }
 
     @Override
     public boolean setErrorLabel(BinderValidationStatus<?> validationStatus, boolean updateFieldStatus) {
-        // TODO Auto-generated method stub
-        return false;
+        return acff.setErrorLabel(validationStatus, updateFieldStatus);
     }
 
     @Override
     public TeamTreeItem update(TeamTreeItem athleteFromDb) {
-        // TODO Auto-generated method stub
-        return null;
+        AthleteRepository.save(athleteFromDb.getAthlete());
+        return athleteFromDb;
     }
 
 }

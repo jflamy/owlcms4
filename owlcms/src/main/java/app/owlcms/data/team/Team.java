@@ -13,7 +13,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import app.owlcms.data.athlete.Gender;
 
 /**
- * A non-persistent class to assist in creating reports
+ * A non-persistent class to assist in creating reports and team results
  *
  * @author Jean-François Lamy
  */

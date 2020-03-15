@@ -25,7 +25,6 @@ import app.owlcms.init.OwlcmsFactory;
 import ch.qos.logback.classic.Logger;
 import sun.misc.Unsafe;
 
-@SuppressWarnings("restriction")
 public class StartupUtils {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(StartupUtils.class);
