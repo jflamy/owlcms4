@@ -486,7 +486,7 @@ CompetitionBook.MSMF,Men's SMF,Hommes SMF,,,SMF Mænd,Синклер-Мужчи�
 CompetitionBook.MSMF_LeftHeader,SMF  Ranking,Classement SMF,Classement SMF - SMF Ranking,,SMF Placering,Рейтинг-Синклер,SMFRank,Platzierung SMF,Clasificación SMF,Classificação SMF
 Gender.F,Women,Femmes,,,Kvinder,Женщины,Damer,weiblich,Femenino,Feminino
 Gender.M,Men,Hommes,,,Mænd,Мужчины,Herrar,männlich,Masculino,Masculino
-TeamResults.Title,Team Results,Résultats par équipe,,,Team Results,Team Results,Team Results,Team Results,Team Results,Team Results
-TeamResults.Points,Points,Points,,,Points,Points,Points,Points,Points,Points
-TeamResults.Status,Status (Athletes Counted/Team Size),Statut (Athlètes comptés/Taille d'équipe),,,Status (Athletes Counted/Team Size),Status (Athletes Counted/Team Size),Status (Athletes Counted/Team Size),Status (Athletes Counted/Team Size),Status (Athletes Counted/Team Size),Status (Athletes Counted/Team Size)
+TeamResults.Title,Team Results,Résultats par équipe,,,Team Results,Командные результаты,Team Results,Team Results,Team Results,Team Results
+TeamResults.Points,Points,Points,,,Points,Баллы,Points,Points,Points,Points
+TeamResults.Status,Status (Athletes Counted/Team Size),Statut (Athlètes comptés/Taille d'équipe),,,Status (Athletes Counted/Team Size),Статус(подсчёт спортсменов/размер команды),Status (Athletes Counted/Team Size),Status (Athletes Counted/Team Size),Status (Athletes Counted/Team Size),Status (Athletes Counted/Team Size)
 TeamResults.TeamNameFormat,{0} ({1}),{0} ({1}),,,{0} ({1}),{0} ({1}),{0} ({1}),{0} ({1}),{0} ({1}),{0} ({1})
