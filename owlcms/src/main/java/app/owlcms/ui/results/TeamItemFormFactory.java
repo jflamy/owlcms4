@@ -24,6 +24,7 @@ import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.lifting.AthleteCardFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
+import app.owlcms.ui.shared.IAthleteEditing;
 
 @SuppressWarnings("serial")
 
@@ -31,10 +32,11 @@ public class TeamItemFormFactory
         extends OwlcmsCrudFormFactory<TeamTreeItem>
         implements CustomFormFactory<TeamTreeItem> {
 
-    private AthleteCardFormFactory acff = new AthleteCardFormFactory(Athlete.class, null);
+    private AthleteCardFormFactory acff;
 
-    public TeamItemFormFactory(Class<TeamTreeItem> domainType) {
+    public TeamItemFormFactory(Class<TeamTreeItem> domainType, IAthleteEditing origin) {
         super(domainType);
+        acff = new AthleteCardFormFactory(Athlete.class, origin);
     }
 
     @Override

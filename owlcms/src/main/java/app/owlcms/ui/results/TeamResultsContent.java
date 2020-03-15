@@ -7,7 +7,6 @@
 
 package app.owlcms.ui.results;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,18 +15,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
-import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.LazyCrudListener;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -42,28 +37,24 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.competition.Competition;
-import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.data.team.TeamTreeData;
+import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.crudui.OwlcmsCrudGrid;
 import app.owlcms.ui.crudui.OwlcmsGridLayout;
 import app.owlcms.ui.shared.AthleteGridLayout;
+import app.owlcms.ui.shared.IAthleteEditing;
 import app.owlcms.ui.shared.OwlcmsContent;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.ui.shared.RequireLogin;
-import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -76,7 +67,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "results/teamresults", layout = AthleteGridLayout.class)
 public class TeamResultsContent extends VerticalLayout
-        implements CrudListener<TeamTreeItem>, OwlcmsContent, RequireLogin {
+        implements OwlcmsContent, RequireLogin, IAthleteEditing {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TeamResultsContent.class);
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
@@ -85,11 +76,7 @@ public class TeamResultsContent extends VerticalLayout
         jexlLogger.setLevel(Level.ERROR);
     }
 
-    private Button download;
-    private Anchor finalPackage;
     private Group currentGroup;
-    private JXLSCompetitionBook xlsWriter;
-    private ComboBox<Resource> templateSelect;
 
     private OwlcmsRouterLayout routerLayout;
     protected ComboBox<Group> topBarGroupSelect;
@@ -112,16 +99,15 @@ public class TeamResultsContent extends VerticalLayout
     }
 
     /**
-     * Get the content of the crudGrid. Invoked by refreshGrid.
-     * Not currently used because we are using instead a TreeGrid and a LazyCrudListener<TeamTreeItem>()
+     * Get the content of the crudGrid. Invoked by refreshGrid. Not currently used because we are using instead a
+     * TreeGrid and a LazyCrudListener<TeamTreeItem>()
      * 
      * @see TreeDataProvider
      * @see org.vaadin.crudui.crud.CrudListener#findAll()
      */
-    @Override
     public Collection<TeamTreeItem> findAll() {
         List<TeamTreeItem> allTeams = new ArrayList<>();
-        
+
         TeamTreeData teamTreeData = new TeamTreeData();
         Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamsByGender();
 
@@ -161,7 +147,7 @@ public class TeamResultsContent extends VerticalLayout
      */
     @Override
     public String getPageTitle() {
-        return getTranslation("Results");
+        return getTranslation("TeamResults.Title");
     }
 
     @Override
@@ -260,7 +246,13 @@ public class TeamResultsContent extends VerticalLayout
      */
     protected OwlcmsCrudGrid<TeamTreeItem> createCrudGrid(OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory) {
         TreeGrid<TeamTreeItem> grid = new TreeGrid<TeamTreeItem>();
-        grid.addHierarchyColumn(TeamTreeItem::getName).setHeader(Translator.translate("Name"));
+        grid.addHierarchyColumn(TeamTreeItem::formatName).setHeader(Translator.translate("Name"));
+        grid.addColumn(TeamTreeItem::getGender).setHeader(Translator.translate("Gender"))
+                .setTextAlign(ColumnTextAlign.END);
+        grid.addColumn(TeamTreeItem::formatPoints).setHeader(Translator.translate("TeamResults.Points"))
+                .setTextAlign(ColumnTextAlign.END).setSortProperty("score");
+        grid.addColumn(TeamTreeItem::formatProgress).setHeader(Translator.translate("TeamResults.Status"))
+                .setTextAlign(ColumnTextAlign.END);
 
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(TeamTreeItem.class);
         OwlcmsCrudGrid<TeamTreeItem> crudGrid = new OwlcmsCrudGrid<TeamTreeItem>(TeamTreeItem.class, gridLayout,
@@ -275,7 +267,7 @@ public class TeamResultsContent extends VerticalLayout
                 if (item.getAthlete() == null) {
                     return;
                 }
-                
+
                 // only edit non-lifting groups
                 if (!checkFOP()) {
                     super.updateButtonClicked();
@@ -285,15 +277,28 @@ public class TeamResultsContent extends VerticalLayout
             @Override
             protected void updateButtons() {
             }
+
+            @Override
+            public void refreshGrid() {
+                grid.setDataProvider(new TreeDataProvider<TeamTreeItem>(new TeamTreeData(TeamResultsContent.this)));
+            }
         };
 
         defineFilters(crudGrid);
 
         // logic configuration
+        defineContent(crudGrid);
+        crudGrid.setClickRowToUpdate(true);
+        crudGrid.getCrudLayout().addToolbarComponent(groupFilter);
+
+        return crudGrid;
+    }
+
+    private void defineContent(OwlcmsCrudGrid<TeamTreeItem> crudGrid) {
         crudGrid.setCrudListener(new LazyCrudListener<TeamTreeItem>() {
             @Override
             public DataProvider<TeamTreeItem, ?> getDataProvider() {
-                return new TreeDataProvider<TeamTreeItem>(new TeamTreeData());
+                return new TreeDataProvider<TeamTreeItem>(new TeamTreeData(TeamResultsContent.this));
             }
 
             @Override
@@ -313,10 +318,6 @@ public class TeamResultsContent extends VerticalLayout
                 AthleteRepository.delete(user.getAthlete());
             }
         });
-        crudGrid.setClickRowToUpdate(true);
-        crudGrid.getCrudLayout().addToolbarComponent(groupFilter);
-
-        return crudGrid;
     }
 
     /**
@@ -336,50 +337,20 @@ public class TeamResultsContent extends VerticalLayout
         topBar = getAppLayout().getAppBarElementWrapper();
 
         H3 title = new H3();
-        title.setText(getTranslation("FinalResultsPackage"));
+        title.setText(getTranslation("TeamResults.Title"));
         title.add();
         title.getStyle().set("margin", "0px 0px 0px 0px").set("font-weight", "normal");
 
-        topBarGroupSelect = new ComboBox<>();
-        topBarGroupSelect.setPlaceholder(getTranslation("Group"));
-        topBarGroupSelect.setItems(GroupRepository.findAll());
-        topBarGroupSelect.setItemLabelGenerator(Group::getName);
-        topBarGroupSelect.setClearButtonVisible(true);
-        topBarGroupSelect.setValue(null);
-        topBarGroupSelect.setWidth("8em");
-        setGroupSelectionListener();
-
-        xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
-        StreamResource href = new StreamResource("finalResults.xls", xlsWriter);
-        finalPackage = new Anchor(href, "");
-        finalPackage.getStyle().set("margin-left", "1em");
-        download = new Button(getTranslation("FinalResultsPackage"), new Icon(VaadinIcon.DOWNLOAD_ALT));
-        finalPackage.add(download);
-
-        templateSelect = new ComboBox<>();
-        templateSelect.setPlaceholder(getTranslation("AvailableTemplates"));
-        List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/competitionBook",
-                ResourceWalker::relativeName, null);
-        templateSelect.setItems(resourceList);
-        templateSelect.setValue(null);
-        templateSelect.setWidth("15em");
-        templateSelect.getStyle().set("margin-left", "1em");
-        setTemplateSelectionListener(resourceList);
-
-        HorizontalLayout buttons = new HorizontalLayout(finalPackage);
-        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-
         topBar.getStyle().set("flex", "100 1");
         topBar.removeAll();
-        topBar.add(title, topBarGroupSelect, templateSelect, buttons);
+        topBar.add(title);
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setFlexGrow(0.2, title);
-//        topBar.setSpacing(true);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
     protected void init() {
-        OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemFormFactory(TeamTreeItem.class);
+        OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemFormFactory(TeamTreeItem.class, this);
         crudGrid = createCrudGrid(crudFormFactory);
         defineFilters(crudGrid);
         fillHW(crudGrid, this);
@@ -427,20 +398,6 @@ public class TeamResultsContent extends VerticalLayout
         createTopBar();
     }
 
-    protected void setGroupSelectionListener() {
-        topBarGroupSelect.setValue(getGridGroup());
-        topBarGroupSelect.addValueChangeListener(e -> {
-            setGridGroup(e.getValue());
-            currentGroup = e.getValue();
-            // the name of the resulting file is set as an attribute on the <a href tag that
-            // surrounds
-            // the download button.
-            xlsWriter.setGroup(currentGroup);
-            finalPackage.getElement().setAttribute("download",
-                    "results" + (currentGroup != null ? "_" + currentGroup : "_all") + ".xls");
-        });
-    }
-
     /**
      * @return true if the current group is safe for editing -- i.e. not lifting currently
      */
@@ -463,37 +420,6 @@ public class TeamResultsContent extends VerticalLayout
             logger.debug(getTranslation("EditingResults_logging"), currentGroup, liftingFop);
         }
         return liftingFop != null;
-    }
-
-    private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
-        Resource found = null;
-        for (Resource curResource : resourceList) {
-            String fileName = curResource.getFileName();
-            if (fileName.equals(curTemplateName)) {
-                found = curResource;
-                break;
-            }
-        }
-        return found;
-    }
-
-    private void setTemplateSelectionListener(List<Resource> resourceList) {
-        try {
-            String curTemplateName = Competition.getCurrent().getFinalPackageTemplateFileName();
-            Resource found = searchMatch(resourceList, curTemplateName);
-            templateSelect.addValueChangeListener((e) -> {
-                Competition.getCurrent().setFinalPackageTemplateFileName(e.getValue().getFileName());
-                try {
-                    Competition.getCurrent().setFinalPackageTemplate(e.getValue().getByteArray());
-                } catch (IOException e1) {
-                    throw new RuntimeException(e1);
-                }
-                CompetitionRepository.save(Competition.getCurrent());
-            });
-            templateSelect.setValue(found);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void subscribeIfLifting(Group nGroup) {
@@ -528,22 +454,19 @@ public class TeamResultsContent extends VerticalLayout
         }
     }
 
-    @Override
-    public TeamTreeItem add(TeamTreeItem domainObjectToAdd) {
-        // TODO Auto-generated method stub
-        return null;
+    public ComboBox<Gender> getGenderFilter() {
+        return genderFilter;
     }
 
     @Override
-    public TeamTreeItem update(TeamTreeItem domainObjectToUpdate) {
-        // TODO Auto-generated method stub
-        return null;
+    public void closeDialog() {
+        crudGrid.getCrudLayout().hideForm();
+        crudGrid.getGrid().asSingleSelect().clear();
     }
 
     @Override
-    public void delete(TeamTreeItem domainObjectToDelete) {
-        // TODO Auto-generated method stub
-
+    public OwlcmsCrudGrid<?> getEditingGrid() {
+        return crudGrid;
     }
 
 }

@@ -8,12 +8,15 @@ package app.owlcms.data.team;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 public class TeamTreeItem extends Team {
@@ -27,9 +30,12 @@ public class TeamTreeItem extends Team {
 
     private List<TeamTreeItem> teamMembers;
 
-    public TeamTreeItem(String curTeamName, Gender gender, Athlete teamMember) {
+    private boolean done;
+
+    public TeamTreeItem(String curTeamName, Gender gender, Athlete teamMember, boolean done) {
         super(curTeamName, gender);
         this.athlete = teamMember;
+        this.setDone(done);
         if (this.athlete == null) {
             // we are a team
             this.teamMembers = new ArrayList<>();
@@ -56,6 +62,14 @@ public class TeamTreeItem extends Team {
             return athlete.getFullName();
         }
     }
+    
+    public String formatName() {
+        if (athlete == null) {
+            return Translator.translate("TeamResults.TeamNameFormat",super.getName(),getGender());
+        } else {
+            return athlete.getFullName();
+        }
+    }
 
     public TeamTreeItem getParent() {
         return parent;
@@ -75,9 +89,17 @@ public class TeamTreeItem extends Team {
         }
         return teamMembers;
     }
+    
+    public List<TeamTreeItem> getSortedTeamMembers() {
+        if (teamMembers == null) {
+            return Collections.emptyList();
+        }
+        teamMembers.sort(Comparator.comparing(TeamTreeItem::getPoints, (a,b) -> ObjectUtils.compare(a, b, true)));
+        return teamMembers;
+    }
 
     public Integer getTotalPoints() {
-        return toInteger(athlete.getTotalPoints());
+        return toInteger(athlete != null ? athlete.getTotalPoints() : null);
     }
 
     public void setParent(TeamTreeItem parent) {
@@ -88,8 +110,8 @@ public class TeamTreeItem extends Team {
         this.teamMembers = teamMembers;
     }
 
-    public void addTreeItemChild(Athlete a) {
-        TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a);
+    public void addTreeItemChild(Athlete a, boolean done) {
+        TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a, done);
         child.setParent(this);
         teamMembers.add(child);
     }
@@ -100,6 +122,37 @@ public class TeamTreeItem extends Team {
 
     public Athlete getAthlete() {
         return athlete;
+    }
+    
+    public String formatPoints() {
+        Integer pts = getPoints();
+        return (pts == null ? "" : pts.toString());    
+    }
+
+    private Integer getPoints() {
+        Integer pts;
+        if (athlete == null) {
+            pts = getScore();
+        } else {
+            pts = isDone() ? getTotalPoints() : null;
+        }
+        return pts;
+    }
+    
+    public String formatProgress() {
+        if (athlete != null) {
+            return isDone() ? Translator.translate("Done") : "";
+        } else {
+            return getCounted() + "/" + getSize();
+        }
+    }
+
+    private boolean isDone() {
+        return done;
+    }
+
+    private void setDone(boolean done) {
+        this.done = done;
     }
 
 }

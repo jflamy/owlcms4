@@ -22,6 +22,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.ui.results.TeamResultsContent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -35,9 +36,15 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
     private List<Group> doneGroups = null;
 
-    private boolean debug = true;
+    private boolean debug = false;
+
+    private Gender genderFilter;
 
     public TeamTreeData() {
+        init();
+    }
+
+    private void init() {
         if (debug) {
             logger.setLevel(Level.DEBUG);
         }
@@ -48,15 +55,23 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
         for (Gender g : Gender.values()) {
             List<TeamTreeItem> teams = getTeamsByGender().get(g);
             if (teams != null) {
-                addItems(teams, TeamTreeItem::getTeamMembers);
+                addItems(teams, TeamTreeItem::getSortedTeamMembers);
             }
         }
+    }
+
+    public TeamTreeData(TeamResultsContent teamResultsContent) {
+        genderFilter = teamResultsContent.getGenderFilter().getValue();
+        init();
     }
 
     private void buildTeamItemTree() {
         doneGroups = null; // force recompute.
         // TODO bring back mixed using Gender.values()
         for (Gender gender : Gender.mfValues()) {
+            if (genderFilter != null && gender != genderFilter) {
+                continue;
+            }
 
             logger.debug("**************************************** Gender {} {}", gender, LoggerUtils.whereFrom());
 
@@ -93,7 +108,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                     curTeam.score = curTeam.score + Math.round(curPoints);
                     curTeam.counted += 1;
                 }
-                curTeam.addTreeItemChild(a);
+                curTeam.addTreeItemChild(a, groupIsDone);
                 curTeamCount += 1;
                 curTeam.size += 1;
                 prevTeamName = curTeamName;
@@ -134,7 +149,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
             if (found != null) {
                 curTeam = found;
             } else {
-                curTeam = new TeamTreeItem(curTeamName, gender, null);
+                curTeam = new TeamTreeItem(curTeamName, gender, null, false);
                 curTeam.size = AthleteRepository.countTeamMembers(curTeamName, gender);
                 teamsByGender.get(gender).add(curTeam);
             }

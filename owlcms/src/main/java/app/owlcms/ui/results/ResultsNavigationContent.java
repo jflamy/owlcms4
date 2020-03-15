@@ -44,18 +44,19 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
      */
     public ResultsNavigationContent() {
         Button groupResults = openInNewTab(ResultsContent.class, getTranslation("GroupResults"));
+        Button teamResults = openInNewTabNoParam(TeamResultsContent.class, getTranslation("TeamResults.Title"));
         Button finalPackage = openInNewTabNoParam(PackageContent.class, getTranslation("FinalResultsPackage"));
 
         Div timingStats = DownloadButtonFactory.createDynamicDownloadButton("timingStats",
                 getTranslation("TimingStatistics"), new JXLSTimingStats(UI.getCurrent()));
 
-        finalPackage.setEnabled(true);
-        timingStats.setEnabled(true);
         FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(groupResults);
-        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(finalPackage, timingStats);
+        FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(teamResults);
+        FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(finalPackage, timingStats);
 
         doGroup(getTranslation("ForEachCompetitionGroup"), grid1, this);
-        doGroup(getTranslation("EndOfCompetitionDocuments"), grid2, this);
+        doGroup(getTranslation("TeamResults.Title"), grid2, this);
+        doGroup(getTranslation("EndOfCompetitionDocuments"), grid3, this);
 
         DebugUtils.gc();
     }

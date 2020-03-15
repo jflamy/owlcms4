@@ -87,7 +87,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public abstract class AthleteGridContent extends VerticalLayout
-        implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor {
+        implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor, IAthleteEditing {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -195,9 +195,18 @@ public abstract class AthleteGridContent extends VerticalLayout
         styleable.getStyle().set("margin-top", "0").set("margin-bottom", "0");
     }
 
+    /**
+     * @see app.owlcms.ui.shared.IAthleteEditing#closeDialog()
+     */
+    @Override
     public void closeDialog() {
         crudGrid.getCrudLayout().hideForm();
         crudGrid.getGrid().asSingleSelect().clear();
+    }
+    
+    @Override
+    public OwlcmsCrudGrid<?> getEditingGrid() {
+        return crudGrid;
     }
 
     public HorizontalLayout createTopBarLeft() {
