@@ -109,7 +109,7 @@ public class TeamResultsContent extends VerticalLayout
         List<TeamTreeItem> allTeams = new ArrayList<>();
 
         TeamTreeData teamTreeData = new TeamTreeData();
-        Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamsByGender();
+        Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
         List<TeamTreeItem> mensTeams = teamsByGender.get(Gender.M);
         if (mensTeams != null) {

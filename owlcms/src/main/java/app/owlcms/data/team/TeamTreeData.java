@@ -53,7 +53,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
             dumpTeams();
         }
         for (Gender g : Gender.values()) {
-            List<TeamTreeItem> teams = getTeamsByGender().get(g);
+            List<TeamTreeItem> teams = getTeamItemsByGender().get(g);
             if (teams != null) {
                 addItems(teams, TeamTreeItem::getSortedTeamMembers);
             }
@@ -67,7 +67,6 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
     private void buildTeamItemTree() {
         doneGroups = null; // force recompute.
-        // TODO bring back mixed using Gender.values()
         for (Gender gender : Gender.mfValues()) {
             if (genderFilter != null && gender != genderFilter) {
                 continue;
@@ -75,14 +74,14 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
             logger.debug("**************************************** Gender {} {}", gender, LoggerUtils.whereFrom());
 
-            List<TeamTreeItem> curGenderTeams = getTeamsByGender().get(gender);
+            List<TeamTreeItem> curGenderTeams = getTeamItemsByGender().get(gender);
             if (curGenderTeams == null) {
                 curGenderTeams = new ArrayList<>();
-                getTeamsByGender().put(gender, curGenderTeams);
-                logger.debug("created list for gender {}: {}", gender, getTeamsByGender().get(gender));
+                getTeamItemsByGender().put(gender, curGenderTeams);
+                logger.debug("created list for gender {}: {}", gender, getTeamItemsByGender().get(gender));
             }
 
-            TeamTreeItem curTeam = null;
+            TeamTreeItem curTeamItem = null;
             List<Athlete> athletes = (List<Athlete>) Competition.getCurrent().getGlobalTeamsRanking(gender);
             String prevTeamName = null;
             // count points for each team
@@ -92,7 +91,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                 // gender.
                 Integer maxCount = getTopNTeamSize(a.getGender());
                 String curTeamName = a.getTeam();
-                curTeam = findCurTeam(getTeamsByGender(), gender, curGenderTeams, prevTeamName, curTeam, curTeamName);
+                curTeamItem = findCurTeamItem(getTeamItemsByGender(), gender, curGenderTeams, prevTeamName, curTeamItem, curTeamName);
                 boolean groupIsDone = groupIsDone(a);
                 Float curPoints = a.getTotalPoints();
 
@@ -103,14 +102,16 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
                 boolean b = curTeamCount < maxCount;
                 boolean c = curPoints != null && curPoints > 0;
+                
+                Team curTeam = curTeamItem.getTeam();
 
                 if (groupIsDone && b && c) {
-                    curTeam.score = curTeam.score + Math.round(curPoints);
-                    curTeam.counted += 1;
+                    curTeam.setScore(curTeam.getScore() + Math.round(curPoints));
+                    curTeam.setCounted(curTeam.getCounted() + 1);
                 }
-                curTeam.addTreeItemChild(a, groupIsDone);
+                curTeamItem.addTreeItemChild(a, groupIsDone);
                 curTeamCount += 1;
-                curTeam.size += 1;
+                curTeam.setSize(curTeam.getSize() + 1);
                 prevTeamName = curTeamName;
             }
         }
@@ -120,14 +121,14 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
     private void dumpTeams() {
         for (Gender g : Gender.values()) {
-            List<TeamTreeItem> teams = getTeamsByGender().get(g);
-            if (teams == null) {
+            List<TeamTreeItem> teamItems = getTeamItemsByGender().get(g);
+            if (teamItems == null) {
                 continue;
             }
-            for (TeamTreeItem team : teams) {
-                logger.debug("team: {} {}", team.getName(), team.getGender(), team.getScore());
-                List<TeamTreeItem> teamMembers = team.getTeamMembers();
-                teamMembers.sort(Team.scoreComparator);
+            for (TeamTreeItem item : teamItems) {
+                logger.debug("team: {} {}", item.getName(), item.getGender(), item.getScore());
+                List<TeamTreeItem> teamMembers = item.getTeamMembers();
+                teamMembers.sort(TeamTreeItem.scoreComparator);
                 for (TeamTreeItem t : teamMembers) {
                     logger.debug("    {} {}", t.getName(), t.getScore());
                 }
@@ -135,9 +136,9 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
         }
     }
 
-    private TeamTreeItem findCurTeam(Map<Gender, List<TeamTreeItem>> teamsByGender, Gender gender,
-            List<TeamTreeItem> curGenderTeams, String prevTeamName, TeamTreeItem curTeam, String curTeamName) {
-        if (curTeam == null || prevTeamName == null || !curTeamName.contentEquals(prevTeamName)) {
+    private TeamTreeItem findCurTeamItem(Map<Gender, List<TeamTreeItem>> teamItemsByGender, Gender gender,
+            List<TeamTreeItem> curGenderTeams, String prevTeamName, TeamTreeItem curTeamItem, String curTeamName) {
+        if (curTeamItem == null || prevTeamName == null || !curTeamName.contentEquals(prevTeamName)) {
             // maybe we have seen the team already (if mixed)
             TeamTreeItem found = null;
             for (TeamTreeItem ct : curGenderTeams) {
@@ -147,14 +148,14 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                 }
             }
             if (found != null) {
-                curTeam = found;
+                curTeamItem = found;
             } else {
-                curTeam = new TeamTreeItem(curTeamName, gender, null, false);
-                curTeam.size = AthleteRepository.countTeamMembers(curTeamName, gender);
-                teamsByGender.get(gender).add(curTeam);
+                curTeamItem = new TeamTreeItem(curTeamName, gender, null, false);
+                curTeamItem.getTeam().setSize(AthleteRepository.countTeamMembers(curTeamName, gender));
+                teamItemsByGender.get(gender).add(curTeamItem);
             }
         }
-        return curTeam;
+        return curTeamItem;
     }
 
     private Integer getTopNTeamSize(Gender gender) {
@@ -180,7 +181,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
         return doneGroups.contains(a.getGroup());
     }
 
-    public Map<Gender, List<TeamTreeItem>> getTeamsByGender() {
+    public Map<Gender, List<TeamTreeItem>> getTeamItemsByGender() {
         return teamsByGender;
     }
 

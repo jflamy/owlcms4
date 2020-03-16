@@ -6,10 +6,12 @@
  */
 package app.owlcms.displays.topteams;
 
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -112,6 +114,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     private UI locationUI;
     private List<TeamTreeItem> mensTeams;
     private List<TeamTreeItem> womensTeams;
+    private DecimalFormat floatFormat;
 
     /**
      * Instantiates a new results board.
@@ -140,17 +143,17 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         this.getElement().callJsFunction("reset");
 
         TeamTreeData teamTreeData = new TeamTreeData();
-        Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamsByGender();
+        Map<Gender, List<TeamTreeItem>> teamsByGender = teamTreeData.getTeamItemsByGender();
 
         mensTeams = teamsByGender.get(Gender.M);
         if (mensTeams != null) {
-            mensTeams.sort(Team.scoreComparator);
+            mensTeams.sort(TeamTreeItem.scoreComparator);
         }
         mensTeams = topN(mensTeams);
 
         womensTeams = teamsByGender.get(Gender.F);
         if (womensTeams != null) {
-            womensTeams.sort(Team.scoreComparator);
+            womensTeams.sort(TeamTreeItem.scoreComparator);
         }
         womensTeams = topN(womensTeams);
 
@@ -170,7 +173,17 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         ja.put("team", t.name);
         ja.put("counted", formatInt(t.counted));
         ja.put("size", formatInt((int) t.size));
-        ja.put("points", formatInt(t.score));
+        ja.put("points", formatFloat(t.score));
+    }
+
+    private String formatFloat(float score) {
+        if (floatFormat == null) {
+            floatFormat = new DecimalFormat();
+            floatFormat.setMinimumIntegerDigits(1);
+            floatFormat.setMaximumFractionDigits(0);
+            floatFormat.setGroupingUsed(false);
+        }
+        return floatFormat.format(score);
     }
 
     @Override
@@ -327,7 +340,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     private JsonValue getTeamsJson(List<TeamTreeItem> teamItems, boolean overrideTeamWidth) {
         JsonArray jath = Json.createArray();
         int athx = 0;
-        List<Team> list3 = teamItems != null ? Collections.unmodifiableList(teamItems) : Collections.emptyList();
+        List<Team> list3 = teamItems != null ? teamItems.stream().map(TeamTreeItem::getTeam).collect(Collectors.toList()) : Collections.emptyList();
         if (overrideTeamWidth) {
             // when we are called for the second time, and there was a wide team in the top section.
             // we use the wide team setting for the remaining sections.

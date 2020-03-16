@@ -19,27 +19,59 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
-public class TeamTreeItem extends Team {
+public class TeamTreeItem {
+    
+    public static Comparator<TeamTreeItem> scoreComparator = ((a, b) -> -ObjectUtils.compare(a.getScore(), b.getScore(), true));
     
     @SuppressWarnings("unused")
     private final Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeItem.class);
-
+    
     private Athlete athlete;
-
+    private boolean done;
     private TeamTreeItem parent;
+    private Team team;
 
     private List<TeamTreeItem> teamMembers;
 
-    private boolean done;
-
     public TeamTreeItem(String curTeamName, Gender gender, Athlete teamMember, boolean done) {
-        super(curTeamName, gender);
         this.athlete = teamMember;
         this.setDone(done);
         if (this.athlete == null) {
             // we are a team
+            this.setTeam(new Team(curTeamName, gender));
             this.teamMembers = new ArrayList<>();
         }
+    }
+
+    public void addTreeItemChild(Athlete a, boolean done) {
+        TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a, done);
+        child.setParent(this);
+        teamMembers.add(child);
+    }
+
+    public String formatName() {
+        if (athlete == null) {
+            return Translator.translate("TeamResults.TeamNameFormat",getTeam().getName(),getTeam().getGender());
+        } else {
+            return athlete.getFullName();
+        }
+    }
+    
+    public String formatPoints() {
+        Float pts = getPoints();
+        return (pts == null ? "" : Integer.toString(Math.round(pts)));    
+    }
+
+    public String formatProgress() {
+        if (athlete != null) {
+            return isDone() ? Translator.translate("Done") : "";
+        } else {
+            return getTeam().getCounted() + "/" + getTeam().getSize();
+        }
+    }
+    
+    public Athlete getAthlete() {
+        return athlete;
     }
 
     public Integer getCleanJerkPoints() {
@@ -50,22 +82,21 @@ public class TeamTreeItem extends Team {
         return toInteger(athlete.getCombinedPoints());
     }
 
+    public Integer getCounted() {
+        return team != null ? team.getCounted() : null;
+    }
+
     public Integer getCustomPoints() {
         return toInteger(athlete.getCustomPoints());
     }
+    
+    public Gender getGender() {
+        return team != null ? team.getGender() : athlete.getGender();
+    }
 
-    @Override
     public String getName() {
         if (athlete == null) {
-            return super.getName();
-        } else {
-            return athlete.getFullName();
-        }
-    }
-    
-    public String formatName() {
-        if (athlete == null) {
-            return Translator.translate("TeamResults.TeamNameFormat",super.getName(),getGender());
+            return getTeam().getName();
         } else {
             return athlete.getFullName();
         }
@@ -75,21 +106,18 @@ public class TeamTreeItem extends Team {
         return parent;
     }
 
+    public Float getScore() {
+        return (team != null ? team.getScore() : null);
+    }
+    
+    public long getSize() {
+        return team != null ? team.getSize() : null;
+    }
+
     public Integer getSnatchPoints() {
         return toInteger(athlete.getSnatchPoints());
     }
 
-    public String getTeam() {
-        return athlete.getTeam();
-    }
-
-    public List<TeamTreeItem> getTeamMembers() {
-        if (teamMembers == null) {
-            return Collections.emptyList();
-        }
-        return teamMembers;
-    }
-    
     public List<TeamTreeItem> getSortedTeamMembers() {
         if (teamMembers == null) {
             return Collections.emptyList();
@@ -98,6 +126,21 @@ public class TeamTreeItem extends Team {
         return teamMembers;
     }
 
+    public Team getTeam( ) {
+        return team;
+    }
+    
+    public List<TeamTreeItem> getTeamMembers() {
+        if (teamMembers == null) {
+            return Collections.emptyList();
+        }
+        return teamMembers;
+    }
+
+    public String getTeamName() {
+        return athlete.getTeam();
+    }
+    
     public Integer getTotalPoints() {
         return toInteger(athlete != null ? athlete.getTotalPoints() : null);
     }
@@ -110,41 +153,14 @@ public class TeamTreeItem extends Team {
         this.teamMembers = teamMembers;
     }
 
-    public void addTreeItemChild(Athlete a, boolean done) {
-        TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a, done);
-        child.setParent(this);
-        teamMembers.add(child);
-    }
-
-    private Integer toInteger(Float f) {
-        return f == null ? null : Math.round(f);
-    }
-
-    public Athlete getAthlete() {
-        return athlete;
-    }
-    
-    public String formatPoints() {
-        Integer pts = getPoints();
-        return (pts == null ? "" : pts.toString());    
-    }
-
-    private Integer getPoints() {
-        Integer pts;
+    private Float getPoints() {
+        Float pts;
         if (athlete == null) {
-            pts = getScore();
+            pts = getTeam().getScore();
         } else {
-            pts = isDone() ? getTotalPoints() : null;
+            pts = isDone() ? (float)getTotalPoints() : null;
         }
         return pts;
-    }
-    
-    public String formatProgress() {
-        if (athlete != null) {
-            return isDone() ? Translator.translate("Done") : "";
-        } else {
-            return getCounted() + "/" + getSize();
-        }
     }
 
     private boolean isDone() {
@@ -153,6 +169,14 @@ public class TeamTreeItem extends Team {
 
     private void setDone(boolean done) {
         this.done = done;
+    }
+    
+    private void setTeam(Team team) {
+        this.team = team;
+    }
+
+    private Integer toInteger(Float f) {
+        return f == null ? null : Math.round(f);
     }
 
 }

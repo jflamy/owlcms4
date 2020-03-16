@@ -23,7 +23,7 @@ public class Team {
 
     public String name;
 
-    public int score = 0;
+    public float score = 0.0F;
 
     public int counted;
 
@@ -44,7 +44,7 @@ public class Team {
         return gender;
     }
 
-    public int getScore() {
+    public Float getScore() {
         return score;
     }
 
@@ -61,7 +61,7 @@ public class Team {
     public void setGender(Gender gender) {
         this.gender = gender;
     }
-    public void setScore(int score) {
+    public void setScore(float score) {
         this.score = score;
     }
     
