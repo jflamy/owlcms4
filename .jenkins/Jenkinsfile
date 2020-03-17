@@ -92,9 +92,6 @@ pipeline {
                       
                     // push new files to downstream release channel repo where executables will be added (a remote tag will be added by github)
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%O_REPO_NAME% %BRANCH%:master --force'              
-
-                    // github.owner is the repo owning organization or user; the github-oauth gives us repo write access using the API
-                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%O_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE% --non-recursive'
                 }
             }
         }
