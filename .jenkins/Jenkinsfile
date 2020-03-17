@@ -25,7 +25,7 @@ pipeline {
     stages {
         stage('Reset workspace') {
             when {
-                expression { return ${params.BUILD} ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
             steps {
                 bat 'move owlcms4\\owlcms\\node_modules ..\\n1'
@@ -37,7 +37,7 @@ pipeline {
         
         stage('Get repo & submodules') {
             when {
-                expression { return ${params.BUILD} ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
             environment {
                 TOKEN = credentials('jflamy-pw')
@@ -51,7 +51,7 @@ pipeline {
           
         stage('Build owlcms') {
             when {
-                expression { return ${params.BUILD} ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
             steps {
                 dir('owlcms4/owlcms') {
@@ -62,7 +62,7 @@ pipeline {
                 
         stage('Build publicresults') {
             when {
-                expression { return ${params.BUILD} ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
             steps {
                 dir('owlcms4/publicresults') {
@@ -73,7 +73,7 @@ pipeline {
       
         stage('Push owlcms4 and publicresults installers') {
             when {
-                expression { return ${params.BUILD} ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
             environment {
                 TOKEN = credentials('jflamy-pw')
@@ -113,7 +113,7 @@ pipeline {
         
         stage('Push owlcms4-heroku') {
             when {
-                expression { return ${params.BUILD} ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
             environment {
                 TOKEN = credentials('jflamy-pw')
