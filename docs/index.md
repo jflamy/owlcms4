@@ -43,42 +43,51 @@ Stand-alone installations run on a laptop and do not require an internet access 
   
     ![044_AF_Down](img/Displays/044_AF_Down.png ':size=350') ![048_AF_Decision](img/Displays/048_AF_Decision.png ':size=350')
   
-    
-  
   - **[Scoreboard](Displays#scoreboard)** for public or warm-up room display.  Shows athlete information, timer and decision lights. Current and next lifters are highlighted. Responsive design to accomodate old 4:3 projectors as well as 16:9 wide screens.  Also available is a [lifting order display](Displays#lifting-order).
   
      ![020_Scoreboard](img/Displays/020_Scoreboard.png ':size=350') ![Lifting](img/Displays/025_LiftingOrder.png  ':size=350')
   
-  - [**3 and 5-person jury**](Refereeing#jury).  Jury members see referee decisions as they happen. Jury members see their vote outcome once all jurors have voted. 
+  - [**Team Competitions and Sinclair Competitions**](Displays#Top-Teams-Scoreboard).  Team Results are computed in either the IWF points system or as a sum of Sinclair scores. The competition secretary has access to the full details.
   
+    ![050_TeamScoreboard](img/Displays/050_TeamScoreboard.png ':size=350')
+![060_TopSinclair](img/Displays/060_TopSinclair.png ':size=350')
+![061_TopTeamSinclair](img/Displays/061_TopTeamSinclair.png ':size=350')
+  
+  - [**3 and 5-person jury**](Refereeing#jury).  Jury members see referee decisions as they happen. Jury members see their vote outcome once all jurors have voted. 
+
     ![070_Jury](img/Refereeing/070_Jury.png  ':size=350')
   
   - **[Athlete Registration](Registration) and [Weigh-in](WeighIn) screens**, including production of **[weigh-in sheet](WeighIn#starting-weight-sheet)** with starting weights and **[athlete cards](WeighIn#athlete-cards)**.
 
-![042_AthleteCards](img/WeighIn/042_AthleteCards.png)
+    ![042_AthleteCards](img/WeighIn/042_AthleteCards.png ':size=350')
   
-  - Multiple **[simultaneous age divisions](Preparation#defining-age-divisions-and-categories)**: ability to award separate medals according to age division (e.g. youth vs junior vs senior)
+  - [**Upload of registration sheet**](Registration#uploading-a-list-of-athletes) Upload a list of athletes with their team, group, entry totals etc. (same format as owlcms2, in either xls or xlsx format)
+
+    ![073_excel](img/Preparation/073_excel.png ':size=350')
+
+  - Multiple **[simultaneous age divisions](Preparation#defining-age-divisions-and-categories)**: ability to award separate medals according to age division (e.g. youth vs junior vs senior) .  Simultaneous inclusion of Masters and non-masters groups athletes is possible.
     
+     ![020_ageGroupList](img/Categories/020_ageGroupList.png ':size=350')
   
-  ![020_ageGroupList](img/Categories/020_ageGroupList.png ':size=350')
-  
-  - [**Competition Parameters**](Preparation#competition-information) :  screens for defining a competition (general info, location, organizer, etc.)
+  - [**Competition Parameters**](Preparation#competition-information) :  screens for defining a competition (general info, location, organizer, etc.) and special rules that apply (for example, enforcing or not the 20kg rule, etc.)
+
+    ![030_Competition](img/Preparation/030_Competition.png ':size=350')
   
   - **[Multiple fields of play](Preparation#defining-fields-of-play-platforms)** (platforms): simultaneous competition groups all within the same competition.
   
-  - [**Upload of registration sheet**](Registration#uploading-a-list-of-athletes) Upload a list of athletes with their team, group, entry totals etc. (same format as owlcms2, in either xls or xlsx format)
-  
   - **[Countdown timer for breaks](Announcing#breaks)** (before introduction, before first snatch, break before clean and jerk, technical break)
-  
+
+    ![070_IntroTimer](img/Displays/070_IntroTimer.png ':size=350')
+    
   - Production of **[group results (protocol sheets)](Documents#group-results)** and of the **[final result package](Documents#competition-package)**
+
+    ![SessionResults](img/Documents/SessionResults.png  ':size=350')
+    
+  - Option to treat the competition as a **[Masters competition](Preparation#masters)** with proper processing of age groups (older age groups presented first)
   
-  - Option to treat the competition as a **[Masters competition](Preparation#masters)** with proper processing of age groups.
-  
-  - [**Multiple languages**](Preparation#display-language). Currently English, French, Danish, and a partial translation to Spanish.
+  - [**Multiple languages**](Preparation#display-language). Currently English, French, Danish, Russian, Swedish, German, Portuguese and Spanish.
   
   - Etc.  Refer to the side menu for the full list of topics.
-
-
 
 ## Reporting Issues and Suggesting Enhancements
 
@@ -98,9 +107,26 @@ For the current work status, see the following links
 
   
 
-## Project Repository
+## Project Repositories, Project Documentation and Project Board
 
-The [project source](https://github.com/jflamy/owlcms4), [binary releases](https://github.com/jflamy/owlcms4/releases), [issue page](https://github.com/jflamy/owlcms4/issues), [project board](https://github.com/jflamy/owlcms4/projects/1) and [documentation](https://jflamy.github.io/owlcms4/#/index) are hosted on [GitHub](https://github.com/).
+##### For development
+
+- [Project source](https://github.com/jflamy/owlcms4)
+- [Issue page](https://github.com/jflamy/owlcms4/projects/1)
+- [Project board](https://github.com/jflamy/owlcms4/projects/1)
+
+##### Latest stable releases
+
+- [stable binary installers](https://github.com/owlcms/owlcms4/releases)
+- stable cloud deployment for 
+- [stable release documentatation](https://owlcms.github.io/owlcms4/#/index)
+
+##### Latest pre-releases
+
+- [stable binary releases](https://github.com/owlcms/owlcms4/releases)
+- [stable release documentatation](
+
+
 
 
 

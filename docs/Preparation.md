@@ -17,15 +17,20 @@ The `Edit Competition Information` button leads to a page where the information 
 
 ## Masters
 
-The Masters settings changes the sorting order for displays and weigh-ins -- Masters traditionally start with the older lifters, whereas in an age-group competition the younger age groups are typically listed and weighed-in first.  *Note that the Masters setting currently applies to all groups -- it is a global setting for a meet.*
+This setting is normally used when running a Masters-only competition, and is not required for competitions that have both Masters and non-Masters groups.
 
-The setting also changes which template is used by default when producing results.  Masters use the Sinclair-Meltzer-Faber (SMF) age-ratio rankings to determine the best-in-competition lifter.
+- The Masters settings changes the sorting order for displays and weigh-ins -- Masters traditionally start with the older lifters, whereas in an age-group competition the younger age groups are typically listed and weighed-in first.
+- The setting also changes which template is used by default when producing results.  Masters use the Sinclair-Meltzer-Faber (SMF) age-ratio rankings to determine the best-in-competition lifter.
 
-Since version 4.3, the determination to apply the IWF 20kg or the IWF Masters 15/10kg rule is individual, based on whether the athlete is registered in a regular or Masters category.  So unless running an official "Masters-only" competition, it is not necessary to select the Masters setting to run a meet with Masters lifters.
+The determination to apply the IWF 20kg or the IWF Masters 80% rule is individual, based on whether the athlete is registered in a regular or Masters category.  Therefore there is no need to use this setting unless the weigh-in and presentation order matters.
 
 ## Display Language
 
-In countries where more than one language is spoken, the various computers used in a competition may be configured with different languages.  It is possible to force a single language to be used on all displays (owlcms will ignore the individual language preferences sent by each browser).  The display language can be set via a technical configuration (see [here](Heroku#configure-your-time-zone-and-locale) and [here](LocalSetup#id=defining-the-language)), or via the user interface as follows.  If you change the setting via the web interface, you will need to restart the application.
+In countries where more than one language is spoken, the various computers used in a competition may be configured with different languages.  You could therefore wish to have a scoreboard in French and the another one in English, the regional settings on each browser are used by default.
+
+Conversely, it is possible to force a single language to be used on all displays (owlcms will then ignore the individual language preferences sent by each browser).  The display language can be set via a technical configuration (see [here](Heroku#configure-your-time-zone-and-locale) and [here](LocalSetup#id=defining-the-language)), or via the user interface as follows.  After saving the language new pages will appear in the selected language, pages already open will need to be reloaded.
+
+You can unselect the language to revert to "the browser determines the language".
 
 ![032_Language](img/Preparation/032_Language.png)
 

@@ -25,6 +25,9 @@ Because entering athletes is somewhat tedious, it is often easier to upload a li
    ![072_Download_Upload](img/Preparation/072_Download_Upload.png)
 
 2. Fill-in the Excel with the information about your athletes.  Assign each athlete to a group and a weight category.  Note that if you are using multiple age divisions you must use the correct code for the category (for example `yM67` for youth M67 as opposed to `sM67` for senior M67).
+   Note that the Date must be entered as an Excel Date using your regional settings.
+
+   ![073_excel](img/Preparation/073_excel.png)
 
 3. Upload the completed form.  Note that this does not delete previous entries.  The system has no way of knowing that previous athletes match new athletes, so new entries are always created.  It is therefore up to you to [clear the athletes](#clearing-athletes-from-a-previous-competition) if needed.
 

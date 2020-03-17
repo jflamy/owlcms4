@@ -91,3 +91,21 @@ Three-second waiting period after all three decisions have been entered.
 Final decision.
 
 ![048_AF_Decision](img/Displays/048_AF_Decision.png)
+
+## Top Teams Scoreboard
+
+Team competitions are supported by a Top Teams Scoreboard that show the teams in contention for a medal.  The full Teams results are available to the competition secretary (see [this page](Documents#Team_Results) for details).  Both pages consider points as computed when the athlete's group is done.  So in competitions where there are multiple groups for a single category the points shown are not definitive.
+
+![050_TeamScoreboard](img/Displays/050_TeamScoreboard.png)
+
+## Top Sinclair and Top Team Sinclair
+
+Sinclair-based competitions are supported by two scoreboards.  The first one shows the athletes in contention for the "best lifter" awards, as well as the weight needed to catch up with first place. 
+
+Note that the Sinclair score (and not the SMF) is used for this scoreboard.
+
+![060_TopSinclair](img/Displays/060_TopSinclair.png)
+
+The second display show the sum of the Sinclair scores for the team members.  The top 5 teams are shown.
+
+![061_TopTeamSinclair](img/Displays/061_TopTeamSinclair.png)
