@@ -605,23 +605,23 @@ public class AthleteSorter implements Serializable {
 
     /**
      * @param curLifter
-     * @param points
+     * @param Math.round(points
      * @param rankingType
      */
     private static void setPoints(Athlete curLifter, float points, Ranking rankingType) {
         logger.trace(curLifter + " " + rankingType + " points=" + points);
         switch (rankingType) {
         case SNATCH:
-            curLifter.setSnatchPoints(points);
+            curLifter.setSnatchPoints(Math.round(points));
             break;
         case CLEANJERK:
-            curLifter.setCleanJerkPoints(points);
+            curLifter.setCleanJerkPoints(Math.round(points));
             break;
         case TOTAL:
-            curLifter.setTotalPoints(points);
+            curLifter.setTotalPoints(Math.round(points));
             break;
         case CUSTOM:
-            curLifter.setCustomPoints(points);
+            curLifter.setCustomPoints(Math.round(points));
             break;
         default:
             break;// computed

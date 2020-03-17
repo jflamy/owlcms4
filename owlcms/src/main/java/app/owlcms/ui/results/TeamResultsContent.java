@@ -7,6 +7,7 @@
 
 package app.owlcms.ui.results;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -88,6 +89,7 @@ public class TeamResultsContent extends VerticalLayout
     protected OwlcmsCrudGrid<TeamTreeItem> crudGrid;
     private Location location;
     private UI locationUI;
+    private DecimalFormat floatFormat;
 
     /**
      * Instantiates a new announcer content. Does nothing. Content is created in
@@ -249,8 +251,10 @@ public class TeamResultsContent extends VerticalLayout
         grid.addHierarchyColumn(TeamTreeItem::formatName).setHeader(Translator.translate("Name"));
         grid.addColumn(TeamTreeItem::getGender).setHeader(Translator.translate("Gender"))
                 .setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(TeamTreeItem::formatPoints).setHeader(Translator.translate("TeamResults.Points"))
-                .setTextAlign(ColumnTextAlign.END).setSortProperty("score");
+        grid.addColumn(TeamTreeItem::getPoints, "points").setHeader(Translator.translate("TeamResults.Points"))
+                .setTextAlign(ColumnTextAlign.END);
+        grid.addColumn(t -> formatDouble(t.getScore(), 3), "score").setHeader(Translator.translate("Scoreboard.Sinclair"))
+                .setTextAlign(ColumnTextAlign.END);
         grid.addColumn(TeamTreeItem::formatProgress).setHeader(Translator.translate("TeamResults.Status"))
                 .setTextAlign(ColumnTextAlign.END);
 
@@ -292,6 +296,17 @@ public class TeamResultsContent extends VerticalLayout
         crudGrid.getCrudLayout().addToolbarComponent(groupFilter);
 
         return crudGrid;
+    }
+
+    private String formatDouble(double d, int decimals) {
+        if (floatFormat == null) {
+            floatFormat = new DecimalFormat();
+            floatFormat.setMinimumIntegerDigits(1);
+            floatFormat.setMaximumFractionDigits(decimals);
+            floatFormat.setMinimumFractionDigits(decimals);
+            floatFormat.setGroupingUsed(false);
+        }
+        return floatFormat.format(d);
     }
 
     private void defineContent(OwlcmsCrudGrid<TeamTreeItem> crudGrid) {

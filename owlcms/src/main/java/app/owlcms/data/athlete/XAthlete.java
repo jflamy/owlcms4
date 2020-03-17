@@ -407,7 +407,7 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#getCleanJerkPoints()
      */
     @Override
-    public Float getCleanJerkPoints() {
+    public Integer getCleanJerkPoints() {
         return a.getCleanJerkPoints();
     }
 
@@ -443,7 +443,7 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#getCombinedPoints()
      */
     @Override
-    public Float getCombinedPoints() {
+    public Integer getCombinedPoints() {
         return a.getCombinedPoints();
     }
 
@@ -483,7 +483,7 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#getCustomPoints()
      */
     @Override
-    public Float getCustomPoints() {
+    public Integer getCustomPoints() {
         return a.getCustomPoints();
     }
 
@@ -1071,7 +1071,7 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#getSnatchPoints()
      */
     @Override
-    public Float getSnatchPoints() {
+    public Integer getSnatchPoints() {
         return a.getSnatchPoints();
     }
 
@@ -1179,7 +1179,7 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#getTotalPoints()
      */
     @Override
-    public Float getTotalPoints() {
+    public Integer getTotalPoints() {
         return a.getTotalPoints();
     }
 
@@ -1470,7 +1470,7 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#setCleanJerkPoints(java.lang.Float)
      */
     @Override
-    public void setCleanJerkPoints(Float cleanJerkPoints) {
+    public void setCleanJerkPoints(Integer cleanJerkPoints) {
         a.setCleanJerkPoints(cleanJerkPoints);
     }
 
@@ -1497,7 +1497,7 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#setCustomPoints(float)
      */
     @Override
-    public void setCustomPoints(float customPoints) {
+    public void setCustomPoints(Integer customPoints) {
         a.setCustomPoints(customPoints);
     }
 
@@ -1839,7 +1839,7 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#setSnatchPoints(float)
      */
     @Override
-    public void setSnatchPoints(float snatchPoints) {
+    public void setSnatchPoints(Integer snatchPoints) {
         a.setSnatchPoints(snatchPoints);
     }
 
@@ -1938,7 +1938,7 @@ public class XAthlete extends Athlete {
      * @see app.owlcms.data.athlete.Athlete#setTotalPoints(float)
      */
     @Override
-    public void setTotalPoints(float totalPoints) {
+    public void setTotalPoints(Integer totalPoints) {
         a.setTotalPoints(totalPoints);
     }
 

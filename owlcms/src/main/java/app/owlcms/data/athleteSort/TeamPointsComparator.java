@@ -72,20 +72,20 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
         case CLEANJERK:
             return lifter1.getCleanJerkPoints().compareTo(lifter2.getCleanJerkPoints());
         case TOTAL:
-            final Float totalPoints1 = lifter1.getTotalPoints();
-            final Float totalPoints2 = lifter2.getTotalPoints();
+            final Integer totalPoints1 = lifter1.getTotalPoints();
+            final Integer totalPoints2 = lifter2.getTotalPoints();
             final int compareTotal = totalPoints1.compareTo(totalPoints2);
             logger.trace(lifter1 + " " + totalPoints1 + " [" + compareTotal + "]" + lifter2 + " " + totalPoints2);
             return compareTotal;
         case CUSTOM:
-            final Float customPoints1 = lifter1.getCustomPoints();
-            final Float customPoints2 = lifter2.getCustomPoints();
+            final Integer customPoints1 = lifter1.getCustomPoints();
+            final Integer customPoints2 = lifter2.getCustomPoints();
             final int compareCustom = customPoints1.compareTo(customPoints2);
             logger.trace(lifter1 + " " + customPoints1 + " [" + compareCustom + "]" + lifter2 + " " + customPoints2);
             return compareCustom;
         case COMBINED:
-            final Float combinedPoints1 = lifter1.getCombinedPoints();
-            final Float combinedPoints2 = lifter2.getCombinedPoints();
+            final Integer combinedPoints1 = lifter1.getCombinedPoints();
+            final Integer combinedPoints2 = lifter2.getCombinedPoints();
             final int compareCombined = combinedPoints1.compareTo(combinedPoints2);
             logger.trace(
                     lifter1 + " " + combinedPoints1 + " [" + compareCombined + "]" + lifter2 + " " + combinedPoints2);

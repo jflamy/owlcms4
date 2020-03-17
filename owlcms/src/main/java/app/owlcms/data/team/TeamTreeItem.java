@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.data.team;
@@ -21,11 +21,33 @@ import ch.qos.logback.classic.Logger;
 
 public class TeamTreeItem {
     
-    public static Comparator<TeamTreeItem> scoreComparator = ((a, b) -> -ObjectUtils.compare(a.getScore(), b.getScore(), true));
+    private final static Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeItem.class);
+
+    public static Comparator<TeamTreeItem> pointComparator = ((a, b) -> {
+        int compare = 0;
+        compare = ObjectUtils.compare(a.getGender(), b.getGender(), true);
+        if (compare != 0) {
+            logger.warn("{} {} {} {}", a.getName(), (compare > 0 ? ">" : "<"), b.getName());
+            return compare;
+        }
+        compare = -ObjectUtils.compare(a.getPoints(), b.getPoints(), true);
+        logger.warn("{} {} {} {}", a.getName(), (compare > 0 ? ">" : (compare == 0 ? "=" : "<")), b.getName());
+        return compare;
+    });
     
-    @SuppressWarnings("unused")
-    private final Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeItem.class);
-    
+    public static Comparator<TeamTreeItem> scoreComparator = ((a, b) -> {
+        int compare = 0;
+        compare = ObjectUtils.compare(a.getGender(), b.getGender(), true);
+        if (compare != 0) {
+            logger.warn("{} {} {} {}", a.getName(), (compare > 0 ? ">" : "<"), b.getName());
+            return compare;
+        }
+        compare = -ObjectUtils.compare(a.getScore(), b.getScore(), true);
+        logger.warn("{} {} {} {}", a.getName(), (compare > 0 ? ">" : (compare == 0 ? "=" : "<")), b.getName());
+        return compare;
+    });
+
+
     private Athlete athlete;
     private boolean done;
     private TeamTreeItem parent;
@@ -51,15 +73,15 @@ public class TeamTreeItem {
 
     public String formatName() {
         if (athlete == null) {
-            return Translator.translate("TeamResults.TeamNameFormat",getTeam().getName(),getTeam().getGender());
+            return Translator.translate("TeamResults.TeamNameFormat", getTeam().getName(), getTeam().getGender());
         } else {
             return athlete.getFullName();
         }
     }
-    
-    public String formatPoints() {
-        Float pts = getPoints();
-        return (pts == null ? "" : Integer.toString(Math.round(pts)));    
+
+    public String formatScore() {
+        Integer pts = getPoints();
+        return (pts == null ? "" : Integer.toString(pts));
     }
 
     public String formatProgress() {
@@ -69,17 +91,17 @@ public class TeamTreeItem {
             return getTeam().getCounted() + "/" + getTeam().getSize();
         }
     }
-    
+
     public Athlete getAthlete() {
         return athlete;
     }
 
     public Integer getCleanJerkPoints() {
-        return toInteger(athlete.getCleanJerkPoints());
+        return athlete.getCleanJerkPoints();
     }
 
     public Integer getCombinedPoints() {
-        return toInteger(athlete.getCombinedPoints());
+        return athlete.getCombinedPoints();
     }
 
     public Integer getCounted() {
@@ -87,9 +109,9 @@ public class TeamTreeItem {
     }
 
     public Integer getCustomPoints() {
-        return toInteger(athlete.getCustomPoints());
+        return athlete.getCustomPoints();
     }
-    
+
     public Gender getGender() {
         return team != null ? team.getGender() : athlete.getGender();
     }
@@ -106,30 +128,30 @@ public class TeamTreeItem {
         return parent;
     }
 
-    public Float getScore() {
-        return (team != null ? team.getScore() : null);
+    public Double getScore() {
+        return (team != null ? team.getScore() : athlete.getSinclairForDelta());
     }
-    
+
     public long getSize() {
         return team != null ? team.getSize() : null;
     }
 
     public Integer getSnatchPoints() {
-        return toInteger(athlete.getSnatchPoints());
+        return athlete.getSnatchPoints();
     }
 
     public List<TeamTreeItem> getSortedTeamMembers() {
         if (teamMembers == null) {
             return Collections.emptyList();
         }
-        teamMembers.sort(Comparator.comparing(TeamTreeItem::getPoints, (a,b) -> ObjectUtils.compare(a, b, true)));
+        teamMembers.sort(Comparator.comparing(TeamTreeItem::getPoints, (a, b) -> ObjectUtils.compare(a, b, true)));
         return teamMembers;
     }
 
-    public Team getTeam( ) {
+    public Team getTeam() {
         return team;
     }
-    
+
     public List<TeamTreeItem> getTeamMembers() {
         if (teamMembers == null) {
             return Collections.emptyList();
@@ -140,9 +162,9 @@ public class TeamTreeItem {
     public String getTeamName() {
         return athlete.getTeam();
     }
-    
+
     public Integer getTotalPoints() {
-        return toInteger(athlete != null ? athlete.getTotalPoints() : null);
+        return (athlete != null ? athlete.getTotalPoints() : null);
     }
 
     public void setParent(TeamTreeItem parent) {
@@ -153,12 +175,12 @@ public class TeamTreeItem {
         this.teamMembers = teamMembers;
     }
 
-    private Float getPoints() {
-        Float pts;
+    public Integer getPoints() {
+        Integer pts;
         if (athlete == null) {
-            pts = getTeam().getScore();
+            pts = getTeam().getPoints();
         } else {
-            pts = isDone() ? (float)getTotalPoints() : null;
+            pts = isDone() ? getTotalPoints() : null;
         }
         return pts;
     }
@@ -170,13 +192,8 @@ public class TeamTreeItem {
     private void setDone(boolean done) {
         this.done = done;
     }
-    
+
     private void setTeam(Team team) {
         this.team = team;
     }
-
-    private Integer toInteger(Float f) {
-        return f == null ? null : Math.round(f);
-    }
-
 }

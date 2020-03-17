@@ -344,13 +344,13 @@ public class Athlete {
     private Integer sinclairRank;
     private Integer robiRank;
     private Integer customRank;
-    private Float snatchPoints;
+    private Integer snatchPoints;
 
-    private Float cleanJerkPoints;
-    private Float totalPoints; // points based on totalRank
+    private Integer cleanJerkPoints;
+    private Integer totalPoints; // points based on totalRank
 
     private Float sinclairPoints;
-    private Float customPoints;
+    private Integer customPoints;
     private Integer teamSinclairRank;
     private Integer teamRobiRank;
     private Integer teamSnatchRank;
@@ -1005,9 +1005,9 @@ public class Athlete {
      *
      * @return the clean jerk points
      */
-    public Float getCleanJerkPoints() {
+    public Integer getCleanJerkPoints() {
         if (cleanJerkPoints == null) {
-            return 0.0F;
+            return 0;
         }
         return cleanJerkPoints;
     }
@@ -1046,7 +1046,7 @@ public class Athlete {
      *
      * @return the combined points
      */
-    public Float getCombinedPoints() {
+    public Integer getCombinedPoints() {
         return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
     }
 
@@ -1128,7 +1128,7 @@ public class Athlete {
      *
      * @return the customPoints
      */
-    public Float getCustomPoints() {
+    public Integer getCustomPoints() {
         return customPoints;
     }
 
@@ -1955,9 +1955,9 @@ public class Athlete {
      *
      * @return the snatch points
      */
-    public Float getSnatchPoints() {
+    public Integer getSnatchPoints() {
         if (snatchPoints == null) {
-            return 0.0F;
+            return 0;
         }
         return snatchPoints;
     }
@@ -2089,9 +2089,9 @@ public class Athlete {
      *
      * @return the total points
      */
-    public Float getTotalPoints() {
+    public Integer getTotalPoints() {
         if (totalPoints == null) {
-            return 0.0F;
+            return 0;
         }
         return totalPoints;
     }
@@ -2642,10 +2642,10 @@ public class Athlete {
     /**
      * Sets the clean jerk points.
      *
-     * @param cleanJerkPoints the new clean jerk points
+     * @param points the new clean jerk points
      */
-    public void setCleanJerkPoints(Float cleanJerkPoints) {
-        this.cleanJerkPoints = cleanJerkPoints;
+    public void setCleanJerkPoints(Integer points) {
+        this.cleanJerkPoints = points;
     }
 
     /**
@@ -2685,14 +2685,10 @@ public class Athlete {
      *
      * @param customPoints the new custom points
      */
-    public void setCustomPoints(float customPoints) {
+    public void setCustomPoints(Integer customPoints) {
         this.customPoints = customPoints;
     }
-
-    public void setCustomPoints(Float customPoints) {
-        this.customPoints = customPoints;
-    }
-
+    
     /**
      * Sets the custom rank.
      *
@@ -3180,11 +3176,7 @@ public class Athlete {
      *
      * @param snatchPoints the new snatch points
      */
-    public void setSnatchPoints(float snatchPoints) {
-        this.snatchPoints = snatchPoints;
-    }
-
-    public void setSnatchPoints(Float snatchPoints) {
+    public void setSnatchPoints(Integer snatchPoints) {
         this.snatchPoints = snatchPoints;
     }
 
@@ -3282,11 +3274,7 @@ public class Athlete {
      *
      * @param totalPoints the new total points
      */
-    public void setTotalPoints(float totalPoints) {
-        this.totalPoints = totalPoints;
-    }
-
-    public void setTotalPoints(Float totalPoints) {
+    public void setTotalPoints(Integer totalPoints) {
         this.totalPoints = totalPoints;
     }
 

@@ -20,16 +20,20 @@ import app.owlcms.data.athlete.Gender;
 public class Team {
 
     public static Comparator<Team> scoreComparator = ((a, b) -> -ObjectUtils.compare(a.score, b.score, true));
+    
+    public static Comparator<Team> pointsComparator = ((a, b) -> -ObjectUtils.compare(a.getPoints(), b.getPoints(), true));
 
-    public String name;
+    private String name;
 
-    public float score = 0.0F;
+    private double score = 0.0D;
+    
+    private int points = 0;
 
-    public int counted;
+    private int counted;
 
-    public long size;
+    private long size;
 
-    public Gender gender;
+    private Gender gender;
 
     public Team(String curTeamName, Gender gender) {
         name = curTeamName;
@@ -44,7 +48,7 @@ public class Team {
         return gender;
     }
 
-    public Float getScore() {
+    public double getScore() {
         return score;
     }
 
@@ -58,11 +62,13 @@ public class Team {
     public void setCounted(int counted) {
         this.counted = counted;
     }
+    
     public void setGender(Gender gender) {
         this.gender = gender;
     }
-    public void setScore(float score) {
-        this.score = score;
+    
+    public void setScore(double d) {
+        this.score = d;
     }
     
     public void setName(String name) {
@@ -71,6 +77,14 @@ public class Team {
 
     public void setSize(long size) {
         this.size = size;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
     }
 
 }

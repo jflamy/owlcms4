@@ -170,20 +170,21 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     }
 
     private void getTeamJson(Team t, JsonObject ja, Gender g) {
-        ja.put("team", t.name);
-        ja.put("counted", formatInt(t.counted));
-        ja.put("size", formatInt((int) t.size));
-        ja.put("points", formatFloat(t.score));
+        ja.put("team", t.getName());
+        ja.put("counted", formatInt(t.getCounted()));
+        ja.put("size", formatInt((int) t.getSize()));
+        ja.put("score", formatDouble(t.getScore()));
+        ja.put("points", formatInt(t.getPoints()));
     }
 
-    private String formatFloat(float score) {
+    private String formatDouble(double d) {
         if (floatFormat == null) {
             floatFormat = new DecimalFormat();
             floatFormat.setMinimumIntegerDigits(1);
             floatFormat.setMaximumFractionDigits(0);
             floatFormat.setGroupingUsed(false);
         }
-        return floatFormat.format(score);
+        return floatFormat.format(d);
     }
 
     @Override
@@ -349,10 +350,10 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
 
         for (Team t : list3) {
             JsonObject ja = Json.createObject();
-            Gender curGender = t.gender;
+            Gender curGender = t.getGender();
 
             getTeamJson(t, ja, curGender);
-            String teamName = t.name;
+            String teamName = t.getName();
             if (teamName != null && teamName.length() > Competition.SHORT_TEAM_LENGTH) {
                 setWide(true);
             }
