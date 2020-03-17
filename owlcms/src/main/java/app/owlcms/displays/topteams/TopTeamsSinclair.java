@@ -58,29 +58,27 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 /**
- * Class TopTeams
+ * Class TopTeamsSinclair
  *
  * Show athlete lifting order
  *
  */
 @SuppressWarnings("serial")
-@Tag("topteams-template")
-@JsModule("./components/TopTeams.js")
-@Route("displays/topteams")
+@Tag("topteamsinclair-template")
+@JsModule("./components/TopTeamsSinclair.js")
+@Route("displays/topteamsinclair")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements DarkModeParameters,
+public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsSinclairModel> implements DarkModeParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin, PageConfigurator {
 
     /**
-     * LiftingOrderModel
-     *
      * Vaadin Flow propagates these variables to the corresponding Polymer template JavaScript properties. When the JS
      * properties are changed, a "propname-changed" event is triggered.
      * {@link Element.#addPropertyChangeListener(String, String, com.vaadin.flow.dom.PropertyChangeListener)}
      *
      */
-    public interface TopTeamsModel extends TemplateModel {
+    public interface TopTeamsSinclairModel extends TemplateModel {
 
         String getFullName();
 
@@ -95,7 +93,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         void setWideTeamNames(boolean b);
     }
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeams.class);
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(TopTeamsSinclair.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
     private static final int TOP_N = 5;
 
@@ -119,7 +117,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     /**
      * Instantiates a new results board.
      */
-    public TopTeams() {
+    public TopTeamsSinclair() {
     }
 
     @Override
@@ -147,13 +145,13 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
 
         mensTeams = teamsByGender.get(Gender.M);
         if (mensTeams != null) {
-            mensTeams.sort(TeamTreeItem.pointComparator);
+            mensTeams.sort(TeamTreeItem.scoreComparator);
         }
         mensTeams = topN(mensTeams);
 
         womensTeams = teamsByGender.get(Gender.F);
         if (womensTeams != null) {
-            womensTeams.sort(TeamTreeItem.pointComparator);
+            womensTeams.sort(TeamTreeItem.scoreComparator);
         }
         womensTeams = topN(womensTeams);
 
@@ -181,7 +179,8 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         if (floatFormat == null) {
             floatFormat = new DecimalFormat();
             floatFormat.setMinimumIntegerDigits(1);
-            floatFormat.setMaximumFractionDigits(0);
+            floatFormat.setMaximumFractionDigits(3);
+            floatFormat.setMinimumFractionDigits(3);
             floatFormat.setGroupingUsed(false);
         }
         return floatFormat.format(d);
@@ -204,7 +203,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
 
     @Override
     public String getPageTitle() {
-        return getTranslation("Scoreboard.TopTeams");
+        return getTranslation("Scoreboard.TopTeamsSinclair");
     }
 
     @Override
@@ -252,15 +251,15 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         });
     }
 
-//    @Subscribe
-//    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
-//        uiLog(e);
-//        Competition competition = Competition.getCurrent();
-//
-//        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-//            doUpdate(competition);
-//        });
-//    }
+    @Subscribe
+    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
+        uiLog(e);
+        Competition competition = Competition.getCurrent();
+
+        UIEventProcessor.uiAccess(this, uiEventBus, () -> {
+            doUpdate(competition);
+        });
+    }
 
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
@@ -290,9 +289,9 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
     protected void doUpdate(Athlete a, UIEvent e) {
         logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            TopTeamsModel model = getModel();
+            TopTeamsSinclairModel model = getModel();
             if (a != null) {
-                model.setFullName(getTranslation("Scoreboard.TopTeams"));
+                model.setFullName(getTranslation("Scoreboard.TopTeamsSinclair"));
                 updateBottom(model);
             }
         });
@@ -351,7 +350,6 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         for (Team t : list3) {
             JsonObject ja = Json.createObject();
             Gender curGender = t.getGender();
-
             getTeamJson(t, ja, curGender);
             String teamName = t.getName();
             if (teamName != null && teamName.length() > Competition.SHORT_TEAM_LENGTH) {
@@ -372,14 +370,14 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
         getModel().setWideTeamNames(b);
     }
 
-    private void updateBottom(TopTeamsModel model) {
-        getModel().setFullName(getTranslation("Scoreboard.TopTeams"));
+    private void updateBottom(TopTeamsSinclairModel model) {
+        getModel().setFullName(getTranslation("Scoreboard.TopTeamsSinclair"));
         this.getElement().setProperty("topTeamsMen",
-                mensTeams != null && mensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsMen") : "");
+                mensTeams != null && mensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsSinclairMen") : "");
         this.getElement().setPropertyJson("mensTeams", getTeamsJson(mensTeams, true));
 
         this.getElement().setProperty("topTeamsWomen",
-                womensTeams != null && womensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsWomen") : "");
+                womensTeams != null && womensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsSinclairWomen") : "");
         this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
     }
 

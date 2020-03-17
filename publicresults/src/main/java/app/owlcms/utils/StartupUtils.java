@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 import sun.misc.Unsafe;
 
+@SuppressWarnings("restriction")
 public class StartupUtils {
     
     static Logger logger = (Logger)LoggerFactory.getLogger(StartupUtils.class);

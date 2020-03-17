@@ -21,17 +21,16 @@ import ch.qos.logback.classic.Logger;
 
 public class TeamTreeItem {
     
+    @SuppressWarnings("unused")
     private final static Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeItem.class);
 
     public static Comparator<TeamTreeItem> pointComparator = ((a, b) -> {
         int compare = 0;
         compare = ObjectUtils.compare(a.getGender(), b.getGender(), true);
         if (compare != 0) {
-            logger.warn("{} {} {} {}", a.getName(), (compare > 0 ? ">" : "<"), b.getName());
             return compare;
         }
         compare = -ObjectUtils.compare(a.getPoints(), b.getPoints(), true);
-        logger.warn("{} {} {} {}", a.getName(), (compare > 0 ? ">" : (compare == 0 ? "=" : "<")), b.getName());
         return compare;
     });
     
@@ -39,11 +38,9 @@ public class TeamTreeItem {
         int compare = 0;
         compare = ObjectUtils.compare(a.getGender(), b.getGender(), true);
         if (compare != 0) {
-            logger.warn("{} {} {} {}", a.getName(), (compare > 0 ? ">" : "<"), b.getName());
             return compare;
         }
         compare = -ObjectUtils.compare(a.getScore(), b.getScore(), true);
-        logger.warn("{} {} {} {}", a.getName(), (compare > 0 ? ">" : (compare == 0 ? "=" : "<")), b.getName());
         return compare;
     });
 
