@@ -1,4 +1,4 @@
-* Release Highlights for release 4.6.2-beta2 
+* Release Highlights for release 4.6.1-beta2 
   
   - [x] Enhancement: Team Results page accessible from the "Result Documents" navigation page.  Shows the team points scored by each team (using the IWF scoring 28-25-24...) (#336)  The points are counted only for the groups that are done, not the groups in progress.  Also includes the Sinclair scores (#337)
   - [x] Enhancement: Team Sinclair Scoreboard for top 5 teams.  Updated on every lift. (#337)
