@@ -159,7 +159,7 @@ pipeline {
         }       
 
         
-       stage('Release publicresults-heroku') {
+       stage('Push publicresults-heroku') {
             environment {
                 TOKEN = credentials('jflamy-pw')
                 TOKEN2 = credentials('jflamy-dev-pw')
