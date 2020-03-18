@@ -23,7 +23,7 @@ class DecisionElement extends PolymerElement {
 
 .decision {
 	border-radius: 5%;
-	border: medium solid white;
+	border: medium solid var(--lumo-contrast);
 	margin: 3%;
 /* 	background-color: #333333; */
 	width: 30%;
@@ -37,7 +37,7 @@ class DecisionElement extends PolymerElement {
 }
 
 .none {
-	background-color: #333333;
+	background-color: var(--lumo-contrast-50pct);
 }
 
 .down {

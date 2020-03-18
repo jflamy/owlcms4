@@ -162,6 +162,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     private H2 firstNameWrapper;
     protected Button startTimeButton;
     protected Button stopTimeButton;
+    protected HorizontalLayout topBarLeft;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -210,7 +211,12 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     public HorizontalLayout createTopBarLeft() {
-        HorizontalLayout topBarLeft = new HorizontalLayout();
+        topBarLeft = new HorizontalLayout();
+        fillTopBarLeft();
+        return topBarLeft;
+    }
+
+    protected void fillTopBarLeft() {
         title = new H3();
         title.setText(getTopBarTitle());
         title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
@@ -218,7 +224,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         topBarLeft.setAlignItems(Alignment.CENTER);
         topBarLeft.setPadding(true);
         topBarLeft.setId("topBarLeft");
-        return topBarLeft;
     }
 
     /**

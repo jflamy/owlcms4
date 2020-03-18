@@ -27,6 +27,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -58,6 +59,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         uiEventLogger.setLevel(Level.INFO);
     }
 
+    private HorizontalLayout timerButtons;
+    private HorizontalLayout decisionLights;
+
     public AnnouncerContent() {
         super();
         defineFilters(crudGrid);
@@ -88,6 +92,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            hideLiveDecisions();
+            
             int d = e.decision ? 1 : 0;
             String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
 
@@ -106,6 +112,32 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             n.open();
         });
     }
+    
+    protected void createStartTimeButton() {
+        startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
+        startTimeButton.addClickListener(e -> {
+            OwlcmsSession.withFop(fop -> {
+                fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
+                buttonsTimeStarted();
+                displayLiveDecisions();
+            });
+        });
+        startTimeButton.getElement().setAttribute("theme", "primary success icon");
+    }
+
+    protected void displayLiveDecisions() {
+        if (decisionLights == null) {
+            topBarLeft.removeAll();
+            createDecisionLights();
+            topBarLeft.add(decisionLights);
+        }
+    }
+
+    private void hideLiveDecisions() {
+        topBarLeft.removeAll();
+        fillTopBarLeft();
+        decisionLights = null;
+    }
 
     /**
      * @see app.owlcms.ui.shared.AthleteGridContent#announcerButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
@@ -117,10 +149,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         create1minButton();
         create2MinButton();
 
-        HorizontalLayout buttons = new HorizontalLayout(
+        timerButtons = new HorizontalLayout(
                 startTimeButton, stopTimeButton, _1min, _2min);
-        buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
-        return buttons;
+        timerButtons.setAlignItems(FlexComponent.Alignment.BASELINE);
+        return timerButtons;
     }
 
     /**
@@ -149,7 +181,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         initialBar = true;
 
         createTopBarGroupSelect();
-        HorizontalLayout topBarLeft = createTopBarLeft();
+        topBarLeft = createTopBarLeft();
 
         introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
@@ -191,13 +223,14 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
      */
     @Override
     protected Component createReset() {
-        reset = new Button(getTranslation("RefreshList"), IronIcons.REFRESH.create(), (e) -> OwlcmsSession.withFop((fop) -> {
-            Group group = fop.getGroup();
-            logger.info("resetting {} from database", group);
-            fop.loadGroup(null, this);
-            fop.loadGroup(group, this);
-            syncWithFOP(true); // loadgroup does not refresh grid, true=ask for refresh
-        }));
+        reset = new Button(getTranslation("RefreshList"), IronIcons.REFRESH.create(),
+                (e) -> OwlcmsSession.withFop((fop) -> {
+                    Group group = fop.getGroup();
+                    logger.info("resetting {} from database", group);
+                    fop.loadGroup(null, this);
+                    fop.loadGroup(group, this);
+                    syncWithFOP(true); // loadgroup does not refresh grid, true=ask for refresh
+                }));
 
         reset.getElement().setAttribute("title", getTranslation("Reload_group"));
         reset.getElement().setAttribute("theme", "secondary contrast small icon");
@@ -262,6 +295,20 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
         HorizontalLayout decisions = new HorizontalLayout(good, bad);
         return decisions;
+    }
+
+    private void createDecisionLights() {
+        JuryDisplayDecisionElement decisionDisplay = new JuryDisplayDecisionElement();
+//        Icon silenceIcon = AvIcons.MIC_OFF.create();
+        decisionLights = new HorizontalLayout(decisionDisplay);
+        decisionLights.setWidth("12em");
+        decisionLights.getStyle().set("line-height", "2em");
+    }
+    
+    @Override
+    protected void fillTopBarLeft() {
+        super.fillTopBarLeft();
+        topBarLeft.setWidth("12em");
     }
 
 }
