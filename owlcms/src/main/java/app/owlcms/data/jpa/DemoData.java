@@ -62,7 +62,6 @@ public class DemoData {
         JPAService.runInTransaction(em -> {
             Competition competition = createDefaultCompetition(ageDivisions);
             CompetitionRepository.save(competition);
-            
             AgeGroupRepository.insertAgeGroups(em, ageDivisions);
             return null;
         });
