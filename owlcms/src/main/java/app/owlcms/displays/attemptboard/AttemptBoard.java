@@ -21,6 +21,7 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.Route;
@@ -397,6 +398,9 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         OwlcmsSession.withFop(fop -> {
             logger.debug("onAttach {} {}", fop.getName(), fop.getState());
             init();
+            ThemeList themeList = UI.getCurrent().getElement().getThemeList();
+            themeList.remove(Lumo.LIGHT);
+            themeList.add(Lumo.DARK);
 
             // sync with current status of FOP
             if (fop.getState() == FOPState.INACTIVE) {

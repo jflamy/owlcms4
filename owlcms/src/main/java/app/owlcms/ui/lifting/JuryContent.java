@@ -280,6 +280,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
         labelWrapper.setHeight("5%");
 
         decisions = new JuryDisplayDecisionElement();
+        decisions.getElement().setAttribute("theme", "dark");
         Div decisionWrapper = new Div(decisions);
         decisionWrapper.getStyle().set("width", "50%");
         decisionWrapper.getStyle().set("height", "35%");
