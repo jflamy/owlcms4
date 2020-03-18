@@ -110,15 +110,15 @@ public class CompetitionEditingFormFactory
         // footerLayout1 callbacks are not actually used -- footerLayout2 overwrites the callbacks.
         Component footerLayout1 = this.buildFooter(operation, competition, cancelButtonClickListener,
                 c -> {
-                    this.update(competition);
-                    Locale defaultLocale = competition.getDefaultLocale();
+                    Competition nCompetition = this.update(competition);
+                    Locale defaultLocale = nCompetition.getDefaultLocale();
                     Translator.setForcedLocale(defaultLocale);
                     Translator.reset();
                 }, deleteButtonClickListener, false);
         Component footerLayout2 = this.buildFooter(operation, competition, cancelButtonClickListener,
                 c -> {
-                    this.update(competition);
-                    Locale defaultLocale = competition.getDefaultLocale();
+                    Competition nCompetition = this.update(competition);
+                    Locale defaultLocale = nCompetition.getDefaultLocale();
                     Translator.setForcedLocale(defaultLocale);
                     Translator.reset();
                 }, deleteButtonClickListener, false);
@@ -345,6 +345,11 @@ public class CompetitionEditingFormFactory
         defaultLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
         binder.forField(defaultLocaleField).bind(Competition::getDefaultLocale, Competition::setDefaultLocale);
         layout.addFormItem(defaultLocaleField, Translator.translate("Competition.defaultLocale"));
+        
+        Checkbox customScoreField = new Checkbox();
+        layout.addFormItem(customScoreField, labelWithHelp("Competition.announcerLiveDecisions", "Competition.announceLiverDecisionsExplanation"));
+        binder.forField(customScoreField)
+                .bind(Competition::isAnnouncerLiveDecisions, Competition::setAnnouncerLiveDecisions);
 
         return layout;
     }

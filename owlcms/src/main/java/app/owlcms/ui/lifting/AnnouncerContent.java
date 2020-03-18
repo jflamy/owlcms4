@@ -60,7 +60,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     }
 
     private HorizontalLayout timerButtons;
-    private Div decisionLights;
+    private HorizontalLayout decisionLights;
 
     public AnnouncerContent() {
         super();
@@ -299,7 +299,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     private void createDecisionLights() {
         JuryDisplayDecisionElement decisionDisplay = new JuryDisplayDecisionElement();
-        decisionLights = new Div(decisionDisplay);
+//        Icon silenceIcon = AvIcons.MIC_OFF.create();
+        decisionLights = new HorizontalLayout(decisionDisplay);
         decisionLights.setWidth("12em");
         decisionLights.getStyle().set("line-height", "2em");
     }
