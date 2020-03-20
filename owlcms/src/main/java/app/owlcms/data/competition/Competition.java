@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -47,10 +50,10 @@ import ch.qos.logback.classic.Logger;
 @Entity
 public class Competition {
 
-    final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
     public static final int SHORT_TEAM_LENGTH = 6;
-
     private static Competition competition;
+
+    final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
 
     /**
      * Gets the current.
@@ -84,33 +87,13 @@ public class Competition {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
-    private String competitionName;
+    
+    private String ageGroupsFileName;
+    private String competitionCity;
     private LocalDate competitionDate = null;
+    private String competitionName;
     private String competitionOrganizer;
     private String competitionSite;
-
-    private String competitionCity;
-    private String federation;
-    private String federationAddress;
-    private String federationEMail;
-
-    private String federationWebSite;
-
-    @Convert(converter = LocaleAttributeConverter.class)
-    private Locale defaultLocale = null;
-    private String protocolFileName;
-
-    @Lob
-    private byte[] protocolTemplate;
-    private String finalPackageTemplateFileName;
-
-    private String ageGroupsFileName;
-
-    @Lob
-    private byte[] finalPackageTemplate;
-
-    private boolean enforce20kgRule;
-    private boolean masters;
     
     /**
      * enable overriding total for kids categories with bonus points
@@ -119,10 +102,48 @@ public class Competition {
     private boolean customScore;
     
     /**
+     * announcer sees decisions as they are made by referee.
+     */
+    @Column(columnDefinition = "boolean default true")
+    private boolean announcerLiveDecisions;
+    
+    @Convert(converter = LocaleAttributeConverter.class)
+    private Locale defaultLocale = null;
+
+    private boolean enforce20kgRule;
+
+    private String federation;
+    private String federationAddress;
+
+    private String federationEMail;
+    private String federationWebSite;
+
+    @Lob
+    private byte[] finalPackageTemplate;
+
+    private String finalPackageTemplateFileName;
+
+    /**
+     * In a mixed group, call all female lifters then all male lifters
+     */
+    @Column(columnDefinition = "boolean default false")
+    private boolean genderOrder;
+    private boolean masters;
+    
+    /**
      * Add W75 and W80+ masters categories
      */
     @Column(columnDefinition = "boolean default false")
     private boolean mastersGenderEquality = false;
+    private Integer mensTeamSize;
+    
+    private String protocolFileName;
+    
+    @Lob
+    private byte[] protocolTemplate;
+
+    @Transient
+    private HashMap<String, Object> reportingBeans = new HashMap<>();
 
     /**
      * Do not require month and day for birth.
@@ -147,9 +168,8 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean useRegistrationCategory = false;
-
-    @Transient
-    private HashMap<String, Object> reportingBeans = new HashMap<>();
+    
+    private Integer womensTeamSize;
 
     synchronized public void computeGlobalRankings(boolean full) {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
@@ -288,7 +308,7 @@ public class Competition {
     }
 
     synchronized public List<Athlete> getGlobalCategoryRankingsForGroup(Group group) {
-        if (group == null) {
+        if (group == null || group.getName() == null) {
             logger.debug("null group");
             return null;
         }
@@ -303,6 +323,24 @@ public class Competition {
         return getListOrElseRecompute(gender == Gender.F ? "wSn" : "mSn");
     }
 
+    public Collection<Athlete> getGlobalTeamsRanking(Gender gender) {
+        List<Athlete> athletes = getAthletes(gender);
+        if (athletes == null) {
+            // not cached yet (we are likely the first on a reset/restart).
+            computeGlobalRankings(true);
+            athletes = getAthletes(gender);
+            if (athletes == null) {
+                String error = MessageFormat.format("team list not found for gender {0}", gender);
+                logger./**/warn(error);
+                athletes = Collections.emptyList();
+            }
+            logger.debug("team rankings recomputed {} size {}", gender, athletes != null ? athletes.size() : null);
+        } else {
+            logger.debug("found team rankings {} size {}", gender, athletes != null ? athletes.size() : null);
+        }
+        return athletes;
+    }
+    
     synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
         return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
     }
@@ -334,8 +372,8 @@ public class Competition {
             athletes = (List<Athlete>) reportingBeans.get(listName);
             if (athletes == null) {
                 String error = MessageFormat.format("list {0} not found", listName);
-                logger.error(error);
-                throw new RuntimeException(error);
+                logger./**/warn(error);
+                athletes = Collections.emptyList();
             }
             logger.debug("recomputed {} size {}", listName, athletes != null ? athletes.size() : null);
         } else {
@@ -360,6 +398,10 @@ public class Competition {
      */
     public boolean getMasters() {
         return isMasters();
+    }
+
+    public Integer getMensTeamSize() {
+        return mensTeamSize;
     }
 
     /**
@@ -393,6 +435,14 @@ public class Competition {
         return reportingBeans;
     }
 
+    public Integer getWomensTeamSize() {
+        return womensTeamSize;
+    }
+
+    public boolean isCustomScore() {
+        return customScore;
+    }
+
     /**
      * Checks if is enforce 20 kg rule.
      *
@@ -403,7 +453,10 @@ public class Competition {
     }
 
     public boolean isGenderOrder() {
-        return StartupUtils.getBooleanParam("genderOrder");
+        if (StartupUtils.getBooleanParam("genderOrder")) {
+            setGenderOrder(true);
+        }
+        return genderOrder;
     }
 
     /**
@@ -505,6 +558,10 @@ public class Competition {
         this.competitionSite = competitionSite;
     }
 
+    public void setCustomScore(boolean customScore) {
+        this.customScore = customScore;
+    }
+
     public void setDefaultLocale(Locale defaultLocale) {
         this.defaultLocale = defaultLocale;
     }
@@ -562,6 +619,10 @@ public class Competition {
         this.finalPackageTemplateFileName = finalPackageTemplateFileName;
     }
 
+    public void setGenderOrder(boolean genderOrder) {
+        this.genderOrder = genderOrder;
+    }
+
     /**
      * Sets the invited if born before.
      *
@@ -576,6 +637,10 @@ public class Competition {
 
     public void setMastersGenderEquality(boolean mastersGenderEquality) {
         this.mastersGenderEquality = mastersGenderEquality;
+    }
+
+    public void setMensTeamSize(Integer mensTeamSize) {
+        this.mensTeamSize = mensTeamSize;
     }
 
     /**
@@ -611,6 +676,52 @@ public class Competition {
         this.useRegistrationCategory = false;
     }
 
+    public void setWomensTeamSize(Integer womensTeamSize) {
+        this.womensTeamSize = womensTeamSize;
+    }
+
+    @Override
+    public String toString() {
+        return "Competition [id=" + id + ", competitionName=" + competitionName + ", competitionDate=" + competitionDate
+                + ", competitionOrganizer=" + competitionOrganizer + ", competitionSite=" + competitionSite
+                + ", competitionCity=" + competitionCity + ", federation=" + federation + ", federationAddress="
+                + federationAddress + ", federationEMail=" + federationEMail + ", federationWebSite="
+                + federationWebSite + ", defaultLocale=" + defaultLocale + ", protocolFileName=" + protocolFileName
+                + ", protocolTemplate=" + Arrays.toString(protocolTemplate) + ", finalPackageTemplateFileName="
+                + finalPackageTemplateFileName + ", ageGroupsFileName=" + ageGroupsFileName + ", finalPackageTemplate="
+                + Arrays.toString(finalPackageTemplate) + ", enforce20kgRule=" + enforce20kgRule + ", masters="
+                + masters + ", mensTeamSize=" + mensTeamSize + ", womensTeamSize=" + womensTeamSize + ", customScore="
+                + customScore + ", mastersGenderEquality=" + mastersGenderEquality + ", useBirthYear=" + useBirthYear
+                + ", useCategorySinclair=" + useCategorySinclair + ", useOldBodyWeightTieBreak="
+                + useOldBodyWeightTieBreak + ", useRegistrationCategory=" + useRegistrationCategory
+                + ", reportingBeans=" + reportingBeans + "]";
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Athlete> getAthletes(Gender gender) {
+        List<Athlete> athletes = null;
+        List<Athlete> mTeam = (List<Athlete>) reportingBeans.get("mTeam");
+        List<Athlete> wTeam = (List<Athlete>) reportingBeans.get("wTeam");
+        switch(gender) {
+        case M:
+            athletes = mTeam;
+            break;
+        case F: 
+            athletes = wTeam;
+            break;
+        case MIXED:
+            athletes = new ArrayList<Athlete>();
+            if (mTeam != null) {
+                athletes.addAll((List<Athlete>) mTeam);
+            }
+            if (wTeam != null) {
+                athletes.addAll((List<Athlete>) wTeam);
+            }
+            break;
+        }
+        return athletes;
+    }
+
     @SuppressWarnings("unchecked")
     private void sortGroupResults(List<Athlete> athletes) {
         List<Athlete> sortedAthletes;
@@ -626,13 +737,6 @@ public class Competition {
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
         reportingBeans.put("mSn", sortedMen);
         reportingBeans.put("wSn", sortedWomen);
-//        logger./**/warn("snatch ranks {}",
-//                sortedMen
-//                .stream()
-//                //.filter(a->a.getSnatchTotal()>0)
-//                .map(a->{
-//                    return a.getFullName()+" "+a.getCategory()+" "+a.getSnatchTotal()+" "+a.getSnatchRank();
-//                    }).collect(Collectors.joining(", ")));
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CLEANJERK);
         AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.CLEANJERK);
@@ -650,8 +754,8 @@ public class Competition {
         reportingBeans.put("mTot", sortedMen);
         reportingBeans.put("wTot", sortedWomen);
 
-        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SINCLAIR);
-        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.SINCLAIR);
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.BW_SINCLAIR);
+        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.BW_SINCLAIR);
         sortedMen = new ArrayList<>(sortedAthletes.size());
         sortedWomen = new ArrayList<>(sortedAthletes.size());
         splitByGender(sortedAthletes, sortedMen, sortedWomen);
@@ -659,6 +763,26 @@ public class Competition {
         reportingBeans.put("wSinclair", sortedWomen);
         logger.debug("mSinclair {}", sortedMen);
         logger.debug("wSinclair {}", sortedWomen);
+        
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CAT_SINCLAIR);
+        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.CAT_SINCLAIR);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans.put("mCatSinclair", sortedMen);
+        reportingBeans.put("wCatSinclair", sortedWomen);
+        logger.debug("mCatSinclair {}", sortedMen);
+        logger.debug("wCatSinclair {}", sortedWomen);
+        
+        sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SMM);
+        AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.SMM);
+        sortedMen = new ArrayList<>(sortedAthletes.size());
+        sortedWomen = new ArrayList<>(sortedAthletes.size());
+        splitByGender(sortedAthletes, sortedMen, sortedWomen);
+        reportingBeans.put("mSmm", sortedMen);
+        reportingBeans.put("wSmm", sortedWomen);
+        logger.debug("mSmm {}", sortedMen);
+        logger.debug("wSmm {}", sortedWomen);
 
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.ROBI);
         reportingBeans.put("athletes", sortedAthletes);
@@ -754,11 +878,13 @@ public class Competition {
         reportingBeans.put("mwTeam", sortedAthletes);
     }
 
-    public boolean isCustomScore() {
-        return customScore;
+    public boolean isAnnouncerLiveDecisions() {
+        return announcerLiveDecisions;
     }
 
-    public void setCustomScore(boolean customScore) {
-        this.customScore = customScore;
+    public void setAnnouncerLiveDecisions(boolean announcerLiveDecisions) {
+        this.announcerLiveDecisions = announcerLiveDecisions;
     }
+    
+    
 }

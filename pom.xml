@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>app.owlcms</groupId>
     <artifactId>owlcms4top</artifactId>
-    <version>4.5.2</version>
+    <version>4.6.1-rc3</version>
     <packaging>pom</packaging>
     <modules>
         <module>owlcms</module>
@@ -152,7 +152,7 @@
             <dependency>
                 <groupId>app.owlcms</groupId>
                 <artifactId>owlcms</artifactId>
-                <version>${project.version}</version>
+                <version>4.6.0-alpha4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

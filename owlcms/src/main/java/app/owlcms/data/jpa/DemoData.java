@@ -32,6 +32,7 @@ import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.LoggerUtils;
@@ -60,7 +61,7 @@ public class DemoData {
         logger.info("inserting initial data");
         JPAService.runInTransaction(em -> {
             Competition competition = createDefaultCompetition(ageDivisions);
-            em.persist(competition);
+            CompetitionRepository.save(competition);
             AgeGroupRepository.insertAgeGroups(em, ageDivisions);
             return null;
         });
@@ -72,7 +73,7 @@ public class DemoData {
     }
 
     protected static void assignStartNumbers(EntityManager em, Group groupA) {
-        List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, groupA, true);
+        List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, groupA, true, (Gender) null);
         AthleteSorter.registrationOrder(athletes);
         AthleteSorter.assignStartNumbers(athletes);
     }
@@ -133,9 +134,7 @@ public class DemoData {
         competition.setEnforce20kgRule(true);
         competition.setMasters(ageDivisions != null && ageDivisions.contains(MASTERS));
         competition.setUseBirthYear(true);
-
-        // needed because some classes such as Athlete refer to the current competition
-        Competition.setCurrent(competition);
+        competition.setAnnouncerLiveDecisions(true);
 
         return competition;
     }

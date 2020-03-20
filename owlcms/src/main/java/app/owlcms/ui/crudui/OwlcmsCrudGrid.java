@@ -38,8 +38,8 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsCrudGrid.class);
 
-    private OwlcmsGridLayout owlcmsGridLayout;
-    private OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
+    protected OwlcmsGridLayout owlcmsGridLayout;
+    protected OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory;
 
     private long clicked = 0L;
 

@@ -32,9 +32,13 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -50,6 +54,7 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.BreakType;
@@ -82,7 +87,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 public abstract class AthleteGridContent extends VerticalLayout
-        implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor {
+        implements CrudListener<Athlete>, OwlcmsContent, QueryParameterReader, UIEventProcessor, IAthleteEditing {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -137,6 +142,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      * groupFilter.
      */
     protected ComboBox<Group> groupFilter = new ComboBox<>();
+    protected ComboBox<Gender> genderFilter = new ComboBox<>();
     private String topBarTitle;
 
     protected TextField lastNameFilter = new TextField();
@@ -156,6 +162,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     private H2 firstNameWrapper;
     protected Button startTimeButton;
     protected Button stopTimeButton;
+    protected HorizontalLayout topBarLeft;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -175,7 +182,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     public void busyBreakButton() {
         if (breakButton == null) {
-            logger.error("breakButton is null\n{}", LoggerUtils.stackTrace());
+//            logger.error("breakButton is null\n{}", LoggerUtils.stackTrace());
             return;
         }
         breakButton.getElement().setAttribute("theme", "primary error");
@@ -189,13 +196,27 @@ public abstract class AthleteGridContent extends VerticalLayout
         styleable.getStyle().set("margin-top", "0").set("margin-bottom", "0");
     }
 
+    /**
+     * @see app.owlcms.ui.shared.IAthleteEditing#closeDialog()
+     */
+    @Override
     public void closeDialog() {
         crudGrid.getCrudLayout().hideForm();
         crudGrid.getGrid().asSingleSelect().clear();
     }
+    
+    @Override
+    public OwlcmsCrudGrid<?> getEditingGrid() {
+        return crudGrid;
+    }
 
     public HorizontalLayout createTopBarLeft() {
-        HorizontalLayout topBarLeft = new HorizontalLayout();
+        topBarLeft = new HorizontalLayout();
+        fillTopBarLeft();
+        return topBarLeft;
+    }
+
+    protected void fillTopBarLeft() {
         title = new H3();
         title.setText(getTopBarTitle());
         title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
@@ -203,7 +224,6 @@ public abstract class AthleteGridContent extends VerticalLayout
         topBarLeft.setAlignItems(Alignment.CENTER);
         topBarLeft.setPadding(true);
         topBarLeft.setId("topBarLeft");
-        return topBarLeft;
     }
 
     /**
@@ -310,6 +330,25 @@ public abstract class AthleteGridContent extends VerticalLayout
         this.routerLayout = routerLayout;
     }
 
+    @Subscribe
+    public void slaveBroadcast(UIEvent.Broadcast e) {
+        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
+            Icon close = VaadinIcon.CLOSE_CIRCLE_O.create();
+            close.getStyle().set("margin-left", "2em");
+            close.setSize("4em");
+            Notification notification = new Notification();
+            Label label = new Label();
+            label.getElement().setProperty("innerHTML", getTranslation(e.getMessage()));
+            HorizontalLayout content = new HorizontalLayout(label, close);
+            notification.add(content);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setDuration(-1);
+            close.addClickListener(event -> notification.close());
+            notification.setPosition(Position.MIDDLE);
+            notification.open();
+        });
+    }
+    
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
         UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {

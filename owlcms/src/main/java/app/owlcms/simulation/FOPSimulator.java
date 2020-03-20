@@ -74,7 +74,7 @@ public class FOPSimulator implements Runnable {
             if (as.size() > 0) {
                 curGroupList.add(g);
                 groupsByPlatform.put(curP, curGroupList);
-                logger.warn("platform {} groups {}", System.identityHashCode(curP), groupsByPlatform.get(curP));
+                logger.debug("platform {} groups {}", System.identityHashCode(curP), groupsByPlatform.get(curP));
             }
         }
 
@@ -138,7 +138,7 @@ public class FOPSimulator implements Runnable {
         uiEventBus.register(this);
         this.setOrigin(this);
 
-        logger.warn("simulating fop {}", fop);
+        logger.debug("simulating fop {}", fop);
         startNextGroup();
     }
 
@@ -298,7 +298,7 @@ public class FOPSimulator implements Runnable {
         curGs = groupsByPlatform.get(fop.getPlatform());
         if (curGs.size() > 0) {
             Group g = curGs.get(0);
-            logger.warn("########## starting group {} of {}", g, curGs);
+            logger.info("########## starting group {} of {}", g, curGs);
             fop.startLifting(g, this);
             return true;
         } else {

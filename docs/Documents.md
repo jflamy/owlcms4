@@ -14,6 +14,13 @@ The Group Results button opens a page where it is possible
 
 ![SessionResults](img/Documents/SessionResults.png)
 
+## Team Results
+
+The full Team results are available, both in IWF-style points and in Team Sinclair modes.
+To see the results, filter to Men or Women using the dropdown, and use the sorting controls at the top of the list.
+Details for each team are available by clicking on the team name.
+
+
 ## Competition Package
 
 The competition package contains the 6-lift results for men and women, the Robi rankings, and the team results.

@@ -50,8 +50,8 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.CustomFormFactory;
+import app.owlcms.ui.shared.IAthleteEditing;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -94,11 +94,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
     private Athlete editedAthlete;
     private Athlete originalAthlete;
 
-    private AthleteGridContent origin;
+    private IAthleteEditing origin;
 
     private GridLayout gridLayout;
 
-    public AthleteCardFormFactory(Class<Athlete> domainType, AthleteGridContent origin) {
+    public AthleteCardFormFactory(Class<Athlete> domainType, IAthleteEditing origin) {
         super(domainType);
         this.origin = origin;
     }

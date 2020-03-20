@@ -17,7 +17,7 @@ public class Tone {
     private AudioFormat af;
     private SourceDataLine sdl;
 
-    public Tone(Mixer mixer, int hz, int msecs, double vol) throws IllegalArgumentException {
+    public Tone(Mixer mixer, int hz, int msecs, double vol) throws IllegalArgumentException, LineUnavailableException {
         if (mixer == null) {
             return;
         }
@@ -30,19 +30,15 @@ public class Tone {
      * @param sdl
      * @throws LineUnavailableException
      */
-    public void emit() {
+    public void emit() throws IllegalArgumentException, LineUnavailableException {
         if (sdl == null) {
             return;
         }
-        try {
-            sdl.open(af, buf.length);
-            sdl.start();
-            sdl.write(buf, 0, buf.length);
-            sdl.drain();
-            sdl.close();
-        } catch (LineUnavailableException e) {
-            throw new RuntimeException(e);
-        }
+        sdl.open(af, buf.length);
+        sdl.start();
+        sdl.write(buf, 0, buf.length);
+        sdl.drain();
+        sdl.close();
     }
 
     /**
@@ -51,7 +47,8 @@ public class Tone {
      * @param vol
      * @param mixer
      */
-    protected void init(int hz, int msecs, double vol, Mixer mixer) {
+    protected void init(int hz, int msecs, double vol, Mixer mixer)
+            throws LineUnavailableException, IllegalArgumentException {
         if (vol > 1.0 || vol < 0.0) {
             throw new IllegalArgumentException("Volume out of range 0.0 - 1.0");
         }
@@ -69,11 +66,7 @@ public class Tone {
         }
 
         af = new AudioFormat(8000f, 8, 1, true, false);
-        try {
-            sdl = AudioSystem.getSourceDataLine(af, mixer.getMixerInfo());
-        } catch (LineUnavailableException e) {
-            throw new RuntimeException(e);
-        }
+        sdl = AudioSystem.getSourceDataLine(af, mixer.getMixerInfo());
     }
 
 }

@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -143,8 +142,8 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         this.getElement().callJsFunction("reset");
 
         // create copies because we want to change the list
-        setSortedMen(competition.getGlobalSinclairRanking(Gender.M).stream().collect(Collectors.toList()));
-        setSortedWomen(competition.getGlobalSinclairRanking(Gender.F).stream().collect(Collectors.toList()));
+        setSortedMen(competition.getGlobalSinclairRanking(Gender.M));
+        setSortedWomen(competition.getGlobalSinclairRanking(Gender.F));
 
         topManSinclair = 0.0D;
         List<Athlete> sortedMen2 = getSortedMen();
@@ -172,11 +171,12 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
 
         topWomanSinclair = 0.0D;
         List<Athlete> sortedWomen2 = getSortedWomen();
-        if (sortedMen2 != null && !sortedMen2.isEmpty()) {
+        if (sortedWomen2 != null && !sortedWomen2.isEmpty()) {
             ListIterator<Athlete> iterWomen = sortedWomen2.listIterator();
             while (iterWomen.hasNext()) {
                 Athlete curWoman = iterWomen.next();
-                Double curSinclair = curWoman.getSinclairForDelta();
+                Double curSinclair = (curWoman.getAttemptsDone() <= 3 ? curWoman.getSinclairForDelta()
+                        : curWoman.getSinclair());
                 if (curSinclair <= 0) {
                     iterWomen.remove();
                 } else {
@@ -208,7 +208,8 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         ja.put("cattempts", cattempts);
         ja.put("total", formatInt(a.getTotal()));
         ja.put("bw", String.format("%.2f", a.getBodyWeight()));
-        ja.put("sinclair", String.format("%.3f", a.getSinclair()));
+        ja.put("sinclair", String.format("%.3f", (a.getAttemptsDone() <= 3 ? a.getSinclairForDelta()
+                : a.getSinclair())));
         ja.put("needed", formatInt(needed));
     }
 
@@ -486,14 +487,16 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
     private void updateBottom(TopSinclairModel model) {
         getModel().setFullName(getTranslation("Scoreboard.TopSinclair"));
         List<Athlete> sortedMen2 = getSortedMen();
-        logger.debug("updateBottom {}", sortedMen2);
         this.getElement().setProperty("topSinclairMen",
                 sortedMen2 != null && sortedMen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairMen") : "");
         this.getElement().setPropertyJson("sortedMen", getAthletesJson(sortedMen2, true));
+        
         List<Athlete> sortedWomen2 = getSortedWomen();
         this.getElement().setProperty("topSinclairWomen",
                 sortedWomen2 != null && sortedWomen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairWomen") : "");
         this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2, false));
+        
+        logger.debug("updateBottom {} {}", sortedWomen2, sortedMen2);
     }
 
 }

@@ -15,6 +15,7 @@ import java.util.Objects;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -72,6 +73,9 @@ public class Group implements Comparable<Group> {
     private String jury3;
     private String jury4;
     private String jury5;
+
+    @Column(columnDefinition = "boolean default false")
+    private boolean done;
 
     /**
      * Instantiates a new group.
@@ -165,24 +169,6 @@ public class Group implements Comparable<Group> {
     public String getAnnouncer() {
         return announcer;
     }
-
-//    /**
-//     * Gets the athletes.
-//     *
-//     * @return the athletes
-//     */
-//    public Set<Athlete> getAthletes() {
-//        return athletes;
-//    }
-
-//    /**
-//     * Gets the categories.
-//     *
-//     * @return the set of categories for the Group
-//     */
-//    public Set<Category> getCategories() {
-//        return categories;
-//    }
 
     /**
      * Gets the competition short date time.
@@ -376,24 +362,6 @@ public class Group implements Comparable<Group> {
         this.announcer = announcer;
     }
 
-//    /**
-//     * Sets the athletes.
-//     *
-//     * @param athletes the new athletes
-//     */
-//    public void setAthletes(Set<Athlete> athletes) {
-//        this.athletes = athletes;
-//    }
-
-//    /**
-//     * Sets the categories.
-//     *
-//     * @param categories the new categories
-//     */
-//    public void setCategories(Set<Category> categories) {
-//        this.categories = categories;
-//    }
-
     /**
      * Sets the competition time.
      *
@@ -522,6 +490,18 @@ public class Group implements Comparable<Group> {
     @Override
     public String toString() {
         return getName();
+    }
+
+    public void setDone(boolean b) {
+        logger.debug("done? {} previous={} done={} [{}]", getName(), this.done, b, LoggerUtils.whereFrom());
+        if (this.done != b) {
+            this.done = b;
+            GroupRepository.save(this);
+        }
+    }
+
+    public boolean isDone() {
+        return done;
     }
 
 }

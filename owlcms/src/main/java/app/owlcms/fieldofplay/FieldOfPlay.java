@@ -21,6 +21,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 
 import org.slf4j.LoggerFactory;
@@ -175,6 +176,7 @@ public class FieldOfPlay {
         this.uiEventBus = new EventBus("UI-" + this.name);
         this.postBus = new EventBus("POST-" + name);
         this.setTestingMode(testingMode);
+        this.group = new Group();
         init(athletes, timer1, breakTimer1);
     }
 
@@ -752,6 +754,11 @@ public class FieldOfPlay {
         // if (state == INACTIVE) {
         // logger.debug("entering inactive {}",LoggerUtils.stackTrace());
         // }
+        if (state == CURRENT_ATHLETE_DISPLAYED) {
+            group.setDone(getCurAthlete() == null || getCurAthlete().getAttemptsDone() >= 6);
+        } else if (state == BREAK) {
+            group.setDone(breakType == BreakType.GROUP_DONE);
+        }
         this.state = state;
     }
 
@@ -759,13 +766,20 @@ public class FieldOfPlay {
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
             uiDisplayCurrentAthleteAndTime(true, e, false);
             setState(CURRENT_ATHLETE_DISPLAYED);
+            group.setDone(false);
         } else {
-            UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
-            pushOut(event);
+            pushOutDone();
             // special kind of break that allows moving back in case of jury reversal
             setBreakType(BreakType.GROUP_DONE);
             setState(BREAK);
+            group.setDone(true);
         }
+    }
+
+    private void pushOutDone() {
+        logger.debug("group {} done", group);
+        UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
+        pushOut(event);
     }
 
     /**
@@ -882,7 +896,12 @@ public class FieldOfPlay {
 
     private void prepareDownSignal() {
         if (isEmitSoundsOnServer()) {
-            downSignal = new Tone(getSoundMixer(), 1100, 1200, 1.0);
+            try {
+                downSignal = new Tone(getSoundMixer(), 1100, 1200, 1.0);
+            } catch (IllegalArgumentException | LineUnavailableException e) {
+                logger.error("{}\n{}", e.getCause(), LoggerUtils.stackTrace(e));
+                broadcast("SoundSystemProblem");
+            }
         }
     }
 
@@ -923,14 +942,32 @@ public class FieldOfPlay {
         AthleteSorter.liftingOrder(this.getLiftingOrder());
         setDisplayOrder(AthleteSorter.displayOrderCopy(this.getLiftingOrder()));
         this.setCurAthlete(this.getLiftingOrder().isEmpty() ? null : this.getLiftingOrder().get(0));
+        if (curAthlete == null) {
+            pushOutDone();
+            return;
+        }
+
         int timeAllowed = getTimeAllowed();
-        logger.debug("{} recomputed lifting order curAthlete={} prevlifter={} time={} [{}]",
+        Integer attemptsDone = curAthlete.getAttemptsDone();
+        logger.debug("{} recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
                 getName(),
                 getCurAthlete() != null ? getCurAthlete().getFullName() : "",
-                previousAthlete != null ? previousAthlete.getFullName() : "", timeAllowed, LoggerUtils.whereFrom());
+                previousAthlete != null ? previousAthlete.getFullName() : "",
+                timeAllowed,
+                attemptsDone,
+                LoggerUtils.whereFrom());
         if (currentDisplayAffected) {
             getAthleteTimer().setTimeRemaining(timeAllowed);
         }
+        // for the purpose of showing team scores, this is good enough.
+        // if the current athlete has done all lifts, the group is marked as done.
+        // if editing the athlete later gives back an attempt, then the state change will take
+        // place and subscribers will revert to current athlete display.
+        boolean done = attemptsDone >= 6;
+        if (done) {
+            pushOutDone();
+        }
+        group.setDone(done);
     }
 
     /**
@@ -1006,6 +1043,13 @@ public class FieldOfPlay {
                 // set the state now, otherwise attempt board will ignore request to display if
                 // in a break
                 setState(newState);
+                Competition competition = Competition.getCurrent();
+                competition.computeGlobalRankings(true);
+                if (newState == CURRENT_ATHLETE_DISPLAYED) {
+                    uiStartLifting(group, this);
+                } else {
+                    uiShowUpdatedRankings();
+                }
                 getBreakTimer().stop();
             } else {
                 // remain in break state
@@ -1162,11 +1206,19 @@ public class FieldOfPlay {
         if (emitSoundsOnServer2 && !downEmitted2) {
             // sound is synchronous, we don't want to wait.
             new Thread(() -> {
-                downSignal.emit();
+                try {
+                    downSignal.emit();
+                } catch (IllegalArgumentException | LineUnavailableException e) {
+                    broadcast("SoundSystemProblem");
+                }
             }).start();
             setDownEmitted(true);
         }
         pushOut(new UIEvent.DownSignal(origin2));
+    }
+
+    private void broadcast(String string) {
+        getUiEventBus().post(new UIEvent.Broadcast(string, this));
     }
 
     private void uiShowPlates(BarbellOrPlatesChanged e) {

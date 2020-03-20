@@ -7,6 +7,7 @@
 
 package app.owlcms.ui.lifting;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
@@ -21,6 +22,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -203,8 +205,9 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         lightBar.addFormItem(barWeight, getTranslation("BarWeight"));
         int min = 1;
         int max = 20;
+        IntegerRangeValidator integerValidator = new IntegerRangeValidator(getTranslation("BetweenValues", min, max), min, max);
         binder.forField(barWeight).withConverter(converter)
-                .withValidator(new IntegerRangeValidator(getTranslation("BetweenValues", min, max), min, max))
+                .withValidator((v,c) -> BooleanUtils.isTrue(useOtherBar.getValue()) ? integerValidator.apply(v, c) : ValidationResult.ok())
                 .bind(Platform::getLightBar, Platform::setLightBar);
 
         VerticalLayout platesDisplay = new VerticalLayout(plates);

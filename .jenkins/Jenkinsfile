@@ -11,6 +11,8 @@ pipeline {
         string(name: 'PRERELEASE', defaultValue: 'true', description: 'true or false')
         string(name: 'REPO_TOKEN_NAME', defaultValue: 'github-oauth', description: 'from Maven settings')
         string(name: 'BRANCH', defaultValue: 'mandatory', description: 'from Maven settings')
+        string(name: 'MAVEN_SKIP_RC', defaultValue: 'true', description: 'do not use regular .mavenrc or mavenrc_pre.cmd')
+        string(name: 'BUILD', defaultValue: 'true', description: 'set to false to skip rebuild and only send results to github in case of network failure')
     }
     
     tools { 
@@ -22,6 +24,9 @@ pipeline {
 
     stages {
         stage('Reset workspace') {
+            when {
+                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+            }
             steps {
                 bat 'move owlcms4\\owlcms\\node_modules ..\\n1'
                 bat 'move owlcms4\\publicresults\\node_modules ..\\n2'
@@ -30,7 +35,10 @@ pipeline {
             }
         }
         
-        stage('Get repo & submodules') {  
+        stage('Get repo & submodules') {
+            when {
+                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+            }
             environment {
                 TOKEN = credentials('jflamy-pw')
             }    
@@ -42,6 +50,9 @@ pipeline {
         }
           
         stage('Build owlcms') {
+            when {
+                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+            }
             steps {
                 dir('owlcms4/owlcms') {
                     bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
@@ -50,6 +61,9 @@ pipeline {
         }
                 
         stage('Build publicresults') {
+            when {
+                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+            }
             steps {
                 dir('owlcms4/publicresults') {
                     bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
@@ -57,7 +71,10 @@ pipeline {
             }
         }
       
-        stage('Release owlcms4 and publicresults installers') {
+        stage('Push owlcms4 and publicresults installers') {
+            when {
+                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+            }
             environment {
                 TOKEN = credentials('jflamy-pw')
             }
@@ -75,14 +92,26 @@ pipeline {
                       
                     // push new files to downstream release channel repo where executables will be added (a remote tag will be added by github)
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%O_REPO_NAME% %BRANCH%:master --force'              
-
+                }
+            }
+        }
+        
+        stage('Release owlcms4 and publicresults installers') {
+            environment {
+                TOKEN = credentials('jflamy-pw')
+            }
+            steps {
+                dir('owlcms4') {
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access using the API
                     bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%O_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE% --non-recursive'
                 }
             }
-        }        
+        }       
         
-        stage('Release owlcms4-heroku') {
+        stage('Push owlcms4-heroku') {
+            when {
+                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+            }
             environment {
                 TOKEN = credentials('jflamy-pw')
                 TOKEN2 = credentials('jflamy-dev-pw')
@@ -108,16 +137,26 @@ pipeline {
                     // push new version and tag to the release repo
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git %BRANCH%:master --force'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git %VERSION% --force'
-
+                }       
+            }
+        }
+        
+        stage('Release owlcms4-heroku') {
+            environment {
+                TOKEN = credentials('jflamy-pw')
+                TOKEN2 = credentials('jflamy-dev-pw')
+            }
+            steps {
+                dir('owlcms4/owlcms4-heroku') {
                     // The heroku deploy button pointing to the proper tagged version is part of the release notes.
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
                     bat 'mvn -e -X -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%H_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
                 }       
             }
-        }        
+        }       
 
         
-       stage('Release publicresults-heroku') {
+       stage('Push publicresults-heroku') {
             environment {
                 TOKEN = credentials('jflamy-pw')
                 TOKEN2 = credentials('jflamy-dev-pw')
@@ -141,7 +180,17 @@ pipeline {
                     // push new version and tag to the release repo
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %BRANCH%:master --force'
                     bat 'git push https://%TOKEN%@github.com/%REPO_OWNER%/%P_REPO_NAME%.git %VERSION%'
-
+                }       
+            }
+        }
+        
+        stage('Release publicresults-heroku') {
+            environment {
+                TOKEN = credentials('jflamy-pw')
+                TOKEN2 = credentials('jflamy-dev-pw')
+            }
+            steps {
+                dir('owlcms4/publicresults-heroku') {
                     // The heroku deploy button pointing to the proper tagged version is part of the release notes.
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
                     bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%P_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'

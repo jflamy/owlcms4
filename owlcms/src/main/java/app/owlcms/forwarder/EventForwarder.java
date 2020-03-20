@@ -303,14 +303,13 @@ public class EventForwarder implements BreakDisplay {
                 // logger.debug("rankings for current gender {}
                 // size={}",curAthlete.getGender(),globalRankingsForCurrentGroup.size());
                 categoryRankings = filterToCategory(curAthlete.getCategory(), categoryRankings);
+                int size = categoryRankings.size();
                 // logger.debug("rankings for current category {}
                 // size={}",curAthlete.getCategory(),globalRankingsForCurrentGroup.size());
                 categoryRankings = categoryRankings.stream().filter(a -> a.getTotal() > 0).limit(3)
                         .collect(Collectors.toList());
 
-                if (categoryRankings.size() > 15) {
-                    // no room on screens
-                    // TODO make leaders collapsible
+                if (size > 15) {
                     setLeaders(null);
                 } else if (categoryRankings.size() > 0) {
                     // null as second argument because we do not highlight current athletes in the leaderboard

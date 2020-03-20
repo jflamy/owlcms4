@@ -75,6 +75,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     private ComboBox<Category> categoryFilter = new ComboBox<>();
     private ComboBox<Group> groupFilter = new ComboBox<>();
     private ComboBox<Boolean> weighedInFilter = new ComboBox<>();
+    private ComboBox<Gender> genderFilter = new ComboBox<>();
 
     private OwlcmsRouterLayout routerLayout;
     private OwlcmsCrudGrid<Athlete> crudGrid;
@@ -105,7 +106,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     public Collection<Athlete> doFindAll(EntityManager em) {
         List<Athlete> all = AthleteRepository.doFindFiltered(em, lastNameFilter.getValue(), groupFilter.getValue(),
                 categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
-                weighedInFilter.getValue(), -1, -1);
+                genderFilter.getValue(), weighedInFilter.getValue(), -1, -1);
         return all;
     }
 
@@ -118,7 +119,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
     public Collection<Athlete> findAll() {
         List<Athlete> all = AthleteRepository.findFiltered(lastNameFilter.getValue(), groupFilter.getValue(),
                 categoryFilter.getValue(), ageGroupFilter.getValue(), ageDivisionFilter.getValue(),
-                weighedInFilter.getValue(), -1, -1);
+                genderFilter.getValue(), weighedInFilter.getValue(), -1, -1);
         return all;
     }
 
@@ -276,6 +277,18 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         });
         weighedInFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(weighedInFilter);
+        
+        genderFilter.setPlaceholder(getTranslation("Gender"));
+        genderFilter.setItems(Gender.M, Gender.F);
+        genderFilter.setItemLabelGenerator((i) -> {
+            return i == Gender.M ? getTranslation("Gender.M") : getTranslation("Gender.F");
+        });
+        genderFilter.setClearButtonVisible(true);
+        genderFilter.addValueChangeListener(e -> {
+            crudGrid.refreshGrid();
+        });
+        genderFilter.setWidth("10em");
+        crudGrid.getCrudLayout().addFilterComponent(genderFilter);
 
         Button clearFilters = new Button(null, VaadinIcon.ERASER.create());
         clearFilters.addClickListener(event -> {
@@ -284,6 +297,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
             categoryFilter.clear();
             groupFilter.clear();
             weighedInFilter.clear();
+            genderFilter.clear();
         });
         lastNameFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(clearFilters);
@@ -348,7 +362,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         crudFormFactory.setFieldCaptions(captions.toArray(new String[0]));
 
         crudFormFactory.setFieldProvider("gender", new OwlcmsComboBoxProvider<>(getTranslation("Gender"),
-                Arrays.asList(Gender.values()), new TextRenderer<>(Gender::name), Gender::name));
+                Arrays.asList(Gender.mfValues()), new TextRenderer<>(Gender::name), Gender::name));
         crudFormFactory.setFieldProvider("group", new OwlcmsComboBoxProvider<>(getTranslation("Group"),
                 GroupRepository.findAll(), new TextRenderer<>(Group::getName), Group::getName));
         crudFormFactory.setFieldProvider("category", new OwlcmsComboBoxProvider<>(getTranslation("Category"),

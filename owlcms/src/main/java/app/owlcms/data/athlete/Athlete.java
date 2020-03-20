@@ -132,7 +132,7 @@ public class Athlete {
             dest.setCleanJerk3Change2(src.getCleanJerk3Change2());
             dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
             dest.setCleanJerk3LiftTime(src.getCleanJerk3LiftTime());
-            
+
             dest.setCustomScore(src.getCustomScore());
 
             dest.setForcedAsCurrent(src.getForcedAsCurrent());
@@ -344,13 +344,13 @@ public class Athlete {
     private Integer sinclairRank;
     private Integer robiRank;
     private Integer customRank;
-    private Float snatchPoints;
+    private Integer snatchPoints;
 
-    private Float cleanJerkPoints;
-    private Float totalPoints; // points based on totalRank
+    private Integer cleanJerkPoints;
+    private Integer totalPoints; // points based on totalRank
 
     private Float sinclairPoints;
-    private Float customPoints;
+    private Integer customPoints;
     private Integer teamSinclairRank;
     private Integer teamRobiRank;
     private Integer teamSnatchRank;
@@ -387,6 +387,13 @@ public class Athlete {
      * body weight inferred from category, used until real bodyweight is known.
      */
     private Double presumedBodyWeight;
+    
+    @Column(columnDefinition = "integer default 0")
+    private int catSinclairRank;
+    @Column(columnDefinition = "integer default 0")
+    private int combinedRank;
+    @Column(columnDefinition = "integer default 0")
+    private int smmRank;
 
     /**
      * Instantiates a new athlete.
@@ -771,6 +778,10 @@ public class Athlete {
         return getSinclair(categoryWeight);
     }
 
+    public int getCatSinclairRank() {
+        return catSinclairRank;
+    }
+
     /**
      * Gets the clean jerk 1 actual lift.
      *
@@ -994,9 +1005,9 @@ public class Athlete {
      *
      * @return the clean jerk points
      */
-    public Float getCleanJerkPoints() {
+    public Integer getCleanJerkPoints() {
         if (cleanJerkPoints == null) {
-            return 0.0F;
+            return 0;
         }
         return cleanJerkPoints;
     }
@@ -1035,8 +1046,12 @@ public class Athlete {
      *
      * @return the combined points
      */
-    public Float getCombinedPoints() {
+    public Integer getCombinedPoints() {
         return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
+    }
+
+    public int getCombinedRank() {
+        return combinedRank;
     }
 
     /**
@@ -1113,7 +1128,7 @@ public class Athlete {
      *
      * @return the customPoints
      */
-    public Float getCustomPoints() {
+    public Integer getCustomPoints() {
         return customPoints;
     }
 
@@ -1126,6 +1141,10 @@ public class Athlete {
         return this.customRank;
     }
 
+    public Double getCustomScore() {
+        return customScore;
+    }
+
     /**
      * Gets the custom score.
      *
@@ -1135,10 +1154,6 @@ public class Athlete {
         if (this.customScore == null || this.customScore < 0.01) {
             return Double.valueOf(getTotal());
         }
-        return customScore;
-    }
-    
-    public Double getCustomScore() {
         return customScore;
     }
 
@@ -1713,6 +1728,10 @@ public class Athlete {
         return getSinclair() * SinclairCoefficients.getSMMCoefficient(YEAR - birthDate1);
     }
 
+    public int getSmmRank() {
+        return smmRank;
+    }
+
     /**
      * Gets the snatch 1 actual lift.
      *
@@ -1936,9 +1955,9 @@ public class Athlete {
      *
      * @return the snatch points
      */
-    public Float getSnatchPoints() {
+    public Integer getSnatchPoints() {
         if (snatchPoints == null) {
-            return 0.0F;
+            return 0;
         }
         return snatchPoints;
     }
@@ -2070,9 +2089,9 @@ public class Athlete {
      *
      * @return the total points
      */
-    public Float getTotalPoints() {
+    public Integer getTotalPoints() {
         if (totalPoints == null) {
-            return 0.0F;
+            return 0;
         }
         return totalPoints;
     }
@@ -2330,6 +2349,10 @@ public class Athlete {
             setPresumedBodyWeight(category.getMaximumWeight());
         }
         this.category = category;
+    }
+
+    public void setCatSinclairRank(int i) {
+        catSinclairRank = i;
     }
 
     /**
@@ -2619,10 +2642,10 @@ public class Athlete {
     /**
      * Sets the clean jerk points.
      *
-     * @param cleanJerkPoints the new clean jerk points
+     * @param points the new clean jerk points
      */
-    public void setCleanJerkPoints(Float cleanJerkPoints) {
-        this.cleanJerkPoints = cleanJerkPoints;
+    public void setCleanJerkPoints(Integer points) {
+        this.cleanJerkPoints = points;
     }
 
     /**
@@ -2634,6 +2657,16 @@ public class Athlete {
         this.cleanJerkRank = cleanJerkRank;
     }
 
+//	/**
+//	 * Sets the result order rank.
+//	 *
+//	 * @param resultOrderRank the result order rank
+//	 * @param rankingType     the ranking type
+//	 */
+//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
+//		this.resultOrderRank = resultOrderRank;
+//	}
+
     /**
      * Sets the club.
      *
@@ -2643,15 +2676,19 @@ public class Athlete {
         setTeam(club);
     }
 
+    public void setCombinedRank(int i) {
+        combinedRank = i;
+    }
+
     /**
      * Sets the custom points.
      *
      * @param customPoints the new custom points
      */
-    public void setCustomPoints(float customPoints) {
+    public void setCustomPoints(Integer customPoints) {
         this.customPoints = customPoints;
     }
-
+    
     /**
      * Sets the custom rank.
      *
@@ -2670,16 +2707,6 @@ public class Athlete {
         this.customScore = customScore;
     }
 
-//	/**
-//	 * Sets the result order rank.
-//	 *
-//	 * @param resultOrderRank the result order rank
-//	 * @param rankingType     the ranking type
-//	 */
-//	public void setResultOrderRank(Integer resultOrderRank, Ranking rankingType) {
-//		this.resultOrderRank = resultOrderRank;
-//	}
-
     public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
         this.eligibleForIndividualRanking = eligibleForIndividualRanking;
     }
@@ -2687,6 +2714,12 @@ public class Athlete {
     public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
         this.eligibleForTeamRanking = eligibleForTeamRanking;
     }
+
+    /*
+     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
+     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
+     * register/unregister itself.
+     */
 
     /**
      * Sets the first name.
@@ -2742,12 +2775,6 @@ public class Athlete {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
-    /*
-     * General event framework: we implement the com.vaadin.event.MethodEventSource interface which defines how a
-     * notifier can call a method on a listener to signal that an event has occurred, and how the listener can
-     * register/unregister itself.
-     */
 
     /**
      * Sets the lift order rank.
@@ -2847,6 +2874,10 @@ public class Athlete {
         this.robiRank = robiRank;
     }
 
+    public void setSinclairPoints(Float sinclairPoints) {
+        this.sinclairPoints = sinclairPoints;
+    }
+
     /**
      * Sets the sinclair rank.
      *
@@ -2854,6 +2885,11 @@ public class Athlete {
      */
     public void setSinclairRank(Integer sinclairRank) {
         this.sinclairRank = sinclairRank;
+    }
+
+    public void setSmmRank(int i) {
+        smmRank = i;
+
     }
 
     /**
@@ -3140,7 +3176,7 @@ public class Athlete {
      *
      * @param snatchPoints the new snatch points
      */
-    public void setSnatchPoints(float snatchPoints) {
+    public void setSnatchPoints(Integer snatchPoints) {
         this.snatchPoints = snatchPoints;
     }
 
@@ -3238,7 +3274,7 @@ public class Athlete {
      *
      * @param totalPoints the new total points
      */
-    public void setTotalPoints(float totalPoints) {
+    public void setTotalPoints(Integer totalPoints) {
         this.totalPoints = totalPoints;
     }
 
