@@ -1,28 +1,12 @@
-* Highlights since last stable release 4.5.2  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+)) - release 4.6.1 
+* Changes for release 4.6.2-rc1  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+   * [x] Attempt board now shows last name in upper case, same as other boards.
+* Key Highlights from recent stable releases
    * [x] Enhancement: When using refereeing devices, announcer sees decisions as they come in. Useful when there is no jury to remind referee or to detect device/network faults. (#328)  Can be turned off on the Competition Information page.
-  
-- [x] Enhancement: Team Results page accessible from the "Result Documents" navigation page.  Shows the team points scored by each team (using the IWF scoring 28-25-24...) (#336)  The points are counted only for the groups that are done, not the groups in progress.  Also includes the Sinclair scores (#337)
-   - [x] Enhancement: Team Sinclair Scoreboard for top 5 teams.  Updated on every lift. (#337)
-   - [x] Enhancement:  Changing the display language no longer requires a restart; it is sufficient to save the Competition Information, and reload the pages. (#335)
-   - [x] Enhancement: Simple team competition scoreboard.  Top 5 men and top 5 women teams are displayed. Shows how many athletes have been tallied and full team size. (#327)
-   - [x] Enhancement: The weigh-in, registration, group results and final package pages now allow filtering by gender (#284)
-   - [x] Enhancement: The final package page contains all the scores (SMM, Sinclair, Robi) same as the group results page.
-   - [x] Enhancement: the "Competition Information" preparation page has been reorganized to better accommodate non-standard competition options requested by various federations. Mouse-over now describes the options. (#327)
-   - [x] Fix: Windows installer no longer overwrites .ini files in an existing install. So it is now easier to just update on top of existing installation (Database is updated as needed) (#333)
-   - [x] Fix: Excel spreadsheets for Masters now contain SMF ranking pages (#332)
-   - [x] Fix: Sinclair, Robi and SMF rankings now  correctly sort genders separately (#331)
-   - [x] Fix: Removed spurious 40kg category on Women Masters and other Women age groups. (#325)
-   - [x] Fix: Break timer did not correctly display times like 1:05:23 (the leading 0 for minutes was missing) (#326)
-   
-   - [x] Fix: Changing the gender of an age group did not correctly reflect on the categories inside. (#318) An age group created via the user interface with the default gender F could not be fixed to be M.
-   - [x] Enhancement: In order to facilitate video streaming overlays (e.g. with OBS Studio), the URL http://my.address:8080/displays/currentathlete gives a special screen with only the current athlete shown on the scoreboard.  Edit the file local/styles/currentathlete.css to customize the look and feel. (#312)
-   - [x] Enhancement: calling the final package with no athletes no longer gives a cryptic message in Excel (#322)
-   
-   - [x] Enhancement: when entering the competition groups for the start sheet, the start time is automatically calculated to be 2h after weigh-in; it can be edited if needed. (#297)
-   - [x] Enhancement: Athlete cards optionally show a score. By default, the score is the total, but can be overridden in competitions where bonus points or penalties are used (some U13 competitions award points for technique, or 6/6), or use some traditional formula (#319).  This is enabled on the competition page.  The variable ${l.customScoreComputed} can then be used in the Excel templates.
-   - [x] Enhancement: Clearer definition of the invited status (not eligible for individual medals) and the team member status (an athlete eligible for medals, and considered for team points.)  In team competitions that allow for substitutes or ordinary lifters, it can happen that non-team members are allowed to lift (eligible), but not score points (not team member). (#316)
-   - [x] Testing: Ability to run a competition in "simulation mode" (referees make decisions at random, but repeatable from run to run).  Used to test the screen layouts, and to populate the database to test the final package reports. To use, start in demo mode using `-DdemoMode=true`, and setup your browsers.  Stop, then start demo mode again using the Java command line to use `app.owlcms.Simulation` as the main class (#317)
-   
+   * [x] Enhancement: Team Results page accessible from the "Result Documents" navigation page.  Shows the team points scored by each team (using the IWF scoring 28-25-24...) (#336)  The points are counted only for the groups that are done, not the groups in progress.  Also includes the Sinclair scores (#337)
+   * [x] Enhancement: Team Sinclair Scoreboard for top 5 teams.  Updated on every lift. (#337)
+   * [x] Enhancement: Simple team competition scoreboard.  Top 5 men and top 5 women teams are displayed. Shows how many athletes have been tallied and full team size. (#327)
+   * [x] Enhancement: The final package page contains all the scores (SMM, Sinclair, Robi) same as the group results page.
+   * [x] Enhancement: In order to facilitate video streaming overlays (e.g. with OBS Studio), the URL http://my.address:8080/displays/currentathlete gives a special screen with only the current athlete shown on the scoreboard.  Edit the file local/styles/currentathlete.css to customize the look and feel. (#312)
 * Workarounds/Known Issues
   
   - [ ] Workaround: (#304) When the browser screens have already been started and owlcms is restarted, occasionally the *very first* "push" update from the server is not handled by one of the browsers.  A refresh of the page is however sufficient to restore things.
