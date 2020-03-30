@@ -358,7 +358,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         }
 
         AttemptBoardModel model = getModel();
-        model.setLastName(a.getLastName());
+        String lastName = a.getLastName();
+        model.setLastName(lastName.toUpperCase());
         model.setFirstName(a.getFirstName());
         model.setTeamName(a.getTeam());
         model.setStartNumber(a.getStartNumber());
