@@ -30,7 +30,20 @@ public class LoggerUtils {
      */
     public static String stackTrace() {
         StringWriter sw = new StringWriter();
-        new Exception("").printStackTrace(new PrintWriter(sw));
+        PrintWriter pw = new PrintWriter(sw);
+        StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+        int i = 0;
+        for (StackTraceElement ste : trace) {
+            String string = ste.toString();
+            if (string.startsWith("com.vaadin.flow.server.communication")) {
+                break;
+            }
+            if (i > 1) {
+                pw.println("\t"+string);
+            }
+            
+            i++;
+        }
         return sw.toString();
     }
 
