@@ -43,8 +43,9 @@ public interface UIEventProcessor {
                 if (eventOrigin != null && eventOrigin.equals(selfOrigin)) {
                     return;
                 }
-                if (attachedUI.get() != null) {
-                    attachedUI.get().access(command);
+                UI ui = attachedUI.get();
+                if (ui != null) {
+                    ui.access(command);
                 } else {
                     // can't happen in theory, but does in practice !?
                     UI.getCurrent().access(command);

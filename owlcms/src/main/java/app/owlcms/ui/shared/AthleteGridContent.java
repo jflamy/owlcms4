@@ -250,7 +250,7 @@ public abstract class AthleteGridContent extends VerticalLayout
             final String filterValue;
             if (lastNameFilter.getValue() != null) {
                 filterValue = lastNameFilter.getValue().toLowerCase();
-                return fop.getLiftingOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
+                return fop.getDisplayOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
                         .collect(Collectors.toList());
             } else {
                 return fop.getDisplayOrder();
@@ -742,17 +742,17 @@ public abstract class AthleteGridContent extends VerticalLayout
                     if (newGroup == null && oldGroup == null) {
                         return;
                     }
-                    if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
-                        logger.debug("filter switching group from {} to {}",
-                                oldGroup != null ? oldGroup.getName() : null,
-                                newGroup != null ? newGroup.getName() : null);
-                        fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, fop.getState(), null, this));
+//                    if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
+//                        logger.debug("filter switching group from {} to {}",
+//                                oldGroup != null ? oldGroup.getName() : null,
+//                                newGroup != null ? newGroup.getName() : null);
+                        fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
                         oldGroup = newGroup;
-                        // we listen to the UI switch group that will result from the FOP switchgroup
-                    } else {
-                        // loadGroup will emit FOP SwitchGroup which will emit UI switchgroup that we listen to .
-                        fop.loadGroup(newGroup, this);
-                    }
+//                        // we listen to the UI switch group that will result from the FOP switchgroup
+//                    } else {
+//                        // loadGroup will emit FOP SwitchGroup which will emit UI switchgroup that we listen to .
+//                        fop.loadGroup(newGroup, this, true);
+//                    }
                 });
             });
         });

@@ -7,16 +7,24 @@
 
 package app.owlcms.ui.lifting;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -36,6 +44,32 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
     public MarshallContent() {
         super();
         setTopBarTitle(getTranslation("Marshall"));
+    }
+
+    /**
+     * Use lifting order instead of display order
+     * 
+     * @see app.owlcms.ui.shared.AthleteGridContent#findAll()
+     */
+    @Override
+    public Collection<Athlete> findAll() {
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        if (fop != null) {
+            logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+                    LoggerUtils.whereFrom());
+            final String filterValue;
+            if (lastNameFilter.getValue() != null) {
+                filterValue = lastNameFilter.getValue().toLowerCase();
+                return fop.getLiftingOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
+                        .collect(Collectors.toList());
+            } else {
+                return fop.getLiftingOrder();
+            }
+        } else {
+            // no field of play, no group, empty list
+            logger.debug("findAll fop==null");
+            return ImmutableList.of();
+        }
     }
 
     /**

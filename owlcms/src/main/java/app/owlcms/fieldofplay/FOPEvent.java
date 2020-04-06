@@ -243,27 +243,16 @@ public class FOPEvent {
     static public class SwitchGroup extends FOPEvent {
 
         private Group group;
-        private FOPState state;
-        private Athlete curAthlete;
 
-        public SwitchGroup(Group g, FOPState state, Athlete curAthlete, Object origin) {
+        public SwitchGroup(Group g, Object origin) {
             super(origin);
             this.group = g;
-            this.state = state;
-            this.curAthlete = curAthlete;
-        }
-
-        public Athlete getCurAthlete() {
-            return curAthlete;
         }
 
         public Group getGroup() {
             return group;
         }
 
-        public FOPState getState() {
-            return state;
-        }
     }
 
     static public class TimeOver extends FOPEvent {

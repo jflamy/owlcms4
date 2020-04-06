@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.AsyncEventBus;
@@ -397,14 +398,18 @@ public class FieldOfPlay {
                 setState(INACTIVE);
                 athleteTimer.stop();
             }
-//            // force the switch/reload by going to null
-//            loadGroup((Group) null, this);
+            Group oldGroup = this.getGroup();
             SwitchGroup switchGroup = (SwitchGroup) e;
-            loadGroup(switchGroup.getGroup(), this);
-            recomputeLiftingOrder();
-            updateGlobalRankings();
-            pushOut(new UIEvent.SwitchGroup(switchGroup.getGroup(), switchGroup.getState(), switchGroup.getCurAthlete(),
-                    e.getOrigin()));
+            Group newGroup = switchGroup.getGroup();
+            loadGroup(newGroup, this, true);
+            if (ObjectUtils.equals(oldGroup, newGroup)) {
+                transitionToLifting(e, true);
+            } else {
+                recomputeLiftingOrder();
+                updateGlobalRankings();
+                pushOut(new UIEvent.SwitchGroup(this.getGroup(), this.getState(), this.getCurAthlete(),
+                        e.getOrigin()));
+            }
             return;
         }
 
@@ -612,9 +617,10 @@ public class FieldOfPlay {
      *
      * @param group
      * @param origin
+     * @param forceLoad reload from database even if current group
      */
-    public void loadGroup(Group group, Object origin) {
-        if (Objects.equals(this.getGroup(), group)) {
+    public void loadGroup(Group group, Object origin, boolean forceLoad) {
+        if (Objects.equals(this.getGroup(), group) && !forceLoad) {
             // already loaded
             logger.trace("group {} already loaded", group != null ? group.getName() : null);
             return;
@@ -710,7 +716,7 @@ public class FieldOfPlay {
      */
     public void startLifting(Group group, Object origin) {
         logger.trace("startLifting {}", LoggerUtils.stackTrace());
-        loadGroup(group, origin);
+        loadGroup(group, origin, true);
         logger.trace("{} start lifting for group {} origin={}", this.getName(),
                 (group != null ? group.getName() : group), origin);
         getFopEventBus().post(new StartLifting(origin));
@@ -939,9 +945,10 @@ public class FieldOfPlay {
     }
 
     private void recomputeLiftingOrder(boolean currentDisplayAffected) {
-        AthleteSorter.liftingOrder(this.getLiftingOrder());
-        setDisplayOrder(AthleteSorter.displayOrderCopy(this.getLiftingOrder()));
-        this.setCurAthlete(this.getLiftingOrder().isEmpty() ? null : this.getLiftingOrder().get(0));
+        List<Athlete> liftingOrder2 = this.getLiftingOrder();
+        AthleteSorter.liftingOrder(liftingOrder2);
+        setDisplayOrder(AthleteSorter.displayOrderCopy(liftingOrder2));
+        this.setCurAthlete(liftingOrder2.isEmpty() ? null : liftingOrder2.get(0));
         if (curAthlete == null) {
             pushOutDone();
             return;
@@ -1169,6 +1176,7 @@ public class FieldOfPlay {
     private void transitionToLifting(FOPEvent e, boolean stopBreakTimer) {
         logger.trace("transitionToLifting {} {} {}", e.getAthlete(), stopBreakTimer, LoggerUtils.whereFrom());
         recomputeLiftingOrder();
+        updateGlobalRankings();
         Athlete clockOwner = getClockOwner();
         if (getCurAthlete() != null && getCurAthlete().equals(clockOwner)) {
             setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which

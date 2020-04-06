@@ -7,11 +7,15 @@
 
 package app.owlcms.ui.lifting;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 import org.slf4j.LoggerFactory;
 
 import com.flowingcode.vaadin.addons.ironicons.AvIcons;
 import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.flowingcode.vaadin.addons.ironicons.PlacesIcons;
+import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -28,9 +32,11 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
@@ -69,6 +75,32 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     }
 
     /**
+     * Use lifting order instead of display order
+     *
+     * @see app.owlcms.ui.shared.AthleteGridContent#findAll()
+     */
+    @Override
+    public Collection<Athlete> findAll() {
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        if (fop != null) {
+            logger.trace("findAll {} {} {}", fop.getName(), fop.getGroup() == null ? null : fop.getGroup().getName(),
+                    LoggerUtils.whereFrom());
+            final String filterValue;
+            if (lastNameFilter.getValue() != null) {
+                filterValue = lastNameFilter.getValue().toLowerCase();
+                return fop.getLiftingOrder().stream().filter(a -> a.getLastName().toLowerCase().startsWith(filterValue))
+                        .collect(Collectors.toList());
+            } else {
+                return fop.getLiftingOrder();
+            }
+        } else {
+            // no field of play, no group, empty list
+            logger.debug("findAll fop==null");
+            return ImmutableList.of();
+        }
+    }
+
+    /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */
     @Override
@@ -93,7 +125,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     public void slaveRefereeDecision(UIEvent.Decision e) {
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             hideLiveDecisions();
-            
+
             int d = e.decision ? 1 : 0;
             String text = getTranslation("NoLift_GoodLift", d, e.getAthlete().getFullName());
 
@@ -111,32 +143,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             n.setDuration(5000);
             n.open();
         });
-    }
-    
-    protected void createStartTimeButton() {
-        startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
-        startTimeButton.addClickListener(e -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
-                buttonsTimeStarted();
-                displayLiveDecisions();
-            });
-        });
-        startTimeButton.getElement().setAttribute("theme", "primary success icon");
-    }
-
-    protected void displayLiveDecisions() {
-        if (decisionLights == null) {
-            topBarLeft.removeAll();
-            createDecisionLights();
-            topBarLeft.add(decisionLights);
-        }
-    }
-
-    private void hideLiveDecisions() {
-        topBarLeft.removeAll();
-        fillTopBarLeft();
-        decisionLights = null;
     }
 
     /**
@@ -227,14 +233,27 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
                 (e) -> OwlcmsSession.withFop((fop) -> {
                     Group group = fop.getGroup();
                     logger.info("resetting {} from database", group);
-                    fop.loadGroup(null, this);
-                    fop.loadGroup(group, this);
+                    // fop.loadGroup(group, this, true);
+                    fop.getFopEventBus().post(new FOPEvent.SwitchGroup(group, this));
                     syncWithFOP(true); // loadgroup does not refresh grid, true=ask for refresh
                 }));
 
         reset.getElement().setAttribute("title", getTranslation("Reload_group"));
         reset.getElement().setAttribute("theme", "secondary contrast small icon");
         return reset;
+    }
+
+    @Override
+    protected void createStartTimeButton() {
+        startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
+        startTimeButton.addClickListener(e -> {
+            OwlcmsSession.withFop(fop -> {
+                fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
+                buttonsTimeStarted();
+                displayLiveDecisions();
+            });
+        });
+        startTimeButton.getElement().setAttribute("theme", "primary success icon");
     }
 
     /**
@@ -297,6 +316,20 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         return decisions;
     }
 
+    protected void displayLiveDecisions() {
+        if (decisionLights == null) {
+            topBarLeft.removeAll();
+            createDecisionLights();
+            topBarLeft.add(decisionLights);
+        }
+    }
+
+    @Override
+    protected void fillTopBarLeft() {
+        super.fillTopBarLeft();
+        topBarLeft.setWidth("12em");
+    }
+
     private void createDecisionLights() {
         JuryDisplayDecisionElement decisionDisplay = new JuryDisplayDecisionElement();
 //        Icon silenceIcon = AvIcons.MIC_OFF.create();
@@ -304,11 +337,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         decisionLights.setWidth("12em");
         decisionLights.getStyle().set("line-height", "2em");
     }
-    
-    @Override
-    protected void fillTopBarLeft() {
-        super.fillTopBarLeft();
-        topBarLeft.setWidth("12em");
-    }
 
+    private void hideLiveDecisions() {
+        topBarLeft.removeAll();
+        fillTopBarLeft();
+        decisionLights = null;
+    }
 }

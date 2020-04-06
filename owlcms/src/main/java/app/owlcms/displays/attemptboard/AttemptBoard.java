@@ -425,7 +425,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     private void doDone(Group g) {
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
-            getModel().setLastName(getTranslation("Group_number_done", g.toString()));
+            AttemptBoardModel model = getModel();
+            if (model != null) {
+                if (g != null) {
+                    model.setLastName(getTranslation("Group_number_done", g.toString()));
+                } else {
+                    model.setLastName("");
+                }
+            }
             this.getElement().callJsFunction("groupDone");
             hidePlates();
         });
