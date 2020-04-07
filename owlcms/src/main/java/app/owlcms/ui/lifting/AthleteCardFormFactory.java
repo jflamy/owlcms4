@@ -208,7 +208,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
      *      com.vaadin.flow.component.button.Button)
      */
     @Override
-    public Component buildNewForm(CrudOperation operation, Athlete aFromDb, boolean readOnly,
+    public Component buildNewForm(CrudOperation operation, Athlete aFromList, boolean readOnly,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
@@ -230,12 +230,16 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         // This allows us to use the rich validation methods coded in the Athlete class
         // as opposed to tedious validations on the form fields using getValue().
         setEditedAthlete(new Athlete());
-        originalAthlete = aFromDb;
-        Athlete.copy(getEditedAthlete(), originalAthlete);
+        
+        // don't trust the athlete received as parameter.  Fetch from database in case the athlete was edited
+        // on some other screen.
+        originalAthlete = aFromList;
+        Athlete aFromDb = AthleteRepository.findById(aFromList.getId());
+        Athlete.copy(getEditedAthlete(), aFromDb);
         getEditedAthlete().setValidation(false); // turn off validation in the Athlete setters; vaadin will call
                                                  // validation routines explicitly
 
-        logger.trace("aFromDb = {} {}", System.identityHashCode(aFromDb), aFromDb);
+        logger.trace("aFromDb = {} {}", System.identityHashCode(aFromList), aFromList);
         logger.trace("originalAthlete = {} {}", System.identityHashCode(originalAthlete), originalAthlete);
         logger.trace("editedAthlete = {} {}", System.identityHashCode(getEditedAthlete()), getEditedAthlete());
 

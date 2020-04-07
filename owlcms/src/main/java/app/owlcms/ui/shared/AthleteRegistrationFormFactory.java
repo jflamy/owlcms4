@@ -104,23 +104,24 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     }
 
     @Override
-    public Component buildNewForm(CrudOperation operation, Athlete domainObject, boolean readOnly,
+    public Component buildNewForm(CrudOperation operation, Athlete aFromList, boolean readOnly,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
         printButton = new Button(Translator.translate("AthleteCard"), IronIcons.PRINT.create());
 
+        setEditedAthlete(AthleteRepository.findById(aFromList.getId()));
         hiddenButton = new Button("doit");
         hiddenButton.getStyle().set("visibility", "hidden");
-        enablePrint(domainObject);
+        enablePrint(getEditedAthlete());
         printButton.setThemeName("secondary success");
 
         // ensure that writeBean() is called; this horror is due to the fact that we
         // must open a new window from the client side, and cannot save on click.
         printButton.addClickListener(click -> {
             try {
-                binder.writeBean(domainObject);
-                this.update(domainObject);
+                binder.writeBean(getEditedAthlete());
+                this.update(getEditedAthlete());
                 hiddenButton.clickInClient();
             } catch (ValidationException e) {
                 binder.validate();
@@ -128,9 +129,9 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
 
         });
 
-        Component form = super.buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener,
+        Component form = super.buildNewForm(operation, getEditedAthlete(), readOnly, cancelButtonClickListener,
                 operationButtonClickListener, deleteButtonClickListener, hiddenButton, printButton);
-        filterCategories(domainObject.getCategory());
+        filterCategories(getEditedAthlete().getCategory());
         return form;
     }
 
@@ -289,9 +290,8 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
      *      java.lang.Object)
      */
     @Override
-    protected Binder<Athlete> buildBinder(CrudOperation operation, Athlete domainObject) {
-        editedAthlete = domainObject;
-        binder = super.buildBinder(operation, domainObject);
+    protected Binder<Athlete> buildBinder(CrudOperation operation, Athlete ignored) {
+        binder = super.buildBinder(operation, getEditedAthlete());
         setValidationStatusHandler(true);
         return binder;
     }
@@ -667,7 +667,7 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
     private boolean validateStartingTotals(String mainProp, String otherProp1, String otherProp2) {
         try {
             logger.debug("before {} validation", mainProp);
-            Athlete.validateStartingTotalsRule(editedAthlete, getIntegerFieldValue("snatch1Declaration"),
+            Athlete.validateStartingTotalsRule(getEditedAthlete(), getIntegerFieldValue("snatch1Declaration"),
                     getIntegerFieldValue("cleanJerk1Declaration"), getIntegerFieldValue("qualifyingTotal"));
             // clear errors on other fields.
             logger.debug("clearing errors on {} {}", otherProp1, otherProp2);
@@ -681,6 +681,14 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             throw e1;
         }
         return true;
+    }
+
+    private Athlete getEditedAthlete() {
+        return editedAthlete;
+    }
+
+    private void setEditedAthlete(Athlete editedAthlete) {
+        this.editedAthlete = editedAthlete;
     }
 
 }
