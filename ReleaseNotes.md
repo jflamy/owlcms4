@@ -1,4 +1,4 @@
-* Changes for release 4.6.2-rc4  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.6.2-rc5  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
    * [x] Fixes for refresh list issues ([jflamy#341](https://github.com/jflamy/owlcms4/issues/341))
 * Key Highlights from recent stable releases
    * [x] Attempt board now shows last name in upper case, same as other boards.
