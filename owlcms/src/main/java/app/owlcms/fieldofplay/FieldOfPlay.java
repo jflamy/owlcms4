@@ -394,21 +394,27 @@ public class FieldOfPlay {
             uiShowPlates((BarbellOrPlatesChanged) e);
             return;
         } else if (e instanceof SwitchGroup) {
-            if (state != BREAK && state != INACTIVE) {
-                setState(INACTIVE);
-                athleteTimer.stop();
-            }
+
             Group oldGroup = this.getGroup();
             SwitchGroup switchGroup = (SwitchGroup) e;
             Group newGroup = switchGroup.getGroup();
-            loadGroup(newGroup, this, true);
+
             if (ObjectUtils.equals(oldGroup, newGroup)) {
-                transitionToLifting(e, true);
+                loadGroup(newGroup, this, true);
+                //SwitchGroup to self is used to refresh lists and should not cause end of a break.
+                if (state == BREAK || state == INACTIVE) {
+                    recomputeAndRefresh(e);
+                } else {
+                    // end break if needed and start lifting.
+                    transitionToLifting(e, true);
+                }
             } else {
-                recomputeLiftingOrder();
-                updateGlobalRankings();
-                pushOut(new UIEvent.SwitchGroup(this.getGroup(), this.getState(), this.getCurAthlete(),
-                        e.getOrigin()));
+                if (state != BREAK && state != INACTIVE) {
+                    setState(INACTIVE);
+                    athleteTimer.stop();
+                }
+                loadGroup(newGroup, this, true);
+                recomputeAndRefresh(e);
             }
             return;
         }
@@ -574,6 +580,13 @@ public class FieldOfPlay {
             }
             break;
         }
+    }
+
+    private void recomputeAndRefresh(FOPEvent e) {
+        recomputeLiftingOrder();
+        updateGlobalRankings();
+        pushOut(new UIEvent.SwitchGroup(this.getGroup(), this.getState(), this.getCurAthlete(),
+                e.getOrigin()));
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer) {
