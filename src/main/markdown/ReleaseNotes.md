@@ -1,7 +1,7 @@
 * Changes for release ${project.version}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-   * [x] Fixes for refresh list issues ([jflamy#341](https://github.com/jflamy/owlcms4/issues/341))
-* Key Highlights from recent stable releases
+   * [x] Fix: changes to registration/weigh-in info for athletes in a currently active group are correctly handled.  ([jflamy#341](https://github.com/jflamy/owlcms4/issues/341))
    * [x] Attempt board now shows last name in upper case, same as other boards.
+* Key Highlights from recent stable releases
    * [x] Enhancement: When using refereeing devices, announcer sees decisions as they come in. Useful when there is no jury to remind referee or to detect device/network faults. (#328)  Can be turned off on the Competition Information page.
    * [x] Enhancement: Team Results page accessible from the "Result Documents" navigation page.  Shows the team points scored by each team (using the IWF scoring 28-25-24...) (#336)  The points are counted only for the groups that are done, not the groups in progress.  Also includes the Sinclair scores (#337)
    * [x] Enhancement: Team Sinclair Scoreboard for top 5 teams.  Updated on every lift. (#337)
@@ -10,7 +10,7 @@
    * [x] Enhancement: In order to facilitate video streaming overlays (e.g. with OBS Studio), the URL http://my.address:8080/displays/currentathlete gives a special screen with only the current athlete shown on the scoreboard.  Edit the file local/styles/currentathlete.css to customize the look and feel. (#312)
 * Workarounds/Known Issues
   
-  - [ ] Workaround: (#304) When the browser screens have already been started and owlcms is restarted, occasionally the *very first* "push" update from the server is not handled by one of the browsers.  A refresh of the page is however sufficient to restore things.
+  - [ ] Workaround: (#304) When the browser screens have already been started and owlcms is restarted,  occasionnaly a refresh of the page may be required.
 
 Installation Instructions :
   - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 
