@@ -126,8 +126,14 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public void cleanup() {
         logger.debug("removing {}", breakTimerElement);
         OwlcmsSession.withFop(fop -> {
-            fop.getUiEventBus().unregister(breakTimerElement);
-            fop.getFopEventBus().unregister(breakTimerElement);
+            try {
+                fop.getUiEventBus().unregister(breakTimerElement);
+            } catch (Exception e) {
+            }
+            try {
+                fop.getFopEventBus().unregister(breakTimerElement);
+            } catch (Exception e) {
+            }
             this.breakTimerElement = null;
         });
     }
