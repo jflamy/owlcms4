@@ -398,8 +398,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
     }
 
     private void unregisterShortcuts() {
-        if (startReg != null) {startReg.remove();}
-        if (stopReg != null) {stopReg.remove();}
+        if (startReg != null) {startReg.remove(); startReg = null;}
+        if (stopReg != null) {stopReg.remove(); stopReg = null;}
     }
 
     @Override

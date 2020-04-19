@@ -102,6 +102,13 @@ Useful tip: you can use the filtering box to quickly locate an athlete -- the sc
 
 The timekeeper screen operates like the announcer screen.  Both the announcer and timekeeper can start and stop time.  It is often less confusing if the announcer makes sure the platform is clear before announcing, and starts time herself.  The timekeeper can then take over and watch for the bar leaving the platform and going above the knees.
 
+Notes: 
+
+- the Timekeeper screen also works on iPhones, iPads and Android phones.
+- if using the phone with a laptop, you can use the `,` (comma) key to start the timer, and the `.` (period) key to stop it.  This also means that you can connect a programmable button device to control the clock
+
+The following screenshot is from an iPhone.
+
 ![050_Timekeeper](img/Lifting/050_Timekeeper.png)
 
 ## Technical Controller

@@ -21,9 +21,13 @@ Stand-alone installations run on a laptop and do not require an internet access 
   
   - Ability to run in the [**cloud**](EquipmentSetup#cloud-access-over-the-internet).  Decisions, timers and sounds are handled locally in the browser to provide better feedback.
   
-  - [**Announcer, Marshall and Timekeeper**](Announcing) screens (updating athlete cards and recalculation of lifting order).
+  - [**Announcer and Marshall**](Announcing) screens (updating athlete cards and recalculation of lifting order).  
   
     ![020_EditLifterCard](img/Lifting/020_EditLifterCard.png  ':size=350')
+  
+  - [**Timekeeping**](Announcing#Starting_the_clock) Time can be [managed by the announcer](Announcing#Starting-the-clock)  (useful for smaller meets) or a dedicated [timekeeper screen](Announcing#Timekeeper) can be used. The timekeeper screen can be conveniently operated from a phone or tablet.
+  
+    <img src="img/Lifting/050_Timekeeper.png" alt="050_Timekeeper.png" width=350 style="border-style:solid; border-width: thin" />
   
   - **[Attempt Board](Displays#attempt-board)** showing current athlete information, remaining time, weight requested, down signal and decision.
   
@@ -46,12 +50,12 @@ Stand-alone installations run on a laptop and do not require an internet access 
   - **[Scoreboard](Displays#scoreboard)** for public or warm-up room display.  Shows athlete information, timer and decision lights. Current and next lifters are highlighted. Responsive design to accomodate old 4:3 projectors as well as 16:9 wide screens.  Also available is a [lifting order display](Displays#lifting-order).
   
      ![020_Scoreboard](img/Displays/020_Scoreboard.png ':size=350') ![Lifting](img/Displays/025_LiftingOrder.png  ':size=350')
-  
-  - [**Team Competitions and Sinclair Competitions**](Displays#Top-Teams-Scoreboard).  Team Results are computed in either the IWF points system or as a sum of Sinclair scores. The competition secretary has access to the full details.
+
+- [**Team Competitions and Sinclair Competitions**](Displays#Top-Teams-Scoreboard).  Team Results are computed in either the IWF points system or as a sum of Sinclair scores. The competition secretary has access to the full details.
   
     ![050_TeamScoreboard](img/Displays/050_TeamScoreboard.png ':size=350')
 ![060_TopSinclair](img/Displays/060_TopSinclair.png ':size=350')
-![061_TopTeamSinclair](img/Displays/061_TopTeamSinclair.png ':size=350')
+  ![061_TopTeamSinclair](img/Displays/061_TopTeamSinclair.png ':size=350')
   
   - [**3 and 5-person jury**](Refereeing#jury).  Jury members see referee decisions as they happen. Jury members see their vote outcome once all jurors have voted. 
 
@@ -60,19 +64,19 @@ Stand-alone installations run on a laptop and do not require an internet access 
   - **[Athlete Registration](Registration) and [Weigh-in](WeighIn) screens**, including production of **[weigh-in sheet](WeighIn#starting-weight-sheet)** with starting weights and **[athlete cards](WeighIn#athlete-cards)**.
 
     ![042_AthleteCards](img/WeighIn/042_AthleteCards.png ':size=350')
-  
+
   - [**Upload of registration sheet**](Registration#uploading-a-list-of-athletes) Upload a list of athletes with their team, group, entry totals etc. (same format as owlcms2, in either xls or xlsx format)
-
+  
     ![073_excel](img/Preparation/073_excel.png ':size=350')
-
+  
   - Multiple **[simultaneous age divisions](Preparation#defining-age-divisions-and-categories)**: ability to award separate medals according to age division (e.g. youth vs junior vs senior) .  Simultaneous inclusion of Masters and non-masters groups athletes is possible.
-    
+  
      ![020_ageGroupList](img/Categories/020_ageGroupList.png ':size=350')
   
   - [**Competition Parameters**](Preparation#competition-information) :  screens for defining a competition (general info, location, organizer, etc.) and special rules that apply (for example, enforcing or not the 20kg rule, etc.)
-
-    ![030_Competition](img/Preparation/030_Competition.png ':size=350')
   
+    ![030_Competition](img/Preparation/030_Competition.png ':size=350')
+
   - **[Multiple fields of play](Preparation#defining-fields-of-play-platforms)** (platforms): simultaneous competition groups all within the same competition.
   
   - **[Countdown timer for breaks](Announcing#breaks)** (before introduction, before first snatch, break before clean and jerk, technical break)
@@ -80,7 +84,7 @@ Stand-alone installations run on a laptop and do not require an internet access 
     ![070_IntroTimer](img/Displays/070_IntroTimer.png ':size=350')
     
   - Production of **[group results (protocol sheets)](Documents#group-results)** and of the **[final result package](Documents#competition-package)**
-
+  
     ![SessionResults](img/Documents/SessionResults.png  ':size=350')
     
   - Option to treat the competition as a **[Masters competition](Preparation#masters)** with proper processing of age groups (older age groups presented first)
