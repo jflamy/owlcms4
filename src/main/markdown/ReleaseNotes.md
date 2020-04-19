@@ -1,8 +1,8 @@
 * Changes for release ${project.version}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-   * [x] Fix: changes to registration/weigh-in info for athletes in a currently active group are correctly handled.  ([jflamy#341](https://github.com/jflamy/owlcms4/issues/341))
-   * [x] Attempt board now shows last name in upper case, same as other boards.
+   * [x] Enhancement: Timekeeper screen now with large buttons, can be used from iPad/iPhone etc.  Also supports "," as keyboard shortcut to start clock and "." to stop clock for use with programmable keypads. (#340)   Note: use on some Android devices may require the "Use Computer Version" option for automatic sizing to work.
 * Key Highlights from recent stable releases
-   * [x] Enhancement: When using refereeing devices, announcer sees decisions as they come in. Useful when there is no jury to remind referee or to detect device/network faults. (#328)  Can be turned off on the Competition Information page.
+   * [x] Fix: changes to registration/weigh-in info for athletes in a currently active group are correctly handled.  (#341)
+   * [x] Attempt board now shows last name in upper case, same as other boards.Enhancement: When using refereeing devices, announcer sees decisions as they come in. Useful when there is no jury to remind referee or to detect device/network faults. (#328)  Can be turned off on the Competition Information page.
    * [x] Enhancement: Team Results page accessible from the "Result Documents" navigation page.  Shows the team points scored by each team (using the IWF scoring 28-25-24...) (#336)  The points are counted only for the groups that are done, not the groups in progress.  Also includes the Sinclair scores (#337)
    * [x] Enhancement: Team Sinclair Scoreboard for top 5 teams.  Updated on every lift. (#337)
    * [x] Enhancement: Simple team competition scoreboard.  Top 5 men and top 5 women teams are displayed. Shows how many athletes have been tallied and full team size. (#327)
