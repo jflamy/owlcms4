@@ -309,9 +309,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         
         startTimeButton.setSizeFull();
         stopTimeButton.setSizeFull();
-        _1min.setHeight("15vmin");
+        _1min.setHeight("15vh");
         _1min.setWidthFull();
-        _2min.setHeight("15vmin");
+        _2min.setHeight("15vh");
         _2min.setWidthFull();
         
         VerticalLayout resets = new VerticalLayout(_1min, _2min);;
@@ -321,9 +321,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         time.getStyle().set("margin-top", "0.5em");
         time.getStyle().set("margin-bottom", "0.5em");
         buttons.setWidth("75%");
-        buttons.setHeight("20em");
+        buttons.setHeight("40vh");
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttons.getStyle().set("--lumo-font-size-m", "2rem");
+        buttons.getStyle().set("--lumo-font-size-m", "10vh");
         
         centerHW(buttons, this);
         hideButtons();
