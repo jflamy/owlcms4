@@ -15,6 +15,8 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.server.InitialPageSettings;
+import com.vaadin.flow.server.PageConfigurator;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
@@ -32,7 +34,7 @@ import ch.qos.logback.classic.Logger;
 @CssImport(value = "./styles/notification-theme.css", themeFor = "vaadin-notification-card")
 @CssImport(value = "./styles/text-field-theme.css", themeFor = "vaadin-text-field")
 
-public class AthleteGridLayout extends OwlcmsRouterLayout {
+public class AthleteGridLayout extends OwlcmsRouterLayout implements PageConfigurator {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridLayout.class);
     static {
@@ -64,5 +66,14 @@ public class AthleteGridLayout extends OwlcmsRouterLayout {
         appLayout.getTitleWrapper().getElement().getStyle().set("display", "none");
         // .set("flex", "0 1 0px");
         return appLayout;
+    }
+    
+    @Override
+    public void configurePage(InitialPageSettings settings) {
+        settings.addMetaTag("mobile-web-app-capable", "yes");
+        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
+        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
+        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
+        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
     }
 }

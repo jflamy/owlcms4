@@ -23,6 +23,7 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.FlexLayout.WrapMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
@@ -51,7 +52,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "lifting/timekeeper", layout = AthleteGridLayout.class)
-public class TimekeeperContent extends AthleteGridContent implements HasDynamicTitle, PageConfigurator {
+public class TimekeeperContent extends AthleteGridContent implements HasDynamicTitle {
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(TimekeeperContent.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -311,19 +312,19 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         
         startTimeButton.setSizeFull();
         stopTimeButton.setSizeFull();
-        _1min.setSizeFull();
-        _2min.setSizeFull();
+        _1min.setHeight("15vmin");
+        _1min.setWidthFull();
+        _2min.setHeight("15vmin");
+        _2min.setWidthFull();
         
-        VerticalLayout resets = new VerticalLayout(_1min, _2min);
-        resets.setSizeFull();
-        resets.setMargin(false);
-        resets.setPadding(false);
+        VerticalLayout resets = new VerticalLayout(_1min, _2min);;
+        resets.setWidthFull();
         
         buttons = new HorizontalLayout(startTimeButton, stopTimeButton, resets);
-        time.getStyle().set("margin-top", "0.75em");
-        time.getStyle().set("margin-bottom", "0.75em");
+        time.getStyle().set("margin-top", "0.5em");
+        time.getStyle().set("margin-bottom", "0.5em");
         buttons.setWidth("75%");
-        buttons.setHeight("40%");
+        buttons.setHeight("20em");
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         buttons.getStyle().set("--lumo-font-size-m", "2rem");
         
@@ -409,15 +410,5 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         showButtons();
         super.doUpdateTopBar(athlete, timeAllowed);
     }
-
-    @Override
-    public void configurePage(InitialPageSettings settings) {
-        settings.addMetaTag("mobile-web-app-capable", "yes");
-        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
-        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
-        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
-        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
-    }
     
-
 }
