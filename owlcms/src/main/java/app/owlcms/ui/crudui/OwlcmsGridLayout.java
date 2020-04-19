@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.layout.impl.WindowBasedCrudLayout;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 
@@ -70,7 +71,22 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
         setWindowCaption(CrudOperation.ADD, getTranslation("Add_title", aClass.getSimpleName()));
         setWindowCaption(CrudOperation.UPDATE, getTranslation("Update_title", aClass.getSimpleName()));
         setWindowCaption(CrudOperation.DELETE, getTranslation("Delete_title", aClass.getSimpleName()));
-
+    }
+    
+    public Component getHeaderLayout() {
+        return headerLayout;
+    }
+    
+    public Component getToolbarLayout() {
+        return toolbarLayout;
+    }
+    
+    public Component getFilterLayout() {
+        return filterLayout;
+    }
+    
+    public Component getMainLayout() {
+        return mainLayout;
     }
 
 }

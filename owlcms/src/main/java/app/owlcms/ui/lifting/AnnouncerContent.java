@@ -187,7 +187,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         initialBar = true;
 
         createTopBarGroupSelect();
-        topBarLeft = createTopBarLeft();
+        createTopBarLeft();
 
         introCountdownButton = new Button(getTranslation("introCountdown"), AvIcons.AV_TIMER.create(), (e) -> {
             OwlcmsSession.withFop(fop -> {
@@ -216,11 +216,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
         topBar.removeAll();
         topBar.setSizeFull();
-        topBar.add(topBarLeft, topBarRight);
+        topBar.add(getTopBarLeft(), topBarRight);
 
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        topBar.setFlexGrow(0.0, topBarLeft);
+        topBar.setFlexGrow(0.0, getTopBarLeft());
         topBar.setFlexGrow(1.0, topBarRight);
     }
 
@@ -318,16 +318,16 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
     protected void displayLiveDecisions() {
         if (decisionLights == null) {
-            topBarLeft.removeAll();
+            getTopBarLeft().removeAll();
             createDecisionLights();
-            topBarLeft.add(decisionLights);
+            getTopBarLeft().add(decisionLights);
         }
     }
 
     @Override
     protected void fillTopBarLeft() {
         super.fillTopBarLeft();
-        topBarLeft.setWidth("12em");
+        getTopBarLeft().setWidth("12em");
     }
 
     private void createDecisionLights() {
@@ -339,7 +339,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     }
 
     private void hideLiveDecisions() {
-        topBarLeft.removeAll();
+        getTopBarLeft().removeAll();
         fillTopBarLeft();
         decisionLights = null;
     }

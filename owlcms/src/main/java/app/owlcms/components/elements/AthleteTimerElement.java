@@ -186,4 +186,14 @@ public class AthleteTimerElement extends TimerElement {
         });
     }
 
+    public void detach() {
+        OwlcmsSession.withFop(fop -> {
+            try {
+                fop.getFopEventBus().unregister(this);
+            } catch (Exception e) {
+                // ignored
+            }
+        });
+    }
+
 }

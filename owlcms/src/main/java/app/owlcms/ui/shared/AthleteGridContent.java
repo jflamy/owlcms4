@@ -155,14 +155,15 @@ public abstract class AthleteGridContent extends VerticalLayout
     private AthleteCardFormFactory athleteEditingFormFactory;
     protected Component reset;
     private Group oldGroup = null;
-    private HorizontalLayout buttons;
-    private HorizontalLayout decisions;
-    private HorizontalLayout breaks;
+    protected HorizontalLayout buttons;
+    protected HorizontalLayout decisions;
+    protected HorizontalLayout breaks;
     protected BreakDialog breakDialog;
     private H2 firstNameWrapper;
     protected Button startTimeButton;
     protected Button stopTimeButton;
-    protected HorizontalLayout topBarLeft;
+    private HorizontalLayout topBarLeft;
+    protected OwlcmsGridLayout crudLayout;
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -201,7 +202,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     @Override
     public void closeDialog() {
-        crudGrid.getCrudLayout().hideForm();
+        crudLayout.hideForm();
         crudGrid.getGrid().asSingleSelect().clear();
     }
     
@@ -211,19 +212,19 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     public HorizontalLayout createTopBarLeft() {
-        topBarLeft = new HorizontalLayout();
+        setTopBarLeft(new HorizontalLayout());
         fillTopBarLeft();
-        return topBarLeft;
+        return getTopBarLeft();
     }
 
     protected void fillTopBarLeft() {
         title = new H3();
         title.setText(getTopBarTitle());
         title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
-        topBarLeft.add(title, topBarGroupSelect);
-        topBarLeft.setAlignItems(Alignment.CENTER);
-        topBarLeft.setPadding(true);
-        topBarLeft.setId("topBarLeft");
+        getTopBarLeft().add(title, topBarGroupSelect);
+        getTopBarLeft().setAlignItems(Alignment.CENTER);
+        getTopBarLeft().setPadding(true);
+        getTopBarLeft().setId("topBarLeft");
     }
 
     /**
@@ -544,8 +545,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(getTranslation("Attempt"));
         grid.addColumn("startNumber").setHeader(getTranslation("StartNumber"));
 
-        OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
-        AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
+        crudLayout = new OwlcmsGridLayout(Athlete.class);
+        AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, crudLayout, crudFormFactory, grid) {
             @Override
             protected void initToolbar() {
                 Component reset = createReset();
@@ -561,7 +562,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
         crudGrid.setCrudListener(this);
         crudGrid.setClickRowToUpdate(true);
-        crudGrid.getCrudLayout().addToolbarComponent(groupFilter);
+        crudLayout.addToolbarComponent(groupFilter);
 
         return crudGrid;
     }
@@ -642,8 +643,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         lastName.setText("\u2013");
         lastName.getStyle().set("margin", "0px 0px 0px 0px");
 
-        firstNameWrapper = new H2("");
-        firstNameWrapper.getStyle().set("margin", "0px 0px 0px 0px");
+        setFirstNameWrapper(new H2(""));
+        getFirstNameWrapper().getStyle().set("margin", "0px 0px 0px 0px");
         firstName = new Span("");
         firstName.getStyle().set("margin", "0px 0px 0px 0px");
         startNumber = new Span("");
@@ -655,8 +656,8 @@ public abstract class AthleteGridContent extends VerticalLayout
         style.set("width", "1.4em");
         style.set("text-align", "center");
         style.set("display", "inline-block");
-        firstNameWrapper.add(firstName, startNumber);
-        Div fullName = new Div(lastName, firstNameWrapper);
+        getFirstNameWrapper().add(firstName, startNumber);
+        Div fullName = new Div(lastName, getFirstNameWrapper());
 
         attempt = new H2();
         weight = new H2();
@@ -726,7 +727,7 @@ public abstract class AthleteGridContent extends VerticalLayout
         lastNameFilter.addValueChangeListener(e -> {
             crud.refreshGrid();
         });
-        crud.getCrudLayout().addFilterComponent(lastNameFilter);
+        crudLayout.addFilterComponent(lastNameFilter);
 
         groupFilter.setPlaceholder(getTranslation("Group"));
         groupFilter.setItems(GroupRepository.findAll());
@@ -756,7 +757,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                 });
             });
         });
-        crud.getCrudLayout().addFilterComponent(groupFilter);
+        crudLayout.addFilterComponent(groupFilter);
     }
 
     protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
@@ -818,6 +819,7 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected void init() {
         OwlcmsCrudFormFactory<Athlete> crudFormFactory = createFormFactory();
         crudGrid = createCrudGrid(crudFormFactory);
+        crudLayout = (OwlcmsGridLayout) crudGrid.getCrudLayout();
         defineFilters(crudGrid);
         fillHW(crudGrid, this);
     }
@@ -908,7 +910,7 @@ public abstract class AthleteGridContent extends VerticalLayout
                         decisions.setVisible(true);
                     }
                     if (breakButton == null) {
-                        logger.error("breakButton is null\n{}", LoggerUtils.stackTrace());
+                        logger.debug("breakButton is null\n{}", LoggerUtils.stackTrace());
                         return;
                     }
                     breakButton.setText("");
@@ -1042,6 +1044,22 @@ public abstract class AthleteGridContent extends VerticalLayout
             n.add(label);
             n.open();
         }
+    }
+
+    public H2 getFirstNameWrapper() {
+        return firstNameWrapper;
+    }
+
+    public void setFirstNameWrapper(H2 firstNameWrapper) {
+        this.firstNameWrapper = firstNameWrapper;
+    }
+
+    protected HorizontalLayout getTopBarLeft() {
+        return topBarLeft;
+    }
+
+    protected void setTopBarLeft(HorizontalLayout topBarLeft) {
+        this.topBarLeft = topBarLeft;
     }
 
 }
