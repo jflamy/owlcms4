@@ -256,7 +256,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         VerticalLayout time = new VerticalLayout();
         time.setWidth("50%");
 
-        time.getElement().getStyle().set("font-size", "4em");
+        time.getElement().getStyle().set("font-size", "15vh");
         time.getElement().getStyle().set("font-weight", "bold");
         time.setAlignItems(Alignment.CENTER);
         time.setAlignSelf(Alignment.CENTER, timeField);
@@ -318,8 +318,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         resets.setWidthFull();
         
         buttons = new HorizontalLayout(startTimeButton, stopTimeButton, resets);
-        time.getStyle().set("margin-top", "0.5em");
-        time.getStyle().set("margin-bottom", "0.5em");
+        time.getStyle().set("margin-top", "3vh");
+        time.getStyle().set("margin-bottom", "3vh");
         buttons.setWidth("75%");
         buttons.setHeight("40vh");
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
