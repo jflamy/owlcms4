@@ -40,7 +40,7 @@ public class BreakDialog extends Dialog {
             this.removeAll();
             this.close();
             
-            // in theory, the content will unregister itself.
+            // defensive, should have been unregistered already
             try {
                 OwlcmsSession.getFop().getUiEventBus().unregister(content);
             } catch (IllegalArgumentException e1) {
@@ -72,8 +72,15 @@ public class BreakDialog extends Dialog {
         this.addDialogCloseActionListener((e) -> {
             this.removeAll();
             this.close();
-            OwlcmsSession.getFop().getUiEventBus().unregister(content);
-            OwlcmsSession.getFop().getFopEventBus().unregister(content);
+            // defensive, should have been unregistered already
+            try {
+                OwlcmsSession.getFop().getUiEventBus().unregister(content);
+            } catch (Exception e1) {
+            }
+            try {
+                OwlcmsSession.getFop().getFopEventBus().unregister(content);
+            } catch (Exception e1) {
+            }
             content.cleanup();
             content = null;
         });
