@@ -1,9 +1,11 @@
 * Changes for release ${project.version}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
    * [x] Enhancement: Timekeeper screen now with large buttons, can be used from iPad/iPhone etc.  Also supports "," as keyboard shortcut to start clock and "." to stop clock for use with programmable keypads. (#340) 
 * Key Highlights from recent stable releases
-   * [x] Fix: changes to registration/weigh-in info for athletes in a currently active group are correctly handled.  (#341)
-   * [x] Attempt board now shows last name in upper case, same as other boards.Enhancement: When using refereeing devices, announcer sees decisions as they come in. Useful when there is no jury to remind referee or to detect device/network faults. (#328)  Can be turned off on the Competition Information page.
-   * [x] Enhancement: Team Results page accessible from the "Result Documents" navigation page.  Shows the team points scored by each team (using the IWF scoring 28-25-24...) (#336)  The points are counted only for the groups that are done, not the groups in progress.  Also includes the Sinclair scores (#337)
+   * [x] Fix: Changes to registration data for athletes in currently lifting groups now correctly handled (#341)
+   * [x] Enhancement: When using refereeing devices, announcer sees decisions as they come in. Useful when there is no jury to remind referee or to detect device/network faults. (#328)  Can be turned off on the Competition Information page.
+   * [x] Enhancement: Team Results page accessible from the "Result Documents" navigation page. 
+     * [x] Shows the team points scored by each team (using the IWF scoring 28-25-24 as given at end of group) (#336)   
+     * [x] Also includes the Sinclair total for the team, reflecting lifts done (#337)
    * [x] Enhancement: Team Sinclair Scoreboard for top 5 teams.  Updated on every lift. (#337)
    * [x] Enhancement: Simple team competition scoreboard.  Top 5 men and top 5 women teams are displayed. Shows how many athletes have been tallied and full team size. (#327)
    * [x] Enhancement: The final package page contains all the scores (SMM, Sinclair, Robi) same as the group results page.
