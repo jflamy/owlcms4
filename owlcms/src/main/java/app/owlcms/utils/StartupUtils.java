@@ -132,21 +132,26 @@ public class StartupUtils {
     }
 
     public static void startBrowser() {
-        if (Desktop.isDesktopSupported()) {
-            Desktop desktop = Desktop.getDesktop();
-            try {
-                InetAddress localMachine = InetAddress.getLocalHost();
-                String hostName = localMachine.getHostName();
+        try {
+            if (Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
+                try {
+                    InetAddress localMachine = InetAddress.getLocalHost();
+                    String hostName = localMachine.getHostName();
 
-                boolean opened = openBrowser(desktop, hostName);
-                if (!opened) {
-                    openBrowser(desktop, "127.0.0.1");
+                    boolean opened = openBrowser(desktop, hostName);
+                    if (!opened) {
+                        openBrowser(desktop, "127.0.0.1");
+                    }
+                } catch (Exception e) {
+                    mainLogger.error(LoggerUtils.stackTrace(e));
                 }
-            } catch (Exception e) {
-                mainLogger.error(LoggerUtils.stackTrace(e));
+            } else {
+                logger./**/warn("Cannot start browser.");
             }
-        } else {
-            logger.debug("no browser support");
+        } catch (Throwable t) {
+            // missing AWT support
+            logger./**/warn("Cannot start browser.");
         }
     }
 
