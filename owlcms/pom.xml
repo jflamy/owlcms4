@@ -619,6 +619,25 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.2.2</version>
+                <configuration>
+                    <imageName>owlcms</imageName>
+                    <baseImage>adoptopenjdk/openjdk8:latest</baseImage>
+                    <!--  beware to use to correct shaded jar -->
+                    <entryPoint>["java", "-cp", "/${project.artifactId}.jar", "app.owlcms.Main"]</entryPoint>
+                    <!-- copy the service's jar file from target into the root directory of the image -->
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.artifactId}.jar</include>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <profiles>
