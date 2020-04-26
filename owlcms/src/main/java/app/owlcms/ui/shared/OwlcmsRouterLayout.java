@@ -34,11 +34,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.PageConfigurator;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.i18n.Translator;
 import app.owlcms.ui.displayselection.DisplayNavigationContent;
@@ -55,7 +52,6 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings({ "serial", "rawtypes" })
 @Push
-@Theme(value = Lumo.class, variant = Lumo.LIGHT)
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 @CssImport(value = "./styles/shared-styles.css")
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
@@ -66,8 +62,6 @@ import ch.qos.logback.classic.Logger;
 @JsModule("@polymer/iron-icons/maps-icons.js")
 @JsModule("@polymer/iron-icons/social-icons.js")
 @JsModule("@polymer/iron-icons/places-icons.js")
-@CssImport(value = "./styles/shared-styles.css", include = "lumo-badge")
-@JsModule("@vaadin/vaadin-lumo-styles/badge")
 
 public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageConfigurator {
 
@@ -189,9 +183,8 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        ThemeList themeList = UI.getCurrent().getElement().getThemeList();
-        themeList.remove(Lumo.DARK);
-        themeList.add(Lumo.LIGHT);
+        // crude workaround -- randomly getting "dark" due to multiple themes detected in app.
+        getElement().executeJs("document.querySelector('html').setAttribute('theme', 'light');");
         super.onAttach(attachEvent);
     }
 

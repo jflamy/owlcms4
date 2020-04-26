@@ -17,8 +17,6 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.PageConfigurator;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -27,7 +25,6 @@ import ch.qos.logback.classic.Logger;
  * Class AnnouncerLayout.
  */
 @SuppressWarnings("serial")
-@Theme(value = Lumo.class, variant = Lumo.LIGHT)
 @Push
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
 @CssImport(value = "./styles/shared-styles.css")
