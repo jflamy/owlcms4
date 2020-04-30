@@ -318,6 +318,18 @@
                             <locale>en,US</locale>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>docker-tag</id>
+                        <goals>
+                            <goal>timestamp-property</goal>
+                        </goals>
+                        <configuration>
+                            <name>dockerTag</name>
+                            <pattern>yyyyMMddHHmmss</pattern>
+                            <timeZone>America/Montreal</timeZone>
+                            <locale>en,US</locale>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -507,6 +519,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <skipAssembly>${skip.exe}</skipAssembly>
                             <finalName>${project.artifactId}</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/zip.xml</descriptor>
@@ -520,12 +533,26 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <skipAssembly>${skip.exe}</skipAssembly>
                             <finalName>${project.artifactId}-win32</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/win32.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>k8s</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>k8s</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/k8s.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>                    
                 </executions>
             </plugin>
             <plugin>
@@ -540,6 +567,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
+                            <skip>${skip.exe}</skip>
                             <executable>${innosetup.exe}</executable>
                             <workingDirectory></workingDirectory>
                             <arguments>
@@ -619,28 +647,39 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>1.2.2</version>
-                <configuration>
-                    <imageName>owlcms</imageName>
-                    <baseImage>adoptopenjdk/openjdk8:latest</baseImage>
-                    <!--  beware to use to correct shaded jar -->
-                    <entryPoint>["java", "-cp", "/${project.artifactId}.jar", "app.owlcms.Main"]</entryPoint>
-                    <!-- copy the service's jar file from target into the root directory of the image -->
-                    <resources>
-                        <resource>
-                            <targetPath>/</targetPath>
-                            <directory>${project.build.directory}</directory>
-                            <include>${project.artifactId}.jar</include>
-                        </resource>
-                    </resources>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
     <profiles>
+        <profile>
+            <id>container</id>
+            <properties>
+                <skip.exe>true</skip.exe>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.spotify</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>1.2.2</version>
+                        <configuration>
+                            <imageName>owlcms</imageName>
+                            <imageTags>${dockerTag}</imageTags>
+                            <baseImage>adoptopenjdk/openjdk8:latest</baseImage>
+                            <!-- beware to use to correct shaded jar -->
+                            <entryPoint>["java", "-cp", "/${project.artifactId}.jar", "app.owlcms.Main"]</entryPoint>
+                            <!-- copy the service's jar file from target into the root directory of the image -->
+                            <resources>
+                                <resource>
+                                    <targetPath>/</targetPath>
+                                    <directory>${project.build.directory}</directory>
+                                    <include>${project.artifactId}.jar</include>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <!-- Production mode is activated using -Pproduction -->
             <id>production</id>
@@ -671,28 +710,6 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>net.jsign</groupId>
-                        <artifactId>jsign-maven-plugin</artifactId>
-                        <version>2.1</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <phase>package</phase>
-                                <configuration>
-                                    <file>target/owlcms_setup/owlcms_setup.exe</file>
-                                    <name>owlcms</name>
-                                    <url>http://jflamy.github.io/owlcms4</url>
-                                    <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
-                                    <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
-                                    <storepass>${codeSigning}</storepass>
-                                    <storetype>PKCS12</storetype>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
                         <groupId>com.coderplus.maven.plugins</groupId>
                         <artifactId>copy-rename-maven-plugin</artifactId>
                         <version>1.0</version>
@@ -714,6 +731,35 @@
                                             <destinationFile>${project.build.directory}/prerelease/${project.artifactId}_setup_${project.version}.exe</destinationFile>
                                         </fileSet>
                                     </fileSets>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>signing</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>net.jsign</groupId>
+                        <artifactId>jsign-maven-plugin</artifactId>
+                        <version>2.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <file>target/owlcms_setup/owlcms_setup.exe</file>
+                                    <name>owlcms</name>
+                                    <url>http://jflamy.github.io/owlcms4</url>
+                                    <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
+                                    <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
+                                    <storepass>${codeSigning}</storepass>
+                                    <storetype>PKCS12</storetype>
                                 </configuration>
                             </execution>
                         </executions>

@@ -24,7 +24,7 @@
                 <include>config**/**</include>
                 <include>styles**/**</include>
 			</includes>
-		</fileSet>		
+		</fileSet>
 	</fileSets>
 	<files>
 		<file>

@@ -189,10 +189,20 @@ public class Main {
      * get configuration from environment variables and if not found, from system properties.
      */
     private static void parseConfig() {
-        // read server.port parameter from -D"server.port"=9999 on java command line
-        // this is required for running on Heroku which assigns us the port at run time.
-        // default is 8080
-        serverPort = StartupUtils.getIntegerParam("port", 8080);
+        String serverPortString = StartupUtils.getStringParam("port");
+        if (serverPortString != null && serverPortString.startsWith("tcp:")) {
+            // on minikube we apparently get the port via a tcp: url.  sometimes.
+            logger.warn("{}",serverPortString);
+            int pos = serverPortString.lastIndexOf(":");
+            serverPort = Integer.parseInt(serverPortString.substring(pos+1));
+        } else {
+            // read port parameter from -Dport=9999 on java command line
+            // this is required for running on Heroku which assigns us the port at run time.
+            // default is 8080
+            logger.warn("{}","reading port from properties and environment");
+            serverPort = StartupUtils.getIntegerParam("port", 8080);
+        }
+
         StartupUtils.setServerPort(serverPort);
 
         // same as devMode + resetMode + memoryMode
