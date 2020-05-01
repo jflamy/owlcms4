@@ -50,7 +50,7 @@ import elemental.json.JsonObject;
 @JsModule("./components/AthleteCard.js")
 @CssImport(value = "./styles/shared-styles.css")
 @Route("weighin/AthleteCard")
-@Theme(value = Lumo.class)
+@Theme(value = Lumo.class, variant = Lumo.LIGHT)
 @Push
 public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
         implements QueryParameterReader, SafeEventBusRegistration, HasDynamicTitle, RequireLogin {
@@ -257,6 +257,7 @@ public class AthleteCard extends PolymerTemplate<AthleteCard.AthleteCardModel>
     }
 
     private void init() {
+        getElement().executeJs("document.querySelector('html').setAttribute('theme', 'light');");
         setTranslationMap();
 
         Button button = new Button(getTranslation("Print"));
