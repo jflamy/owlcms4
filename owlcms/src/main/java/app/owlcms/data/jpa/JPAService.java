@@ -303,6 +303,7 @@ public class JPAService {
         }
 
         // if running on Heroku, dbUrl is set in the environment
+        // if running on K8S, we get a tcp string with the IP address and port
         String url = dbUrl != null ? dbUrl : "jdbc:postgresql://" + (postgresHost != null ? postgresHost + ":" : "") + postgresPort + "/" + postgresDb;
         props.put(JPA_JDBC_URL, url);
         props.put(JPA_JDBC_USER, userName != null ? userName : "owlcms");
@@ -312,7 +313,7 @@ public class JPAService {
         props.put(DIALECT, org.hibernate.dialect.PostgreSQL95Dialect.class.getName());
         props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
         
-        startLogger.info("Database: {}, inMemory={}, schema={}", url, true, schemaGeneration);
+        startLogger.info("Database: {}, schema={}", url, schemaGeneration);
         return props;
     }
 

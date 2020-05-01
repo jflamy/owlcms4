@@ -22,6 +22,35 @@ spec:
   ports:
   - port: 5432
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: postgres
+  name: postgres-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20M
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: postgres-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 20M
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -48,6 +77,13 @@ spec:
           value: owlcms
         - name: POSTGRES_PASSWORD
           value: owlcms
+        volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: postgres-pv-claim
+      volumes:
+      - name: postgres-pv-claim
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim
 ---
 apiVersion: apps/v1
 kind: Deployment
