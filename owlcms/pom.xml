@@ -508,9 +508,11 @@
                         </goals>
                         <configuration>
                             <finalName>${project.artifactId}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
                                 <descriptor>src/main/assembly/plain.xml</descriptor>
                             </descriptors>
+                            <attach>false</attach>
                         </configuration>
                     </execution>
                     <execution>
@@ -522,9 +524,11 @@
                         <configuration>
                             <skipAssembly>${skip.exe}</skipAssembly>
                             <finalName>${project.artifactId}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
                                 <descriptor>src/main/assembly/zip.xml</descriptor>
                             </descriptors>
+                            <attach>false</attach>
                         </configuration>
                     </execution>
                     <execution>
@@ -536,8 +540,23 @@
                         <configuration>
                             <skipAssembly>${skip.exe}</skipAssembly>
                             <finalName>${project.artifactId}-win32</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
                                 <descriptor>src/main/assembly/win32.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>docker-tag</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>docker-tag</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/main/assembly/docker.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
@@ -549,9 +568,12 @@
                         </goals>
                         <configuration>
                             <finalName>k8s</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
                                 <descriptor>src/main/assembly/k8s.xml</descriptor>
                             </descriptors>
+                            <attach>false</attach>
+                            <filters>target/docker-tag/docker-tag.properties</filters>
                         </configuration>
                     </execution>                    
                 </executions>
