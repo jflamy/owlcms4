@@ -199,7 +199,7 @@ public class Main {
             // read port parameter from -Dport=9999 on java command line
             // this is required for running on Heroku which assigns us the port at run time.
             // default is 8080
-            logger.warn("{}","reading port from properties and environment");
+            logger.trace("{}","reading port from properties and environment");
             serverPort = StartupUtils.getIntegerParam("port", 8080);
         }
 

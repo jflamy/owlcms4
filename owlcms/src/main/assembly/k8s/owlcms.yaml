@@ -67,6 +67,8 @@ spec:
         - name: owlcms-frontend
           image: owlcms:${dockerTag}
           env:
+          - name: POSTGRES_DB
+            value: owlcms_db
           - name: POSTGRES_HOST
             value: postgres
           - name: POSTGRES_USER

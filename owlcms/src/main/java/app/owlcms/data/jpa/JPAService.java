@@ -68,12 +68,6 @@ public class JPAService {
 
     protected static EntityManagerFactory factory;
 
-    private static String dbUrl;
-
-    private static String userName;
-
-    private static String password;
-
     /**
      * Close.
      */
@@ -98,23 +92,52 @@ public class JPAService {
     public static Properties processSettings(boolean inMemory, boolean reset) throws RuntimeException {
         Properties properties;
         String schemaGeneration = reset ? "drop-and-create" : "update";
+        boolean embeddedH2Server = false;
 
-        // Environment variables (set by the operating system)
-        dbUrl = System.getenv("JDBC_DATABASE_URL");
-        userName = System.getenv("JDBC_DATABASE_USERNAME");
-        password = System.getenv("JDBC_DATABASE_PASSWORD");
+        // Environment variables (set by the operating system or container)
+        String dbUrl = System.getenv("JDBC_DATABASE_URL");
+        String postgresHost = System.getenv("POSTGRES_HOST");
+        String userName = System.getenv("JDBC_DATABASE_USERNAME");
+        String password = System.getenv("JDBC_DATABASE_PASSWORD");
 
-        if (inMemory || (dbUrl != null && dbUrl.startsWith("jdbc:h2:mem"))) {
-            properties = h2MemProperties(schemaGeneration);
-        } else if (dbUrl == null || (dbUrl != null && dbUrl.startsWith("jdbc:h2:file"))) {
-            properties = h2FileProperties(schemaGeneration);
-        } else if (dbUrl != null && dbUrl.startsWith("jdbc:postgres")) {
-            properties = pgProperties(schemaGeneration);
+        if (dbUrl != null) {
+            // explicit url provided
+            if (inMemory || dbUrl.startsWith("jdbc:h2:mem")) {
+                embeddedH2Server = true;
+                properties = h2MemProperties(schemaGeneration);
+            } else if (dbUrl.startsWith("jdbc:h2:file")) {
+                embeddedH2Server = true;
+                properties = h2FileProperties(schemaGeneration, dbUrl, userName, password);
+            }  else if (dbUrl.startsWith("jdbc:h2:")) {
+                // remote h2
+                embeddedH2Server = false;
+                properties = h2ServerProperties(schemaGeneration, dbUrl, userName, password);
+            } else if (dbUrl.startsWith("jdbc:postgres")) {
+                properties = pgProperties(schemaGeneration, dbUrl, null, null, null, userName, password);
+            } else {
+                throw new RuntimeException("Unsupported database: " + dbUrl);
+            }
+        } else if (postgresHost != null) {
+            // postgres container configuration
+            String postgresPort = System.getenv("POSTGRES_PORT");
+            String postgresDb = System.getenv("POSTGRES_DB");
+            userName = System.getenv("POSTGRES_USER");
+            password = System.getenv("POSTGRES_PASSWORD");
+            properties = pgProperties(schemaGeneration, dbUrl, postgresHost, postgresPort, postgresDb, userName,
+                    password);
         } else {
-            throw new RuntimeException("Unsupported database: " + dbUrl);
+            // local h2
+            embeddedH2Server = true;
+            if (inMemory) {
+                properties = h2MemProperties(schemaGeneration);
+            } else {
+                properties = h2FileProperties(schemaGeneration, dbUrl, userName, password);
+            } 
         }
-        startLogger.info("Database: {}, inMemory={}, reset={}", properties.get(JPA_JDBC_URL), inMemory, reset);
-        startH2EmbeddedServer();
+
+        if (embeddedH2Server) {
+            startH2EmbeddedServer();
+        }
 
         return properties;
     }
@@ -169,14 +192,16 @@ public class JPAService {
 
         // keep the database even if all the connections have timed out
         // to turn off transactions MVCC=FALSE;MV_STORE=FALSE;LOCK_MODE=0;
-        props.put(JPA_JDBC_URL,
-                "jdbc:h2:mem:owlcms;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
+        String url = "jdbc:h2:mem:owlcms;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
+        props.put(JPA_JDBC_URL, url);
         props.put(JPA_JDBC_USER, "sa");
         props.put(JPA_JDBC_PASSWORD, "");
 
         props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
         props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
         props.put(DIALECT, H2Dialect.class.getName());
+
+        startLogger.info("Database: {}, inMemory={}, schema={}", url, true, schemaGeneration);
         return props;
     }
 
@@ -198,7 +223,8 @@ public class JPAService {
         return factory;
     }
 
-    private static Properties h2FileProperties(String schemaGeneration) {
+    private static Properties h2FileProperties(String schemaGeneration, String dbUrl, String userName,
+            String password) {
         ImmutableMap<String, Object> vals = jpaProperties();
         Properties props = new Properties();
         props.putAll(vals);
@@ -206,8 +232,8 @@ public class JPAService {
         // use an explicit path as this allows connecting to the H2 server running embedded
         String databasePath = new File("database/owlcms.mv.db").getAbsolutePath();
         databasePath = databasePath.substring(0, databasePath.length() - ".mv.db".length());
-        props.put(JPA_JDBC_URL,
-                (dbUrl != null ? dbUrl : "jdbc:h2:file:" + databasePath) + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4");
+        String url = (dbUrl != null ? dbUrl : "jdbc:h2:file:" + databasePath) + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
+        props.put(JPA_JDBC_URL, url);
         startLogger.debug("Starting in directory {}", System.getProperty("user.dir"));
         props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
         props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
@@ -216,6 +242,27 @@ public class JPAService {
         props.put(DIALECT, H2Dialect.class.getName());
         props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
 
+        startLogger.info("Database: {}, inMemory={}, schema={}", url, false, schemaGeneration);
+        return props;
+    }
+    
+    private static Properties h2ServerProperties(String schemaGeneration, String dbUrl, String userName,
+            String password) {
+        ImmutableMap<String, Object> vals = jpaProperties();
+        Properties props = new Properties();
+        props.putAll(vals);
+        
+        String url = dbUrl;
+        props.put(JPA_JDBC_URL, url);
+        startLogger.debug("Starting in directory {}", System.getProperty("user.dir"));
+        props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
+        props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
+
+        props.put(JPA_JDBC_DRIVER, org.h2.Driver.class.getName());
+        props.put(DIALECT, H2Dialect.class.getName());
+        props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
+
+        startLogger.info("Database: {}, inMemory={}, schema={}", url, false, schemaGeneration);
         return props;
     }
 
@@ -237,21 +284,35 @@ public class JPAService {
         return vals;
     }
 
-    private static Properties pgProperties(String schemaGeneration) {
+    private static Properties pgProperties(String schemaGeneration, String dbUrl, String postgresHost,
+            String postgresPort, String postgresDb, String userName, String password) {
         ImmutableMap<String, Object> vals = jpaProperties();
         Properties props = new Properties();
         props.putAll(vals);
 
-        // if running on Heroku, the following three settings will come from the
-        // environment (see processSettings)
-        props.put(JPA_JDBC_URL, dbUrl != null ? dbUrl : "jdbc:postgresql://localhost:5432/owlcms");
+        postgresHost = postgresHost == null ? "localhost" : postgresHost;
+        postgresPort = postgresPort == null ? "5432" : postgresPort;
+        postgresDb = postgresDb == null ? "owlcms" : postgresDb;
+        
+        if (postgresPort != null && postgresPort.startsWith("tcp:")) {
+            postgresHost = null;
+            // take the host and port from the port string
+            String where = "//";
+            int pos = postgresPort.indexOf(where);
+            postgresPort = postgresPort.substring(pos+where.length());
+        }
+
+        // if running on Heroku, dbUrl is set in the environment
+        String url = dbUrl != null ? dbUrl : "jdbc:postgresql://" + (postgresHost != null ? postgresHost + ":" : "") + postgresPort + "/" + postgresDb;
+        props.put(JPA_JDBC_URL, url);
         props.put(JPA_JDBC_USER, userName != null ? userName : "owlcms");
         props.put(JPA_JDBC_PASSWORD, password != null ? password : "db_owlcms");
 
         props.put(JPA_JDBC_DRIVER, org.postgresql.Driver.class.getName());
         props.put(DIALECT, org.hibernate.dialect.PostgreSQL95Dialect.class.getName());
         props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
-
+        
+        startLogger.info("Database: {}, inMemory={}, schema={}", url, true, schemaGeneration);
         return props;
     }
 

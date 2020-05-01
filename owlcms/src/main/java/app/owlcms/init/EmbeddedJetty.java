@@ -97,7 +97,7 @@ public class EmbeddedJetty {
             StartupUtils.startBrowser();
             latch.countDown();
             server.join();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             Throwable cause = e.getCause();
             if (cause instanceof BindException) {
                 logger.error("another server is already running on port {}\n{}", port, LoggerUtils.stackTrace(cause));
