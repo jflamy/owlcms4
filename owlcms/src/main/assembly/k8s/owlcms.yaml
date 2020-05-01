@@ -45,9 +45,9 @@ spec:
         - name: POSTGRES_DB
           value: owlcms_db
         - name: POSTGRES_USER
-          value: user
+          value: owlcms
         - name: POSTGRES_PASSWORD
-          value: mysecretpassword
+          value: owlcms
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -69,6 +69,10 @@ spec:
           env:
           - name: POSTGRES_HOST
             value: postgres
+          - name: POSTGRES_USER
+            value: owlcms
+          - name: POSTGRES_PASSWORD
+            value: owlcms
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
