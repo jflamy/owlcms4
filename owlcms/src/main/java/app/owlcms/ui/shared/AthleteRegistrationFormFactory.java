@@ -110,7 +110,11 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
         printButton = new Button(Translator.translate("AthleteCard"), IronIcons.PRINT.create());
 
-        setEditedAthlete(AthleteRepository.findById(aFromList.getId()));
+        if (operation == CrudOperation.ADD) {
+            setEditedAthlete(new Athlete());
+        } else if (aFromList != null) {
+            setEditedAthlete(AthleteRepository.findById(aFromList.getId()));
+        }
         hiddenButton = new Button("doit");
         hiddenButton.getStyle().set("visibility", "hidden");
         enablePrint(getEditedAthlete());
