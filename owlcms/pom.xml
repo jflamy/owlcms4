@@ -544,6 +544,7 @@
                             <descriptors>
                                 <descriptor>src/main/assembly/win32.xml</descriptor>
                             </descriptors>
+                            <attach>false</attach>
                         </configuration>
                     </execution>
                     <execution>
@@ -558,6 +559,7 @@
                             <descriptors>
                                 <descriptor>src/main/assembly/docker.xml</descriptor>
                             </descriptors>
+                            <attach>false</attach>
                         </configuration>
                     </execution>
                     <execution>

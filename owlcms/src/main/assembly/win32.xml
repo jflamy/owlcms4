@@ -10,7 +10,7 @@
 	<fileSets>
 		<fileSet>
 			<directory>${project.build.directory}</directory>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<includes>
 				<include>${project.artifactId}.exe</include>
 				<include>demo-${project.artifactId}.exe</include>
@@ -19,7 +19,7 @@
 		</fileSet>
 		<fileSet>
 			<directory>${jre.directory}</directory>
-			<outputDirectory>/jre</outputDirectory>
+			<outputDirectory>jre</outputDirectory>
 			<includes>
 				<include>bin**/**</include>
 				<include>lib**/**</include>
@@ -28,7 +28,7 @@
 		</fileSet>
 		<fileSet>
 			<directory>${project.basedir}/src/main/resources</directory>
-			<outputDirectory>/local</outputDirectory>
+			<outputDirectory>local</outputDirectory>
 			<includes>
 				<include>i18n**/**</include>
 				<include>templates**/**</include>
@@ -40,12 +40,12 @@
 	<files>
 		<file>
 			<source>${project.basedir}/src/main/assembly/${project.artifactId}.l4j.ini</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<filtered>true</filtered>
 		</file>
         <file>
             <source>${project.basedir}/src/main/assembly/demo-${project.artifactId}.l4j.ini</source>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory></outputDirectory>
             <filtered>true</filtered>
         </file>
 		<file>

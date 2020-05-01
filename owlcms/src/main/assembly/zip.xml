@@ -10,14 +10,14 @@
 	<fileSets>
 		<fileSet>
 			<directory>${project.build.directory}</directory>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<includes>
 				<include>${project.artifactId}.jar</include>
 			</includes>
 		</fileSet>
 		<fileSet>
 			<directory>${project.basedir}/src/main/resources</directory>
-			<outputDirectory>/local</outputDirectory>
+			<outputDirectory>local</outputDirectory>
 			<includes>
 				<include>i18n**/**</include>
 				<include>templates**/**</include>
@@ -29,12 +29,12 @@
 	<files>
 		<file>
 			<source>${project.basedir}/src/main/assembly/Procfile</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<filtered>true</filtered>
 		</file>
 		<file>
 			<source>${project.basedir}/src/main/assembly/demoProcfile</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<filtered>true</filtered>
 		</file>
 	</files>
