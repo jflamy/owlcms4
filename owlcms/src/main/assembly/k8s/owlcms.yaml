@@ -29,27 +29,27 @@ metadata:
     app: postgres
   name: postgres-pv-claim
 spec:
-  storageClassName: manual
+  storageClassName: default
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
       storage: 20M
----
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: postgres-pv
-  labels:
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 20M
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/mnt/data"
+#---
+#kind: PersistentVolume
+#apiVersion: v1
+#metadata:
+#  name: postgres-pv
+#  labels:
+#    type: local
+#spec:
+#  storageClassName: manual
+#  capacity:
+#    storage: 20M
+#  accessModes:
+#    - ReadWriteOnce
+#  hostPath:
+#    path: "/mnt/data"
 ---
 apiVersion: apps/v1
 kind: Deployment
