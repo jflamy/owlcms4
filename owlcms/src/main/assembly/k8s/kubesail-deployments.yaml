@@ -1,24 +1,11 @@
-kind: Service
-apiVersion: v1
-metadata:
-  name: owlcms
-spec:
-  selector:
-    app: owlcms
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 8080
-  type: ClusterIP
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgres-pass
-type: Opaque
-stringData:
-  password: SECRET_PASSWORD_GOES_HERE
----
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: postgres-pass
+# type: Opaque
+# stringData:
+#   password: SECRET_PASSWORD_GOES_HERE
+# ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
