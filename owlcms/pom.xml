@@ -557,7 +557,7 @@
                             <finalName>docker-tag</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
-                                <descriptor>src/main/assembly/docker.xml</descriptor>
+                                <descriptor>src/main/assembly/docker-tag.xml</descriptor>
                             </descriptors>
                             <attach>false</attach>
                         </configuration>
@@ -683,6 +683,32 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.33.0</version>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>owlcms:${dockerTag}</name>
+                                    <build>
+                                        <tags>latest</tags>
+                                        <from>adoptopenjdk/openjdk8:latest</from>
+                                        <assembly>
+                                            <descriptor>docker.xml</descriptor>
+                                        </assembly>
+                                        <entryPoint>
+                                            <arg>java</arg>
+                                            <arg>-cp</arg>
+                                            <arg>/maven/${project.artifactId}.jar</arg>
+                                            <arg>app.owlcms.Main</arg>
+                                        </entryPoint>
+                                    </build>
+                                    <registry>owlcms-docker-containers.bintray.io</registry>
+                                </image>
+                            </images>
+                        </configuration>
+                    </plugin>             
+<!--                     <plugin>
                         <groupId>com.spotify</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
                         <version>1.2.2</version>
@@ -690,9 +716,9 @@
                             <imageName>owlcms</imageName>
                             <imageTags>${dockerTag}</imageTags>
                             <baseImage>adoptopenjdk/openjdk8:latest</baseImage>
-                            <!-- beware to use to correct shaded jar -->
+                            beware to use to correct shaded jar
                             <entryPoint>["java", "-cp", "/${project.artifactId}.jar", "app.owlcms.Main"]</entryPoint>
-                            <!-- copy the service's jar file from target into the root directory of the image -->
+                            copy the service's jar file from target into the root directory of the image
                             <resources>
                                 <resource>
                                     <targetPath>/</targetPath>
@@ -701,7 +727,7 @@
                                 </resource>
                             </resources>
                         </configuration>
-                    </plugin>
+                    </plugin> -->
                 </plugins>
             </build>
         </profile>

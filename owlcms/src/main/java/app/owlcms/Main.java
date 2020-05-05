@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
@@ -189,12 +190,17 @@ public class Main {
      * get configuration from environment variables and if not found, from system properties.
      */
     private static void parseConfig() {
-        String serverPortString = StartupUtils.getStringParam("port");
-        if (serverPortString != null && serverPortString.startsWith("tcp:")) {
-            // on minikube we apparently get the port via a tcp: url.  sometimes.
-            logger.warn("{}",serverPortString);
-            int pos = serverPortString.lastIndexOf(":");
-            serverPort = Integer.parseInt(serverPortString.substring(pos+1));
+        // under Kubernetes deployed under an owlcms service LoadBalancer
+        String k8sServicePortString = StartupUtils.getStringParam("service_port");
+        Map<String, String> env  = System.getenv();
+        env.entrySet().forEach(System.out::println);
+        if (k8sServicePortString != null) {
+            // we are running under a Kubernetes load balancer
+            // which handles the mapping for us.  We run on the default.
+//            // on minikube we apparently get the port via a tcp: url.  sometimes.
+//            logger.warn("port: {} env: {}",portString, env);
+//            int pos = portString.lastIndexOf(":");
+            serverPort = 8080;
         } else {
             // read port parameter from -Dport=9999 on java command line
             // this is required for running on Heroku which assigns us the port at run time.

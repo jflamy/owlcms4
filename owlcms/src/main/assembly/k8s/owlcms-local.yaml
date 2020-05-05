@@ -87,8 +87,8 @@ spec:
     spec:
       containers:
         - name: owlcms
-          image: owlcms-docker-containers.bintray.io/owlcms:${dockerTag}
-          imagePullPolicy: IfNotPresent
+          image: owlcms:${dockerTag}
+          imagePullPolicy: Never
           env:
           - name: POSTGRES_DB
             value: owlcms_db
