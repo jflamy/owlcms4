@@ -10,7 +10,7 @@ spec:
     port: 80
     targetPort: 8080
     nodePort: 30001
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
