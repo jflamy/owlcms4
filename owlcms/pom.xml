@@ -522,7 +522,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <skipAssembly>${skip.exe}</skipAssembly>
+                            <skipAssembly>${noInstaller}</skipAssembly>
                             <finalName>${project.artifactId}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
@@ -538,7 +538,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <skipAssembly>${skip.exe}</skipAssembly>
+                            <skipAssembly>${noInstaller}</skipAssembly>
                             <finalName>${project.artifactId}-win32</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
@@ -592,7 +592,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <skip>${skip.exe}</skip>
+                            <skip>${noInstaller}</skip>
                             <executable>${innosetup.exe}</executable>
                             <workingDirectory></workingDirectory>
                             <arguments>
@@ -678,7 +678,7 @@
         <profile>
             <id>container</id>
             <properties>
-                <skip.exe>true</skip.exe>
+                <noInstaller>true</noInstaller>
             </properties>
             <build>
                 <plugins>
