@@ -23,7 +23,9 @@ public interface RequireLogin extends BeforeEnterObserver {
         String pin = LoginView.getPin();
 
         boolean isAuthenticated = OwlcmsSession.isAuthenticated();
-        if (isAuthenticated || (pin == null && whiteList == null)) {
+        boolean noPin = pin == null || pin.trim().isEmpty();
+        boolean noWhiteList = whiteList == null || whiteList.trim().isEmpty();
+        if (isAuthenticated || (noPin && noWhiteList)) {
             // no check required
             OwlcmsSession.setAuthenticated(true);
             return;
