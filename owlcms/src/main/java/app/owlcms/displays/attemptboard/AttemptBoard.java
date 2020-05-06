@@ -251,7 +251,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
-        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
 //            Group g = e.getGroup();
@@ -366,18 +366,19 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     protected void doAthleteUpdate(Athlete a) {
-        logger.warn("$$$ a {}  ", a);
+        FieldOfPlay fop = OwlcmsSession.getFop();
+        FOPState state = fop.getState();
+        if (fop.getState() == FOPState.INACTIVE || (state == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE)) {
+            doEmpty();
+            return;
+        }
+        
+        logger.debug("$$$  a {} state {}", a, state);
         if (a == null) {
             doEmpty();
             return;
         } else if (a.getAttemptsDone() >= 6) {
             setDone(true);
-            return;
-        }
-        FieldOfPlay fop = OwlcmsSession.getFop();
-        logger.warn("$$$ state {}", fop.getState());
-        if (fop.getState() == FOPState.INACTIVE) {
-            doEmpty();
             return;
         }
 
@@ -392,6 +393,8 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         model.setWeight(a.getNextAttemptRequestedWeight());
         showPlates();
         this.getElement().callJsFunction("reset");
+        
+        setDone(false);
     }
 
     /**

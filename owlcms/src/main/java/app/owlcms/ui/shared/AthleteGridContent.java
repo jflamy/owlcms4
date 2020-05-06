@@ -133,6 +133,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      */
     protected Button introCountdownButton;
     protected Button startLiftingButton;
+    protected Button showResultsButton;
 
     /**
      * groupFilter points to a hidden field on the crudGrid filtering row, which is slave to the group selection
@@ -938,6 +939,9 @@ public abstract class AthleteGridContent extends VerticalLayout
                 if (startLiftingButton != null) {
                     startLiftingButton.setVisible(false);
                 }
+                if (showResultsButton != null) {
+                    showResultsButton.setVisible(false);
+                }
                 warning.setText(string);
             }
         } else if (attemptsDone >= 6) {
@@ -950,8 +954,10 @@ public abstract class AthleteGridContent extends VerticalLayout
                     introCountdownButton.setVisible(false);
                 }
                 if (startLiftingButton != null) {
-                    startLiftingButton.setEnabled(true);
-                    startLiftingButton.setText(getTranslation("ShowResults"));
+                    startLiftingButton.setVisible(false);
+                }
+                if (showResultsButton != null) {
+                    showResultsButton.setVisible(true);
                 }
                 warning.setText(string);
             }
@@ -966,6 +972,9 @@ public abstract class AthleteGridContent extends VerticalLayout
                 }
                 if (startLiftingButton != null) {
                     startLiftingButton.setVisible(false);
+                }
+                if (showResultsButton != null) {
+                    showResultsButton.setVisible(false);
                 }
                 warning.setText(string);
             }

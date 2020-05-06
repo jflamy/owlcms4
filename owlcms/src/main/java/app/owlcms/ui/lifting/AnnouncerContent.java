@@ -205,11 +205,21 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             });
         });
         startLiftingButton.getThemeNames().add("success primary");
+        
+        showResultsButton = new Button(getTranslation("ShowResults"), PlacesIcons.FITNESS_CENTER.create(), (e) -> {
+            OwlcmsSession.withFop(fop -> {
+                UI.getCurrent().access(() -> createTopBar());
+                fop.getFopEventBus().post(new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, this));
+            });
+        });
+        showResultsButton.getThemeNames().add("success primary");
+        showResultsButton.setVisible(false);
+
 
         warning = new H3();
         warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
         HorizontalLayout topBarRight = new HorizontalLayout();
-        topBarRight.add(warning, introCountdownButton, startLiftingButton);
+        topBarRight.add(warning, introCountdownButton, startLiftingButton, showResultsButton);
         topBarRight.setSpacing(true);
         topBarRight.setPadding(true);
         topBarRight.setAlignItems(FlexComponent.Alignment.CENTER);
