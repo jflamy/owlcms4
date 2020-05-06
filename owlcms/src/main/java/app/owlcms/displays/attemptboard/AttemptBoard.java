@@ -133,6 +133,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     private Plates plates;
     private Location location;
     private UI locationUI;
+    private boolean groupDone;
 
     /**
      * Instantiates a new attempt board.
@@ -149,6 +150,17 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     public void doBreak() {
         OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             BreakType breakType = fop.getBreakType();
+            if (breakType == BreakType.GROUP_DONE) {
+                Group group = fop.getGroup();
+                Athlete a = fop.getCurAthlete();
+                if (a != null && a.getAttemptsDone() < 6) {
+                    // the announcer has switched groups, but not started the introduction countdown.
+                    doEmpty();
+                } else {
+                    doDone(group);
+                }
+                return;
+            }
             getModel().setLastName(inferGroupName());
             getModel().setFirstName(inferMessage(breakType));
             getModel().setTeamName("");
@@ -204,8 +216,16 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            this.getElement().callJsFunction("reset");
+            if (isDone()) {
+                doDone(e.getAthlete().getGroup());
+            } else {
+                this.getElement().callJsFunction("reset");
+            }
         });
+    }
+
+    private boolean isDone() {
+        return this.groupDone;
     }
 
     /**
@@ -231,12 +251,16 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 
     @Subscribe
     public void slaveGroupDone(UIEvent.GroupDone e) {
-        uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
+        uiEventLogger.warn("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            Group g = e.getGroup();
-            doDone(g);
+//            Group g = e.getGroup();
+            setDone(true);
         });
+    }
+
+    private void setDone(boolean b) {
+        this.groupDone = b;
     }
 
     @Subscribe
@@ -342,16 +366,16 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     }
 
     protected void doAthleteUpdate(Athlete a) {
-        logger.debug("$$$ a {}  ", a);
+        logger.warn("$$$ a {}  ", a);
         if (a == null) {
             doEmpty();
             return;
         } else if (a.getAttemptsDone() >= 6) {
-            OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+            setDone(true);
             return;
         }
         FieldOfPlay fop = OwlcmsSession.getFop();
-        logger.debug("$$$ state {}", fop.getState());
+        logger.warn("$$$ state {}", fop.getState());
         if (fop.getState() == FOPState.INACTIVE) {
             doEmpty();
             return;

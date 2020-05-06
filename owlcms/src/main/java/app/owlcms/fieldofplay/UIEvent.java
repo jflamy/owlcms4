@@ -246,8 +246,8 @@ public class UIEvent {
          *
          * @param origin the origin
          */
-        public DecisionReset(Object origin) {
-            super(origin);
+        public DecisionReset(Athlete a, Object origin) {
+            super(a, origin);
         }
     }
 

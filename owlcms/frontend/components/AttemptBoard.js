@@ -283,7 +283,7 @@ class CurrentAttempt extends PolymerElement {
 	}
 
 	down() {
-		console.debug("attemptBoard done " + this.javaComponentId);
+		console.debug("attemptBoard down " + this.javaComponentId);
 		this.$.athleteTimerDiv.style.display = "none";
 		this.$.breakTimerDiv.style.display = "none";
 		this.$.barbellDiv.style.display = "none";
