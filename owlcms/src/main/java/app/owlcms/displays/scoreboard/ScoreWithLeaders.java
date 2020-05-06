@@ -156,6 +156,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private ContextMenu contextMenu;
     private Location location;
     private UI locationUI;
+    private boolean groupDone;
 
     /**
      * Instantiates a new results board.
@@ -271,8 +272,16 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             getModel().setHidden(false);
-            this.getElement().callJsFunction("reset");
+            if (isDone()) {
+                doDone(e.getAthlete().getGroup());
+            } else {
+                this.getElement().callJsFunction("reset");
+            }
         });
+    }
+
+    private boolean isDone() {
+        return this.groupDone;
     }
 
     @Subscribe
@@ -302,8 +311,13 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
-            doDone(e.getGroup());
+//          Group g = e.getGroup();
+            setDone(true);
         });
+    }
+
+    private void setDone(boolean b) {
+        this.groupDone = b;
     }
 
     @Subscribe
@@ -380,6 +394,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             }
         }
         if (a != null && a.getAttemptsDone() < 6) {
+            setDone(false);
             if (!leaveTopAlone) {
                 logger.debug("updating top {}", a.getFullName());
                 model.setFullName(a.getFullName());
@@ -395,7 +410,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         } else {
             if (!leaveTopAlone) {
                 logger.debug("doUpdate doDone");
-                OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+                setDone(true);
             }
             return;
         }

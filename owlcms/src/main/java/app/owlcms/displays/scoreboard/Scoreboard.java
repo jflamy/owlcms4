@@ -155,6 +155,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     private ContextMenu contextMenu;
     private Location location;
     private UI locationUI;
+    private boolean groupDone;
 
     /**
      * Instantiates a new results board.
@@ -270,8 +271,16 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         uiLog(e);
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             getModel().setHidden(false);
-            this.getElement().callJsFunction("reset");
+            if (isDone()) {
+                doDone(e.getAthlete().getGroup());
+            } else {
+                this.getElement().callJsFunction("reset");
+            }
         });
+    }
+
+    private boolean isDone() {
+        return this.groupDone;
     }
 
     @Subscribe
@@ -292,8 +301,13 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
                 this.getOrigin(), e.getOrigin());
         UIEventProcessor.uiAccess(this, uiEventBus, () -> {
             getModel().setHidden(false);
-            doDone(e.getGroup());
+//          Group g = e.getGroup();
+            setDone(true);
         });
+    }
+
+    private void setDone(boolean b) {
+        this.groupDone = b;
     }
 
     @Subscribe
@@ -370,6 +384,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
             }
         }
         if (a != null && a.getAttemptsDone() < 6) {
+            setDone(false);
             if (!leaveTopAlone) {
                 logger.debug("updating top {}", a.getFullName());
                 model.setFullName(a.getFullName());
@@ -385,7 +400,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         } else {
             if (!leaveTopAlone) {
                 logger.debug("doUpdate doDone");
-                OwlcmsSession.withFop((fop) -> doDone(fop.getGroup()));
+                setDone(true);
             }
             return;
         }
