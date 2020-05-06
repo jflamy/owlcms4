@@ -2,8 +2,6 @@ kind: Secret
 apiVersion: v1
 metadata:
   name: owlcms-config
-  namespace: jflamy-dev
-  selfLink: /api/v1/namespaces/jflamy-dev/secrets/config
   labels:
     app: owlcms
 stringData:

@@ -2,8 +2,6 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: owlcms-8080
-  namespace: jflamy-dev
-  selfLink: /apis/networking.k8s.io/v1beta1/namespaces/jflamy-dev/ingresses/owlcms-8080
   annotations:
     cert-manager.io/cluster-issuer: kubesail-letsencrypt
     certmanager.k8s.io/cluster-issuer: kubesail-letsencrypt
