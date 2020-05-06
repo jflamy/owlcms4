@@ -412,6 +412,8 @@ public class FieldOfPlay {
                 if (state != BREAK && state != INACTIVE) {
                     setState(INACTIVE);
                     athleteTimer.stop();
+                } else if (state == BREAK && breakType == BreakType.GROUP_DONE) {
+                    setState(INACTIVE);
                 }
                 loadGroup(newGroup, this, true);
                 recomputeAndRefresh(e);
@@ -572,7 +574,7 @@ public class FieldOfPlay {
                 setState(DECISION_VISIBLE);
             } else if (e instanceof DecisionReset) {
                 logger.debug("{} resetting decisions", getName());
-                pushOut(new UIEvent.DecisionReset(e.origin));
+                pushOut(new UIEvent.DecisionReset(getCurAthlete(),e.origin));
                 setClockOwner(null);
                 displayOrBreakIfDone(e);
             } else {
