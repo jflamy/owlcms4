@@ -29,7 +29,7 @@ public interface RequireLogin extends BeforeEnterObserver {
             // no check required
             OwlcmsSession.setAuthenticated(true);
             return;
-        } else if (pin == null && whiteList != null && LoginView.checkWhitelist()) {
+        } else if (noPin && LoginView.checkWhitelist()) {
             // no pin required, proper origin, no need to challenge
             OwlcmsSession.setAuthenticated(true);
             return;

@@ -10,6 +10,6 @@ stringData:
   OWLCMS_DEVMODE: "true"
   OWLCMS_IP: ""
   OWLCMS_PIN: ""
-  OWLCMS_RESETMODE: "false"
+  OWLCMS_RESETMODE: "true"
   OWLCMS_SMALLMODE: "false"
 type: Opaque

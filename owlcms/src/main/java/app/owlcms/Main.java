@@ -11,7 +11,6 @@ import java.text.ParseException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
@@ -192,14 +191,9 @@ public class Main {
     private static void parseConfig() {
         // under Kubernetes deployed under an owlcms service LoadBalancer
         String k8sServicePortString = StartupUtils.getStringParam("service_port");
-        Map<String, String> env  = System.getenv();
-        env.entrySet().forEach(System.out::println);
         if (k8sServicePortString != null) {
-            // we are running under a Kubernetes load balancer
+            // we are running under a Kubernetes ingress or load balancer
             // which handles the mapping for us.  We run on the default.
-//            // on minikube we apparently get the port via a tcp: url.  sometimes.
-//            logger.warn("port: {} env: {}",portString, env);
-//            int pos = portString.lastIndexOf(":");
             serverPort = 8080;
         } else {
             // read port parameter from -Dport=9999 on java command line
