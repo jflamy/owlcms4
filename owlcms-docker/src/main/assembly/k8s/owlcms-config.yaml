@@ -1,0 +1,13 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: owlcms-config
+  labels:
+    app: owlcms
+stringData:
+  OWLCMS_DEVMODE: "true"
+  OWLCMS_IP: ""
+  OWLCMS_PIN: ""
+  OWLCMS_RESETMODE: "true"
+  OWLCMS_SMALLMODE: "false"
+type: Opaque
