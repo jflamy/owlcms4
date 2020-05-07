@@ -1,7 +1,8 @@
-* Changes for release 4.7.1  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-   * [x] Fix: interactive creation of athlete on registration page was broken (#342)
-   * [x] Fix: individual athlete card sometimes appeared with a dark background (#343)
+* Changes for release 4.7.2-beta2  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+   * [x] Fix: Decision lights for last lift in a group are visible on attempt board and scoreboards (#344)
+   * [x] Fix: announcer using the dropdown to go to next group shows the expected toolbar with the introduction countdown button (#345)
 * Key Highlights from recent stable releases
+   * [x] Fix: interactive creation of athlete on registration page was broken (#342)
    * [x] Enhancement: Timekeeper screen now with large buttons, can be used from iPad/iPhone etc.  Also supports "," as keyboard shortcut to start clock and "." to stop clock for use with programmable keypads. (#340) 
    * [x] Fix: Changes to registration data for athletes in currently lifting groups now correctly handled (#341)
    * [x] Enhancement: When using refereeing devices, announcer sees decisions as they come in. Useful when there is no jury to remind referee or to detect device/network faults. (#328)  Can be turned off on the Competition Information page.
