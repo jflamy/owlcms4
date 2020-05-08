@@ -95,7 +95,7 @@
                                 <entryPoint>
                                     <arg>java</arg>
                                     <arg>-cp</arg>
-                                    <arg>/maven/owlcms-${project.version}.jar</arg>
+                                    <arg>maven/classes:/maven/owlcms-${project.version}.jar</arg>
                                     <arg>app.owlcms.Main</arg>
                                 </entryPoint>
                             </build>

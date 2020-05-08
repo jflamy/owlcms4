@@ -7,8 +7,17 @@
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
     <dependencySets>
-    <dependencySet>
-    <includes><include>app.owlcms:owlcms</include></includes>
-    </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>app.owlcms:owlcms</include>
+            </includes>
+        </dependencySet>
     </dependencySets>
+    <files>
+        <file>
+            <source>${project.parent.basedir}/owlcms/src/main/resources/logback-console.xml</source>
+            <destName>logback-test.xml</destName>
+            <outputDirectory>classes</outputDirectory>
+        </file>
+    </files>
 </assembly>
