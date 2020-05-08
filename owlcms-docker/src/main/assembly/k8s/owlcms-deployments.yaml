@@ -1,3 +1,16 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: postgres-config
+  labels:
+    app: postgres
+stringData:
+  POSTGRES_DB: "owlcms_db"
+  POSTGRES_USER: "owlcms"
+  POSTGRES_PASSWORD: "owlcms"
+  POSTGRES_HOST: "postgres"
+type: Opaque
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -71,16 +84,9 @@ spec:
               memory: 256Mi
           ports:
             - containerPort: 5432
-          env:
-          - name: POSTGRES_DB
-            value: owlcms_db
-          - name: POSTGRES_USER
-            value: owlcms
-          - name: POSTGRES_PASSWORD
-            value: owlcms
-#          envFrom:
-#            - secretRef:
-#                name: postgres-pass
+          envFrom:
+            - secretRef:
+                name: postgres-config
           volumeMounts:
             - mountPath: /var/lib/postgres
               name: postgres-data
@@ -107,17 +113,10 @@ spec:
         - name: owlcms
           image: owlcms-docker-containers.bintray.io/owlcms:${dockerTag}
           imagePullPolicy: IfNotPresent
-          env:
-          - name: POSTGRES_DB
-            value: owlcms_db
-          - name: POSTGRES_HOST
-            value: postgres
-          - name: POSTGRES_USER
-            value: owlcms
-          - name: POSTGRES_PASSWORD
-            value: owlcms
           envFrom:
-           - secretRef:
-               name: owlcms-config
+            - secretRef:
+                name: owlcms-config
+            - secretRef:
+                name: postgres-config
           ports:
             - containerPort: 8080
