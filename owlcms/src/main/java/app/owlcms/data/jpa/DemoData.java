@@ -58,7 +58,7 @@ public class DemoData {
      * @param ageDivisions
      */
     public static void insertInitialData(int nbAthletes, EnumSet<AgeDivision> ageDivisions) {
-        logger.info("inserting initial data");
+//        logger.info("inserting initial data");
         JPAService.runInTransaction(em -> {
             Competition competition = createDefaultCompetition(ageDivisions);
             CompetitionRepository.save(competition);

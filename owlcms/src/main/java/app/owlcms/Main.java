@@ -27,6 +27,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.EmbeddedJetty;
+import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
@@ -45,10 +46,12 @@ public class Main {
     protected static boolean demoMode;
     protected static boolean memoryMode;
     protected static boolean resetMode;
-    protected static boolean devMode;
-    protected static boolean smallMode;
+    protected static boolean demoData;
+    protected static boolean smallData;
     protected static boolean masters;
     protected static String productionMode;
+
+    private static InitialData initialData;
 
     /**
      * The main method.
@@ -106,13 +109,12 @@ public class Main {
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 
         // setup database
-        boolean inMemory = demoMode || memoryMode;
-        boolean reset = demoMode || resetMode;
-        JPAService.init(inMemory, reset);
+        JPAService.init(memoryMode, resetMode);
 
         // read locale from database and overrrde if needed
         Locale l = overrideDisplayLanguage();
-        injectData(demoMode, devMode, smallMode, masters, l);
+        
+        injectData(initialData, l);
 
         OwlcmsFactory.getDefaultFOP();
         return;
@@ -122,36 +124,43 @@ public class Main {
         JPAService.close();
     }
 
-    private static void injectData(boolean demoMode, boolean devMode, boolean smallMode, boolean masters,
+    private static void injectData(InitialData data,
             Locale locale) {
         Locale l = (locale == null ? Locale.ENGLISH : locale);
         EnumSet<AgeDivision> ageDivisions = masters ? EnumSet.of(AgeDivision.MASTERS, AgeDivision.U) : null;
         try {
             Translator.setForcedLocale(l);
-            if (demoMode) {
-                // demoMode forces JPAService to reset.
-                DemoData.insertInitialData(20, ageDivisions);
+            // if a reset was required (e.g. for demonstrations, or to reinitialize, this
+            // has been handled beforehand by Hibernate when opening the database.
+            List<Competition> allCompetitions = CompetitionRepository.findAll();
+            if (data == InitialData.LEAVE_AS_IS && allCompetitions.isEmpty()) {
+                // overide - we cannot leave the database empty
+                data = InitialData.EMPTY_COMPETITION;
+            }
+            if (allCompetitions.isEmpty()) {
+                logger.info("injecting initial data {}", data);
+                switch (data) {
+                case EMPTY_COMPETITION:
+                    ProdData.insertInitialData(0);
+                    break;
+                case LARGEGROUP_DEMO:
+                    DemoData.insertInitialData(20, ageDivisions);
+                    break;
+                case LEAVE_AS_IS:
+                    break;
+                case SINGLE_ATHLETE_GROUPS:
+                    DemoData.insertInitialData(1, ageDivisions);
+                    break;
+                }
             } else {
-                // the other modes require explicit resetMode. We don't want multiple inserts.
-                List<Competition> allCompetitions = CompetitionRepository.findAll();
-                if (allCompetitions.isEmpty()) {
-                    if (smallMode) {
-                        DemoData.insertInitialData(1, ageDivisions);
-                    } else if (devMode) {
-                        DemoData.insertInitialData(20, ageDivisions);
-                    } else {
-                        ProdData.insertInitialData(0);
-                    }
-                } else {
-                    logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
-                    List<AgeGroup> ags = AgeGroupRepository.findAll();
-                    if (ags.isEmpty()) {
-                        logger.info("updating age groups and categories");
-                        JPAService.runInTransaction(em -> {
-                            AgeGroupRepository.insertAgeGroups(em, null);
-                            return null;
-                        });
-                    }
+                logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
+                List<AgeGroup> ags = AgeGroupRepository.findAll();
+                if (ags.isEmpty()) {
+                    logger.info("updating age groups and categories");
+                    JPAService.runInTransaction(em -> {
+                        AgeGroupRepository.insertAgeGroups(em, null);
+                        return null;
+                    });
                 }
             }
         } finally {
@@ -193,38 +202,57 @@ public class Main {
         String k8sServicePortString = StartupUtils.getStringParam("service_port");
         if (k8sServicePortString != null) {
             // we are running under a Kubernetes ingress or load balancer
-            // which handles the mapping for us.  We run on the default.
+            // which handles the mapping for us. We run on the default.
             serverPort = 8080;
         } else {
             // read port parameter from -Dport=9999 on java command line
             // this is required for running on Heroku which assigns us the port at run time.
             // default is 8080
-            logger.trace("{}","reading port from properties and environment");
+            logger.trace("{}", "reading port from properties and environment");
             serverPort = StartupUtils.getIntegerParam("port", 8080);
         }
 
         StartupUtils.setServerPort(serverPort);
 
+        processLegacyOptions();
+        
+        // drop the schema first
+        resetMode = StartupUtils.getBooleanParam("resetMode") || demoMode || memoryMode ;
+        
+        String initialDataString = StartupUtils.getStringParam("initialData");
+        try {
+            initialData = InitialData.valueOf(initialDataString.toUpperCase());
+        } catch (Exception e) {
+            // no initial data setting, infer from legacy options
+            if (!resetMode) {
+                initialData = InitialData.LEAVE_AS_IS;
+            } else if (demoMode || demoData) {
+                initialData = InitialData.LARGEGROUP_DEMO;
+            } else if (smallData) {
+                initialData = InitialData.SINGLE_ATHLETE_GROUPS;
+            } else {
+                initialData = InitialData.EMPTY_COMPETITION;
+                if (initialDataString != null) {
+                    logger.error("unrecognized OWLCMS_INITIALDATA value: {}, defaulting to {}",initialDataString, initialData);
+                }
+            }
+        }
+        
+        masters = StartupUtils.getBooleanParam("masters");
+    }
+
+    private static void processLegacyOptions() {
         // same as devMode + resetMode + memoryMode
         demoMode = StartupUtils.getBooleanParam("demoMode");
 
         // run in memory
-        memoryMode = StartupUtils.getBooleanParam("memoryMode");
-
-        // drop the schema first
-        resetMode = StartupUtils.getBooleanParam("resetMode");
+        memoryMode = StartupUtils.getBooleanParam("memoryMode") || demoMode;
 
         // load large demo data if empty
-        devMode = StartupUtils.getBooleanParam("devMode");
+        demoData = StartupUtils.getBooleanParam("devMode") || demoMode;
 
         // load small dummy data if empty
-        smallMode = StartupUtils.getBooleanParam("smallMode");
-
-        // productionMode required to tell vaadin to skip npm
-        boolean npmMode = StartupUtils.getBooleanParam("npmMode");
-        productionMode = npmMode ? "false" : "true";
-
-        masters = StartupUtils.getBooleanParam("masters");
+        smallData = StartupUtils.getBooleanParam("smallMode");
     }
 
 }
