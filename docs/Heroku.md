@@ -1,5 +1,7 @@
 
 
+## Heroku
+
 Heroku is a cloud service provider that provides an attractive free (0$) pricing plan for running programs like OWLCMS4.  When running on Heroku you only need a good Internet connection, and you do not need to configure a master laptop.
 
 The installation process for Heroku has been completely redone, and is now extremely simple -- there is nothing whatsoever that needs to be installed on any of the laptops other than a browser.
@@ -53,3 +55,14 @@ Go back to your https://heroku.com home page.  Select your application, then `Se
 ### Configuration Parameters
 
 See the [Configuration Parameters](./Configuration.md ':include') page to see additional configuration options in addition to the ones presented on this page.
+
+## Kubernetes
+
+Support for Kubernetes is considered *beta*, in order to gather feedback.
+
+Kubernetes is an open standard for running applications.  It is supported by most cloud providers. A low-cost (7$ per month) provider of Kubernetes hosting is https://kubesail.com .
+
+Configuration files that work with the minikube installation and with kubesail can be found at https://github.com/jflamy/owlcms4/tree/develop/owlcms-docker/src/main/assembly/k8s 
+
+- NOTE: you need to replace the string ${dockerTag} in the [owlcms-deployments.yaml](https://github.com/jflamy/owlcms4/blob/develop/owlcms-docker/src/main/assembly/k8s/owlcms-deployments.yaml) file with a proper tag.  You can use `latest` as a tag.  
+- The Docker images are located in the following repository https://bintray.com/owlcms/containers/owlcms 
