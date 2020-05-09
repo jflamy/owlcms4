@@ -87,7 +87,10 @@
                         <image>
                             <name>owlcms:${dockerTag}</name>
                             <build>
-                                <tags>latest</tags>
+                                <tags>
+                                    <tag>latest</tag>
+                                    <tag>${project.version}</tag>
+                                </tags>
                                 <from>adoptopenjdk/openjdk8:latest</from>
                                 <assembly>
                                     <descriptor>docker.xml</descriptor>

@@ -1,0 +1,122 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: postgres-config
+  labels:
+    app: postgres
+stringData:
+  POSTGRES_DB: "owlcms_db"
+  POSTGRES_USER: "owlcms"
+  POSTGRES_PASSWORD: "owlcms"
+  POSTGRES_HOST: "postgres"
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: owlcms-8080
+  labels:
+    app: owlcms
+spec:
+  ports:
+    - name: owlcms-8080
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: owlcms
+  clusterIP: 10.2.37.138
+  type: ClusterIP
+  sessionAffinity: None
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kubesailTemplate: kubesail/postgres
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  replicas: 1
+  revisionHistoryLimit: 10
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:9.6.13
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: postgres-config
+          volumeMounts:
+            - mountPath: /var/lib/postgres
+              name: postgres-data
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: owlcms
+spec:
+  selector:
+      matchLabels:
+        app: owlcms
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: owlcms
+    spec:
+      containers:
+        - name: owlcms
+          image: owlcms-docker-containers.bintray.io/owlcms:latest
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: owlcms-config
+            - secretRef:
+                name: postgres-config
+          ports:
+            - containerPort: 8080
