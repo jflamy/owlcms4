@@ -64,5 +64,8 @@ Kubernetes is an open standard for running applications.  It is supported by mos
 
 Configuration files that work with the minikube installation and with kubesail can be found at https://github.com/jflamy/owlcms4/tree/develop/owlcms-docker/src/main/assembly/k8s 
 
-- NOTE: you need to replace the string ${dockerTag} in the [owlcms-deployments.yaml](https://github.com/jflamy/owlcms4/blob/develop/owlcms-docker/src/main/assembly/k8s/owlcms-deployments.yaml) file with a proper tag.  You can use `latest` as a tag.  
+- For minikube, deploy minikube-loadbalancer.yaml, owlcms-config.yaml, and owlcms-deployments.yaml 
+  Only this last file is required when updating. 
+- For kubesail, deploy owlcms-config.yaml and owlcms-deployments.yaml .  Then use the kubesail dashboard, go to your owlcms deployment and use the Network button to expose your application.
+  The file kubesail-ingress.yaml is an example using a preconfigured domain name.
 - The Docker images are located in the following repository https://bintray.com/owlcms/containers/owlcms 
