@@ -1,4 +1,4 @@
-* Changes for release 4.7.3-beta1  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.7.3  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
    No new features in this release.  Technical improvements only.
    * [x] Initial support for Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md).
    * [x] Simplification of configuration options for loading initial data (#347) -- see the [Configuration Parameters](https://jflamy-dev.github.io/owlcms4-prerelease/#/Configuration.md) documentation. No changes are required, old parameters still work.
