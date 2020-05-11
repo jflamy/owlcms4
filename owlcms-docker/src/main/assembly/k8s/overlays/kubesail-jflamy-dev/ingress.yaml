@@ -17,7 +17,4 @@ spec:
           - backend:
               serviceName: owlcms-8080
               servicePort: 8080
-status:
-  loadBalancer:
-    ingress:
-      - ip: 10.2.29.222
+              

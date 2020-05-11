@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonLabels:
+   app: owlcms
+bases:
+- ../../base
+images:
+  - name: owlcms
+    newName: owlcms-docker-containers.bintray.io/owlcms
+    newTag: latest
+resources:
+- ingress.yaml
