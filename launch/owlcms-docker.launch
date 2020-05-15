@@ -13,10 +13,11 @@
 <stringAttribute key="M2_USER_SETTINGS" value=""/>
 <booleanAttribute key="M2_WORKSPACE_RESOLUTION" value="false"/>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="DOCKER_CERT_PATH" value="C:\Users\JF\.minikube\certs"/>
-<mapEntry key="DOCKER_HOST" value="tcp://192.168.99.104:2376"/>
-<mapEntry key="DOCKER_TLS_VERIFY" value="1"/>
-<mapEntry key="MINIKUBE_ACTIVE_DOCKERD" value="minikube"/>
+<mapEntry key="DOCKER_HOST" value="tcp://localhost:2375"/>
+<mapEntry key="_DOCKER_HOST" value="tcp://192.168.99.104:2376"/>
+<mapEntry key="_DOCKER_CERT_PATH" value="C:\Users\JF\.minikube\certs"/>
+<mapEntry key="_DOCKER_TLS_VERIFY" value="1"/>
+<mapEntry key="_MINIKUBE_ACTIVE_DOCKERD" value="minikube"/>
 </mapAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${project_loc:owlcms-docker}"/>
 </launchConfiguration>

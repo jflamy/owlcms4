@@ -5,15 +5,13 @@ metadata:
     kubesailTemplate: kubesail/postgres
   name: postgres
 spec:
-  selector:
-    matchLabels:
-      app: postgres
   replicas: 1
   revisionHistoryLimit: 10
   template:
     metadata:
       labels:
         app: postgres
+        part-of: owlcms
     spec:
       containers:
         - name: postgres
@@ -44,14 +42,12 @@ kind: Deployment
 metadata:
   name: owlcms
 spec:
-  selector:
-      matchLabels:
-        app: owlcms
   replicas: 1
   template:
     metadata:
       labels:
         app: owlcms
+        part-of: owlcms
     spec:
       containers:
         - name: owlcms

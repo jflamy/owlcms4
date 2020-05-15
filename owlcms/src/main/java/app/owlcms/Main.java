@@ -12,6 +12,12 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.remote.JMXConnectorServer;
+import javax.management.remote.JMXConnectorServerFactory;
+import javax.management.remote.JMXServiceURL;
+
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
 import org.slf4j.LoggerFactory;
@@ -63,6 +69,20 @@ public class Main {
 
         try {
             init();
+            try {
+                // Instantiate the MBean server
+                //
+                MBeanServer mbs = MBeanServerFactory.createMBeanServer();
+
+                // Create a JMXMP connector server
+                //
+                JMXServiceURL url = new JMXServiceURL("jmxmp", null, 5555);
+                JMXConnectorServer cs = JMXConnectorServerFactory.newJMXConnectorServer(url,
+                        null, mbs);
+                cs.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             new EmbeddedJetty().run(serverPort, "/");
         } finally {
             tearDown();
@@ -113,7 +133,7 @@ public class Main {
 
         // read locale from database and overrrde if needed
         Locale l = overrideDisplayLanguage();
-        
+
         injectData(initialData, l);
 
         OwlcmsFactory.getDefaultFOP();
@@ -215,10 +235,10 @@ public class Main {
         StartupUtils.setServerPort(serverPort);
 
         processLegacyOptions();
-        
+
         // drop the schema first
-        resetMode = StartupUtils.getBooleanParam("resetMode") || demoMode || memoryMode ;
-        
+        resetMode = StartupUtils.getBooleanParam("resetMode") || demoMode || memoryMode;
+
         String initialDataString = StartupUtils.getStringParam("initialData");
         try {
             initialData = InitialData.valueOf(initialDataString.toUpperCase());
@@ -233,11 +253,12 @@ public class Main {
             } else {
                 initialData = InitialData.EMPTY_COMPETITION;
                 if (initialDataString != null) {
-                    logger.error("unrecognized OWLCMS_INITIALDATA value: {}, defaulting to {}",initialDataString, initialData);
+                    logger.error("unrecognized OWLCMS_INITIALDATA value: {}, defaulting to {}", initialDataString,
+                            initialData);
                 }
             }
         }
-        
+
         masters = StartupUtils.getBooleanParam("masters");
     }
 

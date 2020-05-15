@@ -5,3 +5,5 @@ resources:
 - claims.yaml
 - services.yaml
 - deployments.yaml
+commonLabels:
+  version: ${project.version}
