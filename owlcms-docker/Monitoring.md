@@ -54,7 +54,7 @@ KubeSail uses IPv6 by default.  In the process of debugging this recipe, we have
 
 We will be checking whether they are still necessary.
 
-## Exposing a port in Docker Desktop Kubernetes
+## Exposing a port in Kubernetes for Docker Desktop 
 
 The following instructions have been tested with the new WSL2 Docker backend which runs directly on Linux.
 
@@ -82,7 +82,7 @@ spec:
 
 This makes it possible to open the web application on http://localhost even though the container is communicating on port 8080, and also opens up the JMX monitoring channel on port 1098.   You can change the port to suit your needs, but `targetPort` needs to match what is used by the application being monitored (see the Java above).
 
-## Exposing a port with KubeSail
+## Exposing a port with KubeSail Kubernetes
 
 KubeSail is an affordable managed PaaS for running Kubernetes applications.  By default, only the traffic coming in through an Ingress (NGINX) is allowed to go further.  It is therefore necessary to 
 
