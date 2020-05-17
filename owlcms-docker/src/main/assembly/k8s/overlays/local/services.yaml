@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: jmx
+spec:
+  selector:
+    app: owlcms
+  ports:
+  - protocol: TCP
+    port: 1098
+    targetPort: 1098
+    nodePort: 30098
+  type: NodePort

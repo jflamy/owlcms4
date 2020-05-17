@@ -7,7 +7,11 @@ spec:
     app: owlcms
   ports:
   - protocol: TCP
+    name: http
     port: 81
     targetPort: 8080
-    nodePort: 30001
+  - protocol: TCP
+    name: jmx
+    port: 1097
+    targetPort: 1098
   type: LoadBalancer

@@ -158,11 +158,6 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.1.0</version>
             </dependency>
-            <dependency>
-                <groupId>app.owlcms</groupId>
-                <artifactId>owlcms</artifactId>
-                <version>4.6.0-alpha4</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 

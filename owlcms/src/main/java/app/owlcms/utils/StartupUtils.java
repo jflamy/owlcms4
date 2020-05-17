@@ -31,6 +31,14 @@ public class StartupUtils {
     static Logger logger = (Logger) LoggerFactory.getLogger(StartupUtils.class);
     static Logger mainLogger = (Logger) LoggerFactory.getLogger("app.owlcms.Main");
 
+    public static Logger getMainLogger() {
+        return mainLogger;
+    }
+
+    public static void setMainLogger(Logger mainLogger) {
+        StartupUtils.mainLogger = mainLogger;
+    }
+
     static Integer serverPort = null;
 
     public static void disableWarning() {

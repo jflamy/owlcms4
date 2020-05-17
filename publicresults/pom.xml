@@ -61,7 +61,7 @@
         <dependency>
             <groupId>com.github.appreciated</groupId>
             <artifactId>vaadin-css-grid</artifactId>
-            <version>2.0.0.beta2</version>
+            <version>2.0.0.beta3</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.vaadin</groupId>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>org.vaadin.crudui</groupId>
             <artifactId>crudui</artifactId>
-            <version>4.1.0</version>
+            <version>4.2.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -248,6 +248,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <pnpmEnable>true</pnpmEnable>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -362,9 +365,9 @@
                         <configuration>
                             <headerType>console</headerType>
                             <outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
-                            <!-- fake jar; the one we actually run is in postCp below; we want the local directory to be before the owlcms 
-                                jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy jar at 
-                                the front... -->
+                            <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
+                                publicresults jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
+                                jar at the front... -->
 
                             <!-- dummy jar for JDK 8 -->
                             <jar>jre/lib/charsets.jar</jar>
@@ -403,6 +406,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>plain</id>
@@ -412,9 +416,11 @@
                         </goals>
                         <configuration>
                             <finalName>${project.artifactId}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
                                 <descriptor>src/main/assembly/plain.xml</descriptor>
                             </descriptors>
+                            <attach>false</attach>
                         </configuration>
                     </execution>
                     <execution>
@@ -424,10 +430,13 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <skipAssembly>${noInstaller}</skipAssembly>
                             <finalName>${project.artifactId}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
                                 <descriptor>src/main/assembly/zip.xml</descriptor>
                             </descriptors>
+                            <attach>false</attach>
                         </configuration>
                     </execution>
                     <execution>
@@ -437,10 +446,13 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <skipAssembly>${noInstaller}</skipAssembly>
                             <finalName>${project.artifactId}-win32</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
                                 <descriptor>src/main/assembly/win32.xml</descriptor>
                             </descriptors>
+                            <attach>false</attach>
                         </configuration>
                     </execution>
                 </executions>
@@ -457,6 +469,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
+                            <skip>${noInstaller}</skip>
                             <executable>${innosetup.exe}</executable>
                             <workingDirectory></workingDirectory>
                             <arguments>
@@ -470,7 +483,6 @@
                     </execution>
                     <execution>
                         <id>default-cli</id>
-                        <phase>verify</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
@@ -484,6 +496,10 @@
                                 <systemProperty>
                                     <key>memoryMode</key>
                                     <value>true</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>port</key>
+                                    <value>8083</value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>
@@ -566,28 +582,6 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>net.jsign</groupId>
-                        <artifactId>jsign-maven-plugin</artifactId>
-                        <version>2.1</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <phase>package</phase>
-                                <configuration>
-                                    <file>target/${project.artifactId}_setup/${project.artifactId}_setup.exe</file>
-                                    <name>${project.artifactId}</name>
-                                    <url>http://jflamy.github.io/owlcms4</url>
-                                    <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
-                                    <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
-                                    <storepass>${codeSigning}</storepass>
-                                    <storetype>PKCS12</storetype>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
                         <groupId>com.coderplus.maven.plugins</groupId>
                         <artifactId>copy-rename-maven-plugin</artifactId>
                         <version>1.0</version>
@@ -615,6 +609,41 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>signing</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>net.jsign</groupId>
+                        <artifactId>jsign-maven-plugin</artifactId>
+                        <version>2.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <file>target/${project.artifactId}_setup/${project.artifactId}_setup.exe</file>
+                                    <name>${project.artifactId}</name>
+                                    <url>http://jflamy.github.io/owlcms4</url>
+                                    <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
+                                    <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
+                                    <storepass>${codeSigning}</storepass>
+                                    <storetype>PKCS12</storetype>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>        
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>noInstaller</id>
+            <properties>
+                <noInstaller>true</noInstaller>
+            </properties>
         </profile>
     </profiles>
 </project>

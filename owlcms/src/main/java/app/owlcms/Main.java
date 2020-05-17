@@ -7,13 +7,13 @@
 package app.owlcms;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.text.ParseException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
@@ -69,23 +69,27 @@ public class Main {
 
         try {
             init();
-            try {
-                // Instantiate the MBean server
-                //
-                MBeanServer mbs = MBeanServerFactory.createMBeanServer();
-
-                // Create a JMXMP connector server
-                //
-                JMXServiceURL url = new JMXServiceURL("jmxmp", null, 5555);
-                JMXConnectorServer cs = JMXConnectorServerFactory.newJMXConnectorServer(url,
-                        null, mbs);
-                cs.start();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            startRemoteMonitoring();
             new EmbeddedJetty().run(serverPort, "/");
         } finally {
             tearDown();
+        }
+    }
+
+    private static void startRemoteMonitoring() {
+        try {
+            // Get the MBean server for monitoring/controlling the JVM
+            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+
+            // Create a JMXMP connector server
+            int jmxPort = StartupUtils.getIntegerParam("jmxPort", 1098);
+            JMXServiceURL url = new JMXServiceURL("jmxmp", "localhost", jmxPort);
+            StartupUtils.getMainLogger().info("JMX monitoring by exposing <externalIp>:{} and connecting to service:jmx:jmxmp://externalIp:{}",jmxPort, jmxPort, url);
+            JMXConnectorServer cs = JMXConnectorServerFactory.newJMXConnectorServer(url,
+                    null, mbs);
+            cs.start();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

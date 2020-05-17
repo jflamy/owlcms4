@@ -14,7 +14,6 @@
 			<includes>
 				<include>${project.artifactId}.exe</include>
 				<include>demo-${project.artifactId}.exe</include>
-				<include>${project.artifactId}.jar</include>
 			</includes>
 		</fileSet>
 		<fileSet>
@@ -38,6 +37,11 @@
 		</fileSet>
 	</fileSets>
 	<files>
+        <file>
+            <source>${project.build.directory}/${project.artifactId}-${project.version}.jar</source>
+            <outputDirectory></outputDirectory>
+            <destName>${project.artifactId}.jar</destName>
+        </file>
 		<file>
 			<source>${project.basedir}/src/main/assembly/${project.artifactId}.l4j.ini</source>
 			<outputDirectory></outputDirectory>

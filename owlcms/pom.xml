@@ -243,6 +243,13 @@
             <artifactId>heroku-javaagent</artifactId>
             <version>2.0</version>
         </dependency>
+        
+        <!-- https://mvnrepository.com/artifact/org.glassfish.external/opendmk_jmxremote_optional_jar -->
+        <dependency>
+            <groupId>org.glassfish.external</groupId>
+            <artifactId>opendmk_jmxremote_optional_jar</artifactId>
+            <version>1.0-b01-ea</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -358,7 +365,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>${project.artifactId}</finalName>
+                            <!-- finalName>${project.artifactId}</finalName> -->
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <artifactSet>
@@ -379,252 +386,6 @@
                                 <transformer
                                     implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                             </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.akathist.maven.plugins.launch4j</groupId>
-                <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.7.25</version>
-                <executions>
-                    <execution>
-                        <id>l4j</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>launch4j</goal>
-                        </goals>
-                        <configuration>
-                            <headerType>console</headerType>
-                            <outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
-                            <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
-                                owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
-                                jar at the front... -->
-
-                            <!-- dummy jar for JDK 8 -->
-                            <jar>jre/lib/charsets.jar</jar>
-
-                            <!-- dummy jar for JDK 11 -->
-                            <!-- jar>jre/lib/jrt-fs.jar</jar -->
-
-                            <dontWrapJar>true</dontWrapJar>
-                            <errTitle>owlcms</errTitle>
-                            <classPath>
-                                <mainClass>app.owlcms.Main</mainClass>
-                                <addDependencies>false</addDependencies>
-                                <preCp>local</preCp>
-                                <postCp>${project.artifactId}.jar</postCp>
-                            </classPath>
-                            <icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
-                            <jre>
-                                <minVersion>1.8.0</minVersion>
-                                <path>jre</path>
-                                <bundledJreAsFallback>false</bundledJreAsFallback>
-                            </jre>
-                            <versionInfo>
-                                <fileVersion>1.0.0.0</fileVersion>
-                                <txtFileVersion>${project.version}</txtFileVersion>
-                                <fileDescription>${project.name}</fileDescription>
-                                <copyright>...</copyright>
-                                <productVersion>1.0.0.0</productVersion>
-                                <txtProductVersion>1.0.0.0</txtProductVersion>
-                                <productName>${project.name}</productName>
-                                <companyName>...</companyName>
-                                <internalName>...</internalName>
-                                <originalFilename>${executable.name}.exe</originalFilename>
-                            </versionInfo>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>l4j-demo</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>launch4j</goal>
-                        </goals>
-                        <configuration>
-                            <headerType>console</headerType>
-                            <outfile>${project.build.directory}/demo-${project.artifactId}.exe</outfile>
-                            <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
-                                owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
-                                jar at the front... -->
-
-                            <!-- dummy jar for JDK 8 -->
-                            <jar>jre/lib/charsets.jar</jar>
-
-                            <!-- dummy jar for JDK 11 -->
-                            <!-- jar>jre/lib/jrt-fs.jar</jar -->
-
-                            <dontWrapJar>true</dontWrapJar>
-                            <errTitle>owlcms</errTitle>
-                            <classPath>
-                                <mainClass>app.owlcms.Main</mainClass>
-                                <addDependencies>false</addDependencies>
-                                <preCp>local</preCp>
-                                <postCp>${project.artifactId}.jar</postCp>
-                            </classPath>
-                            <icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
-                            <jre>
-                                <minVersion>1.8.0</minVersion>
-                                <path>jre</path>
-                                <bundledJreAsFallback>false</bundledJreAsFallback>
-                            </jre>
-                            <versionInfo>
-                                <fileVersion>1.0.0.0</fileVersion>
-                                <txtFileVersion>${project.version}</txtFileVersion>
-                                <fileDescription>${project.name}</fileDescription>
-                                <copyright>...</copyright>
-                                <productVersion>1.0.0.0</productVersion>
-                                <txtProductVersion>1.0.0.0</txtProductVersion>
-                                <productName>${project.name}</productName>
-                                <companyName>...</companyName>
-                                <internalName>...</internalName>
-                                <originalFilename>${executable.name}.exe</originalFilename>
-                            </versionInfo>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>plain</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>${project.artifactId}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>src/main/assembly/plain.xml</descriptor>
-                            </descriptors>
-                            <attach>false</attach>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>zip</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <skipAssembly>${noInstaller}</skipAssembly>
-                            <finalName>${project.artifactId}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>src/main/assembly/zip.xml</descriptor>
-                            </descriptors>
-                            <attach>false</attach>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>windows_jdk</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <skipAssembly>${noInstaller}</skipAssembly>
-                            <finalName>${project.artifactId}-win32</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>src/main/assembly/win32.xml</descriptor>
-                            </descriptors>
-                            <attach>false</attach>
-                        </configuration>
-                    </execution>                  
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <id>windows_jdk_package</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${noInstaller}</skip>
-                            <executable>${innosetup.exe}</executable>
-                            <workingDirectory></workingDirectory>
-                            <arguments>
-                                <argument>/Q</argument>
-                                <argument>src\main\install\${project.artifactId}.iss</argument>
-                            </arguments>
-                            <environmentVariables>
-                                <versionNumber>${project.version}</versionNumber>
-                            </environmentVariables>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>default-cli</id>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <mainClass>app.owlcms.Main</mainClass>
-                            <systemProperties>
-                                <systemProperty>
-                                    <key>demoMode</key>
-                                    <value>true</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <key>memoryMode</key>
-                                    <value>true</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <key>port</key>
-                                    <value>8082</value>
-                                </systemProperty>
-                            </systemProperties>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.0.0-M1</version>
-                <executions>
-                    <execution>
-                        <id>default-deploy</id>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>deploy-file</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>deploy-file</goal>
-                        </goals>
-                        <configuration>
-                            <file>target/${project.artifactId}.jar</file>
-                            <repositoryId>bintray-owlcms-maven</repositoryId>
-                            <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>${project.artifactId}</artifactId>
-                            <version>${project.version}</version>
-                            <packaging>jar</packaging>
-                            <generatePom>false</generatePom>
-                            <pomFile>target/classes/deployment-pom.xml</pomFile>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <!-- Skip execution - top level project does all the release handling -->
-                <groupId>com.ragedunicorn.tools.maven</groupId>
-                <artifactId>github-release-maven-plugin</artifactId>
-                <version>1.0.4.2</version>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>default-cli</id>
-                        <configuration>
-                            <skip>true</skip>
                         </configuration>
                     </execution>
                 </executions>
@@ -658,6 +419,252 @@
                                     <goal>build-frontend</goal>
                                 </goals>
                                 <phase>compile</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                        <artifactId>launch4j-maven-plugin</artifactId>
+                        <version>1.7.25</version>
+                        <executions>
+                            <execution>
+                                <id>l4j</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>launch4j</goal>
+                                </goals>
+                                <configuration>
+                                    <headerType>console</headerType>
+                                    <outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
+                                    <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before 
+                                        the owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
+                                        jar at the front... -->
+
+                                    <!-- dummy jar for JDK 8 -->
+                                    <jar>jre/lib/charsets.jar</jar>
+
+                                    <!-- dummy jar for JDK 11 -->
+                                    <!-- jar>jre/lib/jrt-fs.jar</jar -->
+
+                                    <dontWrapJar>true</dontWrapJar>
+                                    <errTitle>owlcms</errTitle>
+                                    <classPath>
+                                        <mainClass>app.owlcms.Main</mainClass>
+                                        <addDependencies>false</addDependencies>
+                                        <preCp>local</preCp>
+                                        <postCp>${project.artifactId}.jar</postCp>
+                                    </classPath>
+                                    <icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
+                                    <jre>
+                                        <minVersion>1.8.0</minVersion>
+                                        <path>jre</path>
+                                        <bundledJreAsFallback>false</bundledJreAsFallback>
+                                    </jre>
+                                    <versionInfo>
+                                        <fileVersion>1.0.0.0</fileVersion>
+                                        <txtFileVersion>${project.version}</txtFileVersion>
+                                        <fileDescription>${project.name}</fileDescription>
+                                        <copyright>...</copyright>
+                                        <productVersion>1.0.0.0</productVersion>
+                                        <txtProductVersion>1.0.0.0</txtProductVersion>
+                                        <productName>${project.name}</productName>
+                                        <companyName>...</companyName>
+                                        <internalName>...</internalName>
+                                        <originalFilename>${executable.name}.exe</originalFilename>
+                                    </versionInfo>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>l4j-demo</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>launch4j</goal>
+                                </goals>
+                                <configuration>
+                                    <headerType>console</headerType>
+                                    <outfile>${project.build.directory}/demo-${project.artifactId}.exe</outfile>
+                                    <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before 
+                                        the owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
+                                        jar at the front... -->
+
+                                    <!-- dummy jar for JDK 8 -->
+                                    <jar>jre/lib/charsets.jar</jar>
+
+                                    <!-- dummy jar for JDK 11 -->
+                                    <!-- jar>jre/lib/jrt-fs.jar</jar -->
+
+                                    <dontWrapJar>true</dontWrapJar>
+                                    <errTitle>owlcms</errTitle>
+                                    <classPath>
+                                        <mainClass>app.owlcms.Main</mainClass>
+                                        <addDependencies>false</addDependencies>
+                                        <preCp>local</preCp>
+                                        <postCp>${project.artifactId}.jar</postCp>
+                                    </classPath>
+                                    <icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
+                                    <jre>
+                                        <minVersion>1.8.0</minVersion>
+                                        <path>jre</path>
+                                        <bundledJreAsFallback>false</bundledJreAsFallback>
+                                    </jre>
+                                    <versionInfo>
+                                        <fileVersion>1.0.0.0</fileVersion>
+                                        <txtFileVersion>${project.version}</txtFileVersion>
+                                        <fileDescription>${project.name}</fileDescription>
+                                        <copyright>...</copyright>
+                                        <productVersion>1.0.0.0</productVersion>
+                                        <txtProductVersion>1.0.0.0</txtProductVersion>
+                                        <productName>${project.name}</productName>
+                                        <companyName>...</companyName>
+                                        <internalName>...</internalName>
+                                        <originalFilename>${executable.name}.exe</originalFilename>
+                                    </versionInfo>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>plain</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <finalName>${project.artifactId}</finalName>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/plain.xml</descriptor>
+                                    </descriptors>
+                                    <attach>false</attach>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>zip</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <skipAssembly>${noInstaller}</skipAssembly>
+                                    <finalName>${project.artifactId}</finalName>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/zip.xml</descriptor>
+                                    </descriptors>
+                                    <attach>false</attach>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>windows_jdk</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <skipAssembly>${noInstaller}</skipAssembly>
+                                    <finalName>${project.artifactId}-win32</finalName>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/win32.xml</descriptor>
+                                    </descriptors>
+                                    <attach>false</attach>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <id>windows_jdk_package</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${noInstaller}</skip>
+                                    <executable>${innosetup.exe}</executable>
+                                    <workingDirectory></workingDirectory>
+                                    <arguments>
+                                        <argument>/Q</argument>
+                                        <argument>src\main\install\${project.artifactId}.iss</argument>
+                                    </arguments>
+                                    <environmentVariables>
+                                        <versionNumber>${project.version}</versionNumber>
+                                    </environmentVariables>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>default-cli</id>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>app.owlcms.Main</mainClass>
+                                    <systemProperties>
+                                        <systemProperty>
+                                            <key>demoMode</key>
+                                            <value>true</value>
+                                        </systemProperty>
+                                        <systemProperty>
+                                            <key>memoryMode</key>
+                                            <value>true</value>
+                                        </systemProperty>
+                                        <systemProperty>
+                                            <key>port</key>
+                                            <value>8082</value>
+                                        </systemProperty>
+                                    </systemProperties>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <version>3.0.0-M1</version>
+                        <executions>
+                            <execution>
+                                <id>default-deploy</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>deploy-file</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>deploy-file</goal>
+                                </goals>
+                                <configuration>
+                                    <file>target/${project.artifactId}.jar</file>
+                                    <repositoryId>bintray-owlcms-maven</repositoryId>
+                                    <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <version>${project.version}</version>
+                                    <packaging>jar</packaging>
+                                    <generatePom>false</generatePom>
+                                    <pomFile>target/classes/deployment-pom.xml</pomFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <!-- Skip execution - top level project does all the release handling -->
+                        <groupId>com.ragedunicorn.tools.maven</groupId>
+                        <artifactId>github-release-maven-plugin</artifactId>
+                        <version>1.0.4.2</version>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>default-cli</id>
+                                <configuration>
+                                    <skip>true</skip>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -719,6 +726,32 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>noInstaller</id>
+            <properties>
+                <noInstaller>true</noInstaller>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <version>3.0.0-M1</version>
+                        <executions>
+                            <execution>
+                                <id>default-deploy</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>deploy-file</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+
         <profile>
             <id>demo</id>
             <build>

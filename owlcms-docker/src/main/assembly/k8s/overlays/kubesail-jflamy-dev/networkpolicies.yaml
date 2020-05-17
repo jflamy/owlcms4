@@ -1,0 +1,12 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: api-allow-jmx
+spec:
+  podSelector:
+    matchLabels:
+      app: owlcms
+  ingress:
+  - ports:
+    - port: 1098
+    from: []

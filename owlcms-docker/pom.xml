@@ -6,14 +6,17 @@
         <artifactId>owlcms4top</artifactId>
         <version>4.7.4</version>
     </parent>
+
     <artifactId>owlcms-docker</artifactId>
+
+
     <name>Owlcms Docker packaging</name>
     <description>Owlcms Docker for use in Kubernetes</description>
     <packaging>docker</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>app.owlcms</groupId>
             <artifactId>owlcms</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -100,13 +103,8 @@
                                 <entryPoint>
                                     <arg>java</arg>
                                     <arg>-Djava.net.preferIPv4Stack=true</arg>
-                                    <arg>-Dcom.sun.management.jmxremote</arg>
-                                    <arg>-Dcom.sun.management.jmxremote.port=1088</arg>
                                     <arg>-Dcom.sun.management.jmxremote.ssl=false</arg>
                                     <arg>-Dcom.sun.management.jmxremote.authenticate=false</arg>
-                                    <arg>-Dcom.sun.management.jmxremote.rmi.port=1088</arg>
-                                    <arg>-Djava.rmi.server.hostname=127.0.0.1</arg>
-                                    <arg>-Djava.rmi.server.logCalls=true</arg>
                                     <arg>-cp</arg>
                                     <arg>maven/classes:/maven/owlcms-${project.version}.jar</arg>
                                     <arg>app.owlcms.Main</arg>
