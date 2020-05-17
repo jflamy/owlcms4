@@ -91,29 +91,35 @@ KubeSail is an affordable managed PaaS for running Kubernetes applications.  By 
 
 ### Creating a network policy
 
-The following opens the 1098 port on the application to be accessed from the outside.
+The following opens the 1098 port on the application to be accessed from the outside, and limits outside access to a certain address.
 
 ```yaml
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: owlcms-jmx
+  name: owlcms-allow-jmx
 spec:
   podSelector:
     matchLabels:
       app: owlcms
+  policyTypes:
+  - Ingress
   ingress:
-  - ports:
-    - port: 1098
-    from: []
+  - from:
+    - ipBlock:
+        cidr: 107.171.217.85/32
+    ports:
+    - protocol: TCP
+      port: 1098
 ```
 
-More advanced topics such as restricting monitoring to come only from a certain site are discussed in 
+More advanced topics are discussed on this page 
 https://www.magalix.com/blog/kubernetes-network-policies-101
 
 ### Exposing the monitoring port
 
-The simplest way is to use a NodePort, which makes the virtual machine open a port and expose it to the outside world.  In the case of a shared service like KubeSail, there is therefore the possibility that the chosen port is in conflict with others, and that you will need to change it.
+The simplest way is to use a NodePort, which makes the virtual machine open a port and expose it to the outside world.  In the case of a shared service like KubeSail, there is therefore the possibility that the chosen port is in conflict with others, and that you will need to change it. 
+The last line (externalTrafficPolicy) is required to prevent Kubernetes from doing a NAT (Network Address Translation)
 
 ```yaml
 kind: Service
@@ -129,6 +135,7 @@ spec:
     targetPort: 1098
     nodePort: 30098
   type: NodePort
+  externalTrafficPolicy: Local
 ```
 
 ### Getting the address of the node
