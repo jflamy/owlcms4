@@ -123,7 +123,7 @@ pipeline {
             steps {
                 dir('owlcms4/owlcms') {
                     // release uber-jar to bintray
-                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+                    bat 'mvn -P production -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
                 }
                 dir('owlcms4/owlcms4-heroku') {
                     bat 'git checkout %BRANCH%'
@@ -154,7 +154,7 @@ pipeline {
                 dir('owlcms4/owlcms4-heroku') {
                     // The heroku deploy button pointing to the proper tagged version is part of the release notes.
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
-                    bat 'mvn -e -X -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%H_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
+                    bat 'mvn -P production -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%H_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
                 }       
             }
         }       
