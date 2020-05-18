@@ -59,7 +59,7 @@ pipeline {
             }
             steps {
                 dir('owlcms4/owlcms') {
- //                   bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
                 }
             }
         }
@@ -70,7 +70,7 @@ pipeline {
             }
             steps {
                 dir('owlcms4/publicresults') {
- //                   bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
                 }
             }
         }
