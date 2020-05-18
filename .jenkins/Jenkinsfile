@@ -175,7 +175,7 @@ pipeline {
             }
             steps {
                 dir('owlcms4/publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+                    bat 'mvn -P production -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
                 }
                 dir('owlcms4/publicresults-heroku') {
                     bat 'git checkout %BRANCH%'
@@ -205,7 +205,7 @@ pipeline {
                 dir('owlcms4/publicresults-heroku') {
                     // The heroku deploy button pointing to the proper tagged version is part of the release notes.
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
-                    bat 'mvn -P production -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%P_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
+                    bat 'mvn  -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%P_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
                 }       
             }
         }
