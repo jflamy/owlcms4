@@ -56,6 +56,8 @@ Go back to your https://heroku.com home page.  Select your application, then `Se
 
 See the [Configuration Parameters](./Configuration.md ':include') page to see additional configuration options in addition to the ones presented on this page.
 
+
+
 ## Kubernetes
 
 Support for Kubernetes is considered *beta*, in order to gather feedback.
@@ -64,8 +66,19 @@ Kubernetes is an open standard for running applications.  It is supported by mos
 
 Configuration files that work with the minikube installation and with kubesail can be found at https://github.com/jflamy/owlcms4/tree/develop/owlcms-docker/src/main/assembly/k8s 
 
-- For minikube, deploy minikube-loadbalancer.yaml, owlcms-config.yaml, and owlcms-deployments.yaml 
-  Only this last file is required when updating. 
-- For kubesail, deploy owlcms-config.yaml and owlcms-deployments.yaml .  Then use the kubesail dashboard, go to your owlcms deployment and use the Network button to expose your application.
-  The file kubesail-ingress.yaml is an example using a preconfigured domain name.
+- Checkout you own copy of these files.  The `kustomize` tool is used to assemble the deployment manifests.
+  
+- For minikube or Docker Desktop, use
+  
+  ```
+kubectl kustomize overlays/local | kubectl apply -f -
+```
+
+- For kubesail, copy and edit the files in overlays/kubesail-jflamy-dev to your own directory (myk8s for example).  Change the host name in the `ingress` file, and the whitelisting values in `networkingpolicies`.
+  After making sure that your KUBECONFIG environment variable points to the file that contains the configuration and certificates you copied and pasted from kubesail, you can run
+
+  ```
+  kubectl kustomize overlays/myk8s | kubectl apply -f -
+  ```
+  
 - The Docker images are located in the following repository https://bintray.com/owlcms/containers/owlcms 
