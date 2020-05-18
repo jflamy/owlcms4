@@ -1,10 +1,10 @@
-* Changes for release 4.7.4  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.7.4-beta1  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
    No new features in this release.  Technical improvements only.
-   * [x] Initial support for Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md).
-   * [x] Simplification of configuration options for loading initial data (#347) -- see the [Configuration Parameters](https://jflamy-dev.github.io/owlcms4-prerelease/#/Configuration.md) documentation. No changes are required, old parameters still work.
+   * [x] Improved support for Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md). It is now possible to remotely monitor the application.
 * Key Highlights from recent stable releases
-   * [x] Fix: Decision lights for last lift in a group are visible on attempt board and scoreboards (#344)
-   * [x] Fix: announcer using the dropdown to go to next group shows the expected toolbar with the introduction countdown button (#345)
+   * [x] Enhancement: Simplification of configuration options for loading initial data (#347) -- see the [Configuration Parameters](https://jflamy-dev.github.io/owlcms4-prerelease/#/Configuration.md) documentation. *No changes are required, old parameters still work*.
+   * [x] Fix: Decision lights for the very last lift in a group would disappear too quickly on the attempt board and scoreboards (#344)
+   * [x] Fix: announcer using the dropdown to go to next group now shows the correct buttons to start the next group's countdown (#345)
    * [x] Fix: interactive creation of athlete on registration page was broken (#342)
    * [x] Enhancement: Timekeeper screen now with large buttons, can be used from iPad/iPhone etc.  Also supports "," as keyboard shortcut to start clock and "." to stop clock for use with programmable keypads. (#340) 
    * [x] Fix: Changes to registration data for athletes in currently lifting groups now correctly handled (#341)
