@@ -44,6 +44,8 @@ pipeline {
             }    
             steps {
                 bat 'git clone --recursive https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git --single-branch --branch %BRANCH% '
+                bat 'git config --local user.email "jf@jflamy.dev"'
+                bat 'git config --local user.name "Jean-François Lamy"'
 //                bat 'move ..\\n1 owlcms4\\owlcms\\node_modules '
 //                bat 'move ..\\n2 owlcms4\\publicresults\\node_modules '
             }
@@ -51,7 +53,7 @@ pipeline {
           
         stage('Build owlcms') {
             when {
-                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+//               expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
             steps {
                 dir('owlcms4/owlcms') {
@@ -66,7 +68,7 @@ pipeline {
             }
             steps {
                 dir('owlcms4/publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+ //                   bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
                 }
             }
         }
