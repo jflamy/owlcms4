@@ -4,7 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.7.4-beta2</version>
+        <version>4.7.4-beta3</version>
     </parent>
 
     <name>Olympic Weightlifting Competition Management System Public Viewer</name>
@@ -560,7 +560,7 @@
                                     <goal>deploy-file</goal>
                                 </goals>
                                 <configuration>
-                                    <file>target/${project.artifactId}.jar</file>
+                                    <file>target/${project.artifactId}-${project.version}.jar</file>
                                     <repositoryId>bintray-owlcms-maven</repositoryId>
                                     <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
                                     <groupId>${project.groupId}</groupId>
