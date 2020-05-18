@@ -44,8 +44,10 @@ pipeline {
             }    
             steps {
                 bat 'git clone --recursive https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git --single-branch --branch %BRANCH% '
-                bat 'git config --local user.email "jf@jflamy.dev"'
-                bat 'git config --local user.name "Jean-François Lamy"'
+                dir('owlcms4/owlcms') {
+                    bat 'git config --local user.email "jf@jflamy.dev"'
+                    bat 'git config --local user.name "Jean-François Lamy"'
+                }
 //                bat 'move ..\\n1 owlcms4\\owlcms\\node_modules '
 //                bat 'move ..\\n2 owlcms4\\publicresults\\node_modules '
             }
