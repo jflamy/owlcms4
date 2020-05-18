@@ -11,7 +11,7 @@ pool:
 
 steps:
 - checkout: self
-  submodules: true |
+  submodules: recursive
 
 - task: Maven@3
   inputs:
