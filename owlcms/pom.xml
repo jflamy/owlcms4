@@ -640,7 +640,7 @@
                                     <goal>deploy-file</goal>
                                 </goals>
                                 <configuration>
-                                    <file>target/${project.artifactId}.jar</file>
+                                    <file>target/${project.artifactId}-${project.version}.jar</file>
                                     <repositoryId>bintray-owlcms-maven</repositoryId>
                                     <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
                                     <groupId>${project.groupId}</groupId>
