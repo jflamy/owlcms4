@@ -28,8 +28,8 @@ pipeline {
                 expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
             steps {
-//                bat 'move owlcms4\\owlcms\\node_modules ..\\n1'
-//                bat 'move owlcms4\\publicresults\\node_modules ..\\n2'
+                bat 'move owlcms4\\owlcms\\node_modules ..\\n1'
+                bat 'move owlcms4\\publicresults\\node_modules ..\\n2'
                 bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %BRANCH%"
                 cleanWs()
             }
@@ -48,8 +48,16 @@ pipeline {
                     bat 'git config --local user.email "jf@jflamy.dev"'
                     bat 'git config --local user.name "Jean-François Lamy"'
                 }
-//                bat 'move ..\\n1 owlcms4\\owlcms\\node_modules '
-//                bat 'move ..\\n2 owlcms4\\publicresults\\node_modules '
+                dir('owlcms4/owlcms4-heroku') {
+                    bat 'git config --local user.email "jf@jflamy.dev"'
+                    bat 'git config --local user.name "Jean-François Lamy"'
+                }
+                 dir('owlcms4/publicresults-heroku') {
+                    bat 'git config --local user.email "jf@jflamy.dev"'
+                    bat 'git config --local user.name "Jean-François Lamy"'
+                }
+                bat 'move ..\\n1 owlcms4\\owlcms\\node_modules '
+                bat 'move ..\\n2 owlcms4\\publicresults\\node_modules '
             }
         }
           
