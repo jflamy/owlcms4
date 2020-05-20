@@ -51,7 +51,7 @@ public class RegistrationReaderTest {
     @Test
     public void test() throws IOException, SAXException, InvalidFormatException {
 
-        String streamURI = "/testdata/registration.xls";
+        String streamURI = "/testData/registration.xls";
 
         try (InputStream xmlInputStream = this.getClass().getResourceAsStream(REGISTRATION_READER_SPEC)) {
 
