@@ -12,6 +12,7 @@
         <module>publicresults-heroku</module>
         <module>owlcms4-heroku</module>
         <module>owlcms-docker</module>
+        <module>owlcms-wintools</module>
     </modules>
 
     <organization>
