@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>app.owlcms</groupId>
-    <version>1.0.0</version>
+    <version>4.7.5-beta8</version>
     <artifactId>installtools</artifactId>
     <packaging>pom</packaging>
 
