@@ -1,18 +1,20 @@
-# OWLCMS4 - Olympic Weightlifting Competition Management System 
+# OWLCMS - Olympic Weightlifting Competition Management System 
 This software is a complete rewrite of `owlcms` which has been used to manage Olympic Weightlifting competitions since 2009. 
 
-### Features and Demo
+### Features, Documentation and Demo
 
-See the application [Web Site](https://owlcms.github.io/owlcms4/) for a full overview.  See [this page](https://owlcms.github.io/owlcms4/#/Demo) for accessing a live demo.
+See the application [Web Site](https://owlcms.github.io/owlcms4/) for a full overview.  See [this page](https://owlcms.github.io/owlcms4/#/Demo) for a live demo.
 
 ### Installation
 Stable installation packages are downloaded from [the release repository](https://github.com/owlcms/owlcms4/releases) .  Refer to the following for instructions:
 
   * [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
 * [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
-* [Heroku Cloud Installation](https://owlcms.github.io/owlcms4/#/Heroku)
+* [Heroku Cloud Installation](https://owlcms.github.io/owlcms4/#/Cloud)
 
-Additional modules and pre-releases are also available.  Refer to [this page](https://github.com/jflamy/owlcms4/releases) for downloads.
+### Additional Modules and Pre-releases
+
+Refer to the following [page](https://github.com/jflamy/owlcms4/blob/master/Releases.md) for the various modules and releases, including preliminary releases for early adopters.
 
 ### Support
 

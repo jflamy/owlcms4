@@ -1,6 +1,6 @@
-* Changes for release 4.7.4-beta5  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-   No new features in this release.  Technical improvements only.
-   * [x] Improved support for Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md). It is now possible to remotely monitor the application.
+* Changes for release 4.7.4-rc1  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+   * [x] Spanish translation completed.
+   * [x] Improved support for deployment under Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md).
 * Key Highlights from recent stable releases
    * [x] Enhancement: Simplification of configuration options for loading initial data (#347) -- see the [Configuration Parameters](https://jflamy-dev.github.io/owlcms4-prerelease/#/Configuration.md) documentation. *No changes are required, old parameters still work*.
    * [x] Fix: Decision lights for the very last lift in a group would disappear too quickly on the attempt board and scoreboards (#344)
