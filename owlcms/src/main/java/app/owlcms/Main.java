@@ -7,10 +7,16 @@
 package app.owlcms;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.text.ParseException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+
+import javax.management.MBeanServer;
+import javax.management.remote.JMXConnectorServer;
+import javax.management.remote.JMXConnectorServerFactory;
+import javax.management.remote.JMXServiceURL;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.DateConverter;
@@ -63,9 +69,27 @@ public class Main {
 
         try {
             init();
+            startRemoteMonitoring();
             new EmbeddedJetty().run(serverPort, "/");
         } finally {
             tearDown();
+        }
+    }
+
+    private static void startRemoteMonitoring() {
+        try {
+            // Get the MBean server for monitoring/controlling the JVM
+            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+
+            // Create a JMXMP connector server
+            int jmxPort = StartupUtils.getIntegerParam("jmxPort", 1098);
+            JMXServiceURL url = new JMXServiceURL("jmxmp", "localhost", jmxPort);
+            StartupUtils.getMainLogger().info("JMX monitoring by exposing <externalIp>:{} and connecting to service:jmx:jmxmp://externalIp:{}",jmxPort, jmxPort, url);
+            JMXConnectorServer cs = JMXConnectorServerFactory.newJMXConnectorServer(url,
+                    null, mbs);
+            cs.start();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -113,7 +137,7 @@ public class Main {
 
         // read locale from database and overrrde if needed
         Locale l = overrideDisplayLanguage();
-        
+
         injectData(initialData, l);
 
         OwlcmsFactory.getDefaultFOP();
@@ -215,10 +239,10 @@ public class Main {
         StartupUtils.setServerPort(serverPort);
 
         processLegacyOptions();
-        
+
         // drop the schema first
-        resetMode = StartupUtils.getBooleanParam("resetMode") || demoMode || memoryMode ;
-        
+        resetMode = StartupUtils.getBooleanParam("resetMode") || demoMode || memoryMode;
+
         String initialDataString = StartupUtils.getStringParam("initialData");
         try {
             initialData = InitialData.valueOf(initialDataString.toUpperCase());
@@ -233,11 +257,12 @@ public class Main {
             } else {
                 initialData = InitialData.EMPTY_COMPETITION;
                 if (initialDataString != null) {
-                    logger.error("unrecognized OWLCMS_INITIALDATA value: {}, defaulting to {}",initialDataString, initialData);
+                    logger.error("unrecognized OWLCMS_INITIALDATA value: {}, defaulting to {}", initialDataString,
+                            initialData);
                 }
             }
         }
-        
+
         masters = StartupUtils.getBooleanParam("masters");
     }
 

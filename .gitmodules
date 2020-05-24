@@ -2,7 +2,7 @@
 	path = publicresults-heroku
 	url = https://github.com/jflamy/publicresults-heroku.git
 
-[submodule "owlcms4-heroku"]
-	path = owlcms4-heroku
-	url = https://github.com/jflamy/owlcms4-heroku.git
+[submodule "owlcms-heroku"]
+	path = owlcms-heroku
+	url = https://github.com/jflamy/owlcms-heroku.git
 	branch = master

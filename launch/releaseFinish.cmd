@@ -7,7 +7,7 @@ git merge origin/master
 git commit -a -m "develop"
 git push origin develop
 cd ..
-cd owlcms4-heroku
+cd owlcms-heroku
 git checkout develop
 git pull
 git merge origin/master

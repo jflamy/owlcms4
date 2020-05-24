@@ -7,7 +7,7 @@ pipeline {
         string(name: 'REPO_OWNER', defaultValue: 'owlcms', description: 'owlcms or jflamy-dev')
         string(name: 'O_REPO_NAME', defaultValue: 'owlcms4', description: 'owlcms4 or owlcms4-prerelease')
         string(name: 'P_REPO_NAME', defaultValue: 'publicresults-heroku', description: 'publicresults-heroku or publicresults-heroku-prerelease')
-        string(name: 'H_REPO_NAME', defaultValue: 'owlcms4-heroku', description: 'owlcms4-heroku or owlcms4-heroku-prerelease')
+        string(name: 'H_REPO_NAME', defaultValue: 'owlcms-heroku', description: 'owlcms-heroku or owlcms-heroku-prerelease')
         string(name: 'PRERELEASE', defaultValue: 'true', description: 'true or false')
         string(name: 'REPO_TOKEN_NAME', defaultValue: 'github-oauth', description: 'from Maven settings')
         string(name: 'BRANCH', defaultValue: 'mandatory', description: 'from Maven settings')
@@ -28,8 +28,8 @@ pipeline {
                 expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
             steps {
-//                bat 'move owlcms4\\owlcms\\node_modules ..\\n1'
-//                bat 'move owlcms4\\publicresults\\node_modules ..\\n2'
+//              bat 'move owlcms4\\owlcms\\node_modules ..\\n1'
+//              bat 'move owlcms4\\publicresults\\node_modules ..\\n2'
                 bat "echo %M2% %REPO_TOKEN_NAME% %VERSION% %BRANCH%"
                 cleanWs()
             }
@@ -44,6 +44,20 @@ pipeline {
             }    
             steps {
                 bat 'git clone --recursive https://%TOKEN%@github.com/%TOKEN_USR%/owlcms4.git --single-branch --branch %BRANCH% '
+                dir('owlcms4/owlcms') {
+                    bat 'git config --local user.email "jf@jflamy.dev"'
+                    bat 'git config --local user.name "Jean-François Lamy"'
+                }
+                dir('owlcms4/owlcms-heroku') {
+                    bat 'git checkout %BRANCH%'
+                    bat 'git config --local user.email "jf@jflamy.dev"'
+                    bat 'git config --local user.name "Jean-François Lamy"'
+                }
+                 dir('owlcms4/publicresults-heroku') {
+                    bat 'git checkout %BRANCH%'
+                    bat 'git config --local user.email "jf@jflamy.dev"'
+                    bat 'git config --local user.name "Jean-François Lamy"'
+                }
 //                bat 'move ..\\n1 owlcms4\\owlcms\\node_modules '
 //                bat 'move ..\\n2 owlcms4\\publicresults\\node_modules '
             }
@@ -51,7 +65,7 @@ pipeline {
           
         stage('Build owlcms') {
             when {
-                expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
+               expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
             steps {
                 dir('owlcms4/owlcms') {
@@ -71,7 +85,7 @@ pipeline {
             }
         }
       
-        stage('Push owlcms4 and publicresults installers') {
+        stage('Push owlcms and publicresults installers') {
             when {
                 expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
@@ -96,7 +110,7 @@ pipeline {
             }
         }
         
-        stage('Release owlcms4 and publicresults installers') {
+        stage('Release owlcms and publicresults installers') {
             environment {
                 TOKEN = credentials('jflamy-pw')
             }
@@ -108,7 +122,7 @@ pipeline {
             }
         }       
         
-        stage('Push owlcms4-heroku') {
+        stage('Push owlcms-heroku') {
             when {
                 expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
@@ -119,9 +133,9 @@ pipeline {
             steps {
                 dir('owlcms4/owlcms') {
                     // release uber-jar to bintray
-                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+                    bat 'mvn -P production -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
                 }
-                dir('owlcms4/owlcms4-heroku') {
+                dir('owlcms4/owlcms-heroku') {
                     bat 'git checkout %BRANCH%'
                     bat 'git pull'
                     bat 'mvn -s %M2%/settings.xml -B clean package'
@@ -141,16 +155,16 @@ pipeline {
             }
         }
         
-        stage('Release owlcms4-heroku') {
+        stage('Release owlcms-heroku') {
             environment {
                 TOKEN = credentials('jflamy-pw')
                 TOKEN2 = credentials('jflamy-dev-pw')
             }
             steps {
-                dir('owlcms4/owlcms4-heroku') {
+                dir('owlcms4/owlcms-heroku') {
                     // The heroku deploy button pointing to the proper tagged version is part of the release notes.
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
-                    bat 'mvn -e -X -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%H_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
+                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%H_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
                 }       
             }
         }       
@@ -163,7 +177,7 @@ pipeline {
             }
             steps {
                 dir('owlcms4/publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+                    bat 'mvn -P production -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
                 }
                 dir('owlcms4/publicresults-heroku') {
                     bat 'git checkout %BRANCH%'
@@ -193,7 +207,7 @@ pipeline {
                 dir('owlcms4/publicresults-heroku') {
                     // The heroku deploy button pointing to the proper tagged version is part of the release notes.
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
-                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%P_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
+                    bat 'mvn  -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%P_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
                 }       
             }
         }
