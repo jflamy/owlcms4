@@ -12,7 +12,8 @@
         <module>publicresults-heroku</module>
         <module>owlcms4-heroku</module>
         <module>owlcms-docker</module>
-        <module>owlcms-wintools</module>
+        <module>owlcms-installtools</module>
+        <module>owlcms-windows-installer</module>
     </modules>
 
     <organization>
@@ -229,6 +230,7 @@
                     <execution>
                         <id>copy-resources</id>
                         <phase>package</phase>
+                        <inherited>false</inherited>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>

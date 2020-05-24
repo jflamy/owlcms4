@@ -9,13 +9,13 @@
 
     <name>Olympic Weightlifting Competition Management System</name>
     <artifactId>owlcms</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <distributionManagement>
         <repository>
             <id>bintray-owlcms-maven</id>
             <name>owlcms-maven</name>
-            <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+            <url>https://api.bintray.com/maven/owlcms/owlcms-maven/owlcms/;publish=1</url>
         </repository>
     </distributionManagement>
 
@@ -365,7 +365,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <!-- finalName>${project.artifactId}</finalName> -->
+                            <!-- finalName>owlcms</finalName> -->
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <artifactSet>
@@ -394,7 +394,6 @@
     </build>
     <profiles>
         <profile>
-            <!-- Production mode is activated using -Pproduction -->
             <id>production</id>
             <properties>
                 <vaadin.productionMode>true</vaadin.productionMode>
@@ -435,7 +434,7 @@
                                 </goals>
                                 <configuration>
                                     <headerType>console</headerType>
-                                    <outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
+                                    <outfile>${project.build.directory}/owlcms.exe</outfile>
                                     <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before 
                                         the owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
                                         jar at the front... -->
@@ -452,7 +451,7 @@
                                         <mainClass>app.owlcms.Main</mainClass>
                                         <addDependencies>false</addDependencies>
                                         <preCp>local</preCp>
-                                        <postCp>${project.artifactId}.jar</postCp>
+                                        <postCp>owlcms.jar</postCp>
                                     </classPath>
                                     <icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
                                     <jre>
@@ -482,7 +481,7 @@
                                 </goals>
                                 <configuration>
                                     <headerType>console</headerType>
-                                    <outfile>${project.build.directory}/demo-${project.artifactId}.exe</outfile>
+                                    <outfile>${project.build.directory}/demo-owlcms.exe</outfile>
                                     <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before 
                                         the owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
                                         jar at the front... -->
@@ -499,7 +498,7 @@
                                         <mainClass>app.owlcms.Main</mainClass>
                                         <addDependencies>false</addDependencies>
                                         <preCp>local</preCp>
-                                        <postCp>${project.artifactId}.jar</postCp>
+                                        <postCp>owlcms.jar</postCp>
                                     </classPath>
                                     <icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
                                     <jre>
@@ -534,7 +533,7 @@
                                     <goal>single</goal>
                                 </goals>
                                 <configuration>
-                                    <finalName>${project.artifactId}</finalName>
+                                    <finalName>owlcms</finalName>
                                     <appendAssemblyId>false</appendAssemblyId>
                                     <descriptors>
                                         <descriptor>src/main/assembly/plain.xml</descriptor>
@@ -550,7 +549,7 @@
                                 </goals>
                                 <configuration>
                                     <skipAssembly>${noInstaller}</skipAssembly>
-                                    <finalName>${project.artifactId}</finalName>
+                                    <finalName>owlcms</finalName>
                                     <appendAssemblyId>false</appendAssemblyId>
                                     <descriptors>
                                         <descriptor>src/main/assembly/zip.xml</descriptor>
@@ -566,7 +565,7 @@
                                 </goals>
                                 <configuration>
                                     <skipAssembly>${noInstaller}</skipAssembly>
-                                    <finalName>${project.artifactId}-win32</finalName>
+                                    <finalName>owlcms-win32</finalName>
                                     <appendAssemblyId>false</appendAssemblyId>
                                     <descriptors>
                                         <descriptor>src/main/assembly/win32.xml</descriptor>
@@ -593,7 +592,7 @@
                                     <workingDirectory></workingDirectory>
                                     <arguments>
                                         <argument>/Q</argument>
-                                        <argument>src\main\install\${project.artifactId}.iss</argument>
+                                        <argument>src\main\install\owlcms.iss</argument>
                                     </arguments>
                                     <environmentVariables>
                                         <versionNumber>${project.version}</versionNumber>
@@ -640,11 +639,11 @@
                                     <goal>deploy-file</goal>
                                 </goals>
                                 <configuration>
-                                    <file>target/${project.artifactId}-${project.version}.jar</file>
+                                    <file>target/owlcms-${project.version}.jar</file>
                                     <repositoryId>bintray-owlcms-maven</repositoryId>
-                                    <url>https://api.bintray.com/maven/owlcms/owlcms-maven/${project.artifactId}/;publish=1</url>
+                                    <url>https://api.bintray.com/maven/owlcms/owlcms-maven/owlcms/;publish=1</url>
                                     <groupId>${project.groupId}</groupId>
-                                    <artifactId>${project.artifactId}</artifactId>
+                                    <artifactId>owlcms</artifactId>
                                     <version>${project.version}</version>
                                     <packaging>jar</packaging>
                                     <generatePom>false</generatePom>
@@ -682,12 +681,12 @@
                                 <configuration>
                                     <fileSets>
                                         <fileSet>
-                                            <sourceFile>${project.build.directory}/${project.artifactId}.zip</sourceFile>
-                                            <destinationFile>${project.build.directory}/prerelease/${project.artifactId}_${project.version}.zip</destinationFile>
+                                            <sourceFile>${project.build.directory}/owlcms.zip</sourceFile>
+                                            <destinationFile>${project.build.directory}/prerelease/owlcms_${project.version}.zip</destinationFile>
                                         </fileSet>
                                         <fileSet>
-                                            <sourceFile>${project.build.directory}/owlcms_setup/${project.artifactId}_setup.exe</sourceFile>
-                                            <destinationFile>${project.build.directory}/prerelease/${project.artifactId}_setup_${project.version}.exe</destinationFile>
+                                            <sourceFile>${project.build.directory}/owlcms_setup/owlcms_setup.exe</sourceFile>
+                                            <destinationFile>${project.build.directory}/prerelease/owlcms_setup_${project.version}.exe</destinationFile>
                                         </fileSet>
                                     </fileSets>
                                 </configuration>
