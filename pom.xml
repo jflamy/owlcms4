@@ -10,10 +10,10 @@
         <module>owlcms</module>
         <module>publicresults</module>
         <module>publicresults-heroku</module>
-        <module>owlcms4-heroku</module>
+        <module>owlcms-heroku</module>
         <module>owlcms-docker</module>
-        <module>owlcms-installtools</module>
-        <module>owlcms-windows-installer</module>
+        <module>installtools</module>
+        <module>windows-installer</module>
     </modules>
 
     <organization>
