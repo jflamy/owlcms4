@@ -4,7 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.7.5-beta8</version>
+        <version>4.7.5-beta9</version>
     </parent>
 
     <artifactId>owlcms-windows-installer</artifactId>
@@ -34,14 +34,14 @@
         <dependency>
             <groupId>app.owlcms</groupId>
             <artifactId>installtools</artifactId>
-            <version>4.7.5-beta8</version>
+            <version>4.7.5-beta9</version>
             <type>zip</type>
             <classifier>jre</classifier>
         </dependency>
         <dependency>
             <groupId>app.owlcms</groupId>
             <artifactId>installtools</artifactId>
-            <version>4.7.5-beta8</version>
+            <version>4.7.5-beta9</version>
             <type>zip</type>
             <classifier>innosetup</classifier>
         </dependency>
