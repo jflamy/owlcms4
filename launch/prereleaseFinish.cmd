@@ -4,7 +4,7 @@ cd publicresults-heroku
 git checkout develop
 git pull
 cd ..
-cd owlcms4-heroku
+cd owlcms-heroku
 git checkout develop
 git pull
 cd ..

@@ -5,7 +5,7 @@ git commit -a -m "%1"
 git pull
 git push
 cd ..
-cd owlcms4-heroku
+cd owlcms-heroku
 git commit -a -m "%1"
 git pull
 git push

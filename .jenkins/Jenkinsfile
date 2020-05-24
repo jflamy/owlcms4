@@ -7,7 +7,7 @@ pipeline {
         string(name: 'REPO_OWNER', defaultValue: 'owlcms', description: 'owlcms or jflamy-dev')
         string(name: 'O_REPO_NAME', defaultValue: 'owlcms4', description: 'owlcms4 or owlcms4-prerelease')
         string(name: 'P_REPO_NAME', defaultValue: 'publicresults-heroku', description: 'publicresults-heroku or publicresults-heroku-prerelease')
-        string(name: 'H_REPO_NAME', defaultValue: 'owlcms4-heroku', description: 'owlcms4-heroku or owlcms4-heroku-prerelease')
+        string(name: 'H_REPO_NAME', defaultValue: 'owlcms-heroku', description: 'owlcms-heroku or owlcms-heroku-prerelease')
         string(name: 'PRERELEASE', defaultValue: 'true', description: 'true or false')
         string(name: 'REPO_TOKEN_NAME', defaultValue: 'github-oauth', description: 'from Maven settings')
         string(name: 'BRANCH', defaultValue: 'mandatory', description: 'from Maven settings')
@@ -48,7 +48,7 @@ pipeline {
                     bat 'git config --local user.email "jf@jflamy.dev"'
                     bat 'git config --local user.name "Jean-François Lamy"'
                 }
-                dir('owlcms4/owlcms4-heroku') {
+                dir('owlcms4/owlcms-heroku') {
                     bat 'git config --local user.email "jf@jflamy.dev"'
                     bat 'git config --local user.name "Jean-François Lamy"'
                 }
@@ -83,7 +83,7 @@ pipeline {
             }
         }
       
-        stage('Push owlcms4 and publicresults installers') {
+        stage('Push owlcms and publicresults installers') {
             when {
                 expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
@@ -108,7 +108,7 @@ pipeline {
             }
         }
         
-        stage('Release owlcms4 and publicresults installers') {
+        stage('Release owlcms and publicresults installers') {
             environment {
                 TOKEN = credentials('jflamy-pw')
             }
@@ -120,7 +120,7 @@ pipeline {
             }
         }       
         
-        stage('Push owlcms4-heroku') {
+        stage('Push owlcms-heroku') {
             when {
                 expression { return params.BUILD ==~ /(?i)(Y|YES|T|TRUE|ON|RUN)/ }
             }
@@ -133,7 +133,7 @@ pipeline {
                     // release uber-jar to bintray
                     bat 'mvn -P production -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
                 }
-                dir('owlcms4/owlcms4-heroku') {
+                dir('owlcms4/owlcms-heroku') {
                     bat 'git checkout %BRANCH%'
                     bat 'git pull'
                     bat 'mvn -s %M2%/settings.xml -B clean package'
@@ -153,7 +153,7 @@ pipeline {
             }
         }
         
-        stage('Release owlcms4-heroku') {
+        stage('Release owlcms-heroku') {
             environment {
                 TOKEN = credentials('jflamy-pw')
                 TOKEN2 = credentials('jflamy-dev-pw')
