@@ -9,6 +9,7 @@
 
     <name>Olympic Weightlifting Competition Management System Public Viewer</name>
     <artifactId>publicresults</artifactId>
+    <version>${revision}</version>
     <packaging>jar</packaging>
 
     <distributionManagement>

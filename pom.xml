@@ -38,7 +38,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
         <!-- Library versions -->
-        <vaadin.version>14.2.0.alpha11</vaadin.version>
+        <vaadin.version>14.2.0</vaadin.version>
         <logback.version>1.2.3</logback.version>
         <slf4j.version>1.7.26</slf4j.version>
         <hibernate.version>5.4.3.Final</hibernate.version>
@@ -58,16 +58,16 @@
             </snapshots>
         </repository>
         <repository>
-            <id>Vaadin Prereleases</id>
-            <url>https://maven.vaadin.com/vaadin-prereleases/</url>
+            <id>bintray-owlcms-maven</id>
+            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
+            <name>bintray</name>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
         </repository>
         <repository>
-            <id>bintray-owlcms-maven</id>
-            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
-            <name>bintray</name>
+            <id>Vaadin Prereleases</id>
+            <url>https://maven.vaadin.com/vaadin-prereleases/</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -84,16 +84,16 @@
             </snapshots>
         </pluginRepository>
         <pluginRepository>
-            <id>Vaadin Prereleases</id>
-            <url>https://maven.vaadin.com/vaadin-prereleases/</url>
+            <id>bintray-owlcms-maven</id>
+            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
+            <name>bintray</name>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
         </pluginRepository>
         <pluginRepository>
-            <id>bintray-owlcms-maven</id>
-            <url>https://dl.bintray.com/owlcms/owlcms-maven</url>
-            <name>bintray</name>
+            <id>Vaadin Prereleases</id>
+            <url>https://maven.vaadin.com/vaadin-prereleases/</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -224,6 +224,32 @@
         </pluginManagement>
         <plugins>
             <plugin>
+                <!-- ensure that ${revision} is substituted in the installed/deployed jars -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.2.2</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>fatjar</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.1.0</version>
                 <executions>
@@ -247,26 +273,10 @@
                     </execution>
                 </executions>
             </plugin>
-<!--
-Not used anymore. Kept for reference.           
-            <plugin>
-                <groupId>com.amashchenko.maven.plugin</groupId>
-                <artifactId>gitflow-maven-plugin</artifactId>
-                <version>1.14.0</version>
-                <configuration>
-                    <gitFlowConfig>
-                        <productionBranch>master</productionBranch>
-                        <developmentBranch>develop</developmentBranch>
-                    </gitFlowConfig>
-                    <allowSnapshots>true</allowSnapshots>
-                    <skipTag>true</skipTag>
-                    <skipTestProject>true</skipTestProject>
-                    <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart>
-                    <verbose>true</verbose>
-                    <skipUpdateVersion>true</skipUpdateVersion>
-                </configuration>
-            </plugin>
--->
+            <!-- Not used anymore. Kept for reference. <plugin> <groupId>com.amashchenko.maven.plugin</groupId> <artifactId>gitflow-maven-plugin</artifactId> 
+                <version>1.14.0</version> <configuration> <gitFlowConfig> <productionBranch>master</productionBranch> <developmentBranch>develop</developmentBranch> 
+                </gitFlowConfig> <allowSnapshots>true</allowSnapshots> <skipTag>true</skipTag> <skipTestProject>true</skipTestProject> <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart> 
+                <verbose>true</verbose> <skipUpdateVersion>true</skipUpdateVersion> </configuration> </plugin> -->
             <plugin>
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
