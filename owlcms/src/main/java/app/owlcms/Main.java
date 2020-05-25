@@ -82,12 +82,18 @@ public class Main {
             MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 
             // Create a JMXMP connector server
-            int jmxPort = StartupUtils.getIntegerParam("jmxPort", 1098);
-            JMXServiceURL url = new JMXServiceURL("jmxmp", "localhost", jmxPort);
-            StartupUtils.getMainLogger().info("JMX monitoring by exposing <externalIp>:{} and connecting to service:jmx:jmxmp://externalIp:{}",jmxPort, jmxPort, url);
-            JMXConnectorServer cs = JMXConnectorServerFactory.newJMXConnectorServer(url,
-                    null, mbs);
-            cs.start();
+            String jmxPortString = System.getenv("OWLCMS_JMXPORT");
+            jmxPortString = jmxPortString == null ? System.getProperty("jmxPort") : jmxPortString;
+            if (jmxPortString != null) {
+                int jmxPort = StartupUtils.getIntegerParam("jmxPort", 1098);
+                JMXServiceURL url = new JMXServiceURL("jmxmp", "localhost", jmxPort);
+                StartupUtils.getMainLogger().info(
+                        "JMX port {} listening. Connect to service:jmx:jmxmp://externalIp:{}/",
+                        jmxPort,
+                        jmxPort, url);
+                JMXConnectorServer cs = JMXConnectorServerFactory.newJMXConnectorServer(url, null, mbs);
+                cs.start();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
