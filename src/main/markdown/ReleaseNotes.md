@@ -1,5 +1,5 @@
 * Changes for release ${project.version}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-   * [x] Spanish translation completed.
+   * [x] Processing errors in Spanish and Portuguese translations fixed.
    * [x] Improved support for deployment under Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md).
 * Key Highlights from recent stable releases
    * [x] Enhancement: Simplification of configuration options for loading initial data (#347) -- see the [Configuration Parameters](https://jflamy-dev.github.io/owlcms4-prerelease/#/Configuration.md) documentation. *No changes are required, old parameters still work*.
