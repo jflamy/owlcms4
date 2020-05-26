@@ -69,7 +69,7 @@ pipeline {
             }
             steps {
                 dir('owlcms4/owlcms') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing -Drevision=%VERSION%'
                 }
             }
         }
@@ -80,7 +80,7 @@ pipeline {
             }
             steps {
                 dir('owlcms4/publicresults') {
-                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing'
+                    bat 'mvn -s %M2%/settings.xml -B clean package -P production,signing -Drevision=%VERSION%'
                 }
             }
         }
@@ -96,7 +96,7 @@ pipeline {
                 dir('owlcms4') {
                     bat 'git pull'
                     // create release files
-                    bat 'mvn -s c:/dev/.m2/settings.xml -B package --non-recursive'
+                    bat 'mvn -s c:/dev/.m2/settings.xml -B package -Drevision=%VERSION% --non-recursive'
                     bat 'git add -A && git commit -m "%VERSION%" --allow-empty'
                     // create a local tag with the current version number
                     bat 'git tag %VERSION% -f -a -m "%VERSION% owlcms4"'
@@ -117,7 +117,7 @@ pipeline {
             steps {
                 dir('owlcms4') {
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access using the API
-                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%O_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE% --non-recursive'
+                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%O_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE% -Drevision=%VERSION% --non-recursive'
                 }
             }
         }       
@@ -133,12 +133,12 @@ pipeline {
             steps {
                 dir('owlcms4/owlcms') {
                     // release uber-jar to bintray
-                    bat 'mvn -P production -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+                    bat 'mvn -P production -s %M2%/settings.xml -B deploy:deploy-file@deploy-file -Drevision=%VERSION%'
                 }
                 dir('owlcms4/owlcms-heroku') {
                     bat 'git checkout %BRANCH%'
                     bat 'git pull'
-                    bat 'mvn -s %M2%/settings.xml -B clean package'
+                    bat 'mvn -s %M2%/settings.xml -B clean package -Drevision=%VERSION%'
                     bat 'git add -A && git commit -m "%VERSION% heroku" --allow-empty'
 
                     // create a tag with the current version number
@@ -164,7 +164,7 @@ pipeline {
                 dir('owlcms4/owlcms-heroku') {
                     // The heroku deploy button pointing to the proper tagged version is part of the release notes.
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
-                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%H_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
+                    bat 'mvn -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%H_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE% -Drevision=%VERSION%'
                 }       
             }
         }       
@@ -177,11 +177,11 @@ pipeline {
             }
             steps {
                 dir('owlcms4/publicresults') {
-                    bat 'mvn -P production -s %M2%/settings.xml -B deploy:deploy-file@deploy-file'
+                    bat 'mvn -P production -s %M2%/settings.xml -B deploy:deploy-file@deploy-file -Drevision=%VERSION%'
                 }
                 dir('owlcms4/publicresults-heroku') {
                     bat 'git checkout %BRANCH%'
-                    bat 'mvn -s %M2%/settings.xml -B clean package'
+                    bat 'mvn -s %M2%/settings.xml -B clean package -Drevision=%VERSION%'
                     bat 'git add -A && git commit -m "%VERSION% heroku" --allow-empty'
 
                     // create a tag with the current version number
@@ -207,7 +207,7 @@ pipeline {
                 dir('owlcms4/publicresults-heroku') {
                     // The heroku deploy button pointing to the proper tagged version is part of the release notes.
                     // github.owner is the repo owning organization or user; the github-oauth gives us repo write access.
-                    bat 'mvn  -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%P_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE%'
+                    bat 'mvn  -s c:/dev/.m2/settings.xml -B github-release:github-release@release-cli -Dgithub.owner=%REPO_OWNER% -Dgithub.repository=%P_REPO_NAME% -Dgithub.token=github-oauth -Dgithub.prerelease=%PRERELEASE% -Drevision=%VERSION%'
                 }       
             }
         }

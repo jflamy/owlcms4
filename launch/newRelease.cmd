@@ -1,5 +1,4 @@
 set LOCAL_TOKEN=11327eb05a19fd0384b6e3a71e9e05c375
-call mvn "versions:set" "versions:commit" "-DnewVersion=%1" "-DoldVersion=4.*" "-DgroupId=*" "-DartifactId=*" 
 cd publicresults-heroku
 git commit -a -m "%1"
 git pull
