@@ -19,7 +19,9 @@ steps:
   submodules: recursive
 - task: Cache@2
   inputs:
-    key: 'maven | "$(Agent.OS)" | **/pom.xml'
+# disable cache update
+#   key: 'maven | "$(Agent.OS)" | **/pom.xml'
+    key: 'maven | "$(Agent.OS)" | 1'
     restoreKeys: |
       maven | "$(Agent.OS)"
       maven
@@ -34,5 +36,5 @@ steps:
     jdkArchitectureOption: 'x64'
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: '-pl owlcms -am deploy'
+    goals: '-P production -pl owlcms -am deploy'
     
