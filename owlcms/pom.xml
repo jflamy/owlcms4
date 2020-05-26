@@ -10,6 +10,7 @@
     <name>Olympic Weightlifting Competition Management System</name>
     <artifactId>owlcms</artifactId>
     <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <distributionManagement>
         <repository>
@@ -404,6 +405,7 @@
                 <dependency>
                     <groupId>com.vaadin</groupId>
                     <artifactId>flow-server-production-mode</artifactId>
+                    <scope>compile</scope>
                 </dependency>
             </dependencies>
 

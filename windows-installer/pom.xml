@@ -7,7 +7,8 @@
         <version>4.7.4.1</version>
     </parent>
 
-    <artifactId>owlcms-windows-installer</artifactId>
+    <artifactId>windows-installer</artifactId>
+    <version>${revision}</version>
 
     <repositories>
         <repository>
@@ -245,11 +246,11 @@
                         </goals>
                         <configuration>
                             <skip>${noInstaller}</skip>
-                            <executable>target/installtools/innosetup-portable-win32/app/ISCC.exe</executable>
+                            <executable>${project.basedir}/target/installtools/innosetup-portable-win32/app/ISCC.exe</executable>
                             <workingDirectory>${project.basedir}</workingDirectory>
                             <arguments>
                                 <!-- argument>/Q</argument> -->
-                                <argument>${project.basedir}\src\main\install\owlcms.iss</argument>
+                                <argument>src\main\install\owlcms.iss</argument>
                             </arguments>
                             <environmentVariables>
                                 <versionNumber>${project.version}</versionNumber>
