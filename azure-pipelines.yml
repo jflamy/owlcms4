@@ -5,7 +5,7 @@
 
 # we use comments on pull requests to trigger the build
 trigger:
-- "*"
+- develop
 
 pool:
   vmImage: 'ubuntu-latest'
