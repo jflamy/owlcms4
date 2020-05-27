@@ -10,6 +10,7 @@ variables:
    MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)
 jobs:
 -  job: BuildOwlcmsUberJar
+   condition: eq(1,2)
    pool:
       vmImage: ubuntu-latest
    steps:
@@ -22,8 +23,6 @@ jobs:
    -  task: Cache@2
       displayName: Cache Maven local repository
       inputs:
-#        use a manual update number instead of voiding cache when pom.xml changes.
-#        key: 'maven | "$(Agent.OS)" | **/pom.xml'
          key: maven | "$(Agent.OS)" | 1
          restoreKeys: |
             maven | "$(Agent.OS)"
@@ -41,8 +40,8 @@ jobs:
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
          goals: -P production,noInstaller -pl owlcms -am deploy
 -  job: CreateWindowsInstallers
-   dependsOn:
-   -  BuildOwlcmsUberJar 
+#    dependsOn:
+#    -  BuildOwlcmsUberJar 
    pool:
       vmImage: windows-latest
    steps:
