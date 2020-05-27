@@ -13,21 +13,30 @@ pool:
 variables:
   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
   MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
-
+  
 steps:
 - checkout: self
   submodules: recursive
-- task: Cache@2
+
+# populate the settings.xml file with server information
+- task: MavenAuthenticate@0
   inputs:
-# disable cache update
+    mavenServiceConnections: bintray-owlcms-maven
+
+# reload .m2/repository from previous runs and store updates
+- task: Cache@2
+  displayName: Cache Maven local repository
+  inputs:
+# use a manual update number instead of voiding cache when pom.xml changes.
 #   key: 'maven | "$(Agent.OS)" | **/pom.xml'
     key: 'maven | "$(Agent.OS)" | 1'
     restoreKeys: |
       maven | "$(Agent.OS)"
       maven
     path: $(MAVEN_CACHE_FOLDER)
-  displayName: Cache Maven local repo
+
 - task: Maven@3
+  displayName: build uberJar and deploy to bintray
   inputs:
     mavenPomFile: 'pom.xml'
     mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
@@ -37,4 +46,5 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: '-P production,noInstaller -pl owlcms -am deploy'
+
     
