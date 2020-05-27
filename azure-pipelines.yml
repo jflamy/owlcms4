@@ -2,49 +2,71 @@
 # Build your Java project and run tests with Apache Maven.
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
-
-# we use comments on pull requests to trigger the build
 trigger:
+# we use comments on pull requests to trigger the build
 - develop
-
-pool:
-  vmImage: 'ubuntu-latest'
-
 variables:
-  MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
-  MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
-  
-steps:
-- checkout: self
-  submodules: recursive
-
-# populate the settings.xml file with server information
-- task: MavenAuthenticate@0
-  inputs:
-    mavenServiceConnections: bintray-owlcms-maven
-
-# reload .m2/repository from previous runs and store updates
-- task: Cache@2
-  displayName: Cache Maven local repository
-  inputs:
-# use a manual update number instead of voiding cache when pom.xml changes.
-#   key: 'maven | "$(Agent.OS)" | **/pom.xml'
-    key: 'maven | "$(Agent.OS)" | 1'
-    restoreKeys: |
-      maven | "$(Agent.OS)"
-      maven
-    path: $(MAVEN_CACHE_FOLDER)
-
-- task: Maven@3
-  displayName: build uberJar and deploy to bintray
-  inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.8'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: '-P production,noInstaller -pl owlcms -am deploy'
-
-    
+   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
+   MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)
+jobs:
+-  job: BuildOwlcmsUberJar
+   pool:
+      vmImage: ubuntu-latest
+   steps:
+   -  checkout: self
+      submodules: recursive
+   -  task: MavenAuthenticate@0
+      displayName: Populate settings.xml servers
+      inputs:
+         mavenServiceConnections: bintray-owlcms-maven
+   -  task: Cache@2
+      displayName: Cache Maven local repository
+      inputs:
+#        use a manual update number instead of voiding cache when pom.xml changes.
+#        key: 'maven | "$(Agent.OS)" | **/pom.xml'
+         key: maven | "$(Agent.OS)" | 1
+         restoreKeys: |
+            maven | "$(Agent.OS)"
+            maven
+         path: $(MAVEN_CACHE_FOLDER)
+   -  task: Maven@3
+      displayName: build owlcms uberJar and deploy to bintray
+      inputs:
+         mavenPomFile: pom.xml
+         mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+         javaHomeOption: JDKVersion
+         jdkVersionOption: '1.8'
+         jdkArchitectureOption: x64
+         publishJUnitResults: true
+         testResultsFiles: '**/surefire-reports/TEST-*.xml'
+         goals: -P production,noInstaller -pl owlcms -am deploy
+-  job: CreateWindowsInstallers
+   dependsOn:
+   -  BuildOwlcmsUberJar 
+   pool:
+      vmImage: windows-latest
+   steps:
+   -  checkout: self
+      submodules: recursive
+   -  task: MavenAuthenticate@0
+      inputs:
+         mavenServiceConnections: bintray-owlcms-maven
+   -  task: Cache@2
+      displayName: Cache Maven local repository
+      inputs:
+         key: maven | "$(Agent.OS)" | 1
+         restoreKeys: |
+            maven | "$(Agent.OS)"
+            maven
+         path: $(MAVEN_CACHE_FOLDER)
+   -  task: Maven@3
+      displayName: Create Windows Installers
+      inputs:
+         mavenPomFile: pom.xml
+         mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+         javaHomeOption: JDKVersion
+         jdkVersionOption: '1.8'
+         jdkArchitectureOption: x64
+         publishJUnitResults: true
+         testResultsFiles: '**/surefire-reports/TEST-*.xml'
+         goals: -P production -pl windows-installer package
