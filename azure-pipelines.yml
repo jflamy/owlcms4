@@ -26,9 +26,28 @@ jobs:
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
          goals: -P production,noInstaller -pl owlcms -am deploy
+-  job: BuildPublicResultsUberJar
+#   condition: eq(1,2)
+   pool:
+      vmImage: ubuntu-latest
+   steps:
+   -  template: src/main/azure-pipelines/prepare-maven.yaml
+   -  task: Maven@3
+      displayName: build owlcms uberJar and deploy to bintray
+      inputs:
+         mavenPomFile: pom.xml
+         mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+         javaHomeOption: JDKVersion
+         jdkVersionOption: '1.8'
+         jdkArchitectureOption: x64
+         publishJUnitResults: true
+         testResultsFiles: '**/surefire-reports/TEST-*.xml'
+         goals: -P production,noInstaller -pl owlcms -am deploy
+         
 -  job: CreateWindowsInstallers
-#    dependsOn:
-#    -  BuildOwlcmsUberJar 
+   dependsOn:
+    -  BuildOwlcmsUberJar
+    -  BuildPublicResultsUberJar
    pool:
       vmImage: windows-latest
    steps:
