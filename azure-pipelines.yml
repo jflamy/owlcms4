@@ -4,7 +4,8 @@ trigger:
 variables:
   # revision overrides .mvn config; must be unique if BUILD_GOAL is set to deploy.
   REVISION: 4.7.5-alpha17
-  # if BUILD_GOAL = deploy, the uberjars will be published on bitray.  package does not deploy
+  # if BUILD_GOAL = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
+  # to bintray, so REVISION can be kept for several runs when debugging the installers.
   BUILD_GOAL: package
   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
   MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) -Dmaven.test.skip=true -Drevision=$(REVISION)

@@ -122,10 +122,10 @@
                         </goals>
                         <configuration>
                             <headerType>console</headerType>
-                            <outfile>${project.build.directory}/owlcms.exe</outfile>
+                            <outfile>${project.build.directory}/owlcms-win32/owlcms.exe</outfile>
                             <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
-                                owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
-                                jar at the front... -->
+                                owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a 
+                                dummy jar at the front... -->
 
                             <!-- dummy jar for JDK 8 -->
                             <jar>jre/lib/charsets.jar</jar>
@@ -169,7 +169,7 @@
                         </goals>
                         <configuration>
                             <headerType>console</headerType>
-                            <outfile>${project.build.directory}/demo-owlcms.exe</outfile>
+                            <outfile>${project.build.directory}/owlcms-win32/demo-owlcms.exe</outfile>
                             <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
                                 owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
                                 jar at the front... -->
