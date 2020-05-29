@@ -69,10 +69,10 @@ jobs:
    condition: always()
    dependsOn:
    - BuildOwlcmsUberJar
-   checkout: none
    pool:
       vmImage: ubuntu-latest
    steps:
+   -  checkout: none
    -  download: current
       artifact: OwlcmsZip
    - script: ls -l $(Pipeline.Workspace)/OwlcmsZip
