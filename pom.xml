@@ -13,7 +13,8 @@
         <module>owlcms-heroku</module>
         <module>owlcms-docker</module>
         <module>installtools</module>
-        <module>windows-installer</module>
+        <module>owlcms-windows</module>
+        <module>publicresults-windows</module>
     </modules>
 
     <organization>

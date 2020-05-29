@@ -1,10 +1,5 @@
-# Maven
-# Build your Java project and run tests with Apache Maven.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
 trigger:
-# we use comments on pull requests to trigger the build
-- develop
+- none
 variables:
    MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
    MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) -Dmaven.test.skip=true
@@ -74,12 +69,13 @@ jobs:
    condition: always()
    dependsOn:
    - BuildOwlcmsUberJar
+   checkout: none
    pool:
       vmImage: ubuntu-latest
    steps:
    -  download: current
       artifact: OwlcmsZip
-   - script: ls $(Pipeline.Workspace)/OwlcmsZip
+   - script: ls -l $(Pipeline.Workspace)/OwlcmsZip
 
 
 
