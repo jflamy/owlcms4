@@ -1,97 +1,101 @@
 trigger:
-- develop
+  - develop
+
 variables:
-   REVISION: 4.7.5-alpha17
-   BUILD_GOAL: package
-   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
-   MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) -Dmaven.test.skip=true -Drevision=$(REVISION)
+  # revision overrides .mvn config; must be unique if BUILD_GOAL is set to deploy.
+  REVISION: 4.7.5-alpha17
+  # if BUILD_GOAL = deploy, the uberjars will be published on bitray.  package does not deploy
+  BUILD_GOAL: package
+  MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
+  MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) -Dmaven.test.skip=true -Drevision=$(REVISION)
 
 jobs:
--  job: BuildOwlcmsUberJar
-   pool:
+  # build owlcms uberjar and zip to be used by installer
+  - job: BuildOwlcmsUberJar
+    pool:
       vmImage: ubuntu-latest
-   steps:
-   -  template: src/main/azure-pipelines/prepare-maven.yaml
-   -  task: Maven@3
-      displayName: build owlcms uberJar and deploy to bintray
-      inputs:
-         mavenPomFile: pom.xml
-         mavenOptions: -Xmx3072m $(MAVEN_OPTS)
-         javaHomeOption: JDKVersion
-         jdkVersionOption: '1.8'
-         jdkArchitectureOption: x64
-         publishJUnitResults: true
-         testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: -P production -pl owlcms -am $(BUILD_GOAL)
-   -  publish: $(Agent.BuildDirectory)/s/owlcms/target/owlcms.zip
-      artifact: OwlcmsZip
--  job: BuildPublicResultsUberJar
-   pool:
+    steps:
+      - template: src/main/azure-pipelines/prepare-maven.yaml
+      - task: Maven@3
+        displayName: build owlcms uberJar and deploy to bintray
+        inputs:
+          mavenPomFile: pom.xml
+          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+          javaHomeOption: JDKVersion
+          jdkVersionOption: "1.8"
+          jdkArchitectureOption: x64
+          publishJUnitResults: true
+          testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          goals: -P production -pl owlcms -am $(BUILD_GOAL)
+      - publish: $(Agent.BuildDirectory)/s/owlcms/target/owlcms.zip
+        artifact: OwlcmsZip
+
+  # build publicresults uberjar and zip to be used by installer
+  - job: BuildPublicResultsUberJar
+    pool:
       vmImage: ubuntu-latest
-   steps:
-   -  template: src/main/azure-pipelines/prepare-maven.yaml
-   -  task: Maven@3
-      displayName: build publicresults uberJar and deploy to bintray
-      inputs:
-         mavenPomFile: pom.xml
-         mavenOptions: -Xmx3072m $(MAVEN_OPTS)
-         javaHomeOption: JDKVersion
-         jdkVersionOption: '1.8'
-         jdkArchitectureOption: x64
-         publishJUnitResults: true
-         testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: -P production -pl publicresults -am $(BUILD_GOAL)
-   -  publish: $(Agent.BuildDirectory)/s/publicresults/target/publicresults.zip
-      artifact: PublicResultsZip
--  job: CreateWindowsInstallers
-   dependsOn:
-   - BuildOwlcmsUberJar
-   - BuildPublicResultsUberJar
-   pool:
+    steps:
+      - template: src/main/azure-pipelines/prepare-maven.yaml
+      - task: Maven@3
+        displayName: build publicresults uberJar and deploy to bintray
+        inputs:
+          mavenPomFile: pom.xml
+          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+          javaHomeOption: JDKVersion
+          jdkVersionOption: "1.8"
+          jdkArchitectureOption: x64
+          publishJUnitResults: true
+          testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          goals: -P production -pl publicresults -am $(BUILD_GOAL)
+      - publish: $(Agent.BuildDirectory)/s/publicresults/target/publicresults.zip
+        artifact: PublicResultsZip
+
+  - job: CreateWindowsInstallers
+    dependsOn:
+      - BuildOwlcmsUberJar
+      - BuildPublicResultsUberJar
+    pool:
       vmImage: windows-latest
-   steps:
-   -  template: src/main/azure-pipelines/prepare-maven.yaml
-   -  task: Maven@3
-      displayName: Create owlcms installer
-      inputs:
-         mavenPomFile: pom.xml
-         mavenOptions: -Xmx3072m $(MAVEN_OPTS)
-         javaHomeOption: JDKVersion
-         jdkVersionOption: '1.8'
-         jdkArchitectureOption: x64
-         publishJUnitResults: true
-         testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: -pl owlcms-windows package
-   -  task: Maven@3
-      displayName: Create publicresults installer
-      inputs:
-         mavenPomFile: pom.xml
-         mavenOptions: -Xmx3072m $(MAVEN_OPTS)
-         javaHomeOption: JDKVersion
-         jdkVersionOption: '1.8'
-         jdkArchitectureOption: x64
-         publishJUnitResults: true
-         testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: -pl publicresults-windows package
-   -  publish: $(Agent.BuildDirectory)/s/owlcms/owlcms_setup/owlcms_setup.exe
-      artifact: OwlcmsSetup
-   -  publish: $(Agent.BuildDirectory)/s/publicresults/publicresults_setup/publicresults_setup.exe
-      artifact: OwlcmsSetup
--  job: ReleaseInstallers
-   condition: always()
-   dependsOn:
-   - BuildOwlcmsUberJar
-   - BuildPublicResultsUberJar
-   - CreateWindowsInstallers
-   pool:
+    steps:
+      - template: src/main/azure-pipelines/prepare-maven.yaml
+      - task: Maven@3
+        displayName: Create owlcms installer
+        inputs:
+          mavenPomFile: pom.xml
+          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+          javaHomeOption: JDKVersion
+          jdkVersionOption: "1.8"
+          jdkArchitectureOption: x64
+          publishJUnitResults: true
+          testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          goals: -pl owlcms-windows package
+      - task: Maven@3
+        displayName: Create publicresults installer
+        inputs:
+          mavenPomFile: pom.xml
+          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+          javaHomeOption: JDKVersion
+          jdkVersionOption: "1.8"
+          jdkArchitectureOption: x64
+          publishJUnitResults: true
+          testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          goals: -pl publicresults-windows package
+      - publish: $(Agent.BuildDirectory)/s/owlcms/owlcms_setup/owlcms_setup.exe
+        artifact: OwlcmsSetup
+      - publish: $(Agent.BuildDirectory)/s/publicresults/publicresults_setup/publicresults_setup.exe
+        artifact: OwlcmsSetup
+
+  # release the installers to github repositories     
+  - job: ReleaseInstallers
+    condition: always()
+    dependsOn:
+      - BuildOwlcmsUberJar
+      - BuildPublicResultsUberJar
+      - CreateWindowsInstallers
+    pool:
       vmImage: ubuntu-latest
-   steps:
-   -  checkout: none
-   -  download: current
-      artifact: OwlcmsZip
-   - script: ls -l $(Pipeline.Workspace)/OwlcmsZip
-
-
-
-
-      
+    steps:
+      - checkout: none
+      - download: current
+        artifact: OwlcmsZip
+      - script: ls -l $(Pipeline.Workspace)/OwlcmsZip
