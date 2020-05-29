@@ -25,7 +25,7 @@ jobs:
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
          goals: -P production,noInstaller -pl owlcms -am package
-   -  publish: $(Agent.BuildDirectory)/s/owlcms4/owlcms/target/owlcms.zip
+   -  publish: $(Agent.BuildDirectory)/s/owlcms/target/owlcms.zip
       artifact: OwlcmsZip
 -  job: BuildPublicResultsUberJar
    condition: eq(1,2)
@@ -44,7 +44,7 @@ jobs:
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
          goals: -P production,noInstaller -pl publicresults -am deploy
-   -  publish: $(Agent.BuildDirectory)/s/owlcms4/owlcms/target/publicresults.zip
+   -  publish: $(Agent.BuildDirectory)/s/owlcms/target/publicresults.zip
       artifact: PublicResultsZip
 -  job: CreateWindowsInstallers
    condition: eq(1,2)
