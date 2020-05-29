@@ -1,8 +1,11 @@
 trigger:
 - develop
 variables:
+   REVISION: 4.7.5-alpha17
+   BUILD_GOAL: package
    MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
-   MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) -Dmaven.test.skip=true
+   MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) -Dmaven.test.skip=true -Drevision=$(REVISION)
+
 jobs:
 -  job: BuildOwlcmsUberJar
    pool:
@@ -19,7 +22,7 @@ jobs:
          jdkArchitectureOption: x64
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: -P production -pl owlcms -am deploy
+         goals: -P production -pl owlcms -am $(BUILD_GOAL)
    -  publish: $(Agent.BuildDirectory)/s/owlcms/target/owlcms.zip
       artifact: OwlcmsZip
 -  job: BuildPublicResultsUberJar
@@ -37,7 +40,7 @@ jobs:
          jdkArchitectureOption: x64
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: -P production -pl publicresults -am deploy
+         goals: -P production -pl publicresults -am $(BUILD_GOAL)
    -  publish: $(Agent.BuildDirectory)/s/publicresults/target/publicresults.zip
       artifact: PublicResultsZip
 -  job: CreateWindowsInstallers
