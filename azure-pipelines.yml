@@ -19,7 +19,7 @@ jobs:
          jdkArchitectureOption: x64
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: -P production -pl owlcms -am package
+         goals: -P production -pl owlcms -am deploy
    -  publish: $(Agent.BuildDirectory)/s/owlcms/target/owlcms.zip
       artifact: OwlcmsZip
 -  job: BuildPublicResultsUberJar
