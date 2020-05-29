@@ -38,7 +38,7 @@ jobs:
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
          goals: -P production -pl publicresults -am deploy
-   -  publish: $(Agent.BuildDirectory)/s/owlcms/target/publicresults.zip
+   -  publish: $(Agent.BuildDirectory)/s/publicresults/target/publicresults.zip
       artifact: PublicResultsZip
 -  job: CreateWindowsInstallers
    dependsOn:
@@ -72,12 +72,14 @@ jobs:
          goals: -P production -pl publicresults-windows package
    -  publish: $(Agent.BuildDirectory)/s/owlcms/owlcms_setup/owlcms_setup.exe
       artifact: OwlcmsSetup
-   -  publish: $(Agent.BuildDirectory)/s/publicresults/publicresults_setup/owlcms_setup.exe
+   -  publish: $(Agent.BuildDirectory)/s/publicresults/publicresults_setup/publicresults_setup.exe
       artifact: OwlcmsSetup
 -  job: ReleaseInstallers
    condition: always()
    dependsOn:
    - BuildOwlcmsUberJar
+   - BuildPublicResultsUberJar
+   - CreateWindowsInstallers
    pool:
       vmImage: ubuntu-latest
    steps:
