@@ -71,6 +71,7 @@ jobs:
    -  publish: $(Agent.BuildDirectory)/s/publicresults/publicresults_setup/owlcms_setup.exe
       artifact: OwlcmsSetup
 -  job: ReleaseInstallers
+   condition: always()
    dependsOn:
    - BuildOwlcmsUberJar
    pool:
