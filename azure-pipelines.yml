@@ -81,10 +81,10 @@ jobs:
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: -pl publicresults-windows package
-      - publish: $(Agent.BuildDirectory)/s/owlcms/target/owlcms_setup/owlcms_setup.exe
+      - publish: $(Agent.BuildDirectory)/s/owlcms-windows/target/owlcms_setup/owlcms_setup.exe
         artifact: OwlcmsSetup
-      - publish: $(Agent.BuildDirectory)/s/publicresults/target/publicresults_setup/publicresults_setup.exe
-        artifact: OwlcmsSetup
+      - publish: $(Agent.BuildDirectory)/s/publicresults-windows/target/publicresults_setup/publicresults_setup.exe
+        artifact: PublicResultsSetup
 
   # release the installers to github repositories
   - job: PreReleaseInstallers
@@ -101,7 +101,11 @@ jobs:
       - download: current
         artifact: OwlcmsZip
       - download: current
-        artifact: OwlcmsUberJar
+        artifact: PublicResultsZip
+      - download: current
+        artifact: OwlcmsSetup
+      - download: current
+        artifact: PublicResultsSetup
       - script: ls -lr $(Pipeline.Workspace)
       - task: GitHubRelease@0
         inputs:
