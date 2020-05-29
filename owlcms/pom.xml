@@ -551,7 +551,7 @@
                                     <goal>single</goal>
                                 </goals>
                                 <configuration>
-                                    <skipAssembly>${noInstaller}</skipAssembly>
+<!--                                     <skipAssembly>${noInstaller}</skipAssembly> -->
                                     <finalName>${project.artifactId}</finalName>
                                     <appendAssemblyId>false</appendAssemblyId>
                                     <descriptors>
@@ -743,28 +743,6 @@
                             <execution>
                                 <id>copy-prerelease</id>
                                 <phase>none</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>zip</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <configuration>
-                                    <skipAssembly>${noInstaller}</skipAssembly>
-                                    <finalName>${project.artifactId}</finalName>
-                                    <appendAssemblyId>false</appendAssemblyId>
-                                    <descriptors>
-                                        <descriptor>src/main/assembly/zip.xml</descriptor>
-                                    </descriptors>
-                                    <attach>false</attach>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
