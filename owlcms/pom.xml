@@ -275,8 +275,8 @@
         </pluginManagement>
 
         <plugins>
-            <!-- Take care of synchronizing java dependencies and imports in package.json and main.js files. It also creates webpack.config.js 
-                if not exists yet. -->
+            <!-- Take care of synchronizing java dependencies and imports in package.json It also creates webpack.config.js if not exists 
+                yet. -->
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
@@ -329,64 +329,31 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
                 <executions>
                     <execution>
-                        <id>copy</id>
-                        <phase>package</phase>
+                        <id>default-cli</id>
                         <goals>
-                            <goal>copy</goal>
+                            <goal>java</goal>
                         </goals>
                         <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.heroku.agent</groupId>
-                                    <artifactId>heroku-javaagent</artifactId>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}</outputDirectory>
-                            <overWriteReleases>true</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
-                <executions>
-                    <execution>
-                        <id>rebuild-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <!-- finalName>${project.artifactId}</finalName> -->
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <shadedArtifactAttached>false</shadedArtifactAttached>
-                            <artifactSet>
-                                <includes>
-                                    <include>*:*</include>
-                                </includes>
-                            </artifactSet>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/VERSION.txt</exclude>
-                                        <exclude>META-INF/LICENSE.txt</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <transformers>
-                                <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                            </transformers>
+                            <mainClass>app.owlcms.Main</mainClass>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>demoMode</key>
+                                    <value>true</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>memoryMode</key>
+                                    <value>true</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>port</key>
+                                    <value>8082</value>
+                                </systemProperty>
+                            </systemProperties>
                         </configuration>
                     </execution>
                 </executions>
@@ -425,102 +392,64 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>com.akathist.maven.plugins.launch4j</groupId>
-                        <artifactId>launch4j-maven-plugin</artifactId>
-                        <version>1.7.25</version>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>l4j</id>
+                                <id>copy</id>
                                 <phase>package</phase>
                                 <goals>
-                                    <goal>launch4j</goal>
+                                    <goal>copy</goal>
                                 </goals>
                                 <configuration>
-                                    <headerType>console</headerType>
-                                    <outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
-                                    <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before 
-                                        the owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
-                                        jar at the front... -->
-
-                                    <!-- dummy jar for JDK 8 -->
-                                    <jar>jre/lib/charsets.jar</jar>
-
-                                    <!-- dummy jar for JDK 11 -->
-                                    <!-- jar>jre/lib/jrt-fs.jar</jar -->
-
-                                    <dontWrapJar>true</dontWrapJar>
-                                    <errTitle>owlcms</errTitle>
-                                    <classPath>
-                                        <mainClass>app.owlcms.Main</mainClass>
-                                        <addDependencies>false</addDependencies>
-                                        <preCp>local</preCp>
-                                        <postCp>${project.artifactId}.jar</postCp>
-                                    </classPath>
-                                    <icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
-                                    <jre>
-                                        <minVersion>1.8.0</minVersion>
-                                        <path>jre</path>
-                                        <bundledJreAsFallback>false</bundledJreAsFallback>
-                                    </jre>
-                                    <versionInfo>
-                                        <fileVersion>1.0.0.0</fileVersion>
-                                        <txtFileVersion>${project.version}</txtFileVersion>
-                                        <fileDescription>${project.name}</fileDescription>
-                                        <copyright>...</copyright>
-                                        <productVersion>1.0.0.0</productVersion>
-                                        <txtProductVersion>1.0.0.0</txtProductVersion>
-                                        <productName>${project.name}</productName>
-                                        <companyName>...</companyName>
-                                        <internalName>...</internalName>
-                                        <originalFilename>${executable.name}.exe</originalFilename>
-                                    </versionInfo>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.heroku.agent</groupId>
+                                            <artifactId>heroku-javaagent</artifactId>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <overWriteReleases>true</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
                                 </configuration>
                             </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <version>3.2.1</version>
+                        <executions>
                             <execution>
-                                <id>l4j-demo</id>
+                                <id>rebuild-jar</id>
                                 <phase>package</phase>
                                 <goals>
-                                    <goal>launch4j</goal>
+                                    <goal>shade</goal>
                                 </goals>
                                 <configuration>
-                                    <headerType>console</headerType>
-                                    <outfile>${project.build.directory}/demo-${project.artifactId}.exe</outfile>
-                                    <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before 
-                                        the owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
-                                        jar at the front... -->
-
-                                    <!-- dummy jar for JDK 8 -->
-                                    <jar>jre/lib/charsets.jar</jar>
-
-                                    <!-- dummy jar for JDK 11 -->
-                                    <!-- jar>jre/lib/jrt-fs.jar</jar -->
-
-                                    <dontWrapJar>true</dontWrapJar>
-                                    <errTitle>owlcms</errTitle>
-                                    <classPath>
-                                        <mainClass>app.owlcms.Main</mainClass>
-                                        <addDependencies>false</addDependencies>
-                                        <preCp>local</preCp>
-                                        <postCp>${project.artifactId}.jar</postCp>
-                                    </classPath>
-                                    <icon>src/main/resources/META-INF/resources/frontend/images/owlcms.ico</icon>
-                                    <jre>
-                                        <minVersion>1.8.0</minVersion>
-                                        <path>jre</path>
-                                        <bundledJreAsFallback>false</bundledJreAsFallback>
-                                    </jre>
-                                    <versionInfo>
-                                        <fileVersion>1.0.0.0</fileVersion>
-                                        <txtFileVersion>${project.version}</txtFileVersion>
-                                        <fileDescription>${project.name}</fileDescription>
-                                        <copyright>...</copyright>
-                                        <productVersion>1.0.0.0</productVersion>
-                                        <txtProductVersion>1.0.0.0</txtProductVersion>
-                                        <productName>${project.name}</productName>
-                                        <companyName>...</companyName>
-                                        <internalName>...</internalName>
-                                        <originalFilename>${executable.name}.exe</originalFilename>
-                                    </versionInfo>
+                                    <!-- finalName>${project.artifactId}</finalName> -->
+                                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                                    <shadedArtifactAttached>false</shadedArtifactAttached>
+                                    <artifactSet>
+                                        <includes>
+                                            <include>*:*</include>
+                                        </includes>
+                                    </artifactSet>
+                                    <filters>
+                                        <filter>
+                                            <artifact>*:*</artifact>
+                                            <excludes>
+                                                <exclude>META-INF/VERSION.txt</exclude>
+                                                <exclude>META-INF/LICENSE.txt</exclude>
+                                            </excludes>
+                                        </filter>
+                                    </filters>
+                                    <transformers>
+                                        <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                    </transformers>
                                 </configuration>
                             </execution>
                         </executions>
@@ -551,78 +480,13 @@
                                     <goal>single</goal>
                                 </goals>
                                 <configuration>
-<!--                                     <skipAssembly>${noInstaller}</skipAssembly> -->
+                                    <!-- <skipAssembly>${noInstaller}</skipAssembly> -->
                                     <finalName>${project.artifactId}</finalName>
                                     <appendAssemblyId>false</appendAssemblyId>
                                     <descriptors>
                                         <descriptor>src/main/assembly/zip.xml</descriptor>
                                     </descriptors>
                                     <attach>false</attach>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>windows_jdk</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <configuration>
-                                    <skipAssembly>${noInstaller}</skipAssembly>
-                                    <finalName>${project.artifactId}-win32</finalName>
-                                    <appendAssemblyId>false</appendAssemblyId>
-                                    <descriptors>
-                                        <descriptor>src/main/assembly/win32.xml</descriptor>
-                                    </descriptors>
-                                    <attach>false</attach>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.6.0</version>
-                        <executions>
-                            <execution>
-                                <id>windows_jdk_package</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <skip>${noInstaller}</skip>
-                                    <executable>${innosetup.exe}</executable>
-                                    <workingDirectory></workingDirectory>
-                                    <arguments>
-                                        <argument>/Q</argument>
-                                        <argument>src\main\install\${project.artifactId}.iss</argument>
-                                    </arguments>
-                                    <environmentVariables>
-                                        <versionNumber>${project.version}</versionNumber>
-                                    </environmentVariables>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>default-cli</id>
-                                <goals>
-                                    <goal>java</goal>
-                                </goals>
-                                <configuration>
-                                    <mainClass>app.owlcms.Main</mainClass>
-                                    <systemProperties>
-                                        <systemProperty>
-                                            <key>demoMode</key>
-                                            <value>true</value>
-                                        </systemProperty>
-                                        <systemProperty>
-                                            <key>memoryMode</key>
-                                            <value>true</value>
-                                        </systemProperty>
-                                        <systemProperty>
-                                            <key>port</key>
-                                            <value>8082</value>
-                                        </systemProperty>
-                                    </systemProperties>
                                 </configuration>
                             </execution>
                         </executions>
@@ -687,127 +551,10 @@
                                             <sourceFile>${project.build.directory}/${project.artifactId}.zip</sourceFile>
                                             <destinationFile>${project.build.directory}/prerelease/${project.artifactId}_${project.version}.zip</destinationFile>
                                         </fileSet>
-                                        <fileSet>
-                                            <sourceFile>${project.build.directory}/owlcms_setup/${project.artifactId}_setup.exe</sourceFile>
-                                            <destinationFile>${project.build.directory}/prerelease/${project.artifactId}_setup_${project.version}.exe</destinationFile>
-                                        </fileSet>
                                     </fileSets>
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>signing</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>net.jsign</groupId>
-                        <artifactId>jsign-maven-plugin</artifactId>
-                        <version>2.1</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <phase>package</phase>
-                                <configuration>
-                                    <file>target/owlcms_setup/owlcms_setup.exe</file>
-                                    <name>owlcms</name>
-                                    <url>http://jflamy.github.io/owlcms4</url>
-                                    <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
-                                    <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
-                                    <storepass>${codeSigning}</storepass>
-                                    <storetype>PKCS12</storetype>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>noInstaller</id>
-            <properties>
-                <noInstaller>true</noInstaller>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.coderplus.maven.plugins</groupId>
-                        <artifactId>copy-rename-maven-plugin</artifactId>
-                        <version>1.0</version>
-                        <executions>
-                            <execution>
-                                <id>copy-prerelease</id>
-                                <phase>none</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!-- <plugin> <artifactId>maven-deploy-plugin</artifactId> <version>3.0.0-M1</version> <executions> <execution> <id>default-deploy</id> 
-                        <phase>none</phase> </execution> <execution> <id>deploy-file</id> <phase>none</phase> </execution> </executions> </plugin> -->
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>demo</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.heroku.sdk</groupId>
-                        <artifactId>heroku-maven-plugin</artifactId>
-                        <version>2.0.6</version>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <appName>owlcms4</appName>
-                            <includeTarget>false</includeTarget>
-                            <includes>
-                                <include>target/owlcms.jar</include>
-                                <include>target/heroku-javaagent-2.0.jar</include>
-                            </includes>
-                            <processTypes>
-                                <!-- following must be a single command line, cdata used to prevent xml formatters from splitting it -->
-                                <!-- reset on every restart, populate data after manual reset (devMode), run on postgres database -->
-                                <!-- no memory settings, set using configuration variables on application -->
-                                <web><![CDATA[java -javaagent:target/heroku-javaagent-2.0.jar=stdout=true,lxmem=true -Dport=$PORT -Dlogback.configurationFile=logback-console.xml -DdevMode=true -DresetMode=true -DmemoryMode=false -XX:+UseG1GC -XX:GCTimeRatio=39 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -XX:MaxMetaspaceSize=80m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -cp target/owlcms.jar app.owlcms.Main]]></web>
-                            </processTypes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>fhq</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.heroku.sdk</groupId>
-                        <artifactId>heroku-maven-plugin</artifactId>
-                        <version>2.0.6</version>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <appName>fhq</appName>
-                            <includeTarget>false</includeTarget>
-                            <includes>
-                                <include>target/owlcms.jar</include>
-                            </includes>
-                            <processTypes>
-                                <!-- do not reset on restart(no resetMode), populate data after manual reset (devMode), run on postgres database 
-                                    (memoryMode=false, JDBC url provided by Heroku) -->
-                                <web><![CDATA[java -Dport=$PORT -Dlogback.configurationFile=logback-console.xml -DdevMode=true -DresetMode=false -DmemoryMode=false -Dlogback.configurationFile=logback-console.xml -XX:+UseG1GC -Xmx512m -Xms128m -XX:+UseG1GC -XX:GCTimeRatio=39 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -XX:MaxMetaspaceSize=80m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar target/owlcms.jar]]></web>
-                            </processTypes>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
