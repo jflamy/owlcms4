@@ -61,7 +61,7 @@ jobs:
          jdkArchitectureOption: x64
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: -P production -pl owlcms-windows package
+         goals: -pl owlcms-windows package
    -  task: Maven@3
       displayName: Create publicresults installer
       inputs:
@@ -72,7 +72,7 @@ jobs:
          jdkArchitectureOption: x64
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: -P production -pl publicresults-windows package
+         goals: -pl publicresults-windows package
    -  publish: $(Agent.BuildDirectory)/s/owlcms/owlcms_setup/owlcms_setup.exe
       artifact: OwlcmsSetup
    -  publish: $(Agent.BuildDirectory)/s/publicresults/publicresults_setup/publicresults_setup.exe

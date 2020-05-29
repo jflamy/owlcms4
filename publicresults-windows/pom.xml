@@ -1,11 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>app.owlcms</groupId>
-    <artifactId>owlcms4top</artifactId>
-    <version>4.7.4.1</version>
-  </parent>
-  
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>app.owlcms</groupId>
+        <artifactId>owlcms4top</artifactId>
+        <version>4.7.4.1</version>
+    </parent>
+
     <artifactId>publicresults-windows</artifactId>
     <version>${revision}</version>
 
@@ -123,8 +124,8 @@
                             <headerType>console</headerType>
                             <outfile>${project.build.directory}/publicresults.exe</outfile>
                             <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
-                                publicresults jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
-                                jar at the front... -->
+                                publicresults jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a 
+                                dummy jar at the front... -->
 
                             <!-- dummy jar for JDK 8 -->
                             <jar>jre/lib/charsets.jar</jar>
@@ -140,7 +141,7 @@
                                 <preCp>local</preCp>
                                 <postCp>publicresults.jar</postCp>
                             </classPath>
-                            <icon>src/main/install/publicresults.ico</icon>
+                            <icon>src/main/install/owlcms.ico</icon>
                             <jre>
                                 <minVersion>1.8.0</minVersion>
                                 <path>jre</path>
