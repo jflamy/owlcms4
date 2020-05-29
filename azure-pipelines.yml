@@ -72,7 +72,7 @@ jobs:
       artifact: OwlcmsSetup
 -  job: ReleaseInstallers
    dependsOn:
-   - CreateWindowsInstallers
+   - BuildOwlcmsUberJar
    pool:
       vmImage: ubuntu-latest
    steps:
