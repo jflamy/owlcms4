@@ -470,7 +470,7 @@
                                     <goal>single</goal>
                                 </goals>
                                 <configuration>
-                                    <skipAssembly>${noInstaller}</skipAssembly>
+<!--                                     <skipAssembly>${noInstaller}</skipAssembly> -->
                                     <finalName>${project.artifactId}</finalName>
                                     <appendAssemblyId>false</appendAssemblyId>
                                     <descriptors>
