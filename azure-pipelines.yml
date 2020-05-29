@@ -7,10 +7,9 @@ trigger:
 - develop
 variables:
    MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
-   MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)
+   MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) -Dmaven.skip.test=true
 jobs:
 -  job: BuildOwlcmsUberJar
-#   condition: eq(1,2)
    pool:
       vmImage: ubuntu-latest
    steps:
@@ -26,8 +25,10 @@ jobs:
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
          goals: -P production,noInstaller -pl owlcms -am deploy
+   -  publish: $(Agent.BuildDirectory)/s/owlcms/target/owlcms.zip
+      artifact: OwlcmsZip
 -  job: BuildPublicResultsUberJar
-#   condition: eq(1,2)
+   condition: eq(1,2)
    pool:
       vmImage: ubuntu-latest
    steps:
@@ -43,7 +44,10 @@ jobs:
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
          goals: -P production,noInstaller -pl publicresults -am deploy
+   -  publish: $(Agent.BuildDirectory)/s/owlcms/target/publicresults.zip
+      artifact: PublicResultsZip
 -  job: CreateWindowsInstallers
+   condition: eq(1,2)
    dependsOn:
    - BuildOwlcmsUberJar
    - BuildPublicResultsUberJar
@@ -52,7 +56,7 @@ jobs:
    steps:
    -  template: src/main/azure-pipelines/prepare-maven.yaml
    -  task: Maven@3
-      displayName: Create Windows Installers
+      displayName: Create Windows Installers using bintray jars
       inputs:
          mavenPomFile: pom.xml
          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
@@ -62,3 +66,21 @@ jobs:
          publishJUnitResults: true
          testResultsFiles: '**/surefire-reports/TEST-*.xml'
          goals: -P production -pl windows-installer package
+   -  publish: $(Agent.BuildDirectory)/s/owlcms/owlcms_setup/owlcms_setup.exe
+      artifact: OwlcmsSetup
+   -  publish: $(Agent.BuildDirectory)/s/publicresults/publicresults_setup/owlcms_setup.exe
+      artifact: OwlcmsSetup
+-  job: ReleaseInstallers
+   dependsOn:
+   - CreateWindowsInstallers
+   pool:
+      vmImage: ubuntu-latest
+   steps:
+   -  download: current
+      artifact: OwlcmsZip
+   - script: ls $(Pipeline.Workspace)/OwlcmsZip
+
+
+
+
+      
