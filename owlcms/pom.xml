@@ -9,8 +9,9 @@
 
     <name>Olympic Weightlifting Competition Management System</name>
     <artifactId>owlcms</artifactId>
-    <packaging>jar</packaging>
     <version>${revision}</version>
+    <packaging>jar</packaging>
+
 
     <distributionManagement>
         <repository>
@@ -275,8 +276,7 @@
         </pluginManagement>
 
         <plugins>
-            <!-- Take care of synchronizing java dependencies and imports in package.json It also creates webpack.config.js if not exists 
-                yet. -->
+            <!-- Take care of synchronizing java dependencies and imports in package.json  -->
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
