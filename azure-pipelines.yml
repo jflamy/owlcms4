@@ -124,20 +124,21 @@ jobs:
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: -pl owlcms-heroku --non-recursive -Dmaven.test.skip=true package
       - script: |
-        cd owlcms-heroku
-        pwd
-        git add -A && git commit -m "$(REVISION) heroku" --allow-empty
+          cd owlcms-heroku
+          pwd
+          # add new files
+          git add -A && git commit -m "$(REVISION) heroku" --allow-empty
 
-        # create a tag with the current version number
-        git tag $(REVISION) -f -a -m "$(REVISION) owlcms4-heroku"
-        
-        ## push changes and tag back to upstream master repo
-        git push $(Build.SourceBranchName)
-        git push $(REVISION) --force
+          # create a tag with the current version number
+          git tag $(REVISION) -f -a -m "$(REVISION) owlcms4-heroku"
+          
+          ## push changes and tag back to upstream master repo
+          git push $(Build.SourceBranchName)
+          git push $(REVISION) --force
 
-        ## push new version and tag to the release repo
-        #git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git $(Build.SourceBranchName):master --force'
-        #git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git $(REVISION) --force'
+          ## push new version and tag to the release repo
+          #git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git $(Build.SourceBranchName):master --force'
+          #git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git $(REVISION) --force'
 
   # release the installers to github repositories
   - job: ReleaseInstallers
