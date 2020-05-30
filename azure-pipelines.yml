@@ -149,6 +149,7 @@ jobs:
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Revision) --force
 
           ## push new version and tag to the release repo
+          echo https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git | rev
           git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
           git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Revision) --force
       - task: GitHubRelease@0
