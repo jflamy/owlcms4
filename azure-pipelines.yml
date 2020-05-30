@@ -142,25 +142,25 @@ jobs:
           git add -A && git commit -m "$(Revision) heroku" --allow-empty
 
           # create a tag with the current version number
-          git tag $(Revision) -f -a -m "$(Revision) owlcms4-heroku"
+          git tag $(Revision) -f -a -m "$(Revision) owlcms-heroku"
           
           ## push changes and tag back to upstream master repo
-          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Build.SourceBranchName) --force
-          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Revision) --force
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms-heroku.git $(Build.SourceBranchName) --force
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms-heroku.git $(Revision) --force
 
           ## push new version and tag to the release repo
-          echo https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git | rev
-          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
-          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Revision) --force
+          echo https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX).git | rev
+          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
+          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX).git $(Revision) --force
       - task: GitHubRelease@0
         inputs:
           ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
             gitHubConnection: github.com_jflamy-dev
-            repositoryName: $(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX)
+            repositoryName: $(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX)
             isPreRelease: true
           ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
             gitHubConnection: jflamy
-            repositoryName: $(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX)
+            repositoryName: $(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX)
             isPreRelease: false
           action: "create" # Options: create, edit, delete
           tagSource: "manual"
