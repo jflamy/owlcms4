@@ -161,7 +161,7 @@ jobs:
             repositoryName: $(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git
             isPreRelease: false
           action: "create" # Options: create, edit, delete
-          tagSource: "manual" # Required when action == Create # Options: auto, manual
+          tagSource: "userSpecifiedTag"
           tag: $(Revision)
           releaseNotesSource: "file" # Optional. Options: file, input
           releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
@@ -207,8 +207,7 @@ jobs:
             isPreRelease: false
           action: "create" # Options: create, edit, delete
           #target: $(Revision) # Required when action == Create || Action == Edit
-          tagSource: "manual" # Required when action == Create# Options: auto, manual
-          #tagPattern: # Optional
+          tagSource: "userSpecifiedTag"
           tag: $(Revision)
           releaseNotesSource: "file" # Optional. Options: file, input
           releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
