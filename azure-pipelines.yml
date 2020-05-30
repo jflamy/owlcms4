@@ -105,7 +105,7 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
-      - checkout: self
+      - template: src/main/azure-pipelines/prepare-maven.yaml
       - script: |
           cd owlcms-heroku
           pwd

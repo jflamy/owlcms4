@@ -1,0 +1,4 @@
+steps:
+    - script: |
+        git config --global user.email "jf@jflamy.dev"
+        git config --global user.name "Jean-François Lamy"
