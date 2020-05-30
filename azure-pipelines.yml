@@ -134,8 +134,8 @@ jobs:
           git tag $(REVISION) -f -a -m "$(REVISION) owlcms4-heroku"
           
           ## push changes and tag back to upstream master repo
-          git push $(Build.SourceBranchName)
-          git push $(REVISION) --force
+          git push origin $(Build.SourceBranchName)
+          git push origin $(REVISION) --force
 
           ## push new version and tag to the release repo
           #git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git $(Build.SourceBranchName):master --force'
