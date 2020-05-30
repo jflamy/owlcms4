@@ -15,8 +15,8 @@ variables:
     value: $(Pipeline.Workspace)/.m2/repository
   - name: MavenOpts
     value: -Dmaven.repo.local=$(MavenCacheFolder) -Dmaven.test.skip=true -Drevision=$(Revision)
-     name: REPO_USER
-     value: $(repoUser)
+  - name: REPO_USER
+    value: $(repoUser)
   - name: REPO_TOKEN
     value: $(repoToken)
   ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
