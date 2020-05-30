@@ -112,8 +112,8 @@ jobs:
           cd owlcms-heroku
           echo git config user.email $(BUILDER_EMAIL)
           echo git config user.name $(BUILDER_NAME)
-          git config user.email $(BUILDER_EMAIL)
-          git config user.name $(BUILDER_NAME)
+          git config user.email "$(BUILDER_EMAIL)"
+          git config user.name "$(BUILDER_NAME)"
           git checkout $(Build.SourceBranchName)
           git pull
       - task: Maven@3
@@ -129,6 +129,7 @@ jobs:
           goals: -pl owlcms-heroku -Dmaven.test.skip=true package
       - script: |
           cd owlcms-heroku
+          git config --list
           # add new files
           git add -A && git commit -m "$(REVISION) heroku" --allow-empty
 
