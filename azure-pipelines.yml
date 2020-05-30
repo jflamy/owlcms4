@@ -131,6 +131,9 @@ jobs:
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: -pl owlcms-heroku -Dmaven.test.skip=true package
+        env:
+          REPO_OWNER: $(REPO_USER)
+          H_REPO_NAME: owlcms4-heroku$(RELEASE_SUFFIX)
       - script: |
           set -v
           cd owlcms-heroku
@@ -147,6 +150,22 @@ jobs:
           ## push new version and tag to the release repo
           git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
           git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Revision) --force
+      - task: GitHubRelease@0
+        inputs:
+          ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: $(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git
+            isPreRelease: true
+          ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+            gitHubConnection: jflamy
+            repositoryName: $(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git
+            isPreRelease: false
+          action: "create" # Options: create, edit, delete
+          tagSource: "manual" # Required when action == Create# Options: auto, manual
+          tag: $(Revision)
+          releaseNotesSource: "file" # Optional. Options: file, input
+          releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
+          addChangeLog: false # Optional
 
   # release the installers to github repositories
   - job: ReleaseInstallers
@@ -181,9 +200,11 @@ jobs:
           ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
             gitHubConnection: github.com_jflamy-dev
             repositoryName: jflamy-dev/owlcms4-prerelease
+            isPreRelease: true
           ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
             gitHubConnection: jflamy
             repositoryName: owlcms/owlcms4
+            isPreRelease: false
           action: "create" # Options: create, edit, delete
           #target: $(Revision) # Required when action == Create || Action == Edit
           tagSource: "manual" # Required when action == Create# Options: auto, manual
@@ -191,15 +212,10 @@ jobs:
           tag: $(Revision)
           releaseNotesSource: "file" # Optional. Options: file, input
           releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
-          #releaseNotes: # Optional
           assets: |
             $(Pipeline.Workspace)/OwlcmsZip/*
             $(Pipeline.Workspace)/PublicResultsZip/*
             $(Pipeline.Workspace)/OwlcmsSetup/*
             $(Pipeline.Workspace)/PublicResultsSetup/*
           assetUploadMode: "delete" # Optional. Options: delete, replace
-          #isDraft: false # Optional
-          isPreRelease: true # Optional
           addChangeLog: false # Optional
-          #compareWith: 'lastFullRelease' # Required when addChangeLog == True. Options: lastFullRelease, lastRelease, lastReleaseByTag
-          #releaseTag: # Required when compareWith == LastReleaseByTag
