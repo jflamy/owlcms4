@@ -119,7 +119,7 @@ jobs:
           releaseNotesSource: "file" # Optional. Options: file, input
           releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
           #releaseNotes: # Optional
-          assets: >
+          assets: |
             $(Pipeline.Workspace)/OwlcmsZip/*
             $(Pipeline.Workspace)/PublicResultsZip/*
             $(Pipeline.Workspace)/OwlcmsSetup/*
