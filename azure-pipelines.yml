@@ -151,21 +151,21 @@ jobs:
           ## push new version and tag to the release repo
           git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
           git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Revision) --force
-      - task: GitHubRelease@1
+      - task: GitHubRelease@0
         inputs:
           ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
             gitHubConnection: github.com_jflamy-dev
-            repositoryName: $(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git
+            repositoryName: $(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX)
             isPreRelease: true
           ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
             gitHubConnection: jflamy
-            repositoryName: $(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git
+            repositoryName: $(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX)
             isPreRelease: false
           action: "create" # Options: create, edit, delete
-          tagSource: "userSpecifiedTag"
+          tagSource: "manual"
           tag: $(Revision)
           assets: ''
-          releaseNotesSource: "filePath"
+          releaseNotesSource: "file"
           releaseNotesFile: $(Build.SourcesDirectory)/owlcms-heroku/ReleaseNotes.md
           addChangeLog: false # Optional
 
@@ -197,7 +197,7 @@ jobs:
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: package --non-recursive -Dmaven.test.skip=true
-      - task: GitHubRelease@1
+      - task: GitHubRelease@0
         inputs:
           ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
             gitHubConnection: github.com_jflamy-dev
@@ -209,9 +209,9 @@ jobs:
             isPreRelease: false
           action: "create" # Options: create, edit, delete
           #target: $(Revision) # Required when action == Create || Action == Edit
-          tagSource: "userSpecifiedTag"
+          tagSource: "manual"
           tag: $(Revision)
-          releaseNotesSource: "filePath"
+          releaseNotesSource: "file"
           releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
           assets: |
             $(Pipeline.Workspace)/OwlcmsZip/*
