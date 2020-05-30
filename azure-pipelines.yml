@@ -163,7 +163,7 @@ jobs:
           action: "create" # Options: create, edit, delete
           tagSource: "userSpecifiedTag"
           tag: $(Revision)
-          releaseNotesSource: "file" # Optional. Options: file, input
+          releaseNotesSource: "filePath"
           releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
           addChangeLog: false # Optional
 
@@ -209,7 +209,7 @@ jobs:
           #target: $(Revision) # Required when action == Create || Action == Edit
           tagSource: "userSpecifiedTag"
           tag: $(Revision)
-          releaseNotesSource: "file" # Optional. Options: file, input
+          releaseNotesSource: "filePath"
           releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
           assets: |
             $(Pipeline.Workspace)/OwlcmsZip/*
