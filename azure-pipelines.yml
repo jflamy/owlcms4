@@ -15,20 +15,28 @@ variables:
     value: $(Pipeline.Workspace)/.m2/repository
   - name: MavenOpts
     value: -Dmaven.repo.local=$(MavenCacheFolder) -Dmaven.test.skip=true -Drevision=$(Revision)
-
-variables:
-  REPO_USER: $(repoUser)
-  REPO_TOKEN: $(repoToken)
+     name: REPO_USER
+     value: $(repoUser)
+  - name: REPO_TOKEN
+    value: $(repoToken)
   ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
-    RELEASE_USER: $(prereleaseUser)
-    RELEASE_TOKEN: $(prereleaseToken)
-    RELEASE_SUFFIX: -prerelease
+    - name: RELEASE_USER
+      value: $(prereleaseUser)
+    - name: RELEASE_TOKEN
+      value: $(prereleaseToken)
+    - name: RELEASE_SUFFIX
+      value: -prerelease
   ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
-    RELEASE_USER: $(releaseUser)
-    RELEASE_TOKEN: $(releaseToken)
-    RELEASE_SUFFIX: ''
-  BUILDER_EMAIL: jf@jflamy.dev
-  BUILDER_NAME: Jean-François Lamy
+    - name: RELEASE_USER
+      value: $(releaseUser)
+    - name: RELEASE_TOKEN
+      value: $(releaseToken)
+    - name: RELEASE_SUFFIX
+      value: ''
+  - name: BUILDER_EMAIL
+    value: jf@jflamy.dev
+  - name: BUILDER_NAME
+    value: Jean-François Lamy
 
 jobs:
   # build owlcms uberjar and zip to be used by installer
