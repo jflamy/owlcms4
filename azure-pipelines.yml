@@ -16,7 +16,7 @@ variables:
   - name: MavenOpts
     value: -Dmaven.repo.local=$(MavenCacheFolder) -Dmaven.test.skip=true -Drevision=$(Revision)
 
-env:
+variables:
   REPO_USER: $(repoUser)
   REPO_TOKEN: $(repoToken)
   ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
