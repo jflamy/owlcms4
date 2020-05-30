@@ -1,5 +1,6 @@
 trigger:
   - develop
+  - master
 
 variables:
   # revision overrides .mvn config; must be unique if BUILD_GOAL is set to deploy.
@@ -87,8 +88,7 @@ jobs:
         artifact: PublicResultsSetup
 
   # release the installers to github repositories
-  - job: PreReleaseInstallers
-    condition: always()
+  - job: ReleaseInstallers
     dependsOn:
       - BuildOwlcmsUberJar
       - BuildPublicResultsUberJar
@@ -105,11 +105,25 @@ jobs:
         artifact: OwlcmsSetup
       - download: current
         artifact: PublicResultsSetup
-      - script: ls -lr $(Pipeline.Workspace)
+      - task: Maven@3
+        displayName: Release Notes Parameter Substitutions
+        inputs:
+          mavenPomFile: pom.xml
+          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+          javaHomeOption: JDKVersion
+          jdkVersionOption: "1.8"
+          jdkArchitectureOption: x64
+          publishJUnitResults: true
+          testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          goals: package --non-recursive -Dmaven.test.skip=true
       - task: GitHubRelease@0
         inputs:
-          gitHubConnection: github.com_jflamy-dev
-          repositoryName: jflamy-dev/owlcms4-prerelease
+          ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: jflamy-dev/owlcms4-prerelease
+          ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+            gitHubConnection: jflamy
+            repositoryName: owlcms/owlcms4
           action: "create" # Options: create, edit, delete
           #target: $(REVISION) # Required when action == Create || Action == Edit
           tagSource: "manual" # Required when action == Create# Options: auto, manual
