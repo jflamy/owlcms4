@@ -132,6 +132,7 @@ jobs:
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: -pl owlcms-heroku -Dmaven.test.skip=true package
       - script: |
+          set -v
           cd owlcms-heroku
           # add new files
           git add -A && git commit -m "$(Revision) heroku" --allow-empty
@@ -140,12 +141,12 @@ jobs:
           git tag $(Revision) -f -a -m "$(Revision) owlcms4-heroku"
           
           ## push changes and tag back to upstream master repo
-          echo git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Build.SourceBranchName) | rev
-          echo git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Revision) --force | rev
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Build.SourceBranchName) --force
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Revision) --force
 
           ## push new version and tag to the release repo
-          echo git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force | rev
-          echo git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Revision) --force | rev
+          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
+          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Revision) --force
 
   # release the installers to github repositories
   - job: ReleaseInstallers
