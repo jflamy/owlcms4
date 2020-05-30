@@ -3,8 +3,8 @@ trigger:
   - master
 
 variables:
-  test1: true
   - group: ReleaseRepoCredentials
+  - template: src/main/azure-pipelines/releaseRepoCredentialVariables.yaml
   # revision overrides .mvn config; must be unique if BuildGoal is set to deploy.
   - name: Revision
     value: 4.7.5-alpha17
@@ -16,28 +16,10 @@ variables:
     value: $(Pipeline.Workspace)/.m2/repository
   - name: MavenOpts
     value: -Dmaven.repo.local=$(MavenCacheFolder) -Dmaven.test.skip=true -Drevision=$(Revision)
-  - name: REPO_USER
-    value: $(repoUser)
-  - name: REPO_TOKEN
-    value: $(repoToken)
-  ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
-    - name: RELEASE_USER
-      value: $(prereleaseUser)
-  #   - name: RELEASE_TOKEN
-  #     value: $(prereleaseToken)
-  #   - name: RELEASE_SUFFIX
-  #     value: -prerelease
-  # ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
-  #   - name: RELEASE_USER
-  #     value: $(releaseUser)
-  #   - name: RELEASE_TOKEN
-  #     value: $(releaseToken)
-  #   - name: RELEASE_SUFFIX
-  #     value: ''
-  # - name: BUILDER_EMAIL
-  #   value: jf@jflamy.dev
-  # - name: BUILDER_NAME
-  #   value: Jean-François Lamy
+  - name: BUILDER_EMAIL
+    value: jf@jflamy.dev
+  - name: BUILDER_NAME
+    value: Jean-François Lamy
 
 jobs:
   # build owlcms uberjar and zip to be used by installer
@@ -158,12 +140,12 @@ jobs:
           git tag $(Revision) -f -a -m "$(Revision) owlcms4-heroku"
           
           ## push changes and tag back to upstream master repo
-          git push https://${REPO_TOKEN}@github.com/${REPO_USER}/owlcms4-heroku.git $(Build.SourceBranchName)
-          git push https://${REPO_TOKEN}@github.com/${REPO_USER}/owlcms4-heroku.git $(Revision) --force
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Build.SourceBranchName)
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Revision) --force
 
           ## push new version and tag to the release repo
-          git push https://${RELEASE_TOKEN}@github.com/${RELEASE_USER}/owlcms4-heroku${RELEASE_SUFFIX}.git $(Build.SourceBranchName):master --force'
-          git push https://${RELEASE_TOKEN}@github.com/${RELEASE_USER}/owlcms4-heroku${RELEASE_SUFFIX}.git $(Revision) --force'
+          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force'
+          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Revision) --force'
 
   # release the installers to github repositories
   - job: ReleaseInstallers
