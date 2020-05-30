@@ -150,7 +150,7 @@ jobs:
           ## push new version and tag to the release repo
           git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
           git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Revision) --force
-      - task: GitHubRelease@0
+      - task: GitHubRelease@1
         inputs:
           ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
             gitHubConnection: github.com_jflamy-dev
@@ -161,7 +161,7 @@ jobs:
             repositoryName: $(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git
             isPreRelease: false
           action: "create" # Options: create, edit, delete
-          tagSource: "manual" # Required when action == Create# Options: auto, manual
+          tagSource: "manual" # Required when action == Create # Options: auto, manual
           tag: $(Revision)
           releaseNotesSource: "file" # Optional. Options: file, input
           releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
@@ -195,7 +195,7 @@ jobs:
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: package --non-recursive -Dmaven.test.skip=true
-      - task: GitHubRelease@0
+      - task: GitHubRelease@1
         inputs:
           ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
             gitHubConnection: github.com_jflamy-dev
