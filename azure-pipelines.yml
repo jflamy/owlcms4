@@ -121,9 +121,8 @@ jobs:
           jdkArchitectureOption: x64
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
-          goals: -pl owlcms-heroku --non-recursive -Dmaven.test.skip=true package
+          goals: --non-recursive -Dmaven.test.skip=true package
       - script: |
-          cd owlcms-heroku
           pwd
           # add new files
           git add -A && git commit -m "$(REVISION) heroku" --allow-empty
