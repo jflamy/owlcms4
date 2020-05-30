@@ -12,6 +12,8 @@ variables:
   MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) -Dmaven.test.skip=true -Drevision=$(REVISION)
   PRERELEASE_OWNER: jflamy-dev
   PRERELEASE_SUFFIX: -prerelease
+  BUILDER_EMAIL: jf@jflamy.dev
+  BUILDER_NAME: Jean-François Lamy
 
 jobs:
   # build owlcms uberjar and zip to be used by installer
@@ -98,7 +100,7 @@ jobs:
       - publish: $(Agent.BuildDirectory)/s/publicresults-windows/target/publicresults_setup/publicresults_setup.exe
         artifact: PublicResultsSetup
 
-  # release the installers to github repositories
+  # push updates to Heroku repo
   - job: ReleaseOwlcmsHeroku
     # dependsOn:
     #   - BuildOwlcmsUberJar
@@ -108,7 +110,8 @@ jobs:
       - template: src/main/azure-pipelines/prepare-maven.yaml
       - script: |
           cd owlcms-heroku
-          pwd
+          git config --global user.email $(BUILDER_EMAIL)
+          git config --global user.name $(BUILDER_NAME)
           git checkout $(Build.SourceBranchName)
           git pull
       - task: Maven@3
@@ -121,9 +124,9 @@ jobs:
           jdkArchitectureOption: x64
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
-          goals: --non-recursive -Dmaven.test.skip=true package
+          goals: -pl owlcms-heroku -Dmaven.test.skip=true package
       - script: |
-          pwd
+          cd owlcms-heroku
           # add new files
           git add -A && git commit -m "$(REVISION) heroku" --allow-empty
 
