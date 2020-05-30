@@ -3,6 +3,7 @@ trigger:
   - master
 
 variables:
+  test1: true
   - group: ReleaseRepoCredentials
   # revision overrides .mvn config; must be unique if BuildGoal is set to deploy.
   - name: Revision
@@ -22,21 +23,21 @@ variables:
   ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
     - name: RELEASE_USER
       value: $(prereleaseUser)
-    - name: RELEASE_TOKEN
-      value: $(prereleaseToken)
-    - name: RELEASE_SUFFIX
-      value: -prerelease
-  ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
-    - name: RELEASE_USER
-      value: $(releaseUser)
-    - name: RELEASE_TOKEN
-      value: $(releaseToken)
-    - name: RELEASE_SUFFIX
-      value: ''
-  - name: BUILDER_EMAIL
-    value: jf@jflamy.dev
-  - name: BUILDER_NAME
-    value: Jean-François Lamy
+  #   - name: RELEASE_TOKEN
+  #     value: $(prereleaseToken)
+  #   - name: RELEASE_SUFFIX
+  #     value: -prerelease
+  # ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+  #   - name: RELEASE_USER
+  #     value: $(releaseUser)
+  #   - name: RELEASE_TOKEN
+  #     value: $(releaseToken)
+  #   - name: RELEASE_SUFFIX
+  #     value: ''
+  # - name: BUILDER_EMAIL
+  #   value: jf@jflamy.dev
+  # - name: BUILDER_NAME
+  #   value: Jean-François Lamy
 
 jobs:
   # build owlcms uberjar and zip to be used by installer
