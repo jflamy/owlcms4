@@ -133,6 +133,7 @@ jobs:
           goals: -pl owlcms-heroku -Dmaven.test.skip=true package
       - script: |
           set -v
+          
           cd owlcms-heroku
           # add new files
           git add -A && git commit -m "$(Revision) heroku" --allow-empty
