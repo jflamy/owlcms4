@@ -83,7 +83,6 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
-      - checkout: 
       - template: src/main/azure-pipelines/prepare-maven.yaml
       - task: Maven@3
         displayName: Create publicresults installer
