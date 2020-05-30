@@ -4,13 +4,19 @@ trigger:
 
 variables:
   - group: ReleaseRepoCredentials
-  # revision overrides .mvn config; must be unique if BUILD_GOAL is set to deploy.
-  REVISION: 4.7.5-alpha17
-  # if BUILD_GOAL = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
-  # to bintray, so REVISION can be kept for several runs when debugging the installers.
-  BUILD_GOAL: package
-  MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
-  MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) -Dmaven.test.skip=true -Drevision=$(REVISION)
+  # revision overrides .mvn config; must be unique if BuildGoal is set to deploy.
+  - name: Revision
+    value: 4.7.5-alpha17
+  # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
+  # to bintray, so Revision can be kept for several runs when debugging the installers.
+  - name: BuildGoal
+    value: package
+  - name: MavenCacheFolder
+    value: $(Pipeline.Workspace)/.m2/repository
+  - name: MavenOpts
+    value: -Dmaven.repo.local=$(MavenCacheFolder) -Dmaven.test.skip=true -Drevision=$(Revision)
+
+env:
   REPO_USER: $(repoUser)
   REPO_TOKEN: $(repoToken)
   ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
@@ -36,13 +42,13 @@ jobs:
         displayName: build owlcms uberJar and deploy to bintray
         inputs:
           mavenPomFile: pom.xml
-          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+          mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeOption: JDKVersion
           jdkVersionOption: "1.8"
           jdkArchitectureOption: x64
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
-          goals: -P production -pl owlcms -am $(BUILD_GOAL)
+          goals: -P production -pl owlcms -am $(BuildGoal)
       - publish: $(Agent.BuildDirectory)/s/owlcms/target/owlcms.zip
         artifact: OwlcmsZip
 
@@ -57,13 +63,13 @@ jobs:
         displayName: build publicresults uberJar and deploy to bintray
         inputs:
           mavenPomFile: pom.xml
-          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+          mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeOption: JDKVersion
           jdkVersionOption: "1.8"
           jdkArchitectureOption: x64
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
-          goals: -P production -pl publicresults -am $(BUILD_GOAL)
+          goals: -P production -pl publicresults -am $(BuildGoal)
       - publish: $(Agent.BuildDirectory)/s/publicresults/target/publicresults.zip
         artifact: PublicResultsZip
 
@@ -78,7 +84,7 @@ jobs:
         displayName: Create owlcms installer
         inputs:
           mavenPomFile: pom.xml
-          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+          mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeOption: JDKVersion
           jdkVersionOption: "1.8"
           jdkArchitectureOption: x64
@@ -99,7 +105,7 @@ jobs:
         displayName: Create publicresults installer
         inputs:
           mavenPomFile: pom.xml
-          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+          mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeOption: JDKVersion
           jdkVersionOption: "1.8"
           jdkArchitectureOption: x64
@@ -119,15 +125,15 @@ jobs:
       - template: src/main/azure-pipelines/prepare-maven.yaml
       - script: |
           cd owlcms-heroku
-          git config user.email "$(BUILDER_EMAIL)"
-          git config user.name "$(BUILDER_NAME)"
+          git config user.email "${BUILDER_EMAIL}"
+          git config user.name "${BUILDER_NAME}"
           git checkout $(Build.SourceBranchName)
           git pull
       - task: Maven@3
         displayName: Release Notes Parameter Substitutions
         inputs:
           mavenPomFile: pom.xml
-          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+          mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeOption: JDKVersion
           jdkVersionOption: "1.8"
           jdkArchitectureOption: x64
@@ -137,18 +143,18 @@ jobs:
       - script: |
           cd owlcms-heroku
           # add new files
-          git add -A && git commit -m "$(REVISION) heroku" --allow-empty
+          git add -A && git commit -m "$(Revision) heroku" --allow-empty
 
           # create a tag with the current version number
-          git tag $(REVISION) -f -a -m "$(REVISION) owlcms4-heroku"
+          git tag $(Revision) -f -a -m "$(Revision) owlcms4-heroku"
           
           ## push changes and tag back to upstream master repo
           git push https://${REPO_TOKEN}@github.com/${REPO_USER}/owlcms4-heroku.git $(Build.SourceBranchName)
-          git push https://${REPO_TOKEN}@github.com/${REPO_USER}/owlcms4-heroku.git $(REVISION) --force
+          git push https://${REPO_TOKEN}@github.com/${REPO_USER}/owlcms4-heroku.git $(Revision) --force
 
           ## push new version and tag to the release repo
           git push https://${RELEASE_TOKEN}@github.com/${RELEASE_USER}/owlcms4-heroku${RELEASE_SUFFIX}.git $(Build.SourceBranchName):master --force'
-          git push https://${RELEASE_TOKEN}@github.com/${RELEASE_USER}/owlcms4-heroku${RELEASE_SUFFIX}.git $(REVISION) --force'
+          git push https://${RELEASE_TOKEN}@github.com/${RELEASE_USER}/owlcms4-heroku${RELEASE_SUFFIX}.git $(Revision) --force'
 
   # release the installers to github repositories
   - job: ReleaseInstallers
@@ -171,7 +177,7 @@ jobs:
         displayName: Release Notes Parameter Substitutions
         inputs:
           mavenPomFile: pom.xml
-          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+          mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeOption: JDKVersion
           jdkVersionOption: "1.8"
           jdkArchitectureOption: x64
@@ -187,10 +193,10 @@ jobs:
             gitHubConnection: jflamy
             repositoryName: owlcms/owlcms4
           action: "create" # Options: create, edit, delete
-          #target: $(REVISION) # Required when action == Create || Action == Edit
+          #target: $(Revision) # Required when action == Create || Action == Edit
           tagSource: "manual" # Required when action == Create# Options: auto, manual
           #tagPattern: # Optional
-          tag: $(REVISION)
+          tag: $(Revision)
           releaseNotesSource: "file" # Optional. Options: file, input
           releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
           #releaseNotes: # Optional

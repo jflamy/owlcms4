@@ -12,4 +12,4 @@ steps:
       restoreKeys: |
          maven | "$(Agent.OS)"
          maven
-      path: $(MAVEN_CACHE_FOLDER)
+      path: $(MavenCacheFolder)
