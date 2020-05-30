@@ -140,12 +140,12 @@ jobs:
           git tag $(Revision) -f -a -m "$(Revision) owlcms4-heroku"
           
           ## push changes and tag back to upstream master repo
-          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Build.SourceBranchName)
-          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Revision) --force
+          echo git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Build.SourceBranchName)
+          echo git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4-heroku.git $(Revision) --force
 
           ## push new version and tag to the release repo
-          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force'
-          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Revision) --force'
+          echo git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force'
+          echo git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4-heroku$(RELEASE_SUFFIX).git $(Revision) --force'
 
   # release the installers to github repositories
   - job: ReleaseInstallers
