@@ -10,10 +10,13 @@ variables:
   BUILD_GOAL: package
   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
   MAVEN_OPTS: -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) -Dmaven.test.skip=true -Drevision=$(REVISION)
+  PRERELEASE_OWNER: jflamy-dev
+  PRERELEASE_SUFFIX: -prerelease
 
 jobs:
   # build owlcms uberjar and zip to be used by installer
   - job: BuildOwlcmsUberJar
+    condition: eq(1,2)
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -34,6 +37,7 @@ jobs:
 
   # build publicresults uberjar and zip to be used by installer
   - job: BuildPublicResultsUberJar
+    condition: eq(1,2)
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -52,10 +56,9 @@ jobs:
       - publish: $(Agent.BuildDirectory)/s/publicresults/target/publicresults.zip
         artifact: PublicResultsZip
 
-  - job: CreateWindowsInstallers
+  - job: CreateOwlcmsInstaller
     dependsOn:
       - BuildOwlcmsUberJar
-      - BuildPublicResultsUberJar
     pool:
       vmImage: windows-latest
     steps:
@@ -71,28 +74,77 @@ jobs:
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: -pl owlcms-windows package
-      - task: Maven@3
-        displayName: Create publicresults installer
-        inputs:
-          mavenPomFile: pom.xml
-          mavenOptions: -Xmx3072m $(MAVEN_OPTS)
-          javaHomeOption: JDKVersion
-          jdkVersionOption: "1.8"
-          jdkArchitectureOption: x64
-          publishJUnitResults: true
-          testResultsFiles: "**/surefire-reports/TEST-*.xml"
-          goals: -pl publicresults-windows package
       - publish: $(Agent.BuildDirectory)/s/owlcms-windows/target/owlcms_setup/owlcms_setup.exe
         artifact: OwlcmsSetup
-      - publish: $(Agent.BuildDirectory)/s/publicresults-windows/target/publicresults_setup/publicresults_setup.exe
-        artifact: PublicResultsSetup
+
+- job: CreatePublicResultsInstaller
+  dependsOn:
+    - BuildPublicResultsUberJar
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+    - checkout: 
+    - template: src/main/azure-pipelines/prepare-maven.yaml
+    - task: Maven@3
+      displayName: Create publicresults installer
+      inputs:
+        mavenPomFile: pom.xml
+        mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+        javaHomeOption: JDKVersion
+        jdkVersionOption: "1.8"
+        jdkArchitectureOption: x64
+        publishJUnitResults: true
+        testResultsFiles: "**/surefire-reports/TEST-*.xml"
+        goals: -pl publicresults-windows package
+    - publish: $(Agent.BuildDirectory)/s/publicresults-windows/target/publicresults_setup/publicresults_setup.exe
+      artifact: PublicResultsSetup
+
+# release the installers to github repositories
+- job: ReleaseOwlcmsHeroku
+  # dependsOn:
+  #   - BuildOwlcmsUberJar
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+    - checkout: self
+    - script: |
+        cd owlcms-heroku
+        pwd
+        git checkout $(Build.SourceBranchName)
+        git pull
+    - task: Maven@3
+      displayName: Release Notes Parameter Substitutions
+      inputs:
+        mavenPomFile: pom.xml
+        mavenOptions: -Xmx3072m $(MAVEN_OPTS)
+        javaHomeOption: JDKVersion
+        jdkVersionOption: "1.8"
+        jdkArchitectureOption: x64
+        publishJUnitResults: true
+        testResultsFiles: "**/surefire-reports/TEST-*.xml"
+        goals: -pl owlcms-heroku --non-recursive -Dmaven.test.skip=true package
+    - script: |
+      cd owlcms-heroku
+      pwd
+      # add new files
+      git add -A && git commit -m "$(REVISION) heroku" --allow-empty
+
+      # create a tag with the current version number
+      git tag $(REVISION) -f -a -m "$(REVISION) owlcms4-heroku"
+      
+      ## push changes and tag back to upstream master repo
+      git push $(Build.SourceBranchName)
+      git push $(REVISION) --force
+
+      ## push new version and tag to the release repo
+      #git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git $(Build.SourceBranchName):master --force'
+      #git push https://%TOKEN%@github.com/%REPO_OWNER%/%H_REPO_NAME%.git $(REVISION) --force'
 
   # release the installers to github repositories
   - job: ReleaseInstallers
     dependsOn:
-      - BuildOwlcmsUberJar
-      - BuildPublicResultsUberJar
-      - CreateWindowsInstallers
+      - CreateOwlcmsInstaller
+      - CreatePublicResultsInstaller
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -129,7 +181,6 @@ jobs:
           tagSource: "manual" # Required when action == Create# Options: auto, manual
           #tagPattern: # Optional
           tag: $(REVISION)
-          #title: # Optional
           releaseNotesSource: "file" # Optional. Options: file, input
           releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
           #releaseNotes: # Optional
