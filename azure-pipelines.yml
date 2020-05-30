@@ -136,6 +136,7 @@ jobs:
           H_REPO_NAME: owlcms4-heroku$(RELEASE_SUFFIX)
       - script: |
           set -v
+          cat $(Build.SourcesDirectory)/owlcms-heroku/ReleaseNotes.md
           cd owlcms-heroku
           # add new files
           git add -A && git commit -m "$(Revision) heroku" --allow-empty
@@ -163,8 +164,9 @@ jobs:
           action: "create" # Options: create, edit, delete
           tagSource: "userSpecifiedTag"
           tag: $(Revision)
+          assets: ''
           releaseNotesSource: "filePath"
-          releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
+          releaseNotesFile: $(Build.SourcesDirectory)/owlcms-heroku/ReleaseNotes.md
           addChangeLog: false # Optional
 
   # release the installers to github repositories
