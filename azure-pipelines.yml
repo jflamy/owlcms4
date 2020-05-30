@@ -110,8 +110,10 @@ jobs:
       - template: src/main/azure-pipelines/prepare-maven.yaml
       - script: |
           cd owlcms-heroku
-          git config --global user.email $(BUILDER_EMAIL)
-          git config --global user.name $(BUILDER_NAME)
+          echo git config user.email $(BUILDER_EMAIL)
+          echo git config user.name $(BUILDER_NAME)
+          git config user.email $(BUILDER_EMAIL)
+          git config user.name $(BUILDER_NAME)
           git checkout $(Build.SourceBranchName)
           git pull
       - task: Maven@3
