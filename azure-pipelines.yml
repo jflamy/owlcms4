@@ -126,7 +126,6 @@ jobs:
       - script: |
         cd owlcms-heroku
         pwd
-        # add new files
         git add -A && git commit -m "$(REVISION) heroku" --allow-empty
 
         # create a tag with the current version number
