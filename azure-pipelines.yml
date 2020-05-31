@@ -2,10 +2,19 @@ trigger:
   - develop
   - master
 
-variables:
-  # revision overrides .mvn config; must be unique if BuildGoal is set to deploy.
+parameters:
   - name: Revision
-    value: 4.7.5-alpha20
+    type: string
+    default: 4.7.5-alpha20
+  - name: BuildPublicResults
+    type: boolean
+    default: false
+
+      
+variables:
+  # -Drevision overrides .mvn config; must be unique if BuildGoal is set to deploy.
+  - name: Revision
+    value: ${{ parameter.Revision }}
   # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
   # to bintray, so Revision can be kept for several runs when debugging the installers.
   - name: BuildGoal
@@ -37,7 +46,7 @@ jobs:
       moduleName: owlcms
 
   # build publicresults uberjar, zip and installer
-  - ${{ if eq(1,2) }}:
+  - ${{ if ${{ parameter.BuildPublicResults }} }}:
     - template: src/main/azure-pipelines/job-buildUberJar.yml
       parameters:
         jobName: BuildPublicResultsUberJar
@@ -59,7 +68,7 @@ jobs:
   - job: ReleaseInstallers
     dependsOn:
       - CreateOwlcmsInstaller
-      - ${{ if eq(1,2) }}:
+      - ${{ if ${{ parameter.BuildPublicResults }} }}:
         - CreatePublicResultsInstaller
     pool:
       vmImage: ubuntu-latest
@@ -68,12 +77,13 @@ jobs:
       - download: current
         artifact: OwlcmsZip
       - download: current
-        artifact: PublicResultsZip
-      - download: current
         artifact: OwlcmsSetup
-      - download: current
-        artifact: PublicResultsSetup
-      - task: Maven@3
+      - ${{ if ${{ parameter.BuildPublicResults }} }}:
+        - download: current
+          artifact: PublicResultsZip
+        - download: current
+          artifact: PublicResultsSetup
+     - task: Maven@3
         displayName: Pre-process Release Notes
         inputs:
           mavenPomFile: pom.xml
