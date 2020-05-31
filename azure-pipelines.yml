@@ -45,7 +45,7 @@ jobs:
 
   # build publicresults uberjar and zip to be used by installer
   - job: BuildPublicResultsUberJar
-    #condition: eq(1,2)
+    condition: eq(1,2)
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -86,6 +86,7 @@ jobs:
         artifact: OwlcmsSetup
 
   - job: CreatePublicResultsInstaller
+    condition: eq(1,2)
     dependsOn:
       - BuildPublicResultsUberJar
     pool:
@@ -177,7 +178,7 @@ jobs:
   - job: ReleaseInstallers
     dependsOn:
       - CreateOwlcmsInstaller
-      - CreatePublicResultsInstaller
+      #- CreatePublicResultsInstaller
     pool:
       vmImage: ubuntu-latest
     steps:
