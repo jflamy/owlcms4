@@ -1,11 +1,10 @@
 trigger:
   - develop
-  - master
 
 parameters:
   - name: Revision
     type: string
-    default: 4.7.5-alpha28
+    default: 4.7.5-alpha29
   - name: BuildPublicResults
     type: string
     default: 'false'
@@ -111,7 +110,7 @@ jobs:
             repositoryName: jflamy-dev/owlcms4-prerelease
             isPreRelease: true
           ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
-            gitHubConnection: jflamy
+            gitHubConnection: github.com_jflamy-dev
             repositoryName: owlcms/owlcms4
             isPreRelease: false
           action: "create" # Options: create, edit, delete
