@@ -27,12 +27,12 @@ jobs:
       artifactName: OwlcmsZip
 
   # build publicresults uberjar and zip to be used by installer
-  - template: src/main/azure-pipelines/job-buildUberJar.yml
-    condition: eq(1,2)
-    parameters:
-      jobName: BuildPublicResultsUberJar
-      moduleName: publicresults
-      artifactName: PublicResultsZip
+  ${{ if eq(1,2) }}:
+    - template: src/main/azure-pipelines/job-buildUberJar.yml
+      parameters:
+        jobName: BuildPublicResultsUberJar
+        moduleName: publicresults
+        artifactName: PublicResultsZip
 
   - template: src/main/azure-pipelines/job-createInstaller.yml
     parameters:
@@ -41,13 +41,13 @@ jobs:
       moduleName: owlcms
       artifactName: OwlcmsSetup
 
-  - template: src/main/azure-pipelines/job-createInstaller.yml
-    condition: eq(1,2)
-    parameters:
-      jobName: CreatePublicResultsInstaller
-      dependsOn: BuildPublicResultsUberJar
-      moduleName: publicresults
-      artifactName: PublicResultsSetup
+  ${{ if eq(1,2) }}:
+    - template: src/main/azure-pipelines/job-createInstaller.yml
+      parameters:
+        jobName: CreatePublicResultsInstaller
+        dependsOn: BuildPublicResultsUberJar
+        moduleName: publicresults
+        artifactName: PublicResultsSetup
 
   # push updates to Heroku repo
   - job: ReleaseOwlcmsHeroku
