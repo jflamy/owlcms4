@@ -142,7 +142,7 @@ jobs:
           git add -A && git commit -m "$(Revision) heroku" --allow-empty
 
           # create a tag with the current version number
-          git tag $(Revision) -f -a -m "$(Revision) owlcms-heroku"
+          # git tag $(Revision) -f -a -m "$(Revision) owlcms-heroku"
           
           ## push changes and tag back to upstream master repo
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms-heroku.git $(Build.SourceBranchName) --force
