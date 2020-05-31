@@ -14,7 +14,7 @@ parameters:
 variables:
   # -Drevision overrides .mvn config; must be unique if BuildGoal is set to deploy.
   - name: Revision
-    value: ${{ parameter.Revision }}
+    value: ${{ parameters.Revision }}
   # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
   # to bintray, so Revision can be kept for several runs when debugging the installers.
   - name: BuildGoal
@@ -46,7 +46,7 @@ jobs:
       moduleName: owlcms
 
   # build publicresults uberjar, zip and installer
-  - ${{ if eq(parameter.BuildPublicResults, 'true') }}:
+  - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
     - template: src/main/azure-pipelines/job-buildUberJar.yml
       parameters:
         jobName: BuildPublicResultsUberJar
@@ -68,7 +68,7 @@ jobs:
   - job: ReleaseInstallers
     dependsOn:
       - CreateOwlcmsInstaller
-      - ${{ if eq(parameter.BuildPublicResults, 'true') }}:
+      - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
         - CreatePublicResultsInstaller
     pool:
       vmImage: ubuntu-latest
