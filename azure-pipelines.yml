@@ -84,8 +84,7 @@ jobs:
       # - ${{ if eq(parameter.BuildPublicResults, 'true') }}:
       #   - download: current
       #     artifact: PublicResultsSetup
-
-     - task: Maven@3
+      - task: Maven@3
         displayName: Pre-process Release Notes
         inputs:
           mavenPomFile: pom.xml
