@@ -81,6 +81,7 @@ jobs:
       - ${{ if parameter.BuildPublicResults }}:
         - download: current
           artifact: PublicResultsZip
+      - ${{ if parameter.BuildPublicResults }}:
         - download: current
           artifact: PublicResultsSetup
      - task: Maven@3
