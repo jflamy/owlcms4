@@ -1,3 +1,7 @@
+This release is experimental. **Not suitable for actual use.**
+
+The purpose of this release is to test a new way of building and releasing the applications. Until fully tested, there is a risk that the files in the release are incomplete or otherwise incorrect.
+
 * Changes for release 4.7.4.1  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
    * [x] Processing errors in Spanish and Portuguese translations fixed.
    * [x] Improved support for deployment under Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md).
