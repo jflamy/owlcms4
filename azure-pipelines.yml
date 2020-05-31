@@ -82,6 +82,7 @@ jobs:
           artifact: PublicResultsZip
         - download: current
           artifact: PublicResultsSetup
+      - template: steps-prepare-maven.yml
       - task: Maven@3
         displayName: Pre-process Release Notes
         inputs:
@@ -94,10 +95,10 @@ jobs:
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
       - script: |
-          # create a local tag with the current version number
+          # create tag in origin repository
+          git config user.email "$(Build.RequestedForEmail)"
+          git config user.name "$(Build.RequestedFor)"
           git tag $(Revision) -f -a -m "$(Revision)"
-
-          ## push tag back to upstream master repo
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Build.SourceBranchName) --force
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Revision) --force
         displayName: tag origin
