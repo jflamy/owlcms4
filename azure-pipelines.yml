@@ -7,11 +7,11 @@ variables:
   - template: src/main/azure-pipelines/releaseRepoCredentialVariables.yaml
   # revision overrides .mvn config; must be unique if BuildGoal is set to deploy.
   - name: Revision
-    value: 4.7.5-alpha17
+    value: 4.7.5-alpha18
   # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
   # to bintray, so Revision can be kept for several runs when debugging the installers.
   - name: BuildGoal
-    value: package
+    value: deploy
   - name: MavenCacheFolder
     value: $(Pipeline.Workspace)/.m2/repository
   - name: MavenOpts
@@ -24,7 +24,7 @@ variables:
 jobs:
   # build owlcms uberjar and zip to be used by installer
   - job: BuildOwlcmsUberJar
-    condition: eq(1,2)
+    #condition: eq(1,2)
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -45,7 +45,7 @@ jobs:
 
   # build publicresults uberjar and zip to be used by installer
   - job: BuildPublicResultsUberJar
-    condition: eq(1,2)
+    #condition: eq(1,2)
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -108,8 +108,8 @@ jobs:
 
   # push updates to Heroku repo
   - job: ReleaseOwlcmsHeroku
-    # dependsOn:
-    #   - BuildOwlcmsUberJar
+    dependsOn:
+      - BuildOwlcmsUberJar
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -120,6 +120,7 @@ jobs:
           git config user.name "${BUILDER_NAME}"
           git checkout $(Build.SourceBranchName)
           git pull
+        displayName: Checkout $(Build.SourceBranchName)
       - task: Maven@3
         displayName: Release Notes Parameter Substitutions
         inputs:
@@ -141,17 +142,19 @@ jobs:
           # add new files
           git add -A && git commit -m "$(Revision) heroku" --allow-empty
 
-          # create a tag with the current version number
-          # git tag $(Revision) -f -a -m "$(Revision) owlcms-heroku"
-          
-          ## push changes and tag back to upstream master repo
-          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms-heroku.git $(Build.SourceBranchName) --force
-          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms-heroku.git $(Revision) --force
-
-          ## push new version and tag to the release repo
+          # push new version to the release repo
+          # no tag, will be created by the release task
           echo https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX).git | rev
           git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
           git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX).git $(Revision) --force
+
+          # create a tag with the current version number
+          git tag $(Revision) -f -a -m "$(Revision) owlcms-heroku"
+
+          ## push changes and tag back to upstream master repo
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms-heroku.git $(Build.SourceBranchName) --force
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms-heroku.git $(Revision) --force
+        displayName: Push to repositories
       - task: GitHubRelease@0
         inputs:
           ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
@@ -168,7 +171,7 @@ jobs:
           assets: ''
           releaseNotesSource: "file"
           releaseNotesFile: $(Build.SourcesDirectory)/owlcms-heroku/ReleaseNotes.md
-          addChangeLog: false # Optional
+          addChangeLog: false
 
   # release the installers to github repositories
   - job: ReleaseInstallers
