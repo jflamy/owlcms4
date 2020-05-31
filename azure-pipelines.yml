@@ -50,12 +50,12 @@ jobs:
 
   # push updates to Heroku repo
   - job: ReleaseOwlcmsHeroku
-    # dependsOn:
-    #   - BuildOwlcmsUberJar
+    dependsOn:
+      - BuildOwlcmsUberJar
     pool:
       vmImage: ubuntu-latest
     steps:
-      - template: src/main/azure-pipelines/prepare-maven.yaml
+      - template: src/main/azure-pipelines/steps-prepare-maven.yaml
       - script: |
           cd owlcms-heroku
           git config user.email "$(Build.RequestedForEmail)"
