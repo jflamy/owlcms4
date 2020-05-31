@@ -124,8 +124,8 @@
                             <headerType>console</headerType>
                             <outfile>${project.build.directory}/owlcms-win32/owlcms.exe</outfile>
                             <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
-                                owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a 
-                                dummy jar at the front... -->
+                                owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
+                                jar at the front... -->
 
                             <!-- dummy jar for JDK 8 -->
                             <jar>jre/lib/charsets.jar</jar>
@@ -170,8 +170,7 @@
                         <configuration>
                             <headerType>console</headerType>
                             <outfile>${project.build.directory}/owlcms-win32/demo-owlcms.exe</outfile>
-                            <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
-                                owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
+                            <!-- the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
                                 jar at the front... -->
 
                             <!-- dummy jar for JDK 8 -->
@@ -261,4 +260,35 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>signing</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>net.jsign</groupId>
+                        <artifactId>jsign-maven-plugin</artifactId>
+                        <version>2.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <file>target/owlcms_setup/owlcms_setup.exe</file>
+                                    <name>owlcms</name>
+                                    <url>http://jflamy.github.io/owlcms4</url>
+                                    <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
+                                    <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
+                                    <storepass>${codeSigning}</storepass>
+                                    <storetype>PKCS12</storetype>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
