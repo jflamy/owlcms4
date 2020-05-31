@@ -15,7 +15,7 @@ variables:
   - name: MavenCacheFolder
     value: $(Pipeline.Workspace)/.m2/repository
   - name: MavenOpts
-    value: -Dmaven.repo.local=$(MavenCacheFolder) -Dmaven.test.skip=true -Drevision=$(Revision)
+    value: -Dmaven.repo.local=$(MavenCacheFolder) -Drevision=$(Revision)
   - name: BUILDER_EMAIL
     value: jf@jflamy.dev
   - name: BUILDER_NAME
@@ -39,7 +39,7 @@ jobs:
           jdkArchitectureOption: x64
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
-          goals: -P production -pl owlcms -am $(BuildGoal)
+          goals: -P production -pl owlcms -am $(MavenOpts) -Dmaven.test.skip=true $(BuildGoal)
       - publish: $(Agent.BuildDirectory)/s/owlcms/target/owlcms.zip
         artifact: OwlcmsZip
 
@@ -60,7 +60,7 @@ jobs:
           jdkArchitectureOption: x64
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
-          goals: -P production -pl publicresults -am $(BuildGoal)
+          goals: -P production -pl publicresults -am $(MavenOpts) $(BuildGoal)
       - publish: $(Agent.BuildDirectory)/s/publicresults/target/publicresults.zip
         artifact: PublicResultsZip
 
@@ -81,7 +81,7 @@ jobs:
           jdkArchitectureOption: x64
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
-          goals: -pl owlcms-windows package
+          goals: -pl owlcms-windows $(MavenOpts) package
       - publish: $(Agent.BuildDirectory)/s/owlcms-windows/target/owlcms_setup/owlcms_setup.exe
         artifact: OwlcmsSetup
 
@@ -103,7 +103,7 @@ jobs:
           jdkArchitectureOption: x64
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
-          goals: -pl publicresults-windows package
+          goals: -pl publicresults-windows $(MavenOpts) package
       - publish: $(Agent.BuildDirectory)/s/publicresults-windows/target/publicresults_setup/publicresults_setup.exe
         artifact: PublicResultsSetup
 
@@ -132,7 +132,7 @@ jobs:
           jdkArchitectureOption: x64
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
-          goals: -pl owlcms-heroku -Dmaven.test.skip=true package
+          goals: -pl owlcms-heroku -Dmaven.test.skip=true $(MavenOpts) package
         env:
           REPO_OWNER: $(REPO_USER)
           H_REPO_NAME: owlcms4-heroku$(RELEASE_SUFFIX)
@@ -201,7 +201,7 @@ jobs:
           jdkArchitectureOption: x64
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
-          goals: package --non-recursive -Dmaven.test.skip=true
+          goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
       - task: GitHubRelease@0
         inputs:
           ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
