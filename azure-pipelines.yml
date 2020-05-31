@@ -3,7 +3,6 @@ trigger:
   - master
 
 variables:
-
   # revision overrides .mvn config; must be unique if BuildGoal is set to deploy.
   - name: Revision
     value: 4.7.5-alpha18
@@ -27,7 +26,7 @@ jobs:
       artifactName: OwlcmsZip
 
   # build publicresults uberjar and zip to be used by installer
-  ${{ if eq(1,2) }}:
+  - ${{ if eq(1,2) }}:
     - template: src/main/azure-pipelines/job-buildUberJar.yml
       parameters:
         jobName: BuildPublicResultsUberJar
@@ -41,7 +40,7 @@ jobs:
       moduleName: owlcms
       artifactName: OwlcmsSetup
 
-  ${{ if eq(1,2) }}:
+  - ${{ if eq(1,2) }}:
     - template: src/main/azure-pipelines/job-createInstaller.yml
       parameters:
         jobName: CreatePublicResultsInstaller
