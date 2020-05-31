@@ -9,7 +9,7 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
-      - template: src/main/azure-pipelines/prepare-maven.yaml
+      - template: prepare-maven.yaml
       - task: Maven@3
         displayName: build owlcms uberJar and deploy to bintray
         inputs:
