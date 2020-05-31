@@ -16,10 +16,6 @@ variables:
     value: $(Pipeline.Workspace)/.m2/repository
   - name: MavenOpts
     value: -Dmaven.repo.local=$(MavenCacheFolder) -Drevision=$(Revision)
-  - name: BUILDER_EMAIL
-    value: jf@jflamy.dev
-  - name: BUILDER_NAME
-    value: Jean-François Lamy
 
 jobs:
   # build owlcms uberjar and zip to be used by installer
@@ -118,8 +114,8 @@ jobs:
       - template: src/main/azure-pipelines/prepare-maven.yaml
       - script: |
           cd owlcms-heroku
-          git config user.email "${BUILDER_EMAIL}"
-          git config user.name "${BUILDER_NAME}"
+          git config user.email "$(Build.RequestedForEmail)"
+          git config user.name "$(Build.RequestedFor)"
           git checkout $(Build.SourceBranchName)
           git pull
         displayName: Checkout $(Build.SourceBranchName)
@@ -136,7 +132,7 @@ jobs:
           goals: -pl owlcms-heroku -Dmaven.test.skip=true $(MavenOpts) package
         env:
           # used by maven for substitutions in release notes and URLs
-          REPO_OWNER: $(REPO_USER)
+          REPO_OWNER: $(RELEASE_USER)
           H_REPO_NAME: owlcms-heroku$(RELEASE_SUFFIX)
           O_REPO_NAME: owlcms4$(RELEASE_SUFFIX)
       - script: |
