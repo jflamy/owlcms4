@@ -5,11 +5,11 @@ trigger:
 variables:
   # revision overrides .mvn config; must be unique if BuildGoal is set to deploy.
   - name: Revision
-    value: 4.7.5-alpha18
+    value: 4.7.5-alpha20
   # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
   # to bintray, so Revision can be kept for several runs when debugging the installers.
   - name: BuildGoal
-    value: package
+    value: deploy
   - group: ReleaseRepoCredentials
   - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yml
   - name: MavenCacheFolder
@@ -18,105 +18,45 @@ variables:
     value: -Dmaven.repo.local=$(MavenCacheFolder) -Drevision=$(Revision)
 
 jobs:
-  # build owlcms uberjar and zip to be used by installer
+  # build owlcms uberjar, zip and installer
   - template: src/main/azure-pipelines/job-buildUberJar.yml
     parameters:
       jobName: BuildOwlcmsUberJar
       moduleName: owlcms
       artifactName: OwlcmsZip
-
-  # build publicresults uberjar and zip to be used by installer
-  - ${{ if eq(1,2) }}:
-    - template: src/main/azure-pipelines/job-buildUberJar.yml
-      parameters:
-        jobName: BuildPublicResultsUberJar
-        moduleName: publicresults
-        artifactName: PublicResultsZip
-
   - template: src/main/azure-pipelines/job-createInstaller.yml
     parameters:
       jobName: CreateOwlcmsInstaller
       dependsOn: BuildOwlcmsUberJar
       moduleName: owlcms
       artifactName: OwlcmsSetup
+  - template: src/main/azure-pipelines/job-herokuRelease.yml
+    parameters:
+      jobName: ReleaseOwlcmsHeroku
+      dependsOn: BuildOwlcmsUberJar
+      moduleName: owlcms
 
+  # build publicresults uberjar, zip and installer
   - ${{ if eq(1,2) }}:
+    - template: src/main/azure-pipelines/job-buildUberJar.yml
+      parameters:
+        jobName: BuildPublicResultsUberJar
+        moduleName: publicresults
+        artifactName: PublicResultsZip
     - template: src/main/azure-pipelines/job-createInstaller.yml
       parameters:
         jobName: CreatePublicResultsInstaller
         dependsOn: BuildPublicResultsUberJar
         moduleName: publicresults
         artifactName: PublicResultsSetup
-
-  # push updates to Heroku repo
-  - job: ReleaseOwlcmsHeroku
-    dependsOn:
-      - BuildOwlcmsUberJar
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-      - template: src/main/azure-pipelines/steps-prepare-maven.yml
-      - script: |
-          cd owlcms-heroku
-          git config user.email "$(Build.RequestedForEmail)"
-          git config user.name "$(Build.RequestedFor)"
-          git checkout $(Build.SourceBranchName)
-          git pull
-        displayName: Checkout $(Build.SourceBranchName)
-      - task: Maven@3
-        displayName: Release Notes Parameter Substitutions
-        inputs:
-          mavenPomFile: pom.xml
-          mavenOptions: -Xmx3072m $(MavenOpts)
-          javaHomeOption: JDKVersion
-          jdkVersionOption: "1.8"
-          jdkArchitectureOption: x64
-          publishJUnitResults: true
-          testResultsFiles: "**/surefire-reports/TEST-*.xml"
-          goals: -pl owlcms-heroku -Dmaven.test.skip=true $(MavenOpts) package
-        env:
-          # used by maven for substitutions in release notes and URLs
-          REPO_OWNER: $(RELEASE_USER)
-          H_REPO_NAME: owlcms-heroku$(RELEASE_SUFFIX)
-          O_REPO_NAME: owlcms4$(RELEASE_SUFFIX)
-      - script: |
-          cd owlcms-heroku
-          # add new files
-          git add -A && git commit -m "$(Revision) heroku" --allow-empty
-
-          # push new version to the release repo
-          # no tag, will be created by the release task
-          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX).git $(Build.SourceBranchName):master --force
-          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX).git $(Revision) --force
-
-          # create a tag with the current version number
-          git tag $(Revision) -f -a -m "$(Revision) owlcms-heroku"
-
-          ## push changes and tag back to upstream master repo
-          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms-heroku.git $(Build.SourceBranchName) --force
-          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms-heroku.git $(Revision) --force
-        displayName: Push to repositories
-      - task: GitHubRelease@0
-        inputs:
-          ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
-            gitHubConnection: github.com_jflamy-dev
-            repositoryName: $(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX)
-            isPreRelease: true
-          ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
-            gitHubConnection: jflamy
-            repositoryName: $(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX)
-            isPreRelease: false
-          action: create # Options: create, edit, delete
-          target: master # branch on which we are tagging, mandatory if not releasing in the build repo
-          tagSource: manual
-          tag: $(Revision)
-          releaseNotesSource: "file"
-          releaseNotesFile: $(Build.SourcesDirectory)/owlcms-heroku/ReleaseNotes.md
-          addChangeLog: false
+    - template: src/main/azure-pipelines/job-herokuRelease.yml
+      parameters:
+        jobName: ReleasePublicResultsHeroku
+        dependsOn: BuildPublicResultsUberJar
+        moduleName: publicresults
 
   # release the installers to github repositories
   - job: ReleaseInstallers
-    condition: eq(1,2)
     dependsOn:
       - CreateOwlcmsInstaller
       - ${{ if eq(1,2) }}:
@@ -144,6 +84,14 @@ jobs:
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
+      - script: |
+          # create a local tag with the current version number
+          git tag $(Revision) -f -a -m "$(Revision)"
+
+          ## push tag back to upstream master repo
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Build.SourceBranchName) --force
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Revision) --force
+        displayName: tag origin
       - task: GitHubRelease@0
         displayName: Release on Github
         inputs:
