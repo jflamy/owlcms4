@@ -7,7 +7,7 @@
         <version>4.7.4.1</version>
     </parent>
 
-    <artifactId>windows-installer</artifactId>
+    <artifactId>owlcms-windows</artifactId>
     <version>${revision}</version>
 
     <repositories>
@@ -61,7 +61,7 @@
                 <version>3.1.2</version>
                 <executions>
                     <execution>
-                        <id>unpack-innosetup</id>
+                        <id>unpack-installtools</id>
                         <phase>package</phase>
                         <goals>
                             <goal>unpack-dependencies</goal>
@@ -73,7 +73,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>copy-owlcms</id>
+                        <id>copy-files</id>
                         <phase>package</phase>
                         <goals>
                             <goal>copy</goal>
@@ -122,7 +122,7 @@
                         </goals>
                         <configuration>
                             <headerType>console</headerType>
-                            <outfile>${project.build.directory}/owlcms.exe</outfile>
+                            <outfile>${project.build.directory}/owlcms-win32/owlcms.exe</outfile>
                             <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
                                 owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
                                 jar at the front... -->
@@ -151,13 +151,13 @@
                                 <fileVersion>1.0.0.0</fileVersion>
                                 <txtFileVersion>${project.version}</txtFileVersion>
                                 <fileDescription>${project.name}</fileDescription>
-                                <copyright>...</copyright>
+                                <copyright>Jean-Francois Lamy</copyright>
                                 <productVersion>1.0.0.0</productVersion>
                                 <txtProductVersion>1.0.0.0</txtProductVersion>
                                 <productName>${project.name}</productName>
                                 <companyName>...</companyName>
-                                <internalName>...</internalName>
-                                <originalFilename>${executable.name}.exe</originalFilename>
+                                <internalName>owlcms</internalName>
+                                <originalFilename>owlcms.exe</originalFilename>
                             </versionInfo>
                         </configuration>
                     </execution>
@@ -169,9 +169,8 @@
                         </goals>
                         <configuration>
                             <headerType>console</headerType>
-                            <outfile>${project.build.directory}/demo-owlcms.exe</outfile>
-                            <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
-                                owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
+                            <outfile>${project.build.directory}/owlcms-win32/demo-owlcms.exe</outfile>
+                            <!-- the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
                                 jar at the front... -->
 
                             <!-- dummy jar for JDK 8 -->
@@ -257,31 +256,39 @@
                             </environmentVariables>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>default-cli</id>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <mainClass>app.owlcms.Main</mainClass>
-                            <systemProperties>
-                                <systemProperty>
-                                    <key>demoMode</key>
-                                    <value>true</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <key>memoryMode</key>
-                                    <value>true</value>
-                                </systemProperty>
-                                <systemProperty>
-                                    <key>port</key>
-                                    <value>8082</value>
-                                </systemProperty>
-                            </systemProperties>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>signing</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>net.jsign</groupId>
+                        <artifactId>jsign-maven-plugin</artifactId>
+                        <version>2.1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <file>target/owlcms_setup/owlcms_setup.exe</file>
+                                    <name>owlcms</name>
+                                    <url>http://jflamy.github.io/owlcms4</url>
+                                    <keystore>C:\Dev\Setup\owlcms_signing.pfx</keystore>
+                                    <alias>te-e8b9a333-88b2-4fb6-83c9-4e0a2f8d1f11</alias>
+                                    <storepass>${codeSigning}</storepass>
+                                    <storetype>PKCS12</storetype>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

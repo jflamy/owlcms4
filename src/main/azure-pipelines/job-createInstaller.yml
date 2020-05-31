@@ -1,0 +1,28 @@
+parameters:
+  jobName: ''
+  dependsOn: ''
+  moduleName: ''
+  artifactName: ''
+
+jobs:
+  # build ${{ parameters.moduleName }} installer
+  - job: ${{ parameters.jobName }}
+    dependsOn:
+      - ${{ parameters.dependsOn }}
+    pool:
+      vmImage: windows-latest
+    steps:
+      - template: steps-prepare-maven.yml
+      - task: Maven@3
+        displayName: Create ${{ parameters.moduleName }} installer
+        inputs:
+          mavenPomFile: pom.xml
+          mavenOptions: -Xmx3072m $(MavenOpts)
+          javaHomeOption: JDKVersion
+          jdkVersionOption: "1.8"
+          jdkArchitectureOption: x64
+          publishJUnitResults: true
+          testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          goals: -pl ${{ parameters.moduleName }}-windows $(MavenOpts) package
+      - publish: $(Agent.BuildDirectory)/s/${{ parameters.moduleName }}-windows/target/${{ parameters.moduleName }}_setup/${{ parameters.moduleName }}_setup.exe
+        artifact: ${{ parameters.artifactName }}

@@ -1,38 +1,129 @@
-# Maven
-# Build your Java project and run tests with Apache Maven.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
-
-# we use comments on pull requests to trigger the build
 trigger:
-- "*"
+  - develop
+  - master
 
-pool:
-  vmImage: 'ubuntu-latest'
+parameters:
+  - name: Revision
+    type: string
+    default: 4.7.5-alpha27
+  - name: BuildPublicResults
+    type: string
+    default: 'false'
 
 variables:
-  MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
-  MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
+  # -Drevision overrides .mvn config; must be unique if BuildGoal is set to deploy.
+  - name: Revision
+    value: ${{ parameters.Revision }}
+  # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
+  # to bintray, so Revision can be kept for several runs when debugging the installers.
+  - name: BuildGoal
+    value: deploy
+  - group: ReleaseRepoCredentials
+  - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yml
+  - name: MavenCacheFolder
+    value: $(Pipeline.Workspace)/.m2/repository
+  - name: MavenOpts
+    value: -Dmaven.repo.local=$(MavenCacheFolder) -Drevision=$(Revision)
 
-steps:
-- checkout: self
-  submodules: recursive
-- task: Cache@2
-  inputs:
-    key: 'maven | "$(Agent.OS)" | **/pom.xml'
-    restoreKeys: |
-      maven | "$(Agent.OS)"
-      maven
-    path: $(MAVEN_CACHE_FOLDER)
-  displayName: Cache Maven local repo
-- task: Maven@3
-  inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.8'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'package'
-    
+jobs:
+  # build owlcms uberjar, zip and installer
+  - template: src/main/azure-pipelines/job-buildUberJar.yml
+    parameters:
+      jobName: BuildOwlcmsUberJar
+      moduleName: owlcms
+      artifactName: OwlcmsZip
+  - template: src/main/azure-pipelines/job-createInstaller.yml
+    parameters:
+      jobName: CreateOwlcmsInstaller
+      dependsOn: BuildOwlcmsUberJar
+      moduleName: owlcms
+      artifactName: OwlcmsSetup
+  - template: src/main/azure-pipelines/job-herokuRelease.yml
+    parameters:
+      jobName: ReleaseOwlcmsHeroku
+      dependsOn: BuildOwlcmsUberJar
+      moduleName: owlcms
+
+  # build publicresults uberjar, zip and installer
+  - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
+    - template: src/main/azure-pipelines/job-buildUberJar.yml
+      parameters:
+        jobName: BuildPublicResultsUberJar
+        moduleName: publicresults
+        artifactName: PublicResultsZip
+    - template: src/main/azure-pipelines/job-createInstaller.yml
+      parameters:
+        jobName: CreatePublicResultsInstaller
+        dependsOn: BuildPublicResultsUberJar
+        moduleName: publicresults
+        artifactName: PublicResultsSetup
+    - template: src/main/azure-pipelines/job-herokuRelease.yml
+      parameters:
+        jobName: ReleasePublicResultsHeroku
+        dependsOn: BuildPublicResultsUberJar
+        moduleName: publicresults
+
+  # release the installers to github repositories
+  - job: ReleaseInstallers
+    dependsOn:
+      - CreateOwlcmsInstaller
+      - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
+        - CreatePublicResultsInstaller
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - download: current
+        artifact: OwlcmsZip
+      - download: current
+        artifact: OwlcmsSetup
+      - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
+        - download: current
+          artifact: PublicResultsZip
+        - download: current
+          artifact: PublicResultsSetup
+      - template: src/main/azure-pipelines/steps-prepare-maven.yml
+      - task: Maven@3
+        displayName: Pre-process Release Notes
+        inputs:
+          mavenPomFile: pom.xml
+          mavenOptions: -Xmx3072m $(MavenOpts)
+          javaHomeOption: JDKVersion
+          jdkVersionOption: "1.8"
+          jdkArchitectureOption: x64
+          publishJUnitResults: true
+          testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
+      - script: |
+          # push changes back to origin and to release repo
+          git config user.email "$(Build.RequestedForEmail)"
+          git config user.name "$(Build.RequestedFor)"
+          git checkout $(Build.SourceBranchName)
+          git add -A && git commit -m "$(Revision)" --allow-empty
+          git tag $(Revision) -f -a -m "$(Revision)"
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Build.SourceBranchName) --force
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Revision) --force
+        displayName: tag origin
+      - task: GitHubRelease@0
+        displayName: Release on Github
+        inputs:
+          ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: jflamy-dev/owlcms4-prerelease
+            isPreRelease: true
+          ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+            gitHubConnection: jflamy
+            repositoryName: owlcms/owlcms4
+            isPreRelease: false
+          action: "create" # Options: create, edit, delete
+          target: master # all our releases are on the master branch of the release repos.
+          tagSource: "manual"
+          tag: $(Revision)
+          releaseNotesSource: "file"
+          releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
+          assets: |
+            $(Pipeline.Workspace)/OwlcmsZip/*
+            $(Pipeline.Workspace)/PublicResultsZip/*
+            $(Pipeline.Workspace)/OwlcmsSetup/*
+            $(Pipeline.Workspace)/PublicResultsSetup/*
+          assetUploadMode: "delete" # Optional. Options: delete, replace
+          addChangeLog: false # Optional

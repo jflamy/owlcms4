@@ -9,14 +9,6 @@
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>
 		<fileSet>
-			<directory>${project.build.directory}</directory>
-			<outputDirectory></outputDirectory>
-			<includes>
-				<include>${project.artifactId}.exe</include>
-				<include>demo-${project.artifactId}.exe</include>
-			</includes>
-		</fileSet>
-		<fileSet>
 			<directory>${jre.directory}</directory>
 			<outputDirectory>jre</outputDirectory>
 			<includes>
@@ -38,14 +30,9 @@
 	</fileSets>
 	<files>
 		<file>
-			<source>${project.basedir}/src/main/assembly/owlcms.l4j.ini</source>
+			<source>${project.basedir}/src/main/assembly/publicresults.l4j.ini</source>
 			<outputDirectory></outputDirectory>
 			<filtered>true</filtered>
-		</file>
-        <file>
-            <source>${project.basedir}/src/main/assembly/demo-owlcms.l4j.ini</source>
-            <outputDirectory></outputDirectory>
-            <filtered>true</filtered>
-        </file>       
+		</file>      
 	</files>
 </assembly>
