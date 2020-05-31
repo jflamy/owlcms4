@@ -5,7 +5,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.7.5-alpha22
+    default: 4.7.5-alpha23
   - name: BuildPublicResults
     type: string
     default: 'false'
@@ -72,7 +72,6 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
-      - checkout: self
       - download: current
         artifact: OwlcmsZip
       - download: current
