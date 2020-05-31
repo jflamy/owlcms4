@@ -7,8 +7,8 @@ parameters:
     type: string
     default: 4.7.5-alpha20
   - name: BuildPublicResults
-    type: boolean
-    default: false
+    type: string
+    default: 'false'
 
       
 variables:
@@ -46,7 +46,7 @@ jobs:
       moduleName: owlcms
 
   # build publicresults uberjar, zip and installer
-  - ${{ if parameter.BuildPublicResults }}:
+  - ${{ if eq(parameter.BuildPublicResults, 'true') }}:
     - template: src/main/azure-pipelines/job-buildUberJar.yml
       parameters:
         jobName: BuildPublicResultsUberJar
@@ -68,7 +68,7 @@ jobs:
   - job: ReleaseInstallers
     dependsOn:
       - CreateOwlcmsInstaller
-      - ${{ if parameter.BuildPublicResults }}:
+      - ${{ if eq(parameter.BuildPublicResults, 'true') }}:
         - CreatePublicResultsInstaller
     pool:
       vmImage: ubuntu-latest
@@ -78,10 +78,9 @@ jobs:
         artifact: OwlcmsZip
       - download: current
         artifact: OwlcmsSetup
-      - ${{ if parameter.BuildPublicResults }}:
+      - ${{ if eq(parameter.BuildPublicResults, 'true') }}:
         - download: current
           artifact: PublicResultsZip
-      - ${{ if parameter.BuildPublicResults }}:
         - download: current
           artifact: PublicResultsSetup
      - task: Maven@3
