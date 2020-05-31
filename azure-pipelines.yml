@@ -5,7 +5,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.7.5-alpha24
+    default: 4.7.5-alpha25
   - name: BuildPublicResults
     type: string
     default: 'false'
@@ -97,6 +97,7 @@ jobs:
           # push changes back to origin and to release repo
           git config user.email "$(Build.RequestedForEmail)"
           git config user.name "$(Build.RequestedFor)"
+          git checkout $(Build.SourceBranchName)
           git add -A && git commit -m "$(Revision)" --allow-empty
           git tag $(Revision) -f -a -m "$(Revision)"
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Build.SourceBranchName) --force
