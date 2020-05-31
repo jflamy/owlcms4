@@ -81,8 +81,10 @@ jobs:
       - ${{ if eq(parameter.BuildPublicResults, 'true') }}:
         - download: current
           artifact: PublicResultsZip
+      - ${{ if eq(parameter.BuildPublicResults, 'true') }}:
         - download: current
           artifact: PublicResultsSetup
+          
      - task: Maven@3
         displayName: Pre-process Release Notes
         inputs:
