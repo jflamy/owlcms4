@@ -274,10 +274,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Not used anymore. Kept for reference. <plugin> <groupId>com.amashchenko.maven.plugin</groupId> <artifactId>gitflow-maven-plugin</artifactId> 
-                <version>1.14.0</version> <configuration> <gitFlowConfig> <productionBranch>master</productionBranch> <developmentBranch>develop</developmentBranch> 
-                </gitFlowConfig> <allowSnapshots>true</allowSnapshots> <skipTag>true</skipTag> <skipTestProject>true</skipTestProject> <commitDevelopmentVersionAtStart>false</commitDevelopmentVersionAtStart> 
-                <verbose>true</verbose> <skipUpdateVersion>true</skipUpdateVersion> </configuration> </plugin> -->
             <plugin>
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
