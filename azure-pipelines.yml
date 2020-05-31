@@ -10,7 +10,6 @@ parameters:
     type: string
     default: 'false'
 
-      
 variables:
   # -Drevision overrides .mvn config; must be unique if BuildGoal is set to deploy.
   - name: Revision
@@ -81,7 +80,6 @@ jobs:
       - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
         - download: current
           artifact: PublicResultsZip
-      - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
         - download: current
           artifact: PublicResultsSetup
       - task: Maven@3
