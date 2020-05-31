@@ -11,7 +11,7 @@ variables:
   - name: BuildGoal
     value: package
   - group: ReleaseRepoCredentials
-  - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yaml
+  - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yml
   - name: MavenCacheFolder
     value: $(Pipeline.Workspace)/.m2/repository
   - name: MavenOpts
@@ -55,7 +55,7 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
-      - template: src/main/azure-pipelines/steps-prepare-maven.yaml
+      - template: src/main/azure-pipelines/steps-prepare-maven.yml
       - script: |
           cd owlcms-heroku
           git config user.email "$(Build.RequestedForEmail)"
