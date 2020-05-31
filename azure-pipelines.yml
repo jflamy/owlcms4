@@ -24,7 +24,7 @@ variables:
 jobs:
   # build owlcms uberjar and zip to be used by installer
   - job: BuildOwlcmsUberJar
-    #condition: eq(1,2)
+    condition: eq(1,2)
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -65,6 +65,7 @@ jobs:
         artifact: PublicResultsZip
 
   - job: CreateOwlcmsInstaller
+    condition: eq(1,2)
     dependsOn:
       - BuildOwlcmsUberJar
     pool:
@@ -109,8 +110,8 @@ jobs:
 
   # push updates to Heroku repo
   - job: ReleaseOwlcmsHeroku
-    dependsOn:
-      - BuildOwlcmsUberJar
+    # dependsOn:
+    #   - BuildOwlcmsUberJar
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -166,16 +167,17 @@ jobs:
             gitHubConnection: jflamy
             repositoryName: $(RELEASE_USER)/owlcms-heroku$(RELEASE_SUFFIX)
             isPreRelease: false
-          action: "create" # Options: create, edit, delete
-          tagSource: "manual"
+          action: create # Options: create, edit, delete
+          target: master # branch on which we are tagging
+          tagSource: manual
           tag: $(Revision)
-          assets: ''
           releaseNotesSource: "file"
           releaseNotesFile: $(Build.SourcesDirectory)/owlcms-heroku/ReleaseNotes.md
           addChangeLog: false
 
   # release the installers to github repositories
   - job: ReleaseInstallers
+    condition: eq(1,2)
     dependsOn:
       - CreateOwlcmsInstaller
       #- CreatePublicResultsInstaller
