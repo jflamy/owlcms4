@@ -94,9 +94,10 @@ jobs:
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
       - script: |
-          # create tag in origin repository
+          # push changes back to origin and to release repo
           git config user.email "$(Build.RequestedForEmail)"
           git config user.name "$(Build.RequestedFor)"
+          git add -A && git commit -m "$(Revision)" --allow-empty
           git tag $(Revision) -f -a -m "$(Revision)"
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Build.SourceBranchName) --force
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Revision) --force
@@ -113,7 +114,7 @@ jobs:
             repositoryName: owlcms/owlcms4
             isPreRelease: false
           action: "create" # Options: create, edit, delete
-          target: $(Build.SourceBranchName)
+          target: master # all our releases are on the master branch of the release repos.
           tagSource: "manual"
           tag: $(Revision)
           releaseNotesSource: "file"
