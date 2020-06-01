@@ -1,4 +1,4 @@
-# merge the develop branch to master prior to stable release build
+rem merge the develop branch to master prior to stable release build
 cd publicresults-heroku
 git checkout master
 git pull
