@@ -13,3 +13,4 @@ git pull
 git add .
 git commit -a -m "sync submodules"
 git push
+echo Done.
