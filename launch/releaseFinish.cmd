@@ -1,3 +1,4 @@
+# merge back the results of master build to develop branch
 git pull
 git submodule update --init --recursive --remote
 cd publicresults-heroku
