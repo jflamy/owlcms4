@@ -9,20 +9,121 @@ parameters:
     type: string
     default: 'true'
 
-# normally, no need to change anything below.
 variables:
-  - group: ReleaseRepoCredentials
-  - template: variables-releaseRepoCredentials.yml
+  # -Drevision overrides .mvn config; must be unique if BuildGoal is set to deploy.
   - name: Revision
     value: ${{ parameters.Revision }}
-  - name: BuildPublicResults
-    value: ${{ parameters.BuildPublicResults }}
+  # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
+  # to bintray, so Revision can be kept for several runs when debugging the installers.
   - name: BuildGoal
-    value: deploy # deploy | package (deploy sends to bintray)
+    value: deploy
+  - group: ReleaseRepoCredentials
+  - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yml
   - name: MavenCacheFolder
     value: $(Pipeline.Workspace)/.m2/repository
   - name: MavenOpts
     value: -Dmaven.repo.local=$(MavenCacheFolder) -Drevision=$(Revision)
 
 jobs:
-  - template: src/main/azure-pipelines/job-top.yml
+  # build owlcms uberjar, zip and installer
+  - template: src/main/azure-pipelines/job-buildUberJar.yml
+    parameters:
+      jobName: BuildOwlcmsUberJar
+      moduleName: owlcms
+      artifactName: OwlcmsZip
+  - template: src/main/azure-pipelines/job-createInstaller.yml
+    parameters:
+      jobName: CreateOwlcmsInstaller
+      dependsOn: BuildOwlcmsUberJar
+      moduleName: owlcms
+      artifactName: OwlcmsSetup
+  - template: src/main/azure-pipelines/job-herokuRelease.yml
+    parameters:
+      jobName: ReleaseOwlcmsHeroku
+      dependsOn: BuildOwlcmsUberJar
+      moduleName: owlcms
+
+  # build publicresults uberjar, zip and installer
+  - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
+    - template: src/main/azure-pipelines/job-buildUberJar.yml
+      parameters:
+        jobName: BuildPublicResultsUberJar
+        moduleName: publicresults
+        artifactName: PublicResultsZip
+    - template: src/main/azure-pipelines/job-createInstaller.yml
+      parameters:
+        jobName: CreatePublicResultsInstaller
+        dependsOn: BuildPublicResultsUberJar
+        moduleName: publicresults
+        artifactName: PublicResultsSetup
+    - template: src/main/azure-pipelines/job-herokuRelease.yml
+      parameters:
+        jobName: ReleasePublicResultsHeroku
+        dependsOn: BuildPublicResultsUberJar
+        moduleName: publicresults
+
+  # release the installers to github repositories
+  - job: ReleaseInstallers
+    dependsOn:
+      - CreateOwlcmsInstaller
+      - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
+        - CreatePublicResultsInstaller
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - download: current
+        artifact: OwlcmsZip
+      - download: current
+        artifact: OwlcmsSetup
+      - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
+        - download: current
+          artifact: PublicResultsZip
+        - download: current
+          artifact: PublicResultsSetup
+      - template: src/main/azure-pipelines/steps-prepare-maven.yml
+      - task: Maven@3
+        displayName: Pre-process Release Notes
+        inputs:
+          mavenPomFile: pom.xml
+          mavenOptions: -Xmx3072m $(MavenOpts)
+          javaHomeOption: JDKVersion
+          jdkVersionOption: "1.8"
+          jdkArchitectureOption: x64
+          publishJUnitResults: true
+          testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
+      - script: |
+          # push changes back to origin and to release repo
+          git config user.email "$(Build.RequestedForEmail)"
+          git config user.name "$(Build.RequestedFor)"
+          git checkout $(Build.SourceBranchName)
+          git add -A && git commit -m "$(Revision)" --allow-empty
+          git tag $(Revision) -f -a -m "$(Revision)"
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Build.SourceBranchName) --force
+          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Revision) --force
+        displayName: tag origin
+      - task: GitHubRelease@0
+        displayName: Release on Github
+        inputs:
+          ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: jflamy-dev/owlcms4-prerelease
+            isPreRelease: true
+          ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: owlcms/owlcms4
+            isPreRelease: false
+          action: "create" # Options: create, edit, delete
+          target: master # all our releases are on the master branch of the release repos.
+          tagSource: "manual"
+          title: $(Revision)
+          tag: $(Revision)
+          releaseNotesSource: "file"
+          releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
+          assets: |
+            $(Pipeline.Workspace)/OwlcmsZip/*
+            $(Pipeline.Workspace)/PublicResultsZip/*
+            $(Pipeline.Workspace)/OwlcmsSetup/*
+            $(Pipeline.Workspace)/PublicResultsSetup/*
+          assetUploadMode: "delete" # Optional. Options: delete, replace
+          addChangeLog: false # Optional
