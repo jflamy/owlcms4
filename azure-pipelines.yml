@@ -1,12 +1,10 @@
-name: Release owlcms
-
 trigger:
   - none
 
 parameters:
   - name: Revision
     type: string
-    default: 4.7.5-alpha30
+    default: 4.7.5-alpha33
   - name: BuildPublicResults
     type: string
     default: 'false'
