@@ -1,11 +1,10 @@
-# WARNING: this file is not merged by Git. Each branch keeps its own version.
 trigger:
   - none
 
 parameters:
   - name: Revision
     type: string
-    default: 4.7.5-rc04
+    default: 4.7.5-beta36
   - name: BuildPublicResults
     type: string
     default: 'true'
