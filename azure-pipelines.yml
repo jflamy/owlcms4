@@ -15,16 +15,14 @@ variables:
     value: ${{ parameters.Revision }}
   - name: BuildPublicResults
     value: ${{ parameters.Revision }}
-    
-  - template: src/main/azure-pipelines/variables-common.yml
-  # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
-  # to bintray, so Revision can be kept for several runs when debugging the installers.
-  # - name: BuildGoal
-  #   value: deploy
-  # - name: MavenCacheFolder
-  #   value: $(Pipeline.Workspace)/.m2/repository
-  # - name: MavenOpts
-  #   value: -Dmaven.repo.local=$(MavenCacheFolder) -Drevision=$(Revision)
+  - group: ReleaseRepoCredentials
+  - template: variables-releaseRepoCredentials.yml
+  - name: BuildGoal
+    value: deploy # deploy | package (deploy sends to bintray)
+  - name: MavenCacheFolder
+    value: $(Pipeline.Workspace)/.m2/repository
+  - name: MavenOpts
+    value: -Dmaven.repo.local=$(MavenCacheFolder) -Drevision=$(Revision)
 
 jobs:
   - template: src/main/azure-pipelines/job-top.yml
