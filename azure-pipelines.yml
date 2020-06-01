@@ -1,3 +1,5 @@
+name: Release owlcms
+
 trigger:
   - none
 
