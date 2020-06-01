@@ -20,3 +20,4 @@ git pull
 git merge origin/master --no-ff
 git commit -a -m "develop"
 git push origin develop
+echo Done.

@@ -18,3 +18,4 @@ git pull
 git merge origin/develop --no-ff
 git commit -a -m "start"
 git push origin master
+echo Done.
