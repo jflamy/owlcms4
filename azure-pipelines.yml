@@ -15,7 +15,7 @@ variables:
   - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yml
   # - template: src/main/azure-pipelines/variables-common.yml
   # -Drevision overrides .mvn config; must be unique if BuildGoal is set to deploy.
-    - name: Revision
+  - name: Revision
     value: ${{ parameters.Revision }}
   # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
   # to bintray, so Revision can be kept for several runs when debugging the installers.
