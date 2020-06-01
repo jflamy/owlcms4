@@ -13,4 +13,4 @@ git pull
 git add .
 git commit -a -m "sync submodules"
 git push
-echo Done. pulled develop into master.
+echo Done. synced submodules prior to starting release.
