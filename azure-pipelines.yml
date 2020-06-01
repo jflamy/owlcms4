@@ -11,12 +11,12 @@ parameters:
 
 # normally, no need to change anything below.
 variables:
+  - group: ReleaseRepoCredentials
+  - template: variables-releaseRepoCredentials.yml
   - name: Revision
     value: ${{ parameters.Revision }}
   - name: BuildPublicResults
-    value: ${{ parameters.Revision }}
-  - group: ReleaseRepoCredentials
-  - template: variables-releaseRepoCredentials.yml
+    value: ${{ parameters.BuildPublicResults }}
   - name: BuildGoal
     value: deploy # deploy | package (deploy sends to bintray)
   - name: MavenCacheFolder
