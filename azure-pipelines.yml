@@ -1,10 +1,10 @@
 trigger:
-  - none
+  - develop
 
 parameters:
   - name: Revision
     type: string
-    default: 4.7.5-alpha33
+    default: 4.7.5-beta34
 
   - name: BuildPublicResults
     type: string
