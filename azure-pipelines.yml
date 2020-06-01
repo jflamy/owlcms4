@@ -1,5 +1,5 @@
 trigger:
-  - develop
+  - none
 
 parameters:
   - name: Revision
@@ -116,6 +116,7 @@ jobs:
           action: "create" # Options: create, edit, delete
           target: master # all our releases are on the master branch of the release repos.
           tagSource: "manual"
+          title: $(Revision)
           tag: $(Revision)
           releaseNotesSource: "file"
           releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
