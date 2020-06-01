@@ -1,4 +1,3 @@
-git update-index --skip-worktree azure-pipelines.yml
 git pull
 git submodule update --init --recursive --remote
 cd publicresults-heroku
@@ -14,4 +13,4 @@ git pull
 git add .
 git commit -a -m "sync submodules"
 git push
-echo Done.
+echo Done. pulled develop into master.
