@@ -20,8 +20,4 @@ git pull
 git merge origin/master --no-ff
 git commit -a -m "develop"
 git push origin develop
-<<<<<<< HEAD
 echo Done. pulled master back into develop.
-=======
-echo Done. pulled master back into develop.
->>>>>>> origin/develop
