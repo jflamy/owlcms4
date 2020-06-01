@@ -20,7 +20,8 @@ import ch.qos.logback.classic.Logger;
  * To use:
  * - run owlcms {@link Main} normally, open all the browser windows you wish
  * - stop owlcms
- * - start this class; the browsers will notice that the first one got killed and reconnect to the new instance
+ * - start this class
+ * - the browsers will notice that the first one got killed and reconnect to the new instance
  * - this class will run through all the groups, making referee decisions at random (70% of the lifts should be good)
  * 
  * @author Jean-François Lamy

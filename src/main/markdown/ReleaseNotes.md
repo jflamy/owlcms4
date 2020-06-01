@@ -1,12 +1,11 @@
-This release is experimental. **Not suitable for actual use.**
+If you already have version 4.7.4.1, this release may be skipped as the programs are identical.
 
-The purpose of this release is to test a new way of building and releasing the applications. Until fully tested, there is a risk that the files in the release are incomplete or otherwise incorrect.
-
-* Changes for release ${project.version}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-   * [x] Processing errors in Spanish and Portuguese translations fixed.
-   * [x] Improved support for deployment under Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md).
+* Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+   * [x] No behaviour changes relative to 4.7.4.1.  The application building and packaging has been moved to Azure DevOps. The application can now be developed, built, distributed and run completely on the cloud.  The .exe files installers Windows are no longer signed, as signing the files does not eliminate the obnoxious warnings.
 * Key Highlights from recent stable releases
-   * [x] Enhancement: Simplification of configuration options for loading initial data (#347) -- see the [Configuration Parameters](https://jflamy-dev.github.io/owlcms4-prerelease/#/Configuration.md) documentation. *No changes are required, old parameters still work*.
+   * [x] Translations fixed.  Spanish version available.
+   * [x] Improved support for deployment under Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md).
+   * [ ] Enhancement: Simplification of configuration options for loading initial data (#347) -- see the [Configuration Parameters](https://jflamy-dev.github.io/owlcms4-prerelease/#/Configuration.md) documentation. *No changes are required, old parameters still work*.
    * [x] Fix: Decision lights for the very last lift in a group would disappear too quickly on the attempt board and scoreboards (#344)
    * [x] Fix: announcer using the dropdown to go to next group now shows the correct buttons to start the next group's countdown (#345)
    * [x] Fix: interactive creation of athlete on registration page was broken (#342)
