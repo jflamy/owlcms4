@@ -1,4 +1,5 @@
 rem merge the develop branch to master prior to stable release build
+git update-index --skip-worktree azure-pipelines.yml
 cd publicresults-heroku
 git checkout master
 git pull

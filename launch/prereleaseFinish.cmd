@@ -1,3 +1,4 @@
+git update-index --skip-worktree azure-pipelines.yml
 git pull
 git submodule update --init --recursive --remote
 cd publicresults-heroku
