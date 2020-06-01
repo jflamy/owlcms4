@@ -1,12 +1,11 @@
 variables:
-    # -Drevision overrides .mvn config; must be unique if BuildGoal is set to deploy.
-    - name: Revision
-      value: ${{ parameters.Revision }}
-    # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
-    # to bintray, so Revision can be kept for several runs when debugging the installers.
-    - name: BuildGoal
-      value: deploy
-    - name: MavenCacheFolder
-      value: $(Pipeline.Workspace)/.m2/repository
-    - name: MavenOpts
-      value: -Dmaven.repo.local=$(MavenCacheFolder) -Drevision=$(Revision)
+- group: ReleaseRepoCredentials
+- template: variables-releaseRepoCredentials.yml
+# if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
+# to bintray, so Revision can be kept for several runs when debugging the installers.
+- name: BuildGoal
+    value: deploy
+- name: MavenCacheFolder
+    value: $(Pipeline.Workspace)/.m2/repository
+- name: MavenOpts
+    value: -Dmaven.repo.local=$(MavenCacheFolder) -Drevision=$(Revision)

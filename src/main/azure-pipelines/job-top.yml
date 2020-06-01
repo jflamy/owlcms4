@@ -18,7 +18,7 @@ jobs:
         moduleName: owlcms
   
     # build publicresults uberjar, zip and installer
-    - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
+    - ${{ if eq(variables.BuildPublicResults, 'true') }}:
       - template: job-buildUberJar.yml
         parameters:
           jobName: BuildPublicResultsUberJar
@@ -40,7 +40,7 @@ jobs:
     - job: ReleaseInstallers
       dependsOn:
         - CreateOwlcmsInstaller
-        - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
+        - ${{ if eq(variables.BuildPublicResults, 'true') }}:
           - CreatePublicResultsInstaller
       pool:
         vmImage: ubuntu-latest
@@ -49,7 +49,7 @@ jobs:
           artifact: OwlcmsZip
         - download: current
           artifact: OwlcmsSetup
-        - ${{ if eq(parameters.BuildPublicResults, 'true') }}:
+        - ${{ if eq(variables.BuildPublicResults, 'true') }}:
           - download: current
             artifact: PublicResultsZip
           - download: current
