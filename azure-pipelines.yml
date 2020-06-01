@@ -8,7 +8,7 @@ parameters:
 
   - name: BuildPublicResults
     type: string
-    default: 'false'
+    default: 'true'
 
 variables:
   # -Drevision overrides .mvn config; must be unique if BuildGoal is set to deploy.
