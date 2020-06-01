@@ -67,6 +67,8 @@ jobs:
           target: master # branch on which we are tagging, mandatory if not releasing in the build repo
           tagSource: manual
           tag: $(Revision)
+          assets: |
+            $(Build.SourcesDirectory)/${{ parameters.moduleName }}-heroku/target/${{ parameters.moduleName }}-heroku.tar.gz
           releaseNotesSource: "file"
           releaseNotesFile: $(Build.SourcesDirectory)/${{ parameters.moduleName }}-heroku/ReleaseNotes.md
           addChangeLog: false
