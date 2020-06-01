@@ -1,11 +1,11 @@
 trigger:
-  - develop
-  - master
+  - none
 
 parameters:
   - name: Revision
     type: string
     default: 4.7.5-rc01
+
   - name: BuildPublicResults
     type: string
     default: 'false'
@@ -111,12 +111,13 @@ jobs:
             repositoryName: jflamy-dev/owlcms4-prerelease
             isPreRelease: true
           ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
-            gitHubConnection: jflamy
+            gitHubConnection: github.com_jflamy-dev
             repositoryName: owlcms/owlcms4
             isPreRelease: false
           action: "create" # Options: create, edit, delete
           target: master # all our releases are on the master branch of the release repos.
           tagSource: "manual"
+          title: $(Revision)
           tag: $(Revision)
           releaseNotesSource: "file"
           releaseNotesFile: $(Build.SourcesDirectory)/ReleaseNotes.md # Optional
