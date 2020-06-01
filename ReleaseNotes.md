@@ -1,6 +1,6 @@
 If you already have version 4.7.4.1, this release may be skipped as the programs are identical.
 
-* Changes for release 4.7.5-rc03  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.7.5  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
    * [x] No behaviour changes relative to 4.7.4.1.  The application building and packaging has been moved to Azure DevOps. The application can now be developed, built, distributed and run completely on the cloud.  The .exe files installers Windows are no longer signed, as signing the files does not eliminate the obnoxious warnings.
 * Key Highlights from recent stable releases
    * [x] Translations fixed.  Spanish version available.
