@@ -16,21 +16,17 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Modified Main class to run a simulated competition with all the groups and athletes present in the database.
- * 
- * To use:
- * - run owlcms {@link Main} normally, open all the browser windows you wish
- * - stop owlcms
- * - start this class
- * - the browsers will notice that the first one got killed and reconnect to the new instance
- * - this class will run through all the groups, making referee decisions at random (70% of the lifts should be good)
- * 
+ *
+ * To use: - run owlcms {@link Main} normally, open all the browser windows you wish - stop owlcms - start this class -
+ * the browsers will notice that the first one got killed and reconnect to the new instance - this class will run
+ * through all the groups, making referee decisions at random (70% of the lifts should be good)
+ *
  * @author Jean-François Lamy
  *
  */
 public class Simulation extends Main {
 
     public final static Logger logger = (Logger) LoggerFactory.getLogger(Simulation.class);
-
 
     /**
      * The main method.
@@ -42,10 +38,10 @@ public class Simulation extends Main {
 
         try {
             init();
-            
+
             // in order to wait for server to have started
-            CountDownLatch latch = new CountDownLatch(1); 
-            Thread server = new Thread( () -> {
+            CountDownLatch latch = new CountDownLatch(1);
+            Thread server = new Thread(() -> {
                 try {
                     EmbeddedJetty embeddedJetty = new EmbeddedJetty(latch);
                     embeddedJetty.run(serverPort, "/");
@@ -54,11 +50,11 @@ public class Simulation extends Main {
                 }
             });
             server.start();
-            
+
             // wait for server to be ready enough
             latch.await();
             FOPSimulator.runSimulation();
-            
+
             // wait for server to exit
             server.join();
         } finally {

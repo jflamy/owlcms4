@@ -39,15 +39,15 @@ public class BreakDialog extends Dialog {
         this.addDialogCloseActionListener((e) -> {
             this.removeAll();
             this.close();
-            
+
             // defensive, should have been unregistered already
             try {
                 OwlcmsSession.getFop().getUiEventBus().unregister(content);
             } catch (IllegalArgumentException e1) {
             }
-            
+
             try {
-            OwlcmsSession.getFop().getFopEventBus().unregister(content);
+                OwlcmsSession.getFop().getFopEventBus().unregister(content);
             } catch (IllegalArgumentException e1) {
             }
             content.cleanup();

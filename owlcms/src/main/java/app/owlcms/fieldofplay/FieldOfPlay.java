@@ -401,7 +401,7 @@ public class FieldOfPlay {
 
             if (ObjectUtils.equals(oldGroup, newGroup)) {
                 loadGroup(newGroup, this, true);
-                //SwitchGroup to self is used to refresh lists and should not cause end of a break.
+                // SwitchGroup to self is used to refresh lists and should not cause end of a break.
                 if (state == BREAK || state == INACTIVE) {
                     recomputeAndRefresh(e);
                 } else {
@@ -574,7 +574,7 @@ public class FieldOfPlay {
                 setState(DECISION_VISIBLE);
             } else if (e instanceof DecisionReset) {
                 logger.debug("{} resetting decisions", getName());
-                pushOut(new UIEvent.DecisionReset(getCurAthlete(),e.origin));
+                pushOut(new UIEvent.DecisionReset(getCurAthlete(), e.origin));
                 setClockOwner(null);
                 displayOrBreakIfDone(e);
             } else {
@@ -582,13 +582,6 @@ public class FieldOfPlay {
             }
             break;
         }
-    }
-
-    private void recomputeAndRefresh(FOPEvent e) {
-        recomputeLiftingOrder();
-        updateGlobalRankings();
-        pushOut(new UIEvent.SwitchGroup(this.getGroup(), this.getState(), this.getCurAthlete(),
-                e.getOrigin()));
     }
 
     public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer) {
@@ -783,6 +776,10 @@ public class FieldOfPlay {
         this.state = state;
     }
 
+    private void broadcast(String string) {
+        getUiEventBus().post(new UIEvent.Broadcast(string, this));
+    }
+
     private void displayOrBreakIfDone(FOPEvent e) {
         if (getCurAthlete() != null && getCurAthlete().getAttemptsDone() < 6) {
             uiDisplayCurrentAthleteAndTime(true, e, false);
@@ -795,12 +792,6 @@ public class FieldOfPlay {
             setState(BREAK);
             group.setDone(true);
         }
-    }
-
-    private void pushOutDone() {
-        logger.debug("group {} done", group);
-        UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
-        pushOut(event);
     }
 
     /**
@@ -957,6 +948,19 @@ public class FieldOfPlay {
                 showDecisionAfterDelay(this);
             }
         }
+    }
+
+    private void pushOutDone() {
+        logger.debug("group {} done", group);
+        UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
+        pushOut(event);
+    }
+
+    private void recomputeAndRefresh(FOPEvent e) {
+        recomputeLiftingOrder();
+        updateGlobalRankings();
+        pushOut(new UIEvent.SwitchGroup(this.getGroup(), this.getState(), this.getCurAthlete(),
+                e.getOrigin()));
     }
 
     private void recomputeLiftingOrder(boolean currentDisplayAffected) {
@@ -1238,10 +1242,6 @@ public class FieldOfPlay {
             setDownEmitted(true);
         }
         pushOut(new UIEvent.DownSignal(origin2));
-    }
-
-    private void broadcast(String string) {
-        getUiEventBus().post(new UIEvent.Broadcast(string, this));
     }
 
     private void uiShowPlates(BarbellOrPlatesChanged e) {

@@ -155,6 +155,11 @@ public class Platform implements Serializable, Comparable<Platform> {
     }
 
     @Override
+    public int compareTo(Platform o) {
+        return ObjectUtils.compare(this.getName(), o.getName(), true);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -630,11 +635,6 @@ public class Platform implements Serializable, Comparable<Platform> {
         logger.debug("SETTING platform {}: soundMixer={}", System.identityHashCode(this),
                 soundMixer == null ? null : soundMixer.getLineInfo());
         this.mixer = soundMixer;
-    }
-
-    @Override
-    public int compareTo(Platform o) {
-        return ObjectUtils.compare(this.getName(), o.getName(), true);
     }
 
 }

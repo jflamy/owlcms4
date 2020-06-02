@@ -39,9 +39,9 @@ public class LoggerUtils {
                 break;
             }
             if (i > 1) {
-                pw.println("\t"+string);
+                pw.println("\t" + string);
             }
-            
+
             i++;
         }
         return sw.toString();

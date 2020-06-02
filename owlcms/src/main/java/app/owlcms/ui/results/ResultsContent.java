@@ -87,11 +87,58 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         jexlLogger.setLevel(Level.ERROR);
     }
 
+    public static Grid<Athlete> createResultGrid() {
+        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
+        ThemeList themes = grid.getThemeNames();
+        themes.add("compact");
+        themes.add("row-stripes");
+
+        grid.addColumn("category").setHeader(Translator.translate("Category"))
+                .setComparator(new WinningOrderComparator(Ranking.TOTAL));
+        grid.addColumn("total").setHeader(Translator.translate("Total"));
+        grid.addColumn("totalRank").setHeader(Translator.translate("TotalRank"))
+                .setComparator(new WinningOrderComparator(Ranking.TOTAL));
+
+        grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
+        grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
+        grid.addColumn("team").setHeader(Translator.translate("Team"));
+        grid.addColumn("group").setHeader(Translator.translate("Group"));
+        grid.addColumn("bestSnatch").setHeader(Translator.translate("Snatch"));
+        grid.addColumn("snatchRank").setHeader(Translator.translate("SnatchRank"))
+                .setComparator(new WinningOrderComparator(Ranking.SNATCH));
+        grid.addColumn("bestCleanJerk").setHeader(Translator.translate("Clean_and_Jerk"));
+        grid.addColumn("cleanJerkRank").setHeader(Translator.translate("Clean_and_Jerk_Rank"))
+                .setComparator(new WinningOrderComparator(Ranking.CLEANJERK));
+
+        grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"), "robi")
+                .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI));
+        try {
+            String protocolFileName = Competition.getCurrent().getProtocolFileName();
+            if (protocolFileName != null && (protocolFileName.toLowerCase().contains("qc")
+                    || protocolFileName.toLowerCase().contains("quebec"))) {
+                // historical
+                grid.addColumn(
+                        new NumberRenderer<>(Athlete::getCategorySinclair, "%.3f", OwlcmsSession.getLocale(), "-"),
+                        "categorySinclair").setHeader("Cat. Sinclair")
+                        .setComparator(new WinningOrderComparator(Ranking.CAT_SINCLAIR));
+            }
+        } catch (IOException e) {
+        }
+        grid.addColumn(new NumberRenderer<>(Athlete::getSinclair, "%.3f", OwlcmsSession.getLocale(), "0.000"),
+                "sinclair").setHeader(Translator.translate("sinclair"))
+                .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR));
+        grid.addColumn(new NumberRenderer<>(Athlete::getSmm, "%.3f", OwlcmsSession.getLocale(), "-"), "smm")
+                .setHeader(Translator.translate("smm")).setSortProperty("smm")
+                .setComparator(new WinningOrderComparator(Ranking.SMM));
+        return grid;
+    }
+
     private Button download;
     private Anchor groupResults;
     private Group currentGroup;
     private JXLSResultSheet xlsWriter;
     private ComboBox<Resource> templateSelect;
+
     private Checkbox medalsOnly;
 
     /**
@@ -148,53 +195,6 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
         return crudGrid;
     }
 
-    public static Grid<Athlete> createResultGrid() {
-        Grid<Athlete> grid = new Grid<>(Athlete.class, false);
-        ThemeList themes = grid.getThemeNames();
-        themes.add("compact");
-        themes.add("row-stripes");
-
-        grid.addColumn("category").setHeader(Translator.translate("Category"))
-                .setComparator(new WinningOrderComparator(Ranking.TOTAL));
-        grid.addColumn("total").setHeader(Translator.translate("Total"));
-        grid.addColumn("totalRank").setHeader(Translator.translate("TotalRank"))
-                .setComparator(new WinningOrderComparator(Ranking.TOTAL));
-
-        grid.addColumn("lastName").setHeader(Translator.translate("LastName"));
-        grid.addColumn("firstName").setHeader(Translator.translate("FirstName"));
-        grid.addColumn("team").setHeader(Translator.translate("Team"));
-        grid.addColumn("group").setHeader(Translator.translate("Group"));
-        grid.addColumn("bestSnatch").setHeader(Translator.translate("Snatch"));
-        grid.addColumn("snatchRank").setHeader(Translator.translate("SnatchRank"))
-                .setComparator(new WinningOrderComparator(Ranking.SNATCH));
-        grid.addColumn("bestCleanJerk").setHeader(Translator.translate("Clean_and_Jerk"));
-        grid.addColumn("cleanJerkRank").setHeader(Translator.translate("Clean_and_Jerk_Rank"))
-                .setComparator(new WinningOrderComparator(Ranking.CLEANJERK));
-
-
-        grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"), "robi")
-                .setHeader(Translator.translate("robi")).setComparator(new WinningOrderComparator(Ranking.ROBI));
-        try {
-            String protocolFileName = Competition.getCurrent().getProtocolFileName();
-            if (protocolFileName != null && (protocolFileName.toLowerCase().contains("qc")
-                    || protocolFileName.toLowerCase().contains("quebec"))) {
-                // historical
-                grid.addColumn(
-                        new NumberRenderer<>(Athlete::getCategorySinclair, "%.3f", OwlcmsSession.getLocale(), "-"),
-                        "categorySinclair").setHeader("Cat. Sinclair")
-                        .setComparator(new WinningOrderComparator(Ranking.CAT_SINCLAIR));
-            }
-        } catch (IOException e) {
-        }
-        grid.addColumn(new NumberRenderer<>(Athlete::getSinclair, "%.3f", OwlcmsSession.getLocale(), "0.000"),
-                "sinclair").setHeader(Translator.translate("sinclair"))
-                .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR));
-        grid.addColumn(new NumberRenderer<>(Athlete::getSmm, "%.3f", OwlcmsSession.getLocale(), "-"), "smm")
-                .setHeader(Translator.translate("smm")).setSortProperty("smm")
-                .setComparator(new WinningOrderComparator(Ranking.SMM));
-        return grid;
-    }
-
     /**
      * Get the content of the crudGrid. Invoked by refreshGrid.
      *
@@ -202,7 +202,8 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     public Collection<Athlete> findAll() {
-        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(), genderFilter.getValue(), true);
+        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(),
+                genderFilter.getValue(), true);
         AthleteSorter.resultsOrder(athletes, Ranking.SNATCH);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
         AthleteSorter.resultsOrder(athletes, Ranking.CLEANJERK);
@@ -421,7 +422,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             crud.refreshGrid();
         });
         crud.getCrudLayout().addFilterComponent(medalsOnly);
-        
+
         genderFilter.setPlaceholder(getTranslation("Gender"));
         genderFilter.setItems(Gender.M, Gender.F);
         genderFilter.setItemLabelGenerator((i) -> {

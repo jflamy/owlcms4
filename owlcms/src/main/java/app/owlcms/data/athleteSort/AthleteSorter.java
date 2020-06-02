@@ -36,7 +36,7 @@ public class AthleteSorter implements Serializable {
     public enum Ranking {
         SNATCH, CLEANJERK, TOTAL,
         /** combined (men + women). */
-        COMBINED, 
+        COMBINED,
 //        SINCLAIR, // cat, bw or smm depending on competition parameters
         CAT_SINCLAIR, // legacy Quebec federation, Sinclair computed at category boundary
         BW_SINCLAIR, // normal sinclair
@@ -100,8 +100,9 @@ public class AthleteSorter implements Serializable {
                     setRank(curLifter, 0, rankingType);
                     rank++;
                 }
-                
-                // some competitions allow substitutes/non-team members to participate and earn medals but not score points
+
+                // some competitions allow substitutes/non-team members to participate and earn medals but not score
+                // points
                 // unless explicitly named as part of team
                 if (curLifter.isEligibleForTeamRanking()) {
                     final float points = computePoints(curLifter, rankingType);
@@ -452,7 +453,7 @@ public class AthleteSorter implements Serializable {
             break;
         case CAT_SINCLAIR:
             curLifter.setCatSinclairRank(i);
-            break;   
+            break;
         case ROBI:
             curLifter.setRobiRank(i);
             break;

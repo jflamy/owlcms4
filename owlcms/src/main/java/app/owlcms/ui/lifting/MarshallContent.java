@@ -48,7 +48,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 
     /**
      * Use lifting order instead of display order
-     * 
+     *
      * @see app.owlcms.ui.shared.AthleteGridContent#findAll()
      */
     @Override

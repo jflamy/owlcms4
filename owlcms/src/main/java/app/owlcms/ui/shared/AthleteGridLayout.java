@@ -44,6 +44,15 @@ public class AthleteGridLayout extends OwlcmsRouterLayout implements PageConfigu
     }
 
     @Override
+    public void configurePage(InitialPageSettings settings) {
+        settings.addMetaTag("mobile-web-app-capable", "yes");
+        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
+        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
+        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
+        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
+    }
+
+    @Override
     public void showRouterLayoutContent(HasElement content) {
         logger.debug("AthleteGridLayout setting bi-directional link");
         super.showRouterLayoutContent(content);
@@ -63,14 +72,5 @@ public class AthleteGridLayout extends OwlcmsRouterLayout implements PageConfigu
         appLayout.getTitleWrapper().getElement().getStyle().set("display", "none");
         // .set("flex", "0 1 0px");
         return appLayout;
-    }
-    
-    @Override
-    public void configurePage(InitialPageSettings settings) {
-        settings.addMetaTag("mobile-web-app-capable", "yes");
-        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
-        settings.addLink("shortcut icon", "frontend/images/owlcms.ico");
-        settings.addFavIcon("icon", "frontend/images/logo.png", "96x96");
-        settings.setViewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes");
     }
 }

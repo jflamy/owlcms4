@@ -277,7 +277,7 @@ public class RegistrationContent extends VerticalLayout implements CrudListener<
         });
         weighedInFilter.setWidth("10em");
         crudGrid.getCrudLayout().addFilterComponent(weighedInFilter);
-        
+
         genderFilter.setPlaceholder(getTranslation("Gender"));
         genderFilter.setItems(Gender.M, Gender.F);
         genderFilter.setItemLabelGenerator((i) -> {

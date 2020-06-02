@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 //
@@ -61,16 +61,12 @@ import ch.qos.logback.classic.Logger;
 /**
  * Modified to fetch files under the ./local directory relative to the startup directory and, failing that, as a
  * resource on the classpath.
- * 
+ *
  * @author Jean-François Lamy
  *
  */
 @WebServlet("/local/*")
 public class FileServlet extends HttpServlet {
-
-    private static final long serialVersionUID = -4889625575833532034L;
-
-    // Constants ----------------------------------------------------------------------------------
 
     /**
      * This class represents a byte range.
@@ -83,7 +79,7 @@ public class FileServlet extends HttpServlet {
 
         /**
          * Construct a byte range.
-         * 
+         *
          * @param start Start of the byte range.
          * @param end   End of the byte range.
          * @param total Total length of the byte source.
@@ -97,6 +93,10 @@ public class FileServlet extends HttpServlet {
 
     }
 
+    // Constants ----------------------------------------------------------------------------------
+
+    private static final long serialVersionUID = -4889625575833532034L;
+
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
     private static final long DEFAULT_EXPIRE_TIME = 604800000L; // ..ms = 1 week.
 
@@ -108,7 +108,7 @@ public class FileServlet extends HttpServlet {
 
     /**
      * Returns true if the given accept header accepts the given value.
-     * 
+     *
      * @param acceptHeader The accept header.
      * @param toAccept     The value to be accepted.
      * @return True if the given accept header accepts the given value.
@@ -123,7 +123,7 @@ public class FileServlet extends HttpServlet {
 
     /**
      * Close the given resource.
-     * 
+     *
      * @param resource The resource to be closed.
      */
     private static void close(Closeable resource) {
@@ -139,7 +139,7 @@ public class FileServlet extends HttpServlet {
 
     /**
      * Copy the given byte range of the given input to the given output.
-     * 
+     *
      * @param input  The input to copy the given range to the given output for.
      * @param output The output to copy the given range from the given input for.
      * @param start  Start of the byte range.
@@ -174,7 +174,7 @@ public class FileServlet extends HttpServlet {
 
     /**
      * Returns true if the given match header matches the given value.
-     * 
+     *
      * @param matchHeader The match header.
      * @param toMatch     The value to be matched.
      * @return True if the given match header matches the given value.
@@ -191,7 +191,7 @@ public class FileServlet extends HttpServlet {
     /**
      * Returns a substring of the given string value from the given begin index to the given end index as a long. If the
      * substring is empty, then -1 will be returned
-     * 
+     *
      * @param value      The string value to return a substring as long for.
      * @param beginIndex The begin index of the substring to be returned as long.
      * @param endIndex   The end index of the substring to be returned as long.
@@ -207,7 +207,7 @@ public class FileServlet extends HttpServlet {
 
     /**
      * Initialize the servlet.
-     * 
+     *
      * @see HttpServlet#init().
      */
     @Override
@@ -237,8 +237,38 @@ public class FileServlet extends HttpServlet {
     }
 
     /**
+     * Resolves an untrusted user-specified path against the API's base directory. Paths that try to escape the base
+     * directory are rejected.
+     *
+     * @param baseDirPath the absolute path of the base directory that all user-specified paths should be within
+     * @param userPath    the untrusted path provided by the API user, expected to be relative to {@code baseDirPath}
+     */
+    public Path resolvePath(final Path baseDirPath, final Path userPath) throws IllegalArgumentException {
+        if (!baseDirPath.isAbsolute()) {
+            throw new IllegalArgumentException("Base path must be absolute");
+        }
+
+        if (userPath.isAbsolute()) {
+            throw new IllegalArgumentException("User path must be relative");
+        }
+
+        // Join the two paths together, then normalize so that any ".." elements
+        // in the userPath can remove parts of baseDirPath.
+        // (e.g. "/foo/bar/baz" + "../attack" -> "/foo/bar/attack")
+        final Path resolvedPath = baseDirPath.resolve(userPath).normalize();
+
+        // Make sure the resulting path is still within the required directory.
+        // (In the example above, "/foo/bar/attack" is not.)
+        if (!resolvedPath.startsWith(baseDirPath)) {
+            throw new IllegalArgumentException("User path escapes the base path");
+        }
+
+        return resolvedPath;
+    }
+
+    /**
      * Process GET request.
-     * 
+     *
      * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse).
      */
     @Override
@@ -248,9 +278,11 @@ public class FileServlet extends HttpServlet {
         processRequest(request, response, true);
     }
 
+    // Inner classes ------------------------------------------------------------------------------
+
     /**
      * Process HEAD request. This returns the same headers as GET request, but without content.
-     * 
+     *
      * @see HttpServlet#doHead(HttpServletRequest, HttpServletResponse).
      */
     @Override
@@ -260,11 +292,76 @@ public class FileServlet extends HttpServlet {
         processRequest(request, response, false);
     }
 
-    // Inner classes ------------------------------------------------------------------------------
+    private File getFileFromPathInfo(HttpServletResponse response, String requestedFile)
+            throws IOException, UnsupportedEncodingException {
+
+        // Check if file is actually supplied to the request URL.
+        if (requestedFile == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return null;
+        }
+
+        if (requestedFile.startsWith("/")) {
+            // comes from URL, strip
+            requestedFile = requestedFile.substring(1);
+        }
+
+        Path finalPath;
+        try {
+            // URL-decode the file name (might contain spaces and on) and prepare file object.
+            logger.debug("requestedFile {}", requestedFile);
+            String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
+            Path relativePath = Paths.get(relativeFileName);
+
+            // check that file is inside basepath
+
+            finalPath = resolvePath(basePath, relativePath);
+            // Check if file actually exists in filesystem.
+            if (!Files.exists(finalPath)) {
+                // if there is no override in /local on disk, look for resource on classpath
+                // we need a file so we use the zipfilesystem.
+                String resourceName = "/" + relativeFileName;
+                URL resource = getClass().getResource(resourceName);
+                if (resource != null) {
+                    URI resourcesURI = resource.toURI();
+                    Path resourcePath = Paths.get(resourcesURI);
+                    if (!Files.exists(resourcePath)) {
+                        logger./**/error("file not found on classpath {}", resourcePath);
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        return null;
+                    } else {
+                        logger.debug("found Classpath/Jar File: {}", resourcePath.toRealPath());
+                        return resourcePath.toFile();
+                    }
+                } else {
+                    logger./**/error("resource not found on classpath {}", resourceName);
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    return null;
+                }
+            }
+            logger.debug("found Filesystem File: {}", finalPath.toRealPath());
+            return finalPath.toFile();
+        } catch (IllegalArgumentException e) {
+            logger.error(e.getLocalizedMessage());
+            response.getWriter().print(e.getLocalizedMessage());
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return null;
+        } catch (URISyntaxException e) {
+            logger.error(e.getLocalizedMessage());
+            response.getWriter().print(e.getLocalizedMessage());
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return null;
+        } catch (Exception e) {
+            logger.error(LoggerUtils.stackTrace(e));
+            response.getWriter().print(e.getLocalizedMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return null;
+        }
+    }
 
     /**
      * Process the actual request.
-     * 
+     *
      * @param request  The request to be processed.
      * @param response The response to be created.
      * @param content  Whether the request body should be written (GET) or not (HEAD).
@@ -501,103 +598,6 @@ public class FileServlet extends HttpServlet {
             close(output);
             close(input);
         }
-    }
-
-    private File getFileFromPathInfo(HttpServletResponse response, String requestedFile)
-            throws IOException, UnsupportedEncodingException {
-
-        // Check if file is actually supplied to the request URL.
-        if (requestedFile == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return null;
-        }
-
-        if (requestedFile.startsWith("/")) {
-            // comes from URL, strip
-            requestedFile = requestedFile.substring(1);
-        }
-
-        Path finalPath;
-        try {
-            // URL-decode the file name (might contain spaces and on) and prepare file object.
-            logger.debug("requestedFile {}", requestedFile);
-            String relativeFileName = URLDecoder.decode(requestedFile, "UTF-8");
-            Path relativePath = Paths.get(relativeFileName);
-
-            // check that file is inside basepath
-
-            finalPath = resolvePath(basePath, relativePath);
-            // Check if file actually exists in filesystem.
-            if (!Files.exists(finalPath)) {
-                // if there is no override in /local on disk, look for resource on classpath
-                // we need a file so we use the zipfilesystem.
-                String resourceName = "/"+relativeFileName;
-                URL resource = getClass().getResource(resourceName);
-                if (resource != null) {
-                    URI resourcesURI = resource.toURI();
-                    Path resourcePath = Paths.get(resourcesURI);
-                    if (!Files.exists(resourcePath)) {
-                        logger./**/error("file not found on classpath {}",resourcePath);
-                        response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                        return null;
-                    } else {
-                        logger.debug("found Classpath/Jar File: {}", resourcePath.toRealPath());
-                        return resourcePath.toFile();
-                    }
-                } else {
-                    logger./**/error("resource not found on classpath {}",resourceName);
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                    return null;
-                }
-            }
-            logger.debug("found Filesystem File: {}", finalPath.toRealPath());
-            return finalPath.toFile();
-        } catch (IllegalArgumentException e) {
-            logger.error(e.getLocalizedMessage());
-            response.getWriter().print(e.getLocalizedMessage());
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
-            return null;
-        } catch (URISyntaxException e) {
-            logger.error(e.getLocalizedMessage());
-            response.getWriter().print(e.getLocalizedMessage());
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return null;
-        } catch (Exception e) {
-            logger.error(LoggerUtils.stackTrace(e));
-            response.getWriter().print(e.getLocalizedMessage());
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return null;
-        }
-    }
-
-    /**
-     * Resolves an untrusted user-specified path against the API's base directory. Paths that try to escape the base
-     * directory are rejected.
-     *
-     * @param baseDirPath the absolute path of the base directory that all user-specified paths should be within
-     * @param userPath    the untrusted path provided by the API user, expected to be relative to {@code baseDirPath}
-     */
-    public Path resolvePath(final Path baseDirPath, final Path userPath) throws IllegalArgumentException {
-        if (!baseDirPath.isAbsolute()) {
-            throw new IllegalArgumentException("Base path must be absolute");
-        }
-
-        if (userPath.isAbsolute()) {
-            throw new IllegalArgumentException("User path must be relative");
-        }
-
-        // Join the two paths together, then normalize so that any ".." elements
-        // in the userPath can remove parts of baseDirPath.
-        // (e.g. "/foo/bar/baz" + "../attack" -> "/foo/bar/attack")
-        final Path resolvedPath = baseDirPath.resolve(userPath).normalize();
-
-        // Make sure the resulting path is still within the required directory.
-        // (In the example above, "/foo/bar/attack" is not.)
-        if (!resolvedPath.startsWith(baseDirPath)) {
-            throw new IllegalArgumentException("User path escapes the base path");
-        }
-
-        return resolvedPath;
     }
 
 }

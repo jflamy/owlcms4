@@ -61,6 +61,10 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
         initLayoutGrid();
     }
 
+    public void sort(List<GridSortOrder<T>> sortOrder) {
+        grid.sort(sortOrder);
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -79,6 +83,12 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
             refreshGrid();
             throw e2;
         }
+    }
+
+    @Override
+    protected void findAllButtonClicked() {
+        grid.sort(null); // reset the sorting order to none - use the query result set as is.
+        super.findAllButtonClicked();
     }
 
     /**
@@ -141,12 +151,6 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
         updateButtons();
     }
 
-    @Override
-    protected void findAllButtonClicked() {
-        grid.sort(null); // reset the sorting order to none - use the query result set as is.
-        super.findAllButtonClicked();
-    }
-
     /**
      * Show form with a delete button.
      *
@@ -182,10 +186,6 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
         String caption = this.owlcmsCrudFormFactory.buildCaption(operation, domainObject);
         owlcmsGridLayout.showForm(operation, form, caption);
-    }
-
-    public void sort(List<GridSortOrder<T>> sortOrder) {
-        grid.sort(sortOrder);
     }
 
 }

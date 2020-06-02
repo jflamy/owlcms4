@@ -253,7 +253,7 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
             crudGrid.refreshGrid();
         });
         crudGrid.getCrudLayout().addFilterComponent(weighedInFilter);
-        
+
         genderFilter.setPlaceholder(getTranslation("Gender"));
         genderFilter.setItems(Gender.M, Gender.F);
         genderFilter.setItemLabelGenerator((i) -> {
@@ -322,10 +322,10 @@ public class WeighinContent extends VerticalLayout implements CrudListener<Athle
 
         props.add("lotNumber");
         captions.add(getTranslation("Lot"));
-        
+
         props.add("eligibleForIndividualRanking");
         captions.add(getTranslation("Eligible for Individual Ranking?"));
-        
+
         props.add("eligibleForTeamRanking");
         captions.add(getTranslation("TeamMember?"));
 

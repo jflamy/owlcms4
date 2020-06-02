@@ -173,11 +173,11 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
     Logger logger = (Logger) LoggerFactory.getLogger(JXLSTimingStats.class);
 
-    public JXLSTimingStats(UI ui) {
+    public JXLSTimingStats(Group group, boolean excludeNotWeighed, UI ui) {
         super(ui);
     }
 
-    public JXLSTimingStats(Group group, boolean excludeNotWeighed, UI ui) {
+    public JXLSTimingStats(UI ui) {
         super(ui);
     }
 

@@ -43,15 +43,15 @@ import ch.qos.logback.classic.Logger;
 public class EmbeddedJetty {
     private final static Logger logger = (Logger) LoggerFactory.getLogger(EmbeddedJetty.class);
     private final static Logger startLogger = (Logger) LoggerFactory.getLogger(Main.class);
-    
-    private CountDownLatch latch;
 
-    public EmbeddedJetty(CountDownLatch latch) {
-        this.latch = latch;
-    }
+    private CountDownLatch latch;
 
     public EmbeddedJetty() {
         this.latch = new CountDownLatch(0);
+    }
+
+    public EmbeddedJetty(CountDownLatch latch) {
+        this.latch = latch;
     }
 
     /**
@@ -72,13 +72,13 @@ public class EmbeddedJetty {
         context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*");
         context.setConfigurationDiscovered(true);
         context.setConfigurations(new Configuration[] {
-                new AnnotationConfiguration(), 
+                new AnnotationConfiguration(),
                 new WebInfConfiguration(),
                 new WebXmlConfiguration(),
-                new MetaInfConfiguration(), 
+                new MetaInfConfiguration(),
                 new FragmentConfiguration(),
-                new EnvConfiguration(), 
-                new PlusConfiguration(), 
+                new EnvConfiguration(),
+                new PlusConfiguration(),
                 new JettyWebXmlConfiguration()
         });
         Context servletContext = context.getServletContext();

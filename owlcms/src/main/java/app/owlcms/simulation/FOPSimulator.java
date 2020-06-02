@@ -49,6 +49,8 @@ public class FOPSimulator implements Runnable {
 
     static Map<Platform, List<Group>> groupsByPlatform = new TreeMap<>();
 
+    private static Random r = new Random(0);
+
     public static void runSimulation() {
         uiEventLogger.setLevel(Level.DEBUG);
         try {
@@ -82,15 +84,22 @@ public class FOPSimulator implements Runnable {
 //        for (Platform p: ps) {
 //            FieldOfPlay f = OwlcmsFactory.getFOPByName(p.getName());
 //            LATER create more listeners.
-            FieldOfPlay f = OwlcmsFactory.getFOPByName(ps.get(0).getName());
-            FOPSimulator fopSimulator = new FOPSimulator(f);
-            fopSimulator.run();
+        FieldOfPlay f = OwlcmsFactory.getFOPByName(ps.get(0).getName());
+        FOPSimulator fopSimulator = new FOPSimulator(f);
+        fopSimulator.run();
 //        }
+    }
+
+    static <K, V> Map<V, K> invertMap(Map<K, V> map) {
+        if (map == null) {
+            return Collections.emptyMap();
+        }
+        return map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
     }
 
     private static List<Athlete> weighIn(Group g) {
         List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, null);
-        for (Athlete a: as) {
+        for (Athlete a : as) {
             Category c = a.getCategory();
             Double catLimit = c.getMaximumWeight();
             if (catLimit > 998) {
@@ -108,19 +117,11 @@ public class FOPSimulator implements Runnable {
         return as;
     }
 
-    static <K, V> Map<V, K> invertMap(Map<K, V> map) {
-        if (map == null) {
-            return Collections.emptyMap();
-        }
-        return map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-    }
-
     private EventBus fopEventBus;
+
     private EventBus uiEventBus;
 
     private Object origin;
-
-    private static Random r = new Random(0);
 
     private FieldOfPlay fop;
 

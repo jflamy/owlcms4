@@ -205,9 +205,11 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
         lightBar.addFormItem(barWeight, getTranslation("BarWeight"));
         int min = 1;
         int max = 20;
-        IntegerRangeValidator integerValidator = new IntegerRangeValidator(getTranslation("BetweenValues", min, max), min, max);
+        IntegerRangeValidator integerValidator = new IntegerRangeValidator(getTranslation("BetweenValues", min, max),
+                min, max);
         binder.forField(barWeight).withConverter(converter)
-                .withValidator((v,c) -> BooleanUtils.isTrue(useOtherBar.getValue()) ? integerValidator.apply(v, c) : ValidationResult.ok())
+                .withValidator((v, c) -> BooleanUtils.isTrue(useOtherBar.getValue()) ? integerValidator.apply(v, c)
+                        : ValidationResult.ok())
                 .bind(Platform::getLightBar, Platform::setLightBar);
 
         VerticalLayout platesDisplay = new VerticalLayout(plates);

@@ -29,17 +29,18 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class JXLSStartingList extends JXLSWorkbookStreamSource {
 
-    public JXLSStartingList(UI ui) {
-        super(ui);
-    }
-
     final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSStartingList.class);
+
     final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
     final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
     static {
         logger.setLevel(Level.INFO);
         jexlLogger.setLevel(Level.ERROR);
         tagLogger.setLevel(Level.ERROR);
+    }
+
+    public JXLSStartingList(UI ui) {
+        super(ui);
     }
 
     @Override

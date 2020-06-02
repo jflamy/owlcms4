@@ -230,8 +230,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
         // This allows us to use the rich validation methods coded in the Athlete class
         // as opposed to tedious validations on the form fields using getValue().
         setEditedAthlete(new Athlete());
-        
-        // don't trust the athlete received as parameter.  Fetch from database in case the athlete was edited
+
+        // don't trust the athlete received as parameter. Fetch from database in case the athlete was edited
         // on some other screen.
         originalAthlete = aFromList;
         Athlete aFromDb = AthleteRepository.findById(aFromList.getId());

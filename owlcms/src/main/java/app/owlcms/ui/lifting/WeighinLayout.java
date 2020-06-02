@@ -214,7 +214,8 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
             return;
         }
         JPAService.runInTransaction((em) -> {
-            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null, (Gender) null);
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, null,
+                    (Gender) null);
             for (Athlete a : currentGroupAthletes) {
                 a.setStartNumber(0);
             }
@@ -230,7 +231,8 @@ public class WeighinLayout extends OwlcmsRouterLayout implements SafeEventBusReg
             return;
         }
         JPAService.runInTransaction((em) -> {
-            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true, (Gender) null);
+            List<Athlete> currentGroupAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, group, true,
+                    (Gender) null);
             AthleteSorter.displayOrder(currentGroupAthletes);
             AthleteSorter.assignStartNumbers(currentGroupAthletes);
             return currentGroupAthletes;

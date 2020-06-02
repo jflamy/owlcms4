@@ -279,10 +279,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         });
     }
 
-    private boolean isDone() {
-        return this.groupDone;
-    }
-
     @Subscribe
     public void slaveDownSignal(UIEvent.DownSignal e) {
         uiLog(e);
@@ -304,10 +300,6 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
 //          Group g = e.getGroup();
             setDone(true);
         });
-    }
-
-    private void setDone(boolean b) {
-        this.groupDone = b;
     }
 
     @Subscribe
@@ -619,6 +611,14 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
         });
         setTranslationMap();
         order = ImmutableList.of();
+    }
+
+    private boolean isDone() {
+        return this.groupDone;
+    }
+
+    private void setDone(boolean b) {
+        this.groupDone = b;
     }
 
     private void syncWithFOP(UIEvent.SwitchGroup e) {

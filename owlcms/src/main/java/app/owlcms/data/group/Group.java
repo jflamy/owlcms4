@@ -353,6 +353,10 @@ public class Group implements Comparable<Group> {
                 referee1, referee2, referee3, technicalController, timeKeeper, weighInTime);
     }
 
+    public boolean isDone() {
+        return done;
+    }
+
     /**
      * Sets the announcer.
      *
@@ -369,6 +373,14 @@ public class Group implements Comparable<Group> {
      */
     public void setCompetitionTime(LocalDateTime c) {
         this.competitionTime = c;
+    }
+
+    public void setDone(boolean b) {
+        logger.debug("done? {} previous={} done={} [{}]", getName(), this.done, b, LoggerUtils.whereFrom());
+        if (this.done != b) {
+            this.done = b;
+            GroupRepository.save(this);
+        }
     }
 
     /**
@@ -490,18 +502,6 @@ public class Group implements Comparable<Group> {
     @Override
     public String toString() {
         return getName();
-    }
-
-    public void setDone(boolean b) {
-        logger.debug("done? {} previous={} done={} [{}]", getName(), this.done, b, LoggerUtils.whereFrom());
-        if (this.done != b) {
-            this.done = b;
-            GroupRepository.save(this);
-        }
-    }
-
-    public boolean isDone() {
-        return done;
     }
 
 }

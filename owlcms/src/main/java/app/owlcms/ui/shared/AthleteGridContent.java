@@ -206,26 +206,11 @@ public abstract class AthleteGridContent extends VerticalLayout
         crudLayout.hideForm();
         crudGrid.getGrid().asSingleSelect().clear();
     }
-    
-    @Override
-    public OwlcmsCrudGrid<?> getEditingGrid() {
-        return crudGrid;
-    }
 
     public HorizontalLayout createTopBarLeft() {
         setTopBarLeft(new HorizontalLayout());
         fillTopBarLeft();
         return getTopBarLeft();
-    }
-
-    protected void fillTopBarLeft() {
-        title = new H3();
-        title.setText(getTopBarTitle());
-        title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
-        getTopBarLeft().add(title, topBarGroupSelect);
-        getTopBarLeft().setAlignItems(Alignment.CENTER);
-        getTopBarLeft().setPadding(true);
-        getTopBarLeft().setId("topBarLeft");
     }
 
     /**
@@ -264,6 +249,15 @@ public abstract class AthleteGridContent extends VerticalLayout
         }
     }
 
+    @Override
+    public OwlcmsCrudGrid<?> getEditingGrid() {
+        return crudGrid;
+    }
+
+    public H2 getFirstNameWrapper() {
+        return firstNameWrapper;
+    }
+
     /**
      * @return the groupFilter
      */
@@ -300,6 +294,10 @@ public abstract class AthleteGridContent extends VerticalLayout
 
     }
 
+    public void setFirstNameWrapper(H2 firstNameWrapper) {
+        this.firstNameWrapper = firstNameWrapper;
+    }
+
     @Override
     public void setLocation(Location location) {
         this.location = location;
@@ -333,25 +331,6 @@ public abstract class AthleteGridContent extends VerticalLayout
     }
 
     @Subscribe
-    public void slaveBroadcast(UIEvent.Broadcast e) {
-        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
-            Icon close = VaadinIcon.CLOSE_CIRCLE_O.create();
-            close.getStyle().set("margin-left", "2em");
-            close.setSize("4em");
-            Notification notification = new Notification();
-            Label label = new Label();
-            label.getElement().setProperty("innerHTML", getTranslation(e.getMessage()));
-            HorizontalLayout content = new HorizontalLayout(label, close);
-            notification.add(content);
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-            notification.setDuration(-1);
-            close.addClickListener(event -> notification.close());
-            notification.setPosition(Position.MIDDLE);
-            notification.open();
-        });
-    }
-    
-    @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
         UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
             logger.debug("stopping break");
@@ -371,6 +350,25 @@ public abstract class AthleteGridContent extends VerticalLayout
                 logger.debug("starting break {}", LoggerUtils.stackTrace());
             }
             syncWithFOP(true);
+        });
+    }
+
+    @Subscribe
+    public void slaveBroadcast(UIEvent.Broadcast e) {
+        UIEventProcessor.uiAccess(topBarGroupSelect, uiEventBus, e, () -> {
+            Icon close = VaadinIcon.CLOSE_CIRCLE_O.create();
+            close.getStyle().set("margin-left", "2em");
+            close.setSize("4em");
+            Notification notification = new Notification();
+            Label label = new Label();
+            label.getElement().setProperty("innerHTML", getTranslation(e.getMessage()));
+            HorizontalLayout content = new HorizontalLayout(label, close);
+            notification.add(content);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setDuration(-1);
+            close.addClickListener(event -> notification.close());
+            notification.setPosition(Position.MIDDLE);
+            notification.open();
         });
     }
 
@@ -748,8 +746,8 @@ public abstract class AthleteGridContent extends VerticalLayout
 //                        logger.debug("filter switching group from {} to {}",
 //                                oldGroup != null ? oldGroup.getName() : null,
 //                                newGroup != null ? newGroup.getName() : null);
-                        fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
-                        oldGroup = newGroup;
+                    fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
+                    oldGroup = newGroup;
 //                        // we listen to the UI switch group that will result from the FOP switchgroup
 //                    } else {
 //                        // loadGroup will emit FOP SwitchGroup which will emit UI switchgroup that we listen to .
@@ -809,8 +807,22 @@ public abstract class AthleteGridContent extends VerticalLayout
         });
     }
 
+    protected void fillTopBarLeft() {
+        title = new H3();
+        title.setText(getTopBarTitle());
+        title.getStyle().set("margin-top", "0px").set("margin-bottom", "0px").set("font-weight", "normal");
+        getTopBarLeft().add(title, topBarGroupSelect);
+        getTopBarLeft().setAlignItems(Alignment.CENTER);
+        getTopBarLeft().setPadding(true);
+        getTopBarLeft().setId("topBarLeft");
+    }
+
     protected Object getOrigin() {
         return this;
+    }
+
+    protected HorizontalLayout getTopBarLeft() {
+        return topBarLeft;
     }
 
     protected String getTopBarTitle() {
@@ -851,6 +863,10 @@ public abstract class AthleteGridContent extends VerticalLayout
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
+    }
+
+    protected void setTopBarLeft(HorizontalLayout topBarLeft) {
+        this.topBarLeft = topBarLeft;
     }
 
     /**
@@ -1053,22 +1069,6 @@ public abstract class AthleteGridContent extends VerticalLayout
             n.add(label);
             n.open();
         }
-    }
-
-    public H2 getFirstNameWrapper() {
-        return firstNameWrapper;
-    }
-
-    public void setFirstNameWrapper(H2 firstNameWrapper) {
-        this.firstNameWrapper = firstNameWrapper;
-    }
-
-    protected HorizontalLayout getTopBarLeft() {
-        return topBarLeft;
-    }
-
-    protected void setTopBarLeft(HorizontalLayout topBarLeft) {
-        this.topBarLeft = topBarLeft;
     }
 
 }

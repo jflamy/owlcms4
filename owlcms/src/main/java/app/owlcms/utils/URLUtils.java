@@ -52,6 +52,11 @@ public class URLUtils {
         return result.toString();
     }
 
+    public static String buildAbsoluteURL(String string) {
+        return URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
+                string);
+    }
+
     public static String cleanURL(URL siteURL, String siteExternalForm) {
         if (siteURL.getProtocol().equals("http")) {
             siteExternalForm = siteExternalForm.replaceFirst(":80/", "");
@@ -108,7 +113,7 @@ public class URLUtils {
                 relativeURL);
         return absoluteURL;
     }
-    
+
     public static <T extends Component & HasUrlParameter<String>> String getUrlFromTargetClass(Class<T> class1,
             String parameter) {
         RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();
@@ -138,12 +143,5 @@ public class URLUtils {
         }
         return name;
     }
-
-    public static String buildAbsoluteURL(String string) {
-        return URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
-                string);
-    }
-
-
 
 }

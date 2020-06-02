@@ -75,7 +75,7 @@ class GroupEditingFormFactory extends OwlcmsCrudFormFactory<Group> {
                     throw new RuntimeException("competitionTime field not defined");
                 }
             });
-        } 
+        }
         super.bindField(field, property, propertyType);
     }
 

@@ -20,7 +20,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 public class TeamTreeItem {
-    
+
     @SuppressWarnings("unused")
     private final static Logger logger = (Logger) LoggerFactory.getLogger(TeamTreeItem.class);
 
@@ -33,7 +33,7 @@ public class TeamTreeItem {
         compare = -ObjectUtils.compare(a.getPoints(), b.getPoints(), true);
         return compare;
     });
-    
+
     public static Comparator<TeamTreeItem> scoreComparator = ((a, b) -> {
         int compare = 0;
         compare = ObjectUtils.compare(a.getGender(), b.getGender(), true);
@@ -43,7 +43,6 @@ public class TeamTreeItem {
         compare = -ObjectUtils.compare(a.getScore(), b.getScore(), true);
         return compare;
     });
-
 
     private Athlete athlete;
     private boolean done;
@@ -76,17 +75,17 @@ public class TeamTreeItem {
         }
     }
 
-    public String formatScore() {
-        Integer pts = getPoints();
-        return (pts == null ? "" : Integer.toString(pts));
-    }
-
     public String formatProgress() {
         if (athlete != null) {
             return isDone() ? Translator.translate("Done") : "";
         } else {
             return getTeam().getCounted() + "/" + getTeam().getSize();
         }
+    }
+
+    public String formatScore() {
+        Integer pts = getPoints();
+        return (pts == null ? "" : Integer.toString(pts));
     }
 
     public Athlete getAthlete() {
@@ -123,6 +122,16 @@ public class TeamTreeItem {
 
     public TeamTreeItem getParent() {
         return parent;
+    }
+
+    public Integer getPoints() {
+        Integer pts;
+        if (athlete == null) {
+            pts = getTeam().getPoints();
+        } else {
+            pts = isDone() ? getTotalPoints() : null;
+        }
+        return pts;
     }
 
     public Double getScore() {
@@ -170,16 +179,6 @@ public class TeamTreeItem {
 
     public void setTeamMembers(List<TeamTreeItem> teamMembers) {
         this.teamMembers = teamMembers;
-    }
-
-    public Integer getPoints() {
-        Integer pts;
-        if (athlete == null) {
-            pts = getTeam().getPoints();
-        } else {
-            pts = isDone() ? getTotalPoints() : null;
-        }
-        return pts;
     }
 
     private boolean isDone() {

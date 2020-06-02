@@ -111,6 +111,16 @@ public class AthleteTimerElement extends TimerElement {
         // server-side timer issuing a command. Otherwise we create an infinite loop.
     }
 
+    public void detach() {
+        OwlcmsSession.withFop(fop -> {
+            try {
+                fop.getFopEventBus().unregister(this);
+            } catch (Exception e) {
+                // ignored
+            }
+        });
+    }
+
     /**
      * @return the origin
      */
@@ -183,16 +193,6 @@ public class AthleteTimerElement extends TimerElement {
             doSetTimer(fop.getAthleteTimer().getTimeRemaining());
             // we listen on uiEventBus; this method ensures we stop when detached.
             uiEventBusRegister(this, fop);
-        });
-    }
-
-    public void detach() {
-        OwlcmsSession.withFop(fop -> {
-            try {
-                fop.getFopEventBus().unregister(this);
-            } catch (Exception e) {
-                // ignored
-            }
         });
     }
 

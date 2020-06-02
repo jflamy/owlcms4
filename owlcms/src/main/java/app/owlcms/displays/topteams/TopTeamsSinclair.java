@@ -69,7 +69,8 @@ import elemental.json.JsonValue;
 @Route("displays/topteamsinclair")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @Push
-public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsSinclairModel> implements DarkModeParameters,
+public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsSinclairModel>
+        implements DarkModeParameters,
         SafeEventBusRegistration, UIEventProcessor, BreakDisplay, HasDynamicTitle, RequireLogin, PageConfigurator {
 
     /**
@@ -158,34 +159,6 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         updateBottom(getModel());
     }
 
-    private List<TeamTreeItem> topN(List<TeamTreeItem> list) {
-        int size = list.size();
-        if (size > 0) {
-            int min = Math.min(size, TOP_N);
-            list = list.subList(0, min);
-        }
-        return list;
-    }
-
-    private void getTeamJson(Team t, JsonObject ja, Gender g) {
-        ja.put("team", t.getName());
-        ja.put("counted", formatInt(t.getCounted()));
-        ja.put("size", formatInt((int) t.getSize()));
-        ja.put("score", formatDouble(t.getScore()));
-        ja.put("points", formatInt(t.getPoints()));
-    }
-
-    private String formatDouble(double d) {
-        if (floatFormat == null) {
-            floatFormat = new DecimalFormat();
-            floatFormat.setMinimumIntegerDigits(1);
-            floatFormat.setMaximumFractionDigits(3);
-            floatFormat.setMinimumFractionDigits(3);
-            floatFormat.setGroupingUsed(false);
-        }
-        return floatFormat.format(d);
-    }
-
     @Override
     public ContextMenu getContextMenu() {
         return contextMenu;
@@ -242,7 +215,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     }
 
     @Subscribe
-    public void slaveGroupDone(UIEvent.GroupDone e) {
+    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
         uiLog(e);
         Competition competition = Competition.getCurrent();
 
@@ -252,7 +225,7 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
     }
 
     @Subscribe
-    public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
+    public void slaveGroupDone(UIEvent.GroupDone e) {
         uiLog(e);
         Competition competition = Competition.getCurrent();
 
@@ -325,6 +298,17 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         this.getElement().setPropertyJson("t", translations);
     }
 
+    private String formatDouble(double d) {
+        if (floatFormat == null) {
+            floatFormat = new DecimalFormat();
+            floatFormat.setMinimumIntegerDigits(1);
+            floatFormat.setMaximumFractionDigits(3);
+            floatFormat.setMinimumFractionDigits(3);
+            floatFormat.setGroupingUsed(false);
+        }
+        return floatFormat.format(d);
+    }
+
     private String formatInt(Integer total) {
         if (total == null || total == 0) {
             return "-";
@@ -337,10 +321,25 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         }
     }
 
+    @SuppressWarnings("unused")
+    private Object getOrigin() {
+        return this;
+    }
+
+    private void getTeamJson(Team t, JsonObject ja, Gender g) {
+        ja.put("team", t.getName());
+        ja.put("counted", formatInt(t.getCounted()));
+        ja.put("size", formatInt((int) t.getSize()));
+        ja.put("score", formatDouble(t.getScore()));
+        ja.put("points", formatInt(t.getPoints()));
+    }
+
     private JsonValue getTeamsJson(List<TeamTreeItem> teamItems, boolean overrideTeamWidth) {
         JsonArray jath = Json.createArray();
         int athx = 0;
-        List<Team> list3 = teamItems != null ? teamItems.stream().map(TeamTreeItem::getTeam).collect(Collectors.toList()) : Collections.emptyList();
+        List<Team> list3 = teamItems != null
+                ? teamItems.stream().map(TeamTreeItem::getTeam).collect(Collectors.toList())
+                : Collections.emptyList();
         if (overrideTeamWidth) {
             // when we are called for the second time, and there was a wide team in the top section.
             // we use the wide team setting for the remaining sections.
@@ -361,13 +360,17 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         return jath;
     }
 
-    @SuppressWarnings("unused")
-    private Object getOrigin() {
-        return this;
-    }
-
     private void setWide(boolean b) {
         getModel().setWideTeamNames(b);
+    }
+
+    private List<TeamTreeItem> topN(List<TeamTreeItem> list) {
+        int size = list.size();
+        if (size > 0) {
+            int min = Math.min(size, TOP_N);
+            list = list.subList(0, min);
+        }
+        return list;
     }
 
     private void updateBottom(TopTeamsSinclairModel model) {
@@ -377,7 +380,8 @@ public class TopTeamsSinclair extends PolymerTemplate<TopTeamsSinclair.TopTeamsS
         this.getElement().setPropertyJson("mensTeams", getTeamsJson(mensTeams, true));
 
         this.getElement().setProperty("topTeamsWomen",
-                womensTeams != null && womensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsSinclairWomen") : "");
+                womensTeams != null && womensTeams.size() > 0 ? getTranslation("Scoreboard.TopTeamsSinclairWomen")
+                        : "");
         this.getElement().setPropertyJson("womensTeams", getTeamsJson(womensTeams, false));
     }
 
