@@ -6,7 +6,6 @@
  */
 package app.owlcms.data.category;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,8 +15,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
@@ -123,7 +120,7 @@ public class RobiCategories {
                     // .peek(c -> {System.err.println(c.getCode());})
                     .collect(Collectors.toCollection(ArrayList::new));
             workbook.close();
-        } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
+        } catch (Exception e) {
             logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
         }
         Double prevMax = 0.0D;
@@ -152,7 +149,7 @@ public class RobiCategories {
                     // .peek(c -> {System.err.println(c.getCode());})
                     .collect(Collectors.toCollection(ArrayList::new));
             workbook.close();
-        } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
+        } catch (Exception e) {
             logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
         }
         Double prevMax = 0.0D;
