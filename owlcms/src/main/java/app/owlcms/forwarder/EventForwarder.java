@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -672,7 +673,11 @@ public class EventForwarder implements BreakDisplay {
 
             try (CloseableHttpClient httpClient = HttpClients.createDefault();
                     CloseableHttpResponse response = httpClient.execute(post)) {
-
+                StatusLine statusLine = response.getStatusLine();
+                Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
+                if (statusCode != null && statusCode != 200) {
+                    logger.error("could not post {} ", statusLine);
+                }
                 EntityUtils.toString(response.getEntity());
             }
 
