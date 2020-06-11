@@ -11,7 +11,7 @@ cd ..
 git checkout master
 git pull
 git add .
-git commit -a -m "sync submodules"
+git commit -a -m "master sync"
 git push
-echo Done. synced submodules prior to starting release.
+echo Done. synced master submodules.
 
