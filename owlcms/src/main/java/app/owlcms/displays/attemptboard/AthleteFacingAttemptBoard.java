@@ -24,7 +24,7 @@ public class AthleteFacingAttemptBoard extends AttemptBoard {
 
     public AthleteFacingAttemptBoard() {
         super();
-        setPublicFacing(false);     
+        setPublicFacing(false);
     }
 
     @Override

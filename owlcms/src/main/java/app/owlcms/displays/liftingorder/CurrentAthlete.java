@@ -550,8 +550,10 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
         List<Athlete> athletes = groupAthletes != null ? Collections.unmodifiableList(groupAthletes)
                 : Collections.emptyList();
         for (Athlete a : athletes) {
-            if (a.getId() != currentId) continue;
-            
+            if (a.getId() != currentId) {
+                continue;
+            }
+
             JsonObject ja = Json.createObject();
             Category curCat = a.getCategory();
             // 0 = no blinking

@@ -33,7 +33,8 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/competition", layout = CompetitionLayout.class)
-public class CompetitionContent extends Composite<VerticalLayout> implements CrudLayout, OwlcmsContent, CrudListener<Competition> {
+public class CompetitionContent extends Composite<VerticalLayout>
+        implements CrudLayout, OwlcmsContent, CrudListener<Competition> {
 
     Logger logger = (Logger) LoggerFactory.getLogger(CompetitionContent.class);
     private OwlcmsRouterLayout routerLayout;
@@ -51,11 +52,30 @@ public class CompetitionContent extends Composite<VerticalLayout> implements Cru
     }
 
     @Override
+    public Competition add(Competition domainObjectToAdd) {
+        // implemented by factory
+        throw new RuntimeException(new OperationNotSupportedException());
+    }
+
+    @Override
     public void addFilterComponent(Component component) {
     }
 
     @Override
     public void addToolbarComponent(Component component) {
+    }
+
+    @Override
+    public void delete(Competition domainObjectToDelete) {
+        // not used
+        factory.delete(domainObjectToDelete);
+    }
+
+    @Override
+    public Collection<Competition> findAll() {
+        ArrayList<Competition> arrayList = new ArrayList<>();
+        arrayList.add(Competition.getCurrent());
+        return arrayList;
     }
 
     /**
@@ -93,28 +113,6 @@ public class CompetitionContent extends Composite<VerticalLayout> implements Cru
         this.routerLayout = routerLayout;
     }
 
-    @Override
-    public void showDialog(String caption, Component form) {
-    }
-
-    @Override
-    public void showForm(CrudOperation operation, Component form, String caption) {
-        getContent().removeAll();
-        getContent().add(form);
-    }
-
-    /**
-     * Define the form used to edit a given athlete.
-     *
-     * @return the form factory that will create the actual form on demand
-     */
-    protected OwlcmsCrudFormFactory<Competition> createFormFactory() {
-//        CompetitionEditingFormFactory competitionEditingFormFactory = new CompetitionEditingFormFactory(Competition.class);
-//        createFormLayout(competitionEditingFormFactory);
-        OwlcmsCrudFormFactory<Competition> competitionEditingFormFactory = new CompetitionEditingFormFactory(Competition.class, this);
-        return competitionEditingFormFactory;
-    }
-    
 //    /**
 //     * The content and ordering of the editing form
 //     *
@@ -143,30 +141,34 @@ public class CompetitionContent extends Composite<VerticalLayout> implements Cru
 //                Translator.getAllAvailableLocales(), new TextRenderer<>(nameGenerator), nameGenerator));
 //        crudFormFactory.setFieldType("competitionDate", DatePicker.class);
 //    }
-    
+
+    @Override
+    public void showDialog(String caption, Component form) {
+    }
+
+    @Override
+    public void showForm(CrudOperation operation, Component form, String caption) {
+        getContent().removeAll();
+        getContent().add(form);
+    }
+
     @Override
     public Competition update(Competition domainObjectToUpdate) {
         // implemented by factory
         throw new RuntimeException(new OperationNotSupportedException());
     }
 
-    @Override
-    public Collection<Competition> findAll() {
-        ArrayList<Competition> arrayList = new ArrayList<>();
-        arrayList.add(Competition.getCurrent());
-        return arrayList;
+    /**
+     * Define the form used to edit a given athlete.
+     *
+     * @return the form factory that will create the actual form on demand
+     */
+    protected OwlcmsCrudFormFactory<Competition> createFormFactory() {
+//        CompetitionEditingFormFactory competitionEditingFormFactory = new CompetitionEditingFormFactory(Competition.class);
+//        createFormLayout(competitionEditingFormFactory);
+        OwlcmsCrudFormFactory<Competition> competitionEditingFormFactory = new CompetitionEditingFormFactory(
+                Competition.class, this);
+        return competitionEditingFormFactory;
     }
 
-    @Override
-    public Competition add(Competition domainObjectToAdd) {
-        // implemented by factory
-        throw new RuntimeException(new OperationNotSupportedException());
-    }
-
-    @Override
-    public void delete(Competition domainObjectToDelete) {
-        // not used
-        factory.delete(domainObjectToDelete);
-    }
-    
 }

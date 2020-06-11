@@ -645,6 +645,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         return age;
     }
 
+    private Athlete getEditedAthlete() {
+        return editedAthlete;
+    }
+
     @SuppressWarnings({ "unchecked", "unused" })
     private Gender getGenderFieldValue() {
         HasValue<?, Gender> genderField = (HasValue<?, Gender>) binder.getBinding("gender").get().getField();
@@ -668,6 +672,10 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
         this.checkOther20kgFields = checkOther20kgFields;
     }
 
+    private void setEditedAthlete(Athlete editedAthlete) {
+        this.editedAthlete = editedAthlete;
+    }
+
     private boolean validateStartingTotals(String mainProp, String otherProp1, String otherProp2) {
         try {
             logger.debug("before {} validation", mainProp);
@@ -685,14 +693,6 @@ public final class AthleteRegistrationFormFactory extends OwlcmsCrudFormFactory<
             throw e1;
         }
         return true;
-    }
-
-    private Athlete getEditedAthlete() {
-        return editedAthlete;
-    }
-
-    private void setEditedAthlete(Athlete editedAthlete) {
-        this.editedAthlete = editedAthlete;
     }
 
 }

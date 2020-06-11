@@ -33,7 +33,7 @@ public interface UIEventProcessor {
      */
     public static void uiAccessIgnoreIfSelfOrigin(Component attachedComponent, EventBus uiEventBus, UIEvent e,
             Object selfOrigin, Command command) {
-        
+
         // for locking purposes, we want the UI associated with the component (we don't know who owns
         // our thread and what UI.getCurrent() is.
         Optional<UI> attachedUI = attachedComponent.getUI();

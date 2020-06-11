@@ -224,10 +224,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         });
     }
 
-    private boolean isDone() {
-        return this.groupDone;
-    }
-
     /**
      * Multiple attempt boards and athlete-facing boards can co-exist. We need to show down on the slave devices -- the
      * master device is the one where refereeing buttons are attached.
@@ -257,10 +253,6 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
 //            Group g = e.getGroup();
             setDone(true);
         });
-    }
-
-    private void setDone(boolean b) {
-        this.groupDone = b;
     }
 
     @Subscribe
@@ -368,11 +360,12 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
     protected void doAthleteUpdate(Athlete a) {
         FieldOfPlay fop = OwlcmsSession.getFop();
         FOPState state = fop.getState();
-        if (fop.getState() == FOPState.INACTIVE || (state == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE)) {
+        if (fop.getState() == FOPState.INACTIVE
+                || (state == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE)) {
             doEmpty();
             return;
         }
-        
+
         logger.debug("$$$  a {} state {}", a, state);
         if (a == null) {
             doEmpty();
@@ -393,7 +386,7 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
         model.setWeight(a.getNextAttemptRequestedWeight());
         showPlates();
         this.getElement().callJsFunction("reset");
-        
+
         setDone(false);
     }
 
@@ -489,6 +482,14 @@ public class AttemptBoard extends PolymerTemplate<AttemptBoard.AttemptBoardModel
             logger.trace("Starting attempt board on FOP {}", fop.getName());
             setId("attempt-board-template");
         });
+    }
+
+    private boolean isDone() {
+        return this.groupDone;
+    }
+
+    private void setDone(boolean b) {
+        this.groupDone = b;
     }
 
     private void showPlates() {

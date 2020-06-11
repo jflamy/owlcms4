@@ -387,7 +387,7 @@ public class Athlete {
      * body weight inferred from category, used until real bodyweight is known.
      */
     private Double presumedBodyWeight;
-    
+
     @Column(columnDefinition = "integer default 0")
     private int catSinclairRank;
     @Column(columnDefinition = "integer default 0")
@@ -2688,7 +2688,7 @@ public class Athlete {
     public void setCustomPoints(Integer customPoints) {
         this.customPoints = customPoints;
     }
-    
+
     /**
      * Sets the custom rank.
      *

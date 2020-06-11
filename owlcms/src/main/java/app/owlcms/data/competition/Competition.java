@@ -87,26 +87,26 @@ public class Competition {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
-    
+
     private String ageGroupsFileName;
     private String competitionCity;
     private LocalDate competitionDate = null;
     private String competitionName;
     private String competitionOrganizer;
     private String competitionSite;
-    
+
     /**
      * enable overriding total for kids categories with bonus points
      */
     @Column(columnDefinition = "boolean default false")
     private boolean customScore;
-    
+
     /**
      * announcer sees decisions as they are made by referee.
      */
     @Column(columnDefinition = "boolean default true")
     private boolean announcerLiveDecisions;
-    
+
     @Convert(converter = LocaleAttributeConverter.class)
     private Locale defaultLocale = null;
 
@@ -129,16 +129,16 @@ public class Competition {
     @Column(columnDefinition = "boolean default false")
     private boolean genderOrder;
     private boolean masters;
-    
+
     /**
      * Add W75 and W80+ masters categories
      */
     @Column(columnDefinition = "boolean default false")
     private boolean mastersGenderEquality = false;
     private Integer mensTeamSize;
-    
+
     private String protocolFileName;
-    
+
     @Lob
     private byte[] protocolTemplate;
 
@@ -168,7 +168,7 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean useRegistrationCategory = false;
-    
+
     private Integer womensTeamSize;
 
     synchronized public void computeGlobalRankings(boolean full) {
@@ -340,7 +340,7 @@ public class Competition {
         }
         return athletes;
     }
-    
+
     synchronized public List<Athlete> getGlobalTotalRanking(Gender gender) {
         return getListOrElseRecompute(gender == Gender.F ? "wTot" : "mTot");
     }
@@ -439,6 +439,10 @@ public class Competition {
         return womensTeamSize;
     }
 
+    public boolean isAnnouncerLiveDecisions() {
+        return announcerLiveDecisions;
+    }
+
     public boolean isCustomScore() {
         return customScore;
     }
@@ -511,6 +515,10 @@ public class Competition {
 
     public void setAgeGroupsFileName(String localizedName) {
         this.ageGroupsFileName = localizedName;
+    }
+
+    public void setAnnouncerLiveDecisions(boolean announcerLiveDecisions) {
+        this.announcerLiveDecisions = announcerLiveDecisions;
     }
 
     /**
@@ -702,20 +710,20 @@ public class Competition {
         List<Athlete> athletes = null;
         List<Athlete> mTeam = (List<Athlete>) reportingBeans.get("mTeam");
         List<Athlete> wTeam = (List<Athlete>) reportingBeans.get("wTeam");
-        switch(gender) {
+        switch (gender) {
         case M:
             athletes = mTeam;
             break;
-        case F: 
+        case F:
             athletes = wTeam;
             break;
         case MIXED:
-            athletes = new ArrayList<Athlete>();
+            athletes = new ArrayList<>();
             if (mTeam != null) {
-                athletes.addAll((List<Athlete>) mTeam);
+                athletes.addAll(mTeam);
             }
             if (wTeam != null) {
-                athletes.addAll((List<Athlete>) wTeam);
+                athletes.addAll(wTeam);
             }
             break;
         }
@@ -763,7 +771,7 @@ public class Competition {
         reportingBeans.put("wSinclair", sortedWomen);
         logger.debug("mSinclair {}", sortedMen);
         logger.debug("wSinclair {}", sortedWomen);
-        
+
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.CAT_SINCLAIR);
         AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.CAT_SINCLAIR);
         sortedMen = new ArrayList<>(sortedAthletes.size());
@@ -773,7 +781,7 @@ public class Competition {
         reportingBeans.put("wCatSinclair", sortedWomen);
         logger.debug("mCatSinclair {}", sortedMen);
         logger.debug("wCatSinclair {}", sortedWomen);
-        
+
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SMM);
         AthleteSorter.assignSinclairRanksAndPoints(sortedAthletes, Ranking.SMM);
         sortedMen = new ArrayList<>(sortedAthletes.size());
@@ -878,13 +886,4 @@ public class Competition {
         reportingBeans.put("mwTeam", sortedAthletes);
     }
 
-    public boolean isAnnouncerLiveDecisions() {
-        return announcerLiveDecisions;
-    }
-
-    public void setAnnouncerLiveDecisions(boolean announcerLiveDecisions) {
-        this.announcerLiveDecisions = announcerLiveDecisions;
-    }
-    
-    
 }

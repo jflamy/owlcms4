@@ -100,10 +100,16 @@ public class TeamResultsContent extends VerticalLayout
         init();
     }
 
+    @Override
+    public void closeDialog() {
+        crudGrid.getCrudLayout().hideForm();
+        crudGrid.getGrid().asSingleSelect().clear();
+    }
+
     /**
      * Get the content of the crudGrid. Invoked by refreshGrid. Not currently used because we are using instead a
      * TreeGrid and a LazyCrudListener<TeamTreeItem>()
-     * 
+     *
      * @see TreeDataProvider
      * @see org.vaadin.crudui.crud.CrudListener#findAll()
      */
@@ -123,6 +129,15 @@ public class TeamResultsContent extends VerticalLayout
         }
 
         return allTeams;
+    }
+
+    @Override
+    public OwlcmsCrudGrid<?> getEditingGrid() {
+        return crudGrid;
+    }
+
+    public ComboBox<Gender> getGenderFilter() {
+        return genderFilter;
     }
 
     public Group getGridGroup() {
@@ -247,13 +262,14 @@ public class TeamResultsContent extends VerticalLayout
      * @see app.owlcms.ui.shared.AthleteGridContent#createCrudGrid(app.owlcms.ui.crudui.OwlcmsCrudFormFactory)
      */
     protected OwlcmsCrudGrid<TeamTreeItem> createCrudGrid(OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory) {
-        TreeGrid<TeamTreeItem> grid = new TreeGrid<TeamTreeItem>();
+        TreeGrid<TeamTreeItem> grid = new TreeGrid<>();
         grid.addHierarchyColumn(TeamTreeItem::formatName).setHeader(Translator.translate("Name"));
         grid.addColumn(TeamTreeItem::getGender).setHeader(Translator.translate("Gender"))
                 .setTextAlign(ColumnTextAlign.END);
         grid.addColumn(TeamTreeItem::getPoints, "points").setHeader(Translator.translate("TeamResults.Points"))
                 .setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(t -> formatDouble(t.getScore(), 3), "score").setHeader(Translator.translate("Scoreboard.Sinclair"))
+        grid.addColumn(t -> formatDouble(t.getScore(), 3), "score")
+                .setHeader(Translator.translate("Scoreboard.Sinclair"))
                 .setTextAlign(ColumnTextAlign.END);
         grid.addColumn(TeamTreeItem::formatProgress).setHeader(Translator.translate("TeamResults.Status"))
                 .setTextAlign(ColumnTextAlign.END);
@@ -261,6 +277,11 @@ public class TeamResultsContent extends VerticalLayout
         OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(TeamTreeItem.class);
         OwlcmsCrudGrid<TeamTreeItem> crudGrid = new OwlcmsCrudGrid<TeamTreeItem>(TeamTreeItem.class, gridLayout,
                 crudFormFactory, grid) {
+            @Override
+            public void refreshGrid() {
+                grid.setDataProvider(new TreeDataProvider<>(new TeamTreeData(TeamResultsContent.this)));
+            }
+
             @Override
             protected void initToolbar() {
             }
@@ -281,11 +302,6 @@ public class TeamResultsContent extends VerticalLayout
             @Override
             protected void updateButtons() {
             }
-
-            @Override
-            public void refreshGrid() {
-                grid.setDataProvider(new TreeDataProvider<TeamTreeItem>(new TeamTreeData(TeamResultsContent.this)));
-            }
         };
 
         defineFilters(crudGrid);
@@ -296,43 +312,6 @@ public class TeamResultsContent extends VerticalLayout
         crudGrid.getCrudLayout().addToolbarComponent(groupFilter);
 
         return crudGrid;
-    }
-
-    private String formatDouble(double d, int decimals) {
-        if (floatFormat == null) {
-            floatFormat = new DecimalFormat();
-            floatFormat.setMinimumIntegerDigits(1);
-            floatFormat.setMaximumFractionDigits(decimals);
-            floatFormat.setMinimumFractionDigits(decimals);
-            floatFormat.setGroupingUsed(false);
-        }
-        return floatFormat.format(d);
-    }
-
-    private void defineContent(OwlcmsCrudGrid<TeamTreeItem> crudGrid) {
-        crudGrid.setCrudListener(new LazyCrudListener<TeamTreeItem>() {
-            @Override
-            public DataProvider<TeamTreeItem, ?> getDataProvider() {
-                return new TreeDataProvider<TeamTreeItem>(new TeamTreeData(TeamResultsContent.this));
-            }
-
-            @Override
-            public TeamTreeItem add(TeamTreeItem user) {
-                AthleteRepository.save(user.getAthlete());
-                return user;
-            }
-
-            @Override
-            public TeamTreeItem update(TeamTreeItem user) {
-                AthleteRepository.save(user.getAthlete());
-                return user;
-            }
-
-            @Override
-            public void delete(TeamTreeItem user) {
-                AthleteRepository.delete(user.getAthlete());
-            }
-        });
     }
 
     /**
@@ -362,13 +341,6 @@ public class TeamResultsContent extends VerticalLayout
         topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
         topBar.setFlexGrow(0.2, title);
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-    }
-
-    protected void init() {
-        OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemFormFactory(TeamTreeItem.class, this);
-        crudGrid = createCrudGrid(crudFormFactory);
-        defineFilters(crudGrid);
-        fillHW(crudGrid, this);
     }
 
     /**
@@ -401,6 +373,13 @@ public class TeamResultsContent extends VerticalLayout
         });
         genderFilter.setWidth("10em");
         crudGrid2.getCrudLayout().addFilterComponent(genderFilter);
+    }
+
+    protected void init() {
+        OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemFormFactory(TeamTreeItem.class, this);
+        crudGrid = createCrudGrid(crudFormFactory);
+        defineFilters(crudGrid);
+        fillHW(crudGrid, this);
     }
 
     /**
@@ -437,6 +416,43 @@ public class TeamResultsContent extends VerticalLayout
         return liftingFop != null;
     }
 
+    private void defineContent(OwlcmsCrudGrid<TeamTreeItem> crudGrid) {
+        crudGrid.setCrudListener(new LazyCrudListener<TeamTreeItem>() {
+            @Override
+            public TeamTreeItem add(TeamTreeItem user) {
+                AthleteRepository.save(user.getAthlete());
+                return user;
+            }
+
+            @Override
+            public void delete(TeamTreeItem user) {
+                AthleteRepository.delete(user.getAthlete());
+            }
+
+            @Override
+            public DataProvider<TeamTreeItem, ?> getDataProvider() {
+                return new TreeDataProvider<>(new TeamTreeData(TeamResultsContent.this));
+            }
+
+            @Override
+            public TeamTreeItem update(TeamTreeItem user) {
+                AthleteRepository.save(user.getAthlete());
+                return user;
+            }
+        });
+    }
+
+    private String formatDouble(double d, int decimals) {
+        if (floatFormat == null) {
+            floatFormat = new DecimalFormat();
+            floatFormat.setMinimumIntegerDigits(1);
+            floatFormat.setMaximumFractionDigits(decimals);
+            floatFormat.setMinimumFractionDigits(decimals);
+            floatFormat.setGroupingUsed(false);
+        }
+        return floatFormat.format(d);
+    }
+
     private void subscribeIfLifting(Group nGroup) {
         logger.debug("subscribeIfLifting {}", nGroup);
         Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
@@ -467,21 +483,6 @@ public class TeamResultsContent extends VerticalLayout
                 }
             }
         }
-    }
-
-    public ComboBox<Gender> getGenderFilter() {
-        return genderFilter;
-    }
-
-    @Override
-    public void closeDialog() {
-        crudGrid.getCrudLayout().hideForm();
-        crudGrid.getGrid().asSingleSelect().clear();
-    }
-
-    @Override
-    public OwlcmsCrudGrid<?> getEditingGrid() {
-        return crudGrid;
     }
 
 }

@@ -72,21 +72,21 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
         setWindowCaption(CrudOperation.UPDATE, getTranslation("Update_title", aClass.getSimpleName()));
         setWindowCaption(CrudOperation.DELETE, getTranslation("Delete_title", aClass.getSimpleName()));
     }
-    
-    public Component getHeaderLayout() {
-        return headerLayout;
-    }
-    
-    public Component getToolbarLayout() {
-        return toolbarLayout;
-    }
-    
+
     public Component getFilterLayout() {
         return filterLayout;
     }
-    
+
+    public Component getHeaderLayout() {
+        return headerLayout;
+    }
+
     public Component getMainLayout() {
         return mainLayout;
+    }
+
+    public Component getToolbarLayout() {
+        return toolbarLayout;
     }
 
 }

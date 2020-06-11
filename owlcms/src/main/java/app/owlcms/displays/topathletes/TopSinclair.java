@@ -490,12 +490,12 @@ public class TopSinclair extends PolymerTemplate<TopSinclair.TopSinclairModel> i
         this.getElement().setProperty("topSinclairMen",
                 sortedMen2 != null && sortedMen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairMen") : "");
         this.getElement().setPropertyJson("sortedMen", getAthletesJson(sortedMen2, true));
-        
+
         List<Athlete> sortedWomen2 = getSortedWomen();
         this.getElement().setProperty("topSinclairWomen",
                 sortedWomen2 != null && sortedWomen2.size() > 0 ? getTranslation("Scoreboard.TopSinclairWomen") : "");
         this.getElement().setPropertyJson("sortedWomen", getAthletesJson(sortedWomen2, false));
-        
+
         logger.debug("updateBottom {} {}", sortedWomen2, sortedMen2);
     }
 

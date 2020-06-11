@@ -280,10 +280,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         });
     }
 
-    private boolean isDone() {
-        return this.groupDone;
-    }
-
     @Subscribe
     public void slaveDownSignal(UIEvent.DownSignal e) {
         uiLog(e);
@@ -314,10 +310,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 //          Group g = e.getGroup();
             setDone(true);
         });
-    }
-
-    private void setDone(boolean b) {
-        this.groupDone = b;
     }
 
     @Subscribe
@@ -690,6 +682,14 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         });
         setTranslationMap();
         order = ImmutableList.of();
+    }
+
+    private boolean isDone() {
+        return this.groupDone;
+    }
+
+    private void setDone(boolean b) {
+        this.groupDone = b;
     }
 
     private void syncWithFOP(UIEvent.SwitchGroup e) {

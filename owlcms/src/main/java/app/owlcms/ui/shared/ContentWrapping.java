@@ -13,19 +13,28 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public interface ContentWrapping {
 
-    public default void fillH(Component content, VerticalLayout vWrapper) {
-        vWrapper.setBoxSizing(BoxSizing.BORDER_BOX);
-        vWrapper.setHeight(null);
-        vWrapper.setWidth("100%");
-        vWrapper.add(content);
-    }
-    
     public default void centerH(Component content, VerticalLayout vWrapper) {
         vWrapper.setBoxSizing(BoxSizing.BORDER_BOX);
         vWrapper.setHeight(null);
         vWrapper.setWidth("100%");
         vWrapper.add(content);
-        vWrapper.setAlignSelf(Alignment.CENTER,content);
+        vWrapper.setAlignSelf(Alignment.CENTER, content);
+    }
+
+    public default void centerHW(Component content, VerticalLayout vWrapper) {
+//      LoggerFactory.getLogger(ContentWrapping.class)./**/warn("fillHW from {}",LoggerUtils.whereFrom());
+        vWrapper.setBoxSizing(BoxSizing.BORDER_BOX);
+        vWrapper.setSizeFull();
+        vWrapper.add(content);
+        vWrapper.setAlignSelf(Alignment.CENTER, content);
+
+    }
+
+    public default void fillH(Component content, VerticalLayout vWrapper) {
+        vWrapper.setBoxSizing(BoxSizing.BORDER_BOX);
+        vWrapper.setHeight(null);
+        vWrapper.setWidth("100%");
+        vWrapper.add(content);
     }
 
     public default void fillHW(Component content, VerticalLayout vWrapper) {
@@ -34,14 +43,5 @@ public interface ContentWrapping {
         vWrapper.setSizeFull();
         vWrapper.add(content);
     }
-    
-    public default void centerHW(Component content, VerticalLayout vWrapper) {
-//      LoggerFactory.getLogger(ContentWrapping.class)./**/warn("fillHW from {}",LoggerUtils.whereFrom());
-      vWrapper.setBoxSizing(BoxSizing.BORDER_BOX);
-      vWrapper.setSizeFull();
-      vWrapper.add(content);
-      vWrapper.setAlignSelf(Alignment.CENTER,content);
-
-  }
 
 }

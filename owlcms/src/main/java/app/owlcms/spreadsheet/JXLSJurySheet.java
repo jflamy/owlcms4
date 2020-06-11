@@ -28,11 +28,11 @@ import net.sf.jxls.transformer.XLSTransformer;
 @SuppressWarnings("serial")
 public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 
+    Logger logger = LoggerFactory.getLogger(JXLSJurySheet.class);
+
     public JXLSJurySheet(UI ui) {
         super(ui);
     }
-
-    Logger logger = LoggerFactory.getLogger(JXLSJurySheet.class);
 
     @Override
     public InputStream getTemplate(Locale locale) throws IOException {

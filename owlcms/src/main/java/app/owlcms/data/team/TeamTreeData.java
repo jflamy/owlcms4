@@ -44,25 +44,13 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
         init();
     }
 
-    private void init() {
-        if (debug) {
-            logger.setLevel(Level.DEBUG);
-        }
-        buildTeamItemTree();
-        if (debug) {
-            dumpTeams();
-        }
-        for (Gender g : Gender.values()) {
-            List<TeamTreeItem> teams = getTeamItemsByGender().get(g);
-            if (teams != null) {
-                addItems(teams, TeamTreeItem::getSortedTeamMembers);
-            }
-        }
-    }
-
     public TeamTreeData(TeamResultsContent teamResultsContent) {
         genderFilter = teamResultsContent.getGenderFilter().getValue();
         init();
+    }
+
+    public Map<Gender, List<TeamTreeItem>> getTeamItemsByGender() {
+        return teamsByGender;
     }
 
     private void buildTeamItemTree() {
@@ -91,7 +79,8 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
                 // gender.
                 Integer maxCount = getTopNTeamSize(a.getGender());
                 String curTeamName = a.getTeam();
-                curTeamItem = findCurTeamItem(getTeamItemsByGender(), gender, curGenderTeams, prevTeamName, curTeamItem, curTeamName);
+                curTeamItem = findCurTeamItem(getTeamItemsByGender(), gender, curGenderTeams, prevTeamName, curTeamItem,
+                        curTeamName);
                 boolean groupIsDone = groupIsDone(a);
                 Integer curPoints = a.getTotalPoints();
                 double curScore = a.getSinclairForDelta();
@@ -103,7 +92,7 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
 
                 boolean b = curTeamCount < maxCount;
                 boolean c = curPoints != null && curPoints > 0;
-                
+
                 Team curTeam = curTeamItem.getTeam();
 
                 if (groupIsDone && b && c) {
@@ -183,8 +172,20 @@ public class TeamTreeData extends TreeData<TeamTreeItem> {
         return doneGroups.contains(a.getGroup());
     }
 
-    public Map<Gender, List<TeamTreeItem>> getTeamItemsByGender() {
-        return teamsByGender;
+    private void init() {
+        if (debug) {
+            logger.setLevel(Level.DEBUG);
+        }
+        buildTeamItemTree();
+        if (debug) {
+            dumpTeams();
+        }
+        for (Gender g : Gender.values()) {
+            List<TeamTreeItem> teams = getTeamItemsByGender().get(g);
+            if (teams != null) {
+                addItems(teams, TeamTreeItem::getSortedTeamMembers);
+            }
+        }
     }
 
 }

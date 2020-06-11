@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.utils;
@@ -9,7 +9,6 @@ package app.owlcms.utils;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -23,37 +22,27 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.init.OwlcmsFactory;
 import ch.qos.logback.classic.Logger;
-import sun.misc.Unsafe;
 
-@SuppressWarnings("restriction")
 public class StartupUtils {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(StartupUtils.class);
     static Logger mainLogger = (Logger) LoggerFactory.getLogger("app.owlcms.Main");
 
-    public static Logger getMainLogger() {
-        return mainLogger;
-    }
-
-    public static void setMainLogger(Logger mainLogger) {
-        StartupUtils.mainLogger = mainLogger;
-    }
-
     static Integer serverPort = null;
 
     public static void disableWarning() {
         // https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
-        try {
-            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-            theUnsafe.setAccessible(true);
-            Unsafe u = (Unsafe) theUnsafe.get(null);
-
-            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
-            Field logger = cls.getDeclaredField("logger");
-            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
-        } catch (Exception e) {
-            // ignore
-        }
+//        try {
+//            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+//            theUnsafe.setAccessible(true);
+//            Unsafe u = (Unsafe) theUnsafe.get(null);
+//
+//            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+//            Field logger = cls.getDeclaredField("logger");
+//            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+//        } catch (Exception e) {
+//            // ignore
+//        }
     }
 
     /**
@@ -85,6 +74,10 @@ public class StartupUtils {
         } else {
             return Integer.getInteger(key, defaultValue);
         }
+    }
+
+    public static Logger getMainLogger() {
+        return mainLogger;
     }
 
     public static Integer getServerPort() {
@@ -133,6 +126,10 @@ public class StartupUtils {
             return true;
         }
         return false;
+    }
+
+    public static void setMainLogger(Logger mainLogger) {
+        StartupUtils.mainLogger = mainLogger;
     }
 
     public static void setServerPort(Integer serverPort) {

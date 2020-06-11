@@ -42,13 +42,12 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
     private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
     private byte[] finalPackageTemplate;
 
-
-    public JXLSCompetitionBook(UI ui) {
-        // by default, we exclude athletes who did not weigh in.
+    public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
         super(ui);
     }
 
-    public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
+    public JXLSCompetitionBook(UI ui) {
+        // by default, we exclude athletes who did not weigh in.
         super(ui);
     }
 

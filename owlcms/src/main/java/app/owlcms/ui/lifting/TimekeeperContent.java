@@ -170,7 +170,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         topBar.setAlignItems(FlexComponent.Alignment.CENTER);
         topBar.setFlexGrow(0.0, getTopBarLeft());
         topBar.setFlexGrow(1.0, topBarRight);
-        
+
         if (timeField != null) {
             timeField.detach();
         }
@@ -233,7 +233,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         topBar.setFlexGrow(0.0, getTopBarLeft());
         // this hides the back arrow
         getAppLayout().setMenuVisible(false);
-        
+
         createBottom();
     }
 
@@ -244,89 +244,14 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
     }
 
     @Override
-    protected void init() {
-        crudLayout = null;
+    protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
+        showButtons();
+        super.doUpdateTopBar(athlete, timeAllowed);
     }
 
-    private void createBottom() {
-        this.removeAll();
-        if (timeField == null) {
-            timeField = new AthleteTimerElement(this);
-        }
-        VerticalLayout time = new VerticalLayout();
-        time.setWidth("50%");
-
-        time.getElement().getStyle().set("font-size", "15vh");
-        time.getElement().getStyle().set("font-weight", "bold");
-        time.setAlignItems(Alignment.CENTER);
-        time.setAlignSelf(Alignment.CENTER, timeField);
-        centerH(timeField,time);
-        this.add(time);
-        
-        startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
-        startTimeButton.addClickListener(e -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
-                if (startTimeButton != null) {
-                    startTimeButton.getElement().setAttribute("theme", "secondary");
-                }
-                if (stopTimeButton != null) {
-                    stopTimeButton.getElement().setAttribute("theme", "primary error");
-                }
-            });
-        });
-        startTimeButton.getElement().setAttribute("theme", "primary success");
-        
-        stopTimeButton = new Button(AvIcons.PAUSE.create());
-        stopTimeButton.addClickListener(e1 -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.TimeStopped(this.getOrigin()));
-                if (startTimeButton != null) {
-                    startTimeButton.getElement().setAttribute("theme", "primary success");
-                }
-                if (stopTimeButton != null) {
-                    stopTimeButton.getElement().setAttribute("theme", "secondary");
-                }
-            });
-        });
-        stopTimeButton.getElement().setAttribute("theme", "secondary");
-        
-        registerShortcuts();
-        
-        _1min = new Button("1:00", (e2) -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.ForceTime(60000, this.getOrigin()));
-            });
-        });
-        _1min.getElement().setAttribute("theme", "icon");
-        
-        _2min = new Button("2:00", (e3) -> {
-            OwlcmsSession.withFop(fop -> {
-                fop.getFopEventBus().post(new FOPEvent.ForceTime(120000, this.getOrigin()));
-            });
-        });
-        _2min.getElement().setAttribute("theme", "icon");
-        
-        startTimeButton.setSizeFull();
-        stopTimeButton.setSizeFull();
-        _1min.setHeight("15vh");
-        _1min.setWidthFull();
-        _2min.setHeight("15vh");
-        _2min.setWidthFull();
-        
-        VerticalLayout resets = new VerticalLayout(_1min, _2min);;
-        resets.setWidthFull();
-        
-        buttons = new HorizontalLayout(startTimeButton, stopTimeButton, resets);
-        time.getStyle().set("margin-top", "3vh");
-        time.getStyle().set("margin-bottom", "3vh");
-        buttons.setWidth("75%");
-        buttons.setHeight("40vh");
-        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        buttons.getStyle().set("--lumo-font-size-m", "10vh");
-        
-        centerHW(buttons, this);
-        hideButtons();
+    @Override
+    protected void init() {
+        crudLayout = null;
     }
 
     @Override
@@ -380,15 +305,85 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         });
     }
 
-    private void showButtons() {
-        buttons.setVisible(true);
-        timeField.getElement().setVisible(true);
-        registerShortcuts();
-    }
+    private void createBottom() {
+        this.removeAll();
+        if (timeField == null) {
+            timeField = new AthleteTimerElement(this);
+        }
+        VerticalLayout time = new VerticalLayout();
+        time.setWidth("50%");
 
-    private void registerShortcuts() {
-        startReg = startTimeButton.addClickShortcut(Key.COMMA);
-        stopReg = stopTimeButton.addClickShortcut(Key.PERIOD);
+        time.getElement().getStyle().set("font-size", "15vh");
+        time.getElement().getStyle().set("font-weight", "bold");
+        time.setAlignItems(Alignment.CENTER);
+        time.setAlignSelf(Alignment.CENTER, timeField);
+        centerH(timeField, time);
+        this.add(time);
+
+        startTimeButton = new Button(AvIcons.PLAY_ARROW.create());
+        startTimeButton.addClickListener(e -> {
+            OwlcmsSession.withFop(fop -> {
+                fop.getFopEventBus().post(new FOPEvent.TimeStarted(this.getOrigin()));
+                if (startTimeButton != null) {
+                    startTimeButton.getElement().setAttribute("theme", "secondary");
+                }
+                if (stopTimeButton != null) {
+                    stopTimeButton.getElement().setAttribute("theme", "primary error");
+                }
+            });
+        });
+        startTimeButton.getElement().setAttribute("theme", "primary success");
+
+        stopTimeButton = new Button(AvIcons.PAUSE.create());
+        stopTimeButton.addClickListener(e1 -> {
+            OwlcmsSession.withFop(fop -> {
+                fop.getFopEventBus().post(new FOPEvent.TimeStopped(this.getOrigin()));
+                if (startTimeButton != null) {
+                    startTimeButton.getElement().setAttribute("theme", "primary success");
+                }
+                if (stopTimeButton != null) {
+                    stopTimeButton.getElement().setAttribute("theme", "secondary");
+                }
+            });
+        });
+        stopTimeButton.getElement().setAttribute("theme", "secondary");
+
+        registerShortcuts();
+
+        _1min = new Button("1:00", (e2) -> {
+            OwlcmsSession.withFop(fop -> {
+                fop.getFopEventBus().post(new FOPEvent.ForceTime(60000, this.getOrigin()));
+            });
+        });
+        _1min.getElement().setAttribute("theme", "icon");
+
+        _2min = new Button("2:00", (e3) -> {
+            OwlcmsSession.withFop(fop -> {
+                fop.getFopEventBus().post(new FOPEvent.ForceTime(120000, this.getOrigin()));
+            });
+        });
+        _2min.getElement().setAttribute("theme", "icon");
+
+        startTimeButton.setSizeFull();
+        stopTimeButton.setSizeFull();
+        _1min.setHeight("15vh");
+        _1min.setWidthFull();
+        _2min.setHeight("15vh");
+        _2min.setWidthFull();
+
+        VerticalLayout resets = new VerticalLayout(_1min, _2min);
+        resets.setWidthFull();
+
+        buttons = new HorizontalLayout(startTimeButton, stopTimeButton, resets);
+        time.getStyle().set("margin-top", "3vh");
+        time.getStyle().set("margin-bottom", "3vh");
+        buttons.setWidth("75%");
+        buttons.setHeight("40vh");
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttons.getStyle().set("--lumo-font-size-m", "10vh");
+
+        centerHW(buttons, this);
+        hideButtons();
     }
 
     private void hideButtons() {
@@ -397,15 +392,26 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
         unregisterShortcuts();
     }
 
-    private void unregisterShortcuts() {
-        if (startReg != null) {startReg.remove(); startReg = null;}
-        if (stopReg != null) {stopReg.remove(); stopReg = null;}
+    private void registerShortcuts() {
+        startReg = startTimeButton.addClickShortcut(Key.COMMA);
+        stopReg = stopTimeButton.addClickShortcut(Key.PERIOD);
     }
 
-    @Override
-    protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
-        showButtons();
-        super.doUpdateTopBar(athlete, timeAllowed);
+    private void showButtons() {
+        buttons.setVisible(true);
+        timeField.getElement().setVisible(true);
+        registerShortcuts();
     }
-    
+
+    private void unregisterShortcuts() {
+        if (startReg != null) {
+            startReg.remove();
+            startReg = null;
+        }
+        if (stopReg != null) {
+            stopReg.remove();
+            stopReg = null;
+        }
+    }
+
 }

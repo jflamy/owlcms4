@@ -102,7 +102,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
     @Override
     public Collection<Athlete> findAll() {
         List<Athlete> athletes = AthleteSorter.resultsOrderCopy(
-                AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(), genderFilter.getValue(), true), Ranking.TOTAL);
+                AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(), genderFilter.getValue(), true),
+                Ranking.TOTAL);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.TOTAL);
         AthleteSorter.resultsOrder(athletes, Ranking.SNATCH);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
@@ -322,7 +323,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
             subscribeIfLifting(e.getValue());
         });
         crud.getCrudLayout().addFilterComponent(groupFilter);
-        
+
         genderFilter.setPlaceholder(getTranslation("Gender"));
         genderFilter.setItems(Gender.M, Gender.F);
         genderFilter.setItemLabelGenerator((i) -> {

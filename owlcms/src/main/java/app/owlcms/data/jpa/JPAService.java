@@ -108,7 +108,7 @@ public class JPAService {
             } else if (dbUrl.startsWith("jdbc:h2:file")) {
                 embeddedH2Server = true;
                 properties = h2FileProperties(schemaGeneration, dbUrl, userName, password);
-            }  else if (dbUrl.startsWith("jdbc:h2:")) {
+            } else if (dbUrl.startsWith("jdbc:h2:")) {
                 // remote h2
                 embeddedH2Server = false;
                 properties = h2ServerProperties(schemaGeneration, dbUrl, userName, password);
@@ -132,7 +132,7 @@ public class JPAService {
                 properties = h2MemProperties(schemaGeneration);
             } else {
                 properties = h2FileProperties(schemaGeneration, dbUrl, userName, password);
-            } 
+            }
         }
 
         if (embeddedH2Server) {
@@ -245,13 +245,13 @@ public class JPAService {
         startLogger.info("Database: {}, inMemory={}, schema={}", url, false, schemaGeneration);
         return props;
     }
-    
+
     private static Properties h2ServerProperties(String schemaGeneration, String dbUrl, String userName,
             String password) {
         ImmutableMap<String, Object> vals = jpaProperties();
         Properties props = new Properties();
         props.putAll(vals);
-        
+
         String url = dbUrl;
         props.put(JPA_JDBC_URL, url);
         startLogger.debug("Starting in directory {}", System.getProperty("user.dir"));
@@ -293,18 +293,20 @@ public class JPAService {
         postgresHost = postgresHost == null ? "localhost" : postgresHost;
         postgresPort = postgresPort == null ? "5432" : postgresPort;
         postgresDb = postgresDb == null ? "owlcms" : postgresDb;
-        
+
         if (postgresPort != null && postgresPort.startsWith("tcp:")) {
             postgresHost = null;
             // take the host and port from the port string
             String where = "//";
             int pos = postgresPort.indexOf(where);
-            postgresPort = postgresPort.substring(pos+where.length());
+            postgresPort = postgresPort.substring(pos + where.length());
         }
 
         // if running on Heroku, dbUrl is set in the environment
         // if running on K8S, we get a tcp string with the IP address and port
-        String url = dbUrl != null ? dbUrl : "jdbc:postgresql://" + (postgresHost != null ? postgresHost + ":" : "") + postgresPort + "/" + postgresDb;
+        String url = dbUrl != null ? dbUrl
+                : "jdbc:postgresql://" + (postgresHost != null ? postgresHost + ":" : "") + postgresPort + "/"
+                        + postgresDb;
         props.put(JPA_JDBC_URL, url);
         props.put(JPA_JDBC_USER, userName != null ? userName : "owlcms");
         props.put(JPA_JDBC_PASSWORD, password != null ? password : "db_owlcms");
@@ -312,7 +314,7 @@ public class JPAService {
         props.put(JPA_JDBC_DRIVER, org.postgresql.Driver.class.getName());
         props.put(DIALECT, org.hibernate.dialect.PostgreSQL95Dialect.class.getName());
         props.put("javax.persistence.schema-generation.database.action", schemaGeneration);
-        
+
         startLogger.info("Database: {}, schema={}", url, schemaGeneration);
         return props;
     }
@@ -326,7 +328,7 @@ public class JPAService {
      * <p>
      * When using a tool to connect (e.g. DBVisualizer) the URL given to the tool must include the absolute path to the
      * database for example
-     * 
+     *
      * <pre>
      * jdbc:h2:tcp:localhost:9092/file:C:\Dev\git\owlcms4\owlcms\database;MODE=PostgreSQL
      * </pre>

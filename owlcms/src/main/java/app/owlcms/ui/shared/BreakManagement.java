@@ -231,7 +231,8 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         synchronized (this) {
             try {
                 ignoreListeners = true;
-                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> parentDialog.close());
+                UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(),
+                        () -> parentDialog.close());
             } finally {
                 ignoreListeners = false;
             }

@@ -7,7 +7,6 @@
 package app.owlcms.data.agegroup;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -24,8 +23,6 @@ import javax.persistence.Query;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -445,7 +442,7 @@ public class AgeGroupRepository {
             Map<String, Category> templates = createCategoryTemplates(workbook);
             createAgeGroups(workbook, templates, es, localizedName);
             workbook.close();
-        } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
+        } catch (Exception e) {
             logger.error("could not process ageGroup configuration\n{}", LoggerUtils.stackTrace(e));
         }
     }

@@ -94,6 +94,14 @@ public class CompetitionEditingFormFactory
     }
 
     @Override
+    public Component buildNewForm(CrudOperation operation, Competition domainObject, boolean readOnly,
+            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
+            ComponentEventListener<ClickEvent<Button>> operationButtonClickListener) {
+        return this.buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener,
+                operationButtonClickListener, null);
+    }
+
+    @Override
     public Component buildNewForm(CrudOperation operation, Competition competition, boolean readOnly,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
             ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
@@ -137,14 +145,6 @@ public class CompetitionEditingFormFactory
 
         binder.readBean(competition);
         return mainLayout;
-    }
-
-    @Override
-    public Component buildNewForm(CrudOperation operation, Competition domainObject, boolean readOnly,
-            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
-            ComponentEventListener<ClickEvent<Button>> operationButtonClickListener) {
-        return this.buildNewForm(operation, domainObject, readOnly, cancelButtonClickListener,
-                operationButtonClickListener, null);
     }
 
     @Override
@@ -231,19 +231,19 @@ public class CompetitionEditingFormFactory
         return competitionLayout;
     }
 
-    private Component createTitle(String string) {
-        H4 title = new H4(Translator.translate(string));
-        title.getStyle().set("margin-top", "0");
-        title.getStyle().set("margin-bottom", "0");
-        return title;
-    }
-
     private FormLayout createLayout() {
         FormLayout layout = new FormLayout();
 //        layout.setWidth("1024px");
         layout.setResponsiveSteps(new ResponsiveStep("0", 1, LabelsPosition.TOP),
                 new ResponsiveStep("800px", 2, LabelsPosition.TOP));
         return layout;
+    }
+
+    private Component createTitle(String string) {
+        H4 title = new H4(Translator.translate(string));
+        title.getStyle().set("margin-top", "0");
+        title.getStyle().set("margin-bottom", "0");
+        return title;
     }
 
     private FormLayout federationForm() {
@@ -284,43 +284,6 @@ public class CompetitionEditingFormFactory
         return layout;
     }
 
-    private FormLayout specialRulesForm() {
-        String message = Translator.translate("Competition.teamSizeInvalid");
-
-        FormLayout layout = createLayout();
-        Component title = createTitle("Competition.specialRulesTitle");
-        layout.add(title);
-        layout.setColspan(title, 2);
-
-        TextField mensTeamSizeField = new TextField();
-        layout.addFormItem(mensTeamSizeField, labelWithHelp("Competition.mensTeamSize", "Competition.teamSizeExplanation"));
-        binder.forField(mensTeamSizeField)
-                .withNullRepresentation("")
-                .withConverter(new StringToIntegerConverter(message))
-                .withValidator(new IntegerRangeValidator(message, 0, 99))
-                .bind(Competition::getMensTeamSize, Competition::setMensTeamSize);
-
-        TextField womensTeamSizeField = new TextField();
-        layout.addFormItem(womensTeamSizeField, labelWithHelp("Competition.womensTeamSize", "Competition.teamSizeExplanation"));
-        binder.forField(womensTeamSizeField)
-                .withNullRepresentation("")
-                .withConverter(new StringToIntegerConverter(message))
-                .withValidator(new IntegerRangeValidator(message, 0, 99))
-                .bind(Competition::getWomensTeamSize, Competition::setWomensTeamSize);
-
-        Checkbox customScoreField = new Checkbox();
-        layout.addFormItem(customScoreField, labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
-        binder.forField(customScoreField)
-                .bind(Competition::isCustomScore, Competition::setCustomScore);
-
-        Checkbox genderOrderField = new Checkbox();
-        layout.addFormItem(genderOrderField, labelWithHelp("Competition.genderOrder", "Competition.genderOrderExplanation"));
-        binder.forField(genderOrderField)
-                .bind(Competition::isGenderOrder, Competition::setGenderOrder);
-
-        return layout;
-    }
-
     private Span labelWithHelp(String string, String explanation) {
         Icon help = VaadinIcon.QUESTION_CIRCLE_O.create();
         help.getStyle().set("height", "1.2em");
@@ -345,9 +308,10 @@ public class CompetitionEditingFormFactory
         defaultLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
         binder.forField(defaultLocaleField).bind(Competition::getDefaultLocale, Competition::setDefaultLocale);
         layout.addFormItem(defaultLocaleField, Translator.translate("Competition.defaultLocale"));
-        
+
         Checkbox customScoreField = new Checkbox();
-        layout.addFormItem(customScoreField, labelWithHelp("Competition.announcerLiveDecisions", "Competition.announceLiverDecisionsExplanation"));
+        layout.addFormItem(customScoreField,
+                labelWithHelp("Competition.announcerLiveDecisions", "Competition.announceLiverDecisionsExplanation"));
         binder.forField(customScoreField)
                 .bind(Competition::isAnnouncerLiveDecisions, Competition::setAnnouncerLiveDecisions);
 
@@ -385,6 +349,47 @@ public class CompetitionEditingFormFactory
         hr.getStyle().set("background-color", "var(--lumo-contrast-30pct)");
         hr.getStyle().set("height", "2px");
         return hr;
+    }
+
+    private FormLayout specialRulesForm() {
+        String message = Translator.translate("Competition.teamSizeInvalid");
+
+        FormLayout layout = createLayout();
+        Component title = createTitle("Competition.specialRulesTitle");
+        layout.add(title);
+        layout.setColspan(title, 2);
+
+        TextField mensTeamSizeField = new TextField();
+        layout.addFormItem(mensTeamSizeField,
+                labelWithHelp("Competition.mensTeamSize", "Competition.teamSizeExplanation"));
+        binder.forField(mensTeamSizeField)
+                .withNullRepresentation("")
+                .withConverter(new StringToIntegerConverter(message))
+                .withValidator(new IntegerRangeValidator(message, 0, 99))
+                .bind(Competition::getMensTeamSize, Competition::setMensTeamSize);
+
+        TextField womensTeamSizeField = new TextField();
+        layout.addFormItem(womensTeamSizeField,
+                labelWithHelp("Competition.womensTeamSize", "Competition.teamSizeExplanation"));
+        binder.forField(womensTeamSizeField)
+                .withNullRepresentation("")
+                .withConverter(new StringToIntegerConverter(message))
+                .withValidator(new IntegerRangeValidator(message, 0, 99))
+                .bind(Competition::getWomensTeamSize, Competition::setWomensTeamSize);
+
+        Checkbox customScoreField = new Checkbox();
+        layout.addFormItem(customScoreField,
+                labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
+        binder.forField(customScoreField)
+                .bind(Competition::isCustomScore, Competition::setCustomScore);
+
+        Checkbox genderOrderField = new Checkbox();
+        layout.addFormItem(genderOrderField,
+                labelWithHelp("Competition.genderOrder", "Competition.genderOrderExplanation"));
+        binder.forField(genderOrderField)
+                .bind(Competition::isGenderOrder, Competition::setGenderOrder);
+
+        return layout;
     }
 
 }
