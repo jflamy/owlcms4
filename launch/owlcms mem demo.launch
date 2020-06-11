@@ -15,7 +15,7 @@
 <mapEntry key="OWLCMS_PORT" value="80"/>
 <mapEntry key="OWLCMS_REMOTE" value="https://publicresults-rc.herokuapp.com/update"/>
 <mapEntry key="OWLCMS_RESETMODE" value="true"/>
-<mapEntry key="OWLCMS_UPDATEKEY" value=" IWantToGoBackToLakeDistrict"/>
+<mapEntry key="OWLCMS_UPDATEKEY" value="IWantToGoBackToLakeDistrict"/>
 <mapEntry key="_OWLCMS_REMOTE1" value="http://127.0.0.1:8081/update"/>
 </mapAttribute>
 <mapAttribute key="org.eclipse.debug.core.preferred_launchers">

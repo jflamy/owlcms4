@@ -58,7 +58,7 @@
         <dependency>
             <groupId>com.github.appreciated</groupId>
             <artifactId>app-layout-addon</artifactId>
-            <version>4.0.0.rc5</version>
+            <version>4.0.0.rc1</version>
         </dependency>
         <dependency>
             <groupId>com.github.appreciated</groupId>
@@ -130,7 +130,7 @@
         <dependency>
             <groupId>net.sf.jxls</groupId>
             <artifactId>jxls-core</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jxls</groupId>
