@@ -311,13 +311,6 @@
                                 <systemProperty>
                                     <key>port</key>
                                     <value>8081</value>
-<<<<<<< HEAD
-=======
-                                </systemProperty>
-                                <systemProperty>
-                                    <key>updateKey</key>
-                                    <value>thisisaverylongsecretstring</value>
->>>>>>> refs/heads/develop
                                 </systemProperty>
                                 <systemProperty>
                                     <key>updateKey</key>
