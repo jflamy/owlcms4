@@ -310,7 +310,11 @@
                             <systemProperties>
                                 <systemProperty>
                                     <key>port</key>
-                                    <value>8083</value>
+                                    <value>8081</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>updateKey</key>
+                                    <value>thisisaverylongsecretstring</value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>

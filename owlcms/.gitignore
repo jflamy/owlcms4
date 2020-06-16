@@ -10,3 +10,4 @@
 /package.json
 /local/
 /.flattened-pom.xml
+/webpack.config.js
