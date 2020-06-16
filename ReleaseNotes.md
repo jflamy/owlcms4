@@ -1,4 +1,4 @@
-* Changes for release 4.7.6-beta2  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.7.6  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
    * [x] Excessive page refreshes were introduced as a side-effect in version 4.7.4.  Only database loads that correspond to group switches now cause a full refresh.
 * Key Highlights from recent stable releases
    * [x] Translations fixed.  Spanish version available.
