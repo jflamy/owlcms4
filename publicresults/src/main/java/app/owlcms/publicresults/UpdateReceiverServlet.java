@@ -23,9 +23,9 @@ import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @WebServlet("/update")
-public class EventReceiverServlet extends HttpServlet {
+public class UpdateReceiverServlet extends HttpServlet {
 
-    Logger logger = (Logger) LoggerFactory.getLogger(EventReceiverServlet.class);
+    Logger logger = (Logger) LoggerFactory.getLogger(UpdateReceiverServlet.class);
     private String secret = StartupUtils.getStringParam("updateKey");
     private static String defaultFopName;
     static EventBus eventBus = new AsyncEventBus(Executors.newCachedThreadPool());
@@ -53,9 +53,9 @@ public class EventReceiverServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (StartupUtils.getBooleanParam("DEBUG")) {
             Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-            logger./**/warn("---- update received from {}", URLUtils.getClientIp(req));
+            logger./**/debug("---- update received from {}", URLUtils.getClientIp(req));
             for (Entry<String, String[]> pair : pairs) {
-                logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
+                logger./**/debug("{} = {}", pair.getKey(), pair.getValue()[0]);
             }
         }
 

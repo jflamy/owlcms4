@@ -39,7 +39,7 @@ public class MainView extends VerticalLayout {
 
     private void buildHomePage() {
         // we cache the last update received for each field of play, indexed by fop name
-        Set<String> fopNames = EventReceiverServlet.updateCache.keySet();
+        Set<String> fopNames = UpdateReceiverServlet.updateCache.keySet();
         if (fopNames.size() == 0) {
             removeAll();
             add(text);
@@ -50,7 +50,7 @@ public class MainView extends VerticalLayout {
 
     private void createButtons(Set<String> fopNames) {
         removeAll();
-        UpdateEvent updateEvent = EventReceiverServlet.updateCache.entrySet().stream().findFirst().orElse(null).getValue();
+        UpdateEvent updateEvent = UpdateReceiverServlet.updateCache.entrySet().stream().findFirst().orElse(null).getValue();
         if (updateEvent == null) return;
         
         H3 title = new H3(updateEvent.getCompetitionName());
@@ -72,13 +72,13 @@ public class MainView extends VerticalLayout {
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         ui = UI.getCurrent();
-        EventReceiverServlet.getEventBus().register(this);
+        UpdateReceiverServlet.getEventBus().register(this);
     }
 
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
-        EventReceiverServlet.getEventBus().unregister(this);
+        UpdateReceiverServlet.getEventBus().unregister(this);
     }
     
     @Subscribe

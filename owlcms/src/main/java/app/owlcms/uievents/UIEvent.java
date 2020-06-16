@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.fieldofplay;
+package app.owlcms.uievents;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +13,8 @@ import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.BreakType;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 
 /**

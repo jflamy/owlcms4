@@ -14,7 +14,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.server.Command;
 
-import app.owlcms.fieldofplay.UIEvent;
+import app.owlcms.uievents.UIEvent;
 
 public interface UIEventProcessor {
 

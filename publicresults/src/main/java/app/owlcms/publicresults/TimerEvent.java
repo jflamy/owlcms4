@@ -1,7 +1,7 @@
 package app.owlcms.publicresults;
 
 public class TimerEvent {
-    public TimerEvent(Object origin) {
+    public TimerEvent() {
     }
 
     /**
@@ -18,7 +18,7 @@ public class TimerEvent {
          * @param origin        the origin
          */
         public SetTime(Integer timeRemaining, Object origin) {
-            super(origin);
+            super();
             this.timeRemaining = timeRemaining;
         }
 
@@ -49,7 +49,7 @@ public class TimerEvent {
          * @param silent
          */
         public StartTime(Integer timeRemaining, Object origin, boolean silent) {
-            super(origin);
+            super();
             this.timeRemaining = timeRemaining;
             this.silent = silent;
         }
@@ -83,7 +83,7 @@ public class TimerEvent {
          * @param origin        the origin
          */
         public StopTime(int timeRemaining, Object origin) {
-            super(origin);
+            super();
             this.timeRemaining = timeRemaining;
         }
 
@@ -95,6 +95,11 @@ public class TimerEvent {
         public Integer getTimeRemaining() {
             return timeRemaining;
         }
+    }
+
+    public String getFopName() {
+        // FIXME should come from event
+        return null;
     }
 
 }

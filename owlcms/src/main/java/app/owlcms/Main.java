@@ -112,6 +112,7 @@ public class Main {
 
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");
+        System.setProperty("java.net.preferIPv6Addresses", "false");
         ConvertUtils.register(new DateConverter(null), java.util.Date.class);
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 

@@ -42,7 +42,6 @@ import com.vaadin.flow.server.PageConfigurator;
 
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -50,6 +49,7 @@ import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.RequireLogin;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

@@ -19,10 +19,10 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 import app.owlcms.fieldofplay.FOPEvent;
-import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.shared.SafeEventBusRegistration;
+import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -87,7 +87,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         logger.debug("master referee decision update");
         Object origin = this.getOrigin();
         OwlcmsSession.withFop((fop) -> {
-            logger.debug("referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time,
+            logger.warn("master referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time,
                     ref3Time);
             fopEventBus.post(new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
                     ref2Time, ref3Time));

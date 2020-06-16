@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.forwarder;
+package app.owlcms.uievents;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,10 +41,9 @@ import app.owlcms.displays.attemptboard.BreakDisplay;
 import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.fieldofplay.UIEvent;
-import app.owlcms.fieldofplay.UIEvent.LiftingOrderUpdated;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -87,9 +86,16 @@ public class EventForwarder implements BreakDisplay {
     private int previousHashCode = 0;
     private long previousMillis = 0L;
     private boolean breakMode;
+    private Boolean decisionLight1 = null;
+    private Boolean decisionLight2 = null;
+    private Boolean decisionLight3 = null;
+    private boolean down = false;
+    private boolean decisionLightsVisible = false;
 
     private String updateKey;
-    private String url;
+    private String updateUrl;
+    private String decisionUrl;
+    
     @SuppressWarnings("unused")
     private Boolean debugMode;
 
@@ -105,14 +111,20 @@ public class EventForwarder implements BreakDisplay {
         setTranslationMap();
 
         updateKey = StartupUtils.getStringParam("updateKey");
-        url = StartupUtils.getStringParam("remote");
+        updateUrl = StartupUtils.getStringParam("remote");
         debugMode = StartupUtils.getBooleanParam("debug");
-        if (url == null || updateKey == null || url.trim().isEmpty() || updateKey.trim().isEmpty()) {
+        if (updateUrl == null || updateKey == null || updateUrl.trim().isEmpty() || updateKey.trim().isEmpty()) {
             logger.info("Pushing results to remote site not enabled.");
         } else {
-            logger.info("Pushing to remote site {}", url);
+            if (updateUrl.endsWith("/update")) {
+                decisionUrl = updateUrl.replaceAll("/update$", "/decision");
+            } else {
+                decisionUrl = updateUrl + "/decision";
+                updateUrl = updateUrl + "/update";
+            }
+            logger.info("Pushing to remote site {}", updateUrl);
         }
-        pushToRemote();
+        pushUpdate();
     }
 
     @Override
@@ -173,11 +185,38 @@ public class EventForwarder implements BreakDisplay {
     }
 
     @Subscribe
+    public void slaveDecision(UIEvent.Decision e) {
+        setDecisionLight1(e.ref1);
+        setDecisionLight2(e.ref2);
+        setDecisionLight3(e.ref3);
+        setDecisionLightsVisible(true);
+        setDown(false);
+        pushDecision(DecisionEventType.FULL_DECISION);
+    }
+
+    @Subscribe
+    public void slaveDecisionReset(UIEvent.DecisionReset e) {
+        setDecisionLight1(null);
+        setDecisionLight2(null);
+        setDecisionLight3(null);
+        setDecisionLightsVisible(false);
+        setDown(false);
+        pushDecision(DecisionEventType.RESET);
+    }
+
+    @Subscribe
+    public void slaveDownSignal(UIEvent.DownSignal e) {
+        setDecisionLightsVisible(false);
+        setDown(true);
+        pushDecision(DecisionEventType.DOWN_SIGNAL);
+    }
+
+    @Subscribe
     public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
         Competition competition = Competition.getCurrent();
         computeLeaders(competition);
         computeCurrentGroup(competition);
-        pushToRemote();
+        pushUpdate();
     }
 
     @Subscribe
@@ -189,7 +228,7 @@ public class EventForwarder implements BreakDisplay {
             // done is a special kind of break.
             doBreak();
             setFullName(Translator.translate("Group_number_results", g.toString()));
-            pushToRemote();
+            pushUpdate();
         }
     }
 
@@ -199,20 +238,20 @@ public class EventForwarder implements BreakDisplay {
         Competition competition = Competition.getCurrent();
         computeCurrentGroup(competition);
         doUpdate(a, e);
-        pushToRemote();
+        pushUpdate();
     }
 
     @Subscribe
     public void slaveStartBreak(UIEvent.BreakStarted e) {
         setHidden(false);
         doBreak();
-        pushToRemote();
+        pushUpdate();
     }
 
     @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
         setHidden(false);
-        pushToRemote();
+        pushUpdate();
     }
 
     @Subscribe
@@ -235,7 +274,7 @@ public class EventForwarder implements BreakDisplay {
         default:
             doUpdate(e.getAthlete(), e);
         }
-        pushToRemote();
+        pushUpdate();
     }
 
     protected void setTranslationMap() {
@@ -380,6 +419,28 @@ public class EventForwarder implements BreakDisplay {
         return sb;
     }
 
+    private Map<String, String> createDecision(DecisionEventType det) {
+        Map<String, String> sb = new HashMap<>();
+        mapPut(sb, "eventType", det.toString());
+        mapPut(sb, "updateKey", updateKey);
+
+        // competition state
+        mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
+        mapPut(sb, "fop", fop.getName());
+        FOPState state = fop.getState();
+        mapPut(sb, "fopState", state != null ? state.toString() : FOPState.INACTIVE.name());
+        mapPut(sb, "break", String.valueOf(breakMode));
+
+        // current athlete & attempt
+        mapPut(sb, "d1", getDecisionLight1() != null ? getDecisionLight1().toString() : null);
+        mapPut(sb, "d2", getDecisionLight2() != null ? getDecisionLight2().toString() : null);
+        mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
+        mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
+        mapPut(sb, "down", Boolean.toString(isDown()));
+
+        return sb;
+    }
+    
     private void doDone(Group g) {
         logger.debug("forwarding doDone {}", g == null ? null : g.getName());
         if (g == null) {
@@ -585,34 +646,6 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
-//    private void javaNetHttpPost() {
-//        // url = "https://httpbin.org/post";
-//        HttpURLConnection con = null;
-//        if (url == null) {
-//            return;
-//        }
-//        try {
-//            Map<String, String> updateString = createUpdate();
-//            long deltaMillis = System.currentTimeMillis() - previousMillis;
-//            int hashCode = updateString.hashCode();
-//            // debounce, sometimes several identical updates in a rapid succession
-//            // identical updates are ok after 1 sec.
-//            if (hashCode != previousHashCode || (deltaMillis > 1000)) {
-//                con = sendUpdate(updateString);
-//                previousHashCode = hashCode;
-//                previousMillis = System.currentTimeMillis();
-//            }
-//            // contrary to documentation con can be null with no exception thrown.
-//            if (con != null) {
-//                readResponse(con);
-//            }
-//        } finally {
-//            if (con != null) {
-//                con.disconnect();
-//            }
-//        }
-//    }
-
     private void mapPut(Map<String, String> wr, String key, String value) {
         if (value == null) {
             return;
@@ -620,41 +653,27 @@ public class EventForwarder implements BreakDisplay {
         wr.put(key, value);
     }
 
-    private void pushToRemote() {
-        if (url == null) {
+    private void pushDecision(DecisionEventType det) {
+        if (decisionUrl == null) {
             return;
         }
         try {
-            sendPost(url, createUpdate());
+            sendPost(decisionUrl, createDecision(det));
         } catch (IOException e) {
-            logger./**/warn("cannot push: {} {}", url, e.getMessage());
+            logger./**/warn("cannot push: {} {}", updateUrl, e.getMessage());
         }
-        // javaNetHttpPost();
     }
 
-//    private String readResponse(HttpURLConnection con) {
-//        StringBuilder content;
-//        try {
-//            InputStream inputStream = con.getInputStream();
-//            if (inputStream == null) {
-//                return "";
-//            }
-//
-//            try (BufferedReader br = new BufferedReader(
-//                    new InputStreamReader(inputStream))) {
-//                String line;
-//                content = new StringBuilder();
-//                while ((line = br.readLine()) != null) {
-//                    content.append(line);
-//                    content.append(System.lineSeparator());
-//                }
-//            }
-//            return content.toString();
-//        } catch (Exception e) {
-//            // logger.error("{} {}", url, e.getCause() != null ? e.getCause().getMessage() : e);
-//            return null;
-//        }
-//    }
+    private void pushUpdate() {
+        if (updateUrl == null) {
+            return;
+        }
+        try {
+            sendPost(updateUrl, createUpdate());
+        } catch (IOException e) {
+            logger./**/warn("cannot push: {} {}", updateUrl, e.getMessage());
+        }
+    }
 
     private void sendPost(String url, Map<String, String> parameters) throws IOException {
         HttpPost post = new HttpPost(url);
@@ -687,43 +706,6 @@ public class EventForwarder implements BreakDisplay {
 
     }
 
-//    private HttpURLConnection sendUpdate(Map<String, String> parameters) {
-//        HttpURLConnection con = null;
-//        try {
-//            URL myurl = new URL(url);
-//            con = (HttpURLConnection) myurl.openConnection();
-//            con.setDoOutput(true);
-//            con.setRequestMethod("POST");
-//            con.setRequestProperty("User-Agent", "Java client");
-//            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-//
-//            int count = 0;
-//            // connection is opened by getOutputStream
-//            try (OutputStream outputStream = con.getOutputStream();
-//                    OutputStreamWriter wr = new OutputStreamWriter(outputStream)) {
-//                for (Entry<String, String> pair : parameters.entrySet()) {
-//                    wr.write(URLUtils.urlEncode(pair.getKey()));
-//                    wr.write("=");
-//                    wr.write(URLUtils.urlEncode(pair.getValue()));
-//                    if (debugMode) {
-//                        logger./**/warn("{}={}", pair.getKey(), pair.getValue());
-//                    }
-//                    if (count < parameters.size() - 1) {
-//                        wr.write("&");
-//                        if (debugMode) {
-//                            logger./**/warn("&");
-//                        }
-//                        count++;
-//                    }
-//                }
-//            }
-//        } catch (Exception e) {
-//            logger./**/warn("cannot push: {} {}", url, e.getMessage());
-//        }
-//        return con;
-//
-//    }
-
     private void setBreak(boolean b) {
         this.breakMode = b;
     }
@@ -751,6 +733,46 @@ public class EventForwarder implements BreakDisplay {
 
     private void setWideTeamNames(boolean b) {
         wideTeamNames = b;
+    }
+
+    public Boolean getDecisionLight1() {
+        return decisionLight1;
+    }
+
+    public void setDecisionLight1(Boolean decisionLight1) {
+        this.decisionLight1 = decisionLight1;
+    }
+
+    public Boolean getDecisionLight2() {
+        return decisionLight2;
+    }
+
+    public void setDecisionLight2(Boolean decisionLight2) {
+        this.decisionLight2 = decisionLight2;
+    }
+
+    public Boolean getDecisionLight3() {
+        return decisionLight3;
+    }
+
+    public void setDecisionLight3(Boolean decisionLight3) {
+        this.decisionLight3 = decisionLight3;
+    }
+
+    public boolean isDown() {
+        return down;
+    }
+
+    public void setDown(boolean down) {
+        this.down = down;
+    }
+
+    public boolean isDecisionLightsVisible() {
+        return decisionLightsVisible;
+    }
+
+    public void setDecisionLightsVisible(boolean decisionLightsVisible) {
+        this.decisionLightsVisible = decisionLightsVisible;
     }
 
 }

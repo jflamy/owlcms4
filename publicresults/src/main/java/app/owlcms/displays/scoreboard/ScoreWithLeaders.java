@@ -26,8 +26,11 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.components.elements.AthleteTimerElement;
-import app.owlcms.publicresults.EventReceiverServlet;
+import app.owlcms.components.elements.DecisionElement;
+import app.owlcms.publicresults.DecisionEvent;
+import app.owlcms.publicresults.DecisionEventType;
 import app.owlcms.publicresults.UpdateEvent;
+import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.parameters.QueryParameterReader;
 import ch.qos.logback.classic.Level;
@@ -113,8 +116,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 //    @Id("breakTimer")
 //    private BreakTimerElement breakTimer; // Flow creates it
 
-//    @Id("decisions")
-//    private DecisionElement decisions; // Flow creates it
+    @Id("decisions")
+    private DecisionElement decisions; // Flow creates it
 
     private boolean darkMode;
     private ContextMenu contextMenu;
@@ -189,9 +192,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             String translationMap = e.getTranslationMap();
 
             JreJsonFactory jreJsonFactory = new JreJsonFactory();
-            this.getElement().setPropertyJson("leaders", leaders != null ? jreJsonFactory.parse(leaders) : Json.createNull());
-            this.getElement().setPropertyJson("athletes", athletes != null ? jreJsonFactory.parse(athletes) : Json.createNull());
-            this.getElement().setPropertyJson("t", translationMap != null ? jreJsonFactory.parse(translationMap) : Json.createNull());
+            this.getElement().setPropertyJson("leaders",
+                    leaders != null ? jreJsonFactory.parse(leaders) : Json.createNull());
+            this.getElement().setPropertyJson("athletes",
+                    athletes != null ? jreJsonFactory.parse(athletes) : Json.createNull());
+            this.getElement().setPropertyJson("t",
+                    translationMap != null ? jreJsonFactory.parse(translationMap) : Json.createNull());
 
             getModel().setCompetitionName(e.getCompetitionName());
             getModel().setAttempt(e.getAttempt());
@@ -206,7 +212,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             getModel().setWideTeamNames(e.getWideTeamNames());
             String liftsDone = e.getLiftsDone();
             getModel().setLiftsDone(liftsDone);
-            
+
             if (liftsDone != null && "".contentEquals(liftsDone) && groupName != null && "".contentEquals(groupName)) {
                 // The group can be done and the state be either BREAK (with break type GROUP_DONE)
                 // or CURRENT_ATHLETE_DISPLAYED because we just came back to the group but there
@@ -214,6 +220,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 // so this is a bit of kludge, yes
                 this.getElement().callJsFunction("groupDone");
             } else if ("BREAK".equals(e.getFopState())) {
+                // FIXME: we need to show break timer
                 this.getElement().callJsFunction("doBreakNoTimer");
                 needReset = true;
             } else if (needReset) {
@@ -223,18 +230,30 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         });
     }
 
+    @Subscribe
+    public void slaveDecisionEvent(DecisionEvent e) {
+        if (e.getEventType() == DecisionEventType.DOWN_SIGNAL) {
+            // ignore if the down signal was initiated by this result board.
+            // (the timer element on the result board will actually process the keyboard
+            // codes if devices are attached)
+            UI.getCurrent().access(() -> {
+                getModel().setHidden(false);
+                this.getElement().callJsFunction("down");
+            });
+        }
+    }
+
     protected void doEmpty() {
         this.getModel().setHidden(true);
     }
 
-
     /** @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        EventReceiverServlet.getEventBus().register(this);
+        UpdateReceiverServlet.getEventBus().register(this);
         ui = UI.getCurrent();
         setDarkMode(this, isDarkMode(), false);
-        UpdateEvent initEvent = EventReceiverServlet.sync(getFopName());
+        UpdateEvent initEvent = UpdateReceiverServlet.sync(getFopName());
         if (initEvent != null) {
             slaveGlobalRankingUpdated(initEvent);
             timer.slaveOrderUpdated(initEvent);
@@ -249,7 +268,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
-        EventReceiverServlet.getEventBus().unregister(this);
+        UpdateReceiverServlet.getEventBus().unregister(this);
     }
 
     /** @see app.owlcms.ui.parameters.QueryParameterReader#setFopName(java.lang.String) */
