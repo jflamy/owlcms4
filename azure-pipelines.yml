@@ -4,10 +4,10 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.7.6-beta2
+    default: 4.7.6-rc1
   - name: BuildPublicResults
     type: string
-    default: 'false'
+    default: 'true'
 
 variables:
   # -Drevision overrides .mvn config; must be unique if BuildGoal is set to deploy.
