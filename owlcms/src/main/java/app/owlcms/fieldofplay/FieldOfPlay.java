@@ -16,7 +16,6 @@ import static app.owlcms.fieldofplay.FOPState.TIME_STOPPED;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
@@ -178,7 +177,7 @@ public class FieldOfPlay {
         this.postBus = new EventBus("POST-" + name);
         this.setTestingMode(testingMode);
         this.group = new Group();
-        init(athletes, timer1, breakTimer1);
+        init(athletes, timer1, breakTimer1, true);
     }
 
     /**
@@ -502,9 +501,11 @@ public class FieldOfPlay {
 
         case TIME_STOPPED:
             if (e instanceof DownSignal) {
+                // ignore -- now processed via processRefereeDecisions()
                 // 2 referees have given same decision
-                emitDown(e);
-            } else if (e instanceof DecisionFullUpdate) {
+                //emitDown(e);
+            } else 
+            if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);
                 uiShowUpdateOnJuryScreen();
@@ -584,7 +585,7 @@ public class FieldOfPlay {
         }
     }
 
-    public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer) {
+    public void init(List<Athlete> athletes, IProxyTimer timer, IProxyTimer breakTimer, boolean sameGroup) {
         logger.trace("start of init state=" + state);
         this.athleteTimer = timer;
         this.breakTimer = breakTimer;
@@ -604,7 +605,9 @@ public class FieldOfPlay {
         }
 
         // force a wake up on user interfaces
+        if (!sameGroup) {
         pushOut(new UIEvent.SwitchGroup(getGroup(), getState(), getCurAthlete(), this));
+        }
         logger.trace("end of init state=" + state);
     }
 
@@ -628,26 +631,32 @@ public class FieldOfPlay {
      * @param forceLoad reload from database even if current group
      */
     public void loadGroup(Group group, Object origin, boolean forceLoad) {
-        if (Objects.equals(this.getGroup(), group) && !forceLoad) {
+//        if (Objects.equals(this.getGroup(), group) && !forceLoad) {
+        String thisGroupName = this.getGroup() != null ? this.getGroup().getName() : null;
+        String loadGroupName = group != null ? group.getName() : null;
+        boolean sameGroup = thisGroupName == loadGroupName;
+        if (loadGroupName != null && sameGroup && !forceLoad) {
             // already loaded
-            logger.trace("group {} already loaded", group != null ? group.getName() : null);
+            logger.trace("group {} already loaded", loadGroupName);
             return;
         }
         this.setGroup(group);
         if (group != null) {
-            logger.debug("{} loading data for group {} [{} {} ]",
-                    this.getName(),
-                    (group != null ? group.getName() : group),
+            logger.debug("{} loading data for group {} [{} {} {} {}]",
+                    thisGroupName,
+                    loadGroupName,
+                    sameGroup,
+                    forceLoad,
                     origin.getClass().getSimpleName(),
                     LoggerUtils.whereFrom());
             List<Athlete> findAllByGroupAndWeighIn = AthleteRepository.findAllByGroupAndWeighIn(group, true);
-            init(findAllByGroupAndWeighIn, athleteTimer, breakTimer);
+            init(findAllByGroupAndWeighIn, athleteTimer, breakTimer, sameGroup);
         } else {
-            init(new ArrayList<Athlete>(), athleteTimer, breakTimer);
+            init(new ArrayList<Athlete>(), athleteTimer, breakTimer, sameGroup);
         }
     }
 
-    public void pushOut(app.owlcms.fieldofplay.UIEvent event) {
+    public void pushOut(UIEvent event) {
         getUiEventBus().post(event);
         getPostEventBus().post(event);
     }
@@ -1013,7 +1022,7 @@ public class FieldOfPlay {
     }
 
     private void setClockOwner(Athlete athlete) {
-        logger.debug("***setting clock owner to {} [{}]", athlete, LoggerUtils.whereFrom());
+        logger.trace("***setting clock owner to {} [{}]", athlete, LoggerUtils.whereFrom());
         this.clockOwner = athlete;
     }
 
