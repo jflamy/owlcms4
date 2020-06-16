@@ -1,7 +1,5 @@
-If you already have version 4.7.4.1, this release may be skipped as the programs are identical.
-
-* Changes for release 4.7.5  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-   * [x] No behaviour changes relative to 4.7.4.1.  The application building and packaging has been moved to Azure DevOps. The application can now be developed, built, distributed and run completely on the cloud.  The .exe files installers Windows are no longer signed, as signing the files does not eliminate the obnoxious warnings.
+* Changes for release 4.7.6  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+   * [x] Excessive page refreshes were introduced as a side-effect in version 4.7.4.  Only database loads that correspond to group switches now cause a full refresh.
 * Key Highlights from recent stable releases
    * [x] Translations fixed.  Spanish version available.
    * [x] Improved support for deployment under Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md).

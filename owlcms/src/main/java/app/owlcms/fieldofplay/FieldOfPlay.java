@@ -658,7 +658,7 @@ public class FieldOfPlay {
         }
     }
 
-    public void pushOut(app.owlcms.uievents.UIEvent event) {
+    public void pushOut(UIEvent event) {
         getUiEventBus().post(event);
         getPostEventBus().post(event);
     }
