@@ -8,7 +8,9 @@ package app.owlcms.components.elements;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -16,6 +18,7 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
+import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -198,8 +201,8 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             model.setSilent(true);
             setTimerElement(this.getElement());
         });
+        
     }
-
 
     protected void setTimerElement(Element timerElement) {
         this.timerElement = timerElement;
@@ -232,5 +235,25 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     private void stop() {
         getTimerElement().callJsFunction("pause");
     }
+
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        this.ui = attachEvent.getUI();
+        init();
+
+        TimerReceiverServlet.getEventBus().register(this);
+    }
+
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+        this.ui = null;
+        TimerReceiverServlet.getEventBus().unregister(this);
+    }
+
 
 }

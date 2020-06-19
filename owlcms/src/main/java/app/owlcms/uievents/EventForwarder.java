@@ -7,6 +7,8 @@
 package app.owlcms.uievents;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -44,6 +46,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -95,7 +98,8 @@ public class EventForwarder implements BreakDisplay {
     private String updateKey;
     private String updateUrl;
     private String decisionUrl;
-    
+    private String timerUrl;
+
     @SuppressWarnings("unused")
     private Boolean debugMode;
 
@@ -118,8 +122,10 @@ public class EventForwarder implements BreakDisplay {
         } else {
             if (updateUrl.endsWith("/update")) {
                 decisionUrl = updateUrl.replaceAll("/update$", "/decision");
+                timerUrl = updateUrl.replaceAll("/update$", "/timer");
             } else {
                 decisionUrl = updateUrl + "/decision";
+                timerUrl = timerUrl + "/timer";
                 updateUrl = updateUrl + "/update";
             }
             logger.info("Pushing to remote site {}", updateUrl);
@@ -139,6 +145,18 @@ public class EventForwarder implements BreakDisplay {
             setBreak(true);
             setHidden(false);
         });
+    }
+
+    public Boolean getDecisionLight1() {
+        return decisionLight1;
+    }
+
+    public Boolean getDecisionLight2() {
+        return decisionLight2;
+    }
+
+    public Boolean getDecisionLight3() {
+        return decisionLight3;
     }
 
     public Integer getTimeAllowed() {
@@ -177,11 +195,66 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
+    public boolean isDecisionLightsVisible() {
+        return decisionLightsVisible;
+    }
+
+    public boolean isDown() {
+        return down;
+    }
+
+    public void setDecisionLight1(Boolean decisionLight1) {
+        this.decisionLight1 = decisionLight1;
+    }
+
+    public void setDecisionLight2(Boolean decisionLight2) {
+        this.decisionLight2 = decisionLight2;
+    }
+
+    public void setDecisionLight3(Boolean decisionLight3) {
+        this.decisionLight3 = decisionLight3;
+    }
+
+    public void setDecisionLightsVisible(boolean decisionLightsVisible) {
+        this.decisionLightsVisible = decisionLightsVisible;
+    }
+
+    public void setDown(boolean down) {
+        this.down = down;
+    }
+
     @Subscribe
     public void slaveBreakDone(UIEvent.BreakDone e) {
         Athlete a = e.getAthlete();
         setHidden(false);
         doUpdate(a, e);
+        pushTimer(e);
+    }
+
+    @Subscribe
+    public void slaveBreakPause(UIEvent.BreakPaused e) {
+        pushTimer(e);
+    }
+
+    @Subscribe
+    public void slaveBreakSet(UIEvent.BreakSetTime e) {
+        Integer milliseconds;
+        if (e.getEnd() != null) {
+            milliseconds = (int) LocalDateTime.now().until(e.getEnd(), ChronoUnit.MILLIS);
+        } else {
+            milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
+            logger.debug("&&& breakTimer set {} {} {} {}", parentName, formatDuration(milliseconds),
+                    e.isIndefinite(), LoggerUtils.whereFrom());
+        }
+        doSetTimer(milliseconds);
+    }
+
+    @Subscribe
+    public void slaveBreakStart(UIEvent.BreakStarted e) {
+        setHidden(false);
+        doBreak();
+        // FIXME remove break start from pushUpdate
+        pushTimer(e);
     }
 
     @Subscribe
@@ -238,13 +311,6 @@ public class EventForwarder implements BreakDisplay {
         Competition competition = Competition.getCurrent();
         computeCurrentGroup(competition);
         doUpdate(a, e);
-        pushUpdate();
-    }
-
-    @Subscribe
-    public void slaveStartBreak(UIEvent.BreakStarted e) {
-        setHidden(false);
-        doBreak();
         pushUpdate();
     }
 
@@ -379,6 +445,33 @@ public class EventForwarder implements BreakDisplay {
 
     }
 
+    private Map<String, String> createDecision(DecisionEventType det) {
+        Map<String, String> sb = new HashMap<>();
+        mapPut(sb, "eventType", det.toString());
+        mapPut(sb, "updateKey", updateKey);
+
+        // competition state
+        mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
+        mapPut(sb, "fop", fop.getName());
+        FOPState state = fop.getState();
+        mapPut(sb, "fopState", state != null ? state.toString() : FOPState.INACTIVE.name());
+        mapPut(sb, "break", String.valueOf(breakMode));
+
+        // current athlete & attempt
+        mapPut(sb, "d1", getDecisionLight1() != null ? getDecisionLight1().toString() : null);
+        mapPut(sb, "d2", getDecisionLight2() != null ? getDecisionLight2().toString() : null);
+        mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
+        mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
+        mapPut(sb, "down", Boolean.toString(isDown()));
+
+        return sb;
+    }
+
+    private Map<String, String> createTimer() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     private Map<String, String> createUpdate() {
         Map<String, String> sb = new HashMap<>();
         mapPut(sb, "updateKey", updateKey);
@@ -419,28 +512,6 @@ public class EventForwarder implements BreakDisplay {
         return sb;
     }
 
-    private Map<String, String> createDecision(DecisionEventType det) {
-        Map<String, String> sb = new HashMap<>();
-        mapPut(sb, "eventType", det.toString());
-        mapPut(sb, "updateKey", updateKey);
-
-        // competition state
-        mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
-        mapPut(sb, "fop", fop.getName());
-        FOPState state = fop.getState();
-        mapPut(sb, "fopState", state != null ? state.toString() : FOPState.INACTIVE.name());
-        mapPut(sb, "break", String.valueOf(breakMode));
-
-        // current athlete & attempt
-        mapPut(sb, "d1", getDecisionLight1() != null ? getDecisionLight1().toString() : null);
-        mapPut(sb, "d2", getDecisionLight2() != null ? getDecisionLight2().toString() : null);
-        mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
-        mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
-        mapPut(sb, "down", Boolean.toString(isDown()));
-
-        return sb;
-    }
-    
     private void doDone(Group g) {
         logger.debug("forwarding doDone {}", g == null ? null : g.getName());
         if (g == null) {
@@ -664,6 +735,17 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
+    private void pushTimer(UIEvent e) {
+        if (timerUrl == null) {
+            return;
+        }
+        try {
+            sendPost(timerUrl, createTimer());
+        } catch (IOException e) {
+            logger./**/warn("cannot push: {} {}", updateUrl, e.getMessage());
+        }
+    }
+
     private void pushUpdate() {
         if (updateUrl == null) {
             return;
@@ -733,46 +815,6 @@ public class EventForwarder implements BreakDisplay {
 
     private void setWideTeamNames(boolean b) {
         wideTeamNames = b;
-    }
-
-    public Boolean getDecisionLight1() {
-        return decisionLight1;
-    }
-
-    public void setDecisionLight1(Boolean decisionLight1) {
-        this.decisionLight1 = decisionLight1;
-    }
-
-    public Boolean getDecisionLight2() {
-        return decisionLight2;
-    }
-
-    public void setDecisionLight2(Boolean decisionLight2) {
-        this.decisionLight2 = decisionLight2;
-    }
-
-    public Boolean getDecisionLight3() {
-        return decisionLight3;
-    }
-
-    public void setDecisionLight3(Boolean decisionLight3) {
-        this.decisionLight3 = decisionLight3;
-    }
-
-    public boolean isDown() {
-        return down;
-    }
-
-    public void setDown(boolean down) {
-        this.down = down;
-    }
-
-    public boolean isDecisionLightsVisible() {
-        return decisionLightsVisible;
-    }
-
-    public void setDecisionLightsVisible(boolean decisionLightsVisible) {
-        this.decisionLightsVisible = decisionLightsVisible;
     }
 
 }

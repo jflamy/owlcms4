@@ -16,12 +16,13 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
-import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
+import app.owlcms.publicresults.BreakTimerEvent;
 import app.owlcms.publicresults.DecisionEvent;
 import app.owlcms.publicresults.DecisionReceiverServlet;
 import app.owlcms.publicresults.TimerEvent;
+import app.owlcms.publicresults.TimerReceiverServlet;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -108,7 +109,6 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     public void slaveStartTimer(TimerEvent.StartTime e) {
         if (ui == null) return;
         ui.access(() -> {
-            logger.debug("slaveStartTimer enable");
             getModel().setEnabled(true);
         });
     }
@@ -117,11 +117,25 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     public void slaveStopTimer(TimerEvent.StopTime e) {
         if (ui == null) return;
         ui.access(() -> {
-            logger.debug("slaveStopTimer enable");
             getModel().setEnabled(true);
         });
     }
 
+    @Subscribe
+    public void slaveStartBreakTimer(BreakTimerEvent.StartTime e) {
+        if (ui == null) return;
+        ui.access(() -> {
+            getModel().setEnabled(true);
+        });
+    }
+
+    @Subscribe
+    public void slaveStopBreakTimer(BreakTimerEvent.StopTime e) {
+        if (ui == null) return;
+        ui.access(() -> {
+            getModel().setEnabled(true);
+        });
+    } 
     protected Object getOrigin() {
         // we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard
         // to identify
@@ -138,6 +152,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         init();
 
         DecisionReceiverServlet.getEventBus().register(this);
+        TimerReceiverServlet.getEventBus().register(this);
     }
 
 
@@ -146,24 +161,11 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         super.onDetach(detachEvent);
         this.ui = null;
         DecisionReceiverServlet.getEventBus().unregister(this);
+        TimerReceiverServlet.getEventBus().unregister(this);
     }
 
     private void init() {
         DecisionModel model = getModel();
         model.setPublicFacing(true);
-
-        Element elem = this.getElement();
-        elem.addPropertyChangeListener("ref1", "ref1-changed", (e) -> {
-            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-        });
-        elem.addPropertyChangeListener("ref2", "ref2-changed", (e) -> {
-            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-        });
-        elem.addPropertyChangeListener("ref3", "ref3-changed", (e) -> {
-            uiEventLogger.trace(e.getPropertyName() + " changed to " + e.getValue());
-        });
-        elem.addPropertyChangeListener("decision", "decision-changed", (e) -> {
-            uiEventLogger.debug(e.getPropertyName() + " changed to " + e.getValue());
-        });
     }
 }

@@ -26,6 +26,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.components.elements.AthleteTimerElement;
+import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.publicresults.DecisionEvent;
 import app.owlcms.publicresults.DecisionEventType;
@@ -113,8 +114,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Id("timer")
     private AthleteTimerElement timer; // Flow creates it
 
-//    @Id("breakTimer")
-//    private BreakTimerElement breakTimer; // Flow creates it
+    @Id("breakTimer")
+    private BreakTimerElement breakTimer; // Flow creates it
 
     @Id("decisions")
     private DecisionElement decisions; // Flow creates it

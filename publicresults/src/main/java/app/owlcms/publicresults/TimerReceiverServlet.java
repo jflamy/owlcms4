@@ -67,6 +67,7 @@ public class TimerReceiverServlet extends HttpServlet {
         }
 
         TimerEvent timerEvent = null;
+        BreakTimerEvent breakTimerEvent = null;
 
         String eventTypeString = req.getParameter("eventType");
         Class<?> eventClass = null;
@@ -88,11 +89,29 @@ public class TimerReceiverServlet extends HttpServlet {
             timerEvent = new TimerEvent.StopTime(seconds, null);
         } else if (eventClass.isAssignableFrom(TimerEvent.StartTime.class)) {
             String silentString = req.getParameter("silent");
-            timerEvent = new TimerEvent.StartTime(seconds, null, silentString != null ? Boolean.valueOf(silentString) : false);
+            timerEvent = new TimerEvent.StartTime(seconds, null,
+                    silentString != null ? Boolean.valueOf(silentString) : false);
+        } else if (eventClass.isAssignableFrom(BreakTimerEvent.SetTime.class)) {
+            timerEvent = new TimerEvent.SetTime(seconds, null);
+        } else if (eventClass.isAssignableFrom(BreakTimerEvent.StopTime.class)) {
+            timerEvent = new TimerEvent.StopTime(seconds, null);
+        } else if (eventClass.isAssignableFrom(BreakTimerEvent.StartTime.class)) {
+            String silentString = req.getParameter("silent");
+            breakTimerEvent = new BreakTimerEvent.StartTime(seconds, null,
+                    silentString != null ? Boolean.valueOf(silentString) : false);
+        } else if (eventClass.isAssignableFrom(BreakTimerEvent.BreakStart.class)) {
+            breakTimerEvent = new BreakTimerEvent.BreakStart(seconds, null);
+        } else if (eventClass.isAssignableFrom(BreakTimerEvent.BreakDone.class)) {
+            breakTimerEvent = new BreakTimerEvent.BreakDone(null);
         }
         String fopName = timerEvent.getFopName();
 
-        eventBus.post(timerEvent);
+        if (timerEvent != null) {
+            eventBus.post(timerEvent);
+        }
+        if (breakTimerEvent != null) {
+            eventBus.post(breakTimerEvent);
+        }
 
         if (defaultFopName == null) {
             defaultFopName = fopName;
