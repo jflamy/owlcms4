@@ -7,6 +7,36 @@
 package app.owlcms.publicresults;
 
 public class BreakTimerEvent {
+    public static class BreakSetTime extends BreakTimerEvent {
+        private Integer timeRemaining;
+        private boolean indefinite;
+
+        /**
+         * Instantiates a new sets the time.
+         *
+         * @param timeRemaining the time remaining
+         * @param indefinite 
+         */
+        public BreakSetTime(Integer timeRemaining, boolean indefinite) {
+            super();
+            this.timeRemaining = timeRemaining;
+            this.indefinite = indefinite;
+        }
+
+        /**
+         * Gets the time remaining.
+         *
+         * @return the time remaining
+         */
+        public Integer getTimeRemaining() {
+            return timeRemaining;
+        }
+        
+        public boolean isIndefinite() {
+            return indefinite;
+        }
+    }
+
     public static class BreakDone extends BreakTimerEvent {
 
         public BreakDone(Object object) {
@@ -14,18 +44,43 @@ public class BreakTimerEvent {
 
     }
 
+    public static class BreakPaused extends BreakTimerEvent {
+        private Integer timeRemaining;
+
+        /**
+         * Instantiates a new sets the time.
+         *
+         * @param timeRemaining the time remaining
+         */
+        public BreakPaused(Integer timeRemaining) {
+            super();
+            this.timeRemaining = timeRemaining;
+        }
+
+        /**
+         * Gets the time remaining.
+         *
+         * @return the time remaining
+         */
+        public Integer getTimeRemaining() {
+            return timeRemaining;
+        }
+    }
+
     public static class BreakStart extends BreakTimerEvent {
         private Integer timeRemaining;
+        private boolean indefinite;
 
         /**
          * Instantiates a new sets the time.
          *
          * @param timeRemaining the time remaining
-         * @param origin        the origin
+         * @param indefinite 
          */
-        public BreakStart(Integer timeRemaining, Object origin) {
+        public BreakStart(Integer timeRemaining, boolean indefinite) {
             super();
             this.timeRemaining = timeRemaining;
+            this.indefinite = indefinite;
         }
 
         /**
@@ -36,99 +91,12 @@ public class BreakTimerEvent {
         public Integer getTimeRemaining() {
             return timeRemaining;
         }
-    }
-
-    /**
-     * Class SetTime.
-     */
-    static public class SetTime extends BreakTimerEvent {
-
-        private Integer timeRemaining;
-
-        /**
-         * Instantiates a new sets the time.
-         *
-         * @param timeRemaining the time remaining
-         * @param origin        the origin
-         */
-        public SetTime(Integer timeRemaining, Object origin) {
-            super();
-            this.timeRemaining = timeRemaining;
-        }
-
-        /**
-         * Gets the time remaining.
-         *
-         * @return the time remaining
-         */
-        public Integer getTimeRemaining() {
-            return timeRemaining;
-        }
-
-    }
-
-    /**
-     * Class StartTime.
-     */
-    static public class StartTime extends BreakTimerEvent {
-
-        private Integer timeRemaining;
-        private boolean silent;
-
-        /**
-         * Instantiates a new start time.
-         *
-         * @param timeRemaining the time remaining
-         * @param origin        the origin
-         * @param silent
-         */
-        public StartTime(Integer timeRemaining, Object origin, boolean silent) {
-            super();
-            this.timeRemaining = timeRemaining;
-            this.silent = silent;
-        }
-
-        /**
-         * Gets the time remaining.
-         *
-         * @return the time remaining
-         */
-        public Integer getTimeRemaining() {
-            return timeRemaining;
-        }
-
-        public boolean isSilent() {
-            return silent;
+        
+        public boolean isIndefinite() {
+            return indefinite;
         }
     }
 
-    /**
-     * Class StopTime.
-     */
-    static public class StopTime extends BreakTimerEvent {
-
-        private int timeRemaining;
-
-        /**
-         * Instantiates a new stop time.
-         *
-         * @param timeRemaining the time remaining
-         * @param origin        the origin
-         */
-        public StopTime(int timeRemaining, Object origin) {
-            super();
-            this.timeRemaining = timeRemaining;
-        }
-
-        /**
-         * Gets the time remaining.
-         *
-         * @return the time remaining
-         */
-        public Integer getTimeRemaining() {
-            return timeRemaining;
-        }
-    }
 
     public BreakTimerEvent() {
     }

@@ -6,6 +6,7 @@
  */
 package app.owlcms.components.elements;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
@@ -13,9 +14,8 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 
-import app.owlcms.publicresults.TimerEvent;
+import app.owlcms.publicresults.BreakTimerEvent;
 import app.owlcms.publicresults.TimerReceiverServlet;
-import app.owlcms.publicresults.UpdateEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -25,113 +25,92 @@ import ch.qos.logback.classic.Logger;
  */
 public class BreakTimerElement extends TimerElement {
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
-    final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-    static {
+    final private Logger logger = (Logger) LoggerFactory.getLogger(BreakTimerElement.class);
+    final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+    private String parentName = "";
+
+    {
         logger.setLevel(Level.INFO);
         uiEventLogger.setLevel(Level.INFO);
     }
-
-    private Object origin;
 
     /**
      * Instantiates a new timer element.
      */
     public BreakTimerElement() {
-        this.setOrigin(null); // force exception
-        logger.debug("### AthleteTimerElement new {}", origin);
+        // logger./**/warn(LoggerUtils.stackTrace());
     }
 
-    public BreakTimerElement(Object origin) {
-        this.setOrigin(origin);
-        logger.debug("### AthleteTimerElement new {} {}", origin, LoggerUtils.whereFrom());
-    }
-
-    /**
-     * @see app.owlcms.components.elements.TimerElement#clientTimeOver()
-     */
     @Override
-    @ClientCallable
     public void clientFinalWarning() {
+        // ignored
+    }
+
+    @Override
+    public void clientInitialWarning() {
+        // ignored
     }
 
     /**
-     * @see app.owlcms.components.elements.TimerElement#clientTimeOver()
-     */
-    @Override
-    @ClientCallable
-    public void clientInitialWarning() {
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see app.owlcms.displays.attemptboard.TimerElement#clientSyncTime()
+     * Set the remaining time when the timer element has been hidden for a long time.
      */
     @Override
     @ClientCallable
     public void clientSyncTime() {
-//        OwlcmsSession.withFop(fop -> {
-//            int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
-//            logger.trace("Fetched time = {} for {}", timeRemaining, fop.getCurAthlete());
-//            doSetTimer(timeRemaining);
-//        });
-        return;
     }
 
     /**
-     * @see app.owlcms.components.elements.TimerElement#clientTimeOver()
+     * Timer stopped
+     *
+     * @param remaining Time the remaining time
      */
     @Override
     @ClientCallable
     public void clientTimeOver() {
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Timer stopped
      *
-     * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double)
+     * @param remaining Time the remaining time
      */
     @Override
     @ClientCallable
     public void clientTimerStopped(double remainingTime) {
+        logger.trace("timer stopped from client" + remainingTime);
     }
 
-    /**
-     * @return the origin
-     */
-    public Object getOrigin() {
-        return origin;
-    }
-
-    public void setOrigin(Object origin) {
-        this.origin = origin;
+    public void setParent(String s) {
+        parentName = s;
     }
 
     @Subscribe
-    public void slaveOrderUpdated(UpdateEvent e) {
-        ui.access(() -> {
-            doSetTimer(e.getTimeAllowed());
-        });
+    public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
+        uiEventLogger.debug("&&& break done {} {}", parentName);
+        doStopTimer();
     }
 
     @Subscribe
-    public void slaveSetTimer(TimerEvent.SetTime e) {
-        Integer milliseconds = e.getTimeRemaining();
-        uiEventLogger.debug(">>> set received {} {}", e, milliseconds);
+    public void slaveBreakPause(BreakTimerEvent.BreakPaused e) {
+        uiEventLogger.debug("&&& breakTimer pause {} {}", parentName);
+        doStopTimer();
+    }
+
+    @Subscribe
+    public void slaveBreakSet(BreakTimerEvent.BreakSetTime e) {
+        Integer milliseconds;
+
+        milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
+        uiEventLogger.debug("&&& breakTimer set {} {} {} {}", parentName, formatDuration(milliseconds),
+                e.isIndefinite(), LoggerUtils.whereFrom());
         doSetTimer(milliseconds);
     }
 
     @Subscribe
-    public void slaveStartTimer(TimerEvent.StartTime e) {
-        Integer milliseconds = e.getTimeRemaining();
-        uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
-        doStartTimer(milliseconds, e.isSilent());
-    }
-
-    @Subscribe
-    public void slaveStopTimer(TimerEvent.StopTime e) {
-        doStopTimer();
+    public void slaveBreakStart(BreakTimerEvent.BreakStart e) {
+        Integer tr = e.isIndefinite() ? null : e.getTimeRemaining();
+        uiEventLogger.debug("&&& breakTimer start {} {} {}", parentName, tr, LoggerUtils.whereFrom());
+        doStartTimer(tr, true); // true means "silent".
     }
 
     /*
@@ -142,9 +121,13 @@ public class BreakTimerElement extends TimerElement {
     @Override
     protected void init() {
         super.init();
-        getModel().setSilent(false); // emit sounds
+        setSilent(true);
+        getModel().setSilent(true); // do not emit sounds
     }
 
+    private String formatDuration(Integer milliseconds) {
+        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : "null";
+    }
 
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
@@ -156,7 +139,6 @@ public class BreakTimerElement extends TimerElement {
 
         TimerReceiverServlet.getEventBus().register(this);
     }
-
 
     @Override
     protected void onDetach(DetachEvent detachEvent) {

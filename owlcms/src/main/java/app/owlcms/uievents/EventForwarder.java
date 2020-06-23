@@ -45,6 +45,10 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.uievents.UIEvent.BreakDone;
+import app.owlcms.uievents.UIEvent.BreakPaused;
+import app.owlcms.uievents.UIEvent.BreakSetTime;
+import app.owlcms.uievents.UIEvent.BreakStarted;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
@@ -238,22 +242,13 @@ public class EventForwarder implements BreakDisplay {
 
     @Subscribe
     public void slaveBreakSet(UIEvent.BreakSetTime e) {
-        Integer milliseconds;
-        if (e.getEnd() != null) {
-            milliseconds = (int) LocalDateTime.now().until(e.getEnd(), ChronoUnit.MILLIS);
-        } else {
-            milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-            logger.debug("&&& breakTimer set {} {} {} {}", parentName, formatDuration(milliseconds),
-                    e.isIndefinite(), LoggerUtils.whereFrom());
-        }
-        doSetTimer(milliseconds);
+        pushTimer(e);
     }
 
     @Subscribe
     public void slaveBreakStart(UIEvent.BreakStarted e) {
         setHidden(false);
         doBreak();
-        // FIXME remove break start from pushUpdate
         pushTimer(e);
     }
 
@@ -467,9 +462,35 @@ public class EventForwarder implements BreakDisplay {
         return sb;
     }
 
-    private Map<String, String> createTimer() {
-        // TODO Auto-generated method stub
-        return null;
+    private Map<String, String> createTimer(UIEvent e) {
+        Map<String, String> sb = new HashMap<>();
+        mapPut(sb, "updateKey", updateKey);
+
+        Integer milliseconds = null;
+        boolean indefiniteBreak = false;
+        mapPut(sb, "eventType", e.getClass().getSimpleName());
+        if (e instanceof UIEvent.BreakSetTime) {
+            BreakSetTime bst = (BreakSetTime) e;
+            if (bst.getEnd() != null) {
+                milliseconds = (int) LocalDateTime.now().until(bst.getEnd(), ChronoUnit.MILLIS);
+            } else {
+                milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
+            }
+        } else if (e instanceof BreakStarted) {
+            BreakStarted bst = (BreakStarted) e;
+            milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
+        } else if (e instanceof BreakPaused) {
+            logger.warn("break paused ? {}",LoggerUtils.stackTrace());
+            BreakPaused bst = (BreakPaused) e;
+            milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
+        } else if (e instanceof BreakDone) {
+            milliseconds = -1;
+        }
+
+        mapPut(sb, "milliseconds", milliseconds != null ? milliseconds.toString() : null);
+        mapPut(sb, "indefiniteBreak", Boolean.toString(indefiniteBreak));
+
+        return sb;
     }
 
     private Map<String, String> createUpdate() {
@@ -740,9 +761,9 @@ public class EventForwarder implements BreakDisplay {
             return;
         }
         try {
-            sendPost(timerUrl, createTimer());
-        } catch (IOException e) {
-            logger./**/warn("cannot push: {} {}", updateUrl, e.getMessage());
+            sendPost(timerUrl, createTimer(e));
+        } catch (IOException ex) {
+            logger./**/warn("cannot push: {} {}", updateUrl, ex.getMessage());
         }
     }
 

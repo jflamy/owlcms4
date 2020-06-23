@@ -14,9 +14,9 @@ import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 
-import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.publicresults.TimerEvent;
 import app.owlcms.publicresults.UpdateEvent;
+import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -72,11 +72,6 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientSyncTime() {
-//        OwlcmsSession.withFop(fop -> {
-//            int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
-//            logger.trace("Fetched time = {} for {}", timeRemaining, fop.getCurAthlete());
-//            doSetTimer(timeRemaining);
-//        });
         return;
     }
 
@@ -111,6 +106,7 @@ public class AthleteTimerElement extends TimerElement {
 
     @Subscribe
     public void slaveOrderUpdated(UpdateEvent e) {
+        if (ui == null) return;
         ui.access(() -> {
             doSetTimer(e.getTimeAllowed());
         });

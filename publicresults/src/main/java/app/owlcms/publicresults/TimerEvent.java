@@ -15,9 +15,8 @@ public class TimerEvent {
          * Instantiates a new sets the time.
          *
          * @param timeRemaining the time remaining
-         * @param origin        the origin
          */
-        public SetTime(Integer timeRemaining, Object origin) {
+        public SetTime(Integer timeRemaining) {
             super();
             this.timeRemaining = timeRemaining;
         }
@@ -45,10 +44,9 @@ public class TimerEvent {
          * Instantiates a new start time.
          *
          * @param timeRemaining the time remaining
-         * @param origin        the origin
          * @param silent
          */
-        public StartTime(Integer timeRemaining, Object origin, boolean silent) {
+        public StartTime(Integer timeRemaining, boolean silent) {
             super();
             this.timeRemaining = timeRemaining;
             this.silent = silent;
@@ -80,9 +78,8 @@ public class TimerEvent {
          * Instantiates a new stop time.
          *
          * @param timeRemaining the time remaining
-         * @param origin        the origin
          */
-        public StopTime(int timeRemaining, Object origin) {
+        public StopTime(int timeRemaining) {
             super();
             this.timeRemaining = timeRemaining;
         }

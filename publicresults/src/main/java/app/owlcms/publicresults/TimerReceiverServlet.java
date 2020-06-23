@@ -53,7 +53,7 @@ public class TimerReceiverServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (StartupUtils.getBooleanParam("DEBUG")) {
             Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-            logger./**/warn("---- update received from {}", URLUtils.getClientIp(req));
+            logger./**/warn("---- timer received from {}", URLUtils.getClientIp(req));
             for (Entry<String, String[]> pair : pairs) {
                 logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
             }
@@ -70,39 +70,32 @@ public class TimerReceiverServlet extends HttpServlet {
         BreakTimerEvent breakTimerEvent = null;
 
         String eventTypeString = req.getParameter("eventType");
-        Class<?> eventClass = null;
-
-        try {
-            eventClass = Class.forName(eventTypeString);
-        } catch (Exception e1) {
-            String message = MessageFormat.format("unknown event type {0}", eventTypeString);
-            logger.error(message);
-            resp.sendError(400, message);
-            return;
-        }
 
         String secondsString = req.getParameter("seconds");
         int seconds = secondsString != null ? Integer.valueOf(secondsString) : 0;
-        if (eventClass.isAssignableFrom(TimerEvent.SetTime.class)) {
-            timerEvent = new TimerEvent.SetTime(seconds, null);
-        } else if (eventClass.isAssignableFrom(TimerEvent.StopTime.class)) {
-            timerEvent = new TimerEvent.StopTime(seconds, null);
-        } else if (eventClass.isAssignableFrom(TimerEvent.StartTime.class)) {
-            String silentString = req.getParameter("silent");
-            timerEvent = new TimerEvent.StartTime(seconds, null,
-                    silentString != null ? Boolean.valueOf(silentString) : false);
-        } else if (eventClass.isAssignableFrom(BreakTimerEvent.SetTime.class)) {
-            timerEvent = new TimerEvent.SetTime(seconds, null);
-        } else if (eventClass.isAssignableFrom(BreakTimerEvent.StopTime.class)) {
-            timerEvent = new TimerEvent.StopTime(seconds, null);
-        } else if (eventClass.isAssignableFrom(BreakTimerEvent.StartTime.class)) {
-            String silentString = req.getParameter("silent");
-            breakTimerEvent = new BreakTimerEvent.StartTime(seconds, null,
-                    silentString != null ? Boolean.valueOf(silentString) : false);
-        } else if (eventClass.isAssignableFrom(BreakTimerEvent.BreakStart.class)) {
-            breakTimerEvent = new BreakTimerEvent.BreakStart(seconds, null);
-        } else if (eventClass.isAssignableFrom(BreakTimerEvent.BreakDone.class)) {
+        String indefiniteString = req.getParameter("indefiniteBreak");
+        boolean indefinite = indefiniteString != null ? Boolean.valueOf(indefiniteString) : false;
+        String silentString = req.getParameter("silent");
+        boolean silent = silentString != null ? Boolean.valueOf(silentString) : false;
+        
+        if (eventTypeString.equals("SetTime")) {
+            timerEvent = new TimerEvent.SetTime(seconds);
+        } else if (eventTypeString.equals("StopTime")) {
+            timerEvent = new TimerEvent.StopTime(seconds);
+        } else if (eventTypeString.equals("StartTime")) {
+            timerEvent = new TimerEvent.StartTime(seconds, silent);
+        } else if (eventTypeString.equals("BreakPaused")) {
+            breakTimerEvent = new BreakTimerEvent.BreakPaused(seconds);
+        } else if (eventTypeString.equals("BreakStart")) {
+            breakTimerEvent = new BreakTimerEvent.BreakStart(seconds, indefinite);
+        } else if (eventTypeString.equals("BreakDone")) {
             breakTimerEvent = new BreakTimerEvent.BreakDone(null);
+        }  else if (eventTypeString.equals("BreakSetTime")) {
+            breakTimerEvent = new BreakTimerEvent.BreakSetTime(seconds, indefinite);
+        } else {
+          String message = MessageFormat.format("unknown event type {0}", eventTypeString);
+          logger.error(message);
+          resp.sendError(400, message);
         }
         String fopName = timerEvent.getFopName();
 

@@ -52,14 +52,63 @@ public class UIEvent {
      * Class BreakPaused.
      */
     static public class BreakPaused extends UIEvent {
+        
+        private boolean displayToggle;
+
+        protected Integer timeRemaining;
+        protected boolean indefinite;
+        protected LocalDateTime end;
+        protected BreakType breakType;
+        protected CountdownType countdownType;
+
+        public BreakPaused(Integer millisRemaining, Object origin, boolean displayToggle, BreakType bt,
+                CountdownType ct) {
+            super(origin);
+            this.timeRemaining = millisRemaining;
+            this.indefinite = (ct != null && ct == CountdownType.INDEFINITE) || (millisRemaining == null);
+            this.breakType = bt;
+            this.countdownType = ct;
+            this.setDisplayToggle(displayToggle);
+        }
+
+        public BreakType getBreakType() {
+            return breakType;
+        }
+
+        public int getMillis() {
+            return (getTimeRemaining());
+        }
 
         /**
-         * Instantiates a new break paused.
-         *
-         * @param origin the origin
+         * @return true if is a request for toggling display (and not an actual break start)
          */
-        public BreakPaused(Object origin) {
-            super(origin);
+        public boolean isDisplayToggle() {
+            return displayToggle;
+        }
+
+        /**
+         * @return true if break lasts indefinitely and timeRemaining should be ignored
+         */
+        public boolean isIndefinite() {
+            return indefinite;
+        }
+
+        /**
+         * @param displayToggle true to request switching to Break Timer
+         */
+        public void setDisplayToggle(boolean displayToggle) {
+            this.displayToggle = displayToggle;
+        }
+
+        @Override
+        public String toString() {
+            return "UIEvent.BreakPaused [displayToggle=" + displayToggle + ", timeRemaining=" + timeRemaining
+                    + ", indefinite=" + indefinite + ", end=" + end + ", breakType=" + breakType + ", countdownType="
+                    + countdownType + "]";
+        }
+
+        public Integer getTimeRemaining() {
+            return timeRemaining;
         }
 
     }
@@ -123,13 +172,9 @@ public class UIEvent {
         private boolean displayToggle;
 
         protected Integer timeRemaining;
-
         protected boolean indefinite;
-
         protected LocalDateTime end;
-
         protected BreakType breakType;
-
         protected CountdownType countdownType;
 
         public BreakStarted(Integer millisRemaining, Object origin, boolean displayToggle, BreakType bt,
@@ -178,7 +223,7 @@ public class UIEvent {
                     + countdownType + "]";
         }
 
-        private Integer getTimeRemaining() {
+        public Integer getTimeRemaining() {
             return timeRemaining;
         }
     }

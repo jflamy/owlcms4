@@ -122,7 +122,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     @Subscribe
-    public void slaveStartBreakTimer(BreakTimerEvent.StartTime e) {
+    public void slaveStartBreakTimer(BreakTimerEvent.BreakStart e) {
         if (ui == null) return;
         ui.access(() -> {
             getModel().setEnabled(true);
@@ -130,12 +130,21 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     @Subscribe
-    public void slaveStopBreakTimer(BreakTimerEvent.StopTime e) {
+    public void slaveStopBreakTimer(BreakTimerEvent.BreakPaused e) {
         if (ui == null) return;
         ui.access(() -> {
             getModel().setEnabled(true);
         });
-    } 
+    }
+    
+    @Subscribe
+    public void slaveStopBreakTimer(BreakTimerEvent.BreakDone e) {
+        if (ui == null) return;
+        ui.access(() -> {
+            getModel().setEnabled(true);
+        });
+    }
+    
     protected Object getOrigin() {
         // we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard
         // to identify
