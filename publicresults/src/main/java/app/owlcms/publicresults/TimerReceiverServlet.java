@@ -70,6 +70,7 @@ public class TimerReceiverServlet extends HttpServlet {
         BreakTimerEvent breakTimerEvent = null;
 
         String eventTypeString = req.getParameter("eventType");
+        String fopName = req.getParameter("fopName");
 
         String secondsString = req.getParameter("seconds");
         int seconds = secondsString != null ? Integer.valueOf(secondsString) : 0;
@@ -86,7 +87,7 @@ public class TimerReceiverServlet extends HttpServlet {
             timerEvent = new TimerEvent.StartTime(seconds, silent);
         } else if (eventTypeString.equals("BreakPaused")) {
             breakTimerEvent = new BreakTimerEvent.BreakPaused(seconds);
-        } else if (eventTypeString.equals("BreakStart")) {
+        } else if (eventTypeString.equals("BreakStarted")) {
             breakTimerEvent = new BreakTimerEvent.BreakStart(seconds, indefinite);
         } else if (eventTypeString.equals("BreakDone")) {
             breakTimerEvent = new BreakTimerEvent.BreakDone(null);
@@ -97,12 +98,13 @@ public class TimerReceiverServlet extends HttpServlet {
           logger.error(message);
           resp.sendError(400, message);
         }
-        String fopName = timerEvent.getFopName();
 
         if (timerEvent != null) {
+            timerEvent.setFopName(fopName);
             eventBus.post(timerEvent);
         }
         if (breakTimerEvent != null) {
+            breakTimerEvent.setFopName(fopName);
             eventBus.post(breakTimerEvent);
         }
 

@@ -177,7 +177,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             model.setHidden(false);
 
             updateBottom(model, computeLiftType(fop.getCurAthlete()));
-            uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
+            uiEventLogger.debug("$$$ scoreWithLeaders calling doBreak()");
             this.getElement().callJsFunction("doBreak");
         }));
     }

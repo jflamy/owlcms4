@@ -465,6 +465,7 @@ public class EventForwarder implements BreakDisplay {
     private Map<String, String> createTimer(UIEvent e) {
         Map<String, String> sb = new HashMap<>();
         mapPut(sb, "updateKey", updateKey);
+        mapPut(sb, "fopName", fop.getName());
 
         Integer milliseconds = null;
         boolean indefiniteBreak = false;

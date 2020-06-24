@@ -28,6 +28,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
+import app.owlcms.publicresults.BreakTimerEvent;
 import app.owlcms.publicresults.DecisionEvent;
 import app.owlcms.publicresults.DecisionEventType;
 import app.owlcms.publicresults.UpdateEvent;
@@ -135,6 +136,24 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         setDarkMode(true);
     }
 
+    public void doBreak(BreakTimerEvent bte) {
+        if (ui == null) return;
+        ui.access(() -> {
+            ScoreboardModel model = getModel();
+//FIXME: missing code
+//            BreakType breakType = bte.getBreakType();
+//            String groupName = bte.getGroupName();
+//            model.setFullName(inferGroupName(groupName) + " &ndash; " + inferMessage(breakType));
+            model.setTeamName("");
+            model.setAttempt("");
+            model.setHidden(false);
+
+//            updateBottom(model, computeLiftType(fop.getCurAthlete()));
+            uiEventLogger.debug("$$$ scoreWithLeaders calling doBreak()");
+            this.getElement().callJsFunction("doBreak");
+        });
+    }
+
     @Override
     public ContextMenu getContextMenu() {
         return contextMenu;
@@ -222,7 +241,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 this.getElement().callJsFunction("groupDone");
             } else if ("BREAK".equals(e.getFopState())) {
                 // FIXME: we need to show break timer
-                this.getElement().callJsFunction("doBreakNoTimer");
+                this.getElement().callJsFunction("doBreak");
                 needReset = true;
             } else if (needReset) {
                 this.getElement().callJsFunction("reset");
@@ -261,7 +280,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         } else {
             getModel().setFullName("Waiting for update from competition site.");
             getModel().setGroupName("");
-            getElement().callJsFunction("doBreakNoTimer");
+            getElement().callJsFunction("doBreak");
         }
     }
 

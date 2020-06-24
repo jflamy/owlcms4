@@ -1,6 +1,8 @@
 package app.owlcms.publicresults;
 
 public class TimerEvent {
+    private String fopName;
+
     public TimerEvent() {
     }
 
@@ -95,8 +97,11 @@ public class TimerEvent {
     }
 
     public String getFopName() {
-        // FIXME should come from event
-        return null;
+        return fopName;
+    }
+
+    public void setFopName(String fopName) {
+        this.fopName = fopName;
     }
 
 }

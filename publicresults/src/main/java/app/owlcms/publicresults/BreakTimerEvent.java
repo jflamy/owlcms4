@@ -7,36 +7,6 @@
 package app.owlcms.publicresults;
 
 public class BreakTimerEvent {
-    public static class BreakSetTime extends BreakTimerEvent {
-        private Integer timeRemaining;
-        private boolean indefinite;
-
-        /**
-         * Instantiates a new sets the time.
-         *
-         * @param timeRemaining the time remaining
-         * @param indefinite 
-         */
-        public BreakSetTime(Integer timeRemaining, boolean indefinite) {
-            super();
-            this.timeRemaining = timeRemaining;
-            this.indefinite = indefinite;
-        }
-
-        /**
-         * Gets the time remaining.
-         *
-         * @return the time remaining
-         */
-        public Integer getTimeRemaining() {
-            return timeRemaining;
-        }
-        
-        public boolean isIndefinite() {
-            return indefinite;
-        }
-    }
-
     public static class BreakDone extends BreakTimerEvent {
 
         public BreakDone(Object object) {
@@ -67,6 +37,36 @@ public class BreakTimerEvent {
         }
     }
 
+    public static class BreakSetTime extends BreakTimerEvent {
+        private Integer timeRemaining;
+        private boolean indefinite;
+
+        /**
+         * Instantiates a new sets the time.
+         *
+         * @param timeRemaining the time remaining
+         * @param indefinite
+         */
+        public BreakSetTime(Integer timeRemaining, boolean indefinite) {
+            super();
+            this.timeRemaining = timeRemaining;
+            this.indefinite = indefinite;
+        }
+
+        /**
+         * Gets the time remaining.
+         *
+         * @return the time remaining
+         */
+        public Integer getTimeRemaining() {
+            return timeRemaining;
+        }
+
+        public boolean isIndefinite() {
+            return indefinite;
+        }
+    }
+
     public static class BreakStart extends BreakTimerEvent {
         private Integer timeRemaining;
         private boolean indefinite;
@@ -75,7 +75,7 @@ public class BreakTimerEvent {
          * Instantiates a new sets the time.
          *
          * @param timeRemaining the time remaining
-         * @param indefinite 
+         * @param indefinite
          */
         public BreakStart(Integer timeRemaining, boolean indefinite) {
             super();
@@ -91,19 +91,23 @@ public class BreakTimerEvent {
         public Integer getTimeRemaining() {
             return timeRemaining;
         }
-        
+
         public boolean isIndefinite() {
             return indefinite;
         }
     }
 
+    private String fopName;
 
     public BreakTimerEvent() {
     }
 
     public String getFopName() {
-        // FIXME should come from event
-        return null;
+        return fopName;
+    }
+
+    public void setFopName(String fopName) {
+        this.fopName = fopName;
     }
 
 }
