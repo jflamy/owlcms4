@@ -39,8 +39,6 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
-import app.owlcms.displays.attemptboard.BreakDisplay;
-import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -174,7 +172,7 @@ public class EventForwarder implements BreakDisplay {
     /**
      * Change the messages because we are not showing live timers
      *
-     * @see app.owlcms.displays.attemptboard.BreakDisplay#inferMessage(app.owlcms.fieldofplay.BreakType)
+     * @see app.owlcms.uievents.BreakDisplay#inferMessage(app.owlcms.uievents.BreakType)
      */
     @Override
     public String inferMessage(BreakType bt) {
@@ -481,7 +479,7 @@ public class EventForwarder implements BreakDisplay {
             BreakStarted bst = (BreakStarted) e;
             milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
         } else if (e instanceof BreakPaused) {
-            logger.warn("break paused ? {}",LoggerUtils.stackTrace());
+            logger.warn("????? break paused {}",LoggerUtils.whereFrom());
             BreakPaused bst = (BreakPaused) e;
             milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
         } else if (e instanceof BreakDone) {

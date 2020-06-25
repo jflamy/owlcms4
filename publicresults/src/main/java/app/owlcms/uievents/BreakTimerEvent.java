@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.publicresults;
+package app.owlcms.uievents;
 
 public class BreakTimerEvent {
     public static class BreakDone extends BreakTimerEvent {
@@ -98,6 +98,8 @@ public class BreakTimerEvent {
     }
 
     private String fopName;
+    private BreakType breakType;
+    private String groupName;
 
     public BreakTimerEvent() {
     }
@@ -108,6 +110,22 @@ public class BreakTimerEvent {
 
     public void setFopName(String fopName) {
         this.fopName = fopName;
+    }
+
+    public BreakType getBreakType() {
+        return breakType;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setBreakType(BreakType breakType) {
+        this.breakType = breakType;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
 }

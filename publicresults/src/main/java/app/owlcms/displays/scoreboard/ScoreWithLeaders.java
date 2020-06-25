@@ -28,13 +28,17 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
-import app.owlcms.publicresults.BreakTimerEvent;
-import app.owlcms.publicresults.DecisionEvent;
-import app.owlcms.publicresults.DecisionEventType;
-import app.owlcms.publicresults.UpdateEvent;
+import app.owlcms.i18n.Translator;
+import app.owlcms.publicresults.DecisionReceiverServlet;
+import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.parameters.QueryParameterReader;
+import app.owlcms.uievents.BreakTimerEvent;
+import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.DecisionEvent;
+import app.owlcms.uievents.DecisionEventType;
+import app.owlcms.uievents.UpdateEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -137,13 +141,13 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     }
 
     public void doBreak(BreakTimerEvent bte) {
-        if (ui == null) return;
+        if (ui == null)
+            return;
         ui.access(() -> {
             ScoreboardModel model = getModel();
-//FIXME: missing code
-//            BreakType breakType = bte.getBreakType();
-//            String groupName = bte.getGroupName();
-//            model.setFullName(inferGroupName(groupName) + " &ndash; " + inferMessage(breakType));
+            BreakType breakType = bte.getBreakType();
+            String groupName = bte.getGroupName();
+            model.setFullName(Translator.translate("Group_number", groupName) + " &ndash; " + inferMessage(breakType));
             model.setTeamName("");
             model.setAttempt("");
             model.setHidden(false);
@@ -240,7 +244,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 // so this is a bit of kludge, yes
                 this.getElement().callJsFunction("groupDone");
             } else if ("BREAK".equals(e.getFopState())) {
-                // FIXME: we need to show break timer
                 this.getElement().callJsFunction("doBreak");
                 needReset = true;
             } else if (needReset) {
@@ -252,14 +255,39 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveDecisionEvent(DecisionEvent e) {
-        if (e.getEventType() == DecisionEventType.DOWN_SIGNAL) {
-            // ignore if the down signal was initiated by this result board.
-            // (the timer element on the result board will actually process the keyboard
-            // codes if devices are attached)
-            UI.getCurrent().access(() -> {
+        DecisionEventType eventType = e.getEventType();
+        switch (eventType) {
+        case DOWN_SIGNAL:
+            if (ui == null || ui.isClosing())
+                return;
+            ui.access(() -> {
                 getModel().setHidden(false);
                 this.getElement().callJsFunction("down");
             });
+            break;
+        case RESET:
+            if (e.isDone()) {
+                doDone(e.getGroupName());
+            } else {
+                if (ui == null || ui.isClosing())
+                    return;
+                ui.access(() -> {
+                    getModel().setHidden(false);
+                    this.getElement().callJsFunction("reset");
+                });
+            }
+            ;
+            break;
+        case FULL_DECISION:
+            if (ui == null || ui.isClosing())
+                return;
+            ui.access(() -> {
+                getModel().setHidden(false);
+                this.getElement().callJsFunction("refereeDecision");
+            });
+            break;
+        default:
+            break;
         }
     }
 
@@ -271,6 +299,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         UpdateReceiverServlet.getEventBus().register(this);
+        DecisionReceiverServlet.getEventBus().register(this);
+        TimerReceiverServlet.getEventBus().register(this);
         ui = UI.getCurrent();
         setDarkMode(this, isDarkMode(), false);
         UpdateEvent initEvent = UpdateReceiverServlet.sync(getFopName());
@@ -289,6 +319,8 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
         UpdateReceiverServlet.getEventBus().unregister(this);
+        DecisionReceiverServlet.getEventBus().unregister(this);
+        TimerReceiverServlet.getEventBus().unregister(this);
     }
 
     /** @see app.owlcms.ui.parameters.QueryParameterReader#setFopName(java.lang.String) */
@@ -299,6 +331,39 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     private String getFopName() {
         return fopName;
+    }
+
+    private String inferMessage(BreakType bt) {
+        if (bt == null) {
+            return Translator.translate("PublicMsg.CompetitionPaused");
+        }
+        switch (bt) {
+        case FIRST_CJ:
+            return Translator.translate("PublicMsg.TimeBeforeCJ");
+        case FIRST_SNATCH:
+            return Translator.translate("PublicMsg.TimeBeforeSnatch");
+        case BEFORE_INTRODUCTION:
+            return Translator.translate("PublicMsg.BeforeIntroduction");
+        case DURING_INTRODUCTION:
+            return Translator.translate("PublicMsg.DuringIntroduction");
+        case TECHNICAL:
+            return Translator.translate("PublicMsg.CompetitionPaused");
+        case JURY:
+            return Translator.translate("PublicMsg.JuryDeliberation");
+        case GROUP_DONE:
+            return Translator.translate("PublicMsg.GroupDone");
+        default:
+            return "";
+        }
+    }
+
+    private void doDone(String groupName) {
+        if (groupName == null) {
+            doEmpty();
+        } else {
+            getModel().setFullName(getTranslation("Group_number_results", groupName));
+            this.getElement().callJsFunction("groupDone");
+        }
     }
 
 }

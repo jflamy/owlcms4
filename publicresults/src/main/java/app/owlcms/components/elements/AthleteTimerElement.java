@@ -14,9 +14,9 @@ import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 
-import app.owlcms.publicresults.TimerEvent;
-import app.owlcms.publicresults.UpdateEvent;
 import app.owlcms.publicresults.UpdateReceiverServlet;
+import app.owlcms.uievents.TimerEvent;
+import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

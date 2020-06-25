@@ -13,7 +13,6 @@ import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
-import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 

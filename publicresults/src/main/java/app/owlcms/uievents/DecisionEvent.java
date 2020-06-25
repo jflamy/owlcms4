@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.publicresults;
+package app.owlcms.uievents;
 
 public class DecisionEvent {
 
@@ -16,6 +16,8 @@ public class DecisionEvent {
     private String fopName;
     private boolean isBreak;
     private DecisionEventType eventType;
+    private boolean done;
+    private String groupName;
 
     public DecisionEvent() {
     }
@@ -32,6 +34,10 @@ public class DecisionEvent {
         return decisionLight3;
     }
 
+    public DecisionEventType getEventType() {
+        return eventType;
+    }
+
     public String getFopName() {
         return fopName;
     }
@@ -42,6 +48,10 @@ public class DecisionEvent {
 
     public boolean isDecisionLightsVisible() {
         return decisionLightsVisible;
+    }
+
+    public boolean isDone() {
+        return done;
     }
 
     public boolean isDown() {
@@ -72,16 +82,24 @@ public class DecisionEvent {
         this.down = down;
     }
 
+    public void setEventType(DecisionEventType eventType) {
+        this.eventType = eventType;
+    }
+
     public void setFopName(String fopName) {
         this.fopName = fopName;
     }
 
-    public DecisionEventType getEventType() {
-        return eventType;
+    public void setDone(boolean done) {
+        this.done = done;
     }
 
-    public void setEventType(DecisionEventType eventType) {
-        this.eventType = eventType;
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
 }

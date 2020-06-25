@@ -18,11 +18,11 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
-import app.owlcms.publicresults.BreakTimerEvent;
-import app.owlcms.publicresults.DecisionEvent;
 import app.owlcms.publicresults.DecisionReceiverServlet;
-import app.owlcms.publicresults.TimerEvent;
 import app.owlcms.publicresults.TimerReceiverServlet;
+import app.owlcms.uievents.BreakTimerEvent;
+import app.owlcms.uievents.DecisionEvent;
+import app.owlcms.uievents.TimerEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -79,7 +79,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     @Subscribe
     public void slaveDecision(DecisionEvent de) {
-        if (ui == null) return;
+        if (ui == null || !ui.isClosing()) return;
         ui.access(() -> {
             if (de.isBreak()) {
                 logger.debug("slaveBreakStart disable");
@@ -107,7 +107,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     @Subscribe
     public void slaveStartTimer(TimerEvent.StartTime e) {
-        if (ui == null) return;
+        if (ui == null || !ui.isClosing()) return;
         ui.access(() -> {
             getModel().setEnabled(true);
         });
@@ -115,7 +115,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     @Subscribe
     public void slaveStopTimer(TimerEvent.StopTime e) {
-        if (ui == null) return;
+        if (ui == null || ui.isClosing()) return;
         ui.access(() -> {
             getModel().setEnabled(true);
         });
@@ -123,7 +123,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     @Subscribe
     public void slaveStartBreakTimer(BreakTimerEvent.BreakStart e) {
-        if (ui == null) return;
+        if (ui == null || ui.isClosing()) return;
         ui.access(() -> {
             getModel().setEnabled(true);
         });
@@ -131,7 +131,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     @Subscribe
     public void slaveStopBreakTimer(BreakTimerEvent.BreakPaused e) {
-        if (ui == null) return;
+        if (ui == null || ui.isClosing()) return;
         ui.access(() -> {
             getModel().setEnabled(true);
         });
@@ -139,7 +139,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     
     @Subscribe
     public void slaveStopBreakTimer(BreakTimerEvent.BreakDone e) {
-        if (ui == null) return;
+        if (ui == null || !ui.isClosing()) return;
         ui.access(() -> {
             getModel().setEnabled(true);
         });

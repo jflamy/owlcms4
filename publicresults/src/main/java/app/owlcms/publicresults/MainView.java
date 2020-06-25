@@ -20,6 +20,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.displays.scoreboard.ScoreWithLeaders;
+import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 

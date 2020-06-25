@@ -58,6 +58,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
+import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.EventForwarder;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -1212,7 +1213,7 @@ public class FieldOfPlay {
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
-        logger.warn("?????? transitionToLifting {} {} {}", e.getAthlete(), stopBreakTimer, LoggerUtils.stackTrace());
+        logger.warn("?????? transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer, LoggerUtils.whereFrom());
         loadGroup(group2, e.getOrigin(), true);
         updateGlobalRankings();
         Athlete clockOwner = getClockOwner();

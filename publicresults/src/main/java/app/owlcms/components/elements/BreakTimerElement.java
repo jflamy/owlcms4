@@ -14,8 +14,8 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 
-import app.owlcms.publicresults.BreakTimerEvent;
 import app.owlcms.publicresults.TimerReceiverServlet;
+import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

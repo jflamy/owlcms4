@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
+import app.owlcms.uievents.BreakType;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
