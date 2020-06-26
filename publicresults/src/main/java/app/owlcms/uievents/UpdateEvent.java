@@ -25,6 +25,13 @@ public class UpdateEvent {
     private String fopName;
     private String fopState;
     private String competitionName;
+    private Boolean isBreak;
+    private BreakType breakType;
+    private Integer breakRemaining;
+
+    public Integer getBreakRemaining() {
+        return breakRemaining;
+    }
 
     public UpdateEvent() {
         setLeaders(leaders);
@@ -164,6 +171,26 @@ public class UpdateEvent {
 
     public void setWideTeamNames(boolean wideTeamNames) {
         this.wideTeamNames = wideTeamNames;
+    }
+
+    public Boolean isBreak() {
+        return isBreak;
+    }
+
+    public void setBreak(Boolean isBreak) {
+        this.isBreak = isBreak;
+    }
+
+    public void setBreakType(BreakType bt) {
+        this.breakType = bt;
+    }
+
+    public BreakType getBreakType() {
+        return breakType;
+    }
+
+    public void setBreakRemaining(Integer milliseconds) {
+        this.breakRemaining = milliseconds;
     }
 
 }

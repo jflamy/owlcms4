@@ -140,10 +140,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         setDarkMode(true);
     }
 
-    public void doBreak(BreakTimerEvent bte) {
-        if (ui == null)
+    public void doBreak(UpdateEvent bte) {
+        if (ui == null || ui.isClosing())
             return;
         ui.access(() -> {
+            logger.warn("starting break");
             ScoreboardModel model = getModel();
             BreakType breakType = bte.getBreakType();
             String groupName = bte.getGroupName();
@@ -153,7 +154,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             model.setHidden(false);
 
 //            updateBottom(model, computeLiftType(fop.getCurAthlete()));
-            uiEventLogger.debug("$$$ scoreWithLeaders calling doBreak()");
+            logger.warn("$$$ scoreWithLeaders calling doBreak()");
             this.getElement().callJsFunction("doBreak");
         });
     }
@@ -243,10 +244,13 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 // are still all attempts done, prior to erasing an attempt to take it again.
                 // so this is a bit of kludge, yes
                 this.getElement().callJsFunction("groupDone");
-            } else if ("BREAK".equals(e.getFopState())) {
+            }
+            else if ("BREAK".equals(e.getFopState())) {
                 this.getElement().callJsFunction("doBreak");
                 needReset = true;
-            } else if (needReset) {
+            } 
+            else if (needReset) {
+                logger.warn("resetting becase of ranking update");
                 this.getElement().callJsFunction("reset");
                 needReset = false;
             }
@@ -292,6 +296,14 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         }
     }
 
+    
+    @Subscribe
+    public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
+        logger.warn("swl BreakDone");
+        this.getElement().callJsFunction("reset");
+        needReset = false;
+    }
+    
     protected void doEmpty() {
         this.getModel().setHidden(true);
     }

@@ -107,10 +107,7 @@ public class AthleteTimerElement extends TimerElement {
 
     @Subscribe
     public void slaveOrderUpdated(UpdateEvent e) {
-        if (ui == null) return;
-        ui.access(() -> {
-            doSetTimer(e.getTimeAllowed());
-        });
+        doSetTimer(e.getTimeAllowed());
     }
 
     @Subscribe
@@ -143,7 +140,6 @@ public class AthleteTimerElement extends TimerElement {
         getModel().setSilent(false); // emit sounds
     }
 
-
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
      */
@@ -156,12 +152,17 @@ public class AthleteTimerElement extends TimerElement {
         ui = UI.getCurrent();
     }
 
-
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
-        UpdateReceiverServlet.getEventBus().unregister(this);
-        TimerReceiverServlet.getEventBus().register(this);
+        try {
+            UpdateReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
+        try {
+            TimerReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
     }
-    
+
 }

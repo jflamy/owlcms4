@@ -15,7 +15,9 @@ import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 
 import app.owlcms.publicresults.TimerReceiverServlet;
+import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.BreakTimerEvent;
+import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -85,6 +87,11 @@ public class BreakTimerElement extends TimerElement {
     }
 
     @Subscribe
+    public void slaveOrderUpdated(UpdateEvent e) {
+        doSetTimer(e.getBreakRemaining());
+    }
+    
+    @Subscribe
     public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
         uiEventLogger.debug("&&& break done {} {}", parentName);
         doStopTimer();
@@ -137,6 +144,7 @@ public class BreakTimerElement extends TimerElement {
         this.ui = attachEvent.getUI();
         init();
 
+        UpdateReceiverServlet.getEventBus().register(this);
         TimerReceiverServlet.getEventBus().register(this);
     }
 
@@ -144,6 +152,13 @@ public class BreakTimerElement extends TimerElement {
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
         this.ui = null;
-        TimerReceiverServlet.getEventBus().unregister(this);
+        try {
+            UpdateReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
+        try {
+            TimerReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
     }
 }

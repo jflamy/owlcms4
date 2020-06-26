@@ -18,7 +18,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 
+import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UpdateEvent;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
@@ -51,57 +53,69 @@ public class UpdateReceiverServlet extends HttpServlet {
      *      javax.servlet.http.HttpServletResponse)
      */
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (StartupUtils.getBooleanParam("DEBUG")) {
-            Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-            logger./**/debug("---- update received from {}", URLUtils.getClientIp(req));
-            for (Entry<String, String[]> pair : pairs) {
-                logger./**/debug("{} = {}", pair.getKey(), pair.getValue()[0]);
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        try {
+            if (StartupUtils.getBooleanParam("DEBUG")) {
+                Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
+                logger./**/warn("---- update received from {}", URLUtils.getClientIp(req));
+                for (Entry<String, String[]> pair : pairs) {
+                    logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
+                }
             }
-        }
 
-        String updateKey = req.getParameter("updateKey");
-        if (updateKey == null || !updateKey.equals(secret)) {
-            logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), secret, updateKey);
-            resp.sendError(401, "Denied, wrong credentials");
-            return;
-        }
+            String updateKey = req.getParameter("updateKey");
+            if (updateKey == null || !updateKey.equals(secret)) {
+                logger.error("denying access from {} expected {} got {} ", req.getRemoteHost(), secret, updateKey);
+                resp.sendError(401, "Denied, wrong credentials");
+                return;
+            }
 
-        UpdateEvent updateEvent = new UpdateEvent();
+            UpdateEvent updateEvent = new UpdateEvent();
 
-        updateEvent.setCompetitionName(req.getParameter("competitionName"));
-        updateEvent.setFopName(req.getParameter("fop"));
-        updateEvent.setFopState(req.getParameter("fopState"));
-        
-        updateEvent.setAttempt(req.getParameter("attempt"));
-        updateEvent.setCategoryName(req.getParameter("categoryName"));
-        updateEvent.setFullName(req.getParameter("fullName"));
-        updateEvent.setGroupName(req.getParameter("groupName"));
+            updateEvent.setCompetitionName(req.getParameter("competitionName"));
+            updateEvent.setFopName(req.getParameter("fop"));
+            updateEvent.setFopState(req.getParameter("fopState"));
+            
+            updateEvent.setAttempt(req.getParameter("attempt"));
+            updateEvent.setCategoryName(req.getParameter("categoryName"));
+            updateEvent.setFullName(req.getParameter("fullName"));
+            updateEvent.setGroupName(req.getParameter("groupName"));
 
-        updateEvent.setHidden(Boolean.valueOf(req.getParameter("hidden")));
-        String startNumber = req.getParameter("startNumber");
-        updateEvent.setStartNumber(startNumber != null ? Integer.parseInt(startNumber) : 0);
-        updateEvent.setTeamName(req.getParameter("teamName"));
-        String weight = req.getParameter("weight");
-        updateEvent.setWeight(weight != null ? Integer.parseInt(weight) : null);
+            updateEvent.setHidden(Boolean.valueOf(req.getParameter("hidden")));
+            String startNumber = req.getParameter("startNumber");
+            updateEvent.setStartNumber(startNumber != null ? Integer.parseInt(startNumber) : 0);
+            updateEvent.setTeamName(req.getParameter("teamName"));
+            String weight = req.getParameter("weight");
+            updateEvent.setWeight(weight != null ? Integer.parseInt(weight) : null);
 
-        updateEvent.setAthletes(req.getParameter("groupAthletes"));
-        updateEvent.setLeaders(req.getParameter("leaders"));
-        updateEvent.setLiftsDone(req.getParameter("liftsDone"));
+            updateEvent.setAthletes(req.getParameter("groupAthletes"));
+            updateEvent.setLeaders(req.getParameter("leaders"));
+            updateEvent.setLiftsDone(req.getParameter("liftsDone"));
 
-        updateEvent.setWideTeamNames(Boolean.parseBoolean(req.getParameter("wideTeamNames")));
-        String timeAllowed = req.getParameter("timeAllowed");
-        updateEvent.setTimeAllowed(timeAllowed != null ? Integer.parseInt(req.getParameter("timeAllowed")) : null);
+            updateEvent.setWideTeamNames(Boolean.parseBoolean(req.getParameter("wideTeamNames")));
+            String timeAllowed = req.getParameter("timeAllowed");
+            updateEvent.setTimeAllowed(timeAllowed != null ? Integer.parseInt(req.getParameter("timeAllowed")) : null);
 
-        updateEvent.setTranslationMap(req.getParameter("translationMap"));
+            updateEvent.setTranslationMap(req.getParameter("translationMap"));
+            
+            String breakString = req.getParameter("break");
+            String breakTypeString = req.getParameter("breakType");
+            String breakRemainingString = req.getParameter("breakRemaining");
+            updateEvent.setBreak(breakString != null ? Boolean.valueOf(breakString) : null);
+            updateEvent.setBreakType(breakTypeString != null ? BreakType.valueOf(breakTypeString) : null);
+            updateEvent.setBreakRemaining(breakRemainingString != null ? Integer.parseInt(breakRemainingString) : null);
+            
+            String fopName = updateEvent.getFopName();
+            // put in the cache first so events can know which FOPs are active;
+            updateCache.put(fopName, updateEvent);
+            eventBus.post(updateEvent);
 
-        String fopName = updateEvent.getFopName();
-        // put in the cache first so events can know which FOPs are active;
-        updateCache.put(fopName, updateEvent);
-        eventBus.post(updateEvent);
-
-        if (defaultFopName == null) {
-            defaultFopName = fopName;
+            if (defaultFopName == null) {
+                defaultFopName = fopName;
+            }
+            resp.sendError(200);
+        } catch (Exception e) {
+            logger.error(LoggerUtils.stackTrace(e));
         }
     }
 

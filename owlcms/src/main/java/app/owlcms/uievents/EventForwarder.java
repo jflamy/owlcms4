@@ -84,7 +84,7 @@ public class EventForwarder implements BreakDisplay {
     private String liftsDone;
     private String attempt;
     private String fullName;
-    private String groupName;
+
     private boolean hidden;
     private Integer startNumber;
     private String teamName;
@@ -107,6 +107,7 @@ public class EventForwarder implements BreakDisplay {
 
     @SuppressWarnings("unused")
     private Boolean debugMode;
+    private String groupName;
 
     public EventForwarder(FieldOfPlay emittingFop) {
         this.fop = emittingFop;
@@ -233,7 +234,7 @@ public class EventForwarder implements BreakDisplay {
         Athlete a = e.getAthlete();
         setHidden(false);
         doUpdate(a, e);
-        pushTimer(e);
+        pushUpdate();
     }
 
     @Subscribe
@@ -265,6 +266,7 @@ public class EventForwarder implements BreakDisplay {
     public void slaveBreakStart(UIEvent.BreakStarted e) {
         setHidden(false);
         doBreak();
+        pushUpdate();
         pushTimer(e);
     }
 
@@ -378,12 +380,20 @@ public class EventForwarder implements BreakDisplay {
         this.groupName = name;
     }
 
+    public String getGroupName() {
+        return groupName;
+    }
+
     void setHidden(boolean b) {
         this.hidden = b;
     }
 
     void setLiftsDone(String formattedDone) {
         this.liftsDone = formattedDone;
+    }
+
+    public String getLiftsDone() {
+        return liftsDone;
     }
 
     void setStartNumber(Integer integer) {
@@ -399,8 +409,10 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void computeCurrentGroup(Competition competition) {
-        List<Athlete> globalRankingsForCurrentGroup = competition.getGlobalCategoryRankingsForGroup(fop.getGroup());
+        Group group = fop.getGroup();
+        List<Athlete> globalRankingsForCurrentGroup = competition.getGlobalCategoryRankingsForGroup(group);
         int liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
+        setGroupName(group != null ? group.getName() : null);
         setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         if (globalRankingsForCurrentGroup != null && globalRankingsForCurrentGroup.size() > 0) {
             setGroupAthletes(getAthletesJson(globalRankingsForCurrentGroup, fop.getLiftingOrder()));
@@ -514,6 +526,8 @@ public class EventForwarder implements BreakDisplay {
         }
 
         mapPut(sb, "milliseconds", milliseconds != null ? milliseconds.toString() : null);
+        mapPut(sb, "break", String.valueOf(breakMode));
+        mapPut(sb, "breaktype", fop.getBreakType() != null ? fop.getBreakType().toString() : null);
         mapPut(sb, "indefiniteBreak", Boolean.toString(indefiniteBreak));
 
         return sb;
@@ -528,7 +542,14 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "fop", fop.getName());
         FOPState state = fop.getState();
         mapPut(sb, "fopState", state != null ? state.toString() : FOPState.INACTIVE.name());
-        mapPut(sb, "break", String.valueOf(breakMode));
+        String isBreak = String.valueOf(breakMode);
+        mapPut(sb, "break", isBreak);
+        BreakType breakType = fop.getBreakType();
+        logger.error("***** break {} breakType {}", isBreak, breakType);
+        
+        mapPut(sb, "breakType", breakType != null ? breakType.toString() : null);
+        int breakTimeRemaining = fop.getBreakTimer().getTimeRemaining();
+        mapPut(sb, "breakRemaining", Integer.toString(breakTimeRemaining));
 
         // current athlete & attempt
         mapPut(sb, "startNumber", startNumber != null ? startNumber.toString() : null);
@@ -540,8 +561,8 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "timeAllowed", timeAllowed != null ? timeAllowed.toString() : null);
 
         // current group
-        mapPut(sb, "groupName", groupName);
-        mapPut(sb, "liftsDone", liftsDone);
+        mapPut(sb, "groupName", getGroupName());
+        mapPut(sb, "liftsDone", getLiftsDone());
 
         // bottom tables
         if (groupAthletes != null) {
@@ -571,7 +592,7 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void doUpdate(Athlete a, UIEvent e) {
-        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+        logger.warn("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
             LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
@@ -583,7 +604,7 @@ public class EventForwarder implements BreakDisplay {
         }
         if (a != null && a.getAttemptsDone() < 6) {
             if (!leaveTopAlone) {
-                logger.debug("updating top {}", a.getFullName());
+                logger.warn("ef updating top {}", a.getFullName());
                 setFullName(a.getFullName());
                 setTeamName(a.getTeam());
                 setStartNumber(a.getStartNumber());
@@ -817,14 +838,14 @@ public class EventForwarder implements BreakDisplay {
             parameters.entrySet().stream()
                     .forEach((e) -> urlParameters.add(new BasicNameValuePair(e.getKey(), e.getValue())));
 
-            post.setEntity(new UrlEncodedFormEntity(urlParameters));
+            post.setEntity(new UrlEncodedFormEntity(urlParameters,"UTF-8"));
 
             try (CloseableHttpClient httpClient = HttpClients.createDefault();
                     CloseableHttpResponse response = httpClient.execute(post)) {
                 StatusLine statusLine = response.getStatusLine();
                 Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
                 if (statusCode != null && statusCode != 200) {
-                    logger.error("could not post {} ", statusLine);
+                    logger.error("could not post {} {}", statusLine, LoggerUtils.stackTrace());
                 }
                 EntityUtils.toString(response.getEntity());
             }

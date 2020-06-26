@@ -166,7 +166,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     abstract public void clientTimerStopped(double remainingTime);
 
     protected final void doSetTimer(Integer milliseconds) {
-        if (ui == null) return;
+        if (ui == null || ui.isClosing()) return;
         ui.access( () -> {
             stop(getMsRemaining(), isIndefinite(), isSilent());
             initTime(milliseconds);
@@ -174,7 +174,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     protected void doStartTimer(Integer milliseconds, boolean silent) {
-        if (ui == null) return;
+        if (ui == null || ui.isClosing()) return;
         ui.access( () -> {
             setIndefinite(milliseconds == null);
             setMsRemaining(milliseconds);
@@ -184,7 +184,7 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     protected void doStopTimer() {
-        if (ui == null) return;
+        if (ui == null || ui.isClosing()) return;
         ui.access( () -> {
             stop(getMsRemaining(), isIndefinite(), isSilent());
         });

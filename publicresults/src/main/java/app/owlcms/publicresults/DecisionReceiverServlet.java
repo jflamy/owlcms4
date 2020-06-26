@@ -8,8 +8,6 @@ package app.owlcms.publicresults;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.Executors;
 
 import javax.servlet.ServletException;
@@ -26,7 +24,6 @@ import com.google.common.eventbus.EventBus;
 import app.owlcms.uievents.DecisionEvent;
 import app.owlcms.uievents.DecisionEventType;
 import app.owlcms.utils.StartupUtils;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @WebServlet("/decision")
@@ -61,13 +58,13 @@ public class DecisionReceiverServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (StartupUtils.getBooleanParam("DEBUG")) {
-            Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-            logger./**/warn("++++ decision received from {}", URLUtils.getClientIp(req));
-            for (Entry<String, String[]> pair : pairs) {
-                logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
-            }
-        }
+//        if (StartupUtils.getBooleanParam("DEBUG")) {
+//            Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
+//            logger./**/warn("++++ decision received from {}", URLUtils.getClientIp(req));
+//            for (Entry<String, String[]> pair : pairs) {
+//                logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
+//            }
+//        }
 
         String updateKey = req.getParameter("updateKey");
         if (updateKey == null || !updateKey.equals(secret)) {

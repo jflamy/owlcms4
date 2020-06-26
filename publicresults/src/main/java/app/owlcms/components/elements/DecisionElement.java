@@ -172,8 +172,14 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
         this.ui = null;
-        DecisionReceiverServlet.getEventBus().unregister(this);
-        TimerReceiverServlet.getEventBus().unregister(this);
+        try {
+            DecisionReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
+        try {
+            TimerReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
     }
 
     private void init() {

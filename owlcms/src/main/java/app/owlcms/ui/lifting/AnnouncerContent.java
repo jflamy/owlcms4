@@ -296,7 +296,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         });
         topBarGroupSelect.addValueChangeListener(e -> {
             Group group = e.getValue();
-            logger.warn("##################### select setting filter group to {} {}", group, LoggerUtils.stackTrace());
+            logger.trace("##### select setting filter group to {} {}", group, LoggerUtils.whereFrom());
             getGroupFilter().setValue(group);
         });
     }
