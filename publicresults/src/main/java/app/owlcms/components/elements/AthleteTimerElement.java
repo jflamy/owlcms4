@@ -14,6 +14,7 @@ import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 
+import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.uievents.TimerEvent;
 import app.owlcms.uievents.UpdateEvent;
@@ -151,6 +152,7 @@ public class AthleteTimerElement extends TimerElement {
         init();
 
         UpdateReceiverServlet.getEventBus().register(this);
+        TimerReceiverServlet.getEventBus().register(this);
         ui = UI.getCurrent();
     }
 
@@ -159,6 +161,7 @@ public class AthleteTimerElement extends TimerElement {
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
         UpdateReceiverServlet.getEventBus().unregister(this);
+        TimerReceiverServlet.getEventBus().register(this);
     }
     
 }

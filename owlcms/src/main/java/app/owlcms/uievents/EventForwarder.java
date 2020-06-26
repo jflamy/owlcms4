@@ -48,6 +48,9 @@ import app.owlcms.uievents.UIEvent.BreakPaused;
 import app.owlcms.uievents.UIEvent.BreakSetTime;
 import app.owlcms.uievents.UIEvent.BreakStarted;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
+import app.owlcms.uievents.UIEvent.SetTime;
+import app.owlcms.uievents.UIEvent.StartTime;
+import app.owlcms.uievents.UIEvent.StopTime;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -240,6 +243,21 @@ public class EventForwarder implements BreakDisplay {
 
     @Subscribe
     public void slaveBreakSet(UIEvent.BreakSetTime e) {
+        pushTimer(e);
+    }
+    
+    @Subscribe
+    public void slaveSetTime(UIEvent.SetTime e) {
+        pushTimer(e);
+    }
+    
+    @Subscribe
+    public void slaveStartTime(UIEvent.StartTime e) {
+        pushTimer(e);
+    }
+    
+    @Subscribe
+    public void slaveStopTime(UIEvent.StopTime e) {
         pushTimer(e);
     }
 
@@ -468,7 +486,16 @@ public class EventForwarder implements BreakDisplay {
         Integer milliseconds = null;
         boolean indefiniteBreak = false;
         mapPut(sb, "eventType", e.getClass().getSimpleName());
-        if (e instanceof UIEvent.BreakSetTime) {
+        if (e instanceof SetTime) {
+            SetTime st = (SetTime) e;
+            milliseconds = st.getTimeRemaining();
+        } else if (e instanceof StartTime) {
+            StartTime st = (StartTime) e;
+            milliseconds = st.getTimeRemaining();
+        } else if (e instanceof UIEvent.StopTime) {
+            StopTime st = (StopTime) e;
+            milliseconds = st.getTimeRemaining();
+        } else if (e instanceof BreakSetTime) {
             BreakSetTime bst = (BreakSetTime) e;
             if (bst.getEnd() != null) {
                 milliseconds = (int) LocalDateTime.now().until(bst.getEnd(), ChronoUnit.MILLIS);
@@ -479,7 +506,7 @@ public class EventForwarder implements BreakDisplay {
             BreakStarted bst = (BreakStarted) e;
             milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
         } else if (e instanceof BreakPaused) {
-            logger.warn("????? break paused {}",LoggerUtils.whereFrom());
+            logger.warn("????? break paused {}", LoggerUtils.whereFrom());
             BreakPaused bst = (BreakPaused) e;
             milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
         } else if (e instanceof BreakDone) {

@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.publicresults;
 
 import java.io.IOException;
@@ -26,14 +32,16 @@ import ch.qos.logback.classic.Logger;
 @WebServlet("/decision")
 public class DecisionReceiverServlet extends HttpServlet {
 
-    Logger logger = (Logger) LoggerFactory.getLogger(DecisionReceiverServlet.class);
-    private String secret = StartupUtils.getStringParam("updateKey");
     private static String defaultFopName;
     static EventBus eventBus = new AsyncEventBus(Executors.newCachedThreadPool());
 
     public static EventBus getEventBus() {
         return eventBus;
     }
+
+    Logger logger = (Logger) LoggerFactory.getLogger(DecisionReceiverServlet.class);
+
+    private String secret = StartupUtils.getStringParam("updateKey");
 
     /**
      * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
@@ -71,8 +79,10 @@ public class DecisionReceiverServlet extends HttpServlet {
         DecisionEvent decisionEvent = new DecisionEvent();
 
         String eventTypeString = req.getParameter("eventType");
+        DecisionEventType eventType = null;
         try {
-            decisionEvent.setEventType(DecisionEventType.valueOf(eventTypeString));
+            eventType = DecisionEventType.valueOf(eventTypeString);
+            decisionEvent.setEventType(eventType);
         } catch (Exception e) {
             String message = MessageFormat.format("unknown event type {0}", eventTypeString);
             logger.error(message);
@@ -83,9 +93,9 @@ public class DecisionReceiverServlet extends HttpServlet {
         String ds = req.getParameter("d1");
         decisionEvent.setDecisionLight1(ds != null ? Boolean.valueOf(ds) : null);
         ds = req.getParameter("d2");
-        decisionEvent.setDecisionLight1(ds != null ? Boolean.valueOf(ds) : null);
+        decisionEvent.setDecisionLight2(ds != null ? Boolean.valueOf(ds) : null);
         ds = req.getParameter("d3");
-        decisionEvent.setDecisionLight1(ds != null ? Boolean.valueOf(ds) : null);
+        decisionEvent.setDecisionLight3(ds != null ? Boolean.valueOf(ds) : null);
         decisionEvent.setDecisionLightsVisible(Boolean.valueOf(req.getParameter("decisionsVisible")));
         decisionEvent.setDown(Boolean.valueOf(req.getParameter("down")));
         decisionEvent.setFopName(req.getParameter("fop"));

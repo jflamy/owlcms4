@@ -79,10 +79,11 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     @Subscribe
     public void slaveDecision(DecisionEvent de) {
-        if (ui == null || !ui.isClosing()) return;
+        logger.warn("DecisionElement DecisionEvent {} {}",de.getEventType(), System.identityHashCode(de));
+        if (ui == null || ui.isClosing()) return;
         ui.access(() -> {
             if (de.isBreak()) {
-                logger.debug("slaveBreakStart disable");
+                logger.warn("break: slaveDecision disable");
                 getModel().setEnabled(false);
             } else {
                 switch (de.getEventType()) {
@@ -90,12 +91,14 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
                     this.getElement().callJsFunction("showDown", false, false);
                     break;
                 case FULL_DECISION:
+                    logger.warn("calling full decision");
                     this.getElement().callJsFunction("showDecisions", false, de.getDecisionLight1(), de.getDecisionLight2(),
                             de.getDecisionLight3());
                     getModel().setEnabled(false);
+                    break;
                 case RESET:
+                    logger.warn("calling reset");
                     getElement().callJsFunction("reset", false);
-                    logger.debug("slaveReset disable");
                     break;
                 default:
                     logger.error("unknown decision event type {}", de.getEventType());
@@ -107,7 +110,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     @Subscribe
     public void slaveStartTimer(TimerEvent.StartTime e) {
-        if (ui == null || !ui.isClosing()) return;
+        if (ui == null || ui.isClosing()) return;
         ui.access(() -> {
             getModel().setEnabled(true);
         });
@@ -139,7 +142,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     
     @Subscribe
     public void slaveStopBreakTimer(BreakTimerEvent.BreakDone e) {
-        if (ui == null || !ui.isClosing()) return;
+        if (ui == null || ui.isClosing()) return;
         ui.access(() -> {
             getModel().setEnabled(true);
         });

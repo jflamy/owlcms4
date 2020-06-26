@@ -74,7 +74,7 @@ public class TimerReceiverServlet extends HttpServlet {
         String eventTypeString = req.getParameter("eventType");
         String fopName = req.getParameter("fopName");
 
-        String secondsString = req.getParameter("seconds");
+        String secondsString = req.getParameter("milliseconds");
         int seconds = secondsString != null ? Integer.valueOf(secondsString) : 0;
         String indefiniteString = req.getParameter("indefiniteBreak");
         boolean indefinite = indefiniteString != null ? Boolean.valueOf(indefiniteString) : false;

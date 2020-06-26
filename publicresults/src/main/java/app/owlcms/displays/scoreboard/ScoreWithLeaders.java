@@ -255,6 +255,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveDecisionEvent(DecisionEvent e) {
+        logger.warn("received DecisionEvent {}",e);
         DecisionEventType eventType = e.getEventType();
         switch (eventType) {
         case DOWN_SIGNAL:
@@ -298,6 +299,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     /** @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        logger.warn("registering ScoreWithLeaders {}",System.identityHashCode(this));
         UpdateReceiverServlet.getEventBus().register(this);
         DecisionReceiverServlet.getEventBus().register(this);
         TimerReceiverServlet.getEventBus().register(this);
