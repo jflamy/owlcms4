@@ -93,7 +93,6 @@ public class EventForwarder implements BreakDisplay {
     private Integer timeAllowed;
     private int previousHashCode = 0;
     private long previousMillis = 0L;
-    private boolean breakMode;
     private Boolean decisionLight1 = null;
     private Boolean decisionLight2 = null;
     private Boolean decisionLight3 = null;
@@ -144,11 +143,17 @@ public class EventForwarder implements BreakDisplay {
         OwlcmsSession.withFop(fop -> {
             BreakType breakType = fop.getBreakType();
             Group group = fop.getGroup();
-            setFullName((group != null ? (Translator.translate("Group_number", group.getName()) + " &ndash; ") : "")
-                    + inferMessage(breakType));
+            switch (breakType) {
+            case GROUP_DONE:
+                setFullName(groupResults(group));
+                break;
+            default:
+                setFullName((group != null ? (Translator.translate("Group_number", group.getName()) + " &ndash; ") : "")
+                        + inferMessage(breakType));
+                break;
+            }
             setTeamName("");
             setAttempt("");
-            setBreak(true);
             setHidden(false);
         });
     }
@@ -312,10 +317,22 @@ public class EventForwarder implements BreakDisplay {
             setHidden(true);
         } else {
             // done is a special kind of break.
-            doBreak();
-            setFullName(Translator.translate("Group_number_results", g.toString()));
+            // the done event can be triggered when the decision is being given
+            // we need to wait until after the decision is shown and reset.
+            OwlcmsSession.withFop(fop -> {
+                if (fop.getState() != FOPState.BREAK) return;
+                setFullName("** "+groupResults(g));
+                setTeamName("");
+                setAttempt("");
+                setHidden(false);
+            });
+
             pushUpdate();
         }
+    }
+
+    private String groupResults(Group g) {
+        return Translator.translate("Group_number_results", g.toString());
     }
 
     @Subscribe
@@ -412,7 +429,7 @@ public class EventForwarder implements BreakDisplay {
         Group group = fop.getGroup();
         List<Athlete> globalRankingsForCurrentGroup = competition.getGlobalCategoryRankingsForGroup(group);
         int liftsDone = AthleteSorter.countLiftsDone(globalRankingsForCurrentGroup);
-        setGroupName(group != null ? group.getName() : null);
+        setGroupName(computeSecondLine(fop.getCurAthlete(), group != null ? group.getName() : null));
         setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
         if (globalRankingsForCurrentGroup != null && globalRankingsForCurrentGroup.size() > 0) {
             setGroupAthletes(getAthletesJson(globalRankingsForCurrentGroup, fop.getLiftingOrder()));
@@ -478,7 +495,7 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "fop", fop.getName());
         FOPState state = fop.getState();
         mapPut(sb, "fopState", state != null ? state.toString() : FOPState.INACTIVE.name());
-        mapPut(sb, "break", String.valueOf(breakMode));
+        mapPut(sb, "break", String.valueOf(isBreak()));
 
         // current athlete & attempt
         mapPut(sb, "d1", getDecisionLight1() != null ? getDecisionLight1().toString() : null);
@@ -526,11 +543,15 @@ public class EventForwarder implements BreakDisplay {
         }
 
         mapPut(sb, "milliseconds", milliseconds != null ? milliseconds.toString() : null);
-        mapPut(sb, "break", String.valueOf(breakMode));
-        mapPut(sb, "breaktype", fop.getBreakType() != null ? fop.getBreakType().toString() : null);
+        mapPut(sb, "break", String.valueOf(isBreak()));
+        mapPut(sb, "breakType", ((fop.getState() == FOPState.BREAK) && (fop.getBreakType() != null)) ? fop.getBreakType().toString() : null);
         mapPut(sb, "indefiniteBreak", Boolean.toString(indefiniteBreak));
 
         return sb;
+    }
+
+    private boolean isBreak() {
+        return fop.getState() == FOPState.BREAK;
     }
 
     private Map<String, String> createUpdate() {
@@ -542,12 +563,13 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "fop", fop.getName());
         FOPState state = fop.getState();
         mapPut(sb, "fopState", state != null ? state.toString() : FOPState.INACTIVE.name());
-        String isBreak = String.valueOf(breakMode);
+        String isBreak = String.valueOf(isBreak());
         mapPut(sb, "break", isBreak);
         BreakType breakType = fop.getBreakType();
-        logger.error("***** break {} breakType {}", isBreak, breakType);
+        String bts = ((fop.getState() == FOPState.BREAK) && (breakType != null)) ? fop.getBreakType().toString() : null;
         
-        mapPut(sb, "breakType", breakType != null ? breakType.toString() : null);
+        mapPut(sb, "breakType", bts);
+        logger.error("***** break {} breakType {}", isBreak, bts);
         int breakTimeRemaining = fop.getBreakTimer().getTimeRemaining();
         mapPut(sb, "breakRemaining", Integer.toString(breakTimeRemaining));
 
@@ -581,11 +603,11 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void doDone(Group g) {
-        logger.debug("forwarding doDone {}", g == null ? null : g.getName());
+        logger.warn("forwarding doDone {}", g == null ? null : g.getName());
         if (g == null) {
             setHidden(true);
         } else {
-            setFullName(Translator.translate("Group_number_results", g.toString()));
+            setFullName("%"+g.getName());
             setGroupName("");
             setLiftsDone("");
         }
@@ -614,10 +636,9 @@ public class EventForwarder implements BreakDisplay {
                 if (e instanceof UIEvent.LiftingOrderUpdated) {
                     setTimeAllowed(((LiftingOrderUpdated) e).getTimeAllowed());
                 }
-                String computedName = fop.getGroup() != null
-                        ? Translator.translate("Scoreboard.GroupLiftType", fop.getGroup().getName(),
-                                (a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-                                        : Translator.translate("Snatch")))
+                String groupName =  fop.getGroup() != null ? fop.getGroup().getName() : null;
+                String computedName = groupName != null
+                        ? computeSecondLine(a, groupName)
                         : "";
                 setGroupName(computedName);
             }
@@ -629,6 +650,13 @@ public class EventForwarder implements BreakDisplay {
             }
             return;
         }
+    }
+
+    private String computeSecondLine(Athlete a, String groupName) {
+        if (a == null) return ("");
+        return Translator.translate("Scoreboard.GroupLiftType", groupName,
+                (a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+                        : Translator.translate("Snatch")));
     }
 
     private List<Athlete> filterToCategory(Category category, List<Athlete> order) {
@@ -854,10 +882,6 @@ public class EventForwarder implements BreakDisplay {
             previousMillis = System.currentTimeMillis();
         }
 
-    }
-
-    private void setBreak(boolean b) {
-        this.breakMode = b;
     }
 
     private void setCategoryName(String name) {

@@ -59,7 +59,7 @@ public class UpdateReceiverServlet extends HttpServlet {
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
                 logger./**/warn("---- update received from {}", URLUtils.getClientIp(req));
                 for (Entry<String, String[]> pair : pairs) {
-                    logger./**/warn("{} = {}", pair.getKey(), pair.getValue()[0]);
+                    logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
                 }
             }
 

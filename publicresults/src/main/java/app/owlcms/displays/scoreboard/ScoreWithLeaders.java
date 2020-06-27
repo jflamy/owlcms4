@@ -140,7 +140,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         setDarkMode(true);
     }
 
-    public void doBreak(UpdateEvent bte) {
+    private void doBreak(UpdateEvent bte) {
         if (ui == null || ui.isClosing())
             return;
         ui.access(() -> {
@@ -211,6 +211,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveGlobalRankingUpdated(UpdateEvent e) {
+        logger.warn("received UpdateEventt {}",e);
         ui.access(() -> {
             String athletes = e.getAthletes();
             String leaders = e.getLeaders();
@@ -238,18 +239,14 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             String liftsDone = e.getLiftsDone();
             getModel().setLiftsDone(liftsDone);
 
-            if (liftsDone != null && "".contentEquals(liftsDone) && groupName != null && "".contentEquals(groupName)) {
-                // The group can be done and the state be either BREAK (with break type GROUP_DONE)
-                // or CURRENT_ATHLETE_DISPLAYED because we just came back to the group but there
-                // are still all attempts done, prior to erasing an attempt to take it again.
-                // so this is a bit of kludge, yes
-                this.getElement().callJsFunction("groupDone");
-            }
-            else if ("BREAK".equals(e.getFopState())) {
+            if ("BREAK".equals(e.getFopState()) && e.getBreakType() == BreakType.GROUP_DONE) {
+                logger.warn("group is done");
+                doDone(e.getFullName());
+            } else if ("BREAK".equals(e.getFopState())) {
+                logger.warn("in a break {}", e.getBreakType());
                 this.getElement().callJsFunction("doBreak");
                 needReset = true;
-            } 
-            else if (needReset) {
+            } else if (needReset) {
                 logger.warn("resetting becase of ranking update");
                 this.getElement().callJsFunction("reset");
                 needReset = false;
@@ -271,9 +268,10 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             });
             break;
         case RESET:
-            if (e.isDone()) {
-                doDone(e.getGroupName());
-            } else {
+//            if (e.isDone()) {
+//                doDone(e.getGroupName());
+//            } else 
+            {
                 if (ui == null || ui.isClosing())
                     return;
                 ui.access(() -> {
@@ -324,7 +322,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         } else {
             getModel().setFullName("Waiting for update from competition site.");
             getModel().setGroupName("");
-            getElement().callJsFunction("doBreak");
+            getElement().callJsFunction("doDone");
         }
     }
 
@@ -371,11 +369,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         }
     }
 
-    private void doDone(String groupName) {
-        if (groupName == null) {
+    private void doDone(String str) {
+        if (str == null) {
             doEmpty();
         } else {
-            getModel().setFullName(getTranslation("Group_number_results", groupName));
+//            getModel().setFullName(getTranslation("Group_number_results", groupName));
+            getModel().setFullName(str);
             this.getElement().callJsFunction("groupDone");
         }
     }

@@ -806,11 +806,11 @@ public class FieldOfPlay {
             setState(CURRENT_ATHLETE_DISPLAYED);
             group.setDone(false);
         } else {
-            pushOutDone();
             // special kind of break that allows moving back in case of jury reversal
             setBreakType(BreakType.GROUP_DONE);
             setState(BREAK);
             group.setDone(true);
+            pushOutDone();
         }
     }
 
