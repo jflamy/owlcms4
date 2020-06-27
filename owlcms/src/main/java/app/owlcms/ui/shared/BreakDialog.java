@@ -43,12 +43,12 @@ public class BreakDialog extends Dialog {
             // defensive, should have been unregistered already
             try {
                 OwlcmsSession.getFop().getUiEventBus().unregister(content);
-            } catch (IllegalArgumentException e1) {
+            } catch (Exception e1) {
             }
 
             try {
                 OwlcmsSession.getFop().getFopEventBus().unregister(content);
-            } catch (IllegalArgumentException e1) {
+            } catch (Exception e1) {
             }
             content.cleanup();
             content = null;
