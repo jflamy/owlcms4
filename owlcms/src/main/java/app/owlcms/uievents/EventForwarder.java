@@ -321,7 +321,7 @@ public class EventForwarder implements BreakDisplay {
             // we need to wait until after the decision is shown and reset.
             OwlcmsSession.withFop(fop -> {
                 if (fop.getState() != FOPState.BREAK) return;
-                setFullName("** "+groupResults(g));
+                setFullName(groupResults(g));
                 setTeamName("");
                 setAttempt("");
                 setHidden(false);
@@ -535,7 +535,7 @@ public class EventForwarder implements BreakDisplay {
             BreakStarted bst = (BreakStarted) e;
             milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
         } else if (e instanceof BreakPaused) {
-            logger.warn("????? break paused {}", LoggerUtils.whereFrom());
+            logger.debug("????? break paused {}", LoggerUtils.whereFrom());
             BreakPaused bst = (BreakPaused) e;
             milliseconds = bst.isIndefinite() ? null : bst.getTimeRemaining();
         } else if (e instanceof BreakDone) {
@@ -603,18 +603,18 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void doDone(Group g) {
-        logger.warn("forwarding doDone {}", g == null ? null : g.getName());
+        logger.debug("forwarding doDone {}", g == null ? null : g.getName());
         if (g == null) {
             setHidden(true);
         } else {
-            setFullName("%"+g.getName());
+            setFullName(g.getName());
             setGroupName("");
             setLiftsDone("");
         }
     }
 
     private void doUpdate(Athlete a, UIEvent e) {
-        logger.warn("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+        logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
         boolean leaveTopAlone = false;
         if (e instanceof UIEvent.LiftingOrderUpdated) {
             LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
@@ -626,7 +626,7 @@ public class EventForwarder implements BreakDisplay {
         }
         if (a != null && a.getAttemptsDone() < 6) {
             if (!leaveTopAlone) {
-                logger.warn("ef updating top {}", a.getFullName());
+                logger.debug("ef updating top {}", a.getFullName());
                 setFullName(a.getFullName());
                 setTeamName(a.getTeam());
                 setStartNumber(a.getStartNumber());

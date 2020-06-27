@@ -87,7 +87,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         logger.debug("master referee decision update");
         Object origin = this.getOrigin();
         OwlcmsSession.withFop((fop) -> {
-            logger.warn("master referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time,
+            logger.debug("master referee update {} ({} {} {})", fop.getCurAthlete(), ref1, ref2, ref3, ref1Time, ref2Time,
                     ref3Time);
             fopEventBus.post(new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3, ref1Time,
                     ref2Time, ref3Time));

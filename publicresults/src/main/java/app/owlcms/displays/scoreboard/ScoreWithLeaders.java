@@ -346,6 +346,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         return fopName;
     }
 
+    @SuppressWarnings("unused")
     private String inferMessage(BreakType bt) {
         if (bt == null) {
             return Translator.translate("PublicMsg.CompetitionPaused");

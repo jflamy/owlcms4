@@ -146,6 +146,8 @@ public class FieldOfPlay {
 
     private boolean cjStarted;
 
+    private Integer prevHash;
+
     /**
      * Instantiates a new field of play state. When using this constructor {@link #init(List, IProxyTimer)} must later
      * be used to provide the athletes and set the athleteTimer
@@ -164,7 +166,7 @@ public class FieldOfPlay {
         this.athleteTimer = null;
         this.breakTimer = new ProxyBreakTimer(this);
         this.setPlatform(platform2);
-        
+
         this.fopEventBus.register(this);
         EventForwarder.listenToFOP(this);
     }
@@ -183,7 +185,7 @@ public class FieldOfPlay {
         this.setTestingMode(testingMode);
         this.group = new Group();
         init(athletes, timer1, breakTimer1, true);
-        
+
         this.fopEventBus.register(this);
     }
 
@@ -196,7 +198,7 @@ public class FieldOfPlay {
     }
 
     public void emitDown(FOPEvent e) {
-        logger.warn("emitting down {}", LoggerUtils.stackTrace());
+        logger.debug("emitting down {}", LoggerUtils.stackTrace());
         getAthleteTimer().stop(); // paranoia
         this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
         setClockOwner(null); // athlete has lifted, time does not keep running for them
@@ -387,7 +389,17 @@ public class FieldOfPlay {
      */
     @Subscribe
     public void handleFOPEvent(FOPEvent e) {
-        logger.debug("{} state {}, event received {} {}", getName(), this.getState(), e.getClass().getSimpleName(), e);
+        int newHash = e.hashCode();
+        if (prevHash != null && newHash == prevHash) {
+            prevHash = newHash;
+            logger.debug("{} state {}, DUPLICATE event received {} {}", getName(), this.getState(),
+                    e.getClass().getSimpleName(), e);
+            return;
+        } else {
+            logger.debug("{} state {}, event received {} {}", getName(), this.getState(), e.getClass().getSimpleName(),
+                    e);
+            prevHash = newHash;
+        }
         // it is always possible to explicitly interrupt competition (break between the
         // two lifts, technical incident, etc.)
         if (e instanceof BreakStarted) {
@@ -450,12 +462,12 @@ public class FieldOfPlay {
             } else if (e instanceof BreakPaused) {
                 getBreakTimer().stop();
                 pushOut(new UIEvent.BreakPaused(
-                            this.getTimeAllowed(),
-                            e.getOrigin(),
-                            false,
-                            this.getBreakType(),
-                            this.getCountdownType())); 
-                            
+                        this.getTimeAllowed(),
+                        e.getOrigin(),
+                        false,
+                        this.getBreakType(),
+                        this.getCountdownType()));
+
             } else if (e instanceof BreakStarted) {
                 transitionToBreak((BreakStarted) e);
             } else if (e instanceof WeightChange) {
@@ -518,9 +530,8 @@ public class FieldOfPlay {
             if (e instanceof DownSignal) {
                 // ignore -- now processed via processRefereeDecisions()
                 // 2 referees have given same decision
-                //emitDown(e);
-            } else 
-            if (e instanceof DecisionFullUpdate) {
+                // emitDown(e);
+            } else if (e instanceof DecisionFullUpdate) {
                 // decision coming from decision display or attempt board
                 updateRefereeDecisions((DecisionFullUpdate) e);
                 uiShowUpdateOnJuryScreen();
@@ -995,7 +1006,8 @@ public class FieldOfPlay {
 
         int timeAllowed = getTimeAllowed();
         Integer attemptsDone = curAthlete.getAttemptsDone();
-        logger.debug("{} recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
+        logger.debug("{} {} recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
+                System.identityHashCode(this),
                 getName(),
                 getCurAthlete() != null ? getCurAthlete().getFullName() : "",
                 previousAthlete != null ? previousAthlete.getFullName() : "",
@@ -1213,7 +1225,8 @@ public class FieldOfPlay {
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
-        logger.warn("?????? transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer, LoggerUtils.whereFrom());
+        logger.debug("?????? transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
+                LoggerUtils.whereFrom());
         loadGroup(group2, e.getOrigin(), true);
         updateGlobalRankings();
         Athlete clockOwner = getClockOwner();
