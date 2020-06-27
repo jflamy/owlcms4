@@ -1,5 +1,5 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-   * [x] Excessive page refreshes were introduced as a side-effect in version 4.7.4.  Only database loads that correspond to group switches now cause a full refresh.
+   * [x] Timer, down and decisions are now shown on the secondary "publicresults" site.  This allows virtual competitions to use the cloud-based publicresults application.
 * Key Highlights from recent stable releases
    * [x] Translations fixed.  Spanish version available.
    * [x] Improved support for deployment under Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md).
