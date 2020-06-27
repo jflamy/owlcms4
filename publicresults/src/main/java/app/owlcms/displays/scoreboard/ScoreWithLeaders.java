@@ -140,24 +140,24 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         setDarkMode(true);
     }
 
-    private void doBreak(UpdateEvent bte) {
-        if (ui == null || ui.isClosing())
-            return;
-        ui.access(() -> {
-            logger.warn("starting break");
-            ScoreboardModel model = getModel();
-            BreakType breakType = bte.getBreakType();
-            String groupName = bte.getGroupName();
-            model.setFullName(Translator.translate("Group_number", groupName) + " &ndash; " + inferMessage(breakType));
-            model.setTeamName("");
-            model.setAttempt("");
-            model.setHidden(false);
-
-//            updateBottom(model, computeLiftType(fop.getCurAthlete()));
-            logger.warn("$$$ scoreWithLeaders calling doBreak()");
-            this.getElement().callJsFunction("doBreak");
-        });
-    }
+//    private void doBreak(UpdateEvent bte) {
+//        if (ui == null || ui.isClosing())
+//            return;
+//        ui.access(() -> {
+//            logger.warn("starting break");
+//            ScoreboardModel model = getModel();
+//            BreakType breakType = bte.getBreakType();
+//            String groupName = bte.getGroupName();
+//            model.setFullName(Translator.translate("Group_number", groupName) + " &ndash; " + inferMessage(breakType));
+//            model.setTeamName("");
+//            model.setAttempt("");
+//            model.setHidden(false);
+//
+////            updateBottom(model, computeLiftType(fop.getCurAthlete()));
+//            logger.warn("$$$ scoreWithLeaders calling doBreak()");
+//            this.getElement().callJsFunction("doBreak");
+//        });
+//    }
 
     @Override
     public ContextMenu getContextMenu() {
@@ -211,7 +211,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveGlobalRankingUpdated(UpdateEvent e) {
-        logger.warn("received UpdateEventt {}",e);
+        logger.warn("received UpdateEventt {}", e);
         ui.access(() -> {
             String athletes = e.getAthletes();
             String leaders = e.getLeaders();
@@ -242,11 +242,13 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             if ("BREAK".equals(e.getFopState()) && e.getBreakType() == BreakType.GROUP_DONE) {
                 logger.warn("group is done");
                 doDone(e.getFullName());
+                needReset = true;
             } else if ("BREAK".equals(e.getFopState())) {
                 logger.warn("in a break {}", e.getBreakType());
                 this.getElement().callJsFunction("doBreak");
                 needReset = true;
-            } else if (needReset) {
+            } else if (!needReset) {
+            } else {
                 logger.warn("resetting becase of ranking update");
                 this.getElement().callJsFunction("reset");
                 needReset = false;
@@ -256,7 +258,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveDecisionEvent(DecisionEvent e) {
-        logger.warn("received DecisionEvent {}",e);
+        logger.warn("received DecisionEvent {}", e);
         DecisionEventType eventType = e.getEventType();
         switch (eventType) {
         case DOWN_SIGNAL:
@@ -271,14 +273,14 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 //            if (e.isDone()) {
 //                doDone(e.getGroupName());
 //            } else 
-            {
-                if (ui == null || ui.isClosing())
-                    return;
-                ui.access(() -> {
-                    getModel().setHidden(false);
-                    this.getElement().callJsFunction("reset");
-                });
-            }
+        {
+            if (ui == null || ui.isClosing())
+                return;
+            ui.access(() -> {
+                getModel().setHidden(false);
+                this.getElement().callJsFunction("reset");
+            });
+        }
             ;
             break;
         case FULL_DECISION:
@@ -294,14 +296,13 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         }
     }
 
-    
     @Subscribe
     public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
         logger.warn("swl BreakDone");
         this.getElement().callJsFunction("reset");
         needReset = false;
     }
-    
+
     protected void doEmpty() {
         this.getModel().setHidden(true);
     }
@@ -309,7 +310,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     /** @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        logger.warn("registering ScoreWithLeaders {}",System.identityHashCode(this));
+        logger.warn("registering ScoreWithLeaders {}", System.identityHashCode(this));
         UpdateReceiverServlet.getEventBus().register(this);
         DecisionReceiverServlet.getEventBus().register(this);
         TimerReceiverServlet.getEventBus().register(this);
