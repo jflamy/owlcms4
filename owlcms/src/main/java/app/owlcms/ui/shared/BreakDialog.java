@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.dialog.Dialog;
 
-import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
+import app.owlcms.uievents.BreakType;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -43,12 +43,12 @@ public class BreakDialog extends Dialog {
             // defensive, should have been unregistered already
             try {
                 OwlcmsSession.getFop().getUiEventBus().unregister(content);
-            } catch (IllegalArgumentException e1) {
+            } catch (Exception e1) {
             }
 
             try {
                 OwlcmsSession.getFop().getFopEventBus().unregister(content);
-            } catch (IllegalArgumentException e1) {
+            } catch (Exception e1) {
             }
             content.cleanup();
             content = null;

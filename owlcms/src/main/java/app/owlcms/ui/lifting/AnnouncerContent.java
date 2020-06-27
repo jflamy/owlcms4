@@ -34,15 +34,15 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
-import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.ui.shared.BreakDialog;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
+import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -296,7 +296,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         });
         topBarGroupSelect.addValueChangeListener(e -> {
             Group group = e.getValue();
-            logger.trace("select setting filter group to {}", group);
+            logger.trace("##### select setting filter group to {} {}", group, LoggerUtils.whereFrom());
             getGroupFilter().setValue(group);
         });
     }

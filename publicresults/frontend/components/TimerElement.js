@@ -100,29 +100,26 @@ class TimerElement extends PolymerElement {
 
 	ready() {
 		super.ready();
+		console.log("timer ready")
 		this._init();
 	}
 
-	start() {
-		if (this.indefinite) {
-			// console.debug("timer indefinite "+this.startTime);
+	start(seconds, indefinite, silent, element) {
+		if (indefinite) {
+			console.warn("timer indefinite "+seconds);
 			this._indefinite()
 			return;
 		}
 
-		console.debug("timer start "+this.startTime);
+		console.warn("timer start "+seconds);
+		this.currentTime = seconds;
 		if ((this.currentTime <= 0 && !this.countUp) 
 				|| (this.currentTime >= this.startTime && this.countUp) ) {
 			// timer is over
 			this.currentTime = this.countUp ? this.startTime : 0;
 		}
 
-		if (!this.startTime 
-				// || this.running /* start should not result in pause() ! */
-		) {
-			this.pause();
-			return;
-		}
+		this.silent = silent;
 		this._initialWarningGiven = (this.currentTime < 90);
 		this._finalWarningGiven = (this.currentTime < 30);
 		this._timeOverWarningGiven = (this.currentTime < 0);
@@ -133,24 +130,45 @@ class TimerElement extends PolymerElement {
 		window.requestAnimationFrame(this._decreaseTimer.bind(this));
 	}
 
-	pause() {
-		if (this.indefinite) {
+	pause(seconds, indefinite, silent, element) {
+		if (indefinite) {
 			this._indefinite()
 			return;
-		} 
-		console.debug("timer pause");
+		}
+
 		this.running = false;
-		if (this.$server != null) {
-			this.$server.clientTimerStopped(this.currentTime);      
+		if (element.$server != null) {
+			element.$server.clientTimerStopped(this.currentTime);      
 		} else {
 			console.log("no server$");
 		}
+		
+		console.warn("timer pause"+seconds);
+		this.currentTime = seconds;
+	}
+	
+	display(seconds, indefinite, silent, element) {
+		this.running = false;
+		console.log("display "+indefinite);
+		if (indefinite) {
+			this.set('currentTime', seconds);
+			this._indefinite()
+		} else if (this.countUp) {
+			this.set('currentTime', 0);
+			this.set('_formattedTime', '0:00');
+		} else {
+			this.set('currentTime', seconds);
+			this.set('_formattedTime', this._formatTime(seconds));
+		}
+		this._initialWarningGiven = false;
+		this._finalWarningGiven = false;
+		this._timeOverWarningGiven = false;		
 	}
 
-	reset() {
-		console.debug("timer reset");
-		this.pause();
-		this._init();
+	reset(element) {
+//		console.warn("timer reset");
+//		this.pause(this.startTime, false, true, element);
+//		this._init();
 	}
 
 	_indefinite() {
@@ -159,7 +177,7 @@ class TimerElement extends PolymerElement {
 
 	_init() {
 		this.running = false;
-		// console.debug("init timer "+this.indefinite);
+		console.log("init timer "+this.indefinite);
 		if (this.indefinite) {
 			this.set('currentTime', this.startTime);
 			this._indefinite()
@@ -229,8 +247,9 @@ class TimerElement extends PolymerElement {
 		var hours = Math.trunc(ntime / 3600);
 		var minutes = Math.trunc((ntime - (hours*3600)) / 60);
 		var seconds = ntime - ((hours*3600)+(minutes*60));
-		return (hours > 0 ? hours + ":" : "")+(minutes+":"+ (seconds < 10 ? "0"+seconds : seconds));
+		return (hours > 0 ? (hours + ":" + (minutes < 10 ? "0" : "")) : "")+(minutes+":"+ (seconds < 10 ? "0"+seconds : seconds));
 	}
+
 }
 
 customElements.define(TimerElement.is, TimerElement);

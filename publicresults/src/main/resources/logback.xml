@@ -15,9 +15,9 @@
 		</encoder>
 	</appender>
 	
-	<appender name="STDERR"
+	<appender name="CONSOLE"
 		class="ch.qos.logback.core.ConsoleAppender">
-		<target>System.err</target>
+		<target>System.out</target>
 		<encoder>
 			<pattern>
 				%d{HH:mm:ss.SSS} %-5level %-75msg %n
@@ -38,8 +38,8 @@
 		name="com.vaadin.flow.server.DefaultDeploymentConfiguration"
 		level="ERROR" />
 		
-	<logger name="app.owlcms.relay.Main" level="INFO">
-        <appender-ref ref="STDERR" />
+	<logger name="app.owlcms.Main" level="INFO">
+        <appender-ref ref="CONSOLE" />
     </logger>
 
 	<root level="WARN">

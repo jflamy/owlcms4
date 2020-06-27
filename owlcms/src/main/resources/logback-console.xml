@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-Testing/development logback file, writes to stderr
+Testing/development logback file, writes to CONSOLE
 Also used for certain cloud services (e.g. Heroku)
 -->
 <configuration scan="true" debug="false">
 
-	<appender name="STDERR"
+	<appender name="CONSOLE"
 		class="ch.qos.logback.core.ConsoleAppender">
-		<target>System.err</target>
+		<target>System.out</target>
 		<encoder>
 			<pattern>
 				%d{HH:mm:ss.SSS} %-5level %-75msg [%logger{100}:%L %M]%n
@@ -25,7 +25,7 @@ Also used for certain cloud services (e.g. Heroku)
 	<logger name="h2database" level="WARN" />
 
 	<root level="WARN">
-		<appender-ref ref="STDERR" />
+		<appender-ref ref="CONSOLE" />
 	</root>
 
 </configuration>

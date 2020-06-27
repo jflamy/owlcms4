@@ -17,8 +17,8 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 
 import app.owlcms.fieldofplay.ProxyBreakTimer;
-import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

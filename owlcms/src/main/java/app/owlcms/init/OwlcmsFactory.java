@@ -21,7 +21,7 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
-import app.owlcms.fieldofplay.UIEvent;
+import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 

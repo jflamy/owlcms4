@@ -57,11 +57,9 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.fieldofplay.BreakType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
@@ -73,6 +71,8 @@ import app.owlcms.ui.lifting.JuryContent;
 import app.owlcms.ui.lifting.UIEventProcessor;
 import app.owlcms.ui.parameters.QueryParameterReader;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
+import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -142,7 +142,7 @@ public abstract class AthleteGridContent extends VerticalLayout
      * In the current implementation groupSelect is readOnly. If it is made editable, it needs to set the value on
      * groupFilter.
      */
-    protected ComboBox<Group> groupFilter = new ComboBox<>();
+    private ComboBox<Group> groupFilter = new ComboBox<>();
     protected ComboBox<Gender> genderFilter = new ComboBox<>();
     private String topBarTitle;
 
@@ -561,7 +561,7 @@ public abstract class AthleteGridContent extends VerticalLayout
 
         crudGrid.setCrudListener(this);
         crudGrid.setClickRowToUpdate(true);
-        crudLayout.addToolbarComponent(groupFilter);
+        crudLayout.addToolbarComponent(getGroupFilter());
 
         return crudGrid;
     }
@@ -728,14 +728,14 @@ public abstract class AthleteGridContent extends VerticalLayout
         });
         crudLayout.addFilterComponent(lastNameFilter);
 
-        groupFilter.setPlaceholder(getTranslation("Group"));
-        groupFilter.setItems(GroupRepository.findAll());
-        groupFilter.setItemLabelGenerator(Group::getName);
+        getGroupFilter().setPlaceholder(getTranslation("Group"));
+        getGroupFilter().setItems(GroupRepository.findAll());
+        getGroupFilter().setItemLabelGenerator(Group::getName);
         // hide because the top bar has it
-        groupFilter.getStyle().set("display", "none");
+        getGroupFilter().getStyle().set("display", "none");
         // we do not set the group filter value
-        groupFilter.addValueChangeListener(e -> {
-            UIEventProcessor.uiAccess(groupFilter, uiEventBus, () -> {
+        getGroupFilter().addValueChangeListener(e -> {
+            UIEventProcessor.uiAccess(getGroupFilter(), uiEventBus, () -> {
                 Group newGroup = e.getValue();
                 OwlcmsSession.withFop((fop) -> {
                     oldGroup = fop.getGroup();
@@ -746,17 +746,19 @@ public abstract class AthleteGridContent extends VerticalLayout
 //                        logger.debug("filter switching group from {} to {}",
 //                                oldGroup != null ? oldGroup.getName() : null,
 //                                newGroup != null ? newGroup.getName() : null);
-                    fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
-                    oldGroup = newGroup;
+                      logger.debug("value changed, switching group");
+                      fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
+                      oldGroup = newGroup;
 //                        // we listen to the UI switch group that will result from the FOP switchgroup
 //                    } else {
 //                        // loadGroup will emit FOP SwitchGroup which will emit UI switchgroup that we listen to .
-//                        fop.loadGroup(newGroup, this, true);
+  //                        logger.debug("{} loading group {} {} {} {} {}", myId, newGroup, System.identityHashCode(newGroup), oldGroup, System.identityHashCode(oldGroup), LoggerUtils.stackTrace());
+  //                        fop.loadGroup(newGroup, this, newGroup != oldGroup);
 //                    }
                 });
             });
         });
-        crudLayout.addFilterComponent(groupFilter);
+        crudLayout.addFilterComponent(getGroupFilter());
     }
 
     protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
@@ -1069,6 +1071,10 @@ public abstract class AthleteGridContent extends VerticalLayout
             n.add(label);
             n.open();
         }
+    }
+
+    protected void setGroupFilter(ComboBox<Group> groupFilter) {
+        this.groupFilter = groupFilter;
     }
 
 }

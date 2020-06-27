@@ -26,10 +26,19 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.components.elements.AthleteTimerElement;
-import app.owlcms.publicresults.EventReceiverServlet;
-import app.owlcms.publicresults.UpdateEvent;
+import app.owlcms.components.elements.BreakTimerElement;
+import app.owlcms.components.elements.DecisionElement;
+import app.owlcms.i18n.Translator;
+import app.owlcms.publicresults.DecisionReceiverServlet;
+import app.owlcms.publicresults.TimerReceiverServlet;
+import app.owlcms.publicresults.UpdateReceiverServlet;
 import app.owlcms.ui.parameters.DarkModeParameters;
 import app.owlcms.ui.parameters.QueryParameterReader;
+import app.owlcms.uievents.BreakTimerEvent;
+import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.DecisionEvent;
+import app.owlcms.uievents.DecisionEventType;
+import app.owlcms.uievents.UpdateEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -110,11 +119,11 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Id("timer")
     private AthleteTimerElement timer; // Flow creates it
 
-//    @Id("breakTimer")
-//    private BreakTimerElement breakTimer; // Flow creates it
+    @Id("breakTimer")
+    private BreakTimerElement breakTimer; // Flow creates it
 
-//    @Id("decisions")
-//    private DecisionElement decisions; // Flow creates it
+    @Id("decisions")
+    private DecisionElement decisions; // Flow creates it
 
     private boolean darkMode;
     private ContextMenu contextMenu;
@@ -130,6 +139,25 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     public ScoreWithLeaders() {
         setDarkMode(true);
     }
+
+//    private void doBreak(UpdateEvent bte) {
+//        if (ui == null || ui.isClosing())
+//            return;
+//        ui.access(() -> {
+//            logger.warn("starting break");
+//            ScoreboardModel model = getModel();
+//            BreakType breakType = bte.getBreakType();
+//            String groupName = bte.getGroupName();
+//            model.setFullName(Translator.translate("Group_number", groupName) + " &ndash; " + inferMessage(breakType));
+//            model.setTeamName("");
+//            model.setAttempt("");
+//            model.setHidden(false);
+//
+////            updateBottom(model, computeLiftType(fop.getCurAthlete()));
+//            logger.warn("$$$ scoreWithLeaders calling doBreak()");
+//            this.getElement().callJsFunction("doBreak");
+//        });
+//    }
 
     @Override
     public ContextMenu getContextMenu() {
@@ -183,15 +211,19 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveGlobalRankingUpdated(UpdateEvent e) {
+        logger.warn("received UpdateEventt {}", e);
         ui.access(() -> {
             String athletes = e.getAthletes();
             String leaders = e.getLeaders();
             String translationMap = e.getTranslationMap();
 
             JreJsonFactory jreJsonFactory = new JreJsonFactory();
-            this.getElement().setPropertyJson("leaders", leaders != null ? jreJsonFactory.parse(leaders) : Json.createNull());
-            this.getElement().setPropertyJson("athletes", athletes != null ? jreJsonFactory.parse(athletes) : Json.createNull());
-            this.getElement().setPropertyJson("t", translationMap != null ? jreJsonFactory.parse(translationMap) : Json.createNull());
+            this.getElement().setPropertyJson("leaders",
+                    leaders != null ? jreJsonFactory.parse(leaders) : Json.createNull());
+            this.getElement().setPropertyJson("athletes",
+                    athletes != null ? jreJsonFactory.parse(athletes) : Json.createNull());
+            this.getElement().setPropertyJson("t",
+                    translationMap != null ? jreJsonFactory.parse(translationMap) : Json.createNull());
 
             getModel().setCompetitionName(e.getCompetitionName());
             getModel().setAttempt(e.getAttempt());
@@ -206,42 +238,92 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             getModel().setWideTeamNames(e.getWideTeamNames());
             String liftsDone = e.getLiftsDone();
             getModel().setLiftsDone(liftsDone);
-            
-            if (liftsDone != null && "".contentEquals(liftsDone) && groupName != null && "".contentEquals(groupName)) {
-                // The group can be done and the state be either BREAK (with break type GROUP_DONE)
-                // or CURRENT_ATHLETE_DISPLAYED because we just came back to the group but there
-                // are still all attempts done, prior to erasing an attempt to take it again.
-                // so this is a bit of kludge, yes
-                this.getElement().callJsFunction("groupDone");
-            } else if ("BREAK".equals(e.getFopState())) {
-                this.getElement().callJsFunction("doBreakNoTimer");
+
+            if ("BREAK".equals(e.getFopState()) && e.getBreakType() == BreakType.GROUP_DONE) {
+                logger.warn("group is done");
+                doDone(e.getFullName());
                 needReset = true;
-            } else if (needReset) {
+            } else if ("BREAK".equals(e.getFopState())) {
+                logger.warn("in a break {}", e.getBreakType());
+                this.getElement().callJsFunction("doBreak");
+                needReset = true;
+            } else if (!needReset) {
+            } else {
+                logger.warn("resetting becase of ranking update");
                 this.getElement().callJsFunction("reset");
                 needReset = false;
             }
         });
     }
 
+    @Subscribe
+    public void slaveDecisionEvent(DecisionEvent e) {
+        logger.warn("received DecisionEvent {}", e);
+        DecisionEventType eventType = e.getEventType();
+        switch (eventType) {
+        case DOWN_SIGNAL:
+            if (ui == null || ui.isClosing())
+                return;
+            ui.access(() -> {
+                getModel().setHidden(false);
+                this.getElement().callJsFunction("down");
+            });
+            break;
+        case RESET:
+//            if (e.isDone()) {
+//                doDone(e.getGroupName());
+//            } else 
+        {
+            if (ui == null || ui.isClosing())
+                return;
+            ui.access(() -> {
+                getModel().setHidden(false);
+                this.getElement().callJsFunction("reset");
+            });
+        }
+            ;
+            break;
+        case FULL_DECISION:
+            if (ui == null || ui.isClosing())
+                return;
+            ui.access(() -> {
+                getModel().setHidden(false);
+                this.getElement().callJsFunction("refereeDecision");
+            });
+            break;
+        default:
+            break;
+        }
+    }
+
+    @Subscribe
+    public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
+        logger.warn("swl BreakDone");
+        this.getElement().callJsFunction("reset");
+        needReset = false;
+    }
+
     protected void doEmpty() {
         this.getModel().setHidden(true);
     }
 
-
     /** @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        EventReceiverServlet.getEventBus().register(this);
+        logger.warn("registering ScoreWithLeaders {}", System.identityHashCode(this));
+        UpdateReceiverServlet.getEventBus().register(this);
+        DecisionReceiverServlet.getEventBus().register(this);
+        TimerReceiverServlet.getEventBus().register(this);
         ui = UI.getCurrent();
         setDarkMode(this, isDarkMode(), false);
-        UpdateEvent initEvent = EventReceiverServlet.sync(getFopName());
+        UpdateEvent initEvent = UpdateReceiverServlet.sync(getFopName());
         if (initEvent != null) {
             slaveGlobalRankingUpdated(initEvent);
             timer.slaveOrderUpdated(initEvent);
         } else {
             getModel().setFullName("Waiting for update from competition site.");
             getModel().setGroupName("");
-            getElement().callJsFunction("doBreakNoTimer");
+            getElement().callJsFunction("doDone");
         }
     }
 
@@ -249,7 +331,9 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
-        EventReceiverServlet.getEventBus().unregister(this);
+        UpdateReceiverServlet.getEventBus().unregister(this);
+        DecisionReceiverServlet.getEventBus().unregister(this);
+        TimerReceiverServlet.getEventBus().unregister(this);
     }
 
     /** @see app.owlcms.ui.parameters.QueryParameterReader#setFopName(java.lang.String) */
@@ -260,6 +344,41 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     private String getFopName() {
         return fopName;
+    }
+
+    @SuppressWarnings("unused")
+    private String inferMessage(BreakType bt) {
+        if (bt == null) {
+            return Translator.translate("PublicMsg.CompetitionPaused");
+        }
+        switch (bt) {
+        case FIRST_CJ:
+            return Translator.translate("PublicMsg.TimeBeforeCJ");
+        case FIRST_SNATCH:
+            return Translator.translate("PublicMsg.TimeBeforeSnatch");
+        case BEFORE_INTRODUCTION:
+            return Translator.translate("PublicMsg.BeforeIntroduction");
+        case DURING_INTRODUCTION:
+            return Translator.translate("PublicMsg.DuringIntroduction");
+        case TECHNICAL:
+            return Translator.translate("PublicMsg.CompetitionPaused");
+        case JURY:
+            return Translator.translate("PublicMsg.JuryDeliberation");
+        case GROUP_DONE:
+            return Translator.translate("PublicMsg.GroupDone");
+        default:
+            return "";
+        }
+    }
+
+    private void doDone(String str) {
+        if (str == null) {
+            doEmpty();
+        } else {
+//            getModel().setFullName(getTranslation("Group_number_results", groupName));
+            getModel().setFullName(str);
+            this.getElement().callJsFunction("groupDone");
+        }
     }
 
 }

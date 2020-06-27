@@ -6,9 +6,12 @@
  */
 package app.owlcms.components.elements;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -16,16 +19,13 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
+import app.owlcms.publicresults.TimerReceiverServlet;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
  * Countdown timer element.
- */
-/**
- * @author JF
- *
  */
 @Tag("timer-element")
 @JsModule("./components/TimerElement.js")
@@ -127,6 +127,9 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     private Element timerElement;
+    private boolean indefinite;
+    private Integer msRemaining;
+    private boolean silent;
     protected UI ui;
 
     /**
@@ -163,23 +166,27 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     abstract public void clientTimerStopped(double remainingTime);
 
     protected final void doSetTimer(Integer milliseconds) {
-        ui.access(() -> {
-            stop();
-            setTimeRemaining(milliseconds);
+        if (ui == null || ui.isClosing()) return;
+        ui.access( () -> {
+            stop(getMsRemaining(), isIndefinite(), isSilent());
+            initTime(milliseconds);
         });
     }
 
     protected void doStartTimer(Integer milliseconds, boolean silent) {
-        ui.access(() -> {
-            setTimeRemaining(milliseconds);
+        if (ui == null || ui.isClosing()) return;
+        ui.access( () -> {
+            setIndefinite(milliseconds == null);
+            setMsRemaining(milliseconds);
             getModel().setSilent(silent);
-            start();
+            start(milliseconds, isIndefinite(), isSilent());
         });
     }
 
     protected void doStopTimer() {
-        ui.access(() -> {
-            stop();
+        if (ui == null || ui.isClosing()) return;
+        ui.access( () -> {
+            stop(getMsRemaining(), isIndefinite(), isSilent());
         });
     }
 
@@ -188,7 +195,11 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     protected void init() {
+        setTimerElement(this.getElement());
         double seconds = 0.00D;
+        setMsRemaining(0);
+        setSilent(true);
+        setIndefinite(false);
         UI.getCurrent().access(() -> {
             TimerModel model = getModel();
             model.setStartTime(0.0D);
@@ -196,41 +207,110 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             model.setCountUp(false);
             model.setRunning(false);
             model.setSilent(true);
-            setTimerElement(this.getElement());
         });
     }
 
+    protected boolean isIndefinite() {
+        return indefinite;
+    }
+
+    protected boolean isSilent() {
+        return silent;
+    }
+
+
+    protected void setIndefinite(boolean indefinite) {
+        this.indefinite = indefinite;
+    }
+
+    protected void setSilent(boolean b) {
+        silent = b;
+    }
 
     protected void setTimerElement(Element timerElement) {
         this.timerElement = timerElement;
     }
 
-    private void setTimeRemaining(Integer milliseconds) {
-        logger.trace("=== time remaining = {} from {} ", milliseconds, LoggerUtils.whereFrom());
-        TimerModel model = getModel();
-        boolean indefinite = milliseconds == null;
+    private String formatDuration(Integer milliseconds) {
+        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : null;
+    }
 
-        if (!indefinite) {
-            logger.trace("not indefinite");
-            double seconds = milliseconds / 1000.0D;
-            model.setCurrentTime(seconds);
-            model.setStartTime(seconds);
-            model.setIndefinite(false);
-        } else {
-            logger.trace("indefinite");
-            model.setIndefinite(true);
-            model.setSilent(true);
+    private Integer getMsRemaining() {
+        return msRemaining;
+    }
+
+    private void initTime(Integer milliseconds) {
+        if (this instanceof BreakTimerElement) {
+            logger.debug("set time remaining = {} from {} ", formatDuration(milliseconds), LoggerUtils.whereFrom());
         }
-        // should not be necessary
-        getTimerElement().callJsFunction("reset");
+        setIndefinite(milliseconds == null);
+        setMsRemaining(milliseconds);
+
+        if (!isIndefinite()) {
+            if (this instanceof BreakTimerElement) {
+                logger.debug("not indefinite {}", formatDuration(milliseconds));
+            }
+            setDisplay(milliseconds, isIndefinite(), isSilent());
+        } else {
+            if (this instanceof BreakTimerElement) {
+                logger.debug("indefinite");
+            }
+            setDisplay(milliseconds, true, true);
+        }
     }
 
-    private void start() {
-        getTimerElement().callJsFunction("start");
+    private void setDisplay(Integer milliseconds, Boolean indefinite, Boolean silent) {
+        Element timerElement2 = getTimerElement();
+        if (timerElement2 != null) {
+            double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
+            timerElement2.callJsFunction("display", seconds, indefinite, silent, timerElement2);
+        }
     }
 
-    private void stop() {
-        getTimerElement().callJsFunction("pause");
+    private void setMsRemaining(Integer milliseconds) {
+        msRemaining = milliseconds;
     }
+
+    private void start(Integer milliseconds, Boolean indefinite, Boolean silent) {
+        Element timerElement2 = getTimerElement();
+        if (timerElement2 != null) {
+            double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
+            timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2);
+        }
+    }
+
+    private void stop(Integer milliseconds, Boolean indefinite, Boolean silent) {
+        Element timerElement2 = getTimerElement();
+        if (timerElement2 != null) {
+            double seconds = indefinite ? 0.0D : milliseconds / 1000.0D;
+            timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2);
+        }
+    }
+
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        this.ui = attachEvent.getUI();
+        init();
+
+        TimerReceiverServlet.getEventBus().register(this);
+    }
+
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+        this.ui = null;
+
+        TimerReceiverServlet.getEventBus().unregister(this);
+        
+        // tell the javascript to stay quiet
+        setSilent(true);
+        setTimerElement(null);
+        getModel().setSilent(true);
+    }
+
 
 }
