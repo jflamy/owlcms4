@@ -24,7 +24,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
  *
  * Warning: when the page is unloaded, the UI instance should be removed to prevent memory leaks. See {@link #remove()}.
  *
- * @author Kaspar Scherrer, Stuart Robinson; adapted to web-component by miki
+ * @author Kaspar Scherrer, Stuart Robinson; adapted to web-component by miki@vaadin.com ; UI-scope by jf@jflamy.dev
  * @since 2020-04-29
  */
 @SuppressWarnings("serial")

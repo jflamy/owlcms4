@@ -5,6 +5,8 @@ import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
  * This requires Flow and a corresponding server-side Java component to work properly.
  * Alternatively, make sure that this.$server.unloadAttempted() is available.
  * Based on the code written by Kaspar Scherrer and Stuart Robinson: https://vaadin.com/forum/thread/17523194/unsaved-changes-detect-page-exit-or-reload
+ * 
+ * author: miki@vaadin.com
  */
 export class UnloadObserver extends PolymerElement {
 
