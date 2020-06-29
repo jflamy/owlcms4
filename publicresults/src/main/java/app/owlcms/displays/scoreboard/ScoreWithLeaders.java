@@ -28,6 +28,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
+import app.owlcms.components.elements.unload.UnloadObserver;
 import app.owlcms.i18n.Translator;
 import app.owlcms.publicresults.DecisionReceiverServlet;
 import app.owlcms.publicresults.TimerReceiverServlet;
@@ -314,7 +315,21 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         UpdateReceiverServlet.getEventBus().register(this);
         DecisionReceiverServlet.getEventBus().register(this);
         TimerReceiverServlet.getEventBus().register(this);
+
+        UnloadObserver unloadObserver = UnloadObserver.get(false);
+        unloadObserver.addUnloadListener((e) -> {
+            logger.warn("closing {}: unregister {} from event busses", e.getSource(), this);
+            try {
+                UpdateReceiverServlet.getEventBus().unregister(this);
+                DecisionReceiverServlet.getEventBus().unregister(this);
+                TimerReceiverServlet.getEventBus().unregister(this);
+            } catch (Exception ex) {
+            }
+            UnloadObserver.remove();
+        });
         ui = UI.getCurrent();
+        ui.add(unloadObserver);
+
         setDarkMode(this, isDarkMode(), false);
         UpdateEvent initEvent = UpdateReceiverServlet.sync(getFopName());
         if (initEvent != null) {
