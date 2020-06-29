@@ -28,23 +28,22 @@ import com.vaadin.flow.templatemodel.TemplateModel;
  * @since 2020-04-29
  */
 @SuppressWarnings("serial")
-@JsModule("./unload-observer.js")
+@JsModule("./unload/unload-observer.js")
 @Tag("unload-observer")
 public final class UnloadObserver extends PolymerTemplate<TemplateModel> {
 
     private static final String UNLOAD_OBSERVER = "owlcms_unload_observer";
-
-    private static UI ui;
 
     /**
      * Returns the current instance. Will create one using default no-arg constructor if none is present yet.
      * @return An instance of {@link UnloadObserver}.
      */
     public static UnloadObserver get() {
-        UnloadObserver obs = (UnloadObserver) ComponentUtil.getData(ui, UNLOAD_OBSERVER);
+        UI current = UI.getCurrent();
+        UnloadObserver obs = (UnloadObserver) ComponentUtil.getData(current, UNLOAD_OBSERVER);
         if(obs == null) {
             obs = new UnloadObserver();
-            ComponentUtil.setData(ui, UNLOAD_OBSERVER, obs);
+            ComponentUtil.setData(current, UNLOAD_OBSERVER, obs);
         }
         return obs;
     }
@@ -64,8 +63,10 @@ public final class UnloadObserver extends PolymerTemplate<TemplateModel> {
      * Cleans up the thread-local variable. This method is called automatically when the component receives {@code unload} event.
      */
     public static void remove() {
-        if(get() != null)
-            ComponentUtil.setData(ui, UNLOAD_OBSERVER, null);
+        UI current = UI.getCurrent();
+        if (current != null && get() != null) {
+            ComponentUtil.setData(current, UNLOAD_OBSERVER, null);
+        }
     }
 
     private boolean queryingOnUnload;

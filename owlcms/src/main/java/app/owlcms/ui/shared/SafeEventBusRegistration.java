@@ -61,6 +61,7 @@ public interface SafeEventBusRegistration {
             try {uiEventBus.unregister(c);} catch (Exception ex) {}
             UnloadObserver.remove();
         });
+        ui.add(unloadObserver);
         
 		ui.addBeforeLeaveListener((e) -> {
 			logger.debug("leaving {}: unregister {} from {}", e.getSource(), c, uiEventBus.identifier());
