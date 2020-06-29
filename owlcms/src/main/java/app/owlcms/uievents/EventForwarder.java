@@ -569,7 +569,7 @@ public class EventForwarder implements BreakDisplay {
         String bts = ((fop.getState() == FOPState.BREAK) && (breakType != null)) ? fop.getBreakType().toString() : null;
         
         mapPut(sb, "breakType", bts);
-        logger.error("***** break {} breakType {}", isBreak, bts);
+        logger.trace("***** break {} breakType {}", isBreak, bts);
         int breakTimeRemaining = fop.getBreakTimer().getTimeRemaining();
         mapPut(sb, "breakRemaining", Integer.toString(breakTimeRemaining));
 

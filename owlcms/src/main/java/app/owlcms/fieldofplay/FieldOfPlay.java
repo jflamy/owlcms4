@@ -1006,8 +1006,7 @@ public class FieldOfPlay {
 
         int timeAllowed = getTimeAllowed();
         Integer attemptsDone = curAthlete.getAttemptsDone();
-        logger.debug("{} {} recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
-                System.identityHashCode(this),
+        logger.debug("{} recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
                 getName(),
                 getCurAthlete() != null ? getCurAthlete().getFullName() : "",
                 previousAthlete != null ? previousAthlete.getFullName() : "",
@@ -1225,7 +1224,7 @@ public class FieldOfPlay {
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
-        logger.debug("?????? transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
+        logger.trace("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
                 LoggerUtils.whereFrom());
         loadGroup(group2, e.getOrigin(), true);
         updateGlobalRankings();
