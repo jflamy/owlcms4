@@ -1,10 +1,10 @@
 trigger:
-  - none
+  - develop
 
 parameters:
   - name: Revision
     type: string
-    default: 4.8.0-alpha2
+    default: 4.8.0-alpha3
   - name: BuildPublicResults
     type: string
     default: 'true'
