@@ -29,9 +29,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -1307,11 +1304,13 @@ public class FieldOfPlay {
             // ignore
             return;
         }
-        String text = Translator.translate("Unexpected_Notification", e.getClass().getSimpleName(), state);
+//        String text = Translator.translate("Unexpected_Notification", e.getClass().getSimpleName(), state);
+//        text = FOPError.translateMessage(state, e);
         logger./**/warn(Translator.translate("Unexpected_Logging"), e.getClass().getSimpleName(), state);
-        if (UI.getCurrent() != null) {
-            Notification.show(text, 5000, Position.BOTTOM_END);
-        }
+//        if (UI.getCurrent() != null) {
+//            Notification.show(text, 5000, Position.BOTTOM_END);
+//        }
+        pushOut(new UIEvent.Notification(this.curAthlete, e.getOrigin(), e, state));
     }
 
     private void updateGlobalRankings() {

@@ -13,6 +13,7 @@ import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 
@@ -51,7 +52,7 @@ public class UIEvent {
      * Class BreakPaused.
      */
     static public class BreakPaused extends UIEvent {
-        
+
         private boolean displayToggle;
 
         protected Integer timeRemaining;
@@ -76,6 +77,10 @@ public class UIEvent {
 
         public int getMillis() {
             return (getTimeRemaining());
+        }
+
+        public Integer getTimeRemaining() {
+            return timeRemaining;
         }
 
         /**
@@ -104,10 +109,6 @@ public class UIEvent {
             return "UIEvent.BreakPaused [displayToggle=" + displayToggle + ", timeRemaining=" + timeRemaining
                     + ", indefinite=" + indefinite + ", end=" + end + ", breakType=" + breakType + ", countdownType="
                     + countdownType + "]";
-        }
-
-        public Integer getTimeRemaining() {
-            return timeRemaining;
         }
 
     }
@@ -194,6 +195,10 @@ public class UIEvent {
             return (getTimeRemaining());
         }
 
+        public Integer getTimeRemaining() {
+            return timeRemaining;
+        }
+
         /**
          * @return true if is a request for toggling display (and not an actual break start)
          */
@@ -220,10 +225,6 @@ public class UIEvent {
             return "UIEvent.BreakStarted [displayToggle=" + displayToggle + ", timeRemaining=" + timeRemaining
                     + ", indefinite=" + indefinite + ", end=" + end + ", breakType=" + breakType + ", countdownType="
                     + countdownType + "]";
-        }
-
-        public Integer getTimeRemaining() {
-            return timeRemaining;
         }
     }
 
@@ -457,6 +458,49 @@ public class UIEvent {
             this.inBreak = inBreak;
         }
 
+    }
+
+    /**
+     * Class Notification.
+     */
+    static public class Notification extends UIEvent {
+
+        private String fopStateString;
+
+        private String fopEventString;
+
+        /**
+         * Instantiates a new Notification.
+         *
+         * @param origin the origin
+         */
+        public Notification(Athlete a, Object origin, String fopStateString, String fopEventString) {
+            super(a, origin);
+            this.setFopStateString(fopStateString);
+            this.setFopEventString(fopEventString);
+        }
+
+        public Notification(Athlete curAthlete, Object origin, FOPEvent e, FOPState state) {
+            super(curAthlete, origin);
+            this.setFopEventString(e.getClass().getSimpleName());
+            this.setFopStateString(state.toString());
+        }
+
+        public String getFopEventString() {
+            return fopEventString;
+        }
+
+        public String getFopStateString() {
+            return fopStateString;
+        }
+
+        public void setFopEventString(String fopEventString) {
+            this.fopEventString = fopEventString;
+        }
+
+        public void setFopStateString(String fopStateString) {
+            this.fopStateString = fopStateString;
+        }
     }
 
     /**
