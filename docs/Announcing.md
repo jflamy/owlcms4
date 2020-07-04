@@ -6,7 +6,7 @@ The first thing to do is to check that the correct field of play (platform) is d
 
 ## Selecting the current group
 
-The **announcer** screen acts as a master to select which group is competing.  When the announcer selects a group, all displays for the field of play switch to that group.
+The **announcer** screen selects which group is competing.  When the announcer selects a group, all displays for the field of play switch to that group.
 
 ![012_SelectGroup](img/Lifting/012_SelectGroup.png)
 

@@ -29,7 +29,7 @@ The selection is confirmed by greying out the other key.  The refereeing display
 In this approach, keypads are connected to the laptop or mini PC running the timer/decision display (or the attempt board, both work the same).   There are two advantages to this approach:
 
 1. Many referees prefer having their finger rest on a button (which is not possible on a phone)
-2. The sound and down arrow are emitted directly by the browser, without any round-trip to the master computer.  This reduces delays and increases reliability if the networking is fragile (which is sometimes the case in gyms)
+2. The sound and down arrow are emitted directly by the browser, without any round-trip to the primary computer.  This reduces delays and increases reliability if the networking is fragile (which is sometimes the case in gyms)
 
 ![refereeingSetup](img\equipment\refereeingSetup.jpg)
 

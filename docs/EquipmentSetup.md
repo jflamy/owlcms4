@@ -8,12 +8,12 @@ At the opposite end, a full setup for a state competition using refereeing devic
 
 ![StateCompetition](img/equipment/FullCompetition.svg)
 
-You can also add a jury laptop with 5 refereeing devices, add additional results displays, as many as you want.  You can even replicate the full setup on multiple platforms, all running at once.  In all cases, there is only one OWLCMS master server (either a laptop running locally, or a cloud application) 
+You can also add a jury laptop with 5 refereeing devices, add additional results displays, as many as you want.  You can even replicate the full setup on multiple platforms, all running at once.  In all cases, there is only one OWLCMS primary server (either a laptop running locally, or a cloud application) 
 
 ## Computer Requirements
 
 - The server software will run either 
-  - on any reasonably recent laptop (this laptop will act as a master in a local networking setup, see [below](#local-access-over-a-local-network) for details.  In our experience, a Core i5 or equivalent is plenty.
+  - on any reasonably recent laptop (this laptop will act as a primary server in a local networking setup, see [below](#local-access-over-a-local-network) for details.  In our experience, a Core i5 or equivalent is plenty.
   - or on a cloud service. We test and support the [Heroku cloud service](Cloud#Heroku), which has a free tier suitable for owlcms. See [below](#cloud-access-over-the-internet) for more info.
 - For the user interface and displays,  It is recommended to use a recent version of **Chrome** or **Firefox** on a **laptop** or **miniPC** (Windows, Mac, Linux, ChromeOS). 
 
@@ -33,9 +33,9 @@ Recent versions of Chrome no longer allow web pages to emit sounds by themselves
 
 - OR --  Create a shortcut to chrome and add the following flag `--autoplay-policy=no-user-gesture-required`
 
-#### Master Laptop Sound
+#### Primary Laptop Sound
 
-Some combinations of browser and operating system produce garbled sound. If that is the case, you may want to use the master laptop to produce the sound (and wire your speakers to the audio output of the master laptop.)   See [these explanations.](Preparation#associating-an-audio-output-with-a-platform)
+Some combinations of browser and operating system produce garbled sound. If that is the case, you may want to use the primary laptop to produce the sound (and wire your speakers to the audio output of the primary laptop.)   See [these explanations.](Preparation#associating-an-audio-output-with-a-platform)
 
 ## Networking Requirements
 
@@ -49,19 +49,19 @@ In this setup, OWLCMS4 executes on an external cloud service (we provide [instru
 
 ### Local access over a local network
 
-If there is no Internet access where you hold your meet, or if you prefer not having to rely on it, the second option is to install OWLCMS4 on a good laptop.  OWLCMS4 is started on this laptop, which is designated as the *master*.  
+If there is no Internet access where you hold your meet, or if you prefer not having to rely on it, the second option is to install OWLCMS4 on a good laptop.  OWLCMS4 is started on this laptop, which is designated as the *primary*.  
 
 ![020_local](img/equipment/020_local.PNG)
 
-It is perhaps surprising to use a laptop as a server, but as the picture shows, it's really the same thing: the display computer runs a browser and asks another computer to provide a web page.  In the local setup, the  Internet is the small router, and the server is the master laptop.  The differences are minor:
+It is perhaps surprising to use a laptop as a server, but as the picture shows, it's really the same thing: the display computer runs a browser and asks another computer to provide a web page.  In the local setup, the  Internet is the small router, and the server is the primary laptop.  The differences are minor:
 
 - there is no need for the Internet, all the networking takes place in the router.
 - in a simple local network, the simplest thing is often to use the numerical addresses that the router assigns to each machine.  This is what is illustrated above.
-- when OWLCMS4 starts up, it opens a browser window which tells you [what address the other laptops should use](LocalSetup#initial-startup) to connect to OWLCMS4.  In the illustration, the laptop at the right is the master, and it can be reached from the laptop at the left using https://192.168.1.100 .  The white browser window on the master laptop will show this information at startup.
+- when OWLCMS4 starts up, it opens a browser window which tells you [what address the other laptops should use](LocalSetup#initial-startup) to connect to OWLCMS4.  In the illustration, the laptop at the right is the primary, and it can be reached from the laptop at the left using https://192.168.1.100 .  The white browser window on the primary laptop will show this information at startup.
 
 ### Single-computer setup
 
-You can also use the master laptop by itself.  This is useful to prepare for a competition that will run on that laptop.  You can even run a competition with just an announcer, just to announce athletes, keep time and record decisions. 
+You can also use the primary laptop by itself.  This is useful to prepare for a competition that will run on that laptop.  You can even run a competition with just an announcer, just to announce athletes, keep time and record decisions. 
 
 The situation is the same as before: the display is done via a browser that asks OWLCMS4 for its information.  The only difference is that the two programs are running on the same computer.
 

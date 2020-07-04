@@ -26,15 +26,15 @@ When OWLCMS4 is started on a laptop, two windows are visible:  a command-line wi
 
 ![040_starting](img\LocalInstall\040_starting.png)
 
-- The command-line window (typically with a black background) is where the OWLCMS4 master web server shows its execution log.  
+- The command-line window (typically with a black background) is where the OWLCMS4 primary web server shows its execution log.  
 
-  All the other displays and screens connect to the master server.  <u>You can stop the program by clicking on the x</u> or clicking in the window and typing `Control-C`.  The various screens and displays will spin in wait mode until you restart the master program -- there is normally no need to restart or refresh them.
+  All the other displays and screens connect to the primary server.  <u>You can stop the program by clicking on the x</u> or clicking in the window and typing `Control-C`.  The various screens and displays will spin in wait mode until you restart the primary program -- there is normally no need to restart or refresh them.
 
-- The white window is a normal browser.  If you look at the top, you will see two or more lines that tell you how to open more browsers and connect them to the master server.
+- The white window is a normal browser.  If you look at the top, you will see two or more lines that tell you how to open more browsers and connect them to the primary server.
 
   ![060_urls](img\LocalInstall\060_urls.png)
 
-  In this example the other laptops on the network would use the address `http://192.168.4.1:8080/` to communicate with the master server.  "(wired)" refers to the fact that the master laptop is connected via an Ethernet wire to its router -- see [Local Access](EquipmentSetup#local-access-over-a-local-network) for discussion.  When available, a wired connection is preferred.
+  In this example the other laptops on the network would use the address `http://192.168.4.1:8080/` to communicate with the primary server.  "(wired)" refers to the fact that the primary laptop is connected via an Ethernet wire to its router -- see [Local Access](EquipmentSetup#local-access-over-a-local-network) for discussion.  When available, a wired connection is preferred.
 
   The address <u>depends on your own specific networking setup</u> and you must use one of the addresses displayed **on your setup.**  If none of the addresses listed work, you will need to refer to the persons that set up the networking at your site and on your laptop.  A "proxy" or a "firewall", or some other technical configuration may be blocking access, or requiring a different address that the server can't discover.
 
@@ -69,8 +69,6 @@ When OWLCMS4 is started on a laptop, two windows are visible:  a command-line wi
 Mischevious users can probably figure out your WiFi network password, and gain access to the application. To prevent this, you will need to start the application with an extra parameter.
 
 - `PIN` is an arbitrary strings of characters that will be requested when starting the first screen whenever you start a new session (typically, once per browser, or when the system is restarted). 
-
-  ![B_PIN](img/Heroku/B_PIN.png)
 
 - On Windows, go to the installation directory (see [Accessing the Program Files and Configuration](LocalSetup#control-access-to-the-application) for how) and right-click on the `owlcms.l4j.ini` file; select `Edit` and add a line that reads 
 

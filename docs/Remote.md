@@ -88,7 +88,7 @@ We suggest the following procedure
 2. To be safe, you should isolate the second laptop and the coaches from the competition network
    1. Get a second router and configure its DHCP address range to be different than your main router (do not connect it to the main router)
    2. Install a wire from one of the LAN ports of the main router to the WLAN port of a second router.
-   3. Connect the second laptop to the second router using a wire.  It will be able to see the master laptop via the wire.
+   3. Connect the second laptop to the second router using a wire.  It will be able to see the primary laptop via the wire.
    4. Note that if your main router has internet access the coaches will likely be blocked from reaching it unless you add additional default routes (or your router does it on its own).  But since this configuration is meant for the case where there is no internet access, that's probably just fine.
 
 You will then edit the `publicresults.l4j.ini` in the installation directory, and uncomment the `-DupdateKey`  The rest of the setup is the same as for the cloud configuration.
