@@ -11,8 +11,11 @@ import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.layout.impl.WindowBasedCrudLayout;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import ch.qos.logback.classic.Logger;
 
@@ -89,4 +92,18 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
         return toolbarLayout;
     }
 
+    @Override
+    public void showDialog(String caption, Component form) {
+        VerticalLayout dialogLayout = new VerticalLayout(form);
+        dialogLayout.setWidth("100%");
+        dialogLayout.setMargin(false);
+        dialogLayout.setPadding(false);
+
+        H3 h3 = new H3(caption);
+        h3.getStyle().set("margin-top", "0");
+        h3.getStyle().set("margin-bottom", "0");
+        dialog = new Dialog(h3, dialogLayout);
+        dialog.setWidth(formWindowWidth);
+        dialog.open();
+    }
 }
