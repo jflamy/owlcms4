@@ -48,6 +48,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.LoggerUtils;
@@ -174,9 +175,15 @@ public class JPAService {
      * @return the list
      */
     protected static List<String> entityClassNames() {
-        ImmutableList<String> vals = new ImmutableList.Builder<String>().add(Group.class.getName())
-                .add(Category.class.getName()).add(Athlete.class.getName()).add(Platform.class.getName())
-                .add(Competition.class.getName()).add(AgeGroup.class.getName()).build();
+        ImmutableList<String> vals = new ImmutableList.Builder<String>()
+                .add(Group.class.getName())
+                .add(Category.class.getName())
+                .add(Athlete.class.getName())
+                .add(Platform.class.getName())
+                .add(Competition.class.getName())
+                .add(AgeGroup.class.getName())
+                .add(Config.class.getName())
+                .build();
         return vals;
     }
 

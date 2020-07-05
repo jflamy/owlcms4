@@ -63,6 +63,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
         Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
         Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
+        Button config = openInNewTabNoParam(ConfigContent.class, getTranslation("Config.Title"));
 
 //        StreamResource href = new StreamResource("registration.xls",
 //                () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
@@ -88,7 +89,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
         Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups, groups, platforms,
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups, groups, platforms, config,
                 downloadDiv, upload);
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes);

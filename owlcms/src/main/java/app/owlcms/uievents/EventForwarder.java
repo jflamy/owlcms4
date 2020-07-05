@@ -38,6 +38,7 @@ import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -119,8 +120,8 @@ public class EventForwarder implements BreakDisplay {
 
         setTranslationMap();
 
-        updateKey = StartupUtils.getStringParam("updateKey");
-        updateUrl = StartupUtils.getStringParam("remote");
+        updateKey = Config.getUpdateKeyParam();
+        updateUrl = Config.getUpdateURLParam();
         debugMode = StartupUtils.getBooleanParam("debug");
         if (updateUrl == null || updateKey == null || updateUrl.trim().isEmpty() || updateKey.trim().isEmpty()) {
             logger.info("Pushing results to remote site not enabled.");
