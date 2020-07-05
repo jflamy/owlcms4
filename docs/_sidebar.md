@@ -3,7 +3,7 @@
 
   *	[Windows Installation](LocalWindowsSetup)
   * [Linux or Mac Installation](LocalLinuxMacSetup)
-  *	[Cloud Installation](Cloud)
+  *	[Cloud Installation of owlcms](Cloud)
   *	[Equipment Setup](EquipmentSetup)
 * Competition
 
@@ -18,7 +18,13 @@
   *	[Result Documents](Documents)
 
 * Advanced Topics
-  *	[Public Results Display](Remote)
+  *	[Virtual Competitions and Remote Scoreboards](Virtual)
+  *	[Cloud Installation of the publicresults Application](Remote)
+  *	[Using Remote Public Scoreboards](RunPublicResults)
+  *	[Updating Cloud-based Applications](UpdatingCloudApplications)
+  *	[Configuration Parameters](Configuration)
+  *	[Excel Template Variables](TemplateVariables)
+  *	[Translations](Translation)
   *	[Contributing to the code](Gitpod)
 * Downloads
 

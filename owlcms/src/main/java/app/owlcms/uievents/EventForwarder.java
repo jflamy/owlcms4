@@ -68,12 +68,20 @@ public class EventForwarder implements BreakDisplay {
 
     private static String updateUrl;
 
+    private static String decisionUrl;
+
+    private static String timerUrl;
+
     public static void changeRemoteURL(String updateURLParam) {
         setUpdateUrl(updateURLParam);
     }
 
     public static void changeUpdateKey(String updateKeyParam) {
         setUpdateKey(updateKeyParam);
+    }
+
+    public static String getUpdateUrl() {
+        return updateUrl;
     }
 
     public static void listenToFOP(FieldOfPlay fop) {
@@ -83,12 +91,20 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
-    public static void setUpdateKey(String updateKey) {
-        EventForwarder.updateKey = updateKey;
+    public static void setUpdateKey(String key) {
+        updateKey = key;
     }
 
-    public static void setUpdateUrl(String updateUrl) {
-        EventForwarder.updateUrl = updateUrl;
+    public static void setUpdateUrl(String url) {
+        if (url.endsWith("/update")) {
+            decisionUrl = url.replaceAll("/update$", "/decision");
+            timerUrl = url.replaceAll("/update$", "/timer");
+            updateUrl = url;
+        } else {
+            decisionUrl = url + "/decision";
+            timerUrl = url + "/timer";
+            updateUrl = (url + "/update");
+        }
     }
 
     private EventBus postBus;
@@ -96,10 +112,10 @@ public class EventForwarder implements BreakDisplay {
     private FieldOfPlay fop;
     private String categoryName;
     private List<Athlete> categoryRankings;
+
     private boolean wideTeamNames;
     private JsonValue leaders;
     private JsonValue groupAthletes;
-
     private JsonArray sattempts;
     private JsonArray cattempts;
     private Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
@@ -110,21 +126,19 @@ public class EventForwarder implements BreakDisplay {
     private Integer startNumber;
     private String teamName;
     private Integer weight;
+
     private JsonObject translationMap;
     private Integer timeAllowed;
     private int previousHashCode = 0;
-
     private long previousMillis = 0L;
+
     private Boolean decisionLight1 = null;
     private Boolean decisionLight2 = null;
     private Boolean decisionLight3 = null;
 
     private boolean down = false;
+
     private boolean decisionLightsVisible = false;
-
-    private String decisionUrl;
-
-    private String timerUrl;
 
     @SuppressWarnings("unused")
     private Boolean debugMode;
@@ -149,14 +163,6 @@ public class EventForwarder implements BreakDisplay {
                 || getUpdateKey().trim().isEmpty()) {
             logger.info("Pushing results to remote site not enabled.");
         } else {
-            if (getUpdateUrl().endsWith("/update")) {
-                decisionUrl = getUpdateUrl().replaceAll("/update$", "/decision");
-                timerUrl = getUpdateUrl().replaceAll("/update$", "/timer");
-            } else {
-                decisionUrl = getUpdateUrl() + "/decision";
-                timerUrl = timerUrl + "/timer";
-                setUpdateUrl(getUpdateUrl() + "/update");
-            }
             logger.info("Pushing to remote site {}", getUpdateUrl());
         }
         pushUpdate();
@@ -212,10 +218,6 @@ public class EventForwarder implements BreakDisplay {
 
     public String getUpdateKey() {
         return updateKey;
-    }
-
-    public String getUpdateUrl() {
-        return updateUrl;
     }
 
     /**
@@ -911,7 +913,7 @@ public class EventForwarder implements BreakDisplay {
                 StatusLine statusLine = response.getStatusLine();
                 Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
                 if (statusCode != null && statusCode != 200) {
-                    logger.error("could not post {} {}", statusLine, LoggerUtils.stackTrace());
+                    logger.error("could not post to {} {} {}", url, statusLine, LoggerUtils.stackTrace());
                 }
                 EntityUtils.toString(response.getEntity());
             }
