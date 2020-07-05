@@ -64,11 +64,31 @@ public class EventForwarder implements BreakDisplay {
 
     private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
 
+    private static String updateKey;
+
+    private static String updateUrl;
+
+    public static void changeRemoteURL(String updateURLParam) {
+        setUpdateUrl(updateURLParam);
+    }
+
+    public static void changeUpdateKey(String updateKeyParam) {
+        setUpdateKey(updateKeyParam);
+    }
+
     public static void listenToFOP(FieldOfPlay fop) {
         String fopName = fop.getName();
         if (registeredFop.get(fopName) == null) {
             registeredFop.put(fopName, new EventForwarder(fop));
         }
+    }
+
+    public static void setUpdateKey(String updateKey) {
+        EventForwarder.updateKey = updateKey;
+    }
+
+    public static void setUpdateUrl(String updateUrl) {
+        EventForwarder.updateUrl = updateUrl;
     }
 
     private EventBus postBus;
@@ -79,13 +99,13 @@ public class EventForwarder implements BreakDisplay {
     private boolean wideTeamNames;
     private JsonValue leaders;
     private JsonValue groupAthletes;
+
     private JsonArray sattempts;
     private JsonArray cattempts;
     private Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
     private String liftsDone;
     private String attempt;
     private String fullName;
-
     private boolean hidden;
     private Integer startNumber;
     private String teamName;
@@ -93,20 +113,22 @@ public class EventForwarder implements BreakDisplay {
     private JsonObject translationMap;
     private Integer timeAllowed;
     private int previousHashCode = 0;
+
     private long previousMillis = 0L;
     private Boolean decisionLight1 = null;
     private Boolean decisionLight2 = null;
     private Boolean decisionLight3 = null;
+
     private boolean down = false;
     private boolean decisionLightsVisible = false;
 
-    private String updateKey;
-    private String updateUrl;
     private String decisionUrl;
+
     private String timerUrl;
 
     @SuppressWarnings("unused")
     private Boolean debugMode;
+
     private String groupName;
 
     public EventForwarder(FieldOfPlay emittingFop) {
@@ -120,21 +142,22 @@ public class EventForwarder implements BreakDisplay {
 
         setTranslationMap();
 
-        updateKey = Config.getUpdateKeyParam();
-        updateUrl = Config.getUpdateURLParam();
+        setUpdateKey(Config.getUpdateKeyParam());
+        setUpdateUrl(Config.getUpdateURLParam());
         debugMode = StartupUtils.getBooleanParam("debug");
-        if (updateUrl == null || updateKey == null || updateUrl.trim().isEmpty() || updateKey.trim().isEmpty()) {
+        if (getUpdateUrl() == null || getUpdateKey() == null || getUpdateUrl().trim().isEmpty()
+                || getUpdateKey().trim().isEmpty()) {
             logger.info("Pushing results to remote site not enabled.");
         } else {
-            if (updateUrl.endsWith("/update")) {
-                decisionUrl = updateUrl.replaceAll("/update$", "/decision");
-                timerUrl = updateUrl.replaceAll("/update$", "/timer");
+            if (getUpdateUrl().endsWith("/update")) {
+                decisionUrl = getUpdateUrl().replaceAll("/update$", "/decision");
+                timerUrl = getUpdateUrl().replaceAll("/update$", "/timer");
             } else {
-                decisionUrl = updateUrl + "/decision";
+                decisionUrl = getUpdateUrl() + "/decision";
                 timerUrl = timerUrl + "/timer";
-                updateUrl = updateUrl + "/update";
+                setUpdateUrl(getUpdateUrl() + "/update");
             }
-            logger.info("Pushing to remote site {}", updateUrl);
+            logger.info("Pushing to remote site {}", getUpdateUrl());
         }
         pushUpdate();
     }
@@ -171,12 +194,28 @@ public class EventForwarder implements BreakDisplay {
         return decisionLight3;
     }
 
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public String getLiftsDone() {
+        return liftsDone;
+    }
+
     public Integer getTimeAllowed() {
         return timeAllowed;
     }
 
     public JsonObject getTranslationMap() {
         return translationMap;
+    }
+
+    public String getUpdateKey() {
+        return updateKey;
+    }
+
+    public String getUpdateUrl() {
+        return updateUrl;
     }
 
     /**
@@ -252,21 +291,6 @@ public class EventForwarder implements BreakDisplay {
     public void slaveBreakSet(UIEvent.BreakSetTime e) {
         pushTimer(e);
     }
-    
-    @Subscribe
-    public void slaveSetTime(UIEvent.SetTime e) {
-        pushTimer(e);
-    }
-    
-    @Subscribe
-    public void slaveStartTime(UIEvent.StartTime e) {
-        pushTimer(e);
-    }
-    
-    @Subscribe
-    public void slaveStopTime(UIEvent.StopTime e) {
-        pushTimer(e);
-    }
 
     @Subscribe
     public void slaveBreakStart(UIEvent.BreakStarted e) {
@@ -321,7 +345,9 @@ public class EventForwarder implements BreakDisplay {
             // the done event can be triggered when the decision is being given
             // we need to wait until after the decision is shown and reset.
             OwlcmsSession.withFop(fop -> {
-                if (fop.getState() != FOPState.BREAK) return;
+                if (fop.getState() != FOPState.BREAK) {
+                    return;
+                }
                 setFullName(groupResults(g));
                 setTeamName("");
                 setAttempt("");
@@ -330,10 +356,6 @@ public class EventForwarder implements BreakDisplay {
 
             pushUpdate();
         }
-    }
-
-    private String groupResults(Group g) {
-        return Translator.translate("Group_number_results", g.toString());
     }
 
     @Subscribe
@@ -346,9 +368,24 @@ public class EventForwarder implements BreakDisplay {
     }
 
     @Subscribe
+    public void slaveSetTime(UIEvent.SetTime e) {
+        pushTimer(e);
+    }
+
+    @Subscribe
     public void slaveStartLifting(UIEvent.StartLifting e) {
         setHidden(false);
         pushUpdate();
+    }
+
+    @Subscribe
+    public void slaveStartTime(UIEvent.StartTime e) {
+        pushTimer(e);
+    }
+
+    @Subscribe
+    public void slaveStopTime(UIEvent.StopTime e) {
+        pushTimer(e);
     }
 
     @Subscribe
@@ -398,20 +435,12 @@ public class EventForwarder implements BreakDisplay {
         this.groupName = name;
     }
 
-    public String getGroupName() {
-        return groupName;
-    }
-
     void setHidden(boolean b) {
         this.hidden = b;
     }
 
     void setLiftsDone(String formattedDone) {
         this.liftsDone = formattedDone;
-    }
-
-    public String getLiftsDone() {
-        return liftsDone;
     }
 
     void setStartNumber(Integer integer) {
@@ -486,10 +515,19 @@ public class EventForwarder implements BreakDisplay {
 
     }
 
+    private String computeSecondLine(Athlete a, String groupName) {
+        if (a == null) {
+            return ("");
+        }
+        return Translator.translate("Scoreboard.GroupLiftType", groupName,
+                (a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
+                        : Translator.translate("Snatch")));
+    }
+
     private Map<String, String> createDecision(DecisionEventType det) {
         Map<String, String> sb = new HashMap<>();
         mapPut(sb, "eventType", det.toString());
-        mapPut(sb, "updateKey", updateKey);
+        mapPut(sb, "updateKey", getUpdateKey());
 
         // competition state
         mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
@@ -510,7 +548,7 @@ public class EventForwarder implements BreakDisplay {
 
     private Map<String, String> createTimer(UIEvent e) {
         Map<String, String> sb = new HashMap<>();
-        mapPut(sb, "updateKey", updateKey);
+        mapPut(sb, "updateKey", getUpdateKey());
         mapPut(sb, "fopName", fop.getName());
 
         Integer milliseconds = null;
@@ -545,19 +583,17 @@ public class EventForwarder implements BreakDisplay {
 
         mapPut(sb, "milliseconds", milliseconds != null ? milliseconds.toString() : null);
         mapPut(sb, "break", String.valueOf(isBreak()));
-        mapPut(sb, "breakType", ((fop.getState() == FOPState.BREAK) && (fop.getBreakType() != null)) ? fop.getBreakType().toString() : null);
+        mapPut(sb, "breakType",
+                ((fop.getState() == FOPState.BREAK) && (fop.getBreakType() != null)) ? fop.getBreakType().toString()
+                        : null);
         mapPut(sb, "indefiniteBreak", Boolean.toString(indefiniteBreak));
 
         return sb;
     }
 
-    private boolean isBreak() {
-        return fop.getState() == FOPState.BREAK;
-    }
-
     private Map<String, String> createUpdate() {
         Map<String, String> sb = new HashMap<>();
-        mapPut(sb, "updateKey", updateKey);
+        mapPut(sb, "updateKey", getUpdateKey());
 
         // competition state
         mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
@@ -568,7 +604,7 @@ public class EventForwarder implements BreakDisplay {
         mapPut(sb, "break", isBreak);
         BreakType breakType = fop.getBreakType();
         String bts = ((fop.getState() == FOPState.BREAK) && (breakType != null)) ? fop.getBreakType().toString() : null;
-        
+
         mapPut(sb, "breakType", bts);
         logger.trace("***** break {} breakType {}", isBreak, bts);
         int breakTimeRemaining = fop.getBreakTimer().getTimeRemaining();
@@ -637,7 +673,7 @@ public class EventForwarder implements BreakDisplay {
                 if (e instanceof UIEvent.LiftingOrderUpdated) {
                     setTimeAllowed(((LiftingOrderUpdated) e).getTimeAllowed());
                 }
-                String groupName =  fop.getGroup() != null ? fop.getGroup().getName() : null;
+                String groupName = fop.getGroup() != null ? fop.getGroup().getName() : null;
                 String computedName = groupName != null
                         ? computeSecondLine(a, groupName)
                         : "";
@@ -651,13 +687,6 @@ public class EventForwarder implements BreakDisplay {
             }
             return;
         }
-    }
-
-    private String computeSecondLine(Athlete a, String groupName) {
-        if (a == null) return ("");
-        return Translator.translate("Scoreboard.GroupLiftType", groupName,
-                (a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-                        : Translator.translate("Snatch")));
     }
 
     private List<Athlete> filterToCategory(Category category, List<Athlete> order) {
@@ -814,6 +843,14 @@ public class EventForwarder implements BreakDisplay {
         }
     }
 
+    private String groupResults(Group g) {
+        return Translator.translate("Group_number_results", g.toString());
+    }
+
+    private boolean isBreak() {
+        return fop.getState() == FOPState.BREAK;
+    }
+
     private void mapPut(Map<String, String> wr, String key, String value) {
         if (value == null) {
             return;
@@ -828,7 +865,7 @@ public class EventForwarder implements BreakDisplay {
         try {
             sendPost(decisionUrl, createDecision(det));
         } catch (IOException e) {
-            logger./**/warn("cannot push: {} {}", updateUrl, e.getMessage());
+            logger./**/warn("cannot push: {} {}", getUpdateUrl(), e.getMessage());
         }
     }
 
@@ -839,18 +876,18 @@ public class EventForwarder implements BreakDisplay {
         try {
             sendPost(timerUrl, createTimer(e));
         } catch (IOException ex) {
-            logger./**/warn("cannot push: {} {}", updateUrl, ex.getMessage());
+            logger./**/warn("cannot push: {} {}", getUpdateUrl(), ex.getMessage());
         }
     }
 
     private void pushUpdate() {
-        if (updateUrl == null) {
+        if (getUpdateUrl() == null) {
             return;
         }
         try {
-            sendPost(updateUrl, createUpdate());
+            sendPost(getUpdateUrl(), createUpdate());
         } catch (IOException e) {
-            logger./**/warn("cannot push: {} {}", updateUrl, e.getMessage());
+            logger./**/warn("cannot push: {} {}", getUpdateUrl(), e.getMessage());
         }
     }
 
@@ -867,7 +904,7 @@ public class EventForwarder implements BreakDisplay {
             parameters.entrySet().stream()
                     .forEach((e) -> urlParameters.add(new BasicNameValuePair(e.getKey(), e.getValue())));
 
-            post.setEntity(new UrlEncodedFormEntity(urlParameters,"UTF-8"));
+            post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
 
             try (CloseableHttpClient httpClient = HttpClients.createDefault();
                     CloseableHttpResponse response = httpClient.execute(post)) {
