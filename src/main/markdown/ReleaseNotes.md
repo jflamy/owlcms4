@@ -1,7 +1,9 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
    * [x] Timer, down and decisions are now shown on the secondary "publicresults" site.  This allows virtual competitions to use the cloud-based publicresults application. (#352)
-   * [x] Closing a tab or window now causes an immediate cleanup of the associated user interface objects. This will remove spurious lines from the log and facilitate debugging (#357)
+   * [x] Documentation for running virtual competitions and for using remote scoreboards using `publicresults` has been updated.  See the `Advanced Topics` section of the documentation. (#362)
+   * [x] Technical configuration parameters for cloud-based usage no longer requires using environment variables.  A new `Technical Configuration` button is available on the `Prepare Competition`page (#361)
    * [x] Warning messages for out-of-sequence actions (stopping time when not started, starting time when decisions still visible, etc.) now more visible and can be translated to natural language (#359)
+   * [x] Closing a tab or window now causes an immediate cleanup of the associated user interface objects. This will remove spurious lines from the log and facilitate debugging (#357)
 * Key Highlights from recent stable releases
    * [x] Translations fixed.  Spanish version available.
    * [x] Improved support for deployment under Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md).
