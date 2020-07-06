@@ -5,6 +5,7 @@
   * [Linux or Mac Installation](LocalLinuxMacSetup)
   *	[Cloud Installation of owlcms](Cloud)
   *	[Equipment Setup](EquipmentSetup)
+  
 * Competition
 
   *	[Preparation](Preparation)
@@ -18,6 +19,7 @@
   *	[Result Documents](Documents)
 
 * Advanced Topics
+
   *	[Virtual Competitions and Remote Scoreboards](Virtual)
   *	[Cloud Installation of the publicresults Application](Remote)
   *	[Using Remote Public Scoreboards](RunPublicResults)
@@ -26,6 +28,7 @@
   *	[Excel Template Variables](TemplateVariables)
   *	[Translations](Translation)
   *	[Contributing to the code](Gitpod)
+  
 * Downloads
 
   *	[Releases](https://github.com/jflamy/owlcms4/releases)
