@@ -96,7 +96,11 @@ public class EventForwarder implements BreakDisplay {
     }
 
     public static void setUpdateUrl(String url) {
-        if (url.endsWith("/update")) {
+        if (url == null) {
+            decisionUrl = null;
+            timerUrl = null;
+            updateUrl = null;
+        } else if (url.endsWith("/update")) {
             decisionUrl = url.replaceAll("/update$", "/decision");
             timerUrl = url.replaceAll("/update$", "/timer");
             updateUrl = url;
