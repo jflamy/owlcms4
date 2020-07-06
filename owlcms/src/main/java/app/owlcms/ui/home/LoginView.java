@@ -24,6 +24,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinServletRequest;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AppLayoutAware;
 import app.owlcms.ui.shared.ContentWrapping;
@@ -95,25 +96,11 @@ public class LoginView extends Composite<VerticalLayout> implements AppLayoutAwa
     }
 
     public static String getPin() {
-        String pin = StartupUtils.getStringParam("pin");
-        if (pin == null) {
-            pin = System.getenv("PIN");
-        }
-        if (pin == null) {
-            pin = System.getProperty("PIN");
-        }
-        return pin;
+        return Config.getPinParam();
     }
 
     public static String getWhitelist() {
-        String whiteList = StartupUtils.getStringParam("ip");
-        if (whiteList == null) {
-            whiteList = System.getenv("IP");
-        }
-        if (whiteList == null) {
-            whiteList = System.getProperty("IP");
-        }
-        return whiteList;
+        return Config.getAccessListParam();
     }
 
     private PasswordField pinField = new PasswordField();

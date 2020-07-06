@@ -130,4 +130,38 @@ public class Config {
             }
         }
     }
+    
+    /**
+     * @return the current password.
+     */
+    public static String getPinParam() {
+        String uPin = StartupUtils.getStringParam("pin");
+        if (uPin != null) {
+            return uPin;
+        } else {
+            uPin = getCurrent().getPin();
+            if (uPin == null || uPin.trim().isEmpty()) {
+                return null;
+            } else {
+                return uPin;
+            }
+        }
+    }
+    
+    /**
+     * @return the current password.
+     */
+    public static String getAccessListParam() {
+        String uAccessList = StartupUtils.getStringParam("ip");
+        if (uAccessList != null) {
+            return uAccessList;
+        } else {
+            uAccessList = getCurrent().getIpAccessList();
+            if (uAccessList == null || uAccessList.trim().isEmpty()) {
+                return null;
+            } else {
+                return uAccessList;
+            }
+        }
+    }
 }

@@ -33,7 +33,7 @@ The following options are deprecated, and will progressively be removed from the
 | ------------------------- | ------------------------- | ------------- | ------------------------------------------------------------ |
 | devMode                   | OWLCMS_DEVMODE            | false         | Insert two full 20-athlete groups. <br />Replaced by -DinitialData=LARGEGROUP_DEMO or OWLCMS_INITIALDATA=LARGEGROUP_DEMO |
 | testMode                  | OWLCMS_TESTMODE           | false         | Insert two one-athlete test groups.<br />Replaced by<br />-DinitialData=SINGLE_ATHLETE_GROUPS or OWLCMS_INITIALDATA=SINGLE_ATHLETE_GROUPS |
-| demoMode                  | OWLCMS_DEMOMODE           | false         | if true, same as -DmemoryMode=true and<br />-DinitialData=LARGEGROUP_DEMO and<br />-DresetMode=true|
+| demoMode                  | OWLCMS_DEMOMODE           | false         | if true, same as -DmemoryMode=true and<br />-DinitialData=LARGEGROUP_DEMO and<br />-DresetMode=true |
 | locale                    | LOCALE                    |               | use OWLCMS_LOCALE                                            |
-| PIN                       | PIN                       |               | Use OWLCMS_PIN                                               |
-| IP                        | IP                        |               | Use OWLCMS_IP                                                |
+| PIN                       | PIN                       |               | No longer works.  Configure using the Technical Configuration screen or use OWLCMS_PIN |
+| IP                        | IP                        |               | No longer works.  Configure using the Technical Configuration screen or use OWLCMS_IP |
