@@ -41,8 +41,10 @@ public class ProdData {
             Competition competition = createDefaultCompetition();
             CompetitionRepository.save(competition);
             AgeGroupRepository.insertAgeGroups(em, null);
-            Config config = createDefaultConfig();
-            ConfigRepository.save(config);
+            if (ConfigRepository.findAll().isEmpty()) {
+                Config config = createDefaultConfig();
+                Config.setCurrent(config);
+            }
             return null;
         });
         JPAService.runInTransaction(em -> {

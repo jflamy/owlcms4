@@ -9,27 +9,34 @@ package app.owlcms.ui.shared;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.LoginView;
+import app.owlcms.utils.AccessUtils;
 
 public interface RequireLogin extends BeforeEnterObserver {
 
     @Override
     public default void beforeEnter(BeforeEnterEvent event) {
 
-        String path = event.getLocation().getPath();
-
-        String whiteList = LoginView.getWhitelist();
-        String pin = LoginView.getPin();
-
         boolean isAuthenticated = OwlcmsSession.isAuthenticated();
-        boolean noPin = pin == null || pin.trim().isEmpty();
-        boolean noWhiteList = whiteList == null || whiteList.trim().isEmpty();
-        if (isAuthenticated || (noPin && noWhiteList)) {
+        if (isAuthenticated) {
             // no check required
             OwlcmsSession.setAuthenticated(true);
             return;
-        } else if (noPin && LoginView.checkWhitelist()) {
+        }
+        
+        String path = event.getLocation().getPath();
+        String whiteList = Config.getCurrent().getParamAccessList();
+        String pin = Config.getCurrent().getParamPin();
+
+        boolean noPin = pin == null || pin.trim().isEmpty();
+        boolean noWhiteList = whiteList == null || whiteList.trim().isEmpty();
+        if ((noPin && noWhiteList)) {
+            // no check required
+            OwlcmsSession.setAuthenticated(true);
+            return;
+        } else if (noPin && AccessUtils.checkWhitelist()) {
             // no pin required, proper origin, no need to challenge
             OwlcmsSession.setAuthenticated(true);
             return;

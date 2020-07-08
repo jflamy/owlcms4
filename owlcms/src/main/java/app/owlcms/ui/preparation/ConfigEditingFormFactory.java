@@ -32,7 +32,6 @@ import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.ui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.ui.shared.CustomFormFactory;
-import app.owlcms.uievents.EventForwarder;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -51,9 +50,9 @@ public class ConfigEditingFormFactory
     }
 
     @Override
-    public Config add(Config Config) {
-        ConfigRepository.save(Config);
-        return Config;
+    public Config add(Config config) {
+        Config.setCurrent(config);
+        return config;
     }
 
     @Override
@@ -141,9 +140,7 @@ public class ConfigEditingFormFactory
 
     @Override
     public Config update(Config config) {
-        Config saved = ConfigRepository.save(config);
-        EventForwarder.changeUpdateKey(Config.getUpdateKeyParam());
-        EventForwarder.changeRemoteURL(Config.getUpdateURLParam());
+        Config saved = Config.setCurrent(config);
         return saved;
     }
 

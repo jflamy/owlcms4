@@ -64,50 +64,10 @@ public class EventForwarder implements BreakDisplay {
 
     private static HashMap<String, EventForwarder> registeredFop = new HashMap<>();
 
-    private static String updateKey;
-
-    private static String updateUrl;
-
-    private static String decisionUrl;
-
-    private static String timerUrl;
-
-    public static void changeRemoteURL(String updateURLParam) {
-        setUpdateUrl(updateURLParam);
-    }
-
-    public static void changeUpdateKey(String updateKeyParam) {
-        setUpdateKey(updateKeyParam);
-    }
-
-    public static String getUpdateUrl() {
-        return updateUrl;
-    }
-
     public static void listenToFOP(FieldOfPlay fop) {
         String fopName = fop.getName();
         if (registeredFop.get(fopName) == null) {
             registeredFop.put(fopName, new EventForwarder(fop));
-        }
-    }
-
-    public static void setUpdateKey(String key) {
-        updateKey = key;
-    }
-
-    public static void setUpdateUrl(String url) {
-        if (url == null) {
-            decisionUrl = null;
-            timerUrl = null;
-            updateUrl = null;
-        } else if (url.endsWith("/update")) {
-            decisionUrl = url.replaceAll("/update$", "/decision");
-            timerUrl = url.replaceAll("/update$", "/timer");
-            updateUrl = url;
-        } else {
-            decisionUrl = url + "/decision";
-            timerUrl = url + "/timer";
-            updateUrl = (url + "/update");
         }
     }
 
@@ -160,14 +120,14 @@ public class EventForwarder implements BreakDisplay {
 
         setTranslationMap();
 
-        setUpdateKey(Config.getUpdateKeyParam());
-        setUpdateUrl(Config.getUpdateURLParam());
         debugMode = StartupUtils.getBooleanParam("debug");
-        if (getUpdateUrl() == null || getUpdateKey() == null || getUpdateUrl().trim().isEmpty()
-                || getUpdateKey().trim().isEmpty()) {
+        String updateKey = Config.getCurrent().getParamUpdateKey();
+        String updateUrl = Config.getCurrent().getParamUpdateUrl();
+        if (updateUrl == null || updateKey == null || updateUrl.trim().isEmpty()
+                || updateKey.trim().isEmpty()) {
             logger.info("Pushing results to remote site not enabled.");
         } else {
-            logger.info("Pushing to remote site {}", getUpdateUrl());
+            logger.info("Pushing to remote site {}", updateUrl);
         }
         pushUpdate();
     }
@@ -218,10 +178,6 @@ public class EventForwarder implements BreakDisplay {
 
     public JsonObject getTranslationMap() {
         return translationMap;
-    }
-
-    public String getUpdateKey() {
-        return updateKey;
     }
 
     /**
@@ -533,7 +489,7 @@ public class EventForwarder implements BreakDisplay {
     private Map<String, String> createDecision(DecisionEventType det) {
         Map<String, String> sb = new HashMap<>();
         mapPut(sb, "eventType", det.toString());
-        mapPut(sb, "updateKey", getUpdateKey());
+        mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 
         // competition state
         mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
@@ -554,7 +510,7 @@ public class EventForwarder implements BreakDisplay {
 
     private Map<String, String> createTimer(UIEvent e) {
         Map<String, String> sb = new HashMap<>();
-        mapPut(sb, "updateKey", getUpdateKey());
+        mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
         mapPut(sb, "fopName", fop.getName());
 
         Integer milliseconds = null;
@@ -599,7 +555,7 @@ public class EventForwarder implements BreakDisplay {
 
     private Map<String, String> createUpdate() {
         Map<String, String> sb = new HashMap<>();
-        mapPut(sb, "updateKey", getUpdateKey());
+        mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 
         // competition state
         mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
@@ -865,35 +821,38 @@ public class EventForwarder implements BreakDisplay {
     }
 
     private void pushDecision(DecisionEventType det) {
+        String decisionUrl = Config.getCurrent().getParamDecisionUrl();
         if (decisionUrl == null) {
             return;
         }
         try {
             sendPost(decisionUrl, createDecision(det));
         } catch (IOException e) {
-            logger./**/warn("cannot push: {} {}", getUpdateUrl(), e.getMessage());
+            logger./**/warn("cannot push: {} {}", decisionUrl, e.getMessage());
         }
     }
 
     private void pushTimer(UIEvent e) {
+        String timerUrl = Config.getCurrent().getParamTimerUrl();
         if (timerUrl == null) {
             return;
         }
         try {
             sendPost(timerUrl, createTimer(e));
         } catch (IOException ex) {
-            logger./**/warn("cannot push: {} {}", getUpdateUrl(), ex.getMessage());
+            logger./**/warn("cannot push: {} {}", timerUrl, ex.getMessage());
         }
     }
 
     private void pushUpdate() {
-        if (getUpdateUrl() == null) {
+        String updateUrl = Config.getCurrent().getParamUpdateUrl();
+        if (updateUrl == null) {
             return;
         }
         try {
-            sendPost(getUpdateUrl(), createUpdate());
+            sendPost(updateUrl, createUpdate());
         } catch (IOException e) {
-            logger./**/warn("cannot push: {} {}", getUpdateUrl(), e.getMessage());
+            logger./**/warn("cannot push: {} {}", updateUrl, e.getMessage());
         }
     }
 
@@ -917,7 +876,7 @@ public class EventForwarder implements BreakDisplay {
                 StatusLine statusLine = response.getStatusLine();
                 Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
                 if (statusCode != null && statusCode != 200) {
-                    logger.error("could not post to {} {} {}", url, statusLine, LoggerUtils.stackTrace());
+                    logger.error("could not post to {} {} {}", url, statusLine, LoggerUtils.whereFrom(1));
                 }
                 EntityUtils.toString(response.getEntity());
             }

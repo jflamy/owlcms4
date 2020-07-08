@@ -25,10 +25,11 @@ import ch.qos.logback.classic.Logger;
 public class Config {
 
     public static final int SHORT_TEAM_LENGTH = 6;
-    private static Config config;
 
     @SuppressWarnings("unused")
     final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
+
+    private static Config current;
 
     /**
      * Gets the current.
@@ -36,19 +37,45 @@ public class Config {
      * @return the current
      */
     public static Config getCurrent() {
-        if (config == null) {
-            config = ConfigRepository.findAll().get(0);
-        }
-        return config;
-    }
-
-    public static void setCurrent(Config c) {
-        config = c;
+        //if (current == null) {
+            current = ConfigRepository.findAll().get(0);
+        //}
+        return current;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
+
+    private String ipAccessList;
+
+    private String pin;
+
+    private String publicResultsURL;
+
+    private String updatekey;
+
+    /**
+     * @return the current password.
+     */
+    public String getParamAccessList() {
+        String uAccessList = StartupUtils.getStringParam("ip");
+        if (uAccessList != null) {
+            return uAccessList;
+        } else {
+            uAccessList = ipAccessList;
+            if (uAccessList == null || uAccessList.trim().isEmpty()) {
+                return null;
+            } else {
+                return uAccessList;
+            }
+        }
+    }
+
+    public String getParamDecisionUrl() {
+        String paramPublicResultsURL = getParamPublicResultsURL();
+        return paramPublicResultsURL != null ? paramPublicResultsURL + "/decision" : null;
+    }
 
     /**
      * Gets the id.
@@ -59,10 +86,27 @@ public class Config {
         return id;
     }
 
-    private String ipAccessList;
-    private String pin;
-    private String publicResultsURL;
+    /**
+     * @return the current password.
+     */
+    public String getParamPin() {
+        String uPin = StartupUtils.getStringParam("pin");
+        if (uPin != null) {
+            return uPin;
+        } else {
+            uPin = pin;
+            if (uPin == null || uPin.trim().isEmpty()) {
+                return null;
+            } else {
+                return uPin;
+            }
+        }
+    }
 
+    public String getParamTimerUrl() {
+        String paramPublicResultsURL = getParamPublicResultsURL();
+        return paramPublicResultsURL != null ? paramPublicResultsURL + "/timer" : null;
+    }
     public String getIpAccessList() {
         return ipAccessList;
     }
@@ -95,17 +139,15 @@ public class Config {
         this.updatekey = updatekey;
     }
 
-    private String updatekey;
-
     /**
      * @return the updateKey stored in the database, except if overridden by system property or envariable.
      */
-    public static String getUpdateKeyParam() {
+    public String getParamUpdateKey() {
         String uKey = StartupUtils.getStringParam("updateKey");
         if (uKey != null) {
             return uKey;
         } else {
-            uKey = getCurrent().getUpdatekey();
+            uKey = updatekey;
             if (uKey == null || uKey.trim().isEmpty()) {
                 return null;
             } else {
@@ -114,54 +156,35 @@ public class Config {
         }
     }
 
+    public String getParamUpdateUrl() {
+        String publicResultsURLParam = getParamPublicResultsURL();
+        return publicResultsURLParam != null ? publicResultsURLParam + "/update" : null;
+    }
+
     /**
      * @return the public results url stored in the database, except if overridden by system property or envariable.
      */
-    public static String getUpdateURLParam() {
+    private String getParamPublicResultsURL() {
         String uURL = StartupUtils.getStringParam("remote");
         if (uURL != null) {
+            // old configs with environment variable may still have a trailing /update.
+            uURL = uURL.replaceFirst("/update$", "");
             return uURL;
         } else {
-            uURL = getCurrent().getPublicResultsURL();
+            uURL = publicResultsURL;
             if (uURL == null || uURL.trim().isEmpty()) {
                 return null;
             } else {
+                // user may have copied URL with trailing /
+                uURL = uURL.replaceFirst("/$", "");
                 return uURL;
             }
         }
     }
-    
-    /**
-     * @return the current password.
-     */
-    public static String getPinParam() {
-        String uPin = StartupUtils.getStringParam("pin");
-        if (uPin != null) {
-            return uPin;
-        } else {
-            uPin = getCurrent().getPin();
-            if (uPin == null || uPin.trim().isEmpty()) {
-                return null;
-            } else {
-                return uPin;
-            }
-        }
+
+    public static Config setCurrent(Config config) {
+        current = ConfigRepository.save(config);
+        return current;
     }
-    
-    /**
-     * @return the current password.
-     */
-    public static String getAccessListParam() {
-        String uAccessList = StartupUtils.getStringParam("ip");
-        if (uAccessList != null) {
-            return uAccessList;
-        } else {
-            uAccessList = getCurrent().getIpAccessList();
-            if (uAccessList == null || uAccessList.trim().isEmpty()) {
-                return null;
-            } else {
-                return uAccessList;
-            }
-        }
-    }
+
 }

@@ -176,7 +176,7 @@ public class Main {
                 List<Config> configs = ConfigRepository.findAll();
                 if (configs.isEmpty()) {
                     logger.info("adding config object");
-                    ConfigRepository.save(new Config());
+                    Config.setCurrent(new Config());
                 }
             }
         } finally {

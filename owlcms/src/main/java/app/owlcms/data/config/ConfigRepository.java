@@ -46,7 +46,13 @@ public class ConfigRepository {
      */
     @SuppressWarnings("unchecked")
     public static List<Config> findAll() {
-        return JPAService.runInTransaction(em -> em.createQuery("select c from Config c").getResultList());
+        List<Config> configList = JPAService.runInTransaction(em -> em.createQuery("select c from Config c").getResultList());
+        if (configList.size() < 1) {
+            logger.warn("found {} config", configList.size());
+        } else if (configList.size() > 1) {
+            logger.error("found {} configs", configList.size());
+        }
+        return configList;
     }
 
     /**
@@ -70,11 +76,11 @@ public class ConfigRepository {
      * @param config the config
      * @return the config
      */
-    public static Config save(Config config) {
+    static Config save(Config config) {
         JPAService.runInTransaction(em -> {
             Config nc = em.merge(config);
             // needed because some classes get config parameters from getCurrent()
-            Config.setCurrent(nc);
+//            Config.setCurrent(nc);
             return nc;
         });
 

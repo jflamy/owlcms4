@@ -65,8 +65,10 @@ public class DemoData {
             Competition competition = createDefaultCompetition(ageDivisions);
             CompetitionRepository.save(competition);
             AgeGroupRepository.insertAgeGroups(em, ageDivisions);
-            Config config = createDefaultConfig();
-            ConfigRepository.save(config);
+            if (ConfigRepository.findAll().isEmpty()) {
+                Config config = createDefaultConfig();
+                Config.setCurrent(config);
+            }
             return null;
         });
 
