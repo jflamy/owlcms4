@@ -1,4 +1,5 @@
-* Changes for release 4.8.0-beta2  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.8.0-beta3  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+   * [x] Fixed 4.8.0-beta2 issue where configuration parameters were not immediately taken into account when changed in the database (#364); also fixed possible duplicate configuration issues.
    * [x] Fixed bug in 4.8.0-beta1 that could prevent startup.
 * Key Highlights from recent stable releases
    * [x] Timer, down and decisions are now shown on the secondary "publicresults" site.  This allows virtual competitions to use the cloud-based publicresults application. (#352)
