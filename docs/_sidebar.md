@@ -22,7 +22,7 @@
 
   *	[Virtual Competitions and Remote Scoreboards](Virtual)
   *	[Cloud Installation of the publicresults Application](Remote)
-  *	[Using Remote Public Scoreboards](RunPublicResults)
+  *	[Running Remote publicresults Scoreboards](ConfigPublicResults)
   *	[Updating Cloud-based Applications](UpdatingCloudApplications)
   *	[Configuration Parameters](Configuration)
   *	[Excel Template Variables](TemplateVariables)
