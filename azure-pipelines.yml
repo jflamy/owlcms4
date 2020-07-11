@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.8.1-alpha1
+    default: 4.8.1-alpha2
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -93,23 +93,25 @@ jobs:
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
       - script: |
-          # push changes back to origin and to release repo
+          # push changes back to origin
           git config user.email "$(Build.RequestedForEmail)"
           git config user.name "$(Build.RequestedFor)"
           git checkout $(Build.SourceBranchName)
           git add -A && git commit -m "$(Revision)" --allow-empty
           git tag $(Revision) -f -a -m "$(Revision)"
-          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Build.SourceBranchName) --force
-          git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Revision) --force
+          #git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Build.SourceBranchName) --force
+          #git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Revision) --force
+          git push origin $(Build.SourceBranchName) --force
+          git push origin $(Revision) --force
         displayName: tag origin
       - script: |
           # publish sources and docs to prerelease repo
-          git push https://$(PRERELEASE_TOKEN)@github.com/$(PRERELEASE_USER)/owlcms4.git master --force
+          git push https://$(prereleaseToken)@github.com/$(prereleaseUser)/owlcms4.git master --force
         condition: eq(variables['Build.SourceBranchName'], 'develop')
         displayName: sync prerelease repo
       - script: |
           # publish sources and docs to release repo
-          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4.git master --force
+          git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4.git master --force
         condition: eq(variables['Build.SourceBranchName'], 'master')
         displayName: sync release repo
       - task: GitHubRelease@0
