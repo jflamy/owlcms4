@@ -17,6 +17,7 @@ variables:
   # to bintray, so Revision can be kept for several runs when debugging the installers.
   - name: BuildGoal
     value: deploy
+  # ReleaseRepoCredentials contains github users and tokens
   - group: ReleaseRepoCredentials
   - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yml
   - name: MavenCacheFolder
@@ -95,6 +96,7 @@ jobs:
           goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
       - script: |
           # push changes back to origin and tag
+          # library group ReleaseRepoCredentials contains github users and tokens
           git config user.email "$(Build.RequestedForEmail)"
           git config user.name "$(Build.RequestedFor)"
           git checkout $(Build.SourceBranchName)
@@ -105,11 +107,13 @@ jobs:
         displayName: tag origin
       - script: |
           # publish sources and docs to prerelease repo
+          # library group ReleaseRepoCredentials contains github users and tokens
           git push https://$(prereleaseToken)@github.com/$(prereleaseUser)/owlcms4.git $(Build.SourceBranchName):master --force
         condition: eq(variables['Build.SourceBranchName'], 'develop')
         displayName: sync prerelease repo
       - script: |
           # publish sources and docs to release repo
+          # library group ReleaseRepoCredentials contains github users and tokens
           git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4.git $(Build.SourceBranchName):master --force
         condition: eq(variables['Build.SourceBranchName'], 'master')
         displayName: sync release repo
