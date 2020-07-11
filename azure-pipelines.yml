@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.8.1-alpha2
+    default: 4.8.1-alpha3
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -70,6 +70,7 @@ jobs:
         - CreatePublicResultsInstaller
     pool:
       vmImage: ubuntu-latest
+
     steps:
       - download: current
         artifact: OwlcmsZip
@@ -99,19 +100,17 @@ jobs:
           git checkout $(Build.SourceBranchName)
           git add -A && git commit -m "$(Revision)" --allow-empty
           git tag $(Revision) -f -a -m "$(Revision)"
-          #git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Build.SourceBranchName) --force
-          #git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Revision) --force
-          git push origin $(Build.SourceBranchName) --force
-          git push origin $(Revision) --force
+          git push https://${repoToken}@github.com/$(repoUser)/owlcms4.git $(Build.SourceBranchName) --force
+          git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Revision) --force
         displayName: tag origin
       - script: |
           # publish sources and docs to prerelease repo
-          git push https://$(prereleaseToken)@github.com/$(prereleaseUser)/owlcms4.git master --force
+          git push https://$(prereleaseToken)@github.com/$(prereleaseUser)/owlcms4.git $(Build.SourceBranchName):master --force
         condition: eq(variables['Build.SourceBranchName'], 'develop')
         displayName: sync prerelease repo
       - script: |
           # publish sources and docs to release repo
-          git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4.git master --force
+          git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4.git $(Build.SourceBranchName):master --force
         condition: eq(variables['Build.SourceBranchName'], 'master')
         displayName: sync release repo
       - task: GitHubRelease@0
