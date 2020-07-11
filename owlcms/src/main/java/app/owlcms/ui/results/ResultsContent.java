@@ -190,7 +190,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
         crudGrid.setCrudListener(this);
         crudGrid.setClickRowToUpdate(true);
-        crudGrid.getCrudLayout().addToolbarComponent(groupFilter);
+        crudGrid.getCrudLayout().addToolbarComponent(getGroupFilter());
 
         return crudGrid;
     }
@@ -202,7 +202,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
      */
     @Override
     public Collection<Athlete> findAll() {
-        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(groupFilter.getValue(),
+        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(getGroupFilter().getValue(),
                 genderFilter.getValue(), true);
         AthleteSorter.resultsOrder(athletes, Ranking.SNATCH);
         AthleteSorter.assignCategoryRanks(athletes, Ranking.SNATCH);
@@ -222,15 +222,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
     }
 
     public Group getGridGroup() {
-        return groupFilter.getValue();
-    }
-
-    /**
-     * @return the groupFilter
-     */
-    @Override
-    public ComboBox<Group> getGroupFilter() {
-        return groupFilter;
+        return getGroupFilter().getValue();
     }
 
     /**
@@ -253,7 +245,7 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
 
     public void setGridGroup(Group group) {
         subscribeIfLifting(group);
-        groupFilter.setValue(group);
+        getGroupFilter().setValue(group);
         refresh();
     }
 
@@ -401,18 +393,18 @@ public class ResultsContent extends AthleteGridContent implements HasDynamicTitl
             return;
         }
 
-        groupFilter.setPlaceholder(getTranslation("Group"));
-        groupFilter.setItems(GroupRepository.findAll());
-        groupFilter.setItemLabelGenerator(Group::getName);
+        getGroupFilter().setPlaceholder(getTranslation("Group"));
+        getGroupFilter().setItems(GroupRepository.findAll());
+        getGroupFilter().setItemLabelGenerator(Group::getName);
         // hide because the top bar has it
-        groupFilter.getStyle().set("display", "none");
-        groupFilter.addValueChangeListener(e -> {
+        getGroupFilter().getStyle().set("display", "none");
+        getGroupFilter().addValueChangeListener(e -> {
             logger.debug("updating filters: group={}", e.getValue());
             currentGroup = e.getValue();
             updateURLLocation(getLocationUI(), getLocation(), currentGroup);
             subscribeIfLifting(e.getValue());
         });
-        crud.getCrudLayout().addFilterComponent(groupFilter);
+        crud.getCrudLayout().addFilterComponent(getGroupFilter());
 
         medalsOnly = new Checkbox();
         medalsOnly.setLabel(getTranslation("MedalsOnly"));

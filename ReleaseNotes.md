@@ -1,8 +1,12 @@
-* Changes for release 4.7.6  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-   * [x] Excessive page refreshes were introduced as a side-effect in version 4.7.4.  Only database loads that correspond to group switches now cause a full refresh.
+* Changes for release 4.8.0-beta3  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+   * [x] Fixed 4.8.0-beta2 issue where configuration parameters were not immediately taken into account when changed in the database (#364); also fixed possible duplicate configuration issues.
+   * [x] Fixed bug in 4.8.0-beta1 that could prevent startup.
 * Key Highlights from recent stable releases
-   * [x] Translations fixed.  Spanish version available.
-   * [x] Improved support for deployment under Kubernetes (#346) -- see the [preliminary notes](https://jflamy-dev.github.io/owlcms4-prerelease/#/Heroku.md).
+   * [x] Timer, down and decisions are now shown on the secondary "publicresults" site.  This allows virtual competitions to use the cloud-based publicresults application. (#352)
+   * [x] Documentation for running virtual competitions and for using remote scoreboards using `publicresults` has been updated.  See the `Advanced Topics` section of the documentation. (#362)
+   * [x] Technical configuration parameters for cloud-based usage no longer requires using environment variables.  A new `Technical Configuration` button is available on the `Prepare Competition`page (#361)
+   * [x] Warning messages for out-of-sequence actions (stopping time when not started, starting time when decisions still visible, etc.) now more visible and can be translated to natural language (#359)
+   * [x] Closing a tab or window now causes an immediate cleanup of the associated user interface objects. This will remove spurious lines from the log and facilitate debugging (#357)
    * [ ] Enhancement: Simplification of configuration options for loading initial data (#347) -- see the [Configuration Parameters](https://jflamy-dev.github.io/owlcms4-prerelease/#/Configuration.md) documentation. *No changes are required, old parameters still work*.
    * [x] Fix: Decision lights for the very last lift in a group would disappear too quickly on the attempt board and scoreboards (#344)
    * [x] Fix: announcer using the dropdown to go to next group now shows the correct buttons to start the next group's countdown (#345)

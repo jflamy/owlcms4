@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
-package app.owlcms.fieldofplay;
+package app.owlcms.uievents;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +13,8 @@ import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
 
 /**
@@ -51,13 +53,62 @@ public class UIEvent {
      */
     static public class BreakPaused extends UIEvent {
 
-        /**
-         * Instantiates a new break paused.
-         *
-         * @param origin the origin
-         */
-        public BreakPaused(Object origin) {
+        private boolean displayToggle;
+
+        protected Integer timeRemaining;
+        protected boolean indefinite;
+        protected LocalDateTime end;
+        protected BreakType breakType;
+        protected CountdownType countdownType;
+
+        public BreakPaused(Integer millisRemaining, Object origin, boolean displayToggle, BreakType bt,
+                CountdownType ct) {
             super(origin);
+            this.timeRemaining = millisRemaining;
+            this.indefinite = (ct != null && ct == CountdownType.INDEFINITE) || (millisRemaining == null);
+            this.breakType = bt;
+            this.countdownType = ct;
+            this.setDisplayToggle(displayToggle);
+        }
+
+        public BreakType getBreakType() {
+            return breakType;
+        }
+
+        public int getMillis() {
+            return (getTimeRemaining());
+        }
+
+        public Integer getTimeRemaining() {
+            return timeRemaining;
+        }
+
+        /**
+         * @return true if is a request for toggling display (and not an actual break start)
+         */
+        public boolean isDisplayToggle() {
+            return displayToggle;
+        }
+
+        /**
+         * @return true if break lasts indefinitely and timeRemaining should be ignored
+         */
+        public boolean isIndefinite() {
+            return indefinite;
+        }
+
+        /**
+         * @param displayToggle true to request switching to Break Timer
+         */
+        public void setDisplayToggle(boolean displayToggle) {
+            this.displayToggle = displayToggle;
+        }
+
+        @Override
+        public String toString() {
+            return "UIEvent.BreakPaused [displayToggle=" + displayToggle + ", timeRemaining=" + timeRemaining
+                    + ", indefinite=" + indefinite + ", end=" + end + ", breakType=" + breakType + ", countdownType="
+                    + countdownType + "]";
         }
 
     }
@@ -121,13 +172,9 @@ public class UIEvent {
         private boolean displayToggle;
 
         protected Integer timeRemaining;
-
         protected boolean indefinite;
-
         protected LocalDateTime end;
-
         protected BreakType breakType;
-
         protected CountdownType countdownType;
 
         public BreakStarted(Integer millisRemaining, Object origin, boolean displayToggle, BreakType bt,
@@ -146,6 +193,10 @@ public class UIEvent {
 
         public int getMillis() {
             return (getTimeRemaining());
+        }
+
+        public Integer getTimeRemaining() {
+            return timeRemaining;
         }
 
         /**
@@ -174,10 +225,6 @@ public class UIEvent {
             return "UIEvent.BreakStarted [displayToggle=" + displayToggle + ", timeRemaining=" + timeRemaining
                     + ", indefinite=" + indefinite + ", end=" + end + ", breakType=" + breakType + ", countdownType="
                     + countdownType + "]";
-        }
-
-        private Integer getTimeRemaining() {
-            return timeRemaining;
         }
     }
 
@@ -411,6 +458,49 @@ public class UIEvent {
             this.inBreak = inBreak;
         }
 
+    }
+
+    /**
+     * Class Notification.
+     */
+    static public class Notification extends UIEvent {
+
+        private String fopStateString;
+
+        private String fopEventString;
+
+        /**
+         * Instantiates a new Notification.
+         *
+         * @param origin the origin
+         */
+        public Notification(Athlete a, Object origin, String fopStateString, String fopEventString) {
+            super(a, origin);
+            this.setFopStateString(fopStateString);
+            this.setFopEventString(fopEventString);
+        }
+
+        public Notification(Athlete curAthlete, Object origin, FOPEvent e, FOPState state) {
+            super(curAthlete, origin);
+            this.setFopEventString(e.getClass().getSimpleName());
+            this.setFopStateString(state.toString());
+        }
+
+        public String getFopEventString() {
+            return fopEventString;
+        }
+
+        public String getFopStateString() {
+            return fopStateString;
+        }
+
+        public void setFopEventString(String fopEventString) {
+            this.fopEventString = fopEventString;
+        }
+
+        public void setFopStateString(String fopStateString) {
+            this.fopStateString = fopStateString;
+        }
     }
 
     /**

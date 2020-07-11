@@ -28,6 +28,8 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
@@ -112,6 +114,7 @@ public class Main {
 
         // technical initializations
         System.setProperty("java.net.preferIPv4Stack", "true");
+        System.setProperty("java.net.preferIPv6Addresses", "false");
         ConvertUtils.register(new DateConverter(null), java.util.Date.class);
         ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 
@@ -160,6 +163,7 @@ public class Main {
                     break;
                 }
             } else {
+                // migrations and other changes
                 logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
                 List<AgeGroup> ags = AgeGroupRepository.findAll();
                 if (ags.isEmpty()) {
@@ -168,6 +172,11 @@ public class Main {
                         AgeGroupRepository.insertAgeGroups(em, null);
                         return null;
                     });
+                }
+                List<Config> configs = ConfigRepository.findAll();
+                if (configs.isEmpty()) {
+                    logger.info("adding config object");
+                    Config.setCurrent(new Config());
                 }
             }
         } finally {

@@ -33,6 +33,8 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.LoggerUtils;
@@ -63,6 +65,10 @@ public class DemoData {
             Competition competition = createDefaultCompetition(ageDivisions);
             CompetitionRepository.save(competition);
             AgeGroupRepository.insertAgeGroups(em, ageDivisions);
+            if (ConfigRepository.findAll().isEmpty()) {
+                Config config = createDefaultConfig();
+                Config.setCurrent(config);
+            }
             return null;
         });
 
@@ -243,6 +249,10 @@ public class DemoData {
 
         insertSampleLifters(em, liftersToLoad, groupM1, groupM2, groupF1, groupY1, ageDivisions);
         em.flush();
+    }
+
+    private static Config createDefaultConfig() {
+        return new Config();
     }
 
     private static void insertSampleLifters(EntityManager em, int liftersToLoad, Group groupM1, Group groupM2,

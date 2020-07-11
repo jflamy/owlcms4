@@ -71,18 +71,18 @@ public class URLUtils {
         return siteExternalForm;
     }
 
-    public static String getClientIp(HttpServletRequest request) {
-        String remoteAddr = "";
-
-        if (request != null) {
-            remoteAddr = request.getHeader("X-FORWARDED-FOR");
-            if (remoteAddr == null || "".equals(remoteAddr)) {
-                remoteAddr = request.getRemoteAddr();
-            }
-        }
-
-        return remoteAddr;
-    }
+//    private static String getClientIp(HttpServletRequest request) {
+//        String remoteAddr = "";
+//
+//        if (request != null) {
+//            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+//            if (remoteAddr == null || "".equals(remoteAddr)) {
+//                remoteAddr = request.getRemoteAddr();
+//            }
+//        }
+//
+//        return remoteAddr;
+//    }
 
     public static <T extends Component> String getRelativeURLFromTargetClass(Class<T> class1) {
         RouteConfiguration routeResolver = RouteConfiguration.forApplicationScope();

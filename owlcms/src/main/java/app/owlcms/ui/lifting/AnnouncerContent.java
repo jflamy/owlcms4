@@ -25,6 +25,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -34,15 +35,16 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
-import app.owlcms.fieldofplay.BreakType;
+import app.owlcms.fieldofplay.FOPError;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.fieldofplay.UIEvent;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.shared.AthleteGridContent;
 import app.owlcms.ui.shared.AthleteGridLayout;
 import app.owlcms.ui.shared.BreakDialog;
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
+import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -141,6 +143,18 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             n.add(label);
             n.setPosition(Position.TOP_START);
             n.setDuration(5000);
+            n.open();
+        });
+    }
+    
+    @Subscribe
+    public void slaveNotification(UIEvent.Notification e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            Notification n = new Notification();
+            n.setText(FOPError.translateMessage(e.getFopStateString(), e.getFopEventString()));
+            n.setPosition(Position.MIDDLE);
+            n.setDuration(3000);
+            n.addThemeVariants(NotificationVariant.LUMO_ERROR);
             n.open();
         });
     }
@@ -296,7 +310,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
         });
         topBarGroupSelect.addValueChangeListener(e -> {
             Group group = e.getValue();
-            logger.trace("select setting filter group to {}", group);
+            logger.trace("##### select setting filter group to {} {}", group, LoggerUtils.whereFrom());
             getGroupFilter().setValue(group);
         });
     }

@@ -18,6 +18,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.server.StreamResource;
 
+import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;
@@ -38,8 +39,18 @@ public class DownloadButtonFactory {
      * @return the div
      */
     public static Div createDynamicDownloadButton(String prefix, String label, JXLSWorkbookStreamSource xlsSource) {
-        StreamResource href = new StreamResource(prefix + ".xls", xlsSource);
-        return buildButton(prefix, label, href);
+        final LazyDownloadButton downloadButton = new LazyDownloadButton(
+                (String) label,
+                new Icon(VaadinIcon.DOWNLOAD_ALT),
+                () -> {
+                    LocalDateTime now = LocalDateTime.now().withNano(0);
+                    return prefix
+                            + "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss"))
+                            + ".xls";
+                },
+                xlsSource);
+
+        return new Div(downloadButton);
     }
 
     /**

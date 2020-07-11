@@ -1,12 +1,12 @@
-import {PolymerElement, html} from '@polymer/polymer/polymer-element.js';       
+import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 class DecisionElement extends PolymerElement {
 
-    static get is() {
-        return 'decision-element'
-    }
+	static get is() {
+		return 'decision-element'
+	}
 
 	static get template() {
-		return html`<style><style>
+		return html`<style>
 .decisionWrapper {
 	width: 100%;
 	height: 100%;
@@ -76,7 +76,7 @@ class DecisionElement extends PolymerElement {
 				reflectToAttribute: true,
 				notify: true,
 				value: null
-			}, 
+			},
 			ref3: {
 				type: Boolean,
 				reflectToAttribute: true,
@@ -94,7 +94,7 @@ class DecisionElement extends PolymerElement {
 				reflectToAttribute: false,
 				notify: false,
 				value: 0
-			}, 
+			},
 			ref3Time: {
 				type: Number,
 				reflectToAttribute: false,
@@ -133,7 +133,7 @@ class DecisionElement extends PolymerElement {
 	ready() {
 		super.ready();
 		console.debug("decision ready");
-		if (! this.jury) {
+		if (!this.jury) {
 			document.body.addEventListener('keydown', e => this._readRef(e));
 		}
 		this._init();
@@ -147,19 +147,19 @@ class DecisionElement extends PolymerElement {
 		this.$.ref1span.className = "decision none";
 		this.$.ref2span.className = "decision none";
 		this.$.ref3span.className = "decision none";
-		this.set('ref1',null);
-		this.set('ref2',null);
-		this.set('ref3',null);
+		this.set('ref1', null);
+		this.set('ref2', null);
+		this.set('ref3', null);
 		this._setupAudio();
 	}
 
 	_setupAudio() {
-		if('webkitAudioContext' in window) {
+		if ('webkitAudioContext' in window) {
 			this.audio = false;
 		}
 		if (this.audio) {
 			// setup audio -- an oscillator cannot be reused.
-			if (! this.context) {
+			if (!this.context) {
 				this.context = new AudioContext();
 			}
 			this.oscillator = this.context.createOscillator();
@@ -173,42 +173,42 @@ class DecisionElement extends PolymerElement {
 
 	_readRef(e) {
 		if (!this.enabled) return;
-		
+
 		var key = e.key;
 		console.debug(key);
 		switch (e.key) {
-		case '1':
-			this.set('ref1',true);
-			this.set('ref1Time', Date.now());
-			this._majority(this.ref1,this.ref2,this.ref3)
-			break;
-		case '2':
-			this.set('ref1',false);
-			this.set('ref1Time', Date.now());
-			this._majority(this.ref1,this.ref2,this.ref3)
-			break;
-		case '3':
-			this.set('ref2',true);
-			this.set('ref2Time', Date.now());
-			this._majority(this.ref1,this.ref2,this.ref3)
-			break;
-		case '4':
-			this.set('ref2',false);
-			this.set('ref2Time', Date.now());
-			this._majority(this.ref1,this.ref2,this.ref3)
-			break;
-		case '5':
-			this.set('ref3',true);
-			this.set('ref3Time', Date.now());
-			this._majority(this.ref1,this.ref2,this.ref3)
-			break;
-		case '6':
-			this.set('ref3',false);
-			this.set('ref3Time', Date.now());
-			this._majority(this.ref1,this.ref2,this.ref3)
-			break;
-		default:
-			break;
+			case '1':
+				this.set('ref1', true);
+				this.set('ref1Time', Date.now());
+				this._majority(this.ref1, this.ref2, this.ref3)
+				break;
+			case '2':
+				this.set('ref1', false);
+				this.set('ref1Time', Date.now());
+				this._majority(this.ref1, this.ref2, this.ref3)
+				break;
+			case '3':
+				this.set('ref2', true);
+				this.set('ref2Time', Date.now());
+				this._majority(this.ref1, this.ref2, this.ref3)
+				break;
+			case '4':
+				this.set('ref2', false);
+				this.set('ref2Time', Date.now());
+				this._majority(this.ref1, this.ref2, this.ref3)
+				break;
+			case '5':
+				this.set('ref3', true);
+				this.set('ref3Time', Date.now());
+				this._majority(this.ref1, this.ref2, this.ref3)
+				break;
+			case '6':
+				this.set('ref3', false);
+				this.set('ref3Time', Date.now());
+				this._majority(this.ref1, this.ref2, this.ref3)
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -218,14 +218,14 @@ class DecisionElement extends PolymerElement {
 
 	/* this is called from the client side to signal that a decision has been made
          immediate feedback is given if majority has been reached */
-	_majority(ref1,ref2,ref3) {
+	_majority(ref1, ref2, ref3) {
 		var countWhite = 0;
 		var countRed = 0;
 		var maj = false;
 
-		if (ref1 === true) {countWhite++;} else if (ref1 === false){countRed++;}
-		if (ref2 === true) {countWhite++;} else if (ref2 === false){countRed++;}
-		if (ref3 === true) {countWhite++;} else if (ref3 === false){countRed++;}
+		if (ref1 === true) { countWhite++; } else if (ref1 === false) { countRed++; }
+		if (ref2 === true) { countWhite++; } else if (ref2 === false) { countRed++; }
+		if (ref3 === true) { countWhite++; } else if (ref3 === false) { countRed++; }
 		var count = countWhite + countRed;
 		if (!this.downShown && (countWhite == 2 || countRed == 2)) {
 			this.decision = (countWhite >= 2);
@@ -249,40 +249,40 @@ class DecisionElement extends PolymerElement {
 		this.$server.masterRefereeUpdate(ref1, ref2, ref3, this.ref1Time, this.ref2Time, this.ref3Time);
 	}
 
-	setColors(parent, ref1, ref2, ref3) {  
+	setColors(parent, ref1, ref2, ref3) {
 		var redStyle = "decision red";
 		var whiteStyle = "decision white";
 		if (this.publicFacing) {
 			if (ref1 === true) {
 				parent.$.ref1span.className = whiteStyle;
-			} else if (ref1 === false){
+			} else if (ref1 === false) {
 				parent.$.ref1span.className = redStyle;
 			}
 			if (ref2 === true) {
 				parent.$.ref2span.className = whiteStyle;
-			} else if (ref2 === false){
+			} else if (ref2 === false) {
 				parent.$.ref2span.className = redStyle;
 			}
 			if (ref3 === true) {
 				parent.$.ref3span.className = whiteStyle;
-			} else if (ref3 === false){
+			} else if (ref3 === false) {
 				parent.$.ref3span.className = redStyle;
 			}
 		} else {
 			// athlete facing, go the other way, right to left
 			if (ref1 === true) {
 				parent.$.ref3span.className = whiteStyle;
-			} else if (ref1 === false){
+			} else if (ref1 === false) {
 				parent.$.ref3span.className = redStyle;
 			}
 			if (ref2 === true) {
 				parent.$.ref2span.className = whiteStyle;
-			} else if (ref2 === false){
+			} else if (ref2 === false) {
 				parent.$.ref2span.className = redStyle;
 			}
 			if (ref3 === true) {
 				parent.$.ref1span.className = whiteStyle;
-			} else if (ref3 === false){
+			} else if (ref3 === false) {
 				parent.$.ref1span.className = redStyle;
 			}
 		}
@@ -293,10 +293,11 @@ class DecisionElement extends PolymerElement {
 		this.downShown = true;
 		this.$.downDiv.style.display = "flex";
 		this.$.decisionsDiv.style.display = "none";
+		// Obsolete - we send the referee updates also, no need to tell the master twice.
 		// if we are the master, tell the server right away
-		if (isMaster) {
-			this.$server.masterShowDown(this.decision, this.ref1, this.ref2, this.ref3);
-		}
+		//if (isMaster) {
+		//	this.$server.masterShowDown(this.decision, this.ref1, this.ref2, this.ref3);
+		//}
 		console.debug("server told");
 		if (this.audio && !silent) {
 			this.oscillator.start(0);
@@ -304,7 +305,7 @@ class DecisionElement extends PolymerElement {
 			this._setupAudio();
 		}
 		//this.$.downAudio.play();
-		this.dispatchEvent(new CustomEvent('down', {bubbles: true, composed: true}))
+		this.dispatchEvent(new CustomEvent('down', { bubbles: true, composed: true }))
 		// hide the down arrow after 2 seconds -- the decisions will show when available
 		// (there will be no decision lights for at least one second, more if last referee 
 		// waits after the other two have given down.
@@ -318,14 +319,14 @@ class DecisionElement extends PolymerElement {
 
 	showDecisions(isMaster, ref1, ref2, ref3) {
 		this.hideDown();
-		console.debug("showDecision: "+ref1+" "+ref2+" "+ref3);
+		console.debug("showDecision: " + ref1 + " " + ref2 + " " + ref3);
 		this.setColors(this, ref1, ref2, ref3);
 		console.debug("colorsShown");
 	}
 
 	showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
 		this.hideDown();
-		console.debug("showDecisionForJury: "+ref1+" "+ref2+" "+ref3);
+		console.debug("showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
 		this.setColors(this, ref1, ref2, ref3);
 		console.debug("jury colorsShown");
 	}
@@ -337,7 +338,7 @@ class DecisionElement extends PolymerElement {
 
 	hideDecisions() {
 		// tell our parent to hide us.
-		this.dispatchEvent(new CustomEvent('hide', {bubbles: true, composed: true}))
+		this.dispatchEvent(new CustomEvent('hide', { bubbles: true, composed: true }))
 	}
 }
 

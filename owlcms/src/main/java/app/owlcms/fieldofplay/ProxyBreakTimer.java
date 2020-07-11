@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 
 import app.owlcms.ui.shared.BreakManagement.CountdownType;
+import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -199,8 +201,10 @@ public class ProxyBreakTimer implements IProxyTimer {
         logger.debug("***stopping Break -- timeRemaining = {} [{}]", getTimeRemaining(), LoggerUtils.whereFrom());
         timeRemainingAtLastStop = getTimeRemaining();
         logger.debug("break stop = {} [{}]", liveTimeRemaining(), LoggerUtils.whereFrom());
-        fop.pushOut(new UIEvent.BreakPaused(this.getOrigin()));
-    }
+        UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getMillis(), getOrigin(), false,
+                fop.getBreakType(), fop.getCountdownType());
+        fop.pushOut(event);
+    };
 
     /*
      * (non-Javadoc)

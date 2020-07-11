@@ -59,11 +59,11 @@ You can just use Chromium according to the instructions in the rest of this guid
 
 The alternate OS is unfortunately very bad for sound, so
 
-- <u>If your are running locally</u>, you can use the ["Define Fields of Play"](Preparation#associating-an-audio-output-with-a-platform) screen in the "Preparation" section to run the audio on the master laptop **OR**
+- <u>If your are running locally</u>, you can use the ["Define Fields of Play"](Preparation#associating-an-audio-output-with-a-platform) screen in the "Preparation" section to run the audio on the primary laptop **OR**
 
 - <u>If you are running from the cloud</u>, run the Attempt Board on a non-Raspberry computer.  You may even use the Announcer's laptop, as long as you start a **new browser window** (Control-N) and that the Attempt Board is the **visible tab** in that new browser.  The new window can be hidden behind other windows, it doesn't matter as long as the Attempt Board is visible in its browser.
 
-  You can use this approach even if running locally, if you don't want to run a wire to the master laptop.
+  You can use this approach even if running locally, if you don't want to run a wire to the primary laptop.
 
 #### End of Competition
 Raspberry Pi do not have a power switch. It is therefore extremely advisable to shut down the device cleanly before unplugging power.

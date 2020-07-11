@@ -14,9 +14,10 @@ import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 
-import app.owlcms.publicresults.EventReceiverServlet;
-import app.owlcms.publicresults.TimerEvent;
-import app.owlcms.publicresults.UpdateEvent;
+import app.owlcms.publicresults.TimerReceiverServlet;
+import app.owlcms.publicresults.UpdateReceiverServlet;
+import app.owlcms.uievents.TimerEvent;
+import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -72,11 +73,6 @@ public class AthleteTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientSyncTime() {
-//        OwlcmsSession.withFop(fop -> {
-//            int timeRemaining = fop.getAthleteTimer().getTimeRemaining();
-//            logger.trace("Fetched time = {} for {}", timeRemaining, fop.getCurAthlete());
-//            doSetTimer(timeRemaining);
-//        });
         return;
     }
 
@@ -111,9 +107,7 @@ public class AthleteTimerElement extends TimerElement {
 
     @Subscribe
     public void slaveOrderUpdated(UpdateEvent e) {
-        ui.access(() -> {
-            doSetTimer(e.getTimeAllowed());
-        });
+        doSetTimer(e.getTimeAllowed());
     }
 
     @Subscribe
@@ -146,7 +140,6 @@ public class AthleteTimerElement extends TimerElement {
         getModel().setSilent(false); // emit sounds
     }
 
-
     /*
      * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
      */
@@ -154,15 +147,22 @@ public class AthleteTimerElement extends TimerElement {
     protected void onAttach(AttachEvent attachEvent) {
         init();
 
-        EventReceiverServlet.getEventBus().register(this);
+        UpdateReceiverServlet.getEventBus().register(this);
+        TimerReceiverServlet.getEventBus().register(this);
         ui = UI.getCurrent();
     }
-
 
     @Override
     protected void onDetach(DetachEvent detachEvent) {
         super.onDetach(detachEvent);
-        EventReceiverServlet.getEventBus().unregister(this);
+        try {
+            UpdateReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
+        try {
+            TimerReceiverServlet.getEventBus().unregister(this);
+        } catch (Exception e) {
+        }
     }
-    
+
 }

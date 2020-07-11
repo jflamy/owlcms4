@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -28,9 +27,9 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.components.NavigationPage;
+import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.ui.home.HomeNavigationContent;
@@ -64,23 +63,33 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
         Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, getTranslation("DefineAgeGroups"));
         Button groups = openInNewTabNoParam(GroupContent.class, getTranslation("DefineGroups"));
         Button platforms = openInNewTabNoParam(PlatformContent.class, getTranslation("DefineFOP"));
+        Button config = openInNewTabNoParam(ConfigContent.class, getTranslation("Config.Title"));
 
-        StreamResource href = new StreamResource("registration.xls",
+//        StreamResource href = new StreamResource("registration.xls",
+//                () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
+//        Anchor download = new Anchor(href, "");
+//        Button downloadButton = new Button(getTranslation("DownloadRegistrationTemplate"),
+//                new Icon(VaadinIcon.DOWNLOAD_ALT));
+//        downloadButton.setWidth("93%"); // don't ask. this is a kludge.
+//        download.add(downloadButton);
+//        download.setWidth("100%");
+//        
+        LazyDownloadButton downloadButton = new LazyDownloadButton(
+                getTranslation("DownloadRegistrationTemplate"),
+                new Icon(VaadinIcon.DOWNLOAD_ALT),
+                () -> "registration"
+                        //+ "_" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                        + ".xls",
                 () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
-        Anchor download = new Anchor(href, "");
-        Button downloadButton = new Button(getTranslation("DownloadRegistrationTemplate"),
-                new Icon(VaadinIcon.DOWNLOAD_ALT));
-        downloadButton.setWidth("93%"); // don't ask. this is a kludge.
-        download.add(downloadButton);
-        download.setWidth("100%");
-        Div downloadDiv = new Div(download);
+
+        Div downloadDiv = new Div(downloadButton);
         downloadDiv.setWidthFull();
         Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
                 buttonClickEvent -> new UploadDialog().open());
 
         Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups, groups, platforms,
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups, groups, platforms, config,
                 downloadDiv, upload);
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes);
