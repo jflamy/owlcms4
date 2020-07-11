@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.publicresults;
 
 import java.io.IOException;
@@ -28,14 +34,28 @@ import ch.qos.logback.classic.Logger;
 @WebServlet("/update")
 public class UpdateReceiverServlet extends HttpServlet {
 
-    Logger logger = (Logger) LoggerFactory.getLogger(UpdateReceiverServlet.class);
-    private String secret = StartupUtils.getStringParam("updateKey");
     private static String defaultFopName;
     static EventBus eventBus = new AsyncEventBus(Executors.newCachedThreadPool());
+    static Map<String, UpdateEvent> updateCache = new HashMap<>();
 
     public static EventBus getEventBus() {
         return eventBus;
     }
+
+    public static UpdateEvent sync(String fopName) {
+        if (fopName == null) {
+            fopName = defaultFopName;
+        }
+        UpdateEvent updateEvent = updateCache.get(fopName);
+        if (updateEvent != null) {
+            return updateEvent;
+        }
+        return null;
+    }
+
+    Logger logger = (Logger) LoggerFactory.getLogger(UpdateReceiverServlet.class);
+
+    private String secret = StartupUtils.getStringParam("updateKey");
 
     /**
      * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
@@ -75,7 +95,7 @@ public class UpdateReceiverServlet extends HttpServlet {
             updateEvent.setCompetitionName(req.getParameter("competitionName"));
             updateEvent.setFopName(req.getParameter("fop"));
             updateEvent.setFopState(req.getParameter("fopState"));
-            
+
             updateEvent.setAttempt(req.getParameter("attempt"));
             updateEvent.setCategoryName(req.getParameter("categoryName"));
             updateEvent.setFullName(req.getParameter("fullName"));
@@ -97,14 +117,14 @@ public class UpdateReceiverServlet extends HttpServlet {
             updateEvent.setTimeAllowed(timeAllowed != null ? Integer.parseInt(req.getParameter("timeAllowed")) : null);
 
             updateEvent.setTranslationMap(req.getParameter("translationMap"));
-            
+
             String breakString = req.getParameter("break");
             String breakTypeString = req.getParameter("breakType");
             String breakRemainingString = req.getParameter("breakRemaining");
             updateEvent.setBreak(breakString != null ? Boolean.valueOf(breakString) : null);
             updateEvent.setBreakType(breakTypeString != null ? BreakType.valueOf(breakTypeString) : null);
             updateEvent.setBreakRemaining(breakRemainingString != null ? Integer.parseInt(breakRemainingString) : null);
-            
+
             String fopName = updateEvent.getFopName();
             // put in the cache first so events can know which FOPs are active;
             updateCache.put(fopName, updateEvent);
@@ -117,19 +137,6 @@ public class UpdateReceiverServlet extends HttpServlet {
         } catch (Exception e) {
             logger.error(LoggerUtils.stackTrace(e));
         }
-    }
-
-    static Map<String, UpdateEvent> updateCache = new HashMap<>();
-
-    public static UpdateEvent sync(String fopName) {
-        if (fopName == null) {
-            fopName = defaultFopName;
-        }
-        UpdateEvent updateEvent = updateCache.get(fopName);
-        if (updateEvent != null) {
-            return updateEvent;
-        }
-        return null;
     }
 
 }

@@ -204,7 +204,7 @@ public class ProxyBreakTimer implements IProxyTimer {
         UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getMillis(), getOrigin(), false,
                 fop.getBreakType(), fop.getCountdownType());
         fop.pushOut(event);
-    };
+    }
 
     /*
      * (non-Javadoc)

@@ -46,7 +46,8 @@ public class ConfigRepository {
      */
     @SuppressWarnings("unchecked")
     public static List<Config> findAll() {
-        List<Config> configList = JPAService.runInTransaction(em -> em.createQuery("select c from Config c").getResultList());
+        List<Config> configList = JPAService
+                .runInTransaction(em -> em.createQuery("select c from Config c").getResultList());
         if (configList.size() < 1) {
             logger.warn("found {} config", configList.size());
         } else if (configList.size() > 1) {

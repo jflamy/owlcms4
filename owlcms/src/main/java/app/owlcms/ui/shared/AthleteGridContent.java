@@ -746,14 +746,16 @@ public abstract class AthleteGridContent extends VerticalLayout
 //                        logger.debug("filter switching group from {} to {}",
 //                                oldGroup != null ? oldGroup.getName() : null,
 //                                newGroup != null ? newGroup.getName() : null);
-                      logger.debug("value changed, switching group");
-                      fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
-                      oldGroup = newGroup;
+                    logger.debug("value changed, switching group");
+                    fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
+                    oldGroup = newGroup;
 //                        // we listen to the UI switch group that will result from the FOP switchgroup
 //                    } else {
 //                        // loadGroup will emit FOP SwitchGroup which will emit UI switchgroup that we listen to .
-  //                        logger.debug("{} loading group {} {} {} {} {}", myId, newGroup, System.identityHashCode(newGroup), oldGroup, System.identityHashCode(oldGroup), LoggerUtils.stackTrace());
-  //                        fop.loadGroup(newGroup, this, newGroup != oldGroup);
+                    // logger.debug("{} loading group {} {} {} {} {}", myId, newGroup,
+                    // System.identityHashCode(newGroup), oldGroup, System.identityHashCode(oldGroup),
+                    // LoggerUtils.stackTrace());
+                    // fop.loadGroup(newGroup, this, newGroup != oldGroup);
 //                    }
                 });
             });
@@ -865,6 +867,10 @@ public abstract class AthleteGridContent extends VerticalLayout
             // we listen on uiEventBus.
             uiEventBus = uiEventBusRegister(this, fop);
         });
+    }
+
+    protected void setGroupFilter(ComboBox<Group> groupFilter) {
+        this.groupFilter = groupFilter;
     }
 
     protected void setTopBarLeft(HorizontalLayout topBarLeft) {
@@ -1071,10 +1077,6 @@ public abstract class AthleteGridContent extends VerticalLayout
             n.add(label);
             n.open();
         }
-    }
-
-    protected void setGroupFilter(ComboBox<Group> groupFilter) {
-        this.groupFilter = groupFilter;
     }
 
 }

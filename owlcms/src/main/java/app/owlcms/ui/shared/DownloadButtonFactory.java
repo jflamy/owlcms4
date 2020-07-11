@@ -40,7 +40,7 @@ public class DownloadButtonFactory {
      */
     public static Div createDynamicDownloadButton(String prefix, String label, JXLSWorkbookStreamSource xlsSource) {
         final LazyDownloadButton downloadButton = new LazyDownloadButton(
-                (String) label,
+                label,
                 new Icon(VaadinIcon.DOWNLOAD_ALT),
                 () -> {
                     LocalDateTime now = LocalDateTime.now().withNano(0);

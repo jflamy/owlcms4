@@ -30,7 +30,7 @@ public interface SafeEventBusRegistration {
 		UI ui = c.getUI().get();
 		EventBus fopEventBus = fop.getFopEventBus();
 		fopEventBus.register(c);
-		
+
         UnloadObserver unloadObserver = UnloadObserver.get(false);
         unloadObserver.addUnloadListener((e) -> {
             logger.debug("closing {}: unregister {} from {}", e.getSource(), c, fopEventBus.identifier());
@@ -54,7 +54,7 @@ public interface SafeEventBusRegistration {
 		UI ui = c.getUI().get();
 		EventBus uiEventBus = fop.getUiEventBus();
 		uiEventBus.register(c);
-		
+
         UnloadObserver unloadObserver = UnloadObserver.get(false);
         unloadObserver.addUnloadListener((e) -> {
             logger.debug("closing {}: unregister {} from {}", e.getSource(), c, uiEventBus.identifier());
@@ -62,7 +62,7 @@ public interface SafeEventBusRegistration {
             UnloadObserver.remove();
         });
         ui.add(unloadObserver);
-        
+
 		ui.addBeforeLeaveListener((e) -> {
 			logger.debug("leaving {}: unregister {} from {}", e.getSource(), c, uiEventBus.identifier());
 			try {uiEventBus.unregister(c);} catch (Exception ex) {}

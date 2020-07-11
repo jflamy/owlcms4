@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.fieldofplay;
 
 import org.slf4j.LoggerFactory;
@@ -18,6 +24,22 @@ public class FOPError {
         safePut(FOPState.DECISION_VISIBLE, TimeStarted.class, "ERROR_WAIT_FOR_RESET");
     }
 
+    public static String translateMessage(FOPState fopState, FOPEvent event) {
+        String fopStateString = fopState.toString();
+        String stateTr = Translator.translate("STATE_" + fopStateString);
+        String fopEventString = event.getClass().getSimpleName();
+        String eventTr = Translator.translate("EVENT_" + fopEventString);
+        String message = Translator.translate(getMessageTemplate(fopStateString, fopEventString), eventTr, stateTr);
+        return message;
+    }
+
+    public static String translateMessage(String fopStateString, String fopEventString) {
+        String stateTr = Translator.translate("STATE_" + fopStateString);
+        String eventTr = Translator.translate("EVENT_" + fopEventString);
+        String message = Translator.translate(getMessageTemplate(fopStateString, fopEventString), eventTr, stateTr);
+        return message;
+    }
+
     @SuppressWarnings("unused")
     private static String getMessageTemplate(FOPState fopState, Class<? extends FOPEvent> fopEventClass) {
         String msg = errorMessages.get(fopState.toString(), fopEventClass.getSimpleName());
@@ -34,22 +56,6 @@ public class FOPError {
             msg = "Unexpected_event_state";
         }
         return msg;
-    }
-
-    public static String translateMessage(FOPState fopState, FOPEvent event) {
-        String fopStateString = fopState.toString();
-        String stateTr = Translator.translate("STATE_" + fopStateString);
-        String fopEventString = event.getClass().getSimpleName();
-        String eventTr = Translator.translate("EVENT_" + fopEventString);
-        String message = Translator.translate(getMessageTemplate(fopStateString, fopEventString), eventTr, stateTr);
-        return message;
-    }
-
-    public static String translateMessage(String fopStateString, String fopEventString) {
-        String stateTr = Translator.translate("STATE_" + fopStateString);
-        String eventTr = Translator.translate("EVENT_" + fopEventString);
-        String message = Translator.translate(getMessageTemplate(fopStateString, fopEventString), eventTr, stateTr);
-        return message;
     }
 
     private static void safePut(FOPState state, Class<? extends FOPEvent> fopEventClass, String messagePattern) {

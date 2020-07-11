@@ -1,7 +1,7 @@
 /***
  * Copyright (c) 2009-2020 Jean-François Lamy
- * 
- * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)  
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
  */
 package app.owlcms.components.elements;
@@ -87,11 +87,6 @@ public class BreakTimerElement extends TimerElement {
     }
 
     @Subscribe
-    public void slaveOrderUpdated(UpdateEvent e) {
-        doSetTimer(e.getBreakRemaining());
-    }
-    
-    @Subscribe
     public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
         uiEventLogger.debug("&&& break done {} {}", parentName);
         doStopTimer();
@@ -120,6 +115,11 @@ public class BreakTimerElement extends TimerElement {
         doStartTimer(tr, true); // true means "silent".
     }
 
+    @Subscribe
+    public void slaveOrderUpdated(UpdateEvent e) {
+        doSetTimer(e.getBreakRemaining());
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -130,10 +130,6 @@ public class BreakTimerElement extends TimerElement {
         super.init();
         setSilent(true);
         getModel().setSilent(true); // do not emit sounds
-    }
-
-    private String formatDuration(Integer milliseconds) {
-        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : "null";
     }
 
     /*
@@ -160,5 +156,9 @@ public class BreakTimerElement extends TimerElement {
             TimerReceiverServlet.getEventBus().unregister(this);
         } catch (Exception e) {
         }
+    }
+
+    private String formatDuration(Integer milliseconds) {
+        return milliseconds != null ? DurationFormatUtils.formatDurationHMS(milliseconds) : "null";
     }
 }

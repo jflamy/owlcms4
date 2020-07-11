@@ -62,6 +62,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     protected EventBus uiEventBus;
     protected EventBus fopEventBus;
     private UI ui;
+
     public DecisionElement() {
     }
 
@@ -79,8 +80,10 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     @Subscribe
     public void slaveDecision(DecisionEvent de) {
-        logger.warn("DecisionElement DecisionEvent {} {}",de.getEventType(), System.identityHashCode(de));
-        if (ui == null || ui.isClosing()) return;
+        logger.warn("DecisionElement DecisionEvent {} {}", de.getEventType(), System.identityHashCode(de));
+        if (ui == null || ui.isClosing()) {
+            return;
+        }
         ui.access(() -> {
             if (de.isBreak()) {
                 logger.warn("break: slaveDecision disable");
@@ -92,7 +95,8 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
                     break;
                 case FULL_DECISION:
                     logger.warn("calling full decision");
-                    this.getElement().callJsFunction("showDecisions", false, de.getDecisionLight1(), de.getDecisionLight2(),
+                    this.getElement().callJsFunction("showDecisions", false, de.getDecisionLight1(),
+                            de.getDecisionLight2(),
                             de.getDecisionLight3());
                     getModel().setEnabled(false);
                     break;
@@ -109,24 +113,30 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     }
 
     @Subscribe
-    public void slaveStartTimer(TimerEvent.StartTime e) {
-        if (ui == null || ui.isClosing()) return;
-        ui.access(() -> {
-            getModel().setEnabled(true);
-        });
-    }
-
-    @Subscribe
-    public void slaveStopTimer(TimerEvent.StopTime e) {
-        if (ui == null || ui.isClosing()) return;
-        ui.access(() -> {
-            getModel().setEnabled(true);
-        });
-    }
-
-    @Subscribe
     public void slaveStartBreakTimer(BreakTimerEvent.BreakStart e) {
-        if (ui == null || ui.isClosing()) return;
+        if (ui == null || ui.isClosing()) {
+            return;
+        }
+        ui.access(() -> {
+            getModel().setEnabled(true);
+        });
+    }
+
+    @Subscribe
+    public void slaveStartTimer(TimerEvent.StartTime e) {
+        if (ui == null || ui.isClosing()) {
+            return;
+        }
+        ui.access(() -> {
+            getModel().setEnabled(true);
+        });
+    }
+
+    @Subscribe
+    public void slaveStopBreakTimer(BreakTimerEvent.BreakDone e) {
+        if (ui == null || ui.isClosing()) {
+            return;
+        }
         ui.access(() -> {
             getModel().setEnabled(true);
         });
@@ -134,20 +144,24 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
 
     @Subscribe
     public void slaveStopBreakTimer(BreakTimerEvent.BreakPaused e) {
-        if (ui == null || ui.isClosing()) return;
+        if (ui == null || ui.isClosing()) {
+            return;
+        }
         ui.access(() -> {
             getModel().setEnabled(true);
         });
     }
-    
+
     @Subscribe
-    public void slaveStopBreakTimer(BreakTimerEvent.BreakDone e) {
-        if (ui == null || ui.isClosing()) return;
+    public void slaveStopTimer(TimerEvent.StopTime e) {
+        if (ui == null || ui.isClosing()) {
+            return;
+        }
         ui.access(() -> {
             getModel().setEnabled(true);
         });
     }
-    
+
     protected Object getOrigin() {
         // we use the identity of our parent AttemptBoard or AthleteFacingAttemptBoard
         // to identify
@@ -166,7 +180,6 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         DecisionReceiverServlet.getEventBus().register(this);
         TimerReceiverServlet.getEventBus().register(this);
     }
-
 
     @Override
     protected void onDetach(DetachEvent detachEvent) {

@@ -25,7 +25,7 @@ public interface RequireLogin extends BeforeEnterObserver {
             OwlcmsSession.setAuthenticated(true);
             return;
         }
-        
+
         String path = event.getLocation().getPath();
         String whiteList = Config.getCurrent().getParamAccessList();
         String pin = Config.getCurrent().getParamPin();

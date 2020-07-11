@@ -200,6 +200,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         this.darkMode = dark;
     }
 
+    /** @see app.owlcms.ui.parameters.QueryParameterReader#setFopName(java.lang.String) */
+    @Override
+    public void setFopName(String fopName) {
+        this.fopName = fopName;
+    }
+
     @Override
     public void setLocation(Location location) {
         this.location = location;
@@ -208,6 +214,55 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Override
     public void setLocationUI(UI locationUI) {
         this.locationUI = locationUI;
+    }
+
+    @Subscribe
+    public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
+        logger.warn("swl BreakDone");
+        this.getElement().callJsFunction("reset");
+        needReset = false;
+    }
+
+    @Subscribe
+    public void slaveDecisionEvent(DecisionEvent e) {
+        logger.warn("received DecisionEvent {}", e);
+        DecisionEventType eventType = e.getEventType();
+        switch (eventType) {
+        case DOWN_SIGNAL:
+            if (ui == null || ui.isClosing()) {
+                return;
+            }
+            ui.access(() -> {
+                getModel().setHidden(false);
+                this.getElement().callJsFunction("down");
+            });
+            break;
+        case RESET:
+//            if (e.isDone()) {
+//                doDone(e.getGroupName());
+//            } else
+        {
+            if (ui == null || ui.isClosing()) {
+                return;
+            }
+            ui.access(() -> {
+                getModel().setHidden(false);
+                this.getElement().callJsFunction("reset");
+            });
+        }
+            break;
+        case FULL_DECISION:
+            if (ui == null || ui.isClosing()) {
+                return;
+            }
+            ui.access(() -> {
+                getModel().setHidden(false);
+                this.getElement().callJsFunction("refereeDecision");
+            });
+            break;
+        default:
+            break;
+        }
     }
 
     @Subscribe
@@ -257,53 +312,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         });
     }
 
-    @Subscribe
-    public void slaveDecisionEvent(DecisionEvent e) {
-        logger.warn("received DecisionEvent {}", e);
-        DecisionEventType eventType = e.getEventType();
-        switch (eventType) {
-        case DOWN_SIGNAL:
-            if (ui == null || ui.isClosing())
-                return;
-            ui.access(() -> {
-                getModel().setHidden(false);
-                this.getElement().callJsFunction("down");
-            });
-            break;
-        case RESET:
-//            if (e.isDone()) {
-//                doDone(e.getGroupName());
-//            } else 
-        {
-            if (ui == null || ui.isClosing())
-                return;
-            ui.access(() -> {
-                getModel().setHidden(false);
-                this.getElement().callJsFunction("reset");
-            });
-        }
-            ;
-            break;
-        case FULL_DECISION:
-            if (ui == null || ui.isClosing())
-                return;
-            ui.access(() -> {
-                getModel().setHidden(false);
-                this.getElement().callJsFunction("refereeDecision");
-            });
-            break;
-        default:
-            break;
-        }
-    }
-
-    @Subscribe
-    public void slaveBreakDone(BreakTimerEvent.BreakDone e) {
-        logger.warn("swl BreakDone");
-        this.getElement().callJsFunction("reset");
-        needReset = false;
-    }
-
     protected void doEmpty() {
         this.getModel().setHidden(true);
     }
@@ -351,10 +359,14 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         TimerReceiverServlet.getEventBus().unregister(this);
     }
 
-    /** @see app.owlcms.ui.parameters.QueryParameterReader#setFopName(java.lang.String) */
-    @Override
-    public void setFopName(String fopName) {
-        this.fopName = fopName;
+    private void doDone(String str) {
+        if (str == null) {
+            doEmpty();
+        } else {
+//            getModel().setFullName(getTranslation("Group_number_results", groupName));
+            getModel().setFullName(str);
+            this.getElement().callJsFunction("groupDone");
+        }
     }
 
     private String getFopName() {
@@ -383,16 +395,6 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
             return Translator.translate("PublicMsg.GroupDone");
         default:
             return "";
-        }
-    }
-
-    private void doDone(String str) {
-        if (str == null) {
-            doEmpty();
-        } else {
-//            getModel().setFullName(getTranslation("Group_number_results", groupName));
-            getModel().setFullName(str);
-            this.getElement().callJsFunction("groupDone");
         }
     }
 

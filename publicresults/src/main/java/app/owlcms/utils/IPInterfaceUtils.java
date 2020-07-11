@@ -1,5 +1,5 @@
 /***
- * Copyright (c) 2009-2019 Jean-François Lamy
+ * Copyright (c) 2009-2020 Jean-François Lamy
  *
  * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
  * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
@@ -43,14 +43,12 @@ public class IPInterfaceUtils {
     /**
      * Try to guess URLs that can reach the system.
      *
-     * The browser on the master laptop most likely uses "localhost" in its URL. We
-     * can't know which of its available IP addresses can actually reach the
-     * application. We scan the network addresses, and try the URLs one by one,
-     * listing wired interfaces first, and wireless interfaces second (in as much as
-     * we can guess).
+     * The browser on the master laptop most likely uses "localhost" in its URL. We can't know which of its available IP
+     * addresses can actually reach the application. We scan the network addresses, and try the URLs one by one, listing
+     * wired interfaces first, and wireless interfaces second (in as much as we can guess).
      *
-     * We rely on the URL used to reach the "about" screen to know how the
-     * application is named, what port is used, and which protocol works.
+     * We rely on the URL used to reach the "about" screen to know how the application is named, what port is used, and
+     * which protocol works.
      *
      * @return HTML ("a" tags) for the various URLs that appear to work.
      */
@@ -69,7 +67,7 @@ public class IPInterfaceUtils {
         String siteString = request.getRequestURI();
         String requestURL = request.getRequestURL().toString();
         String absoluteURL = URLUtils.buildAbsoluteURL(request, null);
-        logger.debug("absolute URL {}",absoluteURL);
+        logger.debug("absolute URL {}", absoluteURL);
 
         local = isLocalAddress(server) || isLoopbackAddress(server);
         logger.trace("request {}", requestURL);
@@ -77,11 +75,13 @@ public class IPInterfaceUtils {
         if (!local) {
             // a name was used. this is probably the best option.
             if (absoluteURL.endsWith("/")) {
-                absoluteURL = requestURL.substring(0, requestURL.length()-1);
+                absoluteURL = requestURL.substring(0, requestURL.length() - 1);
             }
             recommended.add(absoluteURL);
             // if we are not on the cloud, we try to get a numerical address anyway.
-            if (headerMap.get("x-forwarded-for") != null) return;
+            if (headerMap.get("x-forwarded-for") != null) {
+                return;
+            }
         }
 
         String ip;
@@ -90,8 +90,8 @@ public class IPInterfaceUtils {
             while (interfaces.hasMoreElements()) {
                 NetworkInterface iface = interfaces.nextElement();
                 // filters out 127.0.0.1 and inactive interfaces
-                if (//iface.isLoopback() ||
-                        !iface.isUp()) {
+                if (// iface.isLoopback() ||
+                !iface.isUp()) {
                     continue;
                 }
 
@@ -169,8 +169,9 @@ public class IPInterfaceUtils {
 
     private void checkTargetFileOk(String prefix, String targetFile) {
         InputStream targetResource = this.getClass().getResourceAsStream(prefix + targetFile); // $NON-NLS-1$
-        if (targetResource == null)
+        if (targetResource == null) {
             throw new RuntimeException("test resource not found " + targetFile);
+        }
     }
 
     /**
@@ -211,7 +212,7 @@ public class IPInterfaceUtils {
             String siteExternalForm = siteURL.toExternalForm();
 
             // use a file inside the site to avoid triggering a loop if called on home page
-            URL testingURL = new URL(protocol, ip, requestPort, uri+targetFile);
+            URL testingURL = new URL(protocol, ip, requestPort, uri + targetFile);
             String testingExternalForm = testingURL.toExternalForm();
 
             HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();

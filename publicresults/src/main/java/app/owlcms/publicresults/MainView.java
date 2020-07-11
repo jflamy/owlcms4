@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.publicresults;
 
 import java.util.Arrays;
@@ -38,34 +44,14 @@ public class MainView extends VerticalLayout {
         buildHomePage();
     }
 
-    private void buildHomePage() {
-        // we cache the last update received for each field of play, indexed by fop name
-        Set<String> fopNames = UpdateReceiverServlet.updateCache.keySet();
-        if (fopNames.size() == 0) {
-            removeAll();
-            add(text);
-        } else {
-            createButtons(fopNames);
+    @Subscribe
+    public void update(UpdateEvent e) {
+        if (ui == null) {
+            logger.error("ui is null!?");
+            return;
         }
-    }
-
-    private void createButtons(Set<String> fopNames) {
-        removeAll();
-        UpdateEvent updateEvent = UpdateReceiverServlet.updateCache.entrySet().stream().findFirst().orElse(null).getValue();
-        if (updateEvent == null) return;
-        
-        H3 title = new H3(updateEvent.getCompetitionName());
-        add(title);
-        fopNames.stream().sorted().forEach(fopName -> {
-            Button fopButton = new Button(getTranslation("Platform") + " " + fopName,
-                    buttonClickEvent -> {
-                        String url = URLUtils.getRelativeURLFromTargetClass(ScoreWithLeaders.class);
-                        HashMap<String, List<String>> params = new HashMap<>();
-                        params.put("fop", Arrays.asList(fopName));
-                        QueryParameters parameters = new QueryParameters(params);
-                        UI.getCurrent().navigate(url, parameters);
-                    });
-            add(fopButton);
+        ui.access(() -> {
+            buildHomePage();
         });
     }
 
@@ -81,15 +67,38 @@ public class MainView extends VerticalLayout {
         super.onDetach(detachEvent);
         UpdateReceiverServlet.getEventBus().unregister(this);
     }
-    
-    @Subscribe
-    public void update(UpdateEvent e) {
-        if (ui == null) {
-            logger.error("ui is null!?");
+
+    private void buildHomePage() {
+        // we cache the last update received for each field of play, indexed by fop name
+        Set<String> fopNames = UpdateReceiverServlet.updateCache.keySet();
+        if (fopNames.size() == 0) {
+            removeAll();
+            add(text);
+        } else {
+            createButtons(fopNames);
+        }
+    }
+
+    private void createButtons(Set<String> fopNames) {
+        removeAll();
+        UpdateEvent updateEvent = UpdateReceiverServlet.updateCache.entrySet().stream().findFirst().orElse(null)
+                .getValue();
+        if (updateEvent == null) {
             return;
         }
-       ui.access(() -> {
-            buildHomePage();
+
+        H3 title = new H3(updateEvent.getCompetitionName());
+        add(title);
+        fopNames.stream().sorted().forEach(fopName -> {
+            Button fopButton = new Button(getTranslation("Platform") + " " + fopName,
+                    buttonClickEvent -> {
+                        String url = URLUtils.getRelativeURLFromTargetClass(ScoreWithLeaders.class);
+                        HashMap<String, List<String>> params = new HashMap<>();
+                        params.put("fop", Arrays.asList(fopName));
+                        QueryParameters parameters = new QueryParameters(params);
+                        UI.getCurrent().navigate(url, parameters);
+                    });
+            add(fopButton);
         });
     }
 

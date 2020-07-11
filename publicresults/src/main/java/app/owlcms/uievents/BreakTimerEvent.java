@@ -104,16 +104,12 @@ public class BreakTimerEvent {
     public BreakTimerEvent() {
     }
 
-    public String getFopName() {
-        return fopName;
-    }
-
-    public void setFopName(String fopName) {
-        this.fopName = fopName;
-    }
-
     public BreakType getBreakType() {
         return breakType;
+    }
+
+    public String getFopName() {
+        return fopName;
     }
 
     public String getGroupName() {
@@ -122,6 +118,10 @@ public class BreakTimerEvent {
 
     public void setBreakType(BreakType breakType) {
         this.breakType = breakType;
+    }
+
+    public void setFopName(String fopName) {
+        this.fopName = fopName;
     }
 
     public void setGroupName(String groupName) {
