@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.8.1-alpha3
+    default: 4.8.1-alpha4
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -94,13 +94,13 @@ jobs:
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
       - script: |
-          # push changes back to origin
+          # push changes back to origin and tag
           git config user.email "$(Build.RequestedForEmail)"
           git config user.name "$(Build.RequestedFor)"
           git checkout $(Build.SourceBranchName)
           git add -A && git commit -m "$(Revision)" --allow-empty
           git tag $(Revision) -f -a -m "$(Revision)"
-          git push https://${repoToken}@github.com/$(repoUser)/owlcms4.git $(Build.SourceBranchName) --force
+          git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Build.SourceBranchName) --force
           git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Revision) --force
         displayName: tag origin
       - script: |
