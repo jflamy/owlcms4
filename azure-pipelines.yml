@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.8.0
+    default: 4.8.1-alpha1
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -102,6 +102,16 @@ jobs:
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Build.SourceBranchName) --force
           git push https://$(REPO_TOKEN)@github.com/$(REPO_USER)/owlcms4.git $(Revision) --force
         displayName: tag origin
+      - script: |
+          # publish sources and docs to prerelease repo
+          git push https://$(PRERELEASE_TOKEN)@github.com/$(PRERELEASE_USER)/owlcms4.git master --force
+        condition: eq(variables['Build.SourceBranchName'], 'develop')
+        displayName: sync prerelease repo
+      - script: |
+          # publish sources and docs to release repo
+          git push https://$(RELEASE_TOKEN)@github.com/$(RELEASE_USER)/owlcms4.git master --force
+        condition: eq(variables['Build.SourceBranchName'], 'master')
+        displayName: sync release repo
       - task: GitHubRelease@0
         displayName: Release on Github
         inputs:
