@@ -1,44 +1,99 @@
-## Local Networking of the `publicresults` Application
-
 Normally, `publicresults` is installed in the cloud.  If you have no Internet access and would still like the coaches to have access to the scoreboards, you can use a setup like the following.
 
-NOTE: local setups are complicated, because you want to keep the competition network safe.  We don't suggest you attempt this unless you have access to someone comfortable setting up routing rules .
+> NOTE: local setups are complicated, because you want to keep the competition network safe.
+> This is why it is generally *much* easier to use a cloud-based setup for publicresults -- all the safekeeping is done by the cloud provider.
 
 ![Slide1](img/PublicResults/LocalPublicResults/Slide1.SVG)
 
-### Simple `publicresults` networking procedure
+### Making `publicresults` accessible from `owlcms`
 
-We do *not* recommend that you use this procedure in an actual competition unless you are *very* confident that coaches will not attempt to interfere with the competition network.  
+We use two routers so we can use two separate Wi-Fi networks on-site, one for the competition network, the other for the coaches/public.  This is important for safety and router capacity reasons. Because of this, `owlcms` cannot directly see the publicresults laptop, and we need to make it visible.
 
-In this setup there are two routers. The secondary router is acting as a gate so you can stop access by turning it off if users misbehave.
+The following example uses an ASUS router as an example.  Modern routers have the equivalent features, please refer to the documentation for your router.
 
-1. Install `owlcms` on the primary laptop and connect it to the primary router.  The primary router is the one used for the competition site.
-   - Make sure to add a password to the site.
-2. connect a second router (the "secondary router" to the primary router using an Ethernet wire.  Be sure to connect the secondary to one of the LAN ports of the primary router. 
-   - Make sure there is an access key (WPA2) on the router.  This is the only protection you will have to prevent people in attendance from reaching the publicresults application.
-   - Make sure that the WPA2 key for the primary network is not shared to people that don't need it, and is changed regularly.
-3. install `publicresults` on a separate laptop.
-4. connect the publicresults laptop using an ethernet wire to the **secondary** router.   In effect, the secondary router will be part of your local network -- the only thing separate is the WiFi traffic.
-5. use the `ipconfig` command on the publicresults laptop to get its IP address, and configure owlcms to talk to the publicresults laptop. 
+1. Connect the `publicresults` laptop to the secondary router.
 
-### Advanced networking procedure
+2. Connect the secondary router to the primary router.  The primary router will give the secondary router an address on the primary network.
 
-1. Do NOT connect the secondary router to the primary
-2. Configure the secondary router to have its own static address and that it will NOT use DHCP to fetch an address from the primary network.  We recommend using a 172.16.4.1 address so that you can clealy distinguish that subnet from the primary net.  All the machines on the secondary network should have addresses above 172.16.4.100 for the same reason.
-   - How to do this depends on your specific router.  You will likely need to refer to the documentation, under "static WAN IP address".
-3. Configure a fixed address (we suggest 172.16.4.10 for the publicresults laptop on the secondary network)
-   - How to do this depends on your specific router.
-   - Make sure that the publicresults laptop is reachable from other machines on the secondary network  -- if you start the publicresults application they should see the blue "waiting for updates" screen.
-4. Add a route on the primary router to reach the secondary network. It is suggested to restrict traffic to the publicresults machine.  The route should specify the exact IP address of the publicresults laptop, and use a netmask of 32 bits (255.255.255.255) to make sure no other machine is reachable.
-   - How to do this depends on your specific router.
-5. Because of the nature of the connections used between the two programs (polling may take place), it is necessary to open a route from the secondary to the primary. It is critical to restrict traffic only to the owlcms laptop (using exact IP address and a full 32bit netmask).
-6. Connect the two networks together.  Test that the owlcms laptop can reach the publicresults laptop (using `ping 172.16.4.10` in our example.).
-7. Configure owlcms to update publicresults using a URL which, in our example, would be http://172.16.4.10
+3. Make sure you know the administrative password of your secondary router, and that you know its IP address (typically, new routers are 192.164.0.1, or 10.0.0.1).  Make sure that you can reach it from the publicresults laptop.  In this example, the address of the secondary router is 192.164.4.1, so we connect to it using http://192.164.4.1
 
-### Expert networking configuration
+   - We can see that the primary network address of the router is is 10.0.0.234 .  We will need this address later.  In our diagram, all the machines on the left-hand side see the secondary router using its 10.0.0.234 address.
+   - But the secondary router is a double-agent.  Coming from the right-hand side, it is known as 192.168.4.1 (this is setup by the router itself, typically in the LAN settings).  The right-hand side of the diagram is a private network where all addresses start with 192.168.4
 
-If you have a machine able to serve as many remote scoreboards as needed, you can open up your secondary router to the Internet (assuming of course you have an Internet access).  If you intend to do so, you must be extremely careful that the only routes between the primary and secondary networks are the ones created point-to-point in the Advanced configuration.
+   ![01_wanAddress](img/PublicResults/LocalPublicResults/01_wanAddress.png)
 
-Given the availability of machines in the cloud with proper internet isolation, there should seldom if ever be a need to do such a setup.
+4. We now need to find the address of the publicresults laptop in the secondary router network.
+   You can go to the laptop and use the `ipconfig` command.  
 
-![Slide2](img/PublicResults/LocalPublicResults/Slide2.SVG)
+   In our case, we can actually see the addresses direclty on the secondary router. The publicresults laptop is 192.168.4.234  ![02_localPRaddress](img/PublicResults/LocalPublicResults/02_localPRaddress.png)
+
+5. The secondary router is a gatekeeper -- it prevents anyone on the primary network from seeing the secondary network machines.
+   So we need to explicitly tell the secondary router to let the updates coming from owlcms go to the publicresults program.  This is done via "port forwarding".
+
+   - We add a port forwarding rule that tells the secondary router to take any information it gets on its port 8080 and forward it to the port 8080 of the publicresults laptop.  This is where the publicresults program will be listening.    
+
+   ![04_portForwarding](img/PublicResults/LocalPublicResults/04_portForwarding.png)
+
+### Configuration and test
+
+1. We need to configure publicresults so that it has a shared secret with owlcms
+   Go to the file location for publicresults and edit the `publicresults.l4j.ini` file.
+   Make sure it has a line that defines the secret
+
+   ```
+   -Dupdatekey=SomeVeryLongStringYouWillConfigureAlsoInOwlcms
+   ```
+
+2. Configure owlcms
+
+   - set the destination url for publicresults to the port forwarding address (http://10.0.0.234:8080 in our example)
+   - set the shared secret update key to what you used in the l4j.ini file (SomeVeryLongStringYouWillConfigureAlsoInOwlcms in our example)
+
+3. As explained above, from the primary network, the secondary router is visible as 10.0.0.234 .  If owlcms now sends information to http://10.0.0.234:8080 the secondary router will get it, turn around, and forward it to the publicresults machine because of the port forwarding rule.
+   We can test this by going to the owlcms laptop and using the port forwarding address.
+   ![05_checkConnectivity](img/PublicResults/LocalPublicResults/05_checkConnectivity.png)
+
+4. You can now test actual updates from the owlcms application.
+   ![06_actualTest](img/PublicResults/LocalPublicResults/06_actualTest.png)
+
+### Protecting `owlcms` from the secondary network
+
+When you are at home, the various laptops, tablets or phones you connect to your router are all able to open connections to the Internet.  But the machines on the Internet cannot open connections to your machines at home.
+
+In our setup, the primary network is like the Internet: any machine on the secondary network can actually connect to the primary network.  We don't want anyone that knows the address to reach owlcms.
+
+We will use the Windows firewall on the owlcms laptop to protect us.
+
+1. Click on the Windows icon at the bottom left, and select the Settings icon above it (gear-shaped icon)![10_firewall](img/PublicResults/LocalPublicResults/10_firewall.png)
+
+2. In the next window, select "Advanced Settings" on the left-hand side.
+   ![11_advanced](img/PublicResults/LocalPublicResults/11_advanced.png)
+   
+3. Click on "inbound rules", click on the "Name" column to sort, select all the "java.exe" rules and <u>Delete</u> them.  It is possible that there are no such rules, in which case there is nothing to do.
+   ![12_deletejava](img/PublicResults/LocalPublicResults/12_deletejava.png)
+
+4. Leave the firewall window open.
+   Start owlcms.  You should see a Security Alert.  Make sure that BOTH private and public are selected.
+   ![13_allowJava](img/PublicResults/LocalPublicResults/13_allowJava.png)
+
+5. Go back to the firewall window.  Hit "refresh".  You should see two entries for "java.exe".
+
+   ![14_javaUpdated](img/PublicResults/LocalPublicResults/14_javaUpdated.png)
+
+6. Click on both of them.  There is a "Protocol/Port" tab.  We want to edit the one with "TCP" as protocol.
+   ![15_protocol](img/PublicResults/LocalPublicResults/15_protocol.png)
+
+7. In order to prevent an error message in the next step, we go to the "Advanced" tab. This action should in theory be sufficient to do all we want, but alas, this is not the case.  In the bottom drop-down list, select "Block Edge Traversal"
+   ![16b_blockEdge](img/PublicResults/LocalPublicResults/16b_blockEdge.png)
+
+8. We now move to the "Scope" tab.  We need to allow all the machines on the primary network *except* for the secondary router.  All the people on the secondary network trying to reach owlcms would look like they come from the secondary router so we want to exclude them.
+
+   - Windows Firewall exclusion rules don't work correctly in this case, so we have to use explicit inclusion rules.
+   - In our example, the secondary router is 10.0.0.234, so we have to allow from 10.0.0.2 up to10.0.0.233 and 10.0.0.235 up to 10.0.0.253.
+   - Windows is also confused about the notion of public and private (it thinks that 10.x.x.x is public, even though it is not), so we need to do this twice, for the public and private sections.
+
+   ![16_addressRange](img/PublicResults/LocalPublicResults/16_addressRange.png) 
+
+9. After adding the 4 ranges, the dialog should look similar to this (obviously, using your own addresses).
+   For example, if your secondary router is 192.168.0.102, the ranges would be 192.168.0.2 to 192.168.0.101 and from 192.168.0.103 to 192.168.0.253.
+   ![17_allow](img/PublicResults/LocalPublicResults/17_allow.png)

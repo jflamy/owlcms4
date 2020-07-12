@@ -18,17 +18,18 @@
   *	[Intermissions and Breaks](Breaks)
   *	[Result Documents](Documents)
 
-* Advanced Topics
+* Remote/Public Scoreboards
 
   *	[Virtual Competitions and Remote Scoreboards](Virtual)
   *	[Cloud Installation of the publicresults Application](Remote)
   *	[Running Remote publicresults Scoreboards](ConfigPublicResults)
   *	[Updating Cloud-based Applications](UpdatingCloudApplications)
+  *	[Local Networking for publicresults](PublicResults_Local.md)
+* Advanced Topics
   *	[Configuration Parameters](Configuration)
   *	[Excel Template Variables](TemplateVariables)
   *	[Translations](Translation)
   *	[Contributing to the code](Gitpod)
-  
 * Downloads
 
   *	[Releases](https://github.com/jflamy/owlcms4/releases)
