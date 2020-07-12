@@ -13,12 +13,12 @@ The following example uses an ASUS router as an example.  Modern routers have th
 
 1. Connect the `publicresults` laptop to the secondary router.
 
-2. Connect the secondary router to the primary router.  The primary router will give the secondary router an address on the primary network.
+2. Connect the secondary router to the primary router.  The primary router will give the secondary router an address on the primary network.  
 
 3. Make sure you know the administrative password of your secondary router, and that you know its IP address (typically, new routers are 192.164.0.1, or 10.0.0.1).  Make sure that you can reach it from the publicresults laptop.  In this example, the address of the secondary router is 192.164.4.1, so we connect to it using http://192.164.4.1
 
-   - We can see that the primary network address of the router is is 10.0.0.234 .  We will need this address later.  In our diagram, all the machines on the left-hand side see the secondary router using its 10.0.0.234 address.
-   - But the secondary router is a double-agent.  Coming from the right-hand side, it is known as 192.168.4.1 (this is setup by the router itself, typically in the LAN settings).  The right-hand side of the diagram is a private network where all addresses start with 192.168.4
+   - We see that the primary router gave the secondary an address 10.0.0.234 .  We will need this address later.  In our diagram, all the machines on the left-hand side cannot see the right-hand side.  All they see is the secondary router using the 10.0.0.234 address.
+   - The secondary router is a double-agent.  It has addresses on both networks.  Coming from the right-hand side, it is known as 192.168.4.1 (see the purple box below).  This is because the secondary router is actually the boss on the right-hand side.  It was configured to use 192.168.4 as its network, so all machines on the right-hand side get addresses that start with 192.168.4.
 
    ![01_wanAddress](img/PublicResults/LocalPublicResults/01_wanAddress.png)
 
@@ -60,7 +60,7 @@ The following example uses an ASUS router as an example.  Modern routers have th
 
 When you are at home, the various laptops, tablets or phones you connect to your router are all able to open connections to the Internet.  But the machines on the Internet cannot open connections to your machines at home.
 
-In our setup, the primary network is like the Internet: any machine on the secondary network can actually connect to the primary network.  We don't want anyone that knows the address to reach owlcms.
+In our setup, the primary network is like the Internet: any machine on the secondary network can actually connect to the primary network.  So any vandal that can figure out what the address to owlcms could potentially mess with it -- a disgruntled competitor perhaps.  We don't want that, so we need to prevent access to the owlcms application.
 
 We will use the Windows firewall on the owlcms laptop to protect us.
 
