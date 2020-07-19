@@ -29,6 +29,7 @@ import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 @WebServlet("/update")
@@ -75,11 +76,12 @@ public class UpdateReceiverServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
+            logger.setLevel(Level.DEBUG);
             if (StartupUtils.getBooleanParam("DEBUG")) {
                 Set<Entry<String, String[]>> pairs = req.getParameterMap().entrySet();
-                logger./**/warn("---- update received from {}", URLUtils.getClientIp(req));
+                logger./**/debug("update received from {}", URLUtils.getClientIp(req));
                 for (Entry<String, String[]> pair : pairs) {
-                    logger./**/warn("    {} = {}", pair.getKey(), pair.getValue()[0]);
+                    logger./**/trace("    {} = {}", pair.getKey(), pair.getValue()[0]);
                 }
             }
 
