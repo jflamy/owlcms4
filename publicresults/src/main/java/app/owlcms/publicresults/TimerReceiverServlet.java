@@ -24,6 +24,7 @@ import com.google.common.eventbus.EventBus;
 
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.TimerEvent;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -123,8 +124,7 @@ public class TimerReceiverServlet extends HttpServlet {
                 defaultFopName = fopName;
             }
         } catch (NumberFormatException | IOException | NotUtf8Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error(LoggerUtils.stackTrace(e));
         }
     }
 
