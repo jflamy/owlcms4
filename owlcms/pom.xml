@@ -416,7 +416,7 @@
                             <systemProperties>
                                 <systemProperty>
                                     <key>initialData</key>
-                                    <value>SINGLE_ATHLETE_GROUPS</value>
+                                    <value>LARGEGROUP_DEMO</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <key>memoryMode</key>
