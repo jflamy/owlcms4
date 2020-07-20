@@ -160,20 +160,20 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
         AppLayout appLayout = AppLayoutBuilder.get(variant).withTitle(getTranslation("OWLCMS_Top"))
                 .withIcon("/frontend/images/logo.png").withAppBar(AppBarBuilder.get().build())
                 .withAppMenu(LeftAppMenuBuilder.get().addToSection(HEADER, new LeftHeaderItem(null, "", null)).add(home)
-                        .add(new LeftNavigationItem(PREPARE_COMPETITION, new Icon("social", "group-add"),
+                        .add(new LeftNavigationItem(PREPARE_COMPETITION, new Icon("social:group-add"),
                                 PreparationNavigationContent.class))
-                        .add(new LeftNavigationItem(RUN_LIFTING_GROUP, new Icon("places", "fitness-center"),
+                        .add(new LeftNavigationItem(RUN_LIFTING_GROUP, new Icon("places:fitness-center"),
                                 LiftingNavigationContent.class))
-                        .add(new LeftNavigationItem(START_DISPLAYS, new Icon("hardware", "desktop-windows"),
+                        .add(new LeftNavigationItem(START_DISPLAYS, new Icon("hardware:desktop-windows"),
                                 DisplayNavigationContent.class))
-                        .add(new LeftNavigationItem(RESULT_DOCUMENTS, new Icon("maps", "local-printshop"),
+                        .add(new LeftNavigationItem(RESULT_DOCUMENTS, new Icon("maps:local-printshop"),
                                 ResultsNavigationContent.class))
-                        .add(new LeftClickableItem(DOCUMENTATION, new Icon("icons", "help"),
+                        .add(new LeftClickableItem(DOCUMENTATION, new Icon("icons:help"),
                                 clickEvent -> UI.getCurrent().getPage()
                                         .executeJs("window.open('https://jflamy.github.io/owlcms4/#/index','_blank')")))
-//                        .add(new LeftNavigationItem(RESULT_DOCUMENTS, new Icon("image", "brightness-2"),
-//                                ResultsNavigationContent.class))
-                        .addToSection(FOOTER, new LeftNavigationItem(INFO, new Icon("icons", "info-outline"),
+                        // .add(new LeftNavigationItem(RESULT_DOCUMENTS, new Icon("image", "brightness-2"),
+                        // ResultsNavigationContent.class))
+                        .addToSection(FOOTER, new LeftNavigationItem(INFO, new Icon("icons:info-outline"),
                                 InfoNavigationContent.class))
                         .build())
                 .build();
@@ -194,7 +194,7 @@ public class OwlcmsRouterLayout extends AppLayoutRouterLayout implements PageCon
     }
 
     // .add(new LeftClickableItem(DOCUMENTATION, VaadinIcon.COG.create(),
-//            clickEvent -> openModeSelector(this.variant))
+    // clickEvent -> openModeSelector(this.variant))
     @SuppressWarnings("unchecked")
     private void setDrawerVariant(Class<? extends AppLayout> variant) {
         this.variant = variant;
