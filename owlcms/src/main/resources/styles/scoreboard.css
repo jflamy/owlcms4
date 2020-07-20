@@ -36,12 +36,30 @@
         --category-min-width: 9ch;
         --category-width: 9vw;
         --category-max-width: 100%;
+        --rank-width: 5ch;
+        --group-width: 5vw;
+    }
+    .showThRank {
+        border-collapse: collapse;
+        border: solid 1px DarkGray;
+        border-left-style: none;
+        padding: 0.5vmin 1vmin 0.5vmin 1vmin;
+        font-size: var(--fontSizeRank-height);
+        font-weight: normal;
+        font-style: italic;
+        width: 4vw;
+        text-align: center;
+        font-size: var(--fontSizeRank-height);
     }
     .showRank {
         display: table-cell;
-        width: var(--veryNarrow-width);
+        width: var(--rank-width);
         font-size: var(--fontSizeRows-height);
         text-align: center;
+    }
+    .showRank div {
+        width: var(--rank-width);
+        margin: auto;
     }
     th, td {
         font-size: var(--fontSizeRows-height);
@@ -73,18 +91,34 @@
         --category-width: 9vw;
         --category-max-width: 100%;
     }
+    .showThRank {
+        border-collapse: collapse;
+        border: solid 1px DarkGray;
+        border-left-style: none;
+        padding: 0.5vmin 1vmin 0.5vmin 1vmin;
+        font-size: var(--fontSizeRank-height);
+        font-weight: normal;
+        font-style: italic;
+        width: 4vw;
+        text-align: center;
+        font-size: var(--fontSizeRank-height);
+    }
     .showRank {
         display: table-cell;
-        width: var(--veryNarrow-width);
+        width: var(--rank-width);
         font-size: var(--fontSizeRows-height);
         text-align: center;
+    }
+    .showRank div {
+        width: var(--rank-width);
+        margin: auto;
     }
     th, td {
         font-size: var(--fontSizeRows-height);
     }
 }
 
-/* header cells for rank in the main table, 1024 projector */
+/* 1024 projector */
 
 @media screen and (max-width: 1024px) {
     .wrapper {
@@ -274,13 +308,15 @@ td.club {
     width: var(--club-width);
 }
 
+
 td.club div {
-    width: var(--club-max-width);
+	width: var(--club-width);
+    max-width: var(--club-max-width);
     text-align: center;
+    margin: auto;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin: auto;
 }
 
 .ellipsis {
@@ -337,6 +373,7 @@ td.club div {
     width: var(--group-width);
     white-space: nowrap;
     text-align: center;
+    font-size: var(--fontSizeRank-height);
 }
 
 .groupCol div {
@@ -345,6 +382,7 @@ td.club div {
 }
 
 .category {
+    width: var(--category-width);
     white-space: nowrap;
     text-align: center;
 }
@@ -398,12 +436,12 @@ td.club div {
     font-style: italic;
 }
 
-:host(.dark) .current {
+:host(.dark) td.current {
     color: yellow;
     font-weight: bold;
 }
 
-:host(.light) .current {
+:host(.light) td.current {
     background-color: yellow;
     font-weight: bold;
 }
@@ -430,7 +468,12 @@ td.club div {
     font-weight: bold;
 }
 
-:host(.light) .next {
+:host(.dark) td.next {
+    color: gold;
+    font-weight: bold;
+}
+
+:host(.light) td.next {
     background-color: gold;
     font-weight: bold;
 }

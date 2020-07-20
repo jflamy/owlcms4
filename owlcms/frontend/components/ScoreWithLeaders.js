@@ -53,13 +53,13 @@ class ScoreLeader extends PolymerElement {
                         <th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
                         <th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
                         <th class="category" inner-h-t-m-l="[[t.Category]]"></th>
-                        <th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
+                        <th class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>
                         <th class="club" inner-h-t-m-l="[[t.Team]]"></th>
                         <th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
                         <th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
                         <th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
                         <th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
-                        <th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
+                        <th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
                         <th class="thRank" inner-h-t-m-l="[[t.Rank]]"></th>
                     </tr>
                 </thead>
@@ -80,7 +80,7 @@ class ScoreLeader extends PolymerElement {
                             <td class="category">
                                 <div>[[l.category]]</div>
                             </td>
-                            <td class="veryNarrow">
+                            <td class="narrow">
                                 <div>[[l.yearOfBirth]]</div>
                             </td>
                             <td class="club">
@@ -102,7 +102,7 @@ class ScoreLeader extends PolymerElement {
                             <td class="showRank">
                                 <div>[[l.cleanJerkRank]]</div>
                             </td>
-                            <td class="veryNarrow">[[l.total]]</td>
+                            <td class="narrow">[[l.total]]</td>
                             <td class="veryNarrow">
                                 <div>[[l.totalRank]]</div>
                             </td>
@@ -137,7 +137,7 @@ class ScoreLeader extends PolymerElement {
                             <td class="category">
                                 <div>[[l.category]]</div>
                             </td>
-                            <td class="veryNarrow">[[l.yearOfBirth]]</td>
+                            <td class="narrow">[[l.yearOfBirth]]</td>
                             <td class="club">
                                 <div>[[l.teamName]]</div>
                             </td>
@@ -157,7 +157,7 @@ class ScoreLeader extends PolymerElement {
                             <td class="showRank">
                                 <div>[[l.cleanJerkRank]]</div>
                             </td>
-                            <td class="veryNarrow">
+                            <td class="narrow">
                                 <div>[[l.total]]</div>
                             </td>
                             <td class="thRank">
