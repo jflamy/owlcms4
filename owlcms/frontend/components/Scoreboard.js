@@ -52,13 +52,13 @@ class Scoreboard extends PolymerElement {
 					<th class$="name [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Name]]"></th>
 					<!-- kludge to have preformatted html -->
 					<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
-					<th class="veryNarrow" inner-h-t-m-l="[[t.Birth]]"></th>
+					<th class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>
 					<th class$="club [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Team]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
 					<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
 					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
 					<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
-					<th class="veryNarrow" inner-h-t-m-l="[[t.Total]]"></th>
+					<th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
 					<th class="thRank" inner-h-t-m-l="[[t.Rank]]"></th>
 				</tr>
 			</thead>
@@ -79,7 +79,7 @@ class Scoreboard extends PolymerElement {
 						<td class="category">
 							<div>[[l.category]]</div>
 						</td>
-						<td class="veryNarrow">
+						<td class="narrow">
 							<div>[[l.yearOfBirth]]</div>
 						</td>
 						<td class$="club [[_computeTeamWidth(wideTeamNames)]]">
@@ -97,7 +97,7 @@ class Scoreboard extends PolymerElement {
 							</td>
 						</template>
 						<td class="showRank">[[l.cleanJerkRank]]</td>
-						<td class="veryNarrow">[[l.total]]</td>
+						<td class="narrow">[[l.total]]</td>
 						<td class="veryNarrow">[[l.totalRank]]</td>
 					</tr>
 				</template>

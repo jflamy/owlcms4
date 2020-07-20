@@ -2,36 +2,40 @@
     box-sizing: border-box;
 }
 
-:root {
-    --narrow-width: 5ch;
-    --max-narrow-width: 5ch;
-    --veryNarrow-width: 4.5ch;
-    --max-veryNarrow-width: 4.5ch;
+.wrapper {
+    --min-narrow-width: 5ch;
+    --narrow-width: 5%;
+    --max-narrow-width: 5.5%;
+    --min-veryNarrow-width: 5ch;
+    --veryNarrow-width: 6ch;
+    --max-veryNarrow-width: 7ch;
     --medium-width: 6ch;
 }
 
 /* wide screen */
 
 @media screen and (min-width: 1401px) {
-    :root {
-        --fontSizeRank-height: 0.95em;
-        --fontSizeRows-height: 1.15em;
+    .wrapper {
+        --fontSizeRank-height: 2vh;
+        --fontSizeRows-height: 2vh;
     }
     .wideTeams {
         --name-width: 20vw;
         --name-max-width: 100%;
         --club-width: 20vw;
         --club-max-width: 100%;
-        --category-width: 100%;
-        --category-max-width: 100%
+        --category-min-width: 9ch;
+        --category-width: 9vw;
+        --category-max-width: inherit;
     }
     .narrowTeams {
         --name-width: 35vw;
         --name-max-width: 100%;
         --club-width: 8vw;
         --club-max-width: 100%;
-        --category-width: 8vw;
-        --category-max-width: 100%
+        --category-min-width: 9ch;
+        --category-width: 9vw;
+        --category-max-width: 100%;
     }
     .showRank {
         display: table-cell;
@@ -47,23 +51,27 @@
 /* 720 screen or 1366 laptop */
 
 @media screen and (max-width: 1400px) and (min-width: 1025px) {
-    :root {
-        --fontSizeRank-height: 0.9em;
-        --fontSizeRows-height: 1.1em;
+    .wrapper {
+        --fontSizeRank-height: 2vh;
+        --fontSizeRows-height: 2vh;
     }
     .wideTeams {
         --name-width: 20vw;
         --name-max-width: 100%;
         --club-width: 20vw;
         --club-max-width: 100%;
-        --category-width: 100%;
+        --category-min-width: 9ch;
+        --category-width: 9vw;
+        --category-max-width: inherit;
     }
     .narrowTeams {
         --name-width: 35vw;
         --name-max-width: 100%;
         --club-width: 12ch;
         --club-max-width: 100%;
-        --category-width: inherit;
+        --category-min-width: 9ch;
+        --category-width: 9vw;
+        --category-max-width: 100%;
     }
     .showRank {
         display: table-cell;
@@ -79,23 +87,27 @@
 /* header cells for rank in the main table, 1024 projector */
 
 @media screen and (max-width: 1024px) {
-    :root {
-        --fontSizeRank-height: 0.8em;
-        --fontSizeRows-height: 0.9em;
+    .wrapper {
+        --fontSizeRank-height: 2vh;
+        --fontSizeRows-height: 2vh;
     }
     .wideTeams {
         --name-width: 30vh;
         --name-max-width: 26vh;
         --club-width: 30vh;
         --club-max-width: 26vh;
-        --category-width: inherit;
+        --category-min-width: 9ch;
+        --category-width: 9vw;
+        --category-max-width: inherit;
     }
     .narrowTeams {
         --name-width: 35vw;
         --name-max-width: 100%;
         --club-width: 12ch;
         --club-max-width: 100%;
-        --category-width: inherit;
+        --category-min-width: 9ch;
+        --category-width: 9vw;
+        --category-max-width: 100%;
     }
     .showThRank {
         display: none;
@@ -143,7 +155,7 @@
 
 .attemptBar {
     display: flex;
-    font-size: 3.6vmin;
+    font-size: 3.4vh;
     justify-content: space-between;
     width: 100%;
     height: 4vmin;
@@ -167,7 +179,7 @@
 
 .attemptBar .athleteInfo {
     display: flex;
-    font-size: 3.6vmin;
+    font-size: 3.4vh;
     justify-content: space-between;
     align-items: baseline;
     width: 100%;
@@ -207,7 +219,7 @@
 }
 
 .group {
-    font-size: 3vh;
+    font-size: 2.6vh;
     margin-top: 1vh;
     margin-bottom: 2vh;
 }
@@ -294,22 +306,30 @@ td.club div {
 }
 
 .narrow {
+    min-width: var(--min-narrow-width);
+    max-width: var(--max-narrow-width);
     width: var(--narrow-width);
     text-align: center;
 }
 
 .narrow div {
-    width: var(--max-narrow-width);
+    min-width: var(--min-narrow-width);
+    max-width: var(--max-narrow-width);
+    width: var(--narrow-width);
     display: inline-block;
 }
 
 .veryNarrow {
+    min-width: var(--min-veryNarrow-width);
+    max-width: var(--max-veryNarrow-width);
     width: var(--veryNarrow-width);
     text-align: center;
 }
 
 .veryNarrow div {
-    width: var(--max-veryNarrow-width);
+    min-width: var(--min-veryNarrow-width);
+    max-width: var(--max-veryNarrow-width);
+    width: var(--veryNarrow-width);
     display: inline-block;
 }
 
