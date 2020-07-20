@@ -15,7 +15,6 @@ import com.vaadin.flow.component.ComponentEvent;
  * @author miki
  * @since 2020-04-29
  */
-@SuppressWarnings("serial")
 public class UnloadEvent extends ComponentEvent<UnloadObserver> {
 
     private final boolean becauseOfQuerying;
