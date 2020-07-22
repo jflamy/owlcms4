@@ -16,26 +16,32 @@
 
 @media screen and (min-width: 1401px) {
     .wrapper {
-        --fontSizeRank-height: 2vh;
-        --fontSizeRows-height: 2vh;
+        --fontSizeRank-height: 1.7vh;
+        --fontSizeRows-height: 1.7vh;
     }
     .wideTeams {
+        --name-min-width: 20vw;
         --name-width: 20vw;
-        --name-max-width: 100%;
+        --name-max-width: 20vw;
+        --club-min-width: 8vw;
         --club-width: 20vw;
-        --club-max-width: 100%;
-        --category-min-width: 9ch;
-        --category-width: 9vw;
-        --category-max-width: inherit;
+        --club-max-width: 20vw;
+        --category-min-width: 10ch;
+        --category-width: 10ch;
+        --category-max-width: 9vw;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
     .narrowTeams {
-        --name-width: 35vw;
-        --name-max-width: 100%;
+        --name-min-width: 20ch;
+        --name-width: 25vw;
+        --name-max-width: 25vw;
+        --club-min-width: 8vw;
         --club-width: 8vw;
         --club-max-width: 100%;
-        --category-min-width: 9ch;
-        --category-width: 9vw;
-        --category-max-width: 100%;
+        --category-min-width: 10ch;
+        --category-width: 10ch;
+        --category-max-width: 9vw;
         --rank-width: 5ch;
         --group-width: 5vw;
     }
@@ -61,35 +67,40 @@
         width: var(--rank-width);
         margin: auto;
     }
-    th, td {
-        font-size: var(--fontSizeRows-height);
-    }
 }
 
 /* 720 screen or 1366 laptop */
 
 @media screen and (max-width: 1400px) and (min-width: 1025px) {
     .wrapper {
-        --fontSizeRank-height: 2vh;
-        --fontSizeRows-height: 2vh;
+        --fontSizeRank-height: 1.7vh;
+        --fontSizeRows-height: 1.7vh;
     }
     .wideTeams {
+        --name-min-width: 20vw;
         --name-width: 20vw;
         --name-max-width: 20vw;
-        --club-width: 25vw;
-        --club-max-width: 100%;
-        --category-min-width: 9ch;
-        --category-width: 9vw;
-        --category-max-width: inherit;
+        --club-min-width: 8vw;
+        --club-width: 19vw;
+        --club-max-width: 19vw;
+        --category-min-width: 10ch;
+        --category-width: 10ch;
+        --category-max-width: 9vw;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
     .narrowTeams {
-        --name-width: 35vw;
-        --name-max-width: 23vw; /* --max-narrow-width: 6ch; */
-        --club-width: 12ch;
-        --club-max-width: 100%;
-        --category-min-width: 9ch;
-        --category-width: 9vw;
-        --category-max-width: 100%;
+        --name-min-width: 25vw;
+        --name-width: 25vw;
+        --name-max-width: 25vw;
+        --club-min-width: 8vw;
+        --club-width: 8vw;
+        --club-max-width: 8vw;
+        --category-min-width: 10ch;
+        --category-width: 10ch;
+        --category-max-width: 10ch;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
     .showThRank {
         border-collapse: collapse;
@@ -113,35 +124,40 @@
         width: var(--rank-width);
         margin: auto;
     }
-    th, td {
-        font-size: var(--fontSizeRows-height);
-    }
 }
 
 /* 1024 projector */
 
 @media screen and (max-width: 1024px) {
     .wrapper {
-        --fontSizeRank-height: 2vh;
-        --fontSizeRows-height: 2vh;
+        --fontSizeRank-height: 1.5vh;
+        --fontSizeRows-height: 1.5vh;
     }
     .wideTeams {
-        --name-width: 30vh;
-        --name-max-width: 26vh;
-        --club-width: 30vh;
-        --club-max-width: 26vh;
-        --category-min-width: 9ch;
-        --category-width: 9vw;
-        --category-max-width: inherit;
+        --name-min-width: 17vw;
+        --name-width: 17vw;
+        --name-max-width: 17vw;
+        --club-min-width: 17vw;
+        --club-width: 17vw;
+        --club-max-width: 17vw;
+        --category-min-width: 10ch;
+        --category-width: 10ch;
+        --category-max-width: 9vw;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
     .narrowTeams {
-        --name-width: 35vw;
-        --name-max-width: 100%;
-        --club-width: 12ch;
+        --name-min-width: 20ch;
+        --name-width: 29vw;
+        --name-max-width: 29vw;
+        --club-min-width: 8vw;
+        --club-width: 8vw;
         --club-max-width: 100%;
-        --category-min-width: 9ch;
-        --category-width: 9vw;
-        --category-max-width: 100%;
+        --category-min-width: 10ch;
+        --category-width: 10ch;
+        --category-max-width: 9vw;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
     .showThRank {
         display: none;
@@ -155,9 +171,6 @@
         width: 0px;
         padding: 0 0 0 0;
         margin: 0 0 0 0;
-        font-size: var(--fontSizeRows-height);
-    }
-    th, td {
         font-size: var(--fontSizeRows-height);
     }
 }
@@ -294,11 +307,12 @@ th, td {
 }
 
 td.name {
+    min-width: var(--name-min-width);
     width: var(--name-width);
+    max-width: var(--name-max-width);
 }
 
 td.name div {
-    max-width: calc(var(--name-max-width));
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
