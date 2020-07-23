@@ -9,7 +9,6 @@ package app.owlcms.utils;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -22,9 +21,7 @@ import java.util.Properties;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
-import sun.misc.Unsafe;
 
-@SuppressWarnings("restriction")
 public class StartupUtils {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(StartupUtils.class);
@@ -33,18 +30,18 @@ public class StartupUtils {
     static Integer serverPort = null;
 
     public static void disableWarning() {
-        // https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
-        try {
-            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-            theUnsafe.setAccessible(true);
-            Unsafe u = (Unsafe) theUnsafe.get(null);
-
-            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
-            Field logger = cls.getDeclaredField("logger");
-            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
-        } catch (Exception e) {
-            // ignore
-        }
+//        // https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
+//        try {
+//            Field theUnsafe = UnsafeAPI.class.getDeclaredField("theUnsafe");
+//            theUnsafe.setAccessible(true);
+//            u = theUnsafe.get(null);
+//
+//            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+//            Field logger = cls.getDeclaredField("logger");
+//            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+//        } catch (Exception e) {
+//            // ignore
+//        }
     }
 
     /**
