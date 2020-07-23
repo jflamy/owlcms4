@@ -1,6 +1,6 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-   
-   - [ ] Technical change: remove need for manual pull request to synchronize prerelease and release repositories from dev
+  
+   - [x] Experimental: CSS stylesheets for scoreboards now editable in local/styles (#365)
    
 * Key Highlights from recent stable releases
 
