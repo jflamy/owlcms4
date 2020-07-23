@@ -2,6 +2,7 @@
     box-sizing: border-box;
 }
 
+/* default values */
 .wrapper {
     --min-narrow-width: 5ch;
     --narrow-width: 5%;
@@ -10,10 +11,22 @@
     --veryNarrow-width: 6ch;
     --max-veryNarrow-width: 7ch;
     --medium-width: 6ch;
+    
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+    background-color: black;
+    
+    min-height: 100vh;
+    padding: 2vmin 2vmin 2vmin 2vmin;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: no-wrap;
+    justify-content: flex-start;
 }
 
-/* wide screen */
 
+/* table sizes: wide screen */
 @media screen and (min-width: 1401px) {
     .wrapper {
         --fontSize-rows: 1.9vh;
@@ -65,11 +78,10 @@
     }
 }
 
-/* 720 screen or 1366 laptop */
-
+/* table sizes: 720 screen or 1366 laptop */
 @media screen and (max-width: 1400px) and (min-width: 1025px) {
     .wrapper {
-        --fontSize-rows: 2.2vh;
+        --fontSize-rows: 2vh;
     }
     .wideTeams {
         --name-min-width: 20vw;
@@ -117,8 +129,7 @@
     }
 }
 
-/* 1024 projector */
-
+/* table sizes: 1024 projector */
 @media screen and (max-width: 1024px) {
     .wideTeams {
         --fontSize-rows: 1.8vh;
@@ -162,19 +173,6 @@
     }
 }
 
-.wrapper {
-    font-family: Arial, Helvetica, sans-serif;
-    color: white;
-    background-color: black;
-    min-height: 100vh;
-    padding: 2vmin 2vmin 2vmin 2vmin;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: no-wrap;
-    justify-content: flex-start;
-}
-
 #results {
     flex: 1 0 auto;
 }
@@ -187,84 +185,13 @@
     background-color: blue;
 }
 
-.attemptBar {
-    display: flex;
-    font-size: 3.4vh;
-    justify-content: space-between;
-    width: 100%;
-    height: 4vmin;
-}
-
-.attemptBar .startNumber {
-    align-self: center;
-}
-
-.attemptBar .startNumber span {
-    font-size: 70%;
-    font-weight: bold;
-    border-width: 0.2ex;
-    border-style: solid;
-    border-color: red;
-    width: 1.5em;
-    display: flex;
-    justify-content: center;
-    align-self: center;
-}
-
-.attemptBar .athleteInfo {
-    display: flex;
-    font-size: 3.4vh;
-    justify-content: space-between;
-    align-items: baseline;
-    width: 100%;
-}
-
-.athleteInfo .fullName {
-    font-weight: bold;
-    flex: 0 0 35%;
-    text-align: left;
-    flex-grow: 0.5;
-}
-
-.athleteInfo .timer {
-    flex: 0 0 15%;
-    text-align: right;
-    font-weight: bold;
-    width: 10vw;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.athleteInfo .decisionBox {
-    position: fixed;
-    top: 2vmin;
-    right: 2vmin;
-    width: 15vw;
-    height: 10vh;
-    background-color: black;
-    display: none;
-}
-
-.athleteInfo .weight {
-    color: aqua;
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
-}
-
-.group {
-	font-size: 2.5vh;
-    margin-top: 1vh;
-    margin-bottom: 2vh;
-}
-
+/* table colors */
 table.results {
     table-layout: fixed;
     width: 100%;
     border-collapse: collapse;
     border: none;
     background-color: black;
-    /*margin-bottom: 2vmin;*/
 }
 
 :host(.dark) table.results tr {
@@ -277,6 +204,87 @@ table.results {
     color: black;
 }
 
+:host(.dark) th, td {
+    font-weight: normal;
+}
+
+:host(.light) th, td {
+    font-weight: bold;
+}
+
+:host(.light) .good {
+    background-color: green;
+    font-weight: bold;
+    color: white;
+}
+
+:host(.dark) .fail {
+    background-color: red;
+    font-weight: bold;
+}
+
+:host(.light) .fail {
+    background-color: red;
+    font-weight: bold;
+    color: white;
+}
+
+:host(.dark) .spacer {
+    background-color: black;
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
+}
+
+:host(.light) .spacer {
+    background-color: gray;
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
+}
+
+:host(.dark) .request {
+    background-color: black;
+    font-style: italic;
+}
+
+:host(.light) .request {
+    background-color: white;
+    font-style: italic;
+}
+
+:host(.dark) td.current {
+    color: yellow;
+    font-weight: bold;
+}
+
+:host(.light) td.current {
+    background-color: yellow;
+    font-weight: bold;
+}
+
+:host(.dark) .next {
+    color: orange;
+    font-weight: bold;
+}
+
+:host(.dark) td.next {
+    color: orange;
+    font-weight: bold;
+}
+
+:host(.light) td.next {
+    background-color: gold;
+    font-weight: bold;
+}
+
+:host(.dark) .empty {
+    background-color: black;
+    font-style: italic;
+}
+
+:host(.light) .empty {
+    background-color: white;
+    font-style: italic;
+}
+
+/* table formatting */
 th, td {
     border-collapse: collapse;
     border: solid 1px DarkGray;
@@ -291,13 +299,6 @@ td div {
     padding: 0;
 }
 
-:host(.dark) th, td {
-    font-weight: normal;
-}
-
-:host(.light) th, td {
-    font-weight: bold;
-}
 
 td.name {
     min-width: var(--name-min-width);
@@ -323,6 +324,15 @@ td.club div {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.clubNameEllipsis {
+    max-width: var(--clubName-max-width);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: auto;
+    text-align: left;
 }
 
 .ellipsis {
@@ -401,108 +411,6 @@ td.club div {
     font-weight: bold;
 }
 
-:host(.light) .good {
-    background-color: green;
-    font-weight: bold;
-    color: white;
-}
-
-:host(.dark) .fail {
-    background-color: red;
-    font-weight: bold;
-}
-
-:host(.light) .fail {
-    background-color: red;
-    font-weight: bold;
-    color: white;
-}
-
-:host(.dark) .spacer {
-    background-color: black;
-    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
-}
-
-:host(.light) .spacer {
-    background-color: gray;
-    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
-}
-
-.english {
-    font-size: 85%;
-}
-
-:host(.dark) .request {
-    background-color: black;
-    font-style: italic;
-}
-
-:host(.light) .request {
-    background-color: white;
-    font-style: italic;
-}
-
-:host(.dark) td.current {
-    color: yellow;
-    font-weight: bold;
-}
-
-:host(.light) td.current {
-    background-color: yellow;
-    font-weight: bold;
-}
-
-.blink {
-    animation: blink 1.5s step-start 0s infinite;
-    -webkit-animation: blink 1.5s step-start 0s infinite;
-}
-
-@keyframes blink {
-    50% {
-        opacity: 0;
-    }
-}
-
-@-webkit-keyframes blink {
-    50% {
-        opacity: 0;
-    }
-}
-
-:host(.dark) .next {
-    color: orange;
-    font-weight: bold;
-}
-
-:host(.dark) td.next {
-    color: orange;
-    font-weight: bold;
-}
-
-:host(.light) td.next {
-    background-color: gold;
-    font-weight: bold;
-}
-
-:host(.dark) .empty {
-    background-color: black;
-    font-style: italic;
-}
-
-:host(.light) .empty {
-    background-color: white;
-    font-style: italic;
-}
-
-.breakTime {
-    /* color: #99CCFF; */
-    color: SkyBlue;
-}
-
-.athleteTimer {
-    color: yellow;
-}
-
 .v-system-error {
     display: none;
 }
@@ -522,13 +430,85 @@ table#leaders-table thead tr.hide th {
     padding: 0;
 }
 
-.clubNameEllipsis {
-    max-width: var(--clubName-max-width);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: auto;
+/* top part formatting */
+.attemptBar {
+    display: flex;
+    font-size: 3.4vh;
+    justify-content: space-between;
+    width: 100%;
+    height: 4vmin;
+}
+
+.attemptBar .startNumber {
+    align-self: center;
+}
+
+.attemptBar .startNumber span {
+    font-size: 70%;
+    font-weight: bold;
+    border-width: 0.2ex;
+    border-style: solid;
+    border-color: red;
+    width: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-self: center;
+}
+
+.attemptBar .athleteInfo {
+    display: flex;
+    font-size: 3.4vh;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 100%;
+}
+
+.athleteInfo .fullName {
+    font-weight: bold;
+    flex: 0 0 35%;
     text-align: left;
+    flex-grow: 0.5;
+}
+
+.athleteInfo .timer {
+    flex: 0 0 15%;
+    text-align: right;
+    font-weight: bold;
+    width: 10vw;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.athleteInfo .decisionBox {
+    position: fixed;
+    top: 2vmin;
+    right: 2vmin;
+    width: 15vw;
+    height: 10vh;
+    background-color: black;
+    display: none;
+}
+
+.athleteInfo .weight {
+    color: aqua;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+}
+
+.group {
+    font-size: 2.5vh;
+    margin-top: 1vh;
+    margin-bottom: 2vh;
+}
+
+.breakTime {
+    /* color: #99CCFF; */
+    color: SkyBlue;
+}
+
+.athleteTimer {
+    color: yellow;
 }
 
 .hiddenTitle {
@@ -547,4 +527,25 @@ table#leaders-table thead tr.hide th {
 
 .nextGroup {
     font-size: 2em;
+}
+
+.english {
+    font-size: 85%;
+}
+
+.blink {
+    animation: blink 1.5s step-start 0s infinite;
+    -webkit-animation: blink 1.5s step-start 0s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes blink {
+    50% {
+        opacity: 0;
+    }
 }
