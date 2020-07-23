@@ -2,48 +2,57 @@
     box-sizing: border-box;
 }
 
-.wrapper {
-    --min-narrow-width: 5ch;
-    --narrow-width: 5%;
-    --max-narrow-width: 5.5%;
-    --min-veryNarrow-width: 5ch;
-    --veryNarrow-width: 6ch;
-    --max-veryNarrow-width: 7ch;
-    --medium-width: 6ch;
+/* shared default sizes */
+
+:root {
+    --narrow-width: 4.5vw;
+    --max-narrow-width: 5ch;
+    --veryNarrow-width: 4vw;
+    --max-veryNarrow-width: 4ch;
+    --medium-width: 6.5vw;
+    --max-medium-width: 7ch;
+    --category-width: 8ch;
+    --max-category-width: 100%;
 }
 
 /* wide screen */
 
 @media screen and (min-width: 1401px) {
-    .wrapper {
-        --fontSizeRank-height: 1.7vh;
-        --fontSizeRows-height: 1.7vh;
-    }
     .wideTeams {
-        --name-min-width: 20vw;
+        --fontSizeRank-height: 1.1em;
+        --fontSizeRows-height: 1.1em;
+        --narrow-width: 5vw;
+        --max-narrow-width: 100%;
+        --veryNarrow-width: 4vw;
+        --max-veryNarrow-width: 100%;
+        --medium-width: 5.5vw;
+        --max-medium-width: 100%;
+        --needed-width: 8vw;
+        --max-needed-width: 100%;
         --name-width: 20vw;
-        --name-max-width: 20vw;
-        --club-min-width: 8vw;
+        --name-max-width: 100%;
         --club-width: 20vw;
-        --club-max-width: 20vw;
-        --category-min-width: 10ch;
-        --category-width: 10ch;
-        --category-max-width: 9vw;
+        --club-max-width: 100%;
+        --category-width: 12ch;
         --rank-width: 5ch;
-        --group-width: 5vw;
     }
     .narrowTeams {
-        --name-min-width: 20ch;
-        --name-width: 25vw;
-        --name-max-width: 25vw;
-        --club-min-width: 8vw;
+        --fontSizeRank-height: 1.1em;
+        --fontSizeRows-height: 1.2em;
+        --narrow-width: 6vw;
+        --max-narrow-width: 100%;
+        --veryNarrow-width: 6vw;
+        --max-veryNarrow-width: 100%;
+        --medium-width: 8vw;
+        --max-medium-width: 100%;
+        --needed-width: 8vw;
+        --max-needed-width: 100%;
+        --name-width: 20vw;
+        --name-max-width: 100%;
         --club-width: 8vw;
-        --club-max-width: 100%;
-        --category-min-width: 10ch;
-        --category-width: 10ch;
-        --category-max-width: 9vw;
+        --club-max-width: 8ch;
+        --category-width: 12ch;
         --rank-width: 5ch;
-        --group-width: 5vw;
     }
     .showThRank {
         border-collapse: collapse;
@@ -59,106 +68,117 @@
     }
     .showRank {
         display: table-cell;
-        width: var(--rank-width);
         font-size: var(--fontSizeRows-height);
         text-align: center;
+        width: var(--rank-width);
     }
     .showRank div {
         width: var(--rank-width);
         margin: auto;
+    }
+    th, td {
+        font-size: var(--fontSizeRows-height);
     }
 }
 
 /* 720 screen or 1366 laptop */
 
-@media screen and (max-width: 1400px) and (min-width: 1025px) {
-    .wrapper {
-        --fontSizeRank-height: 1.7vh;
-        --fontSizeRows-height: 1.7vh;
-    }
+@media screen and (max-width: 1400px) and (min-width: 1279px) {
     .wideTeams {
-        --name-min-width: 20vw;
+        --fontSizeRank-height: 0.90em;
+        --fontSizeRows-height: 0.90em;
+        --narrow-width: 5vw;
+        --max-narrow-width: 100%;
+        --veryNarrow-width: 4vw;
+        --max-veryNarrow-width: 100%;
+        --medium-width: 5.5vw;
+        --max-medium-width: 100%;
+        --needed-width: 8vw;
+        --max-needed-width: 100%;
         --name-width: 20vw;
-        --name-max-width: 20vw;
-        --club-min-width: 8vw;
-        --club-width: 19vw;
-        --club-max-width: 19vw;
-        --category-min-width: 10ch;
-        --category-width: 10ch;
-        --category-max-width: 9vw;
+        --name-max-width: 100%;
+        --club-width: 20vw;
+        --club-max-width: 100%;
+        --category-width: 12ch;
         --rank-width: 5ch;
-        --group-width: 5vw;
     }
     .narrowTeams {
-        --name-min-width: 25vw;
-        --name-width: 25vw;
-        --name-max-width: 25vw;
-        --club-min-width: 8vw;
+        --fontSizeRank-height: 1.1em;
+        --fontSizeRows-height: 1.2em;
+        --narrow-width: 6vw;
+        --max-narrow-width: 100%;
+        --veryNarrow-width: 6vw;
+        --max-veryNarrow-width: 100%;
+        --medium-width: 9vw;
+        --max-medium-width: 100%;
+        --needed-width: 8vw;
+        --max-needed-width: 100%;
+        --name-width: 20vw;
+        --name-max-width: 100%;
         --club-width: 8vw;
-        --club-max-width: 8vw;
-        --category-min-width: 10ch;
-        --category-width: 10ch;
-        --category-max-width: 10ch;
+        --club-max-width: 8ch;
+        --category-width: 12ch;
         --rank-width: 5ch;
-        --group-width: 5vw;
     }
     .showThRank {
-        border-collapse: collapse;
-        border: solid 1px DarkGray;
-        border-left-style: none;
-        padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-        font-size: var(--fontSizeRank-height);
-        font-weight: normal;
-        font-style: italic;
-        width: 4vw;
-        text-align: center;
+        display: none;
+        width: 0px;
+        padding: 0 0 0 0;
+        margin: 0 0 0 0;
         font-size: var(--fontSizeRank-height);
     }
     .showRank {
-        display: table-cell;
-        width: var(--rank-width);
+        display: none;
+        width: 0px;
+        padding: 0 0 0 0;
+        margin: 0 0 0 0;
         font-size: var(--fontSizeRows-height);
-        text-align: center;
     }
-    .showRank div {
-        width: var(--rank-width);
-        margin: auto;
+    th, td {
+        font-size: var(--fontSizeRows-height);
     }
 }
 
 /* 1024 projector */
 
 @media screen and (max-width: 1024px) {
-    .wrapper {
-        --fontSizeRank-height: 1.5vh;
-        --fontSizeRows-height: 1.5vh;
-    }
     .wideTeams {
-        --name-min-width: 17vw;
-        --name-width: 17vw;
-        --name-max-width: 17vw;
-        --club-min-width: 17vw;
-        --club-width: 17vw;
-        --club-max-width: 17vw;
-        --category-min-width: 10ch;
-        --category-width: 10ch;
-        --category-max-width: 9vw;
+        --fontSizeRank-height: 0.75em;
+        --fontSizeRows-height: 0.75em;
+        --narrow-width: 5vw;
+        --max-narrow-width: 100%;
+        --veryNarrow-width: 6ch;
+        --max-veryNarrow-width: 100%;
+        --medium-width: 6vw;
+        --max-medium-width: 100%;
+        --needed-width: 8vw;
+        --max-needed-width: 100%;
+        --name-width: 16vw;
+        --name-max-width: 100%;
+        --club-width: 16vw;
+        --club-max-width: 100%;
+        --category-width: 12ch;
         --rank-width: 5ch;
-        --group-width: 5vw;
     }
     .narrowTeams {
-        --name-min-width: 20ch;
-        --name-width: 29vw;
-        --name-max-width: 29vw;
-        --club-min-width: 8vw;
+        --fontSizeRank-height: 0.8em;
+        --fontSizeRows-height: 0.9em;
+        --narrow-width: 6vw;
+        --max-narrow-width: 100%;
+        --veryNarrow-width: 6vw;
+        --max-veryNarrow-width: 100%;
+        --medium-width: 8vw;
+        --max-medium-width: 100%;
+        --needed-width: 8vw;
+        --max-needed-width: 100%;
+        --name-width: 20vw;
+        --name-max-width: 100%;
         --club-width: 8vw;
-        --club-max-width: 100%;
-        --category-min-width: 10ch;
-        --category-width: 10ch;
-        --category-max-width: 9vw;
+        --club-max-width: 8ch;
+        --category-width: 12ch;
         --rank-width: 5ch;
-        --group-width: 5vw;
     }
+    /* hide the snatch and cj ranks, no room */
     .showThRank {
         display: none;
         width: 0px;
@@ -166,11 +186,15 @@
         margin: 0 0 0 0;
         font-size: var(--fontSizeRank-height);
     }
+    /* hide the snatch and cj ranks, no room */
     .showRank {
         display: none;
         width: 0px;
         padding: 0 0 0 0;
         margin: 0 0 0 0;
+        font-size: var(--fontSizeRows-height);
+    }
+    th, td {
         font-size: var(--fontSizeRows-height);
     }
 }
@@ -202,7 +226,7 @@
 
 .attemptBar {
     display: flex;
-    font-size: 3.4vh;
+    font-size: 3.6vmin;
     justify-content: space-between;
     width: 100%;
     height: 4vmin;
@@ -226,7 +250,7 @@
 
 .attemptBar .athleteInfo {
     display: flex;
-    font-size: 3.4vh;
+    font-size: 3.6vmin;
     justify-content: space-between;
     align-items: baseline;
     width: 100%;
@@ -266,7 +290,7 @@
 }
 
 .group {
-    font-size: 2.6vh;
+    font-size: 3vh;
     margin-top: 1vh;
     margin-bottom: 2vh;
 }
@@ -295,7 +319,6 @@ th, td {
     border: solid 1px DarkGray;
     padding: 0.4vmin 1vmin 0.4vmin 1vmin;
     font-size: var(--fontSizeRows-height);
-    background-clip: padding-box;
 }
 
 :host(.dark) th, td {
@@ -306,24 +329,29 @@ th, td {
     font-weight: bold;
 }
 
-td.name {
-    min-width: var(--name-min-width);
+.name {
     width: var(--name-width);
-    max-width: var(--name-max-width);
-}
-
-td.name div {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-td.club {
-    width: var(--club-width);
+.name div {
+    max-width: calc(var(--name-max-width));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-td.club div {
-	width: var(--club-width);
+.club {
+    width: var(--club-width);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.club div {
     max-width: var(--club-max-width);
     text-align: center;
     margin: auto;
@@ -356,38 +384,52 @@ td.club div {
 }
 
 .narrow {
-    min-width: var(--min-narrow-width);
-    max-width: var(--max-narrow-width);
     width: var(--narrow-width);
     text-align: center;
 }
 
 .narrow div {
-    min-width: var(--min-narrow-width);
-    max-width: var(--max-narrow-width);
-    width: var(--narrow-width);
-    display: inline-block;
+    width: var(--max-narrow-width);
+    text-align: center;
+    margin: auto;
 }
 
 .veryNarrow {
-    min-width: var(--min-veryNarrow-width);
-    max-width: var(--max-veryNarrow-width);
     width: var(--veryNarrow-width);
     text-align: center;
 }
 
 .veryNarrow div {
-    min-width: var(--min-veryNarrow-width);
-    max-width: var(--max-veryNarrow-width);
-    width: var(--veryNarrow-width);
-    display: inline-block;
+    width: var(--max-veryNarrow-width);
+    text-align: center;
+    margin: auto;
+}
+
+.medium {
+    width: var(--medium-width);
+}
+
+.medium div {
+    width: var(--max-medium-width);
+    text-align: center;
+    margin: auto;
+}
+
+.needed {
+    width: var(--needed-width);
+}
+
+.needed div {
+    width: var(--max-needed-width);
+    text-align: center;
+    margin: auto;
 }
 
 .groupCol {
     width: var(--group-width);
     white-space: nowrap;
     text-align: center;
-    font-size: var(--fontSizeRank-height);
+    font-size: var(--fontSizeRank-height)
 }
 
 .groupCol div {
@@ -450,12 +492,12 @@ td.club div {
     font-style: italic;
 }
 
-:host(.dark) td.current {
+:host(.dark) .current {
     color: yellow;
     font-weight: bold;
 }
 
-:host(.light) td.current {
+:host(.light) .current {
     background-color: yellow;
     font-weight: bold;
 }
@@ -467,13 +509,13 @@ td.club div {
 
 @keyframes blink {
     50% {
-        opacity: 0;
+        opacity: 0.0;
     }
 }
 
 @-webkit-keyframes blink {
     50% {
-        opacity: 0;
+        opacity: 0.0;
     }
 }
 
@@ -482,12 +524,7 @@ td.club div {
     font-weight: bold;
 }
 
-:host(.dark) td.next {
-    color: gold;
-    font-weight: bold;
-}
-
-:host(.light) td.next {
+:host(.light) .next {
     background-color: gold;
     font-weight: bold;
 }
@@ -530,29 +567,10 @@ table#leaders-table thead tr.hide th {
     padding: 0;
 }
 
-.clubNameEllipsis {
-    max-width: var(--clubName-max-width);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: auto;
-    text-align: left;
+.sinclair {
+    font-weight: bold;
 }
 
-.hiddenTitle {
-    display: none;
-}
-
-.bigTitle {
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.competitionName {
-    font-size: 4em;
-}
-
-.nextGroup {
-    font-size: 2em;
+h2 {
+    font-size: 3.0vh;
 }

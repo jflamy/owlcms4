@@ -7,8 +7,8 @@ class ScoreLeader extends PolymerElement {
 
     static get template() {
         return html`
-<link rel="stylesheet" type="text/css" href="local/styles/scorewithleaders.css">
-<div class$="wrapper [[_computeTeamWidth(wideTeamNames)]] [[_computeInactiveClass(hidden)]]">
+	<link rel="stylesheet" type="text/css" href="local/styles/scoreboard.css">
+	<div class$="wrapper [[_computeTeamWidth(wideTeamNames)]] [[_computeInactiveClass(hidden)]]">
     <div style$="[[_computeInactive(hidden)]]">
         <div class="competitionName">[[competitionName]]</div><br>
         <div class="nextGroup">[[t.WaitingNextGroup]]</div>
@@ -18,9 +18,9 @@ class ScoreLeader extends PolymerElement {
             <div class="startNumber" id="startNumberDiv">
                 <span>[[startNumber]]</span>
             </div>
-            <div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[fullName]]">[[fullName]]</div>
+			<div class="fullName ellipsis" id="fullNameDiv" inner-h-t-m-l="[[fullName]]"></div>
             <div class="clubName ellipsis" id="teamNameDiv">
-                <div class="clubNameEllipsis">[[teamName]]</div>
+				[[teamName]]
             </div>
             <div class="attempt" id="attemptDiv">
                 <span inner-h-t-m-l="[[attempt]]"></span>
@@ -50,7 +50,7 @@ class ScoreLeader extends PolymerElement {
                 <thead>
                     <tr>
                         <!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
-                        <th class="groupCol" inner-h-t-m-l="[[t.Start]]"></th>
+                        <th class="groupCol" inner-h-t-m-l="Y[[t.Start]]"></th>
                         <th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
                         <th class="category" inner-h-t-m-l="[[t.Category]]"></th>
                         <th class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>

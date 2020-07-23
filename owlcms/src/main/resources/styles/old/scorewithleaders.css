@@ -16,26 +16,31 @@
 
 @media screen and (min-width: 1401px) {
     .wrapper {
-        --fontSizeRank-height: 2vh;
-        --fontSizeRows-height: 2vh;
+        --fontSize-rows: 1.9vh;
     }
     .wideTeams {
+        --name-min-width: 20vw;
         --name-width: 20vw;
-        --name-max-width: 100%;
+        --name-max-width: 20vw;
+        --club-min-width: 8vw;
         --club-width: 20vw;
-        --club-max-width: 100%;
-        --category-min-width: 9ch;
-        --category-width: 9vw;
-        --category-max-width: inherit;
+        --club-max-width: 20vw;
+        --category-min-width: 10ch;
+        --category-width: 10ch;
+        --category-max-width: 9vw;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
     .narrowTeams {
-        --name-width: 35vw;
-        --name-max-width: 100%;
+        --name-min-width: 20ch;
+        --name-width: 32vw;
+        --name-max-width: 32vw;
+        --club-min-width: 8vw;
         --club-width: 8vw;
         --club-max-width: 100%;
-        --category-min-width: 9ch;
-        --category-width: 9vw;
-        --category-max-width: 100%;
+        --category-min-width: 10ch;
+        --category-width: 10ch;
+        --category-max-width: 9vw;
         --rank-width: 5ch;
         --group-width: 5vw;
     }
@@ -43,26 +48,20 @@
         border-collapse: collapse;
         border: solid 1px DarkGray;
         border-left-style: none;
-        padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-        font-size: var(--fontSizeRank-height);
         font-weight: normal;
         font-style: italic;
         width: 4vw;
         text-align: center;
-        font-size: var(--fontSizeRank-height);
     }
     .showRank {
         display: table-cell;
         width: var(--rank-width);
-        font-size: var(--fontSizeRows-height);
+        font-size: var(--fontSize-rows);
         text-align: center;
     }
     .showRank div {
         width: var(--rank-width);
         margin: auto;
-    }
-    th, td {
-        font-size: var(--fontSizeRows-height);
     }
 }
 
@@ -70,51 +69,51 @@
 
 @media screen and (max-width: 1400px) and (min-width: 1025px) {
     .wrapper {
-        --fontSizeRank-height: 2vh;
-        --fontSizeRows-height: 2vh;
+        --fontSize-rows: 2vh;
     }
     .wideTeams {
+        --name-min-width: 20vw;
         --name-width: 20vw;
-        --name-max-width: 100%;
-        --club-width: 25vw;
-        --club-max-width: 100%;
-        --category-min-width: 9ch;
-        --category-width: 9vw;
-        --category-max-width: inherit;
+        --name-max-width: 20vw;
+        --club-min-width: 8vw;
+        --club-width: 19vw;
+        --club-max-width: 19vw;
+        --category-min-width: 10ch;
+        --category-width: 10ch;
+        --category-max-width: 9vw;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
     .narrowTeams {
-        --name-width: 35vw;
-        --name-max-width: 100%;
-        --club-width: 12ch;
-        --club-max-width: 100%;
-        --category-min-width: 9ch;
-        --category-width: 9vw;
-        --category-max-width: 100%;
+        --name-min-width: 25vw;
+        --name-width: 25vw;
+        --name-max-width: 25vw;
+        --club-min-width: 8vw;
+        --club-width: 8vw;
+        --club-max-width: 8vw;
+        --category-min-width: 10ch;
+        --category-width: 10ch;
+        --category-max-width: 10ch;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
     .showThRank {
         border-collapse: collapse;
         border: solid 1px DarkGray;
         border-left-style: none;
-        padding: 0.5vmin 1vmin 0.5vmin 1vmin;
-        font-size: var(--fontSizeRank-height);
         font-weight: normal;
         font-style: italic;
         width: 4vw;
         text-align: center;
-        font-size: var(--fontSizeRank-height);
     }
     .showRank {
         display: table-cell;
         width: var(--rank-width);
-        font-size: var(--fontSizeRows-height);
         text-align: center;
     }
     .showRank div {
         width: var(--rank-width);
         margin: auto;
-    }
-    th, td {
-        font-size: var(--fontSizeRows-height);
     }
 }
 
@@ -122,43 +121,45 @@
 
 @media screen and (max-width: 1024px) {
     .wrapper {
-        --fontSizeRank-height: 2vh;
-        --fontSizeRows-height: 2vh;
+        --fontSize-rows: 2.2vh;
     }
     .wideTeams {
-        --name-width: 30vh;
-        --name-max-width: 26vh;
-        --club-width: 30vh;
-        --club-max-width: 26vh;
-        --category-min-width: 9ch;
-        --category-width: 9vw;
-        --category-max-width: inherit;
+        --name-min-width: 17vw;
+        --name-width: 17vw;
+        --name-max-width: 17vw;
+        --club-min-width: 17vw;
+        --club-width: 17vw;
+        --club-max-width: 17vw;
+        --category-min-width: 10ch;
+        --category-width: 10ch;
+        --category-max-width: 9vw;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
     .narrowTeams {
-        --name-width: 35vw;
-        --name-max-width: 100%;
-        --club-width: 12ch;
+        --name-min-width: 20ch;
+        --name-width: 29vw;
+        --name-max-width: 29vw;
+        --club-min-width: 8vw;
+        --club-width: 8vw;
         --club-max-width: 100%;
-        --category-min-width: 9ch;
-        --category-width: 9vw;
-        --category-max-width: 100%;
+        --category-min-width: 10ch;
+        --category-width: 10ch;
+        --category-max-width: 9vw;
+        --rank-width: 5ch;
+        --group-width: 5vw;
     }
     .showThRank {
         display: none;
         width: 0px;
         padding: 0 0 0 0;
         margin: 0 0 0 0;
-        font-size: var(--fontSizeRank-height);
     }
     .showRank {
         display: none;
         width: 0px;
         padding: 0 0 0 0;
         margin: 0 0 0 0;
-        font-size: var(--fontSizeRows-height);
-    }
-    th, td {
-        font-size: var(--fontSizeRows-height);
     }
 }
 
@@ -253,7 +254,7 @@
 }
 
 .group {
-    font-size: 2.6vh;
+	font-size: 2.5vh;
     margin-top: 1vh;
     margin-bottom: 2vh;
 }
@@ -280,9 +281,15 @@ table.results {
 th, td {
     border-collapse: collapse;
     border: solid 1px DarkGray;
-    padding: 0.4vmin 1vmin 0.4vmin 1vmin;
-    font-size: var(--fontSizeRows-height);
+    padding: 0.6vmin 0.6vmin 0.6vmin 0.6vmin;
+    font-size: var(--fontSize-rows);
     background-clip: padding-box;
+    line-height: 1;
+}
+
+td div {
+    margin-top: 0;
+    padding: 0;
 }
 
 :host(.dark) th, td {
@@ -294,11 +301,12 @@ th, td {
 }
 
 td.name {
+    min-width: var(--name-min-width);
     width: var(--name-width);
+    max-width: var(--name-max-width);
 }
 
 td.name div {
-    max-width: calc(var(--name-max-width));
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -307,7 +315,6 @@ td.name div {
 td.club {
     width: var(--club-width);
 }
-
 
 td.club div {
 	width: var(--club-width);
@@ -329,12 +336,10 @@ td.club div {
     border-collapse: collapse;
     border: solid 1px DarkGray;
     border-left-style: none;
-    padding: 0.5vmin 1vmin 0.5vmin 1vmin;
     font-weight: normal;
     font-style: italic;
     width: var(--rank-width);
     text-align: center;
-    font-size: var(--fontSizeRank-height);
 }
 
 .thRank div {
@@ -374,7 +379,6 @@ td.club div {
     width: var(--group-width);
     white-space: nowrap;
     text-align: center;
-    font-size: var(--fontSizeRank-height);
 }
 
 .groupCol div {
@@ -417,10 +421,12 @@ td.club div {
 
 :host(.dark) .spacer {
     background-color: black;
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
 }
 
 :host(.light) .spacer {
     background-color: gray;
+    padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin;
 }
 
 .english {
@@ -470,7 +476,7 @@ td.club div {
 }
 
 :host(.dark) td.next {
-    color: gold;
+    color: orange;
     font-weight: bold;
 }
 

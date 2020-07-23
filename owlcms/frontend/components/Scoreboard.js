@@ -44,65 +44,74 @@ class Scoreboard extends PolymerElement {
 				<span class="groupName">[[groupName]]</span> &ndash; [[liftsDone]]
 			</div>
 		</div>
-		<table class="results" style$="[[_computeHidden(hidden)]]">
-			<thead>
-				<tr>
-					<!--  [[t.x]] references the translation for key Scoreboard.x in the translation4.csv file -->
-					<th class="veryNarrow" inner-h-t-m-l="[[t.Start]]"></th>
-					<th class$="name [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Name]]"></th>
-					<!-- kludge to have preformatted html -->
-					<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
-					<th class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>
-					<th class$="club [[_computeTeamWidth(wideTeamNames)]]" inner-h-t-m-l="[[t.Team]]"></th>
-					<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
-					<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
-					<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
-					<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
-					<th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
-					<th class="thRank" inner-h-t-m-l="[[t.Rank]]"></th>
-				</tr>
-			</thead>
-			<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
-				<template is="dom-if" if="[[l.isSpacer]]">
-					<tr>
-						<td colspan="100%" style="height:0.1ex; border:none" class="spacer"></td>
-					</tr>
-				</template>
-				<template is="dom-if" if="[[!l.isSpacer]]">
-					<tr>
-						<td class$="[[l.classname]] veryNarrow">
-							<div>[[l.startNumber]]</div>
-						</td>
-						<td class$="name [[_computeTeamWidth(wideTeamNames)]] [[l.classname]]">
-							<div>[[l.fullName]]</div>
-						</td>
-						<td class="category">
-							<div>[[l.category]]</div>
-						</td>
-						<td class="narrow">
-							<div>[[l.yearOfBirth]]</div>
-						</td>
-						<td class$="club [[_computeTeamWidth(wideTeamNames)]]">
-							<div>[[l.teamName]]</div>
-						</td>
-						<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
-							<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
-								<div>[[attempt.stringValue]]</div>
-							</td>
+		<template is="dom-if" if="[[athletes]]">
+			<div id="results" style$="[[_computeHidden(hidden)]]">
+				<table class="results" style$="[[_computeHidden(hidden)]]">
+					<thead>
+						<tr>
+							<!--  [[t.x]] references the translation for key ScoreLeader.x in the translation4.csv file -->
+							<th class="groupCol" inner-h-t-m-l="X[[t.Start]]"></th>
+							<th class="name" inner-h-t-m-l="[[t.Name]]"></th><!-- kludge to have preformatted html -->
+							<th class="category" inner-h-t-m-l="[[t.Category]]"></th>
+							<th class="narrow" inner-h-t-m-l="[[t.Birth]]"></th>
+							<th class="club" inner-h-t-m-l="[[t.Team]]"></th>
+							<th colspan="3" inner-h-t-m-l="[[t.Snatch]]"></th>
+							<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
+							<th colspan="3" inner-h-t-m-l="[[t.Clean_and_Jerk]]"></th>
+							<th class="showThRank" inner-h-t-m-l="[[t.Rank]]"></th>
+							<th class="narrow" inner-h-t-m-l="[[t.Total]]"></th>
+							<th class="thRank" inner-h-t-m-l="[[t.Rank]]"></th>
+						</tr>
+					</thead>
+					<template is="dom-repeat" id="result-table" items="[[athletes]]" as="l">
+						<template is="dom-if" if="[[l.isSpacer]]">
+							<tr>
+								<td colspan="100%" style="height:0.1ex; border:none" class="spacer"></td>
+							</tr>
 						</template>
-						<td class="showRank">[[l.snatchRank]]</td>
-						<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
-							<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
-								<div>[[attempt.stringValue]]</div>
-							</td>
+						<template is="dom-if" if="[[!l.isSpacer]]">
+							<tr>
+								<td class$="groupCol [[l.classname]]">
+									<div class$="[[l.classname]]">[[l.startNumber]]</div>
+								</td>
+								<td class$="name [[l.classname]]">
+									<div>[[l.fullName]]</div>
+								</td>
+								<td class="category">
+									<div>[[l.category]]</div>
+								</td>
+								<td class="narrow">
+									<div>[[l.yearOfBirth]]</div>
+								</td>
+								<td class="club">
+									<div>[[l.teamName]]</div>
+								</td>
+								<template is="dom-repeat" id="result-table-attempts" items="[[l.sattempts]]" as="attempt">
+									<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
+										<div>[[attempt.stringValue]]</div>
+									</td>
+								</template>
+								<td class="showRank">
+									<div>[[l.snatchRank]]</div>
+								</td>
+								<template is="dom-repeat" id="result-table-attempts" items="[[l.cattempts]]" as="attempt">
+									<td class$="[[attempt.goodBadClassName]] [[attempt.className]]">
+										<div>[[attempt.stringValue]]</div>
+									</td>
+								</template>
+								<td class="showRank">
+									<div>[[l.cleanJerkRank]]</div>
+								</td>
+								<td class="narrow">[[l.total]]</td>
+								<td class="thRank">
+									<div>[[l.totalRank]]</div>
+								</td>
+							</tr>
 						</template>
-						<td class="showRank">[[l.cleanJerkRank]]</td>
-						<td class="narrow">[[l.total]]</td>
-						<td class="veryNarrow">[[l.totalRank]]</td>
-					</tr>
-				</template>
-			</template>
-		</table>
+					</template>
+				</table>
+			</div>
+		</template>
 	</div>`;
 	}
 
