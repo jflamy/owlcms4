@@ -69,7 +69,7 @@
 
 @media screen and (max-width: 1400px) and (min-width: 1025px) {
     .wrapper {
-        --fontSize-rows: 2vh;
+        --fontSize-rows: 2.2vh;
     }
     .wideTeams {
         --name-min-width: 20vw;
