@@ -225,7 +225,7 @@ public class FileServlet extends HttpServlet {
         basePath = basePath.normalize().toAbsolutePath();
         if (!Files.exists(basePath)) {
             throw new ServletException("FileServlet init param 'basePath' value '"
-                    + basePathName + "' does actually not exist in file system.");
+                    + basePathName + "' does not exist in file system.");
         } else if (!Files.isDirectory(basePath)) {
             throw new ServletException("FileServlet init param 'basePath' value '"
                     + basePathName + "' is actually not a directory in file system.");
@@ -316,6 +316,7 @@ public class FileServlet extends HttpServlet {
             // check that file is inside basepath
 
             finalPath = resolvePath(basePath, relativePath);
+            logger.warn("looking for {}", finalPath);
             // Check if file actually exists in filesystem.
             if (!Files.exists(finalPath)) {
                 // if there is no override in /local on disk, look for resource on classpath
@@ -339,7 +340,7 @@ public class FileServlet extends HttpServlet {
                     return null;
                 }
             }
-            logger.debug("found Filesystem File: {}", finalPath.toRealPath());
+            logger.warn("found Filesystem File: {}", finalPath.toRealPath());
             return finalPath.toFile();
         } catch (IllegalArgumentException e) {
             logger.error(e.getLocalizedMessage());
@@ -388,23 +389,32 @@ public class FileServlet extends HttpServlet {
 
         // Validate request headers for caching ---------------------------------------------------
 
-        // If-None-Match header should contain "*" or ETag. If so, then return 304.
-        String ifNoneMatch = request.getHeader("If-None-Match");
-        if (ifNoneMatch != null && matches(ifNoneMatch, eTag)) {
-            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-            response.setHeader("ETag", eTag); // Required in 304.
-            response.setDateHeader("Expires", expires); // Postpone cache with 1 week.
-            return;
-        }
+        // Cache-Control
+        String cacheControl = request.getHeader("Cache-Control");
+        String pragma = request.getHeader("pragma");
+        logger.warn("headers: {} {}", pragma, cacheControl);
+        boolean noCache =
+                (cacheControl != null && matches(cacheControl, "no-cache"))
+                || (pragma != null && matches(pragma, "no-cache"));
+        if (!noCache) {
+            // If-None-Match header should contain "*" or ETag. If so, then return 304.
+            String ifNoneMatch = request.getHeader("If-None-Match");
+            if (ifNoneMatch != null && matches(ifNoneMatch, eTag)) {
+                response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                response.setHeader("ETag", eTag); // Required in 304.
+                response.setDateHeader("Expires", expires); // Postpone cache with 1 week.
+                return;
+            }
 
-        // If-Modified-Since header should be greater than LastModified. If so, then return 304.
-        // This header is ignored if any If-None-Match header is specified.
-        long ifModifiedSince = request.getDateHeader("If-Modified-Since");
-        if (ifNoneMatch == null && ifModifiedSince != -1 && ifModifiedSince + 1000 > lastModified) {
-            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-            response.setHeader("ETag", eTag); // Required in 304.
-            response.setDateHeader("Expires", expires); // Postpone cache with 1 week.
-            return;
+            // If-Modified-Since header should be greater than LastModified. If so, then return 304.
+            // This header is ignored if any If-None-Match header is specified.
+            long ifModifiedSince = request.getDateHeader("If-Modified-Since");
+            if (ifNoneMatch == null && ifModifiedSince != -1 && ifModifiedSince + 1000 > lastModified) {
+                response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                response.setHeader("ETag", eTag); // Required in 304.
+                response.setDateHeader("Expires", expires); // Postpone cache with 1 week.
+                return;
+            }
         }
 
         // Validate request headers for resume ----------------------------------------------------
