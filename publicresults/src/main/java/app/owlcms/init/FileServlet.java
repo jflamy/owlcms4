@@ -393,7 +393,7 @@ public class FileServlet extends HttpServlet {
         String pragma = request.getHeader("pragma");
         logger.warn("headers: {} {}", pragma, cacheControl);
         boolean noCache =
-                (cacheControl != null && matches(cacheControl, "no-cache"))
+                (cacheControl != null && (matches(cacheControl, "no-cache") || matches(cacheControl, "max-age=0")))
                 || (pragma != null && matches(pragma, "no-cache"));
         if (!noCache) {
             // If-None-Match header should contain "*" or ETag. If so, then return 304.
