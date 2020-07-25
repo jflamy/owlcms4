@@ -11,7 +11,7 @@
     --veryNarrow-width: 6ch;
     --max-veryNarrow-width: 7ch;
     --medium-width: 6ch;
-    --backgroundColor: blue;
+    --backgroundColor: black;
     
     font-family: Arial, Helvetica, sans-serif;
     color: white;
@@ -183,7 +183,7 @@
     width: 100%;
     min-height: 0;
     align-self: flex-end;
-    background-color: blue;
+    background-color: var(--backgroundColor);
 }
 
 /* table colors */
