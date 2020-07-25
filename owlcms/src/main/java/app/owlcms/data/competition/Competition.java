@@ -128,6 +128,13 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean genderOrder;
+
+    /**
+     * All first lifts, then all second lifts, then all third lifts, etc. Can be combined with genderOrder as well.
+     */
+    @Column(columnDefinition = "boolean default false")
+    private boolean roundRobinOrder;
+
     private boolean masters;
 
     /**
@@ -135,8 +142,8 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean mastersGenderEquality = false;
-    private Integer mensTeamSize;
 
+    private Integer mensTeamSize;
     private String protocolFileName;
 
     @Lob
@@ -476,6 +483,10 @@ public class Competition {
         return mastersGenderEquality;
     }
 
+    public boolean isRoundRobinOrder() {
+        return roundRobinOrder;
+    }
+
     /**
      * Checks if is use birth year.
      *
@@ -662,6 +673,10 @@ public class Competition {
 
     public void setProtocolTemplate(byte[] protocolTemplate) {
         this.protocolTemplate = protocolTemplate;
+    }
+
+    public void setRoundRobinOrder(boolean roundRobinOrder) {
+        this.roundRobinOrder = roundRobinOrder;
     }
 
     /**
