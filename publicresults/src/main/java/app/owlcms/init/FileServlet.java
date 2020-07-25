@@ -231,7 +231,6 @@ public class FileServlet extends HttpServlet {
                     + basePathName + "' is actually not a directory in file system.");
         } else if (!Files.isReadable(basePath)) {
             throw new ServletException("FileServlet init param 'basePath' value '"
-
                     + basePathName + "' is actually not readable in file system.");
         }
     }
