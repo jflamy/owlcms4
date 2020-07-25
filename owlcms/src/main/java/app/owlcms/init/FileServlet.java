@@ -316,7 +316,7 @@ public class FileServlet extends HttpServlet {
             // check that file is inside basepath
 
             finalPath = resolvePath(basePath, relativePath);
-            logger.warn("looking for {}", finalPath);
+            logger.debug("looking for {}", finalPath);
             // Check if file actually exists in filesystem.
             if (!Files.exists(finalPath)) {
                 // if there is no override in /local on disk, look for resource on classpath
@@ -340,7 +340,7 @@ public class FileServlet extends HttpServlet {
                     return null;
                 }
             }
-            logger.warn("found Filesystem File: {}", finalPath.toRealPath());
+            logger.debug("found Filesystem File: {}", finalPath.toRealPath());
             return finalPath.toFile();
         } catch (IllegalArgumentException e) {
             logger.error(e.getLocalizedMessage());
@@ -392,7 +392,7 @@ public class FileServlet extends HttpServlet {
         // Cache-Control
         String cacheControl = request.getHeader("Cache-Control");
         String pragma = request.getHeader("pragma");
-        logger.warn("headers: {} {}", pragma, cacheControl);
+        logger.debug("headers: {} {}", pragma, cacheControl);
         boolean noCache =
                 (cacheControl != null && matches(cacheControl, "no-cache"))
                 || (pragma != null && matches(pragma, "no-cache"));
