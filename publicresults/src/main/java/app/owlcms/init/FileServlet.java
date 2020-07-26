@@ -22,7 +22,10 @@ package app.owlcms.init;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
@@ -45,6 +48,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.utils.LoggerUtils;
@@ -223,16 +228,17 @@ public class FileServlet extends HttpServlet {
         }
         basePath = Paths.get(basePathName);
         basePath = basePath.normalize().toAbsolutePath();
+        logger.warn("base path = {} {}", basePath, Files.exists(basePath));
         if (!Files.exists(basePath)) {
-            throw new ServletException("FileServlet init param 'basePath' value '"
-                    + basePathName + "' does not exist in file system.");
+            // ignore exception, we will look on classpath.
+//            throw new ServletException("FileServlet init param 'basePath' value '"
+//                    + basePathName + "' does not exist in file system.");
         } else if (!Files.isDirectory(basePath)) {
             throw new ServletException("FileServlet init param 'basePath' value '"
-                    + basePathName + "' is actually not a directory in file system.");
+                    + basePathName + "' is not a directory in file system.");
         } else if (!Files.isReadable(basePath)) {
             throw new ServletException("FileServlet init param 'basePath' value '"
-
-                    + basePathName + "' is actually not readable in file system.");
+                    + basePathName + "' is not readable in file system.");
         }
     }
 
@@ -314,34 +320,23 @@ public class FileServlet extends HttpServlet {
             Path relativePath = Paths.get(relativeFileName);
 
             // check that file is inside basepath
-
             finalPath = resolvePath(basePath, relativePath);
             logger.debug("looking for {}", finalPath);
-            // Check if file actually exists in filesystem.
-            if (!Files.exists(finalPath)) {
+
+            if (Files.exists(finalPath)) {
+                logger.debug("found Filesystem File: {}", finalPath.toRealPath());
+                return finalPath.toFile();
+            } else {
                 // if there is no override in /local on disk, look for resource on classpath
-                // we need a file so we use the zipfilesystem.
                 String resourceName = "/" + relativeFileName;
-                URL resource = getClass().getResource(resourceName);
-                if (resource != null) {
-                    URI resourcesURI = resource.toURI();
-                    Path resourcePath = Paths.get(resourcesURI);
-                    if (!Files.exists(resourcePath)) {
-                        logger./**/error("file not found on classpath {}", resourcePath);
-                        response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                        return null;
-                    } else {
-                        logger.debug("found Classpath/Jar File: {}", resourcePath.toRealPath());
-                        return resourcePath.toFile();
-                    }
+
+                boolean useTemp = true;
+                if (useTemp) {
+                    return getFileFromResource(response, finalPath, resourceName);
                 } else {
-                    logger./**/error("resource not found on classpath {}", resourceName);
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                    return null;
+                    return getFileFromZip(response, resourceName);
                 }
             }
-            logger.debug("found Filesystem File: {}", finalPath.toRealPath());
-            return finalPath.toFile();
         } catch (IllegalArgumentException e) {
             logger.error(e.getLocalizedMessage());
             response.getWriter().print(e.getLocalizedMessage());
@@ -360,6 +355,51 @@ public class FileServlet extends HttpServlet {
         }
     }
 
+    private File getFileFromResource(HttpServletResponse response, Path finalPath, String resourceName)
+            throws IOException, FileNotFoundException {
+        InputStream in = getClass().getResourceAsStream(resourceName);
+        if (in != null) {
+            final String fullFileName = finalPath.getFileName().toString();
+            final String extension = FilenameUtils.getExtension(fullFileName);
+            final String baseName = FilenameUtils.getBaseName(fullFileName);
+            final File tempFile = File.createTempFile(baseName, "."+extension);
+            logger.warn("creating {}", tempFile.getAbsolutePath());
+            tempFile.deleteOnExit();
+            try (FileOutputStream out = new FileOutputStream(tempFile)) {
+                IOUtils.copy(in, out);
+            }
+            tempFile.setReadable(true);
+            return tempFile;
+        } else {
+            logger./**/error("resource not found on classpath {}", resourceName);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return null;
+        }
+    }
+
+    private File getFileFromZip(HttpServletResponse response, String resourceName)
+            throws URISyntaxException, IOException {
+        // we need a file so we use the zipfilesystem.
+        // this does not work on older Java?
+        URL resource = getClass().getResource(resourceName);
+        if (resource != null) {
+            URI resourcesURI = resource.toURI();
+            Path resourcePath = Paths.get(resourcesURI);
+            if (!Files.exists(resourcePath)) {
+                logger./**/error("file not found on classpath {}", resourcePath);
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return null;
+            } else {
+                logger.warn("found Classpath/Jar File: {}", resourcePath.toRealPath());
+                return resourcePath.toFile();
+            }
+        } else {
+            logger./**/error("resource not found on classpath {}", resourceName);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return null;
+        }
+    }
+
     /**
      * Process the actual request.
      *
@@ -373,9 +413,10 @@ public class FileServlet extends HttpServlet {
         // Validate the requested file ------------------------------------------------------------
 
         // Get requested file by path info.
-        String requestedFile = request.getPathInfo();
+        String requestedFileName = request.getPathInfo();
+        logger.warn("requested file = {}", requestedFileName);
 
-        File file = getFileFromPathInfo(response, requestedFile);
+        File file = getFileFromPathInfo(response, requestedFileName);
         if (file == null) {
             return;
         }
@@ -393,8 +434,7 @@ public class FileServlet extends HttpServlet {
         String cacheControl = request.getHeader("Cache-Control");
         String pragma = request.getHeader("pragma");
         logger.debug("headers: {} {}", pragma, cacheControl);
-        boolean noCache =
-                (cacheControl != null && (matches(cacheControl, "no-cache") || matches(cacheControl, "max-age=0")))
+        boolean noCache = (cacheControl != null && matches(cacheControl, "no-cache"))
                 || (pragma != null && matches(pragma, "no-cache"));
         if (!noCache) {
             // If-None-Match header should contain "*" or ETag. If so, then return 304.
