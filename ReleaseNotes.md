@@ -1,4 +1,4 @@
-* Changes for release 4.9.0-alpha3  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.9.0-alpha4  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   
    - [x] Enhancement: Round-robin lifting order now selectable on Competition Information page. When selected, all lifters do first attempt according to requested weight,  then second, then third. (#367)
    - [x] Enhancement: CSS stylesheets for scoreboards now editable in local/styles (#365)
