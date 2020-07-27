@@ -1,6 +1,6 @@
-* Changes for release 4.9.0-alpha5  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.9.0-alpha6  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   
-   - [x] alpha4 bug: Scoreboards do not display properly on Heroku (#368) 
+   - [x] Fix: the down indicator would sometimes inexplicably be missing at the top of the scoreboards (long-standing mystery now solved) (#369).
    - [x] Enhancement: Round-robin lifting order now selectable on Competition Information page. When selected, all lifters do first attempt according to requested weight,  then second, then third. (#367)
    - [x] Enhancement: CSS stylesheets for scoreboards now editable in local/styles (#365)
    
