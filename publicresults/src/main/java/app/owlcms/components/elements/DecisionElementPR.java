@@ -29,9 +29,9 @@ import ch.qos.logback.classic.Logger;
 /**
  * ExplicitDecision display element.
  */
-@Tag("decision-element")
+@Tag("decision-element-pr")
 @JsModule("./components/DecisionElement.js")
-public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionModel> {
+public class DecisionElementPR extends PolymerTemplate<DecisionElementPR.DecisionModel> {
 
     /**
      * The Interface DecisionModel.
@@ -51,7 +51,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
         void setPublicFacing(boolean publicFacing);
     }
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
+    final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElementPR.class);
     final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
     static {
@@ -63,7 +63,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
     protected EventBus fopEventBus;
     private UI ui;
 
-    public DecisionElement() {
+    public DecisionElementPR() {
     }
 
     public boolean isPublicFacing() {
@@ -91,6 +91,7 @@ public class DecisionElement extends PolymerTemplate<DecisionElement.DecisionMod
             } else {
                 switch (de.getEventType()) {
                 case DOWN_SIGNAL:
+                    logger.warn("showing down");
                     this.getElement().callJsFunction("showDown", false, false);
                     break;
                 case FULL_DECISION:
