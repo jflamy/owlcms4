@@ -195,7 +195,7 @@ public class FieldOfPlay {
     }
 
     public void emitDown(FOPEvent e) {
-        logger.debug("emitting down {}", LoggerUtils.stackTrace());
+        logger.debug("emitting down {}", LoggerUtils.whereFrom(2));
         getAthleteTimer().stop(); // paranoia
         this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
         setClockOwner(null); // athlete has lifted, time does not keep running for them
