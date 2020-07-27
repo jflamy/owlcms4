@@ -27,7 +27,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
-import app.owlcms.components.elements.DecisionElement;
+import app.owlcms.components.elements.DecisionElementPR;
 import app.owlcms.components.elements.unload.UnloadObserver;
 import app.owlcms.i18n.Translator;
 import app.owlcms.publicresults.DecisionReceiverServlet;
@@ -124,7 +124,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private BreakTimerElement breakTimer; // Flow creates it
 
     @Id("decisions")
-    private DecisionElement decisions; // Flow creates it
+    private DecisionElementPR decisions; // Flow creates it
 
     private boolean darkMode;
     private ContextMenu contextMenu;
@@ -225,7 +225,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveDecisionEvent(DecisionEvent e) {
-        logger.warn("received DecisionEvent {}", e);
+        logger.warn("received DecisionEvent {}", e.getEventType());
         DecisionEventType eventType = e.getEventType();
         switch (eventType) {
         case DOWN_SIGNAL:
@@ -267,7 +267,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
 
     @Subscribe
     public void slaveGlobalRankingUpdated(UpdateEvent e) {
-        logger.warn("received UpdateEventt {}", e);
+        logger.warn("received UpdateEvent {}", e);
         ui.access(() -> {
             String athletes = e.getAthletes();
             String leaders = e.getLeaders();
@@ -319,6 +319,9 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     /** @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent) */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        // crude workaround -- randomly getting light or dark due to multiple themes detected in app.
+        getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
+        
         logger.warn("registering ScoreWithLeaders {}", System.identityHashCode(this));
         UpdateReceiverServlet.getEventBus().register(this);
         DecisionReceiverServlet.getEventBus().register(this);
@@ -346,7 +349,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
         } else {
             getModel().setFullName("Waiting for update from competition site.");
             getModel().setGroupName("");
-            getElement().callJsFunction("doDone");
+            getElement().callJsFunction("groupDone");
         }
     }
 
