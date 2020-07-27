@@ -826,6 +826,7 @@ public class EventForwarder implements BreakDisplay {
             return;
         }
         try {
+            logger.debug("pushing {}",det);
             sendPost(decisionUrl, createDecision(det));
         } catch (IOException e) {
             logger./**/warn("cannot push: {} {}", decisionUrl, e.getMessage());
