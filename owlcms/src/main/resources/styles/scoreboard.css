@@ -30,7 +30,7 @@
 /* table sizes: wide screen */
 @media screen and (min-width: 1401px) {
     .wrapper {
-        --fontSize-rows: 1.9vh;
+        --fontSize-rows: 1.2em;
     }
     .wideTeams {
         --name-min-width: 20vw;
@@ -82,7 +82,7 @@
 /* table sizes: 720 screen or 1366 laptop */
 @media screen and (max-width: 1400px) and (min-width: 1025px) {
     .wrapper {
-        --fontSize-rows: 2vh;
+        --fontSize-rows: 0.9em;
     }
     .wideTeams {
         --name-min-width: 20vw;
@@ -435,7 +435,7 @@ table#leaders-table thead tr.hide th {
 /* top part formatting */
 .attemptBar {
     display: flex;
-    font-size: 3.4vh;
+    font-size: 2rem;
     justify-content: space-between;
     width: 100%;
     height: 4vmin;
