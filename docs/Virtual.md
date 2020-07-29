@@ -14,16 +14,23 @@ There is a sister application to owlcms called *publicresults*.  Publicresults i
 
 ![Slide2](img/PublicResults/CloudExplained/Slide2.SVG)
 
+The details of using `publicresults` and `owlcms` in this fashion are explained on the [Cloud Installation of the publicresults Application](Remote) page.
+
 ## Remote Officials Using Cloud-Based owlcms 
 
-In a true virtual competition, the officials are in multiple locations.  In order to allow access by all officials, `owlcms` is run in the cloud (access is protected using a password).   Remote referees should use a laptop because video rates on most iPads is not very good and a larger screen than a phone is needed.
+In a true virtual competition, the officials are in multiple locations.  In order to allow access by all officials, `owlcms` is run in the cloud (access is protected using a password).   owlcms already supports remote refereeing -- see the following [page](Refereeing#Mobile-Device-Refereeing) for details 
+
+Remote referees should use a laptop because video rates on most iPads is not very good and a larger screen than a phone is needed.
 
 ![Slide5](img/PublicResults/CloudExplained/Slide5.SVG)
+
+
 
 ## Setting up a Virtual Competition
 
 The following steps are suggested
 
 1. Install owlcms in the cloud.  See [Cloud Installation of owlcms](Cloud)
-2. Install publicresults in the cloud.  Configure the secret key used for updating.  See [Cloud Installation of publicresults](Remote).  Note the site URL you selected, and copy the secret key.
-3. Configure the cloud-based owlcms to send its updates to publicresults (configure the site URL and secret key noted in the previous step. See [Connect owlcms to publicresults](ConfigPublicResults)
+2. Install publicresults in the cloud and connect it with owlcms  See [Cloud Installation of publicresults](Remote).  
+3. Test your setup
+4. As a backup, you way want to set up your video conference to also [broadast the scoreboard](Video)

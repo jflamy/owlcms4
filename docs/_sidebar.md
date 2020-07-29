@@ -18,14 +18,15 @@
   *	[Intermissions and Breaks](Breaks)
   *	[Result Documents](Documents)
 
-* Remote/Public Scoreboards
+* COVID-19 options
 
-  *	[Virtual Competitions and Remote Scoreboards](Virtual)
+  *	[Distancing using Individual Scoreboards](Distancing)
   *	[Cloud Installation of the publicresults Application](Remote)
-  *	[Running Remote publicresults Scoreboards](ConfigPublicResults)
-  *	[Updating Cloud-based Applications](UpdatingCloudApplications)
-  *	[Local Networking for publicresults](PublicResults_Local.md)
+  *	[Local Installation of the publicresults Application](PublicResults_Local.md)
+  *	[Virtual Competitions and Remote Referees](Virtual)
+  *	[Virtual Competitions with Video Scoreboard](Video)
 * Advanced Topics
+  *	[Updating Cloud-based Applications](UpdatingCloudApplications)
   *	[Configuration Parameters](Configuration)
   *	[Excel Template Variables](TemplateVariables)
   *	[Translations](Translation)
