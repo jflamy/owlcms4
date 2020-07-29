@@ -24,7 +24,8 @@
   *	[Cloud Installation of the publicresults Application](Remote)
   *	[Local Installation of the publicresults Application](PublicResults_Local.md)
   *	[Virtual Competitions and Remote Referees](Virtual)
-  *	[Virtual Competitions with Video Scoreboard](Video)
+  *	[Modified Competition Rules](ModifiedRules)
+  *	[Video-Conference Setup](Video)
 * Advanced Topics
   *	[Updating Cloud-based Applications](UpdatingCloudApplications)
   *	[Configuration Parameters](Configuration)
