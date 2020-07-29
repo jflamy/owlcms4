@@ -1,5 +1,6 @@
-* Changes for release 4.9.0-beta1  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.9.0-rc02  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   
+   - [x] Documentation: More information for COVID-19 usage: individual and remote scoreboards, support for modified lifting order rules, setting up remote refereeing, tips for setting up virtual competitions over videoconferences.
    - [x] Enhancement: Phone-specific layout for viewing scoreboard on phones (using publicresults in particular)  In particular, if wide team names are used, they will be hidden on the phones in order to allow ranks to be visible. (#370)
    - [x] Fix: earlier 4.9.0-alpha releases had taken away the ability to fit more or fewer lines on the scoreboards by using the browser zoom.  Feature is now back. (#371)
    - [x] Fix: the down indicator would sometimes inexplicably be missing at the top of the scoreboards (long-standing mystery now solved) (#369).
