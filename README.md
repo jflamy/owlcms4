@@ -5,15 +5,55 @@ This software is a complete rewrite of `owlcms` which has been used to manage Ol
 
 See the application [Web Site](https://owlcms.github.io/owlcms4/) for a full overview.  See [this page](https://owlcms.github.io/owlcms4/#/Demo) for a live demo.
 
-### Installation
-Stable installation packages are downloaded from [the release repository](https://github.com/owlcms/owlcms4/releases) .  Refer to the following for instructions:
+### Basic Installation Options
+Several installation options are possible, depending on what is available at the competition site
 
-  * [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
-    ![Slide1](docs/img/PublicResults/CloudExplained/Slide1.SVG)
-* [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
-* [Heroku Cloud Installation](https://owlcms.github.io/owlcms4/#/Cloud)
+#### Easiest: Cloud-Based Installation (Internet required)
 
-### Additional Modules and Pre-releases
+If there is good internet communication at the competition site, there is no need to install anything locally. 
+
+- There is a one-click install procedure to a free (0$) cloud service called Heroku (a division of Salesforce.com). 
+- The owlcms software runs as a web site. All the various display screens and devices connect to the cloud using the competition site's wifi or ethernet network.
+
+![Slide9](docs/img/PublicResults/CloudExplained/Slide9.SVG)
+
+* [Heroku Cloud Installation](Cloud)
+
+#### Stand-alone: Laptop installation
+
+If there is no Internet connectivity at your competition site, you can use a stand-alone setup and run the software on a laptop.
+
+- The software runs on a laptop (labeled owlcms in the diagram). 
+
+- All the other screens and officials connect to that laptop using only a web browser, so you can use whatever you want (old laptops, chromebooks, tablets, firetv sticks, etc.).  All the communications take place over a local network (wifi or ethernet).
+
+- You can run owlcms on the same machine as one of the officials.  It is often the case that owlcms runs on the same machine as the announcer or the competition secretary.  In the simplest setups, there is just the announcer, and maybe one scoreboard.
+
+- You can referee using hand signals, flags, phones, or dedicated devices. See [this page](docs/Refereeing)
+
+  ![Slide1](docs/img/PublicResults/CloudExplained/Slide7.SVG)
+
+See the following instructions
+
+  * [Windows Stand-alone Installation](docs/LocalWindowsSetup)
+* [Linux or Mac Stand-alone Installation](docs/LocalLinuxMacSetup)
+
+### Virtual Competitions and Individual Scoreboards
+
+There are additional modules available to support more involved scenarios.  For example, it is possible to have individual scoreboards available to every coach -- supporting physical distancing.  This can also be used to provide individual scoreboards to every member of the public watching the competition remotely.
+
+A competition with a main site and remote gyms connected by videoconferencing could look as follows
+
+![Slide3](docs/img/PublicResults/CloudExplained/Slide3.SVG)
+
+The following pages describe these options and others.
+
+*	[Distancing using Individual Scoreboards](docs/Distancing)
+*	[Cloud Installation of the publicresults Application](docs/Remote)
+*	[Virtual Competitions and Remote Referees](docs/Virtual)
+*	[Video-Conference Setup](docs/Video)
+
+### Pre-releases
 
 Refer to the following [page](https://github.com/jflamy/owlcms4/blob/master/Releases.md) for the various modules and releases, including preliminary releases for early adopters.
 
@@ -39,4 +79,4 @@ The software is written and maintained by Jean-François Lamy, IWF International
 
 Thanks to Anders Bendix Nielsen (Denmark) and Alexey Ruchev (Russia) for their support, feedback and help testing this version of the software.
 
-See the file [pom.xml](pom.xml) for the list of Open Source software used in the project.
+See the file [pom.xml](pom.xml) for the list of Open Source software used in the project.  In particular, this project relies heavily on the [Vaadin](https://vaadin.com) application framework, and their long-standing support for open-source software.

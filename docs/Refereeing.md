@@ -1,6 +1,7 @@
 # Refereeing
 
-OWLCMS supports using refereeing devices, and also supports 3 and 5-person [Jury](#Jury). Refereeing and Jury screens are started from the lifting page as shown below.  However, the decisions are displayed to the public and athletes on the displays started on the [Start Displays](Displays) page.
+OWLCMS supports using refereeing devices, and also supports 3 and 5-person [Jury](#Jury). Refereeing and Jury consoles are started from the `Run Lifting Group` page as shown below.  
+The decisions are displayed to the public and athletes on the displays started on the [Start Displays](Displays) page.
 
 ![010_Ref](img/Refereeing/010_Ref.png)
 
@@ -18,7 +19,10 @@ The referees give their decisions using flags/cards/hand signals; the announcer 
 
 ## Mobile Device Refereeing
 
- The referee console is started from the "run a lifting group" page, or by adding /ref to the URL for the competition site.  For example https://owlcms4.herokuapp/ref  leads to the referee application.  After starting the referee screen, it is necessary to select which referee is which (1, 2 or 3) using the numeric input at the top (use the + and - signs)
+ In this setup, each referee uses a phone, tablet or laptop.  The device runs a web browser, that connects to owlcms (either on premise or in the cloud).  For example, in a cloud-based setup, you get the following diagram:
+![Slide9](img/PublicResults/CloudExplained/Slide9.SVG)
+
+The referee console is started from the "run a lifting group" page, or by adding /ref to the URL for the competition site.  For example https://owlcms4.herokuapp/ref  leads to the referee application.  After starting the referee screen, it is necessary to select which referee is which (1, 2 or 3) using the numeric input at the top (use the + and - signs)
 
 ![mobile_ref](img\equipment\mobile_ref.png)
 
@@ -26,7 +30,10 @@ The selection is confirmed by greying out the other key.  The refereeing display
 
 ## USB or Bluetooth Keypads
 
-In this approach, keypads are connected to the laptop or mini PC running the timer/decision display (or the attempt board, both work the same).   There are two advantages to this approach:
+In this approach, keypads are connected to the laptop or mini PC running the timer/decision display (or the attempt board, both work the same).   For example -- it doesn't matter that owlcms is running locally or in the cloud.
+![Slide6](img/PublicResults/CloudExplained/Slide6.SVG)
+
+There are two advantages to this approach:
 
 1. Many referees prefer having their finger rest on a button (which is not possible on a phone)
 2. The sound and down arrow are emitted directly by the browser, without any round-trip to the primary computer.  This reduces delays and increases reliability if the networking is fragile (which is sometimes the case in gyms)
