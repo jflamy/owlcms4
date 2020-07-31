@@ -9,6 +9,7 @@ See the application [Web Site](https://owlcms.github.io/owlcms4/) for a full ove
 Stable installation packages are downloaded from [the release repository](https://github.com/owlcms/owlcms4/releases) .  Refer to the following for instructions:
 
   * [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
+    ![Slide1](docs/img/PublicResults/CloudExplained/Slide1.SVG)
 * [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
 * [Heroku Cloud Installation](https://owlcms.github.io/owlcms4/#/Cloud)
 
