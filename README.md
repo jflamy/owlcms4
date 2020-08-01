@@ -17,7 +17,7 @@ If there is good internet communication at the competition site, there is no nee
 
 ![Slide9](docs/img/PublicResults/CloudExplained/Slide9.SVG)
 
-* [Heroku Cloud Installation](docs/Cloud)
+* [Heroku Cloud Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Cloud)
 
 #### Stand-alone: Laptop installation
 
@@ -35,7 +35,7 @@ If there is no Internet connectivity at your competition site, you can use a sta
 
 See the following instructions
 
-  * [Windows Stand-alone Installation](docs/LocalWindowsSetup)
+  * [Windows Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
 * [Linux or Mac Stand-alone Installation](docs/LocalLinuxMacSetup)
 
 ### Virtual Competitions and Individual Scoreboards
@@ -48,10 +48,10 @@ A competition with a main site and remote gyms connected by videoconferencing co
 
 The following pages describe these options and others.
 
-*	[Distancing using Individual Scoreboards](docs/Distancing)
-*	[Cloud Installation of the publicresults Application](docs/Remote)
-*	[Virtual Competitions and Remote Referees](docs/Virtual)
-*	[Video-Conference Setup](docs/Video)
+*	[Distancing using Individual Scoreboards](https://jflamy-dev.github.io/owlcms4-prerelease/#/Distancing)
+*	[Cloud Installation of the publicresults Application](https://jflamy-dev.github.io/owlcms4-prerelease/#/Remote)
+*	[Virtual Competitions and Remote Referees](https://jflamy-dev.github.io/owlcms4-prerelease/#/Virtual)
+*	[Video-Conference Setup](https://jflamy-dev.github.io/owlcms4-prerelease/#/Video)
 
 ### Pre-releases
 
