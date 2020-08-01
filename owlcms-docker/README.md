@@ -9,7 +9,18 @@ When building, the image is given a tag according to what is found in `target/do
 Using `-p` is necessary to forward the 8080 port of the container to the outside world.
 When running the image in this way an ephemeral H2 database is created inside the container, and vanishes when the container is deleted.
 
+### Docker Deployment
+
 If you use `mvn clean deploy` to deploy the container to the owlcms-docker-containers.bintray.io/owlcms repository.  The repository is public, no credentials needed to pull the image.
+
+Note: this seems to require 
+
+```
+docker login -u jflamy -p <API_KEY> owlcms-docker-containers.bintray.io
+```
+
+to have been run beforehand. Since July 2020 (docker desktop update?)
+
 
 ## Kubernetes
 
