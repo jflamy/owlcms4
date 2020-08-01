@@ -67,7 +67,7 @@ Refer to the following [page](Releases) for the various modules and releases, in
 
 This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/jflamy-dev/owlcms4-prerelease/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
 
-If however you wish to provide the software as a service to others (including by hosting it), or if you create a modified version, the license *requires* you to make full sources and building instructions available for free &ndash; just like this software is (see the [License](https://github.com/jflamy-dev/owlcms4-prerelease/releases/blob/master/LICENSE.txt) for details.)
+If however you wish to provide the software as a service to others (including by hosting it), or if you create a modified version, the license *requires* you to make full sources and building instructions available for free &ndash; just like this software is (see the [License](https://github.com/jflamy-dev/owlcms4-prerelease/blob/master/LICENSE.txt) for details.)
 
 ### Translation to Other Languages
 
