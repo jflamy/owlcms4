@@ -1,8 +1,12 @@
+## Windows Installation
+
 - **Windows Installer** : Get the current installation file called `owlcms_setup.exe` from the <https://github.com/owlcms/owlcms4/releases/latest> page (see the "Assets" section after the notes).
 
 ![zip](img\LocalInstall\010_setupexe.png)
 
-- Open the downloaded installer by double-clicking on it. 
+-  You may get warnings about the software being potentially dangerous.  Ignore the warnings and Keep the downloaded files.
+
+- Open the downloaded installer by double-clicking on it.  
 
   - > **If you get a blue `Windows protected your PC` warning, or if your machine seems to take a long time to open the download, see this page : [Make Windows Defender Allow Installation](DefenderOff)**
 
