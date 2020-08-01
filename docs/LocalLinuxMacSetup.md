@@ -1,11 +1,13 @@
+## macOS or Linux Installation
+
 - **Get the installation zip archive**: Go to the releases location (https://github.com/owlcms/owlcms4/releases/latest) and get the current `zip` file from the `assets` section at the bottom of the release entry.
 
 - Double-click on the zip file, and extract the files to a directory.  We suggest you use `~/owlcms4` as the unzipped location.
 
-- Make sure you have Java 8 installed. 
+- Make sure you have a Java 8 JRE installed as a minimum.  You can also use Java 11, and use a JDK instead of a JRE. 
 
   -  For Linux, refer to https://adoptopenjdk.net/releases.html depending on the Linux type you run
-  -  For MacOS, see https://adoptopenjdk.net/releases.html#x64_mac
+  -  For macOS, see https://adoptopenjdk.net/releases.html#x64_mac
 
 - To start the program, open a Terminal window,  directory to the location where you unzipped the files and launch Java as follows.  Assuming you extracted to a directory called `owlcms4` in your home, the following would work
 
