@@ -17,7 +17,7 @@ If there is good internet communication at the competition site, there is no nee
 
 ![Slide9](docs/img/PublicResults/CloudExplained/Slide9.SVG)
 
-* [Heroku Cloud Installation](Cloud)
+* [Heroku Cloud Installation](docs/Cloud)
 
 #### Stand-alone: Laptop installation
 

@@ -1,11 +1,9 @@
 * [Home](index)
 * Getting Started
 
-  *	[Windows Installation](LocalWindowsSetup)
-  * [Linux or Mac Installation](LocalLinuxMacSetup)
-  *	[Cloud Installation of owlcms](Cloud)
+  *	[Installation](InstallationOverview)
   *	[Equipment Setup](EquipmentSetup)
-  
+
 * Competition
 
   *	[Preparation](Preparation)

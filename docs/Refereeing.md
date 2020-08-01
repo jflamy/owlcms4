@@ -42,7 +42,7 @@ There are two advantages to this approach:
 
 The keys or buttons on the keypads are programmed to send key sequences.  The decision display is waiting for these keypresses.  You must click in the black area of the screen to make sure that the keypresses are seen by the browser.
 
-OWLCMS4 interprets Even digits as red, and Odd digits as white.  The same devices can be used for referees and for the jury. 
+OWLCMS interprets Even digits as red, and Odd digits as white.  The same devices can be used for referees and for the jury. 
 
 | Referee# | Jury# | Good | Bad  |
 | -------- | ----- | ---- | ---- |

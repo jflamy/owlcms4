@@ -10,7 +10,7 @@ The following picture shows the devices connected to a Windows 10 mini PC.  The 
 
 ## Configuration
 
-OWLCMS4 interprets Even digits as red, and Odd digits as white. 
+OWLCMS interprets Even digits as red, and Odd digits as white. 
 
 | Referee# | Jury# | Good | Bad  |
 | -------- | ----- | ---- | ---- |
