@@ -751,7 +751,7 @@ public class FieldOfPlay {
      * @param group the group
      */
     public void startLifting(Group group, Object origin) {
-        logger.trace("startLifting {}", LoggerUtils.stackTrace());
+        logger.warn("startLifting {}", LoggerUtils.stackTrace());
         loadGroup(group, origin, true);
         logger.trace("{} start lifting for group {} origin={}", this.getName(),
                 (group != null ? group.getName() : group), origin);
@@ -1221,15 +1221,16 @@ public class FieldOfPlay {
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
-        logger.trace("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
+        logger.warn("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
                 LoggerUtils.whereFrom());
-        loadGroup(group2, e.getOrigin(), true);
-        updateGlobalRankings();
+
         Athlete clockOwner = getClockOwner();
         if (getCurAthlete() != null && getCurAthlete().equals(clockOwner)) {
             setState(TIME_STOPPED); // allows referees to enter decisions even if time is not restarted (which
                                     // sometimes happens).
         } else {
+            loadGroup(group2, e.getOrigin(), true);
+            updateGlobalRankings();
             setState(CURRENT_ATHLETE_DISPLAYED);
         }
         if (stopBreakTimer) {

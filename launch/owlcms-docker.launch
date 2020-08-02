@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.m2e.Maven2LaunchConfigurationType">
-<booleanAttribute key="M2_DEBUG_OUTPUT" value="false"/>
-<stringAttribute key="M2_GOALS" value="deploy -pl owlcms-docker -am -Drevision=4.7.5-beta12"/>
-<booleanAttribute key="M2_NON_RECURSIVE" value="false"/>
-<booleanAttribute key="M2_OFFLINE" value="false"/>
-<stringAttribute key="M2_PROFILES" value="production,noInstaller"/>
-<listAttribute key="M2_PROPERTIES"/>
-<stringAttribute key="M2_RUNTIME" value="EMBEDDED"/>
-<booleanAttribute key="M2_SKIP_TESTS" value="true"/>
-<intAttribute key="M2_THREADS" value="1"/>
-<booleanAttribute key="M2_UPDATE_SNAPSHOTS" value="false"/>
-<stringAttribute key="M2_USER_SETTINGS" value="C:\Dev\.m2\settings.xml"/>
-<booleanAttribute key="M2_WORKSPACE_RESOLUTION" value="false"/>
-<mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="DOCKER_HOST" value="tcp://localhost:2375"/>
-<mapEntry key="_DOCKER_CERT_PATH" value="C:\Users\JF\.minikube\certs"/>
-<mapEntry key="_DOCKER_HOST" value="tcp://192.168.99.104:2376"/>
-<mapEntry key="_DOCKER_TLS_VERIFY" value="1"/>
-<mapEntry key="_MINIKUBE_ACTIVE_DOCKERD" value="minikube"/>
-</mapAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="C:\Dev\git\owlcms4"/>
+    <booleanAttribute key="M2_DEBUG_OUTPUT" value="false"/>
+    <stringAttribute key="M2_GOALS" value="package -pl owlcms-docker -am -Drevision=4.9.0-rc02"/>
+    <booleanAttribute key="M2_NON_RECURSIVE" value="false"/>
+    <booleanAttribute key="M2_OFFLINE" value="false"/>
+    <stringAttribute key="M2_PROFILES" value="production,noInstaller"/>
+    <listAttribute key="M2_PROPERTIES"/>
+    <stringAttribute key="M2_RUNTIME" value="EMBEDDED"/>
+    <booleanAttribute key="M2_SKIP_TESTS" value="true"/>
+    <intAttribute key="M2_THREADS" value="1"/>
+    <booleanAttribute key="M2_UPDATE_SNAPSHOTS" value="false"/>
+    <stringAttribute key="M2_USER_SETTINGS" value="C:\Dev\.m2\settings.xml"/>
+    <booleanAttribute key="M2_WORKSPACE_RESOLUTION" value="false"/>
+    <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+        <mapEntry key="DOCKER_HOST" value="tcp://localhost:2375"/>
+        <mapEntry key="_DOCKER_CERT_PATH" value="C:\Users\JF\.minikube\certs"/>
+        <mapEntry key="_DOCKER_HOST" value="tcp://192.168.99.104:2376"/>
+        <mapEntry key="_DOCKER_TLS_VERIFY" value="1"/>
+        <mapEntry key="_MINIKUBE_ACTIVE_DOCKERD" value="minikube"/>
+    </mapAttribute>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
+    <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="C:\Dev\git\owlcms4"/>
 </launchConfiguration>
