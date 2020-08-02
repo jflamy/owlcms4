@@ -1,4 +1,4 @@
-* Changes for release 4.9.0-SNAPSHOT  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.9.0-rc03  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   
    - [x] Fix: Stopping a technical or jury break would wrongly reset the time for the athlete .  Also, the announcer starting a break on the first attempt of an athlete was not being recognized by default as a technical break. (#373)
    - [x] Fix: earlier 4.9.0-alpha releases had taken away the ability to fit more or fewer lines on the scoreboards by using the browser zoom.  Feature is now back. (#371)
