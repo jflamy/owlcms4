@@ -1,18 +1,14 @@
 * Changes for release 4.9.0-SNAPSHOT  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   
-   - [x] Documentation: More information for COVID-19 usage: individual and remote scoreboards, support for modified lifting order rules, setting up remote refereeing, tips for setting up virtual competitions over videoconferences.
-   - [x] Enhancement: Phone-specific layout for viewing scoreboard on phones (using publicresults in particular)  In particular, if wide team names are used, they will be hidden on the phones in order to allow ranks to be visible. (#370)
+   - [x] Fix: Stopping a technical or jury break would wrongly reset the time for the athlete .  Also, the announcer starting a break on the first attempt of an athlete was not being recognized by default as a technical break. (#373)
    - [x] Fix: earlier 4.9.0-alpha releases had taken away the ability to fit more or fewer lines on the scoreboards by using the browser zoom.  Feature is now back. (#371)
    - [x] Fix: the down indicator would sometimes inexplicably be missing at the top of the scoreboards (long-standing mystery now solved) (#369).
-   - [x] Enhancement: Round-robin lifting order now selectable on Competition Information page. When selected, all lifters do first attempt according to requested weight,  then second, then third. (#367)
-   - [x] Enhancement: CSS stylesheets for scoreboards now editable in local/styles (#365)
-   
 * Key Highlights from recent stable releases
 
-   * [x] Timer, down and decisions are now shown on the `publicresults` site.  Documentation for running virtual competitions and for using remote scoreboards using `publicresults` has been updated.  See the `Advanced Topics` section of the documentation. (. (#352) (#362)
+   * [x] Timer, down and decisions are now shown on the `publicresults` site.  Documentation for running virtual competitions and for using remote scoreboards using `publicresults` has been updated.  See the `Advanced Topics` section of the documentation. (#352) (#362)
+   * [x] Enhancement: Round-robin lifting order now selectable on Competition Information page. When selected, all lifters do first attempt according to requested weight,  then second, then third. (#367)Enhancement: CSS stylesheets for scoreboards now editable in local/styles (#365)
    * [x] Technical configuration parameters for cloud-based usage no longer requires using environment variables.  A new `Technical Configuration` button is available on the `Prepare Competition`page (#361)
-   * [x] Warning messages for out-of-sequence actions (stopping time when not started, starting time when decisions still visible, etc.) now more visible and can be translated to natural language (#359)
-
+   * [x] Warning messages for out-of-sequence actions (stopping time when not started, starting time when decisions still visible, etc.) now more visible and have been translated to natural language (#359)
    * [x] Enhancement: Timekeeper screen now with large buttons, can be used from iPad/iPhone etc.  Also supports "," as keyboard shortcut to start clock and "." to stop clock for use with programmable keypads. (#340) 
    * [x] Enhancement: When using refereeing devices, announcer sees decisions as they come in. Useful when there is no jury to remind referee or to detect device/network faults. (#328)  Can be turned off on the Competition Information page.
    * [x] Enhancement: Team Results page accessible from the "Result Documents" navigation page. 
