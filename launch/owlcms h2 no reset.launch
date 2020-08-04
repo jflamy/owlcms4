@@ -7,7 +7,7 @@
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="JDBC_DATABASE_URL" value="jdbc:h2:file:${project_loc:owlcms}\database\owlcms_ru.mv.db"/>
+        <mapEntry key="JDBC_DATABASE_URL" value="jdbc:h2:file:${project_loc:owlcms}\database\owlcms_dk.mv.db"/>
         <mapEntry key="OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="false"/>
         <mapEntry key="OWLCMS_PORT" value="80"/>
