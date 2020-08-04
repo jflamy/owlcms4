@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.9.0-rc03
+    default: 4.9.0-rc04
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -94,6 +94,12 @@ jobs:
           publishJUnitResults: true
           testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: package $(MavenOpts) --non-recursive -Dmaven.test.skip=true
+        env:
+          # used by maven for substitutions in release notes and URLs
+          REPO_OWNER: $(RELEASE_USER)
+          H_REPO_NAME: ${{ parameters.moduleName }}$(RELEASE_SUFFIX)
+          P_REPO_NAME: ${{ parameters.moduleName }}$(RELEASE_SUFFIX)
+          O_REPO_NAME: owlcms4$(RELEASE_SUFFIX)
       - script: |
           # push changes back to origin and tag
           # library group ReleaseRepoCredentials contains github users and tokens

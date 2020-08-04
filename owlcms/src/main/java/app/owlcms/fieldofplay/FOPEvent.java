@@ -498,9 +498,12 @@ public class FOPEvent {
 
     protected Athlete athlete;
 
+    private long timestamp;
+
     public FOPEvent(Athlete athlete, Object origin) {
         this.athlete = athlete;
         this.origin = origin;
+        this.timestamp = System.currentTimeMillis();
     }
 
     FOPEvent(Object origin) {
@@ -532,7 +535,10 @@ public class FOPEvent {
 
     @Override
     public int hashCode() {
-        return Objects.hash(athlete, origin, this.getClass());
+        // by default, events are always different, unless they override hashcode.
+        // this is because some events such as WeightChange do not currently carry their value,
+        // so they come out as always duplicates unless we put a time stamp.
+        return Objects.hash(athlete, origin, timestamp, this.getClass());
     }
 
     public void setAthlete(Athlete athlete) {
