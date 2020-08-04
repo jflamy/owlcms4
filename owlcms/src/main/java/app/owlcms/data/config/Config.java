@@ -14,7 +14,6 @@ import javax.persistence.Id;
 
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.competition.Competition;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 

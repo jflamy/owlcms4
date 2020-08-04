@@ -8,7 +8,6 @@ package app.owlcms.data.platform;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
@@ -23,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.VaadinSession;
 
-import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
