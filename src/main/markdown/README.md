@@ -3,7 +3,7 @@ This software is a complete rewrite of `owlcms` which has been used to manage Ol
 
 ### Features, Documentation and Demo
 
-See the application [Web Site](https://${env.REPO_OWNER}.github.io/${env.H_REPO_NAME}/#) for a full overview.  See [this page](https://${env.REPO_OWNER}.github.io/${env.H_REPO_NAME}/#/Demo) for a live demo.
+See the application [Web Site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#) for a full overview.  See [this page](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Demo) for a live demo.
 
 ### Basic Installation Options
 Several installation options are possible, depending on what is available at the competition site
@@ -35,8 +35,8 @@ If there is no Internet connectivity at your competition site, you can use a sta
 
 See the following instructions
 
-  * [Windows Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.H_REPO_NAME}/#/LocalWindowsSetup)
-* [Linux or Mac Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.H_REPO_NAME}/#/LocalLinuxMacSetup)
+  * [Windows Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalWindowsSetup)
+* [Linux or Mac Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalLinuxMacSetup)
 
 ### Virtual Competitions and Individual Scoreboards
 
@@ -48,10 +48,10 @@ A competition with a main site and remote gyms connected by videoconferencing co
 
 The following pages describe these options and others.
 
-*	[Distancing using Individual Scoreboards](https://${env.REPO_OWNER}.github.io/${env.H_REPO_NAME}/#/Distancing)
-*	[Cloud Installation of the publicresults Application](https://${env.REPO_OWNER}.github.io/${env.H_REPO_NAME}/#/Remote)
-*	[Virtual Competitions and Remote Referees](https://${env.REPO_OWNER}.github.io/${env.H_REPO_NAME}/#/Virtual)
-*	[Video-Conference Setup](https://${env.REPO_OWNER}.github.io/${env.H_REPO_NAME}/#/Video)
+*	[Distancing using Individual Scoreboards](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Distancing)
+*	[Cloud Installation of the publicresults Application](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Remote)
+*	[Virtual Competitions and Remote Referees](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Virtual)
+*	[Video-Conference Setup](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Video)
 
 ### Pre-releases
 
@@ -65,13 +65,13 @@ Refer to the following [page](Releases) for the various modules and releases, in
 
 ### Licensing and Notes
 
-This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/${env.REPO_OWNER}/${env.H_REPO_NAME}/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
+This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
 
-If however you wish to provide the software as a service to others (including by hosting it), or if you create a modified version, the license *requires* you to make full sources and building instructions available for free &ndash; just like this software is (see the [License](https://github.com/${env.REPO_OWNER}/${env.H_REPO_NAME}/blob/master/LICENSE.txt) for details.)
+If however you wish to provide the software as a service to others (including by hosting it), or if you create a modified version, the license *requires* you to make full sources and building instructions available for free &ndash; just like this software is (see the [License](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/blob/master/LICENSE.txt) for details.)
 
 ### Translation to Other Languages
 
-- You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](https://${env.REPO_OWNER}.github.io/${env.H_REPO_NAME}/#/Translation) if you wish to contribute.
+- You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Translation) if you wish to contribute.
 
 ### Credits
 

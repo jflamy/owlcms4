@@ -1,4 +1,4 @@
-* Changes for release 4.9.0-rc04  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.9.0-SNAPSHOT  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   
    - [x] Fix: Since version 4.8.0, occasionally some changes to requested weight would not show on the bottom part of the scoreboard (#376) 
 * Key Highlights from recent stable releases

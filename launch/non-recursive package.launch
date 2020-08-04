@@ -13,8 +13,9 @@
     <stringAttribute key="M2_USER_SETTINGS" value=""/>
     <booleanAttribute key="M2_WORKSPACE_RESOLUTION" value="false"/>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="H_REPO_NAME" value="owlcms4-prerelease"/>
-        <mapEntry key="P_REPO_NAME" value="owlcms-publicresults-prerelease"/>
+        <mapEntry key="H_REPO_NAME" value="owlcms-heroku-prerelease"/>
+        <mapEntry key="O_REPO_NAME" value="owlcms4-prerelease"/>
+        <mapEntry key="P_REPO_NAME" value="publicresults-heroku-prerelease"/>
         <mapEntry key="REPO_OWNER" value="jflamy-dev"/>
     </mapAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
