@@ -1,6 +1,7 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   
-   - [x] Fix: Since version 4.8.0, occasionally some changes to requested weight would not show on the bottom part of the scoreboard (#376) 
+   - [x] Fix: When a results scoreboard was used to connect refereeing keypads, the down arrow would not show on that specific scoreboard. (#375)
+   - [x] Fix: some changes to requested weight would not show on the bottom part of the scoreboard (#376) 
 * Key Highlights from recent stable releases
 
    * [x] Timer, down and decisions are now shown on the `publicresults` site.  Documentation for running virtual competitions and for using remote scoreboards using `publicresults` has been updated.  See the `Advanced Topics` section of the documentation. (#352) (#362)
