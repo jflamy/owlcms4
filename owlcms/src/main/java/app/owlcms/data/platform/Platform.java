@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.server.VaadinSession;
 
+import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -161,6 +162,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 
     @Override
     public boolean equals(Object obj) {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         if (this == obj) {
             return true;
         }
@@ -171,19 +173,43 @@ public class Platform implements Serializable, Comparable<Platform> {
             return false;
         }
         Platform other = (Platform) obj;
-        return Objects.equals(id, other.id) && Objects.equals(lightBar, other.lightBar)
-                && mixerChecked == other.mixerChecked && Objects.equals(name, other.name)
-                && Objects.equals(nbC_2_5, other.nbC_2_5) && Objects.equals(nbL_10, other.nbL_10)
-                && Objects.equals(nbL_15, other.nbL_15) && Objects.equals(nbL_20, other.nbL_20)
-                && Objects.equals(nbL_25, other.nbL_25) && Objects.equals(nbL_2_5, other.nbL_2_5)
-                && Objects.equals(nbL_5, other.nbL_5) && Objects.equals(nbS_0_5, other.nbS_0_5)
-                && Objects.equals(nbS_1, other.nbS_1) && Objects.equals(nbS_1_5, other.nbS_1_5)
-                && Objects.equals(nbS_2, other.nbS_2) && Objects.equals(nbS_2_5, other.nbS_2_5)
-                && Objects.equals(nbS_5, other.nbS_5) && nonStandardBar == other.nonStandardBar
-                && Objects.equals(officialBar, other.officialBar)
-                && Objects.equals(showDecisionLights, other.showDecisionLights)
-                && Objects.equals(showTimer, other.showTimer) && Objects.equals(soundMixerName, other.soundMixerName);
+        return id != null && id.equals(other.getId());
+        
+        //      @Override
+        //      public boolean equals(Object obj) {
+        //          if (this == obj) {
+        //              return true;
+        //          }
+        //          if (obj == null) {
+        //              return false;
+        //          }
+        //          if (getClass() != obj.getClass()) {
+        //              return false;
+        //          }
+        //          Platform other = (Platform) obj;
+        //          return Objects.equals(id, other.id) && Objects.equals(lightBar, other.lightBar)
+        //                  && mixerChecked == other.mixerChecked && Objects.equals(name, other.name)
+        //                  && Objects.equals(nbC_2_5, other.nbC_2_5) && Objects.equals(nbL_10, other.nbL_10)
+        //                  && Objects.equals(nbL_15, other.nbL_15) && Objects.equals(nbL_20, other.nbL_20)
+        //                  && Objects.equals(nbL_25, other.nbL_25) && Objects.equals(nbL_2_5, other.nbL_2_5)
+        //                  && Objects.equals(nbL_5, other.nbL_5) && Objects.equals(nbS_0_5, other.nbS_0_5)
+        //                  && Objects.equals(nbS_1, other.nbS_1) && Objects.equals(nbS_1_5, other.nbS_1_5)
+        //                  && Objects.equals(nbS_2, other.nbS_2) && Objects.equals(nbS_2_5, other.nbS_2_5)
+        //                  && Objects.equals(nbS_5, other.nbS_5) && nonStandardBar == other.nonStandardBar
+        //                  && Objects.equals(officialBar, other.officialBar)
+        //                  && Objects.equals(showDecisionLights, other.showDecisionLights)
+        //                  && Objects.equals(showTimer, other.showTimer) && Objects.equals(soundMixerName, other.soundMixerName);
+        //      }
+        //    
     }
+    
+    @Override
+    public int hashCode() {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return 31;
+    }
+
+    
 
     /**
      * Gets the id.
@@ -420,12 +446,12 @@ public class Platform implements Serializable, Comparable<Platform> {
         return soundMixerName;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, lightBar, mixerChecked, name, nbC_2_5, nbL_10, nbL_15, nbL_20, nbL_25, nbL_2_5, nbL_5,
-                nbS_0_5, nbS_1, nbS_1_5, nbS_2, nbS_2_5, nbS_5, nonStandardBar, officialBar, showDecisionLights,
-                showTimer, soundMixerName);
-    }
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(id, lightBar, mixerChecked, name, nbC_2_5, nbL_10, nbL_15, nbL_20, nbL_25, nbL_2_5, nbL_5,
+//                nbS_0_5, nbS_1, nbS_1_5, nbS_2, nbS_2_5, nbS_5, nonStandardBar, officialBar, showDecisionLights,
+//                showTimer, soundMixerName);
+//    }
 
     public boolean isNonStandardBar() {
         return nonStandardBar;

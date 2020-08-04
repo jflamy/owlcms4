@@ -193,6 +193,21 @@ public class Competition {
 
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Competition other = (Competition) obj;
+        return id != null && id.equals(other.getId());
+    }
+
     public String getAgeGroupsFileName() {
         return ageGroupsFileName;
     }
@@ -444,6 +459,11 @@ public class Competition {
 
     public Integer getWomensTeamSize() {
         return womensTeamSize;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31;
     }
 
     public boolean isAnnouncerLiveDecisions() {
@@ -900,5 +920,4 @@ public class Competition {
         reportingBeans.put("wTeam", sortedWomen);
         reportingBeans.put("mwTeam", sortedAthletes);
     }
-
 }

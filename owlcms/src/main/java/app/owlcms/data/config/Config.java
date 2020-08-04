@@ -14,6 +14,7 @@ import javax.persistence.Id;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.competition.Competition;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -187,5 +188,28 @@ public class Config {
             }
         }
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Config other = (Config) obj;
+        return id != null && id.equals(other.getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return 31;
+    }
+
 
 }
