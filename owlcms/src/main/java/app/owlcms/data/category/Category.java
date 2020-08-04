@@ -156,18 +156,17 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
             return false;
         }
         Category other = (Category) obj;
-        return id != null && id.equals(other.getId());
 
-//        // other is not null, and neither are we
-//        // don't compare the categories inside age group, this gets circular.
-//        boolean ageGroupEquals = AgeGroup.looseEquals(this.ageGroup, other.ageGroup);
-//
-//        return active == other.active && ageGroupEquals && Objects.equals(code, other.code)
-//                && gender == other.gender && Objects.equals(id, other.id)
-//                && Objects.equals(maximumWeight, other.maximumWeight)
-//                && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
-//                && Objects.equals(getWrJr(), other.getWrJr())
-//                && Objects.equals(getWrSr(), other.getWrSr()) && Objects.equals(getWrYth(), other.getWrYth());
+        // other is not null, and neither are we
+        // don't compare the categories inside age group, this gets circular.
+        boolean ageGroupEquals = AgeGroup.looseEquals(this.ageGroup, other.ageGroup);
+
+        return active == other.active && ageGroupEquals && Objects.equals(code, other.code)
+                && gender == other.gender && Objects.equals(id, other.id)
+                && Objects.equals(maximumWeight, other.maximumWeight)
+                && Objects.equals(minimumWeight, other.minimumWeight) && Objects.equals(name, other.name)
+                && Objects.equals(getWrJr(), other.getWrJr())
+                && Objects.equals(getWrSr(), other.getWrSr()) && Objects.equals(getWrYth(), other.getWrYth());
     }
 
     /**
@@ -310,10 +309,9 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
     @Override
     public int hashCode() {
-        return 31;
-//        return Objects.hash(active, ageGroup, code, gender, id, maximumWeight, minimumWeight, name, getWrJr(),
-//                getWrSr(),
-//                getWrYth());
+        return Objects.hash(active, ageGroup, code, gender, id, maximumWeight, minimumWeight, name, getWrJr(),
+                getWrSr(),
+                getWrYth());
     }
 
     /**
