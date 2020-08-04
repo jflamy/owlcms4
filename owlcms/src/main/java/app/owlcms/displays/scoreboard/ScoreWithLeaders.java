@@ -283,10 +283,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     @Subscribe
     public void slaveDownSignal(UIEvent.DownSignal e) {
         uiLog(e);
-        // ignore if the down signal was initiated by this result board.
-        // (the timer element on the result board will actually process the keyboard
-        // codes if devices are attached)
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             getModel().setHidden(false);
             this.getElement().callJsFunction("down");
         });
@@ -404,6 +401,7 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
                 logger.debug("doUpdate doDone");
                 setDone(true);
             }
+            updateBottom(model, computeLiftType(a));
             return;
         }
     }
@@ -716,12 +714,12 @@ public class ScoreWithLeaders extends PolymerTemplate<ScoreWithLeaders.Scoreboar
     private void updateBottom(ScoreboardModel model, String liftType) {
         OwlcmsSession.withFop((fop) -> {
             curGroup = fop.getGroup();
+            order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
             if (liftType != null) {
                 model.setGroupName(
                         curGroup != null
                                 ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
-                                : "");
-                order = Competition.getCurrent().getGlobalCategoryRankingsForGroup(curGroup);
+                                : ""); 
                 liftsDone = AthleteSorter.countLiftsDone(order);
                 model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
             } else {

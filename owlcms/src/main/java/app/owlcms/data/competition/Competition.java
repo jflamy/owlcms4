@@ -347,14 +347,18 @@ public class Competition {
 
     public Collection<Athlete> getGlobalTeamsRanking(Gender gender) {
         List<Athlete> athletes = getAthletes(gender);
-        if (athletes == null) {
-            // not cached yet (we are likely the first on a reset/restart).
-            computeGlobalRankings(true);
-            athletes = getAthletes(gender);
-            if (athletes == null) {
-                String error = MessageFormat.format("team list not found for gender {0}", gender);
-                logger./**/warn(error);
-                athletes = Collections.emptyList();
+        if (isRankingsInvalid() || athletes == null) {
+            setRankingsInvalid(true);
+            while (isRankingsInvalid()) { // could be made invalid again while we compute
+                setRankingsInvalid(false);  
+                // recompute because an athlete has been saved (new weight requested, good/bad lift, etc.)
+                computeGlobalRankings(true);
+                athletes = getAthletes(gender);
+                if (athletes == null) {
+                    String error = MessageFormat.format("team list not found for gender {0}", gender);
+                    logger./**/warn(error);
+                    athletes = Collections.emptyList();
+                }
             }
             logger.debug("team rankings recomputed {} size {}", gender, athletes != null ? athletes.size() : null);
         } else {
@@ -384,22 +388,28 @@ public class Competition {
     public Integer getInvitedIfBornBefore() {
         return 0;
     }
-
+    
+    private boolean rankingsInvalid = true;
+    
     @SuppressWarnings("unchecked")
     synchronized public List<Athlete> getListOrElseRecompute(String listName) {
         List<Athlete> athletes = (List<Athlete>) reportingBeans.get(listName);
-        if (athletes == null) {
-            // not cached yet (we are likely the first on a reset/restart).
-            computeGlobalRankings(false);
-            athletes = (List<Athlete>) reportingBeans.get(listName);
-            if (athletes == null) {
-                String error = MessageFormat.format("list {0} not found", listName);
-                logger./**/warn(error);
-                athletes = Collections.emptyList();
+        if (isRankingsInvalid() || athletes == null) {
+            setRankingsInvalid(true);
+            while (isRankingsInvalid()) { // could be made invalid again while we compute
+                setRankingsInvalid(false);  
+                // recompute because an athlete has been saved (new weight requested, good/bad lift, etc.)
+                computeGlobalRankings(false);
+                athletes = (List<Athlete>) reportingBeans.get(listName);
+                if (athletes == null) {
+                    String error = MessageFormat.format("list {0} not found", listName);
+                    logger./**/warn(error);
+                    athletes = Collections.emptyList();
+                }
             }
-            logger.debug("recomputed {} size {}", listName, athletes != null ? athletes.size() : null);
+            logger.debug("recomputed {} size {} from {}", listName, athletes != null ? athletes.size() : null);
         } else {
-            logger.debug("found {} size {}", listName, athletes != null ? athletes.size() : null);
+            logger.debug("found {} size {} from {}", listName, athletes != null ? athletes.size() : null);
         }
         return athletes;
     }
@@ -919,5 +929,13 @@ public class Competition {
         reportingBeans.put("mTeam", sortedMen);
         reportingBeans.put("wTeam", sortedWomen);
         reportingBeans.put("mwTeam", sortedAthletes);
+    }
+
+    synchronized public boolean isRankingsInvalid() {
+        return rankingsInvalid;
+    }
+
+    synchronized public void setRankingsInvalid(boolean invalid) {
+        this.rankingsInvalid = invalid;
     }
 }

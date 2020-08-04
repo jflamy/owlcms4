@@ -866,18 +866,18 @@ public class FieldOfPlay {
                 return;
             }
         } else if (clockOwner != null && !getAthleteTimer().isRunning()) {
-            logger.trace("&&3.B clock NOT running for changing athlete {}", changingAthlete);
+            logger.warn("&&3.B clock NOT running for changing athlete {}", changingAthlete);
             // time was started (there is an owner) but is not currently running
             // time was likely stopped by timekeeper because coach signaled change of weight
             doWeightChange(wc, changingAthlete, clockOwner, true);
         } else {
-            logger.trace("&&3.C1 no clock owner, time is not running");
+            logger.warn("&&3.C1 no clock owner, time is not running");
             // time is not running
             recomputeLiftingOrder();
+            updateGlobalRankings();
             setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
             logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
             uiDisplayCurrentAthleteAndTime(true, wc, false);
-            updateGlobalRankings();
         }
     }
 
