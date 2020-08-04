@@ -1,8 +1,6 @@
-* Changes for release 4.9.0-SNAPSHOT  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.9.0-rc04  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   
-   - [x] Fix: Stopping a technical or jury break would wrongly reset the time for the athlete .  Also, the announcer starting a break on the first attempt of an athlete was not being recognized by default as a technical break. (#373)
-   - [x] Fix: earlier 4.9.0-alpha releases had taken away the ability to fit more or fewer lines on the scoreboards by using the browser zoom.  Feature is now back. (#371)
-   - [x] Fix: the down indicator would sometimes inexplicably be missing at the top of the scoreboards (long-standing mystery now solved) (#369).
+   - [x] Fix: Since version 4.8.0, occasionally some changes to requested weight would not show on the bottom part of the scoreboard (#376) 
 * Key Highlights from recent stable releases
 
    * [x] Timer, down and decisions are now shown on the `publicresults` site.  Documentation for running virtual competitions and for using remote scoreboards using `publicresults` has been updated.  See the `Advanced Topics` section of the documentation. (#352) (#362)
