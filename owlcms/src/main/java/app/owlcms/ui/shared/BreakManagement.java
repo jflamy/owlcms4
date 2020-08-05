@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -42,7 +43,9 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.fields.DurationField;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.ProxyBreakTimer;
 import app.owlcms.init.OwlcmsSession;
@@ -626,6 +629,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
             startEnabled();
             ignoreListeners = false;
 
+            List<Athlete> order;
             switch (fop.getState()) {
             case BREAK:
                 logger.debug("syncWithFOP - break under way");
@@ -656,14 +660,15 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
                 break;
             default:
                 Athlete curAthlete = fop.getCurAthlete();
+                order = fop.getLiftingOrder();
                 logger.debug("syncWithFOP currentAthlete {}", curAthlete);
                 if (curAthlete == null) {
                     safeSetBT(BreakType.BEFORE_INTRODUCTION);
                     setCtValue(CountdownType.TARGET);
-                } else if (curAthlete.getAttemptsDone() == 3) {
+                } else if (curAthlete.getAttemptsDone() == 3 && AthleteSorter.countLiftsDone(order) == 0 && fop.getState() != FOPState.TIME_RUNNING) {
                     safeSetBT(BreakType.FIRST_CJ);
                     setCtValue(CountdownType.DURATION);
-                } else if (curAthlete.getAttemptsDone() == 0) {
+                } else if (curAthlete.getAttemptsDone() == 0 && AthleteSorter.countLiftsDone(order) == 0 && fop.getState() != FOPState.TIME_RUNNING) {
                     safeSetBT(BreakType.FIRST_SNATCH);
                     setCtValue(CountdownType.DURATION);
                 } else {

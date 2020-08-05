@@ -4,7 +4,7 @@ The `publicresults` application is used to make applications results available t
 - The general public, whether at the competition site or anywhere on the internet, can connect to publicresults and  see the scoreboards via their phone or laptop.  
 - There is no load put on the competition site other than sending an update to the publicresults application.  The publicresults application takes all the load for the public queries.
 
-## Cloud installation of `publicresults`
+## Install on Heroku
 
 1. Get a free Heroku account -- go to [https://heroku.com](https://heroku.com) and sign up!
 
@@ -22,27 +22,59 @@ The `publicresults` application is used to make applications results available t
     ![030_deploy](img/PublicResults/030_deploy.png)
 
 6. You can check that the application is running by starting a new browser tab. In our example, we connect to `https://owlcms-test-publicresults.herokuapp.com`
-    
+   
+
 ![032_viewApp1](img/PublicResults/032_viewApp1.png)
     
-    
+
+## Configure a Shared Secret
+
 7. We now need to configure a secret code to keep communications secure between the competition site and the publicresults repeater.  Go to the `Settings` page for the application.
     ![040_configureServerKey](img/PublicResults/040_configureServerKey.png)
 
-8. Create configuration variable `OWLCMS_UPDATEKEY` and set it to the secret key that will be shared with owlcms.  **Use something easy to type, but quite long**, and not easily guessed .  `abracadabra` as used below is *NOT* a good real-life example...
-    ![041_configureServerKey2](img/PublicResults/041_configureServerKey2.png)
+8. Create configuration variable `OWLCMS_UPDATEKEY` and set it to the secret key that will be shared with owlcms.  **Use something easy to type, but quite long**, and not easily guessed.  The  password to your Heroku account and the update key is what prevents vandals from messing up your scoreboards.  Do not share them, and make sure they cannot be guessed easily.
+    ![ljyvckBm6F](img/PublicResults/Example/ljyvckBm6F.png)
 
-9. After installing publicresults, you need to configure owlcms to talk to it.  Refer to [these instructions](RunPublicResults)
+9. Copy the value for the update key (Ctrl-C)
 
-## Local Installation of the `publicresults` Application
+    ## Reset `publicresults`
 
-Normally, publicresults is installed in the cloud.  For testing purposes, or if there is a local Wifi setup at your competition site, you might want to run it locally.
+10. Restart the publicresults application
+    ![6Ihs0ei0Ad](img/PublicResults/Example/6Ihs0ei0Ad.png)
 
-1. If the competition site does not have an Internet link, you can setup a second laptop and use the `publicresults.exe` package from the release repository. 
-2. To be safe, you should isolate the second laptop and the coaches from the competition network
-   1. Get a second router and configure its DHCP address range to be different than your main router (do not connect it to the main router)
-   2. Install a wire from one of the LAN ports of the main router to the WLAN port of a second router.
-   3. Connect the second laptop to the second router using a wire.  It will be able to see the primary laptop via the wire.
-   4. Note that if your main router has internet access the coaches will likely be blocked from reaching it unless you add additional default routes (or your router does it on its own).  But since this configuration is meant for the case where there is no internet access, that's probably just fine.
+11. Start a new browser tab and go to the address for the application (or you can use the `Open app` button at the top right) and check that the application is waiting.
+     ![AAAxZYQKZK](img/PublicResults/Example/AAAxZYQKZK.png)
 
-You will then edit the `publicresults.l4j.ini` in the installation directory, and uncomment the `-DupdateKey`  The rest of the setup is the same as for the cloud configuration.
+     ## Configure Updates from `owlcms`
+
+12. Open the owlcms application on Heroku and go to the `Prepare Competition` - `Technical Configuration ` page.
+
+     - paste the secret key on the right-hand side -- use the "eye" icon to see what you pasted.
+     - copy and paste the correct URL for the publicresults application we opened in step 5.
+     - Click on update.
+
+     ![GkwHZ4ZHeW](img/PublicResults/Example/GkwHZ4ZHeW.png)
+
+     ## Test the setup
+
+13. Create the athletes for a group
+
+     - load a registration file or create an athlete
+     - go to the weigh-in screen and add body weight and starting weights.
+
+14. Go to the announcer page and select a group.
+     ![layHD1stff](img/PublicResults/Example/layHD1stff.png)
+
+15. As soon as a group is selected, publicresults is updated.  Switch to publicresults, and you should see
+     ![V1YaYXsAWr](img/PublicResults/Example/V1YaYXsAWr.png)
+
+16. Click on "Platform A" and because no group is currently lifting, you see
+
+     ![RIxGO9RShj](img/PublicResults/Example/RIxGO9RShj.png)
+
+17. The announcer selects a group, and clicks on "Countdown to Introduction", and starts the countdown.
+     ![vC53fjpSuq](img/PublicResults/Example/vC53fjpSuq.png)
+
+18. The publicresults screen immediately switches to the countdown.![X0qHw40LKh](img/PublicResults/Example/X0qHw40LKh.png)
+
+19. From then on, the publicresults screen will track the competition. It just repeats the events taking place on the local scoreboard.

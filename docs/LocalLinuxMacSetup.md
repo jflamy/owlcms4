@@ -1,11 +1,13 @@
+## macOS or Linux Installation
+
 - **Get the installation zip archive**: Go to the releases location (https://github.com/owlcms/owlcms4/releases/latest) and get the current `zip` file from the `assets` section at the bottom of the release entry.
 
 - Double-click on the zip file, and extract the files to a directory.  We suggest you use `~/owlcms4` as the unzipped location.
 
-- Make sure you have Java 8 installed. 
+- Make sure you have a Java 8 JRE installed as a minimum.  You can also use Java 11, and use a JDK instead of a JRE. 
 
   -  For Linux, refer to https://adoptopenjdk.net/releases.html depending on the Linux type you run
-  -  For MacOS, see https://adoptopenjdk.net/releases.html#x64_mac
+  -  For macOS, see https://adoptopenjdk.net/releases.html#x64_mac
 
 - To start the program, open a Terminal window,  directory to the location where you unzipped the files and launch Java as follows.  Assuming you extracted to a directory called `owlcms4` in your home, the following would work
 
@@ -24,9 +26,9 @@
 
 ## Initial Startup
 
-When OWLCMS4 is started on a laptop, two windows are visible:  a command-line window, and an internet browser
+When OWLCMS is started on a laptop, two windows are visible:  a command-line window, and an internet browser
 
-- The command-line window (typically with a black background) is where the OWLCMS4 primary web server shows its execution log.  
+- The command-line window (typically with a black background) is where the OWLCMS primary web server shows its execution log.  
 
   All the other displays and screens connect to the primary server.  <u>You can stop the program by clicking on the x</u> or clicking in the window and typing `Control-C`.  The various screens and displays will spin in wait mode until you restart the primary program -- there is normally no need to restart or refresh them.
 
@@ -56,7 +58,7 @@ If you do so, you will see the installation directory content:
 
 - `jre`  contains the Java Runtime Environment
 
-- the file ending in `.jar` is the OWLCMS4 application in executable format
+- the file ending in `.jar` is the OWLCMS application in executable format
 
 - the `owlcms.l4j.ini` file is used to override application settings (for example, to force the display language) or technical settings
 
@@ -74,7 +76,7 @@ Mischievous users can probably figure out your Wi-Fi network password, and gain 
   java -DPIN=5612 -jar owlcms.jar
   ```
 
-  or, alternately, as an environment variable that you can define using the `set` command or even dynamically when launching OWLCMS4. 
+  or, alternately, as an environment variable that you can define using the `set` command or even dynamically when launching OWLCMS. 
 
   ```bash
   PIN=5612 java -jar owlcms.jar
@@ -82,7 +84,7 @@ Mischievous users can probably figure out your Wi-Fi network password, and gain 
 
 ## Defining the language
 
-You can use the same technique as for the PIN to force a language to be used on all the screens.  By default, OWLCMS4 will respect the browser settings.  To force a locale (say Canadian French, whose code is `fr_CA`)-- a locale is a language with possible per-country variations --  you can
+You can use the same technique as for the PIN to force a language to be used on all the screens.  By default, OWLCMS will respect the browser settings.  To force a locale (say Canadian French, whose code is `fr_CA`)-- a locale is a language with possible per-country variations --  you can
 
 -  define the Java system property `locale` (small letters) using the syntax 
   `java -Dlocale=fr_CA`

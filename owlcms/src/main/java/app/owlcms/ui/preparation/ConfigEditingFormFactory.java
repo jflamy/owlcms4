@@ -156,7 +156,7 @@ public class ConfigEditingFormFactory
         Component title = createTitle("Config.AccessControlTitle");
         configLayout.add(title);
         configLayout.setColspan(title, 2);
-        
+
         TextField accessListField = new TextField();
         accessListField.setWidthFull();
         configLayout.addFormItem(accessListField, Translator.translate("Config.AccessList"));
@@ -170,7 +170,7 @@ public class ConfigEditingFormFactory
         binder.forField(passwordField)
                 .withNullRepresentation("")
                 .bind(Config::getPin, Config::setPin);
-        
+
         return configLayout;
     }
 

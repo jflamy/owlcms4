@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -137,8 +138,11 @@ public class Group implements Comparable<Group> {
         }
     }
 
+//    @Override
+
     @Override
     public boolean equals(Object obj) {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         if (this == obj) {
             return true;
         }
@@ -149,16 +153,36 @@ public class Group implements Comparable<Group> {
             return false;
         }
         Group other = (Group) obj;
-        return Objects.equals(name, other.name)
-                && Objects.equals(announcer, other.announcer) && Objects.equals(competitionTime, other.competitionTime)
-                && Objects.equals(id, other.id) && Objects.equals(jury1, other.jury1)
-                && Objects.equals(jury2, other.jury2) && Objects.equals(jury3, other.jury3)
-                && Objects.equals(jury4, other.jury4) && Objects.equals(jury5, other.jury5)
-                && Objects.equals(marshall, other.marshall) && Objects.equals(platform, other.platform)
-                && Objects.equals(referee1, other.referee1)
-                && Objects.equals(referee2, other.referee2) && Objects.equals(referee3, other.referee3)
-                && Objects.equals(technicalController, other.technicalController)
-                && Objects.equals(timeKeeper, other.timeKeeper) && Objects.equals(weighInTime, other.weighInTime);
+        return id != null && id.equals(other.getId());
+        
+        //      public boolean equals(Object obj) {
+        //      if (this == obj) {
+        //          return true;
+        //      }
+        //      if (obj == null) {
+        //          return false;
+        //      }
+        //      if (getClass() != obj.getClass()) {
+        //          return false;
+        //      }
+        //      Group other = (Group) obj;
+        //      return Objects.equals(name, other.name)
+        //              && Objects.equals(announcer, other.announcer) && Objects.equals(competitionTime, other.competitionTime)
+        //              && Objects.equals(id, other.id) && Objects.equals(jury1, other.jury1)
+        //              && Objects.equals(jury2, other.jury2) && Objects.equals(jury3, other.jury3)
+        //              && Objects.equals(jury4, other.jury4) && Objects.equals(jury5, other.jury5)
+        //              && Objects.equals(marshall, other.marshall) && Objects.equals(platform, other.platform)
+        //              && Objects.equals(referee1, other.referee1)
+        //              && Objects.equals(referee2, other.referee2) && Objects.equals(referee3, other.referee3)
+        //              && Objects.equals(technicalController, other.technicalController)
+        //              && Objects.equals(timeKeeper, other.timeKeeper) && Objects.equals(weighInTime, other.weighInTime);
+        //  }
+    }
+    
+    @Override
+    public int hashCode() {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return 31;
     }
 
     /**
@@ -345,12 +369,6 @@ public class Group implements Comparable<Group> {
      */
     public LocalDateTime getWeighInTime() {
         return weighInTime;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(announcer, competitionTime, id, jury1, jury2, jury3, jury4, jury5, marshall, name, platform,
-                referee1, referee2, referee3, technicalController, timeKeeper, weighInTime);
     }
 
     public boolean isDone() {

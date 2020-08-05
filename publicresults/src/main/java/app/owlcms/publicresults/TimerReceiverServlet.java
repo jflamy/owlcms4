@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.publicresults;
 
 import java.io.IOException;
@@ -18,20 +24,23 @@ import com.google.common.eventbus.EventBus;
 
 import app.owlcms.uievents.BreakTimerEvent;
 import app.owlcms.uievents.TimerEvent;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 @WebServlet("/timer")
 public class TimerReceiverServlet extends HttpServlet {
 
-    Logger logger = (Logger) LoggerFactory.getLogger(TimerReceiverServlet.class);
-    private String secret = StartupUtils.getStringParam("updateKey");
     private static String defaultFopName;
     static EventBus eventBus = new AsyncEventBus(Executors.newCachedThreadPool());
 
     public static EventBus getEventBus() {
         return eventBus;
     }
+
+    Logger logger = (Logger) LoggerFactory.getLogger(TimerReceiverServlet.class);
+
+    private String secret = StartupUtils.getStringParam("updateKey");
 
     /**
      * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
@@ -51,7 +60,7 @@ public class TimerReceiverServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        
+
         try {
             resp.setCharacterEncoding("UTF-8");
 //            if (StartupUtils.getBooleanParam("DEBUG")) {
@@ -81,7 +90,7 @@ public class TimerReceiverServlet extends HttpServlet {
             boolean indefinite = indefiniteString != null ? Boolean.valueOf(indefiniteString) : false;
             String silentString = req.getParameter("silent");
             boolean silent = silentString != null ? Boolean.valueOf(silentString) : false;
-            
+
             if (eventTypeString.equals("SetTime")) {
                 timerEvent = new TimerEvent.SetTime(seconds);
             } else if (eventTypeString.equals("StopTime")) {
@@ -94,12 +103,12 @@ public class TimerReceiverServlet extends HttpServlet {
                 breakTimerEvent = new BreakTimerEvent.BreakStart(seconds, indefinite);
             } else if (eventTypeString.equals("BreakDone")) {
                 breakTimerEvent = new BreakTimerEvent.BreakDone(null);
-            }  else if (eventTypeString.equals("BreakSetTime")) {
+            } else if (eventTypeString.equals("BreakSetTime")) {
                 breakTimerEvent = new BreakTimerEvent.BreakSetTime(seconds, indefinite);
             } else {
-              String message = MessageFormat.format("unknown event type {0}", eventTypeString);
-              logger.error(message);
-              resp.sendError(400, message);
+                String message = MessageFormat.format("unknown event type {0}", eventTypeString);
+                logger.error(message);
+                resp.sendError(400, message);
             }
 
             if (timerEvent != null) {
@@ -115,8 +124,7 @@ public class TimerReceiverServlet extends HttpServlet {
                 defaultFopName = fopName;
             }
         } catch (NumberFormatException | IOException | NotUtf8Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error(LoggerUtils.stackTrace(e));
         }
     }
 

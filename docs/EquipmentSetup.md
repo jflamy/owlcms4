@@ -1,6 +1,6 @@
 ## Physical Setup
 
-OWLCMS4 is a web-based application. This means that each screen or display is attached to a laptop or miniPC (Windows, Linux, ChromeOS)., and that a browser such as Chrome or Firefox runs on each computer.
+OWLCMS is a web-based application. This means that each screen or display is attached to a laptop or miniPC (Windows, Linux, ChromeOS)., and that a browser such as Chrome or Firefox runs on each computer.
 
 The program is extremely scalable.  You can start by using a single laptop to run a club meet (see below for [examples](#local-access-over-a-local-network).) 
 
@@ -39,33 +39,32 @@ Some combinations of browser and operating system produce garbled sound. If that
 
 ## Networking Requirements
 
-There are three ways to use OWLCMS4: cloud-based, local, and solo.  Which one you use depends on your circumstances, please read on.
+There are three ways to use OWLCMS: cloud-based, local, and solo.  Which one you use depends on your circumstances, please read on.
 
 ### Cloud access over the Internet
 
-In this setup, OWLCMS4 executes on an external cloud service (we provide [instructions for Heroku](Cloud#Heroku), which is physically hosted on Amazon AWS).  Nothing is installed locally: all the laptops and miniPCs simply run a browser, which connects to the remote site.  The address that all the browsers need to use is determined when configuring the cloud service -- in the following example, our demo site https://owlcms4.herokuapp.com is used.
+In this setup, OWLCMS executes on an external cloud service (we provide [instructions for Heroku](Cloud#Heroku), which is physically hosted on Amazon AWS).  Nothing is installed locally: all the laptops and miniPCs simply run a browser, which connects to the remote site.  The address that all the browsers need to use is determined when configuring the cloud service -- in the following example, our demo site https://owlcms4.herokuapp.com is used.
 
 ![010_Cloud](img/equipment/010_Cloud.PNG)
 
 ### Local access over a local network
 
-If there is no Internet access where you hold your meet, or if you prefer not having to rely on it, the second option is to install OWLCMS4 on a good laptop.  OWLCMS4 is started on this laptop, which is designated as the *primary*.  
+If there is no Internet access where you hold your meet, or if you prefer not having to rely on it, the second option is to install OWLCMS on a good laptop.  OWLCMS is started on this laptop, which is designated as the *primary*.  
 
 ![020_local](img/equipment/020_local.PNG)
 
-It is perhaps surprising to use a laptop as a server, but as the picture shows, it's really the same thing: the display computer runs a browser and asks another computer to provide a web page.  In the local setup, the  Internet is the small router, and the server is the primary laptop.  The differences are minor:
+In this setup, the primary laptop plays the role of the server, and the router plays the role of the internet.  The owlcms software running on the laptop is absolutely identical to what is run in the cloud.  The differences are minor
 
-- there is no need for the Internet, all the networking takes place in the router.
-- in a simple local network, the simplest thing is often to use the numerical addresses that the router assigns to each machine.  This is what is illustrated above.
-- when OWLCMS4 starts up, it opens a browser window which tells you [what address the other laptops should use](LocalSetup#initial-startup) to connect to OWLCMS4.  In the illustration, the laptop at the right is the primary, and it can be reached from the laptop at the left using https://192.168.1.100 .  The white browser window on the primary laptop will show this information at startup.
+- in a simple local network, the simplest thing is to use numerical addresses.  These are given out by the router when equipment is connected to the network.
+- when OWLCMS starts up, it opens a browser window which tells you [what numerical address the other laptops should use](LocalSetup#initial-startup) to connect to OWLCMS.  In the illustration, the laptop at the right is the primary, and it can be reached from the laptop at the left using https://192.168.1.100 .  The white browser window on the primary laptop will show this information at startup.
 
 ### Single-computer setup
 
 You can also use the primary laptop by itself.  This is useful to prepare for a competition that will run on that laptop.  You can even run a competition with just an announcer, just to announce athletes, keep time and record decisions. 
 
-The situation is the same as before: the display is done via a browser that asks OWLCMS4 for its information.  The only difference is that the two programs are running on the same computer.
+The situation is the same as before: the display is done via a browser that asks OWLCMS for its information.  The only difference is that the two programs are running on the same computer.
 
--  OWLCMS4 runs on the laptop (pictured in red). It displays its status in a black command-line window.
+-  OWLCMS runs on the laptop (pictured in red). It displays its status in a black command-line window.
 - A browser (Chrome or Firefox, pictured in blue), which will display its output in a browser window.   There is no need for a router because the two programs are on the same machine.   In such a case, there are magic addresses http://localhost or http://127.0.0.1 that allow the connection to be made locally.
 
 ![030_solo](img/equipment/030_solo.PNG)

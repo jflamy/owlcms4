@@ -6,11 +6,7 @@ If you see a blue box like this, click on the `More info` link.
 
 This will make will make a `Run Anyway` button appear at the bottom. You can click on the `Run Anyway` button to let installation proceed.
 
-- **Notice the publisher information**: this attests that the code was digitally signed by the author and was not tampered with.  Microsoft takes note that nothing wrong happens when people install the application, and if enough different people install the application, will eventually remove the warning.
-
-![1_moreInfo](img/DefenderOff/1_moreInfo.png)
-
-
+Making this blue box go away requires a costly certificate (500 US$ per year) that Microsoft will accept as legitimate.  Unless someone donates the money for that purpose, I will not proceed.  Simply signing the software to attest the publisher's identity is not enough, in practice, for software like owlcms.
 
 ## Why does opening the installer take forever for me ?
 

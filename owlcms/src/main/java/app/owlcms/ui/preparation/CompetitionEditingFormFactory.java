@@ -388,6 +388,12 @@ public class CompetitionEditingFormFactory
                 labelWithHelp("Competition.genderOrder", "Competition.genderOrderExplanation"));
         binder.forField(genderOrderField)
                 .bind(Competition::isGenderOrder, Competition::setGenderOrder);
+        
+        Checkbox roundRobinOrderField = new Checkbox();
+        layout.addFormItem(roundRobinOrderField,
+                labelWithHelp("Competition.roundRobinOrder", "Competition.roundRobinOrderExplanation"));
+        binder.forField(roundRobinOrderField)
+                .bind(Competition::isRoundRobinOrder, Competition::setRoundRobinOrder);
 
         return layout;
     }

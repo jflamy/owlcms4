@@ -18,6 +18,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.category.AgeDivision;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import ch.qos.logback.classic.Level;
@@ -67,6 +68,7 @@ public class AthleteRepository {
     public static void delete(Athlete Athlete) {
         JPAService.runInTransaction(em -> {
             em.remove(getById(Athlete.getId(), em));
+            Competition.getCurrent().setRankingsInvalid(true);
             return null;
         });
     }
@@ -207,6 +209,7 @@ public class AthleteRepository {
                 em.merge(a);
             }
             em.flush();
+            Competition.getCurrent().setRankingsInvalid(true);
             return null;
         });
     }
@@ -219,6 +222,7 @@ public class AthleteRepository {
      */
     public static Athlete save(Athlete athlete) {
         return JPAService.runInTransaction((em) -> {
+            Competition.getCurrent().setRankingsInvalid(true);
             return em.merge(athlete);
         });
     }

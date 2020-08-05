@@ -508,9 +508,7 @@ public class Athlete {
             return false;
         }
         Athlete other = (Athlete) obj;
-        return Objects.equals(firstName, other.firstName) && Objects.equals(fullBirthDate, other.fullBirthDate)
-                && gender == other.gender && Objects.equals(id, other.id) && Objects.equals(lastName, other.lastName)
-                && Objects.equals(membership, other.membership) && Objects.equals(team, other.team);
+        return id != null && id.equals(other.getId());
     }
 
     /**
@@ -2120,7 +2118,7 @@ public class Athlete {
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, fullBirthDate, gender, id, lastName, membership, team);
+        return 31;
     }
 
     /**

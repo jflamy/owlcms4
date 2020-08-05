@@ -1,11 +1,9 @@
 * [Home](index)
 * Getting Started
 
-  *	[Windows Installation](LocalWindowsSetup)
-  * [Linux or Mac Installation](LocalLinuxMacSetup)
-  *	[Cloud Installation of owlcms](Cloud)
+  *	[Installation](InstallationOverview)
   *	[Equipment Setup](EquipmentSetup)
-  
+
 * Competition
 
   *	[Preparation](Preparation)
@@ -18,17 +16,20 @@
   *	[Intermissions and Breaks](Breaks)
   *	[Result Documents](Documents)
 
-* Advanced Topics
+* COVID-19 options
 
-  *	[Virtual Competitions and Remote Scoreboards](Virtual)
+  *	[Distancing using Individual Scoreboards](Distancing)
   *	[Cloud Installation of the publicresults Application](Remote)
-  *	[Running Remote publicresults Scoreboards](ConfigPublicResults)
+  *	[Local Installation of the publicresults Application](PublicResults_Local.md)
+  *	[Virtual Competitions and Remote Referees](Virtual)
+  *	[Modified Competition Rules](ModifiedRules)
+  *	[Video-Conference Setup](Video)
+* Advanced Topics
   *	[Updating Cloud-based Applications](UpdatingCloudApplications)
   *	[Configuration Parameters](Configuration)
   *	[Excel Template Variables](TemplateVariables)
   *	[Translations](Translation)
   *	[Contributing to the code](Gitpod)
-  
 * Downloads
 
   *	[Releases](https://github.com/jflamy/owlcms4/releases)

@@ -644,12 +644,12 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     private void updateBottom(ScoreboardModel model, String liftType) {
         OwlcmsSession.withFop((fop) -> {
             curGroup = fop.getGroup();
+            order = fop.getDisplayOrder();
             if (liftType != null) {
                 model.setGroupName(
                         curGroup != null
                                 ? Translator.translate("Scoreboard.GroupLiftType", curGroup.getName(), liftType)
                                 : "");
-                order = fop.getDisplayOrder();
                 model.setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
             } else {
                 model.setGroupName("A");

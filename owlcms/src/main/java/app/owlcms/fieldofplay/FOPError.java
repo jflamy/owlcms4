@@ -1,3 +1,9 @@
+/***
+ * Copyright (c) 2009-2020 Jean-François Lamy
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("Non-Profit OSL" 3.0)
+ * License text at https://github.com/jflamy/owlcms4/blob/master/LICENSE.txt
+ */
 package app.owlcms.fieldofplay;
 
 import org.slf4j.LoggerFactory;
@@ -18,24 +24,6 @@ public class FOPError {
         safePut(FOPState.DECISION_VISIBLE, TimeStarted.class, "ERROR_WAIT_FOR_RESET");
     }
 
-    @SuppressWarnings("unused")
-    private static String getMessageTemplate(FOPState fopState, Class<? extends FOPEvent> fopEventClass) {
-        String msg = errorMessages.get(fopState.toString(), fopEventClass.getSimpleName());
-        if (msg == null) {
-            msg = "Unexpected_event_state";
-        }
-        return msg;
-    }
-
-    private static String getMessageTemplate(String fopStateString, String fopEventString) {
-        logger.warn("getting message for {} {}", fopStateString, fopEventString);
-        String msg = errorMessages.get(fopStateString, fopEventString);
-        if (msg == null) {
-            msg = "Unexpected_event_state";
-        }
-        return msg;
-    }
-
     public static String translateMessage(FOPState fopState, FOPEvent event) {
         String fopStateString = fopState.toString();
         String stateTr = Translator.translate("STATE_" + fopStateString);
@@ -52,10 +40,28 @@ public class FOPError {
         return message;
     }
 
+    @SuppressWarnings("unused")
+    private static String getMessageTemplate(FOPState fopState, Class<? extends FOPEvent> fopEventClass) {
+        String msg = errorMessages.get(fopState.toString(), fopEventClass.getSimpleName());
+        if (msg == null) {
+            msg = "Unexpected_event_state";
+        }
+        return msg;
+    }
+
+    private static String getMessageTemplate(String fopStateString, String fopEventString) {
+        logger.debug("getting message for {} {}", fopStateString, fopEventString);
+        String msg = errorMessages.get(fopStateString, fopEventString);
+        if (msg == null) {
+            msg = "Unexpected_event_state";
+        }
+        return msg;
+    }
+
     private static void safePut(FOPState state, Class<? extends FOPEvent> fopEventClass, String messagePattern) {
         String fopStateString = state.toString();
         String fopEventString = fopEventClass.getSimpleName();
-        logger.warn("adding {} for {} {}", messagePattern, fopStateString, fopEventString);
+        logger.debug("adding {} for {} {}", messagePattern, fopStateString, fopEventString);
         errorMessages.put(fopStateString, fopEventString, messagePattern);
     }
 

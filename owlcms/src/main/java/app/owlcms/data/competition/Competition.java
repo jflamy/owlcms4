@@ -128,6 +128,13 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean genderOrder;
+
+    /**
+     * All first lifts, then all second lifts, then all third lifts, etc. Can be combined with genderOrder as well.
+     */
+    @Column(columnDefinition = "boolean default false")
+    private boolean roundRobinOrder;
+
     private boolean masters;
 
     /**
@@ -135,8 +142,8 @@ public class Competition {
      */
     @Column(columnDefinition = "boolean default false")
     private boolean mastersGenderEquality = false;
-    private Integer mensTeamSize;
 
+    private Integer mensTeamSize;
     private String protocolFileName;
 
     @Lob
@@ -171,6 +178,9 @@ public class Competition {
 
     private Integer womensTeamSize;
 
+    @Transient
+    private boolean rankingsInvalid = true;
+
     synchronized public void computeGlobalRankings(boolean full) {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
         if (athletes.isEmpty()) {
@@ -184,6 +194,21 @@ public class Competition {
             sortTeamResults(athletes);
         }
 
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Competition other = (Competition) obj;
+        return id != null && id.equals(other.getId());
     }
 
     public String getAgeGroupsFileName() {
@@ -325,14 +350,18 @@ public class Competition {
 
     public Collection<Athlete> getGlobalTeamsRanking(Gender gender) {
         List<Athlete> athletes = getAthletes(gender);
-        if (athletes == null) {
-            // not cached yet (we are likely the first on a reset/restart).
-            computeGlobalRankings(true);
-            athletes = getAthletes(gender);
-            if (athletes == null) {
-                String error = MessageFormat.format("team list not found for gender {0}", gender);
-                logger./**/warn(error);
-                athletes = Collections.emptyList();
+        if (isRankingsInvalid() || athletes == null) {
+            setRankingsInvalid(true);
+            while (isRankingsInvalid()) { // could be made invalid again while we compute
+                setRankingsInvalid(false);
+                // recompute because an athlete has been saved (new weight requested, good/bad lift, etc.)
+                computeGlobalRankings(true);
+                athletes = getAthletes(gender);
+                if (athletes == null) {
+                    String error = MessageFormat.format("team list not found for gender {0}", gender);
+                    logger./**/warn(error);
+                    athletes = Collections.emptyList();
+                }
             }
             logger.debug("team rankings recomputed {} size {}", gender, athletes != null ? athletes.size() : null);
         } else {
@@ -366,18 +395,22 @@ public class Competition {
     @SuppressWarnings("unchecked")
     synchronized public List<Athlete> getListOrElseRecompute(String listName) {
         List<Athlete> athletes = (List<Athlete>) reportingBeans.get(listName);
-        if (athletes == null) {
-            // not cached yet (we are likely the first on a reset/restart).
-            computeGlobalRankings(false);
-            athletes = (List<Athlete>) reportingBeans.get(listName);
-            if (athletes == null) {
-                String error = MessageFormat.format("list {0} not found", listName);
-                logger./**/warn(error);
-                athletes = Collections.emptyList();
+        if (isRankingsInvalid() || athletes == null) {
+            setRankingsInvalid(true);
+            while (isRankingsInvalid()) { // could be made invalid again while we compute
+                setRankingsInvalid(false);
+                // recompute because an athlete has been saved (new weight requested, good/bad lift, etc.)
+                computeGlobalRankings(false);
+                athletes = (List<Athlete>) reportingBeans.get(listName);
+                if (athletes == null) {
+                    String error = MessageFormat.format("list {0} not found", listName);
+                    logger./**/warn(error);
+                    athletes = Collections.emptyList();
+                }
             }
-            logger.debug("recomputed {} size {}", listName, athletes != null ? athletes.size() : null);
+            logger.debug("recomputed {} size {} from {}", listName, athletes != null ? athletes.size() : null);
         } else {
-            logger.debug("found {} size {}", listName, athletes != null ? athletes.size() : null);
+            logger.debug("found {} size {} from {}", listName, athletes != null ? athletes.size() : null);
         }
         return athletes;
     }
@@ -439,6 +472,11 @@ public class Competition {
         return womensTeamSize;
     }
 
+    @Override
+    public int hashCode() {
+        return 31;
+    }
+
     public boolean isAnnouncerLiveDecisions() {
         return announcerLiveDecisions;
     }
@@ -474,6 +512,14 @@ public class Competition {
 
     public boolean isMastersGenderEquality() {
         return mastersGenderEquality;
+    }
+
+    synchronized public boolean isRankingsInvalid() {
+        return rankingsInvalid;
+    }
+
+    public boolean isRoundRobinOrder() {
+        return roundRobinOrder;
     }
 
     /**
@@ -662,6 +708,14 @@ public class Competition {
 
     public void setProtocolTemplate(byte[] protocolTemplate) {
         this.protocolTemplate = protocolTemplate;
+    }
+
+    synchronized public void setRankingsInvalid(boolean invalid) {
+        this.rankingsInvalid = invalid;
+    }
+
+    public void setRoundRobinOrder(boolean roundRobinOrder) {
+        this.roundRobinOrder = roundRobinOrder;
     }
 
     /**
@@ -885,5 +939,4 @@ public class Competition {
         reportingBeans.put("wTeam", sortedWomen);
         reportingBeans.put("mwTeam", sortedAthletes);
     }
-
 }

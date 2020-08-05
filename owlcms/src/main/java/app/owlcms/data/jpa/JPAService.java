@@ -237,11 +237,19 @@ public class JPAService {
         props.putAll(vals);
 
         // use an explicit path as this allows connecting to the H2 server running embedded
-        String databasePath = new File("database/owlcms.mv.db").getAbsolutePath();
-        databasePath = databasePath.substring(0, databasePath.length() - ".mv.db".length());
-        String url = (dbUrl != null ? dbUrl : "jdbc:h2:file:" + databasePath) + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
-        props.put(JPA_JDBC_URL, url);
+        String url;
+        String h2Options = ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
+        if (dbUrl == null) {
+            String databasePath = new File("database/owlcms.mv.db").getAbsolutePath();
+            databasePath = databasePath.substring(0, databasePath.length() - ".mv.db".length());
+            url = "jdbc:h2:file:" + databasePath + h2Options;
+        } else {
+            url = dbUrl.replaceAll("\\.mv\\.db", "") + h2Options;
+        }
+        
+
         startLogger.debug("Starting in directory {}", System.getProperty("user.dir"));
+        props.put(JPA_JDBC_URL, url);
         props.put(JPA_JDBC_USER, userName != null ? userName : "sa");
         props.put(JPA_JDBC_PASSWORD, password != null ? password : "");
 

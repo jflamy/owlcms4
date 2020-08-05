@@ -116,7 +116,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
         return getGroupFilter().getValue();
     }
 
-
     /**
      * @see com.vaadin.flow.router.HasDynamicTitle#getPageTitle()
      */

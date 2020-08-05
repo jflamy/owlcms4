@@ -2,7 +2,7 @@
 
 ## Translating the screens and displays
 
-1. For translation, you need to install OWLCMS4 locally.  Refer to the [Local Setup instructions](https://jflamy.github.io/owlcms4/#/LocalSetup). 
+1. For translation, you need to install OWLCMS locally.  Refer to the [Local Setup instructions](https://jflamy.github.io/owlcms4/#/LocalSetup). 
 
 2. Use the following link to locate the [Dropbox folder](https://www.dropbox.com/sh/3dzsbv02fgdrpp3/AAD-yKNcgiMzFOqQzv3qFTiFa?dl=0) that contains the master copy of the translations
     - Click on the file named `translation4.gsheet`
@@ -31,15 +31,15 @@
 
 8. Start the program as usual for your local setup
 
-  - > The files that you have in your `local` directory will have precedence over the files shipped with OWLCMS4, so the translation file in `local -> i18n -> translation4.csv` will be used instead of the official one. 
+  - > The files that you have in your `local` directory will have precedence over the files shipped with OWLCMS, so the translation file in `local -> i18n -> translation4.csv` will be used instead of the official one. 
 
   - Any string you have not translated will come out as `!xx: SomeCode`. This means that there is no value in the row `SomeCode` for the language `xx`.
 
-9. If you update the file while the program is running, you can reload the file to see your changes by going to the bottom of the `About` screen and clicking on the reload button.  After reloading the translations you need to tell your browser to reload the pages from OWLCMS4 to see the new text (F5 or Ctrl-R or Right-Click depending on your browser)
+9. If you update the file while the program is running, you can reload the file to see your changes by going to the bottom of the `About` screen and clicking on the reload button.  After reloading the translations you need to tell your browser to reload the pages from OWLCMS to see the new text (F5 or Ctrl-R or Right-Click depending on your browser)
 
 ![15_reload](img/Translation/15_reload.png)
 
-- By default, OWLCMS4 obeys your browser settings.  So if your browser is set to have xx as the preferred language, and there are translations available for language `xx`, you will see the `xx` text you provided.
+- By default, OWLCMS obeys your browser settings.  So if your browser is set to have xx as the preferred language, and there are translations available for language `xx`, you will see the `xx` text you provided.
   - If you don't get the right language (for example, my browser is in English, but I need to see French when translating to French), see the [instructions for forcing the language](https://jflamy.github.io/owlcms4/#/LocalSetup?id=defining-the-language)
 
 ## Translating the Excel files

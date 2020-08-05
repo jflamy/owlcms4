@@ -1,4 +1,7 @@
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
+import '@polymer/iron-icon/iron-icon.js';
+import '@polymer/iron-icons/iron-icons.js';
+
 class DecisionElement extends PolymerElement {
 
 	static get is() {
@@ -132,7 +135,7 @@ class DecisionElement extends PolymerElement {
 
 	ready() {
 		super.ready();
-		console.debug("decision ready");
+		console.warn("de decision ready");
 		if (!this.jury) {
 			document.body.addEventListener('keydown', e => this._readRef(e));
 		}
@@ -175,7 +178,7 @@ class DecisionElement extends PolymerElement {
 		if (!this.enabled) return;
 
 		var key = e.key;
-		console.debug(key);
+		console.warn("de key "+key);
 		switch (e.key) {
 			case '1':
 				this.set('ref1', true);
@@ -213,7 +216,7 @@ class DecisionElement extends PolymerElement {
 	}
 
 	_registerVote(code) {
-		console.debug(key);
+		console.warn("de vote "+key);
 	}
 
 	/* this is called from the client side to signal that a decision has been made
@@ -289,7 +292,7 @@ class DecisionElement extends PolymerElement {
 	}
 
 	showDown(isMaster, silent) {
-		console.debug("showDown");
+		console.warn("de showDown");
 		this.downShown = true;
 		this.$.downDiv.style.display = "flex";
 		this.$.decisionsDiv.style.display = "none";
@@ -298,7 +301,7 @@ class DecisionElement extends PolymerElement {
 		//if (isMaster) {
 		//	this.$server.masterShowDown(this.decision, this.ref1, this.ref2, this.ref3);
 		//}
-		console.debug("server told");
+		console.warn("de server told");
 		if (this.audio && !silent) {
 			this.oscillator.start(0);
 			this.oscillator.stop(this.context.currentTime + 2);
@@ -319,19 +322,20 @@ class DecisionElement extends PolymerElement {
 
 	showDecisions(isMaster, ref1, ref2, ref3) {
 		this.hideDown();
-		console.debug("showDecision: " + ref1 + " " + ref2 + " " + ref3);
+		console.warn("de showDecision: " + ref1 + " " + ref2 + " " + ref3);
 		this.setColors(this, ref1, ref2, ref3);
-		console.debug("colorsShown");
+		console.warn("de colorsShown");
 	}
 
 	showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
 		this.hideDown();
-		console.debug("showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
+		console.warn("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
 		this.setColors(this, ref1, ref2, ref3);
-		console.debug("jury colorsShown");
+		console.warn("jury colorsShown");
 	}
 
 	reset(isMaster) {
+		console.warn("de reset " + isMaster);
 		this.hideDecisions();
 		this._init();
 	}

@@ -24,24 +24,6 @@ import ch.qos.logback.classic.Logger;
  * @author owlcms
  */
 public class FOPEvent {
-    
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(athlete, origin, this.getClass());
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        FOPEvent other = (FOPEvent) obj;
-        return Objects.equals(athlete, other.athlete) && Objects.equals(origin, other.origin);
-    }
 
     /**
      * Class BarbellOrPlatesChanged
@@ -68,32 +50,12 @@ public class FOPEvent {
      */
     static public class BreakStarted extends FOPEvent {
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + Objects.hash(breakType, countdownType, targetTime, timeRemaining);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            BreakStarted other = (BreakStarted) obj;
-            return breakType == other.breakType && countdownType == other.countdownType
-                    && Objects.equals(targetTime, other.targetTime)
-                    && Objects.equals(timeRemaining, other.timeRemaining);
-        }
-
         private BreakType breakType;
 
         private CountdownType countdownType;
+
         private Integer timeRemaining;
+
         private LocalDateTime targetTime;
 
         public BreakStarted(BreakType bType, CountdownType cType, Integer timeRemaining, LocalDateTime targetTime,
@@ -103,6 +65,23 @@ public class FOPEvent {
             this.setCountdownType(cType);
             this.timeRemaining = timeRemaining;
             this.targetTime = targetTime;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!super.equals(obj)) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            BreakStarted other = (BreakStarted) obj;
+            return breakType == other.breakType && countdownType == other.countdownType
+                    && Objects.equals(targetTime, other.targetTime)
+                    && Objects.equals(timeRemaining, other.timeRemaining);
         }
 
         public BreakType getBreakType() {
@@ -119,6 +98,14 @@ public class FOPEvent {
 
         public Integer getTimeRemaining() {
             return timeRemaining;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(breakType, countdownType, targetTime, timeRemaining);
+            return result;
         }
 
         public boolean isIndefinite() {
@@ -159,30 +146,10 @@ public class FOPEvent {
      * No subclassing relationship with {@link ExplicitDecision} because of different @Subscribe requirements
      */
     static public class DecisionFullUpdate extends FOPEvent {
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + Objects.hash(ref1, ref1Time, ref2, ref2Time, ref3, ref3Time);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            DecisionFullUpdate other = (DecisionFullUpdate) obj;
-            return Objects.equals(ref1, other.ref1) && Objects.equals(ref1Time, other.ref1Time)
-                    && Objects.equals(ref2, other.ref2) && Objects.equals(ref2Time, other.ref2Time)
-                    && Objects.equals(ref3, other.ref3) && Objects.equals(ref3Time, other.ref3Time);
-        }
-
         public Boolean ref1;
+
         public Boolean ref2;
+
         public Boolean ref3;
         public Integer ref1Time;
         public Integer ref2Time;
@@ -197,6 +164,31 @@ public class FOPEvent {
             this.ref1Time = long1;
             this.ref2Time = long2;
             this.ref3Time = long3;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!super.equals(obj)) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            DecisionFullUpdate other = (DecisionFullUpdate) obj;
+            return Objects.equals(ref1, other.ref1) && Objects.equals(ref1Time, other.ref1Time)
+                    && Objects.equals(ref2, other.ref2) && Objects.equals(ref2Time, other.ref2Time)
+                    && Objects.equals(ref3, other.ref3) && Objects.equals(ref3Time, other.ref3Time);
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(ref1, ref1Time, ref2, ref2Time, ref3, ref3Time);
+            return result;
         }
 
     }
@@ -214,33 +206,37 @@ public class FOPEvent {
 
     static public class DecisionUpdate extends FOPEvent {
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + Objects.hash(decision, refIndex);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            DecisionUpdate other = (DecisionUpdate) obj;
-            return decision == other.decision && refIndex == other.refIndex;
-        }
-
         public boolean decision;
+
         public int refIndex;
 
         public DecisionUpdate(Object origin, int refIndex, boolean decision) {
             super(origin);
             this.refIndex = refIndex;
             this.decision = decision;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!super.equals(obj)) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            DecisionUpdate other = (DecisionUpdate) obj;
+            return decision == other.decision && refIndex == other.refIndex;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(decision, refIndex);
+            return result;
         }
 
         @Override
@@ -266,30 +262,11 @@ public class FOPEvent {
      */
     static public class ExplicitDecision extends FOPEvent {
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + Objects.hash(ref1, ref2, ref3, success);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            ExplicitDecision other = (ExplicitDecision) obj;
-            return Objects.equals(ref1, other.ref1) && Objects.equals(ref2, other.ref2)
-                    && Objects.equals(ref3, other.ref3) && Objects.equals(success, other.success);
-        }
-
         /** The decision. */
         public Boolean success = null;
+
         public Boolean ref1;
+
         public Boolean ref2;
         public Boolean ref3;
 
@@ -310,9 +287,55 @@ public class FOPEvent {
             this.ref2 = ref2;
             this.ref3 = ref3;
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!super.equals(obj)) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            ExplicitDecision other = (ExplicitDecision) obj;
+            return Objects.equals(ref1, other.ref1) && Objects.equals(ref2, other.ref2)
+                    && Objects.equals(ref3, other.ref3) && Objects.equals(success, other.success);
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(ref1, ref2, ref3, success);
+            return result;
+        }
     }
 
     static public class ForceTime extends FOPEvent {
+
+        public int timeAllowed;
+
+        public ForceTime(int timeAllowed, Object object) {
+            super(object);
+            this.timeAllowed = timeAllowed;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!super.equals(obj)) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            ForceTime other = (ForceTime) obj;
+            return timeAllowed == other.timeAllowed;
+        }
 
         @Override
         public int hashCode() {
@@ -321,48 +344,9 @@ public class FOPEvent {
             result = prime * result + Objects.hash(timeAllowed);
             return result;
         }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            ForceTime other = (ForceTime) obj;
-            return timeAllowed == other.timeAllowed;
-        }
-
-        public int timeAllowed;
-
-        public ForceTime(int timeAllowed, Object object) {
-            super(object);
-            this.timeAllowed = timeAllowed;
-        }
     }
 
     static public class JuryDecision extends FOPEvent {
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + Objects.hash(success);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            JuryDecision other = (JuryDecision) obj;
-            return Objects.equals(success, other.success);
-        }
-
         /** The decision. */
         public Boolean success = null;
 
@@ -370,6 +354,29 @@ public class FOPEvent {
             super(athlete, origin);
             logger.trace("jury decision for {}", athlete);
             this.success = decision;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!super.equals(obj)) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            JuryDecision other = (JuryDecision) obj;
+            return Objects.equals(success, other.success);
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(success);
+            return result;
         }
 
     }
@@ -387,26 +394,6 @@ public class FOPEvent {
 
     static public class SwitchGroup extends FOPEvent {
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = super.hashCode();
-            result = prime * result + Objects.hash(group);
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!super.equals(obj))
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            SwitchGroup other = (SwitchGroup) obj;
-            return Objects.equals(group, other.group);
-        }
-
         private Group group;
 
         public SwitchGroup(Group g, Object origin) {
@@ -414,8 +401,31 @@ public class FOPEvent {
             this.group = g;
         }
 
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!super.equals(obj)) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            SwitchGroup other = (SwitchGroup) obj;
+            return Objects.equals(group, other.group);
+        }
+
         public Group getGroup() {
             return group;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = super.hashCode();
+            result = prime * result + Objects.hash(group);
+            return result;
         }
 
     }
@@ -427,17 +437,6 @@ public class FOPEvent {
         }
 
     }
-
-    // /**
-    // * The Class AthleteAnnounced.
-    // */
-    // static public class AthleteAnnounced extends FOPEvent {
-    //
-    // public AthleteAnnounced(Object object) {
-    // super(object);
-    // }
-    //
-    // }
 
     /**
      * The Class StartTime.
@@ -460,6 +459,17 @@ public class FOPEvent {
         }
 
     }
+
+    // /**
+    // * The Class AthleteAnnounced.
+    // */
+    // static public class AthleteAnnounced extends FOPEvent {
+    //
+    // public AthleteAnnounced(Object object) {
+    // super(object);
+    // }
+    //
+    // }
 
     /**
      * Class WeightChange.
@@ -488,13 +498,31 @@ public class FOPEvent {
 
     protected Athlete athlete;
 
+    private long timestamp;
+
     public FOPEvent(Athlete athlete, Object origin) {
         this.athlete = athlete;
         this.origin = origin;
+        this.timestamp = System.currentTimeMillis();
     }
 
     FOPEvent(Object origin) {
         this(null, origin);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        FOPEvent other = (FOPEvent) obj;
+        return Objects.equals(athlete, other.athlete) && Objects.equals(origin, other.origin);
     }
 
     public Athlete getAthlete() {
@@ -503,6 +531,14 @@ public class FOPEvent {
 
     public Object getOrigin() {
         return origin;
+    }
+
+    @Override
+    public int hashCode() {
+        // by default, events are always different, unless they override hashcode.
+        // this is because some events such as WeightChange do not currently carry their value,
+        // so they come out as always duplicates unless we put a time stamp.
+        return Objects.hash(athlete, origin, timestamp, this.getClass());
     }
 
     public void setAthlete(Athlete athlete) {

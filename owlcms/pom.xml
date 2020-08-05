@@ -416,7 +416,7 @@
                             <systemProperties>
                                 <systemProperty>
                                     <key>initialData</key>
-                                    <value>SINGLE_ATHLETE_GROUPS</value>
+                                    <value>LARGEGROUP_DEMO</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <key>memoryMode</key>
@@ -462,6 +462,18 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                  <filesets>
+                    <fileset>
+                      <directory>logs</directory>
+                      <followSymlinks>false</followSymlinks>
+                    </fileset>
+                  </filesets>
+                </configuration>
+              </plugin>
         </plugins>
     </build>
     <profiles>

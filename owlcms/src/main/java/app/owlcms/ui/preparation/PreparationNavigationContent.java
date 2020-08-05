@@ -73,12 +73,12 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 //        downloadButton.setWidth("93%"); // don't ask. this is a kludge.
 //        download.add(downloadButton);
 //        download.setWidth("100%");
-//        
+//
         LazyDownloadButton downloadButton = new LazyDownloadButton(
                 getTranslation("DownloadRegistrationTemplate"),
                 new Icon(VaadinIcon.DOWNLOAD_ALT),
                 () -> "registration"
-                        //+ "_" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                        // + "_" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
                         + ".xls",
                 () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
 
@@ -89,7 +89,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
         Button athletes = openInNewTabNoParam(RegistrationContent.class, getTranslation("EditAthletes"));
 
-        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups, groups, platforms, config,
+        FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, ageGroups, groups, platforms,
+                config,
                 downloadDiv, upload);
         FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload);
         FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes);

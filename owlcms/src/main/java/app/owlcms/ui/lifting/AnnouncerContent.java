@@ -124,6 +124,18 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
     }
 
     @Subscribe
+    public void slaveNotification(UIEvent.Notification e) {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
+            Notification n = new Notification();
+            n.setText(FOPError.translateMessage(e.getFopStateString(), e.getFopEventString()));
+            n.setPosition(Position.MIDDLE);
+            n.setDuration(3000);
+            n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            n.open();
+        });
+    }
+
+    @Subscribe
     public void slaveRefereeDecision(UIEvent.Decision e) {
         UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             hideLiveDecisions();
@@ -143,18 +155,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
             n.add(label);
             n.setPosition(Position.TOP_START);
             n.setDuration(5000);
-            n.open();
-        });
-    }
-    
-    @Subscribe
-    public void slaveNotification(UIEvent.Notification e) {
-        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
-            Notification n = new Notification();
-            n.setText(FOPError.translateMessage(e.getFopStateString(), e.getFopEventString()));
-            n.setPosition(Position.MIDDLE);
-            n.setDuration(3000);
-            n.addThemeVariants(NotificationVariant.LUMO_ERROR);
             n.open();
         });
     }

@@ -29,10 +29,6 @@ public class UpdateEvent {
     private BreakType breakType;
     private Integer breakRemaining;
 
-    public Integer getBreakRemaining() {
-        return breakRemaining;
-    }
-
     public UpdateEvent() {
         setLeaders(leaders);
     }
@@ -43,6 +39,14 @@ public class UpdateEvent {
 
     public String getAttempt() {
         return attempt;
+    }
+
+    public Integer getBreakRemaining() {
+        return breakRemaining;
+    }
+
+    public BreakType getBreakType() {
+        return breakType;
     }
 
     public String getCategoryName() {
@@ -105,12 +109,28 @@ public class UpdateEvent {
         return this.wideTeamNames;
     }
 
+    public Boolean isBreak() {
+        return isBreak;
+    }
+
     public void setAthletes(String athletes) {
         this.athletes = athletes;
     }
 
     public void setAttempt(String parameter) {
         this.attempt = parameter;
+    }
+
+    public void setBreak(Boolean isBreak) {
+        this.isBreak = isBreak;
+    }
+
+    public void setBreakRemaining(Integer milliseconds) {
+        this.breakRemaining = milliseconds;
+    }
+
+    public void setBreakType(BreakType bt) {
+        this.breakType = bt;
     }
 
     public void setCategoryName(String categoryName) {
@@ -171,26 +191,6 @@ public class UpdateEvent {
 
     public void setWideTeamNames(boolean wideTeamNames) {
         this.wideTeamNames = wideTeamNames;
-    }
-
-    public Boolean isBreak() {
-        return isBreak;
-    }
-
-    public void setBreak(Boolean isBreak) {
-        this.isBreak = isBreak;
-    }
-
-    public void setBreakType(BreakType bt) {
-        this.breakType = bt;
-    }
-
-    public BreakType getBreakType() {
-        return breakType;
-    }
-
-    public void setBreakRemaining(Integer milliseconds) {
-        this.breakRemaining = milliseconds;
     }
 
 }

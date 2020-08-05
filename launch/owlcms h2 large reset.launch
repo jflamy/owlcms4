@@ -12,7 +12,8 @@
         <mapEntry key="OWLCMS_LOCALE" value="en"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="false"/>
         <mapEntry key="OWLCMS_PORT" value="80"/>
-        <mapEntry key="OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
+        <mapEntry key="OWLCMS_REMOTE1" value="http://127.0.0.1:8081/update"/>
+        <mapEntry key="OWLCMS_REMOTE2" value="https://publicresults-dev.herokuapp.com"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="thisisaverylongsecretstring"/>
         <mapEntry key="_OWLCMS_IP" value="127.0.0.1,10.0.2.2,10.0.0.221,10.0.0.163"/>
@@ -27,7 +28,6 @@
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
     <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"/>
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="app.owlcms.Main"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="owlcms"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="owlcms"/>

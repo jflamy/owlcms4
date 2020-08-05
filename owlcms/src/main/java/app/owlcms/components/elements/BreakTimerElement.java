@@ -77,7 +77,7 @@ public class BreakTimerElement extends TimerElement {
     @Override
     @ClientCallable
     public void clientTimeOver() {
-        logger.info("break time over");
+        logger.debug("!break time over");
         OwlcmsSession.withFop(fop -> {
             ProxyBreakTimer breakTimer = fop.getBreakTimer();
             if (!breakTimer.isIndefinite()) {

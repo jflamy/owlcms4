@@ -37,9 +37,14 @@ public class Config {
      * @return the current
      */
     public static Config getCurrent() {
-        //if (current == null) {
-            current = ConfigRepository.findAll().get(0);
-        //}
+        // if (current == null) {
+        current = ConfigRepository.findAll().get(0);
+        // }
+        return current;
+    }
+
+    public static Config setCurrent(Config config) {
+        current = ConfigRepository.save(config);
         return current;
     }
 
@@ -54,6 +59,19 @@ public class Config {
     private String publicResultsURL;
 
     private String updatekey;
+
+    /**
+     * Gets the id.
+     *
+     * @return the id
+     */
+    public Long getId() {
+        return id;
+    }
+
+    public String getIpAccessList() {
+        return ipAccessList;
+    }
 
     /**
      * @return the current password.
@@ -78,15 +96,6 @@ public class Config {
     }
 
     /**
-     * Gets the id.
-     *
-     * @return the id
-     */
-    public Long getId() {
-        return id;
-    }
-
-    /**
      * @return the current password.
      */
     public String getParamPin() {
@@ -106,37 +115,6 @@ public class Config {
     public String getParamTimerUrl() {
         String paramPublicResultsURL = getParamPublicResultsURL();
         return paramPublicResultsURL != null ? paramPublicResultsURL + "/timer" : null;
-    }
-    public String getIpAccessList() {
-        return ipAccessList;
-    }
-
-    public void setIpAccessList(String ipAccessList) {
-        this.ipAccessList = ipAccessList;
-    }
-
-    public String getPin() {
-        return pin;
-    }
-
-    public void setPin(String pin) {
-        this.pin = pin;
-    }
-
-    public String getPublicResultsURL() {
-        return publicResultsURL;
-    }
-
-    public void setPublicResultsURL(String publicResultsURL) {
-        this.publicResultsURL = publicResultsURL;
-    }
-
-    public String getUpdatekey() {
-        return updatekey;
-    }
-
-    public void setUpdatekey(String updatekey) {
-        this.updatekey = updatekey;
     }
 
     /**
@@ -161,6 +139,34 @@ public class Config {
         return publicResultsURLParam != null ? publicResultsURLParam + "/update" : null;
     }
 
+    public String getPin() {
+        return pin;
+    }
+
+    public String getPublicResultsURL() {
+        return publicResultsURL;
+    }
+
+    public String getUpdatekey() {
+        return updatekey;
+    }
+
+    public void setIpAccessList(String ipAccessList) {
+        this.ipAccessList = ipAccessList;
+    }
+
+    public void setPin(String pin) {
+        this.pin = pin;
+    }
+
+    public void setPublicResultsURL(String publicResultsURL) {
+        this.publicResultsURL = publicResultsURL;
+    }
+
+    public void setUpdatekey(String updatekey) {
+        this.updatekey = updatekey;
+    }
+
     /**
      * @return the public results url stored in the database, except if overridden by system property or envariable.
      */
@@ -181,10 +187,28 @@ public class Config {
             }
         }
     }
-
-    public static Config setCurrent(Config config) {
-        current = ConfigRepository.save(config);
-        return current;
+    
+    @Override
+    public boolean equals(Object obj) {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Config other = (Config) obj;
+        return id != null && id.equals(other.getId());
     }
+    
+    @Override
+    public int hashCode() {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return 31;
+    }
+
 
 }

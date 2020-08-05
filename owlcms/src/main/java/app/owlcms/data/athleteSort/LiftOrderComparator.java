@@ -43,6 +43,13 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
         if (compare != 0) {
             return compare;
         }
+        
+        if (Competition.getCurrent().isRoundRobinOrder()) {
+            compare = compareAttemptsDone(lifter1, lifter2);
+            if (compare != 0) {
+                return compare;
+            }
+        }
 
         if (Competition.getCurrent().isGenderOrder()) {
             compare = compareGender(lifter1, lifter2);
@@ -56,9 +63,11 @@ public class LiftOrderComparator extends AbstractLifterComparator implements Com
             return compare;
         }
 
-        compare = compareAttemptsDone(lifter1, lifter2);
-        if (compare != 0) {
-            return compare;
+        if (!Competition.getCurrent().isRoundRobinOrder()) {
+            compare = compareAttemptsDone(lifter1, lifter2);
+            if (compare != 0) {
+                return compare;
+            }
         }
 
         compare = compareProgression(lifter1, lifter2);

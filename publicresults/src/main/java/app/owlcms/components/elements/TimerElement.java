@@ -166,16 +166,20 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     abstract public void clientTimerStopped(double remainingTime);
 
     protected final void doSetTimer(Integer milliseconds) {
-        if (ui == null || ui.isClosing()) return;
-        ui.access( () -> {
+        if (ui == null || ui.isClosing()) {
+            return;
+        }
+        ui.access(() -> {
             stop(getMsRemaining(), isIndefinite(), isSilent());
             initTime(milliseconds);
         });
     }
 
     protected void doStartTimer(Integer milliseconds, boolean silent) {
-        if (ui == null || ui.isClosing()) return;
-        ui.access( () -> {
+        if (ui == null || ui.isClosing()) {
+            return;
+        }
+        ui.access(() -> {
             setIndefinite(milliseconds == null);
             setMsRemaining(milliseconds);
             getModel().setSilent(silent);
@@ -184,8 +188,10 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
     }
 
     protected void doStopTimer() {
-        if (ui == null || ui.isClosing()) return;
-        ui.access( () -> {
+        if (ui == null || ui.isClosing()) {
+            return;
+        }
+        ui.access(() -> {
             stop(getMsRemaining(), isIndefinite(), isSilent());
         });
     }
@@ -218,6 +224,29 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
         return silent;
     }
 
+    /*
+     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        this.ui = attachEvent.getUI();
+        init();
+
+        TimerReceiverServlet.getEventBus().register(this);
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+        this.ui = null;
+
+        TimerReceiverServlet.getEventBus().unregister(this);
+
+        // tell the javascript to stay quiet
+        setSilent(true);
+        setTimerElement(null);
+        getModel().setSilent(true);
+    }
 
     protected void setIndefinite(boolean indefinite) {
         this.indefinite = indefinite;
@@ -286,31 +315,5 @@ public abstract class TimerElement extends PolymerTemplate<TimerElement.TimerMod
             timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2);
         }
     }
-
-    /*
-     * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
-     */
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        this.ui = attachEvent.getUI();
-        init();
-
-        TimerReceiverServlet.getEventBus().register(this);
-    }
-
-
-    @Override
-    protected void onDetach(DetachEvent detachEvent) {
-        super.onDetach(detachEvent);
-        this.ui = null;
-
-        TimerReceiverServlet.getEventBus().unregister(this);
-        
-        // tell the javascript to stay quiet
-        setSilent(true);
-        setTimerElement(null);
-        getModel().setSilent(true);
-    }
-
 
 }

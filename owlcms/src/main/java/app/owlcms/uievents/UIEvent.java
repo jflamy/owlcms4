@@ -469,6 +469,12 @@ public class UIEvent {
 
         private String fopEventString;
 
+        public Notification(Athlete curAthlete, Object origin, FOPEvent e, FOPState state) {
+            super(curAthlete, origin);
+            this.setFopEventString(e.getClass().getSimpleName());
+            this.setFopStateString(state.toString());
+        }
+
         /**
          * Instantiates a new Notification.
          *
@@ -478,12 +484,6 @@ public class UIEvent {
             super(a, origin);
             this.setFopStateString(fopStateString);
             this.setFopEventString(fopEventString);
-        }
-
-        public Notification(Athlete curAthlete, Object origin, FOPEvent e, FOPState state) {
-            super(curAthlete, origin);
-            this.setFopEventString(e.getClass().getSimpleName());
-            this.setFopStateString(state.toString());
         }
 
         public String getFopEventString() {

@@ -47,6 +47,7 @@ public class ProxyBreakTimer implements IProxyTimer {
     private boolean indefinite;
     private LocalDateTime end;
     private Object origin;
+    private long lastStop;
 
     /**
      * Instantiates a new break timer proxy.
@@ -204,8 +205,9 @@ public class ProxyBreakTimer implements IProxyTimer {
         UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getMillis(), getOrigin(), false,
                 fop.getBreakType(), fop.getCountdownType());
         fop.pushOut(event);
-    };
+    }
 
+    
     /*
      * (non-Javadoc)
      *
@@ -214,7 +216,14 @@ public class ProxyBreakTimer implements IProxyTimer {
     @Override
     public void timeOver(Object origin) {
         if (running && !isIndefinite()) {
-            this.stop();
+            long now = System.currentTimeMillis();
+            if (now - lastStop > 1000) {
+                // ignore rash of timers all signaling break over
+                lastStop = System.currentTimeMillis();
+                this.stop();
+            } else {
+                return;
+            }
         } else {
             // we've already signaled time over.
             return;

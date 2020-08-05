@@ -42,6 +42,10 @@ public class DecisionEvent {
         return fopName;
     }
 
+    public String getGroupName() {
+        return groupName;
+    }
+
     public boolean isBreak() {
         return isBreak;
     }
@@ -78,6 +82,10 @@ public class DecisionEvent {
         this.decisionLightsVisible = decisionLightsVisible;
     }
 
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+
     public void setDown(boolean down) {
         this.down = down;
     }
@@ -88,14 +96,6 @@ public class DecisionEvent {
 
     public void setFopName(String fopName) {
         this.fopName = fopName;
-    }
-
-    public void setDone(boolean done) {
-        this.done = done;
-    }
-
-    public String getGroupName() {
-        return groupName;
     }
 
     public void setGroupName(String groupName) {
