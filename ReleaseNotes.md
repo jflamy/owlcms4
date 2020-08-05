@@ -1,4 +1,4 @@
-* Changes for release 4.9.0-rc05  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.9.0-SNAPSHOT  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   
    - [x] Fix: some changes to requested weights would not appear immediately on the bottom part of the scoreboards (#376) 
    - [x] Fix: When connecting refereeing keypads to a scoreboard, the down arrow would not show on that specific scoreboard. (#375)

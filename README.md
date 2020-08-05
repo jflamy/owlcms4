@@ -17,7 +17,7 @@ If there is good internet communication at the competition site, there is no nee
 
 ![Slide9](docs/img/PublicResults/CloudExplained/Slide9.SVG)
 
-* [Heroku Cloud Installation](https://jflamy-dev.github.io/owlcms-heroku-prerelease/#/Cloud)
+* [Heroku Cloud Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Cloud)
 
 #### Stand-alone: Laptop installation
 
