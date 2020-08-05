@@ -16,7 +16,7 @@ Whenever possible,  Publicresults is installed in the cloud, and anyone can acce
 
 The cloud-based setup is explained in [this page](Remote).
 
-![Slide2](img/PublicResults/CloudExplained/Slide2.SVG)
+![Slide2](img/PublicResults/CloudExplained/Slide10.SVG)
 
 ## Local Individual Scoreboards
 
