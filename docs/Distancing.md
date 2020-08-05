@@ -20,10 +20,8 @@ The cloud-based setup is explained in [this page](Remote).
 
 ## Local Individual Scoreboards
 
-A (much) more complicated option is to install `publicresults` locally, on a second laptop.  By giving coaches access to a second competition Wi-Fi network, they can get access to the scoreboard on their tablets or phones.
+It is also possible to install `publicresults` locally, on a second laptop.  By giving coaches access to a second competition Wi-Fi network, they can get access to the scoreboard on their tablets or phones. This is more involved because we cannot rely on the cloud provider to protect the competition network from foul play and we have to do it ourselves.
 
 The local setup is explained in [this page](PublicResults_Local).
 
 ![Slide1](img/PublicResults/LocalPublicResults/Slide1.SVG)
-
-### 
