@@ -1,6 +1,8 @@
-* Changes for release 4.9.0-SNAPSHOT  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.9.0-rc05  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   
-   - [x] Fix: Since version 4.8.0, occasionally some changes to requested weight would not show on the bottom part of the scoreboard (#376) 
+   - [x] Fix: some changes to requested weights would not appear immediately on the bottom part of the scoreboards (#376) 
+   - [x] Fix: When connecting refereeing keypads to a scoreboard, the down arrow would not show on that specific scoreboard. (#375)
+   - [x] Fix: Resuming a break would instead reset the time (#377).  Also, the "before introduction" waiting period was no longer transitioning automatically to the introduction when it was over.
 * Key Highlights from recent stable releases
 
    * [x] Timer, down and decisions are now shown on the `publicresults` site.  Documentation for running virtual competitions and for using remote scoreboards using `publicresults` has been updated.  See the `Advanced Topics` section of the documentation. (#352) (#362)
