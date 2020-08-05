@@ -178,6 +178,9 @@ public class Competition {
 
     private Integer womensTeamSize;
 
+    @Transient
+    private boolean rankingsInvalid = true;
+
     synchronized public void computeGlobalRankings(boolean full) {
         List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, true);
         if (athletes.isEmpty()) {
@@ -350,7 +353,7 @@ public class Competition {
         if (isRankingsInvalid() || athletes == null) {
             setRankingsInvalid(true);
             while (isRankingsInvalid()) { // could be made invalid again while we compute
-                setRankingsInvalid(false);  
+                setRankingsInvalid(false);
                 // recompute because an athlete has been saved (new weight requested, good/bad lift, etc.)
                 computeGlobalRankings(true);
                 athletes = getAthletes(gender);
@@ -388,16 +391,14 @@ public class Competition {
     public Integer getInvitedIfBornBefore() {
         return 0;
     }
-    
-    private boolean rankingsInvalid = true;
-    
+
     @SuppressWarnings("unchecked")
     synchronized public List<Athlete> getListOrElseRecompute(String listName) {
         List<Athlete> athletes = (List<Athlete>) reportingBeans.get(listName);
         if (isRankingsInvalid() || athletes == null) {
             setRankingsInvalid(true);
             while (isRankingsInvalid()) { // could be made invalid again while we compute
-                setRankingsInvalid(false);  
+                setRankingsInvalid(false);
                 // recompute because an athlete has been saved (new weight requested, good/bad lift, etc.)
                 computeGlobalRankings(false);
                 athletes = (List<Athlete>) reportingBeans.get(listName);
@@ -511,6 +512,10 @@ public class Competition {
 
     public boolean isMastersGenderEquality() {
         return mastersGenderEquality;
+    }
+
+    synchronized public boolean isRankingsInvalid() {
+        return rankingsInvalid;
     }
 
     public boolean isRoundRobinOrder() {
@@ -703,6 +708,10 @@ public class Competition {
 
     public void setProtocolTemplate(byte[] protocolTemplate) {
         this.protocolTemplate = protocolTemplate;
+    }
+
+    synchronized public void setRankingsInvalid(boolean invalid) {
+        this.rankingsInvalid = invalid;
     }
 
     public void setRoundRobinOrder(boolean roundRobinOrder) {
@@ -929,13 +938,5 @@ public class Competition {
         reportingBeans.put("mTeam", sortedMen);
         reportingBeans.put("wTeam", sortedWomen);
         reportingBeans.put("mwTeam", sortedAthletes);
-    }
-
-    synchronized public boolean isRankingsInvalid() {
-        return rankingsInvalid;
-    }
-
-    synchronized public void setRankingsInvalid(boolean invalid) {
-        this.rankingsInvalid = invalid;
     }
 }
