@@ -751,7 +751,7 @@ public class FieldOfPlay {
      * @param group the group
      */
     public void startLifting(Group group, Object origin) {
-        logger.warn("startLifting {}", LoggerUtils.stackTrace());
+        logger.debug("startLifting {}", LoggerUtils.stackTrace());
         loadGroup(group, origin, true);
         logger.trace("{} start lifting for group {} origin={}", this.getName(),
                 (group != null ? group.getName() : group), origin);
@@ -866,12 +866,12 @@ public class FieldOfPlay {
                 return;
             }
         } else if (clockOwner != null && !getAthleteTimer().isRunning()) {
-            logger.warn("&&3.B clock NOT running for changing athlete {}", changingAthlete);
+            logger.debug("&&3.B clock NOT running for changing athlete {}", changingAthlete);
             // time was started (there is an owner) but is not currently running
             // time was likely stopped by timekeeper because coach signaled change of weight
             doWeightChange(wc, changingAthlete, clockOwner, true);
         } else {
-            logger.warn("&&3.C1 no clock owner, time is not running");
+            logger.debug("&&3.C1 no clock owner, time is not running");
             // time is not running
             recomputeLiftingOrder();
             updateGlobalRankings();
@@ -1189,16 +1189,41 @@ public class FieldOfPlay {
         ProxyBreakTimer breakTimer2 = getBreakTimer();
         BreakType breakType2 = e.getBreakType();
         CountdownType countdownType2 = e.getCountdownType();
-        if (state == BREAK && breakTimer2.isRunning()
-                && (breakType2 != getBreakType() || countdownType2 != getCountdownType())) {
-            // changing the kind of break
-            logger.debug("{} switching break type while in break : current {} new {}", getName(), getBreakType(),
-                    e.getBreakType());
-            breakTimer2.stop();
+        if (state == BREAK) {
+            if ((breakType2 != getBreakType() || countdownType2 != getCountdownType())) {
+                // changing the kind of break
+                logger.debug("{} switching break type while in break : current {} new {}", getName(), getBreakType(),
+                        e.getBreakType());
+                breakTimer2.stop();
+                setBreakParams(e, breakTimer2, breakType2, countdownType2);
+//                getFopEventBus().post(new BreakStarted(breakType2,countdownType2,e.getTimeRemaining(),e.getTargetTime(),e.getOrigin()));
+                logger.debug("starting1");
+                breakTimer2.start(); // so we restart in the new type
+            } else {
+                // we are in a break, resume
+                logger.debug("{} resuming break : current {} new {}", getName(), getBreakType(),
+                        e.getBreakType());
+                breakTimer2.setOrigin(e.getOrigin());
+                logger.debug("starting2");
+                breakTimer2.start();
+            }
+        } else {
+            setState(BREAK);
+            setBreakParams(e, breakTimer2, breakType2, countdownType2);
+            logger.debug("stopping1");
+            breakTimer2.stop(); // so we restart in the new type
         }
+        // this will broadcast to all slave break timers
+        if (!breakTimer2.isRunning()) {
+            breakTimer2.setOrigin(e.getOrigin());
+            logger.debug("starting3");
+            breakTimer2.start();
+        }
+        logger.trace("started break timers {}", breakType2);
+    }
 
-        logger.debug("transition to break {} {}", breakType2, countdownType2);
-        setState(BREAK);
+    private void setBreakParams(BreakStarted e, ProxyBreakTimer breakTimer2, BreakType breakType2,
+            CountdownType countdownType2) {
         this.setBreakType(breakType2);
         this.setCountdownType(countdownType2);
         getAthleteTimer().stop();
@@ -1212,16 +1237,10 @@ public class FieldOfPlay {
             breakTimer2.setTimeRemaining(0);
             breakTimer2.setEnd(e.getTargetTime());
         }
-        // this will broadcast to all slave break timers
-        if (!breakTimer2.isRunning()) {
-            breakTimer2.setOrigin(e.getOrigin());
-            breakTimer2.start();
-        }
-        logger.trace("started break timers {}", breakType2);
     }
 
     private void transitionToLifting(FOPEvent e, Group group2, boolean stopBreakTimer) {
-        logger.warn("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
+        logger.debug("transitionToLifting {} {} from:{}", e.getAthlete(), stopBreakTimer,
                 LoggerUtils.whereFrom());
 
         Athlete clockOwner = getClockOwner();
