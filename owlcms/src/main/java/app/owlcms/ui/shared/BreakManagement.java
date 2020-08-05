@@ -144,7 +144,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
     public ComponentEventListener<ClickEvent<Button>> endBreak(Dialog dialog) {
         return (e) -> {
             OwlcmsSession.withFop(fop -> {
-                logger.warn("endBreak start lifting");
+                logger.debug("endBreak start lifting");
                 fop.getFopEventBus().post(new FOPEvent.StartLifting(this.getOrigin()));
                 logger.debug("endbreak enabling start");
                 breakStart.setEnabled(true);
@@ -215,7 +215,7 @@ public class BreakManagement extends VerticalLayout implements SafeEventBusRegis
         BreakType breakType = bt.getValue();
         CountdownType countdownType = ct.getValue();
         Integer tr;
-        logger.warn("start break bt={} ct={}", bt, ct);
+        logger.debug("start break bt={} ct={}", bt, ct);
         if (countdownType == CountdownType.INDEFINITE) {
             tr = null;
         } else if (countdownType == CountdownType.TARGET) {

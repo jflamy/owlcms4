@@ -49,7 +49,7 @@ public class ConfigRepository {
         List<Config> configList = JPAService
                 .runInTransaction(em -> em.createQuery("select c from Config c").getResultList());
         if (configList.size() < 1) {
-            logger.warn("found {} config", configList.size());
+            logger.debug("found {} config", configList.size());
         } else if (configList.size() > 1) {
             logger.error("found {} configs", configList.size());
         }

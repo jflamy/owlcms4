@@ -50,7 +50,7 @@ public class FOPError {
     }
 
     private static String getMessageTemplate(String fopStateString, String fopEventString) {
-        logger.warn("getting message for {} {}", fopStateString, fopEventString);
+        logger.debug("getting message for {} {}", fopStateString, fopEventString);
         String msg = errorMessages.get(fopStateString, fopEventString);
         if (msg == null) {
             msg = "Unexpected_event_state";
@@ -61,7 +61,7 @@ public class FOPError {
     private static void safePut(FOPState state, Class<? extends FOPEvent> fopEventClass, String messagePattern) {
         String fopStateString = state.toString();
         String fopEventString = fopEventClass.getSimpleName();
-        logger.warn("adding {} for {} {}", messagePattern, fopStateString, fopEventString);
+        logger.debug("adding {} for {} {}", messagePattern, fopStateString, fopEventString);
         errorMessages.put(fopStateString, fopEventString, messagePattern);
     }
 
