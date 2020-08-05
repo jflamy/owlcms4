@@ -17,7 +17,7 @@ If there is good internet communication at the competition site, there is no nee
 
 ![Slide9](docs/img/PublicResults/CloudExplained/Slide9.SVG)
 
-* [Heroku Cloud Installation](https://${env.REPO_OWNER}.github.io/${env.H_REPO_NAME}/#/Cloud)
+* [Heroku Cloud Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Cloud)
 
 #### Stand-alone: Laptop installation
 
