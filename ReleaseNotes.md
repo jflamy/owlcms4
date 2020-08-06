@@ -1,5 +1,5 @@
-* Changes for release 4.9.0  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-  
+* Changes for release 4.9.1-rc02  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+  - [x] Fix: Scoreboard now correctly updated if the last lift in a group is edited (e.g., on jury reversal) (#378)
    - [x] Important Fix: some changes to requested weights would be shown immediately on the top part of the scoreboard, but delayed on the bottom part (#376) 
    - [x] Enhancement: Round-robin lifting order now selectable on Competition Information page. When selected, all lifters do their first attempt according to requested weight,  then all lifters do the second, and so on (#367)
    - [x] Fix: When connecting refereeing keypads to a scoreboard, the down arrow would not show on that specific scoreboard. (#375)  You can therefore use the scoreboard display as a combined attempt board/decision board/scoreboard.
@@ -19,7 +19,6 @@
    * [x] Enhancement: Simple team competition scoreboard.  Top 5 men and top 5 women teams are displayed. Shows how many athletes have been tallied and full team size. (#327)
    * [x] Enhancement: The final package page contains all the scores (SMM, Sinclair, Robi) same as the group results page.
    * [x] Enhancement: In order to facilitate video streaming overlays (e.g. with OBS Studio), the URL http://my.address:8080/displays/currentathlete gives a special screen with only the current athlete shown on the scoreboard.  Edit the file local/styles/currentathlete.css to customize the look and feel. (#312)
-   
 * Workarounds/Known Issues
   
   - [ ] Workaround: (#304) When the browser screens have already been started and owlcms is restarted,  occasionnaly a refresh of the page may be required.
