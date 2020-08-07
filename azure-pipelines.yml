@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.9.1-rc03
+    default: 4.9.1-rc04
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -148,5 +148,4 @@ jobs:
             $(Pipeline.Workspace)/PublicResultsSetup/*
           assetUploadMode: "delete" # Optional. Options: delete, replace
           addChangeLog: false # Optional
-
-          
+        
