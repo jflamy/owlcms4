@@ -8,7 +8,7 @@ steps:
 -  task: Cache@2
    displayName: Cache Maven local repository
    inputs:
-      key: maven | "$(Agent.OS)" | 1
+      key: maven | "$(Agent.OS)" | 14.3.2
       restoreKeys: |
          maven | "$(Agent.OS)"
          maven
