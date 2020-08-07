@@ -282,10 +282,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
     @Subscribe
     public void slaveDownSignal(UIEvent.DownSignal e) {
         uiLog(e);
-        // ignore if the down signal was initiated by this result board.
-        // (the timer element on the result board will actually process the keyboard
-        // codes if devices are attached)
-        UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, uiEventBus, e, this.getOrigin(), () -> {
+        UIEventProcessor.uiAccess(this, uiEventBus, e, () -> {
             getModel().setHidden(false);
             this.getElement().callJsFunction("down");
         });
