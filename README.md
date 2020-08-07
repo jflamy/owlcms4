@@ -29,7 +29,7 @@ If there is no Internet connectivity at your competition site, you can use a sta
 
 - You can run owlcms on the same machine as one of the officials.  It is often the case that owlcms runs on the same machine as the announcer or the competition secretary.  In the simplest setups, there is just the announcer, and maybe one scoreboard.
 
-- You can referee using hand signals, flags, phones, or dedicated devices. See [this page](docs/Refereeing)
+- You can referee using hand signals, flags, phones, or dedicated devices. See [this page](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing)
 
   ![Slide1](docs/img/PublicResults/CloudExplained/Slide7.SVG)
 
