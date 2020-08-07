@@ -13,6 +13,7 @@ Several installation options are possible, depending on what is available at the
 If there is good internet communication at the competition site, there is no need to install anything locally. 
 
 - There is a one-click install procedure to a free (0$) cloud service called Heroku (a division of Salesforce.com). 
+- The install will create your own private copy of the application, with your own database.
 - The owlcms software runs as a web site. All the various display screens and devices connect to the cloud using the competition site's wifi or ethernet network.
 
 ![Slide9](docs/img/PublicResults/CloudExplained/Slide9.SVG)
