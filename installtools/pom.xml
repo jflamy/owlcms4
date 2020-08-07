@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>app.owlcms</groupId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <artifactId>installtools</artifactId>
     <packaging>pom</packaging>
 
@@ -14,11 +14,22 @@
             <properties>
                 <!-- hard-coded paths -->
                 <!-- jre location for bundling with windows installer -->
-                <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>
+                <jre.directory>C:\Dev\Java\jdk-11.0.8+10-jre</jre.directory>
             </properties>
 
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <configuration>
+                            <release>11</release>
+                            <!-- <compilerArgs> should no longer be needed when moving to JDK 11 -->
+                            <!-- <arg>- -add-exports=java.desktop/com.sun.media.sound=ALL-UNNAMED</arg> -->
+                            <!-- </compilerArgs> -->
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <version>3.1.0</version>
@@ -119,11 +130,11 @@
                                     <packaging>zip</packaging>
                                     <classifier>innosetup</classifier>
                                     <generatePom>false</generatePom>
-                                    <!--  pomFile>target/installtools/deployment-pom.xml</pomFile>  -->
+                                    <!-- pomFile>target/installtools/deployment-pom.xml</pomFile> -->
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>deploy-jrep</id>
+                                <id>deploy-jre</id>
                                 <phase>deploy</phase>
                                 <goals>
                                     <goal>deploy-file</goal>
@@ -138,9 +149,9 @@
                                     <packaging>zip</packaging>
                                     <classifier>jre</classifier>
                                     <generatePom>false</generatePom>
-                                    <!--  pomFile>target/installtools/deployment-pom.xml</pomFile>  -->
+                                    <!-- pomFile>target/installtools/deployment-pom.xml</pomFile> -->
                                 </configuration>
-                            </execution>                            
+                            </execution>
                         </executions>
                     </plugin>
                     <plugin>

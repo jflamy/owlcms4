@@ -4,7 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.7.4.1</version>
+        <version>4.9.0.1</version>
     </parent>
 
     <artifactId>owlcms-windows</artifactId>
@@ -35,14 +35,14 @@
         <dependency>
             <groupId>app.owlcms</groupId>
             <artifactId>installtools</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.0</version>
             <type>zip</type>
             <classifier>jre</classifier>
         </dependency>
         <dependency>
             <groupId>app.owlcms</groupId>
             <artifactId>installtools</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.0</version>
             <type>zip</type>
             <classifier>innosetup</classifier>
         </dependency>
@@ -127,11 +127,8 @@
                                 owlcms jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
                                 jar at the front... -->
 
-                            <!-- dummy jar for JDK 8 -->
-                            <jar>jre/lib/charsets.jar</jar>
-
                             <!-- dummy jar for JDK 11 -->
-                            <!-- jar>jre/lib/jrt-fs.jar</jar -->
+                            <jar>jre/lib/jrt-fs.jar</jar>
 
                             <dontWrapJar>true</dontWrapJar>
                             <errTitle>owlcms</errTitle>
