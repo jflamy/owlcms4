@@ -56,19 +56,27 @@ The following example uses an ASUS router as an example.  Modern routers have th
 4. You can now test actual updates from the owlcms application.
    ![06_actualTest](img/PublicResults/LocalPublicResults/06_actualTest.png)
 
-### Protecting `owlcms` from the secondary network
+### Protecting `owlcms` : Options
 
 When you are at home, the various laptops, tablets or phones you connect to your router are all able to open connections to the Internet.  But the machines on the Internet cannot open connections to your machines at home.
 
 In our setup, the primary network is like the Internet: any machine on the secondary network can actually connect to the primary network.  So any vandal that can figure out what the address to owlcms could potentially mess with it -- a disgruntled competitor perhaps.  We don't want that, so we need to prevent access to the owlcms application.
 
-We will use the Windows firewall on the owlcms laptop to protect us.
+#### Option 1: Protecting the competition network
+
+The safest option would for the primary network to restrict traffic coming from the secondary network.  Unfortunately, when using domestic-grade routers, this cannot always be done easily.  However, many routers have options to restrict traffic to the "internet" (which in our case ), so we can usually use the secondary router to block traffic going to the competition network.
+
+For example, many routers have features to block or filter services.  You can look at "Network Services Filter" or similar wording, and prevent traffic from flowing out of the secondary network to the WAN/Internet on ports 80 and 443 (for the secondary network, the WAN/Internet is actually the competition network)
+
+#### Option 2: Windows Firewall
+
+If we cannot block traffic to the primary network, we can protect the owlcms application itself instead.  We will use the Windows firewall on the owlcms laptop to protect us.
 
 1. Click on the Windows icon at the bottom left, and select the Settings icon above it (gear-shaped icon)![10_firewall](img/PublicResults/LocalPublicResults/10_firewall.png)
 
 2. In the next window, select "Advanced Settings" on the left-hand side.
    ![11_advanced](img/PublicResults/LocalPublicResults/11_advanced.png)
-   
+
 3. Click on "inbound rules", click on the "Name" column to sort, select all the "java.exe" rules and <u>Delete</u> them.  It is possible that there are no such rules, in which case there is nothing to do.
    ![12_deletejava](img/PublicResults/LocalPublicResults/12_deletejava.png)
 

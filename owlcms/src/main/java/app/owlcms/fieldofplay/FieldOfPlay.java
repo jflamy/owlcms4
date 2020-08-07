@@ -779,11 +779,14 @@ public class FieldOfPlay {
         pushOut(new UIEvent.LiftingOrderUpdated(getCurAthlete(), nextAthlete, previousAthlete, changingAthlete,
                 getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
                 inBreak));
-
+        int attempts = getCurAthlete().getAttemptedLifts() + 1;
         logger.info("current athlete = {} attempt {}, requested = {}, timeAllowed={} timeRemainingAtLastStop={}",
-                getCurAthlete(), getCurAthlete() != null ? getCurAthlete().getAttemptedLifts() + 1 : 0, curWeight,
+                getCurAthlete(), getCurAthlete() != null ? attempts : 0, curWeight,
                 clock,
                 getAthleteTimer().getTimeRemainingAtLastStop());
+        if (attempts > 6) {
+            pushOutDone();
+        }
     }
 
     /**
@@ -981,6 +984,9 @@ public class FieldOfPlay {
     private void pushOutDone() {
         logger.debug("group {} done", group);
         UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null);
+        // make sure the publicresults update carries the right state.
+        setState(BREAK);
+        setBreakType(BreakType.GROUP_DONE);
         pushOut(event);
     }
 

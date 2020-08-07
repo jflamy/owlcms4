@@ -11,7 +11,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -28,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 
-import app.owlcms.data.config.Config;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
