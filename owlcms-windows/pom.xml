@@ -140,7 +140,7 @@
                             </classPath>
                             <icon>src/main/install/owlcms.ico</icon>
                             <jre>
-                                <minVersion>1.8.0</minVersion>
+                                <minVersion>1.11.0</minVersion>
                                 <path>jre</path>
                                 <bundledJreAsFallback>false</bundledJreAsFallback>
                             </jre>
@@ -170,11 +170,8 @@
                             <!-- the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a dummy 
                                 jar at the front... -->
 
-                            <!-- dummy jar for JDK 8 -->
-                            <jar>jre/lib/charsets.jar</jar>
-
                             <!-- dummy jar for JDK 11 -->
-                            <!-- jar>jre/lib/jrt-fs.jar</jar -->
+                            <jar>jre/lib/jrt-fs.jar</jar>
 
                             <dontWrapJar>true</dontWrapJar>
                             <errTitle>owlcms</errTitle>
@@ -186,7 +183,7 @@
                             </classPath>
                             <icon>src/main/install/owlcms.ico</icon>
                             <jre>
-                                <minVersion>1.8.0</minVersion>
+                                <minVersion>1.11.0</minVersion>
                                 <path>jre</path>
                                 <bundledJreAsFallback>false</bundledJreAsFallback>
                             </jre>

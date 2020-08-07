@@ -33,6 +33,11 @@
 			<source>${project.basedir}/src/main/assembly/publicresults.l4j.ini</source>
 			<outputDirectory></outputDirectory>
 			<filtered>true</filtered>
-		</file>      
+		</file>
+        <file>
+            <source>${project.basedir}/src/main/assembly/demo-publicresults.l4j.ini</source>
+            <outputDirectory></outputDirectory>
+            <filtered>true</filtered>
+        </file>   
 	</files>
 </assembly>

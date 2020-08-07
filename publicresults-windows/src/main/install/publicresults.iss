@@ -42,6 +42,10 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
 
+[InstallDelete]
+; force update of JRE
+Type: filesandordirs; Name: "{app}\jre"
+
 [Files]
 Source: "target\publicresults-win32\local\*"; DestDir: "{app}\local"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "target\installtools\jre\*"; DestDir: "{app}\jre"; Flags: ignoreversion recursesubdirs createallsubdirs

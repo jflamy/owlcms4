@@ -126,7 +126,6 @@
                             <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
                                 publicresults jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a 
                                 dummy jar at the front... -->
-
                             <!-- dummy jar for JDK 11 -->
                             <jar>jre/lib/jrt-fs.jar</jar>
 
@@ -140,7 +139,7 @@
                             </classPath>
                             <icon>src/main/install/owlcms.ico</icon>
                             <jre>
-                                <minVersion>1.8.0</minVersion>
+                                <minVersion>1.11.0</minVersion>
                                 <path>jre</path>
                                 <bundledJreAsFallback>false</bundledJreAsFallback>
                             </jre>
@@ -158,6 +157,50 @@
                             </versionInfo>
                         </configuration>
                     </execution>
+                    <execution>
+                        <!-- demo setup: the only difference is the name of the outfile -->
+                        <id>l4j-demo</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>launch4j</goal>
+                        </goals>
+                        <configuration>
+                            <headerType>console</headerType>
+                            <outfile>${project.build.directory}/publicresults-win32/demo-publicresults.exe</outfile>
+                            <!-- fake jar; the one we actually run is in postCp below; we want the "local" directory to be seen before the 
+                                publicresults jar we run from, but the plugin puts the value of jar at the beginning of classpath, which is not what we want. So we put a 
+                                dummy jar at the front... -->
+                            <!-- dummy jar for JDK 11 -->
+                            <jar>jre/lib/jrt-fs.jar</jar>
+
+                            <dontWrapJar>true</dontWrapJar>
+                            <errTitle>publicresults</errTitle>
+                            <classPath>
+                                <mainClass>app.owlcms.publicresults.Main</mainClass>
+                                <addDependencies>false</addDependencies>
+                                <preCp>local</preCp>
+                                <postCp>publicresults.jar</postCp>
+                            </classPath>
+                            <icon>src/main/install/owlcms.ico</icon>
+                            <jre>
+                                <minVersion>1.11.0</minVersion>
+                                <path>jre</path>
+                                <bundledJreAsFallback>false</bundledJreAsFallback>
+                            </jre>
+                            <versionInfo>
+                                <fileVersion>1.0.0.0</fileVersion>
+                                <txtFileVersion>${project.version}</txtFileVersion>
+                                <fileDescription>${project.name}</fileDescription>
+                                <copyright>Jean-Francois Lamy</copyright>
+                                <productVersion>1.0.0.0</productVersion>
+                                <txtProductVersion>1.0.0.0</txtProductVersion>
+                                <productName>${project.name}</productName>
+                                <companyName>...</companyName>
+                                <internalName>publicresults</internalName>
+                                <originalFilename>publicresults.exe</originalFilename>
+                            </versionInfo>
+                        </configuration>
+                    </execution>                    
                 </executions>
             </plugin>
             <plugin>
