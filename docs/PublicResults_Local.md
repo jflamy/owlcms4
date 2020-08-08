@@ -1,28 +1,48 @@
 Normally, `publicresults` is installed in the cloud.  If you have no Internet access and would still like the coaches to have access to the scoreboards, you can use a setup like the following
 
-- You need two networks.  The competition network used by the technical officials and for the field of play must be kept separate from the network used by the coaches and the public.  We must prevent disgruntled or mischievous persons from interfering with the competition network. 
-- The competition router protects the competition network.  
-  - If you use a typical domestic or gaming router, by default it will call itself something like 192.168.1.1 and allocate addresses that start with 192.168.1.x.
-  - It is connected to the coaches network by running a wire from the WAN/Internet port to the other router 
-  - The competition router will prevent anything from the outside from coming in.  Coaches cannot reach the owlcms machine, period.  Only connections initiated from the blue competition network to the orange competition network are possible.
-
 ![Slide1](img/PublicResults/LocalPublicResults/Slide1.SVG)
 
-- The coaches router provides WiFi access to the coaches and/or the public at the competition
-  - The second router can be a second domestic or small business router. In our example, we have used an actual example of a router using a different type of private address (10.0.0.x)
-  - This second router should have excellent WiFi capabilities, as it will be servicing many WiFi connections.
-  - You will provide the WPA key to the coaches so they can connect to the WiFi router
-  - The `publicresults` machine will connect to the coaches router using an ethernet cable (ideally); 
-    - In order to discover the address for the publicresults machine, you will need to run a local program such as "ipconfig" (see [this link](https://redisoft.uk/ipconfig-gui/) for a simple interface)
-  - You will need to tell the coaches the URL to use to reach the publicresults application.
+It is strongly recommended to use two networks.
 
-### Making `publicresults` accessible from `owlcms`
+- For performance: the competition network should be separate so that there is no congestion and so that the timing and refereeing information flows as close to real-time as possible.  Splitting the WiFi traffic on two networks will also help with performance.
+- For safety: disgruntled or mischievous persons could be tempted to from interfering with the competition network. The coaches should therefore be on a separate network.
 
-We will use the IP address of publicresults to connect from owlcms to publicresults.  This works because the coaches network is visible from the competition network via the WAN connection, but the opposite is forbidden.
+### Competition Network
 
-For our example, we will assume that publicresults is reachable at 10.0.0.234
+The competition router protects the competition network.  
 
-### Configuration and test
+- If you use a typical domestic or gaming router, by default it will call itself something like 192.168.1.1 and allocate addresses that start with 192.168.1.x.  *We suggest that you change the default network to something different.*  This will make it easier to take your competition router and plug it into another router (see below.)  In our example, we have changed the network used to 192.168.4.x.
+
+- It is connected to the coaches network by running a wire <u>**from** the WAN/Internet port on the competition router **to** a LAN port on the coaches router</u>.  
+- By making the connection in that order, the competition router will prevent anything coming in on its WAN port from reaching the 192.168.4 private network *except* if the connection originated from the private network.  So only connections initiated from the blue competition network to the orange competition network are possible, not the other way around
+- The Competition Network should have a strong WPA2 security key configured that cannot be easily guessed.
+
+### Coaches/Attendance Network
+
+A second router provides WiFi access to the coaches and/or the public at the competition
+
+- The second router can a second domestic router you provide, or it can be an existing school or gym  network. 
+- The second router should have excellent WiFi capabilities, as it will be servicing many WiFi connections
+- The second router should use a different network numbering than the competition router.  In our example  the second router is an existing router that allocates addresses in the 10.0.0.x range.  
+- The `publicresults` machine will connect to the coaches router using an ethernet cable (ideally); 
+  - In order to discover the address for the publicresults machine, you will need to run a local program such as "ipconfig" (see [this link](https://redisoft.uk/ipconfig-gui/) for a simple interface)
+  - You will need to tell the owlmcs program to send the updates to that address (see below)
+- You will provide the WPA key to the coaches so they can connect to the WiFi router
+- You will need to tell the coaches the URL to use to reach the publicresults application.  In our example, that would be http://10.0.0.234:8080 (assuming the publicresults application has been configured on port 8080)
+
+### Inter-network Traffic Flow
+
+The traffic between the routers works as follows
+
+- When the competition router sees traffic for anything other than 192.168.1.x, it knows that it does not belong to itself and sends it to the WAN.  So a request for publicresults (10.0.0.234) from owlcms is automatically sent to the second router
+- The second router recognizes 10.0.0.234 as belonging to itself and sends traffic tp the publicresults laptop.   It keeps all the 10.x.y.z traffic to itself.
+
+If you need to stream video, the streaming machine will be on the competition network if you want to overlay the attempt board or other information on top of the video, so you have two options
+
+- you can simply connect the coaching router to the internet.  The competition router will send all its internet traffic through its WAN port, and the coaches router will do the same.  This is known as a double-NAT configuration, or
+- you can use a business-grade router for the competition network with the capability to have multiple WAN connections
+
+### Configuration and Test
 
 1. We need to configure publicresults so that it has a shared secret with owlcms
    Go to the installation location for publicresults and edit the `publicresults.l4j.ini` file.
@@ -42,6 +62,3 @@ For our example, we will assume that publicresults is reachable at 10.0.0.234
    
 4. ![06_actualTest](img/PublicResults/LocalPublicResults/06_actualTest.png)
 
-### Protecting `owlcms`
-
-It is very important that the WPA security key for the competition router be set to something that cannot easily be guessed, and that it be kept private.  Only the people that set up the competition network should know it.
