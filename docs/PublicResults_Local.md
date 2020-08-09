@@ -11,11 +11,11 @@ It is strongly recommended to use two networks.
 
 The competition router protects the competition network.  
 
-- If you use a typical domestic or gaming router, by default it will call itself something like 192.168.1.1 and allocate addresses that start with 192.168.1.x.  *We suggest that you change the default network to something different.*  This will make it easier to take your competition router and plug it into another router (see below.)  In our example, we have changed the network used to 192.168.4.x.
-
-- It is connected to the coaches network by running a wire <u>**from** the WAN/Internet port on the competition router **to** a LAN port on the coaches router</u>.  
-- By making the connection in that order, the competition router will prevent anything coming in on its WAN port from reaching the 192.168.4 private network *except* if the connection originated from the private network.  So only connections initiated from the blue competition network to the orange competition network are possible, not the other way around
-- The Competition Network should have a strong WPA2 security key configured that cannot be easily guessed.
+- If you use a typical domestic or gaming router, by default it will call itself something like 192.168.1.1 and allocate addresses that start with 192.168.1.x.  
+  - *We suggest that you change the default network to something different.*  This will make it easier to take your competition router and plug it into another router (see below.)  In our example, we have changed the network used to 192.168.4.x.
+  - The Competition Network should have a strong WPA2 security key configured that cannot be easily guessed.
+- **Important**: The competition network is connected to the coaches network by running a wire <u>**from** the WAN/Internet port on the competition router **to** a LAN port on the coaches router</u>.  
+  - By making the connection in that way, the competition router will prevent anything coming in on its WAN port from reaching the 192.168.4 private network *except* if the connection originated from the private network.  So only connections initiated from the blue competition network to the orange competition network are possible, not the other way around
 
 ### Coaches/Attendance Network
 
