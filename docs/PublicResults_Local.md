@@ -1,4 +1,6 @@
-Normally, `publicresults` is installed in the cloud.  If you have no Internet access and would still like the coaches to have access to the scoreboards, you can use a setup like the following
+If you have Internet access, we suggest that you install `publicresults` in the cloud, because it is simpler.  You can then provide WiFi access to the coaches that have tablets, and let the public use their cellular data to get to the cloud to check the scoreboard on their phones.
+
+If there is no Internet, you can use a setup as follows to provide individual scoreboard displays.
 
 ![Slide1](img/PublicResults/LocalPublicResults/Slide1.SVG)
 
