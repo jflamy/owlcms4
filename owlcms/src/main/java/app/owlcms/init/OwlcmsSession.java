@@ -91,10 +91,10 @@ public class OwlcmsSession {
                 locale = Locale.getDefault();
             }
         }
-        System.err.println("locale = "+locale.getDisplayName()+" "+locale);
         if (locale.getCountry() == "") {
             // add the country from Locale.getDefault -- probably the country we're running in.
             locale = new Locale(locale.getLanguage(), Locale.getDefault().getCountry(), locale.getVariant());
+            currentUi.setLocale(locale);
         }
         return locale;
     }

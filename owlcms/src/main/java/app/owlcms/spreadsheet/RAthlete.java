@@ -172,7 +172,6 @@ public class RAthlete {
                     null,
                     IsoChronology.INSTANCE,
                     locale);
-            System.out.println(shortPattern); // M/d/yy
             if (shortPattern.contains("y") && !shortPattern.contains("yy")) {
                 shortPattern = shortPattern.replace("y", "yyyy");
             } else if (shortPattern.contains("yy") && !shortPattern.contains("yyy")) {
