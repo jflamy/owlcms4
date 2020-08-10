@@ -7,9 +7,13 @@
 package app.owlcms.spreadsheet;
 
 import java.time.LocalDate;
+import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +25,8 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -72,11 +78,11 @@ public class RAthlete {
             // try by explicit name
             Category category = RCompetition.getActiveCategories().get(categoryName);
             if (category == null) {
-                throw new Exception("Category " + categoryName + " is not defined.");
+                throw new Exception(Translator.translate("Upload.CategoryNotFoundByName", categoryName));
             }
             if (category.getGender() != a.getGender()) {
                 throw new Exception(
-                        "Gender for category " + categoryName + " does not match athlete gender " + a.getGender());
+                        Translator.translate("Upload.GenderMismatch", categoryName, a.getGender()));
             }
             a.setCategory(category);
             return;
@@ -100,8 +106,10 @@ public class RAthlete {
         List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
         Category category = found.size() > 0 ? found.get(0) : null;
         if (category == null) {
-            throw new Exception("Category cannot be found using age=" + age + ", gender=" + a.getGender() + ", weight="
-                    + legacyResult.group(2) + legacyResult.group(3));
+            throw new Exception(
+                    Translator.translate(
+                            "Upload.CategoryNotFound", age, a.getGender(),
+                            legacyResult.group(2) + legacyResult.group(3)));
         }
         a.setCategory(category);
     }
@@ -157,14 +165,42 @@ public class RAthlete {
             }
             return;
         } catch (NumberFormatException e) {
+            Locale locale = OwlcmsSession.getLocale();
+            // try local date format but force 4-digit years.
+            String shortPattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+                    FormatStyle.SHORT,
+                    null,
+                    IsoChronology.INSTANCE,
+                    locale);
+            System.out.println(shortPattern); // M/d/yy
+            if (shortPattern.contains("y") && !shortPattern.contains("yy")) {
+                shortPattern = shortPattern.replace("y", "yyyy");
+            } else if (shortPattern.contains("yy") && !shortPattern.contains("yyy")) {
+                shortPattern = shortPattern.replace("yy", "yyyy");
+            }
+            DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern(shortPattern, locale);
             try {
-                // try as a ISO Date
-                LocalDate parse = LocalDate.parse(content, DateTimeFormatter.ISO_LOCAL_DATE);
-                logger.trace("dateString {}", parse);
-
+                // try as a local date
+                LocalDate parse = LocalDate.parse(content, shortStyleFormatter);
+                a.setFullBirthDate(parse);
             } catch (DateTimeParseException e1) {
-                throw new Exception(content + " is not a 4-digit year or an international yyyy-MM-dd format date like "
-                        + DateTimeFormatter.ISO_LOCAL_DATE.format(LocalDate.of(1961, 02, 28)));
+                try {
+                    // try as a ISO Date
+                    LocalDate parse = LocalDate.parse(content, DateTimeFormatter.ISO_LOCAL_DATE);
+                    logger.trace("dateString {}", parse);
+                    a.setFullBirthDate(parse);
+                } catch (DateTimeParseException e2) {
+                    LocalDate sampleDate = LocalDate.of(1961, 02, 28);
+                    String message = Translator.translate(
+                            "Upload.WrongDateFormat",
+                            content,
+                            locale.getDisplayName(locale),
+                            shortPattern,
+                            shortStyleFormatter.format(sampleDate),
+                            "yyyy-MM-dd",
+                            DateTimeFormatter.ISO_LOCAL_DATE.format(sampleDate));
+                    throw new Exception(message);
+                }
             }
         }
     }
@@ -192,7 +228,8 @@ public class RAthlete {
         }
         Group group = GroupRepository.findByName(groupName);
         if (group == null) {
-            throw new Exception("Group " + groupName + " is not defined.");
+            throw new Exception(
+                    Translator.translate("Upload.GroupNotDefined",groupName));
         }
         a.setGroup(group);
     }
@@ -259,7 +296,7 @@ public class RAthlete {
             // letter present, should match gender
             if ((genderLetter.equalsIgnoreCase("f") && a.getGender() != Gender.F)
                     || (genderLetter.equalsIgnoreCase("m") && a.getGender() != Gender.M)) {
-                throw new Exception("Inconsistency between gender and category.");
+                throw new Exception(Translator.translate("Upload.GenderMismatch", result.group(0), a.getGender()));
             }
         } else {
             // nothing to do gender is known and consistent.
