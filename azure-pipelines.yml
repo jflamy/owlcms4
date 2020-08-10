@@ -10,7 +10,7 @@ parameters:
     default: 'true'
 
 variables:
-  # -Drevision overrides .mvn config; must be unique if BuildGoal is set to deploy.
+  # -Drevision overrides pom.xml; must be unique if BuildGoal is set to deploy.
   - name: Revision
     value: ${{ parameters.Revision }}
   # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
