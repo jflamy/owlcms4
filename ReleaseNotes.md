@@ -1,4 +1,4 @@
-* Changes for release 4.9.2-alpha01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.9.2-alpha02  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   - [x] Enhancement: the registration spreadsheet upload accepts birth dates in the current language and country format in addition to ISO 8601 yyyy-MM-dd format. (#380).  Error messages are now localized.
 * Key Highlights from recent stable releases
 * [x] Important Fix: Prior to release 4.9, some changes to requested weights would be shown immediately on the top part of the scoreboard, but delayed on the bottom part (#376)   Also other fixes to correctly show decision reversals (#378) and to show the down arrow when connecting refereeing devices to a scoreboard display (#375)
