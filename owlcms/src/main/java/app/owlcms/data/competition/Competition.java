@@ -583,7 +583,6 @@ public class Competition {
      * @param localDate the new competition date
      */
     public void setCompetitionDate(LocalDate localDate) {
-        System.err.println(LoggerUtils.stackTrace());
         this.competitionDate = localDate;
     }
 
