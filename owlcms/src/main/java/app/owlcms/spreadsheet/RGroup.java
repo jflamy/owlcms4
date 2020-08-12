@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.group.Group;
-import app.owlcms.utils.TimeUtils;
+import app.owlcms.utils.DateTimeUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -132,7 +132,7 @@ public class RGroup {
     }
 
     public void setCompetitionTime(String competitionTime) {
-        LocalDateTime parseExcelDateTime = TimeUtils.parseExcelDateTime(competitionTime);
+        LocalDateTime parseExcelDateTime = DateTimeUtils.parseExcelDateTime(competitionTime);
         parseExcelDateTime = parseExcelDateTime.withSecond(0).withNano(0);
         group.setCompetitionTime(parseExcelDateTime);
         this.competitionTime = parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + " "
@@ -214,7 +214,7 @@ public class RGroup {
     }
 
     public void setWeighinTime(String weighinTime) {
-        LocalDateTime parseExcelDateTime = TimeUtils.parseExcelDateTime(weighinTime);
+        LocalDateTime parseExcelDateTime = DateTimeUtils.parseExcelDateTime(weighinTime);
         parseExcelDateTime = parseExcelDateTime.withSecond(0).withNano(0);
         group.setWeighInTime(parseExcelDateTime);
         this.weighinTime = parseExcelDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE) + " "

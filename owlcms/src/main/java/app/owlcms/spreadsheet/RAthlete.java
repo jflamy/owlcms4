@@ -7,13 +7,7 @@
 package app.owlcms.spreadsheet;
 
 import java.time.LocalDate;
-import java.time.chrono.IsoChronology;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
-import java.time.format.FormatStyle;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,8 +21,8 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.preparation.UploadDialog;
+import app.owlcms.utils.DateTimeUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -167,45 +161,12 @@ public class RAthlete {
             }
             return;
         } catch (NumberFormatException e) {
-            Locale locale = OwlcmsSession.getLocale();
-            // try local date format but force 4-digit years.
-            String shortPattern = DateTimeFormatterBuilder.getLocalizedDateTimePattern(
-                    FormatStyle.SHORT,
-                    null,
-                    IsoChronology.INSTANCE,
-                    locale);
-            if (shortPattern.contains("y") && !shortPattern.contains("yy")) {
-                shortPattern = shortPattern.replace("y", "yyyy");
-            } else if (shortPattern.contains("yy") && !shortPattern.contains("yyy")) {
-                shortPattern = shortPattern.replace("yy", "yyyy");
-            }
-            DateTimeFormatter shortStyleFormatter = DateTimeFormatter.ofPattern(shortPattern, locale);
-            try {
-                // try as a local date
-                LocalDate parse = LocalDate.parse(content, shortStyleFormatter);
-                a.setFullBirthDate(parse);
-            } catch (DateTimeParseException e1) {
-                try {
-                    // try as a ISO Date
-                    LocalDate parse = LocalDate.parse(content, DateTimeFormatter.ISO_LOCAL_DATE);
-                    logger.trace("dateString {}", parse);
-                    a.setFullBirthDate(parse);
-                } catch (DateTimeParseException e2) {
-                    LocalDate sampleDate = LocalDate.of(1961, 02, 28);
-                    String message = Translator.translate(
-                            "Upload.WrongDateFormat",
-                            content,
-                            locale.getDisplayName(locale),
-                            shortPattern,
-                            shortStyleFormatter.format(sampleDate),
-                            "yyyy-MM-dd",
-                            DateTimeFormatter.ISO_LOCAL_DATE.format(sampleDate));
-                    throw new Exception(message);
-                }
-            }
+            LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(content);
+            a.setFullBirthDate(parse);
         }
     }
 
+    
     /**
      * @param lastName
      * @see app.owlcms.data.athlete.Athlete#setLastName(java.lang.String)
