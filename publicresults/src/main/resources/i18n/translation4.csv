@@ -1,4 +1,4 @@
-﻿key,en,fr,fr_CA,fr_FR,da,ru,sv,de,es,pt
+key,en,fr,fr_CA,fr_FR,da,ru,sv,de,es,pt
 OWLCMS_Top,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Gestion de compétition d'haltérophilie,,,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Управление соревнованиями по тяжелой атлетике,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Olympic Weightlifting Competition Management System,OWLCMS - Sistema de Gerenciamento de Competição de Levantamento de Pesos
 Translator,Jean-François Lamy,Jean-François Lamy,Jean-François Lamy,Georges Viaud,Anders Bendix Nielsen,Алексей Ручьев,Niclas Skarnes,Martin Moreno,José Treminio,Jeferson Coletto
 About,About,À propos,À propos,A propos,Om,О системе,Om,Über,Acerca de,Sobre
@@ -216,7 +216,7 @@ Jury3,Jury 3,Jury 3,,,Jury 3,Жюри 3,Jury 3,Jury 3,Jurado 3,Júri 3
 Jury4,Jury 4,Jury 4,,,Jury 4,Жюри 4,Jury 4,Jury 4,Jurado 4,Júri 4
 Jury5,Jury 5,Jury 5,,,Jury 5,Жюри 5,Jury 5,Jury 5,Jurado 5,Júri 5
 JuryDecisions,Jury Decisions,Décisions du jury,,,Jury Afgørelse,Решение жюри,Jury Beslut,Jury Entscheidung,Decisiones del jurado,Decisões do Júri
-Kg,"{0,number,#.#} kg","{0,number,#.#} kg",,,"{0,number,#.#} kg","{0,number,#.#} кг","{0,number,#.#} kg","{0,number,#.#} kg","{0,numero,#.#} kg","{0,number, #.#} kg"
+Kg,"{0,number,#.#} kg","{0,number,#.#} kg",,,"{0,number,#.#} kg","{0,number,#.#} кг","{0,number,#.#} kg","{0,number,#.#} kg","{0,number,#.#} kg","{0,number, #.#} kg"
 KgSymbol,kg,kg,,,kg,\u0020кг,kg,Kg,kg,kg
 LastName,Last Name,Nom,,,Efternavn,Фамилия,Efternamn,Nachname,Apellido,Sobrenome
 LeftMenuNavigate,Use the menu at the left to navigate to the various screens:<ul>,Utilisez le menu à gauche pour naviguer,,,Brug menuen til venstre for at navigere til de forskellige skærme:<ul>,Используйте меню слева для навигации:<ul>,Använd menyn till vänster för att navigera till de olika skärmarna:<ul>,Benutze das Menü auf der linken Seite für die verschiedenen Anzeigen:<ul>,Use el menú de la izquierda para navegar a las diferentes pantallas :<ul>,Use o menu à esquerda para navegar para as várias telas: <ul>
