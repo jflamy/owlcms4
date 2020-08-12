@@ -105,4 +105,9 @@ public class GroupRepository {
         return JPAService.runInTransaction(em -> em.merge(Group));
     }
 
+    @SuppressWarnings("unchecked")
+    public static List<Group> doFindAll(EntityManager em) {
+        return em.createQuery("select c from CompetitionGroup c order by c.name").getResultList();
+    }
+
 }

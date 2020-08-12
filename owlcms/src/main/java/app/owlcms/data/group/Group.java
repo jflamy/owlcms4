@@ -76,6 +76,9 @@ public class Group implements Comparable<Group> {
     @Column(columnDefinition = "boolean default false")
     private boolean done;
 
+    private String weighIn1;
+    private String weighIn2;
+
     /**
      * Instantiates a new group.
      */
@@ -152,35 +155,29 @@ public class Group implements Comparable<Group> {
         }
         Group other = (Group) obj;
         return id != null && id.equals(other.getId());
-        
-        //      public boolean equals(Object obj) {
-        //      if (this == obj) {
-        //          return true;
-        //      }
-        //      if (obj == null) {
-        //          return false;
-        //      }
-        //      if (getClass() != obj.getClass()) {
-        //          return false;
-        //      }
-        //      Group other = (Group) obj;
-        //      return Objects.equals(name, other.name)
-        //              && Objects.equals(announcer, other.announcer) && Objects.equals(competitionTime, other.competitionTime)
-        //              && Objects.equals(id, other.id) && Objects.equals(jury1, other.jury1)
-        //              && Objects.equals(jury2, other.jury2) && Objects.equals(jury3, other.jury3)
-        //              && Objects.equals(jury4, other.jury4) && Objects.equals(jury5, other.jury5)
-        //              && Objects.equals(marshall, other.marshall) && Objects.equals(platform, other.platform)
-        //              && Objects.equals(referee1, other.referee1)
-        //              && Objects.equals(referee2, other.referee2) && Objects.equals(referee3, other.referee3)
-        //              && Objects.equals(technicalController, other.technicalController)
-        //              && Objects.equals(timeKeeper, other.timeKeeper) && Objects.equals(weighInTime, other.weighInTime);
-        //  }
-    }
-    
-    @Override
-    public int hashCode() {
-        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        return 31;
+
+        // public boolean equals(Object obj) {
+        // if (this == obj) {
+        // return true;
+        // }
+        // if (obj == null) {
+        // return false;
+        // }
+        // if (getClass() != obj.getClass()) {
+        // return false;
+        // }
+        // Group other = (Group) obj;
+        // return Objects.equals(name, other.name)
+        // && Objects.equals(announcer, other.announcer) && Objects.equals(competitionTime, other.competitionTime)
+        // && Objects.equals(id, other.id) && Objects.equals(jury1, other.jury1)
+        // && Objects.equals(jury2, other.jury2) && Objects.equals(jury3, other.jury3)
+        // && Objects.equals(jury4, other.jury4) && Objects.equals(jury5, other.jury5)
+        // && Objects.equals(marshall, other.marshall) && Objects.equals(platform, other.platform)
+        // && Objects.equals(referee1, other.referee1)
+        // && Objects.equals(referee2, other.referee2) && Objects.equals(referee3, other.referee3)
+        // && Objects.equals(technicalController, other.technicalController)
+        // && Objects.equals(timeKeeper, other.timeKeeper) && Objects.equals(weighInTime, other.weighInTime);
+        // }
     }
 
     /**
@@ -344,6 +341,14 @@ public class Group implements Comparable<Group> {
         return timeKeeper;
     }
 
+    public String getWeighIn1() {
+        return weighIn1;
+    }
+
+    public String getWeighIn2() {
+        return weighIn2;
+    }
+
     /**
      * Gets the weigh in short date time.
      *
@@ -367,6 +372,12 @@ public class Group implements Comparable<Group> {
      */
     public LocalDateTime getWeighInTime() {
         return weighInTime;
+    }
+
+    @Override
+    public int hashCode() {
+        // https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return 31;
     }
 
     public boolean isDone() {
@@ -504,6 +515,14 @@ public class Group implements Comparable<Group> {
      */
     public void setTimeKeeper(String timeKeeper) {
         this.timeKeeper = timeKeeper;
+    }
+
+    public void setWeighIn1(String weighInTO1) {
+        this.weighIn1 = weighInTO1;
+    }
+
+    public void setWeighIn2(String weighInTO2) {
+        this.weighIn2 = weighInTO2;
     }
 
     /**

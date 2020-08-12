@@ -25,8 +25,10 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.ui.preparation.UploadDialog;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -219,7 +221,7 @@ public class RAthlete {
     /**
      * @param group
      * @throws Exception
-     * @see app.owlcms.data.athlete.Athlete#setGroup(app.owlcms.data.category.Group)
+     * @see app.owlcms.data.athlete.Athlete#setGroupName(app.owlcms.data.category.Group)
      */
     public void setGroup(String groupName) throws Exception {
         if (groupName == null) {
@@ -227,10 +229,18 @@ public class RAthlete {
         }
         Group group = GroupRepository.findByName(groupName);
         if (group == null) {
-            throw new Exception(
-                    Translator.translate("Upload.GroupNotDefined",groupName));
+            group = new Group();
+            group.setName(groupName);
+            group.setPlatform(PlatformRepository.findAll().get(0));
+            Group nGroup = GroupRepository.save(group);
+            a.setGroup(nGroup);
+            logger.debug("creating group {}",groupName);
+            UploadDialog.listGroups("group creation");
+//            throw new Exception(
+//                    Translator.translate("Upload.GroupNotDefined", groupName));
+        } else {
+            a.setGroup(group);
         }
-        a.setGroup(group);
     }
 
     /**
