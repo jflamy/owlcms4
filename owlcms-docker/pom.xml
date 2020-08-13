@@ -4,7 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.9.0.1</version>
+        <version>4.7.4.1</version>
     </parent>
 
     <name>Owlcms Docker packaging</name>
@@ -17,6 +17,11 @@
         <dependency>
             <groupId>app.owlcms</groupId>
             <artifactId>owlcms</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>app.owlcms</groupId>
+            <artifactId>publicresults</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -95,13 +100,8 @@
                                 </tags>
                                 <from>adoptopenjdk/openjdk8:latest</from>
                                 <assembly>
-                                    <descriptor>docker.xml</descriptor>
+                                    <descriptor>owlcms.xml</descriptor>
                                 </assembly>
-                                <!-- monitoring requires a) opening a port. If running kubectl on WSL, and VisualVM on Windows, you need 
-                                    to tell kubectl to listen on the real IP address that Windows can reach -->
-                                <!-- kubectl port-forward (dash)(dash)address localhost,172.28.119.147 owlcms-76c8b879cc-t46 1088 -->
-                                <!-- b) Then in VisualVM, use the add JMX Connection option, with the following string -->
-                                <!-- service:jmx:rmi:///jndi/rmi://172.28.119.147:1088/jmxrmi -->
                                 <entryPoint>
                                     <arg>java</arg>
                                     <arg>-Djava.net.preferIPv4Stack=true</arg>
@@ -110,6 +110,29 @@
                                     <arg>-cp</arg>
                                     <arg>maven/classes:/maven/owlcms-${project.version}.jar</arg>
                                     <arg>app.owlcms.Main</arg>
+                                </entryPoint>
+                            </build>
+                            <registry>owlcms-docker-containers.bintray.io</registry>
+                        </image>
+                        <image>
+                            <name>publicresults:${dockerTag}</name>
+                            <build>
+                                <tags>
+                                    <tag>latest</tag>
+                                    <tag>${project.version}</tag>
+                                </tags>
+                                <from>adoptopenjdk/openjdk8:latest</from>
+                                <assembly>
+                                    <descriptor>publicresults.xml</descriptor>
+                                </assembly>
+                                <entryPoint>
+                                    <arg>java</arg>
+                                    <arg>-Djava.net.preferIPv4Stack=true</arg>
+                                    <arg>-Dcom.sun.management.jmxremote.ssl=false</arg>
+                                    <arg>-Dcom.sun.management.jmxremote.authenticate=false</arg>
+                                    <arg>-cp</arg>
+                                    <arg>maven/classes:/maven/publicresults-${project.version}.jar</arg>
+                                    <arg>app.owlcms.publicresults.Main</arg>
                                 </entryPoint>
                             </build>
                             <registry>owlcms-docker-containers.bintray.io</registry>

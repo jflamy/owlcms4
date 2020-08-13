@@ -7,14 +7,20 @@ metadata:
     certmanager.k8s.io/cluster-issuer: kubesail-letsencrypt
 spec:
   tls:
-    - hosts:
+    - secretName: owlcms-jflamy-dev
+      hosts:
         - owlcms.jflamy.dev
-      secretName: owlcms-jflamy-dev
   rules:
     - host: owlcms.jflamy.dev
       http:
         paths:
           - backend:
               serviceName: owlcms-8080
+              servicePort: 8080
+    - host: results.jflamy.dev
+      http:
+        paths:
+          - backend:
+              serviceName: publicresults-8080
               servicePort: 8080
               
