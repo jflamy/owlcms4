@@ -24,21 +24,44 @@ to have been run beforehand. Since July 2020 (docker desktop update?)
 
 ## Kubernetes
 
-### Deployment
+### Local Docker Studio Deployment
 
-For a k8s deployment on the local Docker Studio Kubernetes, start a command line i(for example, a Git Bash) in `target/k8s`and run
+For a k8s deployment  of owlcms on the local Docker Studio Kubernetes, start a command line i(for example, a Git Bash) in the project directory and run
 
 ```bash
-kubectl kustomize overlays/local | kubectl apply -f -
+kubectl kustomize target/k8s/overlays/simple | kubectl apply -f -
 ```
 
 This will assemble the various manifest files and deploy the version with the docker tag just created.
 
-To deploy elsewhere, a cluster configuration file must be available.  For example, if `~/.kube/sailconfig` is available for a kubesail.com cluster, then deployment can take place with
+For a more complete deployment using an ingress controller and running both owlcms and publicresults
+
+1. Install the ingress controller into Docker Desktop.  This configuration listens on localhost.
+
+   ```bash
+   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
+   ```
+   
+2. add lines to the hosts file `c:\windows\system32\drivers\etc\hosts`
+
+   ```
+   127.0.0.1 publicresults.local
+   127.0.0.1 owlcms.local
+   ```
+
+3. Apply the customized configuration
+
+   ```bash
+   kubectl kustomize target/k8s/overlays/localhost | kubectl apply -f 
+   ```
+
+### Remote Deployment
+
+1. To deploy elsewhere, a cluster configuration file must be available.  For example, if `~/.kube/sailconfig` is available for a kubesail.com cluster, then deployment can take place with
 
 ```
 export KUBECONFIG=~/.kube/sailconfig
-kubectl kustomize overlays/kubesail-jflamy-dev | kubectl apply -f -
+kubectl kustomize target/k8s/overlays/kubesail-jflamy-dev | kubectl apply -f -
 ```
 
 The specificities of the cloud overlay (configuring the ingress with a custom domain) are specified in the overlays customization.

@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: owlcms-ingress
+spec:
+  rules:
+    - host: owlcms.local
+      http:
+        paths:
+          - backend:
+              serviceName: owlcms-8080
+              servicePort: 8080
+    - host: results.local
+      http:
+        paths:
+          - backend:
+              serviceName: publicresults-8080
+              servicePort: 8080
+              
