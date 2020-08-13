@@ -4,7 +4,7 @@
     <parent>
         <groupId>app.owlcms</groupId>
         <artifactId>owlcms4top</artifactId>
-        <version>4.7.4.1</version>
+        <version>4.9.0.1</version>
     </parent>
 
     <name>Owlcms Docker packaging</name>
@@ -98,7 +98,7 @@
                                     <tag>latest</tag>
                                     <tag>${project.version}</tag>
                                 </tags>
-                                <from>adoptopenjdk/openjdk8:latest</from>
+                                <from>adoptopenjdk/openjdk11:latest</from>
                                 <assembly>
                                     <descriptor>owlcms.xml</descriptor>
                                 </assembly>
@@ -121,7 +121,7 @@
                                     <tag>latest</tag>
                                     <tag>${project.version}</tag>
                                 </tags>
-                                <from>adoptopenjdk/openjdk8:latest</from>
+                                <from>adoptopenjdk/openjdk11:latest</from>
                                 <assembly>
                                     <descriptor>publicresults.xml</descriptor>
                                 </assembly>
