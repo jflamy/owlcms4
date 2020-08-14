@@ -24,7 +24,8 @@
 
     <properties>
 
-        <revision>4.9.2-alpha05</revision>
+        <revision>4.9.2-rc01</revision>
+        
         <!-- hard-coded paths -->
         <!-- jre location for bundling with windows installer -->
         <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>

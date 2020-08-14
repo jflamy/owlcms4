@@ -2,6 +2,7 @@
   - [x] Enhancement: groups can be defined using the registration spreadsheet.  Athletes, Platforms and Groups are now updated according to the spreadsheet, replacing prior content as needed. (#374)
   - [x] Enhancement: the athlete registration spreadsheet upload accepts birth dates in the current language and country format in addition to ISO 8601 yyyy-MM-dd format. (#380).  Error messages are now localized.
   - [x] Fix: the Technical Controller screen was not working in Spanish (#381)
+  - [x] Technical: Kubernetes deployment files in the owlcms-docker now deploy both owlcms and publicresults working together.
 * Key Highlights from recent stable releases
    * [x] Important Fix: Prior to release 4.9, some changes to requested weights would be shown immediately on the top part of the scoreboard, but delayed on the bottom part (#376)   Also other fixes to correctly show decision reversals (#378) and to show the down arrow when connecting refereeing devices to a scoreboard display (#375)
    * [x] Fix:  Pausing and resuming a break is again working; also, the "before introduction" timer automatically switches to the the "introduction" pause.
