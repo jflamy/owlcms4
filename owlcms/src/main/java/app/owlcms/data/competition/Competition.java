@@ -39,7 +39,6 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
 import app.owlcms.ui.results.Resource;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
