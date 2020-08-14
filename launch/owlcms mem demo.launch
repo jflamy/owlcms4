@@ -13,8 +13,7 @@
         <mapEntry key="OWLCMS_MASTERS" value="false"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>
         <mapEntry key="OWLCMS_PORT" value="80"/>
-        <mapEntry key="OWLCMS_REMOTE" value="http://127.0.0.1:8081/update"/>
-        <mapEntry key="OWLCMS_REMOTE1" value="https://publicresults-dev.herokuapp.com"/>
+        <mapEntry key="OWLCMS_REMOTE_" value="http://127.0.0.1:8081/update"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="thisisaverylongsecretstring"/>
     </mapAttribute>

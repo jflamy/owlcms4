@@ -7,8 +7,6 @@
 package app.owlcms.spreadsheet;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +19,10 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.i18n.Translator;
+import app.owlcms.ui.preparation.UploadDialog;
+import app.owlcms.utils.DateTimeUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -72,11 +74,11 @@ public class RAthlete {
             // try by explicit name
             Category category = RCompetition.getActiveCategories().get(categoryName);
             if (category == null) {
-                throw new Exception("Category " + categoryName + " is not defined.");
+                throw new Exception(Translator.translate("Upload.CategoryNotFoundByName", categoryName));
             }
             if (category.getGender() != a.getGender()) {
                 throw new Exception(
-                        "Gender for category " + categoryName + " does not match athlete gender " + a.getGender());
+                        Translator.translate("Upload.GenderMismatch", categoryName, a.getGender()));
             }
             a.setCategory(category);
             return;
@@ -100,8 +102,10 @@ public class RAthlete {
         List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
         Category category = found.size() > 0 ? found.get(0) : null;
         if (category == null) {
-            throw new Exception("Category cannot be found using age=" + age + ", gender=" + a.getGender() + ", weight="
-                    + legacyResult.group(2) + legacyResult.group(3));
+            throw new Exception(
+                    Translator.translate(
+                            "Upload.CategoryNotFound", age, a.getGender(),
+                            legacyResult.group(2) + legacyResult.group(3)));
         }
         a.setCategory(category);
     }
@@ -157,18 +161,12 @@ public class RAthlete {
             }
             return;
         } catch (NumberFormatException e) {
-            try {
-                // try as a ISO Date
-                LocalDate parse = LocalDate.parse(content, DateTimeFormatter.ISO_LOCAL_DATE);
-                logger.trace("dateString {}", parse);
-
-            } catch (DateTimeParseException e1) {
-                throw new Exception(content + " is not a 4-digit year or an international yyyy-MM-dd format date like "
-                        + DateTimeFormatter.ISO_LOCAL_DATE.format(LocalDate.of(1961, 02, 28)));
-            }
+            LocalDate parse = DateTimeUtils.parseLocalizedOrISO8601Date(content);
+            a.setFullBirthDate(parse);
         }
     }
 
+    
     /**
      * @param lastName
      * @see app.owlcms.data.athlete.Athlete#setLastName(java.lang.String)
@@ -184,7 +182,7 @@ public class RAthlete {
     /**
      * @param group
      * @throws Exception
-     * @see app.owlcms.data.athlete.Athlete#setGroup(app.owlcms.data.category.Group)
+     * @see app.owlcms.data.athlete.Athlete#setGroupName(app.owlcms.data.category.Group)
      */
     public void setGroup(String groupName) throws Exception {
         if (groupName == null) {
@@ -192,9 +190,18 @@ public class RAthlete {
         }
         Group group = GroupRepository.findByName(groupName);
         if (group == null) {
-            throw new Exception("Group " + groupName + " is not defined.");
+            group = new Group();
+            group.setName(groupName);
+            group.setPlatform(PlatformRepository.findAll().get(0));
+            Group nGroup = GroupRepository.save(group);
+            a.setGroup(nGroup);
+            logger.debug("creating group {}",groupName);
+            UploadDialog.listGroups("group creation");
+//            throw new Exception(
+//                    Translator.translate("Upload.GroupNotDefined", groupName));
+        } else {
+            a.setGroup(group);
         }
-        a.setGroup(group);
     }
 
     /**
@@ -259,7 +266,7 @@ public class RAthlete {
             // letter present, should match gender
             if ((genderLetter.equalsIgnoreCase("f") && a.getGender() != Gender.F)
                     || (genderLetter.equalsIgnoreCase("m") && a.getGender() != Gender.M)) {
-                throw new Exception("Inconsistency between gender and category.");
+                throw new Exception(Translator.translate("Upload.GenderMismatch", result.group(0), a.getGender()));
             }
         } else {
             // nothing to do gender is known and consistent.

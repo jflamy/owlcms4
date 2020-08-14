@@ -60,3 +60,25 @@ spec:
                 name: postgres-config
           ports:
             - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: publicresults
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: publicresults
+        part-of: owlcms
+    spec:
+      containers:
+        - name: publicresults
+          image: owlcms-docker-containers.bintray.io/publicresults:${dockerTag}
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: owlcms-config
+          ports:
+            - containerPort: 8080

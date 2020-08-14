@@ -1,16 +1,17 @@
-* Changes for release 4.9.1-rc06  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-  - [x] Technical: updated the bundled Java version to current long-term support version (JDK11).
-  - [x] Fix: Scoreboard now correctly updated if the last lift in a group is edited (e.g., on jury reversal) (#378)
-   - [x] Important Fix: some changes to requested weights would be shown immediately on the top part of the scoreboard, but delayed on the bottom part (#376) 
-   - [x] Enhancement: Round-robin lifting order now selectable on Competition Information page. When selected, all lifters do their first attempt according to requested weight,  then all lifters do the second, and so on (#367)
-   - [x] Fix: When connecting refereeing keypads to a scoreboard, the down arrow would not show on that specific scoreboard. (#375)  You can therefore use the scoreboard display as a combined attempt board/decision board/scoreboard.
-   - [x] Fix: Resuming a break would instead reset the time (#377).  Also, the "before introduction" waiting period was no longer transitioning automatically to the introduction when it was over.
-   - [x] Enhancement: CSS stylesheets for scoreboards now editable in local/styles (#365)
+* Changes for release 4.9.2-rc01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+  - [x] Enhancement: groups can be defined using the registration spreadsheet.  Athletes, Platforms and Groups are now updated according to the spreadsheet, replacing prior content as needed. (#374)
+  - [x] Enhancement: the athlete registration spreadsheet upload accepts birth dates in the current language and country format in addition to ISO 8601 yyyy-MM-dd format. (#380).  Error messages are now localized.
+  - [x] Fix: the Technical Controller screen was not working in Spanish (#381)
+  - [x] Technical: Kubernetes deployment files in the owlcms-docker now deploy both owlcms and publicresults working together.
 * Key Highlights from recent stable releases
-
-   * [x] Timer, down and decisions are now shown on the `publicresults` site.  Documentation for running virtual competitions and for using remote scoreboards using `publicresults` has been updated.  See the `Advanced Topics` section of the documentation. (#352) (#362)
-   * [x] Technical configuration parameters for cloud-based usage no longer requires using environment variables.  A new `Technical Configuration` button is available on the `Prepare Competition`page (#361)
-   * [x] Warning messages for out-of-sequence actions (stopping time when not started, starting time when decisions still visible, etc.) now more visible and have been translated to natural language (#359)
+   * [x] Important Fix: Prior to release 4.9, some changes to requested weights would be shown immediately on the top part of the scoreboard, but delayed on the bottom part (#376)   Also other fixes to correctly show decision reversals (#378) and to show the down arrow when connecting refereeing devices to a scoreboard display (#375)
+   * [x] Fix:  Pausing and resuming a break is again working; also, the "before introduction" timer automatically switches to the the "introduction" pause.
+   * [x] Enhancement: Round-robin lifting order now selectable on Competition Information page. When selected, all lifters do their first attempt according to requested weight,  then all lifters do the second, and so on (#367)
+   * [x] Enhancement: Timer, down and decisions are now shown on the `publicresults` site.  Documentation for running virtual competitions and for using remote scoreboards using `publicresults` has been updated.  See the `Advanced Topics` section of the documentation. (#352) (#362)
+   * [x] Enhancement: CSS stylesheets for scoreboards now editable in local/styles (#365)
+   * [x] Enhancement: updated the bundled Java version to current long-term support version (JDK11).
+   * [x] Enhancement: Technical configuration parameters for cloud-based usage no longer requires using environment variables.  A new `Technical Configuration` button is available on the `Prepare Competition`page (#361)
+   * [x] Fix: Warning messages for out-of-sequence actions (stopping time when not started, starting time when decisions still visible, etc.) now more visible and have been translated to natural language (#359)
    * [x] Enhancement: Timekeeper screen now with large buttons, can be used from iPad/iPhone etc.  Also supports "," as keyboard shortcut to start clock and "." to stop clock for use with programmable keypads. (#340) 
    * [x] Enhancement: When using refereeing devices, announcer sees decisions as they come in. Useful when there is no jury to remind referee or to detect device/network faults. (#328)  Can be turned off on the Competition Information page.
    * [x] Enhancement: Team Results page accessible from the "Result Documents" navigation page. 

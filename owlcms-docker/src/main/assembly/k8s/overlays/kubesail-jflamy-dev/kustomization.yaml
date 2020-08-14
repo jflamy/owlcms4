@@ -10,6 +10,7 @@ resources:
 - networkpolicies.yaml
 - ingress.yaml
 - services.yaml
+- secrets.yaml
 commonLabels:
   environment: production
   
