@@ -1,38 +1,67 @@
-## Tag
+## Building the images
 
-When building, the image is given a tag according to what is found in `target/docker-tag/docker-tag.properties` and a `latest` tag.
+- `docker` must be running
 
-## Docker
+- `mvn clean package` will pull previously compiled uber jars from bintray and create docker images.
 
-`mvn clean package` will build but not push the image to the remote directory.   
-`docker run -p 8081:8080 owlcms:latest` will run the image that can then be accessed as localhost:8081
+- `mvn clean deploy` to deploy the containers to the `owlcms-docker-containers.bintray.io/owlcms` repository.  The repository is public, no credentials are needed to pull the image.
+
+  - In theory, the credentials are in the MAVEN settings, but in practice, it may be required to run the following beforehand
+
+    ```
+    docker login -u jflamy -p <API_KEY> owlcms-docker-containers.bintray.io
+    ```
+
+  - The pushed images are given a tag according to what is found in `target/docker-tag/docker-tag.properties` and a `latest` tag.
+
+## Docker Deployment
+
+```bash
+docker run -p 8081:8080 owlcms:latest
+```
+
+will run the image that can then be accessed as http://localhost:8081
 Using `-p` is necessary to forward the 8080 port of the container to the outside world.
 When running the image in this way an ephemeral H2 database is created inside the container, and vanishes when the container is deleted.
-
-### Docker Deployment
-
-If you use `mvn clean deploy` to deploy the container to the owlcms-docker-containers.bintray.io/owlcms repository.  The repository is public, no credentials needed to pull the image.
-
-Note: this seems to require 
-
-```
-docker login -u jflamy -p <API_KEY> owlcms-docker-containers.bintray.io
-```
-
-to have been run beforehand. Since July 2020 (docker desktop update?)
 
 
 ## Kubernetes
 
-### Local Docker Studio Deployment
+### WSL2 Preparation (Windows 10)
 
-For a k8s deployment  of owlcms on the local Docker Studio Kubernetes, start a command line i(for example, a Git Bash) in the project directory and run
+If working under Windows WSL2, the following steps are required for preparation
 
-```bash
-kubectl kustomize target/k8s/overlays/simple | kubectl apply -f -
-```
+1. The Linux subsystem is NAT-ed and changes IP address on every reboot.  Install the go-wsl2-host service from https://github.com/shayne/go-wsl2-host/releases
 
-This will assemble the various manifest files and deploy the version with the docker tag just created.
+2. Add a `~/.wsl2hosts` files with a space-separated list the host aliases you need, for example
+
+   ```
+   o.jflamy.dev r.jflamy.dev o.local r.local
+   ```
+
+### Docker Desktop Kubernetes
+
+#### Full deployment without certificates
+
+1. Install the nginx ingress controller into Docker Desktop.  This configuration listens on localhost.
+
+   ```bash
+   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
+   ```
+
+2. If you did not install go-wsl2-hosts, you can add lines to the hosts file `c:\windows\system32\drivers\etc\hosts`
+
+   ```
+   127.0.0.1 o.local
+   127.0.0.1 r.local
+   ```
+
+3. Apply the customized configuration
+
+   ```bash
+   export KUBECONFIG=~/.kube/config
+   kubectl kustomize target/k8s/overlays/local-nocerts | kubectl apply -f -
+   ```
 
 #### Full deployment with certificates
 
@@ -44,39 +73,85 @@ For a more complete deployment using an ingress controller and running both owlc
    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
    ```
    
-2. Add a tls certificate secret owlcms-jflamy-dev and publicresults-jflamy-dev.   You can install cert-manager to generate letsencrypt certificates, or you can generate a wildcard certificate manually for your development domain.
+2. Generate certificates manually for your development domain. 
+
+   - Since the development environment is not visible to the outside, we cannot use an http challenge with letsencrypt, so we generate a wildcard certificate manually.
 
    - You can follow this [tutorial](https://www.digitalocean.com/community/tutorials/how-to-acquire-a-let-s-encrypt-certificate-using-dns-validation-with-acme-dns-certbot-on-ubuntu-18-04) for generating the wildcard certificates
 
-   - Then go to your certificate directory and use a command line like the following to generate the two secrets (substitute the secret name). Since the certificate is a wildcard, the same certificate is used for both secrets.
+3. (not needed) Copy the certificates back to Windows. 
 
-     ```
-     kubectl create secret tls owlcms-jflamy-dev --key privkey.pem --cert fullchain.pem
-     ```
+   - The files contain secrets, so they are not readable. You will need to chown/chmod them
+   - create a tar for safekeeping; use the --derefence option (-h) to create a tar file, because by default it contains symbolic links 
+   - copy the files from Linux to /mnt/c/Users/...
 
-3. add lines to the hosts file `c:\windows\system32\drivers\etc\hosts`
+4. Generate two secrets. Since the certificate is a wildcard, the same certificate is used for both secrets. You can do this on the Windows side using git bash.
+
+   ```
+   export KUBECONFIG=~/.kube/config
+   kubectl create secret tls o-jflamy-dev --key privkey.pem --cert fullchain.pem
+   kubectl create secret tls r-jflamy-dev --key privkey.pem --cert fullchain.pem
+   ```
+
+5. If you did not install go-wsl2-hosts, you can add lines to the hosts file `c:\windows\system32\drivers\etc\hosts`
 
    ```
    127.0.0.1 o.jflamy.dev
    127.0.0.1 r.jflamy.dev
    ```
 
-4. Apply the customized configuration
+6. Apply the customized configuration
 
    ```bash
-   kubectl kustomize target/k8s/overlays/localhost | kubectl apply -f -
+   export KUBECONFIG=~/.kube/config
+   kubectl kustomize target/k8s/overlays/local-jflamy-dev | kubectl apply -f -
    ```
 
-#### Deployment without certificates
+### K3S Deployment
 
-If you remove the tls sections from the ingress.yaml files, kubernetes will provide a fake certificate and allow access if you insist.
+Deployment under K3S is similar to Docker Studio with the full configuration. 
 
-### Remote Deployment
+1. You should install go-wsl2-hosts services because there is no port forwarding by default.
 
-1. The specificities are given in the overlays customization.  For example, the domain name used, and the name of the secrets  for certificates generated by cert-manager as provided by the cloud provider.
-2. To deploy elsewhere, a cluster configuration file must be available.  For example, if `~/.kube/sailconfig` is available for a kubesail.com cluster, then deployment can take place with
+2. Install k3s on WSL2 Ubuntu
 
-```
+   - download the k3s binary from https://github.com/rancher/k3s/releases
+
+   - On WSL2, there is no systemd, so start it manually in a new Ubuntu window (it will hog the console)
+
+     ```
+     sudo ./k3s server
+     ```
+
+   - Copy the k3s.yaml file to ~/.kube
+
+3. There is no need to install an ingress controller, traefik is installed by default
+
+4. Generate the two secrets for TLS authentication
+
+   ```bash
+   export KUBECONFIG=~/.kube/k3s.yaml
+   kubectl create secret tls o-jflamy-dev --key privkey.pem --cert fullchain.pem
+   kubectl create secret tls r-jflamy-dev --key privkey.pem --cert fullchain.pem
+   ```
+
+5. Apply the customized configuration
+
+   ```bash
+   export KUBECONFIG=~/.kube/k3s.yaml
+   kubectl kustomize target/k8s/overlays/local-jflamy-dev | kubectl apply -f -
+   ```
+
+### KubeSail Deployment (or other managed Kubernetes)
+
+KubeSail (https://kubesail.com) is a cloud KaaS (Kubernetes as a service) provider.
+
+1. Kubesail uses cert-manager HTTP challenges.
+   - follow their instructions to define your own custom domain
+   - the examples in kubesail-jflamy-dev use the secrets populated automatically by kubesail.
+2. You need to capture a cluster configuration file from your provider.  For example, if `~/.kube/sailconfig` is available for a kubesail.com cluster, then deployment can take place with
+
+```bash
 export KUBECONFIG=~/.kube/sailconfig
 kubectl kustomize target/k8s/overlays/kubesail-jflamy-dev | kubectl apply -f -
 ```
