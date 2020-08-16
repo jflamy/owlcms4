@@ -5,9 +5,6 @@ parameters:
   - name: Revision
     type: string
     default: 4.9.2-rc01
-  - name: BuildPublicResults
-    type: string
-    default: 'true'
 
 variables:
   # -Drevision overrides pom.xml; must be unique if BuildGoal is set to deploy.
@@ -39,15 +36,14 @@ jobs:
           containerRegistry: owlcms-docker-containers.bintray.io
       - template: src/main/azure-pipelines/steps-prepare-maven.yml
       - task: Maven@3
-        displayName: Pre-process Release Notes
+        displayName: Deploy Docker
         inputs:
-          mavenPomFile: pom.xml
+          mavenPomFile: owlcms-docker/pom.xml
           mavenOptions: -Xmx3072m $(MavenOpts)
           javaHomeOption: JDKVersion
           jdkVersionOption: '1.11'
           jdkArchitectureOption: x64
           publishJUnitResults: false
-          testResultsFiles: "**/surefire-reports/TEST-*.xml"
           goals: deploy $(MavenOpts)
         env:
           # used by maven for substitutions in release notes and URLs
