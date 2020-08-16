@@ -3,12 +3,8 @@ kind: Ingress
 metadata:
   name: owlcms-ingress
 spec:
-  tls:
-    - secretName: o-jflamy-dev
-      hosts:
-        - o.jflamy.dev
   rules:
-    - host: o.jflamy.dev
+    - host: o.local
       http:
         paths:
           - backend:
@@ -20,12 +16,8 @@ kind: Ingress
 metadata:
   name: publicresults-ingress
 spec:
-  tls:
-    - secretName: r-jflamy-dev
-      hosts:
-        - r.jflamy.dev
   rules:
-    - host: r.jflamy.dev
+    - host: r.local
       http:
         paths:
           - backend:

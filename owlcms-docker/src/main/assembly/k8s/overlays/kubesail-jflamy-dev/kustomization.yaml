@@ -6,11 +6,13 @@ images:
   - name: owlcms
     newName: owlcms-docker-containers.bintray.io/owlcms
     newTag: latest
+  - name: publicresults
+    newName: owlcms-docker-containers.bintray.io/publicresults
+    newTag: latest  
 resources:
 - networkpolicies.yaml
 - ingress.yaml
 - services.yaml
-- secrets.yaml
 commonLabels:
   environment: production
   
