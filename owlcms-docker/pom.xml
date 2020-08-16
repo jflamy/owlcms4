@@ -34,6 +34,7 @@
                 <executions>
                     <execution>
                         <id>docker-tag</id>
+                        <phase>compile</phase>
                         <goals>
                             <goal>timestamp-property</goal>
                         </goals>
@@ -90,13 +91,15 @@
                 <extensions>true</extensions>
                 <configuration>
                     <skipRun>true</skipRun>
+                    <skipBuild>${yamlOnly}</skipBuild>
+                    <skipPush>${yamlOnly}</skipPush>
                     <images>
                         <image>
-                            <name>owlcms:${dockerTag}</name>
+                            <name>owlcms:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
-                                    <tag>${project.version}</tag>
+                                    <tag>${dockerTag}</tag>
                                 </tags>
                                 <from>adoptopenjdk/openjdk11:latest</from>
                                 <assembly>
@@ -115,11 +118,11 @@
                             <registry>owlcms-docker-containers.bintray.io</registry>
                         </image>
                         <image>
-                            <name>publicresults:${dockerTag}</name>
+                            <name>publicresults:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
-                                    <tag>${project.version}</tag>
+                                    <tag>${dockerTag}</tag>
                                 </tags>
                                 <from>adoptopenjdk/openjdk11:latest</from>
                                 <assembly>
@@ -142,5 +145,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

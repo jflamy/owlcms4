@@ -3,9 +3,10 @@ kind: Kustomization
 bases:
 - ../../base
 images:
-  - name: owlcms
-    newName: owlcms-docker-containers.bintray.io/owlcms
-    newTag: latest
+  - name: owlcms-docker-containers.bintray.io/owlcms
+    newTag: ${project.version}
+  - name: owlcms-docker-containers.bintray.io/publicresults
+    newTag: ${project.version}
 resources:
 - networkpolicies.yaml
 - ingress.yaml

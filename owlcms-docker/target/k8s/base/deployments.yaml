@@ -51,8 +51,7 @@ spec:
     spec:
       containers:
         - name: owlcms
-          image: owlcms-docker-containers.bintray.io/owlcms:20200816123344
-          imagePullPolicy: IfNotPresent
+          image: owlcms-docker-containers.bintray.io/owlcms
           envFrom:
             - secretRef:
                 name: owlcms-config
@@ -77,8 +76,7 @@ spec:
     spec:
       containers:
         - name: publicresults
-          image: owlcms-docker-containers.bintray.io/publicresults:20200816123344
-          imagePullPolicy: IfNotPresent
+          image: owlcms-docker-containers.bintray.io/publicresults
           envFrom:
             - secretRef:
                 name: publicresults-config

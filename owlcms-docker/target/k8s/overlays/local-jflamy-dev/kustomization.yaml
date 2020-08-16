@@ -3,12 +3,10 @@ kind: Kustomization
 bases:
 - ../../base
 images:
-  - name: owlcms
-    newName: owlcms-docker-containers.bintray.io/owlcms
-    newTag: latest
-  - name: publicresults
-    newName: owlcms-docker-containers.bintray.io/publicresults
-    newTag: latest
+  - name: owlcms-docker-containers.bintray.io/owlcms
+    newTag: 4.9.2-rc01
+  - name: owlcms-docker-containers.bintray.io/publicresults
+    newTag: 4.9.2-rc01
 resources:
 - ingress.yaml
 - services.yaml
