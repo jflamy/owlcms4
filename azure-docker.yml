@@ -1,0 +1,101 @@
+trigger:
+  - none
+
+parameters:
+  - name: Revision
+    type: string
+    default: 4.9.2-rc01
+  - name: BuildPublicResults
+    type: string
+    default: 'true'
+
+variables:
+  # -Drevision overrides pom.xml; must be unique if BuildGoal is set to deploy.
+  - name: Revision
+    value: ${{ parameters.Revision }}
+  # if BuildGoal = 'deploy', the uberjars will be published on bintray.  'package' does not deploy
+  # to bintray, so Revision can be kept for several runs when debugging the installers.
+  - name: BuildGoal
+    value: deploy
+  # ReleaseRepoCredentials contains github users and tokens
+  - group: ReleaseRepoCredentials
+  - template: src/main/azure-pipelines/variables-releaseRepoCredentials.yml
+  - name: MavenCacheFolder
+    value: $(Pipeline.Workspace)/.m2/repository
+  - name: MavenOpts
+    value: -Dmaven.repo.local=$(MavenCacheFolder) -Drevision=$(Revision)
+
+jobs:
+
+  # release the installers to github repositories
+  - job: ReleaseK8S
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: Docker@2
+        displayName: Login to Bintray
+        inputs:
+          command: login
+          containerRegistry: owlcms-docker-containers.bintray.io
+      - template: src/main/azure-pipelines/steps-prepare-maven.yml
+      - task: Maven@3
+        displayName: Pre-process Release Notes
+        inputs:
+          mavenPomFile: pom.xml
+          mavenOptions: -Xmx3072m $(MavenOpts)
+          javaHomeOption: JDKVersion
+          jdkVersionOption: '1.11'
+          jdkArchitectureOption: x64
+          publishJUnitResults: false
+          testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          goals: deploy $(MavenOpts)
+        env:
+          # used by maven for substitutions in release notes and URLs
+          REPO_OWNER: $(RELEASE_USER)
+          H_REPO_NAME: owlcms-heroku$(RELEASE_SUFFIX)
+          P_REPO_NAME: publicresults-heroku$(RELEASE_SUFFIX)
+          O_REPO_NAME: owlcms4$(RELEASE_SUFFIX)
+      - script: |
+          # push changes back to origin and tag
+          # library group ReleaseRepoCredentials contains github users and tokens
+          git config user.email "$(Build.RequestedForEmail)"
+          git config user.name "$(Build.RequestedFor)"
+          git checkout $(Build.SourceBranchName)
+          git add -A && git commit -m "$(Revision)_k8s" --allow-empty
+          git tag $(Revision) -f -a -m "$(Revision)_k8s"
+          git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Build.SourceBranchName) --force
+          git push https://$(repoToken)@github.com/$(repoUser)/owlcms4.git $(Revision) --force
+        displayName: tag origin
+      - script: |
+          # publish sources and docs to prerelease repo
+          # library group ReleaseRepoCredentials contains github users and tokens
+          git push https://$(prereleaseToken)@github.com/$(prereleaseUser)/owlcms4.git $(Build.SourceBranchName):master --force
+        condition: eq(variables['Build.SourceBranchName'], 'develop')
+        displayName: sync prerelease repo
+      - script: |
+          # publish sources and docs to release repo
+          # library group ReleaseRepoCredentials contains github users and tokens
+          git push https://$(releaseToken)@github.com/$(releaseUser)/owlcms4.git $(Build.SourceBranchName):master --force
+        condition: eq(variables['Build.SourceBranchName'], 'master')
+        displayName: sync release repo
+      - task: GitHubRelease@0
+        displayName: Release on Github
+        inputs:
+          ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: jflamy-dev/owlcms4-prerelease
+            isPreRelease: true
+          ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+            gitHubConnection: github.com_jflamy-dev
+            repositoryName: owlcms/owlcms4
+            isPreRelease: false
+          action: "edit" # Options: create, edit, delete
+          target: master # all our releases are on the master branch of the release repos.
+          tagSource: "manual"
+          title: $(Revision)
+          tag: $(Revision)
+          assets: |
+            $(Build.SourcesDirectory)/target/k8s.zip
+          assetUploadMode: "replace" # Optional. Options: delete, replace
+          addChangeLog: false # Optional
+        

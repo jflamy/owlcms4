@@ -10,6 +10,5 @@ steps:
    inputs:
       key: '"maven14.3.2a" | "$(Agent.OS)"'
       restoreKeys: |
-         maven | "$(Agent.OS)"
-         maven
+         '"maven14.3.2a" | "$(Agent.OS)"'
       path: $(MavenCacheFolder)
