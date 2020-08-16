@@ -1,33 +1,6 @@
-## Building the images
+# Kubernetes Deployment
 
-- `docker` must be running
-
-- `mvn clean package` will pull previously compiled uber jars from bintray and create docker images.
-
-- `mvn clean deploy` to deploy the containers to the `owlcms-docker-containers.bintray.io/owlcms` repository.  The repository is public, no credentials are needed to pull the image.
-
-  - In theory, the credentials are in the MAVEN settings, but in practice, it may be required to run the following beforehand
-
-    ```
-    docker login -u jflamy -p <API_KEY> owlcms-docker-containers.bintray.io
-    ```
-
-  - The pushed images are given a tag according to what is found in `target/docker-tag/docker-tag.properties` and a `latest` tag.
-
-## Docker Deployment
-
-```bash
-docker run -p 8081:8080 owlcms:latest
-```
-
-will run the image that can then be accessed as http://localhost:8081
-Using `-p` is necessary to forward the 8080 port of the container to the outside world.
-When running the image in this way an ephemeral H2 database is created inside the container, and vanishes when the container is deleted.
-
-
-## Kubernetes
-
-### WSL2 Preparation (Windows 10)
+## WSL2 Preparation (Windows 10)
 
 If working under Windows WSL2, the following steps are required for preparation
 
@@ -39,31 +12,39 @@ If working under Windows WSL2, the following steps are required for preparation
    o.jflamy.dev r.jflamy.dev o.local r.local
    ```
 
-### Docker Desktop Kubernetes
+## Docker Desktop Kubernetes
 
-#### Full deployment without certificates
+Docker Desktop includes a Kubernetes cluster.
 
-1. Install the nginx ingress controller into Docker Desktop.  This configuration listens on localhost.
+### Full deployment without certificates
+
+1. For the remaining steps, you need to point to the correct cluster definition
+
+   ```bash
+   export KUBECONFIG=~/.kube/config
+   ```
+
+2. Install the nginx ingress controller into Docker Desktop.  This configuration listens on localhost.
 
    ```bash
    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
    ```
 
-2. If you did not install go-wsl2-hosts, you can add lines to the hosts file `c:\windows\system32\drivers\etc\hosts`
+3. If you did not install go-wsl2-hosts, you can add lines to the hosts file `c:\windows\system32\drivers\etc\hosts`
 
    ```
    127.0.0.1 o.local
    127.0.0.1 r.local
    ```
 
-3. Apply the customized configuration
+4. Apply the customized configuration
 
    ```bash
    export KUBECONFIG=~/.kube/config
    kubectl kustomize target/k8s/overlays/local-nocerts | kubectl apply -f -
    ```
 
-#### Full deployment with certificates
+### Full deployment with certificates
 
 For a more complete deployment using an ingress controller and running both owlcms and publicresults, you can look at the following recipe.
 
@@ -105,18 +86,16 @@ For a more complete deployment using an ingress controller and running both owlc
    127.0.0.1 r.jflamy.dev
    ```
 
-7. Update and apply the customized configuration  (from the owlcms-docker build directory)
+7. Update and apply the customized configuration  (from the owlcms-docker/target/k8s directory or after extracting target/k8s.zip)
 
    ```bash
    mvn -DyamlOnly=true clean package
-   kubectl kustomize target/k8s/overlays/local-jflamy-dev | kubectl apply -f -
+   kubectl kustomize overlays/local-jflamy-dev | kubectl apply -f -
    ```
 
-### K3S Deployment
+## K3S Deployment
 
-Deployment under K3S is similar to Docker Studio with the full configuration. 
-
-1. You should install go-wsl2-hosts services because there is no port forwarding by default.
+Deployment under K3S is similar to Docker Studio with the full configuration. You should install go-wsl2-hosts services because there is no port forwarding from Windows when using K3S.  Contrary to docker-desktop, you would not be able to easily connect to the cluster from outside.  Of course, if running on a native Ubuntu or a Ubuntu VM, these restrictions go away.
 
 2. Install k3s on WSL2 Ubuntu
 
@@ -132,7 +111,7 @@ Deployment under K3S is similar to Docker Studio with the full configuration.
 
 3. There is no need to install an ingress controller, traefik is installed by default
 
-4. Point to the correct cluster configuration
+4. For the remaining steps Point to the correct cluster configuration
 
    ```bash
    export KUBECONFIG=~/.kube/k3s.yaml
@@ -153,7 +132,7 @@ Deployment under K3S is similar to Docker Studio with the full configuration.
    kubectl kustomize target/k8s/overlays/local-jflamy-dev | kubectl apply -f -
    ```
 
-### KubeSail Deployment (or other managed Kubernetes)
+## KubeSail Deployment (or other managed Kubernetes)
 
 KubeSail (https://kubesail.com) is a cloud KaaS (Kubernetes as a service) provider.
 
@@ -172,21 +151,3 @@ KubeSail (https://kubesail.com) is a cloud KaaS (Kubernetes as a service) provid
    mvn -DyamlOnly=true clean package
    kubectl kustomize target/k8s/overlays/kubesail-jflamy-dev | kubectl apply -f -
    ```
-
-### Monitoring on Docker Desktop Kubernetes
-
-In order to monitor using VisualVM or similar tool
-
-1. opening a port. If running kubectl on WSL, and VisualVM on Windows, you need to tell kubectl to listen on the real IP address that Windows can reach, as follows (IP address and pod name need to be substituted with real values.)  Port `1098` is currently hard-wired in the container build.
-
-   ```bash
-   kubectl port-forward --address 172.28.119.147 owlcms-76c8b879cc-t46 1098
-   ```
-```
-
-2. In VisualVM, use the add JMX Connection option, with the following string.  Port `1088` is currently hard-wired in the container build.
-
-```
-service:jmx:rmi:///jndi/rmi://172.28.119.147:1088/jmxrmi
-    ```
-
