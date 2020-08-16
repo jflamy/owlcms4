@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: owlcms-ingress
+spec:
+  tls:
+    - secretName: o-jflamy-dev
+      hosts:
+        - o.jflamy.dev
+  rules:
+    - host: o.jflamy.dev
+      http:
+        paths:
+          - backend:
+              serviceName: owlcms-8080
+              servicePort: 8080
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: publicresults-ingress
+spec:
+  tls:
+    - secretName: r-jflamy-dev
+      hosts:
+        - r.jflamy.dev
+  rules:
+    - host: r.jflamy.dev
+      http:
+        paths:
+          - backend:
+              serviceName: publicresults-8080
+              servicePort: 8080
