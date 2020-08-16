@@ -8,7 +8,7 @@ steps:
 -  task: Cache@2
    displayName: Cache Maven local repository
    inputs:
-      key: '"maven14.3.2a" | "$(Agent.OS)"'
+      key: "maven14.3.2a" | "$(Agent.OS)"
       restoreKeys: |
-         '"maven14.3.2a" | "$(Agent.OS)"'
+         "maven14.3.2a" | "$(Agent.OS)"
       path: $(MavenCacheFolder)
