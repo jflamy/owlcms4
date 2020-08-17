@@ -1,4 +1,4 @@
-* Changes for release 4.9.2  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.9.2-rc01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   - [x] Enhancement: groups can be defined using the registration spreadsheet.  Athletes, Platforms and Groups are now updated according to the spreadsheet, replacing prior content as needed. (#374)
   - [x] Enhancement: the athlete registration spreadsheet upload accepts birth dates in the current language and country format in addition to ISO 8601 yyyy-MM-dd format. (#380).  Error messages are now localized.
   - [x] Fix: the Technical Controller screen was not working in Spanish (#381)
@@ -26,8 +26,12 @@
   - [ ] Workaround: (#304) When the browser screens have already been started and owlcms is restarted,  occasionnaly a refresh of the page may be required.
 
 Installation Instructions :
-  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows installation instructions](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup.md) 
+  - For **Windows**, download `owlcms_setup.exe` from the Assets section below and follow [Windows Stand-alone Installation](https://jflamy.github.io/owlcms4/#/LocalWindowsSetup)
     
     > If you get a blue window with `Windows protected your PC`, or if your laptop works very hard performing an anti-virus scan that takes very long, see this page : [Make Windows Defender Allow Installation](https://jflamy.github.io/owlcms4/#/DefenderOff)
-  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Local Linux and Mac OS instructions](https://jflamy.github.io/owlcms4/#/LocalLinuxMacSetup.md) 
-  - For **Heroku** cloud, no download is necessary. Follow the [Cloud installation instructions](https://jflamy.github.io/owlcms4/#/Heroku.md) to deploy your own copy.
+    
+  - For **Linux** and **Mac OS**, download the `owlcms.zip` file from the Assets section below and follow [Linux or Mac Stand-alone Installation](https://jflamy.github.io/owlcms4/#/LocalLinuxMacSetup)
+
+  - For **Heroku** cloud, no download is necessary. Follow the ([Heroku Cloud Installation](https://jflamy.github.io/owlcms4/#/Cloud) to deploy your own copy.
+
+  - For **Kubernetes** deployments, download the`k8s.zip` file.   You will need to unzip the file and adapt it for your specific cluster and host names. The zip contains a README file with guidance on how to proceed. 
