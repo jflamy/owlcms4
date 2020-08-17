@@ -44,7 +44,7 @@ jobs:
           jdkVersionOption: '1.11'
           jdkArchitectureOption: x64
           publishJUnitResults: false
-          goals: deploy $(MavenOpts)
+          goals: -DyamlOnly=true package $(MavenOpts)
         env:
           # used by maven for substitutions in release notes and URLs
           REPO_OWNER: $(RELEASE_USER)
@@ -91,7 +91,7 @@ jobs:
           title: $(Revision)
           tag: $(Revision)
           assets: |
-            $(Agent.BuildDirectory)/s/owlcms-docker/target//target/k8s.zip
+            $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s.zip
           assetUploadMode: "replace" # Optional. Options: delete, replace
           addChangeLog: false # Optional
         
