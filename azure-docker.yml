@@ -44,7 +44,7 @@ jobs:
           jdkVersionOption: '1.11'
           jdkArchitectureOption: x64
           publishJUnitResults: false
-          goals: -DyamlOnly=true package $(MavenOpts)
+          goals: deploy $(MavenOpts)
         env:
           # used by maven for substitutions in release notes and URLs
           REPO_OWNER: $(RELEASE_USER)

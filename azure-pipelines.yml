@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.9.2
+    default: 4.9.3-alpha01
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -71,7 +71,6 @@ jobs:
         - CreatePublicResultsInstaller
     pool:
       vmImage: ubuntu-latest
-
     steps:
       - download: current
         artifact: OwlcmsZip
@@ -83,6 +82,28 @@ jobs:
         - download: current
           artifact: PublicResultsSetup
       - template: src/main/azure-pipelines/steps-prepare-maven.yml
+      - task: Docker@2
+        displayName: Login to Bintray
+        inputs:
+          command: login
+          containerRegistry: owlcms-docker-containers.bintray.io
+      - template: src/main/azure-pipelines/steps-prepare-maven.yml
+      - task: Maven@3
+        displayName: Build and Push Docker Images
+        inputs:
+          mavenPomFile: owlcms-docker/pom.xml
+          mavenOptions: -Xmx3072m $(MavenOpts)
+          javaHomeOption: JDKVersion
+          jdkVersionOption: '1.11'
+          jdkArchitectureOption: x64
+          publishJUnitResults: false
+          goals: deploy $(MavenOpts)
+        env:
+          # used by maven for substitutions in release notes and URLs
+          REPO_OWNER: $(RELEASE_USER)
+          H_REPO_NAME: owlcms-heroku$(RELEASE_SUFFIX)
+          P_REPO_NAME: publicresults-heroku$(RELEASE_SUFFIX)
+          O_REPO_NAME: owlcms4$(RELEASE_SUFFIX)      
       - task: Maven@3
         displayName: Pre-process Release Notes
         inputs:
@@ -146,6 +167,7 @@ jobs:
             $(Pipeline.Workspace)/PublicResultsZip/*
             $(Pipeline.Workspace)/OwlcmsSetup/*
             $(Pipeline.Workspace)/PublicResultsSetup/*
+            $(Agent.BuildDirectory)/s/owlcms-docker/target/k8s.zip
           assetUploadMode: "delete" # Optional. Options: delete, replace
           addChangeLog: false # Optional
         
