@@ -4,7 +4,7 @@ trigger:
 parameters:
   - name: Revision
     type: string
-    default: 4.9.3-alpha01
+    default: 4.9.3-alpha02
   - name: BuildPublicResults
     type: string
     default: 'true'
@@ -87,7 +87,7 @@ jobs:
         inputs:
           command: login
           containerRegistry: owlcms-docker-containers.bintray.io
-      - template: src/main/azure-pipelines/steps-prepare-maven.yml
+      - script: ls -la
       - task: Maven@3
         displayName: Build and Push Docker Images
         inputs:
