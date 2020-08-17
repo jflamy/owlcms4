@@ -34,4 +34,4 @@ Installation Instructions :
 
   - For **Heroku** cloud, no download is necessary. Follow the ([Heroku Cloud Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Cloud) to deploy your own copy.
 
-  - For **Kubernetes** deployments, download the`k8s.zip` file.   You will need to unzip the file and adapt it for your specific cluster and host names. The zip contains a README file with guidance on how to proceed. 
+  - For **Kubernetes** deployments, download the `k8s.zip` file.   You will need to unzip the file and adapt it for your specific cluster and host names. The zip contains a README file with guidance on how to proceed. 
