@@ -91,7 +91,7 @@ jobs:
           title: $(Revision)
           tag: $(Revision)
           assets: |
-            $(Build.SourcesDirectory)/target/k8s.zip
+            $(Agent.BuildDirectory)/s/owlcms-docker/target//target/k8s.zip
           assetUploadMode: "replace" # Optional. Options: delete, replace
           addChangeLog: false # Optional
         
