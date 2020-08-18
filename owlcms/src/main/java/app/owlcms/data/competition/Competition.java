@@ -38,6 +38,7 @@ import app.owlcms.data.athleteSort.AthleteSorter.Ranking;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.LocaleAttributeConverter;
+import app.owlcms.i18n.Translator;
 import app.owlcms.ui.results.Resource;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
@@ -792,6 +793,9 @@ public class Competition {
 
         reportingBeans.clear();
 
+        reportingBeans.put("competition", Competition.getCurrent());
+        reportingBeans.put("t",Translator.getMap());
+        
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
         AthleteSorter.assignCategoryRanks(sortedAthletes, Ranking.SNATCH);
         sortedMen = new ArrayList<>(sortedAthletes.size());
