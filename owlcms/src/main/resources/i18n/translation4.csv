@@ -536,12 +536,46 @@ Upload.GroupNotDefined,"Group ""{0}"" is not defined.","Le groupe ""{0}"" n'est 
 Upload.WarningWillReplaceAll,"Warning: Athletes, Groups and Platforms will be erased and reloaded according to the information in the spreadsheet.","Attention: les athlètes, groupes et plateformes vont être effacées et rechargées selon les informations du fichier.",,,"Advarsel: Atleter, Grupper og Platforme vil blive slettet og erstattet med data fra Excel-arket.","Warning: Athletes, Groups and Platforms will be erased and reloaded according to the information in the spreadsheet.","Warning: Athletes, Groups and Platforms will be erased and reloaded according to the information in the spreadsheet.","Warning: Athletes, Groups and Platforms will be erased and reloaded according to the information in the spreadsheet.","Warning: Athletes, Groups and Platforms will be erased and reloaded according to the information in the spreadsheet.","Warning: Athletes, Groups and Platforms will be erased and reloaded according to the information in the spreadsheet."
 Weighin1,Weigh-In Official 1,Officiel de pesée 1,,,Indvejningsofficial 1,Weigh-In Official 1,Weigh-In Official 1,Weigh-In Official 1,Weigh-In Official 1,Weigh-In Official 1
 Weighin2,Weigh-In Official 2,Officiel de pesée 2,,,Indvejningsofficial 2,Weigh-In Official 2,Weigh-In Official 2,Weigh-In Official 2,Weigh-In Official 2,Weigh-In Official 2
-Scoreboard.max,Max,Max,,,Max,Мак,Max,Max,Max,Máx
-Scoreboard.TeamRank,Rank within Team,Classement dans l'équipe,,,Rank within Team,Rank within Team,Rank within Team,Rank within Team,Rank within Team,Rank within Team
-Scoreboard.PointsScored,Points scored for Team,Points marqués pour l'équipe,,,Points scored for Team,Points scored for Team,Points scored for Team,Points scored for Team,Points scored for Team,Points scored for Team
 Results.Teams,Number of Teams,Nombre d'équipes,,,Number of Teams,Number of Teams,Number of Teams,Number of Teams,Number of Teams,Number of Teams
 Results.Athletes,Number of Athletes,Nombre d'athlètes,,,Number of Athletes,Number of Athletes,Number of Athletes,Number of Athletes,Number of Athletes,Number of Athletes
 Results.MenPerTeam,Men per Team,Hommes par équipe,,,Men per Team,Men per Team,Men per Team,Men per Team,Men per Team,Men per Team
 Results.WomenPerTeam,Women per Team,Femmes par équipe,,,Women per Team,Women per Team,Women per Team,Women per Team,Women per Team,Women per Team
 Results.DetailsPerAthlete,Details per Athlete,Détails par athlète,,,Details per Athlete,Details per Athlete,Details per Athlete,Details per Athlete,Details per Athlete,Details per Athlete
 Results.cleanJerk,Clean&Jerk,Épaulé-jeté,,,Stød,Толчок,Stöt,Stossen,Envión,Arremesso
+Results.AgeGroup,Age Gr.,Gr. Age.,Gr. Age. - Age Gr.,,Aldesgruppe,Возрастная категория,Åldersgrupp,Alterskl.,Grupos por edades,Idade Gr.
+Results.AttemptsDone,"{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}","{0,choice,0#Aucun essai.|1#1 essai effectué.|1<{0} essais effectués.}",,,"{0,choice,0#Ingen løft afviklet.|1#1 løft afviklet.|1<{0} løft afviklet.}",Всего попыток выполнено: {0},"{0,choice,0#Inga försök gjorda.|1#1 försök gjort. |1<{0} gjorda försök.}","{0,choice,0#Keine Versuche fertig.|1#1 Versuch fertig.|1<{0} Versuche fertig.}","{0,choice,0#No se hicieron intentos.|1#1 intento hecho.|1<{0} intetos ralizados.}","{0,choice,0#Nenhuma Tentativa Concluída.|1#nº 1 Tentativa Concluída.|1<{0} Tentativas Concluídas.}"
+Results.Birth,Born,Naiss.,Naiss. - Born,,Født,Год,Född,Gebohren,Nacimiento,Nascimento
+Results.BodyWeight,B.W.,Poids,,,Vægt,С.В.,B.W.,Kgw.,P. C.,B. W.
+Results.Category,Cat.,Cat.,Cat.,,Vægtklasse,Кат.,Klass,Gwkl.,Cat.,Categoria
+Results.Clean_and_Jerk,Clean&Jerk,Épaulé-jeté,Épaulé-jeté - Clean&Jerk,,Stød,Толчок,Stöt,Stossen,Envión,Arremesso
+Results.GroupLiftType,Group {0} {1},Groupe {0} {1},,,Gruppe {0} {1},Поток {0}. {1},Grupp{0} {1},Gruppe {0} {1},Grupo {0} {1},Grupo {0} {1}
+Results.KgSymbol,kg,kg,,,kg,\u0020кг,kg,kg,kg,kg
+Results.LiftingOrder,Lifting Order,Ordre de passage,,,Rækkefølge,Очередность выполнения попыток,Lyftordning,Reihenfolge,Orden en competencia,Ordem de Levantamento
+Results.Name,Name,Nom,Nom - Name,,Navn,"Фамилия, Имя",Namn,Name,Nombre,Nome
+Results.Needed,Kg Needed,Kg Requis,,,Kg fra 1. plads,Кг Необходимо,Kg behövs,Kg wird benötigt,Kg Necesario,Kg Necessário
+Results.NextAttempt,Next Attempt,Prochain essai,,,Næste forsøg,Следующая попытка,Nästa försök,Nächster Versuch,Proximo Intento,Próxima Tentativa
+Results.Rank,Rank,Rang,Rang - Rank,,Placering,Место,Rank,Platz,Posición,Classificação
+Results.RequestedWeight,Requested Weight,Poids Demandé,,,Ønsket vægt,Заявленный вес,Önskad vikt,Benötigtes Gewicht,Peso solicitado,Peso Solicitado
+Results.Sinclair,Sinclair,Sinclair,,,Sinclair,Синклер,Sinclair,Sinclair,Sinclair,Sinclair
+Results.Snatch,Snatch,Arraché,Arraché - Snatch,,Træk,Рывок,Ryck,Reissen,Arr.,Arranco
+Results.Start,Start,Départ,Départ - Start,,Start,Номер,Start,Startnr.,Empezar,Próximo
+Results.Team,Team,Équipe,Équipe - Team,,Hold,Команда,Förening,Verein,Equipo,Equipe
+Results.TopSinclair,Top Sinclair,Meilleurs Sinclair,,,Top Sinclair,Результаты (Синклер),Bästa Sinclair,Top Sinclair,Top Sinclair,Top Sinclair
+Results.TopSinclairMen,Top Sinclair - Men,Meilleurs Sinclair - Hommes,,,Top Sinclair - Mænd,Синклер - Мужчины,Bästa Sinclair - Herrar,Top Sinclair - männlich,Mejor Sinclair; Masculino,Melhor Sinclair; Masculino
+Results.TopSinclairWomen,Top Sinclair - Women,Meilleurs Sinclair - Femme,,,Top Sinclair - Kvinder,Синклер - Женщины,BästaSinclair - Damer,Top Sinclair - weiblich,Mejor Sinclair; Femenino,Melhor Sinclair; Feminino
+Results.Total,Total,Total,Total,,Tokamp,Сумма,Total,Gesamt,Total,Total
+Results.Leaders,Leaders:,Meneurs: ,,,Leaders:,Лидеры потока в весовой категории:,Leaders:,Rangliste:,Líderes,Líderes:
+Results.WaitingNextGroup,Waiting for next group.,En attente du prochain groupe.,,,Venter på næste gruppe.,Ждём следующий поток.,Waiting for next group.,Warte auf die nächste Gruppe,Esperando el próximo grupo.,Esperando Pelo Próximo Grupo.
+Results.TimeAllowed,Allowed,Alloué,,,Allokeret,Разрешено,Allowed,Erlaubt,Permitido,Permitido
+Results.TopTeams,Top Teams,Meilleures équipes,,,Top Teams,Командный рейтинг (1-5 мест),Top Teams - Men,Top Mannschaften,Los mejores Equipos,Melhores Equipes - Masculino
+Results.TopTeamsMen,Top Teams - Men,Meilleures équipes - Hommes,,,Top Teams - Mænd,Командный рейтинг — Мужчины,Top Teams - Men,Top Mannschaften - männlich,Los mejores Equipos - Hombres,Melhores Equipes - Masculino
+Results.TopTeamsWomen,Top Teams - Women,Meilleures équipes - Femmes,,,Top Teams - Kvinder,Командный рейтинг — Женщины,Top Teams - Women,Top Mannschaften – weiblich,Los mejores Equipos - Mujeres,Melhores Equipes -  Feminina
+Results.Done,# Athletes Scored (Done Groups),# Athlètes comptabilisés (groupes terminés),,,# Atleter (Afsluttede grupper),# Спортсмены (подсчёт),# Athletes (Done Groups),# Gewertete Athleten (fertige Gruppen),# Atletas (Grupos terminados),# Atletas (Grupos Concluídos)
+Results.TeamSize,# Team Members,# Membres,,,# Holddeltagere,# Члены команды,# Team Members,# Mannschaftsmitglieder,# Miembros del equipo,# Membros Por Equipe
+Results.Points,Points,Points,,,Point,Баллы,Points,Punkte,Puntos,Pontos
+Results.TopTeamsSinclair,Top Team Sinclair,Meilleurs Sinclair par équipe,,,Top Team Sinclair,Команда (1-5 мест) / Синклер,Top Team Sinclair,Top Mannschaft Sinclair,El mejor equipo Sinclair,Melhor Sinclair Por Equipe
+Results.TopTeamsSinclairMen,Top Team Sinclair - Men,Meilleurs Sinclair par équipe - Hommes,,,Top Team Sinclair - Mænd,Командное первенство (1-5 мест) / Синклер - Мужчины,Top Team Sinclair - Men,Top Mannschaft Sinclair - männlich,"Hombres, Mejor Equipo Sinclair",Melhor Sinclair Por Equipe - Masculino
+Results.TopTeamsSinclairWomen,Top Team Sinclair - Women,Meilleurs Sinclair par équipe - Femmes,,,Top Team Sinclair - Kvinder,Командное первенство (1-5 мест) / Синклер - Женщины,Top Team Sinclair - Women,Top Mannschaft Sinclair - weiblich,"Mujeres, Mejor Equipo Sinclair",Melhor Sinclair Por Equipe - Feminino
+Results.max,Max,Max,,,Max,Мак,Max,Max,Max,Máx
+Results.TeamRank,Rank within Team,Classement dans l'équipe,,,Rank within Team,Rank within Team,Rank within Team,Rank within Team,Rank within Team,Rank within Team
+Results.PointsScored,Points scored for Team,Points marqués pour l'équipe,,,Points scored for Team,Points scored for Team,Points scored for Team,Points scored for Team,Points scored for Team,Points scored for Team
