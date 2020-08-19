@@ -106,29 +106,34 @@ CompetitionBook.M6_LeftHeader,Competition,Compétition,,,Stævne,Соревно�
 CompetitionBook.M6_RightHeader,Men,Hommes,Hommes - Men,,Mænd,Мужчины,Herrar,männlich,Masculino,Masculino
 CompetitionBook.MCT,Men - Combined Score,Hommes - Pointage Combiné,,,Mænd - Kombineret Score,Мужчины - Комбинированные очки,Herrar - Kombinerad poäng,männlich - Berechnete Ergebnisse,Puntaje combinado - Hombres,Pontuação Masculina Combinada
 CompetitionBook.MCT_LeftHeader,Team Ranking (Snatch+CJ+Total),Classement par équipes (Arr.+É.J.+Total),Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Total),,Hold Placering (Træk+Stød+Tokamp),Командный рейтинг (Рывок+Толчок+Сумма),Förenings Rankning (Ryck+Stöt+Total),Platzierung Verein (Reissen+Stossen+Gesamt),Clasificación por equipos (Arr+Env+Total),Classificação das Equipes (Arranco + Arremesso + Total)
+CompetitionBook.MCT_RightHeader,Men,Hommes,Hommes - Men,,Mænd,Мужчины,Herrar,männlich,Masculino,Masculino
 CompetitionBook.MR,Men's Robi,Hommes Robi,,,Robi Mænd,"Роби, мужчины",Herrar Robi,männlich Robi,Robi Masculino,Robi Masculino
 CompetitionBook.MR_LeftHeader,Robi Ranking,Classement Robi - Robi Ranking,,,Robi Placering,Рейтинг Роби,Robi anking,Platzierung Robi,Clasificación Robi,Classificação Robi
+CompetitionBook.MR_RightHeader,Men,Hommes,Hommes - Men,,Mænd,Мужчины,Herrar,männlich,Masculino,Masculino
 CompetitionBook.MS,Men's Sinclair,Hommes Sinclair,,,Sinclair Mænd,"Синклер, мужчины",Herrar Sinclair,männlich Sinclair,Sinclair Masculino,Sinclair Masculino
 CompetitionBook.MS_LeftHeader,Sinclair  Ranking,Classement Sinclair,Classement Sinclair - Sinclair Ranking,,Sinclair Placering,Рейтинг Синклер,SinclairRank,Platzierung Sinclair,Clasificación Sinclair,Classificação Sinclair
+CompetitionBook.MS_RightHeader,Men,Hommes,Hommes - Men,,Mænd,Мужчины,Herrar,männlich,Masculino,Masculino
 CompetitionBook.MT,Men's Total Score,Hommes Pointage Total,,,Total Score Mænd,Мужчины - итоговые очки,Herrar total poäng,männlich Gesamtwertung,Puntos Total Masculino,Pontuação Total Masculino
 CompetitionBook.MT_LeftHeader,Team Ranking (Total),Classement par équipes (Total),Classement par équipes (Total) - Team Ranking (Total),,Hold Placering (Total),Командный рейтинг (сумма),Förenings rank (Total),Platzierung Verein (Gesamt),Clasificación por equipos (Total),Classificação Por Equipe (Total)
 CompetitionBook.MT_RightHeader,Men,Hommes,Hommes - Men,,Mænd,Мужчины,Herrar,männlich,Masculino,Masculino
 CompetitionBook.MWCT,Men&Women - Combined Score,Hommes et Femmes - Pointage Combiné,,,Mænd&Kvinder - Kombineret Score,М+Ж комбинированные очки,Herrar & Damer - Kombinerad poäng,männlich und weiblich - Berechnetes Ergebnis,Masculino y Femenino - Puntuación Combinada,Masculino e Feminino - Pontuação Combinada
 CompetitionBook.MWCT_LeftHeader,Team Ranking (Snatch+CJ+Total),Classement par équipes (Arr.+É.J.+Total),,,Hold Placering (Træk+Stød+Tokamp),Командный рейтинг (Рывок+Толчок+Сумма),Förenings Rankning (Ryck+Stöt+Total),Platzierung Verein (Gesamt),Clasificación por equipos (Arr+Env+Total),Classificação das Equipes (Arranco + Arremesso + Total)
-CompetitionBook.MWCT_RightHeader,Women,Femmes,,,Kvinder,Женщины,Damer,weiblich,Femenino,Mulheres
+CompetitionBook.MWCT_RightHeader,Men&Women,Hommes et Femmes,,,Mænd&Kvinder,М+Ж,Herrar & Damer,männlich und weiblich,Masculino y Femenino,Masculino e Feminino
 CompetitionBook.MWT,M+W Total Score,M+F Pointage Total,,,M+K Total Score,М+Ж Итоговые очки,H+D total poäng,M+W Gesamtwertung,M+F Puntuación Total,Pontuação M + F Total
 CompetitionBook.MWT_LeftHeader,Team Ranking (Total),Classement par équipes (Total),Classement par équipes (Total) - Team Ranking (Total),,Hold Placering (Total),Командный рейтинг (сумма),Förenings rankning (Total),Platzierung Verein (Gesamt),Clasificación por Equipos (Total),Classificação Por Equipe (Total)
-CompetitionBook.MWT_RightHeader,Men and Women,Hommes et Femmes,Hommes et Femmes - Men and Women,,Mænd og Kvinder,Мужчины и женщины,Herrar och Damer,männlich und weiblich,Masculino y Femenino,Masculino e Feminino
+CompetitionBook.MWT_RightHeader,Men&Women,Hommes et Femmes,Hommes et Femmes - Men&Women,,Mænd og Kvinder,Мужчины и женщины,Herrar och Damer,männlich und weiblich,Masculino y Femenino,Masculino e Feminino
 CompetitionBook.MXT,Men's Custom Score,Hommes Pointage Spécial,,,Mænd Speciel Score,Мужчины - Пользовательские очки,Herrar anpassad poäng,männlich benutzerdefiniertes Ergebnis,Puntuación Masculina Personalizada,Pontuação Masculina Personalizada
 CompetitionBook.MXT_LeftHeader,Team Ranking (Custom),Classement par équipes (Spécial),Classement par équipes (Spécial) - Team Ranking (Custom),,Hold Placering (Speciel),Командный рейтинг(пользовательский),Förenings rankning (Anpassad),Platzierung Verein (benutzerdefiniert),Clasificación por Equipos (Personalizada),Classificação por Equipe (personalizada)
 CompetitionBook.MXT_RightHeader,Men,Hommes,Hommes - Men,,Mænd,Мужчины,Herrar,männlich,Masculino,Masculino
 CompetitionBook.W6,Women's Results,Femmes 6 essais,,,Resultater Kvinder,"Результаты, женщины",Dammer Reslutat,Ergebnisse weiblich,Clasificación Femenina,Resultado Feminino
 CompetitionBook.W6_RightHeader,Women,Femmes,Femmes - Women,,Kvinder,Женщины,Damer,weiblich,Femenino,Feminino
+CompetitionBook.M6_LeftHeader,Competition,Compétition,,,Stævne,Соревнования,Tävling,Wettkampf,Competición,Competição
 CompetitionBook.WCT,Women - Combined Score,Femmes - Pointage Combiné,,,Kvinder - Combined Score,Женщины - комбинированные очки,Damer kombinerad poäng,weiblich – berechnete Ergebnisse,Femenino - Puntuación Combinada,Feminino - Pontuação Combinada
 CompetitionBook.WCT_LeftHeader,Team Ranking (Snatch+CJ+Total),Classement par équipes (Arr.+É.J.+Total),Classement par équipes (Arr.+É.J.+Total) - Team Ranking (Snatch+CJ+Total),,Hold Placering (Træk+Stød+Tokamp),Командный рейтинг (Рывок+Толчок+Сумма),Förenings Rankning (Ryck+Stöt+Total),Platzierung Verein (Reissen+Stossen+Gesamt),Clasificaciónn por Equipos (Arr+Env+Total),Classificação das Equipes (Arranco + Arremesso + Total)
 CompetitionBook.WCT_RightHeader,Women,Femmes,Femmes - Women,Femmes,Kvinder,Женщины,Damer,weiblich,Femenino,Feminino
 CompetitionBook.WR,Women's Robi,Femmes Robi,,,Robi Kvinder,"Роби, женщины",Dammer Robi,weiblich robi,Robi Femenino,Robi Feminino
 CompetitionBook.WR_RightHeader,Women,Femmes,Femmes - Women,,Kvinder,Женщины,Damer,weiblich,Femenino,Feminino
+CompetitionBook.WR_LeftHeader,Robi Ranking,Classement Robi - Robi Ranking,,,Robi Placering,Рейтинг Роби,Robi anking,Platzierung Robi,Clasificación Robi,Classificação Robi
 CompetitionBook.WS,Women's Sinclair,Femmes Sinclair,,,Sinclair Kvinder,"Синклер, женщины",Sinclair Damer,weiblich Sinclair,Sinclair Femenino,Sinclair Feminino
 CompetitionBook.WS_LeftHeader,Sinclair  Ranking,Classement Sinclair,Classement Sinclair - Sinclair Ranking,,Sinclair Placering,Рейтинг Синклер,Sinclair  Rankning,Platzierung Sinclair,Clasificación Sinclair,Classificação Sinclair
 CompetitionBook.WS_RightHeader,Women,Femmes,Femmes - Women,,Kvinder,Женщины,Damer,weiblich,Femenino,Feminino
@@ -554,7 +559,7 @@ Results.LiftingOrder,Lifting Order,Ordre de passage,,,Rækkefølge,Очеред�
 Results.Name,Name,Nom,Nom - Name,,Navn,"Фамилия, Имя",Namn,Name,Nombre,Nome
 Results.Needed,Kg Needed,Kg Requis,,,Kg fra 1. plads,Кг Необходимо,Kg behövs,Kg wird benötigt,Kg Necesario,Kg Necessário
 Results.NextAttempt,Next Attempt,Prochain essai,,,Næste forsøg,Следующая попытка,Nästa försök,Nächster Versuch,Proximo Intento,Próxima Tentativa
-Results.Rank,Rank,Rang,Rang - Rank,,Placering,Место,Rank,Platz,Posición,Classificação
+Results.Rank,Rank,Rang,Rg - Rk,,Placering,Место,Rank,Platz,Posición,Classificação
 Results.RequestedWeight,Requested Weight,Poids Demandé,,,Ønsket vægt,Заявленный вес,Önskad vikt,Benötigtes Gewicht,Peso solicitado,Peso Solicitado
 Results.Sinclair,Sinclair,Sinclair,,,Sinclair,Синклер,Sinclair,Sinclair,Sinclair,Sinclair
 Results.Snatch,Snatch,Arraché,Arraché - Snatch,,Træk,Рывок,Ryck,Reissen,Arr.,Arranco
