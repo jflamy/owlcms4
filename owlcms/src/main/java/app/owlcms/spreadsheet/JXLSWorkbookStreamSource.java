@@ -32,6 +32,7 @@ import com.vaadin.flow.server.VaadinSession;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -137,13 +138,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
         if (!locale.getLanguage().isEmpty()) {
             tryList.add("_" + locale.getLanguage());
         }
-        // always add English as last resort.
+        // try English as last resort.
         if (!locale.getLanguage().equals("en")) {
             tryList.add("_" + "en");
         }
-        if (!locale.getLanguage().equals("en")) {
-            tryList.add("");
-        }
+        tryList.add("");
         return tryList;
     }
 
@@ -241,6 +240,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter {
             getReportingBeans().put("lifters", athletes); // legacy
         }
         Competition competition = Competition.getCurrent();
+        getReportingBeans().put("t", Translator.getMap());
         getReportingBeans().put("competition", competition);
         getReportingBeans().put("session", getGroup()); // legacy
         getReportingBeans().put("group", getGroup());

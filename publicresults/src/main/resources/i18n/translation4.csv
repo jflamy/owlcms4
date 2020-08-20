@@ -547,28 +547,28 @@ Results.MenPerTeam,Men per Team,Hommes par équipe,,,Men per Team,Men per Team,M
 Results.WomenPerTeam,Women per Team,Femmes par équipe,,,Women per Team,Women per Team,Women per Team,Women per Team,Women per Team,Women per Team
 Results.DetailsPerAthlete,Details per Athlete,Détails par athlète,,,Details per Athlete,Details per Athlete,Details per Athlete,Details per Athlete,Details per Athlete,Details per Athlete
 Results.cleanJerk,Clean&Jerk,Épaulé-jeté,,,Stød,Толчок,Stöt,Stossen,Envión,Arremesso
-Results.AgeGroup,Age Gr.,Gr. Age.,Gr. Age. - Age Gr.,,Aldesgruppe,Возрастная категория,Åldersgrupp,Alterskl.,Grupos por edades,Idade Gr.
+Results.AgeGroup,Age Gr.,Gr. Age.,,,Aldesgruppe,Возрастная категория,Åldersgrupp,Alterskl.,Grupos por edades,Idade Gr.
 Results.AttemptsDone,"{0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}","{0,choice,0#Aucun essai.|1#1 essai effectué.|1<{0} essais effectués.}",,,"{0,choice,0#Ingen løft afviklet.|1#1 løft afviklet.|1<{0} løft afviklet.}",Всего попыток выполнено: {0},"{0,choice,0#Inga försök gjorda.|1#1 försök gjort. |1<{0} gjorda försök.}","{0,choice,0#Keine Versuche fertig.|1#1 Versuch fertig.|1<{0} Versuche fertig.}","{0,choice,0#No se hicieron intentos.|1#1 intento hecho.|1<{0} intetos ralizados.}","{0,choice,0#Nenhuma Tentativa Concluída.|1#nº 1 Tentativa Concluída.|1<{0} Tentativas Concluídas.}"
-Results.Birth,Born,Naiss.,Naiss. - Born,,Født,Год,Född,Gebohren,Nacimiento,Nascimento
+Results.Birth,Born,Naiss.,,,Født,Год,Född,Gebohren,Nacimiento,Nascimento
 Results.BodyWeight,B.W.,Poids,,,Vægt,С.В.,B.W.,Kgw.,P. C.,B. W.
-Results.Category,Cat.,Cat.,Cat.,,Vægtklasse,Кат.,Klass,Gwkl.,Cat.,Categoria
-Results.Clean_and_Jerk,Clean&Jerk,Épaulé-jeté,Épaulé-jeté - Clean&Jerk,,Stød,Толчок,Stöt,Stossen,Envión,Arremesso
+Results.Category,Cat.,Cat.,,,Vægtklasse,Кат.,Klass,Gwkl.,Cat.,Categoria
+Results.Clean_and_Jerk,Clean&Jerk,Épaulé-jeté,,,Stød,Толчок,Stöt,Stossen,Envión,Arremesso
 Results.GroupLiftType,Group {0} {1},Groupe {0} {1},,,Gruppe {0} {1},Поток {0}. {1},Grupp{0} {1},Gruppe {0} {1},Grupo {0} {1},Grupo {0} {1}
 Results.KgSymbol,kg,kg,,,kg,\u0020кг,kg,kg,kg,kg
 Results.LiftingOrder,Lifting Order,Ordre de passage,,,Rækkefølge,Очередность выполнения попыток,Lyftordning,Reihenfolge,Orden en competencia,Ordem de Levantamento
-Results.Name,Name,Nom,Nom - Name,,Navn,"Фамилия, Имя",Namn,Name,Nombre,Nome
+Results.Name,Name,Nom,,,Navn,"Фамилия, Имя",Namn,Name,Nombre,Nome
 Results.Needed,Kg Needed,Kg Requis,,,Kg fra 1. plads,Кг Необходимо,Kg behövs,Kg wird benötigt,Kg Necesario,Kg Necessário
 Results.NextAttempt,Next Attempt,Prochain essai,,,Næste forsøg,Следующая попытка,Nästa försök,Nächster Versuch,Proximo Intento,Próxima Tentativa
-Results.Rank,Rank,Rang,Rg - Rk,,Placering,Место,Rank,Platz,Posición,Classificação
+Results.Rank,Rank,Rang,,,Placering,Место,Rank,Platz,Posición,Classificação
 Results.RequestedWeight,Requested Weight,Poids Demandé,,,Ønsket vægt,Заявленный вес,Önskad vikt,Benötigtes Gewicht,Peso solicitado,Peso Solicitado
 Results.Sinclair,Sinclair,Sinclair,,,Sinclair,Синклер,Sinclair,Sinclair,Sinclair,Sinclair
-Results.Snatch,Snatch,Arraché,Arraché - Snatch,,Træk,Рывок,Ryck,Reissen,Arr.,Arranco
-Results.Start,Start,Départ,Départ - Start,,Start,Номер,Start,Startnr.,Empezar,Próximo
-Results.Team,Team,Équipe,Équipe - Team,,Hold,Команда,Förening,Verein,Equipo,Equipe
+Results.Snatch,Snatch,Arraché,,,Træk,Рывок,Ryck,Reissen,Arr.,Arranco
+Results.Start,Start,Départ,,,Start,Номер,Start,Startnr.,Empezar,Próximo
+Results.Team,Team,Équipe,,,Hold,Команда,Förening,Verein,Equipo,Equipe
 Results.TopSinclair,Top Sinclair,Meilleurs Sinclair,,,Top Sinclair,Результаты (Синклер),Bästa Sinclair,Top Sinclair,Top Sinclair,Top Sinclair
 Results.TopSinclairMen,Top Sinclair - Men,Meilleurs Sinclair - Hommes,,,Top Sinclair - Mænd,Синклер - Мужчины,Bästa Sinclair - Herrar,Top Sinclair - männlich,Mejor Sinclair; Masculino,Melhor Sinclair; Masculino
 Results.TopSinclairWomen,Top Sinclair - Women,Meilleurs Sinclair - Femme,,,Top Sinclair - Kvinder,Синклер - Женщины,BästaSinclair - Damer,Top Sinclair - weiblich,Mejor Sinclair; Femenino,Melhor Sinclair; Feminino
-Results.Total,Total,Total,Total,,Tokamp,Сумма,Total,Gesamt,Total,Total
+Results.Total,Total,Total,,,Tokamp,Сумма,Total,Gesamt,Total,Total
 Results.Leaders,Leaders:,Meneurs: ,,,Leaders:,Лидеры потока в весовой категории:,Leaders:,Rangliste:,Líderes,Líderes:
 Results.WaitingNextGroup,Waiting for next group.,En attente du prochain groupe.,,,Venter på næste gruppe.,Ждём следующий поток.,Waiting for next group.,Warte auf die nächste Gruppe,Esperando el próximo grupo.,Esperando Pelo Próximo Grupo.
 Results.TimeAllowed,Allowed,Alloué,,,Allokeret,Разрешено,Allowed,Erlaubt,Permitido,Permitido
@@ -584,3 +584,13 @@ Results.TopTeamsSinclairWomen,Top Team Sinclair - Women,Meilleurs Sinclair par �
 Results.max,Max,Max,,,Max,Мак,Max,Max,Max,Máx
 Results.TeamRank,Rank within Team,Classement dans l'équipe,,,Rank within Team,Rank within Team,Rank within Team,Rank within Team,Rank within Team,Rank within Team
 Results.PointsScored,Points scored for Team,Points marqués pour l'équipe,,,Points scored for Team,Points scored for Team,Points scored for Team,Points scored for Team,Points scored for Team,Points scored for Team
+Results.Membership,Memb.,# Fed.,,,Medl.,Memb.,Memb.,Land,Memb.,Memb.
+Results.Start,Start,Dép.,,,#,Start,Start,Stnr.,Start,Start
+Results.Lot,Lot,Sort,,,Lodt.,Lot,Lot,Los,Lot,Lot
+Results.Best,Best,Meilleur,,,Bedste,Best,Best,Best,Best,Best
+Results.Snatch_abbrev,Snatch,Arr.,,,Træk,Snatch,Snatch,Rei.,Arr.,Arran.
+Results.CJ_abbrev,C&J,E.-J.,,,Stød,C&J,C&J,St.,Env.,Arrem.
+Results.Controller,Controller,Contrôleur,,,Kontrollant,Контролер,Kontrollant,Kontrolleur,Controlador,Controlador
+Results.Declaration_abbrev,decl.,décl.,,,decl.,decl.,decl.,decl.,decl.,decl.
+Results.Entry_abbrev,Entry,Tot.Entrée,Qual.,,Entry,Entry,Entry,Entry,Entry,Entry
+JuryPresident,president,président,,,president,president,president,president,president,president
