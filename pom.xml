@@ -24,7 +24,7 @@
 
     <properties>
 
-        <revision>4.10.0-alpha01</revision>
+        <revision>4.10.0-alpha04</revision>
         
         <!-- hard-coded paths -->
         <!-- jre location for bundling with windows installer -->
