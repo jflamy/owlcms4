@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kubesailTemplate: kubesail/postgres
+  name: postgres
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  template:
+    metadata:
+      labels:
+        app: postgres
+        part-of: owlcms
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:9.6.13
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 10m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: postgres-config
+          volumeMounts:
+            - mountPath: /var/lib/postgres
+              name: postgres-data
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: owlcms
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: owlcms
+        part-of: owlcms
+    spec:
+      containers:
+        - name: owlcms
+          image: owlcms-docker-containers.bintray.io/owlcms:4.10.0-alpha04
+          envFrom:
+            - secretRef:
+                name: owlcms-config
+            - secretRef:
+                name: publicresults-config
+            - secretRef:
+                name: postgres-config
+          ports:
+            - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: publicresults
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: publicresults
+        part-of: owlcms
+    spec:
+      containers:
+        - name: publicresults
+          image: owlcms-docker-containers.bintray.io/publicresults:4.10.0-alpha04
+          envFrom:
+            - secretRef:
+                name: publicresults-config
+          ports:
+            - containerPort: 8080
