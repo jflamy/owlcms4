@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
@@ -28,6 +29,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Transient;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
@@ -321,9 +323,9 @@ public class Competition {
             List<Resource> resourceList = new ResourceWalker().getResourceList("/templates/competitionBook",
                     ResourceWalker::relativeName, null);
             for (Resource r : resourceList) {
-                if (this.isMasters() && r.getFileName().startsWith("Masters_")) {
+                if (this.isMasters() && r.getFileName().startsWith("Masters")) {
                     return r.getFileName();
-                } else if (r.getFileName().startsWith("Total_")) {
+                } else if (r.getFileName().startsWith("Total")) {
                     return r.getFileName();
                 }
             }
@@ -794,6 +796,11 @@ public class Competition {
         reportingBeans.clear();
 
         reportingBeans.put("competition", Competition.getCurrent());
+        reportingBeans.put("groups", GroupRepository.findAll().stream().sorted((a,b) -> {
+            int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
+            if (compare != 0) return compare;
+            return compare = ObjectUtils.compare(a.getPlatform(), b.getPlatform(), true);
+        }).collect(Collectors.toList()));
         reportingBeans.put("t",Translator.getMap());
         
         sortedAthletes = AthleteSorter.resultsOrderCopy(athletes, Ranking.SNATCH);
