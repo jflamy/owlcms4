@@ -6,4 +6,4 @@ resources:
 - services.yaml
 - deployments.yaml
 commonLabels:
-  version: 4.10.0-alpha01
+  version: 4.10.0-alpha04
