@@ -24,14 +24,13 @@
 
     <properties>
 
+        <!-- this value is used only for local mvn invocations, in order to pull jars and containers from a recent build. When building, 
+            the build pipeline overrides with -Drevision - see azure-pipelines.yml -->
         <revision>4.10.0-alpha04</revision>
-        
+
         <!-- hard-coded paths -->
         <!-- jre location for bundling with windows installer -->
         <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>
-
-        <!-- setting below is for JDK 11 -->
-        <!-- <jre.directory>C:\Dev\Java\java-runtime</jre.directory> -->
 
         <!-- windows installer compiler -->
         <innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
