@@ -51,7 +51,7 @@ spec:
     spec:
       containers:
         - name: owlcms
-          image: owlcms-docker-containers.bintray.io/owlcms
+          image: owlcms-docker-containers.bintray.io/owlcms:${project.version}
           envFrom:
             - secretRef:
                 name: owlcms-config
@@ -76,7 +76,7 @@ spec:
     spec:
       containers:
         - name: publicresults
-          image: owlcms-docker-containers.bintray.io/publicresults
+          image: owlcms-docker-containers.bintray.io/publicresults:${project.version}
           envFrom:
             - secretRef:
                 name: publicresults-config

@@ -16,7 +16,9 @@ If working under Windows WSL2, the following steps are required for preparation
 
 Docker Desktop includes a Kubernetes cluster.
 
-### Full deployment without certificates
+### Without certificates
+
+#### Initial Setup
 
 1. For the remaining steps, you need to point to the correct cluster definition
 
@@ -37,16 +39,21 @@ Docker Desktop includes a Kubernetes cluster.
    127.0.0.1 r.local
    ```
 
-4. Apply the customized configuration
 
-   ```bash
-   export KUBECONFIG=~/.kube/config
-   kubectl kustomize target/k8s/overlays/local-nocerts | kubectl apply -f -
-   ```
+#### For each release
+
+Obtain the k8s.zip file for the release, unzip and go to that folder.  You can generate the same content by using the  `mvn -DyamlOnly=true clean package` command in the source directory (the output will be in target/k8s)
+
+```bash
+export KUBECONFIG=~/.kube/config
+kubectl kustomize k8s/overlays/local-nocerts | kubectl apply -f -
+```
 
 ### Full deployment with certificates
 
 For a more complete deployment using an ingress controller and running both owlcms and publicresults, you can look at the following recipe.
+
+#### Initial Setup with certificates
 
 1. For the remaining steps, you need to point to the correct cluster definition
 
@@ -86,16 +93,22 @@ For a more complete deployment using an ingress controller and running both owlc
    127.0.0.1 r.jflamy.dev
    ```
 
-7. Update and apply the customized configuration  (from the owlcms-docker/target/k8s directory or after extracting target/k8s.zip)
+#### For each release
 
-   ```bash
-   mvn -DyamlOnly=true clean package
-   kubectl kustomize overlays/local-jflamy-dev | kubectl apply -f -
-   ```
+Obtain the k8s.zip file for the release, unzip and go to that folder.  You can generate the same content by using the  `mvn -DyamlOnly=true clean package` command in the source directory (the output will be in target/k8s)
+
+```bash
+export KUBECONFIG=~/.kube/config
+kubectl kustomize k8s/overlays/local-jflamy-dev | kubectl apply -f -
+```
 
 ## K3S Deployment
 
-Deployment under K3S is similar to Docker Studio with the full configuration. You should install go-wsl2-hosts services because there is no port forwarding from Windows when using K3S.  Contrary to docker-desktop, you would not be able to easily connect to the cluster from outside.  Of course, if running on a native Ubuntu or a Ubuntu VM, these restrictions go away.
+This setup is excellent for running on Linux, or for local testing on Windows WSL2 (under Windows, you would need to setup port forwarding to port 443 to be able to connect from outside the local machine). 
+
+#### Initial Setup with certificates
+
+1. If running on Windows, make sure you have installed the `go-wsl2-hosts` as explained at the top of this page.
 
 2. Install k3s on WSL2 Ubuntu
 
@@ -111,43 +124,57 @@ Deployment under K3S is similar to Docker Studio with the full configuration. Yo
 
 3. There is no need to install an ingress controller, traefik is installed by default
 
-4. For the remaining steps Point to the correct cluster configuration
+4. For the remaining steps, point to the correct cluster configuration
 
    ```bash
    export KUBECONFIG=~/.kube/k3s.yaml
    ```
 
-5. Generate the two secrets for TLS authentication
+5. Generate certificates manually for your development domain. 
+
+   - Since the development environment is not visible to the outside, we cannot use an http challenge with letsencrypt, so we generate a wildcard certificate manually.
+
+   - You can follow this [tutorial](https://www.digitalocean.com/community/tutorials/how-to-acquire-a-let-s-encrypt-certificate-using-dns-validation-with-acme-dns-certbot-on-ubuntu-18-04) for generating the wildcard certificates
+
+6. Go to the directory containing your generated certificate, and generate the two secrets for TLS authentication.
 
    ```bash
    kubectl create secret tls o-jflamy-dev --key privkey.pem --cert fullchain.pem
    kubectl create secret tls r-jflamy-dev --key privkey.pem --cert fullchain.pem
    ```
 
-6. Apply the customized configuration
+#### For each release
 
-   ```bash
-   mvn -DyamlOnly=true clean package
-   export KUBECONFIG=~/.kube/k3s.yaml
-   kubectl kustomize target/k8s/overlays/local-jflamy-dev | kubectl apply -f -
-   ```
+Obtain the k8s.zip file for the release, unzip and go to that folder.  You can generate the same content by using the  `mvn -DyamlOnly=true clean package` command in the source directory (the output will be in target/k8s)
 
-## KubeSail Deployment (or other managed Kubernetes)
+```bash
+export KUBECONFIG=~/.kube/k3s.yaml
+kubectl kustomize k8s/overlays/local-jflamy-dev | kubectl apply -f -
+```
+
+## KubeSail Deployment
 
 KubeSail (https://kubesail.com) is a cloud KaaS (Kubernetes as a service) provider.
+
+#### Initial Setup
 
 1. Kubesail uses cert-manager HTTP challenges.
    - follow their instructions to define your own custom domain
    - the examples in kubesail-jflamy-dev use the secrets populated automatically by kubesail.
    
-2. You need to capture a cluster configuration file from your provider.  For example, if `~/.kube/sailconfig` is available for a kubesail.com cluster, then deployment can take place with
+2. Kubesail can use nginx as an ingress controller.  Select that option when creating your cluster
+
+3. You need to capture the cluster configuration file -- see the "Details".  For example, if `~/.kube/sailconfig` is available for a kubesail.com cluster, then deployment can take place with
    ```bash
    export KUBECONFIG=~/.kube/sailconfig
    ```
 
-3. To update the configuration and apply:
 
-   ```bash
-   mvn -DyamlOnly=true clean package
-   kubectl kustomize target/k8s/overlays/kubesail-jflamy-dev | kubectl apply -f -
-   ```
+#### For each release
+
+Obtain the k8s.zip file for the release, unzip and go to that folder.  You can generate the same content by using the  `mvn -DyamlOnly=true clean package` command in the source directory (the output will be in target/k8s)
+
+```bash
+export KUBECONFIG=~/.kube/sailconfig
+kubectl kustomize k8s/overlays/kubesail-jflamy-dev | kubectl apply -f -
+```

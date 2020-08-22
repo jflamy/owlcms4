@@ -4,9 +4,9 @@ bases:
 - ../../base
 images:
   - name: owlcms-docker-containers.bintray.io/owlcms
-    newTag: 4.9.2-rc01
+    newTag: 4.10.0-alpha01
   - name: owlcms-docker-containers.bintray.io/owlcms
-    newTag: 4.9.2-rc01  
+    newTag: 4.10.0-alpha01  
 resources:
 - networkpolicies.yaml
 - ingress.yaml
