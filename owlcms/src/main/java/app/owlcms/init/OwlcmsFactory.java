@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,8 @@ import ch.qos.logback.classic.Logger;
  * @author owlcms
  */
 public class OwlcmsFactory {
+    
+    private static CountDownLatch latch = new CountDownLatch(1);
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsFactory.class);
     static {
@@ -133,5 +136,13 @@ public class OwlcmsFactory {
             fop.init(new LinkedList<Athlete>(), new ProxyAthleteTimer(fop), new ProxyBreakTimer(fop), false);
             fopByName.put(name, fop);
         }
+    }
+
+    public static CountDownLatch getInitializationLatch() {
+        return latch;
+    }
+
+    public static void setInitializationLatch(int i) {
+        latch = new CountDownLatch(i);
     }
 }

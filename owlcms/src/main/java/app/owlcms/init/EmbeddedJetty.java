@@ -47,11 +47,11 @@ public class EmbeddedJetty {
     private CountDownLatch latch;
 
     public EmbeddedJetty() {
-        this.latch = new CountDownLatch(0);
+        this.setLatch(new CountDownLatch(0));
     }
 
     public EmbeddedJetty(CountDownLatch latch) {
-        this.latch = latch;
+        this.setLatch(latch);
     }
 
     /**
@@ -94,6 +94,7 @@ public class EmbeddedJetty {
         try {
             server.start();
             startLogger.info("started on port {}", port);
+            Main.initData();
             StartupUtils.startBrowser();
             latch.countDown();
             server.join();
@@ -109,6 +110,14 @@ public class EmbeddedJetty {
                 e.printStackTrace();
             }
         }
+    }
+
+    public CountDownLatch getLatch() {
+        return latch;
+    }
+
+    public void setLatch(CountDownLatch latch) {
+        this.latch = latch;
     }
 
 }
