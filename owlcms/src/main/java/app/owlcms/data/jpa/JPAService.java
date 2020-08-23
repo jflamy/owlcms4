@@ -36,6 +36,7 @@ import javax.persistence.spi.PersistenceUnitInfo;
 
 import org.h2.tools.Server;
 import org.hibernate.dialect.H2Dialect;
+import org.hibernate.hikaricp.internal.HikariCPConnectionProvider;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.slf4j.LoggerFactory;
@@ -282,6 +283,7 @@ public class JPAService {
     }
 
     private static ImmutableMap<String, Object> jpaProperties() {
+        String cp = HikariCPConnectionProvider.class.getCanonicalName();
         ImmutableMap<String, Object> vals = new ImmutableMap.Builder<String, Object>()
                 .put(HBM2DDL_AUTO, "update")
                 .put(SHOW_SQL, false)
@@ -292,14 +294,14 @@ public class JPAService {
                 .put("hibernate.javax.cache.provider", "org.ehcache.jsr107.EhcacheCachingProvider")
                 .put("hibernate.javax.cache.missing_cache_strategy", "create")
                 .put("javax.persistence.sharedCache.mode", "ALL").put("hibernate.c3p0.min_size", 5)
-                .put("hibernate.c3p0.max_size", 20).put("hibernate.c3p0.acquire_increment", 5)
-                .put("hibernate.c3p0.timeout", 84200).put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
-                .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
-                .put("hibernate.connection.provider_class","com.zaxxer.hikari.hibernate.HikariConnectionProvider")
+//                .put("hibernate.c3p0.max_size", 20).put("hibernate.c3p0.acquire_increment", 5)
+//                .put("hibernate.c3p0.timeout", 84200).put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
+//                .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
+                .put("hibernate.connection.provider_class",cp)
                 .put("hibernate.hikari.minimumIdle", "5")
                 .put("hibernate.hikari.maximumPoolSize", "10")
                 .put("hibernate.hikari.idleTimeout", "0")
-                .put("hibernate.hikari.initializationFailTimeout", "5000")
+                .put("hibernate.hikari.initializationFailTimeout", "60000")
                 .build();
         return vals;
     }

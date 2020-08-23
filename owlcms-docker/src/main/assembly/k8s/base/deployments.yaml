@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:9.6.13
-          imagePullPolicy: Always
+          image: postgres:12.4
           resources:
             requests:
               cpu: 10m
@@ -39,6 +38,26 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: publicresults
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: publicresults
+    spec:
+      containers:
+        - name: publicresults
+          image: owlcms-docker-containers.bintray.io/publicresults:${project.version}
+          envFrom:
+            - secretRef:
+                name: publicresults-config
+          ports:
+            - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: owlcms
 spec:
   replicas: 1
@@ -57,25 +76,5 @@ spec:
                 name: publicresults-config
             - secretRef:
                 name: postgres-config
-          ports:
-            - containerPort: 8080
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: publicresults
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: publicresults
-    spec:
-      containers:
-        - name: publicresults
-          image: owlcms-docker-containers.bintray.io/publicresults:${project.version}
-          envFrom:
-            - secretRef:
-                name: publicresults-config
           ports:
             - containerPort: 8080
