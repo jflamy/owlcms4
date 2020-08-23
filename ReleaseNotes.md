@@ -1,7 +1,8 @@
-* Changes for release 4.10.0-alpha06  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.10.0-alpha07  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+  - [x] Fix: Waiting too long for database before starting web server causes occasional 502 errors on Kubernetes (#383) 
   - [x] Translation: Excel results files (starting weights, group results, final package) are now generated in the current language (#273)
   - [x] Enhancement: Competition group schedule and officials now produced as part of the final results package (#382)
-  - [x] Technical: tweaking the Kubernetes manifests (k8s.zip in the release)
+  - [x] Technical: Kubernetes manifest now released as an asset.
   
 * Key Highlights from recent stable releases
 
