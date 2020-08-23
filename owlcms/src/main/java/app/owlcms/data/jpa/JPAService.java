@@ -295,6 +295,11 @@ public class JPAService {
                 .put("hibernate.c3p0.max_size", 20).put("hibernate.c3p0.acquire_increment", 5)
                 .put("hibernate.c3p0.timeout", 84200).put("hibernate.c3p0.preferredTestQuery", "SELECT 1")
                 .put("hibernate.c3p0.testConnectionOnCheckout", true).put("hibernate.c3p0.idle_test_period", 500)
+                .put("hibernate.connection.provider_class","com.zaxxer.hikari.hibernate.HikariConnectionProvider")
+                .put("hibernate.hikari.minimumIdle", "5")
+                .put("hibernate.hikari.maximumPoolSize", "10")
+                .put("hibernate.hikari.idleTimeout", "0")
+                .put("hibernate.hikari.initializationFailTimeout", "5000")
                 .build();
         return vals;
     }
