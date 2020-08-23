@@ -11,12 +11,10 @@ spec:
     metadata:
       labels:
         app: postgres
-        part-of: owlcms
     spec:
       containers:
         - name: postgres
-          image: postgres:9.6.13
-          imagePullPolicy: Always
+          image: postgres:12.4
           resources:
             requests:
               cpu: 10m
@@ -40,31 +38,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: owlcms
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: owlcms
-        part-of: owlcms
-    spec:
-      containers:
-        - name: owlcms
-          image: owlcms-docker-containers.bintray.io/owlcms:4.10.0-alpha04
-          envFrom:
-            - secretRef:
-                name: owlcms-config
-            - secretRef:
-                name: publicresults-config
-            - secretRef:
-                name: postgres-config
-          ports:
-            - containerPort: 8080
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: publicresults
 spec:
   replicas: 1
@@ -72,13 +45,36 @@ spec:
     metadata:
       labels:
         app: publicresults
-        part-of: owlcms
     spec:
       containers:
         - name: publicresults
-          image: owlcms-docker-containers.bintray.io/publicresults:4.10.0-alpha04
+          image: owlcms-docker-containers.bintray.io/publicresults:4.10.0-alpha06
           envFrom:
             - secretRef:
                 name: publicresults-config
+          ports:
+            - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: owlcms
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: owlcms
+    spec:
+      containers:
+        - name: owlcms
+          image: owlcms-docker-containers.bintray.io/owlcms:4.10.0-alpha06
+          envFrom:
+            - secretRef:
+                name: owlcms-config
+            - secretRef:
+                name: publicresults-config
+            - secretRef:
+                name: postgres-config
           ports:
             - containerPort: 8080
