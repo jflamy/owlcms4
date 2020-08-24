@@ -11,10 +11,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
@@ -29,11 +31,12 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.NavigationPage;
-import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.spreadsheet.JXLSRegistration;
 import app.owlcms.ui.home.HomeNavigationContent;
 import app.owlcms.ui.shared.BaseNavigationContent;
+import app.owlcms.ui.shared.DownloadButtonFactory;
 import app.owlcms.ui.shared.OwlcmsRouterLayout;
 import app.owlcms.utils.DebugUtils;
 import app.owlcms.utils.URLUtils;
@@ -74,15 +77,20 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 //        download.add(downloadButton);
 //        download.setWidth("100%");
 //
-        LazyDownloadButton downloadButton = new LazyDownloadButton(
-                getTranslation("DownloadRegistrationTemplate"),
-                new Icon(VaadinIcon.DOWNLOAD_ALT),
-                () -> "registration"
-                        // + "_" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-                        + ".xls",
-                () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
+        
+//        LazyDownloadButton downloadButton = new LazyDownloadButton(
+//                getTranslation("DownloadRegistrationTemplate"),
+//                new Icon(VaadinIcon.DOWNLOAD_ALT),
+//                () -> "registration"
+//                        // + "_" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+//                        + ".xls",
+//                () -> this.getClass().getResourceAsStream("/templates/registration/RegistrationTemplate.xls"));
 
-        Div downloadDiv = new Div(downloadButton);
+        Div downloadDiv = DownloadButtonFactory.createDynamicDownloadButton("registration",
+                getTranslation("DownloadRegistrationTemplate"), new JXLSRegistration(UI.getCurrent()));
+//        Div downloadDiv = new Div(downloadButton);
+        Optional<Component> content = downloadDiv.getChildren().findFirst();
+        content.ifPresent(c -> ((Button)c).setWidth("93%"));
         downloadDiv.setWidthFull();
         Button upload = new Button(getTranslation("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
                 buttonClickEvent -> new UploadDialog().open());
