@@ -122,7 +122,15 @@ public class StartupUtils {
         response = response1;
         if (response == 200) {
             URL appURL = new URL("http", hostName, serverPort, "");
-            desktop.browse(appURL.toURI());
+            String os = System.getProperty("os.name").toLowerCase();
+            if (desktop != null) {
+                desktop.browse(appURL.toURI());
+            } else if (os.contains("win")) {
+                Runtime rt = Runtime.getRuntime();
+                rt.exec("rundll32 url.dll,FileProtocolHandler " + appURL.toURI());
+            } else {
+                return false;
+            }
             return true;
         }
         return false;
@@ -138,25 +146,19 @@ public class StartupUtils {
 
     public static void startBrowser() {
         try {
+            InetAddress localMachine = InetAddress.getLocalHost();
+            String hostName = localMachine.getHostName();
+            Desktop desktop = null;
             if (Desktop.isDesktopSupported()) {
-                Desktop desktop = Desktop.getDesktop();
-                try {
-                    InetAddress localMachine = InetAddress.getLocalHost();
-                    String hostName = localMachine.getHostName();
-
-                    boolean opened = openBrowser(desktop, hostName);
-                    if (!opened) {
-                        openBrowser(desktop, "127.0.0.1");
-                    }
-                } catch (Exception e) {
-                    mainLogger.error(LoggerUtils.stackTrace(e));
-                }
-            } else {
-                logger./**/warn("Cannot start browser.");
+                desktop = Desktop.getDesktop();
+            }
+            // if no desktop, will attempt Windows-specific technique
+            boolean ok = openBrowser(desktop, hostName);
+            if (!ok) {
+                logger./**/warn("Cannot start browser on {}", System.getProperty("os.name"));
             }
         } catch (Throwable t) {
-            // missing AWT support
-            logger./**/warn("Cannot start browser.");
+            logger./**/warn("Cannot start browser: {}", t);
         }
     }
 
