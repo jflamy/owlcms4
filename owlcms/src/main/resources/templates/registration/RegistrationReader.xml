@@ -2,10 +2,6 @@
 <workbook>
 	<worksheet idx="0">
 		<section startRow="0" endRow="6">
-			<mapping cell="A1">competition.federation</mapping>
-			<mapping cell="A2">competition.federationAddress</mapping>
-			<mapping cell="A3">competition.federationWebSite</mapping>
-			<mapping cell="B4">competition.federationEMail</mapping>
 			<mapping cell="I1">competition.competitionName</mapping>
 			<mapping cell="I2">competition.competitionSite</mapping>
 			<mapping cell="I3">competition.competitionOrganizer</mapping>
