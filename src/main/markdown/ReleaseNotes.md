@@ -1,6 +1,5 @@
 * Changes for release ${revision}  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
-  - [x] Fix: Waiting too long for database before starting web server causes occasional 502 errors on Kubernetes (#383) 
-  - [x] Translation: Excel results files (starting weights, group results, final package) are now generated in the current language (#273)
+  - [x] Translation: Excel files for registration, athlete cards, starting weights, group results and final package are now generated using the translation file for the current language (#273)
   - [x] Enhancement: Competition group schedule and officials now produced as part of the final results package (#382)
   - [x] Technical: Kubernetes manifest now released as an asset.
   
