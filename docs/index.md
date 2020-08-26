@@ -4,7 +4,7 @@ OWLCMS version 4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!
 
 ## Downloads and Setup
 
-Several installation options are possible. Stand-alone installations run on a laptop and do not require an internet access for running the competition. Cloud installation requires a good connection during the competition, but only browsers are used at the competition site.  For more details and diagrams, see the [Installation Overview](Installation Overview) and [Equipment Setup](EquipmentSetup) pages.
+Several installation options are possible. Stand-alone installations run on a laptop and do not require an internet access for running the competition. Cloud installation requires a good connection during the competition, but only browsers are used at the competition site.  For a comparison of options and diagrams, see the [Installation Overview](InstallationOverview) and [Equipment Setup](EquipmentSetup) pages.
 
   * [Windows Stand-alone Installation](LocalWindowsSetup)
   * [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
