@@ -4,13 +4,12 @@ OWLCMS version 4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!
 
 ## Downloads and Setup
 
-Setup packages and Installation Instructions are available for
+Several installation options are possible. Stand-alone installations run on a laptop and do not require an internet access for running the competition. Cloud installation requires a good connection during the competition, but only browsers are used at the competition site.  For more details and diagrams, see the [Installation Overview](Installation Overview) and [Equipment Setup](EquipmentSetup) pages.
+
   * [Windows Stand-alone Installation](LocalWindowsSetup)
   * [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
   * [Heroku Cloud Installation](Cloud)
   * [Kubernetes](https://github.com/jflamy-dev/owlcms4-prerelease/releases/latest) (see the README.md file in the k8s.zip file)
-
-Stand-alone installations run on a laptop and do not require an internet access for running the competition. Cloud installation requires a good connection during the competition, but only browsers are used at the competition site. See the [Equipment Setup](EquipmentSetup) page for more details.
 
 ## Features and Demo
 
