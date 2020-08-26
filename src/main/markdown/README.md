@@ -18,7 +18,8 @@ If there is good internet communication at the competition site, there is no nee
 
 ![Slide9](docs/img/PublicResults/CloudExplained/Slide9.SVG)
 
-* [Heroku Cloud Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Cloud)
+* [Heroku Cloud Installation Instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Cloud)
+* Heroku Cloud releases for for [owlcms](https://github.com/${env.REPO_OWNER}/${env.H_REPO_NAME}/releases/latest) and [publicresults](https://github.com/${env.REPO_OWNER}/${env.P_REPO_NAME}/releases/latest)
 
 #### Stand-alone: Laptop installation
 
@@ -38,6 +39,7 @@ See the following instructions
 
   * [Windows Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalWindowsSetup)
 * [Linux or Mac Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalLinuxMacSetup)
+* [Release repository](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest) for installers
 
 ### Virtual Competitions and Individual Scoreboards
 

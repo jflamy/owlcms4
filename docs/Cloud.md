@@ -13,7 +13,7 @@ The installation process for Heroku has been completely redone, and is now extre
 
 **2. Go to the releases repository and start the process**
 
-The Heroku releases directory is located at https://github.com/owlcms/owlcms4-heroku/releases/latest.  Click the big `Deploy to Heroku` button.
+The Heroku releases directory is located at [this location](https://github.com/jflamy-dev/owlcms-heroku-prerelease/releases/latest). Click the big `Deploy to Heroku` button.
 
 ![010_deployButton](img/Heroku/010_deployButton.png)
 
@@ -34,14 +34,14 @@ Enter the name that will be used on all your competition site laptops and displa
 **6. Optional: Time zone configuration**
 Go back to your https://heroku.com home page.  Select your application, then `Settings`, then `Reveal Config Vars`.
 
-- We strongly suggest you also set `TZ` which is your time zone.   Pick your TZ Database Name (which will something similar to America/New_York or Europe/Paris) from [this list.](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) 
+- We strongly suggest you also set `TZ` which is your time zone.   Use [this list.](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) tick a city in the same time zone as your location : this will something similar to `America/New_York` or `Europe/Paris`. 
 
 ## Control access to the application
 
 In a gym setting, people can read the web addresses on the screens, and one day, some "funny" person will log in to the system and be tempted to mess things up.
 - You should therefore set a PIN or Password that officials will be required to type when first logging in.  This is done on via the `Prepare Competition` page, using the `Technical Configuration` button.
 
-![051_editURL](img/PublicResults/051_editURL.png)
+![053_editPIN](img/PublicResults/053_editPIN.png)
 
 - If running from a competition site, you can restrict access to the cloud application to come only from your competition site router. The access list is a comma-separated list of allowed IPv4 addresses.   In order to find the proper value:
 
@@ -61,31 +61,6 @@ See the [Configuration Parameters](./Configuration.md ':include') page to see ad
 
 
 
-## Kubernetes
-
-Support for Kubernetes is considered *beta*, in order to gather feedback.
-
-Kubernetes is an open standard for running applications.  It is supported by most cloud providers. A low-cost (7US$ per month) provider of Kubernetes hosting is https://kubesail.com .
-
-Configuration files that work with minikube, Docker Desktop, and with kubesail can be found at https://github.com/jflamy/owlcms4/tree/develop/owlcms-docker/src/main/assembly/k8s 
-
-- Checkout you own copy of these files.  The `kustomize` tool is used to assemble the deployment manifests.
-  
-- For minikube or Docker Desktop, use
-  
-  ```
-kubectl kustomize overlays/local | kubectl apply -f -
-  ```
-
-- For kubesail, copy and edit the files in overlays/kubesail-jflamy-dev to your own directory (myk8s for example).  Change the host name in the `ingress` file, and the whitelisting values in `networkingpolicies`.
-  After making sure that your KUBECONFIG environment variable points to the file that contains the configuration and certificates you copied and pasted from kubesail, you can run
-
-```
-  kubectl kustomize overlays/myk8s | kubectl apply -f -
 ```
 
-- The Docker images are located in the following repository https://bintray.com/owlcms/containers/owlcms 
-  
-  ```
-  
-  ```
+```
