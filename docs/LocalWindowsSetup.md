@@ -1,6 +1,6 @@
 ## Windows Installation
 
-- **Windows Installer** : Get the current installation file called `owlcms_setup.exe` from the <https://github.com/owlcms/owlcms4/releases/latest> page (see the "Assets" section after the notes).
+- **Windows Installer** : Get the current installation file called `owlcms_setup.exe` from the [releases page](https://github.com/jflamy/owlcms4/releases/latest)  (see the "Assets" section below the release notes).
 
 ![zip](img\LocalInstall\010_setupexe.png)
 
