@@ -1,9 +1,9 @@
 # OWLCMS - Olympic Weightlifting Competition Management System 
-This software is a complete rewrite of `owlcms` which has been used to manage Olympic Weightlifting competitions since 2009. 
+This software is the 4<sup>th</sup> generation and a full rewrite of `owlcms` which has been used to manage Olympic Weightlifting competitions since 2009. 
 
 ### Features, Documentation and Demo
 
-See the application [Web Site](https://jflamy-dev.github.io/owlcms4-prerelease/#) for a full overview.  See [this page](https://jflamy-dev.github.io/owlcms4-prerelease/#/Demo) for a live demo.
+See the application [Web Site](https://jflamy-dev.github.io/owlcms4-prerelease/#) for a full overview.  See [this page](https://jflamy-dev.github.io/owlcms4-prerelease/#/Demo) for a live demo.  The software can be run in several languages, currently English, French, Danish, Russian, German, Spanish, Swedish and Ukrainian.
 
 ### Basic Installation Options
 Several installation options are possible, depending on what is available at the competition site
@@ -12,7 +12,7 @@ Several installation options are possible, depending on what is available at the
 
 If there is good internet communication at the competition site, there is no need to install anything locally. 
 
-- There is a one-click install procedure to a free (0$) cloud service called Heroku (a division of Salesforce.com). 
+- There is a one-click install procedure to the free (0$) tier of the reputable Heroku cloud service. 
 - The install will create your own private copy of the application, with your own database.
 - The owlcms software runs as a web site. All the various display screens and devices connect to the cloud using the competition site's wifi or ethernet network.
 
@@ -31,7 +31,7 @@ If there is no Internet connectivity at your competition site, you can use a sta
 
 - You can run owlcms on the same machine as one of the officials.  It is often the case that owlcms runs on the same machine as the announcer or the competition secretary.  In the simplest setups, there is just the announcer, and maybe one scoreboard.
 
-- You can referee using hand signals, flags, phones, or dedicated devices. See [this page](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing)
+- You can referee using hand signals or flags,  with phones, or with dedicated refereeing devices. See [this page](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing)
 
   ![Slide1](docs/img/PublicResults/CloudExplained/Slide7.SVG)
 
@@ -43,9 +43,9 @@ See the following instructions
 
 ### Virtual Competitions and Individual Scoreboards
 
-There are additional modules available to support more involved scenarios.  For example, it is possible to have individual scoreboards available to every coach -- supporting physical distancing.  This can also be used to provide individual scoreboards to every member of the public watching the competition remotely.
+There are additional modules available to support more advanced scenarios.  For example, it is possible to have individual scoreboards available to every coach -- supporting physical distancing.  This can also be used to provide live scoreboard updates to members of the public watching the competition remotely.
 
-A competition with a main site and remote gyms connected by videoconferencing could look as follows
+For example, a competition with a main site and remote gyms connected by videoconferencing could look as follows
 
 ![Slide3](docs/img/PublicResults/CloudExplained/Slide3.SVG)
 
