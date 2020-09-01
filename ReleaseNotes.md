@@ -1,4 +1,4 @@
-* Changes for release 4.10.0-rc01  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
+* Changes for release 4.10.0-rc02  ([Full Log](https://github.com/jflamy/owlcms4/issues?utf8=%E2%9C%93&q=is%3Aclosed+is%3Aissue+project%3Ajflamy%2Fowlcms4%2F1+))
   - [x] Enhancement: Ukrainian translation by Yuri Nikolsky.
   - [x] Translation: Excel files for registration, athlete cards, starting weights, group results and final package are now generated using the translation file for the current language (#273)
     - [x] German, French, English, Ukrainian translations updated for Excel.
