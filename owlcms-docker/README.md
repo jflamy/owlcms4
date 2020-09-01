@@ -1,101 +1,180 @@
-## Tag
+# Kubernetes Deployment
 
-When building, the image is given a tag according to what is found in `target/docker-tag/docker-tag.properties` and a `latest` tag.
+## WSL2 Preparation (Windows 10)
 
-## Docker
+If working under Windows WSL2, the following steps are required for preparation
 
-`mvn clean package` will build but not push the image to the remote directory.   
-`docker run -p 8081:8080 owlcms:latest` will run the image that can then be accessed as localhost:8081
-Using `-p` is necessary to forward the 8080 port of the container to the outside world.
-When running the image in this way an ephemeral H2 database is created inside the container, and vanishes when the container is deleted.
+1. The Linux subsystem is NAT-ed and changes IP address on every reboot.  Install the go-wsl2-host service from https://github.com/shayne/go-wsl2-host/releases
 
-### Docker Deployment
+2. Add a `~/.wsl2hosts` files with a space-separated list the host aliases you need, for example
 
-If you use `mvn clean deploy` to deploy the container to the owlcms-docker-containers.bintray.io/owlcms repository.  The repository is public, no credentials needed to pull the image.
+   ```
+   o.jflamy.dev r.jflamy.dev o.local r.local
+   ```
 
-Note: this seems to require 
+## Docker Desktop Kubernetes
 
-```
-docker login -u jflamy -p <API_KEY> owlcms-docker-containers.bintray.io
-```
+Docker Desktop includes a Kubernetes cluster.
 
-to have been run beforehand. Since July 2020 (docker desktop update?)
+### Without certificates
 
+#### Initial Setup
 
-## Kubernetes
+1. For the remaining steps, you need to point to the correct cluster definition
 
-### Local Docker Studio Deployment
+   ```bash
+   export KUBECONFIG=~/.kube/config
+   ```
 
-For a k8s deployment  of owlcms on the local Docker Studio Kubernetes, start a command line i(for example, a Git Bash) in the project directory and run
-
-```bash
-kubectl kustomize target/k8s/overlays/simple | kubectl apply -f -
-```
-
-This will assemble the various manifest files and deploy the version with the docker tag just created.
-
-#### Full deployment with certificates
-
-For a more complete deployment using an ingress controller and running both owlcms and publicresults, you can look at the following recipe.
-
-1. Install the nginx ingress controller into Docker Desktop.  This configuration listens on localhost.
+2. Install the nginx ingress controller into Docker Desktop.  This configuration listens on localhost.
 
    ```bash
    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
    ```
+
+3. If you did not install go-wsl2-hosts, you can add lines to the hosts file `c:\windows\system32\drivers\etc\hosts`
+
+   ```
+   127.0.0.1 o.local
+   127.0.0.1 r.local
+   ```
+
+
+#### For each release
+
+Obtain the k8s.zip file for the release, unzip and go to that folder.  You can generate the same content by using the  `mvn -DyamlOnly=true clean package` command in the source directory (the output will be in target/k8s)
+
+```bash
+export KUBECONFIG=~/.kube/config
+kubectl kustomize k8s/overlays/local-nocerts | kubectl apply -f -
+```
+
+### Full deployment with certificates
+
+For a more complete deployment using an ingress controller and running both owlcms and publicresults, you can look at the following recipe.
+
+#### Initial Setup with certificates
+
+1. For the remaining steps, you need to point to the correct cluster definition
+
+   ```bash
+   export KUBECONFIG=~/.kube/config
+   ```
    
-2. Add a tls certificate secret owlcms-jflamy-dev and publicresults-jflamy-dev.   You can install cert-manager to generate letsencrypt certificates, or you can generate a wildcard certificate manually for your development domain.
+2. Install the nginx ingress controller into Docker Desktop.  This configuration listens on localhost.
+
+   ```bash
+   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/cloud/deploy.yaml
+   ```
+
+3. Generate certificates manually for your development domain. 
+
+   - Since the development environment is not visible to the outside, we cannot use an http challenge with letsencrypt, so we generate a wildcard certificate manually.
 
    - You can follow this [tutorial](https://www.digitalocean.com/community/tutorials/how-to-acquire-a-let-s-encrypt-certificate-using-dns-validation-with-acme-dns-certbot-on-ubuntu-18-04) for generating the wildcard certificates
 
-   - Then go to your certificate directory and use a command line like the following to generate the two secrets (substitute the secret name). Since the certificate is a wildcard, the same certificate is used for both secrets.
+4. (not needed) Copy the certificates back to Windows. 
 
-     ```
-     kubectl create secret tls owlcms-jflamy-dev --key privkey.pem --cert fullchain.pem
-     ```
+   - The files contain secrets, so they are not readable. You will need to chown/chmod them
+   - create a tar for safekeeping; use the --derefence option (-h) to create a tar file, because by default it contains symbolic links 
+   - copy the files from Linux to /mnt/c/Users/...
 
-3. add lines to the hosts file `c:\windows\system32\drivers\etc\hosts`
+5. Generate two secrets. Since the certificate is a wildcard, the same certificate is used for both secrets. Under the Ubuntu bash:
+
+   ```
+   kubectl create secret tls o-jflamy-dev --key privkey.pem --cert fullchain.pem
+   kubectl create secret tls r-jflamy-dev --key privkey.pem --cert fullchain.pem
+   ```
+
+6. If you did not install go-wsl2-hosts, you can add lines to the hosts file `c:\windows\system32\drivers\etc\hosts`
 
    ```
    127.0.0.1 o.jflamy.dev
    127.0.0.1 r.jflamy.dev
    ```
 
-4. Apply the customized configuration
+#### For each release
+
+Obtain the k8s.zip file for the release, unzip and go to that folder.  You can generate the same content by using the  `mvn -DyamlOnly=true clean package` command in the source directory (the output will be in target/k8s)
+
+```bash
+export KUBECONFIG=~/.kube/config
+kubectl kustomize k8s/overlays/local-jflamy-dev | kubectl apply -f -
+```
+
+## K3S Deployment
+
+This setup is excellent for running on Linux, or for local testing on Windows WSL2 (under Windows, you would need to setup port forwarding to port 443 to be able to connect from outside the local machine). 
+
+#### Initial Setup with certificates
+
+1. If running on Windows, make sure you have installed the `go-wsl2-hosts` as explained at the top of this page.
+
+2. Install k3s on WSL2 Ubuntu
+
+   - download the k3s binary from https://github.com/rancher/k3s/releases
+
+   - On WSL2, there is no systemd, so start it manually in a new Ubuntu window (it will hog the console)
+
+     ```
+     sudo ./k3s server
+     ```
+
+   - Copy the k3s.yaml file to ~/.kube
+
+3. There is no need to install an ingress controller, traefik is installed by default
+
+4. For the remaining steps, point to the correct cluster configuration
 
    ```bash
-   kubectl kustomize target/k8s/overlays/localhost | kubectl apply -f -
+   export KUBECONFIG=~/.kube/k3s.yaml
    ```
 
-#### Deployment without certificates
+5. Generate certificates manually for your development domain. 
 
-If you remove the tls sections from the ingress.yaml files, kubernetes will provide a fake certificate and allow access if you insist.
+   - Since the development environment is not visible to the outside, we cannot use an http challenge with letsencrypt, so we generate a wildcard certificate manually.
 
-### Remote Deployment
+   - You can follow this [tutorial](https://www.digitalocean.com/community/tutorials/how-to-acquire-a-let-s-encrypt-certificate-using-dns-validation-with-acme-dns-certbot-on-ubuntu-18-04) for generating the wildcard certificates
 
-1. The specificities are given in the overlays customization.  For example, the domain name used, and the name of the secrets  for certificates generated by cert-manager as provided by the cloud provider.
-2. To deploy elsewhere, a cluster configuration file must be available.  For example, if `~/.kube/sailconfig` is available for a kubesail.com cluster, then deployment can take place with
+6. Go to the directory containing your generated certificate, and generate the two secrets for TLS authentication.
 
+   ```bash
+   kubectl create secret tls o-jflamy-dev --key privkey.pem --cert fullchain.pem
+   kubectl create secret tls r-jflamy-dev --key privkey.pem --cert fullchain.pem
+   ```
+
+#### For each release
+
+Obtain the k8s.zip file for the release, unzip and go to that folder.  You can generate the same content by using the  `mvn -DyamlOnly=true clean package` command in the source directory (the output will be in target/k8s)
+
+```bash
+export KUBECONFIG=~/.kube/k3s.yaml
+kubectl kustomize k8s/overlays/local-jflamy-dev | kubectl apply -f -
 ```
+
+## KubeSail Deployment
+
+KubeSail (https://kubesail.com) is a cloud KaaS (Kubernetes as a service) provider.
+
+#### Initial Setup
+
+1. Kubesail uses cert-manager HTTP challenges.
+   - follow their instructions to define your own custom domain
+   - the examples in kubesail-jflamy-dev use the secrets populated automatically by kubesail.
+   
+2. Kubesail can use nginx as an ingress controller.  Select that option when creating your cluster
+
+3. You need to capture the cluster configuration file -- see the "Details".  For example, if `~/.kube/sailconfig` is available for a kubesail.com cluster, then deployment can take place with
+   ```bash
+   export KUBECONFIG=~/.kube/sailconfig
+   ```
+
+
+#### For each release
+
+Obtain the k8s.zip file for the release, unzip and go to that folder.  You can generate the same content by using the  `mvn -DyamlOnly=true clean package` command in the source directory (the output will be in target/k8s)
+
+```bash
 export KUBECONFIG=~/.kube/sailconfig
-kubectl kustomize target/k8s/overlays/kubesail-jflamy-dev | kubectl apply -f -
+kubectl kustomize k8s/overlays/kubesail-jflamy-dev | kubectl apply -f -
 ```
-
-
-
-### Monitoring on Docker Desktop Kubernetes
-
-In order to monitor using VisualVM or similar tool
-
-1. opening a port. If running kubectl on WSL, and VisualVM on Windows, you need to tell kubectl to listen on the real IP address that Windows can reach, as follows (IP address and pod name need to be substituted with real values.)  Port `1098` is currently hard-wired in the container build.
-
-   ```bash
-   kubectl port-forward --address 172.28.119.147 owlcms-76c8b879cc-t46 1098
-   ```
-
-2. In VisualVM, use the add JMX Connection option, with the following string.  Port `1088` is currently hard-wired in the container build.
-
-    ```
-service:jmx:rmi:///jndi/rmi://172.28.119.147:1088/jmxrmi
-    ```
-

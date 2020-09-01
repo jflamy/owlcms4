@@ -34,6 +34,7 @@
                 <executions>
                     <execution>
                         <id>docker-tag</id>
+                        <phase>compile</phase>
                         <goals>
                             <goal>timestamp-property</goal>
                         </goals>
@@ -81,6 +82,21 @@
                             <filters>target/docker-tag/docker-tag.properties</filters>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>zip</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>k8s</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/main/assembly/zip.xml</descriptor>
+                            </descriptors>
+                            <attach>false</attach>
+                        </configuration>
+                    </execution>                   
                 </executions>
             </plugin>
             <plugin>
@@ -90,15 +106,17 @@
                 <extensions>true</extensions>
                 <configuration>
                     <skipRun>true</skipRun>
+                    <skipBuild>${yamlOnly}</skipBuild>
+                    <skipPush>${yamlOnly}</skipPush>
                     <images>
                         <image>
-                            <name>owlcms:${dockerTag}</name>
+                            <name>owlcms:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
-                                    <tag>${project.version}</tag>
+                                    <!-- tag>${dockerTag}</tag -->
                                 </tags>
-                                <from>adoptopenjdk/openjdk11:latest</from>
+                                <from>adoptopenjdk:11-jre-openj9</from>
                                 <assembly>
                                     <descriptor>owlcms.xml</descriptor>
                                 </assembly>
@@ -115,13 +133,13 @@
                             <registry>owlcms-docker-containers.bintray.io</registry>
                         </image>
                         <image>
-                            <name>publicresults:${dockerTag}</name>
+                            <name>publicresults:${project.version}</name>
                             <build>
                                 <tags>
                                     <tag>latest</tag>
-                                    <tag>${project.version}</tag>
+                                    <!-- tag>${dockerTag}</tag -->
                                 </tags>
-                                <from>adoptopenjdk/openjdk11:latest</from>
+                                <from>adoptopenjdk:11-jre-openj9</from>
                                 <assembly>
                                     <descriptor>publicresults.xml</descriptor>
                                 </assembly>
@@ -142,5 +160,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

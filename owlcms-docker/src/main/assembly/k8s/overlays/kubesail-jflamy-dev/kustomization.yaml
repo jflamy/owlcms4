@@ -3,14 +3,14 @@ kind: Kustomization
 bases:
 - ../../base
 images:
-  - name: owlcms
-    newName: owlcms-docker-containers.bintray.io/owlcms
-    newTag: latest
+  - name: owlcms-docker-containers.bintray.io/owlcms
+    newTag: ${project.version}
+  - name: owlcms-docker-containers.bintray.io/owlcms
+    newTag: ${project.version}  
 resources:
 - networkpolicies.yaml
 - ingress.yaml
 - services.yaml
-- secrets.yaml
 commonLabels:
   environment: production
   

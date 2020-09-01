@@ -2,9 +2,9 @@
 
 OWLCMS is a web-based application. This means that each screen or display is attached to a laptop or miniPC (Windows, Linux, ChromeOS)., and that a browser such as Chrome or Firefox runs on each computer.
 
-The program is extremely scalable.  You can start by using a single laptop to run a club meet (see below for [examples](#local-access-over-a-local-network).) 
+**You can start by using a single laptop to run a club meet** (see below for [examples](#local-access-over-a-local-network).) 
 
-At the opposite end, a full setup for a state competition using refereeing devices might look as follows:
+At the opposite end of the spectrum, a full setup for a state competition using refereeing devices might look as follows:
 
 ![StateCompetition](img/equipment/FullCompetition.svg)
 

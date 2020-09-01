@@ -24,14 +24,13 @@
 
     <properties>
 
-        <revision>4.9.2-rc01</revision>
-        
+        <!-- this value is used only for local mvn invocations, in order to pull jars and containers from a recent build. When building, 
+            the build pipeline overrides with -Drevision - see azure-pipelines.yml -->
+        <revision>4.10.0</revision>
+
         <!-- hard-coded paths -->
         <!-- jre location for bundling with windows installer -->
         <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>
-
-        <!-- setting below is for JDK 11 -->
-        <!-- <jre.directory>C:\Dev\Java\java-runtime</jre.directory> -->
 
         <!-- windows installer compiler -->
         <innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
@@ -225,9 +224,27 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
         <plugins>
+            <!-- plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>docs</directory>
+                            <includes>
+                                <include>Cloud.md</include>
+                                <include>LocalLinuxMacSetup.md</include>
+                                <include>LocalWindowsSetup.md</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin -->
             <plugin>
-                <!-- ensure that ${revision} is substituted in the installed/deployed jars -->
+                <!-- this ensures that ${revision} is substituted in the installed/deployed jars -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
                 <version>1.2.2</version>
@@ -265,41 +282,13 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${basedir}</outputDirectory>
+                            <overwrite>true</overwrite>
                             <resources>
                                 <resource>
                                     <directory>src/main/markdown</directory>
-                                    <exclude>.*</exclude>
                                     <filtering>true</filtering>
                                 </resource>
                             </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.ragedunicorn.tools.maven</groupId>
-                <artifactId>github-release-maven-plugin</artifactId>
-                <version>1.0.4.2</version>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>default-cli</id>
-                        <configuration>
-                            <owner>${github.owner}</owner>
-                            <repository>${github.repository}</repository>
-                            <server>${github.token}</server>
-                            <tagName>${project.version}</tagName>
-                            <name>${project.version}</name>
-                            <targetCommitish>master</targetCommitish>
-                            <body>${project.version}</body>
-                            <releaseNotes>ReleaseNotes.md</releaseNotes>
-                            <prerelease>${github.prerelease}</prerelease>
-                            <assets>
-                                <asset>owlcms/target/owlcms_setup/owlcms_setup.exe</asset>
-                                <asset>owlcms/target/owlcms.zip</asset>
-                                <asset>publicresults/target/publicresults_setup/publicresults_setup.exe</asset>
-                                <asset>publicresults/target/publicresults.zip</asset>
-                            </assets>
                         </configuration>
                     </execution>
                 </executions>

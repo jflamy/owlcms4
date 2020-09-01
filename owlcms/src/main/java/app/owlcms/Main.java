@@ -70,9 +70,10 @@ public class Main {
     public static void main(String... args) throws Exception {
 
         try {
+            OwlcmsFactory.setInitializationLatch(1);
             init();
             startRemoteMonitoring();
-            new EmbeddedJetty().run(serverPort, "/");
+            new EmbeddedJetty(OwlcmsFactory.getInitializationLatch()).run(serverPort, "/");
         } finally {
             tearDown();
         }
@@ -105,18 +106,25 @@ public class Main {
         StartupUtils.setServerPort(serverPort);
         StartupUtils.logStart("owlcms", serverPort);
 
+        // technical initializations
+        System.setProperty("java.net.preferIPv4Stack", "true");
+        System.setProperty("java.net.preferIPv6Addresses", "false");
+        ConvertUtils.register(new DateConverter(null), java.util.Date.class);
+        ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
+
+        return;
+    }
+
+    /**
+     * This method is actually called from EmbeddedJetty immediately after starting the server
+     */
+    public static void initData() {
         // open jar as filesystem; cannot use /; any resource inside the jar will do
         // cannot open the same jar twice.
         ResourceWalker.openFileSystem("/templates");
 
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
-
-        // technical initializations
-        System.setProperty("java.net.preferIPv4Stack", "true");
-        System.setProperty("java.net.preferIPv6Addresses", "false");
-        ConvertUtils.register(new DateConverter(null), java.util.Date.class);
-        ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
 
         // setup database
         JPAService.init(memoryMode, resetMode);
@@ -127,7 +135,6 @@ public class Main {
         injectData(initialData, l);
 
         OwlcmsFactory.getDefaultFOP();
-        return;
     }
 
     protected static void tearDown() {

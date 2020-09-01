@@ -92,7 +92,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 
     private byte[] loadDefaultProtocolTemplate(Locale locale, Competition current) {
         JPAService.runInTransaction((em) -> {
-            String protocolTemplateFileName = "/templates/protocol/ProtocolSheetTemplate_" + locale.getLanguage()
+            String protocolTemplateFileName = "/templates/protocol/Protocol_" + locale.getLanguage()
                     + ".xls";
             InputStream stream = this.getClass().getResourceAsStream(protocolTemplateFileName);
             try {

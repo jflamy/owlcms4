@@ -193,7 +193,7 @@ public class ResourceWalker {
                 }
             });
             localeNames.addAll(englishNames);
-            localeNames.addAll(otherNames);
+            //localeNames.addAll(otherNames);
 
             return localeNames;
         } catch (URISyntaxException | IOException e) {
@@ -205,17 +205,28 @@ public class ResourceWalker {
         String resourceName = filePath.toString();
         int extensionPos = resourceName.lastIndexOf('.');
         String extension = resourceName.substring(extensionPos);
-
-        String suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant() + extension;
-        boolean result = resourceName.endsWith(suffix);
-        if (result) {
+        
+        if (locale == Locale.ENGLISH && !resourceName.contains("_")) {
+            // no suffix is assumed to be ENGLISH
             return true;
         }
 
-        suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + extension;
-        result = resourceName.endsWith(suffix);
-        if (result) {
-            return true;
+        boolean result;
+        String suffix;
+        if (!locale.getVariant().isEmpty()) {
+            suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant() + extension;
+            result = resourceName.endsWith(suffix);
+            if (result) {
+                return true;
+            }
+        }
+
+        if (!locale.getCountry().isEmpty()) {
+            suffix = "_" + locale.getLanguage() + "_" + locale.getCountry() + extension;
+            result = resourceName.endsWith(suffix);
+            if (result) {
+                return true;
+            }
         }
 
         suffix = "_" + locale.getLanguage() + extension;

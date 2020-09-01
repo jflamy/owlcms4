@@ -99,7 +99,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.5</version>
+            <version>42.2.16</version>
         </dependency>
 
         <!-- jpa using hibernate -->
@@ -110,7 +110,7 @@
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-c3p0</artifactId>
+            <artifactId>hibernate-hikaricp</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
 
@@ -351,7 +351,7 @@
                                 </systemProperty>
                                 <systemProperty>
                                     <key>port</key>
-                                    <value>80</value>
+                                    <value>8080</value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>
@@ -374,7 +374,7 @@
                                 </systemProperty>
                                 <systemProperty>
                                     <key>port</key>
-                                    <value>80</value>
+                                    <value>8080</value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>
@@ -401,7 +401,7 @@
                                 </systemProperty>
                                 <systemProperty>
                                     <key>port</key>
-                                    <value>80</value>
+                                    <value>8080</value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>
@@ -428,7 +428,7 @@
                                 </systemProperty>
                                 <systemProperty>
                                     <key>port</key>
-                                    <value>80</value>
+                                    <value>8080</value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>
@@ -455,7 +455,7 @@
                                 </systemProperty>
                                 <systemProperty>
                                     <key>port</key>
-                                    <value>80</value>
+                                    <value>8080</value>
                                 </systemProperty>
                             </systemProperties>
                         </configuration>

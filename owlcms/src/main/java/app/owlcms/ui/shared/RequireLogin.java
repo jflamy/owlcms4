@@ -10,6 +10,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 
 import app.owlcms.data.config.Config;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.ui.home.LoginView;
 import app.owlcms.utils.AccessUtils;
@@ -18,7 +19,10 @@ public interface RequireLogin extends BeforeEnterObserver {
 
     @Override
     public default void beforeEnter(BeforeEnterEvent event) {
-
+        try {
+            OwlcmsFactory.getInitializationLatch().await();
+        } catch (InterruptedException e) {
+        }
         boolean isAuthenticated = OwlcmsSession.isAuthenticated();
         if (isAuthenticated) {
             // no check required
