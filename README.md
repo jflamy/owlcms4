@@ -1,11 +1,9 @@
 # OWLCMS - Olympic Weightlifting Competition Management System 
-`owlcms` has been used to manage Olympic Weightlifting competitions since 2009.  This version is the 4<sup>th</sup> generation of the software, and is a full rewrite to leverage current technologies (cloud, containers, web components)
-
-The application is used worldwide, and has so far been translated in English, French, Danish, Russian, German, Ukrainian, Swedish, Spanish and Portuguese.
+This software is a complete rewrite of `owlcms` which has been used to manage Olympic Weightlifting competitions since 2009. 
 
 ### Features, Documentation and Demo
 
-See the application [Web Site](https://jflamy-dev.github.io/owlcms4-prerelease/#) for a full overview and documentation.  A  [live demo site](https://jflamy-dev.github.io/owlcms4-prerelease/#/Demo) site is available if you want to follow the along the documentation.
+See the application [Web Site](https://owlcms.github.io/owlcms4/#) for a full overview.  See [this page](https://owlcms.github.io/owlcms4/#/Demo) for a live demo.
 
 ### Basic Installation Options
 Several installation options are possible, depending on what is available at the competition site
@@ -14,18 +12,18 @@ Several installation options are possible, depending on what is available at the
 
 If there is good internet communication at the competition site, there is no need to install anything locally. 
 
-- There is a one-click install procedure to the free tier (0$) of the reputable Heroku cloud service. 
+- There is a one-click install procedure to a free (0$) cloud service called Heroku (a division of Salesforce.com). 
 - The install will create your own private copy of the application, with your own database.
 - The owlcms software runs as a web site. All the various display screens and devices connect to the cloud using the competition site's wifi or ethernet network.
 
 ![Slide9](docs/img/PublicResults/CloudExplained/Slide9.SVG)
 
-* [Heroku Cloud Installation Instructions](https://jflamy-dev.github.io/owlcms4-prerelease/#/Cloud)
-* Heroku Cloud releases for for [owlcms](https://github.com/jflamy-dev/owlcms-heroku-prerelease/releases/latest) and [publicresults](https://github.com/jflamy-dev/publicresults-heroku-prerelease/releases/latest)
+* [Heroku Cloud Installation Instructions](https://owlcms.github.io/owlcms4/#/Cloud)
+* Heroku Cloud releases for for [owlcms](https://github.com/owlcms/owlcms-heroku/releases/latest) and [publicresults](https://github.com/owlcms/publicresults-heroku/releases/latest)
 
 #### Stand-alone: Laptop installation
 
-If there is no Internet connectivity at your competition site, you can use a stand-alone setup and run the software on a laptop (Windows, Mac or Linux)
+If there is no Internet connectivity at your competition site, you can use a stand-alone setup and run the software on a laptop.
 
 - The software runs on a laptop (labeled owlcms in the diagram). 
 
@@ -33,30 +31,30 @@ If there is no Internet connectivity at your competition site, you can use a sta
 
 - You can run owlcms on the same machine as one of the officials.  It is often the case that owlcms runs on the same machine as the announcer or the competition secretary.  In the simplest setups, there is just the announcer, and maybe one scoreboard.
 
-- You can referee using hand signals, flags, phones, or dedicated devices. See [this page](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing)
+- You can referee using hand signals, flags, phones, or dedicated devices. See [this page](https://owlcms.github.io/owlcms4/#/Refereeing)
 
   ![Slide1](docs/img/PublicResults/CloudExplained/Slide7.SVG)
 
 See the following instructions
 
-  * [Windows Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
-* [Linux or Mac Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
-* [Release repository](https://github.com/jflamy-dev/owlcms4-prerelease/releases/latest) for installers
+  * [Windows Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalWindowsSetup)
+* [Linux or Mac Stand-alone Installation](https://owlcms.github.io/owlcms4/#/LocalLinuxMacSetup)
+* [Release repository](https://github.com/owlcms/owlcms4/releases/latest) for installers
 
 ### Virtual Competitions and Individual Scoreboards
 
-There are additional modules available to support more advanced scenarios.  For example, it is possible to have individual scoreboards available to every coach -- supporting physical distancing.  Similarly, it is possible to provide live scoreboard updates to all members of the public watching the competition remotely.
+There are additional modules available to support more involved scenarios.  For example, it is possible to have individual scoreboards available to every coach -- supporting physical distancing.  This can also be used to provide individual scoreboards to every member of the public watching the competition remotely.
 
-For example, a competition with a main site and remote gyms connected by videoconferencing could look as follows
+A competition with a main site and remote gyms connected by videoconferencing could look as follows
 
 ![Slide3](docs/img/PublicResults/CloudExplained/Slide3.SVG)
 
 The following pages describe these options and others.
 
-*	[Distancing using Individual Scoreboards](https://jflamy-dev.github.io/owlcms4-prerelease/#/Distancing)
-*	[Cloud Installation of the publicresults Application](https://jflamy-dev.github.io/owlcms4-prerelease/#/Remote)
-*	[Virtual Competitions and Remote Referees](https://jflamy-dev.github.io/owlcms4-prerelease/#/Virtual)
-*	[Video-Conference Setup](https://jflamy-dev.github.io/owlcms4-prerelease/#/Video)
+*	[Distancing using Individual Scoreboards](https://owlcms.github.io/owlcms4/#/Distancing)
+*	[Cloud Installation of the publicresults Application](https://owlcms.github.io/owlcms4/#/Remote)
+*	[Virtual Competitions and Remote Referees](https://owlcms.github.io/owlcms4/#/Virtual)
+*	[Video-Conference Setup](https://owlcms.github.io/owlcms4/#/Video)
 
 ### Pre-releases
 
@@ -70,13 +68,13 @@ Refer to the following [page](Releases) for the various modules and releases, in
 
 ### Licensing and Notes
 
-This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/jflamy-dev/owlcms4-prerelease/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
+This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/owlcms/owlcms4/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
 
-If however you wish to provide the software as a service to others (including by hosting it), or if you create a modified version, the license *requires* you to make full sources and building instructions available for free &ndash; just like this software is (see the [License](https://github.com/jflamy-dev/owlcms4-prerelease/blob/master/LICENSE.txt) for details.)
+If however you wish to provide the software as a service to others (including by hosting it), or if you create a modified version, the license *requires* you to make full sources and building instructions available for free &ndash; just like this software is (see the [License](https://github.com/owlcms/owlcms4/blob/master/LICENSE.txt) for details.)
 
 ### Translation to Other Languages
 
-- You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Translation) if you wish to contribute.
+- You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](https://owlcms.github.io/owlcms4/#/Translation) if you wish to contribute.
 
 ### Credits
 
