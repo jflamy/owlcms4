@@ -1,5 +1,7 @@
 # OWLCMS - Olympic Weightlifting Competition Management System 
-This software is a complete rewrite of `owlcms` which has been used to manage Olympic Weightlifting competitions since 2009. 
+This software is a complete rewrite of `owlcms` which has been used to manage Olympic Weightlifting competitions since 2009. This 4<sup>th</sup> generation of the software uses up-to-date technologies to run both on local machines (Windows, Linux, Mac) or in the cloud (Heroku, Kubernetes)
+
+The application can be used for anything from a club meet using a single laptop all the way up to a national championship with several platform, full jury, integration with streaming, and public internet scoreboards.
 
 ### Features, Documentation and Demo
 
@@ -12,7 +14,7 @@ Several installation options are possible, depending on what is available at the
 
 If there is good internet communication at the competition site, there is no need to install anything locally. 
 
-- There is a one-click install procedure to a free (0$) cloud service called Heroku (a division of Salesforce.com). 
+- There is a one-click install procedure to the free (0$) tier of the Heroku cloud service. 
 - The install will create your own private copy of the application, with your own database.
 - The owlcms software runs as a web site. All the various display screens and devices connect to the cloud using the competition site's wifi or ethernet network.
 
@@ -55,6 +57,14 @@ The following pages describe these options and others.
 *	[Cloud Installation of the publicresults Application](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Remote)
 *	[Virtual Competitions and Remote Referees](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Virtual)
 *	[Video-Conference Setup](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Video)
+
+
+
+### Advanced: Kubernetes
+
+If you wish to run owlcms on your own cloud subscription and are familiar with modern cloud technologies,  you can use the following archive as a starting point. Kubernetes is supported on all the major cloud offerings (Azure, Amazon, Google Cloud) and there are also smaller players that offer simpler Kubernetes-oriented hosting (kubesail.com for example)
+
+- [Kubernetes](
 
 ### Pre-releases
 

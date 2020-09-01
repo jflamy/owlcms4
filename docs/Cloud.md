@@ -13,7 +13,7 @@ The installation process for Heroku has been completely redone, and is now extre
 
 **2. Go to the releases repository and start the process**
 
-The Heroku releases directory is located at [this location](https://github.com/owlcms/owlcms-heroku/releases/latest). Click the big `Deploy to Heroku` button.
+The Heroku releases directory is located at [this location](https://github.com/jflamy-dev/owlcms-heroku-prerelease/releases/latest). Click the big `Deploy to Heroku` button.
 
 ![010_deployButton](img/Heroku/010_deployButton.png)
 
@@ -58,9 +58,3 @@ Note that if you use the OWLCMS_IP or -Dip settings, these will take precedence 
 ## Configuration Parameters
 
 See the [Configuration Parameters](./Configuration.md ':include') page to see additional configuration options in addition to the ones presented on this page.
-
-
-
-```
-
-```

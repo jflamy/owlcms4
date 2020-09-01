@@ -58,9 +58,3 @@ Note that if you use the OWLCMS_IP or -Dip settings, these will take precedence 
 ## Configuration Parameters
 
 See the [Configuration Parameters](./Configuration.md ':include') page to see additional configuration options in addition to the ones presented on this page.
-
-
-
-```
-
-```

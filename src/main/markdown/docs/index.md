@@ -1,16 +1,16 @@
 # Olympic Weightlifting Competition Management System 
 
-OWLCMS version 4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009.  This new version has been rebuilt for robustness and simplicity, and can be [run on the cloud](EquipmentSetup#cloud-access-over-the-internet).
+OWLCMS version 4 is a full rewrite of [owlcms](https://owlcms2.sourceforge.io/#!index.md), which has been used to manage Olympic Weightlifting competitions world-wide since 2009, and has been translated in several languages.
+
+The application can be used for anything from a club meet using a single laptop all the way up to a national championship with several platform, full jury, integration with streaming, and public internet scoreboards.
 
 ## Downloads and Setup
 
-Setup packages and Installation Instructions are available for
-  * [Windows Stand-alone Installation](LocalWindowsSetup)
-  * [Linux or Mac Stand-alone Installation](LocalLinuxMacSetup)
-  * [Heroku Cloud Installation](Cloud)
-  * [Kubernetes](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest) (see the README.md file in the k8s.zip file)
+Several options are available for installation, depending on your needs. See the [Installation Overview](InstallationOverview) page for diagrams and a discussion of the following options:
+  * Stand-alone installs are available for [Windows](LocalWindowsSetup), [Linux](LocalLinuxMacSetup) or [Mac](LocalLinuxMacSetup).  These can be used when the competition site has no internet access, but require more equipment.
+  * Cloud installs for [Heroku](Cloud) (simple, free, recommended) or [Kubernetes](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/download/${revision}/k8s.zip) (advanced).  An internet connection is required at the competition site, but less equipment is required and setup is simpler.
 
-Stand-alone installations run on a laptop and do not require an internet access for running the competition. Cloud installation requires a good connection during the competition, but only browsers are used at the competition site. See the [Equipment Setup](EquipmentSetup) page for more details.
+The [Equipment Setup](EquipmentSetup) page provides more technical details on the recommended physical setup.
 
 ## Features and Demo
 
