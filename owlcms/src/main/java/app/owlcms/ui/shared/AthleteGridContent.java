@@ -165,6 +165,11 @@ public abstract class AthleteGridContent extends VerticalLayout
     protected Button stopTimeButton;
     private HorizontalLayout topBarLeft;
     protected OwlcmsGridLayout crudLayout;
+    private boolean ignoreSwitchGroup;
+
+    public boolean isIgnoreSwitchGroup() {
+        return ignoreSwitchGroup;
+    }
 
     /**
      * Instantiates a new announcer content. Content is created in {@link #setParameter(BeforeEvent, String)} after URL
@@ -745,9 +750,15 @@ public abstract class AthleteGridContent extends VerticalLayout
 //                    if ((newGroup == null && oldGroup != null) || !newGroup.equals(oldGroup)) {
 //                        logger.debug("filter switching group from {} to {}",
 //                                oldGroup != null ? oldGroup.getName() : null,
-//                                newGroup != null ? newGroup.getName() : null);
-                    logger.debug("value changed, switching group");
-                    fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
+//                                newGroup != null ? newGroup.getName() : null);                  
+                    if (isIgnoreSwitchGroup()) {
+                        //logger.debug("ignoring self-originating change");
+                        setIgnoreSwitchGroup(false);
+                    } else {
+                        setIgnoreSwitchGroup(true); // prevent recursion on self-generated event.
+                        //logger.debug("value changed, switching group, from \n{}",LoggerUtils.stackTrace());
+                        fop.getFopEventBus().post(new FOPEvent.SwitchGroup(newGroup, this));
+                    }
                     oldGroup = newGroup;
 //                        // we listen to the UI switch group that will result from the FOP switchgroup
 //                    } else {
@@ -761,6 +772,10 @@ public abstract class AthleteGridContent extends VerticalLayout
             });
         });
         crudLayout.addFilterComponent(getGroupFilter());
+    }
+
+    private void setIgnoreSwitchGroup(boolean b) {
+        ignoreSwitchGroup = b;
     }
 
     protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
