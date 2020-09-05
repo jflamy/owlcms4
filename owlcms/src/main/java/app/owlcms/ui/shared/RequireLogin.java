@@ -19,10 +19,7 @@ public interface RequireLogin extends BeforeEnterObserver {
 
     @Override
     public default void beforeEnter(BeforeEnterEvent event) {
-        try {
-            OwlcmsFactory.getInitializationLatch().await();
-        } catch (InterruptedException e) {
-        }
+        waitDBInitialized();
         boolean isAuthenticated = OwlcmsSession.isAuthenticated();
         if (isAuthenticated) {
             // no check required
@@ -53,6 +50,13 @@ public interface RequireLogin extends BeforeEnterObserver {
         } else {
             // already on login view, do nothing.
             // login will send to home.
+        }
+    }
+
+    public default void waitDBInitialized() {
+        try {
+            OwlcmsFactory.getInitializationLatch().await();
+        } catch (InterruptedException e) {
         }
     }
 

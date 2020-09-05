@@ -161,6 +161,7 @@ public class Scoreboard extends PolymerTemplate<Scoreboard.ScoreboardModel>
      * Instantiates a new results board.
      */
     public Scoreboard() {
+        waitDBInitialized();
         timer.setOrigin(this);
         setDarkMode(true);
     }

@@ -162,6 +162,7 @@ public class CurrentAthlete extends PolymerTemplate<CurrentAthlete.CurrentAthlet
      * Instantiates a new results board.
      */
     public CurrentAthlete() {
+        waitDBInitialized();
         timer.setOrigin(this);
         setDarkMode(true);
     }

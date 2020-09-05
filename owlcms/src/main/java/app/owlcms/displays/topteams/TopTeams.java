@@ -120,6 +120,7 @@ public class TopTeams extends PolymerTemplate<TopTeams.TopTeamsModel> implements
      * Instantiates a new results board.
      */
     public TopTeams() {
+        waitDBInitialized();
     }
 
     @Override
