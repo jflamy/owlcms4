@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: owlcms-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: kubesail-letsencrypt
+    certmanager.k8s.io/cluster-issuer: kubesail-letsencrypt
+spec:
+  rules:
+    - host: owlcms.jflamy-dev.usw1.kubesail.net
+      http:
+        paths:
+          - backend:
+              serviceName: owlcms-8080
+              servicePort: 8080
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: publicresults-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: kubesail-letsencrypt
+    certmanager.k8s.io/cluster-issuer: kubesail-letsencrypt
+spec:
+  rules:
+    - host: results.jflamy-dev.usw1.kubesail.net
+      http:
+        paths:
+          - backend:
+              serviceName: publicresults-8080
+              servicePort: 8080
+ 
