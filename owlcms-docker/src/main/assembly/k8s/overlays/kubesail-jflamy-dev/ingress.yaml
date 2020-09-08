@@ -1,13 +1,13 @@
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: owlcms-ingress
+  name: owlcms
   annotations:
     cert-manager.io/cluster-issuer: kubesail-letsencrypt
     certmanager.k8s.io/cluster-issuer: kubesail-letsencrypt
 spec:
   tls:
-    - secretName: owlcms-jflamy-dev
+    - secretName: owlcms-ingress
       hosts:
         - owlcms.jflamy.dev
   rules:
@@ -21,13 +21,13 @@ spec:
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: publicresults-ingress
+  name: publicresults
   annotations:
     cert-manager.io/cluster-issuer: kubesail-letsencrypt
     certmanager.k8s.io/cluster-issuer: kubesail-letsencrypt
 spec:
   tls:
-    - secretName: publicresults-jflamy-dev
+    - secretName: publicresults-ingress
       hosts:
         - results.jflamy.dev
   rules:

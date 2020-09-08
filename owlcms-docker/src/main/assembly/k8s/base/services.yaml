@@ -31,7 +31,7 @@ kind: Service
 metadata:
   name: publicresults-8080
   labels:
-    app: owlcms
+    app: publicresults
 spec:
   ports:
     - name: publicresults-8080

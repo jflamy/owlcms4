@@ -7,7 +7,7 @@ metadata:
     certmanager.k8s.io/cluster-issuer: kubesail-letsencrypt
 spec:
   rules:
-    - host: owlcms
+    - host: "{{OWLCMS_HOST}}"
       http:
         paths:
           - backend:
@@ -23,7 +23,7 @@ metadata:
     certmanager.k8s.io/cluster-issuer: kubesail-letsencrypt
 spec:
   rules:
-    - host: results
+    - host: "{{PUBLICRESULTS_HOST}}"
       http:
         paths:
           - backend:
