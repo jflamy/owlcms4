@@ -6,6 +6,10 @@ metadata:
     cert-manager.io/cluster-issuer: kubesail-letsencrypt
     certmanager.k8s.io/cluster-issuer: kubesail-letsencrypt
 spec:
+  tls:
+    - secretName: owlcms-ingress
+      hosts:
+        - "{{OWLCMS_HOST}}"
   rules:
     - host: "{{OWLCMS_HOST}}"
       http:
@@ -22,6 +26,10 @@ metadata:
     cert-manager.io/cluster-issuer: kubesail-letsencrypt
     certmanager.k8s.io/cluster-issuer: kubesail-letsencrypt
 spec:
+  tls:
+    - secretName: publicresults-ingress
+      hosts:
+        - "{{PUBLICRESULTS_HOST}}"
   rules:
     - host: "{{PUBLICRESULTS_HOST}}"
       http:
