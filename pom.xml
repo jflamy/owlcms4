@@ -28,13 +28,6 @@
             the build pipeline overrides with -Drevision - see azure-pipelines.yml -->
         <revision>4.10.1-alpha01</revision>
 
-        <!-- hard-coded paths -->
-        <!-- jre location for bundling with windows installer -->
-        <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>
-
-        <!-- windows installer compiler -->
-        <innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
-
         <!-- maven configs -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
