@@ -5,7 +5,7 @@ The application can be used for anything from a club meet using a single laptop 
 
 ### Features, Documentation and Demo
 
-See the application [Web Site](https://jflamy-dev.github.io/owlcms4-prerelease/#) for a full overview.  See [this page](https://jflamy-dev.github.io/owlcms4-prerelease/#/Demo) for a live demo.
+See the application [Web Site](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#) for a full overview.  See [this page](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Demo) for a live demo.
 
 ### Basic Installation Options
 Several installation options are possible, depending on what is available at the competition site
@@ -20,8 +20,8 @@ If there is good internet communication at the competition site, there is no nee
 
 ![Slide9](docs/img/PublicResults/CloudExplained/Slide9.SVG)
 
-* [Heroku Cloud Installation Instructions](https://jflamy-dev.github.io/owlcms4-prerelease/#/Cloud)
-* Heroku Cloud releases for for [owlcms](https://github.com/jflamy-dev/owlcms-heroku-prerelease/releases/latest) and [publicresults](https://github.com/jflamy-dev/publicresults-heroku-prerelease/releases/latest)
+* [Heroku Cloud Installation Instructions](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Cloud)
+* Heroku Cloud releases for for [owlcms](https://github.com/${env.REPO_OWNER}/${env.H_REPO_NAME}/releases/latest) and [publicresults](https://github.com/${env.REPO_OWNER}/${env.P_REPO_NAME}/releases/latest)
 
 #### Stand-alone: Laptop installation
 
@@ -33,15 +33,15 @@ If there is no Internet connectivity at your competition site, you can use a sta
 
 - You can run owlcms on the same machine as one of the officials.  It is often the case that owlcms runs on the same machine as the announcer or the competition secretary.  In the simplest setups, there is just the announcer, and maybe one scoreboard.
 
-- You can referee using hand signals, flags, phones, or dedicated devices. See [this page](https://jflamy-dev.github.io/owlcms4-prerelease/#/Refereeing)
+- You can referee using hand signals, flags, phones, or dedicated devices. See [this page](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Refereeing)
 
   ![Slide1](docs/img/PublicResults/CloudExplained/Slide7.SVG)
 
 See the following instructions
 
-  * [Windows Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalWindowsSetup)
-* [Linux or Mac Stand-alone Installation](https://jflamy-dev.github.io/owlcms4-prerelease/#/LocalLinuxMacSetup)
-* [Release repository](https://github.com/jflamy-dev/owlcms4-prerelease/releases/latest) for installers
+  * [Windows Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalWindowsSetup)
+* [Linux or Mac Stand-alone Installation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/LocalLinuxMacSetup)
+* [Release repository](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases/latest) for installers
 
 ### Virtual Competitions and Individual Scoreboards
 
@@ -53,10 +53,10 @@ A competition with a main site and remote gyms connected by videoconferencing co
 
 The following pages describe these options and others.
 
-*	[Distancing using Individual Scoreboards](https://jflamy-dev.github.io/owlcms4-prerelease/#/Distancing)
-*	[Cloud Installation of the publicresults Application](https://jflamy-dev.github.io/owlcms4-prerelease/#/Remote)
-*	[Virtual Competitions and Remote Referees](https://jflamy-dev.github.io/owlcms4-prerelease/#/Virtual)
-*	[Video-Conference Setup](https://jflamy-dev.github.io/owlcms4-prerelease/#/Video)
+*	[Distancing using Individual Scoreboards](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Distancing)
+*	[Cloud Installation of the publicresults Application](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Remote)
+*	[Virtual Competitions and Remote Referees](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Virtual)
+*	[Video-Conference Setup](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Video)
 
 
 
@@ -78,13 +78,13 @@ Refer to the following [page](Releases) for the various modules and releases, in
 
 ### Licensing and Notes
 
-This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/jflamy-dev/owlcms4-prerelease/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
+This is free, as-is, no warranty *whatsoever* software. If you just want to run it as is for your own club or federation, just download from the [Releases](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/releases) repository and go ahead. You should perform your own tests to see if the software is fit for your own purposes and circumstances.
 
-If however you wish to provide the software as a service to others (including by hosting it), or if you create a modified version, the license *requires* you to make full sources and building instructions available for free &ndash; just like this software is (see the [License](https://github.com/jflamy-dev/owlcms4-prerelease/blob/master/LICENSE.txt) for details.)
+If however you wish to provide the software as a service to others (including by hosting it), or if you create a modified version, the license *requires* you to make full sources and building instructions available for free &ndash; just like this software is (see the [License](https://github.com/${env.REPO_OWNER}/${env.O_REPO_NAME}/blob/master/LICENSE.txt) for details.)
 
 ### Translation to Other Languages
 
-- You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](https://jflamy-dev.github.io/owlcms4-prerelease/#/Translation) if you wish to contribute.
+- You are welcome to translate the screens and reports to your own language, or fix a translation.  Refer to the [translation documentation](https://${env.REPO_OWNER}.github.io/${env.O_REPO_NAME}/#/Translation) if you wish to contribute.
 
 ### Credits
 
