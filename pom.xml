@@ -27,16 +27,6 @@
         <!-- this value is used only for local mvn invocations, in order to pull jars and containers from a recent build. When building, 
             the build pipeline overrides with -Drevision - see azure-pipelines.yml -->
         <revision>4.10.1</revision>
-<<<<<<< HEAD
-
-        <!-- hard-coded paths -->
-        <!-- jre location for bundling with windows installer -->
-        <jre.directory>C:\Dev\Java\jdk-8.0.232.09-hotspot\jre</jre.directory>
-
-        <!-- windows installer compiler -->
-        <innosetup.exe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</innosetup.exe>
-=======
->>>>>>> origin/develop
 
         <!-- maven configs -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
