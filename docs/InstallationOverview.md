@@ -52,4 +52,4 @@ The following pages describe these options and others.
 
 If you wish to run owlcms on your own cloud subscription and are familiar with modern cloud technologies,  you can use the following archive as a starting point. Kubernetes is supported on all the major cloud offerings (Azure, Amazon, Google Cloud) and there are also smaller players that offer simpler Kubernetes-oriented hosting (kubesail.com for example)
 
-- [Kubernetes]()
+- [Kubernetes](Kubernetes)
